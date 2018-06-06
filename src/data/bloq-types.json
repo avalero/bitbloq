@@ -1,0 +1,27 @@
+{
+  "bloqTypes": [
+    {
+      "name": "DigitalWrite",
+      "type": "statement",
+      "content": [
+        {
+          "type": "label",
+          "text": "Set value of x to y"
+        },
+        {
+          "type": "selectComponent"
+        }
+      ]
+    },
+    {
+      "name": "OnButtonPressed",
+      "type": "event",
+      "content": [
+        {
+          "type": "label",
+          "text": "When button is pressed"
+        }
+      ]
+    }
+  ]
+}
