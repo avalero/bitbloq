@@ -5,20 +5,24 @@ export function startDraggingBloq(bloq, x, y, offsetX, offsetY) {
     x,
     y,
     offsetX,
-    offsetY
+    offsetY,
   };
 }
 
-export function dragBloq(x, y) {
+export function dragBloq(x, y, canvasX, canvasY) {
   return {
     type: 'DRAG_BLOQ',
     x,
-    y
+    y,
+    canvasX,
+    canvasY
   };
 }
 
-export function stopDraggingBloq() {
+export function stopDraggingBloq(x, y) {
   return {
-    type: 'STOP_DRAGGING_BLOQ'
+    type: 'STOP_DRAGGING_BLOQ',
+    x,
+    y,
   };
 }

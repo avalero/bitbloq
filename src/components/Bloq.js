@@ -27,17 +27,17 @@ const strokes = {
   statement: 'hsl(350, 80%, 40%)',
 };
 
-const Bloq = ({className, bloq}) => {
+const Bloq = ({className, bloq, ghost}) => {
   const bloqType = resolveType(bloq.type) || {};
 
   return (
     <g transform={`translate(${bloq.x},${bloq.y})`}>
       <Path
-        stroke={strokes[bloqType.type]}
-        fill={fills[bloqType.type]}
+        stroke={ghost ? '#ccc': strokes[bloqType.type]}
+        fill={ghost ? '#ccc' : fills[bloqType.type]}
         d={paths[bloqType.type]}
       />
-      {bloqType.content && bloqType.content[0] &&
+      {bloqType.content && bloqType.content[0] && !ghost &&
         <Text fill="white" x="12" y="32" >{bloqType.content[0].text}</Text>
       }
       {bloq.next && (
