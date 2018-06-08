@@ -1,7 +1,9 @@
-const initialState = {
-  bloqs: [{
+import {generateCode} from '../lib/code-generation';
+
+const initialBloqs = [
+  {
     type: 'OnButtonPressed',
-    x: 100,
+    x: 140,
     y: 200,
     next: {
       type: 'DigitalWrite',
@@ -9,10 +11,13 @@ const initialState = {
         type: 'DigitalWrite'
       }
     }
-  }],
+  }
+];
+
+const initialState = {
+  bloqs: initialBloqs,
+  code: generateCode(initialBloqs),
   draggingBloq: null,
-  draggingX: 0,
-  draggingY: 0,
   draggingOffsetX: 0,
   draggingOffsetY: 0
 };
@@ -22,9 +27,11 @@ const bloqs = (state = initialState, action) => {
     case 'START_DRAGGING_BLOQ':
       return {
         ...state,
-        draggingBloq: action.bloq,
-        draggingX: action.x,
-        draggingY: action.y,
+        draggingBloq: {
+          ...action.bloq,
+          x: action.x - action.offsetX,
+          y: action.y - action.offsetY
+        },
         draggingOffsetX: action.offsetX,
         draggingOffsetY: action.offsetY
       };
@@ -32,8 +39,11 @@ const bloqs = (state = initialState, action) => {
     case 'DRAG_BLOQ':
       return {
         ...state,
-        draggingX: action.x,
-        draggingY: action.y
+        draggingBloq: {
+          ...state.draggingBloq,
+          x: action.x - state.draggingOffsetX,
+          y: action.y - state.draggingOffsetY
+        }
       };
 
     case 'STOP_DRAGGING_BLOQ':
@@ -42,10 +52,7 @@ const bloqs = (state = initialState, action) => {
         draggingBloq: null,
         bloqs: [
           ...state.bloqs,
-          {
-            x: state.draggingX - state.draggingOffsetX,
-            y: state.draggingY - state.draggingOffsetY
-          }
+          state.draggingBloq
         ]
       };
 

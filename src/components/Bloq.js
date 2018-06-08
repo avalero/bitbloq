@@ -6,6 +6,10 @@ const Path = styled.path`
   cursor: grab;
 `;
 
+const Text = styled.text`
+  user-select: none;
+`;
+
 const paths = {
   event:
     'm 0,0 c 25,-22 71,-22 96,0 H 190 a 4,4 0 0,1 4,4 v 40  a 4,4 0 0,1 -4,4 H 48   c -2,0 -3,1 -4,2 l -4,4 c -1,1 -2,2 -4,2 h -12 c -2,0 -3,-1 -4,-2 l -4,-4 c -1,-1 -2,-2 -4,-2 H 4 a 4,4 0 0,1 -4,-4 z',
@@ -23,9 +27,8 @@ const strokes = {
   statement: 'hsl(350, 80%, 40%)',
 };
 
-const Bloq = ({onMouseDown, className, bloq}) => {
+const Bloq = ({className, bloq}) => {
   const bloqType = resolveType(bloq.type) || {};
-  console.log(bloqType);
 
   return (
     <g transform={`translate(${bloq.x},${bloq.y})`}>
@@ -35,7 +38,7 @@ const Bloq = ({onMouseDown, className, bloq}) => {
         d={paths[bloqType.type]}
       />
       {bloqType.content && bloqType.content[0] &&
-        <text fill="white" x="12" y="32" >{bloqType.content[0].text}</text>
+        <Text fill="white" x="12" y="32" >{bloqType.content[0].text}</Text>
       }
       {bloq.next && (
         <g transform="translate(0,48)">
