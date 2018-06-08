@@ -38,7 +38,7 @@ class Editor extends React.Component {
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
 
-    this.canvas = React.createRef();
+    this.canvasSvgRef = React.createRef();
   }
 
   componentDidMount() {
@@ -51,17 +51,25 @@ class Editor extends React.Component {
     window.removeEventListener('mouseup', this.onMouseUp);
   }
 
+  getCanvasPosition(e) {
+    const svg = this.canvasSvgRef.current;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    return pt.matrixTransform(svg.getScreenCTM().inverse());
+  }
+
   onMouseMove(e) {
     const {draggingBloq, dragBloq} = this.props;
     if (draggingBloq) {
-      dragBloq(e.clientX, e.clientY);
+      const {x, y} = this.getCanvasPosition(e);
+      dragBloq(e.clientX, e.clientY, x, y);
     }
   }
 
   onMouseUp(e) {
-    debugger;
-    console.log(this.canvas.getPosition(e.clientX, e.clientY));
-    this.props.stopDraggingBloq();
+    const {x, y} = this.getCanvasPosition(e);
+    this.props.stopDraggingBloq(x, y);
   }
 
   render() {
@@ -70,7 +78,7 @@ class Editor extends React.Component {
     return (
       <Container>
         <Toolbar />
-        <Canvas ref={this.canvas} />
+        <Canvas svgRef={this.canvasSvgRef} />
         <DragCanvas ref={(svg) => this.dragCanvas = svg}>
           {draggingBloq && <DraggingBloq bloq={draggingBloq} />}
         </DragCanvas>

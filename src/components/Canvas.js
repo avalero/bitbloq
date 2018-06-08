@@ -1,6 +1,6 @@
 import React from 'react';
 import SyntaxHighlighter from 'react-syntax-highlighter/prism';
-import { dark } from 'react-syntax-highlighter/styles/prism';
+import {dark} from 'react-syntax-highlighter/styles/prism';
 import styled, {css} from 'styled-components';
 import {connect} from 'react-redux';
 import {dragBloq} from '../actions/bloqs';
@@ -17,33 +17,19 @@ const Main = styled.svg`
 `;
 
 class Canvas extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.getPosition = this.getPosition.bind(this);
-  }
-
-  getPosition(clientX, clientY) {
-    if (this.svg) {
-      const pt = svg.createSVGPoint();
-      pt.x = clientX;
-      pt.y = clientY;
-      return pt.matrixTransform(svg.getScreenCTM().inverse());
-    }
-  }
-
   render() {
-    const {bloqs, code} = this.props;
+    const {bloqs, code, svgRef, ghostBloq} = this.props;
     const codeString = '(num) => num + 1';
 
     return (
       <Container>
-        <Main ref={(svg) => this.svg = svg}>
-          {bloqs.map((bloq, i) => (
-            <Bloq key={i} bloq={bloq} />
-          ))}
+        <Main innerRef={svgRef}>
+          {bloqs.map((bloq, i) => <Bloq key={i} bloq={bloq} />)}
+          {ghostBloq && <Bloq bloq={ghostBloq} ghost />}
         </Main>
-        <SyntaxHighlighter language='c' style={dark}>{code}</SyntaxHighlighter>
+        <SyntaxHighlighter language="c" style={dark}>
+          {code}
+        </SyntaxHighlighter>
       </Container>
     );
   }
@@ -51,11 +37,16 @@ class Canvas extends React.Component {
 
 const mapStateToProps = ({bloqs}) => ({
   bloqs: bloqs.bloqs,
-  code: bloqs.code
+  code: bloqs.code,
+  ghostBloq: bloqs.snapArea && {
+    ...bloqs.draggingBloq,
+    x: bloqs.snapArea.x + bloqs.snapArea.width / 2,
+    y: bloqs.snapArea.y + bloqs.snapArea.height / 2,
+  },
 });
 
 const mapDispatchToProps = {
-  dragBloq
+  dragBloq,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Canvas);
