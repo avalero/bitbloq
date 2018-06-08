@@ -14,9 +14,11 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const DragCanvas = styled.div`
+const DragCanvas = styled.svg`
   position: absolute;
-  /*pointer-events: none;*/
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
 `;
 
 const DraggingBloq = styled(Bloq).attrs({
@@ -35,6 +37,8 @@ class Editor extends React.Component {
 
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
+
+    this.canvas = React.createRef();
   }
 
   componentDidMount() {
@@ -54,19 +58,21 @@ class Editor extends React.Component {
     }
   }
 
-  onMouseUp() {
+  onMouseUp(e) {
+    debugger;
+    console.log(this.canvas.getPosition(e.clientX, e.clientY));
     this.props.stopDraggingBloq();
   }
 
   render() {
-    const {bloqs, draggingBloq, draggingBloqX, draggingBloqY} = this.props;
+    const {bloqs, draggingBloq} = this.props;
 
     return (
       <Container>
         <Toolbar />
-        <Canvas />
-        <DragCanvas>
-          {draggingBloq && <DraggingBloq x={draggingBloqX} y={draggingBloqY} />}
+        <Canvas ref={this.canvas} />
+        <DragCanvas ref={(svg) => this.dragCanvas = svg}>
+          {draggingBloq && <DraggingBloq bloq={draggingBloq} />}
         </DragCanvas>
       </Container>
     );
@@ -75,9 +81,7 @@ class Editor extends React.Component {
 
 const mapStateToProps = ({bloqs}) => ({
   bloqs: bloqs.bloqs,
-  draggingBloq: bloqs.draggingBloq,
-  draggingBloqX: bloqs.draggingX - bloqs.draggingOffsetX,
-  draggingBloqY: bloqs.draggingY - bloqs.draggingOffsetY
+  draggingBloq: bloqs.draggingBloq
 });
 
 const mapDispatchToProps = {

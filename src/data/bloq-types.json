@@ -11,7 +11,10 @@
         {
           "type": "selectComponent"
         }
-      ]
+      ],
+      "code": {
+        "statement": "digitalWrite(led, HIGH);"
+      }
     },
     {
       "name": "OnButtonPressed",
@@ -21,7 +24,11 @@
           "type": "label",
           "text": "When button is pressed"
         }
-      ]
+      ],
+      "code": {
+        "definitions": "function onButtonPressed() {\n {{nextCode.statement}}}",
+        "setup": "registerCallback(ON_SIGNAL_ACTIVE, onButtonPressed)"
+      }
     }
   ]
 }
