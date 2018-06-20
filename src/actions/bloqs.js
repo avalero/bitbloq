@@ -26,3 +26,10 @@ export function stopDraggingBloq(x, y) {
     y,
   };
 }
+
+export function updateBloq(bloq) {
+  return {
+    type: 'UPDATE_BLOQ',
+    bloq
+  };
+}

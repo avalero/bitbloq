@@ -1,0 +1,15 @@
+{
+  "boards": [
+    {
+      "name": "zumjunior",
+      "code": {
+        "includes": [
+          "BQZUMJunior.h",
+          "BQZUMJuniorPorts.h"
+        ],
+        "definitions": "BQ::ZUMJunior zumJunior;\n",
+        "setup": "zumJunior.setup();\n"
+      }
+    }
+  ]
+}

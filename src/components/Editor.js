@@ -68,8 +68,11 @@ class Editor extends React.Component {
   }
 
   onMouseUp(e) {
+    const {draggingBloq} = this.props;
     const {x, y} = this.getCanvasPosition(e);
-    this.props.stopDraggingBloq(x, y);
+    if (draggingBloq) {
+      this.props.stopDraggingBloq(x, y);
+    }
   }
 
   render() {

@@ -1,33 +1,87 @@
 {
   "bloqTypes": [
     {
-      "name": "DigitalWrite",
+      "name": "TurnOnLed",
       "type": "statement",
       "content": [
         {
           "type": "label",
-          "text": "Set value of x to y"
+          "text": "Turn on"
         },
         {
-          "type": "selectComponent"
+          "type": "selectComponent",
+          "componentClass": "Led",
+          "dataField": "component"
         }
       ],
       "code": {
-        "statement": "digitalWrite(led, HIGH);"
+        "statement": "digitalWrite({{data.component.name}}ColorPin, HIGH);"
+      }
+    },
+    {
+      "name": "TurnOffLed",
+      "type": "statement",
+      "content": [
+        {
+          "type": "label",
+          "text": "Turn off"
+        },
+        {
+          "type": "selectComponent",
+          "componentClass": "Led",
+          "dataField": "component"
+        }
+      ],
+      "code": {
+        "statement": "digitalWrite({{data.component.name}}ColorPin, LOW);"
       }
     },
     {
       "name": "OnButtonPressed",
       "type": "event",
+      "async": true,
       "content": [
         {
           "type": "label",
-          "text": "When button is pressed"
+          "text": "When"
+        },
+        {
+          "type": "selectComponent",
+          "componentClass": "Button",
+          "dataField": "component"
+        },
+        {
+          "type": "label",
+          "text": "is pressed"
         }
       ],
       "code": {
-        "definitions": "function onButtonPressed() {\n {{nextCode.statement}}}",
-        "setup": "registerCallback(ON_SIGNAL_ACTIVE, onButtonPressed)"
+        "definitions": "void {{data.component.name}}_pressed() {\n if({{data.component.name}}PinOn) return;\n{{data.component.name}}PinOn = true;\n{{nextCode.statement}}\n{{finallyCode}}}\n",
+        "statement": "if(digitalRead({{data.component.name}}Pin)) {{data.component.name}}_pressed();",
+        "finally": "{{data.component.name}}PinOn = false;\n"
+      }
+    },
+    {
+      "name": "Delay",
+      "type": "statement",
+      "async": true,
+      "content": [
+        {
+          "type": "label",
+          "text": "Delay"
+        },
+        {
+          "type": "input",
+          "dataField": "delay"
+        },
+        {
+          "type": "label",
+          "text": "seconds"
+        }
+      ],
+      "code": {
+        "definitions": "void delay_{{bloqId}}() {\n {{nextCode.statement}}\n{{finallyCode}}}\n",
+        "statement": "heap.delay({{data.delay}});\nheap.insert(delay_{{bloqId}});\n"
       }
     }
   ]
