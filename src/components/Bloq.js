@@ -1,12 +1,17 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import styled from 'styled-components';
 import {resolveType} from '../lib/bloq-types';
+import ComponentSelect from './ComponentSelect';
 
 const Path = styled.path`
   cursor: grab;
 `;
 
-const Text = styled.text`
+const Content = styled.div`
+  display: flex;
+  color: white;
+  font-size: 20px;
   user-select: none;
 `;
 
@@ -27,26 +32,99 @@ const strokes = {
   statement: 'hsl(350, 80%, 40%)',
 };
 
-const Bloq = ({className, bloq, ghost}) => {
-  const bloqType = resolveType(bloq.type) || {};
-
-  return (
-    <g transform={`translate(${bloq.x},${bloq.y})`}>
-      <Path
-        stroke={ghost ? '#ccc': strokes[bloqType.type]}
-        fill={ghost ? '#ccc' : fills[bloqType.type]}
-        d={paths[bloqType.type]}
-      />
-      {bloqType.content && bloqType.content[0] && !ghost &&
-        <Text fill="white" x="12" y="32" >{bloqType.content[0].text}</Text>
-      }
-      {bloq.next && (
-        <g transform="translate(0,48)">
-          <Bloq bloq={bloq.next} />
-        </g>
-      )}
-    </g>
+const getCompatibleComponents = (componentClass, hardware) => {
+  const {components = []} = hardware;
+  return components.filter(
+    component => component.componentClass === componentClass,
   );
+};
+
+const ContentItem = ({type, bloq, hardware, onChange, ...props}) => {
+  const value = bloq.data && bloq.data[props.dataField];
+
+  switch (type) {
+    case 'label':
+      return <span>{props.text}</span>;
+
+    case 'selectComponent':
+      const components = getCompatibleComponents(
+        props.componentClass,
+        hardware,
+      );
+      return (
+        <ComponentSelect
+          components={components}
+          value={value}
+          onChange={onChange}
+        />
+      );
+
+    case 'input':
+      return (
+        <input
+          type="text"
+          value={value || ''}
+          onChange={e => onChange(e.target.value)}
+        />
+      );
+
+    default:
+      return null;
+  }
+};
+
+class Bloq extends React.Component {
+  renderContent() {
+    const {bloq, hardware, onChange} = this.props;
+    const bloqType = resolveType(bloq.type) || {};
+    const {content = []} = bloqType;
+
+    return (
+      <Content>
+        {content.map((item, i) => (
+          <ContentItem
+            {...item}
+            key={i}
+            bloq={bloq}
+            hardware={hardware}
+            onChange={value =>
+              onChange({
+                ...bloq,
+                data: {...bloq.data, [item.dataField]: value},
+              })
+            }
+          />
+        ))}
+      </Content>
+    );
+  }
+
+  render() {
+    const {className, bloq, ghost, hardware, onChange} = this.props;
+    const bloqType = resolveType(bloq.type) || {};
+
+    return (
+      <g transform={`translate(${bloq.x},${bloq.y})`}>
+        <Path
+          stroke={ghost ? '#ccc' : strokes[bloqType.type]}
+          fill={ghost ? '#ccc' : fills[bloqType.type]}
+          d={paths[bloqType.type]}
+        />
+        <foreignObject x="6" y="12" width="200">
+          {this.renderContent()}
+        </foreignObject>
+        {bloq.next && (
+          <g transform="translate(0,48)">
+            <Bloq bloq={bloq.next} hardware={hardware} onChange={onChange} />
+          </g>
+        )}
+      </g>
+    );
+  }
+}
+
+Bloq.defaultProps = {
+  hardware: {components: []},
 };
 
 export default Bloq;

@@ -1,16 +1,7 @@
-import {generateCode} from '../lib/code-generation';
-
-const initialBloqs = [
-  {
-    type: 'OnButtonPressed',
-    x: 140,
-    y: 200,
-  },
-];
+import uuid from 'uuid/v1';
 
 const initialState = {
-  bloqs: initialBloqs,
-  code: generateCode(initialBloqs),
+  bloqs: [],
   snapAreas: [],
   draggingBloq: null,
   draggingOffsetX: 0,
@@ -29,8 +20,7 @@ const getBloqSnapArea = (bloq, offsetX, offsetY) =>
       };
 
 const generateSnapAreas = bloqs => {
-  return bloqs
-    .map(bloq => getBloqSnapArea(bloq, bloq.x, bloq.y + 48));
+  return bloqs.map(bloq => getBloqSnapArea(bloq, bloq.x, bloq.y + 48));
 };
 
 const getSnapArea = (snapAreas, canvasX, canvasY) => {
@@ -38,6 +28,15 @@ const getSnapArea = (snapAreas, canvasX, canvasY) => {
     ({x, y, width, height}) =>
       canvasX > x && canvasX < x + width && canvasY > y && canvasY < y + height,
   );
+};
+
+const replaceBloq = (rootBloq, bloq) => {
+  if (rootBloq.id === bloq.id) {
+    return bloq;
+  } else {
+    rootBloq.next = replaceBloq(rootBloq.next, bloq);
+    return rootBloq;
+  }
 };
 
 const bloqs = (state = initialState, action) => {
@@ -78,16 +77,20 @@ const bloqs = (state = initialState, action) => {
       if (state.snapArea) {
         const newBloq = {
           ...state.draggingBloq,
+          id: uuid(),
           x: 0,
           y: 0,
+          data: {},
         };
         state.snapArea.bloq.next = newBloq;
         bloqs = [...state.bloqs];
       } else {
         const newBloq = {
           ...state.draggingBloq,
+          id: uuid(),
           x: action.x - state.draggingOffsetX,
           y: action.y - state.draggingOffsetY,
+          data: {},
         };
         bloqs = [...state.bloqs, newBloq];
       }
@@ -97,8 +100,16 @@ const bloqs = (state = initialState, action) => {
         snapArea: undefined,
         snapAreas: [],
         draggingBloq: null,
-        bloqs: bloqs,
-        code: generateCode(bloqs),
+        bloqs,
+      };
+
+    case 'UPDATE_BLOQ':
+      const updatedBloqs = state.bloqs.map(bloq =>
+        replaceBloq(bloq, action.bloq),
+      );
+      return {
+        ...state,
+        bloqs: updatedBloqs,
       };
 
     default:

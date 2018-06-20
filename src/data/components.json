@@ -1,0 +1,18 @@
+{
+  "components": [
+    {
+      "name": "Button",
+      "code": {
+        "definitions": "bool {{component.name}}PinOn = false;\nconst uint8_t {{component.name}}Pin = BQ::ZUMJunior::ports[{{component.port}}][0];",
+        "setup": "pinMode({{component.name}}Pin, INPUT);"
+      }
+    },
+    {
+      "name": "Led",
+      "code": {
+        "definitions": "const uint8_t {{component.name}}WhitePin = BQ::ZUMJunior::ports[{{component.port}}][0];\nconst uint8_t {{component.name}}ColorPin = BQ::ZUMJunior::ports[{{component.port}}][1];",
+        "setup": "pinMode({{component.name}}WhitePin, OUTPUT);\npinMode({{component.name}}ColorPin, OUTPUT);\n"
+      }
+    }
+  ]
+}

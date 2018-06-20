@@ -31,7 +31,9 @@ class Toolbar extends React.Component {
   render() {
     const toolbarBloqs = [
       { type: 'OnButtonPressed' },
-      { type: 'DigitalWrite' }
+      { type: 'TurnOnLed' },
+      { type: 'TurnOffLed' },
+      { type: 'Delay' }
     ];
 
     return (
