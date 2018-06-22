@@ -1,4 +1,9 @@
-import { css, injectGlobal } from 'styled-components';
+import { injectGlobal } from 'emotion';
+
+export const colors = {
+  yellow: '#e6b319', // hsl(45, 80%, 50%)
+  red: '#e6193c' // hsl(350, 80%, 50%)
+};
 
 injectGlobal`
   body {

@@ -9,10 +9,10 @@ function* updateCode() {
   yield put(updateCodeAction(generateCode(bloqs, hardware)));
 }
 
-function* mySaga() {
+function* rootSaga() {
   yield takeEvery('STOP_DRAGGING_BLOQ', updateCode);
   yield takeEvery('UPDATE_BLOQ', updateCode);
 }
 
 
-export default mySaga;
+export default rootSaga;
