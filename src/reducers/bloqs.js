@@ -33,10 +33,11 @@ const getSnapArea = (snapAreas, canvasX, canvasY) => {
 const replaceBloq = (rootBloq, bloq) => {
   if (rootBloq.id === bloq.id) {
     return bloq;
-  } else {
+  } else if (rootBloq.next) {
     rootBloq.next = replaceBloq(rootBloq.next, bloq);
-    return rootBloq;
   }
+
+  return rootBloq;
 };
 
 const bloqs = (state = initialState, action) => {

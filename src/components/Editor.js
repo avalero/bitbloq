@@ -1,31 +1,25 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {dragBloq, stopDraggingBloq} from '../actions/bloqs';
-import styled, {css} from 'styled-components';
+import styled, {css} from 'react-emotion';
 import Toolbar from './Toolbar';
 import Bloq from './Bloq';
 import Canvas from './Canvas';
 
 const Container = styled.div`
   display: flex;
-  position: absolute;
-  width: 100%;
-  height: 100%;
+  flex: 1;
   overflow: hidden;
 `;
 
-const DragCanvas = styled.svg`
+const DragCanvas = styled.div`
   position: absolute;
   pointer-events: none;
   width: 100%;
   height: 100%;
 `;
 
-const DraggingBloq = styled(Bloq).attrs({
-  style: ({x, y}) => ({
-    transform: `translate(${x}px, ${y}px)`
-  }),
-})`
+const DraggingBloq = styled(Bloq)`
   position: absolute;
   box-shadow: 0px 0px 10px rgba(0,0,0,0.4);
   cursor: grabbing;
@@ -53,17 +47,18 @@ class Editor extends React.Component {
 
   getCanvasPosition(e) {
     const svg = this.canvasSvgRef.current;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    return pt.matrixTransform(svg.getScreenCTM().inverse());
+    const {x: offsetX, y: offsetY} = svg.getBoundingClientRect();
+    return {
+      x: e.clientX - offsetX,
+      y: e.clientY - offsetY
+    };
   }
 
   onMouseMove(e) {
     const {draggingBloq, dragBloq} = this.props;
     if (draggingBloq) {
       const {x, y} = this.getCanvasPosition(e);
-      dragBloq(e.clientX, e.clientY, x, y);
+      dragBloq(e.clientX, e.clientY-100, x, y);
     }
   }
 
@@ -82,7 +77,7 @@ class Editor extends React.Component {
       <Container>
         <Toolbar />
         <Canvas svgRef={this.canvasSvgRef} />
-        <DragCanvas ref={(svg) => this.dragCanvas = svg}>
+        <DragCanvas>
           {draggingBloq && <DraggingBloq bloq={draggingBloq} />}
         </DragCanvas>
       </Container>
