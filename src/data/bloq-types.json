@@ -15,7 +15,7 @@
         }
       ],
       "code": {
-        "statement": "digitalWrite({{data.component.name}}ColorPin, HIGH);"
+        "statement": "digitalWrite({{data.component.name}}ColorPin, LOW);"
       }
     },
     {
@@ -33,7 +33,7 @@
         }
       ],
       "code": {
-        "statement": "digitalWrite({{data.component.name}}ColorPin, LOW);"
+        "statement": "digitalWrite({{data.component.name}}ColorPin, HIGH);"
       }
     },
     {
