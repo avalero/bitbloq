@@ -6,8 +6,9 @@ import {startDraggingBloq} from '../actions/bloqs';
 
 const Container = styled.div`
   width: 300px;
-  background-color: #eee;
+  background-color: #fafafa;
   padding: 12px;
+  border-right: 1px solid rgba(0,0,0,0.15);
 `;
 
 const BloqWrap = styled.div`

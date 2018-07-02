@@ -9,6 +9,7 @@ const Container = styled.div`
   position: absolute;
   top: 0px;
   left: 0px;
+  cursor: grab;
 `;
 
 const Wrap = styled.div`
