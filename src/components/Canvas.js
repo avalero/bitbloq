@@ -3,6 +3,7 @@ import styled, {css} from 'react-emotion';
 import {connect} from 'react-redux';
 import {dragBloq, updateBloq} from '../actions/bloqs';
 import Bloq from './Bloq';
+import graphPaperImage from '../assets/images/graph-paper.svg';
 
 const Container = styled.div`
   flex: 1;
@@ -12,6 +13,17 @@ const Container = styled.div`
 const Main = styled.div`
   flex: 1;
   position: relative;
+
+  &::before {
+    content: '';
+    background-image: url(${graphPaperImage});
+    opacity: 0.1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
 `;
 
 class Canvas extends React.Component {
