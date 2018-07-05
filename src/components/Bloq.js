@@ -1,8 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import styled from 'react-emotion';
-import {resolveType} from '../lib/bloq-types';
-import ComponentSelect from './ComponentSelect';
+import Select from './Select';
 import BloqShape from './bloqs/BloqShape';
 
 const Container = styled.div`
@@ -42,34 +41,19 @@ const Input = styled.input`
   padding: 0px 6px;
   border-radius: 4px;
   font-size: 0.8em;
-  border: 1px solid hsl(0,0%,80%);
+  border: 1px solid hsl(0, 0%, 80%);
 `;
 
-const getCompatibleComponents = (componentClass, hardware) => {
-  const {components = []} = hardware;
-  return components.filter(
-    component => component.componentClass === componentClass,
-  );
-};
-
-const ContentItem = ({type, bloq, hardware, onChange, ...props}) => {
+const ContentItem = ({type, bloq, onChange, getOptions, ...props}) => {
   const value = bloq.data && bloq.data[props.dataField];
 
   switch (type) {
     case 'label':
       return <Label>{props.text}</Label>;
 
-    case 'selectComponent':
-      const components = getCompatibleComponents(
-        props.componentClass,
-        hardware,
-      );
+    case 'select':
       return (
-        <ComponentSelect
-          components={components}
-          value={value}
-          onChange={onChange}
-        />
+        <Select options={getOptions(props)} value={value} onChange={onChange} />
       );
 
     case 'input':
@@ -102,14 +86,14 @@ class Bloq extends React.Component {
     if (this.contentRef.current) {
       const {width} = this.contentRef.current.getBoundingClientRect();
       if (width !== this.state.contentWidth) {
-        this.setState(state => ({ ...state, contentWidth: width }));
+        this.setState(state => ({...state, contentWidth: width}));
       }
     }
   }
 
   renderContent() {
-    const {bloq, hardware, onChange} = this.props;
-    const bloqType = resolveType(bloq.type) || {};
+    const {bloq, onChange, getOptions, getType} = this.props;
+    const bloqType = getType(bloq.type) || {};
     const {content = []} = bloqType;
 
     return (
@@ -119,7 +103,7 @@ class Bloq extends React.Component {
             {...item}
             key={i}
             bloq={bloq}
-            hardware={hardware}
+            getOptions={getOptions}
             onChange={value =>
               onChange({
                 ...bloq,
@@ -134,8 +118,8 @@ class Bloq extends React.Component {
 
   render() {
     const {contentWidth} = this.state;
-    const {className, bloq, ghost, hardware, onChange} = this.props;
-    const bloqType = resolveType(bloq.type) || {};
+    const {className, bloq, ghost, onChange, getOptions, getType} = this.props;
+    const bloqType = getType(bloq.type) || {};
 
     return (
       <Container style={{transform: `translate(${bloq.x}px,${bloq.y}px)`}}>
@@ -145,7 +129,12 @@ class Bloq extends React.Component {
         </Wrap>
         {bloq.next && (
           <div style={{transform: 'translate(0,0)'}}>
-            <Bloq bloq={bloq.next} hardware={hardware} onChange={onChange} />
+            <Bloq
+              bloq={bloq.next}
+              onChange={onChange}
+              getOptions={getOptions}
+              getType={getType}
+            />
           </div>
         )}
       </Container>
@@ -154,7 +143,7 @@ class Bloq extends React.Component {
 }
 
 Bloq.defaultProps = {
-  hardware: {components: []},
+  getOptions: () => [],
 };
 
 export default Bloq;

@@ -1,9 +1,9 @@
 import nunjucks from 'nunjucks';
 import uniq from 'lodash.uniq';
-import {resolveType} from './bloq-types';
+import {resolveSoftwareType, resolve3DType} from './bloq-types';
 import {resolveBoardClass, resolveComponentClass} from './hardware';
 
-const codeTemplate = `
+const arduinoTemplate = `
 #include "eventheap.h"
 
 {% for include in includes %}
@@ -26,7 +26,7 @@ void loop() {
 
 `;
 
-export function generateCode(bloqs, hardware) {
+export function generateArduinoCode(bloqs, hardware) {
   let includes = [];
   const definitions = [];
   const setup = [];
@@ -60,7 +60,7 @@ export function generateCode(bloqs, hardware) {
   });
 
   bloqs.forEach(bloq => {
-    const code = generateBloqCode(bloq);
+    const code = generateBloqCode(bloq, '', resolveSoftwareType);
     if (code.definitions) {
       definitions.push(code.definitions);
     }
@@ -72,7 +72,7 @@ export function generateCode(bloqs, hardware) {
     }
   });
 
-  const finalCode = nunjucks.renderString(codeTemplate, {
+  const finalCode = nunjucks.renderString(arduinoTemplate, {
     definitionsCode: definitions.join('\n'),
     setupCode: setup.join('\n'),
     loopCode: loop.join('\n'),
@@ -82,7 +82,22 @@ export function generateCode(bloqs, hardware) {
   return finalCode;
 }
 
-export function generateBloqCode(bloq, parentFinally = '') {
+const jscadTemplate = `
+function main() {
+  {{mainCode}}
+}
+`;
+
+export function generateJscadCode(bloqs) {
+  const main = bloqs.map(bloq => {
+    const code = generateBloqCode(bloq, '', resolve3DType);
+    return code.statement || '';
+  });
+
+  return nunjucks.renderString(jscadTemplate, { mainCode: main.join('\n') });
+}
+
+export function generateBloqCode(bloq, parentFinally = '', resolveType) {
   const bloqType = resolveType(bloq.type);
   const codeTemplates = bloqType.code || {};
   const finallyCode = codeTemplates.finally
@@ -90,7 +105,7 @@ export function generateBloqCode(bloq, parentFinally = '') {
     : '';
 
   const nextCode = bloq.next
-    ? generateBloqCode(bloq.next, finallyCode + parentFinally)
+    ? generateBloqCode(bloq.next, finallyCode + parentFinally, resolveType)
     : {};
   const params = {
     ...bloq,

@@ -1,36 +1,31 @@
 import React from 'react';
 import styled from 'react-emotion';
-import Select from 'react-select';
+import ReactSelect from 'react-select';
 
 const customStyles = {
-  control: (base) => ({
+  control: base => ({
     ...base,
     minHeight: '28px',
-    fontSize: '0.8em'
+    fontSize: '0.8em',
   }),
-  dropdownIndicator: (base) => ({
+  dropdownIndicator: base => ({
     ...base,
-    padding: '0 2px'
-  })
-}
+    padding: '0 2px',
+  }),
+};
 
 const Wrap = styled.div`
   width: 120px;
   color: black;
 `;
 
-class ComponentSelect extends React.Component {
+class Select extends React.Component {
   render() {
-    const {components, value, onChange} = this.props;
-
-    const options = components.map((component) => ({
-      value: component,
-      label: component.name
-    }));
+    const {options, value, onChange} = this.props;
 
     return (
       <Wrap>
-        <Select
+        <ReactSelect
           getValue={() => value}
           options={options}
           styles={customStyles}
@@ -41,4 +36,4 @@ class ComponentSelect extends React.Component {
   }
 }
 
-export default ComponentSelect;
+export default Select;

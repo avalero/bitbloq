@@ -17,8 +17,8 @@ class CodeEditor extends React.Component {
   }
 }
 
-const mapStateToProps = ({code}) => ({
-  code: code.code,
+const mapStateToProps = ({software}) => ({
+  code: software.code,
 });
 
 const mapDispatchToProps = dispatch => ({});

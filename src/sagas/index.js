@@ -1,18 +1,24 @@
-import { takeEvery, put, select } from 'redux-saga/effects';
-import {updateCode as updateCodeAction} from '../actions/code';
-import {generateCode} from '../lib/code-generation';
+import {takeEvery, put, select} from 'redux-saga/effects';
+import {updateSoftwareCode as updateSoftwareCodeAction} from '../actions/software';
+import {update3DCode as update3DCodeAction} from '../actions/threed';
+import {generateArduinoCode, generateJscadCode} from '../lib/code-generation';
 
-function* updateCode() {
-  const bloqs = yield select((state) => state.bloqs.bloqs);
-  const hardware = yield select((state) => state.hardware);
+function* updateSoftwareCode() {
+  const bloqs = yield select(state => state.software.bloqs);
+  const hardware = yield select(state => state.hardware);
 
-  yield put(updateCodeAction(generateCode(bloqs, hardware)));
+  yield put(updateSoftwareCodeAction(generateArduinoCode(bloqs, hardware)));
+}
+
+function* update3DCode() {
+  const bloqs = yield select(state => state.threed.bloqs);
+
+  yield put(update3DCodeAction(generateJscadCode(bloqs)));
 }
 
 function* rootSaga() {
-  yield takeEvery('STOP_DRAGGING_BLOQ', updateCode);
-  yield takeEvery('UPDATE_BLOQ', updateCode);
+  yield takeEvery('UPDATE_SOFTWARE_BLOQS', updateSoftwareCode);
+  yield takeEvery('UPDATE_THREED_BLOQS', update3DCode);
 }
-
 
 export default rootSaga;
