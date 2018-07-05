@@ -1,33 +1,33 @@
 const initialBoard = {
-  "boardClass": "zumjunior"
+  boardClass: 'zumjunior',
 };
 
 const initialComponents = [
   {
-    "name": "button1",
-    "componentClass": "Button",
-    "port": 1
+    name: 'button1',
+    className: 'Button',
+    port: 1,
   },
   {
-    "name": "button2",
-    "componentClass": "Button",
-    "port": 2
+    name: 'button2',
+    className: 'Button',
+    port: 2,
   },
   {
-    "name": "led1",
-    "componentClass": "Led",
-    "port": 3
+    name: 'led1',
+    className: 'Led',
+    port: 3,
   },
   {
-    "name": "led2",
-    "componentClass": "Led",
-    "port": 4
-  }
+    name: 'led2',
+    className: 'Led',
+    port: 4,
+  },
 ];
 
 const initialState = {
   board: initialBoard,
-  components: initialComponents
+  components: initialComponents,
 };
 
 const hardware = (state = initialState, action) => {

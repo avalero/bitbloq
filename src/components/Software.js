@@ -1,7 +1,10 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import styled from 'react-emotion';
 import {Spring, animated, interpolate} from 'react-spring';
-import Editor from './Editor';
+import {resolveSoftwareType} from '../lib/bloq-types';
+import {updateSoftwareBloqs} from '../actions/software';
+import BloqsEditor from './BloqsEditor';
 import CodeEditor from './CodeEditor';
 
 const Container = styled.div`
@@ -40,6 +43,13 @@ const BloqsButton = styled.div`
   cursor: pointer;
 `;
 
+const toolbarBloqs = [
+  {type: 'OnButtonPressed'},
+  {type: 'TurnOnLed'},
+  {type: 'TurnOffLed'},
+  {type: 'Delay'},
+];
+
 class Software extends React.Component {
   state = {
     tab: 'bloqs',
@@ -48,7 +58,16 @@ class Software extends React.Component {
   onCodeClick = () => this.setState({tab: 'code'});
   onBloqsClick = () => this.setState({tab: 'bloqs'});
 
+  getBloqOptions = ({componentClass}) => {
+    const {hardware: {components = []} = {}} = this.props;
+
+    return components
+      .filter(component => component.className === componentClass)
+      .map(component => ({label: component.name, value: component}));
+  };
+
   render() {
+    const {bloqs, updateBloqs} = this.props;
     const {tab} = this.state;
 
     return (
@@ -59,10 +78,14 @@ class Software extends React.Component {
               style={{
                 transform: interpolate([x], x => `translate(${x}%, 0)`),
               }}>
-              <Editor />
-              <CodeButton onClick={this.onCodeClick}>
-                Code
-              </CodeButton>
+              <BloqsEditor
+                bloqs={bloqs}
+                toolbarBloqs={toolbarBloqs}
+                onBloqsChange={updateBloqs}
+                getBloqType={resolveSoftwareType}
+                getBloqOptions={this.getBloqOptions}
+              />
+              <CodeButton onClick={this.onCodeClick}>Code</CodeButton>
               <BloqsButton onClick={this.onBloqsClick}>Bloqs</BloqsButton>
               <CodeEditor />
             </Wrap>
@@ -73,4 +96,13 @@ class Software extends React.Component {
   }
 }
 
-export default Software;
+const mapStateToProps = ({software, hardware}) => ({
+  bloqs: software.bloqs,
+  hardware,
+});
+
+const mapDispatchToProps = dispatch => ({
+  updateBloqs: bloqs => dispatch(updateSoftwareBloqs(bloqs)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Software);

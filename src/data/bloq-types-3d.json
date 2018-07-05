@@ -1,0 +1,17 @@
+{
+  "bloqTypes": [
+    {
+      "name": "AddCube",
+      "type": "statement",
+      "content": [
+        {
+          "type": "label",
+          "text": "Add cube"
+        }
+      ],
+      "code": {
+        "statement": "return cube({ size: 3, center: true });"
+      }
+    }
+  ]
+}
