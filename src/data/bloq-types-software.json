@@ -9,7 +9,7 @@
           "text": "Turn on"
         },
         {
-          "type": "selectComponent",
+          "type": "select",
           "componentClass": "Led",
           "dataField": "component"
         }
@@ -27,7 +27,7 @@
           "text": "Turn off"
         },
         {
-          "type": "selectComponent",
+          "type": "select",
           "componentClass": "Led",
           "dataField": "component"
         }
@@ -46,7 +46,7 @@
           "text": "When"
         },
         {
-          "type": "selectComponent",
+          "type": "select",
           "componentClass": "Button",
           "dataField": "component"
         },

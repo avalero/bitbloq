@@ -1,14 +1,14 @@
-import { combineReducers } from 'redux';
-import bloqs from './bloqs';
+import {combineReducers} from 'redux';
 import hardware from './hardware';
-import code from './code';
+import software from './software';
+import threed from './threed';
 import ui from './ui';
 
 const bloqtest = combineReducers({
-  bloqs,
   hardware,
-  code,
-  ui
+  software,
+  threed,
+  ui,
 });
 
 export default bloqtest;
