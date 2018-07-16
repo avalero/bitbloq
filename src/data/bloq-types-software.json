@@ -56,6 +56,7 @@
         }
       ],
       "code": {
+        "declarations": "void {{data.component.name}}_pressed();",
         "definitions": "void {{data.component.name}}_pressed() {\n if({{data.component.name}}PinOn) return;\n{{data.component.name}}PinOn = true;\n{{nextCode.statement}}\n{{finallyCode}}}\n",
         "statement": "if(digitalRead({{data.component.name}}Pin)) {{data.component.name}}_pressed();",
         "finally": "{{data.component.name}}PinOn = false;\n"
@@ -82,6 +83,37 @@
       "code": {
         "definitions": "void delay_{{bloqId}}() {\n {{nextCode.statement}}\n{{finallyCode}}}\n",
         "statement": "heap.delay({{data.delay}});\nheap.insert(delay_{{bloqId}});\n"
+      }
+    },
+    {
+      "name": "If",
+      "type": "codeblock",
+      "content": [
+        {
+          "type": "label",
+          "text": "if"
+        },
+        {
+          "type": "bloq",
+          "bloqType": "boolean",
+          "dataField": "condition"
+        }
+      ],
+      "code": {
+        "statement": "if ({{data.condition.code.statement}}) { {{childrenCode.statement}} }"
+      }
+    },
+    {
+      "name": "True",
+      "type": "boolean",
+      "content": [
+        {
+          "type": "label",
+          "text": "True"
+        }
+      ],
+      "code": {
+        "statement": "true"
       }
     }
   ]
