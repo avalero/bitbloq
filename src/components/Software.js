@@ -48,6 +48,8 @@ const toolbarBloqs = [
   {type: 'TurnOnLed'},
   {type: 'TurnOffLed'},
   {type: 'Delay'},
+  {type: 'If'},
+  {type: 'True'}
 ];
 
 class Software extends React.Component {

@@ -12,7 +12,9 @@ const arduinoTemplate = `
 
 Heap heap;
 
-{{definitionsCode}}
+{{componentsDefinitionsCode}}
+
+{{declarationsCode}}
 
 void setup() {
   {{setupCode}}
@@ -24,10 +26,14 @@ void loop() {
   {{loopCode}}
 }
 
+{{definitionsCode}}
+
 `;
 
 export function generateArduinoCode(bloqs, hardware) {
   let includes = [];
+  const componentsDefinitions = [];
+  const declarations = [];
   const definitions = [];
   const setup = [];
   const loop = [];
@@ -41,7 +47,7 @@ export function generateArduinoCode(bloqs, hardware) {
       includes = includes.concat(code.includes);
     }
     if (code.definitions) {
-      definitions.push(code.definitions);
+      componentsDefinitions.push(code.definitions);
     }
     if (code.setup) {
       setup.push(code.setup);
@@ -55,12 +61,15 @@ export function generateArduinoCode(bloqs, hardware) {
       componentSetup,
     ] = generateComponentCode(component);
     includes = includes.concat(componentIncludes);
-    definitions.push(componentDefinitions);
+    componentsDefinitions.push(componentDefinitions);
     setup.push(componentSetup);
   });
 
   bloqs.forEach(bloq => {
     const code = generateBloqCode(bloq, '', resolveSoftwareType);
+    if (code.declarations) {
+      declarations.push(code.declarations);
+    }
     if (code.definitions) {
       definitions.push(code.definitions);
     }
@@ -73,6 +82,8 @@ export function generateArduinoCode(bloqs, hardware) {
   });
 
   const finalCode = nunjucks.renderString(arduinoTemplate, {
+    componentsDefinitionsCode: componentsDefinitions.join('\n'),
+    declarationsCode: declarations.join('\n'),
     definitionsCode: definitions.join('\n'),
     setupCode: setup.join('\n'),
     loopCode: loop.join('\n'),
@@ -94,38 +105,66 @@ export function generateJscadCode(bloqs) {
     return code.statement || '';
   });
 
-  return nunjucks.renderString(jscadTemplate, { mainCode: main.join('\n') });
+  return nunjucks.renderString(jscadTemplate, {mainCode: main.join('\n')});
 }
 
 export function generateBloqCode(bloq, parentFinally = '', resolveType) {
   const bloqType = resolveType(bloq.type);
+  const {children = []} = bloq;
   const codeTemplates = bloqType.code || {};
   const finallyCode = codeTemplates.finally
     ? nunjucks.renderString(codeTemplates.finally, {...bloq})
     : '';
 
+  let childrenCode = '';
+  if (children[0]) {
+    childrenCode = generateBloqCode(children[0], '', resolveType);
+  }
+
   const nextCode = bloq.next
     ? generateBloqCode(bloq.next, finallyCode + parentFinally, resolveType)
     : {};
+
+  const data = { ...bloq.data };
+  bloqType.content.forEach((item) => {
+    const itemData = data[item.dataField];
+    if (item.type === 'bloq' && itemData) {
+      data[item.dataField] = {
+        ...itemData,
+        code: generateBloqCode(itemData, '', resolveType)
+      };
+    }
+  });
+
   const params = {
     ...bloq,
+    data,
     bloqId: parseInt(Math.random() * 10000),
     nextCode,
+    childrenCode,
     finallyCode: !bloq.next ? finallyCode + parentFinally : '',
   };
-  return ['definitions', 'setup', 'statement'].reduce((map, codeBlock) => {
-    let code;
-    let template = codeTemplates[codeBlock] || '';
-    if (codeBlock === 'statement') {
-      if (!bloqType.async) {
-        template += `\n {{nextCode.statement}}\n {{finallyCode}}`;
+  return ['declarations', 'definitions', 'setup', 'statement'].reduce(
+    (map, codeBlock) => {
+      let code;
+      let template = codeTemplates[codeBlock] || '';
+      if (codeBlock === 'statement') {
+        if (!bloqType.async) {
+          if (params.nextCode && params.nextCode.statement) {
+            template += `\n {{nextCode.statement}}`;
+          }
+          if (params.finalCode) {
+            template += `\n {{finallyCode}}`;
+          }
+        }
+      } else {
+        template = `\n {{nextCode.${codeBlock}}}` + template;
       }
-    } else {
-      template = `\n {{nextCode.${codeBlock}}}` + template;
-    }
-    code = nunjucks.renderString(template, params);
-    return {...map, [codeBlock]: code};
-  }, {});
+      code = nunjucks.renderString(template, params);
+      return {...map, [codeBlock]: code};
+    },
+    {},
+  );
 }
 
 export function generateComponentCode(component) {

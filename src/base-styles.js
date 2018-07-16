@@ -3,7 +3,9 @@ import { injectGlobal } from 'emotion';
 export const colors = {
   brand: '#6a8d2f',
   yellow: '#e6b319', // hsl(45, 80%, 50%)
-  red: '#e6193c' // hsl(350, 80%, 50%)
+  red: '#e6193c', // hsl(350, 80%, 50%)
+  green: '#5bbf40',
+  blue: '#19a5e6'
 };
 
 injectGlobal`

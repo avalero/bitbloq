@@ -1,7 +1,19 @@
 {
   "components": [
     {
+      "name": "Component"
+    },
+    {
+      "name": "Digital",
+      "extends": "Component"
+    },
+    {
+      "name": "DigitalInput",
+      "extends": "Component"
+    },
+    {
       "name": "Button",
+      "extends": "DigitalInput",
       "code": {
         "definitions": "bool {{component.name}}PinOn = false;\nconst uint8_t {{component.name}}Pin = BQ::ZUMJunior::ports[{{component.port}}][0];",
         "setup": "pinMode({{component.name}}Pin, INPUT);"
