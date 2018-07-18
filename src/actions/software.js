@@ -1,13 +1,19 @@
 export function updateSoftwareBloqs(bloqs) {
   return {
     type: 'UPDATE_SOFTWARE_BLOQS',
-    bloqs
+    bloqs,
   };
 }
 
 export function updateSoftwareCode(code) {
   return {
     type: 'UPDATE_SOFTWARE_CODE',
-    code
+    code,
+  };
+}
+
+export function uploadCode() {
+  return {
+    type: 'UPLOAD_CODE',
   };
 }

@@ -1,5 +1,6 @@
 const initialState = {
-  currentSectionId: 'software'
+  currentSectionId: 'software',
+  notifications: {},
 };
 
 const ui = (state = initialState, action) => {
@@ -7,8 +8,29 @@ const ui = (state = initialState, action) => {
     case 'OPEN_SECTION':
       return {
         ...state,
-        currentSectionId: action.section
+        currentSectionId: action.section,
       };
+
+    case 'SHOW_NOTIFICATION':
+      return {
+        ...state,
+        notifications: {
+          ...state.notifications,
+          [action.key]: {
+            content: action.content,
+            key: action.key,
+            time: action.time,
+          },
+        },
+      };
+
+    case 'HIDE_NOTIFICATION':
+      const {[action.key]: value, ...notifications} = state.notifications;
+      return {
+        ...state,
+        notifications,
+      };
+
     default:
       return state;
   }
