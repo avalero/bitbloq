@@ -4,3 +4,19 @@ export function openSection(section) {
     section
   }
 }
+
+export function showNotification(key, content, time) {
+  return {
+    type: 'SHOW_NOTIFICATION',
+    content,
+    key,
+    time
+  }
+}
+
+export function hideNotification(key) {
+  return {
+    type: 'HIDE_NOTIFICATION',
+    key
+  }
+}
