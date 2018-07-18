@@ -1,14 +1,17 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
+import NotificationsBar from './NotificationsBar';
 import Hardware from './Hardware';
 import Software from './Software';
 import ThreeD from './ThreeD';
 import {openSection} from '../actions/ui';
+import {uploadCode} from '../actions/software';
 import {colors} from '../base-styles';
 import HardwareIcon from '../assets/images/hardware.svg';
 import SoftwareIcon from '../assets/images/software.svg';
 import ThreeDIcon from '../assets/images/3d.svg';
+import UploadIcon from '../assets/images/rocket.svg';
 
 const Container = styled.div`
   display: flex;
@@ -22,8 +25,9 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   height: 72px;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.2);
-  z-index: 2;
+  box-shadow: 0px 0px 2px 2px rgba(0, 0, 0, 0.2);
+  z-index: 4;
+  background-color: white;
 `;
 
 const Tabs = styled.div`
@@ -54,12 +58,34 @@ const TabIcon = styled.img`
   margin-right: 12px;
 `;
 
+const Buttons = styled.div`
+  display: flex;
+`;
+
+const Button = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 72px;
+  border-left: 1px solid #ddd;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
+
+const ButtonIcon = styled.img`
+  height: 30px;
+`;
+
+
 const sections = [
   {
     id: 'hardware',
     title: 'Hardware',
     icon: HardwareIcon,
-    component: Hardware
+    component: Hardware,
   },
   {
     id: 'software',
@@ -71,11 +97,11 @@ const sections = [
     id: '3d',
     title: '3D',
     icon: ThreeDIcon,
-    component: ThreeD
+    component: ThreeD,
   },
 ];
 
-const App = ({currentSectionId, openSection}) => {
+const App = ({currentSectionId, openSection, uploadCode}) => {
   const currentSection = sections.find(
     section => section.id === currentSectionId,
   );
@@ -94,7 +120,13 @@ const App = ({currentSectionId, openSection}) => {
             </Tab>
           ))}
         </Tabs>
+        <Buttons>
+          <Button onClick={uploadCode}>
+            <ButtonIcon src={UploadIcon} />
+          </Button>
+        </Buttons>
       </Header>
+      <NotificationsBar />
       {currentSection &&
         currentSection.component &&
         React.createElement(currentSection.component)}
@@ -106,6 +138,9 @@ const mapStateToProps = ({ui}) => ({
   currentSectionId: ui.currentSectionId,
 });
 
-const mapDispatchToProps = {openSection};
+const mapDispatchToProps = {openSection, uploadCode};
 
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(App);

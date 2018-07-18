@@ -90,6 +90,7 @@ function BloqFactory(getType, getOptions = () => []) {
           <Select
             options={getOptions(props)}
             value={value}
+            onMouseDown={e => e.stopPropagation()}
             onChange={onChange}
           />
         );
@@ -99,6 +100,7 @@ function BloqFactory(getType, getOptions = () => []) {
           <Input
             type="text"
             value={value || ''}
+            onMouseDown={e => e.stopPropagation()}
             onChange={e => onChange(e.target.value)}
           />
         );

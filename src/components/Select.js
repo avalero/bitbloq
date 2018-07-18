@@ -21,10 +21,10 @@ const Wrap = styled.div`
 
 class Select extends React.Component {
   render() {
-    const {options, value, onChange} = this.props;
+    const {options, value, onChange, onMouseDown} = this.props;
 
     return (
-      <Wrap>
+      <Wrap onMouseDown={onMouseDown}>
         <ReactSelect
           getValue={() => value}
           options={options}

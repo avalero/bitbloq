@@ -4,7 +4,7 @@ import {resolveSoftwareType, resolve3DType} from './bloq-types';
 import {resolveBoardClass, resolveComponentClass} from './hardware';
 
 const arduinoTemplate = `
-#include "eventheap.h"
+#include <ArduinoEventsLib.h>
 
 {% for include in includes %}
 #include <{{include}}>
@@ -153,7 +153,7 @@ export function generateBloqCode(bloq, parentFinally = '', resolveType) {
           if (params.nextCode && params.nextCode.statement) {
             template += `\n {{nextCode.statement}}`;
           }
-          if (params.finalCode) {
+          if (params.finallyCode) {
             template += `\n {{finallyCode}}`;
           }
         }
@@ -168,7 +168,7 @@ export function generateBloqCode(bloq, parentFinally = '', resolveType) {
 }
 
 export function generateComponentCode(component) {
-  const componentClass = resolveComponentClass(component.componentClass) || {};
+  const componentClass = resolveComponentClass(component.className) || {};
   const {code = {}} = componentClass;
   const params = {component};
 
