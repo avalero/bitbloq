@@ -40,18 +40,18 @@ export function generateArduinoCode(bloqs, hardware) {
 
   const {board, components} = hardware;
 
-  if (board) {
-    const boardClass = resolveBoardClass(board.boardClass);
-    const {code = {}} = boardClass;
-    if (code.includes) {
-      includes = includes.concat(code.includes);
-    }
-    if (code.definitions) {
-      componentsDefinitions.push(code.definitions);
-    }
-    if (code.setup) {
-      setup.push(code.setup);
-    }
+  if (!board) return '';
+
+  const boardClass = resolveBoardClass(board.boardClass);
+  const {code = {}} = boardClass;
+  if (code.includes) {
+    includes = includes.concat(code.includes);
+  }
+  if (code.definitions) {
+    componentsDefinitions.push(code.definitions);
+  }
+  if (code.setup) {
+    setup.push(code.setup);
   }
 
   components.forEach(component => {
@@ -59,7 +59,7 @@ export function generateArduinoCode(bloqs, hardware) {
       componentIncludes,
       componentDefinitions,
       componentSetup,
-    ] = generateComponentCode(component);
+    ] = generateComponentCode(component, boardClass);
     includes = includes.concat(componentIncludes);
     componentsDefinitions.push(componentDefinitions);
     setup.push(componentSetup);
@@ -125,13 +125,13 @@ export function generateBloqCode(bloq, parentFinally = '', resolveType) {
     ? generateBloqCode(bloq.next, finallyCode + parentFinally, resolveType)
     : {};
 
-  const data = { ...bloq.data };
-  bloqType.content.forEach((item) => {
+  const data = {...bloq.data};
+  bloqType.content.forEach(item => {
     const itemData = data[item.dataField];
     if (item.type === 'bloq' && itemData) {
       data[item.dataField] = {
         ...itemData,
-        code: generateBloqCode(itemData, '', resolveType)
+        code: generateBloqCode(itemData, '', resolveType),
       };
     }
   });
@@ -143,7 +143,21 @@ export function generateBloqCode(bloq, parentFinally = '', resolveType) {
     nextCode,
     childrenCode,
     finallyCode: !bloq.next ? finallyCode + parentFinally : '',
+    getComponentClass: component =>
+      component ? resolveComponentClass(component.className) : {},
+    getComponentCode: (component, section, params) => {
+      if (!component) return '';
+      const componentClass = resolveComponentClass(component.className);
+      const code = componentClass.getCode(section);
+      const codeParams = {
+        ...params,
+        component,
+        componentClass,
+      };
+      return nunjucks.renderString(code.join(''), codeParams);
+    },
   };
+
   return ['declarations', 'definitions', 'setup', 'statement'].reduce(
     (map, codeBlock) => {
       let code;
@@ -167,16 +181,27 @@ export function generateBloqCode(bloq, parentFinally = '', resolveType) {
   );
 }
 
-export function generateComponentCode(component) {
+export function generateComponentCode(component, boardClass) {
   const componentClass = resolveComponentClass(component.className) || {};
-  const {code = {}} = componentClass;
-  const params = {component};
+  const {code = {}, connectors = []} = componentClass;
+  const {ports = []} = boardClass;
+  const params = {
+    getConnector: name => connectors.find(c => c.name === name),
+    getBoardPin: (portName, pinName) => {
+      const port = ports.find(p => p.name === portName);
+      if (!port) return {};
+      const {pins = []} = port;
+      return pins.find(p => p.name === pinName);
+    },
+    component,
+  };
 
+  const definitions = componentClass.getCode('definitions');
+  const setup = componentClass.getCode('setup');
   const includes = code.includes || [];
-  const definitions = code.definitions
-    ? nunjucks.renderString(code.definitions, params)
-    : '';
-  const setup = code.setup ? nunjucks.renderString(code.setup, params) : '';
 
-  return [includes, definitions, setup];
+  const definitionsCode = nunjucks.renderString(definitions.join(''), params);
+  const setupCode = nunjucks.renderString(setup.join(''), params);
+
+  return [includes, definitionsCode, setupCode];
 }

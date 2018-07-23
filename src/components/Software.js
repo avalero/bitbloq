@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import styled from 'react-emotion';
 import {Spring, animated, interpolate} from 'react-spring';
 import {resolveSoftwareType} from '../lib/bloq-types';
+import {resolveComponentClass} from '../lib/hardware';
 import {updateSoftwareBloqs} from '../actions/software';
 import BloqsEditor from './BloqsEditor';
 import CodeEditor from './CodeEditor';
@@ -60,11 +61,14 @@ class Software extends React.Component {
   onCodeClick = () => this.setState({tab: 'code'});
   onBloqsClick = () => this.setState({tab: 'bloqs'});
 
-  getBloqOptions = ({componentClass}) => {
+  getBloqOptions = (options) => {
     const {hardware: {components = []} = {}} = this.props;
 
     return components
-      .filter(component => component.className === componentClass)
+      .filter(component => {
+        const componentClass = resolveComponentClass(component.className);
+        return componentClass.isInstanceOf(options.componentClass);
+      })
       .map(component => ({label: component.name, value: component}));
   };
 

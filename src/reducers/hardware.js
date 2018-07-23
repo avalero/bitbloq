@@ -5,23 +5,43 @@ const initialBoard = {
 const initialComponents = [
   {
     name: 'button1',
-    className: 'Button',
-    port: 1,
+    className: 'ZumjuniorButton',
+    connections: [
+      {
+        connector: "main",
+        port: "1"
+      }
+    ]
   },
   {
     name: 'button2',
-    className: 'Button',
-    port: 2,
+    className: 'ZumjuniorButton',
+    connections: [
+      {
+        connector: "main",
+        port: "2"
+      }
+    ]
   },
   {
     name: 'led1',
-    className: 'Led',
-    port: 3,
+    className: 'ZumjuniorLed',
+    connections: [
+      {
+        connector: "main",
+        port: "3"
+      }
+    ]
   },
   {
     name: 'led2',
-    className: 'Led',
-    port: 4,
+    className: 'ZumjuniorLed',
+    connections: [
+      {
+        connector: "main",
+        port: "4"
+      }
+    ]
   },
 ];
 

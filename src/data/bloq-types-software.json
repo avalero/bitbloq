@@ -15,7 +15,7 @@
         }
       ],
       "code": {
-        "statement": "digitalWrite({{data.component.name}}ColorPin, LOW);"
+        "statement": "{{getComponentCode(data.component, 'write', { value: getComponentClass(data.component).onValue })}}"
       }
     },
     {
@@ -33,7 +33,7 @@
         }
       ],
       "code": {
-        "statement": "digitalWrite({{data.component.name}}ColorPin, HIGH);"
+        "statement": "{{getComponentCode(data.component, 'write', { value: getComponentClass(data.component).offValue })}}"
       }
     },
     {
@@ -58,7 +58,7 @@
       "code": {
         "declarations": "void {{data.component.name}}_pressed();",
         "definitions": "void {{data.component.name}}_pressed() {\n if({{data.component.name}}PinOn) return;\n{{data.component.name}}PinOn = true;\n{{nextCode.statement}}\n{{finallyCode}}}\n",
-        "statement": "if(digitalRead({{data.component.name}}Pin)) {{data.component.name}}_pressed();",
+        "statement": "if({{getComponentCode(data.component, 'read')}}) {{data.component.name}}_pressed();",
         "finally": "{{data.component.name}}PinOn = false;\n"
       }
     },
