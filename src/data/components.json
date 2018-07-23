@@ -1,7 +1,23 @@
 {
   "components": [
     {
-      "name": "Component"
+      "name": "Component",
+      "code": {
+        "definitions": [
+          "{% for connection in component.connections %}",
+          "{% for pin in getConnector(connection.connector).pins %}",
+          "const uint_8 {{component.name}}{{pin.name}} = {{getBoardPin(connection.port, pin.portPin).value}};",
+          "{% endfor %}",
+          "{% endfor %}"
+        ],
+        "setup": [
+          "{% for connection in component.connections %}",
+          "{% for pin in getConnector(connection.connector).pins %}",
+          "pinMode({{component.name}}{{pin.name}}, {{pin.mode}});",
+          "{% endfor %}",
+          "{% endfor %}"
+        ]
+      }
     },
     {
       "name": "Digital",
@@ -9,22 +25,68 @@
     },
     {
       "name": "DigitalInput",
-      "extends": "Component"
+      "extends": "Digital",
+      "code": {
+        "read": "digitalRead({{component.name}}{{componentClass.connectors[0].pins[0].name}})"
+      }
+    },
+    {
+      "name": "DigitalOutput",
+      "extends": "Digital",
+      "code": {
+        "write": "digitalWrite({{component.name}}{{componentClass.connectors[0].pins[0].name}}, {{value}})"
+      }
     },
     {
       "name": "Button",
-      "extends": "DigitalInput",
-      "code": {
-        "definitions": "bool {{component.name}}PinOn = false;\nconst uint8_t {{component.name}}Pin = BQ::ZUMJunior::ports[{{component.port}}][0];",
-        "setup": "pinMode({{component.name}}Pin, INPUT);"
-      }
+      "extends": "DigitalInput"
     },
     {
       "name": "Led",
-      "code": {
-        "definitions": "const uint8_t {{component.name}}WhitePin = BQ::ZUMJunior::ports[{{component.port}}][0];\nconst uint8_t {{component.name}}ColorPin = BQ::ZUMJunior::ports[{{component.port}}][1];",
-        "setup": "pinMode({{component.name}}WhitePin, OUTPUT);\npinMode({{component.name}}ColorPin, OUTPUT);\n"
-      }
+      "extends": "DigitalOutput",
+      "onValue": "HIGH",
+      "offValue": "LOW"
+    },
+    {
+      "name": "ZumjuniorButton",
+      "extends": "Button",
+      "connectors": [
+        {
+          "name": "main",
+          "type": "zumjunior-digital",
+          "pins": [
+            {
+              "name": "Pin",
+              "mode": "INPUT",
+              "portPin": "0"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ZumjuniorLed",
+      "extends": "Led",
+      "onValue": "LOW",
+      "offValue": "HIGH",
+      "connectors": [
+        {
+          "name": "main",
+          "type": "zumjunior-digital",
+          "pins": [
+            {
+              "name": "WhitePin",
+              "mode": "OUTPUT",
+              "portPin": "0"
+            },
+            {
+              "name": "ColorPin",
+              "mode": "OUTPUT",
+              "portPin": "1"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
