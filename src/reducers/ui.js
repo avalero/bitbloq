@@ -1,5 +1,5 @@
 const initialState = {
-  currentSectionId: 'software',
+  currentSectionId: 'hardware',
   notifications: {},
 };
 
