@@ -42,7 +42,7 @@ export function generateArduinoCode(bloqs, hardware) {
 
   if (!board) return '';
 
-  const boardClass = resolveBoardClass(board.boardClass);
+  const boardClass = resolveBoardClass(board.className);
   const {code = {}} = boardClass;
   if (code.includes) {
     includes = includes.concat(code.includes);

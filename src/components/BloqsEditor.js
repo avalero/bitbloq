@@ -2,7 +2,7 @@ import React from 'react';
 import uuid from 'uuid/v1';
 import styled from 'react-emotion';
 import BloqFactory from './BloqFactory';
-import graphPaperImage from '../assets/images/graph-paper.svg';
+import Canvas from './Canvas';
 
 const SNAP_DISTANCE = 32;
 
@@ -17,33 +17,13 @@ const Toolbar = styled.div`
   background-color: #fafafa;
   padding: 12px;
   border-right: 1px solid rgba(0, 0, 0, 0.15);
+  z-index: 2;
 `;
 
 const ToolbarBloqWrap = styled.div`
   position: relative;
   margin-top: 20px;
   height: ${props => props.height}px;
-`;
-
-const CanvasContainer = styled.div`
-  flex: 1;
-  display: flex;
-`;
-
-const Canvas = styled.div`
-  flex: 1;
-  position: relative;
-
-  &::before {
-    content: '';
-    background-image: url(${graphPaperImage});
-    opacity: 0.1;
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-  }
 `;
 
 const CanvasBloqWrap = styled.div`
@@ -56,19 +36,8 @@ const BloqChildrenWrap = styled.div`
   left: 16px;
 `;
 
-const DragCanvas = styled.div`
-  position: absolute;
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
-`;
-
 class BloqsEditor extends React.Component {
   state = {
-    canvasX: 0,
-    canvasY: 0,
-    dragCanvasX: 0,
-    dragCanvasY: 0,
     draggingBloq: null,
     activeSnapArea: null,
     snapAreas: [],
@@ -78,7 +47,6 @@ class BloqsEditor extends React.Component {
   };
 
   canvas = React.createRef();
-  dragCanvas = React.createRef();
   bloqRefs = {};
 
   constructor(props) {
@@ -87,17 +55,7 @@ class BloqsEditor extends React.Component {
     this.Bloq = BloqFactory(props.getBloqType, props.getBloqOptions);
   }
 
-  componentDidMount() {
-    document.body.addEventListener('mousemove', this.onMouseMove);
-    window.addEventListener('mouseup', this.onMouseUp);
-  }
-
-  componentWillUnmount() {
-    document.body.removeEventListener('mousemove', this.onMouseMove);
-    window.removeEventListener('mouseup', this.onMouseUp);
-  }
-
-  getSnapAreas(bloq, offsetX, offsetY, canvasX, canvasY) {
+  getSnapAreas(bloq, offsetX, offsetY) {
     const {getBloqType} = this.props;
     let areas = [];
     const bloqType = getBloqType(bloq.type) || {};
@@ -106,13 +64,7 @@ class BloqsEditor extends React.Component {
 
     if (bloq.next) {
       areas = areas.concat(
-        this.getSnapAreas(
-          bloq.next,
-          offsetX,
-          offsetY + bloqHeight,
-          canvasX,
-          canvasY,
-        ),
+        this.getSnapAreas(bloq.next, offsetX, offsetY + bloqHeight),
       );
     }
 
@@ -136,13 +88,7 @@ class BloqsEditor extends React.Component {
       });
       if (children[0]) {
         areas = areas.concat(
-          this.getSnapAreas(
-            children[0],
-            offsetX + 24,
-            offsetY + 40,
-            canvasX,
-            canvasY,
-          ),
+          this.getSnapAreas(children[0], offsetX + 24, offsetY + 40),
         );
       }
     }
@@ -153,7 +99,7 @@ class BloqsEditor extends React.Component {
     bloqType.content.forEach((contentItem, i) => {
       if (contentItem.type === 'bloq') {
         areas.push({
-          x: contentRects[i].x - canvasX - SNAP_DISTANCE,
+          x: contentRects[i].x - SNAP_DISTANCE,
           y: offsetY - SNAP_DISTANCE,
           width: SNAP_DISTANCE * 2,
           height: SNAP_DISTANCE * 2,
@@ -185,198 +131,140 @@ class BloqsEditor extends React.Component {
 
   onToolbarBloqMouseDown = (e, toolbarBloq) => {
     const {bloqs} = this.props;
-    const {x: elementX, y: elementY} = e.currentTarget.getBoundingClientRect();
-    this.startDraggingBloq(
-      bloqs,
-      toolbarBloq,
-      elementX,
-      elementY,
-      e.clientX,
-      e.clientY,
-    );
+    this.startDraggingBloq(bloqs, toolbarBloq, e);
   };
 
   onCanvasBloqMouseDown = (e, bloq) => {
     const {bloqs, onBloqsChange} = this.props;
     e.stopPropagation();
-    const {x: elementX, y: elementY} = e.currentTarget.getBoundingClientRect();
 
     const newBloqs = bloqs
       .filter(rootBloq => rootBloq.id !== bloq.id)
       .map(rootBloq => this.deleteBloq(rootBloq, bloq));
 
     onBloqsChange(newBloqs);
-    this.startDraggingBloq(
-      newBloqs,
-      bloq,
-      elementX,
-      elementY,
-      e.clientX,
-      e.clientY,
-    );
+    this.startDraggingBloq(newBloqs, bloq, e);
   };
 
-  startDraggingBloq(bloqs, bloq, elementX, elementY, mouseX, mouseY) {
-    const {
-      x: canvasX,
-      y: canvasY,
-    } = this.canvas.current.getBoundingClientRect();
-    const {
-      x: dragCanvasX,
-      y: dragCanvasY,
-    } = this.dragCanvas.current.getBoundingClientRect();
-
+  startDraggingBloq(bloqs, bloq, e) {
     const snapAreas = bloqs.reduce(
-      (areas, bloq) =>
-        areas.concat(
-          this.getSnapAreas(bloq, bloq.x, bloq.y, canvasX, canvasY),
-        ),
+      (areas, bloq) => areas.concat(this.getSnapAreas(bloq, bloq.x, bloq.y)),
       [],
     );
+
+    const {x: elementX, y: elementY} = e.currentTarget.getBoundingClientRect();
+    const offsetX = e.clientX - elementX;
+    const offsetY = e.clientY - elementY;
+    const {x, y} = this.canvas.current.getItemPosition(e, offsetX, offsetY);
 
     this.setState(prevState => ({
       ...prevState,
       snapAreas,
-      draggingBloq: {
-        ...bloq,
-        x: elementX - dragCanvasX,
-        y: elementY - dragCanvasY,
-      },
-      offsetX: mouseX - elementX,
-      offsetY: mouseY - elementY,
-      canvasX,
-      canvasY,
-      dragCanvasX,
-      dragCanvasY,
+      draggingBloq: {...bloq, x, y},
+      offsetX,
+      offsetY,
       bloqsPreview: bloqs,
     }));
   }
 
-  onMouseMove = e => {
-    const {
-      draggingBloq,
-      offsetX,
-      offsetY,
-      canvasX,
-      canvasY,
-      dragCanvasX,
-      dragCanvasY,
-    } = this.state;
+  onDragItem = (x, y) => {
+    const {draggingBloq} = this.state;
     const {bloqs} = this.props;
 
-    if (draggingBloq) {
-      const x = e.clientX - dragCanvasX - offsetX;
-      const y = e.clientY - dragCanvasY - offsetY;
-      const activeSnapArea = this.getActiveSnapArea(
-        e.clientX - canvasX - offsetX,
-        e.clientY - canvasY - offsetY,
-      );
+    const activeSnapArea = this.getActiveSnapArea(x, y);
 
-      let bloqsPreview;
-      if (activeSnapArea) {
-        if (activeSnapArea !== this.state.activeSnapArea) {
-          let areaBloq;
-          if (activeSnapArea.type === 'next') {
-            areaBloq = {
-              ...activeSnapArea.bloq,
-              next: {
+    let bloqsPreview;
+    if (activeSnapArea) {
+      if (activeSnapArea !== this.state.activeSnapArea) {
+        let areaBloq;
+        if (activeSnapArea.type === 'next') {
+          areaBloq = {
+            ...activeSnapArea.bloq,
+            next: {
+              ...draggingBloq,
+              isGhost: true,
+              x: 0,
+              y: 0,
+              next: activeSnapArea.bloq.next,
+            },
+          };
+        } else if (activeSnapArea.type === 'children') {
+          const {children = []} = activeSnapArea.bloq;
+          areaBloq = {
+            ...activeSnapArea.bloq,
+            children: [
+              {...draggingBloq, isGhost: true, x: 0, y: 0, next: children[0]},
+            ],
+          };
+        } else if (activeSnapArea.type === 'content') {
+          const {bloq, contentItem} = activeSnapArea;
+          areaBloq = {
+            ...bloq,
+            data: {
+              ...bloq.data,
+              [contentItem.dataField]: {
                 ...draggingBloq,
                 isGhost: true,
                 x: 0,
                 y: 0,
-                next: activeSnapArea.bloq.next,
               },
-            };
-          } else if (activeSnapArea.type === 'children') {
-            const {children = []} = activeSnapArea.bloq;
-            areaBloq = {
-              ...activeSnapArea.bloq,
-              children: [
-                {...draggingBloq, isGhost: true, x: 0, y: 0, next: children[0]},
-              ],
-            };
-          } else if (activeSnapArea.type === 'content') {
-            const {bloq, contentItem} = activeSnapArea;
-            areaBloq = {
-              ...bloq,
-              data: {
-                ...bloq.data,
-                [contentItem.dataField]: {
-                  ...draggingBloq,
-                  isGhost: true,
-                  x: 0,
-                  y: 0,
-                },
-              },
-            };
-          }
-          bloqsPreview = bloqs.map(rootBloq =>
-            this.replaceBloq(rootBloq, areaBloq),
-          );
-        } else {
-          bloqsPreview = this.state.bloqsPreview;
+            },
+          };
         }
+        bloqsPreview = bloqs.map(rootBloq =>
+          this.replaceBloq(rootBloq, areaBloq),
+        );
       } else {
-        bloqsPreview = bloqs;
+        bloqsPreview = this.state.bloqsPreview;
       }
-
-      this.setState(prevState => ({
-        ...prevState,
-        activeSnapArea,
-        draggingBloq: {
-          ...prevState.draggingBloq,
-          x,
-          y,
-        },
-        bloqsPreview,
-      }));
+    } else {
+      bloqsPreview = bloqs;
     }
+
+    this.setState(prevState => ({
+      ...prevState,
+      activeSnapArea,
+      draggingBloq: {
+        ...prevState.draggingBloq,
+        x,
+        y,
+      },
+      bloqsPreview,
+    }));
   };
 
-  onMouseUp = e => {
-    const {
-      draggingBloq,
-      activeSnapArea,
-      canvasX,
-      canvasY,
-      offsetX,
-      offsetY,
-    } = this.state;
+  onDragItemStop = (x, y) => {
+    const {draggingBloq, activeSnapArea} = this.state;
     const {bloqs, onBloqsChange} = this.props;
 
-    if (draggingBloq) {
-      const x = e.clientX - canvasX - offsetX;
-      const y = e.clientY - canvasY - offsetY;
+    const newBloq = {
+      ...draggingBloq,
+      id: uuid(),
+      x: activeSnapArea ? 0 : x,
+      y: activeSnapArea ? 0 : y,
+      data: {},
+    };
 
-      const newBloq = {
-        ...draggingBloq,
-        id: uuid(),
-        x: activeSnapArea ? 0 : x,
-        y: activeSnapArea ? 0 : y,
-        data: {},
-      };
-
-      if (activeSnapArea) {
-        if (activeSnapArea.type === 'next') {
-          newBloq.next = activeSnapArea.bloq.next;
-          activeSnapArea.bloq.next = newBloq;
-        }
-        if (activeSnapArea.type === 'children') {
-          activeSnapArea.bloq.children = [newBloq];
-        }
-        if (activeSnapArea.type === 'content') {
-          const {bloq, contentItem} = activeSnapArea;
-          bloq.data[contentItem.dataField] = newBloq;
-        }
+    if (activeSnapArea) {
+      if (activeSnapArea.type === 'next') {
+        newBloq.next = activeSnapArea.bloq.next;
+        activeSnapArea.bloq.next = newBloq;
       }
-
-      this.setState(prevState => ({
-        ...prevState,
-        draggingBloq: null,
-        activeSnapArea: null,
-      }));
-      onBloqsChange(activeSnapArea ? bloqs : [...bloqs, newBloq]);
+      if (activeSnapArea.type === 'children') {
+        activeSnapArea.bloq.children = [newBloq];
+      }
+      if (activeSnapArea.type === 'content') {
+        const {bloq, contentItem} = activeSnapArea;
+        bloq.data[contentItem.dataField] = newBloq;
+      }
     }
+
+    this.setState(prevState => ({
+      ...prevState,
+      draggingBloq: null,
+      activeSnapArea: null,
+    }));
+    onBloqsChange(activeSnapArea ? bloqs : [...bloqs, newBloq]);
   };
 
   replaceBloq = (rootBloq, bloq) => {
@@ -417,13 +305,11 @@ class BloqsEditor extends React.Component {
     onBloqsChange(bloqs.map(rootBloq => this.replaceBloq(rootBloq, bloq)));
   };
 
-  renderCanvasBloq(bloq, isDragging, isTop = true) {
+  renderCanvasBloq = (bloq, isDragging, isTop = true) => {
     const {next, children = []} = bloq;
 
     return (
       <CanvasBloqWrap
-        key={bloq.id}
-        style={{transform: `translate(${bloq.x}px,${bloq.y}px)`}}
         onMouseDown={e => this.onCanvasBloqMouseDown(e, bloq)}
         isTop={isTop}>
         <this.Bloq
@@ -440,10 +326,10 @@ class BloqsEditor extends React.Component {
         )}
       </CanvasBloqWrap>
     );
-  }
+  };
 
   render() {
-    const {draggingBloq, activeSnapArea, bloqsPreview} = this.state;
+    const {draggingBloq, bloqsPreview, offsetX, offsetY} = this.state;
     const {bloqs, toolbarBloqs, getBloqOptions, getBloqType} = this.props;
 
     const canvasBloqs = draggingBloq ? bloqsPreview : bloqs;
@@ -460,14 +346,16 @@ class BloqsEditor extends React.Component {
             </ToolbarBloqWrap>
           ))}
         </Toolbar>
-        <CanvasContainer>
-          <Canvas innerRef={this.canvas}>
-            {canvasBloqs.map(bloq => this.renderCanvasBloq(bloq))}
-          </Canvas>
-        </CanvasContainer>
-        <DragCanvas innerRef={this.dragCanvas}>
-          {draggingBloq && this.renderCanvasBloq(draggingBloq, true)}
-        </DragCanvas>
+        <Canvas
+          ref={this.canvas}
+          items={canvasBloqs}
+          draggingItem={draggingBloq}
+          renderItem={this.renderCanvasBloq}
+          dragOffsetX={offsetX}
+          dragOffsetY={offsetY}
+          onDragItem={this.onDragItem}
+          onDragItemStop={this.onDragItemStop}
+        />
       </Container>
     );
   }
