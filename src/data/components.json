@@ -50,10 +50,13 @@
     {
       "name": "ZumjuniorButton",
       "extends": "Button",
+      "instanceName": "button",
       "connectors": [
         {
           "name": "main",
           "type": "zumjunior-digital",
+          "x": 0.28,
+          "y": 1,
           "pins": [
             {
               "name": "Pin",
@@ -62,17 +65,25 @@
             }
           ]
         }
-      ]
+      ],
+      "image": {
+        "url": "http://beta-bitbloq.bq.com/images/components/1531742133956.zumjunior_button.svg",
+        "width": 124,
+        "height": 124
+      }
     },
     {
       "name": "ZumjuniorLed",
       "extends": "Led",
       "onValue": "LOW",
       "offValue": "HIGH",
+      "instanceName": "led",
       "connectors": [
         {
           "name": "main",
           "type": "zumjunior-digital",
+          "x": 0.28,
+          "y": 1,
           "pins": [
             {
               "name": "WhitePin",
@@ -86,7 +97,12 @@
             }
           ]
         }
-      ]
+      ],
+      "image": {
+        "url": "http://beta-bitbloq.bq.com/images/components/1531742133956.zumjunior_double_led.svg",
+        "width": 124,
+        "height": 124
+      }
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "boards": [
     {
-      "name": "zumjunior",
+      "name": "Zumjunior",
       "code": {
         "includes": [
           "BQZUMJunior.h",
@@ -13,6 +13,8 @@
       "ports": [
         {
           "name": "1",
+          "x": 0,
+          "y": 0.4,
           "connectorTypes": [
             "zumjunior-digital",
             "zumjunior-analog"
@@ -30,6 +32,8 @@
         },
         {
           "name": "2",
+          "x": 0,
+          "y": 0.6,
           "connectorTypes": [
             "zumjunior-digital",
             "zumjunior-analog"
@@ -47,6 +51,8 @@
         },
         {
           "name": "3",
+          "x": 1,
+          "y": 0.6,
           "connectorTypes": [
             "zumjunior-digital",
             "zumjunior-analog"
@@ -64,6 +70,8 @@
         },
         {
           "name": "4",
+          "x": 1,
+          "y": 0.4,
           "connectorTypes": [
             "zumjunior-digital",
             "zumjunior-analog"
@@ -81,6 +89,8 @@
         },
         {
           "name": "A",
+          "x": 0.4,
+          "y": 0,
           "connectorTypes": [
             "zumjunior-digital",
             "zumjunior-analog",
@@ -103,6 +113,8 @@
         },
         {
           "name": "B",
+          "x": 0.6,
+          "y": 0,
           "connectorTypes": [
             "zumjunior-digital",
             "zumjunior-analog",
@@ -123,7 +135,12 @@
             }
           ]
         }
-      ]
+      ],
+      "image": {
+        "url": "http://beta-bitbloq.bq.com/images/boards/1531742133956.zumjunior.svg",
+        "width": 300,
+        "height": 300
+      }
     }
   ]
 }
