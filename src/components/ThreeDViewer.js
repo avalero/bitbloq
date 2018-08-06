@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'react-emotion';
-import JSCadViewer from '../lib/openjscad/jscad-viewer';
-import {rebuildSolids} from '@jscad/core/code-evaluation/rebuildSolids';
+import {OOMLView} from 'ooml.js';
 
 const Container = styled.div`
   flex: 1;
@@ -32,9 +31,13 @@ class ThreeDViewer extends React.Component {
   canvasRef = React.createRef();
 
   componentDidMount() {
-    this.jscad = JSCadViewer(this.canvasRef.current, {});
-    this.jscad.setCameraOptions({ position: { x: -15, y: 5, z: 30 }});
-    this.update();
+    const {code} = this.props;
+    this.oomlView = new OOMLView(this.canvasRef.current, code);
+    window.addEventListener('resize', this.onWindowResize);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onWindowResize);
   }
 
   componentDidUpdate(prevProps) {
@@ -43,14 +46,13 @@ class ThreeDViewer extends React.Component {
     }
   }
 
+  onWindowResize = () => {
+    this.oomlView.updateSize();
+  }
+
   update() {
     const { code } = this.props;
-    rebuildSolids(code, '3d.jscad', {}, (err, objects) => {
-      if (!err) {
-        this.jscad.setCsg(objects[0]);
-        this.jscad.resetCamera();
-      }
-    });
+    this.oomlView.updateCode(code);
   }
 
   render() {
