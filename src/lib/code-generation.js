@@ -93,19 +93,17 @@ export function generateArduinoCode(bloqs, hardware) {
   return finalCode;
 }
 
-const jscadTemplate = `
-function main() {
-  {{mainCode}}
-}
+const oomlTemplate = `
+{{mainCode}}
 `;
 
-export function generateJscadCode(bloqs) {
+export function generateOOMLCode(bloqs) {
   const main = bloqs.map(bloq => {
     const code = generateBloqCode(bloq, '', resolve3DType);
     return code.statement || '';
   });
 
-  return nunjucks.renderString(jscadTemplate, {mainCode: main.join('\n')});
+  return nunjucks.renderString(oomlTemplate, {mainCode: main.join('\n')});
 }
 
 export function generateBloqCode(bloq, parentFinally = '', resolveType) {
