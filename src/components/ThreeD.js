@@ -12,7 +12,10 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const toolbarBloqs = [{type: 'AddCube'}];
+const toolbarBloqs = [
+  {type: 'Cube'},
+  {type: 'Translate'}
+];
 
 class ThreeD extends React.Component {
   render() {

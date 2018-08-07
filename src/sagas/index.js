@@ -2,7 +2,7 @@ import {takeEvery, call, put, select} from 'redux-saga/effects';
 import {updateSoftwareCode as updateSoftwareCodeAction} from '../actions/software';
 import {showNotification, hideNotification} from '../actions/ui';
 import {update3DCode as update3DCodeAction} from '../actions/threed';
-import {generateArduinoCode, generateJscadCode} from '../lib/code-generation';
+import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
 import web2board, {
   ConnectionError,
   CompileError,
@@ -21,7 +21,7 @@ function* updateSoftwareCode() {
 function* update3DCode() {
   const bloqs = yield select(state => state.threed.bloqs);
 
-  yield put(update3DCodeAction(generateJscadCode(bloqs)));
+  yield put(update3DCodeAction(generateOOMLCode(bloqs)));
 }
 
 function* uploadCode() {
