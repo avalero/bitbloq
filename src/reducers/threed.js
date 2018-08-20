@@ -1,24 +1,10 @@
 const initialState = {
-  code: '',
-  bloqs: [],
   selectedObjects: [],
   objects: [],
 };
 
 const threed = (state = initialState, action) => {
   switch (action.type) {
-    case 'UPDATE_THREED_BLOQS':
-      return {
-        ...state,
-        bloqs: action.bloqs,
-      };
-
-    case 'UPDATE_THREED_CODE':
-      return {
-        ...state,
-        code: action.code,
-      };
-
     case 'SELECT_OBJECT':
       return {
         ...state,

@@ -4,6 +4,7 @@ import uuid from 'uuid/v1';
 import styled from 'react-emotion';
 import {updateObject, wrapObjects} from '../../actions/threed.js';
 import {colors} from '../../base-styles';
+import {resolveClass} from '../../lib/object3d';
 import CubeIcon from '../../assets/images/cube.svg';
 import TranslateIcon from '../../assets/images/translate.svg';
 import RotateIcon from '../../assets/images/rotate.svg';
@@ -89,48 +90,6 @@ const InputProperty = ({label, field, object, onChange}) => (
   </FormGroup>
 );
 
-const objectPropertiesRenderers = {
-  Cube: (object, onChange) => (
-    <div>
-      <InputProperty
-        label="Width"
-        field="width"
-        object={object}
-        onChange={onChange}
-      />
-      <InputProperty
-        label="Height"
-        field="height"
-        object={object}
-        onChange={onChange}
-      />
-      <InputProperty
-        label="Depth"
-        field="depth"
-        object={object}
-        onChange={onChange}
-      />
-    </div>
-  ),
-  Sphere: (object, onChange) => (
-    <div>
-      <InputProperty
-        label="Radius"
-        field="radius"
-        object={object}
-        onChange={onChange}
-      />
-    </div>
-  ),
-  Translate: (object, onChange) => (
-    <div>
-      <InputProperty label="X" field="x" object={object} onChange={onChange} />
-      <InputProperty label="Y" field="y" object={object} onChange={onChange} />
-      <InputProperty label="Z" field="z" object={object} onChange={onChange} />
-    </div>
-  ),
-};
-
 const defaultParams = {
   Tanslate: {
     x: 0,
@@ -158,7 +117,8 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const renderProperties = objectPropertiesRenderers[object.type];
+    const Class3D = resolveClass(object.type);
+    const {parameterTypes} = Class3D;
 
     return (
       <Panel>
@@ -166,7 +126,17 @@ class PropertiesPanel extends React.Component {
           <PanelIcon src={CubeIcon} />
           <div>{object.name}</div>
         </PanelHeader>
-        <PanelBody>{renderProperties(object, this.onObjectChange)}</PanelBody>
+        <PanelBody>
+          {parameterTypes.map(type => (
+            <InputProperty
+              key={type.name}
+              label={type.label}
+              field={type.name}
+              object={object}
+              onChange={this.onObjectChange}
+            />
+          ))}
+        </PanelBody>
       </Panel>
     );
   }

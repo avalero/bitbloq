@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
+import {resolveClass} from '../../lib/object3d';
 import styled from 'react-emotion';
 
 const Container = styled.div`
@@ -9,35 +10,11 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const geometryBuilders = {
-  Cube: ({params: {width, height, depth}}) =>
-    new Three.BoxGeometry(1, 1, 1),
-  Sphere: ({params: {radius}}) => new Three.SphereGeometry(radius, 32, 32),
-};
-
 class ThreeDViewer extends React.Component {
-  sceneObjects = {};
   container = React.createRef();
   renderer = new Three.WebGLRenderer({antialias: true});
   scene = new Three.Scene();
-
-  addObjectToScene(object) {
-    switch (object.type) {
-      case 'Cube':
-      case 'Sphere':
-        const geometryBuilder = geometryBuilders[object.type];
-        const geometry = geometryBuilder(object);
-        const material = new Three.MeshLambertMaterial({color: 0xff0000});
-        const mesh = new Three.Mesh(geometry, material);
-        this.scene.add(mesh);
-        this.sceneObjects[object.id] = mesh;
-        return mesh;
-
-      case 'Translate':
-        const group = new Three.Group();
-        return group;
-    }
-  }
+  objectsGroup = new Three.Group();
 
   componentDidUpdate() {
     this.updateSceneObjects();
@@ -62,19 +39,22 @@ class ThreeDViewer extends React.Component {
     this.updateSize();
   };
 
+  clearObjects() {
+    while(this.objectsGroup.children.length > 0) {
+      this.objectsGroup.remove(this.objectsGroup.children[0]);
+    }
+  }
+
   updateSceneObjects() {
     const {objects = []} = this.props;
-    const {sceneObjects} = this;
+
+    this.clearObjects();
 
     objects.forEach(object => {
-      let sceneObject = sceneObjects[object.id];
-      if (!sceneObject) {
-        sceneObject = this.addObjectToScene(object);
-      }
-      if (object.type === 'Cube') {
-        const {width = 1, height = 1, depth = 1} = object.params;
-        sceneObject.scale.set(width, height, depth);
-      }
+      const Class3D = resolveClass(object.type);
+      const object3D = new Class3D(object.params);
+      const mesh = object3D.getMesh();
+      this.objectsGroup.add(mesh);
     });
   }
 
@@ -99,6 +79,8 @@ class ThreeDViewer extends React.Component {
     this.camera = new Three.PerspectiveCamera(75, 1, 0.1, 1000);
     this.camera.position.set(0, -50, 50);
     this.camera.lookAt(new Three.Vector3(0, 0, 0));
+
+    this.scene.add(this.objectsGroup);
 
     this.renderer.render(this.scene, this.camera);
   }
