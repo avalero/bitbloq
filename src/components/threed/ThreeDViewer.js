@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
-import {resolveClass} from '../../lib/object3d';
+import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
 
 const Container = styled.div`
@@ -51,8 +51,7 @@ class ThreeDViewer extends React.Component {
     this.clearObjects();
 
     objects.forEach(object => {
-      const Class3D = resolveClass(object.type);
-      const object3D = new Class3D(object.params);
+      const object3D = createFromJSON(object);
       const mesh = object3D.getMesh();
       this.objectsGroup.add(mesh);
     });

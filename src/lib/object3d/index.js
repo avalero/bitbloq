@@ -11,3 +11,8 @@ const classes = {
 export function resolveClass(name) {
   return classes[name];
 }
+
+export function createFromJSON(json) {
+  const Class3D = resolveClass(json.type);
+  return new Class3D(json.name, json.parameters, json.operations, json.id);
+}
