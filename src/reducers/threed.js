@@ -1,6 +1,8 @@
 const initialState = {
   code: '',
-  bloqs: []
+  bloqs: [],
+  selectedObjects: [],
+  objects: [],
 };
 
 const threed = (state = initialState, action) => {
@@ -14,7 +16,54 @@ const threed = (state = initialState, action) => {
     case 'UPDATE_THREED_CODE':
       return {
         ...state,
-        code: action.code
+        code: action.code,
+      };
+
+    case 'SELECT_OBJECT':
+      return {
+        ...state,
+        selectedObjects: [...state.selectedObjects, action.objectId],
+      };
+
+    case 'DESELECT_OBJECT':
+      return {
+        ...state,
+        selectedObjects: state.selectedObjects.filter(
+          id => id !== action.objectId,
+        ),
+      };
+
+    case 'CREATE_OBJECT':
+      return {
+        ...state,
+        objects: [...state.objects, action.object],
+        selectedObjects: [action.object.id],
+      };
+
+    case 'UPDATE_OBJECT':
+      return {
+        ...state,
+        objects: state.objects.map(o => {
+          if (o.id === action.object.id) {
+            return action.object;
+          } else {
+            return o;
+          }
+        }),
+      };
+
+    case 'WRAP_OBJECTS':
+      const newObject = {
+        ...action.parent,
+        children: action.children,
+      };
+      return {
+        ...state,
+        objects: [
+          ...state.objects.filter(o => !action.children.includes(o)),
+          newObject
+        ],
+        selectedObjects: newObject.id
       };
 
     default:

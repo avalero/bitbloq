@@ -1,5 +1,5 @@
 const initialState = {
-  currentSectionId: 'hardware',
+  currentSectionId: '3d',
   notifications: {},
 };
 
