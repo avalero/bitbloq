@@ -1,12 +1,38 @@
 import * as Three from 'three';
+import uuid from 'uuid/v1';
 
 export default class Object3D {
   static parameterTypes = [];
 
+  static createTranslateOperation(x, y, z, relative = true) {
+    return {
+      type: 'translation',
+      x,
+      y,
+      z,
+      relative
+    };
+  }
+
+  id = '';
+  name = '';
+  parameters = {};
   operations = [];
 
-  constructor(parameters) {
-    this.parameters = parameters;
+  constructor(name, parameters = {}, operations = [], id) {
+    const defaultParams = {};
+    this.constructor.parameterTypes.forEach(paramType => {
+      defaultParams[paramType.name] = paramType.defaultValue;
+    });
+    
+    this.parameters = {
+      ...defaultParams,
+      ...parameters
+    };
+
+    this.operations = operations;
+    this.id = id || uuid();
+    this.name = name;
   }
 
   addOperation(operation) {
@@ -25,5 +51,15 @@ export default class Object3D {
 
   getGeometry() {
     throw new Error('Method not implemented');
+  }
+
+  toJSON() {
+    const {id, parameters, operations, constructor} = this;
+    return {
+      id,
+      type: constructor.name,
+      parameters,
+      operations
+    };
   }
 }

@@ -14,22 +14,35 @@ const Container = styled.div`
   position: absolute;
   right: 24px;
   top: 24px;
-  width: 240px;
+  width: 300px;
 `;
 
 const Panel = styled.div`
-  background-color: white;
+  background-color: #fafafa;
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
   border-radius: 6px;
   overflow: hidden;
 `;
 
 const PanelHeader = styled.div`
+  font-size: 1.1em;
+  color: #fafafa;
+  background-color: #777;
   display: flex;
   align-items: center;
   color: #333;
   background-color: #eee;
   padding: 6px;
+`;
+
+const SubPanel = styled(Panel)`
+  background-color: white;
+`;
+
+const SubPanelHeader = styled(PanelHeader)`
+  font-size: 1em;
+  color: #333;
+  background-color: #eee;
 `;
 
 const PanelIcon = styled.img`
@@ -68,6 +81,7 @@ const Button = styled.div`
   padding: 6px;
   border-radius: 6px;
   margin-bottom: 12px;
+  box-shadow: 0px 1px 3px rgba(0,0,0,0.3); 
 `;
 
 const ButtonIcon = styled.img`
@@ -79,11 +93,11 @@ const InputProperty = ({label, field, object, onChange}) => (
   <FormGroup>
     <label>{label}</label>
     <input
-      value={object.params[field]}
+      value={object.parameters[field]}
       onChange={e =>
         onChange({
           ...object,
-          params: {...object.params, [field]: e.target.value},
+          parameters: {...object.parameters, [field]: e.target.value},
         })
       }
     />
@@ -110,7 +124,7 @@ class PropertiesPanel extends React.Component {
     const parent = {
       id: uuid(),
       type,
-      params: {...defaultParams[type]},
+      parameters: {...defaultParams[type]},
     };
 
     wrapObjects(parent, children);
@@ -127,28 +141,6 @@ class PropertiesPanel extends React.Component {
           <div>{object.name}</div>
         </PanelHeader>
         <PanelBody>
-          {parameterTypes.map(type => (
-            <InputProperty
-              key={type.name}
-              label={type.label}
-              field={type.name}
-              object={object}
-              onChange={this.onObjectChange}
-            />
-          ))}
-        </PanelBody>
-      </Panel>
-    );
-  }
-
-  render() {
-    const {objects, selectedObjects} = this.props;
-    let content;
-
-    if (selectedObjects.length === 1) {
-      const object = objects.find(o => o.id === selectedObjects[0]);
-      content = (
-        <div>
           <Button onClick={() => this.onWrapObjects('Translate')}>
             <ButtonIcon src={TranslateIcon} />
             <div>Translate</div>
@@ -161,9 +153,35 @@ class PropertiesPanel extends React.Component {
             <ButtonIcon src={ScaleIcon} />
             <div>Scale</div>
           </Button>
-          {this.renderObjectPanel(object)}
-        </div>
-      );
+          <SubPanel>
+            <SubPanelHeader>
+              <PanelIcon src={CubeIcon} />
+              <div>{object.type} Geometry</div>
+            </SubPanelHeader>
+            <PanelBody>
+              {parameterTypes.map(type => (
+                <InputProperty
+                  key={type.name}
+                  label={type.label}
+                  field={type.name}
+                  object={object}
+                  onChange={this.onObjectChange}
+                />
+              ))}
+            </PanelBody>
+          </SubPanel>
+        </PanelBody>
+      </Panel>
+    );
+  }
+
+  render() {
+    const {objects, selectedObjects} = this.props;
+    let content;
+
+    if (selectedObjects.length === 1) {
+      const object = objects.find(o => o.id === selectedObjects[0]);
+      content = this.renderObjectPanel(object);
     }
 
     return <Container>{content}</Container>;

@@ -1,12 +1,13 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
 import {colors} from '../../base-styles';
 import {selectObject, deselectObject, createObject} from '../../actions/threed';
 import AddIcon from '../../assets/images/add.svg';
 import CubeIcon from '../../assets/images/cube.svg';
 import SphereIcon from '../../assets/images/sphere.svg';
+import Cube from '../../lib/object3d/Cube';
+import Sphere from '../../lib/object3d/Sphere';
 
 const Container = styled.div`
   width: 240px;
@@ -95,31 +96,16 @@ const AddDropdownItem = styled.div`
   }
 `;
 
-const defaultParams = {
-  Cube: {
-    height: 10,
-    width: 10,
-    depth: 10,
-  },
-  Sphere: {
-    radius: 6,
-  },
-};
-
 class ObjectTree extends React.Component {
   state = {
     addDropDownOpen: false,
   };
 
-  onAddObject(type) {
-    const {objects, createObject} = this.props;
-    const id = uuid();
-    const typeCount = objects.filter(o => o.type === type).length;
-    const name = `${type}${typeCount + 1}`;
-
+  onAddObject(object) {
+    const {createObject} = this.props;
     this.setState({addDropDownOpen: false});
 
-    createObject({id, type, name, params: {...defaultParams[type]}});
+    createObject(object.toJSON());
   }
 
   renderObjectList(objects) {
@@ -163,7 +149,7 @@ class ObjectTree extends React.Component {
             <AddDropdownItem
               onClick={e => {
                 e.stopPropagation();
-                this.onAddObject('Cube');
+                this.onAddObject(new Cube('Cube1'));
               }}>
               <img src={CubeIcon} />
               <div>Cube</div>
@@ -171,7 +157,7 @@ class ObjectTree extends React.Component {
             <AddDropdownItem
               onClick={e => {
                 e.stopPropagation();
-                this.onAddObject('Sphere');
+                this.onAddObject(new Sphere('Sphere1'));
               }}>
               <img src={SphereIcon} />
               <div>Sphere</div>
