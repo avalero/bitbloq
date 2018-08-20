@@ -4,7 +4,7 @@ import styled, {css} from 'react-emotion';
 import NotificationsBar from './NotificationsBar';
 import Hardware from './Hardware';
 import Software from './Software';
-import ThreeD from './ThreeD';
+import ThreeD from './threed/ThreeD';
 import {openSection} from '../actions/ui';
 import {uploadCode} from '../actions/software';
 import {colors} from '../base-styles';
