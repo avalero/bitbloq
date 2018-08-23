@@ -55,5 +55,8 @@ injectGlobal`
     border-collapse: collapse;
     border-spacing: 0;
   }
+  input {
+    font-family: 'Jua', sans-serif;
+  }
 `;
 

@@ -30,7 +30,8 @@ const ObjectList = styled.ul`
 const ObjectItem = styled.li``;
 
 const ObjectName = styled.div`
-  padding: 6px;
+  padding: 9px;
+  margin-bottom: 3px;
   cursor: pointer;
   border-radius: 6px;
   ${props =>

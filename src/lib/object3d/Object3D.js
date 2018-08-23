@@ -14,6 +14,24 @@ export default class Object3D {
     };
   }
 
+  static createRotateOperation(axis, angle, relative = true) {
+    return {
+      type: 'rotation',
+      axis,
+      angle,
+      relative
+    };
+  }
+
+  static createScaleOperation(width, height, depth) {
+    return {
+      type: 'scale',
+      width,
+      height,
+      depth
+    };
+  }
+
   id = '';
   name = '';
   parameters = {};
@@ -24,7 +42,7 @@ export default class Object3D {
     this.constructor.parameterTypes.forEach(paramType => {
       defaultParams[paramType.name] = paramType.defaultValue;
     });
-    
+
     this.parameters = {
       ...defaultParams,
       ...parameters
@@ -54,9 +72,10 @@ export default class Object3D {
   }
 
   toJSON() {
-    const {id, parameters, operations, constructor} = this;
+    const {id, name, parameters, operations, constructor} = this;
     return {
       id,
+      name,
       type: constructor.name,
       parameters,
       operations

@@ -1,27 +1,25 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import uuid from 'uuid/v1';
-import styled from 'react-emotion';
+import styled, {css} from 'react-emotion';
 import {updateObject, wrapObjects} from '../../actions/threed.js';
 import {colors} from '../../base-styles';
 import {resolveClass} from '../../lib/object3d';
+import Object3D from '../../lib/object3d/Object3D';
 import CubeIcon from '../../assets/images/cube.svg';
 import TranslateIcon from '../../assets/images/translate.svg';
 import RotateIcon from '../../assets/images/rotate.svg';
 import ScaleIcon from '../../assets/images/scale.svg';
+import Select from '../Select';
 
 const Container = styled.div`
   position: absolute;
-  right: 24px;
-  top: 24px;
+  top: 0px;
+  right: 0px;
+  padding: 12px;
   width: 300px;
-`;
-
-const Panel = styled.div`
-  background-color: #fafafa;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  overflow: hidden;
+  height: 100%;
+  overflow-y: auto;
 `;
 
 const PanelHeader = styled.div`
@@ -30,19 +28,27 @@ const PanelHeader = styled.div`
   background-color: #777;
   display: flex;
   align-items: center;
-  color: #333;
-  background-color: #eee;
-  padding: 6px;
+  padding: 12px;
 `;
 
-const SubPanel = styled(Panel)`
-  background-color: white;
-`;
+const Panel = styled.div`
+  background-color: #fafafa;
+  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  overflow: hidden;
 
-const SubPanelHeader = styled(PanelHeader)`
-  font-size: 1em;
-  color: #333;
-  background-color: #eee;
+  ${props =>
+    props.isSubPanel &&
+    css`
+      background-color: white;
+
+      ${PanelHeader} {
+        font-size: 1em;
+        color: #333;
+        background-color: #eee;
+        padding: 6px;
+      }
+    `};
 `;
 
 const PanelIcon = styled.img`
@@ -51,7 +57,7 @@ const PanelIcon = styled.img`
 `;
 
 const PanelBody = styled.div`
-  padding: 12px;
+  padding: 6px;
 `;
 
 const FormGroup = styled.div`
@@ -60,7 +66,7 @@ const FormGroup = styled.div`
   align-items: center;
 
   label {
-    width: 60px;
+    width: 72px;
     display: block;
   }
 
@@ -69,6 +75,14 @@ const FormGroup = styled.div`
     border-radius: 6px;
     flex: 1;
     height: 18px;
+    padding: 6px 12px;
+    width: 100%;
+
+    &:focus {
+      outline: none;
+      border: 1px solid #2684FF;
+      box-shadow: 0 0 0 1px #2684FF;
+    }
   }
 `;
 
@@ -81,7 +95,7 @@ const Button = styled.div`
   padding: 6px;
   border-radius: 6px;
   margin-bottom: 12px;
-  box-shadow: 0px 1px 3px rgba(0,0,0,0.3); 
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
 `;
 
 const ButtonIcon = styled.img`
@@ -89,32 +103,124 @@ const ButtonIcon = styled.img`
   margin-right: 6px;
 `;
 
-const InputProperty = ({label, field, object, onChange}) => (
+const IntegerProperty = ({label, value, onChange}) => (
   <FormGroup>
     <label>{label}</label>
-    <input
-      value={object.parameters[field]}
-      onChange={e =>
-        onChange({
-          ...object,
-          parameters: {...object.parameters, [field]: e.target.value},
-        })
-      }
-    />
+    <input value={value} onChange={e => onChange(e.target.value)} />
   </FormGroup>
 );
 
-const defaultParams = {
-  Tanslate: {
-    x: 0,
-    y: 0,
-    z: 0,
+const SelectProperty = ({label, options, value, onChange}) => (
+  <FormGroup>
+    <label>{label}</label>
+    <Select value={value} options={options} onChange={onChange} />
+  </FormGroup>
+);
+
+const PropertyInput = ({parameter, value, onChange}) => {
+  switch(parameter.type) {
+    case 'integer':
+      return <IntegerProperty label={parameter.label} value={value} onChange={onChange} />;
+    case 'select':
+      return <SelectProperty label={parameter.label} value={value} onChange={onChange} options={parameter.options} />;
+    default:
+      return null;
+  }
+};
+
+const operationTypes = {
+  translation: {
+    label: 'Translate',
+    icon: TranslateIcon,
+    parameterTypes: [
+      {
+        name: 'x',
+        label: 'X',
+        type: 'integer',
+      },
+      {
+        name: 'y',
+        label: 'Y',
+        type: 'integer',
+      },
+      {
+        name: 'z',
+        label: 'Z',
+        type: 'integer',
+      },
+    ],
+  },
+  rotation: {
+    label: 'Rotate',
+    icon: RotateIcon,
+    parameterTypes: [
+      {
+        name: 'axis',
+        label: 'Axis',
+        type: 'select',
+        options: [
+          {
+            label: 'X',
+            value: 'x',
+          },
+          {
+            label: 'Y',
+            value: 'y',
+          },
+          {
+            label: 'Z',
+            value: 'z',
+          },
+        ],
+      },
+      {
+        name: 'angle',
+        label: 'Angle',
+        type: 'integer',
+      },
+    ],
+  },
+  scale: {
+    label: 'Scale',
+    icon: ScaleIcon,
+    parameterTypes: [
+      {
+        name: 'width',
+        label: 'Width',
+        type: 'integer',
+      },
+      {
+        name: 'height',
+        label: 'Height',
+        type: 'integer',
+      },
+      {
+        name: 'depth',
+        label: 'Depth',
+        type: 'integer',
+      },
+    ],
   },
 };
 
 class PropertiesPanel extends React.Component {
-  onObjectChange = object => {
-    this.props.updateObject(object);
+  onObjectParameterChange = (object, parameter, value) => {
+    this.props.updateObject({
+      ...object,
+      parameters: {
+        ...object.parameters,
+        [parameter]: value,
+      },
+    });
+  };
+
+  onOperationParameterChange = (object, operation, parameter, value) => {
+    this.props.updateObject({
+      ...object,
+      operations: object.operations.map(
+        o => (o === operation ? {...o, [parameter]: value} : o),
+      ),
+    });
   };
 
   onWrapObjects(type) {
@@ -124,52 +230,130 @@ class PropertiesPanel extends React.Component {
     const parent = {
       id: uuid(),
       type,
-      parameters: {...defaultParams[type]},
     };
 
     wrapObjects(parent, children);
   }
 
-  renderObjectPanel(object) {
+  onTranslateClick(object) {
+    const operation = Object3D.createTranslateOperation(0, 0, 0, false);
+    this.addOperation(object, operation);
+  }
+
+  onRotateClick(object) {
+    const operation = Object3D.createRotateOperation('x', 0, false);
+    this.addOperation(object, operation);
+  }
+
+  onScaleClick(object) {
+    const operation = Object3D.createScaleOperation(1, 1, 1);
+    this.addOperation(object, operation);
+  }
+
+  addOperation(object, operation) {
+    this.props.updateObject({
+      ...object,
+      operations: [...object.operations, operation],
+    });
+  }
+
+  renderCombineOptions() {
+    return (
+      <div>
+        <Button>
+          <ButtonIcon src={CubeIcon} />
+          <div>Union</div>
+        </Button>
+        <Button>
+          <ButtonIcon src={CubeIcon} />
+          <div>Difference</div>
+        </Button>
+        <Button>
+          <ButtonIcon src={CubeIcon} />
+          <div>Intersection</div>
+        </Button>
+      </div>
+    );
+  }
+
+  renderSubPanels(object, operations = []) {
     const Class3D = resolveClass(object.type);
     const {parameterTypes} = Class3D;
 
+    if (operations.length) {
+      const rest = [...operations];
+      const last = rest.pop();
+      const {label, icon, parameterTypes} = operationTypes[last.type];
+      return (
+        <Panel isSubPanel>
+          <PanelHeader>
+            <PanelIcon src={icon} />
+            <div>{label}</div>
+          </PanelHeader>
+          <PanelBody>
+            {parameterTypes.map(parameter => (
+              <PropertyInput
+                key={parameter.name}
+                parameter={parameter}
+                value={last[parameter.name]}
+                onChange={value =>
+                  this.onOperationParameterChange(
+                    object,
+                    last,
+                    parameter.name,
+                    value,
+                  )
+                }
+              />
+            ))}
+            {this.renderSubPanels(object, rest)}
+          </PanelBody>
+        </Panel>
+      );
+    } else {
+      return (
+        <Panel isSubPanel>
+          <PanelHeader>
+            <PanelIcon src={CubeIcon} />
+            <div>{object.type} Geometry</div>
+          </PanelHeader>
+          <PanelBody>
+            {parameterTypes.map(parameter => (
+              <PropertyInput
+                key={parameter.name}
+                parameter={parameter}
+                value={object.parameters[parameter.name]}
+                onChange={value =>
+                  this.onObjectParameterChange(object, parameter.name, value)
+                }
+              />
+            ))}
+          </PanelBody>
+        </Panel>
+      );
+    }
+  }
+
+  renderObjectPanel(object) {
     return (
       <Panel>
         <PanelHeader>
-          <PanelIcon src={CubeIcon} />
           <div>{object.name}</div>
         </PanelHeader>
         <PanelBody>
-          <Button onClick={() => this.onWrapObjects('Translate')}>
+          <Button onClick={() => this.onTranslateClick(object)}>
             <ButtonIcon src={TranslateIcon} />
             <div>Translate</div>
           </Button>
-          <Button onClick={() => this.onWrapObjects('Rotate')}>
+          <Button onClick={() => this.onRotateClick(object)}>
             <ButtonIcon src={RotateIcon} />
             <div>Rotate</div>
           </Button>
-          <Button onClick={() => this.onWrapObjects('Scale')}>
+          <Button onClick={() => this.onScaleClick(object)}>
             <ButtonIcon src={ScaleIcon} />
             <div>Scale</div>
           </Button>
-          <SubPanel>
-            <SubPanelHeader>
-              <PanelIcon src={CubeIcon} />
-              <div>{object.type} Geometry</div>
-            </SubPanelHeader>
-            <PanelBody>
-              {parameterTypes.map(type => (
-                <InputProperty
-                  key={type.name}
-                  label={type.label}
-                  field={type.name}
-                  object={object}
-                  onChange={this.onObjectChange}
-                />
-              ))}
-            </PanelBody>
-          </SubPanel>
+          {this.renderSubPanels(object, object.operations)}
         </PanelBody>
       </Panel>
     );
@@ -182,6 +366,8 @@ class PropertiesPanel extends React.Component {
     if (selectedObjects.length === 1) {
       const object = objects.find(o => o.id === selectedObjects[0]);
       content = this.renderObjectPanel(object);
+    } else if (selectedObjects.length > 1) {
+      content = this.renderCombineOptions();
     }
 
     return <Container>{content}</Container>;
