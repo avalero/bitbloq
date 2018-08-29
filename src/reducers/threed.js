@@ -39,17 +39,13 @@ const threed = (state = initialState, action) => {
       };
 
     case 'WRAP_OBJECTS':
-      const newObject = {
-        ...action.parent,
-        children: action.children,
-      };
       return {
         ...state,
         objects: [
           ...state.objects.filter(o => !action.children.includes(o)),
-          newObject
+          action.parent
         ],
-        selectedObjects: newObject.id
+        selectedObjects: [action.parent.id]
       };
 
     default:

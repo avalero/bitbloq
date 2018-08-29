@@ -117,6 +117,8 @@ class ObjectTree extends React.Component {
         <ObjectList>
           {objects.map(object => {
             const isSelected = selectedObjects.includes(object.id);
+            const {parameters = {}} = object;
+            const {children} = parameters;
             return (
               <ObjectItem key={object.id}>
                 <ObjectName
@@ -128,7 +130,7 @@ class ObjectTree extends React.Component {
                   }>
                   {object.name || object.type}
                 </ObjectName>
-                {this.renderObjectList(object.children)}
+                {this.renderObjectList(children)}
               </ObjectItem>
             );
           })}

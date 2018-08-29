@@ -4,13 +4,18 @@ import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
 import {updateObject, wrapObjects} from '../../actions/threed.js';
 import {colors} from '../../base-styles';
-import {resolveClass} from '../../lib/object3d';
+import {resolveClass, createFromJSON} from '../../lib/object3d';
 import Object3D from '../../lib/object3d/Object3D';
+import CompoundObject from '../../lib/object3d/CompoundObject';
 import CubeIcon from '../../assets/images/cube.svg';
+import SphereIcon from '../../assets/images/sphere.svg';
 import TranslateIcon from '../../assets/images/translate.svg';
 import RotateIcon from '../../assets/images/rotate.svg';
 import ScaleIcon from '../../assets/images/scale.svg';
 import Select from '../Select';
+import Union from '../../lib/object3d/Union';
+import Difference from '../../lib/object3d/Difference';
+import Intersection from '../../lib/object3d/Intersection';
 
 const Container = styled.div`
   position: absolute;
@@ -80,8 +85,8 @@ const FormGroup = styled.div`
 
     &:focus {
       outline: none;
-      border: 1px solid #2684FF;
-      box-shadow: 0 0 0 1px #2684FF;
+      border: 1px solid #2684ff;
+      box-shadow: 0 0 0 1px #2684ff;
     }
   }
 `;
@@ -118,11 +123,24 @@ const SelectProperty = ({label, options, value, onChange}) => (
 );
 
 const PropertyInput = ({parameter, value, onChange}) => {
-  switch(parameter.type) {
+  switch (parameter.type) {
     case 'integer':
-      return <IntegerProperty label={parameter.label} value={value} onChange={onChange} />;
+      return (
+        <IntegerProperty
+          label={parameter.label}
+          value={value}
+          onChange={onChange}
+        />
+      );
     case 'select':
-      return <SelectProperty label={parameter.label} value={value} onChange={onChange} options={parameter.options} />;
+      return (
+        <SelectProperty
+          label={parameter.label}
+          value={value}
+          onChange={onChange}
+          options={parameter.options}
+        />
+      );
     default:
       return null;
   }
@@ -223,16 +241,25 @@ class PropertiesPanel extends React.Component {
     });
   };
 
-  onWrapObjects(type) {
-    const {objects, selectedObjects, wrapObjects} = this.props;
-    const children = objects.filter(o => selectedObjects.includes(o.id));
+  onUnionClick() {
+    const {wrapObjects} = this.props;
+    const children = this.getSelectedObjects();
+    const unionObject = new Union('Union1', {children: children.map(child => createFromJSON(child))});
+    wrapObjects(unionObject.toJSON(), children);
+  }
 
-    const parent = {
-      id: uuid(),
-      type,
-    };
+  onDifferenceClick() {
+    const {wrapObjects} = this.props;
+    const children = this.getSelectedObjects();
+    const differenceObject = new Difference('Difference1', {children: children.map(child => createFromJSON(child))});
+    wrapObjects(differenceObject.toJSON(), children);
+  }
 
-    wrapObjects(parent, children);
+  onIntersectionClick() {
+    const {wrapObjects} = this.props;
+    const children = this.getSelectedObjects();
+    const intersectionObject = new Intersection('Intersection1', {children: children.map(child => createFromJSON(child))});
+    wrapObjects(intersectionObject.toJSON(), children);
   }
 
   onTranslateClick(object) {
@@ -257,18 +284,23 @@ class PropertiesPanel extends React.Component {
     });
   }
 
+  getSelectedObjects() {
+    const {objects = [], selectedObjects = []} = this.props;
+    return objects.filter(o => selectedObjects.includes(o.id));
+  }
+
   renderCombineOptions() {
     return (
       <div>
-        <Button>
+        <Button onClick={() => this.onUnionClick()}>
           <ButtonIcon src={CubeIcon} />
           <div>Union</div>
         </Button>
-        <Button>
+        <Button onClick={() => this.onDifferenceClick()}>
           <ButtonIcon src={CubeIcon} />
           <div>Difference</div>
         </Button>
-        <Button>
+        <Button onClick={() => this.onIntersectionClick()}>
           <ButtonIcon src={CubeIcon} />
           <div>Intersection</div>
         </Button>
@@ -311,26 +343,40 @@ class PropertiesPanel extends React.Component {
         </Panel>
       );
     } else {
-      return (
-        <Panel isSubPanel>
-          <PanelHeader>
-            <PanelIcon src={CubeIcon} />
-            <div>{object.type} Geometry</div>
-          </PanelHeader>
-          <PanelBody>
-            {parameterTypes.map(parameter => (
-              <PropertyInput
-                key={parameter.name}
-                parameter={parameter}
-                value={object.parameters[parameter.name]}
-                onChange={value =>
-                  this.onObjectParameterChange(object, parameter.name, value)
-                }
-              />
+      if (Class3D.prototype instanceof CompoundObject) {
+        const {parameters = {}} = object;
+        const {children = []} = parameters;
+        return (
+          <Panel isSubPanel>
+            {children.map(child => (
+              <PanelHeader key={child.id}>
+                <div>{child.name}</div>
+              </PanelHeader>
             ))}
-          </PanelBody>
-        </Panel>
-      );
+          </Panel>
+        );
+      } else {
+        return (
+          <Panel isSubPanel>
+            <PanelHeader>
+              <PanelIcon src={CubeIcon} />
+              <div>{object.type} Geometry</div>
+            </PanelHeader>
+            <PanelBody>
+              {parameterTypes.map(parameter => (
+                <PropertyInput
+                  key={parameter.name}
+                  parameter={parameter}
+                  value={object.parameters[parameter.name]}
+                  onChange={value =>
+                    this.onObjectParameterChange(object, parameter.name, value)
+                  }
+                />
+              ))}
+            </PanelBody>
+          </Panel>
+        );
+      }
     }
   }
 

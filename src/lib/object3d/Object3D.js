@@ -32,6 +32,11 @@ export default class Object3D {
     };
   }
 
+  static createFromJSON(json) {
+    const {name, parameters, operations, id} = json;
+    return new this(name, parameters, operations, id);
+  }
+
   id = '';
   name = '';
   parameters = {};
