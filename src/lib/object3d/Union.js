@@ -1,3 +1,5 @@
+import * as Three from 'three';
+
 import CompoundObject from './CompoundObject';
 import { ThreeBSP } from './threeCSG';
 
