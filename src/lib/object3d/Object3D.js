@@ -67,6 +67,7 @@ export default class Object3D {
     const material = new Three.MeshLambertMaterial({color: 0xff0000});
     const mesh = new Three.Mesh(geometry, material);
 
+    console.log('drawing mesh');
     // TODO Apply operations
     
 

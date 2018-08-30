@@ -13,6 +13,8 @@ export default class Union extends CompoundObject {
       const bspMesh = new ThreeBSP(this.children[i].getGeometry());
       unionMeshBSP = unionMeshBSP.union(bspMesh);
     }
+
+    console.log('compute union');
     return unionMeshBSP.toGeometry();
   }
 }
