@@ -1,20 +1,51 @@
 const initialState = {
-  code: '',
-  bloqs: []
+  selectedObjects: [],
+  objects: [],
 };
 
 const threed = (state = initialState, action) => {
   switch (action.type) {
-    case 'UPDATE_THREED_BLOQS':
+    case 'SELECT_OBJECT':
       return {
         ...state,
-        bloqs: action.bloqs,
+        selectedObjects: [...state.selectedObjects, action.objectId],
       };
 
-    case 'UPDATE_THREED_CODE':
+    case 'DESELECT_OBJECT':
       return {
         ...state,
-        code: action.code
+        selectedObjects: state.selectedObjects.filter(
+          id => id !== action.objectId,
+        ),
+      };
+
+    case 'CREATE_OBJECT':
+      return {
+        ...state,
+        objects: [...state.objects, action.object],
+        selectedObjects: [action.object.id],
+      };
+
+    case 'UPDATE_OBJECT':
+      return {
+        ...state,
+        objects: state.objects.map(o => {
+          if (o.id === action.object.id) {
+            return action.object;
+          } else {
+            return o;
+          }
+        }),
+      };
+
+    case 'WRAP_OBJECTS':
+      return {
+        ...state,
+        objects: [
+          ...state.objects.filter(o => !action.children.includes(o)),
+          action.parent
+        ],
+        selectedObjects: [action.parent.id]
       };
 
     default:

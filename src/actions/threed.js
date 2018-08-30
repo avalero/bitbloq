@@ -1,13 +1,35 @@
-export function update3DBloqs(bloqs) {
+export function selectObject(objectId) {
   return {
-    type: 'UPDATE_THREED_BLOQS',
-    bloqs
+    type: 'SELECT_OBJECT',
+    objectId
   };
 }
 
-export function update3DCode(code) {
+export function deselectObject(objectId) {
   return {
-    type: 'UPDATE_THREED_CODE',
-    code
+    type: 'DESELECT_OBJECT',
+    objectId
+  };
+}
+
+export function createObject(object) {
+  return {
+    type: 'CREATE_OBJECT',
+    object
+  };
+}
+
+export function updateObject(object) {
+  return {
+    type: 'UPDATE_OBJECT',
+    object
+  };
+}
+
+export function wrapObjects(parent, children) {
+  return {
+    type: 'WRAP_OBJECTS',
+    parent,
+    children
   };
 }

@@ -1,7 +1,6 @@
 import {takeEvery, call, put, select} from 'redux-saga/effects';
 import {updateSoftwareCode as updateSoftwareCodeAction} from '../actions/software';
 import {showNotification, hideNotification} from '../actions/ui';
-import {update3DCode as update3DCodeAction} from '../actions/threed';
 import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
 import web2board, {
   ConnectionError,
@@ -16,12 +15,6 @@ function* updateSoftwareCode() {
   const hardware = yield select(state => state.hardware);
 
   yield put(updateSoftwareCodeAction(generateArduinoCode(bloqs, hardware)));
-}
-
-function* update3DCode() {
-  const bloqs = yield select(state => state.threed.bloqs);
-
-  yield put(update3DCodeAction(generateOOMLCode(bloqs)));
 }
 
 function* uploadCode() {
@@ -75,7 +68,6 @@ function* watchNotificationTime({ key, time }) {
 
 function* rootSaga() {
   yield takeEvery('UPDATE_SOFTWARE_BLOQS', updateSoftwareCode);
-  yield takeEvery('UPDATE_THREED_BLOQS', update3DCode);
   yield takeEvery('UPLOAD_CODE', uploadCode);
   yield takeEvery('SHOW_NOTIFICATION', watchNotificationTime);
 }
