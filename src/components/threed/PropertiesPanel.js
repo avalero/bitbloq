@@ -191,7 +191,7 @@ const operationTypes = {
           },
         ],
       },
-      {
+      { 
         name: 'angle',
         label: 'Angle',
         type: 'integer',

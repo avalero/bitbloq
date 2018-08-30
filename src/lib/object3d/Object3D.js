@@ -68,6 +68,7 @@ export default class Object3D {
     const mesh = new Three.Mesh(geometry, material);
 
     // TODO Apply operations
+    
 
     return mesh;
   }
