@@ -2,7 +2,8 @@ import React from 'react';
 import {connect} from 'react-redux';
 import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
-import {updateObject, wrapObjects} from '../../actions/threed.js';
+import {updateObject, wrapObjects, deleteObject} from '../../actions/threed';
+import {getSelectedObjects} from '../../reducers/threed';
 import {colors} from '../../base-styles';
 import {resolveClass, createFromJSON} from '../../lib/object3d';
 import Object3D from '../../lib/object3d/Object3D';
@@ -12,6 +13,7 @@ import SphereIcon from '../../assets/images/sphere.svg';
 import TranslateIcon from '../../assets/images/translate.svg';
 import RotateIcon from '../../assets/images/rotate.svg';
 import ScaleIcon from '../../assets/images/scale.svg';
+import TrashIcon from '../../assets/images/trash.svg';
 import Select from '../Select';
 import Union from '../../lib/object3d/Union';
 import Difference from '../../lib/object3d/Difference';
@@ -23,7 +25,7 @@ const Container = styled.div`
   right: 0px;
   padding: 12px;
   width: 300px;
-  height: 100%;
+  max-height: 100%;
   overflow-y: auto;
 `;
 
@@ -63,6 +65,17 @@ const PanelIcon = styled.img`
 
 const PanelBody = styled.div`
   padding: 6px;
+`;
+
+const PanelHeaderTitle = styled.div`
+  display: flex;
+  align-items: center;
+  flex: 1;
+`;
+
+const DeleteButton = styled.img`
+  width: 20px;
+  cursor: pointer;
 `;
 
 const FormGroup = styled.div`
@@ -242,24 +255,27 @@ class PropertiesPanel extends React.Component {
   };
 
   onUnionClick() {
-    const {wrapObjects} = this.props;
-    const children = this.getSelectedObjects();
-    const unionObject = new Union('Union1', {children: children.map(child => createFromJSON(child))});
-    wrapObjects(unionObject.toJSON(), children);
+    const {wrapObjects, selectedObjects} = this.props;
+    const unionObject = new Union('Union1', {
+      children: selectedObjects.map(child => createFromJSON(child)),
+    });
+    wrapObjects(unionObject.toJSON(), selectedObjects);
   }
 
   onDifferenceClick() {
-    const {wrapObjects} = this.props;
-    const children = this.getSelectedObjects();
-    const differenceObject = new Difference('Difference1', {children: children.map(child => createFromJSON(child))});
-    wrapObjects(differenceObject.toJSON(), children);
+    const {wrapObjects, selectedObjects} = this.props;
+    const differenceObject = new Difference('Difference1', {
+      children: selectedObjects.map(child => createFromJSON(child)),
+    });
+    wrapObjects(differenceObject.toJSON(), selectedObjects);
   }
 
   onIntersectionClick() {
-    const {wrapObjects} = this.props;
-    const children = this.getSelectedObjects();
-    const intersectionObject = new Intersection('Intersection1', {children: children.map(child => createFromJSON(child))});
-    wrapObjects(intersectionObject.toJSON(), children);
+    const {wrapObjects, selectedObjects} = this.props;
+    const intersectionObject = new Intersection('Intersection1', {
+      children: selectedObjects.map(child => createFromJSON(child)),
+    });
+    wrapObjects(intersectionObject.toJSON(), selectedObjects);
   }
 
   onTranslateClick(object) {
@@ -284,12 +300,16 @@ class PropertiesPanel extends React.Component {
     });
   }
 
-  getSelectedObjects() {
-    const {objects = [], selectedObjects = []} = this.props;
-    return objects.filter(o => selectedObjects.includes(o.id));
+  removeOperation(object, operation) {
+    this.props.updateObject({
+      ...object,
+      operations: object.operations.filter(op => op !== operation),
+    });
   }
 
   renderCombineOptions() {
+    const {selectedObjects} = this.props;
+
     return (
       <div>
         <Button onClick={() => this.onUnionClick()}>
@@ -304,6 +324,13 @@ class PropertiesPanel extends React.Component {
           <ButtonIcon src={CubeIcon} />
           <div>Intersection</div>
         </Button>
+        <Panel isSubPanel>
+          {selectedObjects.map(object => (
+            <PanelHeader key={object.id}>
+              <div>{object.name}</div>
+            </PanelHeader>
+          ))}
+        </Panel>
       </div>
     );
   }
@@ -319,8 +346,11 @@ class PropertiesPanel extends React.Component {
       return (
         <Panel isSubPanel>
           <PanelHeader>
-            <PanelIcon src={icon} />
-            <div>{label}</div>
+            <PanelHeaderTitle>
+              <PanelIcon src={icon} />
+              <div>{label}</div>
+            </PanelHeaderTitle>
+            <DeleteButton src={TrashIcon} onClick={() => this.removeOperation(object, last)} />
           </PanelHeader>
           <PanelBody>
             {parameterTypes.map(parameter => (
@@ -381,10 +411,12 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
+    const {deleteObject} = this.props;
     return (
       <Panel>
         <PanelHeader>
-          <div>{object.name}</div>
+          <PanelHeaderTitle>{object.name}</PanelHeaderTitle>
+          <DeleteButton src={TrashIcon} onClick={() => deleteObject(object)} />
         </PanelHeader>
         <PanelBody>
           <Button onClick={() => this.onTranslateClick(object)}>
@@ -410,8 +442,7 @@ class PropertiesPanel extends React.Component {
     let content;
 
     if (selectedObjects.length === 1) {
-      const object = objects.find(o => o.id === selectedObjects[0]);
-      content = this.renderObjectPanel(object);
+      content = this.renderObjectPanel(selectedObjects[0]);
     } else if (selectedObjects.length > 1) {
       content = this.renderCombineOptions();
     }
@@ -422,12 +453,13 @@ class PropertiesPanel extends React.Component {
 
 const mapStateToProps = ({threed}) => ({
   objects: threed.objects,
-  selectedObjects: threed.selectedObjects,
+  selectedObjects: getSelectedObjects(threed),
 });
 
 const mapDispatchToProps = dispatch => ({
   updateObject: object => dispatch(updateObject(object)),
   wrapObjects: (parent, children) => dispatch(wrapObjects(parent, children)),
+  deleteObject: object => dispatch(deleteObject(object)),
 });
 
 export default connect(

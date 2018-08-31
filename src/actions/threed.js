@@ -1,14 +1,14 @@
-export function selectObject(objectId) {
+export function selectObject(object) {
   return {
     type: 'SELECT_OBJECT',
-    objectId
+    object
   };
 }
 
-export function deselectObject(objectId) {
+export function deselectObject(object) {
   return {
     type: 'DESELECT_OBJECT',
-    objectId
+    object
   };
 }
 
@@ -31,5 +31,12 @@ export function wrapObjects(parent, children) {
     type: 'WRAP_OBJECTS',
     parent,
     children
+  };
+}
+
+export function deleteObject(object) {
+  return {
+    type: 'DELETE_OBJECT',
+    object
   };
 }

@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {colors} from '../../base-styles';
 import {selectObject, deselectObject, createObject} from '../../actions/threed';
+import {getSelectedObjects} from '../../reducers/threed';
 import AddIcon from '../../assets/images/add.svg';
 import CubeIcon from '../../assets/images/cube.svg';
 import SphereIcon from '../../assets/images/sphere.svg';
@@ -116,7 +117,7 @@ class ObjectTree extends React.Component {
       return (
         <ObjectList>
           {objects.map(object => {
-            const isSelected = selectedObjects.includes(object.id);
+            const isSelected = selectedObjects.includes(object);
             const {parameters = {}} = object;
             const {children} = parameters;
             return (
@@ -125,8 +126,8 @@ class ObjectTree extends React.Component {
                   isSelected={isSelected}
                   onClick={() =>
                     isSelected
-                      ? deselectObject(object.id)
-                      : selectObject(object.id)
+                      ? deselectObject(object)
+                      : selectObject(object)
                   }>
                   {object.name || object.type}
                 </ObjectName>
@@ -175,12 +176,12 @@ class ObjectTree extends React.Component {
 
 const mapStateToProps = ({threed}) => ({
   objects: threed.objects,
-  selectedObjects: threed.selectedObjects,
+  selectedObjects: getSelectedObjects(threed),
 });
 
 const mapDispatchToProps = dispatch => ({
-  selectObject: objectId => dispatch(selectObject(objectId)),
-  deselectObject: objectId => dispatch(deselectObject(objectId)),
+  selectObject: object => dispatch(selectObject(object)),
+  deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
 });
 

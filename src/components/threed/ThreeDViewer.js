@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
+import CameraControls from 'camera-controls';
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
 
@@ -9,6 +10,8 @@ const Container = styled.div`
   display: flex;
   overflow: hidden;
 `;
+
+CameraControls.install( { THREE: Three } );
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
@@ -40,7 +43,7 @@ class ThreeDViewer extends React.Component {
   };
 
   clearObjects() {
-    while(this.objectsGroup.children.length > 0) {
+    while (this.objectsGroup.children.length > 0) {
       this.objectsGroup.remove(this.objectsGroup.children[0]);
     }
   }
@@ -67,17 +70,24 @@ class ThreeDViewer extends React.Component {
   setupScene() {
     this.renderer.setClearColor(0xfafafa);
 
-    const spotLight = new Three.SpotLight(0xffffff);
-    spotLight.position.set(0, -100, 100);
+    this.clock = new Three.Clock();
+
+    this.scene.add(new Three.AmbientLight(0x555555));
+    const spotLight = new Three.SpotLight(0xeeeeee);
+    spotLight.position.set(100, 80, 60);
     this.scene.add(spotLight);
 
     const grid = new Three.GridHelper(200, 20);
-    grid.geometry.rotateX(Math.PI / 2);
     this.scene.add(grid);
 
     this.camera = new Three.PerspectiveCamera(75, 1, 0.1, 1000);
-    this.camera.position.set(0, -50, 50);
+    this.camera.position.set(0, 50, 50);
     this.camera.lookAt(new Three.Vector3(0, 0, 0));
+
+    this.cameraControls = new CameraControls(
+      this.camera,
+      this.renderer.domElement,
+    );
 
     this.scene.add(this.objectsGroup);
 
@@ -85,6 +95,9 @@ class ThreeDViewer extends React.Component {
   }
 
   renderLoop = () => {
+    const delta = this.clock.getDelta();
+    this.cameraControls.update(delta);
+
     requestAnimationFrame(this.renderLoop);
 
     this.renderer.render(this.scene, this.camera);
