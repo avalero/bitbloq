@@ -70,7 +70,8 @@ export default class Object3D {
     if(this.operations){
       this.operations.forEach( operation => 
         {
-          if(operation.type === 'translation'){
+          // Translate operation
+          if(operation.type === Object3D.createTranslateOperation().type){
             if(operation.relative){
               mesh.translateX(operation.x);
               mesh.translateY(operation.y);
@@ -81,7 +82,8 @@ export default class Object3D {
               mesh.position.y += Number(operation.y);
               mesh.position.z += Number(operation.z);
             }
-          }else if(operation.type === 'rotation'){
+            //Rotation Operation
+          }else if(operation.type === Object3D.createRotateOperation().type){
             const angle = Three.Math.degToRad(Number(operation.angle));
             switch(operation.axis){
               case 'x':

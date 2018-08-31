@@ -26,6 +26,6 @@ export default class Cube extends Object3D {
 
   getGeometry() {
     const {width,height,depth} = this.parameters;
-    return new Three.BoxGeometry(width, height, depth);
+    return new Three.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 }

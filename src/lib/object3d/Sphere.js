@@ -14,6 +14,6 @@ export default class Sphere extends Object3D {
 
   getGeometry() {
     const {radius} = this.parameters;
-    return new Three.SphereGeometry(radius, 32, 32);
+    return new Three.SphereGeometry(Number(radius), 32, 32);
   }
 }

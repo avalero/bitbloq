@@ -6,8 +6,10 @@ import {selectObject, deselectObject, createObject} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import AddIcon from '../../assets/images/add.svg';
 import CubeIcon from '../../assets/images/cube.svg';
+import CylinderIcon from '../../assets/images/cylinder.svg';
 import SphereIcon from '../../assets/images/sphere.svg';
 import Cube from '../../lib/object3d/Cube';
+import Cylinder from '../../lib/object3d/Cylinder'
 import Sphere from '../../lib/object3d/Sphere';
 
 const Container = styled.div`
@@ -157,6 +159,14 @@ class ObjectTree extends React.Component {
               }}>
               <img src={CubeIcon} />
               <div>Cube</div>
+            </AddDropdownItem>
+            <AddDropdownItem
+              onClick={e => {
+                e.stopPropagation();
+                this.onAddObject(new Cylinder('Cylinder1'));
+              }}>
+              <img src={CylinderIcon} />
+              <div>Cylinder</div>
             </AddDropdownItem>
             <AddDropdownItem
               onClick={e => {
