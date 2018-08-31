@@ -77,12 +77,21 @@ class ThreeDViewer extends React.Component {
     spotLight.position.set(100, 80, 60);
     this.scene.add(spotLight);
 
+    //const grid = new Three.GridHelper(200, 20);
+    //this.scene.add(grid);
+
+    const plane = new Three.Plane(new Three.Vector3(0, 0, 1));
+    const helper = new Three.PlaneHelper(plane, 200, 0x98f5ff);
+    this.scene.add(helper);
+
     const grid = new Three.GridHelper(200, 20);
+    grid.geometry.rotateX(Math.PI / 2);
     this.scene.add(grid);
 
-    this.camera = new Three.PerspectiveCamera(75, 1, 0.1, 1000);
-    this.camera.position.set(0, 50, 50);
-    this.camera.lookAt(new Three.Vector3(0, 0, 0));
+
+    this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
+    this.camera.position.set(0, -200, 180);
+    this.camera.lookAt(this.scene.position);
 
     this.cameraControls = new CameraControls(
       this.camera,
