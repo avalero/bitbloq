@@ -1,8 +1,8 @@
 import * as Three from 'three';
 import uuid from 'uuid/v1';
-import TransformMatrix from './TransformMatrix'
 
 export default class Object3D {
+
   static parameterTypes = [];
 
   static createTranslateOperation(x, y, z, relative = true) {
@@ -45,8 +45,7 @@ export default class Object3D {
   name = '';
   parameters = {};
   operations = [];
-  trMatrix = new TransformMatrix;
-
+  
   constructor(name, parameters = {}, operations = [], id) {
     const defaultParams = {};
     this.constructor.parameterTypes.forEach(paramType => {
@@ -69,18 +68,53 @@ export default class Object3D {
 
   locateMesh(mesh){
     if(this.operations){
-      this.operations.forEach( operation => this.trMatrix.makeOperation(operation));
+      this.operations.forEach( operation => 
+        {
+          if(operation.type === 'translation'){
+            if(operation.relative){
+              mesh.translateX(operation.x);
+              mesh.translateY(operation.y);
+              mesh.translateZ(operation.z);
+            }else{
+              //absolute x,y,z axis.
+              mesh.position.x += Number(operation.x);
+              mesh.position.y += Number(operation.y);
+              mesh.position.z += Number(operation.z);
+            }
+          }else if(operation.type === 'rotation'){
+            const angle = Three.Math.degToRad(Number(operation.angle));
+            switch(operation.axis){
+              case 'x':
+                if(operation.relative){
+                  mesh.rotateX(angle);
+                }else{
+                  mesh.rotateOnWorldAxis(new Three.Vector3(1,0,0), angle);
+                }
+                break;
+                
+              case 'y':
+                if(operation.relative){
+                  mesh.rotateY(angle);
+                }else{
+                  mesh.rotateOnWorldAxis(new Three.Vector3(0,1,0), angle);
+                }
+                break;
+
+              case 'z':
+                if(operation.relative){
+                  mesh.rotateZ(angle);
+                }else{
+                  mesh.rotateOnWorldAxis(new Three.Vector3(0,0,1), angle);
+                }
+                break;
+              
+              default:
+                throw new Error('Unexpected Rotation Axis');
+            }
+          }
+
+        });
     }
-
-    const tr = this.trMatrix.globalTranslation;
-    const rot = this.trMatrix.globalXYZAngles;
-
-    mesh.position.x = tr.x;
-    mesh.position.y = tr.y;
-    mesh.position.z = tr.z;
-    mesh.rotateOnWorldAxis(new Three.Vector3(1,0,0), rot.x);
-    mesh.rotateOnWorldAxis(new Three.Vector3(0,1,0), rot.y);
-    mesh.rotateOnWorldAxis(new Three.Vector3(0,0,1), rot.z);
   }
 
   getMesh() {
@@ -91,6 +125,7 @@ export default class Object3D {
 
     console.log('drawing mesh');
     // TODO Apply operations
+    
     this.locateMesh(mesh);
     
     return mesh;

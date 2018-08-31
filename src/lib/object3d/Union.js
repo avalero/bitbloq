@@ -14,8 +14,7 @@ export default class Union extends CompoundObject {
       unionMeshBSP = unionMeshBSP.union(bspMesh);
     }
 
-    console.log('compute union');
-    const mesh = unionMeshBSP.toMesh(new Three.MeshLambertMaterial({color: 0xff0000}));
+    const mesh = unionMeshBSP.toMesh(new Three.MeshLambertMaterial({ color: 0xff0000 }));
     this.locateMesh(mesh);
     return mesh;
   }
