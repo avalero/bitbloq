@@ -127,7 +127,7 @@ export default class TransformMatrix {
    * @param {angle:double, rel: bool} z Performs a rotation of z degrees around absolute/relative z axis (it transforms current matrix) 
    */
   rotateZ(rot) {
-    z = TransformMatrix.deg2rad(rot.angle);
+    const z = TransformMatrix.deg2rad(rot.angle);
 
     const rotation = new TransformMatrix;
     rotation.set(1,1,Math.cos(z));
@@ -186,7 +186,7 @@ export default class TransformMatrix {
  */
   makeOperation(operation){
     if(operation.type === 'translation'){
-      this.translate({x: operation.x, y:operation.y, z:operation.z,rel:operation.relative});
+      this.translate({x: operation.x, y: operation.y, z:operation.z,rel:operation.relative});
     }else if(operation.type === 'rotation'){
       switch(operation.axis){
         case 'x':
