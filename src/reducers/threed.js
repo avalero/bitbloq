@@ -1,41 +1,71 @@
 const initialState = {
-  selectedObjects: [],
+  selectedIds: [],
   objects: [],
 };
+
+const findObject = (objects = [], id) => {
+  if (!objects.length) {
+    return undefined;
+  }
+
+  const [first, ...rest] = objects;
+  const {parameters: {children = []} = {}} = first;
+
+  if (first.id === id) {
+    return first;
+  }
+
+  return findObject(children, id) || findObject(rest, id);
+};
+
+const updateObject = (objects, updated) => {
+  return objects.map(object => {
+    console.log(object, updated);
+    if (object.id === updated.id) {
+      return updated;
+    } else {
+      const {parameters: {children = []} = {}} = object;
+      if (children.length) {
+        console.log('Children', children);
+        return {
+          ...object,
+          parameters: {
+            ...object.parameters,
+            children: updateObject(children, updated),
+          }
+        };
+      } else {
+        return object;
+      }
+    }
+  });
+}
 
 const threed = (state = initialState, action) => {
   switch (action.type) {
     case 'SELECT_OBJECT':
       return {
         ...state,
-        selectedObjects: [...state.selectedObjects, action.objectId],
+        selectedIds: [...state.selectedIds, action.object.id],
       };
 
     case 'DESELECT_OBJECT':
       return {
         ...state,
-        selectedObjects: state.selectedObjects.filter(
-          id => id !== action.objectId,
-        ),
+        selectedIds: state.selectedIds.filter(id => id !== action.object.id),
       };
 
     case 'CREATE_OBJECT':
       return {
         ...state,
         objects: [...state.objects, action.object],
-        selectedObjects: [action.object.id],
+        selectedIds: [action.object.id],
       };
 
     case 'UPDATE_OBJECT':
       return {
         ...state,
-        objects: state.objects.map(o => {
-          if (o.id === action.object.id) {
-            return action.object;
-          } else {
-            return o;
-          }
-        }),
+        objects: updateObject(state.objects, action.object)
       };
 
     case 'WRAP_OBJECTS':
@@ -43,9 +73,16 @@ const threed = (state = initialState, action) => {
         ...state,
         objects: [
           ...state.objects.filter(o => !action.children.includes(o)),
-          action.parent
+          action.parent,
         ],
-        selectedObjects: [action.parent.id]
+        selectedIds: [action.parent.id],
+      };
+
+    case 'DELETE_OBJECT':
+      return {
+        ...state,
+        objects: state.objects.filter(o => o !== action.object),
+        selectedIds: state.selectedIds.filter(id => id !== action.object.id),
       };
 
     default:
@@ -54,3 +91,7 @@ const threed = (state = initialState, action) => {
 };
 
 export default threed;
+
+
+export const getSelectedObjects = state =>
+  state.selectedIds.map(id => findObject(state.objects, id));
