@@ -9,6 +9,7 @@ import {resolveClass, createFromJSON} from '../../lib/object3d';
 import Object3D from '../../lib/object3d/Object3D';
 import CompoundObject from '../../lib/object3d/CompoundObject';
 import CubeIcon from '../../assets/images/cube.svg';
+import CylinderIcon from '../../assets/images/cylinder.svg';
 import SphereIcon from '../../assets/images/sphere.svg';
 import TranslateIcon from '../../assets/images/translate.svg';
 import RotateIcon from '../../assets/images/rotate.svg';

@@ -1,5 +1,6 @@
 import CompoundObject from './CompoundObject';
 import Cube from './Cube';
+import Cylinder from './Cylinder';
 import Sphere from './Sphere';
 import Union from './Union';
 import Difference from './Difference';
@@ -7,6 +8,7 @@ import Intersection from './Intersection';
 
 const classes = {
   Cube,
+  Cylinder,
   Sphere,
   Union,
   Difference,
