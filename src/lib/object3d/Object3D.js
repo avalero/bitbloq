@@ -1,5 +1,6 @@
 import * as Three from 'three';
 import uuid from 'uuid/v1';
+import TransformMatrix from './TransformMatrix'
 
 export default class Object3D {
   static parameterTypes = [];
@@ -41,6 +42,7 @@ export default class Object3D {
   name = '';
   parameters = {};
   operations = [];
+  trMatrix = new TransformMatrix;
 
   constructor(name, parameters = {}, operations = [], id) {
     const defaultParams = {};
