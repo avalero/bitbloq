@@ -67,8 +67,7 @@ export default class Object3D {
     this.operations.push(operation);
   }
 
-  getMesh() {
-
+  locateMesh(mesh){
     if(this.operations){
       this.operations.forEach( operation => this.trMatrix.makeOperation(operation));
     }
@@ -76,24 +75,24 @@ export default class Object3D {
     const tr = this.trMatrix.globalTranslation;
     const rot = this.trMatrix.globalXYZAngles;
 
-    console.log("tr: " + tr.x +" "+ tr.y +" "+ tr.z);
-    console.log("rot: " + rot.x +" "+rot.y+" "+rot.z);
-
-
-    const geometry = this.getGeometry();
-    const material = new Three.MeshLambertMaterial({color: 0xff0000});
-    const mesh = new Three.Mesh(geometry, material);
-    
     mesh.position.x = tr.x;
     mesh.position.y = tr.y;
     mesh.position.z = tr.z;
     mesh.rotateOnWorldAxis(new Three.Vector3(1,0,0), rot.x);
     mesh.rotateOnWorldAxis(new Three.Vector3(0,1,0), rot.y);
     mesh.rotateOnWorldAxis(new Three.Vector3(0,0,1), rot.z);
+  }
+
+  getMesh() {
+
+    const geometry = this.getGeometry();
+    const material = new Three.MeshLambertMaterial({color: 0xff0000});
+    const mesh = new Three.Mesh(geometry, material);
 
     console.log('drawing mesh');
     // TODO Apply operations
-
+    this.locateMesh(mesh);
+    
     return mesh;
   }
 
