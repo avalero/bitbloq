@@ -6,6 +6,16 @@ export default class TransformMatrix {
   
   static rows = 4;
   static cols = 4;
+
+  static rad2deg(radians){
+    const pi = Math.PI;
+    return radians * (180/pi);
+  };
+
+  static deg2rad(degrees){
+    const pi = Math.PI;
+    return degrees * (pi / 180);
+  };
   
   /**
    * Creates identity matrix
@@ -68,19 +78,19 @@ export default class TransformMatrix {
   }
 
   transform(tr){
-    tr.matrix.multiply(this.matrix);
+    tr.multiply(this);
     this.matrix = tr.matrix;
   }
 
   relTransform(tr){
-    this.matrix.multiply(tr.matrix);
+    this.multiply(tr);
   }
 
   /**
    * @param {angle: double, rel: bool} x Performs a rotation of x degrees around absolute/relative x axis (it transforms current matrix) 
    */
   rotateX(rot) {
-    const x = Math.deg2rad(rot.angle);
+    const x = TransformMatrix.deg2rad(rot.angle);
 
     const rotation = new TransformMatrix;
     //rotation.set(1,1,1);
@@ -99,7 +109,7 @@ export default class TransformMatrix {
    * @param {angle: double, rel: bool} y Performs a rotation of y degrees around absolute/relative y axis (it transforms current matrix) 
    */
   rotateY(rot) {
-    const y = Math.deg2rad(rot.angle);
+    const y = TransformMatrix.deg2rad(rot.angle);
 
     const rotation = new TransformMatrix;
     rotation.set(1,1,Math.cos(y));
@@ -117,7 +127,7 @@ export default class TransformMatrix {
    * @param {angle:double, rel: bool} z Performs a rotation of z degrees around absolute/relative z axis (it transforms current matrix) 
    */
   rotateZ(rot) {
-    z = Math.deg2rad(rot.angle);
+    z = TransformMatrix.deg2rad(rot.angle);
 
     const rotation = new TransformMatrix;
     rotation.set(1,1,Math.cos(z));
@@ -149,29 +159,46 @@ export default class TransformMatrix {
 
 
   /**
-   * @returns absolute rotation angles around x, y, z axes.
+   * @returns absolute rotation angles around x, y, z axes (in rads).
    */
   get globalXYZAngles() {
-    let xa = Math.atan2( - this.get(3,2) , - this.get(3,3) );
-    let ya = Math.atan2( - this.get(3,1) , - Math.sqrt( this.get(3,2)* this.get(3,2)  + this.get(3,3) * this.get(3,3) ) );
-    let za = Math.atan2( - this.get(2,1) , - this.get(1,1) );
+    let x = Math.atan2( - this.get(3,2) , - this.get(3,3) );
+    let y = Math.atan2( - this.get(3,1) , - Math.sqrt( this.get(3,2)* this.get(3,2)  + this.get(3,3) * this.get(3,3) ) );
+    let z = Math.atan2( - this.get(2,1) , - this.get(1,1) );
 
-    xa = Math.rad2deg(x);
-    ya = Math.rad2deg(y);
-    za = Math.rad2deg(z);
-
-    return {xa, ya, za};
+    return {x, y, z};
   }
 
   /**
    * @returns absolute translation on x, y, z axes
    */
   get globalTranslation() {
-    const xt = this.get(1,4);
-    const yt = this.get(2,4);
-    const zt = this.get(3,4);
+    const x = this.get(1,4);
+    const y = this.get(2,4);
+    const z = this.get(3,4);
 
-    return {xt, yt, zt};
+    return {x, y, z};
 
+  }
+/**
+ * 
+ * @param {Object3D Operation} operation 
+ */
+  makeOperation(operation){
+    if(operation.type === 'translation'){
+      this.translate({x: operation.x, y:operation.y, z:operation.z,rel:operation.relative});
+    }else if(operation.type === 'rotation'){
+      switch(operation.axis){
+        case 'x':
+          this.rotateX({angle:operation.angle, rel: operation.relative});
+          break;
+        case 'y':
+          this.rotateY({angle:operation.angle, rel: operation.relative});
+          break; 
+        case 'z':
+          this.rotateZ({angle:operation.angle, rel: operation.relative});
+          break;     
+      }
+    }
   }
 }
