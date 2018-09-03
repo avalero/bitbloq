@@ -1,5 +1,6 @@
 import * as Three from 'three';
 import uuid from 'uuid/v1';
+import TranslationHelper from './TranslationHelper'
 
 export default class Object3D {
 
@@ -126,11 +127,22 @@ export default class Object3D {
     const mesh = new Three.Mesh(geometry, material);
 
     console.log('drawing mesh');
-    // TODO Apply operations
-    
     this.locateMesh(mesh);
+
+    ///if show translationHelper
+    const translationHelperObject = new TranslationHelper(mesh,true);
+    const translationHelper = translationHelperObject.mesh;
+
+    ///if show rotationHelper
+    //TODO
     
-    return mesh;
+    //return meshes;
+    return {
+      mesh, 
+      ...( typeof(translationHelper) != 'undefined' && { translationHelper } ),
+      ...( typeof(rotationHelper) != 'undefined' && { rotationHelper } ) 
+    }
+    //return {mesh, translationHelper}
   }
 
   getGeometry() {

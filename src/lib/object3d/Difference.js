@@ -6,16 +6,16 @@ import { ThreeBSP } from './threeCSG';
 export default class Difference extends CompoundObject {
   getMesh() {
     // First element of array
-    let differenceMeshBSP = new ThreeBSP(this.children[0].getMesh());
+    let differenceMeshBSP = new ThreeBSP(this.children[0].getMesh().mesh);
 
     // Difference with the rest
     for (let i = 1; i < this.children.length; i += 1) {
-      const bspMesh = new ThreeBSP(this.children[i].getMesh());
+      const bspMesh = new ThreeBSP(this.children[i].getMesh().mesh);
       differenceMeshBSP = differenceMeshBSP.subtract(bspMesh);
     }
 
     const mesh = differenceMeshBSP.toMesh(new Three.MeshLambertMaterial({color: 0xff0000}));
     this.locateMesh(mesh);
-    return mesh;
+    return { mesh };
   }
 }

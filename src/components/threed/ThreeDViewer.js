@@ -56,7 +56,12 @@ class ThreeDViewer extends React.Component {
     objects.forEach(object => {
       const object3D = createFromJSON(object);
       const mesh = object3D.getMesh();
-      this.objectsGroup.add(mesh);
+      if(mesh.mesh) this.objectsGroup.add(mesh.mesh);
+      if(mesh.translationHelper) {
+        console.log('added translation helper');
+        this.objectsGroup.add(mesh.translationHelper);
+      }
+      if(mesh.rotationHelper) this.objectsGroup.add(mesh.rotationHelper);
     });
   }
 
