@@ -20,20 +20,24 @@ const findObject = (objects = [], id) => {
 
 const updateObject = (objects, updated) => {
   return objects.map(object => {
-    console.log(object, updated);
     if (object.id === updated.id) {
       return updated;
     } else {
       const {parameters: {children = []} = {}} = object;
       if (children.length) {
-        console.log('Children', children);
-        return {
-          ...object,
-          parameters: {
-            ...object.parameters,
-            children: updateObject(children, updated),
-          }
-        };
+        const updatedChildren = updateObject(children, updated);
+        if (children.length === updatedChildren.length &&
+          children.every(c => updatedChildren.includes(c))) {
+          return object;
+        } else {
+          return {
+            ...object,
+            parameters: {
+              ...object.parameters,
+              children: updateObject(children, updated),
+            }
+          };
+        }
       } else {
         return object;
       }
