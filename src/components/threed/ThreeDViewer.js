@@ -18,9 +18,11 @@ class ThreeDViewer extends React.Component {
   renderer = new Three.WebGLRenderer({antialias: true});
   scene = new Three.Scene();
   objectsGroup = new Three.Group();
+  instances = {};
+  meshes = {};
 
-  componentDidUpdate() {
-    this.updateSceneObjects();
+  componentDidUpdate(prevProps) {
+    this.updateSceneObjects(prevProps.objects);
   }
 
   componentDidMount() {
@@ -42,21 +44,25 @@ class ThreeDViewer extends React.Component {
     this.updateSize();
   };
 
-  clearObjects() {
-    while (this.objectsGroup.children.length > 0) {
-      this.objectsGroup.remove(this.objectsGroup.children[0]);
-    }
-  }
-
-  updateSceneObjects() {
+  updateSceneObjects(prevObjects = []) {
     const {objects = []} = this.props;
 
-    this.clearObjects();
+    prevObjects.forEach(prevObject => {
+      if (!objects.includes(prevObject)) {
+        this.objectsGroup.remove(this.meshes[prevObject.id]);
+        delete this.instances[prevObject.id];
+        delete this.meshes[prevObject.id];
+      }
+    });
 
     objects.forEach(object => {
-      const object3D = createFromJSON(object);
-      const mesh = object3D.getMesh();
-      this.objectsGroup.add(mesh);
+      if (!prevObjects.includes(object)) {
+        const object3D = createFromJSON(object);
+        const mesh = object3D.getMesh();
+        this.instances[object.id] = object3D;
+        this.meshes[object.id] = mesh;
+        this.objectsGroup.add(mesh);
+      }
     });
   }
 
