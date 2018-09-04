@@ -120,7 +120,6 @@ export default class Object3D {
   }
 
   getMesh() {
-
     const geometry = this.getGeometry();
     const material = new Three.MeshLambertMaterial({color: 0xff0000});
     const mesh = new Three.Mesh(geometry, material);

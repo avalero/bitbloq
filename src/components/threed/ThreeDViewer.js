@@ -4,6 +4,8 @@ import * as Three from 'three';
 import CameraControls from 'camera-controls';
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
+import TranslationHelper from '../../lib/object3d/RotationHelper'
+import RotationHelper from '../../lib/object3d/RotationHelper'
 
 const Container = styled.div`
   flex: 1;
@@ -62,6 +64,14 @@ class ThreeDViewer extends React.Component {
         this.instances[object.id] = object3D;
         this.meshes[object.id] = mesh;
         this.objectsGroup.add(mesh);
+
+          //We create Helpers as shown here 
+        const trHelper = new TranslationHelper(mesh,'x',true).mesh;
+        this.objectsGroup.add(trHelper);
+
+        const rotHelper = new RotationHelper(mesh,'x',true).mesh;
+        this.objectsGroup.add(rotHelper);
+        //End Helpers
       }
     });
   }

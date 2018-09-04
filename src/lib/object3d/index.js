@@ -5,6 +5,7 @@ import Sphere from './Sphere';
 import Union from './Union';
 import Difference from './Difference';
 import Intersection from './Intersection';
+import TranslationHelper from './TranslationHelper'
 
 const classes = {
   Cube,
