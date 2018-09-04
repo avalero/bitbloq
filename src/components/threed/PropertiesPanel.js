@@ -2,7 +2,13 @@ import React from 'react';
 import {connect} from 'react-redux';
 import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
-import {updateObject, wrapObjects, deleteObject} from '../../actions/threed';
+import {
+  updateObject,
+  wrapObjects,
+  deleteObject,
+  setActiveOperation,
+  unsetActiveOperation,
+} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import {colors} from '../../base-styles';
 import {resolveClass, createFromJSON} from '../../lib/object3d';
@@ -122,28 +128,43 @@ const ButtonIcon = styled.img`
   margin-right: 6px;
 `;
 
-const IntegerProperty = ({label, value, onChange}) => (
+const IntegerProperty = ({label, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
-    <input value={value} onChange={e => onChange(e.target.value)} />
+    <input
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      onFocus={onFocus}
+      onBlur={onBlur}
+    />
   </FormGroup>
 );
 
-const SelectProperty = ({label, options, value, onChange}) => (
+const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
-    <Select value={value} options={options} onChange={onChange} />
+    <Select
+      value={value}
+      options={options}
+      onChange={onChange}
+      onFocus={onFocus}
+      onBlur={onBlur}
+    />
   </FormGroup>
 );
 
 const BooleanProperty = ({label, value, onChange}) => (
   <FormGroup>
     <label>{label}</label>
-    <input type="checkbox" checked={value} onChange={e => onChange(e.target.checked)} />
+    <input
+      type="checkbox"
+      checked={value}
+      onChange={e => onChange(e.target.checked)}
+    />
   </FormGroup>
 );
 
-const PropertyInput = ({parameter, value, onChange}) => {
+const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
   switch (parameter.type) {
     case 'integer':
       return (
@@ -151,6 +172,8 @@ const PropertyInput = ({parameter, value, onChange}) => {
           label={parameter.label}
           value={value}
           onChange={onChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
         />
       );
     case 'select':
@@ -159,6 +182,8 @@ const PropertyInput = ({parameter, value, onChange}) => {
           label={parameter.label}
           value={value}
           onChange={onChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
           options={parameter.options}
         />
       );
@@ -189,16 +214,34 @@ const operationTypes = {
         name: 'x',
         label: 'X',
         type: 'integer',
+        activeOperation: (object, operation) => ({
+          object,
+          type: 'translation',
+          axis: 'x',
+          relative: operation.relative,
+        }),
       },
       {
         name: 'y',
         label: 'Y',
         type: 'integer',
+        activeOperation: (object, operation) => ({
+          object,
+          type: 'translation',
+          axis: 'y',
+          relative: operation.relative,
+        }),
       },
       {
         name: 'z',
         label: 'Z',
         type: 'integer',
+        activeOperation: (object, operation) => ({
+          object,
+          type: 'translation',
+          axis: 'x',
+          relative: operation.relative,
+        }),
       },
     ],
   },
@@ -230,10 +273,16 @@ const operationTypes = {
           },
         ],
       },
-      { 
+      {
         name: 'angle',
         label: 'Angle',
         type: 'integer',
+        activeOperation: (object, operation) => ({
+          object,
+          type: 'rotation',
+          axis: operation.axis,
+          relative: operation.relative,
+        }),
       },
     ],
   },
@@ -362,6 +411,7 @@ class PropertiesPanel extends React.Component {
   }
 
   renderSubPanels(object, operations = []) {
+    const {setActiveOperation, unsetActiveOperation} = this.props;
     const Class3D = resolveClass(object.type);
     const {parameterTypes} = Class3D;
 
@@ -376,7 +426,10 @@ class PropertiesPanel extends React.Component {
               <PanelIcon src={icon} />
               <div>{label}</div>
             </PanelHeaderTitle>
-            <DeleteButton src={TrashIcon} onClick={() => this.removeOperation(object, last)} />
+            <DeleteButton
+              src={TrashIcon}
+              onClick={() => this.removeOperation(object, last)}
+            />
           </PanelHeader>
           <PanelBody>
             {parameterTypes.map(parameter => (
@@ -392,6 +445,16 @@ class PropertiesPanel extends React.Component {
                     value,
                   )
                 }
+                onFocus={() => {
+                  if (parameter.activeOperation) {
+                    setActiveOperation(parameter.activeOperation(object, last));
+                  }
+                }}
+                onBlur={() => {
+                  if (parameter.activeOperation) {
+                    unsetActiveOperation();
+                  }
+                }}
               />
             ))}
             {this.renderSubPanels(object, rest)}
@@ -486,6 +549,9 @@ const mapDispatchToProps = dispatch => ({
   updateObject: object => dispatch(updateObject(object)),
   wrapObjects: (parent, children) => dispatch(wrapObjects(parent, children)),
   deleteObject: object => dispatch(deleteObject(object)),
+  setActiveOperation: ({object, type, axis, relative}) =>
+    dispatch(setActiveOperation(object, type, axis, relative)),
+  unsetActiveOperation: () => dispatch(unsetActiveOperation()),
 });
 
 export default connect(
