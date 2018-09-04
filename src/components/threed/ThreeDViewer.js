@@ -66,11 +66,11 @@ class ThreeDViewer extends React.Component {
         this.objectsGroup.add(mesh);
 
           //We create Helpers as shown here 
-        const trHelper = new TranslationHelper(mesh,'x',true).mesh;
-        this.objectsGroup.add(trHelper);
+        //const trHelper = new TranslationHelper(mesh,'x',true).mesh;
+        //this.objectsGroup.add(trHelper);
 
-        const rotHelper = new RotationHelper(mesh,'x',true).mesh;
-        this.objectsGroup.add(rotHelper);
+        //const rotHelper = new RotationHelper(mesh,'x',true).mesh;
+        //this.objectsGroup.add(rotHelper);
         //End Helpers
       }
     });

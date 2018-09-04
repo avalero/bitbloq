@@ -2,14 +2,15 @@ import CompoundObject from './CompoundObject';
 import Cube from './Cube';
 import Cylinder from './Cylinder';
 import Sphere from './Sphere';
+import Prism from './Prism';
 import Union from './Union';
 import Difference from './Difference';
 import Intersection from './Intersection';
-import TranslationHelper from './TranslationHelper'
 
 const classes = {
   Cube,
   Cylinder,
+  Prism,
   Sphere,
   Union,
   Difference,

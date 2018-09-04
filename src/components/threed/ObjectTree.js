@@ -7,10 +7,13 @@ import {getSelectedObjects} from '../../reducers/threed';
 import AddIcon from '../../assets/images/add.svg';
 import CubeIcon from '../../assets/images/cube.svg';
 import CylinderIcon from '../../assets/images/cylinder.svg';
+import PrismIcon from '../../assets/images/prism.svg';
 import SphereIcon from '../../assets/images/sphere.svg';
 import Cube from '../../lib/object3d/Cube';
 import Cylinder from '../../lib/object3d/Cylinder'
 import Sphere from '../../lib/object3d/Sphere';
+import Prism from '../../lib/object3d/Prism';
+
 
 const Container = styled.div`
   width: 240px;
@@ -167,6 +170,14 @@ class ObjectTree extends React.Component {
               }}>
               <img src={CylinderIcon} />
               <div>Cylinder</div>
+            </AddDropdownItem>
+            <AddDropdownItem
+              onClick={e => {
+                e.stopPropagation();
+                this.onAddObject(new Prism('Prism1'));
+              }}>
+              <img src={PrismIcon} />
+              <div>Prism</div>
             </AddDropdownItem>
             <AddDropdownItem
               onClick={e => {
