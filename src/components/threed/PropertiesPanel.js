@@ -85,7 +85,7 @@ const FormGroup = styled.div`
   align-items: center;
 
   label {
-    width: 72px;
+    width: 120px;
     display: block;
   }
 
@@ -136,6 +136,13 @@ const SelectProperty = ({label, options, value, onChange}) => (
   </FormGroup>
 );
 
+const BooleanProperty = ({label, value, onChange}) => (
+  <FormGroup>
+    <label>{label}</label>
+    <input type="checkbox" checked={value} onChange={e => onChange(e.target.checked)} />
+  </FormGroup>
+);
+
 const PropertyInput = ({parameter, value, onChange}) => {
   switch (parameter.type) {
     case 'integer':
@@ -155,6 +162,14 @@ const PropertyInput = ({parameter, value, onChange}) => {
           options={parameter.options}
         />
       );
+    case 'boolean':
+      return (
+        <BooleanProperty
+          label={parameter.label}
+          value={value}
+          onChange={onChange}
+        />
+      );
     default:
       return null;
   }
@@ -165,6 +180,11 @@ const operationTypes = {
     label: 'Translate',
     icon: TranslateIcon,
     parameterTypes: [
+      {
+        name: 'relative',
+        label: 'Relative',
+        type: 'boolean',
+      },
       {
         name: 'x',
         label: 'X',
@@ -186,6 +206,11 @@ const operationTypes = {
     label: 'Rotate',
     icon: RotateIcon,
     parameterTypes: [
+      {
+        name: 'relative',
+        label: 'Relative',
+        type: 'boolean',
+      },
       {
         name: 'axis',
         label: 'Axis',
