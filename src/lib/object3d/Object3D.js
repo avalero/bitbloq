@@ -41,6 +41,21 @@ export default class Object3D {
     return new this(name, parameters, operations, id);
   }
 
+  static colors = [
+    0xFF0000,
+    0x800000,
+    0xFFFF00,
+    0x808000,
+    0x00FF00,
+    0x008000,
+    0x00FFFF,
+    0x008080,
+    0x0000FF,
+    0x000080,
+    0xFF00FF,
+    0x800080
+  ]
+
   id = '';
   name = '';
   parameters = {};
@@ -52,8 +67,12 @@ export default class Object3D {
       defaultParams[paramType.name] = paramType.defaultValue;
     });
 
+    //select random color
+    const color_i = Math.floor(Math.random() * Object3D.colors.length);
+    
     this.parameters = {
       ...defaultParams,
+      color: Object3D.colors[color_i],
       ...parameters
     };
 
@@ -121,7 +140,7 @@ export default class Object3D {
 
   getMesh() {
     const geometry = this.getGeometry();
-    const material = new Three.MeshLambertMaterial({color: 0xff0000});
+    const material = new Three.MeshLambertMaterial({color: this.parameters.color || 0xff0000});
     const mesh = new Three.Mesh(geometry, material);
 
     this.locateMesh(mesh);
