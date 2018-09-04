@@ -4,6 +4,8 @@ import * as Three from 'three';
 import CameraControls from 'camera-controls';
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
+import TranslationHelper from '../../lib/object3d/RotationHelper'
+import RotationHelper from '../../lib/object3d/RotationHelper'
 
 const Container = styled.div`
   flex: 1;
@@ -56,12 +58,16 @@ class ThreeDViewer extends React.Component {
     objects.forEach(object => {
       const object3D = createFromJSON(object);
       const mesh = object3D.getMesh();
-      if(mesh.mesh) this.objectsGroup.add(mesh.mesh);
-      if(mesh.translationHelper) {
-        console.log('added translation helper');
-        this.objectsGroup.add(mesh.translationHelper);
-      }
-      if(mesh.rotationHelper) this.objectsGroup.add(mesh.rotationHelper);
+      this.objectsGroup.add(mesh);
+      
+      //We create Helpers as shown here 
+      const trHelper = new TranslationHelper(mesh,'x',true).mesh;
+      this.objectsGroup.add(trHelper);
+
+      const rotHelper = new RotationHelper(mesh,'x',true).mesh;
+      this.objectsGroup.add(rotHelper);
+      //End Helpers
+      
     });
   }
 
