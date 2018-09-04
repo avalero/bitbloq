@@ -4,8 +4,8 @@ import * as Three from 'three';
 import CameraControls from 'camera-controls';
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
-import TranslationHelper from '../../lib/object3d/RotationHelper'
-import RotationHelper from '../../lib/object3d/RotationHelper'
+import TranslationHelper from '../../lib/object3d/RotationHelper';
+import RotationHelper from '../../lib/object3d/RotationHelper';
 
 const Container = styled.div`
   flex: 1;
@@ -13,15 +13,17 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-CameraControls.install( { THREE: Three } );
+CameraControls.install({THREE: Three});
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
   renderer = new Three.WebGLRenderer({antialias: true});
   scene = new Three.Scene();
+  helpersGroup = new Three.Group();
   objectsGroup = new Three.Group();
   instances = {};
   meshes = {};
+  activeHelper = null;
 
   componentDidUpdate(prevProps) {
     this.updateSceneObjects(prevProps.objects);
@@ -47,7 +49,7 @@ class ThreeDViewer extends React.Component {
   };
 
   updateSceneObjects(prevObjects = []) {
-    const {objects = []} = this.props;
+    const {objects = [], activeOperation} = this.props;
 
     prevObjects.forEach(prevObject => {
       if (!objects.includes(prevObject)) {
@@ -64,16 +66,24 @@ class ThreeDViewer extends React.Component {
         this.instances[object.id] = object3D;
         this.meshes[object.id] = mesh;
         this.objectsGroup.add(mesh);
-
-          //We create Helpers as shown here 
-        const trHelper = new TranslationHelper(mesh,'x',true).mesh;
-        this.objectsGroup.add(trHelper);
-
-        const rotHelper = new RotationHelper(mesh,'x',true).mesh;
-        this.objectsGroup.add(rotHelper);
-        //End Helpers
       }
     });
+
+    this.helpersGroup.remove(this.activeHelper);
+    if (activeOperation) {
+      const mesh = this.meshes[activeOperation.object.id];
+      if (activeOperation.type === 'translation') {
+        const trHelper = new TranslationHelper(mesh, activeOperation.axis, activeOperation.relative).mesh;
+        this.helpersGroup.add(trHelper);
+        this.activeHelper = trHelper;
+      }
+      if (activeOperation.type === 'rotation') {
+        const rotHelper = new RotationHelper(mesh, activeOperation.axis, activeOperation.relative).mesh;
+        this.helpersGroup.add(rotHelper);
+        this.activeHelper = rotHelper;
+      }
+    }
+
   }
 
   updateSize() {
@@ -104,7 +114,6 @@ class ThreeDViewer extends React.Component {
     grid.geometry.rotateX(Math.PI / 2);
     this.scene.add(grid);
 
-
     this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.position.set(0, -200, 180);
     this.camera.lookAt(this.scene.position);
@@ -115,6 +124,7 @@ class ThreeDViewer extends React.Component {
     );
 
     this.scene.add(this.objectsGroup);
+    this.scene.add(this.helpersGroup);
 
     this.renderer.render(this.scene, this.camera);
   }
@@ -135,6 +145,7 @@ class ThreeDViewer extends React.Component {
 
 const mapStateToProps = ({threed}) => ({
   objects: threed.objects,
+  activeOperation: threed.activeOperation,
 });
 
 const mapDispatchToProps = dispatch => ({});

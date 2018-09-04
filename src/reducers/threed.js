@@ -1,6 +1,7 @@
 const initialState = {
   selectedIds: [],
   objects: [],
+  activeOperation: null,
 };
 
 const findObject = (objects = [], id) => {
@@ -26,8 +27,10 @@ const updateObject = (objects, updated) => {
       const {parameters: {children = []} = {}} = object;
       if (children.length) {
         const updatedChildren = updateObject(children, updated);
-        if (children.length === updatedChildren.length &&
-          children.every(c => updatedChildren.includes(c))) {
+        if (
+          children.length === updatedChildren.length &&
+          children.every(c => updatedChildren.includes(c))
+        ) {
           return object;
         } else {
           return {
@@ -35,7 +38,7 @@ const updateObject = (objects, updated) => {
             parameters: {
               ...object.parameters,
               children: updateObject(children, updated),
-            }
+            },
           };
         }
       } else {
@@ -43,7 +46,7 @@ const updateObject = (objects, updated) => {
       }
     }
   });
-}
+};
 
 const threed = (state = initialState, action) => {
   switch (action.type) {
@@ -69,7 +72,7 @@ const threed = (state = initialState, action) => {
     case 'UPDATE_OBJECT':
       return {
         ...state,
-        objects: updateObject(state.objects, action.object)
+        objects: updateObject(state.objects, action.object),
       };
 
     case 'WRAP_OBJECTS':
@@ -89,13 +92,29 @@ const threed = (state = initialState, action) => {
         selectedIds: state.selectedIds.filter(id => id !== action.object.id),
       };
 
+    case 'SET_ACTIVE_OPERATION':
+      return {
+        ...state,
+        activeOperation: {
+          object: action.object,
+          type: action.operationType,
+          axis: action.axis,
+          relative: action.relative,
+        },
+      };
+
+    case 'UNSET_ACTIVE_OPERATION':
+      return {
+        ...state,
+        activeOperation: null,
+      };
+
     default:
       return state;
   }
 };
 
 export default threed;
-
 
 export const getSelectedObjects = state =>
   state.selectedIds.map(id => findObject(state.objects, id));
