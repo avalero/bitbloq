@@ -1,8 +1,8 @@
 export function openSection(section) {
   return {
     type: 'OPEN_SECTION',
-    section
-  }
+    section,
+  };
 }
 
 export function showNotification(key, content, time) {
@@ -10,13 +10,27 @@ export function showNotification(key, content, time) {
     type: 'SHOW_NOTIFICATION',
     content,
     key,
-    time
-  }
+    time,
+  };
 }
 
 export function hideNotification(key) {
   return {
     type: 'HIDE_NOTIFICATION',
-    key
-  }
+    key,
+  };
+}
+
+export function keyDown(key) {
+  return {
+    type: 'KEY_DOWN',
+    key,
+  };
+}
+
+export function keyUp(key) {
+  return {
+    type: 'KEY_UP',
+    key,
+  };
 }

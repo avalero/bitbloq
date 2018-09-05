@@ -1,6 +1,9 @@
 const initialState = {
   currentSectionId: '3d',
   notifications: {},
+  shiftPressed: false,
+  controlPressed: false,
+  altPressed: false,
 };
 
 const ui = (state = initialState, action) => {
@@ -29,6 +32,22 @@ const ui = (state = initialState, action) => {
       return {
         ...state,
         notifications,
+      };
+
+    case 'KEY_DOWN':
+      return {
+        ...state,
+        shiftPressed: state.shiftPressed || action.key === 'Shift',
+        controlPressed: state.controlPressed || action.key === 'Control',
+        altPressed: state.altPressed || action.key === 'Alt',
+      };
+
+    case 'KEY_UP':
+      return {
+        ...state,
+        shiftPressed: state.shiftPressed && action.key !== 'Shift',
+        controlPressed: state.controlPressed && action.key !== 'Control',
+        altPressed: state.altPressed && !action.key !== 'Alt',
       };
 
     default:

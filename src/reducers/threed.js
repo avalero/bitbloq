@@ -53,7 +53,9 @@ const threed = (state = initialState, action) => {
     case 'SELECT_OBJECT':
       return {
         ...state,
-        selectedIds: [...state.selectedIds, action.object.id],
+        selectedIds: action.addToSelection
+          ? [...state.selectedIds, action.object.id]
+          : [action.object.id],
       };
 
     case 'DESELECT_OBJECT':

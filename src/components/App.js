@@ -5,7 +5,7 @@ import NotificationsBar from './NotificationsBar';
 import Hardware from './Hardware';
 import Software from './Software';
 import ThreeD from './threed/ThreeD';
-import {openSection} from '../actions/ui';
+import {openSection, keyDown, keyUp} from '../actions/ui';
 import {uploadCode} from '../actions/software';
 import {colors} from '../base-styles';
 import HardwareIcon from '../assets/images/hardware.svg';
@@ -102,44 +102,65 @@ const sections = [
   },
 ];
 
-const App = ({currentSectionId, openSection, uploadCode}) => {
-  const currentSection = sections.find(
-    section => section.id === currentSectionId,
-  );
+class App extends React.Component {
+  componentDidMount() {
+    document.body.addEventListener('keydown', this.onBodyKeyDown);
+    document.body.addEventListener('keyup', this.onBodyKeyUp);
+  }
 
-  return (
-    <Container>
-      <Header>
-        <Tabs>
-          {sections.map(section => (
-            <Tab
-              key={section.id}
-              selected={section === currentSection}
-              onClick={() => openSection(section.id)}>
-              <TabIcon src={section.icon} />
-              {section.title}
-            </Tab>
-          ))}
-        </Tabs>
-        <Buttons>
-          <Button onClick={uploadCode}>
-            <ButtonIcon src={UploadIcon} />
-          </Button>
-        </Buttons>
-      </Header>
-      <NotificationsBar />
-      {currentSection &&
-        currentSection.component &&
-        React.createElement(currentSection.component)}
-    </Container>
-  );
+  componentWillUnmount() {
+    document.body.removeEventListener('keydown', this.onBodyKeyDown);
+    document.body.removeEventListener('keyup', this.onBodyKeyUp);
+  }
+
+  onBodyKeyDown = (e) => {
+    this.props.keyDown(e.key);
+  }
+
+  onBodyKeyUp = (e) => {
+    this.props.keyUp(e.key);
+  }
+
+  render() {
+    const {currentSectionId, openSection, uploadCode} = this.props;
+    const currentSection = sections.find(
+      section => section.id === currentSectionId,
+    );
+
+    return (
+      <Container>
+        <Header>
+          <Tabs>
+            {sections.map(section => (
+              <Tab
+                key={section.id}
+                selected={section === currentSection}
+                onClick={() => openSection(section.id)}>
+                <TabIcon src={section.icon} />
+                {section.title}
+              </Tab>
+            ))}
+          </Tabs>
+          <Buttons>
+            <Button onClick={uploadCode}>
+              <ButtonIcon src={UploadIcon} />
+            </Button>
+          </Buttons>
+        </Header>
+        <NotificationsBar />
+        {currentSection &&
+          currentSection.component &&
+          React.createElement(currentSection.component)}
+      </Container>
+    );
+  }
 };
 
 const mapStateToProps = ({ui}) => ({
   currentSectionId: ui.currentSectionId,
 });
 
-const mapDispatchToProps = {openSection, uploadCode};
+const mapDispatchToProps = {openSection, uploadCode, keyDown, keyUp};
 
 export default connect(
   mapStateToProps,
