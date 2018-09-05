@@ -1,7 +1,8 @@
-export function selectObject(object) {
+export function selectObject(object, addToSelection) {
   return {
     type: 'SELECT_OBJECT',
     object,
+    addToSelection,
   };
 }
 

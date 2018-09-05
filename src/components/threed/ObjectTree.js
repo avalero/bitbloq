@@ -5,15 +5,15 @@ import {colors} from '../../base-styles';
 import {selectObject, deselectObject, createObject} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import AddIcon from '../../assets/images/add.svg';
+import PlusIcon from '../../assets/images/plus.svg';
 import CubeIcon from '../../assets/images/cube.svg';
 import CylinderIcon from '../../assets/images/cylinder.svg';
 import PrismIcon from '../../assets/images/prism.svg';
 import SphereIcon from '../../assets/images/sphere.svg';
 import Cube from '../../lib/object3d/Cube';
-import Cylinder from '../../lib/object3d/Cylinder'
+import Cylinder from '../../lib/object3d/Cylinder';
 import Sphere from '../../lib/object3d/Sphere';
 import Prism from '../../lib/object3d/Prism';
-
 
 const Container = styled.div`
   width: 240px;
@@ -40,12 +40,29 @@ const ObjectName = styled.div`
   margin-bottom: 3px;
   cursor: pointer;
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+
   ${props =>
     props.isSelected &&
     css`
-      background-color: #777;
+      background-color: #999;
       color: white;
     `};
+  ${props =>
+    props.isFirstSelected &&
+    css`
+      background-color: #777;
+    `};
+
+  span {
+    flex: 1;
+  }
+
+  img {
+    height: 18px;
+    cursor: pointer;
+  }
 `;
 
 const AddButton = styled.div`
@@ -116,25 +133,58 @@ class ObjectTree extends React.Component {
   }
 
   renderObjectList(objects) {
-    const {selectedObjects, selectObject, deselectObject} = this.props;
+    const {
+      objects: topObjects,
+      selectedObjects,
+      selectObject,
+      deselectObject,
+      controlPressed,
+      shiftPressed,
+    } = this.props;
 
     if (objects && objects.length) {
       return (
         <ObjectList>
           {objects.map(object => {
             const isSelected = selectedObjects.includes(object);
+            const isTop = topObjects.includes(object);
+            const isSelectedTop =
+              selectedObjects.length && topObjects.includes(selectedObjects[0]);
             const {parameters = {}} = object;
             const {children} = parameters;
+
             return (
               <ObjectItem key={object.id}>
                 <ObjectName
+                  isFirstSelected={selectedObjects.indexOf(object) === 0}
                   isSelected={isSelected}
-                  onClick={() =>
-                    isSelected
-                      ? deselectObject(object)
-                      : selectObject(object)
-                  }>
-                  {object.name || object.type}
+                  onClick={() => {
+                    if (isTop && isSelectedTop && (controlPressed || shiftPressed)) {
+                      if (isSelected) {
+                        deselectObject(object);
+                      } else {
+                        selectObject(object, true);
+                      }
+                    } else {
+                      if (isSelected && selectedObjects.length === 1) {
+                        deselectObject(object);
+                      } else {
+                        selectObject(object);
+                      }
+                    }
+                  }}>
+                  <span>{object.name || object.type}</span>
+                  {!isSelected &&
+                    isTop &&
+                    isSelectedTop && (
+                      <img
+                        src={PlusIcon}
+                        onClick={e => {
+                          e.stopPropagation();
+                          selectObject(object, true);
+                        }}
+                      />
+                    )}
                 </ObjectName>
                 {this.renderObjectList(children)}
               </ObjectItem>
@@ -195,13 +245,16 @@ class ObjectTree extends React.Component {
   }
 }
 
-const mapStateToProps = ({threed}) => ({
+const mapStateToProps = ({ui, threed}) => ({
   objects: threed.objects,
   selectedObjects: getSelectedObjects(threed),
+  controlPressed: ui.controlPressed,
+  shiftPressed: ui.shiftPressed,
 });
 
 const mapDispatchToProps = dispatch => ({
-  selectObject: object => dispatch(selectObject(object)),
+  selectObject: (object, addToSelection) =>
+    dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
 });
