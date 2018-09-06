@@ -30,10 +30,12 @@ const Tree = styled.div`
 
 const ObjectList = styled.ul`
   width: 100%;
-  margin-left: 12px;
+  padding-left: 12px;
 `;
 
-const ObjectItem = styled.li``;
+const ObjectItem = styled.li`
+  width: 100%;
+`;
 
 const ObjectName = styled.div`
   padding: 9px;
@@ -149,7 +151,8 @@ class ObjectTree extends React.Component {
             const isSelected = selectedObjects.includes(object);
             const isTop = topObjects.includes(object);
             const isSelectedTop =
-              selectedObjects.length && topObjects.includes(selectedObjects[0]);
+              selectedObjects.length > 0 &&
+              topObjects.includes(selectedObjects[0]);
             const {parameters = {}} = object;
             const {children} = parameters;
 
@@ -159,7 +162,11 @@ class ObjectTree extends React.Component {
                   isFirstSelected={selectedObjects.indexOf(object) === 0}
                   isSelected={isSelected}
                   onClick={() => {
-                    if (isTop && isSelectedTop && (controlPressed || shiftPressed)) {
+                    if (
+                      isTop &&
+                      isSelectedTop &&
+                      (controlPressed || shiftPressed)
+                    ) {
                       if (isSelected) {
                         deselectObject(object);
                       } else {
