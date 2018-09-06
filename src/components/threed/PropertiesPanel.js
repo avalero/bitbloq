@@ -14,9 +14,9 @@ import {colors} from '../../base-styles';
 import {resolveClass, createFromJSON} from '../../lib/object3d';
 import Object3D from '../../lib/object3d/Object3D';
 import CompoundObject from '../../lib/object3d/CompoundObject';
-import CubeIcon from '../../assets/images/cube.svg';
-import CylinderIcon from '../../assets/images/cylinder.svg';
-import SphereIcon from '../../assets/images/sphere.svg';
+import UnionIcon from '../../assets/images/union.svg';
+import DifferenceIcon from '../../assets/images/subtract.svg';
+import IntersectionIcon from '../../assets/images/intersection.svg';
 import TranslateIcon from '../../assets/images/translate.svg';
 import RotateIcon from '../../assets/images/rotate.svg';
 import ScaleIcon from '../../assets/images/scale.svg';
@@ -388,15 +388,15 @@ class PropertiesPanel extends React.Component {
     return (
       <div>
         <Button onClick={() => this.onUnionClick()}>
-          <ButtonIcon src={CubeIcon} />
+          <ButtonIcon src={UnionIcon} />
           <div>Union</div>
         </Button>
         <Button onClick={() => this.onDifferenceClick()}>
-          <ButtonIcon src={CubeIcon} />
+          <ButtonIcon src={DifferenceIcon} />
           <div>Difference</div>
         </Button>
         <Button onClick={() => this.onIntersectionClick()}>
-          <ButtonIcon src={CubeIcon} />
+          <ButtonIcon src={IntersectionIcon} />
           <div>Intersection</div>
         </Button>
         <Panel isSubPanel>
@@ -478,7 +478,7 @@ class PropertiesPanel extends React.Component {
         return (
           <Panel isSubPanel>
             <PanelHeader>
-              <PanelIcon src={CubeIcon} />
+              <PanelIcon src={UnionIcon} />
               <div>{object.type} Geometry</div>
             </PanelHeader>
             <PanelBody>
