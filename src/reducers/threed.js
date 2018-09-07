@@ -85,6 +85,7 @@ const threed = (state = initialState, action) => {
           action.parent,
         ],
         selectedIds: [action.parent.id],
+        activeOperation: null,
       };
 
     case 'DELETE_OBJECT':
@@ -100,6 +101,7 @@ const threed = (state = initialState, action) => {
           ...state.objects.slice(index + 1),
         ],
         selectedIds: state.selectedIds.filter(id => id !== action.object.id),
+        activeOperation: null,
       };
 
     case 'SET_ACTIVE_OPERATION':
