@@ -1,10 +1,11 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
+import {selectObject} from '../../actions/threed';
 import CameraControls from 'camera-controls';
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
-import TranslationHelper from '../../lib/object3d/RotationHelper';
+import TranslationHelper from '../../lib/object3d/TranslationHelper';
 import RotationHelper from '../../lib/object3d/RotationHelper';
 
 const Container = styled.div`
@@ -17,6 +18,7 @@ CameraControls.install({THREE: Three});
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
+  containerRect = {left: 0, top: 0, width: 0, height: 0};
   renderer = new Three.WebGLRenderer({antialias: true});
   scene = new Three.Scene();
   helpersGroup = new Three.Group();
@@ -24,6 +26,8 @@ class ThreeDViewer extends React.Component {
   instances = {};
   meshes = {};
   activeHelper = null;
+  raycaster = new Three.Raycaster();
+  mousePosition = new Three.Vector2();
 
   componentDidUpdate(prevProps) {
     this.updateSceneObjects(prevProps.objects);
@@ -48,6 +52,33 @@ class ThreeDViewer extends React.Component {
     this.updateSize();
   };
 
+  onClick = e => {
+    const {selectObject, controlPressed, shiftPressed} = this.props;
+    const object = this.getObjectFromPosition(e.clientX, e.clientY);
+    if (object) {
+      selectObject(object, controlPressed || shiftPressed);
+    }
+  };
+
+  getObjectFromPosition = (x, y) => {
+    const {left, top, width, height} = this.containerRect;
+    this.mousePosition.x = ((x - left) / width) * 2 - 1;
+    this.mousePosition.y = -((y - top) / height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mousePosition, this.camera);
+    const intersects = this.raycaster.intersectObjects(
+      this.objectsGroup.children,
+      true,
+    );
+
+    if (intersects.length > 0) {
+      const mesh = intersects[0].object;
+      if (mesh.objectID) {
+        return this.instances[mesh.objectID];
+      }
+    }
+  };
+
   updateSceneObjects(prevObjects = []) {
     const {objects = [], activeOperation} = this.props;
 
@@ -63,6 +94,7 @@ class ThreeDViewer extends React.Component {
       if (!prevObjects.includes(object)) {
         const object3D = createFromJSON(object);
         const mesh = object3D.getMesh();
+        mesh.objectID = object.id;
         this.instances[object.id] = object3D;
         this.meshes[object.id] = mesh;
         this.objectsGroup.add(mesh);
@@ -73,21 +105,30 @@ class ThreeDViewer extends React.Component {
     if (activeOperation) {
       const mesh = this.meshes[activeOperation.object.id];
       if (activeOperation.type === 'translation') {
-        const trHelper = new TranslationHelper(mesh, activeOperation.axis, activeOperation.relative).mesh;
+        const trHelper = new TranslationHelper(
+          mesh,
+          activeOperation.axis,
+          activeOperation.relative,
+        ).mesh;
         this.helpersGroup.add(trHelper);
         this.activeHelper = trHelper;
       }
       if (activeOperation.type === 'rotation') {
-        const rotHelper = new RotationHelper(mesh, activeOperation.axis, activeOperation.relative).mesh;
+        const rotHelper = new RotationHelper(
+          mesh,
+          activeOperation.axis,
+          activeOperation.relative,
+        ).mesh;
         this.helpersGroup.add(rotHelper);
         this.activeHelper = rotHelper;
       }
     }
-
   }
 
   updateSize() {
-    const {width, height} = this.container.current.getBoundingClientRect();
+    const containerRect = this.container.current.getBoundingClientRect();
+    const {width, height} = containerRect;
+    this.containerRect = containerRect;
     this.renderer.setSize(width, height);
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
@@ -139,16 +180,20 @@ class ThreeDViewer extends React.Component {
   };
 
   render() {
-    return <Container innerRef={this.container} />;
+    return <Container innerRef={this.container} onClick={this.onClick} />;
   }
 }
 
-const mapStateToProps = ({threed}) => ({
+const mapStateToProps = ({ui, threed}) => ({
   objects: threed.objects,
   activeOperation: threed.activeOperation,
+  controlPressed: ui.controlPressed,
+  shiftPressed: ui.shiftPressed,
 });
 
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = {
+  selectObject,
+};
 
 export default connect(
   mapStateToProps,
