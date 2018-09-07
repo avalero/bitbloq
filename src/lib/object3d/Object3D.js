@@ -85,7 +85,7 @@ export default class Object3D {
     this.operations.push(operation);
   }
 
-  locateMesh(mesh){
+  applyOperations(mesh){
     if(this.operations){
       this.operations.forEach( operation => 
         {
@@ -132,18 +132,20 @@ export default class Object3D {
               default:
                 throw new Error('Unexpected Rotation Axis');
             }
+          }else if(operation.type === Object3D.createScaleOperation().type){
+            mesh.scale.set(operation.width, operation.depth, operation.height);
           }
 
+
         });
-    }
-  }
+    }  }
 
   getMesh() {
     const geometry = this.getGeometry();
     const material = new Three.MeshLambertMaterial({color: this.parameters.color || 0xff0000});
     const mesh = new Three.Mesh(geometry, material);
 
-    this.locateMesh(mesh);
+    this.applyOperations(mesh);
 
     return mesh;
   }
