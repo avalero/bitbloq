@@ -88,9 +88,17 @@ const threed = (state = initialState, action) => {
       };
 
     case 'DELETE_OBJECT':
+      const {parameters = {}} = action.object;
+      const {children = []} = parameters;
+      const index = state.objects.indexOf(action.object);
+
       return {
         ...state,
-        objects: state.objects.filter(o => o !== action.object),
+        objects: [
+          ...state.objects.slice(0, index),
+          ...children,
+          ...state.objects.slice(index + 1),
+        ],
         selectedIds: state.selectedIds.filter(id => id !== action.object.id),
       };
 
