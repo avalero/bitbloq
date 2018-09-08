@@ -133,7 +133,9 @@ export default class Object3D {
                 throw new Error('Unexpected Rotation Axis');
             }
           }else if(operation.type === Object3D.createScaleOperation().type){
-            mesh.scale.set(operation.width, operation.depth, operation.height);
+            if(Number(operation.width)>0 && Number(operation.depth)> 0 && Number(operation.height) >0)
+              mesh.scale.set(Number(operation.width), Number(operation.depth), Number(operation.height));
+    
           }
 
 

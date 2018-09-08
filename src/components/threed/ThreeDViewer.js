@@ -157,6 +157,7 @@ class ThreeDViewer extends React.Component {
 
     this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.position.set(0, -200, 180);
+    this.camera.up.set(0,0,1);
     this.camera.lookAt(this.scene.position);
 
     this.cameraControls = new CameraControls(
