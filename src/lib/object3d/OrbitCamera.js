@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { SphericalCoordsXYZ } from './SphericalCoordinates';
+import { SphericalCoordsXYZ} from './SphericalCoordinates';
 
 
 const EPSILON = 0.001;
@@ -35,8 +35,10 @@ export default class OrbitCamera {
     this.target = new THREE.Vector3();
     this._targetEnd = new THREE.Vector3();
 
+
     // rotation
     this._spherical = new SphericalCoordsXYZ();
+
     this._spherical.setFromCartesian(
       this.object.position.x,
       this.object.position.y,
@@ -44,11 +46,11 @@ export default class OrbitCamera {
     );
 
     console.log(`x: ${this.object.position.x}, y:${this.object.position.y}, z: ${this.object.position.z}`);
-    console.log(this._spherical.spherical);
     console.log(this._spherical.sphericalGrads);
     console.log(this._spherical.cartesian);
-
+ 
     this._sphericalEnd = new SphericalCoordsXYZ().copy(this._spherical);
+
 
     // reset
     this._target0 = this.target.clone();
@@ -92,17 +94,15 @@ export default class OrbitCamera {
 
         switch (event.button) {
           case THREE.MOUSE.LEFT:
-
             state = STATE.ROTATE;
             break;
 
           case THREE.MOUSE.MIDDLE:
-
             state = STATE.DOLLY;
             break;
 
           case THREE.MOUSE.RIGHT:
-
+            console.log('PAN');
             state = STATE.PAN;
             break;
         }
@@ -148,9 +148,9 @@ export default class OrbitCamera {
         event.preventDefault();
 
         if (event.deltaY < 0) {
-          dollyIn();
-        } else if (event.deltaY > 0) {
           dollyOut();
+        } else if (event.deltaY > 0) {
+          dollyIn();
         }
       }
 
@@ -169,14 +169,11 @@ export default class OrbitCamera {
         const x = _event.clientX;
         const y = _event.clientY;
 
+        // console.log(`Start: x: ${x}, y: ${y}`);
+
         elementRect = scope.domElement.getBoundingClientRect();
         dragStart.set(x, y);
 
-        // if ( state === STATE.DOLLY ) {
-
-        // 	dollyStart.set( x, y );
-
-        // }
 
         if (state === STATE.TOUCH_DOLLY) {
           const dx = x - event.touches[1].pageX;
@@ -204,8 +201,13 @@ export default class OrbitCamera {
         const x = _event.clientX;
         const y = _event.clientY;
 
+        // console.log(`Dragging: x: ${x}, y: ${y}`);
+
         const deltaX = dragStart.x - x;
         const deltaY = dragStart.y - y;
+
+        // console.log(`Delta: x: ${deltaX}, y: ${deltaY}`);
+
 
         dragStart.set(x, y);
 
@@ -213,9 +215,10 @@ export default class OrbitCamera {
           case STATE.ROTATE:
           case STATE.TOUCH_ROTATE:
 
-            const rotX = 2 * Math.PI * deltaX / elementRect.width;
-            const rotY = 2 * Math.PI * deltaY / elementRect.height;
-            scope.rotate(rotX, rotY, true);
+            const rotTheta = 2 * Math.PI * deltaX / elementRect.width;
+            const rotPhi = 2 * Math.PI * deltaY / elementRect.height;
+            scope.rotate(rotTheta, rotPhi, true);
+            // console.log(`Rotate: rotTheta: ${rotTheta}, rotPhi: ${rotPhi}`);
             break;
 
           case STATE.DOLLY:
@@ -240,7 +243,7 @@ export default class OrbitCamera {
 
           case STATE.PAN:
           case STATE.TOUCH_PAN:
-
+            console.log("PAN STATE");
             const offset = new THREE.Vector3().copy(scope.object.position).sub(scope.target);
             // half of the fov is center to top of screen
             const targetDistance = offset.length() * Math.tan((scope.object.fov / 2) * Math.PI / 180);
@@ -277,30 +280,37 @@ export default class OrbitCamera {
 
   // rotX in radian
   // rotY in radian
-  rotate(rotX, rotY, enableTransition) {
+  rotate(rotTheta, rotPhi, enableTransition) {
+    console.log(`Inc PHI: ${rotPhi * 180 / Math.PI}`);
     this.rotateTo(
-      this._sphericalEnd.theta + rotX,
-      this._sphericalEnd.phi + rotY,
+      this._sphericalEnd.theta + rotTheta,
+      this._sphericalEnd.phi + rotPhi,
       enableTransition,
     );
   }
 
   // rotX in radian
   // rotY in radian
-  rotateTo(rotX, rotY, enableTransition) {
-    const theta = Math.max(this.minAzimuthAngle, Math.min(this.maxAzimuthAngle, rotX));
-    const phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, rotY));
+  rotateTo(rotTheta, rotPhi, enableTransition) {
+    const theta = Math.max(this.minAzimuthAngle, Math.min(this.maxAzimuthAngle, rotTheta));
+    const phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, rotPhi));
+
+    console.log(`Final PHI: ${phi * 180 / Math.PI}`);
+    console.log(`Final THETA: ${theta * 180 / Math.PI}`);
 
     this._sphericalEnd.theta = theta;
     this._sphericalEnd.phi = phi;
     this._sphericalEnd.makeSafe();
 
+
+    
     if (!enableTransition) {
       this._spherical.theta = this._sphericalEnd.theta;
       this._spherical.phi = this._sphericalEnd.phi;
     }
 
     this._needsUpdate = true;
+    
   }
 
   dolly(distance, enableTransition) {
@@ -329,12 +339,12 @@ export default class OrbitCamera {
   truck(x, y, enableTransition) {
     this.object.updateMatrix();
 
-    new THREE.Vector3().setFromMatrixColumn(this.object.matrix, 0);
-    new THREE.Vector3().setFromMatrixColumn(this.object.matrix, 1);
-    new THREE.Vector3().multiplyScalar(x);
-    new THREE.Vector3().multiplyScalar(-y);
+    const _xColumn = new THREE.Vector3().setFromMatrixColumn(this.object.matrix, 0);
+    const _yColumn = new THREE.Vector3().setFromMatrixColumn(this.object.matrix, 1);
+    _xColumn.multiplyScalar(x);
+    _yColumn.multiplyScalar(-y);
 
-    const offset = new THREE.Vector3().copy(new THREE.Vector3()).add(new THREE.Vector3());
+    const offset = new THREE.Vector3().copy(_xColumn).add(_yColumn);
     this._targetEnd.add(offset);
 
     if (!enableTransition) {
@@ -382,11 +392,11 @@ export default class OrbitCamera {
 
     if (
       Math.abs(deltaTheta) > EPSILON
-			|| Math.abs(deltaPhi) > EPSILON
-			|| Math.abs(deltaRadius) > EPSILON
-			|| Math.abs(deltaTarget.x) > EPSILON
-			|| Math.abs(deltaTarget.y) > EPSILON
-			|| Math.abs(deltaTarget.z) > EPSILON
+  		|| Math.abs(deltaPhi) > EPSILON
+  		|| Math.abs(deltaRadius) > EPSILON
+  		|| Math.abs(deltaTarget.x) > EPSILON
+  		|| Math.abs(deltaTarget.y) > EPSILON
+  		|| Math.abs(deltaTarget.z) > EPSILON
     ) {
       this._spherical.set(
         this._spherical.radius + deltaRadius * dampingFactor,
@@ -395,7 +405,6 @@ export default class OrbitCamera {
       );
 
       this.target.add(deltaTarget.multiplyScalar(dampingFactor));
-
       this._needsUpdate = true;
     } else {
       this._spherical.copy(this._sphericalEnd);
@@ -403,7 +412,11 @@ export default class OrbitCamera {
     }
 
     this._spherical.makeSafe();
-    this.object.position.setFromSpherical(this._spherical).add(this.target);
+    this.object.position.set(
+      this._spherical.cartesian.x,
+      this._spherical.cartesian.y,
+      this._spherical.cartesian.z,
+    ).add(this.target);
     this.object.lookAt(this.target);
 
     const needsUpdate = this._needsUpdate;

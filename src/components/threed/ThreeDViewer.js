@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
 import {selectObject} from '../../actions/threed';
-import CameraControls from 'camera-controls';
+//import CameraControls from 'camera-controls';
 import OrbitCamera from '../../lib/object3d/OrbitCamera'
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
@@ -15,7 +15,7 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-CameraControls.install({THREE: Three});
+//CameraControls.install({THREE: Three});
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
@@ -157,16 +157,11 @@ class ThreeDViewer extends React.Component {
     this.scene.add(grid);
 
     this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
-    this.camera.position.set(0, 200, 200);
+    this.camera.position.set(0, -150, 80);
     this.camera.up.set(0,0,1);
     this.camera.lookAt(this.scene.position);
 
     this.cameraControls = new OrbitCamera(
-      this.camera,
-      this.renderer.domElement,
-    );
-
-    this.cameraControls = new CameraControls(
       this.camera,
       this.renderer.domElement,
     );

@@ -39,7 +39,7 @@ export class SphericalCoordsXYZ {
   }
 
   makeSafe() {
-    const EPS = 0.000001;
+    const EPS = 0.0001;
     this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
     return this;
   }
@@ -60,6 +60,10 @@ export class SphericalCoordsXYZ {
   }
 }
 
-export class CartesianZXY {
+export class SphericalCoordsZXY {
+
+}
+
+export class SphericalCoordsYZX {
 
 }
