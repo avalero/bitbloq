@@ -346,12 +346,14 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const {deleteObject} = this.props;
+    const {objects, deleteObject} = this.props;
     return (
       <Panel>
         <PanelHeader>
           <PanelHeaderTitle>{object.name}</PanelHeaderTitle>
-          <DeleteButton src={TrashIcon} onClick={() => deleteObject(object)} />
+          {objects.includes(object) &&
+            <DeleteButton src={TrashIcon} onClick={() => deleteObject(object)} />
+          }
         </PanelHeader>
         <PanelBody>
           {config.objectOperations.map(operation => (
@@ -369,7 +371,7 @@ class PropertiesPanel extends React.Component {
   }
 
   render() {
-    const {objects, selectedObjects} = this.props;
+    const {selectedObjects} = this.props;
     let content;
 
     if (selectedObjects.length === 1) {
