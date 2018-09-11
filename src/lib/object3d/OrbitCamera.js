@@ -39,15 +39,7 @@ export default class OrbitCamera {
     // rotation
     this._spherical = new SphericalCoordsXYZ();
 
-    this._spherical.setFromCartesian(
-      this.object.position.x,
-      this.object.position.y,
-      this.object.position.z,
-    );
-
-    console.log(`x: ${this.object.position.x}, y:${this.object.position.y}, z: ${this.object.position.z}`);
-    console.log(this._spherical.sphericalGrads);
-    console.log(this._spherical.cartesian);
+    this._spherical.setFromVector3(this.object.position);
  
     this._sphericalEnd = new SphericalCoordsXYZ().copy(this._spherical);
 
@@ -102,7 +94,6 @@ export default class OrbitCamera {
             break;
 
           case THREE.MOUSE.RIGHT:
-            console.log('PAN');
             state = STATE.PAN;
             break;
         }
@@ -169,8 +160,6 @@ export default class OrbitCamera {
         const x = _event.clientX;
         const y = _event.clientY;
 
-        // console.log(`Start: x: ${x}, y: ${y}`);
-
         elementRect = scope.domElement.getBoundingClientRect();
         dragStart.set(x, y);
 
@@ -201,12 +190,8 @@ export default class OrbitCamera {
         const x = _event.clientX;
         const y = _event.clientY;
 
-        // console.log(`Dragging: x: ${x}, y: ${y}`);
-
         const deltaX = dragStart.x - x;
         const deltaY = dragStart.y - y;
-
-        // console.log(`Delta: x: ${deltaX}, y: ${deltaY}`);
 
 
         dragStart.set(x, y);
@@ -218,7 +203,6 @@ export default class OrbitCamera {
             const rotTheta = 2 * Math.PI * deltaX / elementRect.width;
             const rotPhi = 2 * Math.PI * deltaY / elementRect.height;
             scope.rotate(rotTheta, rotPhi, true);
-            // console.log(`Rotate: rotTheta: ${rotTheta}, rotPhi: ${rotPhi}`);
             break;
 
           case STATE.DOLLY:
@@ -243,7 +227,6 @@ export default class OrbitCamera {
 
           case STATE.PAN:
           case STATE.TOUCH_PAN:
-            console.log("PAN STATE");
             const offset = new THREE.Vector3().copy(scope.object.position).sub(scope.target);
             // half of the fov is center to top of screen
             const targetDistance = offset.length() * Math.tan((scope.object.fov / 2) * Math.PI / 180);
@@ -281,7 +264,6 @@ export default class OrbitCamera {
   // rotX in radian
   // rotY in radian
   rotate(rotTheta, rotPhi, enableTransition) {
-    console.log(`Inc PHI: ${rotPhi * 180 / Math.PI}`);
     this.rotateTo(
       this._sphericalEnd.theta + rotTheta,
       this._sphericalEnd.phi + rotPhi,
@@ -294,9 +276,6 @@ export default class OrbitCamera {
   rotateTo(rotTheta, rotPhi, enableTransition) {
     const theta = Math.max(this.minAzimuthAngle, Math.min(this.maxAzimuthAngle, rotTheta));
     const phi = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, rotPhi));
-
-    console.log(`Final PHI: ${phi * 180 / Math.PI}`);
-    console.log(`Final THETA: ${theta * 180 / Math.PI}`);
 
     this._sphericalEnd.theta = theta;
     this._sphericalEnd.phi = phi;
@@ -371,7 +350,7 @@ export default class OrbitCamera {
 
   reset(enableTransition) {
     this._targetEnd.copy(this._target0);
-    this._sphericalEnd.setFromCartesian(this._position0.x, this._position0.y, this._position0.z);
+    this._sphericalEnd.setFromVector3(this._position0);
     this._sphericalEnd.theta = this._sphericalEnd.theta % (2 * Math.PI);
     this._spherical.theta = this._spherical.theta % (2 * Math.PI);
 
