@@ -3,14 +3,13 @@ import { ThreeBSP } from './threeCSG';
 
 export default class TranslationHelper {
   constructor(mesh, axis, relative) {
-    const bbox = new Three.Box3().setFromObject(mesh);
-    const radius = 0.5;
+    const boundingBoxDims = new Three.Vector3();
+    new Three.Box3().setFromObject(mesh).getSize(boundingBoxDims);
+    const radius = 0.3;
     let color;
     const separation = 3;
     const length = 20;
     const arrowLength = 5;
-    const boundingBoxDims = new Three.Vector3();
-    bbox.getSize(boundingBoxDims);
     let offset;
     let offsetArrow;
 
