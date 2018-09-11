@@ -239,7 +239,7 @@ const operationTypes = {
         activeOperation: (object, operation) => ({
           object,
           type: 'translation',
-          axis: 'x',
+          axis: 'z',
           relative: operation.relative,
         }),
       },
