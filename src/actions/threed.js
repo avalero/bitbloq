@@ -13,10 +13,10 @@ export function deselectObject(object) {
   };
 }
 
-export function createObject(object) {
+export function createObject(shapeName) {
   return {
     type: 'CREATE_OBJECT',
-    object,
+    shapeName,
   };
 }
 
@@ -27,11 +27,27 @@ export function updateObject(object) {
   };
 }
 
-export function wrapObjects(parent, children) {
+export function composeObjects(objects, operationName) {
   return {
-    type: 'WRAP_OBJECTS',
-    parent,
-    children,
+    type: 'COMPOSE_OBJECTS',
+    objects,
+    operationName,
+  };
+}
+
+export function addOperation(object, operationName) {
+  return {
+    type: 'ADD_OPERATION',
+    object,
+    operationName,
+  };
+}
+
+export function removeOperation(object, operation) {
+  return {
+    type: 'REMOVE_OPERATION',
+    object,
+    operation,
   };
 }
 

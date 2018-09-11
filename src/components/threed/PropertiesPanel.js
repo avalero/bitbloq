@@ -4,27 +4,21 @@ import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
 import {
   updateObject,
-  wrapObjects,
+  composeObjects,
   deleteObject,
+  addOperation,
+  removeOperation,
   setActiveOperation,
   unsetActiveOperation,
 } from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import {colors} from '../../base-styles';
-import {resolveClass, createFromJSON} from '../../lib/object3d';
-import Object3D from '../../lib/object3d/Object3D';
+import {resolveClass} from '../../lib/object3d';
 import CompoundObject from '../../lib/object3d/CompoundObject';
 import UnionIcon from '../../assets/images/union.svg';
-import DifferenceIcon from '../../assets/images/subtract.svg';
-import IntersectionIcon from '../../assets/images/intersection.svg';
-import TranslateIcon from '../../assets/images/translate.svg';
-import RotateIcon from '../../assets/images/rotate.svg';
-import ScaleIcon from '../../assets/images/scale.svg';
 import TrashIcon from '../../assets/images/trash.svg';
 import Select from '../Select';
-import Union from '../../lib/object3d/Union';
-import Difference from '../../lib/object3d/Difference';
-import Intersection from '../../lib/object3d/Intersection';
+import config from '../../config/threed';
 
 const Container = styled.div`
   position: absolute;
@@ -200,114 +194,10 @@ const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
   }
 };
 
-const operationTypes = {
-  translation: {
-    label: 'Translate',
-    icon: TranslateIcon,
-    parameterTypes: [
-      {
-        name: 'relative',
-        label: 'Relative',
-        type: 'boolean',
-      },
-      {
-        name: 'x',
-        label: 'X',
-        type: 'integer',
-        activeOperation: (object, operation) => ({
-          object,
-          type: 'translation',
-          axis: 'x',
-          relative: operation.relative,
-        }),
-      },
-      {
-        name: 'y',
-        label: 'Y',
-        type: 'integer',
-        activeOperation: (object, operation) => ({
-          object,
-          type: 'translation',
-          axis: 'y',
-          relative: operation.relative,
-        }),
-      },
-      {
-        name: 'z',
-        label: 'Z',
-        type: 'integer',
-        activeOperation: (object, operation) => ({
-          object,
-          type: 'translation',
-          axis: 'x',
-          relative: operation.relative,
-        }),
-      },
-    ],
-  },
-  rotation: {
-    label: 'Rotate',
-    icon: RotateIcon,
-    parameterTypes: [
-      {
-        name: 'relative',
-        label: 'Relative',
-        type: 'boolean',
-      },
-      {
-        name: 'axis',
-        label: 'Axis',
-        type: 'select',
-        options: [
-          {
-            label: 'X',
-            value: 'x',
-          },
-          {
-            label: 'Y',
-            value: 'y',
-          },
-          {
-            label: 'Z',
-            value: 'z',
-          },
-        ],
-      },
-      {
-        name: 'angle',
-        label: 'Angle',
-        type: 'integer',
-        activeOperation: (object, operation) => ({
-          object,
-          type: 'rotation',
-          axis: operation.axis,
-          relative: operation.relative,
-        }),
-      },
-    ],
-  },
-  scale: {
-    label: 'Scale',
-    icon: ScaleIcon,
-    parameterTypes: [
-      {
-        name: 'width',
-        label: 'Width',
-        type: 'integer',
-      },
-      {
-        name: 'height',
-        label: 'Height',
-        type: 'integer',
-      },
-      {
-        name: 'depth',
-        label: 'Depth',
-        type: 'integer',
-      },
-    ],
-  },
-};
+const objectOperationsMap = {};
+config.objectOperations.forEach(
+  operation => (objectOperationsMap[operation.name] = operation),
+);
 
 class PropertiesPanel extends React.Component {
   onObjectParameterChange = (object, parameter, value) => {
@@ -329,57 +219,17 @@ class PropertiesPanel extends React.Component {
     });
   };
 
-  onUnionClick() {
-    const {wrapObjects, selectedObjects} = this.props;
-    const unionObject = new Union('Union1', {
-      children: selectedObjects.map(child => createFromJSON(child)),
-    });
-    wrapObjects(unionObject.toJSON(), selectedObjects);
+  onAddOperation(object, operationName) {
+    this.props.addOperation(object, operationName);
   }
 
-  onDifferenceClick() {
-    const {wrapObjects, selectedObjects} = this.props;
-    const differenceObject = new Difference('Difference1', {
-      children: selectedObjects.map(child => createFromJSON(child)),
-    });
-    wrapObjects(differenceObject.toJSON(), selectedObjects);
+  onComposeObjects(operationName) {
+    const {composeObjects, selectedObjects} = this.props;
+    composeObjects(selectedObjects, operationName);
   }
 
-  onIntersectionClick() {
-    const {wrapObjects, selectedObjects} = this.props;
-    const intersectionObject = new Intersection('Intersection1', {
-      children: selectedObjects.map(child => createFromJSON(child)),
-    });
-    wrapObjects(intersectionObject.toJSON(), selectedObjects);
-  }
-
-  onTranslateClick(object) {
-    const operation = Object3D.createTranslateOperation(0, 0, 0, false);
-    this.addOperation(object, operation);
-  }
-
-  onRotateClick(object) {
-    const operation = Object3D.createRotateOperation('x', 0, false);
-    this.addOperation(object, operation);
-  }
-
-  onScaleClick(object) {
-    const operation = Object3D.createScaleOperation(1, 1, 1);
-    this.addOperation(object, operation);
-  }
-
-  addOperation(object, operation) {
-    this.props.updateObject({
-      ...object,
-      operations: [...object.operations, operation],
-    });
-  }
-
-  removeOperation(object, operation) {
-    this.props.updateObject({
-      ...object,
-      operations: object.operations.filter(op => op !== operation),
-    });
+  onRemoveOperation(object, operation) {
+    this.props.removeOperation(object, operation);
   }
 
   renderCombineOptions() {
@@ -387,18 +237,14 @@ class PropertiesPanel extends React.Component {
 
     return (
       <div>
-        <Button onClick={() => this.onUnionClick()}>
-          <ButtonIcon src={UnionIcon} />
-          <div>Union</div>
-        </Button>
-        <Button onClick={() => this.onDifferenceClick()}>
-          <ButtonIcon src={DifferenceIcon} />
-          <div>Difference</div>
-        </Button>
-        <Button onClick={() => this.onIntersectionClick()}>
-          <ButtonIcon src={IntersectionIcon} />
-          <div>Intersection</div>
-        </Button>
+        {config.compositionOperations.map(operation => (
+          <Button
+            key={operation.name}
+            onClick={() => this.onComposeObjects(operation.name)}>
+            <ButtonIcon src={operation.icon} />
+            <div>{operation.label}</div>
+          </Button>
+        ))}
         <Panel isSubPanel>
           {selectedObjects.map(object => (
             <PanelHeader key={object.id}>
@@ -418,7 +264,7 @@ class PropertiesPanel extends React.Component {
     if (operations.length) {
       const rest = [...operations];
       const last = rest.pop();
-      const {label, icon, parameterTypes} = operationTypes[last.type];
+      const {label, icon, parameters} = objectOperationsMap[last.type];
       return (
         <Panel isSubPanel>
           <PanelHeader>
@@ -428,11 +274,11 @@ class PropertiesPanel extends React.Component {
             </PanelHeaderTitle>
             <DeleteButton
               src={TrashIcon}
-              onClick={() => this.removeOperation(object, last)}
+              onClick={() => this.onRemoveOperation(object, last)}
             />
           </PanelHeader>
           <PanelBody>
-            {parameterTypes.map(parameter => (
+            {parameters.map(parameter => (
               <PropertyInput
                 key={parameter.name}
                 parameter={parameter}
@@ -508,18 +354,14 @@ class PropertiesPanel extends React.Component {
           <DeleteButton src={TrashIcon} onClick={() => deleteObject(object)} />
         </PanelHeader>
         <PanelBody>
-          <Button onClick={() => this.onTranslateClick(object)}>
-            <ButtonIcon src={TranslateIcon} />
-            <div>Translate</div>
-          </Button>
-          <Button onClick={() => this.onRotateClick(object)}>
-            <ButtonIcon src={RotateIcon} />
-            <div>Rotate</div>
-          </Button>
-          <Button onClick={() => this.onScaleClick(object)}>
-            <ButtonIcon src={ScaleIcon} />
-            <div>Scale</div>
-          </Button>
+          {config.objectOperations.map(operation => (
+            <Button
+              key={operation.name}
+              onClick={() => this.onAddOperation(object, operation.name)}>
+              <ButtonIcon src={operation.icon} />
+              <div>{operation.label}</div>
+            </Button>
+          ))}
           {this.renderSubPanels(object, object.operations)}
         </PanelBody>
       </Panel>
@@ -547,8 +389,13 @@ const mapStateToProps = ({threed}) => ({
 
 const mapDispatchToProps = dispatch => ({
   updateObject: object => dispatch(updateObject(object)),
-  wrapObjects: (parent, children) => dispatch(wrapObjects(parent, children)),
+  composeObjects: (objects, operationName) =>
+    dispatch(composeObjects(objects, operationName)),
   deleteObject: object => dispatch(deleteObject(object)),
+  addOperation: (object, operationName) =>
+    dispatch(addOperation(object, operationName)),
+  removeOperation: (object, operation) =>
+    dispatch(removeOperation(object, operation)),
   setActiveOperation: ({object, type, axis, relative}) =>
     dispatch(setActiveOperation(object, type, axis, relative)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
