@@ -6,14 +6,7 @@ import {selectObject, deselectObject, createObject} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import AddIcon from '../../assets/images/add.svg';
 import PlusIcon from '../../assets/images/plus.svg';
-import CubeIcon from '../../assets/images/cube.svg';
-import CylinderIcon from '../../assets/images/cylinder.svg';
-import PrismIcon from '../../assets/images/prism.svg';
-import SphereIcon from '../../assets/images/sphere.svg';
-import Cube from '../../lib/object3d/Cube';
-import Cylinder from '../../lib/object3d/Cylinder';
-import Sphere from '../../lib/object3d/Sphere';
-import Prism from '../../lib/object3d/Prism';
+import config from '../../config/threed';
 
 const Container = styled.div`
   width: 240px;
@@ -127,11 +120,10 @@ class ObjectTree extends React.Component {
     addDropDownOpen: false,
   };
 
-  onAddObject(object) {
-    const {createObject} = this.props;
+  onAddObject(shapeName) {
     this.setState({addDropDownOpen: false});
 
-    createObject(object.toJSON());
+    this.props.createObject(shapeName);
   }
 
   renderObjectList(objects) {
@@ -212,38 +204,17 @@ class ObjectTree extends React.Component {
           <img src={AddIcon} />
           <div>Add object</div>
           <AddDropdown open={addDropDownOpen}>
-            <AddDropdownItem
-              onClick={e => {
-                e.stopPropagation();
-                this.onAddObject(new Cube('Cube1'));
-              }}>
-              <img src={CubeIcon} />
-              <div>Cube</div>
-            </AddDropdownItem>
-            <AddDropdownItem
-              onClick={e => {
-                e.stopPropagation();
-                this.onAddObject(new Cylinder('Cylinder1'));
-              }}>
-              <img src={CylinderIcon} />
-              <div>Cylinder</div>
-            </AddDropdownItem>
-            <AddDropdownItem
-              onClick={e => {
-                e.stopPropagation();
-                this.onAddObject(new Prism('Prism1'));
-              }}>
-              <img src={PrismIcon} />
-              <div>Prism</div>
-            </AddDropdownItem>
-            <AddDropdownItem
-              onClick={e => {
-                e.stopPropagation();
-                this.onAddObject(new Sphere('Sphere1'));
-              }}>
-              <img src={SphereIcon} />
-              <div>Sphere</div>
-            </AddDropdownItem>
+            {config.shapes.map(shape => (
+              <AddDropdownItem
+                key={shape.name}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.onAddObject(shape.name);
+                }}>
+                <img src={shape.icon} />
+                <div>{shape.label}</div>
+              </AddDropdownItem>
+            ))}
           </AddDropdown>
         </AddButton>
         <Tree>{this.renderObjectList(objects)}</Tree>
