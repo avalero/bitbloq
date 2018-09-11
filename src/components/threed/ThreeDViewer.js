@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
 import {selectObject} from '../../actions/threed';
-//import CameraControls from 'camera-controls';
+import {getSelectedObjects} from '../../reducers/threed';
 import OrbitCamera from '../../lib/object3d/OrbitCamera'
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
@@ -15,13 +15,14 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-//CameraControls.install({THREE: Three});
+const outlineMaterial = new Three.MeshBasicMaterial({ color: 0x6a8d2f, side: Three.BackSide });
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
   containerRect = {left: 0, top: 0, width: 0, height: 0};
   renderer = new Three.WebGLRenderer({antialias: true});
   scene = new Three.Scene();
+  outlineGroup = new Three.Group();
   helpersGroup = new Three.Group();
   objectsGroup = new Three.Group();
   instances = {};
@@ -81,7 +82,7 @@ class ThreeDViewer extends React.Component {
   };
 
   updateSceneObjects(prevObjects = []) {
-    const {objects = [], activeOperation} = this.props;
+    const {objects = [], selectedObjects = [], activeOperation} = this.props;
 
     prevObjects.forEach(prevObject => {
       if (!objects.includes(prevObject)) {
@@ -91,6 +92,10 @@ class ThreeDViewer extends React.Component {
       }
     });
 
+    while(this.outlineGroup.children.length > 0){
+      this.outlineGroup.remove(this.outlineGroup.children[0]);
+    }
+
     objects.forEach(object => {
       if (!prevObjects.includes(object)) {
         const object3D = createFromJSON(object);
@@ -99,6 +104,15 @@ class ThreeDViewer extends React.Component {
         this.instances[object.id] = object3D;
         this.meshes[object.id] = mesh;
         this.objectsGroup.add(mesh);
+
+      }
+
+      if (selectedObjects.includes(object)) {
+        const mesh = this.meshes[object.id];
+        const outMesh = mesh.clone();
+        outMesh.scale.multiplyScalar(1.08);
+        outMesh.material = outlineMaterial;
+        this.outlineGroup.add(outMesh);
       }
     });
 
@@ -145,9 +159,6 @@ class ThreeDViewer extends React.Component {
     spotLight.position.set(100, 80, 60);
     this.scene.add(spotLight);
 
-    //const grid = new Three.GridHelper(200, 20);
-    //this.scene.add(grid);
-
     const plane = new Three.Plane(new Three.Vector3(0, 0, 1));
     const helper = new Three.PlaneHelper(plane, 200, 0x98f5ff);
     this.scene.add(helper);
@@ -166,6 +177,7 @@ class ThreeDViewer extends React.Component {
       this.renderer.domElement,
     );
 
+    this.scene.add(this.outlineGroup);
     this.scene.add(this.objectsGroup);
     this.scene.add(this.helpersGroup);
 
@@ -188,6 +200,7 @@ class ThreeDViewer extends React.Component {
 
 const mapStateToProps = ({ui, threed}) => ({
   objects: threed.objects,
+  selectedObjects: getSelectedObjects(threed),
   activeOperation: threed.activeOperation,
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
