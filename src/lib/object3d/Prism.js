@@ -3,6 +3,8 @@ import * as Three from 'three';
 
 export default class Prism extends Object3D {
 
+  static typeName = 'Prism';
+
   static parameterTypes = [
     {
       name: 'sides',

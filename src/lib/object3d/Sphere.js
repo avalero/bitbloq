@@ -3,6 +3,8 @@ import * as Three from 'three';
 
 export default class Sphere extends Object3D {
 
+  static typeName = 'Sphere';
+
   static parameterTypes = [
     {
       name: 'radius',

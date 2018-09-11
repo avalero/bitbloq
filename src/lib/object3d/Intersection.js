@@ -4,6 +4,9 @@ import CompoundObject from './CompoundObject';
 import { ThreeBSP } from './threeCSG';
 
 export default class Intersection extends CompoundObject {
+
+  static typeName = 'Intersection';
+
   getMesh() {
     // First element of array
     let intersectionMeshBSP = new ThreeBSP(this.children[0].getMesh());
