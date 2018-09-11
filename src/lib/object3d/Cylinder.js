@@ -3,6 +3,8 @@ import * as Three from 'three';
 
 export default class Cylinder extends Object3D {
 
+  static typeName = 'Cylinder';
+
   static parameterTypes = [
     {
       name: 'r0',

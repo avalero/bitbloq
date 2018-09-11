@@ -4,6 +4,9 @@ import CompoundObject from './CompoundObject';
 import { ThreeBSP } from './threeCSG';
 
 export default class Difference extends CompoundObject {
+
+  static typeName = 'Difference';
+
   getMesh() {
     // First element of array
     let differenceMeshBSP = new ThreeBSP(this.children[0].getMesh());

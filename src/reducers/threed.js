@@ -1,10 +1,13 @@
+import config from '../config/threed';
+import {createFromJSON} from '../lib/object3d';
+
 const initialState = {
   selectedIds: [],
   objects: [],
   activeOperation: null,
 };
 
-const findObject = (objects = [], id) => {
+const findObject = (objects = [], field, value) => {
   if (!objects.length) {
     return undefined;
   }
@@ -12,12 +15,25 @@ const findObject = (objects = [], id) => {
   const [first, ...rest] = objects;
   const {parameters: {children = []} = {}} = first;
 
-  if (first.id === id) {
+  if (first[field] === value) {
     return first;
   }
 
-  return findObject(children, id) || findObject(rest, id);
+  return findObject(children, field, value) || findObject(rest, field, value);
 };
+
+const shapes = {};
+config.shapes.forEach(shape => (shapes[shape.name] = shape));
+
+const objectOperations = {};
+config.objectOperations.forEach(
+  operation => (objectOperations[operation.name] = operation),
+);
+
+const compositionOperations = {};
+config.compositionOperations.forEach(
+  operation => (compositionOperations[operation.name] = operation),
+);
 
 const updateObject = (objects, updated) => {
   return objects.map(object => {
@@ -48,7 +64,19 @@ const updateObject = (objects, updated) => {
   });
 };
 
+const createObjectName = (base, objects) => {
+  let name = base;
+  let nameIndex = 1;
+  while (findObject(objects, 'name', name)) {
+    nameIndex++;
+    name = base + nameIndex;
+  }
+  return name;
+};
+
 const threed = (state = initialState, action) => {
+  let name;
+
   switch (action.type) {
     case 'SELECT_OBJECT':
       return {
@@ -65,10 +93,14 @@ const threed = (state = initialState, action) => {
       };
 
     case 'CREATE_OBJECT':
+      const shape = shapes[action.shapeName];
+      const name = createObjectName(shape.name, state.objects);
+      const object = new shape.objectClass(name).toJSON();
+
       return {
         ...state,
-        objects: [...state.objects, action.object],
-        selectedIds: [action.object.id],
+        objects: [...state.objects, object],
+        selectedIds: [object.id],
       };
 
     case 'UPDATE_OBJECT':
@@ -77,14 +109,23 @@ const threed = (state = initialState, action) => {
         objects: updateObject(state.objects, action.object),
       };
 
-    case 'WRAP_OBJECTS':
+    case 'COMPOSE_OBJECTS':
+      const composeOperation = compositionOperations[action.operationName];
+      const composeName = createObjectName(
+        composeOperation.name,
+        state.objects,
+      );
+      const composeObject = new composeOperation.objectClass(composeName, {
+        children: action.objects.map(child => createFromJSON(child)),
+      }).toJSON();
+
       return {
         ...state,
         objects: [
-          ...state.objects.filter(o => !action.children.includes(o)),
-          action.parent,
+          ...state.objects.filter(o => !action.objects.includes(o)),
+          composeObject,
         ],
-        selectedIds: [action.parent.id],
+        selectedIds: [composeObject.id],
         activeOperation: null,
       };
 
@@ -102,6 +143,31 @@ const threed = (state = initialState, action) => {
         ],
         selectedIds: state.selectedIds.filter(id => id !== action.object.id),
         activeOperation: null,
+      };
+
+    case 'ADD_OPERATION':
+      const operationType = objectOperations[action.operationName];
+      const newOperation = operationType.create();
+
+      const newObject = {
+        ...action.object,
+        operations: [...action.object.operations, newOperation],
+      };
+
+      return {
+        ...state,
+        objects: updateObject(state.objects, newObject),
+      };
+
+    case 'REMOVE_OPERATION':
+      return {
+        ...state,
+        objects: updateObject(state.objects, {
+          ...action.object,
+          operations: action.object.operations.filter(
+            op => op !== action.operation,
+          ),
+        }),
       };
 
     case 'SET_ACTIVE_OPERATION':
@@ -129,4 +195,4 @@ const threed = (state = initialState, action) => {
 export default threed;
 
 export const getSelectedObjects = state =>
-  state.selectedIds.map(id => findObject(state.objects, id));
+  state.selectedIds.map(id => findObject(state.objects, 'id', id));

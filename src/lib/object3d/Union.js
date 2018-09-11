@@ -4,6 +4,9 @@ import CompoundObject from './CompoundObject';
 import { ThreeBSP } from './threeCSG';
 
 export default class Union extends CompoundObject {
+
+  static typeName = 'Union';
+
   getMesh() {
     // First element of array
     let unionMeshBSP = new ThreeBSP(this.children[0].getMesh());

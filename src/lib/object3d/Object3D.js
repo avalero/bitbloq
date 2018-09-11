@@ -161,7 +161,7 @@ export default class Object3D {
     return {
       id,
       name,
-      type: constructor.name,
+      type: constructor.typeName,
       parameters,
       operations
     };
