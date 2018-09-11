@@ -1,22 +1,65 @@
 import * as Three from 'three';
+import { ThreeBSP } from './threeCSG';
 
 export default class TranslationHelper {
+  constructor(mesh, axis, relative) {
+    const bbox = new Three.Box3().setFromObject(mesh);
+    const radius = 0.5;
+    let color;
+    const separation = 3;
+    const length = 20;
+    const arrowLength = 5;
+    const boundingBoxDims = new Three.Vector3();
+    bbox.getSize(boundingBoxDims);
+    let offset;
+    let offsetArrow;
 
-  constructor(mesh, axis, relative = true) {
+    if (axis === 'x') {
+      color = 0xff0000;
+      offset = boundingBoxDims.x / 2 + separation + length / 2;
+      offsetArrow = boundingBoxDims.x / 2 + separation + arrowLength / 2 + length;
+    } else if (axis === 'y') {
+      color = 0x0000ff;
+      offset = boundingBoxDims.y / 2 + separation + length / 2;
+      offsetArrow = boundingBoxDims.y / 2 + separation + arrowLength / 2 + length;
+    } else {
+      color = 0x00ff00;
+      offset = boundingBoxDims.z / 2 + separation + length / 2;
+      offsetArrow = boundingBoxDims.z / 2 + separation + arrowLength / 2 + length;
+    }
 
-    this.axesHelper = new Three.AxesHelper(20);
+    const cylinderGeometry = new Three.CylinderGeometry(radius, radius, length);
+    cylinderGeometry.rotateZ(Math.PI / 2);
+    cylinderGeometry.translate(offset, 0, 0);
 
-    this.axesHelper.position.x = mesh.position.x;
-    this.axesHelper.position.y = mesh.position.y;
-    this.axesHelper.position.z = mesh.position.z;
+    const arrowGeometry = new Three.CylinderGeometry(2 * radius, 0, 5, 20);
+    arrowGeometry.rotateZ(Math.PI / 2);
+    arrowGeometry.translate(offsetArrow, 0, 0);
+
+    let cylinderBSPGeometry = new ThreeBSP(cylinderGeometry);
+    const arrowBSPGeometry = new ThreeBSP(arrowGeometry);
+    cylinderBSPGeometry = cylinderBSPGeometry.union(arrowBSPGeometry);
+
+    const material = new Three.MeshBasicMaterial({
+      color, opacity: 0.5, transparent: true, depthWrite: false,
+    });
 
 
-    if (relative) {
-      this.axesHelper.setRotationFromEuler(this.mesh.rotation);
+    this.helperMesh = cylinderBSPGeometry.toMesh(material);
+    this.helperMesh.position.copy(mesh.position);
+
+    if (relative === true) {
+      this.helperMesh.setRotationFromEuler(mesh.rotation);
+    }
+
+    if (axis === 'y') this.helperMesh.rotateZ(Math.PI / 2);
+    if (axis === 'z') {
+      this.helperMesh.rotateY(-Math.PI / 2);
+      this.helperMesh.rotateX(Math.PI / 2);
     }
   }
 
   get mesh() {
-    return this.axesHelper;
+    return this.helperMesh;
   }
 }
