@@ -139,9 +139,9 @@ export default class OrbitCamera {
         event.preventDefault();
 
         if (event.deltaY < 0) {
-          dollyOut();
-        } else if (event.deltaY > 0) {
           dollyIn();
+        } else if (event.deltaY > 0) {
+          dollyOut();
         }
       }
 
