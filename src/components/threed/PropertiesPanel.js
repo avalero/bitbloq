@@ -17,6 +17,7 @@ import {resolveClass} from '../../lib/object3d';
 import CompoundObject from '../../lib/object3d/CompoundObject';
 import UnionIcon from '../../assets/images/union.svg';
 import TrashIcon from '../../assets/images/trash.svg';
+import PencilIcon from '../../assets/images/pencil.svg';
 import Select from '../Select';
 import config from '../../config/threed';
 
@@ -72,10 +73,21 @@ const PanelHeaderTitle = styled.div`
   display: flex;
   align-items: center;
   flex: 1;
+
+  ${props =>
+    props.editable &&
+    css`
+      cursor: pointer;
+    `};
+`;
+
+const EditButton = styled.img`
+  height: 18px;
+  margin-right: 6px;
 `;
 
 const DeleteButton = styled.img`
-  width: 20px;
+  height: 18px;
   cursor: pointer;
 `;
 
@@ -88,20 +100,36 @@ const FormGroup = styled.div`
     width: 120px;
     display: block;
   }
+`;
 
-  input {
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    flex: 1;
-    height: 18px;
-    padding: 6px 12px;
-    width: 100%;
+const Input = styled.input`
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  flex: 1;
+  height: 18px;
+  padding: 6px 12px;
+  width: 100%;
 
-    &:focus {
-      outline: none;
-      border: 1px solid #2684ff;
-      box-shadow: 0 0 0 1px #2684ff;
-    }
+  &:focus {
+    outline: none;
+    border: 1px solid #2684ff;
+    box-shadow: 0 0 0 1px #2684ff;
+  }
+`;
+
+const NameInput = styled.input`
+  flex: 1;
+  font-size: 1em;
+  margin: -2px 24px -4px 24px;
+  padding: 0px;
+  color: white;
+  border-width: 0 0 1px 0;
+  border-color: white;
+  width: 100%;
+  background: transparent;
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -125,7 +153,7 @@ const ButtonIcon = styled.img`
 const IntegerProperty = ({label, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
-    <input
+    <Input
       value={value}
       onChange={e => onChange(e.target.value)}
       onFocus={onFocus}
@@ -200,6 +228,25 @@ config.objectOperations.forEach(
 );
 
 class PropertiesPanel extends React.Component {
+  state = {
+    editingName: false,
+  };
+
+  nameInputRef = React.createRef();
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.editingName && !prevState.editingName) {
+      this.nameInputRef.current.focus();
+    }
+  }
+
+  onObjectNameChange = (object, name) => {
+    this.props.updateObject({
+      ...object,
+      name,
+    });
+  };
+
   onObjectParameterChange = (object, parameter, value) => {
     this.props.updateObject({
       ...object,
@@ -346,14 +393,35 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
+    const {editingName} = this.state;
     const {objects, deleteObject} = this.props;
+
     return (
       <Panel>
         <PanelHeader>
-          <PanelHeaderTitle>{object.name}</PanelHeaderTitle>
-          {objects.includes(object) &&
-            <DeleteButton src={TrashIcon} onClick={() => deleteObject(object)} />
-          }
+          {editingName && (
+            <NameInput
+              type="text"
+              innerRef={this.nameInputRef}
+              value={object.name}
+              onChange={e => this.onObjectNameChange(object, e.target.value)}
+              onBlur={() => this.setState({editingName: false})}
+            />
+          )}
+          {!editingName && (
+            <PanelHeaderTitle
+              editable
+              onClick={() => this.setState({editingName: true})}>
+              <EditButton src={PencilIcon} />
+              {object.name}
+            </PanelHeaderTitle>
+          )}
+          {objects.includes(object) && (
+            <DeleteButton
+              src={TrashIcon}
+              onClick={() => deleteObject(object)}
+            />
+          )}
         </PanelHeader>
         <PanelBody>
           {config.objectOperations.map(operation => (
