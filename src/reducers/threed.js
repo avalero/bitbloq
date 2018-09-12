@@ -82,7 +82,7 @@ const threed = (state = initialState, action) => {
       return {
         ...state,
         selectedIds: action.addToSelection
-          ? [...state.selectedIds, action.object.id]
+          ? [...new Set(state.selectedIds).add(action.object.id)]
           : [action.object.id],
       };
 
