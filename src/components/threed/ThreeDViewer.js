@@ -20,11 +20,19 @@ import {connect} from 'react-redux';
 import * as Three from 'three';
 import {selectObject} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
-import OrbitCamera from '../../lib/object3d/OrbitCamera'
+import OrbitCamera from '../../lib/object3d/OrbitCamera';
+import {SphericalCoordsXYZ} from '../../lib/object3d/SphericalCoordinates';
 import {createFromJSON} from '../../lib/object3d';
 import styled from 'react-emotion';
 import TranslationHelper from '../../lib/object3d/TranslationHelper';
 import RotationHelper from '../../lib/object3d/RotationHelper';
+import ThreeDNavigationBox from './ThreeDNavigationBox';
+
+const Wrap = styled.div`
+  position: relative;
+  flex: 1;
+  display: flex;
+`;
 
 const Container = styled.div`
   flex: 1;
@@ -32,10 +40,14 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-const outlineMaterial = new Three.MeshBasicMaterial({ color: 0x6a8d2f, side: Three.BackSide });
+const outlineMaterial = new Three.MeshBasicMaterial({
+  color: 0x6a8d2f,
+  side: Three.BackSide,
+});
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
+  navigationBox = React.createRef();
   containerRect = {left: 0, top: 0, width: 0, height: 0};
   renderer = new Three.WebGLRenderer({antialias: true});
   scene = new Three.Scene();
@@ -109,7 +121,7 @@ class ThreeDViewer extends React.Component {
       }
     });
 
-    while(this.outlineGroup.children.length > 0){
+    while (this.outlineGroup.children.length > 0) {
       this.outlineGroup.remove(this.outlineGroup.children[0]);
     }
 
@@ -123,7 +135,6 @@ class ThreeDViewer extends React.Component {
         this.instances[object.id] = object3D;
         this.meshes[object.id] = mesh;
         this.objectsGroup.add(mesh);
-
       }
 
       // if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
@@ -200,13 +211,15 @@ class ThreeDViewer extends React.Component {
 
     this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.position.set(0, -150, 80);
-    this.camera.up.set(0,0,1);
+    this.camera.up.set(0, 0, 1);
     this.camera.lookAt(this.scene.position);
 
     this.cameraControls = new OrbitCamera(
       this.camera,
       this.renderer.domElement,
     );
+
+    this.updateNavigationBox();
 
     this.scene.add(this.outlineGroup);
     this.scene.add(this.objectsGroup);
@@ -215,9 +228,24 @@ class ThreeDViewer extends React.Component {
     this.renderer.render(this.scene, this.camera);
   }
 
+  updateNavigationBox() {
+    const direction = new Three.Vector3();
+    this.camera.getWorldDirection(direction);
+    const {x, y, z} = direction;
+    this.navigationBox.current.updateCamera(-x, -y, -z);
+  }
+
+  updateCameraAngle = (theta, phi) => {
+    this.cameraControls.rotateTo(theta, phi, true);
+  }
+
   renderLoop = () => {
     const delta = this.clock.getDelta();
-    this.cameraControls.update(delta);
+    const cameraNeedsUpdate = this.cameraControls.update(delta);
+
+    if (cameraNeedsUpdate) {
+      this.updateNavigationBox();
+    }
 
     requestAnimationFrame(this.renderLoop);
 
@@ -225,7 +253,15 @@ class ThreeDViewer extends React.Component {
   };
 
   render() {
-    return <Container innerRef={this.container} onClick={this.onClick} />;
+    return (
+      <Wrap>
+        <Container innerRef={this.container} onClick={this.onClick} />
+        <ThreeDNavigationBox
+          ref={this.navigationBox}
+          onChangeCameraAngle={this.updateCameraAngle}
+        />
+      </Wrap>
+    );
   }
 }
 
