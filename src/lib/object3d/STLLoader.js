@@ -2,15 +2,19 @@
  * Copyright (c) 2018 Bitbloq (BQ)
  *
  * @license MIT
+ * 
+ * Derived from https://gist.github.com/bellbind/477817982584ac8473ef/
+ * by bellbind <https://gist.github.com/bellbind>
  *
  * STLLoader Class (loads binary and ascii STL files)
  *
  * @summary STLLoader Class (loads binary and ascii STL files)
+ * @author Bellbind <https://gist.github.com/bellbind>
  * @author David García <https://github.com/empoalp>
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:46:49
- * Last modified  : 2018-09-14 10:49:09
+ * Last modified  : 2018-09-14 11:07:00
  */
 
 
