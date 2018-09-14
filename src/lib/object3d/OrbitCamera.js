@@ -311,7 +311,6 @@ export default class OrbitCamera {
   }
 
   pan(x, y, enableTransition) {
-    console.log('`pan` has been renamed to `truck`');
     this.truck(x, y, enableTransition);
   }
 
