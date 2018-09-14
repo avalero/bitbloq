@@ -46,7 +46,7 @@ module.exports = {
         use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.svg$/,
+        test: /\.(glb|svg)$/,
         use: ['file-loader'],
       },
     ],
