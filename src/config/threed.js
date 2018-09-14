@@ -4,6 +4,7 @@ import Cube from '../lib/object3d/Cube';
 import Sphere from '../lib/object3d/Sphere';
 import Cylinder from '../lib/object3d/Cylinder';
 import Prism from '../lib/object3d/Prism';
+import STLObject from '../lib/object3d/STLObject'
 import Union from '../lib/object3d/Union';
 import Difference from '../lib/object3d/Difference';
 import Intersection from '../lib/object3d/Intersection';
@@ -48,6 +49,12 @@ const config = {
       label: 'Prism',
       icon: PrismIcon,
       objectClass: Prism,
+    },
+    {
+      name: 'STLObject',
+      label: 'STL File',
+      icon: PrismIcon,
+      objectClass: STLObject,
     },
   ],
 

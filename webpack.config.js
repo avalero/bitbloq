@@ -2,30 +2,31 @@ const webpack = require('webpack');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
+
 const htmlPlugin = new HtmlWebPackPlugin({
   template: './src/index.html',
-  filename: './index.html'
+  filename: './index.html',
 });
 
 const definePlugin = new webpack.DefinePlugin({
-  WITHOUT_MONACO: JSON.stringify(process.env.WITHOUT_MONACO || false)
+  WITHOUT_MONACO: JSON.stringify(process.env.WITHOUT_MONACO || false),
 });
 
 const plugins = [
   htmlPlugin,
-  definePlugin
+  definePlugin,
 ];
 
 if (process.env.WITHOUT_MONACO === 'true') {
   plugins.push(
     new webpack.NormalModuleReplacementPlugin(
       /src\/components\/CodeEditor\.js/,
-      './SimpleCodeEditor.js'
-    )
+      './SimpleCodeEditor.js',
+    ),
   );
 } else {
   plugins.push(
-    new MonacoWebpackPlugin()
+    new MonacoWebpackPlugin(),
   );
 }
 
@@ -37,18 +38,19 @@ module.exports = {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
-          loader: 'babel-loader'
-        }
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: ['style-loader', 'css-loader'],
       },
       {
         test: /\.svg$/,
-        use: ['file-loader']
-      }
-    ]
+        use: ['file-loader'],
+      },
+    ],
   },
-  plugins
+  plugins,
 };
+
