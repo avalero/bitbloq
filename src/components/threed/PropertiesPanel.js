@@ -20,6 +20,7 @@ import TrashIcon from '../../assets/images/trash.svg';
 import PencilIcon from '../../assets/images/pencil.svg';
 import Select from '../Select';
 import config from '../../config/threed';
+import STLLoader from '../../lib/object3d/STLLoader'
 
 const Container = styled.div`
   position: absolute;
@@ -150,6 +151,7 @@ const ButtonIcon = styled.img`
   margin-right: 6px;
 `;
 
+
 const IntegerProperty = ({label, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
@@ -159,6 +161,46 @@ const IntegerProperty = ({label, value, onChange, onFocus, onBlur}) => (
       onFocus={onFocus}
       onBlur={onBlur}
     />
+  </FormGroup>
+);
+
+const FileProperty = ({onChange}) => (
+  <FormGroup>
+    <input type='file'
+            onChange={ (e) => {
+                console.log(e.target.files[0].name);
+                const file = e.target.files[0];
+                if(file.type.match('model/x.stl-binary')){
+                  
+                  let reader = new FileReader();
+
+                  reader.onload = e => {
+                    let blob = reader.result;
+                    let geom = STLLoader.loadBinaryStl(blob);
+                    onChange(geom);
+                    
+                  }
+                  reader.readAsArrayBuffer(file);
+
+                }else if(file.type.match('model/x.stl-ascii')){
+                  
+                  let reader = new FileReader();
+
+                  reader.onload = e => {
+                    let blob = reader.result;
+                    let geom = STLLoader.loadBinaryStl(blob);
+                    onChange(geom);
+                    
+                  }
+                  reader.readAsArrayBuffer(file);
+                }else{
+                  throw 'Error: Not recognized file type';
+                }
+              }
+
+            }
+            id='stlFile' name='stlFile'
+            accept='model/stl, model/x.stl-binary, model/x.stl-ascii'/>
   </FormGroup>
 );
 
@@ -212,6 +254,14 @@ const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
     case 'boolean':
       return (
         <BooleanProperty
+          label={parameter.label}
+          value={value}
+          onChange={onChange}
+        />
+      );
+    case 'file':
+      return(
+        <FileProperty
           label={parameter.label}
           value={value}
           onChange={onChange}

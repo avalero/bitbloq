@@ -3,6 +3,7 @@ import Cube from './Cube';
 import Cylinder from './Cylinder';
 import Sphere from './Sphere';
 import Prism from './Prism';
+import STLObject from './STLObject'
 import Union from './Union';
 import Difference from './Difference';
 import Intersection from './Intersection';
@@ -12,6 +13,7 @@ const classes = {
   Cylinder,
   Prism,
   Sphere,
+  STLObject,
   Union,
   Difference,
   Intersection,

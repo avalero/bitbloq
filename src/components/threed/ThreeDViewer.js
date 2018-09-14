@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * @license MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>
+ * @author Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-09-14 10:49:04 
+ * Last modified  : 2018-09-14 10:49:04 
+ */
+
+
+
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
@@ -96,6 +113,8 @@ class ThreeDViewer extends React.Component {
       this.outlineGroup.remove(this.outlineGroup.children[0]);
     }
 
+    let transparent = {opacity: 0.5, transparent: true, depthWrite: false,};
+    let opaque = {opacity: 1, transparent: false, depthWrite: true,};
     objects.forEach(object => {
       if (!prevObjects.includes(object)) {
         const object3D = createFromJSON(object);
@@ -106,6 +125,18 @@ class ThreeDViewer extends React.Component {
         this.objectsGroup.add(mesh);
 
       }
+
+      // if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
+      //   const mesh = this.meshes[object.id];
+      //   mesh.material.opacity = 0.5;
+      //   mesh.material.transparent = true;
+      //   mesh.material.depthWrite = false;
+      // }else{
+      //   const mesh = this.meshes[object.id];
+      //   mesh.material.opacity = 1;
+      //   mesh.material.transparent = false;
+      //   mesh.material.depthWrite = true;
+      // }
 
       if (selectedObjects.includes(object)) {
         const mesh = this.meshes[object.id];
