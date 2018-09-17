@@ -161,7 +161,7 @@ class ThreeDViewer extends React.Component {
     this.helpersGroup.remove(this.activeHelper);
     if (activeOperation) {
       const mesh = this.meshes[activeOperation.object.id];
-      if (activeOperation.type === 'translation') {
+      if (mesh && activeOperation.type === 'translation') {
         const trHelper = new TranslationHelper(
           mesh,
           activeOperation.axis,
@@ -170,7 +170,7 @@ class ThreeDViewer extends React.Component {
         this.helpersGroup.add(trHelper);
         this.activeHelper = trHelper;
       }
-      if (activeOperation.type === 'rotation') {
+      if (mesh && activeOperation.type === 'rotation') {
         const rotHelper = new RotationHelper(
           mesh,
           activeOperation.axis,
