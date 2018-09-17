@@ -13,6 +13,12 @@ export function deselectObject(object) {
   };
 }
 
+export function deselectAllObjects() {
+  return {
+    type: 'DESELECT_ALL_OBJECTS'
+  };
+}
+
 export function createObject(shapeName) {
   return {
     type: 'CREATE_OBJECT',

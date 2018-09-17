@@ -92,6 +92,12 @@ const threed = (state = initialState, action) => {
         selectedIds: state.selectedIds.filter(id => id !== action.object.id),
       };
 
+    case 'DESELECT_ALL_OBJECTS':
+      return {
+        ...state,
+        selectedIds: [],
+      };
+
     case 'CREATE_OBJECT':
       const shape = shapes[action.shapeName];
       const name = createObjectName(shape.name, state.objects);
