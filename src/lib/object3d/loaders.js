@@ -1,10 +1,9 @@
-import * as Three from 'three';
-import GLTF2Loader from 'three-gltf2-loader';
-
-GLTF2Loader(Three);
+import 'three';
+import 'three/GLTFLoader';
+/* global THREE */
 
 export function loadGLTFFromUrl(url) {
-  const loader = new Three.GLTFLoader();
+  const loader = new THREE.GLTFLoader();
   return new Promise((resolve, reject) => {
     loader.load(url, resolve, undefined, reject);
   });

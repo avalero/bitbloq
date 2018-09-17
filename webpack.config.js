@@ -1,7 +1,7 @@
 const webpack = require('webpack');
+const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: './src/index.html',
@@ -12,10 +12,11 @@ const definePlugin = new webpack.DefinePlugin({
   WITHOUT_MONACO: JSON.stringify(process.env.WITHOUT_MONACO || false),
 });
 
-const plugins = [
-  htmlPlugin,
-  definePlugin,
-];
+const providePlugin = new webpack.ProvidePlugin({
+  THREE: 'three',
+});
+
+const plugins = [htmlPlugin, definePlugin, providePlugin];
 
 if (process.env.WITHOUT_MONACO === 'true') {
   plugins.push(
@@ -25,9 +26,7 @@ if (process.env.WITHOUT_MONACO === 'true') {
     ),
   );
 } else {
-  plugins.push(
-    new MonacoWebpackPlugin(),
-  );
+  plugins.push(new MonacoWebpackPlugin());
 }
 
 module.exports = {
@@ -52,5 +51,12 @@ module.exports = {
     ],
   },
   plugins,
+  resolve: {
+    alias: {
+      'three/GLTFLoader': path.join(
+        __dirname,
+        'node_modules/three/examples/js/loaders/GLTFLoader.js',
+      ),
+    },
+  },
 };
-
