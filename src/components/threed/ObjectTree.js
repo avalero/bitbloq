@@ -120,6 +120,18 @@ class ObjectTree extends React.Component {
     addDropDownOpen: false,
   };
 
+  componentDidMount() {
+    document.body.addEventListener('click', this.onBodyClick);
+  }
+
+  componentWillUnmount() {
+    document.body.removeEventListener('click', this.onBodyClick);
+  }
+
+  onBodyClick = () => {
+    this.setState({ addDropDownOpen: false });
+  };
+
   onAddObject(shapeName) {
     this.setState({addDropDownOpen: false});
 
