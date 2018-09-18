@@ -64,6 +64,72 @@ const clickBoxes = [
     size: [1.5, 0.25, 0.25],
     cameraAngle: [-HALF_PI, QUARTER_PI],
   },
+  // TOP-LEFT
+  {
+    position: [-0.876, 0, 0.876],
+    size: [0.25, 1.5, 0.25],
+    cameraAngle: [-Math.PI, QUARTER_PI],
+  },
+  // TOP-BACK
+  {
+    position: [0, 0.876, 0.876],
+    size: [1.5, 0.25, 0.25],
+    cameraAngle: [HALF_PI, QUARTER_PI],
+  },
+  // TOP-RIGHT
+  {
+    position: [0.876, 0, 0.876],
+    size: [0.25, 1.5, 0.25],
+    cameraAngle: [0, QUARTER_PI],
+  },
+  // BOTTOM-FRONT
+  {
+    position: [0, -0.876, -0.876],
+    size: [1.5, 0.25, 0.25],
+    cameraAngle: [-HALF_PI, 3*QUARTER_PI],
+  },
+  // BOTTOM-LEFT
+  {
+    position: [-0.876, 0, -0.876],
+    size: [0.25, 1.5, 0.25],
+    cameraAngle: [-Math.PI, 3*QUARTER_PI],
+  },
+  // BOTTOM-BACK
+  {
+    position: [0, 0.876, -0.876],
+    size: [1.5, 0.25, 0.25],
+    cameraAngle: [HALF_PI, 3*QUARTER_PI],
+  },
+  // BOTTOM-RIGHT
+  {
+    position: [0.876, 0, -0.876],
+    size: [0.25, 1.5, 0.25],
+    cameraAngle: [0, 3*QUARTER_PI],
+  },
+  // FRONT-LEFT
+  {
+    position: [-0.876, -0.876, 0],
+    size: [0.25, 0.25, 1.5],
+    cameraAngle: [-3*QUARTER_PI, HALF_PI],
+  },
+  // FRONT-RIGHT
+  {
+    position: [0.876, -0.876, 0],
+    size: [0.25, 0.25, 1.5],
+    cameraAngle: [-QUARTER_PI, HALF_PI],
+  },
+  // BACK-LEFT
+  {
+    position: [-0.876, 0.876, 0],
+    size: [0.25, 0.25, 1.5],
+    cameraAngle: [3*QUARTER_PI, HALF_PI],
+  },
+  // BACK-RIGHT
+  {
+    position: [0.876, 0.876, 0],
+    size: [0.25, 0.25, 1.5],
+    cameraAngle: [QUARTER_PI, HALF_PI],
+  },
   // TOP-FRONT-LEFT
   {
     position: [-0.876, -0.876, 0.876],
@@ -76,8 +142,42 @@ const clickBoxes = [
     size: [0.25, 0.25, 0.25],
     cameraAngle: [-QUARTER_PI, QUARTER_PI],
   },
-
-  // TODO: Write the rest ...
+  // TOP-BACK-LEFT
+  {
+    position: [-0.876, 0.876, 0.876],
+    size: [0.25, 0.25, 0.25],
+    cameraAngle: [3*QUARTER_PI, QUARTER_PI],
+  },
+  // TOP-BACK-RIGHT
+  {
+    position: [0.876, 0.876, 0.876],
+    size: [0.25, 0.25, 0.25],
+    cameraAngle: [QUARTER_PI, QUARTER_PI],
+  },
+  // BOTTOM-FRONT-LEFT
+  {
+    position: [-0.876, -0.876, -0.876],
+    size: [0.25, 0.25, 0.25],
+    cameraAngle: [-3*QUARTER_PI, 3*QUARTER_PI],
+  },
+  // BOTTOM-FRONT-RIGHT
+  {
+    position: [0.876, -0.876, -0.876],
+    size: [0.25, 0.25, 0.25],
+    cameraAngle: [-QUARTER_PI, 3*QUARTER_PI],
+  },
+  // BOTTOM-BACK-LEFT
+  {
+    position: [-0.876, 0.876, -0.876],
+    size: [0.25, 0.25, 0.25],
+    cameraAngle: [3*QUARTER_PI, 3*QUARTER_PI],
+  },
+  // BOTTOM-BACK-RIGHT
+  {
+    position: [0.876, 0.876, -0.876],
+    size: [0.25, 0.25, 0.25],
+    cameraAngle: [QUARTER_PI, 3*QUARTER_PI],
+  },
 ];
 
 class ThreeDNavigationBox extends React.Component {
