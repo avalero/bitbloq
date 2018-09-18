@@ -18,6 +18,7 @@ import CompoundObject from '../../lib/object3d/CompoundObject';
 import UnionIcon from '../../assets/images/union.svg';
 import TrashIcon from '../../assets/images/trash.svg';
 import PencilIcon from '../../assets/images/pencil.svg';
+import NumberInput from '../NumberInput';
 import Select from '../Select';
 import config from '../../config/threed';
 import STLLoader from '../../lib/object3d/STLLoader'
@@ -103,21 +104,6 @@ const FormGroup = styled.div`
   }
 `;
 
-const Input = styled.input`
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  flex: 1;
-  height: 18px;
-  padding: 6px 12px;
-  width: 100%;
-
-  &:focus {
-    outline: none;
-    border: 1px solid #2684ff;
-    box-shadow: 0 0 0 1px #2684ff;
-  }
-`;
-
 const NameInput = styled.input`
   flex: 1;
   font-size: 1em;
@@ -155,7 +141,7 @@ const ButtonIcon = styled.img`
 const IntegerProperty = ({label, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
-    <Input
+    <NumberInput
       value={value}
       onChange={e => onChange(e.target.value)}
       onFocus={onFocus}
@@ -210,6 +196,7 @@ const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
     <Select
       value={value}
       options={options}
+      selectConfig={{isSearchable: false}}
       onChange={onChange}
       onFocus={onFocus}
       onBlur={onBlur}
