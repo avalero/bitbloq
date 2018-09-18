@@ -9,16 +9,14 @@
  * @author David García <https://github.com/empoalp>
  * @author Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-09-14 10:49:04 
- * Last modified  : 2018-09-14 10:49:04 
+ * Created at     : 2018-09-14 10:49:04
+ * Last modified  : 2018-09-14 10:49:04
  */
-
-
 
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
-import {selectObject} from '../../actions/threed';
+import {selectObject, deselectAllObjects} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import OrbitCamera from '../../lib/object3d/OrbitCamera';
 import {SphericalCoordsXYZ} from '../../lib/object3d/SphericalCoordinates';
@@ -84,10 +82,17 @@ class ThreeDViewer extends React.Component {
   };
 
   onClick = e => {
-    const {selectObject, controlPressed, shiftPressed} = this.props;
+    const {
+      selectObject,
+      deselectAllObjects,
+      controlPressed,
+      shiftPressed,
+    } = this.props;
     const object = this.getObjectFromPosition(e.clientX, e.clientY);
     if (object) {
       selectObject(object, controlPressed || shiftPressed);
+    } else {
+      deselectAllObjects();
     }
   };
 
@@ -125,8 +130,8 @@ class ThreeDViewer extends React.Component {
       this.outlineGroup.remove(this.outlineGroup.children[0]);
     }
 
-    let transparent = {opacity: 0.5, transparent: true, depthWrite: false,};
-    let opaque = {opacity: 1, transparent: false, depthWrite: true,};
+    let transparent = {opacity: 0.5, transparent: true, depthWrite: false};
+    let opaque = {opacity: 1, transparent: false, depthWrite: true};
     objects.forEach(object => {
       if (!prevObjects.includes(object)) {
         const object3D = createFromJSON(object);
@@ -198,7 +203,7 @@ class ThreeDViewer extends React.Component {
 
     this.scene.add(new Three.AmbientLight(0x555555));
     const spotLight = new Three.SpotLight(0xeeeeee);
-    spotLight.position.set(100, 80, 60);
+    spotLight.position.set(80, -100, 60);
     this.scene.add(spotLight);
 
     const plane = new Three.Plane(new Three.Vector3(0, 0, 1));
@@ -237,7 +242,7 @@ class ThreeDViewer extends React.Component {
 
   updateCameraAngle = (theta, phi) => {
     this.cameraControls.rotateTo(theta, phi, true);
-  }
+  };
 
   renderLoop = () => {
     const delta = this.clock.getDelta();
@@ -275,6 +280,7 @@ const mapStateToProps = ({ui, threed}) => ({
 
 const mapDispatchToProps = {
   selectObject,
+  deselectAllObjects,
 };
 
 export default connect(
