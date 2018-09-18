@@ -131,8 +131,10 @@ export default class Object3D {
             }
           }else if(operation.type === Object3D.createScaleOperation().type){
             if(Number(operation.width)>0 && Number(operation.depth)> 0 && Number(operation.height) >0)
-              mesh.scale.set(Number(operation.width), Number(operation.depth), Number(operation.height));
-    
+              mesh.scale.set(mesh.scale.x * Number(operation.width), 
+                mesh.scale.y * Number(operation.depth), 
+                mesh.scale.z * Number(operation.height)
+              );
           }
 
 

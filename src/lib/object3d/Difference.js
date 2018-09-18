@@ -18,6 +18,13 @@ export default class Difference extends CompoundObject {
     }
 
     const mesh = differenceMeshBSP.toMesh(new Three.MeshLambertMaterial({ color: this.children[0].parameters.color }));
+    
+    mesh.scale.set(
+      this.children[0].getMesh().scale.x,
+      this.children[0].getMesh().scale.y,
+      this.children[0].getMesh().scale.z
+    );
+    
     this.applyOperations(mesh);
     return mesh;
   }

@@ -18,6 +18,13 @@ export default class Union extends CompoundObject {
     }
 
     const mesh = unionMeshBSP.toMesh(new Three.MeshLambertMaterial({ color: this.children[0].parameters.color }));
+    //we need to apply the scale of first objet (or we loose it)
+    mesh.scale.set(
+      this.children[0].getMesh().scale.x,
+      this.children[0].getMesh().scale.y,
+      this.children[0].getMesh().scale.z
+    );
+
     this.applyOperations(mesh);
 
     return mesh;
