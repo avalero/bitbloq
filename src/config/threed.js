@@ -155,18 +155,18 @@ const config = {
       create: () => Object3D.createScaleOperation(1, 1, 1),
       parameters: [
         {
-          name: 'width',
-          label: 'Width',
+          name: 'x',
+          label: 'x',
           type: 'integer',
         },
         {
-          name: 'height',
-          label: 'Height',
+          name: 'y',
+          label: 'y',
           type: 'integer',
         },
         {
-          name: 'depth',
-          label: 'Depth',
+          name: 'z',
+          label: 'z',
           type: 'integer',
         },
       ],

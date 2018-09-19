@@ -27,12 +27,12 @@ export default class Object3D {
     };
   }
 
-  static createScaleOperation(width, height, depth) {
+  static createScaleOperation(x,y,z) {
     return {
       type: 'scale',
-      width,
-      height,
-      depth
+      x,
+      y,
+      z
     };
   }
 
@@ -130,10 +130,10 @@ export default class Object3D {
                 throw new Error('Unexpected Rotation Axis');
             }
           }else if(operation.type === Object3D.createScaleOperation().type){
-            if(Number(operation.width)>0 && Number(operation.depth)> 0 && Number(operation.height) >0)
-              mesh.scale.set(mesh.scale.x * Number(operation.width), 
-                mesh.scale.y * Number(operation.depth), 
-                mesh.scale.z * Number(operation.height)
+            if(Number(operation.x)>0 && Number(operation.y)> 0 && Number(operation.z) >0)
+              mesh.scale.set(mesh.scale.x * Number(operation.x), 
+                mesh.scale.y * Number(operation.y), 
+                mesh.scale.z * Number(operation.z)
               );
           }
 
