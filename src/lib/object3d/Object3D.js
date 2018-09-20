@@ -2,37 +2,36 @@ import * as Three from 'three';
 import uuid from 'uuid/v1';
 
 export default class Object3D {
-
   static parameterTypes = [];
 
   static createTranslateOperation(x, y, z, relative = true) {
     return {
+      id: uuid(),
       type: 'translation',
       x,
       y,
       z,
-      relative
+      relative,
     };
-
-    
-
   }
 
   static createRotateOperation(axis, angle, relative = true) {
     return {
+      id: uuid(),
       type: 'rotation',
       axis,
       angle,
-      relative
+      relative,
     };
   }
 
-  static createScaleOperation(x,y,z) {
+  static createScaleOperation(x, y, z) {
     return {
+      id: uuid(),
       type: 'scale',
       x,
       y,
-      z
+      z,
     };
   }
 
@@ -50,14 +49,14 @@ export default class Object3D {
     0x00fff8,
     0xf9fe44,
     0x7aff4f,
-    0x968afc
-  ]
+    0x968afc,
+  ];
 
   id = '';
   name = '';
   parameters = {};
   operations = [];
-  
+
   constructor(name, parameters = {}, operations = [], id) {
     const defaultParams = {};
     this.constructor.parameterTypes.forEach(paramType => {
@@ -66,11 +65,11 @@ export default class Object3D {
 
     //select random color
     const color_i = Math.floor(Math.random() * Object3D.colors.length);
-    
+
     this.parameters = {
       ...defaultParams,
       color: Object3D.colors[color_i],
-      ...parameters
+      ...parameters,
     };
 
     this.operations = operations;
@@ -82,69 +81,74 @@ export default class Object3D {
     this.operations.push(operation);
   }
 
-  applyOperations(mesh){
-    if(this.operations){
-      this.operations.forEach( operation => 
-        {
-          // Translate operation
-          if(operation.type === Object3D.createTranslateOperation().type){
-            if(operation.relative){
-              mesh.translateX(operation.x);
-              mesh.translateY(operation.y);
-              mesh.translateZ(operation.z);
-            }else{
-              //absolute x,y,z axis.
-              mesh.position.x += Number(operation.x);
-              mesh.position.y += Number(operation.y);
-              mesh.position.z += Number(operation.z);
-            }
-            //Rotation Operation
-          }else if(operation.type === Object3D.createRotateOperation().type){
-            const angle = Three.Math.degToRad(Number(operation.angle));
-            switch(operation.axis){
-              case 'x':
-                if(operation.relative){
-                  mesh.rotateX(angle);
-                }else{
-                  mesh.rotateOnWorldAxis(new Three.Vector3(1,0,0), angle);
-                }
-                break;
-                
-              case 'y':
-                if(operation.relative){
-                  mesh.rotateY(angle);
-                }else{
-                  mesh.rotateOnWorldAxis(new Three.Vector3(0,1,0), angle);
-                }
-                break;
-
-              case 'z':
-                if(operation.relative){
-                  mesh.rotateZ(angle);
-                }else{
-                  mesh.rotateOnWorldAxis(new Three.Vector3(0,0,1), angle);
-                }
-                break;
-              
-              default:
-                throw new Error('Unexpected Rotation Axis');
-            }
-          }else if(operation.type === Object3D.createScaleOperation().type){
-            if(Number(operation.x)>0 && Number(operation.y)> 0 && Number(operation.z) >0)
-              mesh.scale.set(mesh.scale.x * Number(operation.x), 
-                mesh.scale.y * Number(operation.y), 
-                mesh.scale.z * Number(operation.z)
-              );
+  applyOperations(mesh) {
+    if (this.operations) {
+      this.operations.forEach(operation => {
+        // Translate operation
+        if (operation.type === Object3D.createTranslateOperation().type) {
+          if (operation.relative) {
+            mesh.translateX(operation.x);
+            mesh.translateY(operation.y);
+            mesh.translateZ(operation.z);
+          } else {
+            //absolute x,y,z axis.
+            mesh.position.x += Number(operation.x);
+            mesh.position.y += Number(operation.y);
+            mesh.position.z += Number(operation.z);
           }
+          //Rotation Operation
+        } else if (operation.type === Object3D.createRotateOperation().type) {
+          const angle = Three.Math.degToRad(Number(operation.angle));
+          switch (operation.axis) {
+            case 'x':
+              if (operation.relative) {
+                mesh.rotateX(angle);
+              } else {
+                mesh.rotateOnWorldAxis(new Three.Vector3(1, 0, 0), angle);
+              }
+              break;
 
+            case 'y':
+              if (operation.relative) {
+                mesh.rotateY(angle);
+              } else {
+                mesh.rotateOnWorldAxis(new Three.Vector3(0, 1, 0), angle);
+              }
+              break;
 
-        });
-    }  }
+            case 'z':
+              if (operation.relative) {
+                mesh.rotateZ(angle);
+              } else {
+                mesh.rotateOnWorldAxis(new Three.Vector3(0, 0, 1), angle);
+              }
+              break;
+
+            default:
+              throw new Error('Unexpected Rotation Axis');
+          }
+        } else if (operation.type === Object3D.createScaleOperation().type) {
+          if (
+            Number(operation.x) > 0 &&
+            Number(operation.y) > 0 &&
+            Number(operation.z) > 0
+          )
+            mesh.scale.set(
+              mesh.scale.x * Number(operation.x),
+              mesh.scale.y * Number(operation.y),
+              mesh.scale.z * Number(operation.z),
+            );
+        }
+      });
+    }
+  }
 
   getMesh() {
     const geometry = this.getGeometry();
-    
-    const material = new Three.MeshLambertMaterial({color: this.parameters.color || 0xff0000});
+
+    const material = new Three.MeshLambertMaterial({
+      color: this.parameters.color || 0xff0000,
+    });
     const mesh = new Three.Mesh(geometry, material);
 
     this.applyOperations(mesh);
@@ -163,7 +167,7 @@ export default class Object3D {
       name,
       type: constructor.typeName,
       parameters,
-      operations
+      operations,
     };
   }
 }

@@ -1,10 +1,17 @@
 import config from '../config/threed';
 import {createFromJSON} from '../lib/object3d';
+import uuid from 'uuid/v1';
 
 const initialState = {
   selectedIds: [],
   objects: [],
   activeOperation: null,
+  contextMenu: {
+    visible: false,
+    object: null,
+    position: {},
+  },
+  editingObjectName: false,
 };
 
 const findObject = (objects = [], field, value) => {
@@ -96,6 +103,7 @@ const threed = (state = initialState, action) => {
       return {
         ...state,
         selectedIds: [],
+        activeOperation: null,
       };
 
     case 'CREATE_OBJECT':
@@ -113,6 +121,19 @@ const threed = (state = initialState, action) => {
       return {
         ...state,
         objects: updateObject(state.objects, action.object),
+      };
+
+    case 'DUPLICATE_OBJECT':
+      const duplicatedObject = {
+        ...action.object,
+        id: uuid(),
+        name: createObjectName(action.object.name, state.objects),
+      };
+
+      return {
+        ...state,
+        objects: [...state.objects, duplicatedObject],
+        selectedIds: [duplicatedObject.id],
       };
 
     case 'COMPOSE_OBJECTS':
@@ -191,6 +212,40 @@ const threed = (state = initialState, action) => {
       return {
         ...state,
         activeOperation: null,
+      };
+
+    case 'SHOW_CONTEXT_MENU':
+      return {
+        ...state,
+        contextMenu: {
+          visible: true,
+          object: action.object,
+          position: {x: action.x, y: action.y},
+        },
+      };
+
+    case 'APP_CLICK':
+    case 'HIDE_CONTEXT_MENU':
+      return {
+        ...state,
+        contextMenu: {
+          visible: false,
+          object: null,
+          position: {},
+        },
+      };
+
+    case 'EDIT_OBJECT_NAME':
+      return {
+        ...state,
+        editingObjectName: true,
+        selectedIds: [action.object.id]
+      };
+
+    case 'STOP_EDITING_OBJECT_NAME':
+      return {
+        ...state,
+        editingObjectName: false,
       };
 
     default:

@@ -34,3 +34,11 @@ export function keyUp(key) {
     key,
   };
 }
+
+export function appClick(x, y) {
+  return {
+    type: 'APP_CLICK',
+    x,
+    y,
+  };
+}

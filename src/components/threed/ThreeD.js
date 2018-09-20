@@ -3,6 +3,7 @@ import styled from 'react-emotion';
 import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer';
 import PropertiesPanel from './PropertiesPanel';
+import ContextMenu from './ContextMenu';
 
 const Container = styled.div`
   flex: 1;
@@ -17,6 +18,7 @@ class ThreeD extends React.Component {
         <ObjectTree />
         <ThreeDViewer />
         <PropertiesPanel />
+        <ContextMenu />
       </Container>
     );
   }
