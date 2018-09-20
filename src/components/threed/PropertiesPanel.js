@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
+import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 import {
   updateObject,
   composeObjects,
@@ -10,120 +11,35 @@ import {
   removeOperation,
   setActiveOperation,
   unsetActiveOperation,
+  showContextMenu,
+  stopEditingObjectName,
 } from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
 import {colors} from '../../base-styles';
 import {resolveClass} from '../../lib/object3d';
 import CompoundObject from '../../lib/object3d/CompoundObject';
-import UnionIcon from '../../assets/images/union.svg';
-import TrashIcon from '../../assets/images/trash.svg';
-import PencilIcon from '../../assets/images/pencil.svg';
-import NumberInput from '../NumberInput';
-import Select from '../Select';
+import TrashIcon from '../../assets/images/trash-green.svg';
+import GroupIcon from '../../assets/images/shape-group.svg';
+import PointsIcon from '../../assets/images/three-points.svg';
+import PropertyInput from './PropertyInput';
+import OperationsList from './OperationsList';
 import config from '../../config/threed';
-import STLLoader from '../../lib/object3d/STLLoader'
+import STLLoader from '../../lib/object3d/STLLoader';
 
 const Container = styled.div`
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  padding: 12px;
-  width: 300px;
-  max-height: 100%;
-  overflow-y: auto;
-`;
-
-const PanelHeader = styled.div`
-  font-size: 1.1em;
-  color: #fafafa;
-  background-color: #777;
-  display: flex;
-  align-items: center;
-  padding: 12px;
-`;
-
-const Panel = styled.div`
-  background-color: #fafafa;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  width: 310px;
   overflow: hidden;
-
-  ${props =>
-    props.isSubPanel &&
-    css`
-      background-color: white;
-
-      ${PanelHeader} {
-        font-size: 1em;
-        color: #333;
-        background-color: #eee;
-        padding: 6px;
-      }
-    `};
-`;
-
-const PanelIcon = styled.img`
-  height: 24px;
-  margin-right: 6px;
-`;
-
-const PanelBody = styled.div`
-  padding: 6px;
-`;
-
-const PanelHeaderTitle = styled.div`
+  border-left: 1px solid #979797;
+  background-color: white;
   display: flex;
-  align-items: center;
-  flex: 1;
-
-  ${props =>
-    props.editable &&
-    css`
-      cursor: pointer;
-    `};
-`;
-
-const EditButton = styled.img`
-  height: 18px;
-  margin-right: 6px;
-`;
-
-const DeleteButton = styled.img`
-  height: 18px;
-  cursor: pointer;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-
-  label {
-    width: 120px;
-    display: block;
-  }
-`;
-
-const NameInput = styled.input`
-  flex: 1;
-  font-size: 1em;
-  margin: -2px 24px -4px 24px;
-  padding: 0px;
-  color: white;
-  border-width: 0 0 1px 0;
-  border-color: white;
-  width: 100%;
-  background: transparent;
-
-  &:focus {
-    outline: none;
-  }
+  flex-direction: column;
 `;
 
 const Button = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center;
   color: white;
   background-color: ${colors.brand};
   padding: 6px;
@@ -137,142 +53,137 @@ const ButtonIcon = styled.img`
   margin-right: 6px;
 `;
 
+const Header = styled.div`
+  height: 42px;
+  padding: 0px 12px;
+  background-color: #d8d8d8;
+  border-bottom: 1px solid #979797;
+  color: #4a4a4a;
+  display: flex;
+  align-items: center;
+  font-size: 1.1em;
 
-const IntegerProperty = ({label, value, onChange, onFocus, onBlur}) => (
-  <FormGroup>
-    <label>{label}</label>
-    <NumberInput
-      value={value}
-      onChange={e => onChange(e.target.value)}
-      onFocus={onFocus}
-      onBlur={onBlur}
-    />
-  </FormGroup>
-);
-
-const FileProperty = ({onChange}) => (
-  <FormGroup>
-    <input type='file'
-            onChange={ (e) => {
-                console.log(e.target.files[0].name);
-                const file = e.target.files[0];
-                if(file.type.match('model/x.stl-binary')){
-                  
-                  let reader = new FileReader();
-
-                  reader.onload = e => {
-                    let blob = reader.result;
-                    let geom = STLLoader.loadBinaryStl(blob);
-                    onChange(geom);
-                    
-                  }
-                  reader.readAsArrayBuffer(file);
-
-                }else if(file.type.match('model/x.stl-ascii')){
-                  
-                  let reader = new FileReader();
-
-                  reader.onload = e => {
-                    let blob = reader.result;
-                    let geom = STLLoader.loadBinaryStl(blob);
-                    onChange(geom);
-                    
-                  }
-                  reader.readAsArrayBuffer(file);
-                }else{
-                  throw 'Error: Not recognized file type';
-                }
-              }
-
-            }
-            id='stlFile' name='stlFile'
-            accept='model/stl, model/x.stl-binary, model/x.stl-ascii'/>
-  </FormGroup>
-);
-
-const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
-  <FormGroup>
-    <label>{label}</label>
-    <Select
-      value={value}
-      options={options}
-      selectConfig={{isSearchable: false}}
-      onChange={onChange}
-      onFocus={onFocus}
-      onBlur={onBlur}
-    />
-  </FormGroup>
-);
-
-const BooleanProperty = ({label, value, onChange}) => (
-  <FormGroup>
-    <label>{label}</label>
-    <input
-      type="checkbox"
-      checked={value}
-      onChange={e => onChange(e.target.checked)}
-    />
-  </FormGroup>
-);
-
-const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
-  switch (parameter.type) {
-    case 'integer':
-      return (
-        <IntegerProperty
-          label={parameter.label}
-          value={value}
-          onChange={onChange}
-          onFocus={onFocus}
-          onBlur={onBlur}
-        />
-      );
-    case 'select':
-      return (
-        <SelectProperty
-          label={parameter.label}
-          value={value}
-          onChange={onChange}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          options={parameter.options}
-        />
-      );
-    case 'boolean':
-      return (
-        <BooleanProperty
-          label={parameter.label}
-          value={value}
-          onChange={onChange}
-        />
-      );
-    case 'file':
-      return(
-        <FileProperty
-          label={parameter.label}
-          value={value}
-          onChange={onChange}
-        />
-      );
-    default:
-      return null;
+  img {
+    cursor: pointer;
   }
-};
+`;
 
-const objectOperationsMap = {};
-config.objectOperations.forEach(
-  operation => (objectOperationsMap[operation.name] = operation),
-);
+const ObjectName = styled.div`
+  flex: 1;
+`;
+
+const ObjectProperties = styled.div`
+  padding: 12px;
+  border-bottom: 1px solid #979797;
+  position: relative;
+`;
+
+const ParametersPanel = styled.div`
+  display: flex;
+  margin-bottom: 18px;
+  min-height: 120px;
+`;
+
+const ObjectIcon = styled.div`
+  margin-right: 12px;
+  background-color: #eee;
+  width: 140px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  img {
+    width: 100px;
+  }
+`;
+
+const ParametersForm = styled.div`
+  flex: 1;
+`;
+
+const ObjectButtons = styled.div`
+  display: flex;
+  margin: 6px -6px;
+
+  ${Button} {
+    flex: 1;
+    margin: 0px 6px;
+  }
+`;
+
+const NameInput = styled.input`
+  flex: 1;
+  font-size: 1em;
+  margin: -2px 0px -4px 0px;
+  padding: 0px;
+  color: #4a4a4a;
+  border-width: 0 0 1px 0;
+  border-color: #4a4a4a;
+  width: 100%;
+  background: transparent;
+
+  &:focus {
+    outline: none;
+  }
+`;
+
+const RemoveOperationArea = styled.div`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  opacity: 0;
+  pointer-events: none;
+
+  img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 84px;
+    margin-left: -30px;
+    margin-top: -42px;
+  }
+
+  ${props =>
+    props.visible &&
+    css`
+      opacity: 1;
+      pointer-events: auto;
+    `} ${props =>
+    props.active &&
+    css`
+      img {
+        opacity: 0.8;
+      }
+    `};
+`;
+
+const GroupSelection = styled.div`
+  padding: 12px;
+
+  ${ObjectIcon} {
+    width: 100%;
+    margin-bottom: 12px;
+    min-height: 120px;
+  }
+`;
+
+const GroupButton = styled(Button)`
+  justify-content: flex-start;
+`;
 
 class PropertiesPanel extends React.Component {
   state = {
-    editingName: false,
+    draggingOperations: false,
   };
 
   nameInputRef = React.createRef();
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.editingName && !prevState.editingName) {
+  componentDidUpdate(prevProps) {
+    if (this.props.editingName && !prevProps.editingName) {
       this.nameInputRef.current.focus();
     }
   }
@@ -303,6 +214,30 @@ class PropertiesPanel extends React.Component {
     });
   };
 
+  onDragStart = () => {
+    this.setState({draggingOperations: true});
+  };
+
+  onDragEnd = (result, object) => {
+    const {destination, source, draggableId} = result;
+    const operation = object.operations.find(({id}) => id === draggableId);
+
+    this.setState({draggingOperations: false});
+
+    if (!destination || !operation) return;
+
+    const operations = [...object.operations];
+    operations.splice(source.index, 1);
+    if (destination.droppableId !== 'remove') {
+      operations.splice(destination.index, 0, operation);
+    }
+
+    this.props.updateObject({
+      ...object,
+      operations,
+    });
+  };
+
   onAddOperation(object, operationName) {
     this.props.addOperation(object, operationName);
   }
@@ -320,98 +255,69 @@ class PropertiesPanel extends React.Component {
     const {selectedObjects} = this.props;
 
     return (
-      <div>
+      <GroupSelection>
+        <ObjectIcon>
+          <img src={GroupIcon} />
+        </ObjectIcon>
         {config.compositionOperations.map(operation => (
-          <Button
+          <GroupButton
             key={operation.name}
             onClick={() => this.onComposeObjects(operation.name)}>
             <ButtonIcon src={operation.icon} />
             <div>{operation.label}</div>
-          </Button>
+          </GroupButton>
         ))}
-        <Panel isSubPanel>
-          {selectedObjects.map(object => (
-            <PanelHeader key={object.id}>
-              <div>{object.name}</div>
-            </PanelHeader>
-          ))}
-        </Panel>
-      </div>
+      </GroupSelection>
     );
   }
 
-  renderSubPanels(object, operations = []) {
-    const {setActiveOperation, unsetActiveOperation} = this.props;
+  renderObjectPanel(object) {
+    const {draggingOperations} = this.state;
+    const {
+      editingName,
+      deleteObject,
+      setActiveOperation,
+      unsetActiveOperation,
+      showContextMenu,
+      stopEditingObjectName,
+    } = this.props;
     const Class3D = resolveClass(object.type);
-    const {parameterTypes} = Class3D;
+    const {parameterTypes = []} = Class3D;
 
-    if (operations.length) {
-      const rest = [...operations];
-      const last = rest.pop();
-      const {label, icon, parameters} = objectOperationsMap[last.type];
-      return (
-        <Panel isSubPanel>
-          <PanelHeader>
-            <PanelHeaderTitle>
-              <PanelIcon src={icon} />
-              <div>{label}</div>
-            </PanelHeaderTitle>
-            <DeleteButton
-              src={TrashIcon}
-              onClick={() => this.onRemoveOperation(object, last)}
+    const shapeConfig = config.shapes.find(
+      ({objectClass}) => objectClass === Class3D,
+    );
+    const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
+
+    return (
+      <DragDropContext
+        onDragStart={this.onDragStart}
+        onDragEnd={result => this.onDragEnd(result, object)}>
+        <Header>
+          {editingName && (
+            <NameInput
+              type="text"
+              innerRef={this.nameInputRef}
+              value={object.name}
+              onChange={e => this.onObjectNameChange(object, e.target.value)}
+              onBlur={() => stopEditingObjectName()}
             />
-          </PanelHeader>
-          <PanelBody>
-            {parameters.map(parameter => (
-              <PropertyInput
-                key={parameter.name}
-                parameter={parameter}
-                value={last[parameter.name]}
-                onChange={value =>
-                  this.onOperationParameterChange(
-                    object,
-                    last,
-                    parameter.name,
-                    value,
-                  )
-                }
-                onFocus={() => {
-                  if (parameter.activeOperation) {
-                    setActiveOperation(parameter.activeOperation(object, last));
-                  }
-                }}
-                onBlur={() => {
-                  if (parameter.activeOperation) {
-                    unsetActiveOperation();
-                  }
-                }}
-              />
-            ))}
-            {this.renderSubPanels(object, rest)}
-          </PanelBody>
-        </Panel>
-      );
-    } else {
-      if (Class3D.prototype instanceof CompoundObject) {
-        const {parameters = {}} = object;
-        const {children = []} = parameters;
-        return (
-          <Panel isSubPanel>
-            {children.map(child => (
-              <PanelHeader key={child.id}>
-                <div>{child.name}</div>
-              </PanelHeader>
-            ))}
-          </Panel>
-        );
-      } else {
-        return (
-          <Panel isSubPanel>
-            <PanelHeader>
-              <PanelIcon src={UnionIcon} />
-              <div>{object.type} Geometry</div>
-            </PanelHeader>
-            <PanelBody>
+          )}
+          {!editingName && <ObjectName>{object.name}</ObjectName>}
+          <img
+            src={PointsIcon}
+            onClick={e => {
+              e.stopPropagation();
+              showContextMenu(object, e);
+            }}
+          />
+        </Header>
+        <ObjectProperties>
+          <ParametersPanel>
+            <ObjectIcon>
+              <img src={icon} />
+            </ObjectIcon>
+            <ParametersForm>
               {parameterTypes.map(parameter => (
                 <PropertyInput
                   key={parameter.name}
@@ -422,56 +328,52 @@ class PropertiesPanel extends React.Component {
                   }
                 />
               ))}
-            </PanelBody>
-          </Panel>
-        );
-      }
-    }
-  }
-
-  renderObjectPanel(object) {
-    const {editingName} = this.state;
-    const {objects, deleteObject} = this.props;
-
-    return (
-      <Panel>
-        <PanelHeader>
-          {editingName && (
-            <NameInput
-              type="text"
-              innerRef={this.nameInputRef}
-              value={object.name}
-              onChange={e => this.onObjectNameChange(object, e.target.value)}
-              onBlur={() => this.setState({editingName: false})}
-            />
-          )}
-          {!editingName && (
-            <PanelHeaderTitle
-              editable
-              onClick={() => this.setState({editingName: true})}>
-              <EditButton src={PencilIcon} />
-              {object.name}
-            </PanelHeaderTitle>
-          )}
-          {objects.includes(object) && (
-            <DeleteButton
-              src={TrashIcon}
-              onClick={() => deleteObject(object)}
-            />
-          )}
-        </PanelHeader>
-        <PanelBody>
-          {config.objectOperations.map(operation => (
-            <Button
-              key={operation.name}
-              onClick={() => this.onAddOperation(object, operation.name)}>
-              <ButtonIcon src={operation.icon} />
-              <div>{operation.label}</div>
-            </Button>
-          ))}
-          {this.renderSubPanels(object, object.operations)}
-        </PanelBody>
-      </Panel>
+            </ParametersForm>
+            <Droppable droppableId="remove" ignoreContainerClipping>
+              {(provided, snapshot) => (
+                <RemoveOperationArea
+                  innerRef={provided.innerRef}
+                  {...provided.droppableProps}
+                  visible={draggingOperations}
+                  active={snapshot.isDraggingOver}>
+                  <img src={TrashIcon} />
+                  {provided.placeholder}
+                </RemoveOperationArea>
+              )}
+            </Droppable>
+          </ParametersPanel>
+          <ObjectButtons>
+            {config.objectOperations.map(operation => (
+              <Button
+                key={operation.name}
+                onClick={() => this.onAddOperation(object, operation.name)}>
+                <ButtonIcon src={operation.icon} />
+              </Button>
+            ))}
+          </ObjectButtons>
+        </ObjectProperties>
+        <OperationsList
+          object={object}
+          onParameterChange={(operation, parameter, value) =>
+            this.onOperationParameterChange(
+              object,
+              operation,
+              parameter.name,
+              value,
+            )
+          }
+          onParameterFocus={(operation, parameter) => {
+            if (parameter.activeOperation) {
+              setActiveOperation(parameter.activeOperation(object, operation));
+            }
+          }}
+          onParameterBlur={(operation, parameter) => {
+            if (parameter.activeOperation) {
+              unsetActiveOperation();
+            }
+          }}
+        />
+      </DragDropContext>
     );
   }
 
@@ -492,6 +394,7 @@ class PropertiesPanel extends React.Component {
 const mapStateToProps = ({threed}) => ({
   objects: threed.objects,
   selectedObjects: getSelectedObjects(threed),
+  editingName: threed.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -506,6 +409,9 @@ const mapDispatchToProps = dispatch => ({
   setActiveOperation: ({object, type, axis, relative}) =>
     dispatch(setActiveOperation(object, type, axis, relative)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
+  showContextMenu: (object, e) =>
+    dispatch(showContextMenu(object, e.clientX, e.clientY)),
+  stopEditingObjectName: () => dispatch(stopEditingObjectName()),
 });
 
 export default connect(

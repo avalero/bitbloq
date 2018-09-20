@@ -30,6 +30,7 @@ const Wrap = styled.div`
   position: relative;
   flex: 1;
   display: flex;
+  overflow: hidden;
 `;
 
 const Container = styled.div`

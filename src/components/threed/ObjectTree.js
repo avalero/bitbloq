@@ -2,18 +2,22 @@ import React from 'react';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {colors} from '../../base-styles';
-import {selectObject, deselectObject, createObject} from '../../actions/threed';
+import SubArrowIcon from '../../assets/images/sub-arrow.svg';
+import PointsIcon from '../../assets/images/three-points.svg';
+import {
+  selectObject,
+  deselectObject,
+  createObject,
+  showContextMenu,
+} from '../../actions/threed';
 import {getSelectedObjects} from '../../reducers/threed';
-import AddIcon from '../../assets/images/add.svg';
-import PlusIcon from '../../assets/images/plus.svg';
 import config from '../../config/threed';
 
 const Container = styled.div`
-  width: 240px;
+  width: 210px;
   display: flex;
   flex-direction: column;
-  padding: 12px;
-  border-right: 1px solid #eee;
+  border-right: 1px solid #979797;
 `;
 
 const Tree = styled.div`
@@ -23,7 +27,6 @@ const Tree = styled.div`
 
 const ObjectList = styled.ul`
   width: 100%;
-  padding-left: 12px;
 `;
 
 const ObjectItem = styled.li`
@@ -31,23 +34,21 @@ const ObjectItem = styled.li`
 `;
 
 const ObjectName = styled.div`
-  padding: 9px;
-  margin-bottom: 3px;
+  padding: 12px;
   cursor: pointer;
-  border-radius: 6px;
   display: flex;
   align-items: center;
+  border-bottom: 1px solid #979797;
 
   ${props =>
     props.isSelected &&
     css`
-      background-color: #999;
-      color: white;
+      background-color: #e0e0e0;
     `};
   ${props =>
     props.isFirstSelected &&
     css`
-      background-color: #777;
+      background-color: #ddd;
     `};
 
   span {
@@ -55,27 +56,36 @@ const ObjectName = styled.div`
   }
 
   img {
-    height: 18px;
-    cursor: pointer;
+    width: 24px;
   }
+`;
+
+const SubArrow = styled.img`
+  margin-right: 6px;
+  ${props =>
+    props.depth &&
+    props.depth > 1 &&
+    css`
+      margin-left: ${12 * props.depth}px;
+    `};
+`;
+
+const AddButtonWrap = styled.div`
+  padding: 12px;
+  border-bottom: 1px solid #979797;
 `;
 
 const AddButton = styled.div`
   display: flex;
+  justify-content: center;
   align-items: center;
   color: white;
   background-color: ${colors.brand};
   padding: 12px;
   border-radius: 6px;
-  margin-bottom: 12px;
   font-size: 1.2em;
   cursor: pointer;
   position: relative;
-
-  img {
-    width: 18px;
-    margin-right: 6px;
-  }
 `;
 
 const AddDropdown = styled.div`
@@ -129,7 +139,7 @@ class ObjectTree extends React.Component {
   }
 
   onBodyClick = () => {
-    this.setState({ addDropDownOpen: false });
+    this.setState({addDropDownOpen: false});
   };
 
   onAddObject(shapeName) {
@@ -138,7 +148,7 @@ class ObjectTree extends React.Component {
     this.props.createObject(shapeName);
   }
 
-  renderObjectList(objects) {
+  renderObjectList(objects, depth = 0) {
     const {
       objects: topObjects,
       selectedObjects,
@@ -146,6 +156,7 @@ class ObjectTree extends React.Component {
       deselectObject,
       controlPressed,
       shiftPressed,
+      showContextMenu,
     } = this.props;
 
     if (objects && objects.length) {
@@ -184,20 +195,17 @@ class ObjectTree extends React.Component {
                       }
                     }
                   }}>
+                  {depth > 0 && <SubArrow src={SubArrowIcon} depth={depth} />}
                   <span>{object.name || object.type}</span>
-                  {!isSelected &&
-                    isTop &&
-                    isSelectedTop && (
-                      <img
-                        src={PlusIcon}
-                        onClick={e => {
-                          e.stopPropagation();
-                          selectObject(object, true);
-                        }}
-                      />
-                    )}
+                  <img
+                    src={PointsIcon}
+                    onClick={e => {
+                      e.stopPropagation();
+                      showContextMenu(object, e);
+                    }}
+                  />
                 </ObjectName>
-                {this.renderObjectList(children)}
+                {this.renderObjectList(children, depth + 1)}
               </ObjectItem>
             );
           })}
@@ -212,23 +220,24 @@ class ObjectTree extends React.Component {
 
     return (
       <Container>
-        <AddButton onClick={() => this.setState({addDropDownOpen: true})}>
-          <img src={AddIcon} />
-          <div>Add object</div>
-          <AddDropdown open={addDropDownOpen}>
-            {config.shapes.map(shape => (
-              <AddDropdownItem
-                key={shape.name}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.onAddObject(shape.name);
-                }}>
-                <img src={shape.icon} />
-                <div>{shape.label}</div>
-              </AddDropdownItem>
-            ))}
-          </AddDropdown>
-        </AddButton>
+        <AddButtonWrap>
+          <AddButton onClick={() => this.setState({addDropDownOpen: true})}>
+            <div>+ Add object</div>
+            <AddDropdown open={addDropDownOpen}>
+              {config.shapes.map(shape => (
+                <AddDropdownItem
+                  key={shape.name}
+                  onClick={e => {
+                    e.stopPropagation();
+                    this.onAddObject(shape.name);
+                  }}>
+                  <img src={shape.icon} />
+                  <div>{shape.label}</div>
+                </AddDropdownItem>
+              ))}
+            </AddDropdown>
+          </AddButton>
+        </AddButtonWrap>
         <Tree>{this.renderObjectList(objects)}</Tree>
       </Container>
     );
@@ -247,6 +256,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
+  showContextMenu: (object, e) =>
+    dispatch(showContextMenu(object, e.clientX, e.clientY)),
 });
 
 export default connect(

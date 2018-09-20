@@ -5,7 +5,7 @@ import NotificationsBar from './NotificationsBar';
 import Hardware from './Hardware';
 import Software from './Software';
 import ThreeD from './threed/ThreeD';
-import {openSection, keyDown, keyUp} from '../actions/ui';
+import {openSection, keyDown, keyUp, appClick} from '../actions/ui';
 import {uploadCode} from '../actions/software';
 import {colors} from '../base-styles';
 import HardwareIcon from '../assets/images/hardware.svg';
@@ -121,6 +121,10 @@ class App extends React.Component {
     this.props.keyUp(e.key);
   }
 
+  onClick = (e) => {
+    this.props.appClick(e.clientX, e.clientY);
+  }
+
   render() {
     const {currentSectionId, openSection, uploadCode} = this.props;
     const currentSection = sections.find(
@@ -128,7 +132,7 @@ class App extends React.Component {
     );
 
     return (
-      <Container>
+      <Container onClick={this.onClick}>
         <Header>
           <Tabs>
             {sections.map(section => (
@@ -160,7 +164,7 @@ const mapStateToProps = ({ui}) => ({
   currentSectionId: ui.currentSectionId,
 });
 
-const mapDispatchToProps = {openSection, uploadCode, keyDown, keyUp};
+const mapDispatchToProps = {openSection, uploadCode, keyDown, keyUp, appClick};
 
 export default connect(
   mapStateToProps,

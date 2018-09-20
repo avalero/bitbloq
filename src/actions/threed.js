@@ -15,7 +15,7 @@ export function deselectObject(object) {
 
 export function deselectAllObjects() {
   return {
-    type: 'DESELECT_ALL_OBJECTS'
+    type: 'DESELECT_ALL_OBJECTS',
   };
 }
 
@@ -29,6 +29,13 @@ export function createObject(shapeName) {
 export function updateObject(object) {
   return {
     type: 'UPDATE_OBJECT',
+    object,
+  };
+}
+
+export function duplicateObject(object) {
+  return {
+    type: 'DUPLICATE_OBJECT',
     object,
   };
 }
@@ -77,5 +84,33 @@ export function setActiveOperation(object, operationType, axis, relative) {
 export function unsetActiveOperation() {
   return {
     type: 'UNSET_ACTIVE_OPERATION',
+  };
+}
+
+export function showContextMenu(object, x, y) {
+  return {
+    type: 'SHOW_CONTEXT_MENU',
+    object,
+    x,
+    y,
+  };
+}
+
+export function hideContextMenu() {
+  return {
+    type: 'HIDE_CONTEXT_MENU',
+  };
+}
+
+export function editObjectName(object) {
+  return {
+    type: 'EDIT_OBJECT_NAME',
+    object,
+  };
+}
+
+export function stopEditingObjectName() {
+  return {
+    type: 'STOP_EDITING_OBJECT_NAME',
   };
 }
