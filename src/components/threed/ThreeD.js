@@ -3,6 +3,7 @@ import styled from 'react-emotion';
 import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer';
 import PropertiesPanel from './PropertiesPanel';
+import PropertiesPanelBloqs from './PropertiesPanelBloqs';
 import ContextMenu from './ContextMenu';
 
 const Container = styled.div`
@@ -13,11 +14,16 @@ const Container = styled.div`
 
 class ThreeD extends React.Component {
   render() {
+    const PropertiesPanelComponent =
+      window.location.hash.indexOf('opcion2') >= 0
+        ? PropertiesPanelBloqs
+        : PropertiesPanel;
+
     return (
       <Container>
         <ObjectTree />
         <ThreeDViewer />
-        <PropertiesPanel />
+        <PropertiesPanelComponent />
         <ContextMenu />
       </Container>
     );
