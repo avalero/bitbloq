@@ -1,10 +1,9 @@
 import * as Three from 'three';
 
 import CompoundObject from './CompoundObject';
-import { ThreeBSP } from './threeCSG';
+import {ThreeBSP} from './threeCSG';
 
 export default class Union extends CompoundObject {
-
   static typeName = 'Union';
 
   getMesh() {
@@ -17,12 +16,12 @@ export default class Union extends CompoundObject {
       unionMeshBSP = unionMeshBSP.union(bspMesh);
     }
 
-    const mesh = unionMeshBSP.toMesh(new Three.MeshLambertMaterial({ color: this.children[0].parameters.color }));
+    const mesh = unionMeshBSP.toMesh(this.getMaterial());
     //we need to apply the scale of first objet (or we loose it)
     mesh.scale.set(
       this.children[0].getMesh().scale.x,
       this.children[0].getMesh().scale.y,
-      this.children[0].getMesh().scale.z
+      this.children[0].getMesh().scale.z,
     );
 
     this.applyOperations(mesh);

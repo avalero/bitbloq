@@ -41,15 +41,16 @@ export default class Object3D {
   }
 
   static colors = [
-    0xe300ff,
-    0xb0ff00,
-    0x00ffd2,
-    0xfdff00,
-    0xff00f4,
-    0x00fff8,
-    0xf9fe44,
-    0x7aff4f,
-    0x968afc,
+    0xff6900,
+    0xfcb900,
+    0x7bdcb5,
+    0x00d084,
+    0x8ed1fc,
+    0x0693e3,
+    0xabb8c3,
+    0xeb144c,
+    0xf78da7,
+    0x9900ef,
   ];
 
   id = '';
@@ -143,13 +144,16 @@ export default class Object3D {
     }
   }
 
+  getMaterial() {
+    return new Three.MeshLambertMaterial({
+      color: this.parameters.color || Object3D.colors[0]
+    });
+  }
+
   getMesh() {
     const geometry = this.getGeometry();
 
-    const material = new Three.MeshLambertMaterial({
-      color: this.parameters.color || 0xff0000,
-    });
-    const mesh = new Three.Mesh(geometry, material);
+    const mesh = new Three.Mesh(geometry, this.getMaterial());
 
     this.applyOperations(mesh);
 

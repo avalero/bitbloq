@@ -12,15 +12,12 @@ import PropertiesBloq from './PropertiesBloq';
 import PropertyInput from './PropertyInput';
 import GroupIcon from '../../assets/images/shape-group.svg';
 import PointsIcon from '../../assets/images/three-points.svg';
+import ColorPicker from '../ColorPicker';
 
 const Header = styled.div`
   display: flex;
   align-items: center;
   padding: 12px;
-
-  ${props => props.hasParameters && css`
-    border-bottom: 1px solid #ccc;
-  `}
 `;
 
 const ObjectIcon = styled.img`
@@ -86,20 +83,32 @@ class ObjectBloq extends React.Component {
   };
 
   render() {
-    const {object, editingName, showContextMenu, stopEditingObjectName} = this.props;
+    const {
+      object,
+      editingName,
+      showContextMenu,
+      stopEditingObjectName,
+    } = this.props;
     const Class3D = resolveClass(object.type);
     const {parameterTypes = []} = Class3D;
+
+    const parameters = [
+      ...parameterTypes,
+      {
+        name: 'color',
+        label: 'Color',
+        type: 'color',
+      },
+    ];
 
     const shapeConfig = config.shapes.find(
       ({objectClass}) => objectClass === Class3D,
     );
     const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
 
-    const hasParameters = parameterTypes.length > 0;
-
     return (
       <PropertiesBloq isTop>
-        <Header hasParameters={hasParameters}>
+        <Header>
           <ObjectIcon src={icon} />
           {editingName && (
             <NameInput
@@ -119,20 +128,16 @@ class ObjectBloq extends React.Component {
             }}
           />
         </Header>
-        {hasParameters &&
-          <ParametersForm>
-            {parameterTypes.map(parameter => (
-              <PropertyInput
-                key={parameter.name}
-                parameter={parameter}
-                value={object.parameters[parameter.name]}
-                onChange={value =>
-                  this.onParameterChange(parameter, value)
-                }
-              />
-            ))}
-          </ParametersForm>
-        }
+        <ParametersForm>
+          {parameters.map(parameter => (
+            <PropertyInput
+              key={parameter.name}
+              parameter={parameter}
+              value={object.parameters[parameter.name]}
+              onChange={value => this.onParameterChange(parameter, value)}
+            />
+          ))}
+        </ParametersForm>
       </PropertiesBloq>
     );
   }
@@ -142,7 +147,7 @@ const mapStateToProps = ({threed}) => ({
   editingName: threed.editingObjectName,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = dispatch => ({
   updateObject: object => dispatch(updateObject(object)),
   showContextMenu: (object, e) =>
     dispatch(showContextMenu(object, e.clientX, e.clientY)),
@@ -151,5 +156,5 @@ const mapDispatchToProps = (dispatch) => ({
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(ObjectBloq);

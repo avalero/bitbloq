@@ -1,10 +1,9 @@
 import * as Three from 'three';
 
 import CompoundObject from './CompoundObject';
-import { ThreeBSP } from './threeCSG';
+import {ThreeBSP} from './threeCSG';
 
 export default class Difference extends CompoundObject {
-
   static typeName = 'Difference';
 
   getMesh() {
@@ -17,14 +16,14 @@ export default class Difference extends CompoundObject {
       differenceMeshBSP = differenceMeshBSP.subtract(bspMesh);
     }
 
-    const mesh = differenceMeshBSP.toMesh(new Three.MeshLambertMaterial({ color: this.children[0].parameters.color }));
-    
+    const mesh = differenceMeshBSP.toMesh(this.getMaterial());
+
     mesh.scale.set(
       this.children[0].getMesh().scale.x,
       this.children[0].getMesh().scale.y,
-      this.children[0].getMesh().scale.z
+      this.children[0].getMesh().scale.z,
     );
-    
+
     this.applyOperations(mesh);
     return mesh;
   }

@@ -79,26 +79,34 @@ class ContextMenu extends React.Component {
   }
 
   render() {
-    const {visible} = this.props;
+    const {object, topObjects, visible} = this.props;
     const {x, y} = this.getMenuPosition();
+
+    const isTop = topObjects.includes(object);
 
     return ReactDOM.createPortal(
       <Container x={x} y={y} visible={visible} innerRef={this.containerRef}>
         <Option onClick={this.onDuplicateClick}>Duplicate</Option>
         <Option onClick={this.onRenameClick}>Rename</Option>
-        <Option onClick={this.onDeleteClick}>Delete</Option>
+        {isTop &&
+          <Option onClick={this.onDeleteClick}>Delete</Option>
+        }
       </Container>,
       window.document.body,
     );
   }
 }
 
-const mapStateToProps = ({threed: {contextMenu = {}}}) => ({
-  visible: contextMenu.visible,
-  object: contextMenu.object,
-  position: contextMenu.position,
-  test: 288,
-});
+const mapStateToProps = ({threed}) => {
+  const {contextMenu = {}} = threed;
+  return ({
+    visible: contextMenu.visible,
+    object: contextMenu.object,
+    position: contextMenu.position,
+    test: 288,
+    topObjects: threed.objects,
+  });
+};
 
 const mapDispatchToProps = {
   hideContextMenu,

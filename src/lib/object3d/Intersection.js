@@ -15,7 +15,7 @@ export default class Intersection extends CompoundObject {
       const bspMesh = new ThreeBSP(this.children[i].getMesh());
       intersectionMeshBSP = intersectionMeshBSP.intersect(bspMesh);
     }
-    const mesh = intersectionMeshBSP.toMesh(new Three.MeshLambertMaterial({ color: this.children[0].parameters.color }));
+    const mesh = intersectionMeshBSP.toMesh(this.getMaterial());
     mesh.scale.set(
       this.children[0].getMesh().scale.x,
       this.children[0].getMesh().scale.y,
