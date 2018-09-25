@@ -23,6 +23,7 @@ import GroupIcon from '../../assets/images/shape-group.svg';
 import PointsIcon from '../../assets/images/three-points.svg';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
+import ColorPicker from '../ColorPicker';
 import config from '../../config/threed';
 import STLLoader from '../../lib/object3d/STLLoader';
 
@@ -66,6 +67,10 @@ const Header = styled.div`
   img {
     cursor: pointer;
   }
+`;
+
+const HeaderColorPicker = styled(ColorPicker)`
+  margin-right: 6px;
 `;
 
 const ObjectName = styled.div`
@@ -283,6 +288,7 @@ class PropertiesPanel extends React.Component {
     } = this.props;
     const Class3D = resolveClass(object.type);
     const {parameterTypes = []} = Class3D;
+    const {color} = object.parameters;
 
     const shapeConfig = config.shapes.find(
       ({objectClass}) => objectClass === Class3D,
@@ -294,6 +300,12 @@ class PropertiesPanel extends React.Component {
         onDragStart={this.onDragStart}
         onDragEnd={result => this.onDragEnd(result, object)}>
         <Header>
+          <HeaderColorPicker
+            color={color}
+            onChange={color =>
+              this.onObjectParameterChange(object, 'color', color)
+            }
+          />
           {editingName && (
             <NameInput
               type="text"

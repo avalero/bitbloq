@@ -2,6 +2,7 @@ import React from 'react';
 import styled, {css} from 'react-emotion';
 import NumberInput from '../NumberInput';
 import Select from '../Select';
+import ColorPicker from '../ColorPicker';
 
 const FormGroup = styled.div`
   margin-bottom: 6px;
@@ -91,13 +92,14 @@ const BooleanProperty = ({label, value, onChange}) => (
   </FormGroup>
 );
 
-const PropertyInput = ({
-  parameter,
-  value,
-  onChange,
-  onFocus,
-  onBlur,
-}) => {
+const ColorProperty = ({label, value, onChange}) => (
+  <FormGroup>
+    <label>{label}</label>
+    <ColorPicker color={value} onChange={onChange} position="top-right" />
+  </FormGroup>
+);
+
+const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
   switch (parameter.type) {
     case 'integer':
       return (
@@ -123,6 +125,14 @@ const PropertyInput = ({
     case 'boolean':
       return (
         <BooleanProperty
+          label={parameter.label}
+          value={value}
+          onChange={onChange}
+        />
+      );
+    case 'color':
+      return (
+        <ColorProperty
           label={parameter.label}
           value={value}
           onChange={onChange}
