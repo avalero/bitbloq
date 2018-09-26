@@ -129,7 +129,37 @@ const GroupButton = styled(Button)`
 class PropertiesPanelBloqs extends React.Component {
   state = {
     draggingOperations: false,
+    openOperation: null,
   };
+
+  componentDidUpdate(prevProps) {
+    const {selectedObjects = []} = this.props;
+    const {openOperation} = this.state;
+
+    const object = selectedObjects[0];
+    const prevObject = prevProps.selectedObjects[0];
+
+    if (object && object !== prevObject) {
+      const {operations = []} = object || {};
+      const {operations: prevOperations = []} = prevObject || {};
+      const newOperation = operations.find(o => !prevOperations.find(p => p.id === o.id));
+
+      if (newOperation && newOperation.id !== openOperation) {
+        this.setState({openOperation: newOperation.id});
+      }
+    }
+  }
+
+  onOperationOpen(operation, isOpen, cb) {
+    const {openOperation} = this.state;
+    if (isOpen && openOperation !== operation.id) {
+      this.setState({openOperation: operation.id}, cb);
+    } else if (!isOpen && openOperation === operation.id) {
+      this.setState({openOperation: null}, cb);
+    } else {
+      cb();
+    }
+  }
 
   onOperationParameterChange = (object, operation, parameter, value) => {
     this.props.updateObject({
@@ -179,6 +209,7 @@ class PropertiesPanelBloqs extends React.Component {
 
   renderObjectBloqs(object) {
     const {setActiveOperation, unsetActiveOperation} = this.props;
+    const {openOperation} = this.state;
 
     return (
       <PropertiesContainer>
@@ -195,6 +226,10 @@ class PropertiesPanelBloqs extends React.Component {
                   key={operation.id}
                   index={i}
                   operation={operation}
+                  isOpen={openOperation === operation.id}
+                  onOpen={(isOpen, cb) =>
+                    this.onOperationOpen(operation, isOpen, cb)
+                  }
                   onParameterChange={(parameter, value) =>
                     this.onOperationParameterChange(
                       object,

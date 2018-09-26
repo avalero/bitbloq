@@ -61,10 +61,11 @@ const Content = styled.div`
 `;
 
 export default class Operation extends React.Component {
-  state = {isOpen: true};
-
   onTitleClick = e => {
-    this.setState({isOpen: !this.state.isOpen});
+    const {onOpen, isOpen} = this.props;
+    if (onOpen) {
+      onOpen(!isOpen);
+    }
   };
 
   render() {
@@ -74,8 +75,9 @@ export default class Operation extends React.Component {
       onParameterChange,
       onParameterFocus,
       onParameterBlur,
+      isOpen,
+      onOpen,
     } = this.props;
-    const {isOpen} = this.state;
 
     const {label, icon, parameters} = objectOperationsMap[operation.type];
 
@@ -92,9 +94,7 @@ export default class Operation extends React.Component {
                 src={HandlerImage}
                 onMouseDown={e => {
                   e.persist();
-                  this.setState({isOpen: false}, () =>
-                    provided.dragHandleProps.onMouseDown(e),
-                  );
+                  onOpen(false, () => provided.dragHandleProps.onMouseDown(e));
                 }}
               />
               <HeaderContent onClick={this.onTitleClick}>

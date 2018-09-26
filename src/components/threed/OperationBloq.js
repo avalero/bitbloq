@@ -55,10 +55,11 @@ const Content = styled.div`
 `;
 
 export default class OperationBloq extends React.Component {
-  state = {isOpen: true};
-
   onTitleClick = e => {
-    this.setState({isOpen: !this.state.isOpen});
+    const {onOpen, isOpen} = this.props;
+    if (onOpen) {
+      onOpen(!isOpen);
+    }
   };
 
   render() {
@@ -68,27 +69,24 @@ export default class OperationBloq extends React.Component {
       onParameterChange,
       onParameterFocus,
       onParameterBlur,
+      isOpen,
+      onOpen,
     } = this.props;
-    const {isOpen} = this.state;
 
     const {label, icon, parameters} = objectOperationsMap[operation.type];
 
     return (
       <Draggable draggableId={operation.id} index={index}>
         {(provided, snapshot) => (
-          <div
-            {...provided.draggableProps}
-            ref={provided.innerRef}
-          >
-            <PropertiesBloq
-            >
+          <div {...provided.draggableProps} ref={provided.innerRef}>
+            <PropertiesBloq>
               <Header isOpen={isOpen}>
                 <Handler
                   {...provided.dragHandleProps}
                   src={HandlerImage}
                   onMouseDown={e => {
                     e.persist();
-                    this.setState({isOpen: false}, () =>
+                    onOpen(false, () =>
                       provided.dragHandleProps.onMouseDown(e),
                     );
                   }}
