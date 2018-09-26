@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-09-14 10:49:04
+ * Last modified  : 2018-09-26 12:44:00
  */
 
 import React from 'react';
@@ -161,25 +161,25 @@ class ThreeDViewer extends React.Component {
         this.objectsGroup.add(mesh);
       }
 
-      // if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
-      //   const mesh = this.meshes[object.id];
-      //   mesh.material.opacity = 0.5;
-      //   mesh.material.transparent = true;
-      //   mesh.material.depthWrite = false;
-      // }else{
-      //   const mesh = this.meshes[object.id];
-      //   mesh.material.opacity = 1;
-      //   mesh.material.transparent = false;
-      //   mesh.material.depthWrite = true;
-      // }
-
-      if (selectedObjects.includes(object)) {
+      if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
         const mesh = this.meshes[object.id];
-        const outMesh = mesh.clone();
-        outMesh.scale.multiplyScalar(1.08);
-        outMesh.material = outlineMaterial;
-        this.outlineGroup.add(outMesh);
+        mesh.material.opacity = 0.5;
+        mesh.material.transparent = true;
+        mesh.material.depthWrite = false;
+      }else{
+        const mesh = this.meshes[object.id];
+        mesh.material.opacity = 1;
+        mesh.material.transparent = false;
+        mesh.material.depthWrite = true;
       }
+
+      // if (selectedObjects.includes(object)) {
+      //   const mesh = this.meshes[object.id];
+      //   const outMesh = mesh.clone();
+      //   outMesh.scale.multiplyScalar(1.08);
+      //   outMesh.material = outlineMaterial;
+      //   this.outlineGroup.add(outMesh);
+      // }
     });
 
     this.helpersGroup.remove(this.activeHelper);
