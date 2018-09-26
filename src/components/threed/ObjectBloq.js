@@ -18,6 +18,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   padding: 12px;
+  border-bottom: 1px solid #ccc;
 `;
 
 const ObjectIcon = styled.img`
