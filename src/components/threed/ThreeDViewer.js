@@ -58,6 +58,10 @@ class ThreeDViewer extends React.Component {
   activeHelper = null;
   raycaster = new Three.Raycaster();
   mousePosition = new Three.Vector2();
+  state = {
+    mouseDownObject: null,
+    selectOnMouseUp: false,
+  }
 
   componentDidUpdate(prevProps) {
     this.updateSceneObjects(prevProps.objects);
@@ -71,6 +75,30 @@ class ThreeDViewer extends React.Component {
     this.updateSceneObjects();
     this.renderLoop();
   }
+
+  onMouseDown = e => {
+    const object = this.getObjectFromPosition(e.clientX, e.clientY);
+    this.setState({ mouseDownObject: object, selectOnMouseUp: true });
+  };
+
+  onMouseMove = e => {
+    const {selectOnMouseUp} = this.state;
+    if (selectOnMouseUp) {
+      this.setState({ selectOnMouseUp: false });
+    }
+  };
+
+  onMouseUp = e => {
+    const {mouseDownObject, selectOnMouseUp} = this.state;
+    const {selectObject, deselectAllObjects, controlPressed, shiftPressed} = this.props;
+    if (selectOnMouseUp) {
+      if (mouseDownObject) {
+        selectObject(mouseDownObject, controlPressed || shiftPressed);
+      } else {
+        deselectAllObjects();
+      }
+    }
+  };
 
   onClick = e => {
     const {
@@ -252,7 +280,12 @@ class ThreeDViewer extends React.Component {
   render() {
     return (
       <Wrap>
-        <Container innerRef={this.container} onClick={this.onClick} />
+        <Container
+          innerRef={this.container}
+          onMouseDown={this.onMouseDown}
+          onMouseMove={this.onMouseMove}
+          onMouseUp={this.onMouseUp}
+        />
         <ThreeDNavigationBox
           ref={this.navigationBox}
           onChangeCameraAngle={this.updateCameraAngle}
