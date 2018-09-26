@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
+import {Spring} from 'react-spring';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 import {
   updateObject,
@@ -27,8 +28,13 @@ import ColorPicker from '../ColorPicker';
 import config from '../../config/threed';
 import STLLoader from '../../lib/object3d/STLLoader';
 
+const Wrap = styled.div`
+  display: flex;
+`;
+
 const Container = styled.div`
   width: 310px;
+  min-width: 310px;
   overflow: hidden;
   border-left: 1px solid #979797;
   background-color: white;
@@ -399,7 +405,17 @@ class PropertiesPanel extends React.Component {
       content = this.renderCombineOptions();
     }
 
-    return <Container>{content}</Container>;
+    return (
+      <Spring
+        from={{width: 0}}
+        to={{width: selectedObjects.length > 0 ? 310 : 0}}>
+        {style =>
+          <Wrap style={style}>
+            <Container>{content}</Container>
+          </Wrap>
+        }
+      </Spring>
+    );
   }
 }
 

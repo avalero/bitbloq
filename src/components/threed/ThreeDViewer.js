@@ -64,8 +64,6 @@ class ThreeDViewer extends React.Component {
   }
 
   componentDidMount() {
-    window.addEventListener('resize', this.onWindowResize);
-
     this.container.current.appendChild(this.renderer.domElement);
 
     this.setupScene();
@@ -73,14 +71,6 @@ class ThreeDViewer extends React.Component {
     this.updateSceneObjects();
     this.renderLoop();
   }
-
-  componentWillUnmount() {
-    window.removeEventListener('resize', this.onWindowResize);
-  }
-
-  onWindowResize = () => {
-    this.updateSize();
-  };
 
   onClick = e => {
     const {
@@ -246,6 +236,7 @@ class ThreeDViewer extends React.Component {
   };
 
   renderLoop = () => {
+    this.updateSize();
     const delta = this.clock.getDelta();
     const cameraNeedsUpdate = this.cameraControls.update(delta);
 

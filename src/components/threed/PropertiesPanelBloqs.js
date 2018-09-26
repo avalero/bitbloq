@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
+import {Spring} from 'react-spring';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 import {
   updateObject,
@@ -20,7 +21,12 @@ import ObjectBloq from './ObjectBloq';
 import OperationBloq from './OperationBloq';
 import config from '../../config/threed';
 
+const Wrap = styled.div`
+  display: flex;
+`;
+
 const Container = styled.div`
+  min-width: 310px;
   width: 310px;
   overflow: hidden;
   border-left: 1px solid #979797;
@@ -221,9 +227,10 @@ class PropertiesPanelBloqs extends React.Component {
     const {selectedObjects} = this.props;
     const {draggingOperations} = this.state;
 
+    let content;
     if (selectedObjects.length === 1) {
       const object = selectedObjects[0];
-      return (
+      content = (
         <DragDropContext
           onDragStart={this.onDragStart}
           onDragEnd={result => this.onDragEnd(result, object)}>
@@ -254,7 +261,7 @@ class PropertiesPanelBloqs extends React.Component {
         </DragDropContext>
       );
     } else if (selectedObjects.length > 1) {
-      return (
+      content = (
         <Container>
           <PropertiesContainer>
             <GroupPlaceholder>
@@ -274,8 +281,18 @@ class PropertiesPanelBloqs extends React.Component {
         </Container>
       );
     } else {
-      return <Container />
+      content = <Container />;
     }
+
+    return (
+      <Spring
+        from={{width: 0}}
+        to={{width: selectedObjects.length > 0 ? 310 : 0}}>
+        {style =>
+          <Wrap style={style}>{content}</Wrap>
+        }
+      </Spring>
+    );
   }
 }
 
