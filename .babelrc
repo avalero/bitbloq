@@ -1,5 +1,5 @@
 {
-  "presets": ["stage-2", "react"],
+  "presets": ["@babel/react", "@babel/typescript", ["@babel/env", { "modules": false }], "stage-2", "react"],
   "plugins": [
     ["emotion", {"sourceMap": true, "autoLabel": true }]
   ]
