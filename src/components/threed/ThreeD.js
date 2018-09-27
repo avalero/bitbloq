@@ -5,6 +5,7 @@ import ThreeDViewer from './ThreeDViewer';
 import PropertiesPanel from './PropertiesPanel';
 import PropertiesPanelBloqs from './PropertiesPanelBloqs';
 import ContextMenu from './ContextMenu';
+import BabylonThreeDViewer from './BabylonThreeDViewer.tsx';
 
 const Container = styled.div`
   flex: 1;
@@ -22,7 +23,7 @@ class ThreeD extends React.Component {
     return (
       <Container>
         <ObjectTree />
-        <ThreeDViewer />
+        <BabylonThreeDViewer />
         <PropertiesPanelComponent />
         <ContextMenu />
       </Container>

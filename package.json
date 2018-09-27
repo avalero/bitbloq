@@ -41,6 +41,7 @@
     "@types/react-router-dom": "^4.3.1",
     "babel-loader": "^8.0.2",
     "babel-plugin-emotion": "^9.2.4",
+    "babylonjs": "^3.3.0-rc.4",
     "chroma-js": "^1.3.7",
     "emotion": "^9.2.4",
     "lodash.uniq": "^4.5.0",
