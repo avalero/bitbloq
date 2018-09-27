@@ -40,6 +40,8 @@ const PropertiesContainer = styled.div`
   padding: 12px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const BloqsContainer = styled.div`
