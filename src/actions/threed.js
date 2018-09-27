@@ -114,3 +114,15 @@ export function stopEditingObjectName() {
     type: 'STOP_EDITING_OBJECT_NAME',
   };
 }
+
+export function undo() {
+  return {
+    type: 'THREED_UNDO'
+  };
+}
+
+export function redo() {
+  return {
+    type: 'THREED_REDO'
+  };
+}

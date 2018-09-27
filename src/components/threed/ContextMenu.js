@@ -98,13 +98,13 @@ class ContextMenu extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => {
-  const {contextMenu = {}} = threed;
+  const {contextMenu = {}} = threed.present;
   return ({
     visible: contextMenu.visible,
     object: contextMenu.object,
     position: contextMenu.position,
     test: 288,
-    topObjects: threed.objects,
+    topObjects: threed.present.objects,
   });
 };
 
