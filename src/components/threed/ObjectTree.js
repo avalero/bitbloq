@@ -23,6 +23,7 @@ const Container = styled.div`
 const Tree = styled.div`
   flex: 1;
   display: flex;
+  overflow-y: auto;
 `;
 
 const ObjectList = styled.ul`
