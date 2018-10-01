@@ -336,7 +336,6 @@ class PropertiesPanelBloqs extends React.Component {
 const mapStateToProps = ({threed}) => ({
   objects: threed.present.objects,
   selectedObjects: getSelectedObjects(threed),
-  editingName: threed.present.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({
