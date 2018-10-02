@@ -29,7 +29,12 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
 
         // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
         
-        new Cube(scene, {width:10, height:20, depth:10, name:'myCube'});
+        new Cube(scene, 
+            {width:10, height:10, depth:10, name:'myCube'},
+            [{type:'translation',x:15,y:0,z:0,relative:false}]);
+            new Cube(scene, 
+                {width:10, height:10, depth:10, name:'myCub2'},
+                [{type:'translation',x:0,y:0,z:0,relative:false}]);
         //new Sphere({radius:7, name:'mySphere'}).getMesh(scene);
         //new Cylinder({radius_bottom:5, radius_top:5, height:10}).getMesh(scene);
         // console.log(cube);

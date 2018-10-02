@@ -9,11 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46 
- * Last modified  : 2018-10-02 19:32:31
+ * Last modified  : 2018-10-02 20:31:19
  */
 
 import * as BABYLON from 'babylonjs'
 import uuid from 'uuid'
+import Operation from '../../components/threed/Operation';
 
 export interface IParameterType{
   name:string,
@@ -22,23 +23,24 @@ export interface IParameterType{
   defaultValue:number
 }
 
-interface ITranslateOperation{
-  type:string,
+interface ICommonOperation{
+  type:string;
+}
+
+interface ITranslateOperation extends ICommonOperation{
   x:number,
   y:number,
   z:number,
   relative:boolean
 }
 
-interface IRotateOperation{
-  type:string,
+interface IRotateOperation extends ICommonOperation{
   axis:string,
   angle:number,
   relative:boolean
 }
 
-interface IScaleOperation{
-  type:string,
+interface IScaleOperation extends ICommonOperation{
   x:number,
   y:number,
   z:number
@@ -84,7 +86,7 @@ export class Object3D{
   
   protected mesh: BABYLON.Mesh;
   protected scene: BABYLON.Scene; 
-  private operations: Operations;
+  private operations: OperationsArray;
   private pendingOperation: boolean;
 
   constructor(operations: OperationsArray, scene: BABYLON.Scene){
@@ -100,11 +102,15 @@ export class Object3D{
 
   private applyOperations(){
     if(this.pendingOperation){
-      //Apply Operations
+      this.operations.forEach( (operation) => 
+      {
+        // Translate operation
+        if( operation.type === Object3D.createTranslateOperation().type){
+          this.applyTranslateOperation(operation as ITranslateOperation);
+        }
+      });
     }
-
     this.pendingOperation = false;
-
   }
 
   protected addMeshToScene(): BABYLON.Mesh {
@@ -115,5 +121,22 @@ export class Object3D{
 
   protected getGeometry(): BABYLON.Mesh {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
+  }
+
+  private applyTranslateOperation(operation: ITranslateOperation): void{
+    if(operation.relative){
+      this.mesh.locallyTranslate(
+        new BABYLON.Vector3(
+          Number(operation.x),
+          Number(operatio.y),
+          Number(operation.z)
+        )
+      );
+    }else{
+      // absolute x,y,z axis.
+      this.mesh.position.x += Number(operation.x);
+      this.mesh.position.y += Number(operation.y);
+      this.mesh.position.z += Number(operation.z);
+    }
   }
 }
