@@ -1,6 +1,7 @@
 import {takeEvery, call, put, select} from 'redux-saga/effects';
 import {updateSoftwareCode as updateSoftwareCodeAction} from '../actions/software';
 import {showNotification, hideNotification} from '../actions/ui';
+import {undo as undoThreed, redo as redoThreed} from '../actions/threed';
 import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
 import web2board, {
   ConnectionError,
@@ -66,10 +67,25 @@ function* watchNotificationTime({ key, time }) {
   }
 }
 
+function* watchKeyDown({ key }) {
+  const shiftPressed = yield select(state => state.ui.shiftPressed);
+  const controlPressed = yield select(state => state.ui.controlPressed);
+  const threedPast = yield select(state => state.threed.past);
+  const threedFuture = yield select(state => state.threed.future);
+
+  if (key === 'z' && controlPressed && threedPast.length) {
+    yield put(undoThreed());
+  }
+  if (key === 'Z' && controlPressed && threedFuture.length) {
+    yield put(redoThreed());
+  }
+}
+
 function* rootSaga() {
   yield takeEvery('UPDATE_SOFTWARE_BLOQS', updateSoftwareCode);
   yield takeEvery('UPLOAD_CODE', uploadCode);
   yield takeEvery('SHOW_NOTIFICATION', watchNotificationTime);
+  yield takeEvery('KEY_DOWN', watchKeyDown);
 }
 
 export default rootSaga;

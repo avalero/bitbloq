@@ -40,6 +40,8 @@ const PropertiesContainer = styled.div`
   padding: 12px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 `;
 
 const BloqsContainer = styled.div`
@@ -332,9 +334,8 @@ class PropertiesPanelBloqs extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => ({
-  objects: threed.objects,
+  objects: threed.present.objects,
   selectedObjects: getSelectedObjects(threed),
-  editingName: threed.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({

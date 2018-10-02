@@ -145,7 +145,7 @@ class ObjectBloq extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => ({
-  editingName: threed.editingObjectName,
+  editingName: threed.present.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({

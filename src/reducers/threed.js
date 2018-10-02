@@ -1,3 +1,4 @@
+import undoable from '../lib/undoable';
 import config from '../config/threed';
 import {createFromJSON} from '../lib/object3d';
 import uuid from 'uuid/v1';
@@ -239,7 +240,7 @@ const threed = (state = initialState, action) => {
       return {
         ...state,
         editingObjectName: true,
-        selectedIds: [action.object.id]
+        selectedIds: [action.object.id],
       };
 
     case 'STOP_EDITING_OBJECT_NAME':
@@ -253,7 +254,17 @@ const threed = (state = initialState, action) => {
   }
 };
 
-export default threed;
+export default undoable(threed, 'THREED_UNDO', 'THREED_REDO', [
+  'CREATE_OBJECT',
+  'UPDATE_OBJECT',
+  'DUPLICATE_OBJECT',
+  'COMPOSE_OBJECTS',
+  'DELETE_OBJECT',
+  'ADD_OPERATION',
+  'REMOVE_OPERATION',
+]);
 
 export const getSelectedObjects = state =>
-  state.selectedIds.map(id => findObject(state.objects, 'id', id));
+  state.present.selectedIds.map(id =>
+    findObject(state.present.objects, 'id', id),
+  );

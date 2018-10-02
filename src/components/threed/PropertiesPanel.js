@@ -420,9 +420,9 @@ class PropertiesPanel extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => ({
-  objects: threed.objects,
+  objects: threed.present.objects,
   selectedObjects: getSelectedObjects(threed),
-  editingName: threed.editingObjectName,
+  editingName: threed.present.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({
