@@ -3,8 +3,8 @@ import * as React from 'react';
 import BabylonScene, {ISceneEventArgs} from './BabylonScene.tsx'; // import the component above linking to file we just created.
 
 import Cube from '../../lib/object3dts/Cube.ts';
-import Sphere from '../../lib/object3dts/Sphere.ts';
-import Cylinder from '../../lib/object3dts/Cylinder.ts';
+//import Sphere from '../../lib/object3dts/Sphere.ts';
+//import Cylinder from '../../lib/object3dts/Cylinder.ts';
 
 export default class BabylonThreeDViewer extends React.Component<{}, {}> {
     
@@ -29,9 +29,14 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
 
         // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
         
-        //new Cube({width:10, height:20, depth:10, name:'myCube'}).getMesh(scene);
+        new Cube(scene, 
+            {width:10, height:10, depth:10, name:'myCube'},
+            [{type:'translation',x:15,y:0,z:0,relative:false}]);
+            new Cube(scene, 
+                {width:10, height:10, depth:10, name:'myCub2'},
+                [{type:'translation',x:0,y:0,z:0,relative:false}]);
         //new Sphere({radius:7, name:'mySphere'}).getMesh(scene);
-        new Cylinder({radius_bottom:5, radius_top:5, height:10}).getMesh(scene);
+        //new Cylinder({radius_bottom:5, radius_top:5, height:10}).getMesh(scene);
         // console.log(cube);
         // Our built-in 'ground' shape. Params: name, width, depth, subdivs, scene
         const ground = BABYLON.MeshBuilder.CreateGround("myGround", {width: 100, height: 100}, scene);

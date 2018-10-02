@@ -8,14 +8,13 @@
  * @summary short description for the file
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-09-27 16:30:48 
- * Last modified  : 2018-09-27 17:50:42
+ * Created at     : 2018-10-02 18:56:46 
+ * Last modified  : 2018-10-02 20:31:19
  */
-
-
 
 import * as BABYLON from 'babylonjs'
 import uuid from 'uuid'
+import Operation from '../../components/threed/Operation';
 
 export interface IParameterType{
   name:string,
@@ -24,73 +23,38 @@ export interface IParameterType{
   defaultValue:number
 }
 
-interface ICommonGeometryParamas{
-  color?:string;
-  name?:string;
+interface ICommonOperation{
+  type:string;
 }
 
-export interface ICubeParams extends ICommonGeometryParamas{
-  width:number,
-  depth:number,
-  height:number
-}
-
-export interface ISphereParams extends ICommonGeometryParamas{
-  radius:number
-}
-
-export interface ICylinderParams extends ICommonGeometryParamas{
-  radius1:number,
-  radius2:number,
-  height:number
-}
-
-interface ITranslateOperation{
-  type:string,
+interface ITranslateOperation extends ICommonOperation{
   x:number,
   y:number,
   z:number,
   relative:boolean
 }
 
-interface IRotateOperation{
-  type:string,
+interface IRotateOperation extends ICommonOperation{
   axis:string,
   angle:number,
   relative:boolean
 }
 
-interface IScaleOperation{
-  type:string,
+interface IScaleOperation extends ICommonOperation{
   x:number,
   y:number,
   z:number
 }
 
-export interface IObject3DJson{
-  name:string, 
-  parameters: (ICubeParams|ISphereParams|ICylinderParams), 
-  operations: Array< (ITranslateOperation|IRotateOperation|IScaleOperation )>, 
-  id: string,
-  type: string
+export interface ICommonGeometryParamas{
+  color?:string;
+  name?:string;
 }
 
+type Operation = (ITranslateOperation|IRotateOperation|IScaleOperation);
+export type OperationsArray = Array<Operation>;
+
 export class Object3D{
-
-  public static typeName:string ="";
-  public static parameterTypes: IParameterType[] = [];
-
-  public static colors: string[] = [
-    '#e300ff',
-    '#b0ff00',
-    '#00ffd2',
-    '#fdff00',
-    '#ff00f4',
-    '#00fff8',
-    '#f9fe44',
-    '#7aff4f',
-    '#968afc'
-  ]
 
   public static createTranslateOperation(x:number = 0, y:number = 0, z:number = 0, relative:boolean = true): ITranslateOperation {
     return {
@@ -119,136 +83,60 @@ export class Object3D{
       z
     };
   }
-
-  public static createFromJSON(json: IObject3DJson): Object3D {
-    const {name, parameters, operations, id} = json;
-    return new this(name, parameters, operations, id);
-  }
-
-  public id = '';
-  public name = '';
-  public parameters:(ICubeParams|ISphereParams|ICylinderParams|any) = {};
-  public operations:Array<ITranslateOperation|IRotateOperation|IScaleOperation> = [];
   
-  constructor(name: string, parameters: (ICubeParams|ISphereParams|ICylinderParams), operations:Array<ITranslateOperation|IRotateOperation|IScaleOperation> = [], id?:string){
-    const defaultParams: (ICubeParams|ISphereParams|ICylinderParams|any) = {};
+  protected mesh: BABYLON.Mesh;
+  protected scene: BABYLON.Scene; 
+  private operations: OperationsArray;
+  private pendingOperation: boolean;
 
-
-    (this.constructor as typeof Object3D).parameterTypes.forEach(paramType => {
-        defaultParams[paramType.name!] = paramType.defaultValue;
-      });
-
-    // select random color
-    const colorI: number = Math.floor(Math.random() * Object3D.colors.length);
-    
-    this.parameters = {
-      ...defaultParams,
-      color: Object3D.colors[colorI],
-      ...parameters
-    };
-
+  constructor(operations: OperationsArray, scene: BABYLON.Scene){
+    this.scene = scene;
     this.operations = operations;
-    this.id = id || uuid();
-    this.name = name;
+    this.pendingOperation = true;
   }
 
-  public addOperation(operation) {
+  public addOperation(operation: Operation): void{
     this.operations.push(operation);
+    this.pendingOperation = true;
   }
 
-  public applyOperations(mesh){
-    if(this.operations){
-      this.operations.forEach( operation => 
-        {
-          // Translate operation
-          if(operation.type === Object3D.createTranslateOperation().type){
-            if((operation as ITranslateOperation).relative){
-              mesh.locallyTranslate(
-                new BABYLON.Vector3(
-                  Number((operation as ITranslateOperation).x),
-                  Number((operation as ITranslateOperation).y),
-                  Number((operation as ITranslateOperation).z)
-                )
-              );
-            }else{
-              // absolute x,y,z axis.
-              mesh.position.x += Number((operation as ITranslateOperation).x);
-              mesh.position.y += Number((operation as ITranslateOperation).y);
-              mesh.position.z += Number((operation as ITranslateOperation).z);
-            }
-            // Rotation Operation
-          }else if(operation.type === Object3D.createRotateOperation().type){
-            const angle = Math.PI / 180 * (Number((operation as IRotateOperation).angle));
-            switch((operation as IRotateOperation).axis){
-              case 'x':
-                if((operation as IRotateOperation).relative){
-                  
-                  mesh.addRotation(angle,0,0);
-                }else{
-                  mesh.rotate.x +=  angle;
-                }
-                break;
-                
-              case 'y':
-                if((operation as IRotateOperation).relative){
-                  mesh.addRotation(0,angle,0);
-                }else{
-                  mesh.rotate.y +=  angle;
-                }
-                break;
-
-              case 'z':
-                if((operation as IRotateOperation).relative){
-                  mesh.addRotation(0, 0, angle);
-                }else{
-                  mesh.rotate.z +=  angle;
-                }
-                break;
-              
-              default:
-                throw new Error('Unexpected Rotation Axis');
-            }
-          }else if(operation.type === Object3D.createScaleOperation().type){
-            if(Number((operation as IScaleOperation).x)>0 && Number((operation as IScaleOperation).y)> 0 && Number((operation as IScaleOperation).z) >0)
-            {
-              mesh.scaling = new BABYLON.Vector3(
-                mesh.scale.x * Number((operation as IScaleOperation).x), 
-                mesh.scale.y * Number((operation as IScaleOperation).y), 
-                mesh.scale.z * Number((operation as IScaleOperation).z)
-              );
-            }
-          }
-        });
-    }  }
-
-  public getMesh(scene: BABYLON.Scene): BABYLON.Mesh {
-    const mesh: BABYLON.Mesh = this.getGeometry(scene);
-    
-    const material = new BABYLON.StandardMaterial("material", scene);
-    material.ambientColor = BABYLON.Color3.FromHexString(this.parameters.color || '#ff0000');
-
-    this.applyOperations(mesh);
-
-    mesh.material = material;
-
-    return mesh;
+  private applyOperations(){
+    if(this.pendingOperation){
+      this.operations.forEach( (operation) => 
+      {
+        // Translate operation
+        if( operation.type === Object3D.createTranslateOperation().type){
+          this.applyTranslateOperation(operation as ITranslateOperation);
+        }
+      });
+    }
+    this.pendingOperation = false;
   }
 
-  public getGeometry(scene: BABYLON.Scene): BABYLON.Mesh {
-    throw new Error('Method not implemented');
+  protected addMeshToScene(): BABYLON.Mesh {
+    this.mesh = this.getGeometry();
+    this.applyOperations();
+    return this.mesh;
   }
 
-  public toJSON():IObject3DJson {
-    let type:string ="";
-    type = (this.constructor as typeof Object3D).typeName;
-  
-    const {id, name, parameters, operations, constructor} = this;
-    return {
-      id,
-      name,
-      type,
-      parameters,
-      operations,
-    };
+  protected getGeometry(): BABYLON.Mesh {
+    throw new Error('ERROR. Pure Virtual Function implemented in children');
+  }
+
+  private applyTranslateOperation(operation: ITranslateOperation): void{
+    if(operation.relative){
+      this.mesh.locallyTranslate(
+        new BABYLON.Vector3(
+          Number(operation.x),
+          Number(operatio.y),
+          Number(operation.z)
+        )
+      );
+    }else{
+      // absolute x,y,z axis.
+      this.mesh.position.x += Number(operation.x);
+      this.mesh.position.y += Number(operation.y);
+      this.mesh.position.z += Number(operation.z);
+    }
   }
 }
