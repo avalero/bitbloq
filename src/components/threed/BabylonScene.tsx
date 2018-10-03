@@ -1,5 +1,6 @@
 import * as BABYLON from 'babylonjs';
 import * as React from 'react';
+import BabylonThreeDViewer from './BabylonThreeDViewer';
 
 export interface ISceneEventArgs {
   engine: BABYLON.Engine,
@@ -33,6 +34,7 @@ export default class Scene extends React.Component<ISceneProps & React.HTMLAttri
         this.props.adaptToDeviceRatio
     );
     const scene = new BABYLON.Scene(this.engine);
+    scene.clearColor = new BABYLON.Color3(1,1,1);
     this.scene = scene;
 
     if (typeof this.props.onSceneMount === 'function') {

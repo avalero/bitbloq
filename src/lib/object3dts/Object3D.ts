@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46 
- * Last modified  : 2018-10-02 20:31:19
+ * Last modified  : 2018-10-03 20:11:50
  */
 
 import * as BABYLON from 'babylonjs'
@@ -24,7 +24,7 @@ export interface IParameterType{
 }
 
 interface ICommonOperation{
-  type:string;
+  type:string
 }
 
 interface ITranslateOperation extends ICommonOperation{
@@ -47,8 +47,8 @@ interface IScaleOperation extends ICommonOperation{
 }
 
 export interface ICommonGeometryParamas{
-  color?:string;
-  name?:string;
+  color?:string,
+  name:string
 }
 
 type Operation = (ITranslateOperation|IRotateOperation|IScaleOperation);
@@ -83,9 +83,22 @@ export class Object3D{
       z
     };
   }
+
+  public static colors: string[] = [
+    '#e300ff',
+    '#b0ff00',
+    '#00ffd2',
+    '#fdff00',
+    '#ff00f4',
+    '#00fff8',
+    '#f9fe44',
+    '#7aff4f',
+    '#968afc'
+  ]
   
   protected mesh: BABYLON.Mesh;
   protected scene: BABYLON.Scene; 
+  protected color: string;
   private operations: OperationsArray;
   private pendingOperation: boolean;
 
@@ -93,6 +106,8 @@ export class Object3D{
     this.scene = scene;
     this.operations = operations;
     this.pendingOperation = true;
+    const color_index:number = Math.floor(Math.random() * Object3D.colors.length);
+    this.color = Object3D.colors[color_index];
   }
 
   public addOperation(operation: Operation): void{
@@ -116,6 +131,11 @@ export class Object3D{
   protected addMeshToScene(): BABYLON.Mesh {
     this.mesh = this.getGeometry();
     this.applyOperations();
+    const material:BABYLON.StandardMaterial = new BABYLON.StandardMaterial(`${this.parameters.name}material`, this.scene);
+    material.emissiveColor = BABYLON.Color3.FromHexString(this.color || '#ff0000');
+    this.mesh.material = material;
+
+
     return this.mesh;
   }
 

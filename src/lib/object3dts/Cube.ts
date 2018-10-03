@@ -50,13 +50,17 @@ export default class Cube extends Object3D{
 
   constructor(scene: BABYLON.Scene, parameters: ICubeParams, operations: OperationsArray = []){
     super(operations, scene);
-    this.parameters = parameters;
-    super.mesh = super.addMeshToScene(scene);
+    this.parameters = {
+      color: this.color,
+      ...parameters
+    };
+    this.color = this.parameters.color;
+    this.mesh = super.addMeshToScene(scene);
   }
 
   protected getGeometry(): BABYLON.Mesh {
     const {width, height, depth} = this.parameters;
     const name:string = this.parameters.name || 'myCube';
-    return BABYLON.MeshBuilder.CreateBox(name, {height: Number(height), width: Number(width), depth: Number(depth)}, super.scene);
+    return BABYLON.MeshBuilder.CreateBox(name, {height: Number(height), width: Number(width), depth: Number(depth)}, this.scene);
   }
 }

@@ -13,6 +13,7 @@
   ],
   "plugins": [
     ["emotion", {"sourceMap": true, "autoLabel": true }],
-    ["@babel/plugin-proposal-class-properties", { "loose": true }]
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    ["@babel/plugin-syntax-decorators", {"legacy":false, "decoratorsBeforeExport": true}]
   ]
 }
