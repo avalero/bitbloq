@@ -17,7 +17,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
 import {selectObject, deselectAllObjects, undo, redo} from '../../actions/threed';
-import {getSelectedObjects} from '../../reducers/threed';
+import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import OrbitCamera from '../../lib/object3d/OrbitCamera';
 import {SphericalCoordsXYZ} from '../../lib/object3d/SphericalCoordinates';
 import {createFromJSON} from '../../lib/object3d';
@@ -343,13 +343,13 @@ class ThreeDViewer extends React.Component {
 }
 
 const mapStateToProps = ({ui, threed}) => ({
-  objects: threed.present.objects,
+  objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
-  activeOperation: threed.present.activeOperation,
+  activeOperation: threed.ui.activeOperation,
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
-  canUndo: threed.past.length > 0,
-  canRedo: threed.future.length > 0,
+  canUndo: threed.scene.past.length > 0,
+  canRedo: threed.scene.future.length > 0,
 });
 
 const mapDispatchToProps = {

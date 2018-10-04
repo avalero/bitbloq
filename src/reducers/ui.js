@@ -1,3 +1,13 @@
+import {handleActions} from 'redux-actions';
+import {
+  openSection,
+  showNotification,
+  hideNotification,
+  keyDown,
+  keyUp,
+  appClick,
+} from '../actions/ui';
+
 const initialState = {
   currentSectionId: '3d',
   notifications: {},
@@ -6,53 +16,52 @@ const initialState = {
   altPressed: false,
 };
 
-const ui = (state = initialState, action) => {
-  switch (action.type) {
-    case 'OPEN_SECTION':
-      return {
-        ...state,
-        currentSectionId: action.section,
-      };
-
-    case 'SHOW_NOTIFICATION':
-      return {
+const ui = handleActions(
+  new Map([
+    [
+      openSection,
+      (state, action) => ({...state, currentSectionId: action.payload })
+    ],
+    [
+      showNotification,
+      (state, {payload}) => ({
         ...state,
         notifications: {
           ...state.notifications,
-          [action.key]: {
-            content: action.content,
-            key: action.key,
-            time: action.time,
-          },
+          [payload.key]: payload
         },
-      };
-
-    case 'HIDE_NOTIFICATION':
-      const {[action.key]: value, ...notifications} = state.notifications;
-      return {
+      })
+    ],
+    [
+      hideNotification,
+      (state, {payload}) => {
+        const {[payload]: value, ...notifications} = state.notifications;
+        return {
+          ...state,
+          notifications,
+        };
+      }
+    ],
+    [
+      keyDown,
+      (state, {payload}) => ({
         ...state,
-        notifications,
-      };
-
-    case 'KEY_DOWN':
-      return {
+        shiftPressed: state.shiftPressed || payload === 'Shift',
+        controlPressed: state.controlPressed || payload === 'Control',
+        altPressed: state.altPressed || payload === 'Alt',
+      })
+    ],
+    [
+      keyUp,
+      (state, {payload}) => ({
         ...state,
-        shiftPressed: state.shiftPressed || action.key === 'Shift',
-        controlPressed: state.controlPressed || action.key === 'Control',
-        altPressed: state.altPressed || action.key === 'Alt',
-      };
-
-    case 'KEY_UP':
-      return {
-        ...state,
-        shiftPressed: state.shiftPressed && action.key !== 'Shift',
-        controlPressed: state.controlPressed && action.key !== 'Control',
-        altPressed: state.altPressed && !action.key !== 'Alt',
-      };
-
-    default:
-      return state;
-  }
-};
+        shiftPressed: state.shiftPressed && payload !== 'Shift',
+        controlPressed: state.controlPressed && payload !== 'Control',
+        altPressed: state.altPressed && payload !== 'Alt',
+      })
+    ]
+  ]),
+  initialState
+);
 
 export default ui;

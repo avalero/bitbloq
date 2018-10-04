@@ -1,4 +1,5 @@
 import React from 'react';
+import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {colors} from '../../base-styles';
@@ -10,7 +11,10 @@ import {
   createObject,
   showContextMenu,
 } from '../../actions/threed';
-import {getSelectedObjects} from '../../reducers/threed';
+import {
+  getObjects,
+  getSelectedObjects
+} from '../../reducers/threed/';
 import config from '../../config/threed';
 
 const Container = styled.div`
@@ -246,7 +250,7 @@ class ObjectTree extends React.Component {
 }
 
 const mapStateToProps = ({ui, threed}) => ({
-  objects: threed.present.objects,
+  objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
@@ -256,7 +260,7 @@ const mapDispatchToProps = dispatch => ({
   selectObject: (object, addToSelection) =>
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
-  createObject: object => dispatch(createObject(object)),
+  createObject: object => dispatch(createObject(uuid(), object)),
   showContextMenu: (object, e) =>
     dispatch(showContextMenu(object, e.clientX, e.clientY)),
 });

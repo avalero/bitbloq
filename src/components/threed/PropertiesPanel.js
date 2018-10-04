@@ -15,7 +15,7 @@ import {
   showContextMenu,
   stopEditingObjectName,
 } from '../../actions/threed';
-import {getSelectedObjects} from '../../reducers/threed';
+import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
 import {resolveClass} from '../../lib/object3d';
 import CompoundObject from '../../lib/object3d/CompoundObject';
@@ -420,9 +420,9 @@ class PropertiesPanel extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => ({
-  objects: threed.present.objects,
+  objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
-  editingName: threed.present.editingObjectName,
+  editingName: threed.ui.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({

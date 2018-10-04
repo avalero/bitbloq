@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import {connect} from 'react-redux';
 import styled from 'react-emotion';
 import {hideContextMenu, deleteObject, duplicateObject, editObjectName} from '../../actions/threed';
+import {getObjects} from '../../reducers/threed/';
 
 const Container = styled.div`
   position: fixed;
@@ -98,13 +99,13 @@ class ContextMenu extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => {
-  const {contextMenu = {}} = threed.present;
+  const {contextMenu = {}} = threed.ui;
   return ({
     visible: contextMenu.visible,
     object: contextMenu.object,
     position: contextMenu.position,
     test: 288,
-    topObjects: threed.present.objects,
+    topObjects: getObjects(threed),
   });
 };
 

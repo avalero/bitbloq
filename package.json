@@ -50,6 +50,7 @@
     "react-select": "^2.0.0-beta.7",
     "react-spring": "^5.3.18",
     "redux": "^4.0.0",
+    "redux-actions": "^2.6.1",
     "redux-saga": "^0.16.0",
     "styled-components": "^3.3.3",
     "three": "^0.95.0",

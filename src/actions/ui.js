@@ -1,44 +1,11 @@
-export function openSection(section) {
-  return {
-    type: 'OPEN_SECTION',
-    section,
-  };
-}
+import {createAction} from 'redux-actions';
 
-export function showNotification(key, content, time) {
-  return {
-    type: 'SHOW_NOTIFICATION',
-    content,
-    key,
-    time,
-  };
-}
-
-export function hideNotification(key) {
-  return {
-    type: 'HIDE_NOTIFICATION',
-    key,
-  };
-}
-
-export function keyDown(key) {
-  return {
-    type: 'KEY_DOWN',
-    key,
-  };
-}
-
-export function keyUp(key) {
-  return {
-    type: 'KEY_UP',
-    key,
-  };
-}
-
-export function appClick(x, y) {
-  return {
-    type: 'APP_CLICK',
-    x,
-    y,
-  };
-}
+export const openSection = createAction('UI_OPEN_SECTION');
+export const showNotification = createAction(
+  'UI_SHOW_NOTIFICATION',
+  (key, content, time) => ({key, content, time}),
+);
+export const hideNotification = createAction('UI_HIDE_NOTIFICATION');
+export const keyDown = createAction('UI_KEY_DOWN');
+export const keyUp = createAction('UI_KEY_UP');
+export const appClick = createAction('UI_APP_CLICK');
