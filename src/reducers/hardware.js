@@ -1,3 +1,6 @@
+import {handleActions} from 'redux-actions';
+import {updateComponents} from '../actions/hardware';
+
 const initialBoard = {
   className: 'Zumjunior',
 };
@@ -7,17 +10,14 @@ const initialState = {
   components: []
 };
 
-const hardware = (state = initialState, action) => {
-  switch (action.type) {
-    case 'UPDATE_COMPONENTS':
-      return {
-        ...state,
-        components: action.components
-      };
-
-    default:
-      return state;
-  }
-};
+const hardware = handleActions(
+  new Map([
+    [
+      updateComponents,
+      (state, {payload}) => ({...state, components: payload})
+    ]
+  ]),
+  initialState
+);
 
 export default hardware;

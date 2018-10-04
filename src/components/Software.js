@@ -4,7 +4,7 @@ import styled from 'react-emotion';
 import {Spring, animated, interpolate} from 'react-spring';
 import {resolveSoftwareType} from '../lib/bloq-types';
 import {resolveComponentClass} from '../lib/hardware';
-import {updateSoftwareBloqs} from '../actions/software';
+import {updateBloqs} from '../actions/software';
 import BloqsEditor from './BloqsEditor';
 import CodeEditor from './CodeEditor';
 
@@ -108,7 +108,7 @@ const mapStateToProps = ({software, hardware}) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateBloqs: bloqs => dispatch(updateSoftwareBloqs(bloqs)),
+  updateBloqs: bloqs => dispatch(updateBloqs(bloqs)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Software);

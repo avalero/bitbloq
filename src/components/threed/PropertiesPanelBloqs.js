@@ -13,7 +13,7 @@ import {
   setActiveOperation,
   unsetActiveOperation,
 } from '../../actions/threed';
-import {getSelectedObjects} from '../../reducers/threed';
+import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
 import TrashIcon from '../../assets/images/trash-green.svg';
 import GroupIcon from '../../assets/images/shape-group.svg';
@@ -144,7 +144,9 @@ class PropertiesPanelBloqs extends React.Component {
     if (object && object !== prevObject) {
       const {operations = []} = object || {};
       const {operations: prevOperations = []} = prevObject || {};
-      const newOperation = operations.find(o => !prevOperations.find(p => p.id === o.id));
+      const newOperation = operations.find(
+        o => !prevOperations.find(p => p.id === o.id),
+      );
 
       if (newOperation && newOperation.id !== openOperation) {
         this.setState({openOperation: newOperation.id});
@@ -215,14 +217,12 @@ class PropertiesPanelBloqs extends React.Component {
 
     return (
       <PropertiesContainer>
-        <ObjectBloq
-          object={object}
-        />
+        <ObjectBloq object={object} />
         <Droppable droppableId="operations">
           {provided => (
             <BloqsContainer
-              innerRef={provided.innerRef} {...provided.droppableProps}
-            >
+              innerRef={provided.innerRef}
+              {...provided.droppableProps}>
               {object.operations.map((operation, i) => (
                 <OperationBloq
                   key={operation.id}
@@ -242,7 +242,9 @@ class PropertiesPanelBloqs extends React.Component {
                   }
                   onParameterFocus={parameter => {
                     if (parameter.activeOperation) {
-                      setActiveOperation(parameter.activeOperation(object, operation));
+                      setActiveOperation(
+                        parameter.activeOperation(object, operation),
+                      );
                     }
                   }}
                   onParameterBlur={parameter => {
@@ -325,16 +327,14 @@ class PropertiesPanelBloqs extends React.Component {
       <Spring
         from={{width: 0}}
         to={{width: selectedObjects.length > 0 ? 310 : 0}}>
-        {style =>
-          <Wrap style={style}>{content}</Wrap>
-        }
+        {style => <Wrap style={style}>{content}</Wrap>}
       </Spring>
     );
   }
 }
 
 const mapStateToProps = ({threed}) => ({
-  objects: threed.present.objects,
+  objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
 });
 

@@ -1,25 +1,28 @@
+import {handleActions} from 'redux-actions';
+
+import {
+  updateBloqs,
+  updateCode,
+  uploadCode,
+} from '../actions/software';
+
 const initialState = {
   code: '',
   bloqs: []
 };
 
-const software = (state = initialState, action) => {
-  switch (action.type) {
-    case 'UPDATE_SOFTWARE_BLOQS':
-      return {
-        ...state,
-        bloqs: action.bloqs,
-      };
-
-    case 'UPDATE_SOFTWARE_CODE':
-      return {
-        ...state,
-        code: action.code
-      };
-
-    default:
-      return state;
-  }
-};
+const software = handleActions(
+  new Map([
+    [
+      updateBloqs,
+      (state, {payload}) => ({...state, bloqs: payload})
+    ],
+    [
+      updateCode,
+      (state, {payload}) => ({...state, code: payload})
+    ],
+  ]),
+  initialState
+);
 
 export default software;
