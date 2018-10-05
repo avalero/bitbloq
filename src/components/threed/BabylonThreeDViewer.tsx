@@ -3,24 +3,36 @@ import * as React from 'react';
 import BabylonScene, {ISceneEventArgs} from './BabylonScene.tsx'; // import the component above linking to file we just created.
 
 import Cube from '../../lib/object3dts/Cube.ts';
-//import Sphere from '../../lib/object3dts/Sphere.ts';
-//import Cylinder from '../../lib/object3dts/Cylinder.ts';
+import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 
 export default class BabylonThreeDViewer extends React.Component<{}, {}> {
     
+
     public onSceneMount = (e: ISceneEventArgs) => {
         const { canvas, scene, engine } = e;
 
+        const instrumentation: BABYLON.SceneInstrumentation = new BABYLON.SceneInstrumentation(scene);
+        instrumentation.captureCameraRenderTime = true;
+
         // This creates and positions a free camera (non-mesh)
         // const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
-        const camera = new BABYLON.ArcRotateCamera("Camera", 0, Math.PI/4 , 100,
-         new BABYLON.Vector3(0, 0, 0), scene);
+        //const camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(200, 0, 100), scene);
+        const camera = new BABYLON.ArcRotateCamera("Camera", 0, Math.PI/4 , 100, new BABYLON.Vector3(0, 0, 0), scene);
+        
+        camera.upVector = new BABYLON.Vector3(0,0,1);
 
         // This targets the camera to scene origin
         camera.setTarget(BABYLON.Vector3.Zero());
 
+        const cameraControls:OrbitCamera = new OrbitCamera(
+            camera,
+            canvas
+          );
+
         // This attaches the camera to the canvas
-        camera.attachControl(canvas, true);
+        //camera.attachControl(canvas, true);
+
+        //camera.setPosition(new BABYLON.Vector3(20, 150, -15));
 
         // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
         const hemiLight: BABYLON.HemisphericLight  = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
@@ -58,6 +70,8 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
         engine.runRenderLoop(() => {
             if (scene) {
                 scene.render();
+                const delta = instrumentation.cameraRenderTimeCounter;
+                cameraControls.update(delta);
             }
         });
     }

@@ -34,6 +34,8 @@ export default class Scene extends React.Component<ISceneProps & React.HTMLAttri
         this.props.adaptToDeviceRatio
     );
     const scene = new BABYLON.Scene(this.engine);
+    scene.useRightHandedSystem = true
+
     scene.clearColor = new BABYLON.Color3(1,1,1);
     this.scene = scene;
 
