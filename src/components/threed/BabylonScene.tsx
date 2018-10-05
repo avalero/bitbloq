@@ -36,7 +36,7 @@ export default class Scene extends React.Component<ISceneProps & React.HTMLAttri
     const scene = new BABYLON.Scene(this.engine);
     scene.useRightHandedSystem = true
 
-    scene.clearColor = new BABYLON.Color3(1,1,1);
+    scene.clearColor = BABYLON.Color4.FromHexString("fafafa");
     this.scene = scene;
 
     if (typeof this.props.onSceneMount === 'function') {

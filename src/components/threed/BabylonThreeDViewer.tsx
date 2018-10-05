@@ -24,7 +24,7 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
         // This targets the camera to scene origin
         camera.setTarget(BABYLON.Vector3.Zero());
 
-        camera.setPosition(new BABYLON.Vector3(100, 0, 200));
+        camera.setPosition(new BABYLON.Vector3(0, -150, 80));
 
         const cameraControls:OrbitCamera = new OrbitCamera(
             camera,
@@ -36,14 +36,14 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
 
         //camera.setPosition(new BABYLON.Vector3(20, 150, -15));
 
-        // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-        const hemiLight: BABYLON.HemisphericLight  = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
-        // Default intensity is 1. Let's dim the light a small amount
-        hemiLight.intensity = 0.7;
+        const hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 0, 1), scene);
+        hemiLight.diffuse = BABYLON.Color3.FromHexString("555555");
+        hemiLight.groundColor = BABYLON.Color3.FromHexString("98f5ff");
+        //hemiLight.intensity = 0.7;
+        
+        const spotLight = new BABYLON.SpotLight("spotLight", new BABYLON.Vector3(0, -150, 80), BABYLON.Vector3.Forward(), 1.6, 0.8, scene);
+        spotLight.diffuse = BABYLON.Color3.FromHexString("555555");
 
-        const pointLight:BABYLON.PointLight  = new BABYLON.PointLight("pointLight", new BABYLON.Vector3(10, 0, 100), scene); 
-
-        // Our built-in 'sphere' shape. Params: name, subdivs, size, scene
         
         new Cube(scene, 
             {width:10, height:10, depth:10, name:'myCube'},
@@ -58,17 +58,22 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
         //const ground = BABYLON.MeshBuilder.CreateGround("myGround", {width: 100, height: 100}, scene);
 
         const groundMaterial:BABYLON.StandardMaterial = new BABYLON.StandardMaterial('groundMaterial', scene);
-        groundMaterial.emissiveColor = new BABYLON.Color3(0,0,1);
-        groundMaterial.alpha = 0.5;
-        groundMaterial.wireframe = true;
+        groundMaterial.diffuseColor = BABYLON.Color3.FromHexString("98f5ff");
+        groundMaterial.alpha = 1;
+        //groundMaterial.wireframe = true;
 
-        const groundXY: BABYLON.Mesh = BABYLON.Mesh.CreateGround("groundXY", 100,
-			100, 2, scene);
-	    groundXY.material = groundMaterial;
-	    groundXY.rotation.x = -Math.PI / 2;
-
+        const groundXY: BABYLON.Mesh = BABYLON.Mesh.CreateGround(
+            "groundXY", 
+            200,
+            200,
+            1, 
+            scene
+        );
         
+        groundXY.material = groundMaterial;
+	    groundXY.rotation.x = Math.PI / 2;
 
+    
         engine.runRenderLoop(() => {
             if (scene) {
                 scene.render();

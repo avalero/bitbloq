@@ -83,7 +83,7 @@ export default class OrbitCamera {
     this._needsUpdate = true;
     
     //CHECK THIS DELTA
-    this.update(0);
+    this.update();
 
     if (!this.domElement) {
       this.dispose = () => {};
@@ -401,7 +401,7 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private update(delta: number):boolean {
+  private update(delta: number = 0):boolean {
     const dampingFactor: number = this.dampingFactor * delta / 0.016;
     const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta;
     const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi;
