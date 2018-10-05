@@ -24,6 +24,8 @@ export default class BabylonThreeDViewer extends React.Component<{}, {}> {
         // This targets the camera to scene origin
         camera.setTarget(BABYLON.Vector3.Zero());
 
+        camera.setPosition(new BABYLON.Vector3(100, 0, 200));
+
         const cameraControls:OrbitCamera = new OrbitCamera(
             camera,
             canvas

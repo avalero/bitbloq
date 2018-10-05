@@ -120,10 +120,12 @@ export default class OrbitCamera {
 
     switch (event.button) {
       case 0: // left
+        console.log("LEFT");
         this.state = STATE.ROTATE;
         break;
 
       case 1: // middle
+        console.log("MIDDLE");
         this.state = STATE.DOLLY;
         break;
 
@@ -428,11 +430,11 @@ export default class OrbitCamera {
     }
 
     this._spherical.makeSafe();
-    this.camera.position.set(
+    this.camera.setPosition(new BABYLON.Vector3(
       this._spherical.cartesian.x,
       this._spherical.cartesian.y,
       this._spherical.cartesian.z,
-    ).add(this.target);
+    ).add(this.target));
     this.camera.setTarget(this.target);
 
     const needsUpdate:boolean = this._needsUpdate;
