@@ -1,128 +1,51 @@
-export function selectObject(object, addToSelection) {
-  return {
-    type: 'SELECT_OBJECT',
+import {createAction} from 'redux-actions';
+
+export const createObject = createAction(
+  'THREED_CREATE_OBJECT',
+  (id, shapeName) => ({id, shapeName}),
+);
+export const updateObject = createAction('THREED_UPDATE_OBJECT');
+export const duplicateObject = createAction('THREED_DUPLICATE_OBJECT');
+export const composeObjects = createAction(
+  'THREED_COMPOSE_OBJECTS',
+  (objects, operationName) => ({objects, operationName}),
+);
+export const addOperation = createAction(
+  'THREED_ADD_OPERATION',
+  (object, operationName) => ({object, operationName}),
+);
+export const removeOperation = createAction(
+  'THREED_REMOVE_OPERATION',
+  (object, operation) => ({object, operation}),
+);
+export const deleteObject = createAction('THREED_DELETE_OBJECT');
+
+export const selectObject = createAction(
+  'THREED_SELECT_OBJECT',
+  (object, addToSelection) => ({object, addToSelection}),
+);
+export const deselectObject = createAction('THREED_DESELECT_OBJECT');
+export const deselectAllObjects = createAction('THREED_DESELECT_ALL_OBJECTS');
+export const setActiveOperation = createAction(
+  'THREED_SET_ACTIVE_OPERATION',
+  (object, type, axis, relative) => ({
     object,
-    addToSelection,
-  };
-}
-
-export function deselectObject(object) {
-  return {
-    type: 'DESELECT_OBJECT',
-    object,
-  };
-}
-
-export function deselectAllObjects() {
-  return {
-    type: 'DESELECT_ALL_OBJECTS',
-  };
-}
-
-export function createObject(shapeName) {
-  return {
-    type: 'CREATE_OBJECT',
-    shapeName,
-  };
-}
-
-export function updateObject(object) {
-  return {
-    type: 'UPDATE_OBJECT',
-    object,
-  };
-}
-
-export function duplicateObject(object) {
-  return {
-    type: 'DUPLICATE_OBJECT',
-    object,
-  };
-}
-
-export function composeObjects(objects, operationName) {
-  return {
-    type: 'COMPOSE_OBJECTS',
-    objects,
-    operationName,
-  };
-}
-
-export function addOperation(object, operationName) {
-  return {
-    type: 'ADD_OPERATION',
-    object,
-    operationName,
-  };
-}
-
-export function removeOperation(object, operation) {
-  return {
-    type: 'REMOVE_OPERATION',
-    object,
-    operation,
-  };
-}
-
-export function deleteObject(object) {
-  return {
-    type: 'DELETE_OBJECT',
-    object,
-  };
-}
-
-export function setActiveOperation(object, operationType, axis, relative) {
-  return {
-    type: 'SET_ACTIVE_OPERATION',
-    object,
-    operationType,
+    type,
     axis,
     relative,
-  };
-}
-
-export function unsetActiveOperation() {
-  return {
-    type: 'UNSET_ACTIVE_OPERATION',
-  };
-}
-
-export function showContextMenu(object, x, y) {
-  return {
-    type: 'SHOW_CONTEXT_MENU',
-    object,
-    x,
-    y,
-  };
-}
-
-export function hideContextMenu() {
-  return {
-    type: 'HIDE_CONTEXT_MENU',
-  };
-}
-
-export function editObjectName(object) {
-  return {
-    type: 'EDIT_OBJECT_NAME',
-    object,
-  };
-}
-
-export function stopEditingObjectName() {
-  return {
-    type: 'STOP_EDITING_OBJECT_NAME',
-  };
-}
-
-export function undo() {
-  return {
-    type: 'THREED_UNDO'
-  };
-}
-
-export function redo() {
-  return {
-    type: 'THREED_REDO'
-  };
-}
+  }),
+);
+export const unsetActiveOperation = createAction(
+  'THREED_UNSET_ACTIVE_OPERATION',
+);
+export const showContextMenu = createAction(
+  'THREED_SHOW_CONTEXT_MENU',
+  (object, x, y) => ({object, x, y}),
+);
+export const hideContextMenu = createAction('THREED_HIDE_CONTEXT_MENU');
+export const editObjectName = createAction('THREED_EDIT_OBJECT_NAME');
+export const stopEditingObjectName = createAction(
+  'THREED_STOP_EDITING_OBJECT_NAME',
+);
+export const undo = createAction('THREED_UNDO');
+export const redo = createAction('THREED_REDO');

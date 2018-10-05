@@ -1,6 +1,3 @@
-export function updateComponents(components) {
-  return {
-    type: 'UPDATE_COMPONENTS',
-    components,
-  };
-}
+import {createAction} from 'redux-actions';
+
+export const updateComponents = createAction('HARDWARE_CREATE_COMPONENTS');

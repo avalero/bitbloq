@@ -1,19 +1,5 @@
-export function updateSoftwareBloqs(bloqs) {
-  return {
-    type: 'UPDATE_SOFTWARE_BLOQS',
-    bloqs,
-  };
-}
+import {createAction} from 'redux-actions';
 
-export function updateSoftwareCode(code) {
-  return {
-    type: 'UPDATE_SOFTWARE_CODE',
-    code,
-  };
-}
-
-export function uploadCode() {
-  return {
-    type: 'UPLOAD_CODE',
-  };
-}
+export const updateBloqs = createAction('SOFTWARE_UPDATE_BLOQS');
+export const updateCode = createAction('SOFTWARE_UPDATE_CODE');
+export const uploadCode = createAction('SOFTWARE_UPLOAD_CODE');
