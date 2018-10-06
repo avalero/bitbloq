@@ -9,10 +9,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-05 22:09:17
+ * Last modified  : 2018-10-06 21:50:34
  */
 
-import * as BABYLON from 'babylonjs';
+import * as THREE from 'three';
 import {ICommonGeometryParamas, IParameterType, OperationsArray, Object3D} from './Object3D.ts';
 
 interface ICubeParams extends ICommonGeometryParamas{
@@ -47,20 +47,43 @@ export default class Cube extends Object3D{
   ];
 
   private parameters: ICubeParams;
+  private formerParameters: ICubeParams;
+  private _updateRequired: boolean;
 
-  constructor(scene: BABYLON.Scene, parameters: ICubeParams, operations: OperationsArray = []){
-    super(operations, scene);
+  constructor(parameters: ICubeParams, operations: OperationsArray = []){
+    super(operations);
     this.parameters = {
       color: this.color,
       ...parameters
     };
+    this.formerParameters = {...this.parameters};
     this.color = this.parameters.color;
-    this.mesh = super.addMeshToScene(scene);
+    this._updateRequired = true;
+    
+    this.mesh = super.getMesh();
+    
   }
 
-  protected getGeometry(): BABYLON.Mesh {
+  protected setParameters(parameters: ICubeParams): void{
+    this.formerParameters = {...this.parameters};
+    this.parameters = {...parameters};
+    if (this.parameters !== this.formerParameters){
+      this._updateRequired = true;
+    }
+  }
+
+  protected getGeometry(): THREE.Geometry {
     const {width, height, depth} = this.parameters;
     const name:string = this.parameters.name || 'myCube';
-    return BABYLON.MeshBuilder.CreateBox(name, {height: Number(height), width: Number(width), depth: Number(depth)}, this.scene);
+    this._updateRequired = false;
+    return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
+
+  public get updateRequired():boolean{
+    return this._updateRequired;
+  }
+
+  public set updateRequired(b: boolean){
+    this._updateRequired = b;
+  } 
 }

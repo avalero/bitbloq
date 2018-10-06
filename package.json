@@ -40,6 +40,7 @@
     "@types/react": "^16.4.14",
     "@types/react-dom": "^16.0.7",
     "@types/react-router-dom": "^4.3.1",
+    "@types/three": "^0.92.24",
     "babel-loader": "^8.0.2",
     "babel-plugin-emotion": "^9.2.4",
     "babylonjs": "^3.3.0-rc.4",

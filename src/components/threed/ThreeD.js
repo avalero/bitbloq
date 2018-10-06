@@ -1,11 +1,10 @@
 import React from 'react';
 import styled from 'react-emotion';
 import ObjectTree from './ObjectTree';
-import ThreeDViewer from './ThreeDViewer';
+import ThreeDViewer from './DummyThreeDViewer';
 import PropertiesPanel from './PropertiesPanel';
 import PropertiesPanelBloqs from './PropertiesPanelBloqs';
 import ContextMenu from './ContextMenu';
-import BabylonThreeDViewer from './BabylonThreeDViewer.tsx';
 
 const Container = styled.div`
   flex: 1;
@@ -23,7 +22,7 @@ class ThreeD extends React.Component {
     return (
       <Container>
         <ObjectTree />
-        <BabylonThreeDViewer />
+        <ThreeDViewer />
         <PropertiesPanelComponent />
         <ContextMenu />
       </Container>
