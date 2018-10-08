@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46 
- * Last modified  : 2018-10-06 21:01:32
+ * Last modified  : 2018-10-08 16:58:10
  */
 
 import * as THREE from 'three'
@@ -99,6 +99,7 @@ export class Object3D{
   protected color: string;
   private operations: OperationsArray;
   private pendingOperation: boolean;
+  protected updateRequired: boolean;
 
   constructor(operations: OperationsArray = []){
     this.operations = operations;
@@ -118,16 +119,6 @@ export class Object3D{
     this.pendingOperation = true;
   }
 
-  
-
-  public get updateRequired():boolean{
-    throw Error('get updateRequiered Pure Virtual')
-  }
-
-  public set updateRequired(b: boolean){
-    throw Error('set updateRequiered Pure Virtual')
-  }
-
   private getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
       color: this.color || Object3D.colors[0]
@@ -138,7 +129,9 @@ export class Object3D{
     if(this.updateRequired){
       const geometry:THREE.Geometry = this.getGeometry();   
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
+      this.updateRequired = false;
     }
+
     this.applyOperations();
 
     return this.mesh;
@@ -164,6 +157,7 @@ export class Object3D{
         }
       });
     }
+    
     this.pendingOperation = false;
   }
 
