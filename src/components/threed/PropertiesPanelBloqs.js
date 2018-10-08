@@ -5,11 +5,12 @@ import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 import {
-  updateObject,
+  updateOperationParameter,
   composeObjects,
   deleteObject,
   addOperation,
   removeOperation,
+  reorderOperation,
   setActiveOperation,
   unsetActiveOperation,
 } from '../../actions/threed';
@@ -166,12 +167,7 @@ class PropertiesPanelBloqs extends React.Component {
   }
 
   onOperationParameterChange = (object, operation, parameter, value) => {
-    this.props.updateObject({
-      ...object,
-      operations: object.operations.map(
-        o => (o === operation ? {...o, [parameter]: value} : o),
-      ),
-    });
+    this.props.updateOperationParameter(object, operation, parameter, value);
   };
 
   onDragStart = () => {
@@ -186,16 +182,16 @@ class PropertiesPanelBloqs extends React.Component {
 
     if (!destination || !operation) return;
 
-    const operations = [...object.operations];
-    operations.splice(source.index, 1);
     if (destination.droppableId !== 'remove') {
-      operations.splice(destination.index, 0, operation);
+      this.props.reorderOperation(
+        object,
+        operation,
+        source.index,
+        destination.index,
+      );
+    } else {
+      this.props.removeOperation(object, operation);
     }
-
-    this.props.updateObject({
-      ...object,
-      operations,
-    });
   };
 
   onAddOperation(object, operationName) {
@@ -339,7 +335,8 @@ const mapStateToProps = ({threed}) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateObject: object => dispatch(updateObject(object)),
+  updateOperationParameter: (object, operation, parameter, value) =>
+    dispatch(updateOperationParameter(object, operation, parameter, value)),
   composeObjects: (objects, operationName) =>
     dispatch(composeObjects(objects, operationName)),
   deleteObject: object => dispatch(deleteObject(object)),
@@ -347,6 +344,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(addOperation(object, operationName)),
   removeOperation: (object, operation) =>
     dispatch(removeOperation(object, operation)),
+  reorderOperation: (object, operation, from, to) =>
+    dispatch(reorderOperation(object, operation, from, to)),
   setActiveOperation: ({object, type, axis, relative}) =>
     dispatch(setActiveOperation(object, type, axis, relative)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
