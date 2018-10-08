@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-10-06 21:48:16
+ * Last modified  : 2018-10-08 21:37:26
  */
 
 import React from 'react';
@@ -27,6 +27,7 @@ import ThreeDNavigationBox from './ThreeDNavigationBox';
 import UndoIcon from '../../assets/images/undo.svg';
 
 import Cube from '../../lib/object3dts/Cube.ts'
+import Cylinder from '../../lib/object3dts/Cylinder.ts'
 
 const Wrap = styled.div`
   position: relative;
@@ -181,11 +182,13 @@ class ThreeDViewer extends React.Component {
       [{type:'translation',x:15,y:0,z:0,relative:false}]
     ).getMesh();
 
+    const cyl1 = new Cylinder(
+      {r0:3, r1:0, height:10, name:'myCyl'},
+      [{type:'translation',x:-15,y:0,z:0,relative:false}]
+    ).getMesh();
+
     this.scene.add(cube1);
-    // new Cube( 
-    //   {width:10, height:10, depth:10, name:'myCub2'},
-    //   [{type:'translation',x:0,y:0,z:0,relative:false}]
-    // );
+    this.scene.add(cyl1);
   }
 
   updateSize() {
