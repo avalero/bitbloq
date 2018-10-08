@@ -1,7 +1,8 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {
-  updateObject,
+  updateObjectName,
+  updateObjectParameter,
   showContextMenu,
   stopEditingObjectName,
 } from '../../actions/threed';
@@ -66,21 +67,12 @@ class ObjectBloq extends React.Component {
   }
 
   onNameChange = (object, name) => {
-    this.props.updateObject({
-      ...object,
-      name,
-    });
+    this.props.updateObjectName(object, name);
   };
 
   onParameterChange = (parameter, value) => {
     const {object} = this.props;
-    this.props.updateObject({
-      ...object,
-      parameters: {
-        ...object.parameters,
-        [parameter.name]: value,
-      },
-    });
+    this.props.updateObjectParameter(object, parameter, value);
   };
 
   render() {
@@ -135,7 +127,7 @@ class ObjectBloq extends React.Component {
               key={parameter.name}
               parameter={parameter}
               value={object.parameters[parameter.name]}
-              onChange={value => this.onParameterChange(parameter, value)}
+              onChange={value => this.onParameterChange(parameter.name, value)}
             />
           ))}
         </ParametersForm>
@@ -145,11 +137,13 @@ class ObjectBloq extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => ({
-  editingName: threed.present.editingObjectName,
+  editingName: threed.ui.editingObjectName,
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateObject: object => dispatch(updateObject(object)),
+  updateObjectName: (object, name) => dispatch(updateObjectName(object, name)),
+  updateObjectParameter: (object, parameter, value) =>
+    dispatch(updateObjectParameter(object, parameter, value)),
   showContextMenu: (object, e) =>
     dispatch(showContextMenu(object, e.clientX, e.clientY)),
   stopEditingObjectName: () => dispatch(stopEditingObjectName()),

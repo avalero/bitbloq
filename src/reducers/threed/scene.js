@@ -84,11 +84,30 @@ const scene = handleActions(
         const object = new shape.objectClass(name, {}, [], payload.id).toJSON();
 
         return [...state, object];
-      }
+      },
     ],
     [
-      actions.updateObject,
-      (state, {payload}) => updateObject(state, payload)
+      actions.updateObjectName,
+      (state, {payload}) =>
+        updateObject(state, {...payload.object, name: payload.name}),
+    ],
+    [
+      actions.updateObjectParameter,
+      (state, {payload: {object, parameter, value}}) =>
+        updateObject(state, {
+          ...object,
+          parameters: {...object.parameters, [parameter]: value},
+        }),
+    ],
+    [
+      actions.updateOperationParameter,
+      (state, {payload: {object, operation, parameter, value}}) =>
+        updateObject(state, {
+          ...object,
+          operations: object.operations.map(
+            o => (o === operation ? {...o, [parameter]: value} : o),
+          ),
+        }),
     ],
     [
       actions.duplicateObject,
@@ -100,16 +119,13 @@ const scene = handleActions(
         };
 
         return [...state, duplicatedObject];
-      }
+      },
     ],
     [
       actions.composeObjects,
       (state, {payload}) => {
         const composeOperation = compositionOperations[payload.operationName];
-        const composeName = createObjectName(
-          composeOperation.name,
-          state,
-        );
+        const composeName = createObjectName(composeOperation.name, state);
         const composeObject = new composeOperation.objectClass(composeName, {
           children: payload.objects.map(child => createFromJSON(child)),
         }).toJSON();
@@ -118,7 +134,7 @@ const scene = handleActions(
           ...state.filter(o => !payload.objects.includes(o)),
           composeObject,
         ];
-      }
+      },
     ],
     [
       actions.addOperation,
@@ -132,16 +148,29 @@ const scene = handleActions(
         };
 
         return updateObject(state, newObject);
-      }
+      },
     ],
     [
       actions.removeOperation,
-      (state, {payload}) => updateObject(state, {
-        ...payload.object,
-        operations: payload.object.operations.filter(
-          op => op !== payload.operation,
-        ),
-      })
+      (state, {payload}) =>
+        updateObject(state, {
+          ...payload.object,
+          operations: payload.object.operations.filter(
+            op => op !== payload.operation,
+          ),
+        }),
+    ],
+    [
+      actions.reorderOperation,
+      (state, {payload: {object, operation, from, to}}) => {
+        const operations = [...object.operations];
+        operations.splice(from, 1);
+        operations.splice(to, 0, operation);
+        return updateObject(state, {
+          ...object,
+          operations,
+        });
+      },
     ],
     [
       actions.deleteObject,
@@ -155,10 +184,10 @@ const scene = handleActions(
           ...children,
           ...state.slice(index + 1),
         ];
-      }
-    ]
+      },
+    ],
   ]),
-  initialState
+  initialState,
 );
 
 export default undoable(scene, 'THREED_UNDO', 'THREED_REDO', [
