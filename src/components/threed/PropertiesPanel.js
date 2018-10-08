@@ -5,11 +5,14 @@ import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
 import {
-  updateObject,
+  updateObjectName,
+  updateObjectParameter,
+  updateOperationParameter,
   composeObjects,
   deleteObject,
   addOperation,
   removeOperation,
+  reorderOperation,
   setActiveOperation,
   unsetActiveOperation,
   showContextMenu,
@@ -200,29 +203,15 @@ class PropertiesPanel extends React.Component {
   }
 
   onObjectNameChange = (object, name) => {
-    this.props.updateObject({
-      ...object,
-      name,
-    });
+    this.props.updateObjectName(object, name);
   };
 
   onObjectParameterChange = (object, parameter, value) => {
-    this.props.updateObject({
-      ...object,
-      parameters: {
-        ...object.parameters,
-        [parameter]: value,
-      },
-    });
+    this.props.updateObjectParameter(object, parameter, value);
   };
 
   onOperationParameterChange = (object, operation, parameter, value) => {
-    this.props.updateObject({
-      ...object,
-      operations: object.operations.map(
-        o => (o === operation ? {...o, [parameter]: value} : o),
-      ),
-    });
+    this.props.updateOperationParameter(object, operation, parameter, value);
   };
 
   onDragStart = () => {
@@ -237,16 +226,16 @@ class PropertiesPanel extends React.Component {
 
     if (!destination || !operation) return;
 
-    const operations = [...object.operations];
-    operations.splice(source.index, 1);
     if (destination.droppableId !== 'remove') {
-      operations.splice(destination.index, 0, operation);
+      this.props.reorderOperation(
+        object,
+        operation,
+        source.index,
+        destination.index,
+      );
+    } else {
+      this.props.removeOperation(object, operation);
     }
-
-    this.props.updateObject({
-      ...object,
-      operations,
-    });
   };
 
   onAddOperation(object, operationName) {
@@ -409,11 +398,11 @@ class PropertiesPanel extends React.Component {
       <Spring
         from={{width: 0}}
         to={{width: selectedObjects.length > 0 ? 310 : 0}}>
-        {style =>
+        {style => (
           <Wrap style={style}>
             <Container>{content}</Container>
           </Wrap>
-        }
+        )}
       </Spring>
     );
   }
@@ -426,7 +415,11 @@ const mapStateToProps = ({threed}) => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  updateObject: object => dispatch(updateObject(object)),
+  updateObjectName: (object, name) => dispatch(updateObjectName(object, name)),
+  updateObjectParameter: (object, parameter, value) =>
+    dispatch(updateObjectParameter(object, parameter, value)),
+  updateOperationParameter: (object, operation, parameter, value) =>
+    dispatch(updateOperationParameter(object, operation, parameter, value)),
   composeObjects: (objects, operationName) =>
     dispatch(composeObjects(objects, operationName)),
   deleteObject: object => dispatch(deleteObject(object)),
@@ -434,6 +427,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(addOperation(object, operationName)),
   removeOperation: (object, operation) =>
     dispatch(removeOperation(object, operation)),
+  reorderOperation: (object, operation, from, to) =>
+    dispatch(reorderOperation(object, operation, from, to)),
   setActiveOperation: ({object, type, axis, relative}) =>
     dispatch(setActiveOperation(object, type, axis, relative)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),

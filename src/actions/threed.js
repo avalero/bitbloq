@@ -4,7 +4,23 @@ export const createObject = createAction(
   'THREED_CREATE_OBJECT',
   (id, shapeName) => ({id, shapeName}),
 );
-export const updateObject = createAction('THREED_UPDATE_OBJECT');
+export const updateObjectName = createAction(
+  'THREED_UPDATE_OBJECT_NAME',
+  (object, name) => ({object, name}),
+);
+export const updateObjectParameter = createAction(
+  'THREED_UPDATE_OBJECT_PARAMETER',
+  (object, parameter, value) => ({object, parameter, value}),
+);
+export const updateOperationParameter = createAction(
+  'THREED_UPDATE_OPERATION_PARAMETER',
+  (object, operation, parameter, value) => ({
+    object,
+    operation,
+    parameter,
+    value,
+  }),
+);
 export const duplicateObject = createAction('THREED_DUPLICATE_OBJECT');
 export const composeObjects = createAction(
   'THREED_COMPOSE_OBJECTS',
@@ -17,6 +33,10 @@ export const addOperation = createAction(
 export const removeOperation = createAction(
   'THREED_REMOVE_OPERATION',
   (object, operation) => ({object, operation}),
+);
+export const reorderOperation = createAction(
+  'THREED_REORDER_OPERATION',
+  (object, operation, from, to) => ({object, operation, from, to}),
 );
 export const deleteObject = createAction('THREED_DELETE_OBJECT');
 
