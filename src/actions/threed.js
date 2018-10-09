@@ -1,9 +1,6 @@
 import {createAction} from 'redux-actions';
 
-export const createObject = createAction(
-  'THREED_CREATE_OBJECT',
-  (id, shapeName) => ({id, shapeName}),
-);
+export const createObject = createAction('THREED_CREATE_OBJECT');
 export const updateObjectName = createAction(
   'THREED_UPDATE_OBJECT_NAME',
   (object, name) => ({object, name}),

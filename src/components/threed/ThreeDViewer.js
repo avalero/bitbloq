@@ -16,11 +16,10 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
+import config from '../../config/threed';
 import {selectObject, deselectAllObjects, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import OrbitCamera from '../../lib/object3d/OrbitCamera';
-import {SphericalCoordsXYZ} from '../../lib/object3d/SphericalCoordinates';
-import {createFromJSON} from '../../lib/object3d';
+import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 import styled, {css} from 'react-emotion';
 import TranslationHelper from '../../lib/object3d/TranslationHelper';
 import RotationHelper from '../../lib/object3d/RotationHelper';
@@ -81,6 +80,13 @@ const outlineMaterial = new Three.MeshBasicMaterial({
   color: 0x6a8d2f,
   side: Three.BackSide,
 });
+
+const createObject = (objectDescription) => {
+  const {type, parameters} = objectDescription;
+  const shape = config.shapes.find(s => s.name === type);
+
+  return new shape.objectClass(parameters, []);
+};
 
 class ThreeDViewer extends React.Component {
   container = React.createRef();
@@ -166,9 +172,7 @@ class ThreeDViewer extends React.Component {
 
     if (intersects.length > 0) {
       const mesh = intersects[0].object;
-      if (mesh.objectID) {
-        return this.instances[mesh.objectID];
-      }
+      return mesh.object;
     }
   };
 
@@ -176,28 +180,39 @@ class ThreeDViewer extends React.Component {
     const {objects = [], selectedObjects = [], activeOperation} = this.props;
 
     prevObjects.forEach(prevObject => {
-      if (!objects.includes(prevObject)) {
-        this.objectsGroup.remove(this.meshes[prevObject.id]);
-        delete this.instances[prevObject.id];
-        delete this.meshes[prevObject.id];
+      const object = objects.find(o => o.id === prevObject.id);
+      if (!object) {
+        this.objectsGroup.remove(this.meshes[object.id]);
+        delete this.instances[object.id];
+        delete this.meshes[object.id];
       }
     });
 
-    while (this.outlineGroup.children.length > 0) {
+    /*while (this.outlineGroup.children.length > 0) {
       this.outlineGroup.remove(this.outlineGroup.children[0]);
-    }
+    }*/
 
     let transparent = {opacity: 0.5, transparent: true, depthWrite: false};
     let opaque = {opacity: 1, transparent: false, depthWrite: true};
     objects.forEach(object => {
-      if (!prevObjects.includes(object)) {
-        const object3D = createFromJSON(object);
-        const mesh = object3D.getMesh();
-        mesh.objectID = object.id;
+      const prevObject = prevObjects.find(o => o.id === object.id);
+      let object3D;
+
+      if (!prevObject) {
+        object3D = createObject(object);
         this.instances[object.id] = object3D;
-        this.meshes[object.id] = mesh;
-        this.objectsGroup.add(mesh);
+      } else {
+        object3D = this.instances[object.id];
+        object3D.setColor(object.parameters.color);
+        object3D.setParameters(object.parameters);
+        object3D.setOperations(object.operations);
+        this.objectsGroup.remove(this.meshes[object.id]);
       }
+
+      const mesh = object3D.getMesh();
+      mesh.object = object;
+      this.meshes[object.id] = mesh;
+      this.objectsGroup.add(mesh);
 
       if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
         const mesh = this.meshes[object.id];

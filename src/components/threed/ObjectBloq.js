@@ -8,7 +8,6 @@ import {
 } from '../../actions/threed';
 import styled, {css} from 'react-emotion';
 import config from '../../config/threed';
-import {resolveClass} from '../../lib/object3d';
 import PropertiesBloq from './PropertiesBloq';
 import PropertyInput from './PropertyInput';
 import GroupIcon from '../../assets/images/shape-group.svg';
@@ -82,21 +81,16 @@ class ObjectBloq extends React.Component {
       showContextMenu,
       stopEditingObjectName,
     } = this.props;
-    const Class3D = resolveClass(object.type);
-    const {parameterTypes = []} = Class3D;
 
+    const shapeConfig = config.shapes.find(s => s.name === object.type);
     const parameters = [
-      ...parameterTypes,
+      ...shapeConfig.parameters,
       {
         name: 'color',
         label: 'Color',
         type: 'color',
       },
     ];
-
-    const shapeConfig = config.shapes.find(
-      ({objectClass}) => objectClass === Class3D,
-    );
     const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
 
     return (

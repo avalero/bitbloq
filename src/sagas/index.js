@@ -1,7 +1,7 @@
 import {takeEvery, call, put, select} from 'redux-saga/effects';
 import {updateCode as updateCodeAction} from '../actions/software';
 import {showNotification, hideNotification} from '../actions/ui';
-import {undo as undoThreed, redo as redoThreed} from '../actions/threed';
+import {undo as undoThreed, redo as redoThreed, selectObject} from '../actions/threed';
 import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
 import web2board, {
   ConnectionError,
@@ -83,11 +83,17 @@ function* watchKeyDown({payload: key}) {
   }
 }
 
+function* watchCreateObject() {
+  const objects = yield select(state => state.threed.scene.present);
+  yield put(selectObject(objects[objects.length - 1]));
+}
+
 function* rootSaga() {
   yield takeEvery('SOFTWARE_UPDATE_BLOQS', updateCode);
   yield takeEvery('SOFTWARE_UPLOAD_CODE', uploadCode);
   yield takeEvery('UI_SHOW_NOTIFICATION', watchNotificationTime);
   yield takeEvery('UI_KEY_DOWN', watchKeyDown);
+  yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
 }
 
 export default rootSaga;

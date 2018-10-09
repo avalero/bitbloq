@@ -8,77 +8,77 @@
  * @summary short description for the file
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-10-02 18:56:46 
+ * Created at     : 2018-10-02 18:56:46
  * Last modified  : 2018-10-08 16:58:10
  */
 
-import * as THREE from 'three'
+import * as THREE from 'three';
 
-export interface IParameterType{
-  name:string,
-  label:string,
-  type:string,
-  defaultValue:number
+interface ICommonOperation {
+  type: string;
 }
 
-interface ICommonOperation{
-  type:string
+interface ITranslateOperation extends ICommonOperation {
+  x: number;
+  y: number;
+  z: number;
+  relative: boolean;
 }
 
-interface ITranslateOperation extends ICommonOperation{
-  x:number,
-  y:number,
-  z:number,
-  relative:boolean
+interface IRotateOperation extends ICommonOperation {
+  axis: string;
+  angle: number;
+  relative: boolean;
 }
 
-interface IRotateOperation extends ICommonOperation{
-  axis:string,
-  angle:number,
-  relative:boolean
+interface IScaleOperation extends ICommonOperation {
+  x: number;
+  y: number;
+  z: number;
 }
 
-interface IScaleOperation extends ICommonOperation{
-  x:number,
-  y:number,
-  z:number
-}
-
-export interface ICommonGeometryParamas{
-  color?:string,
-  name:string
-}
-
-type Operation = (ITranslateOperation|IRotateOperation|IScaleOperation);
+type Operation = ITranslateOperation | IRotateOperation | IScaleOperation;
 export type OperationsArray = Array<Operation>;
 
-export class Object3D{
-
-  public static createTranslateOperation(x:number = 0, y:number = 0, z:number = 0, relative:boolean = true): ITranslateOperation {
+export class Object3D {
+  public static createTranslateOperation(
+    x: number = 0,
+    y: number = 0,
+    z: number = 0,
+    relative: boolean = true,
+  ): ITranslateOperation {
     return {
       type: 'translation',
       x,
       y,
       z,
-      relative
+      relative,
     };
   }
 
-  public static createRotateOperation(axis:string = 'x', angle:number = 0, relative:boolean = true): IRotateOperation {
+  public static createRotateOperation(
+    axis: string = 'x',
+    angle: number = 0,
+    relative: boolean = true,
+  ): IRotateOperation {
     return {
       type: 'rotation',
       axis,
       angle,
-      relative
+      relative,
     };
   }
 
-  public static createScaleOperation(x:number = 1, y:number = 1, z:number = 1): IScaleOperation {
+  public static createScaleOperation(
+    x: number = 1,
+    y: number = 1,
+    z: number = 1,
+  ): IScaleOperation {
     return {
       type: 'scale',
       x,
       y,
-      z
+      z,
     };
   }
 
@@ -91,43 +91,49 @@ export class Object3D{
     '#00fff8',
     '#f9fe44',
     '#7aff4f',
-    '#968afc'
-  ]
-  
+    '#968afc',
+  ];
+
   protected mesh: THREE.Mesh;
-  // protected scene: BABYLON.Scene; 
+  // protected scene: BABYLON.Scene;
   protected color: string;
   private operations: OperationsArray;
   private pendingOperation: boolean;
   protected updateRequired: boolean;
 
-  constructor(operations: OperationsArray = []){
+  constructor(operations: OperationsArray = []) {
     this.operations = operations;
     this.pendingOperation = true;
-    const color_index:number = Math.floor(Math.random() * Object3D.colors.length);
+    const color_index: number = Math.floor(
+      Math.random() * Object3D.colors.length,
+    );
     this.color = Object3D.colors[color_index];
   }
 
-  public addOperation(operation: Operation): void{
+  public addOperation(operation: Operation): void {
     this.operations.push(operation);
     this.pendingOperation = true;
   }
 
-  public setOperations(operations: OperationsArray): void{
+  public setOperations(operations: OperationsArray): void {
     this.operations = [];
     this.operations = operations.slice();
     this.pendingOperation = true;
   }
 
+  public setColor(color: string): void {
+    this.color = color;
+  }
+
   private getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
-      color: this.color || Object3D.colors[0]
+      color: this.color || Object3D.colors[0],
     });
   }
 
   protected getMesh(): THREE.Mesh {
-    if(this.updateRequired){
-      const geometry:THREE.Geometry = this.getGeometry();   
+    if (this.updateRequired) {
+      const geometry: THREE.Geometry = this.getGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this.updateRequired = false;
     }
@@ -141,27 +147,26 @@ export class Object3D{
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
-  private applyOperations(){
-    if(this.pendingOperation){
-      this.operations.forEach( (operation) => 
-      {
+  private applyOperations() {
+    if (this.pendingOperation) {
+      this.operations.forEach(operation => {
         // Translate operation
-        if( operation.type === Object3D.createTranslateOperation().type){
+        if (operation.type === Object3D.createTranslateOperation().type) {
           this.applyTranslateOperation(operation as ITranslateOperation);
-        }else if( operation.type === Object3D.createRotateOperation().type){
+        } else if (operation.type === Object3D.createRotateOperation().type) {
           this.applyRotateOperation(operation as IRotateOperation);
-        }else if( operation.type === Object3D.createScaleOperation().type){
+        } else if (operation.type === Object3D.createScaleOperation().type) {
           this.applyScaleOperation(operation as IScaleOperation);
-        }else{
+        } else {
           throw Error('ERROR: Unknown Operation');
         }
       });
     }
-    
+
     this.pendingOperation = false;
   }
 
-  private applyTranslateOperation(operation: ITranslateOperation): void{
+  private applyTranslateOperation(operation: ITranslateOperation): void {
     if (operation.relative) {
       this.mesh.translateX(operation.x);
       this.mesh.translateY(operation.y);
@@ -174,7 +179,7 @@ export class Object3D{
     }
   }
 
-  private applyRotateOperation(operation: IRotateOperation): void{
+  private applyRotateOperation(operation: IRotateOperation): void {
     const angle = THREE.Math.degToRad(Number(operation.angle));
     switch (operation.axis) {
       case 'x':
@@ -206,7 +211,7 @@ export class Object3D{
     }
   }
 
-  private applyScaleOperation(operation: IScaleOperation): void{
+  private applyScaleOperation(operation: IScaleOperation): void {
     if (
       Number(operation.x) > 0 &&
       Number(operation.y) > 0 &&
