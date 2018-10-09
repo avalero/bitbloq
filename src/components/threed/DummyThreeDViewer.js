@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-10-06 00:04:05
+ * Last modified  : 2018-10-08 21:37:26
  */
 
 import React from 'react';
@@ -18,14 +18,16 @@ import {connect} from 'react-redux';
 import * as Three from 'three';
 import {selectObject, deselectAllObjects, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import OrbitCamera from '../../lib/object3d/OrbitCamera';
-import {SphericalCoordsXYZ} from '../../lib/object3d/SphericalCoordinates';
+import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 import {createFromJSON} from '../../lib/object3d';
 import styled, {css} from 'react-emotion';
 import TranslationHelper from '../../lib/object3d/TranslationHelper';
 import RotationHelper from '../../lib/object3d/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';
 import UndoIcon from '../../assets/images/undo.svg';
+
+import Cube from '../../lib/object3dts/Cube.ts'
+import Cylinder from '../../lib/object3dts/Cylinder.ts'
 
 const Wrap = styled.div`
   position: relative;
@@ -173,75 +175,20 @@ class ThreeDViewer extends React.Component {
   };
 
   updateSceneObjects(prevObjects = []) {
-    const {objects = [], selectedObjects = [], activeOperation} = this.props;
+    //TODO
 
-    prevObjects.forEach(prevObject => {
-      if (!objects.includes(prevObject)) {
-        this.objectsGroup.remove(this.meshes[prevObject.id]);
-        delete this.instances[prevObject.id];
-        delete this.meshes[prevObject.id];
-      }
-    });
+    const cube1 = new Cube(
+      {width:10, height:10, depth:10, name:'myCube'},
+      [{type:'translation',x:15,y:0,z:0,relative:false}]
+    ).getMesh();
 
-    while (this.outlineGroup.children.length > 0) {
-      this.outlineGroup.remove(this.outlineGroup.children[0]);
-    }
+    const cyl1 = new Cylinder(
+      {r0:3, r1:0, height:10, name:'myCyl'},
+      [{type:'translation',x:-15,y:0,z:0,relative:false}]
+    ).getMesh();
 
-    let transparent = {opacity: 0.5, transparent: true, depthWrite: false};
-    let opaque = {opacity: 1, transparent: false, depthWrite: true};
-    objects.forEach(object => {
-      if (!prevObjects.includes(object)) {
-        const object3D = createFromJSON(object);
-        const mesh = object3D.getMesh();
-        mesh.objectID = object.id;
-        this.instances[object.id] = object3D;
-        this.meshes[object.id] = mesh;
-        this.objectsGroup.add(mesh);
-      }
-
-      if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
-        const mesh = this.meshes[object.id];
-        mesh.material.opacity = 0.5;
-        mesh.material.transparent = true;
-        mesh.material.depthWrite = false;
-      }else{
-        const mesh = this.meshes[object.id];
-        mesh.material.opacity = 1;
-        mesh.material.transparent = false;
-        mesh.material.depthWrite = true;
-      }
-
-      // if (selectedObjects.includes(object)) {
-      //   const mesh = this.meshes[object.id];
-      //   const outMesh = mesh.clone();
-      //   outMesh.scale.multiplyScalar(1.08);
-      //   outMesh.material = outlineMaterial;
-      //   this.outlineGroup.add(outMesh);
-      // }
-    });
-
-    this.helpersGroup.remove(this.activeHelper);
-    if (activeOperation) {
-      const mesh = this.meshes[activeOperation.object.id];
-      if (mesh && activeOperation.type === 'translation') {
-        const trHelper = new TranslationHelper(
-          mesh,
-          activeOperation.axis,
-          activeOperation.relative,
-        ).mesh;
-        this.helpersGroup.add(trHelper);
-        this.activeHelper = trHelper;
-      }
-      if (mesh && activeOperation.type === 'rotation') {
-        const rotHelper = new RotationHelper(
-          mesh,
-          activeOperation.axis,
-          activeOperation.relative,
-        ).mesh;
-        this.helpersGroup.add(rotHelper);
-        this.activeHelper = rotHelper;
-      }
-    }
+    this.scene.add(cube1);
+    this.scene.add(cyl1);
   }
 
   updateSize() {
@@ -255,9 +202,7 @@ class ThreeDViewer extends React.Component {
 
   setupScene() {
     this.renderer.setClearColor(0xfafafa);
-
     this.clock = new Three.Clock();
-
     this.scene.add(new Three.AmbientLight(0x555555));
     const spotLight = new Three.SpotLight(0xeeeeee);
     spotLight.position.set(80, -100, 60);
