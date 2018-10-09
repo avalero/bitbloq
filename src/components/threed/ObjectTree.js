@@ -147,10 +147,10 @@ class ObjectTree extends React.Component {
     this.setState({addDropDownOpen: false});
   };
 
-  onAddObject(shapeName) {
+  onAddObject(shape) {
     this.setState({addDropDownOpen: false});
 
-    this.props.createObject(shapeName);
+    this.props.createObject(shape.create());
   }
 
   renderObjectList(objects, depth = 0) {
@@ -234,7 +234,7 @@ class ObjectTree extends React.Component {
                   key={shape.name}
                   onClick={e => {
                     e.stopPropagation();
-                    this.onAddObject(shape.name);
+                    this.onAddObject(shape);
                   }}>
                   <img src={shape.icon} />
                   <div>{shape.label}</div>
@@ -260,12 +260,12 @@ const mapDispatchToProps = dispatch => ({
   selectObject: (object, addToSelection) =>
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
-  createObject: object => dispatch(createObject(uuid(), object)),
+  createObject: object => dispatch(createObject(object)),
   showContextMenu: (object, e) =>
     dispatch(showContextMenu(object, e.clientX, e.clientY)),
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(ObjectTree);

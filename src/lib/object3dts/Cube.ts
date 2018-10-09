@@ -13,9 +13,9 @@
  */
 
 import * as THREE from 'three';
-import {ICommonGeometryParamas, IParameterType, OperationsArray, Object3D} from './Object3D.ts';
+import {OperationsArray, Object3D} from './Object3D.ts';
 
-interface ICubeParams extends ICommonGeometryParamas{
+interface ICubeParams {
   width:number,
   depth:number,
   height:number
@@ -25,44 +25,17 @@ export default class Cube extends Object3D{
 
   public static typeName:string = 'Cube';
 
-  public static parameterTypes: IParameterType[] = [
-    {
-      name: 'width',
-      label: 'Width',
-      type: 'integer',
-      defaultValue: 10,
-    },
-    {
-      name: 'height',
-      label: 'Height',
-      type: 'integer',
-      defaultValue: 10,
-    },
-    {
-      name: 'depth',
-      label: 'Depth',
-      type: 'integer',
-      defaultValue: 10,
-    },
-  ];
-
   private parameters: ICubeParams;
 
   constructor(parameters: ICubeParams, operations: OperationsArray = []){
     super(operations);
-    this.parameters = {
-      color: this.color,
-      ...parameters
-    };
-    
-    this.color = this.parameters.color;
+    this.parameters = {...parameters};
     this.updateRequired = true;
-    
     this.mesh = this.getMesh();
     
   }
 
-  protected setParameters(parameters: ICylinderParams): void{
+  protected setParameters(parameters: ICubeParams): void{
     if(parameters !== this.parameters){
       this.updateRequired = true;
       this.parameters = {...parameters};

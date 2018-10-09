@@ -88,10 +88,6 @@ const ui = handleActions(
     ],
     [stopEditingObjectName, state => ({...state, editingObjectName: false})],
     [
-      createObject,
-      (state, {payload}) => ({...state, selectedIds: [payload.id]}),
-    ],
-    [
       deleteObject,
       (state, {payload}) => ({
         ...state,
