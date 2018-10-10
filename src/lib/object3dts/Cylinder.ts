@@ -25,36 +25,11 @@ export default class Cylinder extends Object3D{
 
   public static typeName:string = 'Cylinder';
 
-  public static parameterTypes: IParameterType[] = [
-    {
-      name: 'r0',
-      label: 'Bottom Radius',
-      type: 'integer',
-      defaultValue: 5,
-    },
-    {
-      name: 'r1',
-      label: 'Top Radius',
-      type: 'integer',
-      defaultValue: 5,
-    },
-    {
-      name: 'height',
-      label: 'Height',
-      type: 'integer',
-      defaultValue: 10,
-    },
-  ]
-
   private parameters: ICylinderParams;
   
   constructor(parameters: ICylinderParams, operations: OperationsArray = []){
     super(operations);
-    this.parameters = {
-      color: this.color,
-      ...parameters
-    };
-    this.color = this.parameters.color;
+    this.parameters = {...parameters};
     this.updateRequired = true;
     this.mesh = this.getMesh();    
   }

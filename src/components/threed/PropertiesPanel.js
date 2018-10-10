@@ -20,7 +20,6 @@ import {
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
-import {resolveClass} from '../../lib/object3d';
 import CompoundObject from '../../lib/object3d/CompoundObject';
 import TrashIcon from '../../assets/images/trash-green.svg';
 import GroupIcon from '../../assets/images/shape-group.svg';
@@ -281,13 +280,10 @@ class PropertiesPanel extends React.Component {
       showContextMenu,
       stopEditingObjectName,
     } = this.props;
-    const Class3D = resolveClass(object.type);
-    const {parameterTypes = []} = Class3D;
     const {color} = object.parameters;
 
-    const shapeConfig = config.shapes.find(
-      ({objectClass}) => objectClass === Class3D,
-    );
+    const shapeConfig = config.shapes.find(s => s.name === object.type);
+    const {parameters} = shapeConfig;
     const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
 
     return (
@@ -325,7 +321,7 @@ class PropertiesPanel extends React.Component {
               <img src={icon} />
             </ObjectIcon>
             <ParametersForm>
-              {parameterTypes.map(parameter => (
+              {parameters.map(parameter => (
                 <PropertyInput
                   key={parameter.name}
                   parameter={parameter}

@@ -1,10 +1,13 @@
+import uuid from 'uuid/v1';
+
 // Object classes
-import Object3D from '../lib/object3d/Object3D';
-import Cube from '../lib/object3d/Cube';
+import Cube from '../lib/object3dts/Cube.ts';
+import {Object3D} from '../lib/object3dts/Object3D.ts';
+/*import Cube from '../lib/object3d/Cube';
 import Sphere from '../lib/object3d/Sphere';
 import Cylinder from '../lib/object3d/Cylinder';
 import Prism from '../lib/object3d/Prism';
-import STLObject from '../lib/object3d/STLObject'
+import STLObject from '../lib/object3d/STLObject'*/
 import Union from '../lib/object3d/Union';
 import Difference from '../lib/object3d/Difference';
 import Intersection from '../lib/object3d/Intersection';
@@ -31,8 +34,33 @@ const config = {
       label: 'Cube',
       icon: CubeIcon,
       objectClass: Cube,
+      parameters: [
+        {
+          name: 'width',
+          label: 'Width',
+          type: 'integer',
+        },
+        {
+          name: 'height',
+          label: 'Height',
+          type: 'integer',
+        },
+        {
+          name: 'depth',
+          label: 'Depth',
+          type: 'integer',
+        }
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'Cube',
+        parameters: {
+          width: 10, height: 10, depth: 10 
+        },
+        operations: []
+      }),
     },
-    {
+    /*{
       name: 'Sphere',
       label: 'Sphere',
       icon: SphereIcon,
@@ -55,7 +83,7 @@ const config = {
       label: 'STL File',
       icon: PrismIcon,
       objectClass: STLObject,
-    },
+    },*/
   ],
 
   objectOperations: [

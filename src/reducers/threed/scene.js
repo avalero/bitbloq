@@ -1,7 +1,6 @@
 import {handleActions} from 'redux-actions';
 import undoable from '../../lib/undoable';
 import config from '../../config/threed';
-import {createFromJSON} from '../../lib/object3d';
 import uuid from 'uuid/v1';
 import * as actions from '../../actions/threed';
 
@@ -78,13 +77,13 @@ const scene = handleActions(
   new Map([
     [
       actions.createObject,
-      (state, {payload}) => {
-        const shape = shapes[payload.shapeName];
-        const name = createObjectName(shape.name, state);
-        const object = new shape.objectClass(name, {}, [], payload.id).toJSON();
-
-        return [...state, object];
-      },
+      (state, {payload}) => [
+        ...state,
+        {
+          ...payload,
+          name: createObjectName(payload.type, state),
+        }
+      ]
     ],
     [
       actions.updateObjectName,
@@ -121,7 +120,7 @@ const scene = handleActions(
         return [...state, duplicatedObject];
       },
     ],
-    [
+    /*[
       actions.composeObjects,
       (state, {payload}) => {
         const composeOperation = compositionOperations[payload.operationName];
@@ -135,7 +134,7 @@ const scene = handleActions(
           composeObject,
         ];
       },
-    ],
+    ],*/
     [
       actions.addOperation,
       (state, {payload}) => {
