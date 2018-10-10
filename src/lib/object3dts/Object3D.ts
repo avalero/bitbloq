@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-08 16:58:10
+ * Last modified  : 2018-10-10 11:48:03
  */
 
 import * as THREE from 'three';
@@ -99,7 +99,7 @@ export class Object3D {
   protected color: string;
   private operations: OperationsArray;
   private pendingOperation: boolean;
-  protected updateRequired: boolean;
+  protected _updateRequired: boolean;
 
   constructor(operations: OperationsArray = []) {
     this.operations = operations;
@@ -108,6 +108,10 @@ export class Object3D {
       Math.random() * Object3D.colors.length,
     );
     this.color = Object3D.colors[color_index];
+  }
+
+  get updateRequired():boolean{
+    return this._updateRequired;
   }
 
   public addOperation(operation: Operation): void {
@@ -125,17 +129,17 @@ export class Object3D {
     this.color = color;
   }
 
-  private getMaterial(): THREE.MeshLambertMaterial {
+  protected getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
       color: this.color || Object3D.colors[0],
     });
   }
 
-  protected getMesh(): THREE.Mesh {
-    if (this.updateRequired) {
+  public getMesh(): THREE.Mesh {
+    if (this._updateRequired) {
       const geometry: THREE.Geometry = this.getGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
-      this.updateRequired = false;
+      this._updateRequired = false;
     }
 
     this.applyOperations();
@@ -147,7 +151,7 @@ export class Object3D {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
-  private applyOperations() {
+  protected applyOperations() {
     if (this.pendingOperation) {
       this.operations.forEach(operation => {
         // Translate operation

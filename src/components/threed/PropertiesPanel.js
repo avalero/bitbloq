@@ -1,6 +1,5 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import uuid from 'uuid/v1';
 import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext, Droppable} from 'react-beautiful-dnd';
@@ -20,7 +19,6 @@ import {
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
-import CompoundObject from '../../lib/object3d/CompoundObject';
 import TrashIcon from '../../assets/images/trash-green.svg';
 import GroupIcon from '../../assets/images/shape-group.svg';
 import PointsIcon from '../../assets/images/three-points.svg';
@@ -28,7 +26,6 @@ import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
 import ColorPicker from '../ColorPicker';
 import config from '../../config/threed';
-import STLLoader from '../../lib/object3d/STLLoader';
 
 const Wrap = styled.div`
   display: flex;
@@ -251,7 +248,6 @@ class PropertiesPanel extends React.Component {
   }
 
   renderCombineOptions() {
-    const {selectedObjects} = this.props;
 
     return (
       <GroupSelection>
@@ -274,7 +270,6 @@ class PropertiesPanel extends React.Component {
     const {draggingOperations} = this.state;
     const {
       editingName,
-      deleteObject,
       setActiveOperation,
       unsetActiveOperation,
       showContextMenu,

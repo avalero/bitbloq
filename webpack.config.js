@@ -61,6 +61,7 @@ module.exports = {
   },
   plugins,
   resolve: {
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
     alias: {
       'three/GLTFLoader': path.join(
         __dirname,
