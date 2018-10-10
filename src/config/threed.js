@@ -8,7 +8,7 @@ import Sphere from '../lib/object3d/Sphere';
 import Cylinder from '../lib/object3d/Cylinder';
 import Prism from '../lib/object3d/Prism';
 import STLObject from '../lib/object3d/STLObject'*/
-import Union from '../lib/object3d/Union';
+import Union from '../lib/object3dts/Union.ts';
 import Difference from '../lib/object3d/Difference';
 import Intersection from '../lib/object3d/Intersection';
 

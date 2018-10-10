@@ -4,7 +4,8 @@ export default class CompoundObject extends Object3D {
 
   children = [];
 
-  constructor(name, parameters, operations, id) {
+  constructor(name, parameters, operations, id){
+
     super(name, parameters, operations, id);
 
     this.children = parameters.children;
