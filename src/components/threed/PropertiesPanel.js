@@ -7,7 +7,7 @@ import {
   updateObjectName,
   updateObjectParameter,
   updateOperationParameter,
-  composeObjects,
+  createObject,
   deleteObject,
   addOperation,
   removeOperation,
@@ -238,9 +238,9 @@ class PropertiesPanel extends React.Component {
     this.props.addOperation(object, operationName);
   }
 
-  onComposeObjects(operationName) {
-    const {composeObjects, selectedObjects} = this.props;
-    composeObjects(selectedObjects, operationName);
+  onComposeObjects(operation) {
+    const {createObject, selectedObjects} = this.props;
+    createObject(operation.create(selectedObjects));
   }
 
   onRemoveOperation(object, operation) {
@@ -257,7 +257,7 @@ class PropertiesPanel extends React.Component {
         {config.compositionOperations.map(operation => (
           <GroupButton
             key={operation.name}
-            onClick={() => this.onComposeObjects(operation.name)}>
+            onClick={() => this.onComposeObjects(operation)}>
             <ButtonIcon src={operation.icon} />
             <div>{operation.label}</div>
           </GroupButton>
@@ -278,7 +278,7 @@ class PropertiesPanel extends React.Component {
     const {color} = object.parameters;
 
     const shapeConfig = config.shapes.find(s => s.name === object.type);
-    const {parameters} = shapeConfig;
+    const {parameters = []} = shapeConfig || {};
     const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
 
     return (
@@ -411,8 +411,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateObjectParameter(object, parameter, value)),
   updateOperationParameter: (object, operation, parameter, value) =>
     dispatch(updateOperationParameter(object, operation, parameter, value)),
-  composeObjects: (objects, operationName) =>
-    dispatch(composeObjects(objects, operationName)),
+  createObject: object => dispatch(createObject(object)),
   deleteObject: object => dispatch(deleteObject(object)),
   addOperation: (object, operationName) =>
     dispatch(addOperation(object, operationName)),

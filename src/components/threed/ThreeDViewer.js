@@ -20,6 +20,7 @@ import config from '../../config/threed';
 import {selectObject, deselectAllObjects, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
+import CompoundObject from '../../lib/object3dts/CompoundObject.ts';
 import styled, {css} from 'react-emotion';
 import TranslationHelper from '../../lib/object3d/TranslationHelper';
 import RotationHelper from '../../lib/object3d/RotationHelper';
@@ -81,13 +82,6 @@ const outlineMaterial = new Three.MeshBasicMaterial({
   side: Three.BackSide,
 });
 
-const createObject = (objectDescription) => {
-  const {type, parameters} = objectDescription;
-  const shape = config.shapes.find(s => s.name === type);
-
-  return new shape.objectClass(parameters, []);
-};
-
 class ThreeDViewer extends React.Component {
   container = React.createRef();
   navigationBox = React.createRef();
@@ -118,6 +112,19 @@ class ThreeDViewer extends React.Component {
     this.updateSize();
     this.updateSceneObjects();
     this.renderLoop();
+  }
+
+  createObjectInstance(objectDescription) {
+    const {type, parameters} = objectDescription;
+    const shape = config.shapes.find(s => s.name === type);
+    if (shape) {
+      return new shape.objectClass(parameters, []);
+    } else {
+      const composition = config.compositionOperations.find(c => c.name === type);
+      const {children = []} = parameters;
+      const object = new composition.objectClass(children.map(c => this.instances[c.id]), []);
+      return object;
+    }
   }
 
   onMouseDown = e => {
@@ -182,9 +189,8 @@ class ThreeDViewer extends React.Component {
     prevObjects.forEach(prevObject => {
       const object = objects.find(o => o.id === prevObject.id);
       if (!object) {
-        this.objectsGroup.remove(this.meshes[object.id]);
-        delete this.instances[object.id];
-        delete this.meshes[object.id];
+        this.objectsGroup.remove(this.meshes[prevObject.id]);
+        delete this.meshes[prevObject.id];
       }
     });
 
@@ -199,12 +205,16 @@ class ThreeDViewer extends React.Component {
       let object3D;
 
       if (!prevObject) {
-        object3D = createObject(object);
+        object3D = this.createObjectInstance(object);
         this.instances[object.id] = object3D;
       } else {
         object3D = this.instances[object.id];
         object3D.setColor(object.parameters.color);
-        object3D.setParameters(object.parameters);
+        if (object3D instanceof CompoundObject) {
+          object3D.setChildren(object.parameters.children.map(c => this.instances[c.id]));
+        } else {
+          object3D.setParameters(object.parameters);
+        }
         object3D.setOperations(object.operations);
         this.objectsGroup.remove(this.meshes[object.id]);
       }

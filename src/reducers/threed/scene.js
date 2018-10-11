@@ -77,13 +77,17 @@ const scene = handleActions(
   new Map([
     [
       actions.createObject,
-      (state, {payload}) => [
-        ...state,
-        {
-          ...payload,
-          name: createObjectName(payload.type, state),
-        }
-      ]
+      (state, {payload}) => {
+        const {parameters = {}} = payload;
+        const {children = []} = parameters;
+        return [
+          ...state.filter(o => !children.includes(o)),
+          {
+            ...payload,
+            name: createObjectName(payload.type, state),
+          }
+        ];
+      }
     ],
     [
       actions.updateObjectName,
@@ -120,21 +124,6 @@ const scene = handleActions(
         return [...state, duplicatedObject];
       },
     ],
-    /*[
-      actions.composeObjects,
-      (state, {payload}) => {
-        const composeOperation = compositionOperations[payload.operationName];
-        const composeName = createObjectName(composeOperation.name, state);
-        const composeObject = new composeOperation.objectClass(composeName, {
-          children: payload.objects.map(child => createFromJSON(child)),
-        }).toJSON();
-
-        return [
-          ...state.filter(o => !payload.objects.includes(o)),
-          composeObject,
-        ];
-      },
-    ],*/
     [
       actions.addOperation,
       (state, {payload}) => {
