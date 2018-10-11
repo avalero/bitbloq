@@ -9,13 +9,14 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-10 19:10:44
+ * Last modified  : 2018-10-11 13:25:07
  */
 
 import * as THREE from 'three';
 import {OperationsArray, Object3D} from './Object3D';
+import isEqual from 'lodash.isequal'
 
-interface ICylinderParams extends ICommonGeometryParamas{
+interface ICylinderParams{
   r0:number,
   r1:number,
   height:number
@@ -35,9 +36,9 @@ export default class Cylinder extends Object3D{
   }
 
   protected setParameters(parameters: ICylinderParams): void{
-    if(parameters !== this.parameters){
-      this._updateRequired = true;
+    if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
+      this._updateRequired = true;
     }
   }
 

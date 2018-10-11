@@ -9,10 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-10 11:48:03
+ * Last modified  : 2018-10-11 13:22:24
  */
 
 import * as THREE from 'three';
+import { isDeepStrictEqual } from 'util';
+import isEqual from 'lodash.isequal';
 
 interface ICommonOperation {
   type: string;
@@ -114,15 +116,13 @@ export class Object3D {
     return this._updateRequired;
   }
 
-  public addOperation(operation: Operation): void {
-    this.operations.push(operation);
-    this.pendingOperation = true;
-  }
-
   public setOperations(operations: OperationsArray): void {
-    this.operations = [];
-    this.operations = operations.slice();
-    this.pendingOperation = true;
+    this.pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
+
+    if(this.pendingOperation){
+      this.operations = [];
+      this.operations = operations.slice();
+    }
   }
 
   public setColor(color: string): void {
@@ -136,13 +136,16 @@ export class Object3D {
   }
 
   public getMesh(): THREE.Mesh {
-    if (this._updateRequired) {
+    if (this.updateRequired) {
+      console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
     }
 
-    this.applyOperations();
+    if (this.pendingOperation){
+      this.applyOperations();
+    }
 
     return this.mesh;
   }
@@ -152,20 +155,24 @@ export class Object3D {
   }
 
   protected applyOperations() {
-    if (this.pendingOperation) {
-      this.operations.forEach(operation => {
-        // Translate operation
-        if (operation.type === Object3D.createTranslateOperation().type) {
-          this.applyTranslateOperation(operation as ITranslateOperation);
-        } else if (operation.type === Object3D.createRotateOperation().type) {
-          this.applyRotateOperation(operation as IRotateOperation);
-        } else if (operation.type === Object3D.createScaleOperation().type) {
-          this.applyScaleOperation(operation as IScaleOperation);
-        } else {
-          throw Error('ERROR: Unknown Operation');
-        }
-      });
-    }
+    
+    console.log("Recompute Operations");
+    this.mesh.position.set(0,0,0);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
+    
+    this.operations.forEach(operation => {
+      // Translate operation
+      if (operation.type === Object3D.createTranslateOperation().type) {
+        this.applyTranslateOperation(operation as ITranslateOperation);
+      } else if (operation.type === Object3D.createRotateOperation().type) {
+        this.applyRotateOperation(operation as IRotateOperation);
+      } else if (operation.type === Object3D.createScaleOperation().type) {
+        this.applyScaleOperation(operation as IScaleOperation);
+      } else {
+        throw Error('ERROR: Unknown Operation');
+      }
+    });
+  
 
     this.pendingOperation = false;
   }
