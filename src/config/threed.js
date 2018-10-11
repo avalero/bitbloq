@@ -1,14 +1,16 @@
 import uuid from 'uuid/v1';
 
 // Object classes
-import Cube from '../lib/object3dts/Cube.ts';
-import {Object3D} from '../lib/object3dts/Object3D.ts';
+import Cube from '../lib/object3dts/Cube';
+import Cylinder from '../lib/object3dts/Cylinder';
+import Sphere from '../lib/object3dts/Sphere';
+import {Object3D} from '../lib/object3dts/Object3D';
 /*import Cube from '../lib/object3d/Cube';
 import Sphere from '../lib/object3d/Sphere';
 import Cylinder from '../lib/object3d/Cylinder';
 import Prism from '../lib/object3d/Prism';
 import STLObject from '../lib/object3d/STLObject'*/
-import Union from '../lib/object3dts/Union.ts';
+import Union from '../lib/object3dts/Union';
 import Difference from '../lib/object3d/Difference';
 import Intersection from '../lib/object3d/Intersection';
 
@@ -49,7 +51,7 @@ const config = {
           name: 'depth',
           label: 'Depth',
           type: 'integer',
-        }
+        },
       ],
       create: () => ({
         id: uuid(),
@@ -57,22 +59,62 @@ const config = {
         parameters: {
           width: 10, height: 10, depth: 10 
         },
-        operations: []
+        operations: [],
       }),
     },
-    /*{
+    {
       name: 'Sphere',
       label: 'Sphere',
       icon: SphereIcon,
       objectClass: Sphere,
+      parameters: [
+        {
+          name: 'radius',
+          label: 'Radius',
+          type: 'integer',
+        },
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'Sphere',
+        parameters: {
+          radius: 5,
+        },
+        operations: [],
+      }),
     },
     {
       name: 'Cylinder',
       label: 'Cylinder',
       icon: CylinderIcon,
       objectClass: Cylinder,
+      parameters: [
+        {
+          name: 'r0',
+          label: 'Radius Bottom',
+          type: 'integer',
+        },
+        {
+          name: 'r1',
+          label: 'Radius Top',
+          type: 'integer',
+        },
+        {
+          name: 'height',
+          label: 'Height',
+          type: 'integer',
+        }
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'Cylinder',
+        parameters: {
+          r0: 5, r1: 5, height: 10,
+        },
+        operations: []
+      }),
     },
-    {
+    /* {
       name: 'Prism',
       label: 'Prism',
       icon: PrismIcon,
