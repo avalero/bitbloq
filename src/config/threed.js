@@ -249,18 +249,42 @@ const config = {
       label: 'Union',
       icon: UnionIcon,
       objectClass: Union,
+      create: (children) => ({
+        id: uuid(),
+        type: 'Union',
+        parameters: {
+          children
+        },
+        operations: []
+      })
     },
     {
       name: 'Difference',
       label: 'Difference',
       icon: DifferenceIcon,
       objectClass: Difference,
+      create: (children) => ({
+        id: uuid(),
+        type: 'Difference',
+        parameters: {
+          children
+        },
+        operations: []
+      })
     },
     {
       name: 'Intersection',
       label: 'Intersection',
       icon: IntersectionIcon,
       objectClass: Intersection,
+      create: (children) => ({
+        id: uuid(),
+        type: 'Intersection',
+        parameters: {
+          children
+        },
+        operations: []
+      })
     },
   ],
 };

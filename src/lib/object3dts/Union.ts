@@ -8,6 +8,9 @@ export default class Union extends CompoundObject {
 
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
+      if (!this.children.length) {
+        return this.mesh;
+      }
       // First element of array
       let unionMeshBSP = new ThreeBSP(this.children[0].getMesh());
 
