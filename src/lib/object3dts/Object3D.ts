@@ -117,9 +117,13 @@ export class Object3D {
   }
 
   get updateRequired():boolean{
+    this.children.forEach( child => {
+      this._updateRequired = this._updateRequired || child.updateRequired;
+    });
+
     return this._updateRequired;
   }
-
+  
   public getOperations():OperationsArray{
     return this.operations;
   }
