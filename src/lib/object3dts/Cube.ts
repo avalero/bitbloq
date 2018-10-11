@@ -36,6 +36,7 @@ export default class Cube extends Object3D{
   }
 
   protected setParameters(parameters: ICubeParams): void{
+    console.log("Called setParameters")
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
       this._updateRequired = true;

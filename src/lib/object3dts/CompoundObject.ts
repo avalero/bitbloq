@@ -5,8 +5,6 @@ import isEqual from'lodash.isequal';
 
 export default class CompoundObject extends Object3D {
 
-  
-
   constructor(children: ChildrenArray = [], operations: OperationsArray = []){
     super(operations);
     this.children = children;
@@ -25,13 +23,5 @@ export default class CompoundObject extends Object3D {
       this.children = children.slice();
       this._updateRequired = true;
     }
-  }
-
-  get updateRequired():boolean{
-    this.children.forEach( child => {
-      this._updateRequired = this._updateRequired || child.updateRequired;
-    });
-
-    return this._updateRequired;
   }
 }
