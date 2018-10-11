@@ -1,4 +1,18 @@
-/* jshint esversion: 6 */
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-10-11 15:03:15 
+ * Last modified  : 2018-10-11 17:28:23
+ */
+
+
 
 import * as THREE from 'three';
 

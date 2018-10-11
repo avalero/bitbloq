@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-11 13:22:24
+ * Last modified  : 2018-10-11 18:31:33
  */
 
 import * as THREE from 'three';
@@ -38,6 +38,8 @@ interface IScaleOperation extends ICommonOperation {
   y: number;
   z: number;
 }
+
+export type ChildrenArray = Array<Object3D>
 
 type Operation = ITranslateOperation | IRotateOperation | IScaleOperation;
 export type OperationsArray = Array<Operation>;
@@ -99,11 +101,13 @@ export class Object3D {
   protected mesh: THREE.Mesh;
   // protected scene: BABYLON.Scene;
   protected color: string;
-  private operations: OperationsArray;
-  private pendingOperation: boolean;
+  protected operations: OperationsArray;
+  protected pendingOperation: boolean;
   protected _updateRequired: boolean;
+  protected children: ChildrenArray;
 
   constructor(operations: OperationsArray = []) {
+    this.children = [];
     this.operations = operations;
     this.pendingOperation = true;
     const color_index: number = Math.floor(
@@ -116,7 +120,16 @@ export class Object3D {
     return this._updateRequired;
   }
 
-  public setOperations(operations: OperationsArray): void {
+  public getOperations():OperationsArray{
+    return this.operations;
+  }
+
+  public setOperations(operations: OperationsArray = []): void {
+    //if this object is a CompoundObject we have to prepend first children operations
+    if(this.children.length>0){
+      operations = this.children[0].getOperations().concat(operations);
+    }
+
     this.pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
     if(this.pendingOperation){
@@ -154,12 +167,12 @@ export class Object3D {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
+
   protected applyOperations() {
-    
     console.log("Recompute Operations");
     this.mesh.position.set(0,0,0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
-    
+
     this.operations.forEach(operation => {
       // Translate operation
       if (operation.type === Object3D.createTranslateOperation().type) {
@@ -172,7 +185,7 @@ export class Object3D {
         throw Error('ERROR: Unknown Operation');
       }
     });
-  
+    
 
     this.pendingOperation = false;
   }

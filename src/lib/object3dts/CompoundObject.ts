@@ -1,16 +1,17 @@
-import {OperationsArray, Object3D} from './Object3D';
+import {OperationsArray, Object3D, ChildrenArray} from './Object3D';
 import isEqual from'lodash.isequal';
 
-export type ChildrenArray = Array<Object3D>
+
 
 export default class CompoundObject extends Object3D {
 
-  protected children: ChildrenArray;
+  
 
   constructor(children: ChildrenArray = [], operations: OperationsArray = []){
     super(operations);
     this.children = children;
     this._updateRequired = true;
+    this.setOperations();
     this.mesh = this.getMesh(); 
   }
 

@@ -1,19 +1,22 @@
 import * as THREE from 'three';
 
 import CompoundObject from './CompoundObject';
+import {ChildrenArray} from './Object3D'
 import {ThreeBSP} from './threeCSG';
 
 export default class Union extends CompoundObject {
   static typeName:string = 'Union';
 
+  constructor(children: ChildrenArray = [], operations: OperationsArray = []){
+    super(children, operations);
+  }
+
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
-      if (!this.children.length) {
-        return this.mesh;
-      }
+      console.log("Recompute Mesh Union");
       // First element of array
       let unionMeshBSP = new ThreeBSP(this.children[0].getMesh());
-
+      
       // Union with the rest
       for (let i = 1; i < this.children.length; i += 1) {
         const bspMesh = new ThreeBSP(this.children[i].getMesh());
@@ -26,9 +29,13 @@ export default class Union extends CompoundObject {
         this.children[0].getMesh().scale.y,
         this.children[0].getMesh().scale.z,
       );
-      this.applyOperations();
       this._updateRequired = false;
     }
+
+    if (this.pendingOperation){
+      this.applyOperations();
+    }
+
   
     return this.mesh;
   }
