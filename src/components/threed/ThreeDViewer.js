@@ -17,7 +17,12 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
 import config from '../../config/threed';
-import {selectObject, deselectAllObjects, undo, redo} from '../../actions/threed';
+import {
+  selectObject,
+  deselectAllObjects,
+  undo,
+  redo,
+} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 import CompoundObject from '../../lib/object3dts/CompoundObject.ts';
@@ -60,11 +65,11 @@ const UndoButton = styled.div`
   justify-content: center;
   border-radius: 6px 0px 0px 6px;
 
-  ${props => props.disabled && css`
-    opacity: 0.3;
-  `}
-
-  img {
+  ${props =>
+    props.disabled &&
+    css`
+      opacity: 0.3;
+    `} img {
     transform: scaleX(-1);
   }
 `;
@@ -99,7 +104,7 @@ class ThreeDViewer extends React.Component {
   state = {
     mouseDownObject: null,
     selectOnMouseUp: false,
-  }
+  };
 
   componentDidUpdate(prevProps) {
     this.updateSceneObjects(prevProps.objects);
@@ -120,28 +125,38 @@ class ThreeDViewer extends React.Component {
     if (shape) {
       return new shape.objectClass(parameters, []);
     } else {
-      const composition = config.compositionOperations.find(c => c.name === type);
+      const composition = config.compositionOperations.find(
+        c => c.name === type,
+      );
       const {children = []} = parameters;
-      const object = new composition.objectClass(children.map(c => this.instances[c.id]), []);
+      const object = new composition.objectClass(
+        children.map(c => this.instances[c.id]),
+        [],
+      );
       return object;
     }
   }
 
   onMouseDown = e => {
     const object = this.getObjectFromPosition(e.clientX, e.clientY);
-    this.setState({ mouseDownObject: object, selectOnMouseUp: true });
+    this.setState({mouseDownObject: object, selectOnMouseUp: true});
   };
 
   onMouseMove = e => {
     const {selectOnMouseUp} = this.state;
     if (selectOnMouseUp) {
-      this.setState({ selectOnMouseUp: false });
+      this.setState({selectOnMouseUp: false});
     }
   };
 
   onMouseUp = e => {
     const {mouseDownObject, selectOnMouseUp} = this.state;
-    const {selectObject, deselectAllObjects, controlPressed, shiftPressed} = this.props;
+    const {
+      selectObject,
+      deselectAllObjects,
+      controlPressed,
+      shiftPressed,
+    } = this.props;
     if (selectOnMouseUp) {
       if (mouseDownObject) {
         selectObject(mouseDownObject, controlPressed || shiftPressed);
@@ -208,14 +223,7 @@ class ThreeDViewer extends React.Component {
         object3D = this.createObjectInstance(object);
         this.instances[object.id] = object3D;
       } else {
-        object3D = this.instances[object.id];
-        object3D.setColor(object.parameters.color);
-        if (object3D instanceof CompoundObject) {
-          object3D.setChildren(object.parameters.children.map(c => this.instances[c.id]));
-        } else {
-          object3D.setParameters(object.parameters);
-        }
-        object3D.setOperations(object.operations);
+        object3D = this.updateInstance(object);
         this.objectsGroup.remove(this.meshes[object.id]);
       }
 
@@ -224,12 +232,12 @@ class ThreeDViewer extends React.Component {
       this.meshes[object.id] = mesh;
       this.objectsGroup.add(mesh);
 
-      if( (selectedObjects.length > 0) && !selectedObjects.includes(object) ){
+      if (selectedObjects.length > 0 && !selectedObjects.includes(object)) {
         const mesh = this.meshes[object.id];
         mesh.material.opacity = 0.5;
         mesh.material.transparent = true;
         mesh.material.depthWrite = false;
-      }else{
+      } else {
         const mesh = this.meshes[object.id];
         mesh.material.opacity = 1;
         mesh.material.transparent = false;
@@ -267,6 +275,20 @@ class ThreeDViewer extends React.Component {
         this.activeHelper = rotHelper;
       }
     }
+  }
+
+  updateInstance(object) {
+    const object3D = this.instances[object.id];
+    object3D.setColor(object.parameters.color);
+    if (object3D instanceof CompoundObject) {
+      object3D.setChildren(
+        object.parameters.children.map(c => this.updateInstance(c)),
+      );
+    } else {
+      object3D.setParameters(object.parameters);
+    }
+    object3D.setOperations(object.operations);
+    return object3D;
   }
 
   updateSize() {
