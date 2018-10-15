@@ -86,18 +86,6 @@ export class Object3D {
     };
   }
 
-  public static colors: string[] = [
-    '#e300ff',
-    '#b0ff00',
-    '#00ffd2',
-    '#fdff00',
-    '#ff00f4',
-    '#00fff8',
-    '#f9fe44',
-    '#7aff4f',
-    '#968afc',
-  ];
-
   protected mesh: THREE.Mesh;
   // protected scene: BABYLON.Scene;
   protected color: string;
@@ -110,10 +98,7 @@ export class Object3D {
     this.children = [];
     this.operations = operations;
     this.pendingOperation = true;
-    const color_index: number = Math.floor(
-      Math.random() * Object3D.colors.length,
-    );
-    this.color = Object3D.colors[color_index];
+    this.color = "#ffffff";
   }
 
   get updateRequired():boolean{
@@ -144,11 +129,14 @@ export class Object3D {
 
   public setColor(color: string): void {
     this.color = color;
+    if (this.mesh) {
+      this.mesh.material = this.getMaterial();
+    }
   }
 
   protected getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
-      color: this.color || Object3D.colors[0],
+      color: this.color,
     });
   }
 
