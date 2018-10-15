@@ -122,19 +122,23 @@ class ThreeDViewer extends React.Component {
   createObjectInstance(objectDescription) {
     const {type, parameters} = objectDescription;
     const shape = config.shapes.find(s => s.name === type);
+    let object;
     if (shape) {
-      return new shape.objectClass(parameters, []);
+      object = new shape.objectClass(parameters, []);
     } else {
       const composition = config.compositionOperations.find(
         c => c.name === type,
       );
       const {children = []} = parameters;
-      const object = new composition.objectClass(
+      object = new composition.objectClass(
         children.map(c => this.instances[c.id]),
-        [],
+        []
       );
-      return object;
     }
+
+    object.setColor(parameters.color);
+
+    return object;
   }
 
   onMouseDown = e => {

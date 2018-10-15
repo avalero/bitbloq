@@ -19,9 +19,6 @@ export const findObject = (objects = [], field, value) => {
   return findObject(children, field, value) || findObject(rest, field, value);
 };
 
-const shapes = {};
-config.shapes.forEach(shape => (shapes[shape.name] = shape));
-
 const objectOperations = {};
 config.objectOperations.forEach(
   operation => (objectOperations[operation.name] = operation),
@@ -85,9 +82,14 @@ const scene = handleActions(
           {
             ...payload,
             name: createObjectName(payload.type, state),
-          }
+            parameters: {
+              ...parameters,
+              color:
+                config.colors[Math.floor(Math.random() * config.colors.length)],
+            },
+          },
         ];
-      }
+      },
     ],
     [
       actions.updateObjectName,
