@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-11 10:25:45 
- * Last modified  : 2018-10-11 10:27:44
+ * Last modified  : 2018-10-16 12:41:12
  */
 
 
@@ -45,6 +45,6 @@ export default class Sphere extends Object3D{
   protected getGeometry(): THREE.Geometry {
     const {radius} = this.parameters;
     this._updateRequired = false;
-    return new THREE.SphereGeometry(Number(radius),16,16);
+    return new THREE.SphereGeometry(Number(radius),24,24);
   }
 }

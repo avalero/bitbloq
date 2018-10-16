@@ -11,8 +11,8 @@ import Cylinder from '../lib/object3d/Cylinder';
 import Prism from '../lib/object3d/Prism';
 import STLObject from '../lib/object3d/STLObject'*/
 import Union from '../lib/object3dts/Union';
-import Difference from '../lib/object3d/Difference';
-import Intersection from '../lib/object3d/Intersection';
+import Difference from '../lib/object3dts/Difference';
+import Intersection from '../lib/object3dts/Intersection';
 
 // Shape Icons
 import CubeIcon from '../assets/images/cube.svg';
