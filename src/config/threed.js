@@ -4,13 +4,10 @@ import uuid from 'uuid/v1';
 import Cube from '../lib/object3dts/Cube';
 import Cylinder from '../lib/object3dts/Cylinder';
 import Sphere from '../lib/object3dts/Sphere';
-import {Object3D} from '../lib/object3dts/Object3D';
+import Object3D from '../lib/object3dts/Object3D';
 import Prism from '../lib/object3dts/Prism';
-/*import Cube from '../lib/object3d/Cube';
-import Sphere from '../lib/object3d/Sphere';
-import Cylinder from '../lib/object3d/Cylinder';
+import STLObject from '../lib/object3dts/STLObject'
 
-import STLObject from '../lib/object3d/STLObject'*/
 import Union from '../lib/object3dts/Union';
 import Difference from '../lib/object3dts/Difference';
 import Intersection from '../lib/object3dts/Intersection';
@@ -155,6 +152,27 @@ const config = {
         type: 'Prism',
         parameters: {
           sides: 5, length: 5, height: 15,
+        },
+        operations: []
+      }),
+    },
+    {
+      name: 'STLObject',
+      label: 'STL Object',
+      icon: PrismIcon,
+      objectClass: STLObject,
+      parameters: [
+        {
+          name: 'geometry',
+          label: 'File',
+          type: 'file',
+        },
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'STLObject',
+        parameters: {
+          geometry: 0,
         },
         operations: []
       }),
