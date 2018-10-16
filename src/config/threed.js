@@ -4,12 +4,10 @@ import uuid from 'uuid/v1';
 import Cube from '../lib/object3dts/Cube';
 import Cylinder from '../lib/object3dts/Cylinder';
 import Sphere from '../lib/object3dts/Sphere';
-import {Object3D} from '../lib/object3dts/Object3D';
-/*import Cube from '../lib/object3d/Cube';
-import Sphere from '../lib/object3d/Sphere';
-import Cylinder from '../lib/object3d/Cylinder';
-import Prism from '../lib/object3d/Prism';
-import STLObject from '../lib/object3d/STLObject'*/
+import Object3D from '../lib/object3dts/Object3D';
+import Prism from '../lib/object3dts/Prism';
+import STLObject from '../lib/object3dts/STLObject'
+
 import Union from '../lib/object3dts/Union';
 import Difference from '../lib/object3dts/Difference';
 import Intersection from '../lib/object3dts/Intersection';
@@ -127,18 +125,58 @@ const config = {
         operations: []
       }),
     },
-    /* {
+    {
       name: 'Prism',
       label: 'Prism',
       icon: PrismIcon,
       objectClass: Prism,
+      parameters: [
+        {
+          name: 'sides',
+          label: 'Number of sides',
+          type: 'integer',
+        },
+        {
+          name: 'length',
+          label: 'Length of sides',
+          type: 'integer',
+        },
+        {
+          name: 'height',
+          label: 'Height',
+          type: 'integer',
+        }
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'Prism',
+        parameters: {
+          sides: 5, length: 5, height: 15,
+        },
+        operations: []
+      }),
     },
     {
       name: 'STLObject',
-      label: 'STL File',
+      label: 'STL Object',
       icon: PrismIcon,
       objectClass: STLObject,
-    },*/
+      parameters: [
+        {
+          name: 'geometry',
+          label: 'File',
+          type: 'file',
+        },
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'STLObject',
+        parameters: {
+          geometry: 0,
+        },
+        operations: []
+      }),
+    },
   ],
 
   objectOperations: [

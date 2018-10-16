@@ -1,3 +1,19 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-10-16 12:59:53 
+ * Last modified  : 2018-10-16 12:59:53 
+ */
+
+
+
 import * as THREE from 'three';
 
 import CompoundObject from './CompoundObject';
@@ -13,7 +29,7 @@ export default class Intersection extends CompoundObject {
 
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
-      console.log("Recompute Mesh Union");
+      console.log("Recompute Mesh Intersection");
       // First element of array
       let intersectionMeshBSP = new ThreeBSP(this.children[0].getMesh());
       

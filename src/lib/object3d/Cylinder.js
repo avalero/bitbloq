@@ -29,7 +29,7 @@ export default class Cylinder extends Object3D {
   getGeometry() {
     const {r0,r1,height} = this.parameters;
     const cyl = new Three.CylinderGeometry(Number(r1), Number(r0), Number(height), 32, 1);
-    console.log(this.parameters);
+    
     
     //cylinder is rotated 90 degrees to face up throug Z axis
     return cyl.rotateX(Math.PI/2);
