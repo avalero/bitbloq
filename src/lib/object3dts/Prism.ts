@@ -1,0 +1,53 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-10-02 19:16:51 
+ * Last modified  : 2018-10-16 12:51:01
+ */
+
+import * as THREE from 'three';
+import {OperationsArray, Object3D} from './Object3D';
+import isEqual from 'lodash.isequal'
+
+interface IPrismParams{
+  sides:number,
+  length:number,
+  height:number
+}
+
+export default class Prism extends Object3D{
+
+  public static typeName:string = 'Prism';
+
+  private parameters: IPrismParams;
+  
+  constructor(parameters: IPrismParams, operations: OperationsArray = []){
+    super(operations);
+    this.parameters = {...parameters};
+    this._updateRequired = true;
+    this.mesh = this.getMesh();    
+  }
+
+  protected setParameters(parameters: IPrismParams): void{
+    if(!isEqual(parameters,this.parameters)){
+      this.parameters = {...parameters};
+      this._updateRequired = true;
+    }
+  }
+
+  protected getGeometry(): THREE.Geometry {
+    const {sides,length,height} = this.parameters;
+    this._updateRequired = false;
+    const radius:number =  length/(2*Math.sin(Math.PI/sides));
+    return new THREE.CylinderGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
+  }
+
+
+}

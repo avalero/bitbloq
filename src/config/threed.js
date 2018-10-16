@@ -5,10 +5,11 @@ import Cube from '../lib/object3dts/Cube';
 import Cylinder from '../lib/object3dts/Cylinder';
 import Sphere from '../lib/object3dts/Sphere';
 import {Object3D} from '../lib/object3dts/Object3D';
+import Prism from '../lib/object3dts/Prism';
 /*import Cube from '../lib/object3d/Cube';
 import Sphere from '../lib/object3d/Sphere';
 import Cylinder from '../lib/object3d/Cylinder';
-import Prism from '../lib/object3d/Prism';
+
 import STLObject from '../lib/object3d/STLObject'*/
 import Union from '../lib/object3dts/Union';
 import Difference from '../lib/object3dts/Difference';
@@ -127,18 +128,37 @@ const config = {
         operations: []
       }),
     },
-    /* {
+    {
       name: 'Prism',
       label: 'Prism',
       icon: PrismIcon,
       objectClass: Prism,
+      parameters: [
+        {
+          name: 'sides',
+          label: 'Number of sides',
+          type: 'integer',
+        },
+        {
+          name: 'length',
+          label: 'Length of sides',
+          type: 'integer',
+        },
+        {
+          name: 'height',
+          label: 'Height',
+          type: 'integer',
+        }
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'Prism',
+        parameters: {
+          sides: 5, length: 5, height: 15,
+        },
+        operations: []
+      }),
     },
-    {
-      name: 'STLObject',
-      label: 'STL File',
-      icon: PrismIcon,
-      objectClass: STLObject,
-    },*/
   ],
 
   objectOperations: [
