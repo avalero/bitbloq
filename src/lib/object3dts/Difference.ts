@@ -13,7 +13,7 @@ export default class Difference extends CompoundObject {
 
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
-      console.log("Recompute Mesh Union");
+      console.log("Recompute Mesh Difference");
       // First element of array
       let differenceMeshBSP = new ThreeBSP(this.children[0].getMesh());
       

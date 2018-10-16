@@ -13,7 +13,7 @@ export default class Intersection extends CompoundObject {
 
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
-      console.log("Recompute Mesh Union");
+      console.log("Recompute Mesh Intersection");
       // First element of array
       let intersectionMeshBSP = new ThreeBSP(this.children[0].getMesh());
       

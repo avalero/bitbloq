@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-11 13:23:22
+ * Last modified  : 2018-10-16 12:46:04
  */
 
 import * as THREE from 'three';
@@ -36,7 +36,7 @@ export default class Cube extends Object3D{
   }
 
   protected setParameters(parameters: ICubeParams): void{
-    console.log("Called setParameters")
+    
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
       this._updateRequired = true;
