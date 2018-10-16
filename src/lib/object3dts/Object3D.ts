@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-11 18:31:33
+ * Last modified  : 2018-10-16 09:58:37
  */
 
 import * as THREE from 'three';
@@ -90,23 +90,31 @@ export class Object3D {
   // protected scene: BABYLON.Scene;
   protected color: string;
   protected operations: OperationsArray;
-  protected pendingOperation: boolean;
+  protected _pendingOperation: boolean;
   protected _updateRequired: boolean;
   protected children: ChildrenArray;
 
   constructor(operations: OperationsArray = []) {
     this.children = [];
     this.operations = operations;
-    this.pendingOperation = true;
+    this._pendingOperation = true;
     this.color = "#ffffff";
   }
 
   get updateRequired():boolean{
     this.children.forEach( child => {
-      this._updateRequired = this._updateRequired || child.updateRequired;
+      this._updateRequired = this._updateRequired || child.updateRequired || child.pendingOperation;
     });
 
     return this._updateRequired;
+  }
+
+  get pendingOperation():boolean{
+    this.children.forEach( child => {
+      this._pendingOperation = this._pendingOperation || child.pendingOperation;
+    });
+
+    return this._pendingOperation;
   }
   
   public getOperations():OperationsArray{
@@ -119,9 +127,9 @@ export class Object3D {
       operations = this.children[0].getOperations().concat(operations);
     }
 
-    this.pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
+    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
-    if(this.pendingOperation){
+    if(!isEqual(this.operations, operations)){
       this.operations = [];
       this.operations = operations.slice();
     }
@@ -179,7 +187,7 @@ export class Object3D {
     });
     
 
-    this.pendingOperation = false;
+    this._pendingOperation = false;
   }
 
   private applyTranslateOperation(operation: ITranslateOperation): void {
