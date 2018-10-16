@@ -3,7 +3,7 @@ import styled, { css } from 'react-emotion';
 import NumberInput from '../NumberInput';
 import Select from '../Select';
 import ColorPicker from '../ColorPicker';
-import STLLoader from '../lib/object3dts/STLLoader'
+import STLLoader from '../../lib/object3dts/STLLoader'
 
 const FormGroup = styled.div`
   margin-bottom: 6px;
