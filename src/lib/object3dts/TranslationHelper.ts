@@ -1,3 +1,20 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, 
+ * @author Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-10-17 12:30:31 
+ * Last modified  : 2018-10-17 16:50:52
+ */
+
+
+
 import * as THREE from 'three';
 import { ThreeBSP } from './threeCSG';
 import { Vector3 } from 'three';

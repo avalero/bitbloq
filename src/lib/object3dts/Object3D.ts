@@ -9,11 +9,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-16 12:46:29
+ * Last modified  : 2018-10-17 19:20:00
  */
 
 import * as THREE from 'three';
-import { isDeepStrictEqual } from 'util';
 import isEqual from 'lodash.isequal';
 
 interface ICommonOperation {
@@ -86,8 +85,8 @@ export class Object3D {
     };
   }
 
+  //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
-  // protected scene: BABYLON.Scene;
   protected color: string;
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
@@ -135,6 +134,10 @@ export class Object3D {
     }
   }
 
+  public addOperations(operations: OperationsArray = []): void {
+    this.setOperations(this.operations.concat(operations));
+  }
+
   public setColor(color: string): void {
     this.color = color;
     if (this.mesh) {
@@ -154,6 +157,7 @@ export class Object3D {
       const geometry: THREE.Geometry = this.getGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
+
     }
 
     if (this.pendingOperation){
