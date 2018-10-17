@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-10-06 00:04:05
+ * Last modified  : 2018-10-17 12:25:13
  */
 
 import React from 'react';
@@ -27,8 +27,8 @@ import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 import CompoundObject from '../../lib/object3dts/CompoundObject.ts';
 import styled, {css} from 'react-emotion';
-import TranslationHelper from '../../lib/object3d/TranslationHelper';
-import RotationHelper from '../../lib/object3d/RotationHelper';
+import TranslationHelper from '../../lib/object3dts/TranslationHelper';
+import RotationHelper from '../../lib/object3dts/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';
 import UndoIcon from '../../assets/images/undo.svg';
 
