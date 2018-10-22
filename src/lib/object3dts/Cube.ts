@@ -6,10 +6,11 @@
  * long description for the file
  *
  * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
+ * @author David García <https://github.com/empoalp>, 
+ * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-16 12:46:04
+ * Last modified  : 2018-10-18 17:57:28
  */
 
 import * as THREE from 'three';
@@ -22,7 +23,7 @@ interface ICubeParams {
   height:number
 }
 
-export default class Cube extends Object3D{
+export default class Cylinder extends Object3D{
 
   public static typeName:string = 'Cube';
   private parameters: ICubeParams;
@@ -31,14 +32,12 @@ export default class Cube extends Object3D{
     super(operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getMesh();
-    
+    this.mesh = this.getMesh();   
   }
 
-  protected setParameters(parameters: ICubeParams): void{
-    
+  public setParameters(parameters: ICubeParams): void{
     if(!isEqual(parameters,this.parameters)){
-      this.parameters = {...parameters};
+      this.parameters = Object.assign({},parameters);
       this._updateRequired = true;
     }
   }

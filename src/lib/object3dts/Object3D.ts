@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-17 19:20:00
+ * Last modified  : 2018-10-18 16:57:33
  */
 
 import * as THREE from 'three';
