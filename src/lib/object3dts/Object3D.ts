@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-17 19:20:00
+ * Last modified  : 2018-10-23 10:58:40
  */
 
 import * as THREE from 'three';
@@ -165,6 +165,20 @@ export class Object3D {
     }
 
     return this.mesh;
+  }
+
+  public getMeshAsync(): Promise<THREE.Mesh> {
+    const self:Object3D = this;
+    return new Promise(function (resolve, reject){
+      
+      const mesh = self.getMesh();
+      if(mesh instanceof THREE.Mesh){
+        resolve(mesh);
+      }else{
+        const reason = new Error('Mesh not computed correctly');
+        reject(reason);
+      }
+    });
   }
 
   protected getGeometry(): THREE.Geometry {
