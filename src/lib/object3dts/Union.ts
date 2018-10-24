@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09 
- * Last modified  : 2018-10-24 14:44:17
+ * Last modified  : 2018-10-24 20:06:04
  */
 
 
@@ -20,8 +20,7 @@ import CompoundObject from './CompoundObject';
 import {ChildrenArray} from './Object3D'
 import {ThreeBSP} from './threeCSG';
 
-import MyWorker from 'worker!./workerfile.js';
-
+import Worker from './compound.worker';
 
 export default class Union extends CompoundObject {
   static typeName:string = 'Union';
@@ -30,33 +29,33 @@ export default class Union extends CompoundObject {
   constructor(children: ChildrenArray = [], operations: OperationsArray = []){
     super(children, operations);
     if (typeof(Worker) !== "undefined"){
-      this.worker = new MyWorker();
-      this.worker = launchWorker();
+      this.worker = new Worker();
     }
   }
 
 
 
   public getMeshAsync(): Promise<THREE.Mesh> {
+    console.log('getMeshAsync');
     const self:Union = this;
     return new Promise(function (resolve, reject){
       if(self.updateRequired){
         if (typeof(Worker) !== "undefined"){
           //WEB WORKER
-          self.worker.onmessage = (event.data) => {
-
+          self.worker.onmessage = (event) => {
+            console.log('worker message received');
             const message = event.data;
             //recompute object form vertices and normals
             const vertices = message.vertices;
             const normals = message.normals;
 
-            const geometry = new THREE.BufferGeometry();
-            geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-            geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+            const buffGeometry = new THREE.BufferGeometry();
+            buffGeometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+            buffGeometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
 
             const material = self.getMaterial();
 
-            self.mesh = new THREE.Mesh( geometry, material );
+            self.mesh = new THREE.Mesh( buffGeometry, material );
 
             //we need to apply the scale of first objet (or we loose it)
             self.mesh.scale.set(
@@ -80,6 +79,7 @@ export default class Union extends CompoundObject {
             }
           };
 
+
           //Lets create an array of vertices and normals for each child
           const bufferArray: Array<ArrayBuffer> = [];
           self.children.forEach(child => {
@@ -96,10 +96,7 @@ export default class Union extends CompoundObject {
             numChildren: self.children.length,
             bufferArray,
           }
-          
           self.worker.postMessage(message, bufferArray);
-
-
 
         } else {
           //No WebWorker support. Make it sync.
@@ -115,7 +112,6 @@ export default class Union extends CompoundObject {
         if (self.pendingOperation){
           self.applyOperations();
         }
-  
         resolve(self.mesh)
       }
     });
