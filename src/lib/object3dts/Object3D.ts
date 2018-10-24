@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-23 10:58:40
+ * Last modified  : 2018-10-24 13:34:43
  */
 
 import * as THREE from 'three';
@@ -44,6 +44,31 @@ type Operation = ITranslateOperation | IRotateOperation | IScaleOperation;
 export type OperationsArray = Array<Operation>;
 
 export class Object3D {
+
+  public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+    const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+    const attribute = bufferGeometry.getAttribute("position");
+    
+    return attribute.array;
+  }
+
+  public static getNormalsFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+    const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+    const attribute = bufferGeometry.getAttribute("normal");
+    
+    return attribute.array;
+  }
+
+  public static getMeshFromVerticesNormals(vertices:ArrayLike<number> , normals:ArrayLike<number> , material: THREE.MeshLambertMaterial):THREE.Mesh{
+    const geometry = new THREE.BufferGeometry();
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+    const mesh:THREE.Mesh = new THREE.Mesh(geometry, material);
+
+    return mesh;
+  }
+
+
   public static createTranslateOperation(
     x: number = 0,
     y: number = 0,
@@ -167,10 +192,19 @@ export class Object3D {
     return this.mesh;
   }
 
+  private getMeshMessage():void{
+    const worker = new Worker("file.js");
+    worker.addEventListener('message', mesh => {
+
+    })
+
+    worker.postMessage(this.getMesh);
+  }
+
   public getMeshAsync(): Promise<THREE.Mesh> {
     const self:Object3D = this;
     return new Promise(function (resolve, reject){
-      
+      // for generic Object3D make it sync
       const mesh = self.getMesh();
       if(mesh instanceof THREE.Mesh){
         resolve(mesh);
@@ -265,4 +299,6 @@ export class Object3D {
         this.mesh.scale.z * Number(operation.z),
       );
   }
+
+
 }

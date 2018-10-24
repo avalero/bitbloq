@@ -1,5 +1,6 @@
 import {OperationsArray, Object3D, ChildrenArray} from './Object3D';
 import isEqual from'lodash.isequal';
+import * as THREE from 'three';
 
 
 
@@ -10,7 +11,12 @@ export default class CompoundObject extends Object3D {
     this.children = children;
     this._updateRequired = true;
     this.setOperations();
-    this.mesh = this.getMesh(); 
+    // this.getMeshAsync().then(mesh => {
+    //   this.mesh = mesh;
+    // }).catch(error => {
+    //   console.log(error.message);
+    //   throw error;
+    // }); 
   }
 
   public addChildren(child: Object3D): void {
@@ -24,4 +30,6 @@ export default class CompoundObject extends Object3D {
       this._updateRequired = true;
     }
   }
+
+
 }
