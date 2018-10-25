@@ -27,6 +27,10 @@ export default class Intersection extends CompoundObject {
     super(children, operations);
   }
 
+  public getTypeName():string{
+    return Intersection.typeName;
+  }
+
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
       console.log("Recompute Mesh Intersection");

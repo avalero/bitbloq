@@ -27,6 +27,11 @@ export default class Difference extends CompoundObject {
     super(children, operations);
   }
 
+  public getTypeName():string{
+    return Difference.typeName;
+  }
+  
+
   public getMesh():THREE.Mesh {
     if(this.updateRequired){
       console.log("Recompute Mesh Difference");

@@ -22,13 +22,43 @@ const ctx: Worker = self as any;
 
 const getUnionFromGeometries = (geometries:Array<THREE.Geometry>) : THREE.Geometry => {
   const t0 = performance.now();
-  let unionGeomBSP:any = new ThreeBSP(geometries[0]);  
+  let geomBSP:any = new ThreeBSP(geometries[0]);  
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
     const bspGeom = new ThreeBSP(geometries[i]);
-    unionGeomBSP = unionGeomBSP.union(bspGeom);
+    geomBSP = geomBSP.union(bspGeom);
   }
-  const geom = unionGeomBSP.toGeometry();
+  const geom = geomBSP.toGeometry();
+  const t1 = performance.now();
+  console.log(`Union Time ${t1-t0} millis`)
+  return geom;
+}
+
+const getDifferenceFromGeometries = (geometries:Array<THREE.Geometry>) : THREE.Geometry => {
+  const t0 = performance.now();
+  let geomBSP:any = new ThreeBSP(geometries[0]);  
+  // Union with the rest
+  for (let i = 1; i < geometries.length; i += 1) {
+    const bspGeom = new ThreeBSP(geometries[i]);
+    geomBSP = geomBSP.subtract(bspGeom);
+  }
+  const geom = geomBSP.toGeometry();
+  const t1 = performance.now();
+  console.log(`Difference Time ${t1-t0} millis`)
+  return geom;
+}
+
+const getIntersectionFromGeometries = (geometries:Array<THREE.Geometry>) : THREE.Geometry => {
+  const t0 = performance.now();
+  let geomBSP:any = new ThreeBSP(geometries[0]);  
+  // Union with the rest
+  for (let i = 1; i < geometries.length; i += 1) {
+    const bspGeom = new ThreeBSP(geometries[i]);
+    geomBSP = geomBSP.intersect(bspGeom);
+  }
+  const geom = geomBSP.toGeometry();
+  const t1 = performance.now();
+  console.log(`Intersection Time ${t1-t0} millis`)
   return geom;
 }
 
@@ -53,11 +83,14 @@ ctx.addEventListener(
       geometries.push(geometry);
     }
 
-    //compute union
-
+    //compute action
     let geometry:THREE.Geometry = new THREE.Geometry;
-    if(e.data.type === 'union'){
+    if(e.data.type === 'Union'){
       geometry = getUnionFromGeometries(geometries);
+    }else if(e.data.type === 'Difference'){
+      geometry = getDifferenceFromGeometries(geometries);
+    }else if(e.data.type === 'Intersection'){
+      geometry = getIntersectionFromGeometries(geometries);
     }else{
       const message = {
         status: 'error'
