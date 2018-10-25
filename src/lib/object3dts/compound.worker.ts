@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-23 11:14:39
- * Last modified  : 2018-10-24 20:39:39
+ * Last modified  : 2018-10-24 20:48:15
  */
 
 // workerfile.js
@@ -21,22 +21,22 @@ import {ThreeBSP} from './threeCSG';
 const ctx: Worker = self as any;
 
 const getUnionFromGeometries = (geometries:Array<THREE.Geometry>) : THREE.Geometry => {
+  const t0 = performance.now();
   let unionGeomBSP:any = new ThreeBSP(geometries[0]);  
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
     const bspGeom = new ThreeBSP(geometries[i]);
     unionGeomBSP = unionGeomBSP.union(bspGeom);
   }
-
-  return unionGeomBSP.toGeometry();
+  const geom = unionGeomBSP.toGeometry();
+  return geom;
 }
 
 ctx.addEventListener(
   'message',
   (e) => {
-
+    const t0 = performance.now();
     const geometries:Array<THREE.Geometry> = [];
-
     const bufferArray = e.data.bufferArray;
 
     //add all children to geometries array
@@ -55,19 +55,30 @@ ctx.addEventListener(
 
     //compute union
 
-    const unionGeometry:THREE.Geometry = getUnionFromGeometries(geometries);
+    let geometry:THREE.Geometry = new THREE.Geometry;
+    if(e.data.type === 'union'){
+      geometry = getUnionFromGeometries(geometries);
+    }else{
+      const message = {
+        status: 'error'
+      };
+      ctx.postMessage(message);
+    }
 
     // get buffer data
-    const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(unionGeometry);
+    const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
     const vertices = new Float32Array(bufferGeom.getAttribute('position').array);
     const normals = new Float32Array(bufferGeom.getAttribute('normal').array);
 
     const message = {
-      status: 'complete',
+      status: 'ok',
       vertices,
       normals,
     };
-    
+    const t1 = performance.now();
+
+    console.log(`WebWorker Thread Execution time ${t1 - t0} millis`);
+
     ctx.postMessage(message, [message.vertices.buffer, message.normals.buffer]);
   },
 

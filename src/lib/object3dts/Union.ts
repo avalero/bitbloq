@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09 
- * Last modified  : 2018-10-24 20:06:04
+ * Last modified  : 2018-10-24 20:44:21
  */
 
 
@@ -20,30 +20,24 @@ import CompoundObject from './CompoundObject';
 import {ChildrenArray} from './Object3D'
 import {ThreeBSP} from './threeCSG';
 
-import Worker from './compound.worker';
+
 
 export default class Union extends CompoundObject {
   static typeName:string = 'Union';
-  private worker:Worker;
 
   constructor(children: ChildrenArray = [], operations: OperationsArray = []){
     super(children, operations);
-    if (typeof(Worker) !== "undefined"){
-      this.worker = new Worker();
-    }
   }
 
-
-
   public getMeshAsync(): Promise<THREE.Mesh> {
-    console.log('getMeshAsync');
     const self:Union = this;
     return new Promise(function (resolve, reject){
       if(self.updateRequired){
+        console.log('update Union Mesh');
         if (typeof(Worker) !== "undefined"){
           //WEB WORKER
-          self.worker.onmessage = (event) => {
-            console.log('worker message received');
+          self.worker.onmessage = (event:any) => {
+            const t0 = performance.now();
             const message = event.data;
             //recompute object form vertices and normals
             const vertices = message.vertices;
@@ -71,6 +65,8 @@ export default class Union extends CompoundObject {
               self.applyOperations();
             }
 
+            const t1 = performance.now();
+            console.log(`WebWorker receive message Execuetion time ${t1 - t0} millis`);
             if(self.mesh instanceof THREE.Mesh){
               resolve(self.mesh);
             }else{
@@ -78,9 +74,8 @@ export default class Union extends CompoundObject {
               reject(reason);
             }
           };
-
-
           //Lets create an array of vertices and normals for each child
+          const t0 = performance.now();
           const bufferArray: Array<ArrayBuffer> = [];
           self.children.forEach(child => {
             const geom: THREE.Geometry = child.getMesh().geometry as THREE.Geometry;
@@ -97,7 +92,8 @@ export default class Union extends CompoundObject {
             bufferArray,
           }
           self.worker.postMessage(message, bufferArray);
-
+          const t1 = performance.now();
+          console.log(`WebWorker post message Execuetion time ${t1 - t0} millis`);
         } else {
           //No WebWorker support. Make it sync.
           self.mesh = self.getMesh();
