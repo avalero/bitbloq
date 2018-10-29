@@ -3,6 +3,8 @@ import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
 import Worker from './compound.worker';
+import { MeshStandardMaterial } from 'three';
+import { resolve } from 'dns';
 
 export default class CompoundObject extends Object3D {
 
@@ -42,7 +44,6 @@ export default class CompoundObject extends Object3D {
               reject("Compound Object Error");
               return;
             }
-
             const message = event.data;
             //recompute object form vertices and normals
 
@@ -59,16 +60,26 @@ export default class CompoundObject extends Object3D {
           };
           //Lets create an array of vertices and normals for each child
           const t0 = performance.now();
-          const bufferArray: Array<ArrayBuffer> = self.toBufferArray();
+          self.toBufferArray().then(bufferArray => {
+            const message = {
+              type: self.getTypeName(),
+              numChildren: self.children.length,
+              bufferArray,
+            }
+            self.worker.postMessage(message, bufferArray);
+            const t1 = performance.now();
+            console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
+          });
+          // const bufferArray: Array<ArrayBuffer> = self.toBufferArray();
 
-          const message = {
-            type: self.getTypeName(),
-            numChildren: self.children.length,
-            bufferArray,
-          }
-          self.worker.postMessage(message, bufferArray);
-          const t1 = performance.now();
-          console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
+          // const message = {
+          //   type: self.getTypeName(),
+          //   numChildren: self.children.length,
+          //   bufferArray,
+          // }
+          // self.worker.postMessage(message, bufferArray);
+          // const t1 = performance.now();
+          // console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
         } else {
           //No WebWorker support. Make it sync.
           self.mesh = self.getMesh();
@@ -103,17 +114,26 @@ export default class CompoundObject extends Object3D {
     }
   }
 
-  protected toBufferArray():Array<ArrayBuffer>{
-    const bufferArray:Array<ArrayBuffer> = [];
-    this.children.forEach(child => {
-      const geom: THREE.Geometry = child.getMesh().geometry as THREE.Geometry;
-      const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(geom);
-      const verticesBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('position').array).buffer;
-      const normalsBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('normal').array).buffer;
-      bufferArray.push(verticesBuffer);
-      bufferArray.push(normalsBuffer);
+  protected toBufferArray():Promise <Array<ArrayBuffer>>{
+    return new Promise( (resolve,reject) => {
+      const promises:any[] = [];
+      const bufferArray:Array<ArrayBuffer> = [];
+      this.children.forEach(child => {
+        const promise:Promise<THREE.Mesh> = child.getMeshAsync();
+        promises.push(promise);
+      });
+
+      Promise.all(promises).then(meshes => {
+        meshes.forEach(mesh => {
+          const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(mesh.geometry as THREE.Geometry);
+          const verticesBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('position').array).buffer;
+          const normalsBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('normal').array).buffer;
+          bufferArray.push(verticesBuffer);
+          bufferArray.push(normalsBuffer);
+        });
+        resolve(bufferArray);
+      });
     });
-    return bufferArray;
   }
 
   public addChildren(child: Object3D): void {
