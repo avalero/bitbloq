@@ -35,6 +35,7 @@ export default class CompoundObject extends Object3D {
     const self:CompoundObject = this;
     return new Promise(function (resolve, reject){
       if(self.updateRequired){
+        debugger;
         console.log('Update Compound Object Mesh');
         if (typeof(Worker) !== "undefined"){
           //WEB WORKER
@@ -45,12 +46,13 @@ export default class CompoundObject extends Object3D {
               return;
             }
             const message = event.data;
-            //recompute object form vertices and normals
 
+            //recompute object form vertices and normals
             self.fromVerticesAndNormals(message.vertices, message.normals);
 
             const t1 = performance.now();
             console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
+            
             if(self.mesh instanceof THREE.Mesh){
               resolve(self.mesh);
             }else{
@@ -70,16 +72,6 @@ export default class CompoundObject extends Object3D {
             const t1 = performance.now();
             console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
           });
-          // const bufferArray: Array<ArrayBuffer> = self.toBufferArray();
-
-          // const message = {
-          //   type: self.getTypeName(),
-          //   numChildren: self.children.length,
-          //   bufferArray,
-          // }
-          // self.worker.postMessage(message, bufferArray);
-          // const t1 = performance.now();
-          // console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
         } else {
           //No WebWorker support. Make it sync.
           self.mesh = self.getMesh();
@@ -105,6 +97,7 @@ export default class CompoundObject extends Object3D {
     buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
     const material = this.getMaterial();
     this.mesh = new THREE.Mesh(buffGeometry, material);
+    //this.mesh.geometry = buffGeometry; //new THREE.Geometry().fromBufferGeometry( buffGeometry );
     //we need to apply the scale of first objet (or we loose it)
     this.mesh.scale.set(this.children[0].getMesh().scale.x, this.children[0].getMesh().scale.y,this.children[0].getMesh().scale.z);
     this._updateRequired = false;
@@ -125,7 +118,13 @@ export default class CompoundObject extends Object3D {
 
       Promise.all(promises).then(meshes => {
         meshes.forEach(mesh => {
-          const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(mesh.geometry as THREE.Geometry);
+          const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
+          let bufferGeom: THREE.BufferGeometry;
+          if(geom instanceof THREE.BufferGeometry){
+            bufferGeom = geom as THREE.BufferGeometry;
+          }else{
+            bufferGeom = new THREE.BufferGeometry().fromGeometry(geom as THREE.Geometry);
+          }
           const verticesBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('position').array).buffer;
           const normalsBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('normal').array).buffer;
           bufferArray.push(verticesBuffer);
