@@ -17,7 +17,7 @@
 
 import * as THREE from 'three';
 import { ThreeBSP } from './threeCSG';
-import { Vector3 } from 'three';
+
 
 export default class TranslationHelper {
 

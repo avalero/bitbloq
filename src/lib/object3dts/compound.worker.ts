@@ -65,7 +65,6 @@ const getIntersectionFromGeometries = (geometries:Array<THREE.Geometry>) : THREE
 ctx.addEventListener(
   'message',
   (e) => {
-    debugger;
     const t0 = performance.now();
     const geometries:Array<THREE.Geometry> = [];
     const bufferArray = e.data.bufferArray;

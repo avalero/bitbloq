@@ -3,6 +3,7 @@ import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
 import Worker from './compound.worker';
+import { resolve } from 'url';
 
 export default class CompoundObject extends Object3D {
 
@@ -33,8 +34,9 @@ export default class CompoundObject extends Object3D {
     const self:CompoundObject = this;
     return new Promise(function (resolve, reject){
       if(self.updateRequired){
-        //debugger;
         console.log('Update Compound Object Mesh');
+        
+        //check if WebWorkers are enabled
         if (typeof(Worker) !== "undefined"){
           //WEB WORKER
           self.worker.onmessage = (event:any) => {
@@ -46,17 +48,22 @@ export default class CompoundObject extends Object3D {
             const message = event.data;
 
             //recompute object form vertices and normals
-            self.fromBufferData(message.vertices, message.normals);
-
-            const t1 = performance.now();
-            console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
-            
-            if(self.mesh instanceof THREE.Mesh){
-              resolve(self.mesh);
-            }else{
-              const reason = new Error('Mesh not computed correctly');
-              reject(reason);
-            }
+            self.fromBufferData(message.vertices, message.normals).then(mesh => {
+              self.mesh = mesh;
+              //check if there are penging operations
+              self.applyOperations();
+              self._updateRequired = false;
+              const t1 = performance.now();
+              console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
+              
+              if(self.mesh instanceof THREE.Mesh){
+                self.applyOperations();
+                resolve(self.mesh);
+              }else{
+                const reason = new Error('Mesh not computed correctly');
+                reject(reason);
+              }
+            });
           };
           //Lets create an array of vertices and normals for each child
           const t0 = performance.now();
@@ -89,20 +96,19 @@ export default class CompoundObject extends Object3D {
     });
   }
 
-  protected fromBufferData(vertices: any, normals: any) {
-    const buffGeometry = new THREE.BufferGeometry();
-    buffGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
-    const material = this.getMaterial();
-    this.mesh = new THREE.Mesh(buffGeometry, material);
-    //this.mesh.geometry = buffGeometry; //new THREE.Geometry().fromBufferGeometry( buffGeometry );
-    //we need to apply the scale of first objet (or we loose it)
-    this.mesh.scale.set(this.children[0].getMesh().scale.x, this.children[0].getMesh().scale.y,this.children[0].getMesh().scale.z);
-    this._updateRequired = false;
-    //check if there are penging operations
-    if (this.pendingOperation) {
-      this.applyOperations();
-    }
+  protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh>{
+    return new Promise( (resolve,reject) => {
+      const buffGeometry = new THREE.BufferGeometry();
+      buffGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
+      const material = this.getMaterial();
+      const mesh: THREE.Mesh = new THREE.Mesh(buffGeometry, material);
+      //we need to apply the scale of first objet (or we loose it)
+      this.children[0].getMeshAsync().then( ch_mesh => {
+        mesh.scale.set(ch_mesh.scale.x, ch_mesh.scale.y, ch_mesh.scale.z);
+        resolve(mesh);
+      });
+    });  
   }
 
   protected toBufferArrayAsync():Promise <Array<ArrayBuffer>>{
@@ -118,7 +124,6 @@ export default class CompoundObject extends Object3D {
         meshes.forEach(mesh => {
           const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
           let bufferGeom: THREE.BufferGeometry;
-          debugger;
           if(geom instanceof THREE.BufferGeometry){
             bufferGeom = geom as THREE.BufferGeometry;
           }else{
@@ -126,7 +131,6 @@ export default class CompoundObject extends Object3D {
           }
           const verticesBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('position').array).buffer;
           const normalsBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('normal').array).buffer;
-          //debugger;
           const positionBuffer: ArrayBuffer = Float32Array.from([
             mesh.position.x, mesh.position.y, mesh.position.z,
             mesh.rotation.x, mesh.rotation.y, mesh.rotation.z] ).buffer;

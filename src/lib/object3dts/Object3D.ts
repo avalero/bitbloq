@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-30 11:27:17
+ * Last modified  : 2018-10-30 11:31:13
  */
 
 import * as THREE from 'three';
@@ -197,7 +197,6 @@ export class Object3D {
     const self:Object3D = this;
     return new Promise(function (resolve, reject){
       // for generic Object3D make it sync
-      debugger;
       const mesh = self.getMesh();
       if(mesh instanceof THREE.Mesh){
         resolve(mesh);
@@ -253,6 +252,7 @@ export class Object3D {
   }
 
   private applyRotateOperation(operation: IRotateOperation): void {
+    debugger;
     const angle = THREE.Math.degToRad(Number(operation.angle));
     switch (operation.axis) {
       case 'x':

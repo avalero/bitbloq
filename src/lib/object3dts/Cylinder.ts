@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-30 10:22:00
+ * Last modified  : 2018-10-30 11:30:18
  */
 
 import * as THREE from 'three';
@@ -36,7 +36,6 @@ export default class Cylinder extends Object3D{
   }
 
   protected setParameters(parameters: ICylinderParams): void{
-    //debugger;
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
       this._updateRequired = true;
