@@ -1,5 +1,6 @@
 import {createAction} from 'redux-actions';
 
+export const openSection = createAction('UI_OPEN_SECTION');
 export const showNotification = createAction(
   'UI_SHOW_NOTIFICATION',
   (key, content, time) => ({key, content, time}),
