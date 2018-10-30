@@ -18,6 +18,8 @@ export default class CompoundObject extends Object3D {
     const t0 = performance.now();
     if (typeof(Worker) !== "undefined"){
       this.worker = new Worker();
+    }else{
+      throw Error('Bitbloq 3D requires a Web Eorker enabled browser')
     }
     const t1 = performance.now();
     console.log(`WebWorker creation time ${t1 - t0} millis`);
@@ -78,7 +80,7 @@ export default class CompoundObject extends Object3D {
             console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
           });
         } else {
-          const reason = new Error('Mesh not computed correctly');
+          const reason = new Error('Bitbloq 3D requires a Web Worker Enabled Browser');
           reject(reason);
         }
       }else{
