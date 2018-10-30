@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-18 16:57:33
+ * Last modified  : 2018-10-30 12:34:27
  */
 
 import * as THREE from 'three';
@@ -44,6 +44,31 @@ type Operation = ITranslateOperation | IRotateOperation | IScaleOperation;
 export type OperationsArray = Array<Operation>;
 
 export class Object3D {
+
+  public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+    const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+    const attribute = bufferGeometry.getAttribute("position");
+    
+    return attribute.array;
+  }
+
+  public static getNormalsFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+    const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+    const attribute = bufferGeometry.getAttribute("normal");
+    
+    return attribute.array;
+  }
+
+  public static getMeshFromVerticesNormals(vertices:ArrayLike<number> , normals:ArrayLike<number> , material: THREE.MeshLambertMaterial):THREE.Mesh{
+    const geometry = new THREE.BufferGeometry();
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+    const mesh:THREE.Mesh = new THREE.Mesh(geometry, material);
+
+    return mesh;
+  }
+
+
   public static createTranslateOperation(
     x: number = 0,
     y: number = 0,
@@ -121,10 +146,10 @@ export class Object3D {
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    //if this object is a CompoundObject we have to prepend first children operations
-    if(this.children.length>0){
-      operations = this.children[0].getOperations().concat(operations);
-    }
+    // //if this object is a CompoundObject we have to prepend first children operations
+    // if(this.children.length>0){
+    //   operations = this.children[0].getOperations().concat(operations);
+    // }
 
     this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
@@ -151,13 +176,14 @@ export class Object3D {
     });
   }
 
-  public getMesh(): THREE.Mesh {
+  public getPrimitiveMesh(): THREE.Mesh {
     if (this.updateRequired) {
       console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
+      //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
-
+      this.applyOperations();
     }
 
     if (this.pendingOperation){
@@ -167,7 +193,25 @@ export class Object3D {
     return this.mesh;
   }
 
+  public getMeshAsync(): Promise<THREE.Mesh> {
+    const self:Object3D = this;
+    return new Promise(function (resolve, reject){
+      // for generic Object3D make it sync
+      const mesh = self.getPrimitiveMesh();
+      if(mesh instanceof THREE.Mesh){
+        resolve(mesh);
+      }else{
+        const reason = new Error('Mesh not computed correctly');
+        reject(reason);
+      }
+    });
+  }
+
   protected getGeometry(): THREE.Geometry {
+    throw new Error('ERROR. Pure Virtual Function implemented in children');
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
@@ -208,6 +252,7 @@ export class Object3D {
   }
 
   private applyRotateOperation(operation: IRotateOperation): void {
+    debugger;
     const angle = THREE.Math.degToRad(Number(operation.angle));
     switch (operation.axis) {
       case 'x':
@@ -251,4 +296,6 @@ export class Object3D {
         this.mesh.scale.z * Number(operation.z),
       );
   }
+
+
 }

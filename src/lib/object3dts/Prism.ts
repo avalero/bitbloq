@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38 
- * Last modified  : 2018-10-16 12:59:38 
+ * Last modified  : 2018-10-30 09:40:02
  */
 
 /**
@@ -46,7 +46,7 @@ export default class Prism extends Object3D{
     super(operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getMesh();    
+    this.mesh = this.getPrimitiveMesh();    
   }
 
   protected setParameters(parameters: IPrismParams): void{
@@ -61,6 +61,13 @@ export default class Prism extends Object3D{
     this._updateRequired = false;
     const radius:number =  length/(2*Math.sin(Math.PI/sides));
     return new THREE.CylinderGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
+    const {sides,length,height} = this.parameters;
+    this._updateRequired = false;
+    const radius:number =  length/(2*Math.sin(Math.PI/sides));
+    return new THREE.CylinderBufferGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
   }
 
 

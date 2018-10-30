@@ -10,7 +10,11 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
+<<<<<<< HEAD
  * Last modified  : 2018-10-18 17:57:28
+=======
+ * Last modified  : 2018-10-30 12:34:21
+>>>>>>> 06cc51177c872f5244d1505be9c78319250562f9
  */
 
 import * as THREE from 'three';
@@ -32,7 +36,8 @@ export default class Cylinder extends Object3D{
     super(operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getMesh();   
+    this.mesh = this.getPrimitiveMesh();
+    
   }
 
   public setParameters(parameters: ICubeParams): void{
@@ -46,5 +51,11 @@ export default class Cylinder extends Object3D{
     const {width, height, depth} = this.parameters;
     this._updateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
+    const {width, height, depth} = this.parameters;
+    this._updateRequired = false;
+    return new THREE.BoxBufferGeometry(Number(width), Number(depth), Number(height));
   }
 }
