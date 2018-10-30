@@ -3,7 +3,6 @@ import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
 import Worker from './compound.worker';
-import { resolve } from 'url';
 
 export default class CompoundObject extends Object3D {
 
@@ -23,7 +22,6 @@ export default class CompoundObject extends Object3D {
     }
     const t1 = performance.now();
     console.log(`WebWorker creation time ${t1 - t0} millis`);
-
   }
 
 

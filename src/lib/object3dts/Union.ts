@@ -14,11 +14,8 @@
 
 
 
-import * as THREE from 'three';
-
 import CompoundObject from './CompoundObject';
-import {ChildrenArray} from './Object3D'
-import {ThreeBSP} from './threeCSG';
+import {ChildrenArray, OperationsArray} from './Object3D'
 
 
 
@@ -36,37 +33,37 @@ export default class Union extends CompoundObject {
 
   
 
-  private getUnionMeshBSP():any{
-    let unionMeshBSP:any = new ThreeBSP(this.children[0].getMesh());  
-    // Union with the rest
-    for (let i = 1; i < this.children.length; i += 1) {
-      const bspMesh = new ThreeBSP(this.children[i].getMesh());
-      unionMeshBSP = unionMeshBSP.union(bspMesh);
-    }
+  // private getUnionMeshBSP():any{
+  //   let unionMeshBSP:any = new ThreeBSP(this.children[0].getMesh());  
+  //   // Union with the rest
+  //   for (let i = 1; i < this.children.length; i += 1) {
+  //     const bspMesh = new ThreeBSP(this.children[i].getMesh());
+  //     unionMeshBSP = unionMeshBSP.union(bspMesh);
+  //   }
 
-    return unionMeshBSP;
+  //   return unionMeshBSP;
 
-  }
+  // }
 
-  public getMesh():THREE.Mesh {
-    if(this.updateRequired){
-      // First element of array
-      const unionMeshBSP = this.getUnionMeshBSP();
-      this.mesh = unionMeshBSP.toMesh(this.getMaterial());
-      //we need to apply the scale of first objet (or we loose it)
-      this.mesh.scale.set(
-        this.children[0].getMesh().scale.x,
-        this.children[0].getMesh().scale.y,
-        this.children[0].getMesh().scale.z,
-      );
-      this._updateRequired = false;
-    }
+  // public getMesh():THREE.Mesh {
+  //   if(this.updateRequired){
+  //     // First element of array
+  //     const unionMeshBSP = this.getUnionMeshBSP();
+  //     this.mesh = unionMeshBSP.toMesh(this.getMaterial());
+  //     //we need to apply the scale of first objet (or we loose it)
+  //     this.mesh.scale.set(
+  //       this.children[0].getMesh().scale.x,
+  //       this.children[0].getMesh().scale.y,
+  //       this.children[0].getMesh().scale.z,
+  //     );
+  //     this._updateRequired = false;
+  //   }
 
-    if (this.pendingOperation){
-      this.applyOperations();
-    }
+  //   if (this.pendingOperation){
+  //     this.applyOperations();
+  //   }
 
   
-    return this.mesh;
-  }
+  //   return this.mesh;
+  // }
 }
