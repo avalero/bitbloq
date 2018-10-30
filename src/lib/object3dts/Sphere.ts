@@ -14,8 +14,6 @@
 
 
 
-
-
 import * as THREE from 'three';
 import {OperationsArray, Object3D} from './Object3D';
 import isEqual from 'lodash.isequal';
@@ -37,7 +35,7 @@ export default class Sphere extends Object3D{
     
   }
 
-  protected setParameters(parameters: ISphereParams): void{
+  public setParameters(parameters: ISphereParams): void{
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
       this._updateRequired = true;
