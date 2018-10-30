@@ -78,14 +78,8 @@ export default class CompoundObject extends Object3D {
             console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
           });
         } else {
-          //No WebWorker support. Make it sync.
-          self.mesh = self.getMesh();
-          if(self.mesh instanceof THREE.Mesh){
-            resolve(self.mesh);
-          }else{
-            const reason = new Error('Mesh not computed correctly');
-            reject(reason);
-          }
+          const reason = new Error('Mesh not computed correctly');
+          reject(reason);
         }
       }else{
         if (self.pendingOperation){

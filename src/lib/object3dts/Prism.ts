@@ -46,7 +46,7 @@ export default class Prism extends Object3D{
     super(operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getMesh();    
+    this.mesh = this.getPrimitiveMesh();    
   }
 
   protected setParameters(parameters: IPrismParams): void{

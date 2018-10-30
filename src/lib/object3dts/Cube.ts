@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-30 10:19:07
+ * Last modified  : 2018-10-30 12:34:21
  */
 
 import * as THREE from 'three';
@@ -31,7 +31,7 @@ export default class Cube extends Object3D{
     super(operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getMesh();
+    this.mesh = this.getPrimitiveMesh();
     
   }
 
