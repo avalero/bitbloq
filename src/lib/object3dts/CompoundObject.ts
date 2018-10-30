@@ -3,8 +3,6 @@ import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
 import Worker from './compound.worker';
-import { MeshStandardMaterial } from 'three';
-import { resolve } from 'dns';
 
 export default class CompoundObject extends Object3D {
 
@@ -35,7 +33,7 @@ export default class CompoundObject extends Object3D {
     const self:CompoundObject = this;
     return new Promise(function (resolve, reject){
       if(self.updateRequired){
-        debugger;
+        //debugger;
         console.log('Update Compound Object Mesh');
         if (typeof(Worker) !== "undefined"){
           //WEB WORKER
@@ -48,7 +46,7 @@ export default class CompoundObject extends Object3D {
             const message = event.data;
 
             //recompute object form vertices and normals
-            self.fromVerticesAndNormals(message.vertices, message.normals);
+            self.fromBufferData(message.vertices, message.normals);
 
             const t1 = performance.now();
             console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
@@ -62,7 +60,7 @@ export default class CompoundObject extends Object3D {
           };
           //Lets create an array of vertices and normals for each child
           const t0 = performance.now();
-          self.toBufferArray().then(bufferArray => {
+          self.toBufferArrayAsync().then(bufferArray => {
             const message = {
               type: self.getTypeName(),
               numChildren: self.children.length,
@@ -91,7 +89,7 @@ export default class CompoundObject extends Object3D {
     });
   }
 
-  protected fromVerticesAndNormals(vertices: any, normals: any) {
+  protected fromBufferData(vertices: any, normals: any) {
     const buffGeometry = new THREE.BufferGeometry();
     buffGeometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
     buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
@@ -107,7 +105,7 @@ export default class CompoundObject extends Object3D {
     }
   }
 
-  protected toBufferArray():Promise <Array<ArrayBuffer>>{
+  protected toBufferArrayAsync():Promise <Array<ArrayBuffer>>{
     return new Promise( (resolve,reject) => {
       const promises:any[] = [];
       const bufferArray:Array<ArrayBuffer> = [];
@@ -120,6 +118,7 @@ export default class CompoundObject extends Object3D {
         meshes.forEach(mesh => {
           const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
           let bufferGeom: THREE.BufferGeometry;
+          debugger;
           if(geom instanceof THREE.BufferGeometry){
             bufferGeom = geom as THREE.BufferGeometry;
           }else{
@@ -127,8 +126,13 @@ export default class CompoundObject extends Object3D {
           }
           const verticesBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('position').array).buffer;
           const normalsBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('normal').array).buffer;
+          //debugger;
+          const positionBuffer: ArrayBuffer = Float32Array.from([
+            mesh.position.x, mesh.position.y, mesh.position.z,
+            mesh.rotation.x, mesh.rotation.y, mesh.rotation.z] ).buffer;
           bufferArray.push(verticesBuffer);
           bufferArray.push(normalsBuffer);
+          bufferArray.push(positionBuffer);
         });
         resolve(bufferArray);
       });

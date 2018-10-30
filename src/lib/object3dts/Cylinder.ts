@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-11 13:25:07
+ * Last modified  : 2018-10-30 10:22:00
  */
 
 import * as THREE from 'three';
@@ -36,6 +36,7 @@ export default class Cylinder extends Object3D{
   }
 
   protected setParameters(parameters: ICylinderParams): void{
+    //debugger;
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
       this._updateRequired = true;
@@ -46,6 +47,12 @@ export default class Cylinder extends Object3D{
     const {r0,r1,height} = this.parameters;
     this._updateRequired = false;
     return new THREE.CylinderGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
+    const {r0,r1,height} = this.parameters;
+    this._updateRequired = false;
+    return new THREE.CylinderBufferGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
   }
 
 

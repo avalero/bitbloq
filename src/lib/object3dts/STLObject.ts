@@ -9,11 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08 
- * Last modified  : 2018-10-16 15:05:32
+ * Last modified  : 2018-10-30 10:09:32
  */
 
 import {OperationsArray, Object3D} from './Object3D';
 import isEqual from 'lodash.isequal';
+import * as THREE from 'three'
 
 interface ISTLParams{
   geometry:THREE.Geometry
@@ -39,7 +40,12 @@ export default class STLObject extends Object3D {
     }
   }
 
-  getGeometry() {
+
+  protected getBufferGeometry():THREE.BufferGeometry{
+    return new THREE.BufferGeometry().fromGeometry(this.getGeometry());
+  }
+
+  protected getGeometry():THREE.Geometry {
     const {geometry} = this.parameters;
     return geometry;
   }

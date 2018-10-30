@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-23 11:14:39
- * Last modified  : 2018-10-24 20:48:15
+ * Last modified  : 2018-10-30 10:29:50
  */
 
 // workerfile.js
@@ -65,21 +65,30 @@ const getIntersectionFromGeometries = (geometries:Array<THREE.Geometry>) : THREE
 ctx.addEventListener(
   'message',
   (e) => {
+    debugger;
     const t0 = performance.now();
     const geometries:Array<THREE.Geometry> = [];
     const bufferArray = e.data.bufferArray;
 
     //add all children to geometries array
-    for (let i=0; i < bufferArray.length; i += 2){
+    for (let i=0; i < bufferArray.length; i += 3){
       //recompute object form vertices and normals
       const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
       const normalsBuffer: ArrayBuffer = e.data.bufferArray[i+1];
+      const positionBuffer: ArrayBuffer = e.data.bufferArray[i+2];
       const _vertices: ArrayLike<number> = new Float32Array(verticesBuffer, 0, verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
       const _normals: ArrayLike<number> = new Float32Array(normalsBuffer, 0, normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
+      const _positions: ArrayLike<number> = new Float32Array(positionBuffer, 0, positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
+      const position:THREE.Vector3 = new THREE.Vector3(_positions[0], _positions[1], _positions[2]);
+      const rotation: THREE.Vector3 = new THREE.Vector3(_positions[3], _positions[4], _positions[5]);
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute( 'position', new THREE.BufferAttribute( _vertices, 3 ) );
       buffGeometry.addAttribute( 'normal', new THREE.BufferAttribute( _normals, 3 ) );
-      const geometry:THREE.Geometry = new THREE.Geometry().fromBufferGeometry(buffGeometry); // ERROR HERE?
+      const geometry:THREE.Geometry = new THREE.Geometry().fromBufferGeometry(buffGeometry);
+      geometry.translate(position.x, position.y, position.z);
+      geometry.rotateX(rotation.x);
+      geometry.rotateY(rotation.y);
+      geometry.rotateZ(rotation.z);
       geometries.push(geometry);
     }
 

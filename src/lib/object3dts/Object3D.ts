@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-24 13:34:43
+ * Last modified  : 2018-10-30 11:27:17
  */
 
 import * as THREE from 'three';
@@ -146,10 +146,10 @@ export class Object3D {
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    //if this object is a CompoundObject we have to prepend first children operations
-    if(this.children.length>0){
-      operations = this.children[0].getOperations().concat(operations);
-    }
+    // //if this object is a CompoundObject we have to prepend first children operations
+    // if(this.children.length>0){
+    //   operations = this.children[0].getOperations().concat(operations);
+    // }
 
     this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
@@ -180,9 +180,10 @@ export class Object3D {
     if (this.updateRequired) {
       console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
+      //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
-
+      this.applyOperations();
     }
 
     if (this.pendingOperation){
@@ -192,19 +193,11 @@ export class Object3D {
     return this.mesh;
   }
 
-  private getMeshMessage():void{
-    const worker = new Worker("file.js");
-    worker.addEventListener('message', mesh => {
-
-    })
-
-    worker.postMessage(this.getMesh);
-  }
-
   public getMeshAsync(): Promise<THREE.Mesh> {
     const self:Object3D = this;
     return new Promise(function (resolve, reject){
       // for generic Object3D make it sync
+      debugger;
       const mesh = self.getMesh();
       if(mesh instanceof THREE.Mesh){
         resolve(mesh);
@@ -216,6 +209,10 @@ export class Object3D {
   }
 
   protected getGeometry(): THREE.Geometry {
+    throw new Error('ERROR. Pure Virtual Function implemented in children');
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
