@@ -26,21 +26,25 @@ export default class ObjectsGroup{
     return this.group;
    }
 
-   public getMesh():THREE.Group {
-    const meshGroup: THREE.Group = new THREE.Group();
+   public getMeshAsync():Promise<THREE.Group> {
+    return new Promise( (resolve, reject) => {
+      const meshGroup: THREE.Group = new THREE.Group();
 
-    // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
-    this.group.forEach( object3D => {
-      // only first level objets require to update operations, no need to make deep copy  
-      const objectClone:Object3D = Object.assign(
-        Object.create(
-          Object.getPrototypeOf(object3D)
-        ),
-        object3D); // cloneDeep(object3D); is it need to use cloneDeep???
-      
-        objectClone.addOperations(this.operations);
-      meshGroup.add(objectClone.getMesh());
+      // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
+      if(this.group)
+      this.group.forEach( object3D => {
+        // only first level objets require to update operations, no need to make deep copy  
+        const objectClone:Object3D = Object.assign(
+          Object.create(
+            Object.getPrototypeOf(object3D)
+          ),
+          object3D); // cloneDeep(object3D); is it need to use cloneDeep???
+        
+          objectClone.addOperations(this.operations);
+        meshGroup.add(objectClone.getMesh());
+      });
+      resolve(meshGroup);
     });
-    return meshGroup;
+    
   }
 }

@@ -31,15 +31,14 @@ export default class CompoundObject extends Object3D {
   }
 
   public getMeshAsync(): Promise<THREE.Mesh> {
-    const self:CompoundObject = this;
-    return new Promise(function (resolve, reject){
-      if(self.updateRequired){
+    return new Promise((resolve, reject) => {
+      if(this.updateRequired){
         console.log('Update Compound Object Mesh');
         
         //check if WebWorkers are enabled
         if (typeof(Worker) !== "undefined"){
           //WEB WORKER
-          self.worker.onmessage = (event:any) => {
+          this.worker.onmessage = (event:any) => {
             const t0 = performance.now();
             if(event.data.status !== 'ok'){
               reject("Compound Object Error");
@@ -48,17 +47,17 @@ export default class CompoundObject extends Object3D {
             const message = event.data;
 
             //recompute object form vertices and normals
-            self.fromBufferData(message.vertices, message.normals).then(mesh => {
-              self.mesh = mesh;
+            this.fromBufferData(message.vertices, message.normals).then(mesh => {
+              this.mesh = mesh;
               //check if there are penging operations
-              self.applyOperations();
-              self._updateRequired = false;
+              this.applyOperations();
+              this._updateRequired = false;
               const t1 = performance.now();
               console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
               
-              if(self.mesh instanceof THREE.Mesh){
-                self.applyOperations();
-                resolve(self.mesh);
+              if(this.mesh instanceof THREE.Mesh){
+                this.applyOperations();
+                resolve(this.mesh);
               }else{
                 const reason = new Error('Mesh not computed correctly');
                 reject(reason);
@@ -67,13 +66,13 @@ export default class CompoundObject extends Object3D {
           };
           //Lets create an array of vertices and normals for each child
           const t0 = performance.now();
-          self.toBufferArrayAsync().then(bufferArray => {
+          this.toBufferArrayAsync().then(bufferArray => {
             const message = {
-              type: self.getTypeName(),
-              numChildren: self.children.length,
+              type: this.getTypeName(),
+              numChildren: this.children.length,
               bufferArray,
             }
-            self.worker.postMessage(message, bufferArray);
+            this.worker.postMessage(message, bufferArray);
             const t1 = performance.now();
             console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`);
           });
@@ -82,10 +81,10 @@ export default class CompoundObject extends Object3D {
           reject(reason);
         }
       }else{
-        if (self.pendingOperation){
-          self.applyOperations();
+        if (this.pendingOperation){
+          this.applyOperations();
         }
-        resolve(self.mesh)
+        resolve(this.mesh)
       }
     });
   }

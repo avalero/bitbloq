@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-30 12:34:27
+ * Last modified  : 2018-10-30 18:52:29
  */
 
 import * as THREE from 'three';
@@ -194,10 +194,10 @@ export class Object3D {
   }
 
   public getMeshAsync(): Promise<THREE.Mesh> {
-    const self:Object3D = this;
-    return new Promise(function (resolve, reject){
+    
+    return new Promise((resolve, reject) => {
       // for generic Object3D make it sync
-      const mesh = self.getPrimitiveMesh();
+      const mesh = this.getPrimitiveMesh();
       if(mesh instanceof THREE.Mesh){
         resolve(mesh);
       }else{
