@@ -1,6 +1,5 @@
 import {handleActions} from 'redux-actions';
 import {
-  openSection,
   showNotification,
   hideNotification,
   keyDown,
@@ -18,10 +17,6 @@ const initialState = {
 
 const ui = handleActions(
   new Map([
-    [
-      openSection,
-      (state, action) => ({...state, currentSectionId: action.payload })
-    ],
     [
       showNotification,
       (state, {payload}) => ({
