@@ -1,9 +1,12 @@
 import React from 'react';
 import styled from 'react-emotion';
+import ThreeDIcon from '../icons/ThreeD';
+import InfoIcon from '../icons/Info';
 import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer';
 import PropertiesPanel from './PropertiesPanel';
 import PropertiesPanelBloqs from './PropertiesPanelBloqs';
+import Document, {Tab} from '../Document';
 import ContextMenu from './ContextMenu';
 
 const Container = styled.div`
@@ -20,12 +23,18 @@ class ThreeD extends React.Component {
         : PropertiesPanel;
 
     return (
-      <Container>
-        <ObjectTree />
-        <ThreeDViewer />
-        <PropertiesPanelComponent />
-        <ContextMenu />
-      </Container>
+      <Document>
+        <Tab icon={<ThreeDIcon />}>
+          <Container>
+            <ObjectTree />
+            <ThreeDViewer />
+            <PropertiesPanelComponent />
+            <ContextMenu />
+          </Container>
+        </Tab>
+        <Tab icon={<InfoIcon />}>
+        </Tab>
+      </Document>
     );
   }
 }
