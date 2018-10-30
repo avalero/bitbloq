@@ -10,7 +10,7 @@ export const colors = {
 
 injectGlobal`
   body {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Jua', sans-serif;
   }
 
   /* Style reset */
