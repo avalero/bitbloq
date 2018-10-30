@@ -31,7 +31,13 @@ export default class ObjectsGroup{
       const meshGroup: THREE.Group = new THREE.Group();
 
       // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
-      if(this.group)
+      if(this.group.length === 0){
+        reject('No item in group');
+        return;
+      }
+
+      const promises: Promise<THREE.Mesh>[] = []
+
       this.group.forEach( object3D => {
         // only first level objets require to update operations, no need to make deep copy  
         const objectClone:Object3D = Object.assign(
@@ -40,11 +46,16 @@ export default class ObjectsGroup{
           ),
           object3D); // cloneDeep(object3D); is it need to use cloneDeep???
         
-          objectClone.addOperations(this.operations);
-        meshGroup.add(objectClone.getMesh());
+        objectClone.addOperations(this.operations);
+        promises.push(objectClone.getMeshAsync());
       });
-      resolve(meshGroup);
+
+      Promise.all(promises).then(meshes => {
+        meshes.forEach(mesh => {
+          meshGroup.add(mesh);
+        });
+        resolve(meshGroup);
+      });
     });
-    
   }
 }
