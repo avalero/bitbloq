@@ -16,7 +16,8 @@ export default class CompoundObject extends Object3D {
     
     const t0 = performance.now();
     if (typeof(Worker) !== "undefined"){
-      this.worker = new Worker();
+      //this.worker = new Worker();
+      this.worker = Worker;
     }else{
       throw Error('Bitbloq 3D requires a Web Eorker enabled browser')
     }

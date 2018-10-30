@@ -10,13 +10,13 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-23 11:14:39
- * Last modified  : 2018-10-30 10:29:50
+ * Last modified  : 2018-10-30 17:38:40
  */
 
 // workerfile.js
 
 import * as THREE from 'three';
-import {ThreeBSP} from './threeCSG';
+import ThreeBSP from './threeCSG';
 
 const ctx: Worker = self as any;
 
