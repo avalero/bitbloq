@@ -1,4 +1,21 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, 
+ * @author Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-10-17 12:30:09 
+ * Last modified  : 2018-10-30 11:34:49
+ */
+
+
 import * as THREE from 'three';
+import { ThreeBSP } from './threeCSG';
 
 export default class RotationHelper {
 

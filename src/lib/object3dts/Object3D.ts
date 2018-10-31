@@ -9,11 +9,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-16 12:46:29
+ * Last modified  : 2018-10-31 09:05:20
  */
 
 import * as THREE from 'three';
-import { isDeepStrictEqual } from 'util';
 import isEqual from 'lodash.isequal';
 
 interface ICommonOperation {
@@ -45,6 +44,31 @@ type Operation = ITranslateOperation | IRotateOperation | IScaleOperation;
 export type OperationsArray = Array<Operation>;
 
 export class Object3D {
+
+  public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+    const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+    const attribute = bufferGeometry.getAttribute("position");
+    
+    return attribute.array;
+  }
+
+  public static getNormalsFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+    const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
+    const attribute = bufferGeometry.getAttribute("normal");
+    
+    return attribute.array;
+  }
+
+  public static getMeshFromVerticesNormals(vertices:ArrayLike<number> , normals:ArrayLike<number> , material: THREE.MeshLambertMaterial):THREE.Mesh{
+    const geometry = new THREE.BufferGeometry();
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+    geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
+    const mesh:THREE.Mesh = new THREE.Mesh(geometry, material);
+
+    return mesh;
+  }
+
+
   public static createTranslateOperation(
     x: number = 0,
     y: number = 0,
@@ -86,8 +110,8 @@ export class Object3D {
     };
   }
 
+  //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
-  // protected scene: BABYLON.Scene;
   protected color: string;
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
@@ -122,10 +146,10 @@ export class Object3D {
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    //if this object is a CompoundObject we have to prepend first children operations
-    if(this.children.length>0){
-      operations = this.children[0].getOperations().concat(operations);
-    }
+    // //if this object is a CompoundObject we have to prepend first children operations
+    // if(this.children.length>0){
+    //   operations = this.children[0].getOperations().concat(operations);
+    // }
 
     this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
@@ -133,6 +157,10 @@ export class Object3D {
       this.operations = [];
       this.operations = operations.slice();
     }
+  }
+
+  public addOperations(operations: OperationsArray = []): void {
+    this.setOperations(this.operations.concat(operations));
   }
 
   public setColor(color: string): void {
@@ -148,12 +176,14 @@ export class Object3D {
     });
   }
 
-  public getMesh(): THREE.Mesh {
+  public getPrimitiveMesh(): THREE.Mesh {
     if (this.updateRequired) {
-      console.log("Recompute Mesh");
+      //console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
+      //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
+      this.applyOperations();
     }
 
     if (this.pendingOperation){
@@ -163,13 +193,31 @@ export class Object3D {
     return this.mesh;
   }
 
+  public getMeshAsync(): Promise<THREE.Mesh> {
+    
+    return new Promise((resolve, reject) => {
+      // for generic Object3D make it sync
+      const mesh = this.getPrimitiveMesh();
+      if(mesh instanceof THREE.Mesh){
+        resolve(mesh);
+      }else{
+        const reason = new Error('Mesh not computed correctly');
+        reject(reason);
+      }
+    });
+  }
+
   protected getGeometry(): THREE.Geometry {
+    throw new Error('ERROR. Pure Virtual Function implemented in children');
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
 
   protected applyOperations() {
-    console.log("Recompute Operations");
+    //console.log("Recompute Operations");
     this.mesh.position.set(0,0,0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
 
@@ -204,6 +252,7 @@ export class Object3D {
   }
 
   private applyRotateOperation(operation: IRotateOperation): void {
+    debugger;
     const angle = THREE.Math.degToRad(Number(operation.angle));
     switch (operation.axis) {
       case 'x':
@@ -247,4 +296,6 @@ export class Object3D {
         this.mesh.scale.z * Number(operation.z),
       );
   }
+
+
 }

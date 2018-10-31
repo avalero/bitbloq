@@ -39,7 +39,7 @@ const FileProperty = ({ onChange }) => (
     <input
       type="file"
       onChange={(e) => {
-        console.log(e.target.files[0].name);
+        //console.log(e.target.files[0].name);
         const file = e.target.files[0];
         if (file.type.match('model/x.stl-binary')) {
           const reader = new FileReader();

@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-10-17 12:25:13
+ * Last modified  : 2018-10-31 09:05:03
  */
 
 import React from 'react';
@@ -230,31 +230,26 @@ class ThreeDViewer extends React.Component {
         object3D = this.updateInstance(object);
         this.objectsGroup.remove(this.meshes[object.id]);
       }
-
-      const mesh = object3D.getMesh();
-      mesh.object = object;
-      this.meshes[object.id] = mesh;
-      this.objectsGroup.add(mesh);
-
-      if (selectedObjects.length > 0 && !selectedObjects.includes(object)) {
-        const mesh = this.meshes[object.id];
-        mesh.material.opacity = 0.5;
-        mesh.material.transparent = true;
-        mesh.material.depthWrite = false;
-      } else {
-        const mesh = this.meshes[object.id];
-        mesh.material.opacity = 1;
-        mesh.material.transparent = false;
-        mesh.material.depthWrite = true;
-      }
-
-      // if (selectedObjects.includes(object)) {
-      //   const mesh = this.meshes[object.id];
-      //   const outMesh = mesh.clone();
-      //   outMesh.scale.multiplyScalar(1.08);
-      //   outMesh.material = outlineMaterial;
-      //   this.outlineGroup.add(outMesh);
-      // }
+      
+      object3D.getMeshAsync().then( mesh => {
+        mesh.object = object;
+        this.meshes[object.id] = mesh;
+        this.objectsGroup.add(mesh);
+        if (selectedObjects.length > 0 && !selectedObjects.includes(object)) {
+          const mesh = this.meshes[object.id];
+          mesh.material.opacity = 0.5;
+          mesh.material.transparent = true;
+          mesh.material.depthWrite = false;
+        } else {
+          const mesh = this.meshes[object.id];
+          mesh.material.opacity = 1;
+          mesh.material.transparent = false;
+          mesh.material.depthWrite = true;
+        }
+      }).catch(error => {
+        console.log(error.message);
+        throw error;
+      });
     });
 
     this.helpersGroup.remove(this.activeHelper);
