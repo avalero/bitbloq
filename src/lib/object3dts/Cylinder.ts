@@ -35,7 +35,7 @@ export default class Cylinder extends Object3D{
     this.mesh = this.getPrimitiveMesh();    
   }
 
-  protected setParameters(parameters: ICylinderParams): void{
+  public setParameters(parameters: ICylinderParams): void{
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
       this._updateRequired = true;
