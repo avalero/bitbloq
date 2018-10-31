@@ -5,11 +5,9 @@ import {Object3D, OperationsArray} from './Object3D';
 export default class ObjectsGroup{
    private group:Array<Object3D>;
    private operations: OperationsArray;
-   private pendingOperation: boolean;
 
    constructor(objects: Array<Object3D>){
      this.group = objects;
-     this.pendingOperation = false;
    }
    // Group operations. Will be transferred to children only when un-grouped.
    public setOperations(operations: OperationsArray = []):void{
@@ -45,7 +43,7 @@ export default class ObjectsGroup{
             Object.getPrototypeOf(object3D)
           ),
           object3D); // cloneDeep(object3D); is it need to use cloneDeep???
-        
+          
         objectClone.addOperations(this.operations);
         promises.push(objectClone.getMeshAsync());
       });

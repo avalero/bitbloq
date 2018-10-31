@@ -73,9 +73,9 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
   expect((object as any).parameters).toEqual({width:5, height:5, depth:5});
   expect(object.updateRequired).toBe(true);
 
-  object.getMeshAsync().then( mesh1 => {
+  return object.getMeshAsync().then( mesh1 => {
     expect(object.updateRequired).toBe(false);
-    object.getMeshAsync().then ( mesh2 => {
+    return object.getMeshAsync().then ( mesh2 => {
       expect(mesh1).toBe(mesh2);
     });
   });
@@ -83,7 +83,7 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
 
 test('Async Check Object Dimensions are well Constructed', () =>{
   const object = new Cube({width, height, depth});
-  object.getMeshAsync().then( mesh => {
+  return object.getMeshAsync().then( mesh => {
     const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
     expect(boundingBoxDims).toEqual({x:width, y:depth, z:height});
@@ -92,7 +92,7 @@ test('Async Check Object Dimensions are well Constructed', () =>{
 
 test('Async Check initial position and rotation', () => {
   const object = new Cube({width, height, depth});
-  object.getMeshAsync().then( mesh =>{
+  return object.getMeshAsync().then( mesh =>{
     const center = mesh.position;
     const euler = mesh.rotation;
     expect(center).toEqual(new THREE.Vector3(0,0,0));

@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-30 18:52:29
+ * Last modified  : 2018-10-31 09:05:20
  */
 
 import * as THREE from 'three';
@@ -178,7 +178,7 @@ export class Object3D {
 
   public getPrimitiveMesh(): THREE.Mesh {
     if (this.updateRequired) {
-      console.log("Recompute Mesh");
+      //console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
       //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
@@ -217,7 +217,7 @@ export class Object3D {
 
 
   protected applyOperations() {
-    console.log("Recompute Operations");
+    //console.log("Recompute Operations");
     this.mesh.position.set(0,0,0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
 
