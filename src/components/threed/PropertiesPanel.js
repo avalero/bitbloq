@@ -238,32 +238,8 @@ class PropertiesPanel extends React.Component {
     this.props.addOperation(object, operationName);
   }
 
-  onComposeObjects(operation) {
-    const {createObject, selectedObjects} = this.props;
-    createObject(operation.create(selectedObjects));
-  }
-
   onRemoveOperation(object, operation) {
     this.props.removeOperation(object, operation);
-  }
-
-  renderCombineOptions() {
-
-    return (
-      <GroupSelection>
-        <ObjectIcon>
-          <img src={GroupIcon} />
-        </ObjectIcon>
-        {config.compositionOperations.map(operation => (
-          <GroupButton
-            key={operation.name}
-            onClick={() => this.onComposeObjects(operation)}>
-            <ButtonIcon src={operation.icon} />
-            <div>{operation.label}</div>
-          </GroupButton>
-        ))}
-      </GroupSelection>
-    );
   }
 
   renderObjectPanel(object) {
@@ -381,14 +357,12 @@ class PropertiesPanel extends React.Component {
 
     if (selectedObjects.length === 1) {
       content = this.renderObjectPanel(selectedObjects[0]);
-    } else if (selectedObjects.length > 1) {
-      content = this.renderCombineOptions();
     }
 
     return (
       <Spring
         from={{width: 0}}
-        to={{width: selectedObjects.length > 0 ? 310 : 0}}>
+        to={{width: selectedObjects.length === 1 ? 310 : 0}}>
         {style => (
           <Wrap style={style}>
             <Container>{content}</Container>
