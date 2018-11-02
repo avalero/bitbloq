@@ -2,7 +2,7 @@ import React from 'react';
 import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
-import {colors} from '../../base-styles';
+import {colors, shadow} from '../../base-styles';
 import SubArrowIcon from '../../assets/images/sub-arrow.svg';
 import PointsIcon from '../../assets/images/three-points.svg';
 import {
@@ -18,10 +18,10 @@ import {
 import config from '../../config/threed';
 
 const Container = styled.div`
-  width: 210px;
+  width: 180px;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #979797;
+  border-right: 1px solid #cfcfcf;
 `;
 
 const Tree = styled.div`
@@ -75,34 +75,35 @@ const SubArrow = styled.img`
     `};
 `;
 
-const AddButtonWrap = styled.div`
-  padding: 12px;
-  border-bottom: 1px solid #979797;
-`;
-
 const AddButton = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
-  background-color: ${colors.brand};
-  padding: 12px;
-  border-radius: 6px;
-  font-size: 1.2em;
+  height: 50px;
+  color: #373b44;
+  background-color: #ebebeb;
+  font-size: 13px;
+  font-weight: bold;
   cursor: pointer;
   position: relative;
+  border-bottom: 1px solid #cfcfcf;
+  z-index: 2;
+
+  ${props => props.open && css`
+    ${shadow}
+  `}
 `;
 
 const AddDropdown = styled.div`
   background-color: white;
   color: #333;
   position: absolute;
-  top: 48px;
+  top: 51px;
   left: 0px;
   right: 0px;
   transition: opacity 0.3s;
-  box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  ${shadow}
+  border-radius: 0px 0px 4px 4px;
   opacity: 0;
   display: none;
 
@@ -116,17 +117,21 @@ const AddDropdown = styled.div`
 
 const AddDropdownItem = styled.div`
   display: flex;
-  padding: 12px;
+  align-items: center;
+  padding: 0px 20px;
+  height: 42px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: normal;
 
   &:hover {
-    background-color: #eee;
+    background-color: #ebebeb;
   }
 
-  img {
-    height: 18px;
-    width: 18px;
-    margin-right: 6px;
+  svg {
+    height: auto;
+    width: 24px;
+    margin-right: 10px;
   }
 `;
 
@@ -225,24 +230,22 @@ class ObjectTree extends React.Component {
 
     return (
       <Container>
-        <AddButtonWrap>
-          <AddButton onClick={() => this.setState({addDropDownOpen: true})}>
-            <div>+ Add object</div>
-            <AddDropdown open={addDropDownOpen}>
-              {config.shapes.map(shape => (
-                <AddDropdownItem
-                  key={shape.name}
-                  onClick={e => {
-                    e.stopPropagation();
-                    this.onAddObject(shape);
-                  }}>
-                  <img src={shape.icon} />
-                  <div>{shape.label}</div>
-                </AddDropdownItem>
-              ))}
-            </AddDropdown>
-          </AddButton>
-        </AddButtonWrap>
+        <AddButton onClick={() => this.setState({addDropDownOpen: true})} open={addDropDownOpen}>
+          <div>+ Add object</div>
+          <AddDropdown open={addDropDownOpen}>
+            {config.shapes.map(shape => (
+              <AddDropdownItem
+                key={shape.name}
+                onClick={e => {
+                  e.stopPropagation();
+                  this.onAddObject(shape);
+                }}>
+                {shape.icon}
+                <div>{shape.label}</div>
+              </AddDropdownItem>
+            ))}
+          </AddDropdown>
+        </AddButton>
         <Tree>{this.renderObjectList(objects)}</Tree>
       </Container>
     );

@@ -65,19 +65,30 @@ const TabIcon = styled.div<TabIconProps>`
     opacity: 0.5;
   }
 
-  ${props => props.selected && css`
-    background-color: #1e1f21;
+  ${props =>
+    props.selected &&
+    css`
+      background-color: #1e1f21;
 
-    svg {
-      opacity: 1;
-    }
-  `}
-`
+      svg {
+        opacity: 1;
+      }
+    `};
+`;
 
-const Content = styled.div`
-  display: flex;
+interface ContentProps {
+  active: boolean;
+}
+const Content = styled.div<ContentProps>`
+  display: none;
   flex: 1;
   overflow: hidden;
+
+  ${props =>
+    props.active &&
+    css`
+      display: flex;
+    `};
 `;
 
 export interface TabProps {
@@ -91,7 +102,7 @@ export interface DocumentProps {
 }
 
 interface State {
-  currentTab: number;
+  currentTabIndex: number;
 }
 
 class Document extends React.Component<Document, State> {
@@ -114,15 +125,19 @@ class Document extends React.Component<Document, State> {
         <Menu />
         <Main>
           <Tabs>
-            {React.Children.map(children, (tab, i) =>
-              <TabIcon selected={i === currentTabIndex} onClick={() => this.setState({currentTabIndex: i})}>
+            {React.Children.map(children, (tab, i) => (
+              <TabIcon
+                selected={i === currentTabIndex}
+                onClick={() => this.setState({currentTabIndex: i})}>
                 {tab.props.icon}
               </TabIcon>
-            )}
+            ))}
           </Tabs>
-          <Content>
-            {currentTab && currentTab.props.children}
-          </Content>
+          {React.Children.map(children, (tab, i) => (
+            <Content active={i === currentTabIndex}>
+              {tab.props.children}
+            </Content>
+          ))}
         </Main>
       </Container>
     );
