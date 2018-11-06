@@ -6,6 +6,9 @@ import Toolbar from './Toolbar';
 import PropertiesPanel from './PropertiesPanel';
 import PropertiesPanelBloqs from './PropertiesPanelBloqs';
 import ContextMenu from './ContextMenu';
+import Document, {Tab} from '../Document';
+import ThreeDIcon from '../icons/ThreeD';
+import InfoIcon from '../icons/Info';
 
 const Container = styled.div`
   flex: 1;
@@ -40,8 +43,7 @@ class ThreeD extends React.Component {
             <ContextMenu />
           </Container>
         </Tab>
-        <Tab icon={<InfoIcon />}>
-        </Tab>
+        <Tab icon={<InfoIcon />} />
       </Document>
     );
   }

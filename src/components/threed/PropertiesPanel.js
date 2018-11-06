@@ -2,7 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
-import {DragDropContext, Droppable} from 'react-beautiful-dnd';
+import {DragDropContext} from 'react-beautiful-dnd';
 import {
   updateObjectName,
   updateObjectParameter,
@@ -41,30 +41,12 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const Button = styled.div`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  background-color: ${colors.brand};
-  padding: 6px;
-  border-radius: 6px;
-  margin-bottom: 12px;
-  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.3);
-`;
-
-const ButtonIcon = styled.img`
-  height: 24px;
-  margin-right: 6px;
-`;
-
 const Header = styled.div`
-  height: 42px;
-  padding: 0px 12px;
-  background-color: #d8d8d8;
-  border-bottom: 1px solid #979797;
-  color: #4a4a4a;
+  height: 50px;
+  padding: 0px 20px;
+  background-color: white;
+  border-bottom: 1px solid #cfcfcf;
+  color: #373b44;
   display: flex;
   align-items: center;
   font-size: 1.1em;
@@ -74,37 +56,26 @@ const Header = styled.div`
   }
 `;
 
-const HeaderColorPicker = styled(ColorPicker)`
-  margin-right: 6px;
+const HeaderIcon = styled.div`
+  margin-right: 8px;
 `;
 
 const ObjectName = styled.div`
   flex: 1;
+  font-weigth: bold;
+  font-style: italic;
+  font-size: 13px;
 `;
 
 const ObjectProperties = styled.div`
   padding: 12px;
-  border-bottom: 1px solid #979797;
+  border-bottom: 1px solid #cfcfcf;
   position: relative;
 `;
 
 const ParametersPanel = styled.div`
-  display: flex;
   margin-bottom: 18px;
   min-height: 120px;
-`;
-
-const ObjectIcon = styled.div`
-  margin-right: 12px;
-  background-color: #eee;
-  width: 140px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  img {
-    width: 100px;
-  }
 `;
 
 const ParametersForm = styled.div`
@@ -113,11 +84,25 @@ const ParametersForm = styled.div`
 
 const ObjectButtons = styled.div`
   display: flex;
-  margin: 6px -6px;
+  margin: 0px -2px;
+`;
 
-  ${Button} {
-    flex: 1;
-    margin: 0px 6px;
+const OperationButton = styled.div`
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #373b44;
+  height: 55px;
+  border-radius: 3px;
+  background-color: #ebebeb;
+  flex: 1;
+  margin: 0px 2px;
+  border-bottom: 5px solid ${props => props.color};
+
+  svg {
+    width: 24px;
+    height: auto;
   }
 `;
 
@@ -169,20 +154,6 @@ const RemoveOperationArea = styled.div`
         opacity: 0.8;
       }
     `};
-`;
-
-const GroupSelection = styled.div`
-  padding: 12px;
-
-  ${ObjectIcon} {
-    width: 100%;
-    margin-bottom: 12px;
-    min-height: 120px;
-  }
-`;
-
-const GroupButton = styled(Button)`
-  justify-content: flex-start;
 `;
 
 class PropertiesPanel extends React.Component {
@@ -253,8 +224,18 @@ class PropertiesPanel extends React.Component {
     } = this.props;
     const {color} = object.parameters;
 
-    const shapeConfig = config.shapes.find(s => s.name === object.type);
-    const {parameters = []} = shapeConfig || {};
+    const shapeConfig =
+      config.shapes.find(s => s.name === object.type) ||
+      { parameters: [] };
+
+    const parameters = [
+      ...shapeConfig.parameters,
+      {
+        name: 'color',
+        label: 'Color',
+        type: 'color',
+      },
+    ];
     const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
 
     return (
@@ -262,12 +243,7 @@ class PropertiesPanel extends React.Component {
         onDragStart={this.onDragStart}
         onDragEnd={result => this.onDragEnd(result, object)}>
         <Header>
-          <HeaderColorPicker
-            color={color}
-            onChange={color =>
-              this.onObjectParameterChange(object, 'color', color)
-            }
-          />
+          <HeaderIcon>{icon}</HeaderIcon>
           {editingName && (
             <NameInput
               type="text"
@@ -288,41 +264,25 @@ class PropertiesPanel extends React.Component {
         </Header>
         <ObjectProperties>
           <ParametersPanel>
-            <ObjectIcon>
-              <img src={icon} />
-            </ObjectIcon>
-            <ParametersForm>
-              {parameters.map(parameter => (
-                <PropertyInput
-                  key={parameter.name}
-                  parameter={parameter}
-                  value={object.parameters[parameter.name]}
-                  onChange={value =>
-                    this.onObjectParameterChange(object, parameter.name, value)
-                  }
-                />
-              ))}
-            </ParametersForm>
-            <Droppable droppableId="remove" ignoreContainerClipping>
-              {(provided, snapshot) => (
-                <RemoveOperationArea
-                  innerRef={provided.innerRef}
-                  {...provided.droppableProps}
-                  visible={draggingOperations}
-                  active={snapshot.isDraggingOver}>
-                  <img src={TrashIcon} />
-                  {provided.placeholder}
-                </RemoveOperationArea>
-              )}
-            </Droppable>
+            {parameters.map(parameter => (
+              <PropertyInput
+                key={parameter.name}
+                parameter={parameter}
+                value={object.parameters[parameter.name]}
+                onChange={value =>
+                  this.onObjectParameterChange(object, parameter.name, value)
+                }
+              />
+            ))}
           </ParametersPanel>
           <ObjectButtons>
             {config.objectOperations.map(operation => (
-              <Button
+              <OperationButton
                 key={operation.name}
+                color={operation.color}
                 onClick={() => this.onAddOperation(object, operation.name)}>
-                <ButtonIcon src={operation.icon} />
-              </Button>
+                {operation.icon}
+              </OperationButton>
             ))}
           </ObjectButtons>
         </ObjectProperties>

@@ -12,7 +12,7 @@ export const shadow = 'box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);';
 
 injectGlobal`
   body {
-    font-family: 'Jua', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 
   /* Style reset */
@@ -58,7 +58,7 @@ injectGlobal`
     border-spacing: 0;
   }
   input {
-    font-family: 'Jua', sans-serif;
+    font-family: 'Roboto', sans-serif;
   }
 `;
 

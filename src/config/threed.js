@@ -25,9 +25,9 @@ import UnionIcon from '../components/icons/Union';
 import DifferenceIcon from '../components/icons/Difference';
 import IntersectionIcon from '../components/icons/Intersection';
 
-import TranslateIcon from '../assets/images/translate.svg';
-import RotateIcon from '../assets/images/rotate.svg';
-import ScaleIcon from '../assets/images/scale.svg';
+import TranslationIcon from '../components/icons/Translation';
+import RotationIcon from '../components/icons/Rotation';
+import ScaleIcon from '../components/icons/Scale';
 
 const config = {
 
@@ -186,7 +186,8 @@ const config = {
     {
       name: 'translation',
       label: 'Translate',
-      icon: TranslateIcon,
+      icon: <TranslationIcon />,
+      color: '#dd5b0c',
       create: () => Object3D.createTranslateOperation(0, 0, 0, false),
       parameters: [
         {
@@ -232,7 +233,8 @@ const config = {
     {
       name: 'rotation',
       label: 'Rotate',
-      icon: RotateIcon,
+      icon: <RotationIcon />,
+      color: '#d8af31',
       create: () => Object3D.createRotateOperation('x', 0, false),
       parameters: [
         {
@@ -275,7 +277,8 @@ const config = {
     {
       name: 'scale',
       label: 'Scale',
-      icon: ScaleIcon,
+      icon: <ScaleIcon />,
+      color: '#59b52e',
       create: () => Object3D.createScaleOperation(1, 1, 1),
       parameters: [
         {

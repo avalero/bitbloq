@@ -68,6 +68,7 @@
     "react-emotion": "^9.2.4",
     "react-monaco-editor": "^0.17.2",
     "react-redux": "^5.0.7",
+    "react-router-dom": "^4.3.1",
     "react-select": "^2.0.0-beta.7",
     "react-spring": "^5.3.18",
     "redux": "^4.0.0",

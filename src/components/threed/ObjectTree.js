@@ -3,13 +3,11 @@ import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {colors, shadow} from '../../base-styles';
-import SubArrowIcon from '../../assets/images/sub-arrow.svg';
-import PointsIcon from '../../assets/images/three-points.svg';
+import DragIcon from '../icons/Drag';
 import {
   selectObject,
   deselectObject,
   createObject,
-  showContextMenu,
 } from '../../actions/threed';
 import {
   getObjects,
@@ -28,6 +26,7 @@ const Tree = styled.div`
   flex: 1;
   display: flex;
   overflow-y: auto;
+  padding: 20px 0px;
 `;
 
 const ObjectList = styled.ul`
@@ -39,21 +38,25 @@ const ObjectItem = styled.li`
 `;
 
 const ObjectName = styled.div`
-  padding: 12px;
+  color: #373b44;
+  padding: 0px 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #979797;
+  border-color: #eee;
+  border-style: solid;
+  border-width: 1px 0px 1px 0px;
+  background-color: white;
+  font-size: 13px;
+  height: 30px;
+  margin-bottom: -1px;
 
   ${props =>
     props.isSelected &&
     css`
-      background-color: #e0e0e0;
-    `};
-  ${props =>
-    props.isFirstSelected &&
-    css`
-      background-color: #ddd;
+      color: white;
+      background-color: #4dc3ff;
+      border-color: inherit;
     `};
 
   span {
@@ -65,15 +68,12 @@ const ObjectName = styled.div`
   }
 `;
 
-const SubArrow = styled.img`
-  margin-right: 6px;
-  ${props =>
-    props.depth &&
-    props.depth > 1 &&
-    css`
-      margin-left: ${12 * props.depth}px;
-    `};
-`;
+const DragHandle = styled.div`
+  margin-right: ${props => 8 + (12 * (props.depth || 0))}px;
+  svg {
+    width: 13px;
+  }
+`
 
 const AddButton = styled.div`
   display: flex;
@@ -166,7 +166,6 @@ class ObjectTree extends React.Component {
       deselectObject,
       controlPressed,
       shiftPressed,
-      showContextMenu,
     } = this.props;
 
     if (objects && objects.length) {
@@ -205,15 +204,10 @@ class ObjectTree extends React.Component {
                       }
                     }
                   }}>
-                  {depth > 0 && <SubArrow src={SubArrowIcon} depth={depth} />}
+                  <DragHandle depth={depth}>
+                    <DragIcon />
+                  </DragHandle>
                   <span>{object.name || object.type}</span>
-                  <img
-                    src={PointsIcon}
-                    onClick={e => {
-                      e.stopPropagation();
-                      showContextMenu(object, e);
-                    }}
-                  />
                 </ObjectName>
                 {this.renderObjectList(children, depth + 1)}
               </ObjectItem>
@@ -264,8 +258,6 @@ const mapDispatchToProps = dispatch => ({
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
-  showContextMenu: (object, e) =>
-    dispatch(showContextMenu(object, e.clientX, e.clientY)),
 });
 
 export default connect(
