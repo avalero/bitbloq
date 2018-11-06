@@ -10,21 +10,21 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-17 12:30:31 
- * Last modified  : 2018-10-18 16:27:16
+ * Last modified  : 2018-11-06 10:37:34
  */
 
 
 
 import * as THREE from 'three';
-import { ThreeBSP } from './threeCSG';
 
 
 export default class TranslationHelper {
 
-  private helperMesh:THREE.Mesh;
+  private helperMesh:THREE.Group;
 
   constructor(mesh:THREE.Mesh, axis:string, relative: boolean) {
     const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
+    debugger;
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
     const radius:number = 0.3;
     let color:number;
@@ -56,18 +56,16 @@ export default class TranslationHelper {
     arrowGeometry.rotateZ(Math.PI / 2);
     arrowGeometry.translate(offsetArrow, 0, 0);
 
-    let cylinderBSPGeometry = new ThreeBSP(cylinderGeometry);
-    const arrowBSPGeometry = new ThreeBSP(arrowGeometry);
-    cylinderBSPGeometry = cylinderBSPGeometry.union(arrowBSPGeometry);
-
     const material:THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({
       color, opacity: 0.5, transparent: true, depthWrite: false,
     });
 
-
-    this.helperMesh = cylinderBSPGeometry.toMesh(material);
+    this.helperMesh = new THREE.Group();
+    this.helperMesh.add(new THREE.Mesh(cylinderGeometry,material));
+    this.helperMesh.add(new THREE.Mesh(arrowGeometry, material));
+    
     this.helperMesh.position.copy(mesh.position);
-
+    
     if (relative === true) {
       this.helperMesh.setRotationFromEuler(mesh.rotation);
     }
@@ -79,7 +77,7 @@ export default class TranslationHelper {
     }
   }
 
-  get mesh() {
+  get mesh():THREE.Group {
     return this.helperMesh;
   }
 }

@@ -10,16 +10,15 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-17 12:30:09 
- * Last modified  : 2018-10-30 11:34:49
+ * Last modified  : 2018-11-06 10:33:55
  */
 
 
 import * as THREE from 'three';
-import { ThreeBSP } from './threeCSG';
 
 export default class RotationHelper {
 
-  private helperMesh:THREE.Mesh;
+  private helperMesh:THREE.Group;
 
   constructor(mesh:THREE.Mesh, axis:string, relative:boolean) {
     const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
@@ -60,16 +59,16 @@ export default class RotationHelper {
 
     toroidGeometry.rotateY(Math.PI / 2);
 
-    let cylinderBSPGeometry = new ThreeBSP(cylinderGeometry);
-    const toroidBSPGeometry = new ThreeBSP(toroidGeometry);
-    cylinderBSPGeometry = cylinderBSPGeometry.union(toroidBSPGeometry);
-
     const material = new THREE.MeshBasicMaterial({
       color, opacity: 0.5, transparent: true, depthWrite: false,
     });
 
+    this.helperMesh = new THREE.Group();
+    this.helperMesh.add(new THREE.Mesh(cylinderGeometry,material));
+    this.helperMesh.add(new THREE.Mesh(toroidGeometry, material));
 
-    this.helperMesh = cylinderBSPGeometry.toMesh(material);
+
+    
     this.helperMesh.position.copy(mesh.position);
 
     if (relative === true) {
@@ -83,7 +82,7 @@ export default class RotationHelper {
     }
   }
 
-  get mesh() {
+  get mesh():THREE.Group {
     return this.helperMesh;
   }
 }

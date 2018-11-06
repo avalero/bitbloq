@@ -285,10 +285,10 @@ export class Object3D {
   }
 
   private applyScaleOperation(operation: IScaleOperation): void {
-    if (
-      Number(operation.x) > 0 &&
-      Number(operation.y) > 0 &&
-      Number(operation.z) > 0
+    if ( true
+      // Number(operation.x) > 0 &&
+      // Number(operation.y) > 0 &&
+      // Number(operation.z) > 0
     )
       this.mesh.scale.set(
         this.mesh.scale.x * Number(operation.x),
