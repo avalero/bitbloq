@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-10-31 09:05:03
+ * Last modified  : 2018-11-06 11:53:49
  */
 
 import React from 'react';
@@ -31,6 +31,7 @@ import TranslationHelper from '../../lib/object3dts/TranslationHelper';
 import RotationHelper from '../../lib/object3dts/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';
 import UndoIcon from '../../assets/images/undo.svg';
+import BaseGrid from '../../lib/object3dts/BaseGrid.ts'
 
 const Wrap = styled.div`
   position: relative;
@@ -313,9 +314,11 @@ class ThreeDViewer extends React.Component {
     const helper = new Three.PlaneHelper(plane, 200, 0x98f5ff);
     this.scene.add(helper);
 
-    const grid = new Three.GridHelper(200, 20);
-    grid.geometry.rotateX(Math.PI / 2);
-    this.scene.add(grid);
+    // const grid = new Three.GridHelper(200, 20);
+    // grid.geometry.rotateX(Math.PI / 2);
+    const gridMesh = new BaseGrid(200,20).getMesh();
+    gridMesh.rotateX(Math.PI / 2)
+    this.scene.add(gridMesh);
 
     this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.position.set(0, -150, 80);
