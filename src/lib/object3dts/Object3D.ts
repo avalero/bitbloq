@@ -252,7 +252,6 @@ export class Object3D {
   }
 
   private applyRotateOperation(operation: IRotateOperation): void {
-    debugger;
     const angle = THREE.Math.degToRad(Number(operation.angle));
     switch (operation.axis) {
       case 'x':
