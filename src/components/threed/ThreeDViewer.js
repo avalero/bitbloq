@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-11-06 11:53:49
+ * Last modified  : 2018-11-06 12:00:31
  */
 
 import React from 'react';
@@ -316,7 +316,7 @@ class ThreeDViewer extends React.Component {
 
     // const grid = new Three.GridHelper(200, 20);
     // grid.geometry.rotateX(Math.PI / 2);
-    const gridMesh = new BaseGrid(200,20).getMesh();
+    const gridMesh = new BaseGrid(200,20.10).getMesh();
     gridMesh.rotateX(Math.PI / 2)
     this.scene.add(gridMesh);
 
