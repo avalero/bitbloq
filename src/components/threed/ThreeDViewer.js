@@ -17,12 +17,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as Three from 'three';
 import config from '../../config/threed';
-import {
-  selectObject,
-  deselectAllObjects,
-  undo,
-  redo,
-} from '../../actions/threed';
+import {selectObject, deselectAllObjects} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 import CompoundObject from '../../lib/object3dts/CompoundObject.ts';
@@ -30,7 +25,6 @@ import styled, {css} from 'react-emotion';
 import TranslationHelper from '../../lib/object3dts/TranslationHelper';
 import RotationHelper from '../../lib/object3dts/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';
-import UndoIcon from '../../assets/images/undo.svg';
 
 const Wrap = styled.div`
   position: relative;
@@ -43,43 +37,6 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   overflow: hidden;
-`;
-
-const TopRightButtons = styled.div`
-  position: absolute;
-  right: 18px;
-  top: 18px;
-  display: flex;
-  background-color: white;
-  border-radius: 6px;
-`;
-
-const UndoButton = styled.div`
-  border: 1px solid #979797;
-  background-color: #eee;
-  height: 32px;
-  width: 40px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px 0px 0px 6px;
-
-  ${props =>
-    props.disabled &&
-    css`
-      opacity: 0.3;
-    `} img {
-    transform: scaleX(-1);
-  }
-`;
-
-const RedoButton = styled(UndoButton)`
-  border-radius: 0px 6px 6px 0px;
-  margin-left: -1px;
-  img {
-    transform: none;
-  }
 `;
 
 const outlineMaterial = new Three.MeshBasicMaterial({
@@ -132,7 +89,7 @@ class ThreeDViewer extends React.Component {
       const {children = []} = parameters;
       object = new composition.objectClass(
         children.map(c => this.instances[c.id]),
-        []
+        [],
       );
     }
 
@@ -362,7 +319,6 @@ class ThreeDViewer extends React.Component {
   };
 
   render() {
-    const {undo, redo, canUndo, canRedo} = this.props;
     return (
       <Wrap>
         <Container
@@ -375,14 +331,6 @@ class ThreeDViewer extends React.Component {
           ref={this.navigationBox}
           onChangeCameraAngle={this.updateCameraAngle}
         />
-        <TopRightButtons>
-          <UndoButton onClick={undo} disabled={!canUndo}>
-            <img src={UndoIcon} />
-          </UndoButton>
-          <RedoButton onClick={redo} disabled={!canRedo}>
-            <img src={UndoIcon} />
-          </RedoButton>
-        </TopRightButtons>
       </Wrap>
     );
   }
@@ -394,15 +342,11 @@ const mapStateToProps = ({ui, threed}) => ({
   activeOperation: threed.ui.activeOperation,
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
-  canUndo: threed.scene.past.length > 0,
-  canRedo: threed.scene.future.length > 0,
 });
 
 const mapDispatchToProps = {
   selectObject,
   deselectAllObjects,
-  undo,
-  redo,
 };
 
 export default connect(

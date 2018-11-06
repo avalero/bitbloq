@@ -24,7 +24,6 @@ export default class TranslationHelper {
 
   constructor(mesh:THREE.Mesh, axis:string, relative: boolean) {
     const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
-    debugger;
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
     const radius:number = 0.3;
     let color:number;

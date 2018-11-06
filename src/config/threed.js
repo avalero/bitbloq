@@ -1,3 +1,4 @@
+import React from 'react';
 import uuid from 'uuid/v1';
 
 // Object classes
@@ -13,18 +14,20 @@ import Difference from '../lib/object3dts/Difference';
 import Intersection from '../lib/object3dts/Intersection';
 
 // Shape Icons
-import CubeIcon from '../assets/images/cube.svg';
-import SphereIcon from '../assets/images/sphere.svg';
-import CylinderIcon from '../assets/images/cylinder.svg';
-import PrismIcon from '../assets/images/prism.svg';
+import CubeIcon from '../components/icons/Cube';
+import SphereIcon from '../components/icons/Sphere';
+import CylinderIcon from '../components/icons/Cylinder';
+import PrismIcon from '../components/icons/Prism';
+import STLIcon from '../components/icons/STL';
 
 // Operation Icons
-import UnionIcon from '../assets/images/union.svg';
-import DifferenceIcon from '../assets/images/subtract.svg';
-import IntersectionIcon from '../assets/images/intersection.svg';
-import TranslateIcon from '../assets/images/translate.svg';
-import RotateIcon from '../assets/images/rotate.svg';
-import ScaleIcon from '../assets/images/scale.svg';
+import UnionIcon from '../components/icons/Union';
+import DifferenceIcon from '../components/icons/Difference';
+import IntersectionIcon from '../components/icons/Intersection';
+
+import TranslationIcon from '../components/icons/Translation';
+import RotationIcon from '../components/icons/Rotation';
+import ScaleIcon from '../components/icons/Scale';
 
 const config = {
 
@@ -45,7 +48,7 @@ const config = {
     {
       name: 'Cube',
       label: 'Cube',
-      icon: CubeIcon,
+      icon: <CubeIcon />,
       objectClass: Cube,
       parameters: [
         {
@@ -76,7 +79,7 @@ const config = {
     {
       name: 'Sphere',
       label: 'Sphere',
-      icon: SphereIcon,
+      icon: <SphereIcon />,
       objectClass: Sphere,
       parameters: [
         {
@@ -97,7 +100,7 @@ const config = {
     {
       name: 'Cylinder',
       label: 'Cylinder',
-      icon: CylinderIcon,
+      icon: <CylinderIcon />,
       objectClass: Cylinder,
       parameters: [
         {
@@ -128,7 +131,7 @@ const config = {
     {
       name: 'Prism',
       label: 'Prism',
-      icon: PrismIcon,
+      icon: <PrismIcon />,
       objectClass: Prism,
       parameters: [
         {
@@ -159,7 +162,7 @@ const config = {
     {
       name: 'STLObject',
       label: 'STL Object',
-      icon: PrismIcon,
+      icon: <STLIcon />,
       objectClass: STLObject,
       parameters: [
         {
@@ -183,7 +186,8 @@ const config = {
     {
       name: 'translation',
       label: 'Translate',
-      icon: TranslateIcon,
+      icon: <TranslationIcon />,
+      color: '#dd5b0c',
       create: () => Object3D.createTranslateOperation(0, 0, 0, false),
       parameters: [
         {
@@ -229,7 +233,8 @@ const config = {
     {
       name: 'rotation',
       label: 'Rotate',
-      icon: RotateIcon,
+      icon: <RotationIcon />,
+      color: '#d8af31',
       create: () => Object3D.createRotateOperation('x', 0, false),
       parameters: [
         {
@@ -272,7 +277,8 @@ const config = {
     {
       name: 'scale',
       label: 'Scale',
-      icon: ScaleIcon,
+      icon: <ScaleIcon />,
+      color: '#59b52e',
       create: () => Object3D.createScaleOperation(1, 1, 1),
       parameters: [
         {
@@ -298,8 +304,9 @@ const config = {
     {
       name: 'Union',
       label: 'Union',
-      icon: UnionIcon,
+      icon: <UnionIcon />,
       objectClass: Union,
+      canApply: (children) => children.length > 1,
       create: (children) => ({
         id: uuid(),
         type: 'Union',
@@ -312,7 +319,8 @@ const config = {
     {
       name: 'Difference',
       label: 'Difference',
-      icon: DifferenceIcon,
+      icon: <DifferenceIcon />,
+      canApply: (children) => children.length > 1,
       objectClass: Difference,
       create: (children) => ({
         id: uuid(),
@@ -326,7 +334,8 @@ const config = {
     {
       name: 'Intersection',
       label: 'Intersection',
-      icon: IntersectionIcon,
+      icon: <IntersectionIcon />,
+      canApply: (children) => children.length > 1,
       objectClass: Intersection,
       create: (children) => ({
         id: uuid(),
