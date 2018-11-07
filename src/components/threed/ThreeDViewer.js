@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-11-06 12:00:31
+ * Last modified  : 2018-11-07 08:37:22
  */
 
 import React from 'react';
@@ -310,13 +310,13 @@ class ThreeDViewer extends React.Component {
     spotLight.position.set(80, -100, 60);
     this.scene.add(spotLight);
 
-    const plane = new Three.Plane(new Three.Vector3(0, 0, 1));
-    const helper = new Three.PlaneHelper(plane, 200, 0x98f5ff);
-    this.scene.add(helper);
+    //const plane = new Three.Plane(new Three.Vector3(0, 0, 1));
+    //const helper = new Three.PlaneHelper(plane, 200, 0x98f5ff);
+    //this.scene.add(helper);
 
     // const grid = new Three.GridHelper(200, 20);
     // grid.geometry.rotateX(Math.PI / 2);
-    const gridMesh = new BaseGrid(200,20.10).getMesh();
+    const gridMesh = new BaseGrid(200,10,2,0xcdcdcd).getMesh();
     gridMesh.rotateX(Math.PI / 2)
     this.scene.add(gridMesh);
 

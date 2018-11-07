@@ -11,56 +11,78 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-06 10:52:42 
- * Last modified  : 2018-11-06 12:14:27
+ * Last modified  : 2018-11-07 09:18:05
  */
 
 
 import * as THREE from 'three'
 
 export default class BaseGrid{
-  private mesh: THREE.LineSegments;
+  private mesh: THREE.Group;
 
-  constructor(_size: number = 10, _divisions: number = 10, _subdivisions: number = 10, _color1:number = 0x444444, _color2: number = 0x111111, _color3: number = 0xCCCCCC){
-		const size = _size;
-		const divisions = _divisions;
-		const subdivisions = _subdivisions;
-		const color1 = new THREE.Color(_color1);
-		const color2 = new THREE.Color(_color2);
-		const color3 = new THREE.Color(_color3);
+  constructor(
+		size: number = 200,
+		step: number = 10, 
+		substep: number = 1, 
+		_colorBig:number = 0xcdcdcd, 
+		_colorSmall: number = 0xcdcdcd, 
+		lineWidthBig: number = 2, 
+		lineWidthSmall: number = 1
+		)
+	{
+		this.mesh = new THREE.Group();
+		
+		const colorBig = new THREE.Color(_colorBig);
+		const colorSmall = new THREE.Color(_colorSmall);
 
-		const center = divisions / 2;
-		const step = size / (divisions * subdivisions);
 		const halfSize = size / 2;
 
-		const vertices: Array<number> = [];
-		const colors: Array<number> = [];
+		const verticesBig: Array<number> = [];
+		const verticesSmall: Array<number> = [];
+		const colorsBig: Array<number> = [];
+		const colorsSmall: Array<number> = [];
 
-		for ( let i = 0, j = 0, k = - halfSize; i <= divisions*subdivisions; i ++, k += step ) {
-
-			vertices.push(- halfSize, 0, k, halfSize, 0, k );
-			vertices.push( k, 0, - halfSize, k, 0, halfSize );
-			debugger;
-			let kaux: number = k % subdivisions;
-			const color:THREE.Color = kaux === 0 ? color2: color3;
-			//const color:THREE.Color = i === center ? color1 : color3;
-	
-			color.toArray( colors, j ); j += 3;
-			color.toArray( colors, j ); j += 3;
-			color.toArray( colors, j ); j += 3;
-			color.toArray( colors, j ); j += 3;
-	
+		for ( let jBig = 0, jSmall = 0, k = -halfSize; k <= halfSize; k += substep ) {
+			const kaux: number = k % step;
+			if (Math.abs(kaux) < 1){
+				verticesBig.push(- halfSize, 0, k, halfSize, 0, k );
+				verticesBig.push( k, 0, - halfSize, k, 0, halfSize );
+				const color:THREE.Color = colorSmall;
+				color.toArray( colorsBig, jBig ); jBig += 3;
+				color.toArray( colorsBig, jBig ); jBig += 3;
+				color.toArray( colorsBig, jBig ); jBig += 3;
+				color.toArray( colorsBig, jBig ); jBig += 3;
+			}else{
+				verticesSmall.push(- halfSize, 0, k, halfSize, 0, k );
+				verticesSmall.push( k, 0, - halfSize, k, 0, halfSize );
+				const color:THREE.Color = colorBig;	
+				color.toArray( colorsSmall, jSmall ); jSmall += 3;
+				color.toArray( colorsSmall, jSmall ); jSmall += 3;
+				color.toArray( colorsSmall, jSmall ); jSmall += 3;
+				color.toArray( colorsSmall, jSmall ); jSmall += 3;
+			}
 		}
 	
-		const geometry:THREE.BufferGeometry = new THREE.BufferGeometry();
-		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
-		geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+		const geometryBig:THREE.BufferGeometry = new THREE.BufferGeometry();
+		const geometrySmall:THREE.BufferGeometry = new THREE.BufferGeometry();
+		
+		geometryBig.addAttribute( 'position', new THREE.Float32BufferAttribute( verticesBig, 3 ) );
+		geometryBig.addAttribute( 'color', new THREE.Float32BufferAttribute( colorsBig, 3 ) );
+
+		geometrySmall.addAttribute( 'position', new THREE.Float32BufferAttribute( verticesSmall, 3 ) );
+		geometrySmall.addAttribute( 'color', new THREE.Float32BufferAttribute( colorsSmall, 3 ) );
 	
-		const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors } );
+		const materialBig = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:lineWidthBig, fog:false } );
+		const materialSmall = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:lineWidthSmall, fog:false } );
 	
-		this.mesh = new THREE.LineSegments(geometry, material);
+		const meshBig:THREE.LineSegments = new THREE.LineSegments(geometryBig, materialBig);
+		const meshSmall: THREE.LineSegments = new THREE.LineSegments(geometrySmall, materialSmall);
+
+		this.mesh.add(meshBig);
+		this.mesh.add(meshSmall);
 	}
 	
-	public getMesh():THREE.LineSegments{
+	public getMesh():THREE.Group{
 		return this.mesh;
 	}
 }
