@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-10-31 09:05:20
+ * Last modified  : 2018-11-07 13:33:00
  */
 
 import * as THREE from 'three';
@@ -193,18 +193,14 @@ export class Object3D {
     return this.mesh;
   }
 
-  public getMeshAsync(): Promise<THREE.Mesh> {
-    
-    return new Promise((resolve, reject) => {
+  public async getMeshAsync(): Promise<THREE.Mesh> {
       // for generic Object3D make it sync
       const mesh = this.getPrimitiveMesh();
       if(mesh instanceof THREE.Mesh){
-        resolve(mesh);
+        return mesh;
       }else{
-        const reason = new Error('Mesh not computed correctly');
-        reject(reason);
+        throw new Error('Mesh not computed correctly');
       }
-    });
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -294,6 +290,27 @@ export class Object3D {
         this.mesh.scale.y * Number(operation.y),
         this.mesh.scale.z * Number(operation.z),
       );
+  }
+
+  public translate(x:number, y:number, z:number, relative:boolean = false):void{
+    this.addOperations([
+      {
+        type: 'translation',
+        x,
+        y,
+        z,
+        relative,
+      }]);
+  }
+  
+  public clone():Object3D{
+    const objectClone:Object3D = Object.assign(
+      Object.create(
+        Object.getPrototypeOf(this)
+      ),
+      this); // cloneDeep(object3D); is it need to use cloneDeep???
+
+      return objectClone;
   }
 
 
