@@ -16,6 +16,7 @@ export default class ObjectsGroup{
    }
 
    public add(object: Object3D):void{
+     console.log(`add object: ${this.group.length}`);
      this.group.push(object);
    }
 
@@ -40,17 +41,24 @@ export default class ObjectsGroup{
 
       const promises: Promise<THREE.Mesh>[] = []
 
+      console.log(`getMeshAsync: ${this.group.length}`);
       this.group.forEach( object3D => {
         // only first level objets require to update operations, no need to make deep copy  
         const objectClone = object3D.clone();
         objectClone.addOperations(this.operations);
         promises.push(objectClone.getMeshAsync());
+        console.log(`Promises: ${promises.length}`);
       });
 
       Promise.all(promises).then(meshes => {
-        meshes.forEach(mesh => {
+        meshes.forEach( (mesh,i) => {
+          console.log(`Meshes: ${i}`);
+          console.log(`Is Object ${mesh.isObject3D}`);
           meshGroup.add(mesh);
+          console.log(`Mesh Group: ${meshGroup.children.length}`);
         });
+
+        console.log(`resolve ${meshGroup.children.length}`)
         resolve(meshGroup);
       });
     });

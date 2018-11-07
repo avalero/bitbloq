@@ -10,13 +10,12 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37 
- * Last modified  : 2018-11-07 13:48:01
+ * Last modified  : 2018-11-07 17:09:26
  */
 
 import * as THREE from 'three';
-import {Object3D, OperationsArray} from './Object3D';
+import {Object3D} from './Object3D';
 import ObjectsGroup from './ObjectsGroup';
-import { resolve } from 'url';
 
 
 export interface ICartesianRepetitionParams{
@@ -55,7 +54,8 @@ export default class RepetitionObject{
   constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D){
     this.parameters = {...params}
     this.group = new ObjectsGroup();
-    if (this.parameters.type === "Cartesian") this.cartesianRepetition();
+    this.object = object;
+    if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
     else this.polarRepetition();
   }
 
@@ -99,6 +99,8 @@ export default class RepetitionObject{
    * THREE.Group Object 3D returned as a Promise
    */
   public async getMeshAsync(): Promise<THREE.Group> {
+    const meshGroup = await this.group.getMeshAsync();
+    console.log(`Group items ${meshGroup.children.length}`)
     return this.group.getMeshAsync();
   }
 
