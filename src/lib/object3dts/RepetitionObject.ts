@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, 
+ * @author Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-11-07 13:45:37 
+ * Last modified  : 2018-11-07 13:48:01
+ */
+
 import * as THREE from 'three';
 import {Object3D, OperationsArray} from './Object3D';
 import ObjectsGroup from './ObjectsGroup';
@@ -19,6 +34,10 @@ export interface IPolarRepetitionParams{
   type: string;
 }
 
+/**
+ * RepetitionObject Class
+ * I allows to repeat one object in a cartesian or polar way.
+ */
 export default class RepetitionObject{
 
   public static typeName:string = 'RepetitionObject';
@@ -27,6 +46,12 @@ export default class RepetitionObject{
   private object: Object3D;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
+  /**
+   * 
+   * @param params The parameters of the repetition
+   * @param object The object to repeat
+   * Creates an ObjectsGroup with cloned objects (Object3D instance) on their new postion
+   */
   constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D){
     this.parameters = {...params}
     this.group = new ObjectsGroup();
@@ -64,12 +89,15 @@ export default class RepetitionObject{
   }
 
   /**
-   * Returns the group of the repetition Object
+   * Returns the group (instance of ObjectsGroup) of this RepetitionObject
    */
   public getGroup():ObjectsGroup{
     return this.group;
   }
 
+  /**
+   * THREE.Group Object 3D returned as a Promise
+   */
   public async getMeshAsync(): Promise<THREE.Group> {
     return this.group.getMeshAsync();
   }
