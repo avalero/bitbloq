@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-10-31 09:05:03
+ * Last modified  : 2018-11-07 10:52:06
  */
 
 import React from 'react';
@@ -25,6 +25,7 @@ import styled, {css} from 'react-emotion';
 import TranslationHelper from '../../lib/object3dts/TranslationHelper';
 import RotationHelper from '../../lib/object3dts/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';
+import BaseGrid from '../../lib/object3dts/BaseGrid.ts'
 
 const Wrap = styled.div`
   position: relative;
@@ -266,13 +267,29 @@ class ThreeDViewer extends React.Component {
     spotLight.position.set(80, -100, 60);
     this.scene.add(spotLight);
 
-    const plane = new Three.Plane(new Three.Vector3(0, 0, 1));
-    const helper = new Three.PlaneHelper(plane, 200, 0x98f5ff);
-    this.scene.add(helper);
+    //@David , esto debería ir en algún sitio de opciones de configuracion
+    const gridConfig = {
+      size: 200,
+      smallGrid : {
+        enabled:true,
+        step: 2.5,
+        color: 0xcdcdcd,
+        lineWidth: 1,
+      },
+      bigGrid: {
+        enabled:true,
+        step: 10,
+        color: 0xcdcdcd,
+        lineWidth: 2
+      },
+      plane:{
+        enabled:false,
+        color: 0x98f5ff,
+      },
+    };
 
-    const grid = new Three.GridHelper(200, 20);
-    grid.geometry.rotateX(Math.PI / 2);
-    this.scene.add(grid);
+    const gridMesh = new BaseGrid(gridConfig).getMesh();
+    this.scene.add(gridMesh);
 
     this.camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.position.set(0, -150, 80);
