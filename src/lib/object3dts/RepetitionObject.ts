@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37 
- * Last modified  : 2018-11-07 17:09:26
+ * Last modified  : 2018-11-08 11:28:52
  */
 
 import * as THREE from 'three';
@@ -98,10 +98,7 @@ export default class RepetitionObject{
   /**
    * THREE.Group Object 3D returned as a Promise
    */
-  public async getMeshAsync(): Promise<THREE.Group> {
-    const meshGroup = await this.group.getMeshAsync();
-    console.log(`Group items ${meshGroup.children.length}`)
+  public getMeshAsync(): Promise<THREE.Group> {
     return this.group.getMeshAsync();
   }
-
 }

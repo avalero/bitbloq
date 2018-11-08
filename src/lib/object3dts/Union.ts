@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09 
- * Last modified  : 2018-10-24 20:44:21
+ * Last modified  : 2018-11-08 11:16:26
  */
 
 
@@ -66,4 +66,8 @@ export default class Union extends CompoundObject {
   
   //   return this.mesh;
   // }
+
+  public clone():Union{
+    return new Union(this.children, this.operations);
+  }
 }

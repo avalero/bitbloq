@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-10-30 12:34:03
+ * Last modified  : 2018-11-08 11:11:10
  */
 
 import * as THREE from 'three';
@@ -52,6 +52,10 @@ export default class Cylinder extends Object3D{
     const {r0,r1,height} = this.parameters;
     this._updateRequired = false;
     return new THREE.CylinderBufferGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
+  }
+
+  public clone():Cylinder{
+    return new Cylinder(this.parameters, this.operations);
   }
 
 

@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:00 
- * Last modified  : 2018-10-16 13:00:00 
+ * Last modified  : 2018-11-08 11:19:34
  */
 
 
@@ -26,6 +26,10 @@ export default class Difference extends CompoundObject {
 
   public getTypeName():string{
     return Difference.typeName;
+  }
+
+  public clone():Difference{
+    return new Difference(this.children,this.operations);
   }
   
 

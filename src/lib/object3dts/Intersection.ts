@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53 
- * Last modified  : 2018-10-16 12:59:53 
+ * Last modified  : 2018-11-08 11:15:08
  */
 
 
@@ -54,4 +54,8 @@ export default class Intersection extends CompoundObject {
   
   //   return this.mesh;
   // }
+
+  public clone():Intersection{
+    return new Intersection(this.children, this.operations);
+  }
 }
