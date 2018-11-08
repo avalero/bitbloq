@@ -19,8 +19,6 @@ import {
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
-import TrashIcon from '../../assets/images/trash-green.svg';
-import GroupIcon from '../../assets/images/shape-group.svg';
 import PointsIcon from '../../assets/images/three-points.svg';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
@@ -35,7 +33,7 @@ const Container = styled.div`
   width: 310px;
   min-width: 310px;
   overflow: hidden;
-  border-left: 1px solid #979797;
+  border-left: 1px solid #cfcfcf;
   background-color: white;
   display: flex;
   flex-direction: column;
@@ -57,7 +55,13 @@ const Header = styled.div`
 `;
 
 const HeaderIcon = styled.div`
-  margin-right: 8px;
+  margin-right: 10px;
+  color: #4dc3ff;
+
+  svg {
+    width: 30px;
+    height: auto;
+  }
 `;
 
 const ObjectName = styled.div`
@@ -68,14 +72,13 @@ const ObjectName = styled.div`
 `;
 
 const ObjectProperties = styled.div`
-  padding: 12px;
   border-bottom: 1px solid #cfcfcf;
   position: relative;
+  font-size: 13px;
 `;
 
 const ParametersPanel = styled.div`
-  margin-bottom: 18px;
-  min-height: 120px;
+  padding: 20px;
 `;
 
 const ParametersForm = styled.div`
@@ -84,7 +87,7 @@ const ParametersForm = styled.div`
 
 const ObjectButtons = styled.div`
   display: flex;
-  margin: 0px -2px;
+  padding: 0px 4px 10px 4px;
 `;
 
 const OperationButton = styled.div`
@@ -93,7 +96,7 @@ const OperationButton = styled.div`
   align-items: center;
   justify-content: center;
   color: #373b44;
-  height: 55px;
+  height: 50px;
   border-radius: 3px;
   background-color: #ebebeb;
   flex: 1;
@@ -120,40 +123,6 @@ const NameInput = styled.input`
   &:focus {
     outline: none;
   }
-`;
-
-const RemoveOperationArea = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  background-color: white;
-  opacity: 0;
-  pointer-events: none;
-
-  img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 60px;
-    height: 84px;
-    margin-left: -30px;
-    margin-top: -42px;
-  }
-
-  ${props =>
-    props.visible &&
-    css`
-      opacity: 1;
-      pointer-events: auto;
-    `} ${props =>
-    props.active &&
-    css`
-      img {
-        opacity: 0.8;
-      }
-    `};
 `;
 
 class PropertiesPanel extends React.Component {
@@ -193,16 +162,12 @@ class PropertiesPanel extends React.Component {
 
     if (!destination || !operation) return;
 
-    if (destination.droppableId !== 'remove') {
-      this.props.reorderOperation(
-        object,
-        operation,
-        source.index,
-        destination.index,
-      );
-    } else {
-      this.props.removeOperation(object, operation);
-    }
+    this.props.reorderOperation(
+      object,
+      operation,
+      source.index,
+      destination.index,
+    );
   };
 
   onAddOperation(object, operationName) {
@@ -224,19 +189,31 @@ class PropertiesPanel extends React.Component {
     } = this.props;
     const {color} = object.parameters;
 
-    const shapeConfig =
-      config.shapes.find(s => s.name === object.type) ||
-      { parameters: [] };
+    let baseParameters;
+    let icon;
+
+    const shapeConfig = config.shapes.find(s => s.name === object.type);
+    if (shapeConfig) {
+      baseParameters = shapeConfig.parameters || [];
+      icon = shapeConfig.icon
+    } else {
+      const compositionConfig = config.compositionOperations.find(
+        c => c.name === object.type,
+      );
+      if (compositionConfig) {
+        baseParameters = compositionConfig.parameters || [];
+        icon = compositionConfig.icon;
+      }
+    }
 
     const parameters = [
-      ...shapeConfig.parameters,
+      ...baseParameters,
       {
         name: 'color',
         label: 'Color',
         type: 'color',
       },
     ];
-    const icon = (shapeConfig && shapeConfig.icon) || GroupIcon;
 
     return (
       <DragDropContext
@@ -306,6 +283,7 @@ class PropertiesPanel extends React.Component {
               unsetActiveOperation();
             }
           }}
+          onRemoveOperation={operation => this.onRemoveOperation(object, operation)}
         />
       </DragDropContext>
     );

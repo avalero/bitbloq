@@ -44,7 +44,7 @@ const Main = styled.div`
 const Tabs = styled.div`
   width: 70px;
   min-width: 70px;
-  background-color: #3b3e45;
+  background-color: #373b44;
   color: white;
 `;
 
