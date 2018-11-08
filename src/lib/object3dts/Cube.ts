@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-06 11:19:20
+ * Last modified  : 2018-11-08 11:12:22
  */
 
 import * as THREE from 'three';
@@ -23,7 +23,7 @@ interface ICubeParams {
   height:number
 }
 
-export default class Cylinder extends Object3D{
+export default class Cube extends Object3D{
 
   public static typeName:string = 'Cube';
   private parameters: ICubeParams;
@@ -54,4 +54,7 @@ export default class Cylinder extends Object3D{
     this._updateRequired = false;
     return new THREE.BoxBufferGeometry(Number(width), Number(depth), Number(height));
   }
+
+  public clone():Cube{
+    return new Cube(this.parameters, this.operations);  }
 }

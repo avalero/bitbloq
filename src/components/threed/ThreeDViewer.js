@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-11-07 11:04:18
+ * Last modified  : 2018-11-08 09:54:15
  */
 
 import React from 'react';
@@ -272,7 +272,7 @@ class ThreeDViewer extends React.Component {
       size: 200,
       smallGrid : {
         enabled:true,
-        step: 2.5,
+        step: 2,
         color: 0xededed,
         lineWidth: 1,
       },

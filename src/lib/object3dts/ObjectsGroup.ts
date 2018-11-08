@@ -6,13 +6,17 @@ export default class ObjectsGroup{
    private group:Array<Object3D>;
    private operations: OperationsArray;
 
-   constructor(objects: Array<Object3D>){
+   constructor(objects: Array<Object3D> = []){
      this.group = objects;
    }
    // Group operations. Will be transferred to children only when un-grouped.
    public setOperations(operations: OperationsArray = []):void{
       this.operations = [];
       this.operations = operations.slice();
+   }
+
+   public add(object: Object3D):void{
+     this.group.push(object);
    }
 
    // When a group is un-grouped all the operations of the group are transferred to the single objects
@@ -26,7 +30,7 @@ export default class ObjectsGroup{
 
    public getMeshAsync():Promise<THREE.Group> {
     return new Promise( (resolve, reject) => {
-      const meshGroup: THREE.Group = new THREE.Group();
+      let meshGroup: THREE.Group = new THREE.Group();
 
       // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
       if(this.group.length === 0){
@@ -38,20 +42,16 @@ export default class ObjectsGroup{
 
       this.group.forEach( object3D => {
         // only first level objets require to update operations, no need to make deep copy  
-        const objectClone:Object3D = Object.assign(
-          Object.create(
-            Object.getPrototypeOf(object3D)
-          ),
-          object3D); // cloneDeep(object3D); is it need to use cloneDeep???
-          
+        const objectClone = object3D.clone();
         objectClone.addOperations(this.operations);
         promises.push(objectClone.getMeshAsync());
       });
 
       Promise.all(promises).then(meshes => {
-        meshes.forEach(mesh => {
-          meshGroup.add(mesh);
+        meshes.forEach( (mesh,i) => {
+          meshGroup = meshGroup.add(mesh);
         });
+
         resolve(meshGroup);
       });
     });
