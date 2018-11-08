@@ -185,10 +185,13 @@ const config = {
   objectOperations: [
     {
       name: 'translation',
-      label: 'Translate',
+      label: 'Translation',
       icon: <TranslationIcon />,
       color: '#dd5b0c',
-      create: () => Object3D.createTranslateOperation(0, 0, 0, false),
+      create: () => ({
+        id: uuid(),
+        ...Object3D.createTranslateOperation(0, 0, 0, false)
+      }),
       parameters: [
         {
           name: 'relative',
@@ -232,10 +235,13 @@ const config = {
     },
     {
       name: 'rotation',
-      label: 'Rotate',
+      label: 'Rotation',
       icon: <RotationIcon />,
       color: '#d8af31',
-      create: () => Object3D.createRotateOperation('x', 0, false),
+      create: () => ({
+        id: uuid(),
+        ...Object3D.createRotateOperation('x', 0, false),
+      }),
       parameters: [
         {
           name: 'relative',
@@ -279,7 +285,10 @@ const config = {
       label: 'Scale',
       icon: <ScaleIcon />,
       color: '#59b52e',
-      create: () => Object3D.createScaleOperation(1, 1, 1),
+      create: () => ({
+        id: uuid(),
+        ...Object3D.createScaleOperation(1, 1, 1),
+      }),
       parameters: [
         {
           name: 'x',

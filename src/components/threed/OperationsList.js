@@ -7,6 +7,7 @@ const Container = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
   flex: 1;
+  padding: 10px;
 `;
 
 export default class OperationsList extends React.Component {
@@ -22,7 +23,9 @@ export default class OperationsList extends React.Component {
     if (object !== prevObject) {
       const {operations = []} = object || {};
       const {operations: prevOperations = []} = prevObject || {};
-      const newOperation = operations.find(o => !prevOperations.find(p => p.id === o.id));
+      const newOperation = operations.find(
+        o => !prevOperations.find(p => p.id === o.id),
+      );
 
       if (newOperation && newOperation.id !== openOperation) {
         this.setState({openOperation: newOperation.id});
@@ -47,6 +50,7 @@ export default class OperationsList extends React.Component {
       onParameterChange,
       onParameterFocus,
       onParameterBlur,
+      onRemoveOperation,
     } = this.props;
     const {openOperation} = this.state;
 
@@ -72,6 +76,7 @@ export default class OperationsList extends React.Component {
                 onParameterBlur={parameter =>
                   onParameterBlur(operation, parameter)
                 }
+                onRemove={() => onRemoveOperation(operation)}
               />
             ))}
             {provided.placeholder}

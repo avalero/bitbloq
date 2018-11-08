@@ -3,53 +3,85 @@ import styled, {css} from 'react-emotion';
 import {Draggable} from 'react-beautiful-dnd';
 import PropertyInput from './PropertyInput';
 import config from '../../config/threed';
-import HandlerImage from '../../assets/images/draganddrop-handler.svg';
-import ChevronImage from '../../assets/images/chevron-left.svg';
+import DragIcon from '../icons/Drag';
+import AngleIcon from '../icons/Angle';
+import TrashIcon from '../icons/Trash';
 
 const objectOperationsMap = {};
 config.objectOperations.forEach(
   operation => (objectOperationsMap[operation.name] = operation),
 );
 
+const Wrap = styled.div`
+  border-radius: 3px;
+  border-left: 5px solid ${props => props.color};
+  margin: 4px 0px;
+  ${props =>
+    props.isDragging &&
+    css`
+      box-shadow: 0 0 0 2px #4dc3ff;
+    `};
+`;
+
 const Container = styled.div`
   background-color: white;
-  border: 1px solid #979797;
-  margin: -1px;
-  color: #4a4a4a;
+  border: 1px solid #ebebeb;
+  border-radius: 0px 3px 3px 0px;
+  color: #373b44;
 `;
 
 const HeaderContent = styled.div`
   display: flex;
-  height: 42px;
+  height: 40px;
   flex: 1;
   align-items: center;
+  font-weight: bold;
+  font-size: 14px;
 
-  img {
-    margin: 0px 12px;
+  svg {
+    transform: rotate(-90deg);
+    margin: 0px 8px 0px 2px;
   }
 `;
 
+const HeaderButtons = styled.div`
+  display: none;
+  margin-right: 15px;
+`
+
+const HeaderButton = styled.div`
+  color: #8c919b;
+  padding: 0px 5px;
+  svg {
+    height: auto;
+    width: 12px;
+  }
+`
+
 const Header = styled.div`
-  height: 42px;
+  height: 40px;
   display: flex;
   align-items: center;
   cursor: pointer;
+  background-color: #ebebeb;
 
   ${props =>
     props.isOpen &&
     css`
-      border-bottom: 1px solid #ccc;
-
-      ${HeaderContent} img {
-        transform: rotate(-90deg);
+      ${HeaderContent} svg {
+        transform: rotate(0deg);
       }
     `};
+
+  &:hover ${HeaderButtons} {
+    display: block;
+  }
 `;
 
-const Handler = styled.img`
-  height: 24px;
+const Handler = styled.div`
+  height: 18px;
   margin: 0px 6px;
-  opacity: 0.8;
+  color: #cccccc;
 `;
 
 const Title = styled.div`
@@ -57,7 +89,8 @@ const Title = styled.div`
 `;
 
 const Content = styled.div`
-  padding: 12px;
+  padding: 20px;
+  font-size: 13px;
 `;
 
 export default class Operation extends React.Component {
@@ -77,46 +110,58 @@ export default class Operation extends React.Component {
       onParameterBlur,
       isOpen,
       onOpen,
+      onRemove,
     } = this.props;
 
-    const {label, icon, parameters} = objectOperationsMap[operation.type];
+    const {label, parameters, color} = objectOperationsMap[operation.type];
 
     return (
       <Draggable draggableId={operation.id} index={index}>
         {(provided, snapshot) => (
-          <Container
+          <Wrap
             {...provided.draggableProps}
             innerRef={provided.innerRef}
-            isDragging={snapshot.isDragging}>
-            <Header isOpen={isOpen}>
-              <Handler
-                {...provided.dragHandleProps}
-                src={HandlerImage}
-                onMouseDown={e => {
-                  e.persist();
-                  onOpen(false, () => provided.dragHandleProps.onMouseDown(e));
-                }}
-              />
-              <HeaderContent onClick={this.onTitleClick}>
-                <Title>{label}</Title>
-                <img src={isOpen ? ChevronImage : ChevronImage} />
-              </HeaderContent>
-            </Header>
-            {isOpen && (
-              <Content>
-                {parameters.map(parameter => (
-                  <PropertyInput
-                    key={parameter.name}
-                    parameter={parameter}
-                    value={operation[parameter.name]}
-                    onChange={value => onParameterChange(parameter, value)}
-                    onFocus={() => onParameterFocus(parameter)}
-                    onBlur={() => onParameterBlur(parameter)}
-                  />
-                ))}
-              </Content>
-            )}
-          </Container>
+            isDragging={snapshot.isDragging}
+            color={color}>
+            <Container>
+              <Header isOpen={isOpen}>
+                <Handler
+                  {...provided.dragHandleProps}
+                  onMouseDown={e => {
+                    e.persist();
+                    onOpen(false, () =>
+                      provided.dragHandleProps.onMouseDown(e),
+                    );
+                  }}
+                >
+                  <DragIcon />
+                </Handler>
+                <HeaderContent onClick={this.onTitleClick}>
+                  <AngleIcon />
+                  <Title>{label}</Title>
+                </HeaderContent>
+                <HeaderButtons>
+                  <HeaderButton onClick={onRemove}>
+                    <TrashIcon />
+                  </HeaderButton>
+                </HeaderButtons>
+              </Header>
+              {isOpen && (
+                <Content>
+                  {parameters.map(parameter => (
+                    <PropertyInput
+                      key={parameter.name}
+                      parameter={parameter}
+                      value={operation[parameter.name]}
+                      onChange={value => onParameterChange(parameter, value)}
+                      onFocus={() => onParameterFocus(parameter)}
+                      onBlur={() => onParameterBlur(parameter)}
+                    />
+                  ))}
+                </Content>
+              )}
+            </Container>
+          </Wrap>
         )}
       </Draggable>
     );
