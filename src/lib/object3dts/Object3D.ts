@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-07 13:33:00
+ * Last modified  : 2018-11-08 15:51:03
  */
 
 import * as THREE from 'three';
@@ -280,10 +280,10 @@ export class Object3D {
   }
 
   private applyScaleOperation(operation: IScaleOperation): void {
-    if ( true
-      // Number(operation.x) > 0 &&
-      // Number(operation.y) > 0 &&
-      // Number(operation.z) > 0
+    if ( 
+      Number(operation.x) > 0 &&
+      Number(operation.y) > 0 &&
+      Number(operation.z) > 0
     )
       this.mesh.scale.set(
         this.mesh.scale.x * Number(operation.x),
