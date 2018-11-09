@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-09 13:17:18
+ * Last modified  : 2018-11-09 13:23:55
  */
 
 import * as THREE from 'three';
@@ -222,7 +222,7 @@ export class Object3D {
       this.mesh.position.x = ch_mesh.position.x;
       this.mesh.position.y = ch_mesh.position.y;
       this.mesh.position.z = ch_mesh.position.z;
-      this.mesh.quaternion.setFromEuler(new THREE.Euler(ch_mesh.rotation.x,ch_mesh.rotation.x,ch_mesh.rotation.x),true);
+      this.mesh.quaternion.set(ch_mesh.quaternion.x, ch_mesh.quaternion.y, ch_mesh.quaternion.z, ch_mesh.quaternion.w);
     }else{
       this.mesh.position.set(0,0,0);
       this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
