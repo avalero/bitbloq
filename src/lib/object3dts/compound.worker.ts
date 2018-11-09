@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:29:49 
- * Last modified  : 2018-11-09 11:31:16
+ * Last modified  : 2018-11-09 14:50:29
  */
 
 
@@ -69,6 +69,8 @@ ctx.addEventListener(
     const geometries:Array<THREE.Geometry> = [];
     const bufferArray = e.data.bufferArray;
 
+    let firstGeomMatrix:THREE.Matrix4 | undefined = undefined;
+
     //add all children to geometries array
     for (let i=0; i < bufferArray.length; i += 3){
       //recompute object form vertices and normals
@@ -80,6 +82,7 @@ ctx.addEventListener(
       const _positions: ArrayLike<number> = new Float32Array(positionBuffer, 0, positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
       const matrixWorld:THREE.Matrix4 = new THREE.Matrix4();
       matrixWorld.elements = new Float32Array(_positions);
+      if(i==0) firstGeomMatrix = matrixWorld.clone();
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute( 'position', new THREE.BufferAttribute( _vertices, 3 ) );
       buffGeometry.addAttribute( 'normal', new THREE.BufferAttribute( _normals, 3 ) );
@@ -102,6 +105,11 @@ ctx.addEventListener(
       };
       ctx.postMessage(message);
     }
+
+    //move resulting geometry to origin of coordinates (center on first child on origin)
+    const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
+    if(firstGeomMatrix) invMatrix.getInverse(firstGeomMatrix);
+    geometry.applyMatrix(invMatrix);
 
     // get buffer data
     const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
