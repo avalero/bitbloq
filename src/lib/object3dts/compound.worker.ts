@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:29:49 
- * Last modified  : 2018-11-09 09:29:49 
+ * Last modified  : 2018-11-09 11:31:16
  */
 
 
@@ -72,7 +72,6 @@ ctx.addEventListener(
     //add all children to geometries array
     for (let i=0; i < bufferArray.length; i += 3){
       //recompute object form vertices and normals
-      debugger;
       const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
       const normalsBuffer: ArrayBuffer = e.data.bufferArray[i+1];
       const positionBuffer: ArrayBuffer = e.data.bufferArray[i+2];

@@ -9,10 +9,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03 
- * Last modified  : 2018-11-09 09:31:03 
+ * Last modified  : 2018-11-09 13:09:45
  */
 
-import {OperationsArray, Object3D, ChildrenArray} from './Object3D';
+import {OperationsArray, Object3D, ChildrenArray, ITranslateOperation, IRotateOperation} from './Object3D';
 import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
@@ -64,16 +64,14 @@ export default class CompoundObject extends Object3D {
             //recompute object form vertices and normals
             this.fromBufferData(message.vertices, message.normals).then(mesh => {
               this.mesh = mesh;
-              // //check if there are penging operations
-              // this.applyOperations();
-              // this._updateRequired = false;
               const t1 = performance.now();
               console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
               
               if(this.mesh instanceof THREE.Mesh){
-                this.applyOperations();
-                this._updateRequired = false;
-                resolve(this.mesh);
+                  this.applyOperations().then( () => {
+                    this._updateRequired = false;
+                    resolve(this.mesh);
+                  });
               }else{
                 const reason = new Error('Mesh not computed correctly');
                 reject(reason);
@@ -100,7 +98,9 @@ export default class CompoundObject extends Object3D {
         }
       }else{
         if (this.pendingOperation){
-          this.applyOperations();
+          this.applyOperations().then( () => {
+            resolve(this.mesh);
+          });
         }
         resolve(this.mesh)
       }
@@ -114,9 +114,15 @@ export default class CompoundObject extends Object3D {
       buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
       const material = this.getMaterial();
       const mesh: THREE.Mesh = new THREE.Mesh(buffGeometry, material);
+      //resolve(mesh);
       //we need to apply the scale of first objet (or we loose it)
       this.children[0].getMeshAsync().then( ch_mesh => {
-        mesh.scale.set(ch_mesh.scale.x, ch_mesh.scale.y, ch_mesh.scale.z);
+        debugger;
+        const trMatrix: THREE.Matrix4 = new THREE.Matrix4();
+        trMatrix.elements = ch_mesh.matrixWorld.elements.slice(0);
+        const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
+        invMatrix.getInverse(trMatrix);
+        mesh.geometry.applyMatrix(invMatrix);
         resolve(mesh);
       });
     });  

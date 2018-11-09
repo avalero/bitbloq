@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-08 15:51:03
+ * Last modified  : 2018-11-09 13:12:07
  */
 
 import * as THREE from 'three';
@@ -19,20 +19,20 @@ interface ICommonOperation {
   type: string;
 }
 
-interface ITranslateOperation extends ICommonOperation {
+export interface ITranslateOperation extends ICommonOperation {
   x: number;
   y: number;
   z: number;
   relative: boolean;
 }
 
-interface IRotateOperation extends ICommonOperation {
+export interface IRotateOperation extends ICommonOperation {
   axis: string;
   angle: number;
   relative: boolean;
 }
 
-interface IScaleOperation extends ICommonOperation {
+export interface IScaleOperation extends ICommonOperation {
   x: number;
   y: number;
   z: number;
@@ -212,10 +212,22 @@ export class Object3D {
   }
 
 
-  protected applyOperations() {
-    //console.log("Recompute Operations");
-    this.mesh.position.set(0,0,0);
-    this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
+  protected async applyOperations():Promise<void> {
+    
+    if( !this.pendingOperation ) return;
+    
+    debugger;
+    
+    if(this.children.length > 0){
+      const ch_mesh = await this.children[0].getMeshAsync();
+      this.mesh.position.x = ch_mesh.position.x;
+      this.mesh.position.y = ch_mesh.position.y;
+      this.mesh.position.z = ch_mesh.position.z;
+      this.mesh.quaternion.setFromEuler(new THREE.Euler(ch_mesh.rotation.x,ch_mesh.rotation.x,ch_mesh.rotation.x),true);
+    }else{
+      this.mesh.position.set(0,0,0);
+      this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
+    }
 
     this.operations.forEach(operation => {
       // Translate operation
@@ -229,9 +241,8 @@ export class Object3D {
         throw Error('ERROR: Unknown Operation');
       }
     });
-    
-
     this._pendingOperation = false;
+    return;
   }
 
   private applyTranslateOperation(operation: ITranslateOperation): void {
