@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2018 Bitbloq (BQ)
+ *
+ * License: MIT
+ *
+ * long description for the file
+ *
+ * @summary short description for the file
+ * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
+ *
+ * Created at     : 2018-11-09 09:31:03 
+ * Last modified  : 2018-11-09 09:31:03 
+ */
+
 import {OperationsArray, Object3D, ChildrenArray} from './Object3D';
 import isEqual from'lodash.isequal';
 import * as THREE from 'three';
@@ -38,7 +52,7 @@ export default class CompoundObject extends Object3D {
         
         //check if WebWorkers are enabled
         if (typeof(Worker) !== "undefined"){
-          //WEB WORKER
+          //WEB WORKER //listen to events from web worker
           this.worker.onmessage = (event:any) => {
             const t0 = performance.now();
             if(event.data.status !== 'ok'){
@@ -50,14 +64,15 @@ export default class CompoundObject extends Object3D {
             //recompute object form vertices and normals
             this.fromBufferData(message.vertices, message.normals).then(mesh => {
               this.mesh = mesh;
-              //check if there are penging operations
-              this.applyOperations();
-              this._updateRequired = false;
+              // //check if there are penging operations
+              // this.applyOperations();
+              // this._updateRequired = false;
               const t1 = performance.now();
               console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
               
               if(this.mesh instanceof THREE.Mesh){
                 this.applyOperations();
+                this._updateRequired = false;
                 resolve(this.mesh);
               }else{
                 const reason = new Error('Mesh not computed correctly');
@@ -65,6 +80,8 @@ export default class CompoundObject extends Object3D {
               }
             });
           };
+          // END OF EVENT HANDLER
+
           //Lets create an array of vertices and normals for each child
           const t0 = performance.now();
           this.toBufferArrayAsync().then(bufferArray => {
@@ -125,9 +142,7 @@ export default class CompoundObject extends Object3D {
           }
           const verticesBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('position').array).buffer;
           const normalsBuffer: ArrayBuffer = new Float32Array(bufferGeom.getAttribute('normal').array).buffer;
-          const positionBuffer: ArrayBuffer = Float32Array.from([
-            mesh.position.x, mesh.position.y, mesh.position.z,
-            mesh.rotation.x, mesh.rotation.y, mesh.rotation.z] ).buffer;
+          const positionBuffer: ArrayBuffer = Float32Array.from(mesh.matrixWorld.elements).buffer;          
           bufferArray.push(verticesBuffer);
           bufferArray.push(normalsBuffer);
           bufferArray.push(positionBuffer);

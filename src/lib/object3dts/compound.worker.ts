@@ -6,14 +6,13 @@
  * long description for the file
  *
  * @summary short description for the file
- * @author David García <https://github.com/empoalp>
- * @author Alberto Valero <https://github.com/avalero>
+ * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-10-23 11:14:39
- * Last modified  : 2018-10-30 17:38:40
+ * Created at     : 2018-11-09 09:29:49 
+ * Last modified  : 2018-11-09 09:29:49 
  */
 
-// workerfile.js
+
 
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
@@ -33,6 +32,7 @@ const getUnionFromGeometries = (geometries:Array<THREE.Geometry>) : THREE.Geomet
   console.log(`Union Time ${t1-t0} millis`)
   return geom;
 }
+
 
 const getDifferenceFromGeometries = (geometries:Array<THREE.Geometry>) : THREE.Geometry => {
   const t0 = performance.now();
@@ -72,22 +72,20 @@ ctx.addEventListener(
     //add all children to geometries array
     for (let i=0; i < bufferArray.length; i += 3){
       //recompute object form vertices and normals
+      debugger;
       const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
       const normalsBuffer: ArrayBuffer = e.data.bufferArray[i+1];
       const positionBuffer: ArrayBuffer = e.data.bufferArray[i+2];
       const _vertices: ArrayLike<number> = new Float32Array(verticesBuffer, 0, verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
       const _normals: ArrayLike<number> = new Float32Array(normalsBuffer, 0, normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
       const _positions: ArrayLike<number> = new Float32Array(positionBuffer, 0, positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT);
-      const position:THREE.Vector3 = new THREE.Vector3(_positions[0], _positions[1], _positions[2]);
-      const rotation: THREE.Vector3 = new THREE.Vector3(_positions[3], _positions[4], _positions[5]);
+      const matrixWorld:THREE.Matrix4 = new THREE.Matrix4();
+      matrixWorld.elements = new Float32Array(_positions);
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute( 'position', new THREE.BufferAttribute( _vertices, 3 ) );
       buffGeometry.addAttribute( 'normal', new THREE.BufferAttribute( _normals, 3 ) );
       const geometry:THREE.Geometry = new THREE.Geometry().fromBufferGeometry(buffGeometry);
-      geometry.translate(position.x, position.y, position.z);
-      geometry.rotateX(rotation.x);
-      geometry.rotateY(rotation.y);
-      geometry.rotateZ(rotation.z);
+      geometry.applyMatrix(matrixWorld);
       geometries.push(geometry);
     }
 
