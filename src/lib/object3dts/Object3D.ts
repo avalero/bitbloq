@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-09 13:12:07
+ * Last modified  : 2018-11-09 13:17:18
  */
 
 import * as THREE from 'three';
@@ -216,8 +216,7 @@ export class Object3D {
     
     if( !this.pendingOperation ) return;
     
-    debugger;
-    
+    //if there are children, mesh is centered at first child position/rotation
     if(this.children.length > 0){
       const ch_mesh = await this.children[0].getMeshAsync();
       this.mesh.position.x = ch_mesh.position.x;

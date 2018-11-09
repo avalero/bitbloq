@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03 
- * Last modified  : 2018-11-09 13:09:45
+ * Last modified  : 2018-11-09 13:16:37
  */
 
 import {OperationsArray, Object3D, ChildrenArray, ITranslateOperation, IRotateOperation} from './Object3D';
@@ -114,10 +114,9 @@ export default class CompoundObject extends Object3D {
       buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
       const material = this.getMaterial();
       const mesh: THREE.Mesh = new THREE.Mesh(buffGeometry, material);
-      //resolve(mesh);
-      //we need to apply the scale of first objet (or we loose it)
+      
+      //move geometry (this is to set the center of the part on the center of the geometry. Look Object3D.applyOperations)
       this.children[0].getMeshAsync().then( ch_mesh => {
-        debugger;
         const trMatrix: THREE.Matrix4 = new THREE.Matrix4();
         trMatrix.elements = ch_mesh.matrixWorld.elements.slice(0);
         const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
