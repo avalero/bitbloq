@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:49:04
- * Last modified  : 2018-11-08 09:54:15
+ * Last modified  : 2018-11-09 09:57:33
  */
 
 import React from 'react';
@@ -280,6 +280,11 @@ class ThreeDViewer extends React.Component {
         enabled:true,
         step: 10,
         color: 0xcdcdcd,
+        lineWidth: 2
+      },
+      centerGrid: {
+        enabled:true,
+        color: 0x9a9a9a,
         lineWidth: 2
       },
       plane:{
