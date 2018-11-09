@@ -11,7 +11,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-06 10:52:42 
- * Last modified  : 2018-11-07 10:44:28
+ * Last modified  : 2018-11-09 09:55:56
  */
 
 
@@ -32,6 +32,11 @@ export interface IGridConfig{
 		color: number,
 		lineWidth: number
 	},
+	centerGrid:{
+		enabled:boolean,
+		color:number,
+		lineWidth:number
+	}
 	plane:{
 		enabled:boolean,
 		color: number,
@@ -42,6 +47,7 @@ export default class BaseGrid{
 	private mesh: THREE.Group;
 	private colorBig: THREE.Color;
 	private colorSmall: THREE.Color;
+	private colorCenter: THREE.Color;
 	private gridConfig: IGridConfig;
 
   constructor(config: IGridConfig)
@@ -50,9 +56,11 @@ export default class BaseGrid{
 		this.gridConfig = cloneDeep(config);
 		this.colorBig = new THREE.Color(this.gridConfig.bigGrid.color);
 		this.colorSmall = new THREE.Color(this.gridConfig.smallGrid.color);
+		this.colorCenter = new THREE.Color(this.gridConfig.centerGrid.color);
 
 		if(this.gridConfig.smallGrid.enabled) this.mesh.add(this.smallGrid());
 		if(this.gridConfig.bigGrid.enabled) this.mesh.add(this.bigGrid());
+		if(this.gridConfig.centerGrid.enabled) this.mesh.add(this.centerGrid());
 		if(this.gridConfig.plane.enabled) this.mesh.add(this.plane());
 	}
 
@@ -60,54 +68,79 @@ export default class BaseGrid{
 		
 		const halfSize = this.gridConfig.size / 2;
 
-		const verticesBig: Array<number> = [];
-		const colorsBig: Array<number> = [];
+		const vertices: Array<number> = [];
+		const colors: Array<number> = [];
 		
-		for ( let jBig = 0, k = -halfSize; k <= halfSize; k += this.gridConfig.bigGrid.step ) {
-			verticesBig.push(- halfSize, k, 0, halfSize, k, 0 );
-			verticesBig.push( k, - halfSize, 0, k, halfSize, 0 );
+		for ( let j = 0, k = -halfSize; k <= halfSize; k += this.gridConfig.bigGrid.step ) {
+			vertices.push(- halfSize, k, 0, halfSize, k, 0 );
+			vertices.push( k, - halfSize, 0, k, halfSize, 0 );
 			const color:THREE.Color = this.colorBig;
-			color.toArray( colorsBig, jBig ); jBig += 3;
-			color.toArray( colorsBig, jBig ); jBig += 3;
-			color.toArray( colorsBig, jBig ); jBig += 3;
-			color.toArray( colorsBig, jBig ); jBig += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
 		
 		}
 
-		const geometryBig:THREE.BufferGeometry = new THREE.BufferGeometry();		
-		geometryBig.addAttribute( 'position', new THREE.Float32BufferAttribute( verticesBig, 3 ) );
-		geometryBig.addAttribute( 'color', new THREE.Float32BufferAttribute( colorsBig, 3 ) );
+		const geometry:THREE.BufferGeometry = new THREE.BufferGeometry();		
+		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+		geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 
-		const materialBig = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:this.gridConfig.bigGrid.lineWidth, fog:false } );
+		const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:this.gridConfig.bigGrid.lineWidth, fog:false } );
 
-		const meshBig:THREE.LineSegments = new THREE.LineSegments(geometryBig, materialBig);
-		return meshBig;
+		const mesh:THREE.LineSegments = new THREE.LineSegments(geometry, material);
+		return mesh;
 		
 	}
 
 	private smallGrid():THREE.LineSegments{
 		const halfSize = this.gridConfig.size / 2;
-		const verticesSmall: Array<number> = [];
-		const colorsSmall: Array<number> = [];
+		const vertices: Array<number> = [];
+		const colors: Array<number> = [];
 
-		for ( let jSmall = 0, k = -halfSize; k <= halfSize; k += this.gridConfig.smallGrid.step ) {
-			verticesSmall.push(- halfSize, k, 0, halfSize, k, 0 );
-			verticesSmall.push( k, - halfSize, 0, k, halfSize, 0 );
+		for ( let j = 0, k = -halfSize; k <= halfSize; k += this.gridConfig.smallGrid.step ) {
+			vertices.push(- halfSize, k, 0, halfSize, k, 0 );
+			vertices.push( k, - halfSize, 0, k, halfSize, 0 );
 			const color:THREE.Color = this.colorSmall;	
-			color.toArray( colorsSmall, jSmall ); jSmall += 3;
-			color.toArray( colorsSmall, jSmall ); jSmall += 3;
-			color.toArray( colorsSmall, jSmall ); jSmall += 3;
-			color.toArray( colorsSmall, jSmall ); jSmall += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
+			color.toArray( colors, j ); j += 3;
 		}
 	
-		const geometrySmall:THREE.BufferGeometry = new THREE.BufferGeometry();
-		geometrySmall.addAttribute( 'position', new THREE.Float32BufferAttribute( verticesSmall, 3 ) );
-		geometrySmall.addAttribute( 'color', new THREE.Float32BufferAttribute( colorsSmall, 3 ) );
+		const geometry:THREE.BufferGeometry = new THREE.BufferGeometry();
+		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+		geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
 		
-		const materialSmall = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:this.gridConfig.smallGrid.lineWidth, fog:false } );
-		const meshSmall: THREE.LineSegments = new THREE.LineSegments(geometrySmall, materialSmall);
+		const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:this.gridConfig.smallGrid.lineWidth, fog:false } );
+		const mesh: THREE.LineSegments = new THREE.LineSegments(geometry, material);
 
-		return meshSmall;
+		return mesh;
+	}
+
+	private centerGrid():THREE.LineSegments{
+		const halfSize = this.gridConfig.size / 2;
+		const vertices: Array<number> = [];
+		const colors: Array<number> = [];
+
+		vertices.push(-halfSize,0,0, halfSize, 0, 0);
+		vertices.push(0,-halfSize,0,0, halfSize, 0);
+
+		const color:THREE.Color = this.colorCenter;	
+		color.toArray( colors, 0 );
+		color.toArray( colors, 3 );
+		color.toArray( colors, 6 );
+		color.toArray( colors, 9 );
+		
+	
+		const geometry:THREE.BufferGeometry = new THREE.BufferGeometry();
+		geometry.addAttribute( 'position', new THREE.Float32BufferAttribute( vertices, 3 ) );
+		geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colors, 3 ) );
+		
+		const material = new THREE.LineBasicMaterial( { vertexColors: THREE.VertexColors, linewidth:this.gridConfig.centerGrid.lineWidth, fog:false } );
+		const mesh: THREE.LineSegments = new THREE.LineSegments(geometry, material);
+
+		return mesh;
 	}
 
 	private plane():THREE.PlaneHelper{
