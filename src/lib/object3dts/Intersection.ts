@@ -14,7 +14,7 @@
 
 
 import CompoundObject from './CompoundObject';
-import {ChildrenArray, OperationsArray} from './Object3D'
+import {ChildrenArray, OperationsArray, Object3D} from './Object3D'
 
 export default class Intersection extends CompoundObject {
   static typeName:string = 'Intersection';
@@ -56,6 +56,7 @@ export default class Intersection extends CompoundObject {
   // }
 
   public clone():Intersection{
-    return new Intersection(this.children, this.operations);
+    const childrenClone: Array<Object3D> = this.children.map( child => child.clone());
+    return new Intersection(childrenClone, this.operations);
   }
 }

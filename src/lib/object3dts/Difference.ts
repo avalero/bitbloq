@@ -15,7 +15,7 @@
 
 
 import CompoundObject from './CompoundObject';
-import {ChildrenArray, OperationsArray} from './Object3D'
+import {ChildrenArray, OperationsArray, Object3D} from './Object3D'
 
 export default class Difference extends CompoundObject {
   static typeName:string = 'Difference';
@@ -29,6 +29,7 @@ export default class Difference extends CompoundObject {
   }
 
   public clone():Difference{
-    return new Difference(this.children,this.operations);
+    const childrenClone: Array<Object3D> = this.children.map( child => child.clone());
+    return new Difference(childrenClone,this.operations);
   }
 }
