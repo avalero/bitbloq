@@ -334,13 +334,7 @@ export class Object3D {
   }
   
   public clone():Object3D{
-    const objectClone:Object3D = Object.assign(
-      Object.create(
-        Object.getPrototypeOf(this)
-      ),
-      this); // cloneDeep(object3D); is it need to use cloneDeep???
-
-      return objectClone;
+    throw new Error('Implemented in children');
   }
 
 
