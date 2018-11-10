@@ -38,9 +38,13 @@ export interface IScaleOperation extends ICommonOperation {
   z: number;
 }
 
+export interface IMirrorOperation extends ICommonOperation {
+  plane: string;
+}
+
 export type ChildrenArray = Array<Object3D>
 
-type Operation = ITranslateOperation | IRotateOperation | IScaleOperation;
+type Operation = ITranslateOperation | IRotateOperation | IScaleOperation | IMirrorOperation;
 export type OperationsArray = Array<Operation>;
 
 export class Object3D {
@@ -81,6 +85,15 @@ export class Object3D {
       y,
       z,
       relative,
+    };
+  }
+
+  public static createMirrorOperation(
+    plane: string = 'yz', //xy, yz, zx
+  ): IMirrorOperation {
+    return {
+      type: 'mirror',
+      plane,
     };
   }
 
@@ -146,11 +159,6 @@ export class Object3D {
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    // //if this object is a CompoundObject we have to prepend first children operations
-    // if(this.children.length>0){
-    //   operations = this.children[0].getOperations().concat(operations);
-    // }
-
     this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
     if(!isEqual(this.operations, operations)){
@@ -236,12 +244,24 @@ export class Object3D {
         this.applyRotateOperation(operation as IRotateOperation);
       } else if (operation.type === Object3D.createScaleOperation().type) {
         this.applyScaleOperation(operation as IScaleOperation);
+      } else if (operation.type === Object3D.createMirrorOperation().type){
+        this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
         throw Error('ERROR: Unknown Operation');
       }
     });
     this._pendingOperation = false;
     return;
+  }
+
+  private applyMirrorOperation(operation: IMirrorOperation): void{
+    if(operation.plane === 'xy'){
+      this.applyScaleOperation(Object3D.createScaleOperation(1,1,-1));
+    }else if(operation.plane === 'yz'){
+      this.applyScaleOperation(Object3D.createScaleOperation(-1,1,1));
+    }else if(operation.plane === 'zx'){
+      this.applyScaleOperation(Object3D.createScaleOperation(1,-1,1));
+    }
   }
 
   private applyTranslateOperation(operation: ITranslateOperation): void {
