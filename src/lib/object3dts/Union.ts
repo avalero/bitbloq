@@ -15,7 +15,7 @@
 
 
 import CompoundObject from './CompoundObject';
-import {ChildrenArray, OperationsArray} from './Object3D'
+import {ChildrenArray, OperationsArray, Object3D} from './Object3D'
 
 
 
@@ -32,6 +32,7 @@ export default class Union extends CompoundObject {
   }
 
   public clone():Union{
-    return new Union(this.children, this.operations);
+    const childrenClone: Array<Object3D> = this.children.map( child => child.clone());
+    return new Union(childrenClone, this.operations);
   }
 }
