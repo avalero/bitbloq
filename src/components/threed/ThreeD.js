@@ -9,6 +9,7 @@ import ContextMenu from './ContextMenu';
 import Document, {Tab} from '../Document';
 import ThreeDIcon from '../icons/ThreeD';
 import InfoIcon from '../icons/Info';
+import DownloadIcon from '../icons/Download';
 
 const Container = styled.div`
   flex: 1;
@@ -23,6 +24,64 @@ const MainArea = styled.div`
   overflow: hidden;
 `;
 
+const menuOptions = [
+  {
+    id: 'file',
+    label: 'File',
+    children: [
+      {
+        id: 'download-project',
+        label: 'Download Project',
+        icon: <DownloadIcon />,
+      },
+    ],
+  },
+  {
+    id: 'view',
+    label: 'View',
+    children: [
+      {
+        id: 'mode',
+        label: 'Mode',
+        children: [
+          {
+            id: 'basic-mode',
+            label: 'Basic',
+          },
+          {
+            id: 'advanced-mode',
+            label: 'Advanced',
+          },
+        ],
+      },
+      {
+        id: 'change-theme',
+        label: 'Change theme',
+        children: [
+          {
+            id: 'color-theme',
+            label: 'Color',
+          },
+          {
+            id: 'gray-theme',
+            label: 'Gris',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'share',
+    label: 'Share',
+    children: [
+      {
+        id: 'publish-explora',
+        label: 'Publish in Explora',
+      },
+    ],
+  },
+];
+
 class ThreeD extends React.Component {
   render() {
     const PropertiesPanelComponent =
@@ -31,7 +90,7 @@ class ThreeD extends React.Component {
         : PropertiesPanel;
 
     return (
-      <Document>
+      <Document menuOptions={menuOptions}>
         <Tab icon={<ThreeDIcon />}>
           <Container>
             <ObjectTree />

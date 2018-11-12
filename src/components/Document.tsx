@@ -1,5 +1,7 @@
 import * as React from 'react';
+import MenuBar, {MainMenuOption} from './MenuBar';
 import styled, {css} from 'react-emotion';
+import CollapseIcon from './icons/AngleDouble';
 
 const Container = styled.div`
   display: flex;
@@ -9,6 +11,18 @@ const Container = styled.div`
   height: 100%;
   overflow: hidden;
   user-select: none;
+`;
+
+const HeaderWrap = styled.div`
+  height: 70px;
+  overflow: hidden;
+  transition: height 150ms ease-out;
+
+  ${props =>
+    props.collapsed &&
+    css`
+      height: 0px;
+    `};
 `;
 
 const Header = styled.div`
@@ -31,20 +45,40 @@ const Title = styled.div`
   font-style: italic;
 `;
 
-const Menu = styled.div`
+const Main = styled.div`
+  flex: 1;
+  display: flex;
+  color: #373b44;
+`;
+
+const MenuWrap = styled.div`
+  display: flex;
+  align-items: center;
   height: 40px;
   border-bottom: 1px solid #cfcfcf;
 `;
 
-const Main = styled.div`
-  flex: 1;
-  display: flex;
+const CollapseButton = styled.div`
+  cursor: pointer;
+  svg {
+    width: 12px;
+    margin: 0px 12px;
+    transition: transform 150ms ease-out;
+  }
+
+  ${props =>
+    props.collapsed &&
+    css`
+      svg {
+        transform: rotateX(180deg);
+      }
+    `};
 `;
 
 const Tabs = styled.div`
   width: 70px;
   min-width: 70px;
-  background-color: #373b44;
+  background-color: #3b3e45;
   color: white;
 `;
 
@@ -98,31 +132,49 @@ export interface TabProps {
 export const Tab: React.SFC<TabProps> = props => null;
 
 export interface DocumentProps {
-  children?: React.ReactElement<Tab>[] | React.ReactElement<Tab>;
+  menuOptions?: MainMenuOption[];
 }
 
 interface State {
   currentTabIndex: number;
+  isHeaderCollapsed: boolean;
 }
 
-class Document extends React.Component<Document, State> {
+class Document extends React.Component<DocumentProps, State> {
   state = {
     currentTabIndex: 0,
+    isHeaderCollapsed: false,
+  };
+
+  onCollapseButtonClick = () => {
+    this.setState(state => ({
+      ...state,
+      isHeaderCollapsed: !state.isHeaderCollapsed,
+    }));
   };
 
   render() {
-    const {children} = this.props;
-    const {currentTabIndex} = this.state;
+    const {children, menuOptions = []} = this.props;
+    const {currentTabIndex, isHeaderCollapsed} = this.state;
 
     const currentTab = React.Children.toArray(children)[currentTabIndex];
 
     return (
       <Container>
-        <Header>
-          <DocumentIcon />
-          <Title>Proyecto sin título</Title>
-        </Header>
-        <Menu />
+        <HeaderWrap collapsed={isHeaderCollapsed}>
+          <Header>
+            <DocumentIcon />
+            <Title>Proyecto sin título</Title>
+          </Header>
+        </HeaderWrap>
+        <MenuWrap>
+          <MenuBar options={menuOptions} />
+          <CollapseButton
+            onClick={this.onCollapseButtonClick}
+            collapsed={isHeaderCollapsed}>
+            <CollapseIcon />
+          </CollapseButton>
+        </MenuWrap>
         <Main>
           <Tabs>
             {React.Children.map(children, (tab, i) => (
