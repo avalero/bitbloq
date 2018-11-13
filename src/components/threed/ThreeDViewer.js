@@ -25,7 +25,7 @@ import styled, {css} from 'react-emotion';
 import TranslationHelper from '../../lib/object3dts/TranslationHelper';
 import RotationHelper from '../../lib/object3dts/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';
-import BaseGrid from '../../lib/object3dts/BaseGrid.ts'
+import BaseGrid from '../../lib/object3dts/BaseGrid.ts';
 
 const Wrap = styled.div`
   position: relative;
@@ -88,13 +88,15 @@ class ThreeDViewer extends React.Component {
         c => c.name === type,
       );
       const {children = []} = parameters;
-      object = new composition.objectClass(
+      object = composition.createInstance(
         children.map(c => this.instances[c.id]),
-        [],
+        parameters,
       );
     }
 
-    object.setColor(parameters.color);
+    if (object.setColor) {
+      object.setColor(parameters.color);
+    }
 
     return object;
   }
@@ -188,26 +190,31 @@ class ThreeDViewer extends React.Component {
         object3D = this.updateInstance(object);
         this.objectsGroup.remove(this.meshes[object.id]);
       }
-      
-      object3D.getMeshAsync().then( mesh => {
-        mesh.object = object;
-        this.meshes[object.id] = mesh;
-        this.objectsGroup.add(mesh);
-        if (selectedObjects.length > 0 && !selectedObjects.includes(object)) {
-          const mesh = this.meshes[object.id];
-          mesh.material.opacity = 0.5;
-          mesh.material.transparent = true;
-          mesh.material.depthWrite = false;
-        } else {
-          const mesh = this.meshes[object.id];
-          mesh.material.opacity = 1;
-          mesh.material.transparent = false;
-          mesh.material.depthWrite = true;
-        }
-      }).catch(error => {
-        console.log(error.message);
-        throw error;
-      });
+
+      object3D
+        .getMeshAsync()
+        .then(mesh => {
+          mesh.object = object;
+          this.meshes[object.id] = mesh;
+          this.objectsGroup.add(mesh);
+          if (selectedObjects.length > 0 && !selectedObjects.includes(object)) {
+            if (mesh.material) {
+              mesh.material.opacity = 0.5;
+              mesh.material.transparent = true;
+              mesh.material.depthWrite = false;
+            }
+          } else {
+            if (mesh.material) {
+              mesh.material.opacity = 1;
+              mesh.material.transparent = false;
+              mesh.material.depthWrite = true;
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error.message);
+          throw error;
+        });
     });
 
     this.helpersGroup.remove(this.activeHelper);
@@ -236,15 +243,21 @@ class ThreeDViewer extends React.Component {
 
   updateInstance(object) {
     const object3D = this.instances[object.id];
-    object3D.setColor(object.parameters.color);
+    if (object3D.setColor) {
+      object3D.setColor(object.parameters.color);
+    }
     if (object3D instanceof CompoundObject) {
       object3D.setChildren(
         object.parameters.children.map(c => this.updateInstance(c)),
       );
     } else {
-      object3D.setParameters(object.parameters);
+      if (object3D.setParameters) {
+        object3D.setParameters(object.parameters);
+      }
     }
-    object3D.setOperations(object.operations);
+    if (object3D.setOperations) {
+      object3D.setOperations(object.operations);
+    }
     return object3D;
   }
 
@@ -270,25 +283,25 @@ class ThreeDViewer extends React.Component {
     //@David , esto debería ir en algún sitio de opciones de configuracion
     const gridConfig = {
       size: 200,
-      smallGrid : {
-        enabled:true,
+      smallGrid: {
+        enabled: true,
         step: 2,
         color: 0xededed,
         lineWidth: 1,
       },
       bigGrid: {
-        enabled:true,
+        enabled: true,
         step: 10,
         color: 0xcdcdcd,
         lineWidth: 2,
       },
       centerGrid: {
-        enabled:true,
+        enabled: true,
         color: 0x9a9a9a,
         lineWidth: 2,
       },
-      plane:{
-        enabled:false,
+      plane: {
+        enabled: false,
         color: 0x98f5ff,
       },
     };
