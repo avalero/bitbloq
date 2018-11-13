@@ -73,6 +73,13 @@ export default class RepetitionObject{
     } 
   }
 
+  private setParameters(params: ICartesianRepetitionParams | IPolarRepetitionParams) {
+    this.parameters = {...params};
+    this.group = new ObjectsGroup();
+    if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
+    else this.polarRepetition();
+  }
+
   /**
    * Performs a polar repetition of object (nun times), with x or y or z direction and total ange
    * It adds repeated objects to ObjectsGroup instance

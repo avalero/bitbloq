@@ -7,11 +7,13 @@ import Cylinder from '../lib/object3dts/Cylinder';
 import Sphere from '../lib/object3dts/Sphere';
 import {Object3D} from '../lib/object3dts/Object3D';
 import Prism from '../lib/object3dts/Prism';
-import STLObject from '../lib/object3dts/STLObject'
+import STLObject from '../lib/object3dts/STLObject';
 
 import Union from '../lib/object3dts/Union';
 import Difference from '../lib/object3dts/Difference';
 import Intersection from '../lib/object3dts/Intersection';
+import ObjectsGroup from '../lib/object3dts/ObjectsGroup';
+import RepetitionObject from '../lib/object3dts/RepetitionObject';
 
 // Shape Icons
 import CubeIcon from '../components/icons/Cube';
@@ -24,13 +26,15 @@ import STLIcon from '../components/icons/STL';
 import UnionIcon from '../components/icons/Union';
 import DifferenceIcon from '../components/icons/Difference';
 import IntersectionIcon from '../components/icons/Intersection';
+import GroupIcon from '../components/icons/Group';
+import RepeatIcon from '../components/icons/Repeat';
+import RepeatPolarIcon from '../components/icons/RepeatPolar';
 
 import TranslationIcon from '../components/icons/Translation';
 import RotationIcon from '../components/icons/Rotation';
 import ScaleIcon from '../components/icons/Scale';
 
 const config = {
-
   colors: [
     '#ff6900',
     '#fcb900',
@@ -71,7 +75,9 @@ const config = {
         id: uuid(),
         type: 'Cube',
         parameters: {
-          width: 10, height: 10, depth: 10 
+          width: 10,
+          height: 10,
+          depth: 10,
         },
         operations: [],
       }),
@@ -117,15 +123,17 @@ const config = {
           name: 'height',
           label: 'Height',
           type: 'integer',
-        }
+        },
       ],
       create: () => ({
         id: uuid(),
         type: 'Cylinder',
         parameters: {
-          r0: 5, r1: 5, height: 10,
+          r0: 5,
+          r1: 5,
+          height: 10,
         },
-        operations: []
+        operations: [],
       }),
     },
     {
@@ -148,15 +156,17 @@ const config = {
           name: 'height',
           label: 'Height',
           type: 'integer',
-        }
+        },
       ],
       create: () => ({
         id: uuid(),
         type: 'Prism',
         parameters: {
-          sides: 5, length: 5, height: 15,
+          sides: 5,
+          length: 5,
+          height: 15,
         },
-        operations: []
+        operations: [],
       }),
     },
     {
@@ -177,7 +187,7 @@ const config = {
         parameters: {
           geometry: 0,
         },
-        operations: []
+        operations: [],
       }),
     },
   ],
@@ -190,7 +200,7 @@ const config = {
       color: '#dd5b0c',
       create: () => ({
         id: uuid(),
-        ...Object3D.createTranslateOperation(0, 0, 0, false)
+        ...Object3D.createTranslateOperation(0, 0, 0, false),
       }),
       parameters: [
         {
@@ -314,47 +324,156 @@ const config = {
       name: 'Union',
       label: 'Union',
       icon: <UnionIcon />,
-      objectClass: Union,
-      canApply: (children) => children.length > 1,
-      create: (children) => ({
+      canApply: children => children.length > 1,
+      createInstance: children => new Union(children, []),
+      create: children => ({
         id: uuid(),
         type: 'Union',
         parameters: {
-          children
+          children,
         },
-        operations: []
-      })
+        operations: [],
+      }),
     },
     {
       name: 'Difference',
       label: 'Difference',
       icon: <DifferenceIcon />,
-      canApply: (children) => children.length > 1,
-      objectClass: Difference,
-      create: (children) => ({
+      canApply: children => children.length > 1,
+      createInstance: children => new Difference(children, []),
+      create: children => ({
         id: uuid(),
         type: 'Difference',
         parameters: {
-          children
+          children,
         },
-        operations: []
-      })
+        operations: [],
+      }),
     },
     {
       name: 'Intersection',
       label: 'Intersection',
       icon: <IntersectionIcon />,
-      canApply: (children) => children.length > 1,
-      objectClass: Intersection,
-      create: (children) => ({
+      canApply: children => children.length > 1,
+      createInstance: children => new Intersection(children, []),
+      create: children => ({
         id: uuid(),
         type: 'Intersection',
         parameters: {
-          children
+          children,
+        },
+        operations: [],
+      }),
+    },
+    {
+      name: 'Group',
+      label: 'Group',
+      icon: <GroupIcon />,
+      canApply: children => children.length > 1,
+      createInstance: children => new ObjectsGroup(children),
+      create: children => ({
+        id: uuid(),
+        type: 'Group',
+        parameters: {
+          children,
+        },
+        operations: [],
+      }),
+    },
+    {
+      name: 'CartesianRepetition',
+      label: 'Repeat',
+      icon: <RepeatIcon />,
+      canApply: children => children.length === 1,
+      createInstance: (children, parameters) =>
+        new RepetitionObject(parameters, children[0]),
+      create: children => ({
+        id: uuid(),
+        type: 'CartesianRepetition',
+        parameters: {
+          children,
+          type: 'cartesian',
+          num: 2,
+          x: 10,
+          y: 10,
+          z: 10,
+        },
+        operations: [],
+      }),
+      parameters: [
+        {
+          name: 'num',
+          label: 'Repetitions',
+          type: 'integer',
+        },
+        {
+          name: 'x',
+          label: 'x',
+          type: 'integer',
+        },
+        {
+          name: 'y',
+          label: 'y',
+          type: 'integer',
+        },
+        {
+          name: 'z',
+          label: 'z',
+          type: 'integer',
+        }
+      ]
+    },
+    {
+      name: 'PolarRepetition',
+      label: 'Repeat Polar',
+      icon: <RepeatPolarIcon />,
+      canApply: children => children.length === 1,
+      createInstance: (children, parameters) =>
+        new RepetitionObject(parameters, children[0]),
+      create: children => ({
+        id: uuid(),
+        type: 'PolarRepetition',
+        parameters: {
+          children,
+          type: 'polar',
+          num: 4,
+          axis: 'x',
+          angle: 180
         },
         operations: []
-      })
-    },
+      }),
+      parameters: [
+        {
+          name: 'num',
+          label: 'Repetitions',
+          type: 'integer',
+        },
+        {
+          name: 'axis',
+          label: 'Axis',
+          type: 'select',
+          options: [
+            {
+              label: 'X',
+              value: 'x',
+            },
+            {
+              label: 'Y',
+              value: 'y',
+            },
+            {
+              label: 'Z',
+              value: 'z',
+            },
+          ],
+        },
+        {
+          name: 'angle',
+          label: 'Angle',
+          type: 'integer',
+        },
+      ]
+    }
   ],
 };
 
