@@ -9,11 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-08 11:11:10
+ * Last modified  : 2018-11-14 08:45:17
  */
 
 import * as THREE from 'three';
-import {OperationsArray, Object3D} from './Object3D';
+import {OperationsArray} from './Object3D';
+import Object3D from './Object3D';
 import isEqual from 'lodash.isequal'
 
 interface ICylinderParams{

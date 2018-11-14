@@ -14,7 +14,8 @@
  */
 
 import * as THREE from 'three';
-import {OperationsArray, Object3D} from './Object3D';
+import {OperationsArray} from './Object3D';
+import Object3D from './Object3D';
 import isEqual from'lodash.isequal';
 
 interface ICubeParams {

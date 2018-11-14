@@ -9,15 +9,14 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09 
- * Last modified  : 2018-11-09 13:12:32
+ * Last modified  : 2018-11-14 08:47:14
  */
 
 
 
 import CompoundObject from './CompoundObject';
-import {ChildrenArray, OperationsArray, Object3D} from './Object3D'
-
-
+import {ChildrenArray, OperationsArray} from './Object3D'
+import Object3D from './Object3D';
 
 export default class Union extends CompoundObject {
   static typeName:string = 'Union';

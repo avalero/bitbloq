@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import {Object3D, OperationsArray} from './Object3D';
+import {OperationsArray} from './Object3D';
+import Object3D from './Object3D';
 //import cloneDeep from 'lodash.clonedeep';
 
 export default class ObjectsGroup{
@@ -38,6 +39,7 @@ export default class ObjectsGroup{
         return;
       }
 
+
       const promises: Promise<THREE.Mesh>[] = []
 
       this.group.forEach( object3D => {
@@ -55,5 +57,9 @@ export default class ObjectsGroup{
         resolve(meshGroup);
       });
     });
+  }
+
+  public clone(): ObjectsGroup{
+    return new ObjectsGroup(this.group);
   }
 }
