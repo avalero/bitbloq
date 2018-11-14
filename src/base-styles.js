@@ -1,6 +1,7 @@
 import { injectGlobal } from 'emotion';
 
 export const colors = {
+  black: '#373b44',
   brand: '#6a8d2f',
   yellow: '#e6b319', // hsl(45, 80%, 50%)
   red: '#e6193c', // hsl(350, 80%, 50%)
@@ -13,6 +14,7 @@ export const shadow = 'box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);';
 injectGlobal`
   body {
     font-family: 'Roboto', sans-serif;
+    color: ${colors.black};
   }
 
   /* Style reset */

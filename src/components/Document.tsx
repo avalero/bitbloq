@@ -48,7 +48,6 @@ const Title = styled.div`
 const Main = styled.div`
   flex: 1;
   display: flex;
-  color: #373b44;
 `;
 
 const MenuWrap = styled.div`

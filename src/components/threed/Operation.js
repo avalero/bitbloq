@@ -27,7 +27,6 @@ const Container = styled.div`
   background-color: white;
   border: 1px solid #ebebeb;
   border-radius: 0px 3px 3px 0px;
-  color: #373b44;
 `;
 
 const HeaderContent = styled.div`

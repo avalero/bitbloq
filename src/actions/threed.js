@@ -55,14 +55,5 @@ export const setActiveOperation = createAction(
 export const unsetActiveOperation = createAction(
   'THREED_UNSET_ACTIVE_OPERATION',
 );
-export const showContextMenu = createAction(
-  'THREED_SHOW_CONTEXT_MENU',
-  (object, x, y) => ({object, x, y}),
-);
-export const hideContextMenu = createAction('THREED_HIDE_CONTEXT_MENU');
-export const editObjectName = createAction('THREED_EDIT_OBJECT_NAME');
-export const stopEditingObjectName = createAction(
-  'THREED_STOP_EDITING_OBJECT_NAME',
-);
 export const undo = createAction('THREED_UNDO');
 export const redo = createAction('THREED_REDO');

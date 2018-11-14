@@ -75,7 +75,6 @@ const Container = styled.div<ContainerProps>`
   height: 40px;
   padding: 0px 10px;
   font-size: 14px;
-  color: #373b44;
 
   ${props => props.disabled && css`
     ${MainOption} {
