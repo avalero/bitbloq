@@ -9,45 +9,17 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-09 13:23:55
+ * Last modified  : 2018-11-14 10:54:19
  */
 
 import * as THREE from 'three';
 import isEqual from 'lodash.isequal';
-
-interface ICommonOperation {
-  type: string;
-}
-
-export interface ITranslateOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-  relative: boolean;
-}
-
-export interface IRotateOperation extends ICommonOperation {
-  axis: string;
-  angle: number;
-  relative: boolean;
-}
-
-export interface IScaleOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface IMirrorOperation extends ICommonOperation {
-  plane: string;
-}
+import ObjectsCommon from './ObjectsCommon'
+import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray} from './ObjectsCommon';
 
 export type ChildrenArray = Array<Object3D>
 
-type Operation = ITranslateOperation | IRotateOperation | IScaleOperation | IMirrorOperation;
-export type OperationsArray = Array<Operation>;
-
-export default class Object3D {
+export default class Object3D extends ObjectsCommon{
 
   public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
@@ -73,68 +45,18 @@ export default class Object3D {
   }
 
 
-  public static createTranslateOperation(
-    x: number = 0,
-    y: number = 0,
-    z: number = 0,
-    relative: boolean = true,
-  ): ITranslateOperation {
-    return {
-      type: 'translation',
-      x,
-      y,
-      z,
-      relative,
-    };
-  }
-
-  public static createMirrorOperation(
-    plane: string = 'yz', //xy, yz, zx
-  ): IMirrorOperation {
-    return {
-      type: 'mirror',
-      plane,
-    };
-  }
-
-  public static createRotateOperation(
-    axis: string = 'x',
-    angle: number = 0,
-    relative: boolean = true,
-  ): IRotateOperation {
-    return {
-      type: 'rotation',
-      axis,
-      angle,
-      relative,
-    };
-  }
-
-  public static createScaleOperation(
-    x: number = 1,
-    y: number = 1,
-    z: number = 1,
-  ): IScaleOperation {
-    return {
-      type: 'scale',
-      x,
-      y,
-      z,
-    };
-  }
+  
 
   //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
   protected color: string;
-  protected operations: OperationsArray;
-  protected _pendingOperation: boolean;
+  
   protected _updateRequired: boolean;
   protected children: ChildrenArray;
 
   constructor(operations: OperationsArray = []) {
+    super(operations);
     this.children = [];
-    this.operations = operations;
-    this._pendingOperation = true;
     this.color = "#ffffff";
   }
 
@@ -152,23 +74,6 @@ export default class Object3D {
     });
 
     return this._pendingOperation;
-  }
-  
-  public getOperations():OperationsArray{
-    return this.operations;
-  }
-
-  public setOperations(operations: OperationsArray = []): void {
-    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
-
-    if(!isEqual(this.operations, operations)){
-      this.operations = [];
-      this.operations = operations.slice();
-    }
-  }
-
-  public addOperations(operations: OperationsArray = []): void {
-    this.setOperations(this.operations.concat(operations));
   }
 
   public setColor(color: string): void {
@@ -217,6 +122,15 @@ export default class Object3D {
 
   protected getBufferGeometry(): THREE.BufferGeometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
+  }
+
+  public setOperations(operations: OperationsArray = []): void {
+    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
+
+    if(!isEqual(this.operations, operations)){
+      this.operations = [];
+      this.operations = operations.slice();
+    }
   }
 
 
@@ -320,17 +234,6 @@ export default class Object3D {
         this.mesh.scale.y * Number(operation.y),
         this.mesh.scale.z * Number(operation.z),
       );
-  }
-
-  public translate(x:number, y:number, z:number, relative:boolean = false):void{
-    this.addOperations([
-      {
-        type: 'translation',
-        x,
-        y,
-        z,
-        relative,
-      }]);
   }
   
   public clone():Object3D{

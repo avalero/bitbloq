@@ -1,13 +1,14 @@
 import * as THREE from 'three';
-import {OperationsArray} from './Object3D';
+import ObjectsCommon from './ObjectsCommon';
+import {OperationsArray} from './ObjectsCommon';
 import Object3D from './Object3D';
 //import cloneDeep from 'lodash.clonedeep';
 
-export default class ObjectsGroup{
+export default class ObjectsGroup extends ObjectsCommon{
    private group:Array<Object3D>;
-   private operations: OperationsArray;
-
+   
    constructor(objects: Array<Object3D> = []){
+     super([]);
      this.group = objects;
    }
    // Group operations. Will be transferred to children only when un-grouped.
