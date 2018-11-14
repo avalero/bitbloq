@@ -20,6 +20,10 @@ export default class ObjectsGroup{
      this.group.push(object);
    }
 
+   protected clean():void{
+     this.group.length = 0;
+   }
+
    // When a group is un-grouped all the operations of the group are transferred to the single objects
    // Return the array of objects with all the inherited operations of the group.
    public unGroup():Array<Object3D>{

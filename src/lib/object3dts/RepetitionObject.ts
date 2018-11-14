@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37 
- * Last modified  : 2018-11-14 08:48:11
+ * Last modified  : 2018-11-14 09:27:34
  */
 
 import Object3D from './Object3D';
@@ -76,6 +76,7 @@ export default class RepetitionObject extends ObjectsGroup{
 
   public setParameters(parameters: ICartesianRepetitionParams | IPolarRepetitionParams) {
     if(!isEqual(parameters,this.parameters)){
+      this.clean();
       this.parameters = {...parameters};
       if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
       else if (this.parameters.type.toLowerCase() === "polar") this.polarRepetition();

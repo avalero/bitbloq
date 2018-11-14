@@ -5,7 +5,7 @@ import uuid from 'uuid/v1';
 import Cube from '../lib/object3dts/Cube';
 import Cylinder from '../lib/object3dts/Cylinder';
 import Sphere from '../lib/object3dts/Sphere';
-import {Object3D} from '../lib/object3dts/Object3D';
+import Object3D from '../lib/object3dts/Object3D';
 import Prism from '../lib/object3dts/Prism';
 import STLObject from '../lib/object3dts/STLObject';
 

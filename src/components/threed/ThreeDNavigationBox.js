@@ -2,7 +2,7 @@ import React from 'react';
 import styled, {css} from 'react-emotion';
 import * as Three from 'three';
 import NavigationBoxModel from '../../assets/models/navigation_box.glb';
-import {loadGLTFFromUrl} from '../../lib/object3d/loaders';
+import {loadGLTFFromUrl} from '../../lib/object3dts/loaders';
 
 const HALF_PI = Math.PI / 2;
 const QUARTER_PI = Math.PI / 4;
