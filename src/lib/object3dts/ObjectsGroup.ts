@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import {Object3D, OperationsArray} from './Object3D';
+import {OperationsArray} from './Object3D';
+import Object3D from './Object3D';
 //import cloneDeep from 'lodash.clonedeep';
 
 export default class ObjectsGroup{
@@ -17,6 +18,10 @@ export default class ObjectsGroup{
 
    public add(object: Object3D):void{
      this.group.push(object);
+   }
+
+   protected clean():void{
+     this.group.length = 0;
    }
 
    // When a group is un-grouped all the operations of the group are transferred to the single objects
@@ -38,6 +43,7 @@ export default class ObjectsGroup{
         return;
       }
 
+
       const promises: Promise<THREE.Mesh>[] = []
 
       this.group.forEach( object3D => {
@@ -55,5 +61,9 @@ export default class ObjectsGroup{
         resolve(meshGroup);
       });
     });
+  }
+
+  public clone(): ObjectsGroup{
+    return new ObjectsGroup(this.group);
   }
 }

@@ -10,12 +10,12 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37 
- * Last modified  : 2018-11-09 12:26:51
+ * Last modified  : 2018-11-14 09:27:34
  */
 
-import * as THREE from 'three';
-import {Object3D} from './Object3D';
+import Object3D from './Object3D';
 import ObjectsGroup from './ObjectsGroup';
+import isEqual from 'lodash.isequal';
 
 
 export interface ICartesianRepetitionParams{
@@ -37,11 +37,10 @@ export interface IPolarRepetitionParams{
  * RepetitionObject Class
  * I allows to repeat one object in a cartesian or polar way.
  */
-export default class RepetitionObject{
+export default class RepetitionObject extends ObjectsGroup{
 
   public static typeName:string = 'RepetitionObject';
 
-  private group: ObjectsGroup;
   private object: Object3D;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
@@ -52,11 +51,12 @@ export default class RepetitionObject{
    * Creates an ObjectsGroup with cloned objects (Object3D instance) on their new postion
    */
   constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D){
+    super();
     this.parameters = {...params}
-    this.group = new ObjectsGroup();
     this.object = object;
     if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
-    else this.polarRepetition();
+    else if (this.parameters.type.toLowerCase() === "polar") this.polarRepetition();
+    else throw new Error('Unknown Repetition Command');
   }
 
   /**
@@ -67,17 +67,25 @@ export default class RepetitionObject{
     const {x , y, z, type, num} = this.parameters as ICartesianRepetitionParams;
 
     for (let i:number = 0; i<num; i++){
-      const object:Object3D = this.object.clone();
-      object.translate(i*x, i*y, i*z);
-      this.group.add(object);
+      const objectClone:Object3D = this.object.clone();
+      objectClone.translate(i*x, i*y, i*z);
+      this.add(objectClone);
     } 
   }
 
-  private setParameters(params: ICartesianRepetitionParams | IPolarRepetitionParams) {
-    this.parameters = {...params};
-    this.group = new ObjectsGroup();
-    if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
-    else this.polarRepetition();
+
+  public setParameters(parameters: ICartesianRepetitionParams | IPolarRepetitionParams) {
+    if(!isEqual(parameters,this.parameters)){
+      this.clean();
+      this.parameters = {...parameters};
+      if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
+      else if (this.parameters.type.toLowerCase() === "polar") this.polarRepetition();
+      else throw new Error('Unknown Repetition Command');
+    }
+  }
+
+  public clone():RepetitionObject{
+    return new RepetitionObject(this.parameters, this.object);
   }
 
   /**
@@ -91,21 +99,15 @@ export default class RepetitionObject{
     for (let i:number = 0; i<num; i++){
       const object:Object3D = this.object.clone();
       //object.translate(i*x, i*y, i*z);
-      this.group.add(object);
+      this.add(object);
     } 
   }
 
   /**
-   * Returns the group (instance of ObjectsGroup) of this RepetitionObject
+   * Returns the group (instance of ObjectsGroup) of this RepetitionObject, 
+   * applying all the operations to children
    */
   public getGroup():ObjectsGroup{
-    return this.group;
-  }
-
-  /**
-   * THREE.Group Object 3D returned as a Promise
-   */
-  public getMeshAsync(): Promise<THREE.Group> {
-    return this.group.getMeshAsync();
+    return new ObjectsGroup(this.unGroup());
   }
 }

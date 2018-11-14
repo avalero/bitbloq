@@ -9,10 +9,11 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03 
- * Last modified  : 2018-11-09 14:55:58
+ * Last modified  : 2018-11-14 09:15:51
  */
 
-import {OperationsArray, Object3D, ChildrenArray, ITranslateOperation, IRotateOperation} from './Object3D';
+import {OperationsArray, ChildrenArray, ITranslateOperation, IRotateOperation} from './Object3D';
+import Object3D from './Object3D';
 import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 

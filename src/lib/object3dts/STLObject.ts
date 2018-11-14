@@ -12,7 +12,8 @@
  * Last modified  : 2018-10-30 10:09:32
  */
 
-import {OperationsArray, Object3D} from './Object3D';
+import {OperationsArray} from './Object3D';
+import Object3D from './Object3D';
 import isEqual from 'lodash.isequal';
 import * as THREE from 'three'
 

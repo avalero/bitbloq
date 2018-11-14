@@ -47,7 +47,7 @@ export type ChildrenArray = Array<Object3D>
 type Operation = ITranslateOperation | IRotateOperation | IScaleOperation | IMirrorOperation;
 export type OperationsArray = Array<Operation>;
 
-export class Object3D {
+export default class Object3D {
 
   public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);

@@ -15,7 +15,8 @@
 
 
 import * as THREE from 'three';
-import {OperationsArray, Object3D} from './Object3D';
+import {OperationsArray} from './Object3D';
+import Object3D from './Object3D';
 import isEqual from 'lodash.isequal';
 
 interface ISphereParams {
@@ -45,13 +46,20 @@ export default class Sphere extends Object3D{
   protected getGeometry(): THREE.Geometry {
     const {radius} = this.parameters;
     this._updateRequired = false;
-    return new THREE.SphereGeometry(Number(radius),24,24);
+    return new THREE.SphereGeometry(
+      Number(radius),
+      Math.max(16,Math.min(Number(radius)*24/5 , 32)), 
+      Math.max(16,Math.min(Number(radius)*24/5, 32))
+      );
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
     const {radius} = this.parameters;
     this._updateRequired = false;
-    return new THREE.SphereBufferGeometry(Number(radius),24,24);
+    return new THREE.SphereBufferGeometry(
+      Number(radius),
+      Math.max(16,Math.min(Number(radius)*24/5 , 32)), 
+      Math.max(16,Math.min(Number(radius)*24/5, 32)));
   }
 
   public clone():Sphere{
