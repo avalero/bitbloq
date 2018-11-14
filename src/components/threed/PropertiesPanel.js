@@ -9,20 +9,24 @@ import {
   updateOperationParameter,
   createObject,
   deleteObject,
+  duplicateObject,
   addOperation,
   removeOperation,
   reorderOperation,
   setActiveOperation,
   unsetActiveOperation,
-  showContextMenu,
   stopEditingObjectName,
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
-import PointsIcon from '../../assets/images/three-points.svg';
+import EllipsisIcon from '../icons/Ellipsis';
+import DuplicateIcon from '../icons/Duplicate';
+import PencilIcon from '../icons/Pencil';
+import TrashIcon from '../icons/Trash';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
 import ColorPicker from '../ColorPicker';
+import DropDown from '../DropDown';
 import config from '../../config/threed';
 
 const Wrap = styled.div`
@@ -44,7 +48,6 @@ const Header = styled.div`
   padding: 0px 20px;
   background-color: white;
   border-bottom: 1px solid #cfcfcf;
-  color: #373b44;
   display: flex;
   align-items: center;
   font-size: 1.1em;
@@ -95,7 +98,6 @@ const OperationButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #373b44;
   height: 50px;
   border-radius: 3px;
   background-color: #ebebeb;
@@ -125,15 +127,69 @@ const NameInput = styled.input`
   }
 `;
 
+const ContextButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+
+  ${props => props.isOpen && css`
+    border: solid 1px #dddddd;
+    background-color: #e8e8e8;
+  `}
+
+  svg {
+    transform: rotate(90deg);
+  }
+`;
+
+const ContextMenu = styled.div`
+  background-color: white;
+  margin-top: 6px;
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  border: solid 1px #cfcfcf;
+`;
+
+const ContextMenuOption = styled.div`
+  width: 220px;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  border-bottom: 1px solid #ebebeb;
+  font-size: 14px;
+  cursor: pointer;
+
+  svg {
+    margin: 0px 14px;
+    width: 13px;
+    height: auto;
+  }
+
+  &:last-child {
+    border: none;
+  }
+
+  ${props => props.danger && css`
+    color: #d82b32;
+  `};
+`;
+
 class PropertiesPanel extends React.Component {
   state = {
     draggingOperations: false,
+    contextMenuOpen: false,
+    editingName: false,
   };
 
   nameInputRef = React.createRef();
 
-  componentDidUpdate(prevProps) {
-    if (this.props.editingName && !prevProps.editingName) {
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.editingName && !prevState.editingName) {
       this.nameInputRef.current.focus();
     }
   }
@@ -170,6 +226,20 @@ class PropertiesPanel extends React.Component {
     );
   };
 
+  onRenameClick = () => {
+    this.setState({ editingName: true });
+  };
+
+  onDeleteClick = () => {
+    const { object, deleteObject } = this.props;
+    deleteObject(object);
+  };
+
+  onDuplicateClick = () => {
+    const { object, duplicateObject } = this.props;
+    duplicateObject(object);
+  };
+
   onAddOperation(object, operationName) {
     this.props.addOperation(object, operationName);
   }
@@ -179,13 +249,15 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const {draggingOperations} = this.state;
     const {
-      editingName,
+      draggingOperations,
+      contextMenuOpen,
+      editingName
+    } = this.state;
+
+    const {
       setActiveOperation,
       unsetActiveOperation,
-      showContextMenu,
-      stopEditingObjectName,
     } = this.props;
     const {color} = object.parameters;
 
@@ -195,7 +267,7 @@ class PropertiesPanel extends React.Component {
     const shapeConfig = config.shapes.find(s => s.name === object.type);
     if (shapeConfig) {
       baseParameters = shapeConfig.parameters || [];
-      icon = shapeConfig.icon
+      icon = shapeConfig.icon;
     } else {
       const compositionConfig = config.compositionOperations.find(
         c => c.name === object.type,
@@ -227,17 +299,28 @@ class PropertiesPanel extends React.Component {
               innerRef={this.nameInputRef}
               value={object.name}
               onChange={e => this.onObjectNameChange(object, e.target.value)}
-              onBlur={() => stopEditingObjectName()}
+              onBlur={() => this.setState({ editingName: false })}
             />
           )}
           {!editingName && <ObjectName>{object.name}</ObjectName>}
-          <img
-            src={PointsIcon}
-            onClick={e => {
-              e.stopPropagation();
-              showContextMenu(object, e);
-            }}
-          />
+          <DropDown>
+            {isOpen =>
+              <ContextButton isOpen={isOpen}>
+                <EllipsisIcon />
+              </ContextButton>
+            }
+            <ContextMenu>
+              <ContextMenuOption onClick={this.onDuplicateClick}>
+                <DuplicateIcon /> Duplicate
+              </ContextMenuOption>
+              <ContextMenuOption onClick={this.onRenameClick}>
+                <PencilIcon /> Rename
+              </ContextMenuOption>
+              <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
+                <TrashIcon /> Delete
+              </ContextMenuOption>
+            </ContextMenu>
+          </DropDown>
         </Header>
         <ObjectProperties>
           <ParametersPanel>
@@ -283,27 +366,26 @@ class PropertiesPanel extends React.Component {
               unsetActiveOperation();
             }
           }}
-          onRemoveOperation={operation => this.onRemoveOperation(object, operation)}
+          onRemoveOperation={operation =>
+            this.onRemoveOperation(object, operation)
+          }
         />
       </DragDropContext>
     );
   }
 
   render() {
-    const {selectedObjects} = this.props;
-    let content;
-
-    if (selectedObjects.length === 1) {
-      content = this.renderObjectPanel(selectedObjects[0]);
-    }
+    const {object} = this.props;
 
     return (
       <Spring
         from={{width: 0}}
-        to={{width: selectedObjects.length === 1 ? 310 : 0}}>
+        to={{width: object ? 310 : 0}}>
         {style => (
           <Wrap style={style}>
-            <Container>{content}</Container>
+            <Container>
+              {object && this.renderObjectPanel(object)}
+            </Container>
           </Wrap>
         )}
       </Spring>
@@ -311,11 +393,12 @@ class PropertiesPanel extends React.Component {
   }
 }
 
-const mapStateToProps = ({threed}) => ({
-  objects: getObjects(threed),
-  selectedObjects: getSelectedObjects(threed),
-  editingName: threed.ui.editingObjectName,
-});
+const mapStateToProps = ({threed}) => {
+  const selectedObjects = getSelectedObjects(threed) || [];
+  return ({
+    object: selectedObjects.length === 1 ? selectedObjects[0] : null,
+  });
+};
 
 const mapDispatchToProps = dispatch => ({
   updateObjectName: (object, name) => dispatch(updateObjectName(object, name)),
@@ -325,6 +408,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateOperationParameter(object, operation, parameter, value)),
   createObject: object => dispatch(createObject(object)),
   deleteObject: object => dispatch(deleteObject(object)),
+  duplicateObject: object => dispatch(duplicateObject(object)),
   addOperation: (object, operationName) =>
     dispatch(addOperation(object, operationName)),
   removeOperation: (object, operation) =>
@@ -334,9 +418,6 @@ const mapDispatchToProps = dispatch => ({
   setActiveOperation: ({object, type, axis, relative}) =>
     dispatch(setActiveOperation(object, type, axis, relative)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
-  showContextMenu: (object, e) =>
-    dispatch(showContextMenu(object, e.clientX, e.clientY)),
-  stopEditingObjectName: () => dispatch(stopEditingObjectName()),
 });
 
 export default connect(

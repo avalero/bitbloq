@@ -28,7 +28,6 @@ const Button = styled.div<ButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #373b44;
   margin-right: -1px;
 
   img {

@@ -4,8 +4,6 @@ import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer';
 import Toolbar from './Toolbar';
 import PropertiesPanel from './PropertiesPanel';
-import PropertiesPanelBloqs from './PropertiesPanelBloqs';
-import ContextMenu from './ContextMenu';
 import Document, {Tab} from '../Document';
 import ThreeDIcon from '../icons/ThreeD';
 import InfoIcon from '../icons/Info';
@@ -84,11 +82,6 @@ const menuOptions = [
 
 class ThreeD extends React.Component {
   render() {
-    const PropertiesPanelComponent =
-      window.location.hash.indexOf('opcion2') >= 0
-        ? PropertiesPanelBloqs
-        : PropertiesPanel;
-
     return (
       <Document menuOptions={menuOptions}>
         <Tab icon={<ThreeDIcon />}>
@@ -98,8 +91,7 @@ class ThreeD extends React.Component {
               <Toolbar />
               <ThreeDViewer />
             </MainArea>
-            <PropertiesPanelComponent />
-            <ContextMenu />
+            <PropertiesPanel />
           </Container>
         </Tab>
         <Tab icon={<InfoIcon />} />

@@ -38,7 +38,6 @@ const ObjectItem = styled.li`
 `;
 
 const ObjectName = styled.div`
-  color: #373b44;
   padding: 0px 8px;
   cursor: pointer;
   display: flex;
@@ -80,7 +79,6 @@ const AddButton = styled.div`
   justify-content: center;
   align-items: center;
   height: 50px;
-  color: #373b44;
   background-color: #ebebeb;
   font-size: 13px;
   font-weight: bold;
