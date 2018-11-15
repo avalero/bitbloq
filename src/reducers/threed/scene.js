@@ -91,6 +91,7 @@ const scene = handleActions(
         ];
       },
     ],
+    [actions.addObjects, (state, {payload}) => [...state, ...payload]],
     [
       actions.updateObjectName,
       (state, {payload}) =>
@@ -164,6 +165,10 @@ const scene = handleActions(
     ],
     [
       actions.deleteObject,
+      (state, {payload}) => state.filter(o => o !== payload)
+    ],
+    [
+      actions.undoComposition,
       (state, {payload}) => {
         const {parameters = {}} = payload;
         const {children = []} = parameters;

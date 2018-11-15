@@ -8,7 +8,9 @@ import {
   updateObjectParameter,
   updateOperationParameter,
   createObject,
+  addObjects,
   deleteObject,
+  undoComposition,
   duplicateObject,
   addOperation,
   removeOperation,
@@ -23,6 +25,8 @@ import EllipsisIcon from '../icons/Ellipsis';
 import DuplicateIcon from '../icons/Duplicate';
 import PencilIcon from '../icons/Pencil';
 import TrashIcon from '../icons/Trash';
+import UndoIcon from '../icons/Undo';
+import UngroupIcon from '../icons/Ungroup';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
 import ColorPicker from '../ColorPicker';
@@ -170,6 +174,10 @@ const ContextMenuOption = styled.div`
     height: auto;
   }
 
+  &:hover {
+    background-color: #ebebeb;
+  }
+
   &:last-child {
     border: none;
   }
@@ -240,6 +248,22 @@ class PropertiesPanel extends React.Component {
     duplicateObject(object);
   };
 
+  onUngroupClick = () => {
+    const { object, addObjects, deleteObject } = this.props;
+    const compositionConfig = config.compositionOperations.find(
+      c => c.name === object.type,
+    );
+
+    const children = compositionConfig.ungroup(object);
+    addObjects(children);
+    deleteObject(object);
+  };
+
+  onUndoClick = () => {
+    const { object, undoComposition } = this.props;
+    undoComposition(object);
+  };
+
   onAddOperation(object, operationName) {
     this.props.addOperation(object, operationName);
   }
@@ -263,6 +287,9 @@ class PropertiesPanel extends React.Component {
 
     let baseParameters;
     let icon;
+    let canUndo;
+    let undoLabel;
+    let canUngroup;
 
     const shapeConfig = config.shapes.find(s => s.name === object.type);
     if (shapeConfig) {
@@ -275,6 +302,11 @@ class PropertiesPanel extends React.Component {
       if (compositionConfig) {
         baseParameters = compositionConfig.parameters || [];
         icon = compositionConfig.icon;
+        canUndo = compositionConfig.canUndo;
+        undoLabel = 'Undo ' + compositionConfig.label.toLowerCase();
+        if (compositionConfig.ungroup) {
+          canUngroup = true;
+        }
       }
     }
 
@@ -316,6 +348,16 @@ class PropertiesPanel extends React.Component {
               <ContextMenuOption onClick={this.onRenameClick}>
                 <PencilIcon /> Rename
               </ContextMenuOption>
+              {canUngroup &&
+                <ContextMenuOption onClick={this.onUngroupClick}>
+                  <UngroupIcon /> Ungroup
+                </ContextMenuOption>
+              }
+              {canUndo &&
+                <ContextMenuOption onClick={this.onUndoClick}>
+                  <UndoIcon /> {undoLabel}
+                </ContextMenuOption>
+              }
               <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
                 <TrashIcon /> Delete
               </ContextMenuOption>
@@ -407,7 +449,9 @@ const mapDispatchToProps = dispatch => ({
   updateOperationParameter: (object, operation, parameter, value) =>
     dispatch(updateOperationParameter(object, operation, parameter, value)),
   createObject: object => dispatch(createObject(object)),
+  addObjects: objects => dispatch(addObjects(objects)),
   deleteObject: object => dispatch(deleteObject(object)),
+  undoComposition: object => dispatch(undoComposition(object)),
   duplicateObject: object => dispatch(duplicateObject(object)),
   addOperation: (object, operationName) =>
     dispatch(addOperation(object, operationName)),
@@ -422,5 +466,5 @@ const mapDispatchToProps = dispatch => ({
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(PropertiesPanel);
