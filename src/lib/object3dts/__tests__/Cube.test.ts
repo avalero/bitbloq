@@ -43,7 +43,7 @@ test('Check mesh needs to be computed only once', () => {
   expect(object.meshUpdateRequired).toBe(true);
   object.setParameters({width, height, depth});
   expect((object as any).parameters).toEqual({width, height, depth});
-  expect(object.meshUpdateRequired).toBe(false);
+  expect(object.meshUpdateRequired).toBe(true);
 });
 
 test('Check Object Dimensions are well Constructed', () =>{

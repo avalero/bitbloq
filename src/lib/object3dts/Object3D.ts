@@ -95,6 +95,7 @@ export default class Object3D extends ObjectsCommon{
     if (this.pendingOperation){
       await this.applyOperationsAsync();
     }
+    
     this.mesh.material = this.getMaterial();
 
     return this.mesh;

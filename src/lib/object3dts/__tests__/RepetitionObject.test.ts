@@ -1,7 +1,7 @@
 import ObjectsGroups from '../ObjectsGroup'
 
 import Cube from '../Cube';
-import {Object3D} from '../Object3D';
+import Object3D from '../Object3D';
 import RepetitionObject from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
 
