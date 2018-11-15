@@ -19,7 +19,7 @@ test('Check there are no initial operations', () =>{
 
 test('Check mesh needs to be computed', () => {
   const object = new Cylinder(({r0, r1 , height}));
-  expect(object.meshUpdateRequired).toBe(false); //does not need to be computed after creation
+  expect(object.meshUpdateRequired).toBe(true); //does not need to be computed after creation
 });
 
 
@@ -29,38 +29,44 @@ test('Check params are well passed and mesh needs to be recomputed', () =>{
   object.setParameters({r0:5, r1:5, height:5});
   expect((object as any).parameters).toEqual({r0:5, r1:5, height:5});
   expect(object.meshUpdateRequired).toBe(true);
-  const mesh1 = object.getPrimitiveMeshAsync();
-  expect(object.meshUpdateRequired).toBe(false);
-  const mesh2 = object.getPrimitiveMeshAsync();
-  expect(mesh1).toBe(mesh2);
+  object.getPrimitiveMeshAsync().then( mesh1 => {
+    expect(object.meshUpdateRequired).toBe(false);
+    object.getPrimitiveMeshAsync().then( mesh2 => {
+      expect(mesh1).toBe(mesh2);
+    });
+  });
+  
 });
 
 
 test('Check mesh needs to be computed only once', () => {
   const object = new Cylinder(({r0, r1 , height}));
-  expect(object.meshUpdateRequired).toBe(false);
+  expect(object.meshUpdateRequired).toBe(true);
   object.setParameters(({r0, r1 , height}));
   expect((object as any).parameters).toEqual(({r0, r1 , height}));
-  expect(object.meshUpdateRequired).toBe(false);
+  expect(object.meshUpdateRequired).toBe(true);
 });
 
 test('Check Object Dimensions are well Constructed', () =>{
   const object = new Cylinder(({r0, r1 , height}));
-  const mesh = object.getPrimitiveMeshAsync();
-  const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
-  new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
-  expect(boundingBoxDims).toEqual({x:2*Math.max(r0,r1), y:2*Math.max(r0,r1), z:height});
+  const mesh = object.getPrimitiveMeshAsync().then( mesh => {
+    const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
+    new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
+    expect(boundingBoxDims).toEqual({x:2*Math.max(r0,r1), y:2*Math.max(r0,r1), z:height});
+  });
+  
 });
 
 test('Check initial position and rotation', () => {
   const object = new Cylinder(({r0, r1 , height}));
-  const mesh = object.getPrimitiveMeshAsync();
-  const center = mesh.position;
-  const euler = mesh.rotation;
-  expect(center).toEqual(new THREE.Vector3(0,0,0));
-  expect(euler.x).toBeCloseTo(0);
-  expect(euler.y).toBeCloseTo(0);
-  expect(euler.z).toBeCloseTo(0);
+  object.getPrimitiveMeshAsync().then( mesh => {
+    const center = mesh.position;
+    const euler = mesh.rotation;
+    expect(center).toEqual(new THREE.Vector3(0,0,0));
+    expect(euler.x).toBeCloseTo(0);
+    expect(euler.y).toBeCloseTo(0);
+    expect(euler.z).toBeCloseTo(0);
+  });
 });
 
 

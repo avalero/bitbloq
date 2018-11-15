@@ -4,7 +4,7 @@ import Cube from '../Cube';
 import Sphere from '../Sphere';
 import Cylinder from '../Cylinder';
 import * as THREE from 'three';
-import {Object3D} from '../Object3D';
+import Object3D from '../Object3D';
 
 const radius = 5;
 const width = 7;

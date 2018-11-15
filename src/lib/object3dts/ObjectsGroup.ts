@@ -8,7 +8,7 @@ export default class ObjectsGroup extends ObjectsCommon{
    private group:Array<Object3D>;
    
    constructor(objects: Array<Object3D> = []){
-     super([]);
+     super(ObjectsCommon.createViewOptions(),[]);
      this.group = objects;
    }
    // Group operations. Will be transferred to children only when un-grouped.
