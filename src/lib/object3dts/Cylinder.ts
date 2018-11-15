@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-15 17:19:52
+ * Last modified  : 2018-11-15 20:22:15
  */
 
 import * as THREE from 'three';
@@ -39,67 +39,33 @@ export default class Cylinder extends Object3D{
     const object: ICylinderJSON = JSON.parse(json);
     return new Cylinder(object.parameters, object.operations, object.viewOptions);
   }
-
-  private parameters: ICylinderParams;
   
-
-
   constructor(
     parameters: ICylinderParams,
     operations: OperationsArray = [], 
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
     ){
     super(viewOptions,operations);
+    this.type = Cylinder.typeName;
     this.parameters = {...parameters};
     this._updateRequired = true;   
   }
 
-  public setParameters(parameters: ICylinderParams): void{
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = {...parameters};
-      this._updateRequired = true;
-    }
-  }
-
   protected getGeometry(): THREE.Geometry {
-    const {r0,r1,height} = this.parameters;
+    let {r0,r1,height} = this.parameters as ICylinderParams;
+    r0 = Math.max(1,r0); r1 = Math.max(1,r1); height = Math.max(1,height);
     this._updateRequired = false;
     return new THREE.CylinderGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    const {r0,r1,height} = this.parameters;
+    let {r0,r1,height} = this.parameters as ICylinderParams;
+    r0 = Math.max(1,r0); r1 = Math.max(1,r1); height = Math.max(1,height);
     this._updateRequired = false;
     return new THREE.CylinderBufferGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
   }
 
   public clone():Cylinder{
-    return Cylinder.newFromJSON(this.toJSON());
-    //return new Cube(this.parameters, this.operations, this.viewOptions);  
+    return Cylinder.newFromJSON(this.toJSON()); 
   }
-
-  
-  public toJSON():string{
-    const object: ICylinderJSON = {
-      id: this.id,
-      type: Cylinder.typeName,
-      parameters: this.parameters,
-      viewOptions: this.viewOptions,
-      operations: this.operations,
-    }
-    return JSON.stringify(object);
-  }
-
-  public updateFromJSON(json: string){
-    const object: ICylinderJSON = JSON.parse(json);
-    if(this.id === object.id){
-      this.setParameters(object.parameters);
-      this.setOperations(object.operations);
-      this.setViewOptions(object.viewOptions);
-    }else{
-      throw new Error('Object id does not match with JSON id');
-    }
-  }
-
-
 }

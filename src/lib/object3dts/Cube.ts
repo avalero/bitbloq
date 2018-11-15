@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-15 18:48:30
+ * Last modified  : 2018-11-15 20:24:11
  */
 
 import * as THREE from 'three';
@@ -41,7 +41,7 @@ export default class Cube extends Object3D{
       return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
-  private parameters: ICubeParams;
+  //private parameters: ICubeParams;
 
   constructor(
     parameters: ICubeParams,  
@@ -50,61 +50,26 @@ export default class Cube extends Object3D{
     )
   {
     super(viewOptions,operations);
+    this.type = Cube.typeName;
     this.setParameters(parameters);
   }
 
-  public setParameters(parameters: ICubeParams): void{
-    debugger;
-    if(!this.parameters ){
-      this.parameters = Object.assign({},parameters);
-      this._updateRequired = true;
-      return;
-    }
-
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = Object.assign({},parameters);
-      this._updateRequired = true;
-    }
-  }
-
   protected getGeometry(): THREE.Geometry {
-    const {width, height, depth} = this.parameters;
+    let {width, height, depth} = this.parameters as ICubeParams;
+    width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
     this._updateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    const {width, height, depth} = this.parameters;
+    let {width, height, depth} = this.parameters as ICubeParams;
+    width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
     this._updateRequired = false;
     return new THREE.BoxBufferGeometry(Number(width), Number(depth), Number(height));
   }
 
   public clone():Cube{
-    return Cube.newFromJSON(this.toJSON());
-    //return new Cube(this.parameters, this.operations, this.viewOptions);  
-  }
-
-  
-  public toJSON():string{
-    const object: ICubeJSON = {
-      id: this.id,
-      type: Cube.typeName,
-      parameters: this.parameters,
-      viewOptions: this.viewOptions,
-      operations: this.operations,
-    }
-    return JSON.stringify(object);
-  }
-
-  public updateFromJSON(json: string){
-    const object: ICubeJSON = JSON.parse(json);
-    if(this.id === object.id){
-      this.setParameters(object.parameters);
-      this.setOperations(object.operations);
-      this.setViewOptions(object.viewOptions);
-    }else{
-      throw new Error('Object id does not match with JSON id');
-    }
+    return Cube.newFromJSON(this.toJSON());  
   }
 }
 
