@@ -111,7 +111,12 @@ export default class ObjectsCommon{
   {
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
-    if(this.id === '') this.id = uuid();
+    //each new object must have a new ID
+    this.id = uuid();
+  }
+
+  public getID(){
+    return this.id;
   }
  
   public getOperations():OperationsArray{

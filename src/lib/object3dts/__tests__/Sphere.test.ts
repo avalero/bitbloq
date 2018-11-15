@@ -1,4 +1,5 @@
-import Sphere from '../Sphere';
+import Sphere, {ISphereJSON} from '../Sphere';
+import ObjectsCommon, {ITranslateOperation, IRotateOperation, IScaleOperation, IMirrorOperation} from '../ObjectsCommon';
 import * as THREE from 'three';
 
 const radius = 10;
@@ -103,4 +104,225 @@ test('Async Check initial position and rotation', () => {
     expect(euler.y).toBeCloseTo(0);
     expect(euler.z).toBeCloseTo(0);
   });
+});
+
+// CHECK FROM JSON - TO JSON - CLONE
+
+test('Sphere - toJSON - Parameteres', () => {
+  const object = new Sphere({radius});
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.parameters.radius).toEqual(radius);
+});
+
+test('Sphere - toJSON - Operations', () => {
+  const x = 5; const y = 10; const z = 20;
+  const axis = 'z'; const angle = 30;
+  
+  const object = new Sphere(
+    {radius}, 
+    [
+      ObjectsCommon.createTranslateOperation(x,y,z),
+      ObjectsCommon.createRotateOperation(axis, angle)
+    ]
+    );
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.operations.length).toEqual(2);
+  expect(obj.operations[0].type).toEqual('translation');
+  expect(obj.operations[1].type).toEqual('rotation');
+  expect((obj.operations[0] as ITranslateOperation).x).toEqual(x);
+  expect((obj.operations[0] as ITranslateOperation).y).toEqual(y);
+  expect((obj.operations[0] as ITranslateOperation).z).toEqual(z);
+  expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
+  expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
+  object.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
+  const json2 = object.toJSON();
+  const obj2:ISphereJSON = JSON.parse(json2);
+  expect(obj2.operations.length).toEqual(3);
+  expect(obj2.operations[0].type).toEqual('translation');
+  expect(obj2.operations[1].type).toEqual('rotation');
+  expect(obj2.operations[2].type).toEqual('scale');
+  expect((obj2.operations[0] as ITranslateOperation).x).toEqual(x);
+  expect((obj2.operations[0] as ITranslateOperation).y).toEqual(y);
+  expect((obj2.operations[0] as ITranslateOperation).z).toEqual(z);
+  expect((obj2.operations[1] as IRotateOperation).axis).toEqual(axis);
+  expect((obj2.operations[1] as IRotateOperation).angle).toEqual(angle);
+  expect((obj2.operations[2] as IScaleOperation).x).toEqual(x);
+  expect((obj2.operations[2] as IScaleOperation).y).toEqual(y);
+  expect((obj2.operations[2] as IScaleOperation).z).toEqual(z);
+  
+});
+
+test('Sphere - toJSON - ViewOptions', () => {
+  const color = '#abcdef'
+  const visible = true;
+  const name = 'Object123';
+  const highlighted = false;
+
+  const object = new Sphere({radius},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.viewOptions.color).toEqual(color);
+  expect(obj.viewOptions.name).toEqual(name);
+  expect(obj.viewOptions.visible).toEqual(visible);
+  expect(obj.viewOptions.highlighted).toEqual(highlighted);
+});
+
+test('Cylinder - fromJSON - Parameteres', () => {
+  const object1 = new Sphere({radius});
+  const json1 = object1.toJSON();
+  const object = Sphere.newFromJSON(json1);
+  const json = object.toJSON();
+  const obj = JSON.parse(json);
+  expect(obj.parameters.radius).toEqual(radius);
+});
+
+
+test('Sphere - fromJSON - Operations', () => {
+  const x = 5; const y = 10; const z = 20;
+  const axis = 'z'; const angle = 30;
+  
+  const object1 = new Sphere(
+    {radius},
+    [
+      ObjectsCommon.createTranslateOperation(x,y,z),
+      ObjectsCommon.createRotateOperation(axis, angle)
+    ]
+    );
+  const json1 = object1.toJSON();
+  const object = Sphere.newFromJSON(json1);
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.operations.length).toEqual(2);
+  expect(obj.operations[0].type).toEqual('translation');
+  expect(obj.operations[1].type).toEqual('rotation');
+  expect((obj.operations[0] as ITranslateOperation).x).toEqual(x);
+  expect((obj.operations[0] as ITranslateOperation).y).toEqual(y);
+  expect((obj.operations[0] as ITranslateOperation).z).toEqual(z);
+  expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
+  expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
+});
+
+test('Sphere - fromJSON - ViewOptions', () => {
+  const color = '#abcdef'
+  const visible = true;
+  const name = 'Object123';
+  const highlighted = false;
+
+  const object1 = new Sphere({radius},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  const json1 = object1.toJSON();
+  const object = Sphere.newFromJSON(json1);
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.viewOptions.color).toEqual(color);
+  expect(obj.viewOptions.name).toEqual(name);
+  expect(obj.viewOptions.visible).toEqual(visible);
+  expect(obj.viewOptions.highlighted).toEqual(highlighted);
+});
+
+
+
+// CLONE
+
+test('Sphere - clone() - Parameteres', () => {
+  const aux = new Sphere({radius});
+  const object = aux.clone();
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.parameters.radius).toEqual(radius);
+});
+
+
+test('Sphere - CLONE - Operations', () => {
+  const x = 5; const y = 10; const z = 20;
+  const axis = 'z'; const angle = 30;
+  
+  const aux = new Sphere(
+    {radius}, 
+    [
+      ObjectsCommon.createTranslateOperation(x,y,z),
+      ObjectsCommon.createRotateOperation(axis, angle)
+    ]
+    );
+
+  const object = aux.clone();
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.operations.length).toEqual(2);
+  expect(obj.operations[0].type).toEqual('translation');
+  expect(obj.operations[1].type).toEqual('rotation');
+  expect((obj.operations[0] as ITranslateOperation).x).toEqual(x);
+  expect((obj.operations[0] as ITranslateOperation).y).toEqual(y);
+  expect((obj.operations[0] as ITranslateOperation).z).toEqual(z);
+  expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
+  expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
+});
+
+test('Cylinder - UpdateFromJSON - ', () => {
+  
+  const color = '#abcdef'
+  const visible = true;
+  const name = 'Object123';
+  const highlighted = false;
+  const x = 5; const y = 10; const z = 20;
+  const axis = 'z'; const angle = 30;
+
+  const object = new Sphere(
+    { radius:3*radius },
+    [
+      ObjectsCommon.createTranslateOperation(2*x,3*y,5*z),
+      ObjectsCommon.createRotateOperation('y', 2*angle)
+    ],
+    ObjectsCommon.createViewOptions(color,visible,highlighted,name)
+    );
+
+  const object1 = new Sphere(
+    { radius},
+    [
+      ObjectsCommon.createTranslateOperation(x,y,z),
+      ObjectsCommon.createRotateOperation(axis, angle)
+    ],
+    ObjectsCommon.createViewOptions(color,visible,highlighted,name)
+    );
+
+  let json1:string = object1.toJSON();
+  const obj1:ISphereJSON = JSON.parse(json1);
+  obj1.id = object.getID();
+  json1 = JSON.stringify(obj1);
+  object.updateFromJSON(json1);
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+
+  expect(obj.parameters.radius).toEqual(radius);
+
+  expect(obj.viewOptions.color).toEqual(color);
+  expect(obj.viewOptions.name).toEqual(name);
+  expect(obj.viewOptions.visible).toEqual(visible);
+  expect(obj.viewOptions.highlighted).toEqual(highlighted);
+
+  expect(obj.operations.length).toEqual(2);
+  expect(obj.operations[0].type).toEqual('translation');
+  expect(obj.operations[1].type).toEqual('rotation');
+  expect((obj.operations[0] as ITranslateOperation).x).toEqual(x);
+  expect((obj.operations[0] as ITranslateOperation).y).toEqual(y);
+  expect((obj.operations[0] as ITranslateOperation).z).toEqual(z);
+  expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
+  expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
+});
+
+test('Sphere - Clone - ViewOptions', () => {
+  const color = '#abcdef'
+  const visible = true;
+  const name = 'Object123';
+  const highlighted = false;
+
+  const object1 = new Sphere({radius},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  const object = object1.clone();
+  const json = object.toJSON();
+  const obj:ISphereJSON = JSON.parse(json);
+  expect(obj.viewOptions.color).toEqual(color);
+  expect(obj.viewOptions.name).toEqual(name);
+  expect(obj.viewOptions.visible).toEqual(visible);
+  expect(obj.viewOptions.highlighted).toEqual(highlighted);
 });

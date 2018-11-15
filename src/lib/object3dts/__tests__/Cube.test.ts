@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-15 16:42:13 
- * Last modified  : 2018-11-15 16:59:59
+ * Last modified  : 2018-11-15 19:02:55
  */
 
 
@@ -232,6 +232,7 @@ test('Cube - fromJSON - ViewOptions', () => {
   const visible = true;
   const name = 'Object123';
   const highlighted = false;
+  
 
   const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const json1 = object1.toJSON();
@@ -244,6 +245,64 @@ test('Cube - fromJSON - ViewOptions', () => {
   expect(obj.viewOptions.highlighted).toEqual(highlighted);
 });
 
+
+test('Cube - UpdateFromJSON - ', () => {
+  
+  const color = '#abcdef'
+  const visible = true;
+  const name = 'Object123';
+  const highlighted = false;
+  const x = 5; const y = 10; const z = 20;
+  const axis = 'z'; const angle = 30;
+
+  const object = new Cube(
+    { width:3*width, height:2*height, depth:5*depth },
+    [
+      ObjectsCommon.createTranslateOperation(2*x,3*y,5*z),
+      ObjectsCommon.createRotateOperation('y', 2*angle)
+    ],
+    ObjectsCommon.createViewOptions(color,visible,highlighted,name)
+    );
+
+  const object1 = new Cube(
+    { width, height, depth },
+    [
+      ObjectsCommon.createTranslateOperation(x,y,z),
+      ObjectsCommon.createRotateOperation(axis, angle)
+    ],
+    ObjectsCommon.createViewOptions(color,visible,highlighted,name)
+    );
+
+  let json1 = object1.toJSON();
+  
+  const obj1:ICubeJSON = JSON.parse(json1);
+  
+  obj1.id = object.getID();
+  json1 = JSON.stringify(obj1);
+  
+  object.updateFromJSON(json1);
+  
+  const json = object.toJSON();
+  const obj:ICubeJSON = JSON.parse(json);
+
+  expect(obj.parameters.width).toEqual(width);
+  expect(obj.parameters.height).toEqual(height);
+  expect(obj.parameters.depth).toEqual(depth);
+
+  expect(obj.viewOptions.color).toEqual(color);
+  expect(obj.viewOptions.name).toEqual(name);
+  expect(obj.viewOptions.visible).toEqual(visible);
+  expect(obj.viewOptions.highlighted).toEqual(highlighted);
+
+  expect(obj.operations.length).toEqual(2);
+  expect(obj.operations[0].type).toEqual('translation');
+  expect(obj.operations[1].type).toEqual('rotation');
+  expect((obj.operations[0] as ITranslateOperation).x).toEqual(x);
+  expect((obj.operations[0] as ITranslateOperation).y).toEqual(y);
+  expect((obj.operations[0] as ITranslateOperation).z).toEqual(z);
+  expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
+  expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
+});
 
 
 // CLONE
