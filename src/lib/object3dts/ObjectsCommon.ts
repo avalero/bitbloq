@@ -109,7 +109,7 @@ export default class ObjectsCommon{
     operations: OperationsArray = []
     ) 
   {
-    this.operations = []
+    //this.operations = []
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
