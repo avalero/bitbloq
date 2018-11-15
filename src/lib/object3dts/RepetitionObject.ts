@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37 
- * Last modified  : 2018-11-14 09:27:34
+ * Last modified  : 2018-11-14 10:56:45
  */
 
 import Object3D from './Object3D';
@@ -41,7 +41,7 @@ export default class RepetitionObject extends ObjectsGroup{
 
   public static typeName:string = 'RepetitionObject';
 
-  private object: Object3D;
+  private object: Object3D | ObjectsGroup;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
   /**
@@ -50,7 +50,7 @@ export default class RepetitionObject extends ObjectsGroup{
    * @param object The object to repeat
    * Creates an ObjectsGroup with cloned objects (Object3D instance) on their new postion
    */
-  constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D){
+  constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D | ObjectsGroup){
     super();
     this.parameters = {...params}
     this.object = object;
@@ -67,9 +67,13 @@ export default class RepetitionObject extends ObjectsGroup{
     const {x , y, z, type, num} = this.parameters as ICartesianRepetitionParams;
 
     for (let i:number = 0; i<num; i++){
-      const objectClone:Object3D = this.object.clone();
-      objectClone.translate(i*x, i*y, i*z);
-      this.add(objectClone);
+      if(this.object instanceof Object3D){
+        const objectClone:Object3D = this.object.clone();
+        objectClone.translate(i*x, i*y, i*z);
+        this.add(objectClone);
+      }else if(this.object instanceof ObjectsGroup){
+        
+      }
     } 
   }
 
@@ -94,12 +98,17 @@ export default class RepetitionObject extends ObjectsGroup{
    */
   //TODO
   private polarRepetition(){
+    
     const {axis , angle, type, num} = this.parameters as IPolarRepetitionParams;
 
     for (let i:number = 0; i<num; i++){
-      const object:Object3D = this.object.clone();
-      //object.translate(i*x, i*y, i*z);
-      this.add(object);
+      if(this.object instanceof Object3D){
+        const objectClone:Object3D = this.object.clone();
+        //objectClone.translate(i*x, i*y, i*z);
+        this.add(objectClone);
+      }else if(this.object instanceof ObjectsGroup){
+        
+      }
     } 
   }
 

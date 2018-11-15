@@ -13,7 +13,7 @@
  */
 
 import * as THREE from 'three';
-import {OperationsArray} from './Object3D';
+import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from 'lodash.isequal'
 
@@ -29,11 +29,14 @@ export default class Cylinder extends Object3D{
 
   private parameters: ICylinderParams;
   
-  constructor(parameters: ICylinderParams, operations: OperationsArray = []){
-    super(operations);
+  constructor(
+    parameters: ICylinderParams,
+    operations: OperationsArray = [], 
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    ){
+    super(viewOptions,operations);
     this.parameters = {...parameters};
-    this._updateRequired = true;
-    this.mesh = this.getPrimitiveMesh();    
+    this._updateRequired = true;   
   }
 
   public setParameters(parameters: ICylinderParams): void{
@@ -56,7 +59,7 @@ export default class Cylinder extends Object3D{
   }
 
   public clone():Cylinder{
-    return new Cylinder(this.parameters, this.operations);
+    return new Cylinder(this.parameters, this.operations, this.viewOptions);
   }
 
 

@@ -12,8 +12,9 @@
  * Last modified  : 2018-11-14 09:15:51
  */
 
-import {OperationsArray, ChildrenArray, ITranslateOperation, IRotateOperation} from './Object3D';
-import Object3D from './Object3D';
+import Object3D, {ChildrenArray} from './Object3D';
+import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
+
 import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
@@ -23,8 +24,12 @@ export default class CompoundObject extends Object3D {
 
   protected worker:Worker;
 
-  constructor(children: ChildrenArray = [], operations: OperationsArray = []){
-    super(operations);
+  constructor(
+    children: ChildrenArray = [], 
+    operations: OperationsArray = [], 
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    ){
+    super(viewOptions,operations);
     this.children = children;
     this._updateRequired = true;
     this.setOperations();
@@ -48,7 +53,7 @@ export default class CompoundObject extends Object3D {
 
   public getMeshAsync(): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
-      if(this.updateRequired){
+      if(this.meshUpdateRequired){
         console.log('Update Compound Object Mesh');
         
         //check if WebWorkers are enabled
@@ -69,8 +74,9 @@ export default class CompoundObject extends Object3D {
               console.log(`WebWorker deserialize Execuetion time ${t1 - t0} millis`);
               
               if(this.mesh instanceof THREE.Mesh){
-                  this.applyOperations().then( () => {
+                  this.applyOperationsAsync().then( () => {
                     this._updateRequired = false;
+                    this.mesh.material = this.getMaterial();
                     resolve(this.mesh);
                   });
               }else{
@@ -99,10 +105,12 @@ export default class CompoundObject extends Object3D {
         }
       }else{
         if (this.pendingOperation){
-          this.applyOperations().then( () => {
+          this.applyOperationsAsync().then( () => {
+            this.mesh.material = this.getMaterial();
             resolve(this.mesh);
           });
         }
+        this.mesh.material = this.getMaterial();
         resolve(this.mesh)
       }
     });

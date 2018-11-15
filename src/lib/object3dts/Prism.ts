@@ -27,7 +27,7 @@
  */
 
 import * as THREE from 'three';
-import {OperationsArray} from './Object3D';
+import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from 'lodash.isequal'
 
@@ -43,11 +43,14 @@ export default class Prism extends Object3D{
 
   private parameters: IPrismParams;
   
-  constructor(parameters: IPrismParams, operations: OperationsArray = []){
-    super(operations);
+  constructor(
+    parameters: IPrismParams,
+    operations: OperationsArray = [], 
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    ){
+    super(viewOptions,operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getPrimitiveMesh();    
   }
 
   protected setParameters(parameters: IPrismParams): void{
@@ -72,8 +75,6 @@ export default class Prism extends Object3D{
   }
 
   public clone():Prism{
-    return new Prism(this.parameters, this.operations);
+    return new Prism(this.parameters, this.operations, this.viewOptions);
   }
-
-
 }

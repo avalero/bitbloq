@@ -9,45 +9,17 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-09 13:23:55
+ * Last modified  : 2018-11-14 10:54:19
  */
 
 import * as THREE from 'three';
 import isEqual from 'lodash.isequal';
-
-interface ICommonOperation {
-  type: string;
-}
-
-export interface ITranslateOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-  relative: boolean;
-}
-
-export interface IRotateOperation extends ICommonOperation {
-  axis: string;
-  angle: number;
-  relative: boolean;
-}
-
-export interface IScaleOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface IMirrorOperation extends ICommonOperation {
-  plane: string;
-}
+import ObjectsCommon from './ObjectsCommon'
+import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray, IViewOptions} from './ObjectsCommon';
 
 export type ChildrenArray = Array<Object3D>
 
-type Operation = ITranslateOperation | IRotateOperation | IScaleOperation | IMirrorOperation;
-export type OperationsArray = Array<Operation>;
-
-export default class Object3D {
+export default class Object3D extends ObjectsCommon{
 
   public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
@@ -73,74 +45,24 @@ export default class Object3D {
   }
 
 
-  public static createTranslateOperation(
-    x: number = 0,
-    y: number = 0,
-    z: number = 0,
-    relative: boolean = true,
-  ): ITranslateOperation {
-    return {
-      type: 'translation',
-      x,
-      y,
-      z,
-      relative,
-    };
-  }
-
-  public static createMirrorOperation(
-    plane: string = 'yz', //xy, yz, zx
-  ): IMirrorOperation {
-    return {
-      type: 'mirror',
-      plane,
-    };
-  }
-
-  public static createRotateOperation(
-    axis: string = 'x',
-    angle: number = 0,
-    relative: boolean = true,
-  ): IRotateOperation {
-    return {
-      type: 'rotation',
-      axis,
-      angle,
-      relative,
-    };
-  }
-
-  public static createScaleOperation(
-    x: number = 1,
-    y: number = 1,
-    z: number = 1,
-  ): IScaleOperation {
-    return {
-      type: 'scale',
-      x,
-      y,
-      z,
-    };
-  }
+  
 
   //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
-  protected color: string;
-  protected operations: OperationsArray;
-  protected _pendingOperation: boolean;
+  
   protected _updateRequired: boolean;
   protected children: ChildrenArray;
 
-  constructor(operations: OperationsArray = []) {
+  constructor(
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray = []) {
+    super(viewOptions, operations);
     this.children = [];
-    this.operations = operations;
-    this._pendingOperation = true;
-    this.color = "#ffffff";
   }
 
-  get updateRequired():boolean{
+  get meshUpdateRequired():boolean{
     this.children.forEach( child => {
-      this._updateRequired = this._updateRequired || child.updateRequired || child.pendingOperation;
+      this._updateRequired = this._updateRequired || child.meshUpdateRequired || child.pendingOperation;
     });
 
     return this._updateRequired;
@@ -153,57 +75,34 @@ export default class Object3D {
 
     return this._pendingOperation;
   }
-  
-  public getOperations():OperationsArray{
-    return this.operations;
-  }
-
-  public setOperations(operations: OperationsArray = []): void {
-    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
-
-    if(!isEqual(this.operations, operations)){
-      this.operations = [];
-      this.operations = operations.slice();
-    }
-  }
-
-  public addOperations(operations: OperationsArray = []): void {
-    this.setOperations(this.operations.concat(operations));
-  }
-
-  public setColor(color: string): void {
-    this.color = color;
-    if (this.mesh) {
-      this.mesh.material = this.getMaterial();
-    }
-  }
 
   protected getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
-      color: this.color,
+      color: this.viewOptions.color,
     });
   }
 
-  public getPrimitiveMesh(): THREE.Mesh {
-    if (this.updateRequired) {
+  public async getPrimitiveMeshAsync(): Promise<THREE.Mesh> {
+    if (this.meshUpdateRequired) {
       //console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
       //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
-      this.applyOperations();
+      await this.applyOperationsAsync();
     }
 
     if (this.pendingOperation){
-      this.applyOperations();
+      await this.applyOperationsAsync();
     }
+    this.mesh.material = this.getMaterial();
 
     return this.mesh;
   }
 
   public async getMeshAsync(): Promise<THREE.Mesh> {
       // for generic Object3D make it sync
-      const mesh = this.getPrimitiveMesh();
+      const mesh = await this.getPrimitiveMeshAsync();
       if(mesh instanceof THREE.Mesh){
         return mesh;
       }else{
@@ -219,10 +118,23 @@ export default class Object3D {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
-
-  protected async applyOperations():Promise<void> {
+  // DEPRECATED
+  public setColor(color:string){
     
-    if( !this.pendingOperation ) return;
+    this.viewOptions.color = color;
+  }
+
+  public setOperations(operations: OperationsArray = []): void {
+    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
+
+    if(!isEqual(this.operations, operations)){
+      this.operations = [];
+      this.operations = operations.slice();
+    }
+  }
+
+
+  protected async applyOperationsAsync():Promise<void> {
     
     //if there are children, mesh is centered at first child position/rotation
     if(this.children.length > 0){
@@ -233,8 +145,12 @@ export default class Object3D {
       this.mesh.quaternion.set(ch_mesh.quaternion.x, ch_mesh.quaternion.y, ch_mesh.quaternion.z, ch_mesh.quaternion.w);
     }else{
       this.mesh.position.set(0,0,0);
-      this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
+      this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);  
     }
+
+    this.mesh.scale.x = 1;
+    this.mesh.scale.y = 1;
+    this.mesh.scale.y = 1;
 
     this.operations.forEach(operation => {
       // Translate operation
@@ -251,6 +167,7 @@ export default class Object3D {
       }
     });
     this._pendingOperation = false;
+
     return;
   }
 
@@ -320,17 +237,6 @@ export default class Object3D {
         this.mesh.scale.y * Number(operation.y),
         this.mesh.scale.z * Number(operation.z),
       );
-  }
-
-  public translate(x:number, y:number, z:number, relative:boolean = false):void{
-    this.addOperations([
-      {
-        type: 'translation',
-        x,
-        y,
-        z,
-        relative,
-      }]);
   }
   
   public clone():Object3D{
