@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-14 10:54:19
+ * Last modified  : 2018-11-15 16:23:30
  */
 
 import * as THREE from 'three';
@@ -126,12 +126,23 @@ export default class Object3D extends ObjectsCommon{
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
+    if(!this.operations) this.operations = [];
 
-    if(!isEqual(this.operations, operations)){
-      this.operations = [];
-      this.operations = operations.slice();
+    if(this.operations.length === 0) {
+      this.operations = operations.slice(0);
+      this._pendingOperation = true;
+      return;
     }
+
+    
+    if(!isEqual(this.operations, operations)){
+      this.operations.length = 0;
+      this.operations = operations.slice();
+      this._pendingOperation = true;
+    }
+
+    this._pendingOperation = this.pendingOperation || this._pendingOperation;
+
   }
 
 

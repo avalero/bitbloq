@@ -1,3 +1,5 @@
+import uuid from 'uuid/v1';
+
 interface ICommonOperation {
   type: string;
 }
@@ -32,16 +34,18 @@ export interface IViewOptions{
   color: string;
   visible: boolean;
   highlighted: boolean;
+  name: string;
 }
 
 export default class ObjectsCommon{
 
   public static createViewOptions(
-    color: string = 'ffffff', 
+    color: string = '#ffffff', 
     visible :boolean = true, 
-    highlighted: boolean = false): IViewOptions{
+    highlighted: boolean = false,
+    name:string = ''): IViewOptions{
       return {
-        color, visible, highlighted,
+        color, visible, highlighted, name
       };
   }
 
@@ -98,14 +102,16 @@ export default class ObjectsCommon{
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
   protected viewOptions: IViewOptions;
+  protected id: string;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(), 
     operations: OperationsArray = []
-    ) {
-    this.operations = operations.slice(0);
-    this.viewOptions = {... viewOptions}
-    this._pendingOperation = true;
+    ) 
+  {
+    this.setOperations(operations);
+    this.setViewOptions(viewOptions);
+    if(this.id === '') this.id = uuid();
   }
  
   public getOperations():OperationsArray{

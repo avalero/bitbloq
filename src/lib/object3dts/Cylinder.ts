@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-14 08:45:17
+ * Last modified  : 2018-11-15 17:19:52
  */
 
 import * as THREE from 'three';
@@ -23,12 +23,27 @@ interface ICylinderParams{
   height:number
 }
 
+export interface ICylinderJSON {
+  id: string;
+  type: string;
+  parameters: ICylinderParams;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export default class Cylinder extends Object3D{
 
   public static typeName:string = 'Cylinder';
 
+  public static newFromJSON(json:string):Cylinder{
+    const object: ICylinderJSON = JSON.parse(json);
+    return new Cylinder(object.parameters, object.operations, object.viewOptions);
+  }
+
   private parameters: ICylinderParams;
   
+
+
   constructor(
     parameters: ICylinderParams,
     operations: OperationsArray = [], 
@@ -59,7 +74,31 @@ export default class Cylinder extends Object3D{
   }
 
   public clone():Cylinder{
-    return new Cylinder(this.parameters, this.operations, this.viewOptions);
+    return Cylinder.newFromJSON(this.toJSON());
+    //return new Cube(this.parameters, this.operations, this.viewOptions);  
+  }
+
+  
+  public toJSON():string{
+    const object: ICylinderJSON = {
+      id: this.id,
+      type: Cylinder.typeName,
+      parameters: this.parameters,
+      viewOptions: this.viewOptions,
+      operations: this.operations,
+    }
+    return JSON.stringify(object);
+  }
+
+  public updateFromJSON(json: string){
+    const object: ICylinderJSON = JSON.parse(json);
+    if(this.id === object.id){
+      this.setParameters(object.parameters);
+      this.setOperations(object.operations);
+      this.setViewOptions(object.viewOptions);
+    }else{
+      throw new Error('Object id does not match with JSON id');
+    }
   }
 
 

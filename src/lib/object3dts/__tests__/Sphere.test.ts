@@ -27,7 +27,7 @@ test('Check params are well passed and mesh needs to be recomputed', () =>{
   expect(object.meshUpdateRequired).toBe(true);
   object.getPrimitiveMeshAsync().then( mesh1 => {
     expect(object.meshUpdateRequired).toBe(false);
-    const mesh2 = object.getPrimitiveMeshAsync().then( mesh => {
+    object.getPrimitiveMeshAsync().then( mesh2 => {
       expect(mesh1).toBe(mesh2);
     });
     
