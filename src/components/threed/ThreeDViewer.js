@@ -78,11 +78,11 @@ class ThreeDViewer extends React.Component {
   }
 
   createObjectInstance(objectDescription) {
-    const {type, parameters} = objectDescription;
+    const {type, parameters, operations = []} = objectDescription;
     const shape = config.shapes.find(s => s.name === type);
     let object;
     if (shape) {
-      object = new shape.objectClass(parameters, []);
+      object = new shape.objectClass(parameters, operations);
     } else {
       const composition = config.compositionOperations.find(
         c => c.name === type,

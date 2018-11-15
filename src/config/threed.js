@@ -34,6 +34,10 @@ import TranslationIcon from '../components/icons/Translation';
 import RotationIcon from '../components/icons/Rotation';
 import ScaleIcon from '../components/icons/Scale';
 
+const convertRepetitionToGroup = object => {
+
+};
+
 const config = {
   colors: [
     '#ff6900',
@@ -323,7 +327,9 @@ const config = {
     {
       name: 'Union',
       label: 'Union',
+      undoLabel: 'Undo union',
       icon: <UnionIcon />,
+      canUndo: true,
       canApply: children => children.length > 1,
       createInstance: children => new Union(children, []),
       create: children => ({
@@ -340,6 +346,7 @@ const config = {
       label: 'Difference',
       icon: <DifferenceIcon />,
       canApply: children => children.length > 1,
+      canUndo: true,
       createInstance: children => new Difference(children, []),
       create: children => ({
         id: uuid(),
@@ -355,6 +362,7 @@ const config = {
       label: 'Intersection',
       icon: <IntersectionIcon />,
       canApply: children => children.length > 1,
+      canUndo: true,
       createInstance: children => new Intersection(children, []),
       create: children => ({
         id: uuid(),
@@ -379,6 +387,15 @@ const config = {
         },
         operations: [],
       }),
+      ungroup: ({ operations, parameters }) => (
+        parameters.children.map(child => ({
+          ...child,
+          operations: [
+            ...child.operations,
+            ...operations
+          ]
+        }))
+      ),
     },
     {
       name: 'CartesianRepetition',
@@ -420,8 +437,9 @@ const config = {
           name: 'z',
           label: 'z',
           type: 'integer',
-        }
-      ]
+        },
+      ],
+      convertToGroup: convertRepetitionToGroup,
     },
     {
       name: 'PolarRepetition',
@@ -438,9 +456,9 @@ const config = {
           type: 'polar',
           num: 4,
           axis: 'x',
-          angle: 180
+          angle: 180,
         },
-        operations: []
+        operations: [],
       }),
       parameters: [
         {
@@ -472,8 +490,9 @@ const config = {
           label: 'Angle',
           type: 'integer',
         },
-      ]
-    }
+      ],
+      convertToGroup: convertRepetitionToGroup,
+    },
   ],
 };
 
