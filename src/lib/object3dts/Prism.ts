@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38 
- * Last modified  : 2018-11-08 11:15:51
+ * Last modified  : 2018-11-15 20:22:47
  */
 
 /**
@@ -37,11 +37,22 @@ interface IPrismParams{
   height:number
 }
 
+export interface IPrismJSON {
+  id: string;
+  type: string;
+  parameters: IPrismParams;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export default class Prism extends Object3D{
 
   public static typeName:string = 'Prism';
 
-  private parameters: IPrismParams;
+  public static newFromJSON(json:string):Prism{
+    const object: IPrismJSON = JSON.parse(json);
+    return new Prism(object.parameters, object.operations, object.viewOptions);
+  }
   
   constructor(
     parameters: IPrismParams,
@@ -49,32 +60,29 @@ export default class Prism extends Object3D{
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
     ){
     super(viewOptions,operations);
+    this.type = Prism.typeName;
     this.parameters = {...parameters};
     this._updateRequired = true;
   }
 
-  protected setParameters(parameters: IPrismParams): void{
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = {...parameters};
-      this._updateRequired = true;
-    }
-  }
-
   protected getGeometry(): THREE.Geometry {
-    const {sides,length,height} = this.parameters;
+    let {sides,length,height} = this.parameters as IPrismParams;
+    sides = Math.max(3, sides); length = Math.max(1,length), height = Math.max(1,height);
     this._updateRequired = false;
     const radius:number =  length/(2*Math.sin(Math.PI/sides));
     return new THREE.CylinderGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    const {sides,length,height} = this.parameters;
+    let {sides,length,height} = this.parameters as IPrismParams;
+    sides = Math.max(3, sides); length = Math.max(1,length), height = Math.max(1,height);
     this._updateRequired = false;
     const radius:number =  length/(2*Math.sin(Math.PI/sides));
     return new THREE.CylinderBufferGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
   }
 
   public clone():Prism{
-    return new Prism(this.parameters, this.operations, this.viewOptions);
+    return Prism.newFromJSON(this.toJSON());  
   }
+
 }

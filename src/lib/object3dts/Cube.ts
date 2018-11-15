@@ -10,11 +10,11 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-08 11:12:22
+ * Last modified  : 2018-11-15 20:24:11
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
+import ObjectsCommon, {OperationsArray, IViewOptions, Operation} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from'lodash.isequal';
 
@@ -24,40 +24,52 @@ interface ICubeParams {
   height:number
 }
 
+export interface ICubeJSON {
+  id: string;
+  type: string;
+  parameters: ICubeParams;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export default class Cube extends Object3D{
 
   public static typeName:string = 'Cube';
-  private parameters: ICubeParams;
+
+  public static newFromJSON(json: string):Cube {
+      const object: ICubeJSON = JSON.parse(json);
+      return new Cube(object.parameters, object.operations, object.viewOptions);
+  }
+
+  //private parameters: ICubeParams;
 
   constructor(
     parameters: ICubeParams,  
     operations: OperationsArray = [], 
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
-    ){
+    )
+  {
     super(viewOptions,operations);
-    this.parameters = {...parameters};
-    this._updateRequired = true;
-  }
-
-  public setParameters(parameters: ICubeParams): void{
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = Object.assign({},parameters);
-      this._updateRequired = true;
-    }
+    this.type = Cube.typeName;
+    this.setParameters(parameters);
   }
 
   protected getGeometry(): THREE.Geometry {
-    const {width, height, depth} = this.parameters;
+    let {width, height, depth} = this.parameters as ICubeParams;
+    width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
     this._updateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    const {width, height, depth} = this.parameters;
+    let {width, height, depth} = this.parameters as ICubeParams;
+    width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
     this._updateRequired = false;
     return new THREE.BoxBufferGeometry(Number(width), Number(depth), Number(height));
   }
 
   public clone():Cube{
-    return new Cube(this.parameters, this.operations, this.viewOptions);  }
+    return Cube.newFromJSON(this.toJSON());  
+  }
 }
+

@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30 
- * Last modified  : 2018-11-08 11:12:05
+ * Last modified  : 2018-11-15 20:23:16
  */
 
 
@@ -23,10 +23,17 @@ interface ISphereParams {
   radius:number
 }
 
+export interface ISphereJSON {
+  id: string;
+  type: string;
+  parameters: ISphereParams;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export default class Sphere extends Object3D{
 
   public static typeName:string = 'Sphere';
-  private parameters: ISphereParams;
 
   constructor(
     parameters: ISphereParams,
@@ -34,19 +41,19 @@ export default class Sphere extends Object3D{
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
     ){
     super(viewOptions,operations);
+    this.type = Sphere.typeName;
     this.parameters = {...parameters};
     this._updateRequired = true;    
   }
 
-  public setParameters(parameters: ISphereParams): void{
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = {...parameters};
-      this._updateRequired = true;
-    }
-  }
+  public static newFromJSON(json: string):Sphere {
+    const object: ISphereJSON = JSON.parse(json);
+    return new Sphere(object.parameters, object.operations, object.viewOptions);
+}
 
   protected getGeometry(): THREE.Geometry {
-    const {radius} = this.parameters;
+    let {radius} = this.parameters as ISphereParams;
+    radius = Math.max(1,radius);
     this._updateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
@@ -56,7 +63,8 @@ export default class Sphere extends Object3D{
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    const {radius} = this.parameters;
+    let {radius} = this.parameters as ISphereParams;
+    radius = Math.max(1,radius);
     this._updateRequired = false;
     return new THREE.SphereBufferGeometry(
       Number(radius),
@@ -65,6 +73,6 @@ export default class Sphere extends Object3D{
   }
 
   public clone():Sphere{
-    return new Sphere(this.parameters, this.operations, this.viewOptions)
+    return Sphere.newFromJSON(this.toJSON());
   }
 }

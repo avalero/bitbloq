@@ -8,42 +8,42 @@
  * @summary short description for the file
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-11-15 16:42:13 
- * Last modified  : 2018-11-15 19:02:55
+ * Created at     : 2018-11-15 20:29:01 
+ * Last modified  : 2018-11-15 20:40:52
  */
 
 
-import Cube, { ICubeJSON } from '../Cube';
+import Prism, { IPrismJSON } from '../Prism';
 import * as THREE from 'three';
 import ObjectsCommon, { ITranslateOperation, IRotateOperation, IScaleOperation } from '../ObjectsCommon';
 
-const width = 10;
-const height = 20;
-const depth = 30;
+const sides = 6;
+const length = 5;
+const height = 10;
 
 test('Check params are well passed', () =>{
-  const object = new Cube({width, height, depth});
-  expect((object as any).parameters.width).toBe(width);
+  const object = new Prism({sides, length, height});
+  expect((object as any).parameters.sides).toBe(sides);
+  expect((object as any).parameters.length).toBe(length);
   expect((object as any).parameters.height).toBe(height);
-  expect((object as any).parameters.depth).toBe(depth);
 });
 
 test('Check there are no initial operations', () =>{
-  const object = new Cube({width, height, depth});
+  const object = new Prism({sides, length, height});
   expect((object as any).operations).toEqual([]);
 });
 
 test('Check mesh needs to be computed', () => {
-  const object = new Cube({width, height, depth});
+  const object = new Prism({sides, length, height});
   expect(object.meshUpdateRequired).toBe(true); 
 });
 
 
 test('Check params are well passed and mesh needs to be recomputed', () =>{
   // Update parameters to same value to check if updateRequired switches to true
-  const object = new Cube({width, height, depth});
-  object.setParameters({width:5, height:5, depth:5});
-  expect((object as any).parameters).toEqual({width:5, height:5, depth:5});
+  const object = new Prism({sides, length, height});
+  object.setParameters({sides:5, length:5, height:5});
+  expect((object as any).parameters).toEqual({sides:5, length:5, height:5});
   expect(object.meshUpdateRequired).toBe(true);
   object.getPrimitiveMeshAsync().then(mesh1 => {
     expect(object.meshUpdateRequired).toBe(false);
@@ -55,25 +55,16 @@ test('Check params are well passed and mesh needs to be recomputed', () =>{
 
 
 test('Check mesh needs to be computed only once', () => {
-  const object = new Cube({width, height, depth});
+  const object = new Prism({sides, length, height});
   expect(object.meshUpdateRequired).toBe(true);
-  object.setParameters({width, height, depth});
-  expect((object as any).parameters).toEqual({width, height, depth});
+  object.setParameters({sides, length, height});
+  expect((object as any).parameters).toEqual({sides, length, height});
   expect(object.meshUpdateRequired).toBe(true);
 });
 
-test('Check Object Dimensions are well Constructed', () =>{
-  const object = new Cube({width, height, depth});
-  return object.getPrimitiveMeshAsync().then( mesh => {
-    const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
-    new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
-    expect(boundingBoxDims).toEqual({x:width, y:depth, z:height});
-  });
-  
-});
 
 test('Check initial position and rotation', () => {
-  const object = new Cube({width, height, depth});
+  const object = new Prism({sides, length, height});
   return object.getPrimitiveMeshAsync().then( mesh => {
     const center = mesh.position;
     const euler = mesh.rotation;
@@ -90,9 +81,9 @@ test('Check initial position and rotation', () => {
 
 test('Async Check params are well passed and mesh needs to be recomputed', () =>{
   // Update parameters to same value to check if updateRequired switches to true
-  const object = new Cube({width, height, depth});
-  object.setParameters({width:5, height:5, depth:5});
-  expect((object as any).parameters).toEqual({width:5, height:5, depth:5});
+  const object = new Prism({sides, length, height});
+  object.setParameters({sides:5, length:5, height:5});
+  expect((object as any).parameters).toEqual({sides:5, length:5, height:5});
   expect(object.meshUpdateRequired).toBe(true);
 
   return object.getMeshAsync().then( mesh1 => {
@@ -103,17 +94,8 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
   });
 });
 
-test('Async Check Object Dimensions are well Constructed', () =>{
-  const object = new Cube({width, height, depth});
-  return object.getMeshAsync().then( mesh => {
-    const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
-    new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
-    expect(boundingBoxDims).toEqual({x:width, y:depth, z:height});
-  }); 
-});
-
 test('Async Check initial position and rotation', () => {
-  const object = new Cube({width, height, depth});
+  const object = new Prism({sides, length, height});
   return object.getMeshAsync().then( mesh =>{
     const center = mesh.position;
     const euler = mesh.rotation;
@@ -127,28 +109,28 @@ test('Async Check initial position and rotation', () => {
 
 // CHECK FROM JSON - TO JSON - CLONE
 
-test('Cube - toJSON - Parameteres', () => {
-  const object = new Cube({width, height, depth});
+test('Prism - toJSON - Parameteres', () => {
+  const object = new Prism({sides, length, height});
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
-  expect(obj.parameters.width).toEqual(width);
+  const obj:IPrismJSON = JSON.parse(json);
+  expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
-  expect(obj.parameters.depth).toEqual(depth);
+  expect(obj.parameters.length).toEqual(length);
 });
 
-test('Cube - toJSON - Operations', () => {
+test('Prism - toJSON - Operations', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
   
-  const object = new Cube(
-    {width, height, depth}, 
+  const object = new Prism(
+    {sides, height, length}, 
     [
       ObjectsCommon.createTranslateOperation(x,y,z),
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -159,7 +141,7 @@ test('Cube - toJSON - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
   object.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
   const json2 = object.toJSON();
-  const obj2:ICubeJSON = JSON.parse(json2);
+  const obj2:IPrismJSON = JSON.parse(json2);
   expect(obj2.operations.length).toEqual(3);
   expect(obj2.operations[0].type).toEqual('translation');
   expect(obj2.operations[1].type).toEqual('rotation');
@@ -175,30 +157,30 @@ test('Cube - toJSON - Operations', () => {
   
 });
 
-test('Cube - toJSON - ViewOptions', () => {
+test('Prism - toJSON - ViewOptions', () => {
   const color = '#abcdef'
   const visible = true;
   const name = 'Object123';
   const highlighted = false;
 
-  const object = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  const object = new Prism({sides, height, length},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
   expect(obj.viewOptions.highlighted).toEqual(highlighted);
 });
 
-test('Cube - fromJSON - Parameteres', () => {
-  const object1 = new Cube({width, height, depth});
+test('Prism - fromJSON - Parameteres', () => {
+  const object1 = new Prism({sides, height, length});
   const json1 = object1.toJSON();
-  const object = Cube.newFromJSON(json1);
+  const object = Prism.newFromJSON(json1);
   const json = object.toJSON();
   const obj = JSON.parse(json);
-  expect(obj.parameters.width).toEqual(width);
+  expect(obj.parameters.length).toEqual(length);
   expect(obj.parameters.height).toEqual(height);
-  expect(obj.parameters.depth).toEqual(depth);
+  expect(obj.parameters.sides).toEqual(sides);
 });
 
 
@@ -206,17 +188,17 @@ test('Cube - fromJSON - Operations', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
   
-  const object1 = new Cube(
-    {width, height, depth}, 
+  const object1 = new Prism(
+    {length, height, sides}, 
     [
       ObjectsCommon.createTranslateOperation(x,y,z),
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
   const json1 = object1.toJSON();
-  const object = Cube.newFromJSON(json1);
+  const object = Prism.newFromJSON(json1);
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -234,11 +216,11 @@ test('Cube - fromJSON - ViewOptions', () => {
   const highlighted = false;
   
 
-  const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  const object1 = new Prism({length, height, sides},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const json1 = object1.toJSON();
-  const object = Cube.newFromJSON(json1);
+  const object = Prism.newFromJSON(json1);
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -246,7 +228,7 @@ test('Cube - fromJSON - ViewOptions', () => {
 });
 
 
-test('Cube - UpdateFromJSON - ', () => {
+test('Prism - UpdateFromJSON - ', () => {
   
   const color = '#abcdef'
   const visible = true;
@@ -255,8 +237,8 @@ test('Cube - UpdateFromJSON - ', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
 
-  const object = new Cube(
-    { width:3*width, height:2*height, depth:5*depth },
+  const object = new Prism(
+    { sides:3*sides, height:2*height, length:5*length },
     [
       ObjectsCommon.createTranslateOperation(2*x,3*y,5*z),
       ObjectsCommon.createRotateOperation('y', 2*angle)
@@ -264,8 +246,8 @@ test('Cube - UpdateFromJSON - ', () => {
     ObjectsCommon.createViewOptions(color,visible,highlighted,name)
     );
 
-  const object1 = new Cube(
-    { width, height, depth },
+  const object1 = new Prism(
+    { sides, height, length },
     [
       ObjectsCommon.createTranslateOperation(x,y,z),
       ObjectsCommon.createRotateOperation(axis, angle)
@@ -275,7 +257,7 @@ test('Cube - UpdateFromJSON - ', () => {
 
   let json1 = object1.toJSON();
   
-  const obj1:ICubeJSON = JSON.parse(json1);
+  const obj1:IPrismJSON = JSON.parse(json1);
   
   obj1.id = object.getID();
   json1 = JSON.stringify(obj1);
@@ -283,11 +265,11 @@ test('Cube - UpdateFromJSON - ', () => {
   object.updateFromJSON(json1);
   
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
 
-  expect(obj.parameters.width).toEqual(width);
+  expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
-  expect(obj.parameters.depth).toEqual(depth);
+  expect(obj.parameters.length).toEqual(length);
 
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
@@ -308,13 +290,13 @@ test('Cube - UpdateFromJSON - ', () => {
 // CLONE
 
 test('Cube - clone() - Parameteres', () => {
-  const aux = new Cube({width, height, depth});
+  const aux = new Prism({sides, height, length});
   const object = aux.clone();
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
-  expect(obj.parameters.width).toEqual(width);
+  const obj:IPrismJSON = JSON.parse(json);
+  expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
-  expect(obj.parameters.depth).toEqual(depth);
+  expect(obj.parameters.length).toEqual(length);
 });
 
 
@@ -322,8 +304,8 @@ test('Cube - CLONE - Operations', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
   
-  const aux = new Cube(
-    {width, height, depth}, 
+  const aux = new Prism(
+    {sides, height, length}, 
     [
       ObjectsCommon.createTranslateOperation(x,y,z),
       ObjectsCommon.createRotateOperation(axis, angle)
@@ -332,7 +314,7 @@ test('Cube - CLONE - Operations', () => {
 
   const object = aux.clone();
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -349,10 +331,10 @@ test('Cube - Clone - ViewOptions', () => {
   const name = 'Object123';
   const highlighted = false;
 
-  const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  const object1 = new Prism({sides, height, length},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const object = object1.clone();
   const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:IPrismJSON = JSON.parse(json);
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);

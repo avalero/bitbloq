@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-14 10:54:19
+ * Last modified  : 2018-11-15 20:14:27
  */
 
 import * as THREE from 'three';
@@ -52,6 +52,8 @@ export default class Object3D extends ObjectsCommon{
   
   protected _updateRequired: boolean;
   protected children: ChildrenArray;
+  protected parameters: Object;
+  protected type:string;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -126,12 +128,22 @@ export default class Object3D extends ObjectsCommon{
   }
 
   public setOperations(operations: OperationsArray = []): void {
+    if(!this.operations || this.operations.length === 0) {
+      this.operations = operations.slice(0);
+      if(operations.length > 0)
+        this._pendingOperation = true;
+      return;
+    }
+
+    
+    if(!isEqual(this.operations, operations)){
+      this.operations.length = 0;
+      this.operations = operations.slice();
+      this._pendingOperation = true;
+    }
+
     this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
-    if(!isEqual(this.operations, operations)){
-      this.operations = [];
-      this.operations = operations.slice();
-    }
   }
 
 
@@ -242,6 +254,41 @@ export default class Object3D extends ObjectsCommon{
   
   public clone():Object3D{
     throw new Error('Implemented in children');
+  }
+
+  public setParameters(parameters:Object):void{
+    if(!this.parameters ){
+      this.parameters = Object.assign({},parameters);
+      this._updateRequired = true;
+      return;
+    }
+
+    if(!isEqual(parameters,this.parameters)){
+      this.parameters = Object.assign({},parameters);
+      this._updateRequired = true;
+    }
+  }
+
+  public toJSON():string{
+    const object = {
+      id: this.id,
+      type: 'Cube',
+      parameters: this.parameters,
+      viewOptions: this.viewOptions,
+      operations: this.operations,
+    }
+    return JSON.stringify(object);
+  }
+
+  public updateFromJSON(json: string){
+    const object = JSON.parse(json);
+    if(this.id === object.id){
+      this.setParameters(object.parameters);
+      this.setOperations(object.operations);
+      this.setViewOptions(object.viewOptions);
+    }else{
+      throw new Error('Object id does not match with JSON id');
+    }
   }
 
 

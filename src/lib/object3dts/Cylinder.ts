@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-14 08:45:17
+ * Last modified  : 2018-11-15 20:22:15
  */
 
 import * as THREE from 'three';
@@ -23,11 +23,22 @@ interface ICylinderParams{
   height:number
 }
 
+export interface ICylinderJSON {
+  id: string;
+  type: string;
+  parameters: ICylinderParams;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export default class Cylinder extends Object3D{
 
   public static typeName:string = 'Cylinder';
 
-  private parameters: ICylinderParams;
+  public static newFromJSON(json:string):Cylinder{
+    const object: ICylinderJSON = JSON.parse(json);
+    return new Cylinder(object.parameters, object.operations, object.viewOptions);
+  }
   
   constructor(
     parameters: ICylinderParams,
@@ -35,32 +46,26 @@ export default class Cylinder extends Object3D{
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
     ){
     super(viewOptions,operations);
+    this.type = Cylinder.typeName;
     this.parameters = {...parameters};
     this._updateRequired = true;   
   }
 
-  public setParameters(parameters: ICylinderParams): void{
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = {...parameters};
-      this._updateRequired = true;
-    }
-  }
-
   protected getGeometry(): THREE.Geometry {
-    const {r0,r1,height} = this.parameters;
+    let {r0,r1,height} = this.parameters as ICylinderParams;
+    r0 = Math.max(1,r0); r1 = Math.max(1,r1); height = Math.max(1,height);
     this._updateRequired = false;
     return new THREE.CylinderGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    const {r0,r1,height} = this.parameters;
+    let {r0,r1,height} = this.parameters as ICylinderParams;
+    r0 = Math.max(1,r0); r1 = Math.max(1,r1); height = Math.max(1,height);
     this._updateRequired = false;
     return new THREE.CylinderBufferGeometry(Number(r1), Number(r0), Number(height), 32, 1).rotateX(Math.PI/2);
   }
 
   public clone():Cylinder{
-    return new Cylinder(this.parameters, this.operations, this.viewOptions);
+    return Cylinder.newFromJSON(this.toJSON()); 
   }
-
-
 }
