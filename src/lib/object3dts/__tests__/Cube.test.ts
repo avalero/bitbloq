@@ -19,7 +19,7 @@ test('Check there are no initial operations', () =>{
 
 test('Check mesh needs to be computed', () => {
   const object = new Cube({width, height, depth});
-  expect(object.updateRequired).toBe(false); //does not need to be computed after creation
+  expect(object.meshUpdateRequired).toBe(true); 
 });
 
 
@@ -28,39 +28,45 @@ test('Check params are well passed and mesh needs to be recomputed', () =>{
   const object = new Cube({width, height, depth});
   object.setParameters({width:5, height:5, depth:5});
   expect((object as any).parameters).toEqual({width:5, height:5, depth:5});
-  expect(object.updateRequired).toBe(true);
-  const mesh1 = object.getPrimitiveMesh();
-  expect(object.updateRequired).toBe(false);
-  const mesh2 = object.getPrimitiveMesh();
-  expect(mesh1).toBe(mesh2);
+  expect(object.meshUpdateRequired).toBe(true);
+  object.getPrimitiveMeshAsync().then(mesh1 => {
+    expect(object.meshUpdateRequired).toBe(false);
+    object.getPrimitiveMeshAsync().then(mesh2 => {
+      expect(mesh1).toBe(mesh2);
+    });
+  });
 });
 
 
 test('Check mesh needs to be computed only once', () => {
   const object = new Cube({width, height, depth});
-  expect(object.updateRequired).toBe(false);
+  expect(object.meshUpdateRequired).toBe(true);
   object.setParameters({width, height, depth});
   expect((object as any).parameters).toEqual({width, height, depth});
-  expect(object.updateRequired).toBe(false);
+  expect(object.meshUpdateRequired).toBe(false);
 });
 
 test('Check Object Dimensions are well Constructed', () =>{
   const object = new Cube({width, height, depth});
-  const mesh = object.getPrimitiveMesh();
-  const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
-  new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
-  expect(boundingBoxDims).toEqual({x:width, y:depth, z:height});
+  return object.getPrimitiveMeshAsync().then( mesh => {
+    const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
+    new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
+    expect(boundingBoxDims).toEqual({x:width, y:depth, z:height});
+  });
+  
 });
 
 test('Check initial position and rotation', () => {
   const object = new Cube({width, height, depth});
-  const mesh = object.getPrimitiveMesh();
-  const center = mesh.position;
-  const euler = mesh.rotation;
-  expect(center).toEqual(new THREE.Vector3(0,0,0));
-  expect(euler.x).toBeCloseTo(0);
-  expect(euler.y).toBeCloseTo(0);
-  expect(euler.z).toBeCloseTo(0);
+  return object.getPrimitiveMeshAsync().then( mesh => {
+    const center = mesh.position;
+    const euler = mesh.rotation;
+    expect(center).toEqual(new THREE.Vector3(0,0,0));
+    expect(euler.x).toBeCloseTo(0);
+    expect(euler.y).toBeCloseTo(0);
+    expect(euler.z).toBeCloseTo(0);
+  })
+  
 });
 
 
@@ -71,10 +77,10 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
   const object = new Cube({width, height, depth});
   object.setParameters({width:5, height:5, depth:5});
   expect((object as any).parameters).toEqual({width:5, height:5, depth:5});
-  expect(object.updateRequired).toBe(true);
+  expect(object.meshUpdateRequired).toBe(true);
 
   return object.getMeshAsync().then( mesh1 => {
-    expect(object.updateRequired).toBe(false);
+    expect(object.meshUpdateRequired).toBe(false);
     return object.getMeshAsync().then ( mesh2 => {
       expect(mesh1).toBe(mesh2);
     });

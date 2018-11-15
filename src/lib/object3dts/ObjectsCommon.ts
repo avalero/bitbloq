@@ -25,22 +25,24 @@ export interface IMirrorOperation extends ICommonOperation {
   plane: string;
 }
 
-export interface IColorOperation extends ICommonOperation {
-  color:string;
-}
-
-export type Operation = ITranslateOperation | IRotateOperation | IScaleOperation | IMirrorOperation | IColorOperation;
+export type Operation = ITranslateOperation | IRotateOperation | IScaleOperation | IMirrorOperation ;
 export type OperationsArray = Array<Operation>;
+
+export interface IViewOptions{
+  color: string;
+  visible: boolean;
+  highlighted: boolean;
+}
 
 export default class ObjectsCommon{
 
-  public static createColorOperation(
-    color: string = "ffffff",
-  ): IColorOperation {
-    return {
-      type: 'color',
-      color,
-    };
+  public static createViewOptions(
+    color: string = 'ffffff', 
+    visible :boolean = true, 
+    highlighted: boolean = false): IViewOptions{
+      return {
+        color, visible, highlighted,
+      };
   }
 
   public static createTranslateOperation(
@@ -95,9 +97,14 @@ export default class ObjectsCommon{
 
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
+  protected viewOptions: IViewOptions;
 
-  constructor(operations: OperationsArray = []) {
-    this.operations = operations;
+  constructor(
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(), 
+    operations: OperationsArray = []
+    ) {
+    this.operations = operations.slice(0);
+    this.viewOptions = {... viewOptions}
     this._pendingOperation = true;
   }
  
@@ -113,19 +120,36 @@ export default class ObjectsCommon{
     this.setOperations(this.operations.concat(operations));
   }
 
-  public translate(x:number, y:number, z:number, relative:boolean = false):void{
-    this.addOperations([
-      {
-        type: 'translation',
-        x,
-        y,
-        z,
-        relative,
-      }]);
+  public translate(x:number, y:number, z:number, relative:boolean = false): void {
+    this.addOperations([ObjectsCommon.createTranslateOperation(x,y,z,relative)]);
+  }
+
+  public rotateX(angle:number, relative:boolean = false):void{
+    this.addOperations([ObjectsCommon.createRotateOperation('x', angle, relative)]);
+  }
+
+  public rotateY(angle:number, relative:boolean = false):void{
+    this.addOperations([ObjectsCommon.createRotateOperation('y', angle, relative)]);
+  }
+
+  public rotateZ(angle:number, relative:boolean = false):void{
+    this.addOperations([ObjectsCommon.createRotateOperation('z', angle, relative)]);
+  }
+
+  public scale(x:number, y:number, z:number):void{
+    this.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
+  }
+
+  public mirror(plane: string): void {
+    this.addOperations([ObjectsCommon.createMirrorOperation(plane)]);
   }
 
   public getMeshAsync():Promise<THREE.Object3D> {
     throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children')
+  }
+
+  public setViewOptions(params: IViewOptions){
+    this.viewOptions = {...params};
   }
 
   public clone():ObjectsCommon{

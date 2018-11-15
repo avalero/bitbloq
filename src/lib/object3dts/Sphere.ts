@@ -15,7 +15,7 @@
 
 
 import * as THREE from 'three';
-import {OperationsArray} from './Object3D';
+import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from 'lodash.isequal';
 
@@ -28,12 +28,14 @@ export default class Sphere extends Object3D{
   public static typeName:string = 'Sphere';
   private parameters: ISphereParams;
 
-  constructor(parameters: ISphereParams, operations: OperationsArray = []){
-    super(operations);
+  constructor(
+    parameters: ISphereParams,
+    operations: OperationsArray = [], 
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    ){
+    super(viewOptions,operations);
     this.parameters = {...parameters};
-    this._updateRequired = true;
-    this.mesh = this.getPrimitiveMesh();
-    
+    this._updateRequired = true;    
   }
 
   public setParameters(parameters: ISphereParams): void{
@@ -63,6 +65,6 @@ export default class Sphere extends Object3D{
   }
 
   public clone():Sphere{
-    return new Sphere(this.parameters, this.operations)
+    return new Sphere(this.parameters, this.operations, this.viewOptions)
   }
 }

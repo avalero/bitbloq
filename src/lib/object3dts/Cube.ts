@@ -14,7 +14,7 @@
  */
 
 import * as THREE from 'three';
-import {OperationsArray} from './Object3D';
+import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from'lodash.isequal';
 
@@ -29,12 +29,14 @@ export default class Cube extends Object3D{
   public static typeName:string = 'Cube';
   private parameters: ICubeParams;
 
-  constructor(parameters: ICubeParams, operations: OperationsArray = []){
-    super(operations);
+  constructor(
+    parameters: ICubeParams,  
+    operations: OperationsArray = [], 
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    ){
+    super(viewOptions,operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getPrimitiveMesh();
-    
   }
 
   public setParameters(parameters: ICubeParams): void{
@@ -57,5 +59,5 @@ export default class Cube extends Object3D{
   }
 
   public clone():Cube{
-    return new Cube(this.parameters, this.operations);  }
+    return new Cube(this.parameters, this.operations, this.viewOptions);  }
 }

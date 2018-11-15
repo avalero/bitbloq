@@ -12,7 +12,7 @@
  * Last modified  : 2018-10-30 10:09:32
  */
 
-import {OperationsArray} from './Object3D';
+import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from 'lodash.isequal';
 import * as THREE from 'three'
@@ -27,11 +27,14 @@ export default class STLObject extends Object3D {
 
   private parameters: ISTLParams;
 
-  constructor(parameters: ISTLParams, operations: OperationsArray = []){
-    super(operations);
+  constructor(
+    parameters: ISTLParams,
+    operations: OperationsArray = [], 
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    ){
+    super(viewOptions,operations);
     this.parameters = {...parameters};
     this._updateRequired = true;
-    this.mesh = this.getMesh();
   }
 
   protected setParameters(parameters: ISTLParams): void{

@@ -15,7 +15,7 @@
 import * as THREE from 'three';
 import isEqual from 'lodash.isequal';
 import ObjectsCommon from './ObjectsCommon'
-import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray} from './ObjectsCommon';
+import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray, IViewOptions} from './ObjectsCommon';
 
 export type ChildrenArray = Array<Object3D>
 
@@ -49,20 +49,20 @@ export default class Object3D extends ObjectsCommon{
 
   //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
-  protected color: string;
   
   protected _updateRequired: boolean;
   protected children: ChildrenArray;
 
-  constructor(operations: OperationsArray = []) {
-    super(operations);
+  constructor(
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray = []) {
+    super(viewOptions, operations);
     this.children = [];
-    this.color = "#ffffff";
   }
 
-  get updateRequired():boolean{
+  get meshUpdateRequired():boolean{
     this.children.forEach( child => {
-      this._updateRequired = this._updateRequired || child.updateRequired || child.pendingOperation;
+      this._updateRequired = this._updateRequired || child.meshUpdateRequired || child.pendingOperation;
     });
 
     return this._updateRequired;
@@ -76,39 +76,33 @@ export default class Object3D extends ObjectsCommon{
     return this._pendingOperation;
   }
 
-  public setColor(color: string): void {
-    this.color = color;
-    if (this.mesh) {
-      this.mesh.material = this.getMaterial();
-    }
-  }
-
   protected getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
-      color: this.color,
+      color: this.viewOptions.color,
     });
   }
 
-  public getPrimitiveMesh(): THREE.Mesh {
-    if (this.updateRequired) {
+  public async getPrimitiveMeshAsync(): Promise<THREE.Mesh> {
+    if (this.meshUpdateRequired) {
       //console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
       //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
       this._updateRequired = false;
-      this.applyOperations();
+      await this.applyOperationsAsync();
     }
 
     if (this.pendingOperation){
-      this.applyOperations();
+      await this.applyOperationsAsync();
     }
+    this.mesh.material = this.getMaterial();
 
     return this.mesh;
   }
 
   public async getMeshAsync(): Promise<THREE.Mesh> {
       // for generic Object3D make it sync
-      const mesh = this.getPrimitiveMesh();
+      const mesh = await this.getPrimitiveMeshAsync();
       if(mesh instanceof THREE.Mesh){
         return mesh;
       }else{
@@ -124,6 +118,12 @@ export default class Object3D extends ObjectsCommon{
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
+  // DEPRECATED
+  public setColor(color:string){
+    
+    this.viewOptions.color = color;
+  }
+
   public setOperations(operations: OperationsArray = []): void {
     this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
 
@@ -134,9 +134,7 @@ export default class Object3D extends ObjectsCommon{
   }
 
 
-  protected async applyOperations():Promise<void> {
-    
-    if( !this.pendingOperation ) return;
+  protected async applyOperationsAsync():Promise<void> {
     
     //if there are children, mesh is centered at first child position/rotation
     if(this.children.length > 0){
@@ -147,8 +145,12 @@ export default class Object3D extends ObjectsCommon{
       this.mesh.quaternion.set(ch_mesh.quaternion.x, ch_mesh.quaternion.y, ch_mesh.quaternion.z, ch_mesh.quaternion.w);
     }else{
       this.mesh.position.set(0,0,0);
-      this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);
+      this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);  
     }
+
+    this.mesh.scale.x = 1;
+    this.mesh.scale.y = 1;
+    this.mesh.scale.y = 1;
 
     this.operations.forEach(operation => {
       // Translate operation
@@ -165,6 +167,7 @@ export default class Object3D extends ObjectsCommon{
       }
     });
     this._pendingOperation = false;
+
     return;
   }
 
