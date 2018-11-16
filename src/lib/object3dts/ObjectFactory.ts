@@ -14,13 +14,13 @@ export default class ObjectFactory{
     const obj = JSON.parse(json);
     switch(obj.type){
       case Cube.typeName:
-        return Cube.newFromJSON(json) as Cube;
+        return Cube.newFromJSON(json);
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(json) as Cylinder;
+        return Cylinder.newFromJSON(json);
       case Sphere.typeName:
-        return Sphere.newFromJSON(json) as Sphere;
+        return Sphere.newFromJSON(json);
       case Prism.typeName:
-        return Prism.newFromJSON(json) as Prism;
+        return Prism.newFromJSON(json);
     }
 
     throw new Error('Unknown Object Type');
