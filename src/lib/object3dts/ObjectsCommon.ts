@@ -110,6 +110,7 @@ export default class ObjectsCommon{
   protected _pendingOperation: boolean;
   protected viewOptions: IViewOptions;
   protected id: string;
+  protected type:string;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(), 
@@ -172,5 +173,9 @@ export default class ObjectsCommon{
 
   public clone():ObjectsCommon{
     throw new Error('ObjectsCommon.clone() Implemented in children');
+  }
+
+  public getTypeName(): string{
+    return this.type;
   }
 }

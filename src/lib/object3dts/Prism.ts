@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38 
- * Last modified  : 2018-11-15 20:22:47
+ * Last modified  : 2018-11-16 17:31:23
  */
 
 /**
@@ -29,6 +29,7 @@
 import * as THREE from 'three';
 import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 import Object3D from './Object3D';
+import PrimitiveObject from './PrimitiveObject';
 
 interface IPrismParams{
   sides:number;
@@ -40,7 +41,7 @@ export interface IPrismJSON extends IObjectsCommonJSON{
   parameters: IPrismParams;
 }
 
-export default class Prism extends Object3D{
+export default class Prism extends PrimitiveObject{
 
   public static typeName:string = 'Prism';
 
@@ -58,13 +59,13 @@ export default class Prism extends Object3D{
     super(viewOptions,operations);
     this.type = Prism.typeName;
     this.parameters = {...parameters};
-    this._updateRequired = true;
+    this._meshUpdateRequired = true;
   }
 
   protected getGeometry(): THREE.Geometry {
     let {sides,length,height} = this.parameters as IPrismParams;
     sides = Math.max(3, sides); length = Math.max(1,length), height = Math.max(1,height);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     const radius:number =  length/(2*Math.sin(Math.PI/sides));
     return new THREE.CylinderGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
   }
@@ -72,7 +73,7 @@ export default class Prism extends Object3D{
   protected getBufferGeometry(): THREE.BufferGeometry {
     let {sides,length,height} = this.parameters as IPrismParams;
     sides = Math.max(3, sides); length = Math.max(1,length), height = Math.max(1,height);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     const radius:number =  length/(2*Math.sin(Math.PI/sides));
     return new THREE.CylinderBufferGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
   }

@@ -9,15 +9,15 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30 
- * Last modified  : 2018-11-15 20:23:16
+ * Last modified  : 2018-11-16 17:32:13
  */
 
 
 
 import * as THREE from 'three';
 import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
-import Object3D from './Object3D';
-import isEqual from 'lodash.isequal';
+import PrimitiveObject from './PrimitiveObject';
+
 
 interface ISphereParams {
   radius:number
@@ -27,7 +27,7 @@ export interface ISphereJSON extends IObjectsCommonJSON{
   parameters: ISphereParams;
 }
 
-export default class Sphere extends Object3D{
+export default class Sphere extends PrimitiveObject{
 
   public static typeName:string = 'Sphere';
 
@@ -39,7 +39,7 @@ export default class Sphere extends Object3D{
     super(viewOptions,operations);
     this.type = Sphere.typeName;
     this.parameters = {...parameters};
-    this._updateRequired = true;    
+    this._meshUpdateRequired = true;    
   }
 
   public static newFromJSON(json: string):Sphere {
@@ -51,7 +51,7 @@ export default class Sphere extends Object3D{
   protected getGeometry(): THREE.Geometry {
     let {radius} = this.parameters as ISphereParams;
     radius = Math.max(1,radius);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
       Math.max(16,Math.min(Number(radius)*24/5 , 32)), 
@@ -62,7 +62,7 @@ export default class Sphere extends Object3D{
   protected getBufferGeometry(): THREE.BufferGeometry {
     let {radius} = this.parameters as ISphereParams;
     radius = Math.max(1,radius);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     return new THREE.SphereBufferGeometry(
       Number(radius),
       Math.max(16,Math.min(Number(radius)*24/5 , 32)), 

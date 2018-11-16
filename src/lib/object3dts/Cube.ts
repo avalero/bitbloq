@@ -10,14 +10,12 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-15 20:24:11
+ * Last modified  : 2018-11-16 17:32:50
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions, Operation, IObjectsCommonJSON} from './ObjectsCommon';
-import Object3D from './Object3D';
-import isEqual from'lodash.isequal';
-import ObjectFactory from './ObjectFactory';
+import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 interface ICubeParams {
   width:number;
@@ -29,7 +27,7 @@ export interface ICubeJSON extends IObjectsCommonJSON {
   parameters: ICubeParams;
 }
 
-export default class Cube extends Object3D{
+export default class Cube extends PrimitiveObject{
 
   public static typeName:string = 'Cube';
 
@@ -55,14 +53,14 @@ export default class Cube extends Object3D{
   protected getGeometry(): THREE.Geometry {
     let {width, height, depth} = this.parameters as ICubeParams;
     width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
     let {width, height, depth} = this.parameters as ICubeParams;
     width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     return new THREE.BoxBufferGeometry(Number(width), Number(depth), Number(height));
   }
 

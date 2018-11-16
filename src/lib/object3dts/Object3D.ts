@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-15 20:14:27
+ * Last modified  : 2018-11-16 17:48:57
  */
 
 import * as THREE from 'three';
@@ -17,7 +17,7 @@ import isEqual from 'lodash.isequal';
 import ObjectsCommon from './ObjectsCommon'
 import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray, IViewOptions} from './ObjectsCommon';
 
-export type ChildrenArray = Array<Object3D>
+
 
 export default class Object3D extends ObjectsCommon{
 
@@ -50,31 +50,21 @@ export default class Object3D extends ObjectsCommon{
   //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
   
-  protected _updateRequired: boolean;
-  protected children: ChildrenArray;
-  protected parameters: Object;
-  protected type:string;
+  protected _meshUpdateRequired: boolean;
+  
+  
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = []) {
     super(viewOptions, operations);
-    this.children = [];
   }
 
   get meshUpdateRequired():boolean{
-    this.children.forEach( child => {
-      this._updateRequired = this._updateRequired || child.meshUpdateRequired || child.pendingOperation;
-    });
-
-    return this._updateRequired;
+    return this._meshUpdateRequired;
   }
 
   get pendingOperation():boolean{
-    this.children.forEach( child => {
-      this._pendingOperation = this._pendingOperation || child.pendingOperation;
-    });
-
     return this._pendingOperation;
   }
 
@@ -88,9 +78,8 @@ export default class Object3D extends ObjectsCommon{
     if (this.meshUpdateRequired) {
       //console.log("Recompute Mesh");
       const geometry: THREE.Geometry = this.getGeometry();
-      //const bufferGeometry: THREE.BufferGeometry = this.getBufferGeometry();
       this.mesh = new THREE.Mesh(geometry, this.getMaterial());
-      this._updateRequired = false;
+      this._meshUpdateRequired = false;
       await this.applyOperationsAsync();
     }
 
@@ -149,18 +138,9 @@ export default class Object3D extends ObjectsCommon{
 
   protected async applyOperationsAsync():Promise<void> {
     
-    //if there are children, mesh is centered at first child position/rotation
-    if(this.children.length > 0){
-      const ch_mesh = await this.children[0].getMeshAsync();
-      this.mesh.position.x = ch_mesh.position.x;
-      this.mesh.position.y = ch_mesh.position.y;
-      this.mesh.position.z = ch_mesh.position.z;
-      this.mesh.quaternion.set(ch_mesh.quaternion.x, ch_mesh.quaternion.y, ch_mesh.quaternion.z, ch_mesh.quaternion.w);
-    }else{
-      this.mesh.position.set(0,0,0);
-      this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);  
-    }
-
+    this.mesh.position.set(0,0,0);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);  
+   
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;
     this.mesh.scale.y = 1;
@@ -184,7 +164,7 @@ export default class Object3D extends ObjectsCommon{
     return;
   }
 
-  private applyMirrorOperation(operation: IMirrorOperation): void{
+  protected applyMirrorOperation(operation: IMirrorOperation): void{
     if(operation.plane === 'xy'){
       this.applyScaleOperation(Object3D.createScaleOperation(1,1,-1));
     }else if(operation.plane === 'yz'){
@@ -194,7 +174,7 @@ export default class Object3D extends ObjectsCommon{
     }
   }
 
-  private applyTranslateOperation(operation: ITranslateOperation): void {
+  protected applyTranslateOperation(operation: ITranslateOperation): void {
     if (operation.relative) {
       this.mesh.translateX(operation.x);
       this.mesh.translateY(operation.y);
@@ -207,7 +187,7 @@ export default class Object3D extends ObjectsCommon{
     }
   }
 
-  private applyRotateOperation(operation: IRotateOperation): void {
+  protected applyRotateOperation(operation: IRotateOperation): void {
     const angle = THREE.Math.degToRad(Number(operation.angle));
     switch (operation.axis) {
       case 'x':
@@ -239,7 +219,7 @@ export default class Object3D extends ObjectsCommon{
     }
   }
 
-  private applyScaleOperation(operation: IScaleOperation): void {
+  protected applyScaleOperation(operation: IScaleOperation): void {
     if ( 
       Number(operation.x) > 0 &&
       Number(operation.y) > 0 &&
@@ -251,43 +231,8 @@ export default class Object3D extends ObjectsCommon{
         this.mesh.scale.z * Number(operation.z),
       );
   }
-  
-  public setParameters(parameters:Object):void{
-    if(!this.parameters ){
-      this.parameters = Object.assign({},parameters);
-      this._updateRequired = true;
-      return;
-    }
 
-    if(!isEqual(parameters,this.parameters)){
-      this.parameters = Object.assign({},parameters);
-      this._updateRequired = true;
-    }
-  }
-
-  /**
-   * For primitive objects. Cube, Cylinder, etc.
-   * For CompoundObjects find function in CompoundObjects Class
-   */
-  public toJSON():string{
-    const object = {
-      id: this.id,
-      type: this.type,
-      parameters: this.parameters,
-      viewOptions: this.viewOptions,
-      operations: this.operations,
-    }
-    return JSON.stringify(object);
-  }
-
-  public updateFromJSON(json: string){
-    const object = JSON.parse(json);
-    if(this.id === object.id){
-      this.setParameters(object.parameters);
-      this.setOperations(object.operations);
-      this.setViewOptions(object.viewOptions);
-    }else{
-      throw new Error('Object id does not match with JSON id');
-    }
+  public clone():Object3D{
+    throw new Error('ObjectsCommon.clone() Implemented in children');
   }
 }

@@ -13,5 +13,4 @@ test('Check object is well created from ObjectFactory', () =>{
   expect((object as any).parameters.height).toBe(height);
   expect((object as any).parameters.depth).toBe(depth);
   expect(object1.getID()).not.toEqual(object.getID());
-
 });
