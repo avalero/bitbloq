@@ -288,6 +288,7 @@ test('Cube - UpdateFromJSON - ', () => {
   expect(obj.parameters.width).toEqual(width);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.depth).toEqual(depth);
+  expect(obj.type).toEqual('Cube');
 
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);

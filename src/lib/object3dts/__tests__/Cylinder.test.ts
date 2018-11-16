@@ -118,6 +118,7 @@ test('Cylinder - toJSON - Parameteres', () => {
   expect(obj.parameters.r0).toEqual(r0);
   expect(obj.parameters.r1).toEqual(r1);
   expect(obj.parameters.height).toEqual(height);
+  expect(obj.type).toEqual('Cylinder');
 });
 
 test('Cylinder - toJSON - Operations', () => {

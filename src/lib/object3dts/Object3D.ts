@@ -272,7 +272,7 @@ export default class Object3D extends ObjectsCommon{
   public toJSON():string{
     const object = {
       id: this.id,
-      type: 'Cube',
+      type: this.type,
       parameters: this.parameters,
       viewOptions: this.viewOptions,
       operations: this.operations,

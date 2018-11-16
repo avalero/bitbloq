@@ -113,6 +113,7 @@ test('Sphere - toJSON - Parameteres', () => {
   const json = object.toJSON();
   const obj:ISphereJSON = JSON.parse(json);
   expect(obj.parameters.radius).toEqual(radius);
+  expect(obj.type).toEqual('Sphere');
 });
 
 test('Sphere - toJSON - Operations', () => {
