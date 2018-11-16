@@ -10,34 +10,30 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51 
- * Last modified  : 2018-11-15 20:24:11
+ * Last modified  : 2018-11-16 17:32:50
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions, Operation} from './ObjectsCommon';
-import Object3D from './Object3D';
-import isEqual from'lodash.isequal';
+import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 interface ICubeParams {
-  width:number,
-  depth:number,
-  height:number
+  width:number;
+  depth:number;
+  height:number;
 }
 
-export interface ICubeJSON {
-  id: string;
-  type: string;
+export interface ICubeJSON extends IObjectsCommonJSON {
   parameters: ICubeParams;
-  viewOptions: IViewOptions;
-  operations: OperationsArray;
 }
 
-export default class Cube extends Object3D{
+export default class Cube extends PrimitiveObject{
 
   public static typeName:string = 'Cube';
 
   public static newFromJSON(json: string):Cube {
       const object: ICubeJSON = JSON.parse(json);
+      if(object.type != Cube.typeName) throw new Error('Not Cube Object');
       return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
@@ -57,14 +53,14 @@ export default class Cube extends Object3D{
   protected getGeometry(): THREE.Geometry {
     let {width, height, depth} = this.parameters as ICubeParams;
     width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
     let {width, height, depth} = this.parameters as ICubeParams;
     width = Math.max(1,width); height = Math.max(1,height); depth = Math.max(1, depth);
-    this._updateRequired = false;
+    this._meshUpdateRequired = false;
     return new THREE.BoxBufferGeometry(Number(width), Number(depth), Number(height));
   }
 

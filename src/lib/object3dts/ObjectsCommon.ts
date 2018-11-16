@@ -4,6 +4,13 @@ interface ICommonOperation {
   type: string;
 }
 
+export interface IObjectsCommonJSON{
+  type: string;
+  id: string;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export interface ITranslateOperation extends ICommonOperation {
   x: number;
   y: number;
@@ -103,6 +110,7 @@ export default class ObjectsCommon{
   protected _pendingOperation: boolean;
   protected viewOptions: IViewOptions;
   protected id: string;
+  protected type:string;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(), 
@@ -165,5 +173,9 @@ export default class ObjectsCommon{
 
   public clone():ObjectsCommon{
     throw new Error('ObjectsCommon.clone() Implemented in children');
+  }
+
+  public getTypeName(): string{
+    return this.type;
   }
 }

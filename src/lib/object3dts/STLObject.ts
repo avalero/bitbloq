@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08 
- * Last modified  : 2018-10-30 10:09:32
+ * Last modified  : 2018-11-16 17:37:42
  */
 
 import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
@@ -34,13 +34,13 @@ export default class STLObject extends Object3D {
     ){
     super(viewOptions,operations);
     this.parameters = {...parameters};
-    this._updateRequired = true;
+    this._meshUpdateRequired = true;
   }
 
   protected setParameters(parameters: ISTLParams): void{
     if(!isEqual(parameters,this.parameters)){
       this.parameters = {...parameters};
-      this._updateRequired = true;
+      this._meshUpdateRequired = true;
     }
   }
 

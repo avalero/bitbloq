@@ -9,24 +9,23 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53 
- * Last modified  : 2018-11-14 08:45:37
+ * Last modified  : 2018-11-16 17:46:18
  */
 
 
-import CompoundObject from './CompoundObject';
-import {ChildrenArray, OperationsArray} from './Object3D'
-import Object3D from './Object3D';
+import CompoundObject, { ICompountObjectJSON, ChildrenArray} from './CompoundObject';
+import Object3D from './Object3D'
+import {OperationsArray} from './ObjectsCommon'
+
 
 export default class Intersection extends CompoundObject {
   static typeName:string = 'Intersection';
 
   constructor(children: ChildrenArray = [], operations: OperationsArray = []){
     super(children, operations);
+    this.type = Intersection.typeName;
   }
 
-  public getTypeName():string{
-    return Intersection.typeName;
-  }
 
   // public getMesh():THREE.Mesh {
   //   if(this.updateRequired){

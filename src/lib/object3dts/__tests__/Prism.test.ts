@@ -116,6 +116,7 @@ test('Prism - toJSON - Parameteres', () => {
   expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.length).toEqual(length);
+  expect(obj.type).toEqual('Prism');
 });
 
 test('Prism - toJSON - Operations', () => {
