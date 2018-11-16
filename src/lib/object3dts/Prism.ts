@@ -27,22 +27,17 @@
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
+import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 import Object3D from './Object3D';
-import isEqual from 'lodash.isequal'
 
 interface IPrismParams{
-  sides:number,
-  length:number,
-  height:number
+  sides:number;
+  length:number;
+  height:number;
 }
 
-export interface IPrismJSON {
-  id: string;
-  type: string;
+export interface IPrismJSON extends IObjectsCommonJSON{
   parameters: IPrismParams;
-  viewOptions: IViewOptions;
-  operations: OperationsArray;
 }
 
 export default class Prism extends Object3D{
@@ -51,6 +46,7 @@ export default class Prism extends Object3D{
 
   public static newFromJSON(json:string):Prism{
     const object: IPrismJSON = JSON.parse(json);
+    if(object.type != Prism.typeName) throw new Error('Not Prism Object');
     return new Prism(object.parameters, object.operations, object.viewOptions);
   }
   

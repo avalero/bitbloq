@@ -13,22 +13,17 @@
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
+import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 import Object3D from './Object3D';
-import isEqual from 'lodash.isequal'
 
 interface ICylinderParams{
-  r0:number,
-  r1:number,
-  height:number
+  r0:number;
+  r1:number;
+  height:number;
 }
 
-export interface ICylinderJSON {
-  id: string;
-  type: string;
+export interface ICylinderJSON extends IObjectsCommonJSON {
   parameters: ICylinderParams;
-  viewOptions: IViewOptions;
-  operations: OperationsArray;
 }
 
 export default class Cylinder extends Object3D{
@@ -37,6 +32,7 @@ export default class Cylinder extends Object3D{
 
   public static newFromJSON(json:string):Cylinder{
     const object: ICylinderJSON = JSON.parse(json);
+    if(object.type != Cylinder.typeName) throw new Error('Not Cylinder Object');
     return new Cylinder(object.parameters, object.operations, object.viewOptions);
   }
   

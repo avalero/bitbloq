@@ -13,16 +13,23 @@
  */
 
 import Object3D, {ChildrenArray} from './Object3D';
-import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
+import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 
 import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
 import Worker from './compound.worker';
+import { ICubeJSON } from './Cube';
+import { IPrismJSON } from './Prism';
+
+export interface ICompountObjectJSON extends IObjectsCommonJSON{
+  children: ChildrenArray;
+}
 
 export default class CompoundObject extends Object3D {
 
   protected worker:Worker;
+
 
   constructor(
     children: ChildrenArray = [], 
@@ -167,6 +174,17 @@ export default class CompoundObject extends Object3D {
       this.children = children.slice();
       this._updateRequired = true;
     }
+  }
+
+  public toJSON(): string{
+    const object = {
+      id: this.id,
+      type: this.type,
+      viewOptions: this.viewOptions,
+      operations: this.operations,
+      children: this.children,
+    }
+    return JSON.stringify(object);
   }
 
 

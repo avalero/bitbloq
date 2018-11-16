@@ -14,22 +14,19 @@
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions, Operation} from './ObjectsCommon';
+import ObjectsCommon, {OperationsArray, IViewOptions, Operation, IObjectsCommonJSON} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from'lodash.isequal';
+import ObjectFactory from './ObjectFactory';
 
 interface ICubeParams {
-  width:number,
-  depth:number,
-  height:number
+  width:number;
+  depth:number;
+  height:number;
 }
 
-export interface ICubeJSON {
-  id: string;
-  type: string;
+export interface ICubeJSON extends IObjectsCommonJSON {
   parameters: ICubeParams;
-  viewOptions: IViewOptions;
-  operations: OperationsArray;
 }
 
 export default class Cube extends Object3D{
@@ -38,6 +35,7 @@ export default class Cube extends Object3D{
 
   public static newFromJSON(json: string):Cube {
       const object: ICubeJSON = JSON.parse(json);
+      if(object.type != Cube.typeName) throw new Error('Not Cube Object');
       return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 

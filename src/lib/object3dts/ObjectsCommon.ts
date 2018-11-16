@@ -4,6 +4,13 @@ interface ICommonOperation {
   type: string;
 }
 
+export interface IObjectsCommonJSON{
+  type: string;
+  id: string;
+  viewOptions: IViewOptions;
+  operations: OperationsArray;
+}
+
 export interface ITranslateOperation extends ICommonOperation {
   x: number;
   y: number;

@@ -252,10 +252,6 @@ export default class Object3D extends ObjectsCommon{
       );
   }
   
-  public clone():Object3D{
-    throw new Error('Implemented in children');
-  }
-
   public setParameters(parameters:Object):void{
     if(!this.parameters ){
       this.parameters = Object.assign({},parameters);
@@ -269,6 +265,10 @@ export default class Object3D extends ObjectsCommon{
     }
   }
 
+  /**
+   * For primitive objects. Cube, Cylinder, etc.
+   * For CompoundObjects find function in CompoundObjects Class
+   */
   public toJSON():string{
     const object = {
       id: this.id,
@@ -290,6 +290,4 @@ export default class Object3D extends ObjectsCommon{
       throw new Error('Object id does not match with JSON id');
     }
   }
-
-
 }

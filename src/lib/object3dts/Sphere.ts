@@ -15,7 +15,7 @@
 
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions} from './ObjectsCommon';
+import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 import Object3D from './Object3D';
 import isEqual from 'lodash.isequal';
 
@@ -23,12 +23,8 @@ interface ISphereParams {
   radius:number
 }
 
-export interface ISphereJSON {
-  id: string;
-  type: string;
+export interface ISphereJSON extends IObjectsCommonJSON{
   parameters: ISphereParams;
-  viewOptions: IViewOptions;
-  operations: OperationsArray;
 }
 
 export default class Sphere extends Object3D{
@@ -48,6 +44,7 @@ export default class Sphere extends Object3D{
 
   public static newFromJSON(json: string):Sphere {
     const object: ISphereJSON = JSON.parse(json);
+    if(object.type != Sphere.typeName) throw new Error('Not Sphere Object');
     return new Sphere(object.parameters, object.operations, object.viewOptions);
 }
 
