@@ -31,6 +31,7 @@ import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
 import ColorPicker from '../ColorPicker';
 import DropDown from '../DropDown';
+import Tooltip from '../Tooltip';
 import config from '../../config/threed';
 
 const Wrap = styled.div`
@@ -379,12 +380,19 @@ class PropertiesPanel extends React.Component {
           </ParametersPanel>
           <ObjectButtons>
             {config.objectOperations.map(operation => (
-              <OperationButton
+              <Tooltip
                 key={operation.name}
-                color={operation.color}
-                onClick={() => this.onAddOperation(object, operation.name)}>
-                {operation.icon}
-              </OperationButton>
+                content={operation.label}
+              >
+                {tooltipProps =>
+                  <OperationButton
+                    {...tooltipProps}
+                    color={operation.color}
+                    onClick={() => this.onAddOperation(object, operation.name)}>
+                    {operation.icon}
+                  </OperationButton>
+                }
+              </Tooltip>
             ))}
           </ObjectButtons>
         </ObjectProperties>
