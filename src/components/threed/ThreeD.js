@@ -84,7 +84,7 @@ class ThreeD extends React.Component {
   render() {
     return (
       <Document menuOptions={menuOptions}>
-        <Tab icon={<ThreeDIcon />}>
+        <Tab icon={<ThreeDIcon />} label="3D">
           <Container>
             <ObjectTree />
             <MainArea>
@@ -94,7 +94,7 @@ class ThreeD extends React.Component {
             <PropertiesPanel />
           </Container>
         </Tab>
-        <Tab icon={<InfoIcon />} />
+        <Tab icon={<InfoIcon />} label="Información del proyecto" />
       </Document>
     );
   }

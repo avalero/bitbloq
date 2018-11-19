@@ -330,7 +330,7 @@ const config = {
       undoLabel: 'Undo union',
       icon: <UnionIcon />,
       canUndo: true,
-      canApply: children => children.length > 1,
+      minObjects: 2,
       createInstance: children => new Union(children, []),
       create: children => ({
         id: uuid(),
@@ -345,7 +345,7 @@ const config = {
       name: 'Difference',
       label: 'Difference',
       icon: <DifferenceIcon />,
-      canApply: children => children.length > 1,
+      minObjects: 2,
       canUndo: true,
       createInstance: children => new Difference(children, []),
       create: children => ({
@@ -361,7 +361,7 @@ const config = {
       name: 'Intersection',
       label: 'Intersection',
       icon: <IntersectionIcon />,
-      canApply: children => children.length > 1,
+      minObjects: 2,
       canUndo: true,
       createInstance: children => new Intersection(children, []),
       create: children => ({
@@ -377,7 +377,7 @@ const config = {
       name: 'Group',
       label: 'Group',
       icon: <GroupIcon />,
-      canApply: children => children.length > 1,
+      minObjects: 2,
       createInstance: children => new ObjectsGroup(children),
       create: children => ({
         id: uuid(),
@@ -401,7 +401,8 @@ const config = {
       name: 'CartesianRepetition',
       label: 'Repeat',
       icon: <RepeatIcon />,
-      canApply: children => children.length === 1,
+      minObjects: 1,
+      maxObjects: 1,
       createInstance: (children, parameters) =>
         new RepetitionObject(parameters, children[0]),
       create: children => ({
@@ -445,7 +446,8 @@ const config = {
       name: 'PolarRepetition',
       label: 'Repeat Polar',
       icon: <RepeatPolarIcon />,
-      canApply: children => children.length === 1,
+      minObjects: 1,
+      maxObjects: 1,
       createInstance: (children, parameters) =>
         new RepetitionObject(parameters, children[0]),
       create: children => ({

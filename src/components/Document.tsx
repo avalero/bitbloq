@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Tooltip from './Tooltip';
 import MenuBar, {MainMenuOption} from './MenuBar';
 import styled, {css} from 'react-emotion';
 import CollapseIcon from './icons/AngleDouble';
@@ -177,11 +178,16 @@ class Document extends React.Component<DocumentProps, State> {
         <Main>
           <Tabs>
             {React.Children.map(children, (tab, i) => (
-              <TabIcon
-                selected={i === currentTabIndex}
-                onClick={() => this.setState({currentTabIndex: i})}>
-                {tab.props.icon}
-              </TabIcon>
+              <Tooltip position="right" content={tab.props.label}>
+                {tooltipProps =>
+                  <TabIcon
+                    {...tooltipProps}
+                    selected={i === currentTabIndex}
+                    onClick={() => this.setState({currentTabIndex: i})}>
+                    {tab.props.icon}
+                  </TabIcon>
+                }
+              </Tooltip>
             ))}
           </Tabs>
           {React.Children.map(children, (tab, i) => (
