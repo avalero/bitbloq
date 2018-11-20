@@ -3,6 +3,7 @@ import Cylinder from '../Cylinder';
 import ObjectFactory from '../ObjectFactory';
 import Sphere from '../Sphere';
 import Prism from '../Prism';
+import Union from '../Union';
 
 const width = 10;
 const height = 20;

@@ -79,7 +79,13 @@ export default class Prism extends PrimitiveObject{
   }
 
   public clone():Prism{
-    return Prism.newFromJSON(this.toJSON());  
+    if(!this.meshUpdateRequired && !this.pendingOperation){
+      const obj = new Prism(this.parameters as IPrismParams, this.operations, this.viewOptions);
+      obj.setMesh(this.mesh.clone());
+      return obj;  
+    }else{
+      return new Prism(this.parameters as IPrismParams, this.operations, this.viewOptions);
+    }
   }
 
 }
