@@ -232,6 +232,12 @@ export default class Object3D extends ObjectsCommon{
       );
   }
 
+  public setMesh(mesh : THREE.Mesh){
+    this.mesh = mesh;
+    this._meshUpdateRequired = false;
+    this._pendingOperation = false;
+  }
+
   public clone():Object3D{
     throw new Error('ObjectsCommon.clone() Implemented in children');
   }

@@ -65,7 +65,13 @@ export default class Cube extends PrimitiveObject{
   }
 
   public clone():Cube{
-    return Cube.newFromJSON(this.toJSON());  
+    if(!this.meshUpdateRequired && !this.pendingOperation){
+      const cube = new Cube(this.parameters as ICubeParams, this.operations, this.viewOptions);
+      cube.setMesh(this.mesh.clone());
+      return cube;  
+    }else{
+      return new Cube(this.parameters as ICubeParams, this.operations, this.viewOptions);
+    }
   }
 }
 

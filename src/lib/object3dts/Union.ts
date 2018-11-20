@@ -47,6 +47,10 @@ export default class Union extends CompoundObject {
 
   public clone():Union{
     const childrenClone: Array<Object3D> = this.children.map( child => child.clone());
-    return new Union(childrenClone, this.operations);
+    const obj = new Union(childrenClone, this.operations);
+    if (!this.meshUpdateRequired && !this.pendingOperation){
+      obj.setMesh(this.mesh);
+    }
+    return obj;
   }
 }

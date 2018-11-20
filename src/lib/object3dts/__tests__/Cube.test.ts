@@ -358,4 +358,27 @@ test('Cube - Clone - ViewOptions', () => {
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
   expect(obj.viewOptions.highlighted).toEqual(highlighted);
+  
+});
+
+test('Cube - Clone - no need to update', () => {
+  const color = '#abcdef'
+  const visible = true;
+  const name = 'Object123';
+  const highlighted = false;
+
+  const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
+  return object1.getMeshAsync().then(mesh => {
+    const object = object1.clone();
+    const json = object.toJSON();
+    const obj:ICubeJSON = JSON.parse(json);
+    expect(obj.parameters.width).toEqual(width);
+    expect(obj.parameters.height).toEqual(height);
+    expect(obj.parameters.depth).toEqual(depth);
+    expect(obj.viewOptions.color).toEqual(color);
+    expect(obj.viewOptions.name).toEqual(name);
+    expect(obj.viewOptions.visible).toEqual(visible);
+    expect(obj.viewOptions.highlighted).toEqual(highlighted);
+  })
+  
 });

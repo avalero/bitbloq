@@ -46,6 +46,10 @@ export default class Difference extends CompoundObject {
 
   public clone():Difference{
     const childrenClone: Array<Object3D> = this.children.map( child => child.clone());
-    return new Difference(childrenClone,this.operations);
+    const obj = new Difference(childrenClone,this.operations);
+    if (!this.meshUpdateRequired && !this.pendingOperation){
+      obj.setMesh(this.mesh);
+    }
+    return obj;
   }
 }

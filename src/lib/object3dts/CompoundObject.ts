@@ -234,6 +234,4 @@ export default class CompoundObject extends Object3D {
     }
     return JSON.stringify(object);
   }
-
-
 }
