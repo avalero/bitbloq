@@ -118,7 +118,7 @@ test('Scene.updateFromJSON() - ', () => {
   const aux_obj:ICubeJSON = JSON.parse(json);
   aux_obj.parameters.width = 100;
   const json_aux = JSON.stringify(aux_obj);
-  scene.updateObject(json_aux);
+  scene.updateObjectFromJSON(json_aux);
   expect((obj as any).parameters.width).toEqual(100);
   expect((obj_a as any).parameters.width).toEqual(3*width);
   expect((obj_b as any).parameters.width).toEqual(5*width);
