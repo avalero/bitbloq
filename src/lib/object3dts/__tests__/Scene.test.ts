@@ -111,6 +111,8 @@ test('Scene.updateFromJSON() - ', () => {
   expect(objectsCollector.length).toEqual(3);
 
   const obj = objectsCollector[1];
+  const obj_a = objectsCollector[0];
+  const obj_b = objectsCollector[2];
   expect((obj as any).parameters.width).toEqual(width);
   const json = obj.toJSON();
   const aux_obj:ICubeJSON = JSON.parse(json);
@@ -118,4 +120,6 @@ test('Scene.updateFromJSON() - ', () => {
   const json_aux = JSON.stringify(aux_obj);
   scene.updateObject(json_aux);
   expect((obj as any).parameters.width).toEqual(100);
+  expect((obj_a as any).parameters.width).toEqual(3*width);
+  expect((obj_b as any).parameters.width).toEqual(5*width);
 });
