@@ -33,7 +33,7 @@ export default class Scene{
 
   }
 
-  public addObject(json: string):void{
+  public addObjectFromJSON(json: string):void{
     const object:ObjectsCommon = ObjectFactory.newFromJSON(json);
     this.BitbloqScene.push(object);
     this.objectCollector.push(object);
@@ -48,7 +48,18 @@ export default class Scene{
   }
 
   public updateObject(json: string):void{
+    const obj = JSON.parse(json);
+    const id = obj.id;
+    let updated = false;
 
+    this.objectCollector.forEach(object => {
+      if(object.getID() === id){
+        object.updateFromJSON(json);
+        updated = true;
+      }
+    });
+
+    if(!updated) throw new Error(`Object id ${id} not found`);
   }
 
   public unGroup(json: string):void{
