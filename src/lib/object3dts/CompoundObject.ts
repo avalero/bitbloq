@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03 
- * Last modified  : 2018-11-16 17:51:50
+ * Last modified  : 2018-11-16 19:47:34
  */
 
 import Object3D from './Object3D';
