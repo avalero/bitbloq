@@ -178,4 +178,12 @@ export default class ObjectsCommon{
   public getTypeName(): string{
     return this.type;
   }
+
+  public toJSON():string{
+    throw new Error('toJSON() Implemented in children');
+  }
+
+  public updateFromJSON(json:string):void{
+    throw new Error('updateFromJSON() Implemented in children');
+  }
 }
