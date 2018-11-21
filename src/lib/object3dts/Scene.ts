@@ -2,6 +2,24 @@ import ObjectsCommon from "./ObjectsCommon";
 import * as THREE from 'three';
 import ObjectFactory from "./ObjectFactory";
 
+type ClickHandler = (object?: any) => void;
+
+enum HelperType {
+  Rotation = 'rotation',
+  Translation = 'translation',
+}
+enum HelperAxis {
+  X = 'x',
+  Y = 'y',
+  Z = 'z',
+}
+interface HelperDescription {
+  type: HelperType;
+  object: any;
+  axis: HelperAxis;
+  relative: boolean;
+}
+
 export default class Scene{
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private BitbloqScene:Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
@@ -109,5 +127,65 @@ export default class Scene{
    */
   public repetitionToGroup(json: string):void{
 
+  }
+
+  // TODO Methods for frontend
+
+  /**
+   * Returns the DOM Element where the scene is rendered
+   */
+  public getDOMELement():HTMLElement {
+    // TODO En principio renderer.domElement. Pero como tenemos actualmente
+    // 2 renderers, uno para la scene y otro para el cubo de navegación en
+    // la esquina de arriba a la izquierda, creo que habría que crear un <div>
+    // padre que es el que devolvemos aquí, e insertar los dos renderer en ese
+    // <div>. Si quieres de momento devuelve el renderer.domElement y ya vemos
+    // luego lo del cubo de navegación
+    return document.body;
+  }
+
+  // Le pasa un handler que debe ser llamado cada vez que se hace click
+  // el primer parámetro del handler debe ser el objeto sobre el que se ha
+  // hecho click, o null si no se ha hecho click sobre ninguno
+  public onClick(handler: ClickHandler): void {
+  }
+
+  // Establece el helper que debe mostrarse en la vista 3d
+  // Si no se le pasa ningún parámetro entonces no mostrar ninguno
+  public setActiveHelper(helperDescription?: HelperDescription) {
+  }
+
+  // Si se le pasa true entonces la cámara es ortográfica y se le pasa
+  // false la cámara es perspectiva
+  public setOrtographicCamera(isOrtographic: boolean): void {
+
+  }
+
+  public zoomIn(): void {
+
+  }
+
+  public zoomOut(): void {
+
+  }
+
+  // Por si por ejemplo quieres cargar una escena que ya tengas creada
+  // El nombre setScene parece un poco raro dentro de la clase Scene
+  // Scene.setSceene(scene)
+  // setBitbloqScene? setSceneObjects?
+  public setScene(scene: any): void {
+
+  }
+
+  // Estos 2 los podemos hacer aquí dentro (da más valor a la librería)
+  // pero si es muy complicado lo podemos hacer fuera y podemos dejar la escena
+  // en el estado deseado con setScene
+
+  // Deshace la última operación y devuelve la escena después de deshacer
+  public undo(): any {
+  }
+
+  // Rehace la última operación y devuelve la escena después de rehacer
+  public redo(): any {
   }
 }
