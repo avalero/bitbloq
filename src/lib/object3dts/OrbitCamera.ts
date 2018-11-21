@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import { SphericalCoordsXYZ} from './SphericalCoordinates.ts';
-
+import { SphericalCoordsXYZ } from './SphericalCoordinates.ts';
 
 const EPSILON: number = 0.001;
 const STATE = {
@@ -14,10 +13,8 @@ const STATE = {
 };
 
 export default class OrbitCamera {
-
   private camera: THREE.PerspectiveCamera;
   private enabled: boolean;
-
 
   private minDistance: number;
   private maxDistance: number;
@@ -36,13 +33,12 @@ export default class OrbitCamera {
   private _spherical: SphericalCoordsXYZ;
   private _sphericalEnd: SphericalCoordsXYZ;
 
-
   private _target0: THREE.Vector3;
   private _position0: THREE.Vector3;
 
   private _needsUpdate: boolean;
 
-  private dispose: () => void ;
+  private dispose: () => void;
 
   constructor(camera: THREE.PerspectiveCamera, domElement: any) {
     this.camera = camera;
@@ -65,14 +61,12 @@ export default class OrbitCamera {
     this.target = new THREE.Vector3();
     this._targetEnd = new THREE.Vector3();
 
-
     // rotation
     this._spherical = new SphericalCoordsXYZ();
 
     this._spherical.setFromVector3(this.camera.position);
- 
-    this._sphericalEnd = new SphericalCoordsXYZ().copy(this._spherical);
 
+    this._sphericalEnd = new SphericalCoordsXYZ().copy(this._spherical);
 
     // reset
     this._target0 = this.target.clone();
@@ -91,7 +85,7 @@ export default class OrbitCamera {
       let elementRect: any;
       let savedDampingFactor: any;
 
-      const onMouseDown = (event:any) => {
+      const onMouseDown = (event: any) => {
         if (!scope.enabled) return;
 
         event.preventDefault();
@@ -115,7 +109,7 @@ export default class OrbitCamera {
         if (prevState === STATE.NONE) {
           startDragging(event);
         }
-      }
+      };
 
       const onTouchStart = (event: any) => {
         if (!scope.enabled) return;
@@ -125,18 +119,15 @@ export default class OrbitCamera {
         const prevState = state;
 
         switch (event.touches.length) {
-          case 1:	// one-fingered touch: rotate
-
+          case 1: // one-fingered touch: rotate
             state = STATE.TOUCH_ROTATE;
             break;
 
-          case 2:	// two-fingered touch: dolly
-
+          case 2: // two-fingered touch: dolly
             state = STATE.TOUCH_DOLLY;
             break;
 
           case 3: // three-fingered touch: pan
-
             state = STATE.TOUCH_PAN;
             break;
         }
@@ -144,10 +135,9 @@ export default class OrbitCamera {
         if (prevState === STATE.NONE) {
           startDragging(event);
         }
-      }
+      };
 
-
-      const onMouseWheel = (event:any) => {
+      const onMouseWheel = (event: any) => {
         if (!scope.enabled) return;
 
         event.preventDefault();
@@ -157,31 +147,30 @@ export default class OrbitCamera {
         } else if (event.deltaY > 0) {
           dollyOut();
         }
-      }
+      };
 
-      const onContextMenu = (event:any) => {
+      const onContextMenu = (event: any) => {
         if (!scope.enabled) return;
 
         event.preventDefault();
-      }
+      };
 
-      const startDragging = (event:any) => {
+      const startDragging = (event: any) => {
         if (!scope.enabled) return;
 
         event.preventDefault();
 
         const _event = event.touches ? event.touches[0] : event;
-        const x:number = _event.clientX;
-        const y:number = _event.clientY;
+        const x: number = _event.clientX;
+        const y: number = _event.clientY;
 
         elementRect = scope.domElement.getBoundingClientRect();
         dragStart.set(x, y);
 
-
         if (state === STATE.TOUCH_DOLLY) {
-          const dx:number = x - event.touches[1].pageX;
-          const dy:number = y - event.touches[1].pageY;
-          const distance:number = Math.sqrt(dx * dx + dy * dy);
+          const dx: number = x - event.touches[1].pageX;
+          const dy: number = y - event.touches[1].pageY;
+          const distance: number = Math.sqrt(dx * dx + dy * dy);
 
           dollyStart.set(0, distance);
         }
@@ -193,29 +182,27 @@ export default class OrbitCamera {
         document.addEventListener('touchmove', dragging, { passive: false });
         document.addEventListener('mouseup', endDragging);
         document.addEventListener('touchend', endDragging);
-      }
+      };
 
-      const dragging = (event:any) => {
+      const dragging = (event: any) => {
         if (!scope.enabled) return;
 
         event.preventDefault();
 
         const _event = event.touches ? event.touches[0] : event;
-        const x:number = _event.clientX;
-        const y:number = _event.clientY;
+        const x: number = _event.clientX;
+        const y: number = _event.clientY;
 
-        const deltaX:number = dragStart.x - x;
-        const deltaY:number = dragStart.y - y;
-
+        const deltaX: number = dragStart.x - x;
+        const deltaY: number = dragStart.y - y;
 
         dragStart.set(x, y);
 
         switch (state) {
           case STATE.ROTATE:
           case STATE.TOUCH_ROTATE:
-
-            const rotTheta:number = 2 * Math.PI * deltaX / elementRect.width;
-            const rotPhi:number = 2 * Math.PI * deltaY / elementRect.height;
+            const rotTheta: number = (2 * Math.PI * deltaX) / elementRect.width;
+            const rotPhi: number = (2 * Math.PI * deltaY) / elementRect.height;
             scope.rotate(rotTheta, rotPhi, true);
             break;
 
@@ -224,11 +211,10 @@ export default class OrbitCamera {
             break;
 
           case STATE.TOUCH_DOLLY:
-
-            const dx:number = x - event.touches[1].pageX;
-            const dy:number = y - event.touches[1].pageY;
-            const distance:number = Math.sqrt(dx * dx + dy * dy);
-            const dollyDelta:number = dollyStart.y - distance;
+            const dx: number = x - event.touches[1].pageX;
+            const dy: number = y - event.touches[1].pageY;
+            const distance: number = Math.sqrt(dx * dx + dy * dy);
+            const dollyDelta: number = dollyStart.y - distance;
 
             if (dollyDelta > 0) {
               dollyOut();
@@ -241,15 +227,21 @@ export default class OrbitCamera {
 
           case STATE.PAN:
           case STATE.TOUCH_PAN:
-            const offset:THREE.Vector3 = new THREE.Vector3().copy(scope.camera.position).sub(scope.target);
+            const offset: THREE.Vector3 = new THREE.Vector3()
+              .copy(scope.camera.position)
+              .sub(scope.target);
             // half of the fov is center to top of screen
-            const targetDistance:number = offset.length() * Math.tan((scope.camera.fov / 2) * Math.PI / 180);
-            const panX:number = (scope.truckSpeed * deltaX * targetDistance / elementRect.height);
-            const panY:number = (scope.truckSpeed * deltaY * targetDistance / elementRect.height);
+            const targetDistance: number =
+              offset.length() *
+              Math.tan(((scope.camera.fov / 2) * Math.PI) / 180);
+            const panX: number =
+              (scope.truckSpeed * deltaX * targetDistance) / elementRect.height;
+            const panY: number =
+              (scope.truckSpeed * deltaY * targetDistance) / elementRect.height;
             scope.pan(panX, panY, true);
             break;
         }
-      }
+      };
 
       const endDragging = () => {
         if (!scope.enabled) return;
@@ -261,18 +253,21 @@ export default class OrbitCamera {
         document.removeEventListener('touchmove', dragging);
         document.removeEventListener('mouseup', endDragging);
         document.removeEventListener('touchend', endDragging);
-      }
+      };
 
       const dollyIn = () => {
-        const zoomScale:number = Math.pow(0.95, scope.dollySpeed);
-        scope.dolly(scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius);
-      }
+        const zoomScale: number = Math.pow(0.95, scope.dollySpeed);
+        scope.dolly(
+          scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius,
+        );
+      };
 
       const dollyOut = () => {
-        const zoomScale:number = Math.pow(0.95, scope.dollySpeed);
-        scope.dolly(scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius);
-      }
-
+        const zoomScale: number = Math.pow(0.95, scope.dollySpeed);
+        scope.dolly(
+          scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius,
+        );
+      };
 
       this.domElement.addEventListener('mousedown', onMouseDown);
       this.domElement.addEventListener('touchstart', onTouchStart);
@@ -294,7 +289,11 @@ export default class OrbitCamera {
 
   // rotX in radian
   // rotY in radian
-  private rotate(rotTheta:number, rotPhi:number, enableTransition:boolean): void {
+  private rotate(
+    rotTheta: number,
+    rotPhi: number,
+    enableTransition: boolean,
+  ): void {
     this.rotateTo(
       this._sphericalEnd.theta + rotTheta,
       this._sphericalEnd.phi + rotPhi,
@@ -304,30 +303,37 @@ export default class OrbitCamera {
 
   // rotX in radian
   // rotY in radian
-  private rotateTo(rotTheta:number, rotPhi:number, enableTransition:boolean): void {
-    const theta:number = Math.max(this.minAzimuthAngle, Math.min(this.maxAzimuthAngle, rotTheta));
-    const phi:number = Math.max(this.minPolarAngle, Math.min(this.maxPolarAngle, rotPhi));
+  private rotateTo(
+    rotTheta: number,
+    rotPhi: number,
+    enableTransition: boolean,
+  ): void {
+    const theta: number = Math.max(
+      this.minAzimuthAngle,
+      Math.min(this.maxAzimuthAngle, rotTheta),
+    );
+    const phi: number = Math.max(
+      this.minPolarAngle,
+      Math.min(this.maxPolarAngle, rotPhi),
+    );
 
     this._sphericalEnd.theta = theta;
     this._sphericalEnd.phi = phi;
     this._sphericalEnd.makeSafe();
 
-
-    
     if (!enableTransition) {
       this._spherical.theta = this._sphericalEnd.theta;
       this._spherical.phi = this._sphericalEnd.phi;
     }
 
     this._needsUpdate = true;
-    
   }
 
-  private dolly(distance:number, enableTransition:boolean = false): void {
+  private dolly(distance: number, enableTransition: boolean = false): void {
     this.dollyTo(this._sphericalEnd.radius + distance, enableTransition);
   }
 
- private dollyTo(distance: number, enableTransition: boolean): void {
+  private dollyTo(distance: number, enableTransition: boolean): void {
     this._sphericalEnd.radius = THREE.Math.clamp(
       distance,
       this.minDistance,
@@ -341,19 +347,27 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private pan(x:number, y:number, enableTransition:boolean): void {
+  private pan(x: number, y: number, enableTransition: boolean): void {
     this.truck(x, y, enableTransition);
   }
 
-  private truck(x:number, y:number, enableTransition: boolean) {
+  private truck(x: number, y: number, enableTransition: boolean) {
     this.camera.updateMatrix();
 
-    const _xColumn:THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(this.camera.matrix, 0);
-    const _yColumn:THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(this.camera.matrix, 1);
+    const _xColumn: THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(
+      this.camera.matrix,
+      0,
+    );
+    const _yColumn: THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(
+      this.camera.matrix,
+      1,
+    );
     _xColumn.multiplyScalar(x);
     _yColumn.multiplyScalar(-y);
 
-    const offset:THREE.Vector3 = new THREE.Vector3().copy(_xColumn).add(_yColumn);
+    const offset: THREE.Vector3 = new THREE.Vector3()
+      .copy(_xColumn)
+      .add(_yColumn);
     this._targetEnd.add(offset);
 
     if (!enableTransition) {
@@ -363,7 +377,12 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private moveTo(x:number, y:number, z:number, enableTransition:boolean):void {
+  private moveTo(
+    x: number,
+    y: number,
+    z: number,
+    enableTransition: boolean,
+  ): void {
     this._targetEnd.set(x, y, z);
 
     if (!enableTransition) {
@@ -373,12 +392,12 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private saveState():void {
+  private saveState(): void {
     this._target0.copy(this.target);
     this._position0.copy(this.camera.position);
   }
 
-  private reset(enableTransition:boolean):void {
+  private reset(enableTransition: boolean): void {
     this._targetEnd.copy(this._target0);
     this._sphericalEnd.setFromVector3(this._position0);
     this._sphericalEnd.theta = this._sphericalEnd.theta % (2 * Math.PI);
@@ -392,20 +411,24 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private update(delta:number):boolean {
-    const dampingFactor:number = this.dampingFactor * delta / 0.016;
-    const deltaTheta:number = this._sphericalEnd.theta - this._spherical.theta;
-    const deltaPhi:number = this._sphericalEnd.phi - this._spherical.phi;
-    const deltaRadius:number = this._sphericalEnd.radius - this._spherical.radius;
-    const deltaTarget:THREE.Vector3 = new THREE.Vector3().subVectors(this._targetEnd, this.target);
+  private update(delta: number): boolean {
+    const dampingFactor: number = (this.dampingFactor * delta) / 0.016;
+    const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta;
+    const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi;
+    const deltaRadius: number =
+      this._sphericalEnd.radius - this._spherical.radius;
+    const deltaTarget: THREE.Vector3 = new THREE.Vector3().subVectors(
+      this._targetEnd,
+      this.target,
+    );
 
     if (
-      Math.abs(deltaTheta) > EPSILON
-  		|| Math.abs(deltaPhi) > EPSILON
-  		|| Math.abs(deltaRadius) > EPSILON
-  		|| Math.abs(deltaTarget.x) > EPSILON
-  		|| Math.abs(deltaTarget.y) > EPSILON
-  		|| Math.abs(deltaTarget.z) > EPSILON
+      Math.abs(deltaTheta) > EPSILON ||
+      Math.abs(deltaPhi) > EPSILON ||
+      Math.abs(deltaRadius) > EPSILON ||
+      Math.abs(deltaTarget.x) > EPSILON ||
+      Math.abs(deltaTarget.y) > EPSILON ||
+      Math.abs(deltaTarget.z) > EPSILON
     ) {
       this._spherical.set(
         this._spherical.radius + deltaRadius * dampingFactor,
@@ -421,11 +444,13 @@ export default class OrbitCamera {
     }
 
     this._spherical.makeSafe();
-    this.camera.position.set(
-      this._spherical.cartesian.x,
-      this._spherical.cartesian.y,
-      this._spherical.cartesian.z,
-    ).add(this.target);
+    this.camera.position
+      .set(
+        this._spherical.cartesian.x,
+        this._spherical.cartesian.y,
+        this._spherical.cartesian.z,
+      )
+      .add(this.target);
     this.camera.lookAt(this.target);
 
     const needsUpdate = this._needsUpdate;
@@ -434,7 +459,7 @@ export default class OrbitCamera {
     return needsUpdate;
   }
 
-  public toJSON():object {
+  public toJSON(): object {
     return {
       enabled: this.enabled,
 
@@ -454,10 +479,10 @@ export default class OrbitCamera {
 
       target0: this._target0.toArray(),
       position0: this._position0.toArray(),
-    }
+    };
   }
 
-  private fromJSON(json:string, enableTransition:boolean): void {
+  private fromJSON(json: string, enableTransition: boolean): void {
     const obj = JSON.parse(json);
     const position = new THREE.Vector3().fromArray(obj.position);
 
@@ -489,16 +514,16 @@ export default class OrbitCamera {
   }
 }
 
-const infinityToMaxNumber: (value:number) => number = (value:number) => {
+const infinityToMaxNumber: (value: number) => number = (value: number) => {
   if (isFinite(value)) return value;
 
   if (value < 0) return -Number.MAX_VALUE;
 
   return Number.MAX_VALUE;
-}
+};
 
-const maxNumberToInfinity: (value:number) => number = (value:number) => {
+const maxNumberToInfinity: (value: number) => number = (value: number) => {
   if (Math.abs(value) < Number.MAX_VALUE) return value;
 
   return value * Infinity;
-}
+};

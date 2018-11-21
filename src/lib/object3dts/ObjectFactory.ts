@@ -13,14 +13,16 @@ import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 // import Difference from './Difference';
 // import Intersection from './Intersection';
 
-
-export default class ObjectFactory{
+export default class ObjectFactory {
   /**
-   * Creates a new Primitive Object from its JSON 
-   * @param json object toJSON 
+   * Creates a new Primitive Object from its JSON
+   * @param json object toJSON
    */
-  public static newFromJSON(obj: IObjectsCommonJSON, scene:Scene): ObjectsCommon {
-    switch(obj.type){
+  public static newFromJSON(
+    obj: IObjectsCommonJSON,
+    scene: Scene,
+  ): ObjectsCommon {
+    switch (obj.type) {
       case Cube.typeName:
         return Cube.newFromJSON(obj as ICubeJSON, scene);
       case Cylinder.typeName:
@@ -40,26 +42,25 @@ export default class ObjectFactory{
     }
 
     throw new Error('Unknown Primitive Object Type');
-
   }
 
   // public static createCompoundFromJSON(json: string, objectsCollector: Array <ObjectsCommon>): CompoundObject{
   //   const obj = JSON.parse(json);
   //   const children: ChildrenArray = [];
-    
+
   //   (obj as ICompountObjectJSON).children.forEach(element => {
   //     const obj = objectsCollector.find( (obj) => (obj.getID() === element.getID()) );
   //     if(!obj) throw Error(`Child  ${element.getID()} not Found`);
   //     children.push(obj as Object3D);
   //   });
-    
+
   //   switch(obj.type){
   //     case Union.typeName:
   //       return new Union(children,obj.operations);
   //     case Difference.typeName:
   //       return new Difference(children, obj.operations);
   //     case Intersection.typeName:
-  //       return new Intersection(children, obj.operations); 
+  //       return new Intersection(children, obj.operations);
   //   }
   //   throw new Error('Unknown Compound Object Type');
   // }
