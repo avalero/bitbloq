@@ -14,9 +14,8 @@
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
+import {OperationsArray, IViewOptions} from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
-
 import Scene from './Scene'
 
 
