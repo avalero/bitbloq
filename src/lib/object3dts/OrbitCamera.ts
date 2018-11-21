@@ -434,8 +434,8 @@ export default class OrbitCamera {
     return needsUpdate;
   }
 
-  public toJSON():string {
-    return JSON.stringify({
+  public toJSON():object {
+    return {
       enabled: this.enabled,
 
       minDistance: this.minDistance,
@@ -454,7 +454,7 @@ export default class OrbitCamera {
 
       target0: this._target0.toArray(),
       position0: this._position0.toArray(),
-    });
+    }
   }
 
   private fromJSON(json:string, enableTransition:boolean): void {

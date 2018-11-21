@@ -14,7 +14,7 @@
 
 
 
-import CompoundObject, { ICompountObjectJSON, ChildrenArray} from './CompoundObject';
+import CompoundObject, { ICompoundObjectJSON, ChildrenArray} from './CompoundObject';
 import Object3D from './Object3D'
 import {OperationsArray} from './ObjectsCommon'
 import ObjectFactory from './ObjectFactory';
@@ -23,16 +23,14 @@ import ObjectFactory from './ObjectFactory';
 export default class Difference extends CompoundObject {
   static typeName:string = 'Difference';
 
-  public static newFromJSON(json: string): Difference{
+  public static newFromJSON(object:ICompoundObjectJSON): Difference{
     const children:ChildrenArray = [];
 
-    const object:ICompountObjectJSON = JSON.parse(json);
-    
     if(object.type != Difference.typeName) throw new Error('Not Union Object');
     
     object.children.forEach(element => {
       const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(json) as Object3D;
+      const child = ObjectFactory.newFromJSON(object) as Object3D;
       children.push(child);
     });
 

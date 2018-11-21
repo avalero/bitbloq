@@ -22,7 +22,7 @@ import Worker from './compound.worker';
 import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation} from './ObjectsCommon';
 
 
-export interface ICompountObjectJSON extends IObjectsCommonJSON{
+export interface ICompoundObjectJSON extends IObjectsCommonJSON{
   children: ChildrenArray;
 }
 
@@ -224,14 +224,13 @@ export default class CompoundObject extends Object3D {
     }
   }
 
-  public toJSON(): string{
-    const object = {
+  public toJSON():ICompoundObjectJSON{
+    return {
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
       children: this.children,
     }
-    return JSON.stringify(object);
   }
 }

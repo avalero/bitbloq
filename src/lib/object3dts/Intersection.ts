@@ -13,7 +13,7 @@
  */
 
 
-import CompoundObject, { ICompountObjectJSON, ChildrenArray} from './CompoundObject';
+import CompoundObject, { ICompoundObjectJSON, ChildrenArray} from './CompoundObject';
 import Object3D from './Object3D'
 import {OperationsArray} from './ObjectsCommon'
 import ObjectFactory from './ObjectFactory';
@@ -27,16 +27,14 @@ export default class Intersection extends CompoundObject {
     this.type = Intersection.typeName;
   }
 
-  public static newFromJSON(json: string): Intersection{
+  public static newFromJSON(object:ICompoundObjectJSON): Intersection{
     const children:ChildrenArray = [];
 
-    const object:ICompountObjectJSON = JSON.parse(json);
-    
     if(object.type != Intersection.typeName) throw new Error('Not Intersection Object');
     
     object.children.forEach(element => {
       const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(json) as Object3D;
+      const child = ObjectFactory.newFromJSON(object) as Object3D;
       children.push(child);
     });
 

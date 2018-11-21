@@ -1,9 +1,9 @@
-import ObjectsCommon from './ObjectsCommon';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import Object3D from './Object3D';
-import Cube from './Cube';
-import Cylinder from './Cylinder';
-import Sphere from './Sphere';
-import Prism from './Prism';
+import Cube, { ICubeJSON } from './Cube';
+import Cylinder, { ICylinderJSON } from './Cylinder';
+import Sphere, { ISphereJSON } from './Sphere';
+import Prism, { IPrismJSON } from './Prism';
 // import Union from './Union';
 // import CompoundObject, {ChildrenArray, ICompountObjectJSON} from './CompoundObject';
 import PrimitiveObject from './PrimitiveObject';
@@ -16,17 +16,16 @@ export default class ObjectFactory{
    * Creates a new Primitive Object from its JSON 
    * @param json object toJSON 
    */
-  public static newFromJSON(json: string): ObjectsCommon {
-    const obj = JSON.parse(json);
+  public static newFromJSON(obj: IObjectsCommonJSON): ObjectsCommon {
     switch(obj.type){
       case Cube.typeName:
-        return Cube.newFromJSON(json);
+        return Cube.newFromJSON(obj as ICubeJSON);
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(json);
+        return Cylinder.newFromJSON(obj as ICylinderJSON);
       case Sphere.typeName:
-        return Sphere.newFromJSON(json);
+        return Sphere.newFromJSON(obj as ISphereJSON);
       case Prism.typeName:
-        return Prism.newFromJSON(json);
+        return Prism.newFromJSON(obj as IPrismJSON);
       // case Union.typeName:
       //   return Union.newFromJSON(json);
       // case Difference.typeName:

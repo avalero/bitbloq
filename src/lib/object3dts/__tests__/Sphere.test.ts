@@ -110,8 +110,8 @@ test('Async Check initial position and rotation', () => {
 
 test('Sphere - toJSON - Parameteres', () => {
   const object = new Sphere({radius});
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.parameters.radius).toEqual(radius);
   expect(obj.type).toEqual('Sphere');
 });
@@ -127,8 +127,7 @@ test('Sphere - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -138,8 +137,8 @@ test('Sphere - toJSON - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
   object.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
-  const json2 = object.toJSON();
-  const obj2:ISphereJSON = JSON.parse(json2);
+  
+  const obj2:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj2.operations.length).toEqual(3);
   expect(obj2.operations[0].type).toEqual('translation');
   expect(obj2.operations[1].type).toEqual('rotation');
@@ -162,8 +161,8 @@ test('Sphere - toJSON - ViewOptions', () => {
   const highlighted = false;
 
   const object = new Sphere({radius},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -172,10 +171,10 @@ test('Sphere - toJSON - ViewOptions', () => {
 
 test('Cylinder - fromJSON - Parameteres', () => {
   const object1 = new Sphere({radius});
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as ISphereJSON;
   const object = Sphere.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj = JSON.parse(json);
+  
+  const obj = object.toJSON() as ISphereJSON;
   expect(obj.parameters.radius).toEqual(radius);
 });
 
@@ -191,10 +190,9 @@ test('Sphere - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as ISphereJSON;
   const object = Sphere.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -212,10 +210,9 @@ test('Sphere - fromJSON - ViewOptions', () => {
   const highlighted = false;
 
   const object1 = new Sphere({radius},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as ISphereJSON;
   const object = Sphere.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -229,8 +226,7 @@ test('Sphere - fromJSON - ViewOptions', () => {
 test('Sphere - clone() - Parameteres', () => {
   const aux = new Sphere({radius});
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.parameters.radius).toEqual(radius);
 });
 
@@ -248,8 +244,7 @@ test('Sphere - CLONE - Operations', () => {
     );
 
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -287,13 +282,10 @@ test('Cylinder - UpdateFromJSON - ', () => {
     ObjectsCommon.createViewOptions(color,visible,highlighted,name)
     );
 
-  let json1:string = object1.toJSON();
-  const obj1:ISphereJSON = JSON.parse(json1);
+  const obj1:ISphereJSON = object1.toJSON() as ISphereJSON;
   obj1.id = object.getID();
-  json1 = JSON.stringify(obj1);
-  object.updateFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  object.updateFromJSON(obj1);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
 
   expect(obj.parameters.radius).toEqual(radius);
 
@@ -320,8 +312,7 @@ test('Sphere - Clone - ViewOptions', () => {
 
   const object1 = new Sphere({radius},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const object = object1.clone();
-  const json = object.toJSON();
-  const obj:ISphereJSON = JSON.parse(json);
+  const obj:ISphereJSON = object.toJSON() as ISphereJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);

@@ -129,8 +129,7 @@ test('Async Check initial position and rotation', () => {
 
 test('Cube - toJSON - Parameteres', () => {
   const object = new Cube({width, height, depth});
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.parameters.width).toEqual(width);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.depth).toEqual(depth);
@@ -147,8 +146,7 @@ test('Cube - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -158,8 +156,7 @@ test('Cube - toJSON - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
   object.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
-  const json2 = object.toJSON();
-  const obj2:ICubeJSON = JSON.parse(json2);
+  const obj2:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj2.operations.length).toEqual(3);
   expect(obj2.operations[0].type).toEqual('translation');
   expect(obj2.operations[1].type).toEqual('rotation');
@@ -182,8 +179,7 @@ test('Cube - toJSON - ViewOptions', () => {
   const highlighted = false;
 
   const object = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -192,10 +188,9 @@ test('Cube - toJSON - ViewOptions', () => {
 
 test('Cube - fromJSON - Parameteres', () => {
   const object1 = new Cube({width, height, depth});
-  const json1 = object1.toJSON();
+  const json1:ICubeJSON = object1.toJSON() as ICubeJSON;
   const object = Cube.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj = JSON.parse(json);
+  const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.parameters.width).toEqual(width);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.depth).toEqual(depth);
@@ -213,10 +208,9 @@ test('Cube - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json1 = object1.toJSON();
+  const json1: ICubeJSON = object1.toJSON() as ICubeJSON;
   const object = Cube.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -235,10 +229,9 @@ test('Cube - fromJSON - ViewOptions', () => {
   
 
   const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json1 = object1.toJSON();
+  const json1:ICubeJSON = object1.toJSON() as ICubeJSON;
   const object = Cube.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -273,17 +266,13 @@ test('Cube - UpdateFromJSON - ', () => {
     ObjectsCommon.createViewOptions(color,visible,highlighted,name)
     );
 
-  let json1 = object1.toJSON();
-  
-  const obj1:ICubeJSON = JSON.parse(json1);
+  const obj1:ICubeJSON = object1.toJSON() as ICubeJSON;;
   
   obj1.id = object.getID();
-  json1 = JSON.stringify(obj1);
   
-  object.updateFromJSON(json1);
+  object.updateFromJSON(obj1);
   
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
 
   expect(obj.parameters.width).toEqual(width);
   expect(obj.parameters.height).toEqual(height);
@@ -311,8 +300,7 @@ test('Cube - UpdateFromJSON - ', () => {
 test('Cube - clone() - Parameteres', () => {
   const aux = new Cube({width, height, depth});
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.parameters.width).toEqual(width);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.depth).toEqual(depth);
@@ -332,8 +320,7 @@ test('Cube - CLONE - Operations', () => {
     );
 
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -352,8 +339,7 @@ test('Cube - Clone - ViewOptions', () => {
 
   const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const object = object1.clone();
-  const json = object.toJSON();
-  const obj:ICubeJSON = JSON.parse(json);
+  const obj:ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -370,8 +356,7 @@ test('Cube - Clone - no need to update', () => {
   const object1 = new Cube({width, height, depth},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   return object1.getMeshAsync().then(mesh => {
     const object = object1.clone();
-    const json = object.toJSON();
-    const obj:ICubeJSON = JSON.parse(json);
+    const obj:ICubeJSON = object.toJSON() as ICubeJSON;
     expect(obj.parameters.width).toEqual(width);
     expect(obj.parameters.height).toEqual(height);
     expect(obj.parameters.depth).toEqual(depth);
