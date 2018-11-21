@@ -62,7 +62,7 @@ export default class Scene{
    * @param json object descriptor (it ignores id)
    */
   public addObjectFromJSON(json: IObjectsCommonJSON):void{
-    const object:ObjectsCommon = ObjectFactory.newFromJSON(json);
+    const object:ObjectsCommon = ObjectFactory.newFromJSON(json, this);
     this.BitbloqScene.push(object);
     this.objectCollector.push(object);
   }

@@ -43,8 +43,8 @@ export default class Cube extends PrimitiveObject{
 
   constructor(
     parameters: ICubeParams,  
-    operations: OperationsArray = [], 
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray, 
+    viewOptions: IViewOptions,
     scene:Scene
     )
   {
@@ -68,13 +68,12 @@ export default class Cube extends PrimitiveObject{
   }
 
   public clone():Cube{
+    const cube = new Cube(this.parameters as ICubeParams, this.operations, this.viewOptions, this.scene);
     if(!this.meshUpdateRequired && !this.pendingOperation){
-      const cube = new Cube(this.parameters as ICubeParams, this.operations, this.viewOptions);
-      cube.setMesh(this.mesh.clone());
-      return cube;  
-    }else{
-      return new Cube(this.parameters as ICubeParams, this.operations, this.viewOptions);
+      cube.setMesh(this.mesh.clone());   
     }
+
+    return cube;
   }
 }
 

@@ -71,12 +71,10 @@ export default class Sphere extends PrimitiveObject{
   }
 
   public clone():Sphere{
+    const obj = new Sphere(this.parameters as ISphereParams, this.operations, this.viewOptions, this.scene);
     if(!this.meshUpdateRequired && !this.pendingOperation){
-      const obj = new Sphere(this.parameters as ISphereParams, this.operations, this.viewOptions);
       obj.setMesh(this.mesh.clone());
-      return obj;  
-    }else{
-      return new Sphere(this.parameters as ISphereParams, this.operations, this.viewOptions);
     }
+    return obj;
   }
 }
