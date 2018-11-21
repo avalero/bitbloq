@@ -111,8 +111,7 @@ test('Async Check initial position and rotation', () => {
 
 test('Prism - toJSON - Parameteres', () => {
   const object = new Prism({sides, length, height});
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.length).toEqual(length);
@@ -130,8 +129,7 @@ test('Prism - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -141,8 +139,8 @@ test('Prism - toJSON - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
   object.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
-  const json2 = object.toJSON();
-  const obj2:IPrismJSON = JSON.parse(json2);
+  
+  const obj2:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj2.operations.length).toEqual(3);
   expect(obj2.operations[0].type).toEqual('translation');
   expect(obj2.operations[1].type).toEqual('rotation');
@@ -165,8 +163,8 @@ test('Prism - toJSON - ViewOptions', () => {
   const highlighted = false;
 
   const object = new Prism({sides, height, length},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -175,17 +173,17 @@ test('Prism - toJSON - ViewOptions', () => {
 
 test('Prism - fromJSON - Parameteres', () => {
   const object1 = new Prism({sides, height, length});
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as IPrismJSON;
   const object = Prism.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj = JSON.parse(json);
+  
+  const obj = object.toJSON() as IPrismJSON;
   expect(obj.parameters.length).toEqual(length);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.sides).toEqual(sides);
 });
 
 
-test('Cube - fromJSON - Operations', () => {
+test('Prism - fromJSON - Operations', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
   
@@ -196,10 +194,10 @@ test('Cube - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as IPrismJSON;
   const object = Prism.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -210,7 +208,7 @@ test('Cube - fromJSON - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
 });
 
-test('Cube - fromJSON - ViewOptions', () => {
+test('Prism - fromJSON - ViewOptions', () => {
   const color = '#abcdef'
   const visible = true;
   const name = 'Object123';
@@ -218,10 +216,10 @@ test('Cube - fromJSON - ViewOptions', () => {
   
 
   const object1 = new Prism({length, height, sides},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as IPrismJSON;
   const object = Prism.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -256,17 +254,13 @@ test('Prism - UpdateFromJSON - ', () => {
     ObjectsCommon.createViewOptions(color,visible,highlighted,name)
     );
 
-  let json1 = object1.toJSON();
-  
-  const obj1:IPrismJSON = JSON.parse(json1);
+  const obj1:IPrismJSON = object1.toJSON() as IPrismJSON;
   
   obj1.id = object.getID();
-  json1 = JSON.stringify(obj1);
   
-  object.updateFromJSON(json1);
+  object.updateFromJSON(obj1);
   
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
 
   expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
@@ -290,18 +284,17 @@ test('Prism - UpdateFromJSON - ', () => {
 
 // CLONE
 
-test('Cube - clone() - Parameteres', () => {
+test('Prism - clone() - Parameteres', () => {
   const aux = new Prism({sides, height, length});
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.parameters.sides).toEqual(sides);
   expect(obj.parameters.height).toEqual(height);
   expect(obj.parameters.length).toEqual(length);
 });
 
 
-test('Cube - CLONE - Operations', () => {
+test('Prism - CLONE - Operations', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
   
@@ -314,8 +307,8 @@ test('Cube - CLONE - Operations', () => {
     );
 
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -326,7 +319,7 @@ test('Cube - CLONE - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
 });
 
-test('Cube - Clone - ViewOptions', () => {
+test('Prism - Clone - ViewOptions', () => {
   const color = '#abcdef'
   const visible = true;
   const name = 'Object123';
@@ -334,8 +327,8 @@ test('Cube - Clone - ViewOptions', () => {
 
   const object1 = new Prism({sides, height, length},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const object = object1.clone();
-  const json = object.toJSON();
-  const obj:IPrismJSON = JSON.parse(json);
+  
+  const obj:IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);

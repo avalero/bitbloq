@@ -17,7 +17,11 @@
 import isEqual from 'lodash.isequal';
 import Object3D from './Object3D';
 import ObjectsCommon from './ObjectsCommon';
-import {OperationsArray, IViewOptions} from './ObjectsCommon';
+import {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
+
+export interface IPrimitiveObjectJSON extends IObjectsCommonJSON{
+    parameters: object
+  };
 
 export default class PrimitiveObject extends Object3D{
 
@@ -47,19 +51,17 @@ export default class PrimitiveObject extends Object3D{
    * For primitive objects. Cube, Cylinder, etc.
    * For CompoundObjects find function in CompoundObjects Class
    */
-  public toJSON():string{
-    const object = {
+  public toJSON():IPrimitiveObjectJSON{
+    return {
       id: this.id,
       type: this.type,
       parameters: this.parameters,
       viewOptions: this.viewOptions,
       operations: this.operations,
     }
-    return JSON.stringify(object);
   }
 
-  public updateFromJSON(json: string){
-    const object = JSON.parse(json);
+  public updateFromJSON(object: IPrimitiveObjectJSON){
     if(this.id === object.id){
       this.setParameters(object.parameters);
       this.setOperations(object.operations);

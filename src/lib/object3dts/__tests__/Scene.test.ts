@@ -1,6 +1,6 @@
 import Cube, { ICubeJSON } from '../Cube';
 import * as THREE from 'three';
-import ObjectsCommon, { ITranslateOperation, IRotateOperation, IScaleOperation } from '../ObjectsCommon';
+import ObjectsCommon, { ITranslateOperation, IRotateOperation, IScaleOperation, IObjectsCommonJSON } from '../ObjectsCommon';
 import Scene from '../Scene';
 import Sphere from '../Sphere';
 import ObjectFactory from '../ObjectFactory';
@@ -29,8 +29,8 @@ test('Test Scene.toJSON()', () =>{
   const object2 = new Sphere({radius});
   scene.addObjectFromJSON(object1.toJSON());
   scene.addObjectFromJSON(object2.toJSON());
-  const json:string = scene.toJSON();
-  const objsJSON: Array<string> = JSON.parse(json);
+  
+  const objsJSON: Array<IObjectsCommonJSON> = scene.toJSON();
   const objs = objsJSON.map(jsonElement => ObjectFactory.newFromJSON(jsonElement));
   expect(objs.length).toEqual(2);
   expect((objs[0] as any).parameters.width).toBe(width);
@@ -47,8 +47,8 @@ test('Test Scene.removeObject()', () =>{
   scene.addObjectFromJSON(object1.toJSON());
   scene.addObjectFromJSON(object2.toJSON());
   scene.addObjectFromJSON(object3.toJSON());
-  const json:string = scene.toJSON();
-  const objsJSON: Array<string> = JSON.parse(json);
+  
+  const objsJSON: Array<IObjectsCommonJSON> = scene.toJSON();
   const objs = objsJSON.map(jsonElement => ObjectFactory.newFromJSON(jsonElement));
   expect(objs.length).toEqual(3);
   scene.removeObject(objsJSON[1]); //remove object2
@@ -114,11 +114,10 @@ test('Scene.updateFromJSON() - ', () => {
   const obj_a = objectsCollector[0];
   const obj_b = objectsCollector[2];
   expect((obj as any).parameters.width).toEqual(width);
-  const json = obj.toJSON();
-  const aux_obj:ICubeJSON = JSON.parse(json);
+  const aux_obj:ICubeJSON = obj.toJSON() as ICubeJSON;
   aux_obj.parameters.width = 100;
-  const json_aux = JSON.stringify(aux_obj);
-  scene.updateObjectFromJSON(json_aux);
+  
+  scene.updateObject(aux_obj);
   expect((obj as any).parameters.width).toEqual(100);
   expect((obj_a as any).parameters.width).toEqual(3*width);
   expect((obj_b as any).parameters.width).toEqual(5*width);

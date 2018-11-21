@@ -179,11 +179,11 @@ export default class ObjectsCommon{
     return this.type;
   }
 
-  public toJSON():string{
+  public toJSON():IObjectsCommonJSON{
     throw new Error('toJSON() Implemented in children');
   }
 
-  public updateFromJSON(json:string):void{
+  public updateFromJSON(object: IObjectsCommonJSON):void{
     throw new Error('updateFromJSON() Implemented in children');
   }
 }

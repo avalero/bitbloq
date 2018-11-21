@@ -1,4 +1,4 @@
-import ObjectsCommon from "./ObjectsCommon";
+import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
 import * as THREE from 'three';
 import ObjectFactory from "./ObjectFactory";
 
@@ -34,9 +34,8 @@ export default class Scene{
    * It only contains designed by user objects.
    * It does not contain helpers, plane, etc. 
    */
-  public toJSON():string{
-    const objs: Array<string> = this.BitbloqScene.map(object => object.toJSON());
-    return JSON.stringify(objs);
+  public toJSON():Array<IObjectsCommonJSON>{
+    return this.BitbloqScene.map(object => object.toJSON());
   }
 
   /**
@@ -62,7 +61,7 @@ export default class Scene{
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
    * @param json object descriptor (it ignores id)
    */
-  public addObjectFromJSON(json: string):void{
+  public addObjectFromJSON(json: IObjectsCommonJSON):void{
     const object:ObjectsCommon = ObjectFactory.newFromJSON(json);
     this.BitbloqScene.push(object);
     this.objectCollector.push(object);
@@ -73,8 +72,7 @@ export default class Scene{
    * If object is not present is does NOT anything.
    * @param json json object descriptor (only id is important)
    */
-  public removeObject(json:string):void{
-    const obj = JSON.parse(json);
+  public removeObject(obj:IObjectsCommonJSON):void{
     const id = obj.id;
 
     this.objectCollector = this.objectCollector.filter(object => object.getID() !== id);
@@ -86,14 +84,13 @@ export default class Scene{
    * If not it triggers an error exception.
    * @param json json describing object
    */
-  public updateObject(json: string):void{
-    const obj = JSON.parse(json);
+  public updateObject(obj: IObjectsCommonJSON):void{
     const id = obj.id;
     let updated = false;
 
     this.objectCollector.forEach(object => {
       if(object.getID() === id){
-        object.updateFromJSON(json);
+        object.updateFromJSON(obj);
         updated = true;
       }
     });

@@ -113,8 +113,7 @@ test('Async Check initial position and rotation', () => {
 
 test('Cylinder - toJSON - Parameteres', () => {
   const object = new Cylinder({r0, r1, height});
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.parameters.r0).toEqual(r0);
   expect(obj.parameters.r1).toEqual(r1);
   expect(obj.parameters.height).toEqual(height);
@@ -132,8 +131,8 @@ test('Cylinder - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -143,8 +142,8 @@ test('Cylinder - toJSON - Operations', () => {
   expect((obj.operations[1] as IRotateOperation).axis).toEqual(axis);
   expect((obj.operations[1] as IRotateOperation).angle).toEqual(angle);
   object.addOperations([ObjectsCommon.createScaleOperation(x,y,z)]);
-  const json2 = object.toJSON();
-  const obj2:ICylinderJSON = JSON.parse(json2);
+  
+  const obj2:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj2.operations.length).toEqual(3);
   expect(obj2.operations[0].type).toEqual('translation');
   expect(obj2.operations[1].type).toEqual('rotation');
@@ -167,8 +166,8 @@ test('Cylinder - toJSON - ViewOptions', () => {
   const highlighted = false;
 
   const object = new Cylinder({r0, r1, height},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -177,17 +176,17 @@ test('Cylinder - toJSON - ViewOptions', () => {
 
 test('Cylinder - fromJSON - Parameteres', () => {
   const object1 = new Cylinder({r0, r1, height});
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as ICylinderJSON;
   const object = Cylinder.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj = JSON.parse(json);
+  
+  const obj = object.toJSON() as ICylinderJSON;
   expect(obj.parameters.r0).toEqual(r0);
   expect(obj.parameters.r1).toEqual(r1);
   expect(obj.parameters.height).toEqual(height);
 });
 
 
-test('Cube - fromJSON - Operations', () => {
+test('Cylinder - fromJSON - Operations', () => {
   const x = 5; const y = 10; const z = 20;
   const axis = 'z'; const angle = 30;
   
@@ -198,10 +197,10 @@ test('Cube - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle)
     ]
     );
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as ICylinderJSON;
   const object = Cylinder.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -219,10 +218,10 @@ test('Cylinder - fromJSON - ViewOptions', () => {
   const highlighted = false;
 
   const object1 = new Cylinder({r0, r1, height},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
-  const json1 = object1.toJSON();
+  const json1 = object1.toJSON() as ICylinderJSON;
   const object = Cylinder.newFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);
@@ -236,8 +235,8 @@ test('Cylinder - fromJSON - ViewOptions', () => {
 test('Cylinder - clone() - Parameteres', () => {
   const aux = new Cylinder({r0, r1, height});
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.parameters.r0).toEqual(r0);
   expect(obj.parameters.r1).toEqual(r1);
   expect(obj.parameters.height).toEqual(height);
@@ -257,8 +256,7 @@ test('Cylinder - CLONE - Operations', () => {
     );
 
   const object = aux.clone();
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
   expect(obj.operations[1].type).toEqual('rotation');
@@ -296,13 +294,10 @@ test('Cylinder - UpdateFromJSON - ', () => {
     ObjectsCommon.createViewOptions(color,visible,highlighted,name)
     );
 
-  let json1:string = object1.toJSON();
-  const obj1:ICylinderJSON = JSON.parse(json1);
+  const obj1:ICylinderJSON = object1.toJSON() as ICylinderJSON;
   obj1.id = object.getID();
-  json1 = JSON.stringify(obj1);
-  object.updateFromJSON(json1);
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  object.updateFromJSON(obj1);
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
 
   expect(obj.parameters.r0).toEqual(r0);
   expect(obj.parameters.height).toEqual(height);
@@ -331,8 +326,7 @@ test('Cylinder - Clone - ViewOptions', () => {
 
   const object1 = new Cylinder({r0, r1, height},[],ObjectsCommon.createViewOptions(color,visible,highlighted,name));
   const object = object1.clone();
-  const json = object.toJSON();
-  const obj:ICylinderJSON = JSON.parse(json);
+  const obj:ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
   expect(obj.viewOptions.visible).toEqual(visible);

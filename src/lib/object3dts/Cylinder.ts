@@ -14,7 +14,7 @@
 
 import * as THREE from 'three';
 import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
 interface ICylinderParams{
   r0:number;
@@ -22,7 +22,7 @@ interface ICylinderParams{
   height:number;
 }
 
-export interface ICylinderJSON extends IObjectsCommonJSON {
+export interface ICylinderJSON extends IPrimitiveObjectJSON {
   parameters: ICylinderParams;
 }
 
@@ -30,8 +30,7 @@ export default class Cylinder extends PrimitiveObject{
 
   public static typeName:string = 'Cylinder';
 
-  public static newFromJSON(json:string):Cylinder{
-    const object: ICylinderJSON = JSON.parse(json);
+  public static newFromJSON(object: ICylinderJSON):Cylinder{
     if(object.type != Cylinder.typeName) throw new Error('Not Cylinder Object');
     return new Cylinder(object.parameters, object.operations, object.viewOptions);
   }

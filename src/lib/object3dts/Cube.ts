@@ -15,7 +15,7 @@
 
 import * as THREE from 'three';
 import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
 interface ICubeParams {
   width:number;
@@ -23,7 +23,7 @@ interface ICubeParams {
   height:number;
 }
 
-export interface ICubeJSON extends IObjectsCommonJSON {
+export interface ICubeJSON extends IPrimitiveObjectJSON {
   parameters: ICubeParams;
 }
 
@@ -31,8 +31,7 @@ export default class Cube extends PrimitiveObject{
 
   public static typeName:string = 'Cube';
 
-  public static newFromJSON(json: string):Cube {
-      const object: ICubeJSON = JSON.parse(json);
+  public static newFromJSON(object: ICubeJSON):Cube {
       if(object.type != Cube.typeName) throw new Error('Not Cube Object');
       return new Cube(object.parameters, object.operations, object.viewOptions);
   }

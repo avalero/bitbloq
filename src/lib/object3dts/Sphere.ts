@@ -42,8 +42,7 @@ export default class Sphere extends PrimitiveObject{
     this._meshUpdateRequired = true;    
   }
 
-  public static newFromJSON(json: string):Sphere {
-    const object: ISphereJSON = JSON.parse(json);
+  public static newFromJSON(object: ISphereJSON):Sphere {
     if(object.type != Sphere.typeName) throw new Error('Not Sphere Object');
     return new Sphere(object.parameters, object.operations, object.viewOptions);
 }
