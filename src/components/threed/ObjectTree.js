@@ -4,15 +4,8 @@ import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {colors, shadow} from '../../base-styles';
 import DragIcon from '../icons/Drag';
-import {
-  selectObject,
-  deselectObject,
-  createObject,
-} from '../../actions/threed';
-import {
-  getObjects,
-  getSelectedObjects
-} from '../../reducers/threed/';
+import {selectObject, deselectObject, createObject} from '../../actions/threed';
+import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import config from '../../config/threed';
 
 const Container = styled.div`
@@ -68,11 +61,11 @@ const ObjectName = styled.div`
 `;
 
 const DragHandle = styled.div`
-  margin-right: ${props => 8 + (12 * (props.depth || 0))}px;
+  margin-right: ${props => 8 + 12 * (props.depth || 0)}px;
   svg {
     width: 13px;
   }
-`
+`;
 
 const AddButton = styled.div`
   display: flex;
@@ -87,9 +80,11 @@ const AddButton = styled.div`
   border-bottom: 1px solid #cfcfcf;
   z-index: 2;
 
-  ${props => props.open && css`
-    ${shadow}
-  `}
+  ${props =>
+    props.open &&
+    css`
+      ${shadow};
+    `};
 `;
 
 const AddDropdown = styled.div`
@@ -100,8 +95,7 @@ const AddDropdown = styled.div`
   left: 0px;
   right: 0px;
   transition: opacity 0.3s;
-  ${shadow}
-  border-radius: 0px 0px 4px 4px;
+  ${shadow} border-radius: 0px 0px 4px 4px;
   opacity: 0;
   display: none;
 
@@ -151,9 +145,27 @@ class ObjectTree extends React.Component {
   };
 
   onAddObject(shape) {
+    const {advancedMode} = this.props;
     this.setState({addDropDownOpen: false});
 
-    this.props.createObject(shape.create());
+    const baseShape = shape.create();
+
+    if (advancedMode) {
+      this.props.createObject(baseShape);
+    } else {
+      const basicModeOperations = config.objectOperations
+        .map(operation => {
+          if (['translation', 'rotation', 'scale'].includes(operation.name)) {
+            return operation.create();
+          }
+        })
+        .filter(operation => operation);
+
+      this.props.createObject({
+        ...baseShape,
+        operations: basicModeOperations,
+      });
+    }
   }
 
   renderObjectList(objects, depth = 0) {
@@ -222,7 +234,9 @@ class ObjectTree extends React.Component {
 
     return (
       <Container>
-        <AddButton onClick={() => this.setState({addDropDownOpen: true})} open={addDropDownOpen}>
+        <AddButton
+          onClick={() => this.setState({addDropDownOpen: true})}
+          open={addDropDownOpen}>
           <div>+ Add object</div>
           <AddDropdown open={addDropDownOpen}>
             {config.shapes.map(shape => (
@@ -249,6 +263,7 @@ const mapStateToProps = ({ui, threed}) => ({
   selectedObjects: getSelectedObjects(threed),
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
+  advancedMode: threed.ui.advancedMode,
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -260,5 +275,5 @@ const mapDispatchToProps = dispatch => ({
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(ObjectTree);

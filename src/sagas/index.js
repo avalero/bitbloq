@@ -88,12 +88,17 @@ function* watchCreateObject() {
   yield put(selectObject(objects[objects.length - 1]));
 }
 
+function* watchSetAdvancedMode({payload: isAdvanced}) {
+  sessionStorage.setItem('advancedMode', JSON.stringify(isAdvanced));
+}
+
 function* rootSaga() {
   yield takeEvery('SOFTWARE_UPDATE_BLOQS', updateCode);
   yield takeEvery('SOFTWARE_UPLOAD_CODE', uploadCode);
   yield takeEvery('UI_SHOW_NOTIFICATION', watchNotificationTime);
   yield takeEvery('UI_KEY_DOWN', watchKeyDown);
   yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
+  yield takeEvery('THREED_SET_ADVANCED_MODE', watchSetAdvancedMode);
 }
 
 export default rootSaga;

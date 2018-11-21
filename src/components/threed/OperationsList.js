@@ -51,6 +51,7 @@ export default class OperationsList extends React.Component {
       onParameterFocus,
       onParameterBlur,
       onRemoveOperation,
+      advancedMode,
     } = this.props;
     const {openOperation} = this.state;
 
@@ -63,6 +64,7 @@ export default class OperationsList extends React.Component {
                 key={operation.id}
                 index={i}
                 operation={operation}
+                advancedMode={advancedMode}
                 isOpen={openOperation === operation.id}
                 onOpen={(isOpen, cb) =>
                   this.onOperationOpen(operation, isOpen, cb)

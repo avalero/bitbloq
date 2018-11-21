@@ -36,6 +36,7 @@ const HeaderContent = styled.div`
   align-items: center;
   font-weight: bold;
   font-size: 14px;
+  padding-left: 10px;
 
   svg {
     transform: rotate(-90deg);
@@ -46,7 +47,7 @@ const HeaderContent = styled.div`
 const HeaderButtons = styled.div`
   display: none;
   margin-right: 15px;
-`
+`;
 
 const HeaderButton = styled.div`
   color: #8c919b;
@@ -55,7 +56,14 @@ const HeaderButton = styled.div`
     height: auto;
     width: 12px;
   }
-`
+`;
+
+const Handler = styled.div`
+  height: 18px;
+  margin: 0px 6px;
+  color: #cccccc;
+  display: none;
+`;
 
 const Header = styled.div`
   height: 40px;
@@ -72,15 +80,19 @@ const Header = styled.div`
       }
     `};
 
-  &:hover ${HeaderButtons} {
-    display: block;
-  }
-`;
+  ${props => props.advancedMode && css`
+    ${Handler} {
+      display: block;
+    }
 
-const Handler = styled.div`
-  height: 18px;
-  margin: 0px 6px;
-  color: #cccccc;
+    ${HeaderContent} {
+      padding-left: 0px;
+    }
+  `}
+
+  &:hover ${HeaderButtons} {
+    display: ${props => props.advancedMode ? 'block' : 'none'};
+  }
 `;
 
 const Title = styled.div`
@@ -110,9 +122,12 @@ export default class Operation extends React.Component {
       isOpen,
       onOpen,
       onRemove,
+      advancedMode,
     } = this.props;
 
-    const {label, parameters, color} = objectOperationsMap[operation.type];
+    const {label, basicLabel, parameters, color} = objectOperationsMap[
+      operation.type
+    ];
 
     return (
       <Draggable draggableId={operation.id} index={index}>
@@ -123,7 +138,7 @@ export default class Operation extends React.Component {
             isDragging={snapshot.isDragging}
             color={color}>
             <Container>
-              <Header isOpen={isOpen}>
+              <Header isOpen={isOpen} advancedMode={advancedMode}>
                 <Handler
                   {...provided.dragHandleProps}
                   onMouseDown={e => {
@@ -131,13 +146,12 @@ export default class Operation extends React.Component {
                     onOpen(false, () =>
                       provided.dragHandleProps.onMouseDown(e),
                     );
-                  }}
-                >
+                  }}>
                   <DragIcon />
                 </Handler>
                 <HeaderContent onClick={this.onTitleClick}>
                   <AngleIcon />
-                  <Title>{label}</Title>
+                  <Title>{advancedMode ? label : basicLabel || label}</Title>
                 </HeaderContent>
                 <HeaderButtons>
                   <HeaderButton onClick={onRemove}>

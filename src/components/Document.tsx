@@ -1,6 +1,9 @@
 import * as React from 'react';
 import Tooltip from './Tooltip';
-import MenuBar, {MainMenuOption} from './MenuBar';
+import MenuBar, {
+  MainMenuOption,
+  OptionClickHandler as MenuOptionClickHandler,
+} from './MenuBar';
 import styled, {css} from 'react-emotion';
 import CollapseIcon from './icons/AngleDouble';
 
@@ -14,7 +17,10 @@ const Container = styled.div`
   user-select: none;
 `;
 
-const HeaderWrap = styled.div`
+interface HeaderWrapProps {
+  collapsed: boolean;
+}
+const HeaderWrap = styled.div<HeaderWrapProps>`
   height: 70px;
   overflow: hidden;
   transition: height 150ms ease-out;
@@ -58,7 +64,10 @@ const MenuWrap = styled.div`
   border-bottom: 1px solid #cfcfcf;
 `;
 
-const CollapseButton = styled.div`
+interface CollapsedButtonProps {
+  collapsed: boolean;
+}
+const CollapseButton = styled.div<CollapsedButtonProps>`
   cursor: pointer;
   svg {
     width: 12px;
@@ -126,13 +135,17 @@ const Content = styled.div<ContentProps>`
 `;
 
 export interface TabProps {
+  label: string;
   icon: string;
+  children: React.ReactChild;
 }
 
 export const Tab: React.SFC<TabProps> = props => null;
 
 export interface DocumentProps {
   menuOptions?: MainMenuOption[];
+  onMenuOptionClick?: MenuOptionClickHandler;
+  menuRightContent?: React.ReactChild;
 }
 
 interface State {
@@ -154,7 +167,12 @@ class Document extends React.Component<DocumentProps, State> {
   };
 
   render() {
-    const {children, menuOptions = []} = this.props;
+    const {
+      children,
+      menuOptions = [],
+      menuRightContent,
+      onMenuOptionClick,
+    } = this.props;
     const {currentTabIndex, isHeaderCollapsed} = this.state;
 
     const currentTab = React.Children.toArray(children)[currentTabIndex];
@@ -168,7 +186,8 @@ class Document extends React.Component<DocumentProps, State> {
           </Header>
         </HeaderWrap>
         <MenuWrap>
-          <MenuBar options={menuOptions} />
+          <MenuBar options={menuOptions} onOptionClick={onMenuOptionClick} />
+          {menuRightContent}
           <CollapseButton
             onClick={this.onCollapseButtonClick}
             collapsed={isHeaderCollapsed}>
@@ -177,24 +196,30 @@ class Document extends React.Component<DocumentProps, State> {
         </MenuWrap>
         <Main>
           <Tabs>
-            {React.Children.map(children, (tab, i) => (
-              <Tooltip position="right" content={tab.props.label}>
-                {tooltipProps =>
-                  <TabIcon
-                    {...tooltipProps}
-                    selected={i === currentTabIndex}
-                    onClick={() => this.setState({currentTabIndex: i})}>
-                    {tab.props.icon}
-                  </TabIcon>
-                }
-              </Tooltip>
-            ))}
+            {React.Children.map(
+              children,
+              (tab: React.ReactElement<TabProps>, i) => (
+                <Tooltip position="right" content={tab.props.label}>
+                  {tooltipProps => (
+                    <TabIcon
+                      {...tooltipProps}
+                      selected={i === currentTabIndex}
+                      onClick={() => this.setState({currentTabIndex: i})}>
+                      {tab.props.icon}
+                    </TabIcon>
+                  )}
+                </Tooltip>
+              ),
+            )}
           </Tabs>
-          {React.Children.map(children, (tab, i) => (
-            <Content active={i === currentTabIndex}>
-              {tab.props.children}
-            </Content>
-          ))}
+          {React.Children.map(
+            children,
+            (tab: React.ReactElement<TabProps>, i) => (
+              <Content active={i === currentTabIndex}>
+                {tab.props.children}
+              </Content>
+            ),
+          )}
         </Main>
       </Container>
     );

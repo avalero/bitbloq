@@ -200,6 +200,7 @@ const config = {
     {
       name: 'translation',
       label: 'Translation',
+      basicLabel: 'Position',
       icon: <TranslationIcon />,
       color: '#dd5b0c',
       create: () => ({

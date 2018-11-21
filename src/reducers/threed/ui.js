@@ -7,11 +7,13 @@ import {
   unsetActiveOperation,
   createObject,
   deleteObject,
+  setAdvancedMode,
 } from '../../actions/threed';
 
 const initialState = {
   selectedIds: [],
   activeOperation: null,
+  advancedMode: JSON.parse(sessionStorage.getItem('advancedMode')) || false,
 };
 
 const ui = handleActions(
@@ -51,6 +53,10 @@ const ui = handleActions(
         ...state,
         selectedIds: state.selectedIds.filter(id => id !== payload.id),
       }),
+    ],
+    [
+      setAdvancedMode,
+      (state, {payload}) => ({...state, advancedMode: payload}),
     ],
   ]),
   initialState,
