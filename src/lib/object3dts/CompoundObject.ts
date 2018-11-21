@@ -18,6 +18,8 @@ import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from '
 import isEqual from'lodash.isequal';
 import * as THREE from 'three';
 
+import Scene from './Scene'
+
 import Worker from './compound.worker';
 import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation} from './ObjectsCommon';
 
@@ -37,9 +39,9 @@ export default class CompoundObject extends Object3D {
   constructor(
     children: ChildrenArray = [], 
     operations: OperationsArray = [], 
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    scene:Scene
     ){
-    super(viewOptions,operations);
+    super(ObjectsCommon.createViewOptions(),operations,scene);
     if(children.length === 0) throw new Error("Compound Object requires at least one children");
     this.children = children;
     this._meshUpdateRequired = true;

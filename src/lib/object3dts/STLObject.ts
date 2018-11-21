@@ -17,6 +17,8 @@ import Object3D from './Object3D';
 import isEqual from 'lodash.isequal';
 import * as THREE from 'three'
 
+import Scene from './Scene';
+
 interface ISTLParams{
   geometry:THREE.Geometry
 }
@@ -30,9 +32,10 @@ export default class STLObject extends Object3D {
   constructor(
     parameters: ISTLParams,
     operations: OperationsArray = [], 
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    scene: Scene
     ){
-    super(viewOptions,operations);
+    super(viewOptions,operations,scene);
     this.parameters = {...parameters};
     this._meshUpdateRequired = true;
   }

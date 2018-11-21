@@ -17,6 +17,7 @@ import Object3D from './Object3D';
 import ObjectsGroup from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
 
+import Scene from './Scene';
 
 export interface ICartesianRepetitionParams{
   num : number;
@@ -50,8 +51,8 @@ export default class RepetitionObject extends ObjectsGroup{
    * @param object The object to repeat
    * Creates an ObjectsGroup with cloned objects (Object3D instance) on their new postion
    */
-  constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D | ObjectsGroup){
-    super();
+  constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D | ObjectsGroup, scene:Scene){
+    super([], scene);
     this.parameters = {...params}
     this.object = object;
     if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();

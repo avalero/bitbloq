@@ -80,6 +80,19 @@ export default class Scene{
   }
 
   /**
+   * Returns a reference to the specified Object
+   * @param obj Object descriptor to retreive 
+   */
+  public getObject(obj:IObjectsCommonJSON): ObjectsCommon {
+    const id = obj.id;
+    const foundObj = this.objectCollector.find( object => object.getID() === id);
+    if(!foundObj) 
+      throw new Error(`Scene.getObject(). Object ${id} not found`);
+    
+    return foundObj; 
+  }
+
+  /**
    * Updates object if its present on the objects collector. 
    * If not it triggers an error exception.
    * @param json json describing object

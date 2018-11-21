@@ -18,6 +18,7 @@ import * as THREE from 'three';
 import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
+import Scene from './Scene';
 
 interface ISphereParams {
   radius:number
@@ -31,21 +32,22 @@ export default class Sphere extends PrimitiveObject{
 
   public static typeName:string = 'Sphere';
 
+  public static newFromJSON(object: ISphereJSON, scene:Scene):Sphere {
+    if(object.type != Sphere.typeName) throw new Error('Not Sphere Object');
+    return new Sphere(object.parameters, object.operations, object.viewOptions, scene);
+}
+
   constructor(
     parameters: ISphereParams,
     operations: OperationsArray = [], 
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    scene:Scene
     ){
-    super(viewOptions,operations);
+    super(viewOptions,operations,scene);
     this.type = Sphere.typeName;
     this.parameters = {...parameters};
     this._meshUpdateRequired = true;    
   }
-
-  public static newFromJSON(object: ISphereJSON):Sphere {
-    if(object.type != Sphere.typeName) throw new Error('Not Sphere Object');
-    return new Sphere(object.parameters, object.operations, object.viewOptions);
-}
 
   protected getGeometry(): THREE.Geometry {
     let {radius} = this.parameters as ISphereParams;

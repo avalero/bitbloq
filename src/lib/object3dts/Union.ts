@@ -15,15 +15,18 @@
 
 
 import CompoundObject, { ICompoundObjectJSON, ChildrenArray} from './CompoundObject';
-import ObjectsCommon, {OperationsArray} from './ObjectsCommon'
+import {OperationsArray} from './ObjectsCommon'
 import Object3D from './Object3D';
 import ObjectFactory from './ObjectFactory';
+
+import Scene from './Scene';
 
 export default class Union extends CompoundObject {
   static typeName:string = 'Union';
 
 
-  public static newFromJSON(object:ICompoundObjectJSON): Union{
+  // FIXME. Children must be taken from scene, not created
+  public static newFromJSON(object:ICompoundObjectJSON, scene:Scene): Union{
     const children:ChildrenArray = [];
 
     if(object.type != Union.typeName) throw new Error('Not Union Object');
@@ -34,11 +37,11 @@ export default class Union extends CompoundObject {
       children.push(child);
     });
 
-    return new Union(children, object.operations);
+    return new Union(children, object.operations, scene);
   } 
 
-  constructor(children: ChildrenArray = [], operations: OperationsArray = []){
-    super(children, operations);
+  constructor(children: ChildrenArray = [], operations: OperationsArray = [], scene: Scene){
+    super(children, operations,scene);
     this.type = Union.typeName;
     console.log(this.toJSON());
   }

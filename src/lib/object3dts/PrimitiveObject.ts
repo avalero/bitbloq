@@ -19,6 +19,8 @@ import Object3D from './Object3D';
 import ObjectsCommon from './ObjectsCommon';
 import {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 
+import Scene from './Scene'
+
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON{
     parameters: object
   };
@@ -29,8 +31,9 @@ export default class PrimitiveObject extends Object3D{
   
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    operations: OperationsArray = []) {
-    super(viewOptions, operations);
+    operations: OperationsArray = [],
+    scene:Scene) {
+    super(viewOptions, operations,scene);
   }
 
   

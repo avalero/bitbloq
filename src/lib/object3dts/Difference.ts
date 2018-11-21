@@ -18,12 +18,13 @@ import CompoundObject, { ICompoundObjectJSON, ChildrenArray} from './CompoundObj
 import Object3D from './Object3D'
 import {OperationsArray} from './ObjectsCommon'
 import ObjectFactory from './ObjectFactory';
+import Scene from './Scene'
 
 
 export default class Difference extends CompoundObject {
   static typeName:string = 'Difference';
 
-  public static newFromJSON(object:ICompoundObjectJSON): Difference{
+  public static newFromJSON(object:ICompoundObjectJSON, scene:Scene): Difference{
     const children:ChildrenArray = [];
 
     if(object.type != Difference.typeName) throw new Error('Not Union Object');
@@ -34,11 +35,11 @@ export default class Difference extends CompoundObject {
       children.push(child);
     });
 
-    return new Difference(children, object.operations);
+    return new Difference(children, object.operations, scene);
   }
 
-  constructor(children: ChildrenArray = [], operations: OperationsArray = []){
-    super(children, operations);
+  constructor(children: ChildrenArray = [], operations: OperationsArray = [], scene:Scene){
+    super(children, operations, scene);
     this.type = Difference.typeName;
   }
 

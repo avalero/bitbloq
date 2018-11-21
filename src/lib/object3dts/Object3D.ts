@@ -17,6 +17,8 @@ import isEqual from 'lodash.isequal';
 import ObjectsCommon from './ObjectsCommon'
 import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray, IViewOptions} from './ObjectsCommon';
 
+import Scene from './Scene'
+
 
 
 export default class Object3D extends ObjectsCommon{
@@ -56,8 +58,9 @@ export default class Object3D extends ObjectsCommon{
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    operations: OperationsArray = []) {
-    super(viewOptions, operations);
+    operations: OperationsArray = [],
+    scene:Scene) {
+    super(viewOptions, operations, scene);
   }
 
   get meshUpdateRequired():boolean{

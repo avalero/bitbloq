@@ -7,6 +7,9 @@ import Prism, { IPrismJSON } from './Prism';
 // import Union from './Union';
 // import CompoundObject, {ChildrenArray, ICompountObjectJSON} from './CompoundObject';
 import PrimitiveObject from './PrimitiveObject';
+import Scene from './Scene';
+import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
+
 // import Difference from './Difference';
 // import Intersection from './Intersection';
 
@@ -16,16 +19,18 @@ export default class ObjectFactory{
    * Creates a new Primitive Object from its JSON 
    * @param json object toJSON 
    */
-  public static newFromJSON(obj: IObjectsCommonJSON): ObjectsCommon {
+  public static newFromJSON(obj: IObjectsCommonJSON, scene:Scene): ObjectsCommon {
     switch(obj.type){
       case Cube.typeName:
-        return Cube.newFromJSON(obj as ICubeJSON);
+        return Cube.newFromJSON(obj as ICubeJSON, scene);
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(obj as ICylinderJSON);
+        return Cylinder.newFromJSON(obj as ICylinderJSON, scene);
       case Sphere.typeName:
-        return Sphere.newFromJSON(obj as ISphereJSON);
+        return Sphere.newFromJSON(obj as ISphereJSON, scene);
       case Prism.typeName:
-        return Prism.newFromJSON(obj as IPrismJSON);
+        return Prism.newFromJSON(obj as IPrismJSON, scene);
+      case ObjectsGroup.typeName:
+        return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
       // case Union.typeName:
       //   return Union.newFromJSON(json);
       // case Difference.typeName:

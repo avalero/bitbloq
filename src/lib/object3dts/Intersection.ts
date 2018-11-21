@@ -17,17 +17,14 @@ import CompoundObject, { ICompoundObjectJSON, ChildrenArray} from './CompoundObj
 import Object3D from './Object3D'
 import {OperationsArray} from './ObjectsCommon'
 import ObjectFactory from './ObjectFactory';
+import Scene from './Scene'
 
 
 export default class Intersection extends CompoundObject {
   static typeName:string = 'Intersection';
 
-  constructor(children: ChildrenArray = [], operations: OperationsArray = []){
-    super(children, operations);
-    this.type = Intersection.typeName;
-  }
-
-  public static newFromJSON(object:ICompoundObjectJSON): Intersection{
+  // FIXME children must be taken from scene
+  public static newFromJSON(object:ICompoundObjectJSON, scene:Scene): Intersection{
     const children:ChildrenArray = [];
 
     if(object.type != Intersection.typeName) throw new Error('Not Intersection Object');
@@ -38,8 +35,15 @@ export default class Intersection extends CompoundObject {
       children.push(child);
     });
 
-    return new Intersection(children, object.operations);
+    return new Intersection(children, object.operations, scene);
   }
+
+  constructor(children: ChildrenArray = [], operations: OperationsArray = [], scene:Scene){
+    super(children, operations,scene);
+    this.type = Intersection.typeName;
+  }
+
+  
 
   public clone():Intersection{
     const childrenClone: Array<Object3D> = this.children.map( child => child.clone());

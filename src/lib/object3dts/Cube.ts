@@ -17,6 +17,9 @@ import * as THREE from 'three';
 import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
+import Scene from './Scene'
+
+
 interface ICubeParams {
   width:number;
   depth:number;
@@ -31,9 +34,9 @@ export default class Cube extends PrimitiveObject{
 
   public static typeName:string = 'Cube';
 
-  public static newFromJSON(object: ICubeJSON):Cube {
+  public static newFromJSON(object: ICubeJSON, scene:Scene):Cube {
       if(object.type != Cube.typeName) throw new Error('Not Cube Object');
-      return new Cube(object.parameters, object.operations, object.viewOptions);
+      return new Cube(object.parameters, object.operations, object.viewOptions, scene);
   }
 
   //private parameters: ICubeParams;
@@ -41,10 +44,11 @@ export default class Cube extends PrimitiveObject{
   constructor(
     parameters: ICubeParams,  
     operations: OperationsArray = [], 
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    scene:Scene
     )
   {
-    super(viewOptions,operations);
+    super(viewOptions,operations,scene);
     this.type = Cube.typeName;
     this.setParameters(parameters);
   }
