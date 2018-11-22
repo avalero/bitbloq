@@ -63,16 +63,22 @@ const config = {
           name: 'width',
           label: 'Width',
           type: 'integer',
+          unit: 'mm',
+          min: 0,
         },
         {
           name: 'height',
           label: 'Height',
           type: 'integer',
+          unit: 'mm',
+          min: 0,
         },
         {
           name: 'depth',
           label: 'Depth',
           type: 'integer',
+          unit: 'mm',
+          min: 0,
         },
       ],
       create: () => ({
@@ -96,6 +102,8 @@ const config = {
           name: 'radius',
           label: 'Radius',
           type: 'integer',
+          unit: 'mm',
+          min: 0,
         },
       ],
       create: () => ({
@@ -117,16 +125,19 @@ const config = {
           name: 'r0',
           label: 'Radius Bottom',
           type: 'integer',
+          unit: 'mm',
         },
         {
           name: 'r1',
           label: 'Radius Top',
           type: 'integer',
+          unit: 'mm',
         },
         {
           name: 'height',
           label: 'Height',
           type: 'integer',
+          unit: 'mm',
         },
       ],
       create: () => ({
@@ -155,11 +166,13 @@ const config = {
           name: 'length',
           label: 'Length of sides',
           type: 'integer',
+          unit: 'mm',
         },
         {
           name: 'height',
           label: 'Height',
           type: 'integer',
+          unit: 'mm',
         },
       ],
       create: () => ({
@@ -217,6 +230,7 @@ const config = {
           name: 'x',
           label: 'X',
           type: 'integer',
+          unit: 'mm',
           activeOperation: (object, operation) => ({
             object,
             type: 'translation',
@@ -228,6 +242,7 @@ const config = {
           name: 'y',
           label: 'Y',
           type: 'integer',
+          unit: 'mm',
           activeOperation: (object, operation) => ({
             object,
             type: 'translation',
@@ -239,6 +254,7 @@ const config = {
           name: 'z',
           label: 'Z',
           type: 'integer',
+          unit: 'mm',
           activeOperation: (object, operation) => ({
             object,
             type: 'translation',
@@ -286,6 +302,7 @@ const config = {
           name: 'angle',
           label: 'Angle',
           type: 'integer',
+          unit: '°',
           activeOperation: (object, operation) => ({
             object,
             type: 'rotation',
@@ -429,16 +446,19 @@ const config = {
           name: 'x',
           label: 'x',
           type: 'integer',
+          unit: 'mm',
         },
         {
           name: 'y',
           label: 'y',
           type: 'integer',
+          unit: 'mm',
         },
         {
           name: 'z',
           label: 'z',
           type: 'integer',
+          unit: 'mm',
         },
       ],
       convertToGroup: convertRepetitionToGroup,
@@ -492,6 +512,7 @@ const config = {
           name: 'angle',
           label: 'Angle',
           type: 'integer',
+          unit: '°',
         },
       ],
       convertToGroup: convertRepetitionToGroup,
