@@ -1,5 +1,7 @@
 import * as React from 'react';
 import styled, {css} from 'react-emotion';
+import ArrowIcon from './icons/Arrow';
+import TickIcon from './icons/Tick';
 
 interface SubMenuProps {
   isTop?: boolean;
@@ -27,6 +29,7 @@ const SubMenu = styled.div<SubMenuProps>`
 `;
 
 const OptionText = styled.div`
+  flex: 1;
 `;
 
 const OptionIcon = styled.div`
@@ -35,6 +38,15 @@ const OptionIcon = styled.div`
     width: 13px;
   }
 `;
+
+const RightArrow = styled.div`
+  margin-left: 12px;
+  transform: rotate(90deg);
+`;
+
+const Tick = styled.div`
+  margin-left: 12px;
+`
 
 const Option = styled.div`
   display: flex;
@@ -97,8 +109,11 @@ export interface MainMenuOption {
   children: MenuOption[];
 }
 
+export type OptionClickHandler = (option: MenuOption) => void;
+
 export interface MenuBarProps {
   options: MainMenuOption[];
+  onOptionClick?: OptionClickHandler;
 }
 
 interface State {
@@ -112,7 +127,12 @@ class MenuBar extends React.Component<MenuBarProps, State> {
   };
 
   onOptionClick(option: MenuOption) {
+    const { onOptionClick } = this.props;
     this.setState({ disabled: true });
+
+    if (onOptionClick) {
+      onOptionClick(option)
+    }
   }
 
   onMouseOver = () => {
@@ -128,7 +148,9 @@ class MenuBar extends React.Component<MenuBarProps, State> {
               <OptionIcon>{option.icon}</OptionIcon>
             }
             <OptionText>{option.label}</OptionText>
+            {option.children && <RightArrow><ArrowIcon /></RightArrow>}
             {option.children && this.renderSubMenu(option.children)}
+            {option.checked && <Tick><TickIcon /></Tick>}
           </Option>
         ))}
       </SubMenu>

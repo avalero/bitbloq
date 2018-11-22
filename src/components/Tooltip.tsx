@@ -1,8 +1,11 @@
-import React, {Component} from 'react';
+import * as React from 'react';
 import TetherComponent from 'react-tether';
 import styled, {css} from 'react-emotion';
 
-const Container = styled.div`
+interface ContainerProps {
+  position: string;
+}
+const Container = styled.div<ContainerProps>`
   background-color: #373b44;
   border-radius: 2px;
   pointer-events: none;
@@ -44,15 +47,6 @@ const Container = styled.div`
     `};
 `;
 
-export interface TooltipProps {
-  content: JSX.Element;
-  position: string;
-}
-
-interface State {
-  isVisible: boolean;
-}
-
 const attachmentPostion = {
   top: 'bottom center',
   bottom: 'top center',
@@ -67,7 +61,22 @@ const targetPosition = {
   right: 'middle right',
 };
 
-class Tooltip extends Component<TooltipProps, State> {
+export interface TooltipChildrenProps {
+  onMouseOver?: (ev: React.MouseEvent) => void;
+  onMouseOut?: (ev: React.MouseEvent) => void;
+}
+
+export interface TooltipProps {
+  content: React.ReactChild;
+  position: string;
+  children: (props: TooltipChildrenProps) => React.ReactChild;
+}
+
+interface State {
+  isVisible: boolean;
+}
+
+class Tooltip extends React.Component<TooltipProps, State> {
   state = {isVisible: false};
 
   onMouseOver = () => {

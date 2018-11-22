@@ -59,3 +59,4 @@ export const unsetActiveOperation = createAction(
 );
 export const undo = createAction('THREED_UNDO');
 export const redo = createAction('THREED_REDO');
+export const setAdvancedMode = createAction('THREED_SET_ADVANCED_MODE');

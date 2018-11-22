@@ -142,12 +142,12 @@ const ContextButton = styled.div`
   background-color: white;
   cursor: pointer;
 
-  ${props => props.isOpen && css`
-    border: solid 1px #dddddd;
-    background-color: #e8e8e8;
-  `}
-
-  svg {
+  ${props =>
+    props.isOpen &&
+    css`
+      border: solid 1px #dddddd;
+      background-color: #e8e8e8;
+    `} svg {
     transform: rotate(90deg);
   }
 `;
@@ -183,9 +183,11 @@ const ContextMenuOption = styled.div`
     border: none;
   }
 
-  ${props => props.danger && css`
-    color: #d82b32;
-  `};
+  ${props =>
+    props.danger &&
+    css`
+      color: #d82b32;
+    `};
 `;
 
 class PropertiesPanel extends React.Component {
@@ -236,21 +238,21 @@ class PropertiesPanel extends React.Component {
   };
 
   onRenameClick = () => {
-    this.setState({ editingName: true });
+    this.setState({editingName: true});
   };
 
   onDeleteClick = () => {
-    const { object, deleteObject } = this.props;
+    const {object, deleteObject} = this.props;
     deleteObject(object);
   };
 
   onDuplicateClick = () => {
-    const { object, duplicateObject } = this.props;
+    const {object, duplicateObject} = this.props;
     duplicateObject(object);
   };
 
   onUngroupClick = () => {
-    const { object, addObjects, deleteObject } = this.props;
+    const {object, addObjects, deleteObject} = this.props;
     const compositionConfig = config.compositionOperations.find(
       c => c.name === object.type,
     );
@@ -261,7 +263,7 @@ class PropertiesPanel extends React.Component {
   };
 
   onUndoClick = () => {
-    const { object, undoComposition } = this.props;
+    const {object, undoComposition} = this.props;
     undoComposition(object);
   };
 
@@ -274,16 +276,9 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const {
-      draggingOperations,
-      contextMenuOpen,
-      editingName
-    } = this.state;
+    const {draggingOperations, contextMenuOpen, editingName} = this.state;
 
-    const {
-      setActiveOperation,
-      unsetActiveOperation,
-    } = this.props;
+    const {setActiveOperation, unsetActiveOperation, advancedMode} = this.props;
     const {color} = object.parameters;
 
     let baseParameters;
@@ -332,16 +327,16 @@ class PropertiesPanel extends React.Component {
               innerRef={this.nameInputRef}
               value={object.name}
               onChange={e => this.onObjectNameChange(object, e.target.value)}
-              onBlur={() => this.setState({ editingName: false })}
+              onBlur={() => this.setState({editingName: false})}
             />
           )}
           {!editingName && <ObjectName>{object.name}</ObjectName>}
           <DropDown>
-            {isOpen =>
+            {isOpen => (
               <ContextButton isOpen={isOpen}>
                 <EllipsisIcon />
               </ContextButton>
-            }
+            )}
             <ContextMenu>
               <ContextMenuOption onClick={this.onDuplicateClick}>
                 <DuplicateIcon /> Duplicate
@@ -349,16 +344,16 @@ class PropertiesPanel extends React.Component {
               <ContextMenuOption onClick={this.onRenameClick}>
                 <PencilIcon /> Rename
               </ContextMenuOption>
-              {canUngroup &&
+              {canUngroup && (
                 <ContextMenuOption onClick={this.onUngroupClick}>
                   <UngroupIcon /> Ungroup
                 </ContextMenuOption>
-              }
-              {canUndo &&
+              )}
+              {canUndo && (
                 <ContextMenuOption onClick={this.onUndoClick}>
                   <UndoIcon /> {undoLabel}
                 </ContextMenuOption>
-              }
+              )}
               <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
                 <TrashIcon /> Delete
               </ContextMenuOption>
@@ -378,26 +373,26 @@ class PropertiesPanel extends React.Component {
               />
             ))}
           </ParametersPanel>
-          <ObjectButtons>
-            {config.objectOperations.map(operation => (
-              <Tooltip
-                key={operation.name}
-                content={operation.label}
-              >
-                {tooltipProps =>
-                  <OperationButton
-                    {...tooltipProps}
-                    color={operation.color}
-                    onClick={() => this.onAddOperation(object, operation.name)}>
-                    {operation.icon}
-                  </OperationButton>
-                }
-              </Tooltip>
-            ))}
-          </ObjectButtons>
+          {advancedMode &&
+            <ObjectButtons>
+              {config.objectOperations.map(operation => (
+                <Tooltip key={operation.name} content={operation.label}>
+                  {tooltipProps => (
+                    <OperationButton
+                      {...tooltipProps}
+                      color={operation.color}
+                      onClick={() => this.onAddOperation(object, operation.name)}>
+                      {operation.icon}
+                    </OperationButton>
+                  )}
+                </Tooltip>
+              ))}
+            </ObjectButtons>
+          }
         </ObjectProperties>
         <OperationsList
           object={object}
+          advancedMode={advancedMode}
           onParameterChange={(operation, parameter, value) =>
             this.onOperationParameterChange(
               object,
@@ -428,14 +423,10 @@ class PropertiesPanel extends React.Component {
     const {object} = this.props;
 
     return (
-      <Spring
-        from={{width: 0}}
-        to={{width: object ? 310 : 0}}>
+      <Spring from={{width: 0}} to={{width: object ? 310 : 0}}>
         {style => (
           <Wrap style={style}>
-            <Container>
-              {object && this.renderObjectPanel(object)}
-            </Container>
+            <Container>{object && this.renderObjectPanel(object)}</Container>
           </Wrap>
         )}
       </Spring>
@@ -445,9 +436,10 @@ class PropertiesPanel extends React.Component {
 
 const mapStateToProps = ({threed}) => {
   const selectedObjects = getSelectedObjects(threed) || [];
-  return ({
+  return {
     object: selectedObjects.length === 1 ? selectedObjects[0] : null,
-  });
+    advancedMode: threed.ui.advancedMode,
+  };
 };
 
 const mapDispatchToProps = dispatch => ({
@@ -474,5 +466,5 @@ const mapDispatchToProps = dispatch => ({
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(PropertiesPanel);
