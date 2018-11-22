@@ -8,7 +8,7 @@
  * @summary short description for the file
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-10-16 12:59:38 
+ * Created at     : 2018-10-16 12:59:38
  * Last modified  : 2018-11-16 17:31:23
  */
 
@@ -22,70 +22,93 @@
  * @summary short description for the file
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-10-02 19:16:51 
+ * Created at     : 2018-10-02 19:16:51
  * Last modified  : 2018-10-16 12:51:01
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {OperationsArray, IViewOptions, IObjectsCommonJSON} from './ObjectsCommon';
-import Object3D from './Object3D';
+import ObjectsCommon, {
+  OperationsArray,
+  IViewOptions,
+  IObjectsCommonJSON,
+} from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
+import Scene from './Scene';
 
-interface IPrismParams{
-  sides:number;
-  length:number;
-  height:number;
+interface IPrismParams {
+  sides: number;
+  length: number;
+  height: number;
 }
 
-export interface IPrismJSON extends IObjectsCommonJSON{
+export interface IPrismJSON extends IObjectsCommonJSON {
   parameters: IPrismParams;
 }
 
-export default class Prism extends PrimitiveObject{
+export default class Prism extends PrimitiveObject {
+  public static typeName: string = 'Prism';
 
-  public static typeName:string = 'Prism';
-
-  public static newFromJSON(json:string):Prism{
-    const object: IPrismJSON = JSON.parse(json);
-    if(object.type != Prism.typeName) throw new Error('Not Prism Object');
-    return new Prism(object.parameters, object.operations, object.viewOptions);
+  public static newFromJSON(object: IPrismJSON, scene: Scene): Prism {
+    if (object.type != Prism.typeName) throw new Error('Not Prism Object');
+    return new Prism(
+      object.parameters,
+      object.operations,
+      object.viewOptions,
+      scene,
+    );
   }
-  
+
   constructor(
     parameters: IPrismParams,
-    operations: OperationsArray = [], 
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
-    ){
-    super(viewOptions,operations);
+    operations: OperationsArray = [],
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    scene: Scene,
+  ) {
+    super(viewOptions, operations, scene);
     this.type = Prism.typeName;
-    this.parameters = {...parameters};
+    this.parameters = { ...parameters };
     this._meshUpdateRequired = true;
   }
 
   protected getGeometry(): THREE.Geometry {
-    let {sides,length,height} = this.parameters as IPrismParams;
-    sides = Math.max(3, sides); length = Math.max(1,length), height = Math.max(1,height);
+    let { sides, length, height } = this.parameters as IPrismParams;
+    sides = Math.max(3, sides);
+    (length = Math.max(1, length)), (height = Math.max(1, height));
     this._meshUpdateRequired = false;
-    const radius:number =  length/(2*Math.sin(Math.PI/sides));
-    return new THREE.CylinderGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
+    const radius: number = length / (2 * Math.sin(Math.PI / sides));
+    return new THREE.CylinderGeometry(
+      Number(radius),
+      Number(radius),
+      Number(height),
+      Number(sides),
+    ).rotateX(Math.PI / 2);
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    let {sides,length,height} = this.parameters as IPrismParams;
-    sides = Math.max(3, sides); length = Math.max(1,length), height = Math.max(1,height);
+    let { sides, length, height } = this.parameters as IPrismParams;
+    sides = Math.max(3, sides);
+    (length = Math.max(1, length)), (height = Math.max(1, height));
     this._meshUpdateRequired = false;
-    const radius:number =  length/(2*Math.sin(Math.PI/sides));
-    return new THREE.CylinderBufferGeometry(Number(radius), Number(radius), Number(height), Number(sides)).rotateX(Math.PI/2);
+    const radius: number = length / (2 * Math.sin(Math.PI / sides));
+    return new THREE.CylinderBufferGeometry(
+      Number(radius),
+      Number(radius),
+      Number(height),
+      Number(sides),
+    ).rotateX(Math.PI / 2);
   }
 
-  public clone():Prism{
-    if(!this.meshUpdateRequired && !this.pendingOperation){
-      const obj = new Prism(this.parameters as IPrismParams, this.operations, this.viewOptions);
+  public clone(): Prism {
+    const obj = new Prism(
+      this.parameters as IPrismParams,
+      this.operations,
+      this.viewOptions,
+      this.scene,
+    );
+
+    if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
-      return obj;  
-    }else{
-      return new Prism(this.parameters as IPrismParams, this.operations, this.viewOptions);
     }
+    return obj;
   }
-
 }

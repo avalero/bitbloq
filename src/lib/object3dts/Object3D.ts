@@ -14,57 +14,68 @@
 
 import * as THREE from 'three';
 import isEqual from 'lodash.isequal';
-import ObjectsCommon from './ObjectsCommon'
-import {ITranslateOperation, IRotateOperation, IMirrorOperation, IScaleOperation, OperationsArray, IViewOptions} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
+import {
+  ITranslateOperation,
+  IRotateOperation,
+  IMirrorOperation,
+  IScaleOperation,
+  OperationsArray,
+  IViewOptions,
+} from './ObjectsCommon';
 
+import Scene from './Scene';
 
-
-export default class Object3D extends ObjectsCommon{
-
-  public static getVerticesFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+export default class Object3D extends ObjectsCommon {
+  public static getVerticesFromGeom(
+    geometry: THREE.Geometry,
+  ): ArrayLike<number> {
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
-    const attribute = bufferGeometry.getAttribute("position");
-    
+    const attribute = bufferGeometry.getAttribute('position');
+
     return attribute.array;
   }
 
-  public static getNormalsFromGeom(geometry:THREE.Geometry):ArrayLike<number>{
+  public static getNormalsFromGeom(
+    geometry: THREE.Geometry,
+  ): ArrayLike<number> {
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
-    const attribute = bufferGeometry.getAttribute("normal");
-    
+    const attribute = bufferGeometry.getAttribute('normal');
+
     return attribute.array;
   }
 
-  public static getMeshFromVerticesNormals(vertices:ArrayLike<number> , normals:ArrayLike<number> , material: THREE.MeshLambertMaterial):THREE.Mesh{
+  public static getMeshFromVerticesNormals(
+    vertices: ArrayLike<number>,
+    normals: ArrayLike<number>,
+    material: THREE.MeshLambertMaterial,
+  ): THREE.Mesh {
     const geometry = new THREE.BufferGeometry();
-    geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-    geometry.addAttribute( 'normal', new THREE.BufferAttribute( normals, 3 ) );
-    const mesh:THREE.Mesh = new THREE.Mesh(geometry, material);
+    geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+    geometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
+    const mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
     return mesh;
   }
 
-
-  
-
   //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
-  
+
   protected _meshUpdateRequired: boolean;
-  
-  
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    operations: OperationsArray = []) {
-    super(viewOptions, operations);
+    operations: OperationsArray = [],
+    scene: Scene,
+  ) {
+    super(viewOptions, operations, scene);
   }
 
-  get meshUpdateRequired():boolean{
+  get meshUpdateRequired(): boolean {
     return this._meshUpdateRequired;
   }
 
-  get pendingOperation():boolean{
+  get pendingOperation(): boolean {
     return this._pendingOperation;
   }
 
@@ -83,23 +94,23 @@ export default class Object3D extends ObjectsCommon{
       await this.applyOperationsAsync();
     }
 
-    if (this.pendingOperation){
+    if (this.pendingOperation) {
       await this.applyOperationsAsync();
     }
-    
+
     this.mesh.material = this.getMaterial();
 
     return this.mesh;
   }
 
   public async getMeshAsync(): Promise<THREE.Mesh> {
-      // for generic Object3D make it sync
-      const mesh = await this.getPrimitiveMeshAsync();
-      if(mesh instanceof THREE.Mesh){
-        return mesh;
-      }else{
-        throw new Error('Mesh not computed correctly');
-      }
+    // for generic Object3D make it sync
+    const mesh = await this.getPrimitiveMeshAsync();
+    if (mesh instanceof THREE.Mesh) {
+      return mesh;
+    } else {
+      throw new Error('Mesh not computed correctly');
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -111,36 +122,31 @@ export default class Object3D extends ObjectsCommon{
   }
 
   // DEPRECATED
-  public setColor(color:string){
-    
+  public setColor(color: string) {
     this.viewOptions.color = color;
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    if(!this.operations || this.operations.length === 0) {
+    if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
-      if(operations.length > 0)
-        this._pendingOperation = true;
+      if (operations.length > 0) this._pendingOperation = true;
       return;
     }
 
-    
-    if(!isEqual(this.operations, operations)){
+    if (!isEqual(this.operations, operations)) {
       this.operations.length = 0;
       this.operations = operations.slice();
       this._pendingOperation = true;
     }
 
-    this._pendingOperation = this.pendingOperation || !isEqual(this.operations, operations);
-
+    this._pendingOperation =
+      this.pendingOperation || !isEqual(this.operations, operations);
   }
 
+  protected async applyOperationsAsync(): Promise<void> {
+    this.mesh.position.set(0, 0, 0);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
 
-  protected async applyOperationsAsync():Promise<void> {
-    
-    this.mesh.position.set(0,0,0);
-    this.mesh.quaternion.setFromEuler(new THREE.Euler(0,0,0),true);  
-   
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;
     this.mesh.scale.y = 1;
@@ -153,7 +159,7 @@ export default class Object3D extends ObjectsCommon{
         this.applyRotateOperation(operation as IRotateOperation);
       } else if (operation.type === Object3D.createScaleOperation().type) {
         this.applyScaleOperation(operation as IScaleOperation);
-      } else if (operation.type === Object3D.createMirrorOperation().type){
+      } else if (operation.type === Object3D.createMirrorOperation().type) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
         throw Error('ERROR: Unknown Operation');
@@ -164,13 +170,13 @@ export default class Object3D extends ObjectsCommon{
     return;
   }
 
-  protected applyMirrorOperation(operation: IMirrorOperation): void{
-    if(operation.plane === 'xy'){
-      this.applyScaleOperation(Object3D.createScaleOperation(1,1,-1));
-    }else if(operation.plane === 'yz'){
-      this.applyScaleOperation(Object3D.createScaleOperation(-1,1,1));
-    }else if(operation.plane === 'zx'){
-      this.applyScaleOperation(Object3D.createScaleOperation(1,-1,1));
+  protected applyMirrorOperation(operation: IMirrorOperation): void {
+    if (operation.plane === 'xy') {
+      this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
+    } else if (operation.plane === 'yz') {
+      this.applyScaleOperation(Object3D.createScaleOperation(-1, 1, 1));
+    } else if (operation.plane === 'zx') {
+      this.applyScaleOperation(Object3D.createScaleOperation(1, -1, 1));
     }
   }
 
@@ -220,7 +226,7 @@ export default class Object3D extends ObjectsCommon{
   }
 
   protected applyScaleOperation(operation: IScaleOperation): void {
-    if ( 
+    if (
       Number(operation.x) > 0 &&
       Number(operation.y) > 0 &&
       Number(operation.z) > 0
@@ -232,13 +238,13 @@ export default class Object3D extends ObjectsCommon{
       );
   }
 
-  public setMesh(mesh : THREE.Mesh){
+  public setMesh(mesh: THREE.Mesh) {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
   }
 
-  public clone():Object3D{
+  public clone(): Object3D {
     throw new Error('ObjectsCommon.clone() Implemented in children');
   }
 }
