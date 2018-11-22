@@ -18,8 +18,8 @@ test('Test Scene.addObject()', () => {
   const scene = new Scene();
   const object1 = new Cube({ width, height, depth });
   const object2 = new Sphere({ radius });
-  scene.addObjectFromJSON(object1.toJSON());
-  scene.addObjectFromJSON(object2.toJSON());
+  scene.addNewObjectFromJSON(object1.toJSON());
+  scene.addNewObjectFromJSON(object2.toJSON());
   return scene.getSceneAsync().then(scene => {
     expect(scene.children.length).toEqual(2);
     expect((scene.children[0] as THREE.Mesh).geometry).toBeInstanceOf(
@@ -35,8 +35,8 @@ test('Test Scene.toJSON()', () => {
   const scene = new Scene();
   const object1 = new Cube({ width, height, depth });
   const object2 = new Sphere({ radius });
-  scene.addObjectFromJSON(object1.toJSON());
-  scene.addObjectFromJSON(object2.toJSON());
+  scene.addNewObjectFromJSON(object1.toJSON());
+  scene.addNewObjectFromJSON(object2.toJSON());
 
   const objsJSON: Array<IObjectsCommonJSON> = scene.toJSON();
   const objs = objsJSON.map(jsonElement =>
@@ -54,9 +54,9 @@ test('Test Scene.removeObject()', () => {
   const object1 = new Cube({ width, height, depth });
   const object2 = new Sphere({ radius });
   const object3 = new Sphere({ radius });
-  scene.addObjectFromJSON(object1.toJSON());
-  scene.addObjectFromJSON(object2.toJSON());
-  scene.addObjectFromJSON(object3.toJSON());
+  scene.addNewObjectFromJSON(object1.toJSON());
+  scene.addNewObjectFromJSON(object2.toJSON());
+  scene.addNewObjectFromJSON(object3.toJSON());
 
   const objsJSON: Array<IObjectsCommonJSON> = scene.toJSON();
   const objs = objsJSON.map(jsonElement =>
@@ -118,9 +118,9 @@ test('Scene.updateFromJSON() - ', () => {
   const json3 = object3.toJSON();
 
   const scene = new Scene();
-  scene.addObjectFromJSON(json1);
-  scene.addObjectFromJSON(json2);
-  scene.addObjectFromJSON(json3);
+  scene.addNewObjectFromJSON(json1);
+  scene.addNewObjectFromJSON(json2);
+  scene.addNewObjectFromJSON(json3);
 
   const bitbloqscene: Array<ObjectsCommon> = (scene as any).BitbloqScene;
   const objectsCollector: Array<ObjectsCommon> = (scene as any).objectCollector;

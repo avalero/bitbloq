@@ -61,10 +61,11 @@ export default class Scene {
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
    * @param json object descriptor (it ignores id)
    */
-  public addObjectFromJSON(json: IObjectsCommonJSON): void {
+  public addNewObjectFromJSON(json: IObjectsCommonJSON): IObjectsCommonJSON {
     const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
     this.BitbloqScene.push(object);
     this.objectCollector.push(object);
+    return object.toJSON();
   }
 
   /**
