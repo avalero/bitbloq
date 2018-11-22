@@ -12,69 +12,69 @@
  * Last modified  : 2018-11-16 17:32:13
  */
 
-import * as THREE from 'three'
+import * as THREE from 'three';
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
   IObjectsCommonJSON,
-} from './ObjectsCommon'
-import PrimitiveObject from './PrimitiveObject'
+} from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
-import Scene from './Scene'
+import Scene from './Scene';
 
 interface ISphereParams {
-  radius: number
+  radius: number;
 }
 
 export interface ISphereJSON extends IObjectsCommonJSON {
-  parameters: ISphereParams
+  parameters: ISphereParams;
 }
 
 export default class Sphere extends PrimitiveObject {
-  public static typeName: string = 'Sphere'
+  public static typeName: string = 'Sphere';
 
   public static newFromJSON(object: ISphereJSON, scene: Scene): Sphere {
-    if (object.type != Sphere.typeName) throw new Error('Not Sphere Object')
+    if (object.type != Sphere.typeName) throw new Error('Not Sphere Object');
     return new Sphere(
       object.parameters,
       object.operations,
       object.viewOptions,
       scene,
-    )
+    );
   }
 
   constructor(
     parameters: ISphereParams,
-    operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray,
+    viewOptions: IViewOptions,
     scene: Scene,
   ) {
-    super(viewOptions, operations, scene)
-    this.type = Sphere.typeName
-    this.parameters = { ...parameters }
-    this._meshUpdateRequired = true
+    super(viewOptions, operations, scene);
+    this.type = Sphere.typeName;
+    this.parameters = { ...parameters };
+    this._meshUpdateRequired = true;
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { radius } = this.parameters as ISphereParams
-    radius = Math.max(1, radius)
-    this._meshUpdateRequired = false
+    let { radius } = this.parameters as ISphereParams;
+    radius = Math.max(1, radius);
+    this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
       Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
       Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
-    )
+    );
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    let { radius } = this.parameters as ISphereParams
-    radius = Math.max(1, radius)
-    this._meshUpdateRequired = false
+    let { radius } = this.parameters as ISphereParams;
+    radius = Math.max(1, radius);
+    this._meshUpdateRequired = false;
     return new THREE.SphereBufferGeometry(
       Number(radius),
       Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
       Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
-    )
+    );
   }
 
   public clone(): Sphere {
@@ -83,10 +83,10 @@ export default class Sphere extends PrimitiveObject {
       this.operations,
       this.viewOptions,
       this.scene,
-    )
+    );
     if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone())
+      obj.setMesh(this.mesh.clone());
     }
-    return obj
+    return obj;
   }
 }

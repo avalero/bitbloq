@@ -26,36 +26,36 @@
  * Last modified  : 2018-10-16 12:51:01
  */
 
-import * as THREE from 'three'
+import * as THREE from 'three';
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
   IObjectsCommonJSON,
-} from './ObjectsCommon'
-import PrimitiveObject from './PrimitiveObject'
-import Scene from './Scene'
+} from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
+import Scene from './Scene';
 
 interface IPrismParams {
-  sides: number
-  length: number
-  height: number
+  sides: number;
+  length: number;
+  height: number;
 }
 
 export interface IPrismJSON extends IObjectsCommonJSON {
-  parameters: IPrismParams
+  parameters: IPrismParams;
 }
 
 export default class Prism extends PrimitiveObject {
-  public static typeName: string = 'Prism'
+  public static typeName: string = 'Prism';
 
   public static newFromJSON(object: IPrismJSON, scene: Scene): Prism {
-    if (object.type != Prism.typeName) throw new Error('Not Prism Object')
+    if (object.type != Prism.typeName) throw new Error('Not Prism Object');
     return new Prism(
       object.parameters,
       object.operations,
       object.viewOptions,
       scene,
-    )
+    );
   }
 
   constructor(
@@ -64,38 +64,38 @@ export default class Prism extends PrimitiveObject {
     viewOptions: IViewOptions,
     scene: Scene,
   ) {
-    super(viewOptions, operations, scene)
-    this.type = Prism.typeName
-    this.parameters = { ...parameters }
-    this._meshUpdateRequired = true
+    super(viewOptions, operations, scene);
+    this.type = Prism.typeName;
+    this.parameters = { ...parameters };
+    this._meshUpdateRequired = true;
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { sides, length, height } = this.parameters as IPrismParams
-    sides = Math.max(3, sides)
-    ;(length = Math.max(1, length)), (height = Math.max(1, height))
-    this._meshUpdateRequired = false
-    const radius: number = length / (2 * Math.sin(Math.PI / sides))
+    let { sides, length, height } = this.parameters as IPrismParams;
+    sides = Math.max(3, sides);
+    (length = Math.max(1, length)), (height = Math.max(1, height));
+    this._meshUpdateRequired = false;
+    const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
       Number(radius),
       Number(radius),
       Number(height),
       Number(sides),
-    ).rotateX(Math.PI / 2)
+    ).rotateX(Math.PI / 2);
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    let { sides, length, height } = this.parameters as IPrismParams
-    sides = Math.max(3, sides)
-    ;(length = Math.max(1, length)), (height = Math.max(1, height))
-    this._meshUpdateRequired = false
-    const radius: number = length / (2 * Math.sin(Math.PI / sides))
+    let { sides, length, height } = this.parameters as IPrismParams;
+    sides = Math.max(3, sides);
+    (length = Math.max(1, length)), (height = Math.max(1, height));
+    this._meshUpdateRequired = false;
+    const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderBufferGeometry(
       Number(radius),
       Number(radius),
       Number(height),
       Number(sides),
-    ).rotateX(Math.PI / 2)
+    ).rotateX(Math.PI / 2);
   }
 
   public clone(): Prism {
@@ -104,11 +104,11 @@ export default class Prism extends PrimitiveObject {
       this.operations,
       this.viewOptions,
       this.scene,
-    )
+    );
 
     if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone())
+      obj.setMesh(this.mesh.clone());
     }
-    return obj
+    return obj;
   }
 }

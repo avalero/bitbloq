@@ -12,57 +12,57 @@
  * Last modified  : 2018-11-16 19:47:34
  */
 
-import Object3D from './Object3D'
+import Object3D from './Object3D';
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
   IObjectsCommonJSON,
-} from './ObjectsCommon'
+} from './ObjectsCommon';
 
-import isEqual from 'lodash.isequal'
-import * as THREE from 'three'
+import isEqual from 'lodash.isequal';
+import * as THREE from 'three';
 
-import Scene from './Scene'
+import Scene from './Scene';
 
-import Worker from './compound.worker'
+import Worker from './compound.worker';
 import {
   ITranslateOperation,
   IRotateOperation,
   IMirrorOperation,
   IScaleOperation,
-} from './ObjectsCommon'
+} from './ObjectsCommon';
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
-  children: ChildrenArray
+  children: ChildrenArray;
 }
 
-export type ChildrenArray = Array<Object3D>
+export type ChildrenArray = Array<Object3D>;
 
 export default class CompoundObject extends Object3D {
-  protected worker: Worker
-  protected children: ChildrenArray
+  protected worker: Worker;
+  protected children: ChildrenArray;
 
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     scene: Scene,
   ) {
-    super(ObjectsCommon.createViewOptions(), operations, scene)
+    super(ObjectsCommon.createViewOptions(), operations, scene);
     if (children.length === 0)
-      throw new Error('Compound Object requires at least one children')
-    this.children = children
-    this._meshUpdateRequired = true
-    this.setOperations()
+      throw new Error('Compound Object requires at least one children');
+    this.children = children;
+    this._meshUpdateRequired = true;
+    this.setOperations();
 
-    const t0 = performance.now()
+    const t0 = performance.now();
     if (typeof Worker !== 'undefined') {
       //this.worker = new Worker();
-      this.worker = new Worker()
+      this.worker = new Worker();
     } else {
-      throw Error('Bitbloq 3D requires a Web Eorker enabled browser')
+      throw Error('Bitbloq 3D requires a Web Eorker enabled browser');
     }
-    const t1 = performance.now()
-    console.log(`WebWorker creation time ${t1 - t0} millis`)
+    const t1 = performance.now();
+    console.log(`WebWorker creation time ${t1 - t0} millis`);
   }
 
   get meshUpdateRequired(): boolean {
@@ -70,189 +70,194 @@ export default class CompoundObject extends Object3D {
       this._meshUpdateRequired =
         this._meshUpdateRequired ||
         child.meshUpdateRequired ||
-        child.pendingOperation
-    })
+        child.pendingOperation;
+    });
 
-    return this._meshUpdateRequired
+    return this._meshUpdateRequired;
   }
 
   get pendingOperation(): boolean {
     this.children.forEach(child => {
-      this._pendingOperation = this._pendingOperation || child.pendingOperation
-    })
+      this._pendingOperation = this._pendingOperation || child.pendingOperation;
+    });
 
-    return this._pendingOperation
+    return this._pendingOperation;
   }
 
   protected async applyOperationsAsync(): Promise<void> {
     //if there are children, mesh is centered at first child position/rotation
 
-    const ch_mesh = await this.children[0].getMeshAsync()
-    this.mesh.position.x = ch_mesh.position.x
-    this.mesh.position.y = ch_mesh.position.y
-    this.mesh.position.z = ch_mesh.position.z
+    const ch_mesh = await this.children[0].getMeshAsync();
+    this.mesh.position.x = ch_mesh.position.x;
+    this.mesh.position.y = ch_mesh.position.y;
+    this.mesh.position.z = ch_mesh.position.z;
     this.mesh.quaternion.set(
       ch_mesh.quaternion.x,
       ch_mesh.quaternion.y,
       ch_mesh.quaternion.z,
       ch_mesh.quaternion.w,
-    )
+    );
 
-    this.mesh.scale.x = 1
-    this.mesh.scale.y = 1
-    this.mesh.scale.y = 1
+    this.mesh.scale.x = 1;
+    this.mesh.scale.y = 1;
+    this.mesh.scale.y = 1;
 
     this.operations.forEach(operation => {
       // Translate operation
       if (operation.type === Object3D.createTranslateOperation().type) {
-        this.applyTranslateOperation(operation as ITranslateOperation)
+        this.applyTranslateOperation(operation as ITranslateOperation);
       } else if (operation.type === Object3D.createRotateOperation().type) {
-        this.applyRotateOperation(operation as IRotateOperation)
+        this.applyRotateOperation(operation as IRotateOperation);
       } else if (operation.type === Object3D.createScaleOperation().type) {
-        this.applyScaleOperation(operation as IScaleOperation)
+        this.applyScaleOperation(operation as IScaleOperation);
       } else if (operation.type === Object3D.createMirrorOperation().type) {
-        this.applyMirrorOperation(operation as IMirrorOperation)
+        this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation')
+        throw Error('ERROR: Unknown Operation');
       }
-    })
-    this._pendingOperation = false
+    });
+    this._pendingOperation = false;
 
-    return
+    return;
   }
 
   public getMeshAsync(): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
       if (this.meshUpdateRequired) {
-        console.log('Update Compound Object Mesh')
+        console.log('Update Compound Object Mesh');
 
         //check if WebWorkers are enabled
         if (typeof Worker !== 'undefined') {
           //WEB WORKER //listen to events from web worker
           this.worker.onmessage = (event: any) => {
-            const t0 = performance.now()
+            const t0 = performance.now();
             if (event.data.status !== 'ok') {
-              reject('Compound Object Error')
-              return
+              reject('Compound Object Error');
+              return;
             }
-            const message = event.data
+            const message = event.data;
 
             //recompute object form vertices and normals
             this.fromBufferData(message.vertices, message.normals).then(
               mesh => {
-                this.mesh = mesh
-                const t1 = performance.now()
+                this.mesh = mesh;
+                const t1 = performance.now();
                 console.log(
                   `WebWorker deserialize Execuetion time ${t1 - t0} millis`,
-                )
+                );
 
                 if (this.mesh instanceof THREE.Mesh) {
                   this.applyOperationsAsync().then(() => {
-                    this._meshUpdateRequired = false
-                    this.mesh.material = this.getMaterial()
-                    resolve(this.mesh)
-                  })
+                    this._meshUpdateRequired = false;
+                    this.mesh.material = this.getMaterial();
+                    resolve(this.mesh);
+                  });
                 } else {
-                  const reason = new Error('Mesh not computed correctly')
-                  reject(reason)
+                  const reason = new Error('Mesh not computed correctly');
+                  reject(reason);
                 }
               },
-            )
-          }
+            );
+          };
           // END OF EVENT HANDLER
 
           //Lets create an array of vertices and normals for each child
-          const t0 = performance.now()
+          const t0 = performance.now();
           this.toBufferArrayAsync().then(bufferArray => {
             const message = {
               type: this.getTypeName(),
               numChildren: this.children.length,
               bufferArray,
-            }
-            this.worker.postMessage(message, bufferArray)
-            const t1 = performance.now()
-            console.log(`WebWorker serialize Execuetion time ${t1 - t0} millis`)
-          })
+            };
+            this.worker.postMessage(message, bufferArray);
+            const t1 = performance.now();
+            console.log(
+              `WebWorker serialize Execuetion time ${t1 - t0} millis`,
+            );
+          });
         } else {
           const reason = new Error(
             'Bitbloq 3D requires a Web Worker Enabled Browser',
-          )
-          reject(reason)
+          );
+          reject(reason);
         }
       } else {
         if (this.pendingOperation) {
           this.applyOperationsAsync().then(() => {
-            this.mesh.material = this.getMaterial()
-            resolve(this.mesh)
-          })
+            this.mesh.material = this.getMaterial();
+            resolve(this.mesh);
+          });
         }
-        this.mesh.material = this.getMaterial()
-        resolve(this.mesh)
+        this.mesh.material = this.getMaterial();
+        resolve(this.mesh);
       }
-    })
+    });
   }
 
   protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
-      const buffGeometry = new THREE.BufferGeometry()
+      const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
         'position',
         new THREE.BufferAttribute(vertices, 3),
-      )
-      buffGeometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3))
-      const material = this.getMaterial()
-      const mesh: THREE.Mesh = new THREE.Mesh(buffGeometry, material)
-      resolve(mesh)
-    })
+      );
+      buffGeometry.addAttribute(
+        'normal',
+        new THREE.BufferAttribute(normals, 3),
+      );
+      const material = this.getMaterial();
+      const mesh: THREE.Mesh = new THREE.Mesh(buffGeometry, material);
+      resolve(mesh);
+    });
   }
 
   protected toBufferArrayAsync(): Promise<Array<ArrayBuffer>> {
     return new Promise((resolve, reject) => {
-      const promises: any[] = []
-      const bufferArray: Array<ArrayBuffer> = []
+      const promises: any[] = [];
+      const bufferArray: Array<ArrayBuffer> = [];
       this.children.forEach(child => {
-        const promise: Promise<THREE.Mesh> = child.getMeshAsync()
-        promises.push(promise)
-      })
+        const promise: Promise<THREE.Mesh> = child.getMeshAsync();
+        promises.push(promise);
+      });
 
       Promise.all(promises).then(meshes => {
         meshes.forEach(mesh => {
-          const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry
-          let bufferGeom: THREE.BufferGeometry
+          const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
+          let bufferGeom: THREE.BufferGeometry;
           if (geom instanceof THREE.BufferGeometry) {
-            bufferGeom = geom as THREE.BufferGeometry
+            bufferGeom = geom as THREE.BufferGeometry;
           } else {
             bufferGeom = new THREE.BufferGeometry().fromGeometry(
               geom as THREE.Geometry,
-            )
+            );
           }
           const verticesBuffer: ArrayBuffer = new Float32Array(
             bufferGeom.getAttribute('position').array,
-          ).buffer
+          ).buffer;
           const normalsBuffer: ArrayBuffer = new Float32Array(
             bufferGeom.getAttribute('normal').array,
-          ).buffer
+          ).buffer;
           const positionBuffer: ArrayBuffer = Float32Array.from(
             mesh.matrixWorld.elements,
-          ).buffer
-          bufferArray.push(verticesBuffer)
-          bufferArray.push(normalsBuffer)
-          bufferArray.push(positionBuffer)
-        })
-        resolve(bufferArray)
-      })
-    })
+          ).buffer;
+          bufferArray.push(verticesBuffer);
+          bufferArray.push(normalsBuffer);
+          bufferArray.push(positionBuffer);
+        });
+        resolve(bufferArray);
+      });
+    });
   }
 
   public addChildren(child: Object3D): void {
-    this.children.push(child)
-    this._meshUpdateRequired = true
+    this.children.push(child);
+    this._meshUpdateRequired = true;
   }
 
   public setChildren(children: ChildrenArray): void {
     if (!isEqual(children, this.children)) {
-      this.children = children.slice()
-      this._meshUpdateRequired = true
+      this.children = children.slice();
+      this._meshUpdateRequired = true;
     }
   }
 
@@ -263,6 +268,6 @@ export default class CompoundObject extends Object3D {
       viewOptions: this.viewOptions,
       operations: this.operations,
       children: this.children,
-    }
+    };
   }
 }

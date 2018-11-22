@@ -15,32 +15,32 @@
 import CompoundObject, {
   ICompoundObjectJSON,
   ChildrenArray,
-} from './CompoundObject'
-import Object3D from './Object3D'
-import { OperationsArray } from './ObjectsCommon'
-import ObjectFactory from './ObjectFactory'
-import Scene from './Scene'
+} from './CompoundObject';
+import Object3D from './Object3D';
+import { OperationsArray } from './ObjectsCommon';
+import ObjectFactory from './ObjectFactory';
+import Scene from './Scene';
 
 export default class Intersection extends CompoundObject {
-  static typeName: string = 'Intersection'
+  static typeName: string = 'Intersection';
 
   // FIXME children must be taken from scene
   public static newFromJSON(
     object: ICompoundObjectJSON,
     scene: Scene,
   ): Intersection {
-    const children: ChildrenArray = []
+    const children: ChildrenArray = [];
 
     if (object.type != Intersection.typeName)
-      throw new Error('Not Intersection Object')
+      throw new Error('Not Intersection Object');
 
     object.children.forEach(element => {
-      const json = JSON.stringify(element)
-      const child = ObjectFactory.newFromJSON(object) as Object3D
-      children.push(child)
-    })
+      const json = JSON.stringify(element);
+      const child = ObjectFactory.newFromJSON(object) as Object3D;
+      children.push(child);
+    });
 
-    return new Intersection(children, object.operations, scene)
+    return new Intersection(children, object.operations, scene);
   }
 
   constructor(
@@ -48,18 +48,18 @@ export default class Intersection extends CompoundObject {
     operations: OperationsArray = [],
     scene: Scene,
   ) {
-    super(children, operations, scene)
-    this.type = Intersection.typeName
+    super(children, operations, scene);
+    this.type = Intersection.typeName;
   }
 
   public clone(): Intersection {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
-    )
-    const obj = new Intersection(childrenClone, this.operations)
+    );
+    const obj = new Intersection(childrenClone, this.operations);
     if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone())
+      obj.setMesh(this.mesh.clone());
     }
-    return obj
+    return obj;
   }
 }

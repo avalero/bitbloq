@@ -13,25 +13,25 @@
  * Last modified  : 2018-11-14 10:56:45
  */
 
-import Object3D from './Object3D'
-import ObjectsGroup from './ObjectsGroup'
-import isEqual from 'lodash.isequal'
+import Object3D from './Object3D';
+import ObjectsGroup from './ObjectsGroup';
+import isEqual from 'lodash.isequal';
 
-import Scene from './Scene'
+import Scene from './Scene';
 
 export interface ICartesianRepetitionParams {
-  num: number
-  x: number
-  y: number
-  z: number
-  type: string
+  num: number;
+  x: number;
+  y: number;
+  z: number;
+  type: string;
 }
 
 export interface IPolarRepetitionParams {
-  num: number
-  angle: number
-  axis: string
-  type: string
+  num: number;
+  angle: number;
+  axis: string;
+  type: string;
 }
 
 /**
@@ -39,10 +39,10 @@ export interface IPolarRepetitionParams {
  * I allows to repeat one object in a cartesian or polar way.
  */
 export default class RepetitionObject extends ObjectsGroup {
-  public static typeName: string = 'RepetitionObject'
+  public static typeName: string = 'RepetitionObject';
 
-  private object: Object3D | ObjectsGroup
-  private parameters: ICartesianRepetitionParams | IPolarRepetitionParams
+  private object: Object3D | ObjectsGroup;
+  private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
   /**
    *
@@ -55,14 +55,14 @@ export default class RepetitionObject extends ObjectsGroup {
     object: Object3D | ObjectsGroup,
     scene: Scene,
   ) {
-    super([], scene)
-    this.parameters = { ...params }
-    this.object = object
+    super([], scene);
+    this.parameters = { ...params };
+    this.object = object;
     if (this.parameters.type.toLowerCase() === 'cartesian')
-      this.cartesianRepetition()
+      this.cartesianRepetition();
     else if (this.parameters.type.toLowerCase() === 'polar')
-      this.polarRepetition()
-    else throw new Error('Unknown Repetition Command')
+      this.polarRepetition();
+    else throw new Error('Unknown Repetition Command');
   }
 
   /**
@@ -70,13 +70,14 @@ export default class RepetitionObject extends ObjectsGroup {
    * It adds repeated objects to ObjectsGroup instance
    */
   private cartesianRepetition() {
-    const { x, y, z, type, num } = this.parameters as ICartesianRepetitionParams
+    const { x, y, z, type, num } = this
+      .parameters as ICartesianRepetitionParams;
 
     for (let i: number = 0; i < num; i++) {
       if (this.object instanceof Object3D) {
-        const objectClone: Object3D = this.object.clone()
-        objectClone.translate(i * x, i * y, i * z)
-        this.add(objectClone)
+        const objectClone: Object3D = this.object.clone();
+        objectClone.translate(i * x, i * y, i * z);
+        this.add(objectClone);
       } else if (this.object instanceof ObjectsGroup) {
       }
     }
@@ -86,18 +87,18 @@ export default class RepetitionObject extends ObjectsGroup {
     parameters: ICartesianRepetitionParams | IPolarRepetitionParams,
   ) {
     if (!isEqual(parameters, this.parameters)) {
-      this.clean()
-      this.parameters = { ...parameters }
+      this.clean();
+      this.parameters = { ...parameters };
       if (this.parameters.type.toLowerCase() === 'cartesian')
-        this.cartesianRepetition()
+        this.cartesianRepetition();
       else if (this.parameters.type.toLowerCase() === 'polar')
-        this.polarRepetition()
-      else throw new Error('Unknown Repetition Command')
+        this.polarRepetition();
+      else throw new Error('Unknown Repetition Command');
     }
   }
 
   public clone(): RepetitionObject {
-    return new RepetitionObject(this.parameters, this.object)
+    return new RepetitionObject(this.parameters, this.object);
   }
 
   /**
@@ -106,13 +107,14 @@ export default class RepetitionObject extends ObjectsGroup {
    */
   //TODO
   private polarRepetition() {
-    const { axis, angle, type, num } = this.parameters as IPolarRepetitionParams
+    const { axis, angle, type, num } = this
+      .parameters as IPolarRepetitionParams;
 
     for (let i: number = 0; i < num; i++) {
       if (this.object instanceof Object3D) {
-        const objectClone: Object3D = this.object.clone()
+        const objectClone: Object3D = this.object.clone();
         //objectClone.translate(i*x, i*y, i*z);
-        this.add(objectClone)
+        this.add(objectClone);
       } else if (this.object instanceof ObjectsGroup) {
       }
     }
@@ -123,6 +125,6 @@ export default class RepetitionObject extends ObjectsGroup {
    * applying all the operations to children
    */
   public getGroup(): ObjectsGroup {
-    return new ObjectsGroup(this.unGroup())
+    return new ObjectsGroup(this.unGroup());
   }
 }

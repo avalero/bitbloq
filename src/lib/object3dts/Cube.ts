@@ -13,32 +13,32 @@
  * Last modified  : 2018-11-16 17:32:50
  */
 
-import * as THREE from 'three'
-import { OperationsArray, IViewOptions } from './ObjectsCommon'
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject'
-import Scene from './Scene'
+import * as THREE from 'three';
+import { OperationsArray, IViewOptions } from './ObjectsCommon';
+import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import Scene from './Scene';
 
 interface ICubeParams {
-  width: number
-  depth: number
-  height: number
+  width: number;
+  depth: number;
+  height: number;
 }
 
 export interface ICubeJSON extends IPrimitiveObjectJSON {
-  parameters: ICubeParams
+  parameters: ICubeParams;
 }
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube'
+  public static typeName: string = 'Cube';
 
   public static newFromJSON(object: ICubeJSON, scene: Scene): Cube {
-    if (object.type != Cube.typeName) throw new Error('Not Cube Object')
+    if (object.type != Cube.typeName) throw new Error('Not Cube Object');
     return new Cube(
       object.parameters,
       object.operations,
       object.viewOptions,
       scene,
-    )
+    );
   }
 
   //private parameters: ICubeParams;
@@ -49,31 +49,31 @@ export default class Cube extends PrimitiveObject {
     viewOptions: IViewOptions,
     scene: Scene,
   ) {
-    super(viewOptions, operations, scene)
-    this.type = Cube.typeName
-    this.setParameters(parameters)
+    super(viewOptions, operations, scene);
+    this.type = Cube.typeName;
+    this.setParameters(parameters);
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { width, height, depth } = this.parameters as ICubeParams
-    width = Math.max(1, width)
-    height = Math.max(1, height)
-    depth = Math.max(1, depth)
-    this._meshUpdateRequired = false
-    return new THREE.BoxGeometry(Number(width), Number(depth), Number(height))
+    let { width, height, depth } = this.parameters as ICubeParams;
+    width = Math.max(1, width);
+    height = Math.max(1, height);
+    depth = Math.max(1, depth);
+    this._meshUpdateRequired = false;
+    return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    let { width, height, depth } = this.parameters as ICubeParams
-    width = Math.max(1, width)
-    height = Math.max(1, height)
-    depth = Math.max(1, depth)
-    this._meshUpdateRequired = false
+    let { width, height, depth } = this.parameters as ICubeParams;
+    width = Math.max(1, width);
+    height = Math.max(1, height);
+    depth = Math.max(1, depth);
+    this._meshUpdateRequired = false;
     return new THREE.BoxBufferGeometry(
       Number(width),
       Number(depth),
       Number(height),
-    )
+    );
   }
 
   public clone(): Cube {
@@ -82,11 +82,11 @@ export default class Cube extends PrimitiveObject {
       this.operations,
       this.viewOptions,
       this.scene,
-    )
+    );
     if (!this.meshUpdateRequired && !this.pendingOperation) {
-      cube.setMesh(this.mesh.clone())
+      cube.setMesh(this.mesh.clone());
     }
 
-    return cube
+    return cube;
   }
 }
