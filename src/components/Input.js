@@ -2,17 +2,17 @@ import React from 'react';
 import styled from 'react-emotion';
 
 const Input = styled.input`
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
   flex: 1;
-  height: 18px;
+  height: 21px;
   padding: 6px 12px;
   width: 100%;
+  font-size: 13px;
 
   &:focus {
     outline: none;
-    border: 1px solid #2684ff;
-    box-shadow: 0 0 0 1px #2684ff;
+    border: 1px solid #5d6069;
   }
 `;
 

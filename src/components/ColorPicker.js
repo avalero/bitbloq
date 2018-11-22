@@ -5,13 +5,16 @@ import {TwitterPicker} from 'react-color';
 
 const Container = styled.div`
   position: relative;
+  padding: 6px;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+  display: inline-block;
 `;
 
 const Square = styled.div`
-  width: 20px;
-  height: 20px;
-  border: 2px solid white;
-  border-radius: 4px;
+  width: 21px;
+  height: 21px;
+  border-radius: 2px;
   cursor: pointer;
   background-color: ${props => props.color};
 `;

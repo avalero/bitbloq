@@ -1,9 +1,9 @@
 import React from 'react';
-import styled, { css } from 'react-emotion';
+import styled, {css} from 'react-emotion';
 import NumberInput from '../NumberInput';
 import Select from '../Select';
 import ColorPicker from '../ColorPicker';
-import STLLoader from '../../lib/object3dts/STLLoader'
+import STLLoader from '../../lib/object3dts/STLLoader';
 
 const FormGroup = styled.div`
   margin-bottom: 6px;
@@ -20,31 +20,34 @@ const FormGroup = styled.div`
   }
 `;
 
-const IntegerProperty = ({
- label, value, onChange, onFocus, onBlur
- }) => (
+const ColorPickerWrap = styled.div`
+  flex: 1;
+`;
+
+const IntegerProperty = ({label, value, onChange, onFocus, onBlur, unit}) => (
   <FormGroup>
     <label>{label}</label>
     <NumberInput
       value={value}
-      onChange={e => onChange(e.target.value)}
+      unit={unit}
+      onChange={value => onChange(value)}
       onFocus={onFocus}
       onBlur={onBlur}
     />
   </FormGroup>
 );
 
-const FileProperty = ({ onChange }) => (
+const FileProperty = ({onChange}) => (
   <FormGroup>
     <input
       type="file"
-      onChange={(e) => {
+      onChange={e => {
         //console.log(e.target.files[0].name);
         const file = e.target.files[0];
         if (file.type.match('model/x.stl-binary')) {
           const reader = new FileReader();
 
-          reader.onload = (e) => {
+          reader.onload = e => {
             const blob = reader.result;
             const geom = STLLoader.loadBinaryStl(blob);
             onChange(geom);
@@ -53,7 +56,7 @@ const FileProperty = ({ onChange }) => (
         } else if (file.type.match('model/x.stl-ascii')) {
           const reader = new FileReader();
 
-          reader.onload = (e) => {
+          reader.onload = e => {
             const blob = reader.result;
             const geom = STLLoader.loadBinaryStl(blob);
             onChange(geom);
@@ -70,15 +73,13 @@ const FileProperty = ({ onChange }) => (
   </FormGroup>
 );
 
-const SelectProperty = ({ 
-label, options, value, onChange, onFocus, onBlur
- }) => (
+const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
     <Select
       value={value}
       options={options}
-      selectConfig={{ isSearchable: false }}
+      selectConfig={{isSearchable: false}}
       onChange={onChange}
       onFocus={onFocus}
       onBlur={onBlur}
@@ -86,7 +87,7 @@ label, options, value, onChange, onFocus, onBlur
   </FormGroup>
 );
 
-const BooleanProperty = ({ label, value, onChange }) => (
+const BooleanProperty = ({label, value, onChange}) => (
   <FormGroup>
     <label>{label}</label>
     <input
@@ -97,21 +98,22 @@ const BooleanProperty = ({ label, value, onChange }) => (
   </FormGroup>
 );
 
-const ColorProperty = ({ label, value, onChange }) => (
+const ColorProperty = ({label, value, onChange}) => (
   <FormGroup>
     <label>{label}</label>
-    <ColorPicker color={value} onChange={onChange} position="top-right" />
+    <ColorPickerWrap>
+      <ColorPicker color={value} onChange={onChange} position="top-right" />
+    </ColorPickerWrap>
   </FormGroup>
 );
 
-const PropertyInput = ({ 
-parameter, value, onChange, onFocus, onBlur 
-}) => {
+const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
   switch (parameter.type) {
     case 'integer':
       return (
         <IntegerProperty
           label={parameter.label}
+          unit={parameter.unit}
           value={value}
           onChange={onChange}
           onFocus={onFocus}
