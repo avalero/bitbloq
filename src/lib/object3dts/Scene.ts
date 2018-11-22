@@ -1,8 +1,8 @@
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import * as THREE from 'three';
-import ObjectFactory from './ObjectFactory';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon'
+import * as THREE from 'three'
+import ObjectFactory from './ObjectFactory'
 
-type ClickHandler = (object?: any) => void;
+type ClickHandler = (object?: any) => void
 
 enum HelperType {
   Rotation = 'rotation',
@@ -14,19 +14,19 @@ enum HelperAxis {
   Z = 'z',
 }
 interface HelperDescription {
-  type: HelperType;
-  object: any;
-  axis: HelperAxis;
-  relative: boolean;
+  type: HelperType
+  object: any
+  axis: HelperAxis
+  relative: boolean
 }
 
 export default class Scene {
-  private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
-  private BitbloqScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
+  private objectCollector: Array<ObjectsCommon> /// all objects designed by user - including children
+  private BitbloqScene: Array<ObjectsCommon> /// all parent objects designed by user -> to be 3D-drawn.
 
   constructor() {
-    this.objectCollector = [];
-    this.BitbloqScene = [];
+    this.objectCollector = []
+    this.BitbloqScene = []
   }
 
   /**
@@ -35,7 +35,7 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): Array<IObjectsCommonJSON> {
-    return this.BitbloqScene.map(object => object.toJSON());
+    return this.BitbloqScene.map(object => object.toJSON())
   }
 
   /**
@@ -43,16 +43,16 @@ export default class Scene {
    * TODO
    */
   public async getSceneAsync(): Promise<THREE.Scene> {
-    const scene: THREE.Scene = new THREE.Scene();
+    const scene: THREE.Scene = new THREE.Scene()
 
     //Add objects to Scene
     const meshes: Array<THREE.Object3D> = await Promise.all(
       this.BitbloqScene.map(object => object.getMeshAsync()),
-    );
+    )
     meshes.forEach(mesh => {
-      scene.add(mesh);
-    });
-    return scene;
+      scene.add(mesh)
+    })
+    return scene
   }
 
   public setupScene(): void {}
@@ -62,9 +62,9 @@ export default class Scene {
    * @param json object descriptor (it ignores id)
    */
   public addObjectFromJSON(json: IObjectsCommonJSON): void {
-    const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
-    this.BitbloqScene.push(object);
-    this.objectCollector.push(object);
+    const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this)
+    this.BitbloqScene.push(object)
+    this.objectCollector.push(object)
   }
 
   /**
@@ -73,14 +73,14 @@ export default class Scene {
    * @param json json object descriptor (only id is important)
    */
   public removeObject(obj: IObjectsCommonJSON): void {
-    const id = obj.id;
+    const id = obj.id
 
     this.objectCollector = this.objectCollector.filter(
       object => object.getID() !== id,
-    );
+    )
     this.BitbloqScene = this.BitbloqScene.filter(
       object => object.getID() !== id,
-    );
+    )
   }
 
   /**
@@ -88,11 +88,11 @@ export default class Scene {
    * @param obj Object descriptor to retreive
    */
   public getObject(obj: IObjectsCommonJSON): ObjectsCommon {
-    const id = obj.id;
-    const foundObj = this.objectCollector.find(object => object.getID() === id);
-    if (!foundObj) throw new Error(`Scene.getObject(). Object ${id} not found`);
+    const id = obj.id
+    const foundObj = this.objectCollector.find(object => object.getID() === id)
+    if (!foundObj) throw new Error(`Scene.getObject(). Object ${id} not found`)
 
-    return foundObj;
+    return foundObj
   }
 
   /**
@@ -101,17 +101,17 @@ export default class Scene {
    * @param json json describing object
    */
   public updateObject(obj: IObjectsCommonJSON): void {
-    const id = obj.id;
-    let updated = false;
+    const id = obj.id
+    let updated = false
 
     this.objectCollector.forEach(object => {
       if (object.getID() === id) {
-        object.updateFromJSON(obj);
-        updated = true;
+        object.updateFromJSON(obj)
+        updated = true
       }
-    });
+    })
 
-    if (!updated) throw new Error(`Object id ${id} not found`);
+    if (!updated) throw new Error(`Object id ${id} not found`)
   }
 
   /**
@@ -147,7 +147,7 @@ export default class Scene {
     // padre que es el que devolvemos aquí, e insertar los dos renderer en ese
     // <div>. Si quieres de momento devuelve el renderer.domElement y ya vemos
     // luego lo del cubo de navegación
-    return document.body;
+    return document.body
   }
 
   // Le pasa un handler que debe ser llamado cada vez que se hace click

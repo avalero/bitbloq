@@ -15,30 +15,30 @@
 import CompoundObject, {
   ICompoundObjectJSON,
   ChildrenArray,
-} from './CompoundObject';
-import Object3D from './Object3D';
-import { OperationsArray } from './ObjectsCommon';
-import ObjectFactory from './ObjectFactory';
-import Scene from './Scene';
+} from './CompoundObject'
+import Object3D from './Object3D'
+import { OperationsArray } from './ObjectsCommon'
+import ObjectFactory from './ObjectFactory'
+import Scene from './Scene'
 
 export default class Difference extends CompoundObject {
-  static typeName: string = 'Difference';
+  static typeName: string = 'Difference'
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
     scene: Scene,
   ): Difference {
-    const children: ChildrenArray = [];
+    const children: ChildrenArray = []
 
-    if (object.type != Difference.typeName) throw new Error('Not Union Object');
+    if (object.type != Difference.typeName) throw new Error('Not Union Object')
 
     object.children.forEach(element => {
-      const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object) as Object3D;
-      children.push(child);
-    });
+      const json = JSON.stringify(element)
+      const child = ObjectFactory.newFromJSON(object) as Object3D
+      children.push(child)
+    })
 
-    return new Difference(children, object.operations, scene);
+    return new Difference(children, object.operations, scene)
   }
 
   constructor(
@@ -46,18 +46,18 @@ export default class Difference extends CompoundObject {
     operations: OperationsArray = [],
     scene: Scene,
   ) {
-    super(children, operations, scene);
-    this.type = Difference.typeName;
+    super(children, operations, scene)
+    this.type = Difference.typeName
   }
 
   public clone(): Difference {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
-    );
-    const obj = new Difference(childrenClone, this.operations);
+    )
+    const obj = new Difference(childrenClone, this.operations)
     if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
+      obj.setMesh(this.mesh.clone())
     }
-    return obj;
+    return obj
   }
 }

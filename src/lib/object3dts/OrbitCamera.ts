@@ -1,7 +1,7 @@
-import * as THREE from 'three';
-import { SphericalCoordsXYZ } from './SphericalCoordinates.ts';
+import * as THREE from 'three'
+import { SphericalCoordsXYZ } from './SphericalCoordinates.ts'
 
-const EPSILON: number = 0.001;
+const EPSILON: number = 0.001
 const STATE = {
   NONE: -1,
   ROTATE: 0,
@@ -10,280 +10,280 @@ const STATE = {
   TOUCH_ROTATE: 3,
   TOUCH_DOLLY: 4,
   TOUCH_PAN: 5,
-};
+}
 
 export default class OrbitCamera {
-  private camera: THREE.PerspectiveCamera;
-  private enabled: boolean;
+  private camera: THREE.PerspectiveCamera
+  private enabled: boolean
 
-  private minDistance: number;
-  private maxDistance: number;
-  private minPolarAngle: number; // radians
-  private maxPolarAngle: number; // radians
-  private minAzimuthAngle: number; // radians
-  private maxAzimuthAngle: number; // radians
-  private dampingFactor: number;
-  private draggingDampingFactor: number;
-  private dollySpeed: number;
-  private truckSpeed: number;
-  private domElement: any;
-  private target: THREE.Vector3;
-  private _targetEnd: THREE.Vector3;
+  private minDistance: number
+  private maxDistance: number
+  private minPolarAngle: number // radians
+  private maxPolarAngle: number // radians
+  private minAzimuthAngle: number // radians
+  private maxAzimuthAngle: number // radians
+  private dampingFactor: number
+  private draggingDampingFactor: number
+  private dollySpeed: number
+  private truckSpeed: number
+  private domElement: any
+  private target: THREE.Vector3
+  private _targetEnd: THREE.Vector3
 
-  private _spherical: SphericalCoordsXYZ;
-  private _sphericalEnd: SphericalCoordsXYZ;
+  private _spherical: SphericalCoordsXYZ
+  private _sphericalEnd: SphericalCoordsXYZ
 
-  private _target0: THREE.Vector3;
-  private _position0: THREE.Vector3;
+  private _target0: THREE.Vector3
+  private _position0: THREE.Vector3
 
-  private _needsUpdate: boolean;
+  private _needsUpdate: boolean
 
-  private dispose: () => void;
+  private dispose: () => void
 
   constructor(camera: THREE.PerspectiveCamera, domElement: any) {
-    this.camera = camera;
-    this.enabled = true;
+    this.camera = camera
+    this.enabled = true
 
-    this.minDistance = 0;
-    this.maxDistance = Infinity;
-    this.minPolarAngle = 0; // radians
-    this.maxPolarAngle = Math.PI; // radians
-    this.minAzimuthAngle = -Infinity; // radians
-    this.maxAzimuthAngle = Infinity; // radians
-    this.dampingFactor = 0.05;
-    this.draggingDampingFactor = 0.25;
-    this.dollySpeed = 1.0;
-    this.truckSpeed = 2.0;
+    this.minDistance = 0
+    this.maxDistance = Infinity
+    this.minPolarAngle = 0 // radians
+    this.maxPolarAngle = Math.PI // radians
+    this.minAzimuthAngle = -Infinity // radians
+    this.maxAzimuthAngle = Infinity // radians
+    this.dampingFactor = 0.05
+    this.draggingDampingFactor = 0.25
+    this.dollySpeed = 1.0
+    this.truckSpeed = 2.0
 
-    this.domElement = domElement;
+    this.domElement = domElement
 
     // the location of focus, where the object orbits around
-    this.target = new THREE.Vector3();
-    this._targetEnd = new THREE.Vector3();
+    this.target = new THREE.Vector3()
+    this._targetEnd = new THREE.Vector3()
 
     // rotation
-    this._spherical = new SphericalCoordsXYZ();
+    this._spherical = new SphericalCoordsXYZ()
 
-    this._spherical.setFromVector3(this.camera.position);
+    this._spherical.setFromVector3(this.camera.position)
 
-    this._sphericalEnd = new SphericalCoordsXYZ().copy(this._spherical);
+    this._sphericalEnd = new SphericalCoordsXYZ().copy(this._spherical)
 
     // reset
-    this._target0 = this.target.clone();
-    this._position0 = this.camera.position.clone();
+    this._target0 = this.target.clone()
+    this._position0 = this.camera.position.clone()
 
-    this._needsUpdate = true;
-    this.update(0);
+    this._needsUpdate = true
+    this.update(0)
 
     if (!this.domElement) {
-      this.dispose = () => {};
+      this.dispose = () => {}
     } else {
-      const scope = this;
-      const dragStart: THREE.Vector2 = new THREE.Vector2();
-      const dollyStart: THREE.Vector2 = new THREE.Vector2();
-      let state: number = STATE.NONE;
-      let elementRect: any;
-      let savedDampingFactor: any;
+      const scope = this
+      const dragStart: THREE.Vector2 = new THREE.Vector2()
+      const dollyStart: THREE.Vector2 = new THREE.Vector2()
+      let state: number = STATE.NONE
+      let elementRect: any
+      let savedDampingFactor: any
 
       const onMouseDown = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        event.preventDefault();
+        event.preventDefault()
 
-        const prevState = state;
+        const prevState = state
 
         switch (event.button) {
           case THREE.MOUSE.LEFT:
-            state = STATE.ROTATE;
-            break;
+            state = STATE.ROTATE
+            break
 
           case THREE.MOUSE.MIDDLE:
-            state = STATE.DOLLY;
-            break;
+            state = STATE.DOLLY
+            break
 
           case THREE.MOUSE.RIGHT:
-            state = STATE.PAN;
-            break;
+            state = STATE.PAN
+            break
         }
 
         if (prevState === STATE.NONE) {
-          startDragging(event);
+          startDragging(event)
         }
-      };
+      }
 
       const onTouchStart = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        event.preventDefault();
+        event.preventDefault()
 
-        const prevState = state;
+        const prevState = state
 
         switch (event.touches.length) {
           case 1: // one-fingered touch: rotate
-            state = STATE.TOUCH_ROTATE;
-            break;
+            state = STATE.TOUCH_ROTATE
+            break
 
           case 2: // two-fingered touch: dolly
-            state = STATE.TOUCH_DOLLY;
-            break;
+            state = STATE.TOUCH_DOLLY
+            break
 
           case 3: // three-fingered touch: pan
-            state = STATE.TOUCH_PAN;
-            break;
+            state = STATE.TOUCH_PAN
+            break
         }
 
         if (prevState === STATE.NONE) {
-          startDragging(event);
+          startDragging(event)
         }
-      };
+      }
 
       const onMouseWheel = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        event.preventDefault();
+        event.preventDefault()
 
         if (event.deltaY < 0) {
-          dollyIn();
+          dollyIn()
         } else if (event.deltaY > 0) {
-          dollyOut();
+          dollyOut()
         }
-      };
+      }
 
       const onContextMenu = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        event.preventDefault();
-      };
+        event.preventDefault()
+      }
 
       const startDragging = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        event.preventDefault();
+        event.preventDefault()
 
-        const _event = event.touches ? event.touches[0] : event;
-        const x: number = _event.clientX;
-        const y: number = _event.clientY;
+        const _event = event.touches ? event.touches[0] : event
+        const x: number = _event.clientX
+        const y: number = _event.clientY
 
-        elementRect = scope.domElement.getBoundingClientRect();
-        dragStart.set(x, y);
+        elementRect = scope.domElement.getBoundingClientRect()
+        dragStart.set(x, y)
 
         if (state === STATE.TOUCH_DOLLY) {
-          const dx: number = x - event.touches[1].pageX;
-          const dy: number = y - event.touches[1].pageY;
-          const distance: number = Math.sqrt(dx * dx + dy * dy);
+          const dx: number = x - event.touches[1].pageX
+          const dy: number = y - event.touches[1].pageY
+          const distance: number = Math.sqrt(dx * dx + dy * dy)
 
-          dollyStart.set(0, distance);
+          dollyStart.set(0, distance)
         }
 
-        savedDampingFactor = scope.dampingFactor;
-        scope.dampingFactor = scope.draggingDampingFactor;
+        savedDampingFactor = scope.dampingFactor
+        scope.dampingFactor = scope.draggingDampingFactor
 
-        document.addEventListener('mousemove', dragging, { passive: false });
-        document.addEventListener('touchmove', dragging, { passive: false });
-        document.addEventListener('mouseup', endDragging);
-        document.addEventListener('touchend', endDragging);
-      };
+        document.addEventListener('mousemove', dragging, { passive: false })
+        document.addEventListener('touchmove', dragging, { passive: false })
+        document.addEventListener('mouseup', endDragging)
+        document.addEventListener('touchend', endDragging)
+      }
 
       const dragging = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        event.preventDefault();
+        event.preventDefault()
 
-        const _event = event.touches ? event.touches[0] : event;
-        const x: number = _event.clientX;
-        const y: number = _event.clientY;
+        const _event = event.touches ? event.touches[0] : event
+        const x: number = _event.clientX
+        const y: number = _event.clientY
 
-        const deltaX: number = dragStart.x - x;
-        const deltaY: number = dragStart.y - y;
+        const deltaX: number = dragStart.x - x
+        const deltaY: number = dragStart.y - y
 
-        dragStart.set(x, y);
+        dragStart.set(x, y)
 
         switch (state) {
           case STATE.ROTATE:
           case STATE.TOUCH_ROTATE:
-            const rotTheta: number = (2 * Math.PI * deltaX) / elementRect.width;
-            const rotPhi: number = (2 * Math.PI * deltaY) / elementRect.height;
-            scope.rotate(rotTheta, rotPhi, true);
-            break;
+            const rotTheta: number = (2 * Math.PI * deltaX) / elementRect.width
+            const rotPhi: number = (2 * Math.PI * deltaY) / elementRect.height
+            scope.rotate(rotTheta, rotPhi, true)
+            break
 
           case STATE.DOLLY:
             // not implemented
-            break;
+            break
 
           case STATE.TOUCH_DOLLY:
-            const dx: number = x - event.touches[1].pageX;
-            const dy: number = y - event.touches[1].pageY;
-            const distance: number = Math.sqrt(dx * dx + dy * dy);
-            const dollyDelta: number = dollyStart.y - distance;
+            const dx: number = x - event.touches[1].pageX
+            const dy: number = y - event.touches[1].pageY
+            const distance: number = Math.sqrt(dx * dx + dy * dy)
+            const dollyDelta: number = dollyStart.y - distance
 
             if (dollyDelta > 0) {
-              dollyOut();
+              dollyOut()
             } else if (dollyDelta < 0) {
-              dollyIn();
+              dollyIn()
             }
 
-            dollyStart.set(0, distance);
-            break;
+            dollyStart.set(0, distance)
+            break
 
           case STATE.PAN:
           case STATE.TOUCH_PAN:
             const offset: THREE.Vector3 = new THREE.Vector3()
               .copy(scope.camera.position)
-              .sub(scope.target);
+              .sub(scope.target)
             // half of the fov is center to top of screen
             const targetDistance: number =
               offset.length() *
-              Math.tan(((scope.camera.fov / 2) * Math.PI) / 180);
+              Math.tan(((scope.camera.fov / 2) * Math.PI) / 180)
             const panX: number =
-              (scope.truckSpeed * deltaX * targetDistance) / elementRect.height;
+              (scope.truckSpeed * deltaX * targetDistance) / elementRect.height
             const panY: number =
-              (scope.truckSpeed * deltaY * targetDistance) / elementRect.height;
-            scope.pan(panX, panY, true);
-            break;
+              (scope.truckSpeed * deltaY * targetDistance) / elementRect.height
+            scope.pan(panX, panY, true)
+            break
         }
-      };
+      }
 
       const endDragging = () => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) return
 
-        scope.dampingFactor = savedDampingFactor;
-        state = STATE.NONE;
+        scope.dampingFactor = savedDampingFactor
+        state = STATE.NONE
 
-        document.removeEventListener('mousemove', dragging);
-        document.removeEventListener('touchmove', dragging);
-        document.removeEventListener('mouseup', endDragging);
-        document.removeEventListener('touchend', endDragging);
-      };
+        document.removeEventListener('mousemove', dragging)
+        document.removeEventListener('touchmove', dragging)
+        document.removeEventListener('mouseup', endDragging)
+        document.removeEventListener('touchend', endDragging)
+      }
 
       const dollyIn = () => {
-        const zoomScale: number = Math.pow(0.95, scope.dollySpeed);
+        const zoomScale: number = Math.pow(0.95, scope.dollySpeed)
         scope.dolly(
           scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius,
-        );
-      };
+        )
+      }
 
       const dollyOut = () => {
-        const zoomScale: number = Math.pow(0.95, scope.dollySpeed);
+        const zoomScale: number = Math.pow(0.95, scope.dollySpeed)
         scope.dolly(
           scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius,
-        );
-      };
+        )
+      }
 
-      this.domElement.addEventListener('mousedown', onMouseDown);
-      this.domElement.addEventListener('touchstart', onTouchStart);
-      this.domElement.addEventListener('wheel', onMouseWheel);
-      this.domElement.addEventListener('contextmenu', onContextMenu);
+      this.domElement.addEventListener('mousedown', onMouseDown)
+      this.domElement.addEventListener('touchstart', onTouchStart)
+      this.domElement.addEventListener('wheel', onMouseWheel)
+      this.domElement.addEventListener('contextmenu', onContextMenu)
 
       this.dispose = () => {
-        scope.domElement.removeEventListener('mousedown', onMouseDown);
-        scope.domElement.removeEventListener('touchstart', onTouchStart);
-        scope.domElement.removeEventListener('wheel', onMouseWheel);
-        scope.domElement.removeEventListener('contextmenu', onContextMenu);
-        document.removeEventListener('mousemove', dragging);
-        document.removeEventListener('touchmove', dragging);
-        document.removeEventListener('mouseup', endDragging);
-        document.removeEventListener('touchend', endDragging);
-      };
+        scope.domElement.removeEventListener('mousedown', onMouseDown)
+        scope.domElement.removeEventListener('touchstart', onTouchStart)
+        scope.domElement.removeEventListener('wheel', onMouseWheel)
+        scope.domElement.removeEventListener('contextmenu', onContextMenu)
+        document.removeEventListener('mousemove', dragging)
+        document.removeEventListener('touchmove', dragging)
+        document.removeEventListener('mouseup', endDragging)
+        document.removeEventListener('touchend', endDragging)
+      }
     }
   }
 
@@ -298,7 +298,7 @@ export default class OrbitCamera {
       this._sphericalEnd.theta + rotTheta,
       this._sphericalEnd.phi + rotPhi,
       enableTransition,
-    );
+    )
   }
 
   // rotX in radian
@@ -311,26 +311,26 @@ export default class OrbitCamera {
     const theta: number = Math.max(
       this.minAzimuthAngle,
       Math.min(this.maxAzimuthAngle, rotTheta),
-    );
+    )
     const phi: number = Math.max(
       this.minPolarAngle,
       Math.min(this.maxPolarAngle, rotPhi),
-    );
+    )
 
-    this._sphericalEnd.theta = theta;
-    this._sphericalEnd.phi = phi;
-    this._sphericalEnd.makeSafe();
+    this._sphericalEnd.theta = theta
+    this._sphericalEnd.phi = phi
+    this._sphericalEnd.makeSafe()
 
     if (!enableTransition) {
-      this._spherical.theta = this._sphericalEnd.theta;
-      this._spherical.phi = this._sphericalEnd.phi;
+      this._spherical.theta = this._sphericalEnd.theta
+      this._spherical.phi = this._sphericalEnd.phi
     }
 
-    this._needsUpdate = true;
+    this._needsUpdate = true
   }
 
   private dolly(distance: number, enableTransition: boolean = false): void {
-    this.dollyTo(this._sphericalEnd.radius + distance, enableTransition);
+    this.dollyTo(this._sphericalEnd.radius + distance, enableTransition)
   }
 
   private dollyTo(distance: number, enableTransition: boolean): void {
@@ -338,43 +338,43 @@ export default class OrbitCamera {
       distance,
       this.minDistance,
       this.maxDistance,
-    );
+    )
 
     if (!enableTransition) {
-      this._spherical.radius = this._sphericalEnd.radius;
+      this._spherical.radius = this._sphericalEnd.radius
     }
 
-    this._needsUpdate = true;
+    this._needsUpdate = true
   }
 
   private pan(x: number, y: number, enableTransition: boolean): void {
-    this.truck(x, y, enableTransition);
+    this.truck(x, y, enableTransition)
   }
 
   private truck(x: number, y: number, enableTransition: boolean) {
-    this.camera.updateMatrix();
+    this.camera.updateMatrix()
 
     const _xColumn: THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(
       this.camera.matrix,
       0,
-    );
+    )
     const _yColumn: THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(
       this.camera.matrix,
       1,
-    );
-    _xColumn.multiplyScalar(x);
-    _yColumn.multiplyScalar(-y);
+    )
+    _xColumn.multiplyScalar(x)
+    _yColumn.multiplyScalar(-y)
 
     const offset: THREE.Vector3 = new THREE.Vector3()
       .copy(_xColumn)
-      .add(_yColumn);
-    this._targetEnd.add(offset);
+      .add(_yColumn)
+    this._targetEnd.add(offset)
 
     if (!enableTransition) {
-      this.target.copy(this._targetEnd);
+      this.target.copy(this._targetEnd)
     }
 
-    this._needsUpdate = true;
+    this._needsUpdate = true
   }
 
   private moveTo(
@@ -383,44 +383,44 @@ export default class OrbitCamera {
     z: number,
     enableTransition: boolean,
   ): void {
-    this._targetEnd.set(x, y, z);
+    this._targetEnd.set(x, y, z)
 
     if (!enableTransition) {
-      this.target.copy(this._targetEnd);
+      this.target.copy(this._targetEnd)
     }
 
-    this._needsUpdate = true;
+    this._needsUpdate = true
   }
 
   private saveState(): void {
-    this._target0.copy(this.target);
-    this._position0.copy(this.camera.position);
+    this._target0.copy(this.target)
+    this._position0.copy(this.camera.position)
   }
 
   private reset(enableTransition: boolean): void {
-    this._targetEnd.copy(this._target0);
-    this._sphericalEnd.setFromVector3(this._position0);
-    this._sphericalEnd.theta = this._sphericalEnd.theta % (2 * Math.PI);
-    this._spherical.theta = this._spherical.theta % (2 * Math.PI);
+    this._targetEnd.copy(this._target0)
+    this._sphericalEnd.setFromVector3(this._position0)
+    this._sphericalEnd.theta = this._sphericalEnd.theta % (2 * Math.PI)
+    this._spherical.theta = this._spherical.theta % (2 * Math.PI)
 
     if (!enableTransition) {
-      this.target.copy(this._targetEnd);
-      this._spherical.copy(this._sphericalEnd);
+      this.target.copy(this._targetEnd)
+      this._spherical.copy(this._sphericalEnd)
     }
 
-    this._needsUpdate = true;
+    this._needsUpdate = true
   }
 
   private update(delta: number): boolean {
-    const dampingFactor: number = (this.dampingFactor * delta) / 0.016;
-    const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta;
-    const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi;
+    const dampingFactor: number = (this.dampingFactor * delta) / 0.016
+    const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta
+    const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi
     const deltaRadius: number =
-      this._sphericalEnd.radius - this._spherical.radius;
+      this._sphericalEnd.radius - this._spherical.radius
     const deltaTarget: THREE.Vector3 = new THREE.Vector3().subVectors(
       this._targetEnd,
       this.target,
-    );
+    )
 
     if (
       Math.abs(deltaTheta) > EPSILON ||
@@ -434,29 +434,29 @@ export default class OrbitCamera {
         this._spherical.radius + deltaRadius * dampingFactor,
         this._spherical.phi + deltaPhi * dampingFactor,
         this._spherical.theta + deltaTheta * dampingFactor,
-      );
+      )
 
-      this.target.add(deltaTarget.multiplyScalar(dampingFactor));
-      this._needsUpdate = true;
+      this.target.add(deltaTarget.multiplyScalar(dampingFactor))
+      this._needsUpdate = true
     } else {
-      this._spherical.copy(this._sphericalEnd);
-      this.target.copy(this._targetEnd);
+      this._spherical.copy(this._sphericalEnd)
+      this.target.copy(this._targetEnd)
     }
 
-    this._spherical.makeSafe();
+    this._spherical.makeSafe()
     this.camera.position
       .set(
         this._spherical.cartesian.x,
         this._spherical.cartesian.y,
         this._spherical.cartesian.z,
       )
-      .add(this.target);
-    this.camera.lookAt(this.target);
+      .add(this.target)
+    this.camera.lookAt(this.target)
 
-    const needsUpdate = this._needsUpdate;
-    this._needsUpdate = false;
+    const needsUpdate = this._needsUpdate
+    this._needsUpdate = false
 
-    return needsUpdate;
+    return needsUpdate
   }
 
   public toJSON(): object {
@@ -479,51 +479,51 @@ export default class OrbitCamera {
 
       target0: this._target0.toArray(),
       position0: this._position0.toArray(),
-    };
+    }
   }
 
   private fromJSON(json: string, enableTransition: boolean): void {
-    const obj = JSON.parse(json);
-    const position = new THREE.Vector3().fromArray(obj.position);
+    const obj = JSON.parse(json)
+    const position = new THREE.Vector3().fromArray(obj.position)
 
-    this.enabled = obj.enabled;
+    this.enabled = obj.enabled
 
-    this.minDistance = obj.minDistance;
-    this.maxDistance = maxNumberToInfinity(obj.maxDistance);
-    this.minPolarAngle = obj.minPolarAngle;
-    this.maxPolarAngle = maxNumberToInfinity(obj.maxPolarAngle);
-    this.minAzimuthAngle = maxNumberToInfinity(obj.minAzimuthAngle);
-    this.maxAzimuthAngle = maxNumberToInfinity(obj.maxAzimuthAngle);
-    this.dampingFactor = obj.dampingFactor;
-    this.draggingDampingFactor = obj.draggingDampingFactor;
-    this.dollySpeed = obj.dollySpeed;
-    this.truckSpeed = obj.truckSpeed;
+    this.minDistance = obj.minDistance
+    this.maxDistance = maxNumberToInfinity(obj.maxDistance)
+    this.minPolarAngle = obj.minPolarAngle
+    this.maxPolarAngle = maxNumberToInfinity(obj.maxPolarAngle)
+    this.minAzimuthAngle = maxNumberToInfinity(obj.minAzimuthAngle)
+    this.maxAzimuthAngle = maxNumberToInfinity(obj.maxAzimuthAngle)
+    this.dampingFactor = obj.dampingFactor
+    this.draggingDampingFactor = obj.draggingDampingFactor
+    this.dollySpeed = obj.dollySpeed
+    this.truckSpeed = obj.truckSpeed
 
-    this._target0.fromArray(obj.target0);
-    this._position0.fromArray(obj.position0);
+    this._target0.fromArray(obj.target0)
+    this._position0.fromArray(obj.position0)
 
-    this._targetEnd.fromArray(obj.target);
-    this._sphericalEnd.setFromVector3(position.sub(this._target0));
+    this._targetEnd.fromArray(obj.target)
+    this._sphericalEnd.setFromVector3(position.sub(this._target0))
 
     if (!enableTransition) {
-      this.target.copy(this._targetEnd);
-      this._spherical.copy(this._sphericalEnd);
+      this.target.copy(this._targetEnd)
+      this._spherical.copy(this._sphericalEnd)
     }
 
-    this._needsUpdate = true;
+    this._needsUpdate = true
   }
 }
 
 const infinityToMaxNumber: (value: number) => number = (value: number) => {
-  if (isFinite(value)) return value;
+  if (isFinite(value)) return value
 
-  if (value < 0) return -Number.MAX_VALUE;
+  if (value < 0) return -Number.MAX_VALUE
 
-  return Number.MAX_VALUE;
-};
+  return Number.MAX_VALUE
+}
 
 const maxNumberToInfinity: (value: number) => number = (value: number) => {
-  if (Math.abs(value) < Number.MAX_VALUE) return value;
+  if (Math.abs(value) < Number.MAX_VALUE) return value
 
-  return value * Infinity;
-};
+  return value * Infinity
+}

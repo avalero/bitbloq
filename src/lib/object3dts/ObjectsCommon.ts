@@ -1,52 +1,52 @@
-import uuid from 'uuid/v1';
-import Scene from './Scene';
+import uuid from 'uuid/v1'
+import Scene from './Scene'
 
 interface ICommonOperation {
-  type: string;
+  type: string
 }
 
 export interface IObjectsCommonJSON {
-  type: string;
-  id: string;
-  viewOptions: IViewOptions;
-  operations: OperationsArray;
+  type: string
+  id: string
+  viewOptions: IViewOptions
+  operations: OperationsArray
 }
 
 export interface ITranslateOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-  relative: boolean;
+  x: number
+  y: number
+  z: number
+  relative: boolean
 }
 
 export interface IRotateOperation extends ICommonOperation {
-  axis: string;
-  angle: number;
-  relative: boolean;
+  axis: string
+  angle: number
+  relative: boolean
 }
 
 export interface IScaleOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
+  x: number
+  y: number
+  z: number
 }
 
 export interface IMirrorOperation extends ICommonOperation {
-  plane: string;
+  plane: string
 }
 
 export type Operation =
   | ITranslateOperation
   | IRotateOperation
   | IScaleOperation
-  | IMirrorOperation;
-export type OperationsArray = Array<Operation>;
+  | IMirrorOperation
+export type OperationsArray = Array<Operation>
 
 export interface IViewOptions {
-  color: string;
-  visible: boolean;
-  highlighted: boolean;
-  name: string;
+  color: string
+  visible: boolean
+  highlighted: boolean
+  name: string
 }
 
 export default class ObjectsCommon {
@@ -61,7 +61,7 @@ export default class ObjectsCommon {
       visible,
       highlighted,
       name,
-    };
+    }
   }
 
   public static createTranslateOperation(
@@ -76,7 +76,7 @@ export default class ObjectsCommon {
       y,
       z,
       relative,
-    };
+    }
   }
 
   public static createMirrorOperation(
@@ -85,7 +85,7 @@ export default class ObjectsCommon {
     return {
       type: 'mirror',
       plane,
-    };
+    }
   }
 
   public static createRotateOperation(
@@ -98,7 +98,7 @@ export default class ObjectsCommon {
       axis,
       angle,
       relative,
-    };
+    }
   }
 
   public static createScaleOperation(
@@ -111,42 +111,42 @@ export default class ObjectsCommon {
       x,
       y,
       z,
-    };
+    }
   }
 
-  protected operations: OperationsArray;
-  protected _pendingOperation: boolean;
-  protected viewOptions: IViewOptions;
-  protected id: string;
-  protected type: string;
-  protected scene: Scene;
+  protected operations: OperationsArray
+  protected _pendingOperation: boolean
+  protected viewOptions: IViewOptions
+  protected id: string
+  protected type: string
+  protected scene: Scene
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
     scene: Scene,
   ) {
-    this.setOperations(operations);
-    this.setViewOptions(viewOptions);
+    this.setOperations(operations)
+    this.setViewOptions(viewOptions)
     //each new object must have a new ID
-    this.id = uuid();
-    this.scene = scene;
+    this.id = uuid()
+    this.scene = scene
   }
 
   public getID() {
-    return this.id;
+    return this.id
   }
 
   public getOperations(): OperationsArray {
-    return this.operations;
+    return this.operations
   }
 
   public setOperations(operations: OperationsArray = []): void {
-    throw new Error('ObjectsCommon.setOperations() Implemented on children');
+    throw new Error('ObjectsCommon.setOperations() Implemented on children')
   }
 
   public addOperations(operations: OperationsArray = []): void {
-    this.setOperations(this.operations.concat(operations));
+    this.setOperations(this.operations.concat(operations))
   }
 
   public translate(
@@ -157,56 +157,56 @@ export default class ObjectsCommon {
   ): void {
     this.addOperations([
       ObjectsCommon.createTranslateOperation(x, y, z, relative),
-    ]);
+    ])
   }
 
   public rotateX(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('x', angle, relative),
-    ]);
+    ])
   }
 
   public rotateY(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('y', angle, relative),
-    ]);
+    ])
   }
 
   public rotateZ(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('z', angle, relative),
-    ]);
+    ])
   }
 
   public scale(x: number, y: number, z: number): void {
-    this.addOperations([ObjectsCommon.createScaleOperation(x, y, z)]);
+    this.addOperations([ObjectsCommon.createScaleOperation(x, y, z)])
   }
 
   public mirror(plane: string): void {
-    this.addOperations([ObjectsCommon.createMirrorOperation(plane)]);
+    this.addOperations([ObjectsCommon.createMirrorOperation(plane)])
   }
 
   public getMeshAsync(): Promise<THREE.Object3D> {
-    throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children');
+    throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children')
   }
 
   public setViewOptions(params: IViewOptions) {
-    this.viewOptions = { ...params };
+    this.viewOptions = { ...params }
   }
 
   public clone(): ObjectsCommon {
-    throw new Error('ObjectsCommon.clone() Implemented in children');
+    throw new Error('ObjectsCommon.clone() Implemented in children')
   }
 
   public getTypeName(): string {
-    return this.type;
+    return this.type
   }
 
   public toJSON(): IObjectsCommonJSON {
-    throw new Error('toJSON() Implemented in children');
+    throw new Error('toJSON() Implemented in children')
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {
-    throw new Error('updateFromJSON() Implemented in children');
+    throw new Error('updateFromJSON() Implemented in children')
   }
 }

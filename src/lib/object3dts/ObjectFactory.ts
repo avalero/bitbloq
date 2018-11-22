@@ -1,14 +1,14 @@
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import Object3D from './Object3D';
-import Cube, { ICubeJSON } from './Cube';
-import Cylinder, { ICylinderJSON } from './Cylinder';
-import Sphere, { ISphereJSON } from './Sphere';
-import Prism, { IPrismJSON } from './Prism';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon'
+import Object3D from './Object3D'
+import Cube, { ICubeJSON } from './Cube'
+import Cylinder, { ICylinderJSON } from './Cylinder'
+import Sphere, { ISphereJSON } from './Sphere'
+import Prism, { IPrismJSON } from './Prism'
 // import Union from './Union';
 // import CompoundObject, {ChildrenArray, ICompountObjectJSON} from './CompoundObject';
-import PrimitiveObject from './PrimitiveObject';
-import Scene from './Scene';
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
+import PrimitiveObject from './PrimitiveObject'
+import Scene from './Scene'
+import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup'
 
 // import Difference from './Difference';
 // import Intersection from './Intersection';
@@ -24,15 +24,15 @@ export default class ObjectFactory {
   ): ObjectsCommon {
     switch (obj.type) {
       case Cube.typeName:
-        return Cube.newFromJSON(obj as ICubeJSON, scene);
+        return Cube.newFromJSON(obj as ICubeJSON, scene)
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(obj as ICylinderJSON, scene);
+        return Cylinder.newFromJSON(obj as ICylinderJSON, scene)
       case Sphere.typeName:
-        return Sphere.newFromJSON(obj as ISphereJSON, scene);
+        return Sphere.newFromJSON(obj as ISphereJSON, scene)
       case Prism.typeName:
-        return Prism.newFromJSON(obj as IPrismJSON, scene);
+        return Prism.newFromJSON(obj as IPrismJSON, scene)
       case ObjectsGroup.typeName:
-        return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
+        return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene)
       // case Union.typeName:
       //   return Union.newFromJSON(json);
       // case Difference.typeName:
@@ -41,7 +41,7 @@ export default class ObjectFactory {
       //   return Intersection.newFromJSON(json);
     }
 
-    throw new Error('Unknown Primitive Object Type');
+    throw new Error('Unknown Primitive Object Type')
   }
 
   // public static createCompoundFromJSON(json: string, objectsCollector: Array <ObjectsCommon>): CompoundObject{

@@ -15,29 +15,29 @@
 import CompoundObject, {
   ICompoundObjectJSON,
   ChildrenArray,
-} from './CompoundObject';
-import { OperationsArray } from './ObjectsCommon';
-import Object3D from './Object3D';
-import ObjectFactory from './ObjectFactory';
+} from './CompoundObject'
+import { OperationsArray } from './ObjectsCommon'
+import Object3D from './Object3D'
+import ObjectFactory from './ObjectFactory'
 
-import Scene from './Scene';
+import Scene from './Scene'
 
 export default class Union extends CompoundObject {
-  static typeName: string = 'Union';
+  static typeName: string = 'Union'
 
   // FIXME. Children must be taken from scene, not created
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
-    const children: ChildrenArray = [];
+    const children: ChildrenArray = []
 
-    if (object.type != Union.typeName) throw new Error('Not Union Object');
+    if (object.type != Union.typeName) throw new Error('Not Union Object')
 
     object.children.forEach(element => {
-      const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object) as Object3D;
-      children.push(child);
-    });
+      const json = JSON.stringify(element)
+      const child = ObjectFactory.newFromJSON(object) as Object3D
+      children.push(child)
+    })
 
-    return new Union(children, object.operations, scene);
+    return new Union(children, object.operations, scene)
   }
 
   constructor(
@@ -45,19 +45,19 @@ export default class Union extends CompoundObject {
     operations: OperationsArray = [],
     scene: Scene,
   ) {
-    super(children, operations, scene);
-    this.type = Union.typeName;
-    console.log(this.toJSON());
+    super(children, operations, scene)
+    this.type = Union.typeName
+    console.log(this.toJSON())
   }
 
   public clone(): Union {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
-    );
-    const obj = new Union(childrenClone, this.operations);
+    )
+    const obj = new Union(childrenClone, this.operations)
     if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
+      obj.setMesh(this.mesh.clone())
     }
-    return obj;
+    return obj
   }
 }
