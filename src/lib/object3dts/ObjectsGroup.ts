@@ -3,7 +3,6 @@ import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import { OperationsArray } from './ObjectsCommon';
 import Object3D from './Object3D';
 import Scene from './Scene';
-//import cloneDeep from 'lodash.clonedeep';
 
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
   group: Array<IObjectsCommonJSON>;

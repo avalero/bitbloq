@@ -61,11 +61,28 @@ export default class Scene {
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
    * @param json object descriptor (it ignores id)
    */
-  public addNewObjectFromJSON(json: IObjectsCommonJSON): IObjectsCommonJSON {
+  public addNewObjectFromJSON(json: IObjectsCommonJSON): object {
     const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
     this.BitbloqScene.push(object);
     this.objectCollector.push(object);
-    return object.toJSON();
+    return this.toJSON();
+  }
+
+  public objectInScene(json: IObjectsCommonJSON):boolean{
+    
+    const obj = this.objectCollector.find(elem => elem.getID() === json.id);
+    if(obj) return true;
+    else return false;
+  }
+
+  public addExistingObject(object: ObjectsCommon): object{
+    if(this.objectInScene(object.toJSON())){
+      throw Error('Object already in Scene');
+    }else{
+      this.objectCollector.push(object);
+      this.BitbloqScene.push(object);
+    }
+    return this.toJSON();
   }
 
   /**
@@ -73,7 +90,7 @@ export default class Scene {
    * If object is not present is does NOT anything.
    * @param json json object descriptor (only id is important)
    */
-  public removeObject(obj: IObjectsCommonJSON): void {
+  public removeObject(obj: IObjectsCommonJSON): object {
     const id = obj.id;
 
     this.objectCollector = this.objectCollector.filter(
@@ -82,6 +99,7 @@ export default class Scene {
     this.BitbloqScene = this.BitbloqScene.filter(
       object => object.getID() !== id,
     );
+    return this.toJSON();
   }
 
   /**
@@ -101,7 +119,7 @@ export default class Scene {
    * If not it triggers an error exception.
    * @param json json describing object
    */
-  public updateObject(obj: IObjectsCommonJSON): void {
+  public updateObject(obj: IObjectsCommonJSON): object {
     const id = obj.id;
     let updated = false;
 
@@ -113,6 +131,7 @@ export default class Scene {
     });
 
     if (!updated) throw new Error(`Object id ${id} not found`);
+    return this.toJSON();
   }
 
   /**
