@@ -20,15 +20,14 @@ export default class ObjectsGroup extends ObjectsCommon {
     const group: Array<ObjectsCommon> = object.group.map(obj =>
       scene.getObject(obj),
     );
-    return new ObjectsGroup(group, scene);
+    return new ObjectsGroup(group);
   }
 
   private group: Array<ObjectsCommon>;
 
-  constructor(objects: Array<ObjectsCommon> = [], scene: Scene) {
-    super(ObjectsCommon.createViewOptions(), [], scene);
+  constructor(objects: Array<ObjectsCommon> = []) {
+    super(ObjectsCommon.createViewOptions(), []);
     this.group = objects;
-    this.scene = scene;
   }
   // Group operations. Will be transferred to children only when un-grouped.
   public setOperations(operations: OperationsArray = []): void {
@@ -84,7 +83,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   public clone(): ObjectsGroup {
     const groupClone = this.group.map(obj => obj.clone());
-    return new ObjectsGroup(groupClone, this.scene);
+    return new ObjectsGroup(groupClone);
   }
 
   public toJSON(): IObjectsGroupJSON {
@@ -101,14 +100,15 @@ export default class ObjectsGroup extends ObjectsCommon {
     return obj;
   }
 
+  //FIXME
   public updateFromJSON(object: IObjectsGroupJSON) {
-    if (this.id === object.id) {
-      this.setOperations(object.operations);
-      this.setViewOptions(object.viewOptions);
-      this.group = [];
-      this.group = object.group.map(obj => this.scene.getObject(obj));
-    } else {
-      throw new Error('Object id does not match with JSON id');
-    }
+    // if (this.id === object.id) {
+    //   this.setOperations(object.operations);
+    //   this.setViewOptions(object.viewOptions);
+    //   this.group = [];
+    //   this.group = object.group.map(obj => this.scene.getObject(obj));
+    // } else {
+    //   throw new Error('Object id does not match with JSON id');
+    // }
   }
 }

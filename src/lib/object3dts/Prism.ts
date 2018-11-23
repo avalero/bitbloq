@@ -33,7 +33,6 @@ import ObjectsCommon, {
   IObjectsCommonJSON,
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
-import Scene from './Scene';
 
 interface IPrismParams {
   sides: number;
@@ -48,23 +47,21 @@ export interface IPrismJSON extends IObjectsCommonJSON {
 export default class Prism extends PrimitiveObject {
   public static typeName: string = 'Prism';
 
-  public static newFromJSON(object: IPrismJSON, scene: Scene): Prism {
+  public static newFromJSON(object: IPrismJSON): Prism {
     if (object.type != Prism.typeName) throw new Error('Not Prism Object');
     return new Prism(
       object.parameters,
       object.operations,
       object.viewOptions,
-      scene,
     );
   }
 
   constructor(
     parameters: IPrismParams,
-    operations: OperationsArray,
-    viewOptions: IViewOptions,
-    scene: Scene,
+    operations: OperationsArray = [],
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
     this.type = Prism.typeName;
     this.parameters = { ...parameters };
     this._meshUpdateRequired = true;
@@ -103,7 +100,6 @@ export default class Prism extends PrimitiveObject {
       this.parameters as IPrismParams,
       this.operations,
       this.viewOptions,
-      this.scene,
     );
 
     if (!this.meshUpdateRequired && !this.pendingOperation) {

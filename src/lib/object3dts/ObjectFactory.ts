@@ -24,13 +24,13 @@ export default class ObjectFactory {
   ): ObjectsCommon {
     switch (obj.type) {
       case Cube.typeName:
-        return Cube.newFromJSON(obj as ICubeJSON, scene);
+        return Cube.newFromJSON(obj as ICubeJSON);
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(obj as ICylinderJSON, scene);
+        return Cylinder.newFromJSON(obj as ICylinderJSON);
       case Sphere.typeName:
-        return Sphere.newFromJSON(obj as ISphereJSON, scene);
+        return Sphere.newFromJSON(obj as ISphereJSON);
       case Prism.typeName:
-        return Prism.newFromJSON(obj as IPrismJSON, scene);
+        return Prism.newFromJSON(obj as IPrismJSON);
       case ObjectsGroup.typeName:
         return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
       // case Union.typeName:

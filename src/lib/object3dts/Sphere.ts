@@ -20,7 +20,6 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-import Scene from './Scene';
 
 interface ISphereParams {
   radius: number;
@@ -33,13 +32,12 @@ export interface ISphereJSON extends IObjectsCommonJSON {
 export default class Sphere extends PrimitiveObject {
   public static typeName: string = 'Sphere';
 
-  public static newFromJSON(object: ISphereJSON, scene: Scene): Sphere {
+  public static newFromJSON(object: ISphereJSON,): Sphere {
     if (object.type != Sphere.typeName) throw new Error('Not Sphere Object');
     return new Sphere(
       object.parameters,
       object.operations,
       object.viewOptions,
-      scene,
     );
   }
 
@@ -47,9 +45,8 @@ export default class Sphere extends PrimitiveObject {
     parameters: ISphereParams,
     operations: OperationsArray,
     viewOptions: IViewOptions,
-    scene: Scene,
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
     this.type = Sphere.typeName;
     this.parameters = { ...parameters };
     this._meshUpdateRequired = true;
@@ -82,7 +79,6 @@ export default class Sphere extends PrimitiveObject {
       this.parameters as ISphereParams,
       this.operations,
       this.viewOptions,
-      this.scene,
     );
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
