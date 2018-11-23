@@ -20,7 +20,6 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
-import Scene from './Scene';
 
 interface ICylinderParams {
   r0: number;
@@ -35,14 +34,13 @@ export interface ICylinderJSON extends IPrimitiveObjectJSON {
 export default class Cylinder extends PrimitiveObject {
   public static typeName: string = 'Cylinder';
 
-  public static newFromJSON(object: ICylinderJSON, scene: Scene): Cylinder {
+  public static newFromJSON(object: ICylinderJSON): Cylinder {
     if (object.type != Cylinder.typeName)
       throw new Error('Not Cylinder Object');
     return new Cylinder(
       object.parameters,
       object.operations,
       object.viewOptions,
-      scene,
     );
   }
 
@@ -50,9 +48,8 @@ export default class Cylinder extends PrimitiveObject {
     parameters: ICylinderParams,
     operations: OperationsArray,
     viewOptions: IViewOptions,
-    scene: Scene,
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
     this.type = Cylinder.typeName;
     this.parameters = { ...parameters };
     this._meshUpdateRequired = true;
@@ -93,7 +90,6 @@ export default class Cylinder extends PrimitiveObject {
       this.parameters as ICylinderParams,
       this.operations,
       this.viewOptions,
-      this.scene,
     );
 
     if (!this.meshUpdateRequired && !this.pendingOperation) {
