@@ -119,18 +119,15 @@ export default class ObjectsCommon {
   protected viewOptions: IViewOptions;
   protected id: string;
   protected type: string;
-  protected scene: Scene;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
-    scene: Scene,
   ) {
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
     this.id = uuid();
-    this.scene = scene;
   }
 
   public getID() {

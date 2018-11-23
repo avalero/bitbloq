@@ -66,9 +66,8 @@ export default class Object3D extends ObjectsCommon {
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
-    scene: Scene,
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
   }
 
   get meshUpdateRequired(): boolean {

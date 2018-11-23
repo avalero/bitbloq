@@ -14,7 +14,7 @@
  */
 
 import * as THREE from 'three';
-import { OperationsArray, IViewOptions } from './ObjectsCommon';
+import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 import Scene from './Scene';
 
@@ -31,13 +31,12 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
 export default class Cube extends PrimitiveObject {
   public static typeName: string = 'Cube';
 
-  public static newFromJSON(object: ICubeJSON, scene: Scene): Cube {
+  public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type != Cube.typeName) throw new Error('Not Cube Object');
     return new Cube(
       object.parameters,
       object.operations,
       object.viewOptions,
-      scene,
     );
   }
 
@@ -45,11 +44,10 @@ export default class Cube extends PrimitiveObject {
 
   constructor(
     parameters: ICubeParams,
-    operations: OperationsArray,
-    viewOptions: IViewOptions,
-    scene: Scene,
+    operations: OperationsArray = [],
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
   }
@@ -81,7 +79,6 @@ export default class Cube extends PrimitiveObject {
       this.parameters as ICubeParams,
       this.operations,
       this.viewOptions,
-      this.scene,
     );
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       cube.setMesh(this.mesh.clone());

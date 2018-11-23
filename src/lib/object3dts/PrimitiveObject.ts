@@ -33,9 +33,8 @@ export default class PrimitiveObject extends Object3D {
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
-    scene: Scene,
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
   }
 
   public setParameters(parameters: Object): void {
