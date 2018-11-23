@@ -68,17 +68,16 @@ export default class Scene {
     return this.toJSON();
   }
 
-  public objectInScene(json: IObjectsCommonJSON):boolean{
-    
+  public objectInScene(json: IObjectsCommonJSON): boolean {
     const obj = this.objectCollector.find(elem => elem.getID() === json.id);
-    if(obj) return true;
+    if (obj) return true;
     else return false;
   }
 
-  public addExistingObject(object: ObjectsCommon): object{
-    if(this.objectInScene(object.toJSON())){
+  public addExistingObject(object: ObjectsCommon): object {
+    if (this.objectInScene(object.toJSON())) {
       throw Error('Object already in Scene');
-    }else{
+    } else {
       this.objectCollector.push(object);
       this.BitbloqScene.push(object);
     }

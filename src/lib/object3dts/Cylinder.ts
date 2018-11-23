@@ -20,7 +20,6 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
-
 interface ICylinderParams {
   r0: number;
   r1: number;

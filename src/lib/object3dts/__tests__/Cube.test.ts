@@ -29,7 +29,6 @@ test('Check params are well passed', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect((object as any).parameters.width).toBe(width);
   expect((object as any).parameters.height).toBe(height);
@@ -41,7 +40,6 @@ test('Check there are no initial operations', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect((object as any).operations).toEqual([]);
 });
@@ -51,7 +49,6 @@ test('Check mesh needs to be computed', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect(object.meshUpdateRequired).toBe(true);
 });
@@ -62,7 +59,6 @@ test('Check params are well passed and mesh needs to be recomputed', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   object.setParameters({ width: 5, height: 5, depth: 5 });
   expect((object as any).parameters).toEqual({ width: 5, height: 5, depth: 5 });
@@ -80,7 +76,6 @@ test('Check mesh needs to be computed only once', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect(object.meshUpdateRequired).toBe(true);
   object.setParameters({ width, height, depth });
@@ -93,7 +88,6 @@ test('Check Object Dimensions are well Constructed', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   return object.getPrimitiveMeshAsync().then(mesh => {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
@@ -107,7 +101,6 @@ test('Check initial position and rotation', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   return object.getPrimitiveMeshAsync().then(mesh => {
     const center = mesh.position;
@@ -127,7 +120,6 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   object.setParameters({ width: 5, height: 5, depth: 5 });
   expect((object as any).parameters).toEqual({ width: 5, height: 5, depth: 5 });
@@ -146,7 +138,6 @@ test('Async Check Object Dimensions are well Constructed', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   return object.getMeshAsync().then(mesh => {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
@@ -160,7 +151,6 @@ test('Async Check initial position and rotation', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   return object.getMeshAsync().then(mesh => {
     const center = mesh.position;
@@ -179,7 +169,6 @@ test('Cube - toJSON - Parameteres', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.parameters.width).toEqual(width);
@@ -201,7 +190,6 @@ test('Cube - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-     
   );
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.operations.length).toEqual(2);
@@ -238,7 +226,6 @@ test('Cube - toJSON - ViewOptions', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.viewOptions.color).toEqual(color);
@@ -252,10 +239,9 @@ test('Cube - fromJSON - Parameteres', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const json1: ICubeJSON = object1.toJSON() as ICubeJSON;
-  const object = Cube.newFromJSON(json1,  );
+  const object = Cube.newFromJSON(json1);
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.parameters.width).toEqual(width);
   expect(obj.parameters.height).toEqual(height);
@@ -276,10 +262,9 @@ test('Cube - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-     
   );
   const json1: ICubeJSON = object1.toJSON() as ICubeJSON;
-  const object = Cube.newFromJSON(json1,  );
+  const object = Cube.newFromJSON(json1);
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.operations.length).toEqual(2);
   expect(obj.operations[0].type).toEqual('translation');
@@ -301,10 +286,9 @@ test('Cube - fromJSON - ViewOptions', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
   const json1: ICubeJSON = object1.toJSON() as ICubeJSON;
-  const object = Cube.newFromJSON(json1,  );
+  const object = Cube.newFromJSON(json1);
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
   expect(obj.viewOptions.color).toEqual(color);
   expect(obj.viewOptions.name).toEqual(name);
@@ -330,7 +314,6 @@ test('Cube - UpdateFromJSON - ', () => {
       ObjectsCommon.createRotateOperation('y', 2 * angle),
     ],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
 
   const object1 = new Cube(
@@ -340,7 +323,6 @@ test('Cube - UpdateFromJSON - ', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
 
   const obj1: ICubeJSON = object1.toJSON() as ICubeJSON;
@@ -378,7 +360,6 @@ test('Cube - clone() - Parameteres', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const object = aux.clone();
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
@@ -401,7 +382,6 @@ test('Cube - CLONE - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-     
   );
 
   const object = aux.clone();
@@ -426,7 +406,6 @@ test('Cube - Clone - ViewOptions', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
   const object = object1.clone();
   const obj: ICubeJSON = object.toJSON() as ICubeJSON;
@@ -446,7 +425,6 @@ test('Cube - Clone - no need to update', () => {
     { width, height, depth },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
   return object1.getMeshAsync().then(mesh => {
     const object = object1.clone();

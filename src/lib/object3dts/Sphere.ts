@@ -20,7 +20,6 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-
 interface ISphereParams {
   radius: number;
 }
@@ -32,13 +31,9 @@ export interface ISphereJSON extends IObjectsCommonJSON {
 export default class Sphere extends PrimitiveObject {
   public static typeName: string = 'Sphere';
 
-  public static newFromJSON(object: ISphereJSON,): Sphere {
+  public static newFromJSON(object: ISphereJSON): Sphere {
     if (object.type != Sphere.typeName) throw new Error('Not Sphere Object');
-    return new Sphere(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    return new Sphere(object.parameters, object.operations, object.viewOptions);
   }
 
   constructor(

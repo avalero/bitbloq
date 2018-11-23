@@ -17,9 +17,24 @@ const r1 = 5;
 
 test('Check addition of objects to Group', () => {
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -28,8 +43,7 @@ test('Check addition of objects to Group', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
   return group.getMeshAsync().then(meshGroup => {
     expect(meshGroup.children.length).toBe(3);
@@ -41,9 +55,24 @@ test('Check translation of group', () => {
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -52,8 +81,7 @@ test('Check translation of group', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
 
   return group.getMeshAsync().then(meshGroup => {
@@ -66,9 +94,24 @@ test('Check translation of group', () => {
 test('Check rotation of group', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -77,8 +120,7 @@ test('Check rotation of group', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -94,9 +136,24 @@ test('Check rotation of group', () => {
 test('Check several rotations of group', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -105,8 +162,7 @@ test('Check several rotations of group', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -127,11 +183,26 @@ test('Check translation and rotation', () => {
   const y = 5;
   const z = -5;
   const angle = Math.PI / 3;
-  
+
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -140,8 +211,7 @@ test('Check translation and rotation', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -164,9 +234,24 @@ test('Check ungroup', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
 
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -175,8 +260,7 @@ test('Check ungroup', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -196,12 +280,27 @@ test('Check ungroup with prior', () => {
   const x = 10;
   const y = 5;
   const z = -5;
-  
+
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
   object1Aux.setOperations([{ type: 'translation', x, y, z, relative: false }]);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -210,12 +309,8 @@ test('Check ungroup with prior', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
-  const group = new ObjectsGroups([object1, object2, object3],scene);
-
-  
-  
-  
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
   const objects: Array<ObjectsCommon> = group.unGroup();
   const object: ObjectsCommon = objects[0];
@@ -231,10 +326,25 @@ test('Check ungroup with other prior', () => {
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  const object1Aux = new Cube({ width, height, depth }, [], ObjectsCommon.createViewOptions(), scene);
+  const object1Aux = new Cube(
+    { width, height, depth },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
   object1Aux.setOperations([{ type: 'translation', x, y, z, relative: false }]);
-  const object2Aux = new Sphere({ radius }, [], ObjectsCommon.createViewOptions(), scene);
-  const object3Aux = new Cylinder({ r0, r1, height }, [], ObjectsCommon.createViewOptions(), scene);
+  const object2Aux = new Sphere(
+    { radius },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
+  const object3Aux = new Cylinder(
+    { r0, r1, height },
+    [],
+    ObjectsCommon.createViewOptions(),
+    scene,
+  );
 
   scene.addNewObjectFromJSON(object1Aux.toJSON());
   const object1 = (scene as any).BitbloqScene[0];
@@ -243,8 +353,7 @@ test('Check ungroup with other prior', () => {
   scene.addNewObjectFromJSON(object3Aux.toJSON());
   const object3 = (scene as any).BitbloqScene[2];
 
-
-  const group = new ObjectsGroups([object1, object2, object3],scene);
+  const group = new ObjectsGroups([object1, object2, object3], scene);
 
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
   const objects: Array<ObjectsCommon> = group.unGroup();

@@ -33,11 +33,7 @@ export default class Cube extends PrimitiveObject {
 
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type != Cube.typeName) throw new Error('Not Cube Object');
-    return new Cube(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
   //private parameters: ICubeParams;
@@ -45,7 +41,7 @@ export default class Cube extends PrimitiveObject {
   constructor(
     parameters: ICubeParams,
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
   ) {
     super(viewOptions, operations);
     this.type = Cube.typeName;

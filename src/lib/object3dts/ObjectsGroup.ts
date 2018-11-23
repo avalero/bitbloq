@@ -102,6 +102,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   //FIXME
   public updateFromJSON(object: IObjectsGroupJSON) {
+    throw new Error('When updating ObjectsGroup create a new group');
     // if (this.id === object.id) {
     //   this.setOperations(object.operations);
     //   this.setViewOptions(object.viewOptions);

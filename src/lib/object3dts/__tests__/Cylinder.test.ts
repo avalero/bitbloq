@@ -17,7 +17,6 @@ test('Check params are well passed', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect((object as any).parameters.r0).toBe(r0);
   expect((object as any).parameters.r1).toBe(r1);
@@ -29,7 +28,6 @@ test('Check there are no initial operations', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect((object as any).operations).toEqual([]);
 });
@@ -39,7 +37,6 @@ test('Check mesh needs to be computed', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect(object.meshUpdateRequired).toBe(true); //does not need to be computed after creation
 });
@@ -50,7 +47,6 @@ test('Check params are well passed and mesh needs to be recomputed', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   object.setParameters({ r0: 5, r1: 5, height: 5 });
   expect((object as any).parameters).toEqual({ r0: 5, r1: 5, height: 5 });
@@ -68,7 +64,6 @@ test('Check mesh needs to be computed only once', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   expect(object.meshUpdateRequired).toBe(true);
   object.setParameters({ r0, r1, height });
@@ -81,7 +76,6 @@ test('Check Object Dimensions are well Constructed', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const mesh = object.getPrimitiveMeshAsync().then(mesh => {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
@@ -99,7 +93,6 @@ test('Check initial position and rotation', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   object.getPrimitiveMeshAsync().then(mesh => {
     const center = mesh.position;
@@ -119,7 +112,6 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   object.setParameters({ r0: 5, r1: 5, height: 5 });
   expect((object as any).parameters).toEqual({ r0: 5, r1: 5, height: 5 });
@@ -138,7 +130,6 @@ test('Async Check Object Dimensions are well Constructed', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   return object.getMeshAsync().then(mesh => {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
@@ -156,7 +147,6 @@ test('Async Check initial position and rotation', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   return object.getMeshAsync().then(mesh => {
     const center = mesh.position;
@@ -175,7 +165,6 @@ test('Cylinder - toJSON - Parameteres', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const obj: ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.parameters.r0).toEqual(r0);
@@ -198,7 +187,6 @@ test('Cylinder - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-     
   );
 
   const obj: ICylinderJSON = object.toJSON() as ICylinderJSON;
@@ -237,7 +225,6 @@ test('Cylinder - toJSON - ViewOptions', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
 
   const obj: ICylinderJSON = object.toJSON() as ICylinderJSON;
@@ -252,10 +239,9 @@ test('Cylinder - fromJSON - Parameteres', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const json1 = object1.toJSON() as ICylinderJSON;
-  const object = Cylinder.newFromJSON(json1,  );
+  const object = Cylinder.newFromJSON(json1);
 
   const obj = object.toJSON() as ICylinderJSON;
   expect(obj.parameters.r0).toEqual(r0);
@@ -277,10 +263,9 @@ test('Cylinder - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-     
   );
   const json1 = object1.toJSON() as ICylinderJSON;
-  const object = Cylinder.newFromJSON(json1,  );
+  const object = Cylinder.newFromJSON(json1);
 
   const obj: ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.operations.length).toEqual(2);
@@ -303,10 +288,9 @@ test('Cylinder - fromJSON - ViewOptions', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
   const json1 = object1.toJSON() as ICylinderJSON;
-  const object = Cylinder.newFromJSON(json1,  );
+  const object = Cylinder.newFromJSON(json1);
 
   const obj: ICylinderJSON = object.toJSON() as ICylinderJSON;
   expect(obj.viewOptions.color).toEqual(color);
@@ -322,7 +306,6 @@ test('Cylinder - clone() - Parameteres', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(),
-     
   );
   const object = aux.clone();
 
@@ -346,7 +329,6 @@ test('Cylinder - CLONE - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-     
   );
 
   const object = aux.clone();
@@ -379,7 +361,6 @@ test('Cylinder - UpdateFromJSON - ', () => {
       ObjectsCommon.createRotateOperation('y', 2 * angle),
     ],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
 
   const object1 = new Cylinder(
@@ -389,7 +370,6 @@ test('Cylinder - UpdateFromJSON - ', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
 
   const obj1: ICylinderJSON = object1.toJSON() as ICylinderJSON;
@@ -426,7 +406,6 @@ test('Cylinder - Clone - ViewOptions', () => {
     { r0, r1, height },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-     
   );
   const object = object1.clone();
   const obj: ICylinderJSON = object.toJSON() as ICylinderJSON;

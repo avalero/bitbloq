@@ -49,11 +49,7 @@ export default class Prism extends PrimitiveObject {
 
   public static newFromJSON(object: IPrismJSON): Prism {
     if (object.type != Prism.typeName) throw new Error('Not Prism Object');
-    return new Prism(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    return new Prism(object.parameters, object.operations, object.viewOptions);
   }
 
   constructor(
