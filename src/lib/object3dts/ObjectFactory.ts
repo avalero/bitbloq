@@ -8,7 +8,7 @@ import Prism, { IPrismJSON } from './Prism';
 
 import Scene from './Scene';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import RepetitionObject, {IRepetitionObjectJSON} from './RepetitionObject';
+import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 
 // import Difference from './Difference';
 // import Intersection from './Intersection';
@@ -34,7 +34,10 @@ export default class ObjectFactory {
       case ObjectsGroup.typeName:
         return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
       case RepetitionObject.typeName:
-        return RepetitionObject.newFromJSON(obj as IRepetitionObjectJSON, scene);
+        return RepetitionObject.newFromJSON(
+          obj as IRepetitionObjectJSON,
+          scene,
+        );
       // case Union.typeName:
       //   return Union.newFromJSON(json);
       // case Difference.typeName:

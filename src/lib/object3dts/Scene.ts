@@ -1,6 +1,10 @@
 import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import * as THREE from 'three';
 import ObjectFactory from './ObjectFactory';
+import { isObject, isArray } from 'util';
+import { isAbsolute } from 'path';
+import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
+import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 
 type ClickHandler = (object?: any) => void;
 
@@ -62,10 +66,12 @@ export default class Scene {
    * @param json object descriptor (it ignores id)
    */
   public addNewObjectFromJSON(json: IObjectsCommonJSON): object {
-    const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
-    this.BitbloqScene.push(object);
-    this.objectCollector.push(object);
-    return this.toJSON();
+    try {
+      const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
+      return this.addExistingObject(object);
+    } catch (e) {
+      throw new Error(`Cannot add new Object from JSON ${e}`);
+    }
   }
 
   public objectInScene(json: IObjectsCommonJSON): boolean {
@@ -74,18 +80,63 @@ export default class Scene {
     else return false;
   }
 
-  public removeFromBitbloqScene(json: IObjectsCommonJSON): void {
-    if(!this.objectInScene(json)) throw new Error(`Object id ${json.id} not present in Scene`);
-    this.BitbloqScene = this.BitbloqScene.filter( obj => obj.getID() !== json.id);
+  /**
+   * Removes Object or Array of Objects from objectCollector array
+   * @param json Object or Array of objects
+   */
+  public removeFromObjectCollector(
+    json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
+  ): object {
+    if (isArray(json)) {
+      json.forEach(obj => this.removeFromObjectCollector(obj));
+    } else {
+      if (!this.objectInScene(json))
+        throw new Error(`Object id ${json.id} not present in Scene`);
+      this.objectCollector = this.objectCollector.filter(
+        obj => obj.getID() !== json.id,
+      );
+    }
+
+    return this.toJSON();
+  }
+
+  /**
+   * Removes Object or Array of Objects from BitbloqScene array
+   * @param json Object or Array of objects
+   */
+  public removeFromBitbloqScene(
+    json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
+  ): object {
+    if (isArray(json)) {
+      json.forEach(obj => this.removeFromBitbloqScene(obj));
+    } else {
+      if (!this.objectInScene(json))
+        throw new Error(`Object id ${json.id} not present in Scene`);
+      this.BitbloqScene = this.BitbloqScene.filter(
+        obj => obj.getID() !== json.id,
+      );
+    }
+
+    return this.toJSON();
   }
 
   public addExistingObject(object: ObjectsCommon): object {
     if (this.objectInScene(object.toJSON())) {
       throw Error('Object already in Scene');
     } else {
-      this.objectCollector.push(object);
       this.BitbloqScene.push(object);
+      this.objectCollector.push(object);
+
+      //In case the objects has children, they must be removed from BitbloqScene (remain in ObjectCollector)
+      if (object.getTypeName() === ObjectsGroup.typeName) {
+        (object.toJSON() as IObjectsGroupJSON).group.forEach(obj => {
+          this.removeFromBitbloqScene(obj);
+        });
+      } else if (object.getTypeName() === RepetitionObject.typeName) {
+        this.removeFromBitbloqScene((object.toJSON() as IRepetitionObjectJSON).object);
+      }
     }
+
     return this.toJSON();
   }
 
@@ -97,12 +148,9 @@ export default class Scene {
   public removeObject(obj: IObjectsCommonJSON): object {
     const id = obj.id;
 
-    this.objectCollector = this.objectCollector.filter(
-      object => object.getID() !== id,
-    );
-    this.BitbloqScene = this.BitbloqScene.filter(
-      object => object.getID() !== id,
-    );
+    this.removeFromBitbloqScene(obj);
+    this.removeFromObjectCollector(obj);
+
     return this.toJSON();
   }
 

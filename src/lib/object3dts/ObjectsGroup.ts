@@ -114,7 +114,6 @@ export default class ObjectsGroup extends ObjectsCommon {
     else throw new Error(`Object id ${obj.id} not found in group`);
   }
 
-  
   /**
    * Updates objects belonging to a group. Group members cannot be changed.
    * If group members do not match an Error is thrown
