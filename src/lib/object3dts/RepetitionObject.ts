@@ -82,6 +82,7 @@ export default class RepetitionObject extends ObjectsGroup {
     super([]);
     this.parameters = { ...params };
     this.object = object;
+    this.type = RepetitionObject.typeName;
     if (this.parameters.type.toLowerCase() === 'cartesian')
       this.cartesianRepetition();
     else if (this.parameters.type.toLowerCase() === 'polar')

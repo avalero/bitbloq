@@ -74,8 +74,14 @@ export default class Scene {
     }
   }
 
-  public objectInScene(json: IObjectsCommonJSON): boolean {
+  public objectInObjectCollector(json: IObjectsCommonJSON): boolean {
     const obj = this.objectCollector.find(elem => elem.getID() === json.id);
+    if (obj) return true;
+    else return false;
+  }
+
+  public objectInBitbloqScene(json: IObjectsCommonJSON): boolean {
+    const obj = this.BitbloqScene.find(elem => elem.getID() === json.id);
     if (obj) return true;
     else return false;
   }
@@ -90,7 +96,7 @@ export default class Scene {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromObjectCollector(obj));
     } else {
-      if (!this.objectInScene(json))
+      if (!this.objectInObjectCollector(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
       this.objectCollector = this.objectCollector.filter(
         obj => obj.getID() !== json.id,
@@ -110,7 +116,7 @@ export default class Scene {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromBitbloqScene(obj));
     } else {
-      if (!this.objectInScene(json))
+      if (!this.objectInObjectCollector(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
       this.BitbloqScene = this.BitbloqScene.filter(
         obj => obj.getID() !== json.id,
@@ -121,19 +127,20 @@ export default class Scene {
   }
 
   public addExistingObject(object: ObjectsCommon): object {
-    if (this.objectInScene(object.toJSON())) {
+    if (this.objectInObjectCollector(object.toJSON())) {
       throw Error('Object already in Scene');
     } else {
       this.BitbloqScene.push(object);
       this.objectCollector.push(object);
-
       //In case the objects has children, they must be removed from BitbloqScene (remain in ObjectCollector)
       if (object.getTypeName() === ObjectsGroup.typeName) {
         (object.toJSON() as IObjectsGroupJSON).group.forEach(obj => {
           this.removeFromBitbloqScene(obj);
         });
       } else if (object.getTypeName() === RepetitionObject.typeName) {
-        this.removeFromBitbloqScene((object.toJSON() as IRepetitionObjectJSON).object);
+        this.removeFromBitbloqScene(
+          (object.toJSON() as IRepetitionObjectJSON).object,
+        );
       }
     }
 

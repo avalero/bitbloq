@@ -2,7 +2,7 @@ import ObjectsGroups from '../ObjectsGroup';
 
 import Cube from '../Cube';
 import Object3D from '../Object3D';
-import RepetitionObject, {IRepetitionObjectJSON} from '../RepetitionObject';
+import RepetitionObject, { IRepetitionObjectJSON } from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
 import ObjectsCommon from '../ObjectsCommon';
 import Scene from '../Scene';
@@ -69,22 +69,24 @@ test('Test getGroup', () => {
 test('Test newFromJSON', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
-  const scene:Scene = new Scene();
+  const scene: Scene = new Scene();
   scene.addExistingObject(object1);
 
-  const jsonObj:IRepetitionObjectJSON = {
+  const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
     object: object1.toJSON(),
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    operations:[],
-  }
+    operations: [],
+  };
 
+  const repetion: RepetitionObject = RepetitionObject.newFromJSON(
+    jsonObj,
+    scene,
+  );
 
-  const repetion: RepetitionObject = RepetitionObject.newFromJSON(jsonObj,scene);
-  
   const group: ObjectsGroup = repetion.getGroup();
   const objects: Array<ObjectsCommon> = group.unGroup();
   expect(objects.length).toBe(3);
@@ -96,53 +98,54 @@ test('Test newFromJSON', () => {
 test('Test newFromJSON - id does not match', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
-  const scene:Scene = new Scene();
+  const scene: Scene = new Scene();
   scene.addExistingObject(object1);
 
   const object2 = object1.clone();
 
-  const jsonObj:IRepetitionObjectJSON = {
+  const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
     object: object2.toJSON(),
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    operations:[],
-  }
-  const e = () => RepetitionObject.newFromJSON(jsonObj,scene);
+    operations: [],
+  };
+  const e = () => RepetitionObject.newFromJSON(jsonObj, scene);
   expect(e).toThrowError();
 });
-
 
 test('Test updateFromJSON - Update Parameters', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
-  const scene:Scene = new Scene();
+  const scene: Scene = new Scene();
   scene.addExistingObject(object1);
 
-  const jsonObj:IRepetitionObjectJSON = {
+  const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
     object: object1.toJSON(),
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    operations:[],
-  }
+    operations: [],
+  };
 
+  const repetition: RepetitionObject = RepetitionObject.newFromJSON(
+    jsonObj,
+    scene,
+  );
 
-  const repetition: RepetitionObject = RepetitionObject.newFromJSON(jsonObj,scene);
-  
-  const jsonObjUpdate:IRepetitionObjectJSON = {
+  const jsonObjUpdate: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: repetition.getID(),
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
     object: object1.toJSON(),
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    operations:[],
-  }
+    operations: [],
+  };
 
   repetition.updateFromJSON(jsonObjUpdate);
 
@@ -154,35 +157,36 @@ test('Test updateFromJSON - Update Parameters', () => {
   });
 });
 
-
 test('Test updateFromJSON - Update Object', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
-  const scene:Scene = new Scene();
+  const scene: Scene = new Scene();
   scene.addExistingObject(object1);
 
-  const jsonObj:IRepetitionObjectJSON = {
+  const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
     object: object1.toJSON(),
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    operations:[],
-  }
+    operations: [],
+  };
 
+  const repetition: RepetitionObject = RepetitionObject.newFromJSON(
+    jsonObj,
+    scene,
+  );
 
-  const repetition: RepetitionObject = RepetitionObject.newFromJSON(jsonObj,scene);
-  
-  const jsonObjUpdate:IRepetitionObjectJSON = {
+  const jsonObjUpdate: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: repetition.getID(),
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
-    object: (object1.toJSON() as ICubeJSON).parameters.width(2*width),
+    object: (object1.toJSON() as ICubeJSON).parameters.width(2 * width),
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    operations:[],
-  }
+    operations: [],
+  };
 
   repetition.updateFromJSON(jsonObjUpdate);
 

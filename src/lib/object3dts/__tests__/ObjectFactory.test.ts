@@ -128,9 +128,7 @@ test('Check ObjectsGroup rejects object not in Scene from ObjectFactory', () => 
 test('Check RepetitionObject is well created from ObjectFactory', () => {
   const scene = new Scene();
 
-  const objectCube = new Cube(
-    { width, height, depth }
-  );
+  const objectCube = new Cube({ width, height, depth });
 
   scene.addExistingObject(objectCube);
 

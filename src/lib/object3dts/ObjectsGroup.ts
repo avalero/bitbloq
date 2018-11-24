@@ -32,6 +32,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   constructor(objects: Array<ObjectsCommon> = []) {
     super(ObjectsCommon.createViewOptions(), []);
     this.group = objects;
+    this.type = ObjectsGroup.typeName;
   }
   // Group operations. Will be transferred to children only when un-grouped.
   public setOperations(operations: OperationsArray = []): void {
