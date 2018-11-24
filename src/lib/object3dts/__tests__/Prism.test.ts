@@ -31,7 +31,6 @@ test('Check params are well passed', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   expect((object as any).parameters.sides).toBe(sides);
   expect((object as any).parameters.length).toBe(length);
@@ -43,7 +42,6 @@ test('Check there are no initial operations', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   expect((object as any).operations).toEqual([]);
 });
@@ -53,7 +51,6 @@ test('Check mesh needs to be computed', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   expect(object.meshUpdateRequired).toBe(true);
 });
@@ -64,7 +61,6 @@ test('Check params are well passed and mesh needs to be recomputed', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   object.setParameters({ sides: 5, length: 5, height: 5 });
   expect((object as any).parameters).toEqual({
@@ -86,7 +82,6 @@ test('Check mesh needs to be computed only once', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   expect(object.meshUpdateRequired).toBe(true);
   object.setParameters({ sides, length, height });
@@ -99,7 +94,6 @@ test('Check initial position and rotation', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   return object.getPrimitiveMeshAsync().then(mesh => {
     const center = mesh.position;
@@ -119,7 +113,6 @@ test('Async Check params are well passed and mesh needs to be recomputed', () =>
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   object.setParameters({ sides: 5, length: 5, height: 5 });
   expect((object as any).parameters).toEqual({
@@ -142,7 +135,6 @@ test('Async Check initial position and rotation', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   return object.getMeshAsync().then(mesh => {
     const center = mesh.position;
@@ -161,7 +153,6 @@ test('Prism - toJSON - Parameteres', () => {
     { sides, length, height },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   const obj: IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.parameters.sides).toEqual(sides);
@@ -184,7 +175,6 @@ test('Prism - toJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
 
   const obj: IPrismJSON = object.toJSON() as IPrismJSON;
@@ -223,7 +213,6 @@ test('Prism - toJSON - ViewOptions', () => {
     { sides, height, length },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-    new Scene(),
   );
 
   const obj: IPrismJSON = object.toJSON() as IPrismJSON;
@@ -238,10 +227,9 @@ test('Prism - fromJSON - Parameteres', () => {
     { sides, height, length },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   const json1 = object1.toJSON() as IPrismJSON;
-  const object = Prism.newFromJSON(json1, new Scene());
+  const object = Prism.newFromJSON(json1);
 
   const obj = object.toJSON() as IPrismJSON;
   expect(obj.parameters.length).toEqual(length);
@@ -263,10 +251,9 @@ test('Prism - fromJSON - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   const json1 = object1.toJSON() as IPrismJSON;
-  const object = Prism.newFromJSON(json1, new Scene());
+  const object = Prism.newFromJSON(json1);
 
   const obj: IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.operations.length).toEqual(2);
@@ -289,10 +276,9 @@ test('Prism - fromJSON - ViewOptions', () => {
     { length, height, sides },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-    new Scene(),
   );
   const json1 = object1.toJSON() as IPrismJSON;
-  const object = Prism.newFromJSON(json1, new Scene());
+  const object = Prism.newFromJSON(json1);
 
   const obj: IPrismJSON = object.toJSON() as IPrismJSON;
   expect(obj.viewOptions.color).toEqual(color);
@@ -319,7 +305,6 @@ test('Prism - UpdateFromJSON - ', () => {
       ObjectsCommon.createRotateOperation('y', 2 * angle),
     ],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-    new Scene(),
   );
 
   const object1 = new Prism(
@@ -329,7 +314,6 @@ test('Prism - UpdateFromJSON - ', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-    new Scene(),
   );
 
   const obj1: IPrismJSON = object1.toJSON() as IPrismJSON;
@@ -366,7 +350,6 @@ test('Prism - clone() - Parameteres', () => {
     { sides, height, length },
     [],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
   const object = aux.clone();
   const obj: IPrismJSON = object.toJSON() as IPrismJSON;
@@ -389,7 +372,6 @@ test('Prism - CLONE - Operations', () => {
       ObjectsCommon.createRotateOperation(axis, angle),
     ],
     ObjectsCommon.createViewOptions(),
-    new Scene(),
   );
 
   const object = aux.clone();
@@ -415,7 +397,6 @@ test('Prism - Clone - ViewOptions', () => {
     { sides, height, length },
     [],
     ObjectsCommon.createViewOptions(color, visible, highlighted, name),
-    new Scene(),
   );
   const object = object1.clone();
 

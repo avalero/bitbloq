@@ -9,17 +9,25 @@ import ObjectsCommon, {
 import Scene from '../Scene';
 import Sphere from '../Sphere';
 import ObjectFactory from '../ObjectFactory';
+import Cylinder from '../Cylinder';
+import ObjectsGroup from '../ObjectsGroup';
+import RepetitionObject, {
+  ICartesianRepetitionParams,
+} from '../RepetitionObject';
 const width = 10;
 const height = 20;
 const depth = 30;
 const radius = 4;
+const r0 = 12;
+const r1 = 10;
 
-test('Test Scene.addObject()', () => {
+test('Test Scene.addObjectFromJSON()', () => {
   const scene = new Scene();
   const object1 = new Cube({ width, height, depth });
   const object2 = new Sphere({ radius });
   scene.addNewObjectFromJSON(object1.toJSON());
   scene.addNewObjectFromJSON(object2.toJSON());
+
   return scene.getSceneAsync().then(scene => {
     expect(scene.children.length).toEqual(2);
     expect((scene.children[0] as THREE.Mesh).geometry).toBeInstanceOf(
@@ -40,7 +48,7 @@ test('Test Scene.toJSON()', () => {
 
   const objsJSON: Array<IObjectsCommonJSON> = scene.toJSON();
   const objs = objsJSON.map(jsonElement =>
-    ObjectFactory.newFromJSON(jsonElement),
+    ObjectFactory.newFromJSON(jsonElement, scene),
   );
   expect(objs.length).toEqual(2);
   expect((objs[0] as any).parameters.width).toBe(width);
@@ -60,7 +68,7 @@ test('Test Scene.removeObject()', () => {
 
   const objsJSON: Array<IObjectsCommonJSON> = scene.toJSON();
   const objs = objsJSON.map(jsonElement =>
-    ObjectFactory.newFromJSON(jsonElement),
+    ObjectFactory.newFromJSON(jsonElement, scene),
   );
   expect(objs.length).toEqual(3);
   scene.removeObject(objsJSON[1]); //remove object2
@@ -139,3 +147,182 @@ test('Scene.updateFromJSON() - ', () => {
   expect((obj_a as any).parameters.width).toEqual(3 * width);
   expect((obj_b as any).parameters.width).toEqual(5 * width);
 });
+
+test('Add group to Scene. Check if group objects are removed', () => {
+  const scene = new Scene();
+
+  const cube = new Cube({ width, height, depth });
+  scene.addExistingObject(cube);
+
+  const cylinder = new Cylinder({ r0, r1, height });
+  scene.addExistingObject(cylinder);
+
+  const sphere = new Sphere({ radius });
+  scene.addExistingObject(sphere);
+
+  expect((scene as any).BitbloqScene.length).toEqual(3);
+  expect((scene as any).objectCollector.length).toEqual(3);
+
+  const group = new ObjectsGroup([cube, cylinder]);
+
+  scene.addExistingObject(group);
+
+  expect((scene as any).BitbloqScene.length).toEqual(2);
+  expect((scene as any).objectCollector.length).toEqual(4);
+  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(true);
+  expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(group.toJSON())).toBe(true);
+});
+
+test('Add repetition to Scene. Check if main object is removed', () => {
+  const scene = new Scene();
+
+  const cube = new Cube({ width, height, depth });
+  scene.addExistingObject(cube);
+
+  const cylinder = new Cylinder({ r0, r1, height });
+  scene.addExistingObject(cylinder);
+
+  const sphere = new Sphere({ radius });
+  scene.addExistingObject(sphere);
+
+  expect((scene as any).BitbloqScene.length).toEqual(3);
+  expect((scene as any).objectCollector.length).toEqual(3);
+
+  const rep = new RepetitionObject(
+    { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
+    cube,
+  );
+
+  scene.addExistingObject(rep);
+
+  expect((scene as any).BitbloqScene.length).toEqual(3);
+  expect((scene as any).objectCollector.length).toEqual(4);
+  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(true);
+  expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+});
+
+test('Add repetition and group to Scene. Check repetition of non-present object cannot be created', () => {
+  const scene = new Scene();
+
+  const cube = new Cube({ width, height, depth });
+  scene.addExistingObject(cube);
+
+  const cylinder = new Cylinder({ r0, r1, height });
+  scene.addExistingObject(cylinder);
+
+  const sphere = new Sphere({ radius });
+  scene.addExistingObject(sphere);
+
+  expect((scene as any).BitbloqScene.length).toEqual(3);
+  expect((scene as any).objectCollector.length).toEqual(3);
+
+  const rep = new RepetitionObject(
+    { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
+    cube,
+  );
+
+  scene.addExistingObject(rep);
+
+  expect((scene as any).BitbloqScene.length).toEqual(3);
+  expect((scene as any).objectCollector.length).toEqual(4);
+  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(true);
+  expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+
+  const group = new ObjectsGroup([cylinder, sphere]);
+  scene.addExistingObject(group);
+
+  expect((scene as any).BitbloqScene.length).toEqual(2);
+  expect((scene as any).objectCollector.length).toEqual(5);
+  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(false);
+  expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+  expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
+  expect(scene.objectInBitbloqScene(group.toJSON())).toBe(true);
+
+  const group2 = new ObjectsGroup([cylinder, sphere]);
+  const e = () => scene.addExistingObject(group2);
+
+  expect(e).toThrowError();
+
+  const rep2 = new RepetitionObject(
+    { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
+    cube,
+  );
+  const e2 = () => scene.addExistingObject(rep2);
+
+  expect(e2).toThrowError();
+});
+
+// test('Create scene from JSON', () => {
+//   const sceneaux = new Scene();
+
+//   const cube = new Cube({ width, height, depth });
+//   sceneaux.addExistingObject(cube);
+
+//   const cylinder = new Cylinder({ r0, r1, height });
+//   sceneaux.addExistingObject(cylinder);
+
+//   const sphere = new Sphere({ radius });
+//   sceneaux.addExistingObject(sphere);
+
+//   const rep = new RepetitionObject(
+//     { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
+//     cube,
+//   );
+
+//   sceneaux.addExistingObject(rep);
+//   const group = new ObjectsGroup([cylinder, sphere]);
+//   sceneaux.addExistingObject(group);
+
+//   const scene = Scene(sceneaux.toJSON());
+
+//   expect((scene as any).BitbloqScene.length).toEqual(2);
+//   expect((scene as any).objectCollector.length).toEqual(5);
+//   expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
+//   expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+//   expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
+//   expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(false);
+//   expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
+//   expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(false);
+//   expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
+//   expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+//   expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
+//   expect(scene.objectInBitbloqScene(group.toJSON())).toBe(true);
+
+//   const group2 = new ObjectsGroup([cylinder, sphere]);
+//   const e = () => scene.addExistingObject(group2);
+
+//   expect(e).toThrowError();
+
+//   const rep2 = new RepetitionObject(
+//     { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
+//     cube,
+//   );
+//   const e2 = () => scene.addExistingObject(rep2);
+
+//   expect(e2).toThrowError();
+
+// });
