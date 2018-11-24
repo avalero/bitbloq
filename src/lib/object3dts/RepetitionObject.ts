@@ -14,9 +14,9 @@
  */
 
 import Object3D from './Object3D';
-import ObjectsGroup, {IObjectsGroupJSON} from './ObjectsGroup';
+import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
-import ObjectsCommon, {IObjectsCommonJSON} from './ObjectsCommon';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 
 import Scene from './Scene';
 
@@ -25,7 +25,7 @@ export interface IRepetitionObjectJSON extends IObjectsGroupJSON {
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 }
 
-export interface IRepetitionParams{
+export interface IRepetitionParams {
   num: number;
   type: string;
 }
@@ -54,13 +54,14 @@ export default class RepetitionObject extends ObjectsGroup {
    * @param scene the scene to which the object belongs
    */
   public static newFromJSON(obj: IRepetitionObjectJSON, scene: Scene) {
-    
-    if(obj.type !== RepetitionObject.typeName) throw new Error(`Types do not match ${RepetitionObject.typeName}, ${obj.type}`);
+    if (obj.type !== RepetitionObject.typeName)
+      throw new Error(
+        `Types do not match ${RepetitionObject.typeName}, ${obj.type}`,
+      );
     const object: ObjectsCommon = scene.getObject(obj);
 
     return new RepetitionObject(obj.parameters, object);
   }
-
 
   private object: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
@@ -148,14 +149,14 @@ export default class RepetitionObject extends ObjectsGroup {
     return new ObjectsGroup(this.unGroup());
   }
 
-  public toJSON():IRepetitionObjectJSON{
-    const obj = { 
+  public toJSON(): IRepetitionObjectJSON {
+    const obj = {
       ...super.toJSON(),
       type: this.type,
       parameters: this.parameters,
       object: this.object.toJSON(),
-    }
-    
+    };
+
     return obj;
   }
 }

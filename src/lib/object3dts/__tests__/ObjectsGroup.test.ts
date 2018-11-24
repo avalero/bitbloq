@@ -17,15 +17,9 @@ const r1 = 5;
 
 test('Check addition of objects to Group', () => {
   const scene = new Scene();
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -43,15 +37,9 @@ test('Check translation of group', () => {
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -69,16 +57,10 @@ test('Check translation of group', () => {
 test('Check rotation of group', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -99,16 +81,10 @@ test('Check rotation of group', () => {
 test('Check several rotations of group', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -136,16 +112,10 @@ test('Check translation and rotation', () => {
   const angle = Math.PI / 3;
 
   const scene = new Scene();
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -173,16 +143,9 @@ test('Check ungroup', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
 
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -209,19 +172,13 @@ test('Check ungroup with prior', () => {
   const z = -5;
 
   const scene = new Scene();
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
 
-  object1.translate(x,y,z);
+  const object1 = new Cube({ width, height, depth });
 
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+  object1.translate(x, y, z);
+
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -229,10 +186,10 @@ test('Check ungroup with prior', () => {
 
   const group = new ObjectsGroups([object1, object2, object3]);
 
-  group.setOperations([ObjectsCommon.createTranslateOperation(x,y,z,false)]);
-  
+  group.setOperations([ObjectsCommon.createTranslateOperation(x, y, z, false)]);
+
   const objects: Array<ObjectsCommon> = group.unGroup();
-  
+
   const object: ObjectsCommon = objects[0];
 
   return object.getMeshAsync().then(mesh => {
@@ -247,16 +204,10 @@ test('Check ungroup with other prior', () => {
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
@@ -273,42 +224,34 @@ test('Check ungroup with other prior', () => {
   });
 });
 
-
 test('Check UpdateFromJSON', () => {
   const x = 10;
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  
-  const object1 = new Cube(
-    { width, height, depth },
-  );
-  const object2 = new Sphere(
-    { radius }
-  );
-  const object3 = new Cylinder(
-    { r0, r1, height },
-  );
+
+  const object1 = new Cube({ width, height, depth });
+  const object2 = new Sphere({ radius });
+  const object3 = new Cylinder({ r0, r1, height });
 
   scene.addExistingObject(object1);
   scene.addExistingObject(object2);
   scene.addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
-  const jsonObj:IObjectsGroupJSON = group.toJSON();
-  (jsonObj.group[0] as ICubeJSON).parameters.width = 2*width;
+  const jsonObj: IObjectsGroupJSON = group.toJSON();
+  (jsonObj.group[0] as ICubeJSON).parameters.width = 2 * width;
 
   group.updateFromJSON(jsonObj);
 
-  const resultObject:IObjectsGroupJSON = group.toJSON();
-  expect((resultObject.group[0] as ICubeJSON).parameters.width).toEqual(2*width);
+  const resultObject: IObjectsGroupJSON = group.toJSON();
+  expect((resultObject.group[0] as ICubeJSON).parameters.width).toEqual(
+    2 * width,
+  );
 
   (resultObject.group[0] as ICubeJSON).id = 'xxxx';
 
-
   const e = () => group.updateFromJSON(resultObject);
-  
+
   expect(e).toThrowError();
-
 });
-

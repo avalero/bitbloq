@@ -7,7 +7,6 @@ import ObjectsCommon from '../ObjectsCommon';
 import Scene from '../Scene';
 import ObjectsGroup, { IObjectsGroupJSON } from '../ObjectsGroup';
 
-
 const width = 10;
 const height = 20;
 const depth = 30;
@@ -20,9 +19,7 @@ const sides = 5;
 const length = 3;
 
 test('Check Cube is well created from ObjectFactory', () => {
-  const object1 = new Cube(
-    { width, height, depth },
-  );
+  const object1 = new Cube({ width, height, depth });
   const json = object1.toJSON();
   const object: Cube = ObjectFactory.newFromJSON(json, new Scene()) as Cube;
   expect((object as any).parameters.width).toBe(width);
@@ -32,9 +29,7 @@ test('Check Cube is well created from ObjectFactory', () => {
 });
 
 test('Check Cylinder is well created from ObjectFactory', () => {
-  const object1 = new Cylinder(
-    { r0, r1, height }
-  );
+  const object1 = new Cylinder({ r0, r1, height });
   const json = object1.toJSON();
   const object: Cylinder = ObjectFactory.newFromJSON(
     json,
@@ -47,9 +42,7 @@ test('Check Cylinder is well created from ObjectFactory', () => {
 });
 
 test('Check Sphere is well created from ObjectFactory', () => {
-  const object1 = new Sphere(
-    { radius }
-  );
+  const object1 = new Sphere({ radius });
   const json = object1.toJSON();
   const object = ObjectFactory.newFromJSON(json, new Scene());
   expect((object as any).parameters.radius).toBe(radius);
@@ -57,9 +50,7 @@ test('Check Sphere is well created from ObjectFactory', () => {
 });
 
 test('Check Prism is well created from ObjectFactory', () => {
-  const object1 = new Prism(
-    { sides, length, height },
-  );
+  const object1 = new Prism({ sides, length, height });
   const json = object1.toJSON();
   const object = ObjectFactory.newFromJSON(json, new Scene());
   expect((object as any).parameters.sides).toBe(sides);
@@ -82,11 +73,10 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
   const objectPrism = new Prism(
     { sides, length, height },
     [],
-    ObjectsCommon.createViewOptions() 
-     );
-  
-  scene.addExistingObject(objectPrism);
+    ObjectsCommon.createViewOptions(),
+  );
 
+  scene.addExistingObject(objectPrism);
 
   const jsonGroupAux: IObjectsGroupJSON = {
     group: [objectCube.toJSON(), objectPrism.toJSON()],
@@ -106,20 +96,15 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
 test('Check ObjectsGroup rejects object not in Scene from ObjectFactory', () => {
   const scene = new Scene();
 
-  const objectCube = new Cube(
-    { width, height, depth }
-  );
-  
+  const objectCube = new Cube({ width, height, depth });
+
   scene.addExistingObject(objectCube);
 
-  const objectPrism = new Prism(
-    { sides, length, height });
-  
+  const objectPrism = new Prism({ sides, length, height });
 
   scene.addExistingObject(objectPrism);
 
-  const objectPrismAux = new Prism(
-    { sides, length, height });
+  const objectPrismAux = new Prism({ sides, length, height });
 
   const jsonGroupAux: IObjectsGroupJSON = {
     group: [objectCube.toJSON(), objectPrism.toJSON(), objectPrismAux.toJSON()],

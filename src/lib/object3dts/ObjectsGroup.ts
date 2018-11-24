@@ -17,7 +17,10 @@ export default class ObjectsGroup extends ObjectsCommon {
    * @param scene the scene to which the object belongs
    */
   public static newFromJSON(object: IObjectsGroupJSON, scene: Scene) {
-    if(object.type !== ObjectsGroup.typeName) throw new Error(`Types do not match ${ObjectsGroup.typeName}, ${object.type}`);
+    if (object.type !== ObjectsGroup.typeName)
+      throw new Error(
+        `Types do not match ${ObjectsGroup.typeName}, ${object.type}`,
+      );
     const group: Array<ObjectsCommon> = object.group.map(obj =>
       scene.getObject(obj),
     );
@@ -101,9 +104,9 @@ export default class ObjectsGroup extends ObjectsCommon {
     return obj;
   }
 
-  private getObject(obj: IObjectsCommonJSON): ObjectsCommon{
+  private getObject(obj: IObjectsCommonJSON): ObjectsCommon {
     const result = this.group.find(object => object.getID() === obj.id);
-    if(result) return result
+    if (result) return result;
     else throw new Error(`Object id ${obj.id} not found in group`);
   }
 
@@ -114,13 +117,14 @@ export default class ObjectsGroup extends ObjectsCommon {
    * @param object ObjectGroup descriptor object
    */
   public updateFromJSON(object: IObjectsGroupJSON) {
-    if(object.id !== this.id) throw new Error(`ids do not match ${object.id}, ${this.id}`);
-    try{
+    if (object.id !== this.id)
+      throw new Error(`ids do not match ${object.id}, ${this.id}`);
+    try {
       object.group.forEach(obj => {
         const objToUpdate = this.getObject(obj);
         objToUpdate.updateFromJSON(obj);
-      })
-    }catch(e){
+      });
+    } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
   }
