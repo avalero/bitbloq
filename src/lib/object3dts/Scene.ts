@@ -1,10 +1,12 @@
 import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import * as THREE from 'three';
 import ObjectFactory from './ObjectFactory';
-import { isObject, isArray } from 'util';
-import { isAbsolute } from 'path';
+import { isArray } from 'util';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
+import { ICompoundObjectJSON } from './CompoundObject';
+
+import isEqual from 'lodash.isequal';
 
 type ClickHandler = (object?: any) => void;
 
@@ -25,6 +27,18 @@ interface HelperDescription {
 }
 
 export default class Scene {
+  //TODO. Need to create children before of creating objects!!
+  public static newFromJSON(json: Array<IObjectsCommonJSON>): Scene {
+    const scene = new Scene();
+    try {
+      scene.updateFromJSON(json);
+    } catch (e) {
+      throw new Error(`Error creating Scene. ${e}`);
+    }
+
+    return scene;
+  }
+
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private BitbloqScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
 
@@ -43,7 +57,28 @@ export default class Scene {
   }
 
   /**
-   * returns a THREE.Scene object containing everyghint to be drawn.
+   * Updates all the objects in a Scene, if object is not present. It adds it.
+   * @param json json describin all the objects of the Scene
+   */
+  public updateFromJSON(
+    json: Array<IObjectsCommonJSON>,
+  ): Array<IObjectsCommonJSON> {
+    if (isEqual(json, this.toJSON())) return json;
+
+    json.forEach(obj => {
+      if (this.objectInBitbloqScene(obj))
+        this.getObject(obj).updateFromJSON(obj);
+      else this.addNewObjectFromJSON(obj);
+    });
+
+    if (!isEqual(json, this.toJSON()))
+      throw new Error('Unexpected Error updating Scene');
+
+    return this.toJSON();
+  }
+
+  /**
+   * returns a THREE.Scene object containing everything to be drawn.
    * TODO
    */
   public async getSceneAsync(): Promise<THREE.Scene> {
@@ -59,13 +94,19 @@ export default class Scene {
     return scene;
   }
 
-  public setupScene(): void {}
+  /**
+   * Adds floor, camera, etc.
+   * TODO
+   */
+  private setupScene(): void {}
 
   /**
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
    * @param json object descriptor (it ignores id)
    */
-  public addNewObjectFromJSON(json: IObjectsCommonJSON): object {
+  public addNewObjectFromJSON(
+    json: IObjectsCommonJSON,
+  ): Array<IObjectsCommonJSON> {
     try {
       const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
       return this.addExistingObject(object);
@@ -92,7 +133,7 @@ export default class Scene {
    */
   public removeFromObjectCollector(
     json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
-  ): object {
+  ): Array<IObjectsCommonJSON> {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromObjectCollector(obj));
     } else {
@@ -112,7 +153,7 @@ export default class Scene {
    */
   public removeFromBitbloqScene(
     json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
-  ): object {
+  ): Array<IObjectsCommonJSON> {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromBitbloqScene(obj));
     } else {
@@ -126,22 +167,30 @@ export default class Scene {
     return this.toJSON();
   }
 
-  public addExistingObject(object: ObjectsCommon): object {
+  public addExistingObject(object: ObjectsCommon): Array<IObjectsCommonJSON> {
     if (this.objectInObjectCollector(object.toJSON())) {
       throw Error('Object already in Scene');
     } else {
-      this.BitbloqScene.push(object);
-      this.objectCollector.push(object);
       //In case the objects has children, they must be removed from BitbloqScene (remain in ObjectCollector)
       if (object.getTypeName() === ObjectsGroup.typeName) {
         (object.toJSON() as IObjectsGroupJSON).group.forEach(obj => {
+          if (!this.objectInBitbloqScene(obj))
+            throw new Error(
+              'Cannot create a group of objects from objects not present in BitbloqScene',
+            );
           this.removeFromBitbloqScene(obj);
         });
       } else if (object.getTypeName() === RepetitionObject.typeName) {
+        if (!this.objectInBitbloqScene((object as any).object.toJSON()))
+          throw new Error(
+            'Cannot create a Repetition from an object not present in BitbloqScene',
+          );
         this.removeFromBitbloqScene(
           (object.toJSON() as IRepetitionObjectJSON).object,
         );
       }
+      this.BitbloqScene.push(object);
+      this.objectCollector.push(object);
     }
 
     return this.toJSON();
@@ -152,11 +201,13 @@ export default class Scene {
    * If object is not present is does NOT anything.
    * @param json json object descriptor (only id is important)
    */
-  public removeObject(obj: IObjectsCommonJSON): object {
-    const id = obj.id;
-
-    this.removeFromBitbloqScene(obj);
-    this.removeFromObjectCollector(obj);
+  public removeObject(obj: IObjectsCommonJSON): Array<IObjectsCommonJSON> {
+    try {
+      this.removeFromBitbloqScene(obj);
+      this.removeFromObjectCollector(obj);
+    } catch (e) {
+      throw new Error(`Cannot Remove Object from Scene: ${e}`);
+    }
 
     return this.toJSON();
   }
@@ -178,7 +229,7 @@ export default class Scene {
    * If not it triggers an error exception.
    * @param json json describing object
    */
-  public updateObject(obj: IObjectsCommonJSON): object {
+  public updateObject(obj: IObjectsCommonJSON): Array<IObjectsCommonJSON> {
     const id = obj.id;
     let updated = false;
 
@@ -198,21 +249,29 @@ export default class Scene {
    * It adds the members of the group to de Scene.
    * @param json group object descriptor (it only pays attention to id)
    */
-  public unGroup(json: string): void {}
+  public unGroup(json: IObjectsGroupJSON): Array<IObjectsCommonJSON> {
+    return this.toJSON();
+  }
 
   /**
    * It removes the CompoundObject from Scene and ObjectCollector.
    * It adds the children to the Scene
    * @param json CompoundObject Descriptor. It only pays attention to id.
    */
-  public undoCompound(json: string): void {}
+  public undoCompound(json: ICompoundObjectJSON): Array<IObjectsCommonJSON> {
+    return this.toJSON();
+  }
 
   /**
    * It removes RepetitionObject from Scene and ObjectCollector.
    * It transform the RepetitionObject to a ObjectsGroup and add it to the Scene and ObjectCollector.
    * @param json RepetitionObject descriptor. It only pays attention to id
    */
-  public repetitionToGroup(json: string): void {}
+  public repetitionToGroup(
+    json: IRepetitionObjectJSON,
+  ): Array<IObjectsCommonJSON> {
+    return this.toJSON();
+  }
 
   // TODO Methods for frontend
 

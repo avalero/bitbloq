@@ -1,6 +1,6 @@
 import ObjectsGroups from '../ObjectsGroup';
 
-import Cube from '../Cube';
+import Cube, { ICubeJSON } from '../Cube';
 import Object3D from '../Object3D';
 import RepetitionObject, { IRepetitionObjectJSON } from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
@@ -178,11 +178,13 @@ test('Test updateFromJSON - Update Object', () => {
     scene,
   );
 
+  const objJJJ = object1.toJSON();
+  (objJJJ as ICubeJSON).parameters.width = 2 * width;
   const jsonObjUpdate: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
     id: repetition.getID(),
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
-    object: (object1.toJSON() as ICubeJSON).parameters.width(2 * width),
+    object: objJJJ,
     group: [],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
@@ -193,6 +195,7 @@ test('Test updateFromJSON - Update Object', () => {
   const group: ObjectsGroup = repetition.getGroup();
   const objects: Array<ObjectsCommon> = group.unGroup();
   expect(objects.length).toBe(10);
+  expect((objects[0] as any).parameters.width).toEqual(2 * width);
   return repetition.getMeshAsync().then(meshGroup => {
     expect(meshGroup.children.length).toEqual(10);
   });
