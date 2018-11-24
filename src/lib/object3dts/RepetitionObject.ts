@@ -6,56 +6,86 @@
  * long description for the file
  *
  * @summary short description for the file
- * @author David García <https://github.com/empoalp>, 
+ * @author David García <https://github.com/empoalp>,
  * @author Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-11-07 13:45:37 
+ * Created at     : 2018-11-07 13:45:37
  * Last modified  : 2018-11-14 10:56:45
  */
 
 import Object3D from './Object3D';
-import ObjectsGroup from './ObjectsGroup';
+import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 
+import Scene from './Scene';
 
-export interface ICartesianRepetitionParams{
-  num : number;
-  x: number;
-  y: number;
-  z: number;
+export interface IRepetitionObjectJSON extends IObjectsGroupJSON {
+  object: IObjectsCommonJSON;
+  parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
+}
+
+export interface IRepetitionParams {
+  num: number;
   type: string;
 }
 
-export interface IPolarRepetitionParams{
-  num : number;
+export interface ICartesianRepetitionParams extends IRepetitionParams {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface IPolarRepetitionParams extends IRepetitionParams {
   angle: number;
   axis: string;
-  type: string;
 }
 
 /**
  * RepetitionObject Class
  * I allows to repeat one object in a cartesian or polar way.
  */
-export default class RepetitionObject extends ObjectsGroup{
+export default class RepetitionObject extends ObjectsGroup {
+  public static typeName: string = 'RepetitionObject';
 
-  public static typeName:string = 'RepetitionObject';
+  /**
+   *
+   * @param object the object descriptor of the object to be repeated
+   * @param scene the scene to which the object belongs
+   */
+  public static newFromJSON(obj: IRepetitionObjectJSON, scene: Scene) {
+    if (obj.type !== RepetitionObject.typeName)
+      throw new Error(
+        `Types do not match ${RepetitionObject.typeName}, ${obj.type}`,
+      );
+    try{
+      const object: ObjectsCommon = scene.getObject(obj.object);
+      return new RepetitionObject(obj.parameters, object);
+    }catch(e){
+      throw new Error(`Cannot create RepetitionObject: ${e}`);
+    }
+  }
 
-  private object: Object3D | ObjectsGroup;
+  private object: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
   /**
-   * 
+   *
    * @param params The parameters of the repetition
    * @param object The object to repeat
    * Creates an ObjectsGroup with cloned objects (Object3D instance) on their new postion
    */
-  constructor(params: ICartesianRepetitionParams | IPolarRepetitionParams, object: Object3D | ObjectsGroup){
-    super();
-    this.parameters = {...params}
+  constructor(
+    params: ICartesianRepetitionParams | IPolarRepetitionParams,
+    object: ObjectsCommon,
+  ) {
+    super([]);
+    this.parameters = { ...params };
     this.object = object;
-    if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
-    else if (this.parameters.type.toLowerCase() === "polar") this.polarRepetition();
+    if (this.parameters.type.toLowerCase() === 'cartesian')
+      this.cartesianRepetition();
+    else if (this.parameters.type.toLowerCase() === 'polar')
+      this.polarRepetition();
     else throw new Error('Unknown Repetition Command');
   }
 
@@ -63,32 +93,35 @@ export default class RepetitionObject extends ObjectsGroup{
    * Performs a cartesian repetition of object (nun times), with x,y,z distances
    * It adds repeated objects to ObjectsGroup instance
    */
-  private cartesianRepetition(){
-    const {x , y, z, type, num} = this.parameters as ICartesianRepetitionParams;
+  private cartesianRepetition() {
+    const { x, y, z, type, num } = this
+      .parameters as ICartesianRepetitionParams;
 
-    for (let i:number = 0; i<num; i++){
-      if(this.object instanceof Object3D){
-        const objectClone:Object3D = this.object.clone();
-        objectClone.translate(i*x, i*y, i*z);
+    for (let i: number = 0; i < num; i++) {
+      if (this.object instanceof Object3D) {
+        const objectClone: Object3D = this.object.clone();
+        objectClone.translate(i * x, i * y, i * z);
         this.add(objectClone);
-      }else if(this.object instanceof ObjectsGroup){
-        
+      } else if (this.object instanceof ObjectsGroup) {
       }
-    } 
+    }
   }
 
-
-  public setParameters(parameters: ICartesianRepetitionParams | IPolarRepetitionParams) {
-    if(!isEqual(parameters,this.parameters)){
+  public setParameters(
+    parameters: ICartesianRepetitionParams | IPolarRepetitionParams,
+  ) {
+    if (!isEqual(parameters, this.parameters)) {
       this.clean();
-      this.parameters = {...parameters};
-      if (this.parameters.type.toLowerCase() === "cartesian") this.cartesianRepetition();
-      else if (this.parameters.type.toLowerCase() === "polar") this.polarRepetition();
+      this.parameters = { ...parameters };
+      if (this.parameters.type.toLowerCase() === 'cartesian')
+        this.cartesianRepetition();
+      else if (this.parameters.type.toLowerCase() === 'polar')
+        this.polarRepetition();
       else throw new Error('Unknown Repetition Command');
     }
   }
 
-  public clone():RepetitionObject{
+  public clone(): RepetitionObject {
     return new RepetitionObject(this.parameters, this.object);
   }
 
@@ -97,26 +130,57 @@ export default class RepetitionObject extends ObjectsGroup{
    * It adds repeated objects to ObjectsGroup instance
    */
   //TODO
-  private polarRepetition(){
-    
-    const {axis , angle, type, num} = this.parameters as IPolarRepetitionParams;
+  private polarRepetition() {
+    const { axis, angle, type, num } = this
+      .parameters as IPolarRepetitionParams;
 
-    for (let i:number = 0; i<num; i++){
-      if(this.object instanceof Object3D){
-        const objectClone:Object3D = this.object.clone();
+    for (let i: number = 0; i < num; i++) {
+      if (this.object instanceof Object3D) {
+        const objectClone: Object3D = this.object.clone();
         //objectClone.translate(i*x, i*y, i*z);
         this.add(objectClone);
-      }else if(this.object instanceof ObjectsGroup){
-        
+      } else if (this.object instanceof ObjectsGroup) {
       }
-    } 
+    }
   }
 
   /**
-   * Returns the group (instance of ObjectsGroup) of this RepetitionObject, 
+   * Returns the group (instance of ObjectsGroup) of this RepetitionObject,
    * applying all the operations to children
    */
-  public getGroup():ObjectsGroup{
+  public getGroup(): ObjectsGroup {
     return new ObjectsGroup(this.unGroup());
+  }
+
+  public toJSON(): IRepetitionObjectJSON {
+    const obj = {
+      ...super.toJSON(),
+      type: this.type,
+      parameters: this.parameters,
+      object: this.object.toJSON(),
+    };
+
+    return obj;
+  }
+
+  /**
+   * Updates objects belonging to a group. Group members cannot be changed.
+   * If group members do not match an Error is thrown
+   * @param object ObjectGroup descriptor object
+   */
+  public updateFromJSON(object: IRepetitionObjectJSON) {
+    if (object.id !== this.id)
+      throw new Error(`ids do not match ${object.id}, ${this.id}`);
+    
+    if(object.object.id !== this.object.getID())
+      throw new Error(`object child ids do not match ${object.object.id}, ${this.object.getID()}`);
+    
+    try{
+      this.object.updateFromJSON(object.object);
+      this.setParameters(object.parameters);
+      this.setOperations(object.operations);
+    } catch (e) {
+    throw new Error(`Cannot update Group: ${e}`);
+    }
   }
 }

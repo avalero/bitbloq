@@ -6,22 +6,20 @@
  * long description for the file
  *
  * @summary short description for the file
- * @author David García <https://github.com/empoalp>, 
+ * @author David García <https://github.com/empoalp>,
  * @author Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-10-17 12:30:09 
+ * Created at     : 2018-10-17 12:30:09
  * Last modified  : 2018-11-06 10:33:55
  */
-
 
 import * as THREE from 'three';
 
 export default class RotationHelper {
+  private helperMesh: THREE.Group;
 
-  private helperMesh:THREE.Group;
-
-  constructor(mesh:THREE.Mesh, axis:string, relative:boolean) {
-    const boundingBoxDims:THREE.Vector3 = new THREE.Vector3();
+  constructor(mesh: THREE.Mesh, axis: string, relative: boolean) {
+    const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
     const radius: number = 0.5;
     let color: number;
@@ -34,15 +32,18 @@ export default class RotationHelper {
 
     if (axis === 'x') {
       color = 0xff0000;
-      toroidRadius = Math.max(boundingBoxDims.y, boundingBoxDims.z) / 2 + separation;
+      toroidRadius =
+        Math.max(boundingBoxDims.y, boundingBoxDims.z) / 2 + separation;
       length = Math.max(boundingBoxDims.y, boundingBoxDims.z) + extraLength;
     } else if (axis === 'y') {
       color = 0x0000ff;
-      toroidRadius = Math.max(boundingBoxDims.x, boundingBoxDims.z) / 2 + separation;
+      toroidRadius =
+        Math.max(boundingBoxDims.x, boundingBoxDims.z) / 2 + separation;
       length = Math.max(boundingBoxDims.x, boundingBoxDims.z) + extraLength;
     } else {
       color = 0x00ff00;
-      toroidRadius = Math.max(boundingBoxDims.x, boundingBoxDims.y) / 2 + separation;
+      toroidRadius =
+        Math.max(boundingBoxDims.x, boundingBoxDims.y) / 2 + separation;
       length = Math.max(boundingBoxDims.x, boundingBoxDims.y) + extraLength;
     }
 
@@ -60,15 +61,16 @@ export default class RotationHelper {
     toroidGeometry.rotateY(Math.PI / 2);
 
     const material = new THREE.MeshBasicMaterial({
-      color, opacity: 0.5, transparent: true, depthWrite: false,
+      color,
+      opacity: 0.5,
+      transparent: true,
+      depthWrite: false,
     });
 
     this.helperMesh = new THREE.Group();
-    this.helperMesh.add(new THREE.Mesh(cylinderGeometry,material));
+    this.helperMesh.add(new THREE.Mesh(cylinderGeometry, material));
     this.helperMesh.add(new THREE.Mesh(toroidGeometry, material));
 
-
-    
     this.helperMesh.position.copy(mesh.position);
 
     if (relative === true) {
@@ -82,7 +84,7 @@ export default class RotationHelper {
     }
   }
 
-  get mesh():THREE.Group {
+  get mesh(): THREE.Group {
     return this.helperMesh;
   }
 }
