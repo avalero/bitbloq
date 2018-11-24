@@ -14,24 +14,31 @@
  */
 
 import Object3D from './Object3D';
-import ObjectsGroup from './ObjectsGroup';
+import ObjectsGroup, {IObjectsGroupJSON} from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
+import ObjectsCommon, {IObjectsCommonJSON} from './ObjectsCommon';
 
 import Scene from './Scene';
 
-export interface ICartesianRepetitionParams {
+export interface IRepetitionObjectJSON extends IObjectsGroupJSON {
+  object: IObjectsCommonJSON;
+  parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
+}
+
+export interface IRepetitionParams{
   num: number;
-  x: number;
-  y: number;
-  z: number;
   type: string;
 }
 
-export interface IPolarRepetitionParams {
-  num: number;
+export interface ICartesianRepetitionParams extends IRepetitionParams {
+  x: number;
+  y: number;
+  z: number;
+}
+
+export interface IPolarRepetitionParams extends IRepetitionParams {
   angle: number;
   axis: string;
-  type: string;
 }
 
 /**
@@ -41,7 +48,21 @@ export interface IPolarRepetitionParams {
 export default class RepetitionObject extends ObjectsGroup {
   public static typeName: string = 'RepetitionObject';
 
-  private object: Object3D | ObjectsGroup;
+  /**
+   *
+   * @param object the object descriptor of the object to be repeated
+   * @param scene the scene to which the object belongs
+   */
+  public static newFromJSON(obj: IRepetitionObjectJSON, scene: Scene) {
+    
+    if(obj.type !== RepetitionObject.typeName) throw new Error(`Types do not match ${RepetitionObject.typeName}, ${obj.type}`);
+    const object: ObjectsCommon = scene.getObject(obj);
+
+    return new RepetitionObject(obj.parameters, object);
+  }
+
+
+  private object: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
   /**
@@ -52,10 +73,9 @@ export default class RepetitionObject extends ObjectsGroup {
    */
   constructor(
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
-    object: Object3D | ObjectsGroup,
-    scene: Scene,
+    object: ObjectsCommon,
   ) {
-    super([], scene);
+    super([]);
     this.parameters = { ...params };
     this.object = object;
     if (this.parameters.type.toLowerCase() === 'cartesian')
@@ -126,5 +146,16 @@ export default class RepetitionObject extends ObjectsGroup {
    */
   public getGroup(): ObjectsGroup {
     return new ObjectsGroup(this.unGroup());
+  }
+
+  public toJSON():IRepetitionObjectJSON{
+    const obj = { 
+      ...super.toJSON(),
+      type: this.type,
+      parameters: this.parameters,
+      object: this.object.toJSON(),
+    }
+    
+    return obj;
   }
 }

@@ -1,6 +1,6 @@
-import ObjectsGroups from '../ObjectsGroup';
+import ObjectsGroups, { IObjectsGroupJSON } from '../ObjectsGroup';
 
-import Cube from '../Cube';
+import Cube, { ICubeJSON } from '../Cube';
 import Sphere from '../Sphere';
 import Cylinder from '../Cylinder';
 import * as THREE from 'three';
@@ -17,33 +17,21 @@ const r1 = 5;
 
 test('Check addition of objects to Group', () => {
   const scene = new Scene();
-  const object1Aux = new Cube(
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
 
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
   return group.getMeshAsync().then(meshGroup => {
     expect(meshGroup.children.length).toBe(3);
@@ -55,33 +43,20 @@ test('Check translation of group', () => {
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  const object1Aux = new Cube(
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
-
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
 
   return group.getMeshAsync().then(meshGroup => {
@@ -94,33 +69,21 @@ test('Check translation of group', () => {
 test('Check rotation of group', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
-  const object1Aux = new Cube(
+  
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
-
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -136,33 +99,21 @@ test('Check rotation of group', () => {
 test('Check several rotations of group', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
-  const object1Aux = new Cube(
+  
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
-
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -185,33 +136,21 @@ test('Check translation and rotation', () => {
   const angle = Math.PI / 3;
 
   const scene = new Scene();
-  const object1Aux = new Cube(
+  
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
-
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -234,33 +173,21 @@ test('Check ungroup', () => {
   const angle = Math.PI / 3;
   const scene = new Scene();
 
-  const object1Aux = new Cube(
+  
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
-
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
     { type: 'rotation', axis: 'x', angle, relative: false },
@@ -282,38 +209,32 @@ test('Check ungroup with prior', () => {
   const z = -5;
 
   const scene = new Scene();
-  const object1Aux = new Cube(
+  
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  object1Aux.setOperations([{ type: 'translation', x, y, z, relative: false }]);
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+
+  object1.translate(x,y,z);
+
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
 
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
-  group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
+  group.setOperations([ObjectsCommon.createTranslateOperation(x,y,z,false)]);
+  
   const objects: Array<ObjectsCommon> = group.unGroup();
+  
   const object: ObjectsCommon = objects[0];
+
   return object.getMeshAsync().then(mesh => {
     expect(mesh.position.x).toBe(2 * x);
     expect(mesh.position.y).toBe(2 * y);
@@ -326,34 +247,21 @@ test('Check ungroup with other prior', () => {
   const y = 5;
   const z = -5;
   const scene = new Scene();
-  const object1Aux = new Cube(
+  
+  const object1 = new Cube(
     { width, height, depth },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
-  object1Aux.setOperations([{ type: 'translation', x, y, z, relative: false }]);
-  const object2Aux = new Sphere(
-    { radius },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
+  const object2 = new Sphere(
+    { radius }
   );
-  const object3Aux = new Cylinder(
+  const object3 = new Cylinder(
     { r0, r1, height },
-    [],
-    ObjectsCommon.createViewOptions(),
-    scene,
   );
 
-  scene.addNewObjectFromJSON(object1Aux.toJSON());
-  const object1 = (scene as any).BitbloqScene[0];
-  scene.addNewObjectFromJSON(object2Aux.toJSON());
-  const object2 = (scene as any).BitbloqScene[1];
-  scene.addNewObjectFromJSON(object3Aux.toJSON());
-  const object3 = (scene as any).BitbloqScene[2];
-
-  const group = new ObjectsGroups([object1, object2, object3], scene);
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
   const objects: Array<ObjectsCommon> = group.unGroup();
@@ -364,3 +272,43 @@ test('Check ungroup with other prior', () => {
     expect(mesh.position.z).toBe(z);
   });
 });
+
+
+test('Check UpdateFromJSON', () => {
+  const x = 10;
+  const y = 5;
+  const z = -5;
+  const scene = new Scene();
+  
+  const object1 = new Cube(
+    { width, height, depth },
+  );
+  const object2 = new Sphere(
+    { radius }
+  );
+  const object3 = new Cylinder(
+    { r0, r1, height },
+  );
+
+  scene.addExistingObject(object1);
+  scene.addExistingObject(object2);
+  scene.addExistingObject(object3);
+  const group = new ObjectsGroups([object1, object2, object3]);
+
+  const jsonObj:IObjectsGroupJSON = group.toJSON();
+  (jsonObj.group[0] as ICubeJSON).parameters.width = 2*width;
+
+  group.updateFromJSON(jsonObj);
+
+  const resultObject:IObjectsGroupJSON = group.toJSON();
+  expect((resultObject.group[0] as ICubeJSON).parameters.width).toEqual(2*width);
+
+  (resultObject.group[0] as ICubeJSON).id = 'xxxx';
+
+
+  const e = () => group.updateFromJSON(resultObject);
+  
+  expect(e).toThrowError();
+
+});
+
