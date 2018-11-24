@@ -38,8 +38,8 @@ export default class Sphere extends PrimitiveObject {
 
   constructor(
     parameters: ISphereParams,
-    operations: OperationsArray,
-    viewOptions: IViewOptions,
+    operations: OperationsArray = [],
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
   ) {
     super(viewOptions, operations);
     this.type = Sphere.typeName;

@@ -45,8 +45,8 @@ export default class Cylinder extends PrimitiveObject {
 
   constructor(
     parameters: ICylinderParams,
-    operations: OperationsArray,
-    viewOptions: IViewOptions,
+    operations: OperationsArray = [],
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
   ) {
     super(viewOptions, operations);
     this.type = Cylinder.typeName;
