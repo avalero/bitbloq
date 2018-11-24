@@ -58,9 +58,12 @@ export default class RepetitionObject extends ObjectsGroup {
       throw new Error(
         `Types do not match ${RepetitionObject.typeName}, ${obj.type}`,
       );
-    const object: ObjectsCommon = scene.getObject(obj);
-
-    return new RepetitionObject(obj.parameters, object);
+    try{
+      const object: ObjectsCommon = scene.getObject(obj.object);
+      return new RepetitionObject(obj.parameters, object);
+    }catch(e){
+      throw new Error(`Cannot create RepetitionObject: ${e}`);
+    }
   }
 
   private object: ObjectsCommon;
@@ -158,5 +161,26 @@ export default class RepetitionObject extends ObjectsGroup {
     };
 
     return obj;
+  }
+
+  /**
+   * Updates objects belonging to a group. Group members cannot be changed.
+   * If group members do not match an Error is thrown
+   * @param object ObjectGroup descriptor object
+   */
+  public updateFromJSON(object: IRepetitionObjectJSON) {
+    if (object.id !== this.id)
+      throw new Error(`ids do not match ${object.id}, ${this.id}`);
+    
+    if(object.object.id !== this.object.getID())
+      throw new Error(`object child ids do not match ${object.object.id}, ${this.object.getID()}`);
+    
+    try{
+      this.object.updateFromJSON(object.object);
+      this.setParameters(object.parameters);
+      this.setOperations(object.operations);
+    } catch (e) {
+    throw new Error(`Cannot update Group: ${e}`);
+    }
   }
 }

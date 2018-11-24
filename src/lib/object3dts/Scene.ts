@@ -74,6 +74,11 @@ export default class Scene {
     else return false;
   }
 
+  public removeFromBitbloqScene(json: IObjectsCommonJSON): void {
+    if(!this.objectInScene(json)) throw new Error(`Object id ${json.id} not present in Scene`);
+    this.BitbloqScene = this.BitbloqScene.filter( obj => obj.getID() !== json.id);
+  }
+
   public addExistingObject(object: ObjectsCommon): object {
     if (this.objectInScene(object.toJSON())) {
       throw Error('Object already in Scene');

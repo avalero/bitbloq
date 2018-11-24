@@ -6,6 +6,7 @@ import Prism from '../Prism';
 import ObjectsCommon from '../ObjectsCommon';
 import Scene from '../Scene';
 import ObjectsGroup, { IObjectsGroupJSON } from '../ObjectsGroup';
+import RepetitionObject, { IRepetitionObjectJSON } from '../RepetitionObject';
 
 const width = 10;
 const height = 20;
@@ -22,6 +23,7 @@ test('Check Cube is well created from ObjectFactory', () => {
   const object1 = new Cube({ width, height, depth });
   const json = object1.toJSON();
   const object: Cube = ObjectFactory.newFromJSON(json, new Scene()) as Cube;
+  expect(object).toBeInstanceOf(Cube);
   expect((object as any).parameters.width).toBe(width);
   expect((object as any).parameters.height).toBe(height);
   expect((object as any).parameters.depth).toBe(depth);
@@ -35,6 +37,7 @@ test('Check Cylinder is well created from ObjectFactory', () => {
     json,
     new Scene(),
   ) as Cylinder;
+  expect(object).toBeInstanceOf(Cylinder);
   expect((object as any).parameters.r0).toBe(r0);
   expect((object as any).parameters.height).toBe(height);
   expect((object as any).parameters.r1).toBe(r1);
@@ -45,6 +48,7 @@ test('Check Sphere is well created from ObjectFactory', () => {
   const object1 = new Sphere({ radius });
   const json = object1.toJSON();
   const object = ObjectFactory.newFromJSON(json, new Scene());
+  expect(object).toBeInstanceOf(Sphere);
   expect((object as any).parameters.radius).toBe(radius);
   expect(object1.getID()).not.toEqual(object.getID());
 });
@@ -53,6 +57,7 @@ test('Check Prism is well created from ObjectFactory', () => {
   const object1 = new Prism({ sides, length, height });
   const json = object1.toJSON();
   const object = ObjectFactory.newFromJSON(json, new Scene());
+  expect(object).toBeInstanceOf(Prism);
   expect((object as any).parameters.sides).toBe(sides);
   expect((object as any).parameters.height).toBe(height);
   expect((object as any).parameters.length).toBe(length);
@@ -87,7 +92,7 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
   };
 
   const group = ObjectFactory.newFromJSON(jsonGroupAux, scene);
-
+  expect(group).toBeInstanceOf(ObjectsGroup);
   expect((group as any).group.length).toEqual(2);
   expect((group as any).group[0].id).toEqual(objectCube.getID());
   expect((group as any).group[1].id).toEqual(objectPrism.getID());
@@ -118,4 +123,30 @@ test('Check ObjectsGroup rejects object not in Scene from ObjectFactory', () => 
     ObjectFactory.newFromJSON(jsonGroupAux, scene);
   };
   expect(error).toThrowError();
+});
+
+test('Check RepetitionObject is well created from ObjectFactory', () => {
+  const scene = new Scene();
+
+  const objectCube = new Cube(
+    { width, height, depth }
+  );
+
+  scene.addExistingObject(objectCube);
+
+  const jsonRepetitionAux: IRepetitionObjectJSON = {
+    object: objectCube.toJSON(),
+    group: [],
+    id: '',
+    parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
+    type: RepetitionObject.typeName,
+    viewOptions: ObjectsCommon.createViewOptions(),
+    operations: [],
+  };
+
+  const repetition = ObjectFactory.newFromJSON(jsonRepetitionAux, scene);
+  expect(repetition).toBeInstanceOf(RepetitionObject);
+  expect((repetition as any).object).toBeInstanceOf(Cube);
+
+  expect(((repetition as any).group as any).length).toEqual(10);
 });

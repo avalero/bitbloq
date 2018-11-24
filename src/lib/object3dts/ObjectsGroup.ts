@@ -104,13 +104,17 @@ export default class ObjectsGroup extends ObjectsCommon {
     return obj;
   }
 
+  /**
+   * Returns Object Reference if found in group. If not, throws Error.
+   * @param obj Object descriptor
+   */
   private getObject(obj: IObjectsCommonJSON): ObjectsCommon {
     const result = this.group.find(object => object.getID() === obj.id);
     if (result) return result;
     else throw new Error(`Object id ${obj.id} not found in group`);
   }
 
-  //CHECKME
+  
   /**
    * Updates objects belonging to a group. Group members cannot be changed.
    * If group members do not match an Error is thrown
