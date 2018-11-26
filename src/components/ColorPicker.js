@@ -2,13 +2,20 @@ import React from 'react';
 import styled, {css} from 'react-emotion';
 import chroma from 'chroma-js';
 import {TwitterPicker} from 'react-color';
+import DropDown from './DropDown';
 
 const Container = styled.div`
-  position: relative;
+  display: inline-block;
+`;
+
+const SquareWrap = styled.div`
   padding: 6px;
   border: 1px solid #cfcfcf;
   border-radius: 2px;
-  display: inline-block;
+
+  ${props => props.isOpen && css`
+    border: 1px solid #5d6069;
+  `};
 `;
 
 const Square = styled.div`
@@ -20,34 +27,21 @@ const Square = styled.div`
 `;
 
 const PickerWrap = styled.div`
-  position: absolute;
-  z-index: 2;
-  ${props => props.position === 'top-left' && css`
-    left: -9px;
-  `}
-  ${props => props.position === 'top-right' && css`
-    right: -9px;
-  `}
-  top: 36px;
-  display: ${props => props.open ? 'block' : 'none'};
+  margin-top: 7px;
+  & > div {
+    margin-left: 4px;
+  }
 `;
 
 export default class ColorPicker extends React.Component {
   static defaultProps = {
     format: 'hex',
-    position: 'top-left',
-  };
-
-  state = {open: false};
-
-  onSquareClick = (e) => {
-    this.setState(state => ({...state, open: !state.open}));
+    color: '#fff',
   };
 
   onColorChange = color => {
     const {onChange, format} = this.props;
     if (onChange) {
-      this.setState(state => ({...state, open: !state.open}));
       if (format === 'number') {
         onChange(chroma(color.hex).num());
       } else {
@@ -56,24 +50,26 @@ export default class ColorPicker extends React.Component {
     }
   };
 
-  onContainerClick = (e) => {
-    e.stopPropagation();
-  };
-
   render() {
-    const {open} = this.state;
-    const {color = '#fff', className, position} = this.props;
+    const {color, className, position} = this.props;
     const colorHex = chroma(color).hex();
+
     return (
-      <Container className={className} onClick={this.onContainerClick}>
-        <Square color={colorHex} onClick={this.onSquareClick} />
-        <PickerWrap open={open} position={position}>
-          <TwitterPicker
-            triangle={position}
-            color={colorHex}
-            onChangeComplete={this.onColorChange}
-          />
-        </PickerWrap>
+      <Container className={className}>
+        <DropDown closeOnClick={false}>
+          {isOpen =>
+            <SquareWrap isOpen={isOpen}>
+              <Square color={colorHex} />
+            </SquareWrap>
+          }
+          <PickerWrap>
+            <TwitterPicker
+              triangle={position}
+              color={colorHex}
+              onChangeComplete={this.onColorChange}
+            />
+          </PickerWrap>
+        </DropDown>
       </Container>
     );
   }
