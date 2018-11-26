@@ -56,7 +56,6 @@ export default class Scene {
   constructor() {
     this.objectCollector = [];
     this.objectsInScene = [];
-    //this.sceneSetup = {};
     this.setupScene();
     this.objectsGroup = new THREE.Group();
     this.lastJSON = this.toJSON();
@@ -81,7 +80,7 @@ export default class Scene {
     if (isEqual(json, this.toJSON())) return json;
 
     json.forEach(obj => {
-      if (this.objectInBitbloqScene(obj))
+      if (this.objectInScene(obj))
         this.getObject(obj).updateFromJSON(obj);
       else this.addNewObjectFromJSON(obj);
     });
@@ -194,7 +193,7 @@ export default class Scene {
     else return false;
   }
 
-  public objectInBitbloqScene(json: IObjectsCommonJSON): boolean {
+  public objectInScene(json: IObjectsCommonJSON): boolean {
     const obj = this.objectsInScene.find(elem => elem.getID() === json.id);
     if (obj) return true;
     else return false;
@@ -224,11 +223,11 @@ export default class Scene {
    * Removes Object or Array of Objects from BitbloqScene array
    * @param json Object or Array of objects
    */
-  public removeFromBitbloqScene(
+  public removeFromScene(
     json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
   ): Array<IObjectsCommonJSON> {
     if (isArray(json)) {
-      json.forEach(obj => this.removeFromBitbloqScene(obj));
+      json.forEach(obj => this.removeFromScene(obj));
     } else {
       if (!this.objectInObjectCollector(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
@@ -247,18 +246,18 @@ export default class Scene {
       //In case the objects has children, they must be removed from BitbloqScene (remain in ObjectCollector)
       if (object.getTypeName() === ObjectsGroup.typeName) {
         (object.toJSON() as IObjectsGroupJSON).group.forEach(obj => {
-          if (!this.objectInBitbloqScene(obj))
+          if (!this.objectInScene(obj))
             throw new Error(
               'Cannot create a group of objects from objects not present in BitbloqScene',
             );
-          this.removeFromBitbloqScene(obj);
+          this.removeFromScene(obj);
         });
       } else if (object.getTypeName() === RepetitionObject.typeName) {
-        if (!this.objectInBitbloqScene((object as any).object.toJSON()))
+        if (!this.objectInScene((object as any).object.toJSON()))
           throw new Error(
             'Cannot create a Repetition from an object not present in BitbloqScene',
           );
-        this.removeFromBitbloqScene(
+        this.removeFromScene(
           (object.toJSON() as IRepetitionObjectJSON).object,
         );
       }
@@ -276,7 +275,7 @@ export default class Scene {
    */
   public removeObject(obj: IObjectsCommonJSON): Array<IObjectsCommonJSON> {
     try {
-      this.removeFromBitbloqScene(obj);
+      this.removeFromScene(obj);
       this.removeFromObjectCollector(obj);
     } catch (e) {
       throw new Error(`Cannot Remove Object from Scene: ${e}`);
@@ -323,6 +322,22 @@ export default class Scene {
    * @param json group object descriptor (it only pays attention to id)
    */
   public unGroup(json: IObjectsGroupJSON): Array<IObjectsCommonJSON> {
+    try{
+      const group = this.getObject(json);
+      if(!(group instanceof ObjectsGroup)) throw new Error(`Object is not a group`);
+      const objects: Array<ObjectsCommon> = (group as ObjectsGroup).unGroup();
+      // add the members of the group to the Scene
+      objects.forEach(object => {
+        this.objectsInScene.push(object);
+      })
+
+      //remove ObjectsGroups from Scene and ObjectCollector
+      this.removeFromObjectCollector(json);
+      this.removeFromScene(json);
+    }catch(e){
+      throw new Error(`Cannog ungroup. Unknown group ${e}`);
+    }
+
     return this.toJSON();
   }
 
@@ -343,50 +358,43 @@ export default class Scene {
   public repetitionToGroup(
     json: IRepetitionObjectJSON,
   ): Array<IObjectsCommonJSON> {
+
+    try{
+      const rep = this.getObject(json);
+      if(!(rep instanceof RepetitionObject)) throw new Error(`Object is not a RepetitionObject`);
+      const objects: Array<ObjectsCommon> = (rep as RepetitionObject).unGroup();
+
+      //add objects to ObjectCollector
+      objects.forEach(object => {
+        this.objectCollector.push(object);
+      })
+      
+      const group: ObjectsGroup = new ObjectsGroup(objects);
+
+      // add new group to scene
+      this.objectCollector.push(group);
+      this.objectsInScene.push(group);
+
+
+      //remove original object in repetion from ObjectCollector
+      const original = rep.getOriginal();
+      this.removeFromObjectCollector(original.toJSON());
+
+      //remove ObjectsGroups from Scene and ObjectCollector
+      this.removeFromObjectCollector(json);
+      this.removeFromScene(json);
+
+    }catch(e){
+      throw new Error(`Cannog ungroup. Unknown group ${e}`);
+    }
+
     return this.toJSON();
   }
 
-  // TODO Methods for frontend
-
-  /**
-   * Returns the DOM Element where the scene is rendered
-   */
-  public getDOMELement(): HTMLElement {
-    // TODO En principio renderer.domElement. Pero como tenemos actualmente
-    // 2 renderers, uno para la scene y otro para el cubo de navegación en
-    // la esquina de arriba a la izquierda, creo que habría que crear un <div>
-    // padre que es el que devolvemos aquí, e insertar los dos renderer en ese
-    // <div>. Si quieres de momento devuelve el renderer.domElement y ya vemos
-    // luego lo del cubo de navegación
-    return document.body;
-  }
-
-  // Le pasa un handler que debe ser llamado cada vez que se hace click
-  // el primer parámetro del handler debe ser el objeto sobre el que se ha
-  // hecho click, o null si no se ha hecho click sobre ninguno
-  public onClick(handler: ClickHandler): void {}
 
   // Establece el helper que debe mostrarse en la vista 3d
   // Si no se le pasa ningún parámetro entonces no mostrar ninguno
   public setActiveHelper(helperDescription?: HelperDescription) {}
-
-  // Si se le pasa true entonces la cámara es ortográfica y se le pasa
-  // false la cámara es perspectiva
-  public setOrtographicCamera(isOrtographic: boolean): void {}
-
-  public zoomIn(): void {}
-
-  public zoomOut(): void {}
-
-  // Por si por ejemplo quieres cargar una escena que ya tengas creada
-  // El nombre setScene parece un poco raro dentro de la clase Scene
-  // Scene.setSceene(scene)
-  // setBitbloqScene? setSceneObjects?
-  public setScene(scene: any): void {}
-
-  // Estos 2 los podemos hacer aquí dentro (da más valor a la librería)
-  // pero si es muy complicado lo podemos hacer fuera y podemos dejar la escena
-  // en el estado deseado con setScene
 
   // Deshace la última operación y devuelve la escena después de deshacer
   public undo(): any {}
