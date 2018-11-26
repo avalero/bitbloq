@@ -1,14 +1,21 @@
 import React, { Component } from 'react';
 import TetherComponent from 'react-tether';
 
-export interface DropDownProps {}
+export interface DropDownProps {
+  closeOnClick: boolean;
+}
 
 interface State {
   isOpen: boolean;
 }
 
 class DropDown extends Component<DropDownProps, State> {
+  static defaultProps = {
+    closeOnClick: true
+  };
+
   toggleRef = React.createRef();
+  attachmentRef = React.createRef();
   state = { isOpen: false };
 
   componentDidMount() {
@@ -20,8 +27,16 @@ class DropDown extends Component<DropDownProps, State> {
   }
 
   onBodyClick = (e) => {
-    if (this.toggleRef.current.contains(e.target)) {
+    const {closeOnClick} = this.props;
+    const toggle = this.toggleRef.current;
+    const attachment = this.attachmentRef.current;
+
+    if (toggle.contains(e.target)) {
       this.setState(state => ({ ...state, isOpen: !state.isOpen }));
+    } else if (attachment && attachment.contains(e.target)) {
+      if (closeOnClick) {
+        this.setState({ isOpen: false });
+      }
     } else {
       this.setState({ isOpen: false });
     }
@@ -39,7 +54,11 @@ class DropDown extends Component<DropDownProps, State> {
         <div ref={this.toggleRef}>
           {element(isOpen)}
         </div>
-        {isOpen && attachment}
+        {isOpen &&
+          <div ref={this.attachmentRef}>
+            {attachment}
+          </div>
+        }
       </TetherComponent>
     );
   }
