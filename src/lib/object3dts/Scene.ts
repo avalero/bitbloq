@@ -48,15 +48,18 @@ export default class Scene {
 
   private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
-  private BitbloqScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
+  private objectsInScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
+
+  private lastJSON: object;
+  private objectsGroup: THREE.Group;
 
   constructor() {
     this.objectCollector = [];
-    this.BitbloqScene = [];
+    this.objectsInScene = [];
     //this.sceneSetup = {};
     this.setupScene();
-
-   
+    this.objectsGroup = new THREE.Group();
+    this.lastJSON = this.toJSON();
   }
 
   /**
@@ -65,7 +68,7 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): Array<IObjectsCommonJSON> {
-    return this.BitbloqScene.map(object => object.toJSON());
+    return this.objectsInScene.map(object => object.toJSON());
   }
 
   /**
@@ -104,7 +107,7 @@ export default class Scene {
     const group: THREE.Group = new THREE.Group();
     
     //TODO
-    
+
     return group;
   }
 
@@ -112,17 +115,21 @@ export default class Scene {
    * returns a THREE.Group object containing designed 3D objects .
    */
   public async getObjectsAsync(): Promise<THREE.Group> {
-    const group: THREE.Group = new THREE.Group();
+
+    if(isEqual(this.lastJSON, this.toJSON())) return this.objectsGroup;
+
+    this.objectsGroup = new THREE.Group();
 
     const meshes: Array<THREE.Object3D> = await Promise.all(
-      this.BitbloqScene.map(object => object.getMeshAsync()),
+      this.objectsInScene.map(object => object.getMeshAsync()),
     );
 
     meshes.forEach(mesh => {
-      group.add(mesh);
+      this.objectsGroup.add(mesh);
     });
 
-    return group;
+    
+    return this.objectsGroup;
   }
 
   /**
@@ -188,7 +195,7 @@ export default class Scene {
   }
 
   public objectInBitbloqScene(json: IObjectsCommonJSON): boolean {
-    const obj = this.BitbloqScene.find(elem => elem.getID() === json.id);
+    const obj = this.objectsInScene.find(elem => elem.getID() === json.id);
     if (obj) return true;
     else return false;
   }
@@ -225,7 +232,7 @@ export default class Scene {
     } else {
       if (!this.objectInObjectCollector(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
-      this.BitbloqScene = this.BitbloqScene.filter(
+      this.objectsInScene = this.objectsInScene.filter(
         obj => obj.getID() !== json.id,
       );
     }
@@ -255,7 +262,7 @@ export default class Scene {
           (object.toJSON() as IRepetitionObjectJSON).object,
         );
       }
-      this.BitbloqScene.push(object);
+      this.objectsInScene.push(object);
       this.objectCollector.push(object);
     }
 
