@@ -5,6 +5,7 @@ import { isArray } from 'util';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 import { ICompoundObjectJSON } from './CompoundObject';
+import BaseGrid from './BaseGrid';
 
 import isEqual from 'lodash.isequal';
 
@@ -26,6 +27,12 @@ interface HelperDescription {
   relative: boolean;
 }
 
+interface ISceneSetup {
+  base: THREE.Group;
+  ambientLight: THREE.AmbientLight;
+  spotLight: THREE.SpotLight; 
+}
+
 export default class Scene {
   //TODO. Need to create children before of creating objects!!
   public static newFromJSON(json: Array<IObjectsCommonJSON>): Scene {
@@ -39,12 +46,17 @@ export default class Scene {
     return scene;
   }
 
+  private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private BitbloqScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
 
   constructor() {
     this.objectCollector = [];
     this.BitbloqScene = [];
+    //this.sceneSetup = {};
+    this.setupScene();
+
+   
   }
 
   /**
@@ -77,28 +89,82 @@ export default class Scene {
     return this.toJSON();
   }
 
-  /**
-   * returns a THREE.Scene object containing everything to be drawn.
-   * TODO
-   */
-  public async getSceneAsync(): Promise<THREE.Scene> {
-    const scene: THREE.Scene = new THREE.Scene();
 
-    //Add objects to Scene
-    const meshes: Array<THREE.Object3D> = await Promise.all(
-      this.BitbloqScene.map(object => object.getMeshAsync()),
-    );
-    meshes.forEach(mesh => {
-      scene.add(mesh);
-    });
-    return scene;
+  public getSceneSetup(): THREE.Group{
+    const group: THREE.Group = new THREE.Group();
+    
+    group.add(this.sceneSetup.ambientLight);
+    group.add(this.sceneSetup.spotLight);
+    group.add(this.sceneSetup.base);
+
+    return group;
+  }
+
+  public getHelpers(): THREE.Group{
+    const group: THREE.Group = new THREE.Group();
+    
+    //TODO
+    
+    return group;
   }
 
   /**
-   * Adds floor, camera, etc.
-   * TODO
+   * returns a THREE.Group object containing designed 3D objects .
    */
-  private setupScene(): void {}
+  public async getObjectsAsync(): Promise<THREE.Group> {
+    const group: THREE.Group = new THREE.Group();
+
+    const meshes: Array<THREE.Object3D> = await Promise.all(
+      this.BitbloqScene.map(object => object.getMeshAsync()),
+    );
+
+    meshes.forEach(mesh => {
+      group.add(mesh);
+    });
+
+    return group;
+  }
+
+  /**
+   * Adds floor and lights.
+   */
+  private setupScene(): void {
+    
+    //@David , esto debería ir en algún sitio de opciones de configuracion
+    const gridConfig = {
+      size: 200,
+      smallGrid: {
+        enabled: true,
+        step: 2,
+        color: 0xededed,
+        lineWidth: 1,
+      },
+      bigGrid: {
+        enabled: true,
+        step: 10,
+        color: 0xcdcdcd,
+        lineWidth: 2,
+      },
+      centerGrid: {
+        enabled: true,
+        color: 0x9a9a9a,
+        lineWidth: 2,
+      },
+      plane: {
+        enabled: false,
+        color: 0x98f5ff,
+      },
+    };
+    
+    
+    this.sceneSetup = {
+      base: new BaseGrid(gridConfig).getMesh(),
+      ambientLight: new THREE.AmbientLight(0x555555), 
+      spotLight: new THREE.SpotLight(0xeeeeee),
+    };
+
+    this.sceneSetup.spotLight.position.set(80, -100, 60)   
+  }
 
   /**
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
