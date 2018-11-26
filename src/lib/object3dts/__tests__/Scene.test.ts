@@ -28,7 +28,7 @@ test('Test Scene.addObjectFromJSON()', () => {
   scene.addNewObjectFromJSON(object1.toJSON());
   scene.addNewObjectFromJSON(object2.toJSON());
 
-  return scene.getSceneAsync().then(scene => {
+  return scene.getObjectsAsync().then(scene => {
     expect(scene.children.length).toEqual(2);
     expect((scene.children[0] as THREE.Mesh).geometry).toBeInstanceOf(
       THREE.CubeGeometry,
@@ -72,7 +72,7 @@ test('Test Scene.removeObject()', () => {
   );
   expect(objs.length).toEqual(3);
   scene.removeObject(objsJSON[1]); //remove object2
-  return scene.getSceneAsync().then(scene => {
+  return scene.getObjectsAsync().then(scene => {
     expect(scene.children.length).toEqual(2);
     expect((scene.children[0] as THREE.Mesh).geometry).toBeInstanceOf(
       THREE.CubeGeometry,
