@@ -170,13 +170,13 @@ test('Add group to Scene. Check if group objects are removed', () => {
   expect((scene as any).objectsInScene.length).toEqual(2);
   expect((scene as any).objectCollector.length).toEqual(4);
   expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInScene(cube.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(false);
+  expect(scene.objectInScene(cylinder.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(true);
+  expect(scene.objectInScene(sphere.toJSON())).toBe(true);
   expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(group.toJSON())).toBe(true);
+  expect(scene.objectInScene(group.toJSON())).toBe(true);
 });
 
 test('Add repetition to Scene. Check if main object is removed', () => {
@@ -204,13 +204,13 @@ test('Add repetition to Scene. Check if main object is removed', () => {
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(4);
   expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInScene(cube.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInScene(cylinder.toJSON())).toBe(true);
   expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(true);
+  expect(scene.objectInScene(sphere.toJSON())).toBe(true);
   expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+  expect(scene.objectInScene(rep.toJSON())).toBe(true);
 });
 
 test('Add repetition and group to Scene. Check repetition of non-present object cannot be created', () => {
@@ -238,13 +238,13 @@ test('Add repetition and group to Scene. Check repetition of non-present object 
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(4);
   expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInScene(cube.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(true);
+  expect(scene.objectInScene(cylinder.toJSON())).toBe(true);
   expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(true);
+  expect(scene.objectInScene(sphere.toJSON())).toBe(true);
   expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+  expect(scene.objectInScene(rep.toJSON())).toBe(true);
 
   const group = new ObjectsGroup([cylinder, sphere]);
   scene.addExistingObject(group);
@@ -252,15 +252,15 @@ test('Add repetition and group to Scene. Check repetition of non-present object 
   expect((scene as any).objectsInScene.length).toEqual(2);
   expect((scene as any).objectCollector.length).toEqual(5);
   expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cube.toJSON())).toBe(false);
+  expect(scene.objectInScene(cube.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(cylinder.toJSON())).toBe(false);
+  expect(scene.objectInScene(cylinder.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(sphere.toJSON())).toBe(false);
+  expect(scene.objectInScene(sphere.toJSON())).toBe(false);
   expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(rep.toJSON())).toBe(true);
+  expect(scene.objectInScene(rep.toJSON())).toBe(true);
   expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
-  expect(scene.objectInBitbloqScene(group.toJSON())).toBe(true);
+  expect(scene.objectInScene(group.toJSON())).toBe(true);
 
   const group2 = new ObjectsGroup([cylinder, sphere]);
   const e = () => scene.addExistingObject(group2);

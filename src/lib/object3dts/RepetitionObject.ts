@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-11-14 10:56:45
+ * Last modified  : 2018-11-26 17:06:23
  */
 
 import Object3D from './Object3D';
@@ -72,16 +72,16 @@ export default class RepetitionObject extends ObjectsGroup {
   /**
    *
    * @param params The parameters of the repetition
-   * @param object The object to repeat
+   * @param original The object to repeat
    * Creates an ObjectsGroup with cloned objects (Object3D instance) on their new postion
    */
   constructor(
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
-    object: ObjectsCommon,
+    original: ObjectsCommon,
   ) {
     super([]);
     this.parameters = { ...params };
-    this.object = object;
+    this.object = original;
     this.type = RepetitionObject.typeName;
     if (this.parameters.type.toLowerCase() === 'cartesian')
       this.cartesianRepetition();
@@ -162,6 +162,10 @@ export default class RepetitionObject extends ObjectsGroup {
     };
 
     return obj;
+  }
+
+  public getOriginal():ObjectsCommon{
+    return this.object;
   }
 
   /**
