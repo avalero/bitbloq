@@ -5,7 +5,7 @@ import Object3D from './Object3D';
 import Scene from './Scene';
 
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
-  group: Array<IObjectsCommonJSON>;
+  children: Array<IObjectsCommonJSON>;
 }
 
 export default class ObjectsGroup extends ObjectsCommon {
@@ -21,17 +21,17 @@ export default class ObjectsGroup extends ObjectsCommon {
       throw new Error(
         `Types do not match ${ObjectsGroup.typeName}, ${object.type}`,
       );
-    const group: Array<ObjectsCommon> = object.group.map(obj =>
+    const group: Array<ObjectsCommon> = object.children.map(obj =>
       scene.getObject(obj),
     );
     return new ObjectsGroup(group);
   }
 
-  private group: Array<ObjectsCommon>;
+  private children: Array<ObjectsCommon>;
 
-  constructor(objects: Array<ObjectsCommon> = []) {
+  constructor(children: Array<ObjectsCommon> = []) {
     super(ObjectsCommon.createViewOptions(), []);
-    this.group = objects;
+    this.children = children;
     this.type = ObjectsGroup.typeName;
   }
   // Group operations. Will be transferred to children only when un-grouped.
@@ -41,20 +41,20 @@ export default class ObjectsGroup extends ObjectsCommon {
   }
 
   public add(object: Object3D): void {
-    this.group.push(object);
+    this.children.push(object);
   }
 
   protected clean(): void {
-    this.group.length = 0;
+    this.children.length = 0;
   }
 
   // When a group is un-grouped all the operations of the group are transferred to the single objects
   // Return the array of objects with all the inherited operations of the group.
   public unGroup(): Array<ObjectsCommon> {
-    this.group.forEach(object3D => {
+    this.children.forEach(object3D => {
       object3D.addOperations(this.operations);
     });
-    return this.group;
+    return this.children;
   }
 
   public getMeshAsync(): Promise<THREE.Group> {
@@ -62,14 +62,14 @@ export default class ObjectsGroup extends ObjectsCommon {
       let meshGroup: THREE.Group = new THREE.Group();
 
       // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
-      if (this.group.length === 0) {
+      if (this.children.length === 0) {
         reject('No item in group');
         return;
       }
 
       const promises: Promise<THREE.Object3D>[] = [];
 
-      this.group.forEach(object3D => {
+      this.children.forEach(object3D => {
         // only first level objets require to update operations, no need to make deep copy
         const objectClone = object3D.clone();
         objectClone.addOperations(this.operations);
@@ -87,7 +87,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   }
 
   public clone(): ObjectsGroup {
-    const groupClone = this.group.map(obj => obj.clone());
+    const groupClone = this.children.map(obj => obj.clone());
     return new ObjectsGroup(groupClone);
   }
 
@@ -97,10 +97,10 @@ export default class ObjectsGroup extends ObjectsCommon {
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-      group: [],
+      children: [],
     };
 
-    obj.group = this.group.map(obj => obj.toJSON());
+    obj.children = this.children.map(obj => obj.toJSON());
 
     return obj;
   }
@@ -110,7 +110,7 @@ export default class ObjectsGroup extends ObjectsCommon {
    * @param obj Object descriptor
    */
   private getObject(obj: IObjectsCommonJSON): ObjectsCommon {
-    const result = this.group.find(object => object.getID() === obj.id);
+    const result = this.children.find(object => object.getID() === obj.id);
     if (result) return result;
     else throw new Error(`Object id ${obj.id} not found in group`);
   }
@@ -124,7 +124,7 @@ export default class ObjectsGroup extends ObjectsCommon {
     if (object.id !== this.id)
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     try {
-      object.group.forEach(obj => {
+      object.children.forEach(obj => {
         const objToUpdate = this.getObject(obj);
         objToUpdate.updateFromJSON(obj);
       });
