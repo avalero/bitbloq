@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-11-26 17:06:23
+ * Last modified  : 2018-11-27 14:28:32
  */
 
 import Object3D from './Object3D';
@@ -21,7 +21,6 @@ import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import Scene from './Scene';
 
 export interface IRepetitionObjectJSON extends IObjectsGroupJSON {
-  object: IObjectsCommonJSON;
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 }
 
@@ -59,14 +58,14 @@ export default class RepetitionObject extends ObjectsGroup {
         `Types do not match ${RepetitionObject.typeName}, ${obj.type}`,
       );
     try {
-      const object: ObjectsCommon = scene.getObject(obj.object);
+      const object: ObjectsCommon = scene.getObject(obj.children[0]);
       return new RepetitionObject(obj.parameters, object);
     } catch (e) {
       throw new Error(`Cannot create RepetitionObject: ${e}`);
     }
   }
 
-  private object: ObjectsCommon;
+  private originalObject: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
 
   /**
@@ -81,7 +80,7 @@ export default class RepetitionObject extends ObjectsGroup {
   ) {
     super([]);
     this.parameters = { ...params };
-    this.object = original;
+    this.originalObject = original;
     this.type = RepetitionObject.typeName;
     if (this.parameters.type.toLowerCase() === 'cartesian')
       this.cartesianRepetition();
@@ -99,11 +98,11 @@ export default class RepetitionObject extends ObjectsGroup {
       .parameters as ICartesianRepetitionParams;
 
     for (let i: number = 0; i < num; i++) {
-      if (this.object instanceof Object3D) {
-        const objectClone: Object3D = this.object.clone();
+      if (this.originalObject instanceof Object3D) {
+        const objectClone: Object3D = this.originalObject.clone();
         objectClone.translate(i * x, i * y, i * z);
         this.add(objectClone);
-      } else if (this.object instanceof ObjectsGroup) {
+      } else if (this.originalObject instanceof ObjectsGroup) {
       }
     }
   }
@@ -123,7 +122,7 @@ export default class RepetitionObject extends ObjectsGroup {
   }
 
   public clone(): RepetitionObject {
-    return new RepetitionObject(this.parameters, this.object);
+    return new RepetitionObject(this.parameters, this.originalObject);
   }
 
   /**
@@ -136,11 +135,12 @@ export default class RepetitionObject extends ObjectsGroup {
       .parameters as IPolarRepetitionParams;
 
     for (let i: number = 0; i < num; i++) {
-      if (this.object instanceof Object3D) {
-        const objectClone: Object3D = this.object.clone();
+      if (this.originalObject instanceof Object3D) {
+        const objectClone: Object3D = this.originalObject.clone();
         //objectClone.translate(i*x, i*y, i*z);
         this.add(objectClone);
-      } else if (this.object instanceof ObjectsGroup) {
+      } else if (this.originalObject instanceof ObjectsGroup) {
+
       }
     }
   }
@@ -158,14 +158,14 @@ export default class RepetitionObject extends ObjectsGroup {
       ...super.toJSON(),
       type: this.type,
       parameters: this.parameters,
-      object: this.object.toJSON(),
+      children: [this.originalObject.toJSON()],
     };
 
     return obj;
   }
 
   public getOriginal():ObjectsCommon{
-    return this.object;
+    return this.originalObject;
   }
 
   /**
@@ -177,15 +177,15 @@ export default class RepetitionObject extends ObjectsGroup {
     if (object.id !== this.id)
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
 
-    if (object.object.id !== this.object.getID())
+    if (object.children[0].id !== this.originalObject.getID())
       throw new Error(
         `object child ids do not match ${
-          object.object.id
-        }, ${this.object.getID()}`,
+          object.children[0].id
+        }, ${this.originalObject.getID()}`,
       );
 
     try {
-      this.object.updateFromJSON(object.object);
+      this.originalObject.updateFromJSON(object.children[0]);
       this.setParameters(object.parameters);
       this.setOperations(object.operations);
     } catch (e) {

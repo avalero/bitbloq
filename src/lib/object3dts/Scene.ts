@@ -252,6 +252,11 @@ export default class Scene {
     return this.toJSON();
   }
 
+  /**
+   * Clones an object and adds it to the scene (and objectCollector). 
+   * If object is not in Scene throws Erro
+   * @param json object to be cloned
+   */
   public cloneOject(json: IObjectsCommonJSON):ISceneJSON {
     if(this.objectInScene(json)){
       const newobj = this.getObject(json).clone();
@@ -269,7 +274,7 @@ export default class Scene {
     } else {
       //In case the objects has children, they must be removed from BitbloqScene (remain in ObjectCollector)
       if (object.getTypeName() === ObjectsGroup.typeName) {
-        (object.toJSON() as IObjectsGroupJSON).group.forEach(obj => {
+        (object.toJSON() as IObjectsGroupJSON).children.forEach(obj => {
           if (!this.objectInScene(obj))
             throw new Error(
               'Cannot create a group of objects from objects not present in BitbloqScene',
@@ -277,12 +282,12 @@ export default class Scene {
           this.removeFromScene(obj);
         });
       } else if (object.getTypeName() === RepetitionObject.typeName) {
-        if (!this.objectInScene((object as any).object.toJSON()))
+        if (!this.objectInScene((object as any).originalObject.toJSON()))
           throw new Error(
             'Cannot create a Repetition from an object not present in BitbloqScene',
           );
         this.removeFromScene(
-          (object.toJSON() as IRepetitionObjectJSON).object,
+          (object.toJSON() as IRepetitionObjectJSON).children[0],
         );
       }
       this.objectsInScene.push(object);

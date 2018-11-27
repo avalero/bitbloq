@@ -240,16 +240,16 @@ test('Check UpdateFromJSON', () => {
   const group = new ObjectsGroups([object1, object2, object3]);
 
   const jsonObj: IObjectsGroupJSON = group.toJSON();
-  (jsonObj.group[0] as ICubeJSON).parameters.width = 2 * width;
+  (jsonObj.children[0] as ICubeJSON).parameters.width = 2 * width;
 
   group.updateFromJSON(jsonObj);
 
   const resultObject: IObjectsGroupJSON = group.toJSON();
-  expect((resultObject.group[0] as ICubeJSON).parameters.width).toEqual(
+  expect((resultObject.children[0] as ICubeJSON).parameters.width).toEqual(
     2 * width,
   );
 
-  (resultObject.group[0] as ICubeJSON).id = 'xxxx';
+  (resultObject.children[0] as ICubeJSON).id = 'xxxx';
 
   const e = () => group.updateFromJSON(resultObject);
 

@@ -84,7 +84,7 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
   scene.addExistingObject(objectPrism);
 
   const jsonGroupAux: IObjectsGroupJSON = {
-    group: [objectCube.toJSON(), objectPrism.toJSON()],
+    children: [objectCube.toJSON(), objectPrism.toJSON()],
     id: '',
     type: ObjectsGroup.typeName,
     viewOptions: ObjectsCommon.createViewOptions(),
@@ -93,9 +93,9 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
 
   const group = ObjectFactory.newFromJSON(jsonGroupAux, scene);
   expect(group).toBeInstanceOf(ObjectsGroup);
-  expect((group as any).group.length).toEqual(2);
-  expect((group as any).group[0].id).toEqual(objectCube.getID());
-  expect((group as any).group[1].id).toEqual(objectPrism.getID());
+  expect((group as any).children.length).toEqual(2);
+  expect((group as any).children[0].id).toEqual(objectCube.getID());
+  expect((group as any).children[1].id).toEqual(objectPrism.getID());
 });
 
 test('Check ObjectsGroup rejects object not in Scene from ObjectFactory', () => {
@@ -112,7 +112,7 @@ test('Check ObjectsGroup rejects object not in Scene from ObjectFactory', () => 
   const objectPrismAux = new Prism({ sides, length, height });
 
   const jsonGroupAux: IObjectsGroupJSON = {
-    group: [objectCube.toJSON(), objectPrism.toJSON(), objectPrismAux.toJSON()],
+    children: [objectCube.toJSON(), objectPrism.toJSON(), objectPrismAux.toJSON()],
     id: '',
     type: ObjectsGroup.typeName,
     viewOptions: ObjectsCommon.createViewOptions(),
@@ -133,8 +133,7 @@ test('Check RepetitionObject is well created from ObjectFactory', () => {
   scene.addExistingObject(objectCube);
 
   const jsonRepetitionAux: IRepetitionObjectJSON = {
-    object: objectCube.toJSON(),
-    group: [],
+    children: [objectCube.toJSON()],
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
     type: RepetitionObject.typeName,
@@ -144,7 +143,6 @@ test('Check RepetitionObject is well created from ObjectFactory', () => {
 
   const repetition = ObjectFactory.newFromJSON(jsonRepetitionAux, scene);
   expect(repetition).toBeInstanceOf(RepetitionObject);
-  expect((repetition as any).object).toBeInstanceOf(Cube);
-
-  expect(((repetition as any).group as any).length).toEqual(10);
+  expect((repetition as any).children[0]).toBeInstanceOf(Cube);
+  expect((repetition as any).children.length).toEqual(10);
 });

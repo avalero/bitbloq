@@ -76,8 +76,7 @@ test('Test newFromJSON', () => {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
-    object: object1.toJSON(),
-    group: [],
+    children: [object1.toJSON()],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
   };
@@ -107,8 +106,7 @@ test('Test newFromJSON - id does not match', () => {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
-    object: object2.toJSON(),
-    group: [],
+    children: [object2.toJSON()],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
   };
@@ -126,8 +124,7 @@ test('Test updateFromJSON - Update Parameters', () => {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
-    object: object1.toJSON(),
-    group: [],
+    children: [object1.toJSON()],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
   };
@@ -141,8 +138,7 @@ test('Test updateFromJSON - Update Parameters', () => {
     type: RepetitionObject.typeName,
     id: repetition.getID(),
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
-    object: object1.toJSON(),
-    group: [],
+    children: [object1.toJSON()],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
   };
@@ -167,8 +163,7 @@ test('Test updateFromJSON - Update Object', () => {
     type: RepetitionObject.typeName,
     id: '',
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
-    object: object1.toJSON(),
-    group: [],
+    children: [object1.toJSON()],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
   };
@@ -184,8 +179,7 @@ test('Test updateFromJSON - Update Object', () => {
     type: RepetitionObject.typeName,
     id: repetition.getID(),
     parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
-    object: objJJJ,
-    group: [],
+    children: [objJJJ],
     viewOptions: ObjectsCommon.createViewOptions(),
     operations: [],
   };
