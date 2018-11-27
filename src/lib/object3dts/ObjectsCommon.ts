@@ -3,6 +3,7 @@ import Scene from './Scene';
 
 interface ICommonOperation {
   type: string;
+  id?: string;
 }
 
 export interface IObjectsCommonJSON {
@@ -45,8 +46,8 @@ export type OperationsArray = Array<Operation>;
 export interface IViewOptions {
   color: string;
   visible: boolean;
-  highlighted?: boolean;
-  opacity?: number;
+  highlighted: boolean;
+  opacity: number;
   name: string;
 
 }
@@ -57,12 +58,14 @@ export default class ObjectsCommon {
     visible: boolean = true,
     highlighted: boolean = false,
     name: string = '',
+    opacity: number = 100,
   ): IViewOptions {
     return {
       color,
       visible,
       highlighted,
       name,
+      opacity,
     };
   }
 
@@ -78,6 +81,7 @@ export default class ObjectsCommon {
       y,
       z,
       relative,
+      id: uuid(),
     };
   }
 
@@ -87,6 +91,7 @@ export default class ObjectsCommon {
     return {
       type: 'mirror',
       plane,
+      id: uuid(),
     };
   }
 
@@ -100,6 +105,7 @@ export default class ObjectsCommon {
       axis,
       angle,
       relative,
+      id: uuid(),
     };
   }
 
@@ -113,6 +119,7 @@ export default class ObjectsCommon {
       x,
       y,
       z,
+      id: uuid(),
     };
   }
 

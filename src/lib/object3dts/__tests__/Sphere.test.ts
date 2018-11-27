@@ -333,11 +333,12 @@ test('Sphere - Clone - ViewOptions', () => {
   const visible = true;
   const name = 'Object123';
   const highlighted = false;
+  const opacity = 100;
 
   const object1 = new Sphere(
     { radius },
     [],
-    ObjectsCommon.createViewOptions(color, visible, highlighted, name),
+    ObjectsCommon.createViewOptions(color, visible, highlighted, name, opacity),
   );
   const object = object1.clone();
   const obj: ISphereJSON = object.toJSON() as ISphereJSON;
