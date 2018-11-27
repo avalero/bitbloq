@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2018-11-16 19:47:34
+ * Last modified  : 2018-11-27 11:49:44
  */
 
 import Object3D from './Object3D';
@@ -24,7 +24,10 @@ import * as THREE from 'three';
 
 import Scene from './Scene';
 
+import './custom.d';
+
 import Worker from './compound.worker';
+
 import {
   ITranslateOperation,
   IRotateOperation,
@@ -47,7 +50,7 @@ export default class CompoundObject extends Object3D {
     operations: OperationsArray = [],
     scene: Scene,
   ) {
-    super(ObjectsCommon.createViewOptions(), operations, scene);
+    super(ObjectsCommon.createViewOptions(), operations);
     if (children.length === 0)
       throw new Error('Compound Object requires at least one children');
     this.children = children;
@@ -56,10 +59,9 @@ export default class CompoundObject extends Object3D {
 
     const t0 = performance.now();
     if (typeof Worker !== 'undefined') {
-      //this.worker = new Worker();
       this.worker = new Worker();
     } else {
-      throw Error('Bitbloq 3D requires a Web Eorker enabled browser');
+      throw Error('Bitbloq 3D requires a Web Worker enabled browser');
     }
     const t1 = performance.now();
     console.log(`WebWorker creation time ${t1 - t0} millis`);

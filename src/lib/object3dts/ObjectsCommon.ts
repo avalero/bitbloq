@@ -45,8 +45,10 @@ export type OperationsArray = Array<Operation>;
 export interface IViewOptions {
   color: string;
   visible: boolean;
-  highlighted: boolean;
+  highlighted?: boolean;
+  opacity?: number;
   name: string;
+
 }
 
 export default class ObjectsCommon {

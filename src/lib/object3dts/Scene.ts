@@ -9,8 +9,6 @@ import BaseGrid from './BaseGrid';
 
 import isEqual from 'lodash.isequal';
 
-type ClickHandler = (object?: any) => void;
-
 enum HelperType {
   Rotation = 'rotation',
   Translation = 'translation',
@@ -33,12 +31,15 @@ interface ISceneSetup {
   spotLight: THREE.SpotLight; 
 }
 
+export type ISceneJSON = Array<IObjectsCommonJSON>;
+
 export default class Scene {
-  //TODO. Need to create children before of creating objects!!
-  public static newFromJSON(json: Array<IObjectsCommonJSON>): Scene {
+  
+  // TODO. Need to create children before of creating objects!!
+  public static newFromJSON(json: ISceneJSON): Scene {
     const scene = new Scene();
     try {
-      scene.updateFromJSON(json);
+      scene.updateSceneFromJSON(json);
     } catch (e) {
       throw new Error(`Error creating Scene. ${e}`);
     }
@@ -46,12 +47,16 @@ export default class Scene {
     return scene;
   }
 
+
   private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private objectsInScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
+  private history:Array<ISceneJSON>; /// history of actions
+
 
   private lastJSON: object;
   private objectsGroup: THREE.Group;
+  private historyIndex:number;
 
   constructor() {
     this.objectCollector = [];
@@ -59,24 +64,36 @@ export default class Scene {
     this.setupScene();
     this.objectsGroup = new THREE.Group();
     this.lastJSON = this.toJSON();
+    this.historyIndex = 0;
+    this.history = [];
   }
+
+  public canUndo():boolean{
+    return (this.historyIndex > 0);
+  }
+
+  public canRedo():boolean{
+    return (this.historyIndex > this.history.length - 1);
+  }
+
 
   /**
    * Returns the Scene JSON descriptor: Array of Objects.
    * It only contains designed by user objects.
    * It does not contain helpers, plane, etc.
    */
-  public toJSON(): Array<IObjectsCommonJSON> {
-    return this.objectsInScene.map(object => object.toJSON());
+  public toJSON(): ISceneJSON {
+    const sceneJSON = this.objectsInScene.map(object => object.toJSON());
+    return sceneJSON;
   }
 
   /**
    * Updates all the objects in a Scene, if object is not present. It adds it.
    * @param json json describin all the objects of the Scene
    */
-  public updateFromJSON(
-    json: Array<IObjectsCommonJSON>,
-  ): Array<IObjectsCommonJSON> {
+  public updateSceneFromJSON(
+    json: ISceneJSON,
+  ): ISceneJSON {
     if (isEqual(json, this.toJSON())) return json;
 
     json.forEach(obj => {
@@ -84,10 +101,6 @@ export default class Scene {
         this.getObject(obj).updateFromJSON(obj);
       else this.addNewObjectFromJSON(obj);
     });
-
-    if (!isEqual(json, this.toJSON()))
-      throw new Error('Unexpected Error updating Scene');
-
     return this.toJSON();
   }
 
@@ -178,7 +191,7 @@ export default class Scene {
    */
   public addNewObjectFromJSON(
     json: IObjectsCommonJSON,
-  ): Array<IObjectsCommonJSON> {
+  ): ISceneJSON {
     try {
       const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
       return this.addExistingObject(object);
@@ -204,8 +217,8 @@ export default class Scene {
    * @param json Object or Array of objects
    */
   public removeFromObjectCollector(
-    json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
-  ): Array<IObjectsCommonJSON> {
+    json: ISceneJSON | IObjectsCommonJSON,
+  ): ISceneJSON {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromObjectCollector(obj));
     } else {
@@ -224,8 +237,8 @@ export default class Scene {
    * @param json Object or Array of objects
    */
   public removeFromScene(
-    json: Array<IObjectsCommonJSON> | IObjectsCommonJSON,
-  ): Array<IObjectsCommonJSON> {
+    json: ISceneJSON | IObjectsCommonJSON,
+  ): ISceneJSON {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromScene(obj));
     } else {
@@ -239,7 +252,18 @@ export default class Scene {
     return this.toJSON();
   }
 
-  public addExistingObject(object: ObjectsCommon): Array<IObjectsCommonJSON> {
+  public cloneOject(json: IObjectsCommonJSON):ISceneJSON {
+    if(this.objectInScene(json)){
+      const newobj = this.getObject(json).clone();
+      this.objectCollector.push(newobj);
+      this.objectsInScene.push(newobj);
+      return this.toJSON();
+    }else{
+      throw new Error('Cannot clone unknown object');
+    }
+  }
+
+  public addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
       throw Error('Object already in Scene');
     } else {
@@ -265,7 +289,15 @@ export default class Scene {
       this.objectCollector.push(object);
     }
 
-    return this.toJSON();
+    const sceneJSON = this.toJSON();
+    //Add to history if someting has changed
+    if(!isEqual(sceneJSON, this.lastJSON)){
+      this.history = this.history.slice(0,this.historyIndex);
+      this.history.push(sceneJSON);
+      this.historyIndex = this.history.length - 1;
+    }
+
+    return sceneJSON;
   }
 
   /**
@@ -273,7 +305,7 @@ export default class Scene {
    * If object is not present is does NOT anything.
    * @param json json object descriptor (only id is important)
    */
-  public removeObject(obj: IObjectsCommonJSON): Array<IObjectsCommonJSON> {
+  public removeObject(obj: IObjectsCommonJSON): ISceneJSON {
     try {
       this.removeFromScene(obj);
       this.removeFromObjectCollector(obj);
@@ -301,7 +333,7 @@ export default class Scene {
    * If not it triggers an error exception.
    * @param json json describing object
    */
-  public updateObject(obj: IObjectsCommonJSON): Array<IObjectsCommonJSON> {
+  public updateObject(obj: IObjectsCommonJSON): ISceneJSON {
     const id = obj.id;
     let updated = false;
 
@@ -321,7 +353,7 @@ export default class Scene {
    * It adds the members of the group to de Scene.
    * @param json group object descriptor (it only pays attention to id)
    */
-  public unGroup(json: IObjectsGroupJSON): Array<IObjectsCommonJSON> {
+  public unGroup(json: IObjectsGroupJSON): ISceneJSON {
     try{
       const group = this.getObject(json);
       if(!(group instanceof ObjectsGroup)) throw new Error(`Object is not a group`);
@@ -346,7 +378,7 @@ export default class Scene {
    * It adds the children to the Scene
    * @param json CompoundObject Descriptor. It only pays attention to id.
    */
-  public undoCompound(json: ICompoundObjectJSON): Array<IObjectsCommonJSON> {
+  public undoCompound(json: ICompoundObjectJSON): ISceneJSON {
     return this.toJSON();
   }
 
@@ -357,7 +389,7 @@ export default class Scene {
    */
   public repetitionToGroup(
     json: IRepetitionObjectJSON,
-  ): Array<IObjectsCommonJSON> {
+  ): ISceneJSON {
 
     try{
       const rep = this.getObject(json);
