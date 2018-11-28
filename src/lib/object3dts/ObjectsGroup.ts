@@ -38,6 +38,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   public setOperations(operations: OperationsArray = []): void {
     this.operations = [];
     this.operations = operations.slice();
+    this._pendingOperation = true;
   }
 
   public add(object: Object3D): void {

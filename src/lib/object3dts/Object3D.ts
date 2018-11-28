@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-27 13:47:45
+ * Last modified  : 2018-11-28 13:58:12
  */
 
 import * as THREE from 'three';
@@ -24,7 +24,6 @@ import {
   IViewOptions,
 } from './ObjectsCommon';
 
-import Scene from './Scene';
 
 export default class Object3D extends ObjectsCommon {
   public static getVerticesFromGeom(
@@ -61,21 +60,11 @@ export default class Object3D extends ObjectsCommon {
   //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
 
-  protected _meshUpdateRequired: boolean;
-
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
   ) {
     super(viewOptions, operations);
-  }
-
-  get meshUpdateRequired(): boolean {
-    return this._meshUpdateRequired;
-  }
-
-  get pendingOperation(): boolean {
-    return this._pendingOperation;
   }
 
   protected getMaterial(): THREE.MeshLambertMaterial {

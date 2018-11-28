@@ -125,6 +125,7 @@ export default class ObjectsCommon {
 
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
+  protected _meshUpdateRequired: boolean;
   protected viewOptions: IViewOptions;
   protected id: string;
   protected type: string;
@@ -137,6 +138,14 @@ export default class ObjectsCommon {
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
     this.id = uuid();
+  }
+
+  get meshUpdateRequired(): boolean {
+    return this._meshUpdateRequired;
+  }
+
+  get pendingOperation(): boolean {
+    return this._pendingOperation;
   }
 
   public getID() {
@@ -214,13 +223,5 @@ export default class ObjectsCommon {
 
   public updateFromJSON(object: IObjectsCommonJSON): void {
     throw new Error('updateFromJSON() Implemented in children');
-  }
-
-  get meshUpdateRequired(): boolean {
-    return false;
-  }
-
-  get pendingOperation(): boolean {
-    return false;
   }
 }

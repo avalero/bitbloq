@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-11-28 13:53:32
+ * Last modified  : 2018-11-28 16:14:33
  */
 
 import Object3D from './Object3D';
@@ -82,11 +82,8 @@ export default class RepetitionObject extends ObjectsGroup {
     this.parameters = { ...params };
     this.originalObject = original;
     this.type = RepetitionObject.typeName;
-    if (this.parameters.type.toLowerCase() === 'cartesian')
-      this.cartesianRepetition();
-    else if (this.parameters.type.toLowerCase() === 'polar')
-      this.polarRepetition();
-    else throw new Error('Unknown Repetition Command');
+    this._meshUpdateRequired = true;
+    this._pendingOperation = true;
   }
 
   /**
@@ -94,15 +91,18 @@ export default class RepetitionObject extends ObjectsGroup {
    * It adds repeated objects to ObjectsGroup instance
    */
   private cartesianRepetition() {
+    this.clean();
     const { x, y, z, type, num } = this
       .parameters as ICartesianRepetitionParams;
-
     for (let i: number = 0; i < num; i++) {
       if (this.originalObject instanceof Object3D) {
         const objectClone: Object3D = this.originalObject.clone();
         objectClone.translate(i * x, i * y, i * z);
         this.add(objectClone);
       } else if (this.originalObject instanceof ObjectsGroup) {
+
+        // TODO
+
       }
     }
   }
@@ -113,11 +113,7 @@ export default class RepetitionObject extends ObjectsGroup {
     if (!isEqual(parameters, this.parameters)) {
       this.clean();
       this.parameters = { ...parameters };
-      if (this.parameters.type.toLowerCase() === 'cartesian')
-        this.cartesianRepetition();
-      else if (this.parameters.type.toLowerCase() === 'polar')
-        this.polarRepetition();
-      else throw new Error('Unknown Repetition Command');
+      this._meshUpdateRequired = true;
     }
   }
 
@@ -193,17 +189,29 @@ export default class RepetitionObject extends ObjectsGroup {
     }
   }
 
+  get meshUpdateRequired(): boolean {
+    return (this._meshUpdateRequired || this.originalObject.meshUpdateRequired);
+  }
+
+  get pendingOperation(): boolean {
+    return (this._pendingOperation || this.originalObject.pendingOperation);
+  }
+
   public getMeshAsync(): Promise<THREE.Group>{
     
     //check if originalObject has changed
-    if(this.originalObject.meshUpdateRequired || this.originalObject.pendingOperation){
-      if (this.parameters.type.toLowerCase() === 'cartesian')
+    if(this.meshUpdateRequired || this.pendingOperation){
+      this.computeMesh();
+    }
+
+    return super.getMeshAsync();
+  }
+
+  private computeMesh():void{
+    if (this.parameters.type.toLowerCase() === 'cartesian')
         this.cartesianRepetition();
       else if (this.parameters.type.toLowerCase() === 'polar')
         this.polarRepetition();
       else throw new Error('Unknown Repetition Command'); 
-    }
-
-    return super.getMeshAsync();
   }
 }

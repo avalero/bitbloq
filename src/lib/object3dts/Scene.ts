@@ -146,7 +146,7 @@ export default class Scene {
       this.objectsGroup.add(mesh);
     });
 
-    
+    this.lastJSON = this.toJSON();
     return this.objectsGroup;
   }
 
@@ -301,14 +301,11 @@ export default class Scene {
     }
 
     const sceneJSON = this.toJSON();
-    //Add to history if someting has changed
-    if(!isEqual(sceneJSON, this.lastJSON)){
+    //Add to history
       this.history = this.history.slice(0,this.historyIndex);
       this.history.push(sceneJSON);
       this.historyIndex = this.history.length - 1;
-      this.lastJSON = sceneJSON;
-    }
-
+    
     return sceneJSON;
   }
 
@@ -327,12 +324,12 @@ export default class Scene {
 
     const sceneJSON = this.toJSON();
     //Add to history if someting has changed
-    if(!isEqual(sceneJSON, this.lastJSON)){
+    
       this.history = this.history.slice(0,this.historyIndex);
       this.history.push(sceneJSON);
       this.historyIndex = this.history.length - 1;
-      this.lastJSON = sceneJSON;
-    }
+      
+   
 
     return sceneJSON;
   }
@@ -363,13 +360,13 @@ export default class Scene {
 
     
     const sceneJSON = this.toJSON();
-    //Add to history if someting has changed
-    if(!isEqual(sceneJSON, this.lastJSON)){
+    //Add to history
+    
       this.history = this.history.slice(0,this.historyIndex);
       this.history.push(sceneJSON);
       this.historyIndex = this.history.length - 1;
-      this.lastJSON = sceneJSON;
-    }
+      
+   
     return sceneJSON;
   }
 
