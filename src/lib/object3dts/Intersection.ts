@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53
- * Last modified  : 2018-11-20 19:37:46
+ * Last modified  : 2018-11-28 12:41:14
  */
 
 import CompoundObject, {
@@ -36,19 +36,18 @@ export default class Intersection extends CompoundObject {
 
     object.children.forEach(element => {
       const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object) as Object3D;
+      const child = ObjectFactory.newFromJSON(object, scene) as Object3D;
       children.push(child);
     });
 
-    return new Intersection(children, object.operations, scene);
+    return new Intersection(children, object.operations);
   }
 
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
-    scene: Scene,
-  ) {
-    super(children, operations, scene);
+    ) {
+    super(children, operations);
     this.type = Intersection.typeName;
   }
 

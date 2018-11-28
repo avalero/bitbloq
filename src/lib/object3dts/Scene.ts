@@ -8,6 +8,9 @@ import { ICompoundObjectJSON } from './CompoundObject';
 import BaseGrid from './BaseGrid';
 
 import isEqual from 'lodash.isequal';
+import Union from './Union';
+import Intersection from './Intersection';
+import Difference from './Difference';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -83,8 +86,7 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): ISceneJSON {
-    const sceneJSON = this.objectsInScene.map(object => object.toJSON());
-    return sceneJSON;
+    return this.objectsInScene.map(object => object.toJSON());
   }
 
   /**
@@ -99,12 +101,16 @@ export default class Scene {
     json.forEach(obj => {
       if (this.objectInScene(obj))
         this.getObject(obj).updateFromJSON(obj);
-      else this.addNewObjectFromJSON(obj);
+      else
+        throw new Error(`Object id ${obj.id} not present in Scene`); 
     });
     return this.toJSON();
   }
 
 
+  /**
+   * Scene lights and basegrid
+   */
   public getSceneSetup(): THREE.Group{
     const group: THREE.Group = new THREE.Group();
     
@@ -200,13 +206,21 @@ export default class Scene {
     }
   }
 
-  public objectInObjectCollector(json: IObjectsCommonJSON): boolean {
+  /**
+   * Checks if object is present in ObectCollector Array
+   * @param json object descriptor
+   */
+  private objectInObjectCollector(json: IObjectsCommonJSON): boolean {
     const obj = this.objectCollector.find(elem => elem.getID() === json.id);
     if (obj) return true;
     else return false;
   }
 
-  public objectInScene(json: IObjectsCommonJSON): boolean {
+  /**
+   * Checks if object is present in Scene array
+   * @param json object descriptor
+   */
+  private objectInScene(json: IObjectsCommonJSON): boolean {
     const obj = this.objectsInScene.find(elem => elem.getID() === json.id);
     if (obj) return true;
     else return false;
@@ -216,7 +230,7 @@ export default class Scene {
    * Removes Object or Array of Objects from objectCollector array
    * @param json Object or Array of objects
    */
-  public removeFromObjectCollector(
+  private removeFromObjectCollector(
     json: ISceneJSON | IObjectsCommonJSON,
   ): ISceneJSON {
     if (isArray(json)) {
@@ -236,7 +250,7 @@ export default class Scene {
    * Removes Object or Array of Objects from BitbloqScene array
    * @param json Object or Array of objects
    */
-  public removeFromScene(
+  private removeFromScene(
     json: ISceneJSON | IObjectsCommonJSON,
   ): ISceneJSON {
     if (isArray(json)) {
@@ -268,28 +282,21 @@ export default class Scene {
     }
   }
 
-  public addExistingObject(object: ObjectsCommon): ISceneJSON {
+  private addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
       throw Error('Object already in Scene');
     } else {
-      //In case the objects has children, they must be removed from BitbloqScene (remain in ObjectCollector)
-      if (object.getTypeName() === ObjectsGroup.typeName) {
-        (object.toJSON() as IObjectsGroupJSON).children.forEach(obj => {
-          if (!this.objectInScene(obj))
+      //In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
+      if ([Union.typeName, Difference.typeName, Intersection.typeName, ObjectsGroup.typeName, RepetitionObject.typeName].includes(object.getTypeName())){
+        (object.toJSON() as IObjectsGroupJSON | IRepetitionObjectJSON | ICompoundObjectJSON).children.forEach( obj => {
+          if (!this.objectInScene(obj  as IObjectsCommonJSON ))
             throw new Error(
               'Cannot create a group of objects from objects not present in BitbloqScene',
             );
           this.removeFromScene(obj);
         });
-      } else if (object.getTypeName() === RepetitionObject.typeName) {
-        if (!this.objectInScene((object as any).originalObject.toJSON()))
-          throw new Error(
-            'Cannot create a Repetition from an object not present in BitbloqScene',
-          );
-        this.removeFromScene(
-          (object.toJSON() as IRepetitionObjectJSON).children[0],
-        );
       }
+      // finally, add object to scene and collector
       this.objectsInScene.push(object);
       this.objectCollector.push(object);
     }

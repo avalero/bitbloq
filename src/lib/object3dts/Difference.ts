@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:00
- * Last modified  : 2018-11-16 19:35:34
+ * Last modified  : 2018-11-28 12:43:42
  */
 
 import CompoundObject, {
@@ -34,19 +34,18 @@ export default class Difference extends CompoundObject {
 
     object.children.forEach(element => {
       const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object) as Object3D;
+      const child = ObjectFactory.newFromJSON(object, scene) as Object3D;
       children.push(child);
     });
 
-    return new Difference(children, object.operations, scene);
+    return new Difference(children, object.operations);
   }
 
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
-    scene: Scene,
   ) {
-    super(children, operations, scene);
+    super(children, operations);
     this.type = Difference.typeName;
   }
 

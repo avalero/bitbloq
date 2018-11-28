@@ -152,44 +152,44 @@ test('Add group to Scene. Check if group objects are removed', () => {
   const scene = new Scene();
 
   const cube = new Cube({ width, height, depth });
-  scene.addExistingObject(cube);
+  (scene as any).addExistingObject(cube);
 
   const cylinder = new Cylinder({ r0, r1, height });
-  scene.addExistingObject(cylinder);
+  (scene as any).addExistingObject(cylinder);
 
   const sphere = new Sphere({ radius });
-  scene.addExistingObject(sphere);
+  (scene as any).addExistingObject(sphere);
 
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(3);
 
   const group = new ObjectsGroup([cube, cylinder]);
 
-  scene.addExistingObject(group);
+  (scene as any).addExistingObject(group);
 
   expect((scene as any).objectsInScene.length).toEqual(2);
   expect((scene as any).objectCollector.length).toEqual(4);
-  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInScene(cube.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInScene(cylinder.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInScene(sphere.toJSON())).toBe(true);
-  expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
-  expect(scene.objectInScene(group.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cube.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cylinder.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(group.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(group.toJSON())).toBe(true);
 });
 
 test('Add repetition to Scene. Check if main object is removed', () => {
   const scene = new Scene();
 
   const cube = new Cube({ width, height, depth });
-  scene.addExistingObject(cube);
+  (scene as any).addExistingObject(cube);
 
   const cylinder = new Cylinder({ r0, r1, height });
-  scene.addExistingObject(cylinder);
+  (scene as any).addExistingObject(cylinder);
 
   const sphere = new Sphere({ radius });
-  scene.addExistingObject(sphere);
+  (scene as any).addExistingObject(sphere);
 
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(3);
@@ -199,31 +199,31 @@ test('Add repetition to Scene. Check if main object is removed', () => {
     cube,
   );
 
-  scene.addExistingObject(rep);
+  (scene as any).addExistingObject(rep);
 
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(4);
-  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInScene(cube.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInScene(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInScene(sphere.toJSON())).toBe(true);
-  expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
-  expect(scene.objectInScene(rep.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cube.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cylinder.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(rep.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(rep.toJSON())).toBe(true);
 });
 
 test('Add repetition and group to Scene. Check repetition of non-present object cannot be created', () => {
   const scene = new Scene();
 
   const cube = new Cube({ width, height, depth });
-  scene.addExistingObject(cube);
+  (scene as any).addExistingObject(cube);
 
   const cylinder = new Cylinder({ r0, r1, height });
-  scene.addExistingObject(cylinder);
+  (scene as any).addExistingObject(cylinder);
 
   const sphere = new Sphere({ radius });
-  scene.addExistingObject(sphere);
+  (scene as any).addExistingObject(sphere);
 
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(3);
@@ -233,37 +233,37 @@ test('Add repetition and group to Scene. Check repetition of non-present object 
     cube,
   );
 
-  scene.addExistingObject(rep);
+  (scene as any).addExistingObject(rep);
 
   expect((scene as any).objectsInScene.length).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(4);
-  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInScene(cube.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInScene(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInScene(sphere.toJSON())).toBe(true);
-  expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
-  expect(scene.objectInScene(rep.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cube.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cylinder.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(rep.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(rep.toJSON())).toBe(true);
 
   const group = new ObjectsGroup([cylinder, sphere]);
-  scene.addExistingObject(group);
+  (scene as any).addExistingObject(group);
 
   expect((scene as any).objectsInScene.length).toEqual(2);
   expect((scene as any).objectCollector.length).toEqual(5);
-  expect(scene.objectInObjectCollector(cube.toJSON())).toBe(true);
-  expect(scene.objectInScene(cube.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(cylinder.toJSON())).toBe(true);
-  expect(scene.objectInScene(cylinder.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(sphere.toJSON())).toBe(true);
-  expect(scene.objectInScene(sphere.toJSON())).toBe(false);
-  expect(scene.objectInObjectCollector(rep.toJSON())).toBe(true);
-  expect(scene.objectInScene(rep.toJSON())).toBe(true);
-  expect(scene.objectInObjectCollector(group.toJSON())).toBe(true);
-  expect(scene.objectInScene(group.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(cube.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cube.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(cylinder.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cylinder.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(sphere.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(sphere.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(rep.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(rep.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(group.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(group.toJSON())).toBe(true);
 
   const group2 = new ObjectsGroup([cylinder, sphere]);
-  const e = () => scene.addExistingObject(group2);
+  const e = () => (scene as any).addExistingObject(group2);
 
   expect(e).toThrowError();
 
@@ -271,7 +271,7 @@ test('Add repetition and group to Scene. Check repetition of non-present object 
     { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
     cube,
   );
-  const e2 = () => scene.addExistingObject(rep2);
+  const e2 = () => (scene as any).addExistingObject(rep2);
 
   expect(e2).toThrowError();
 });
@@ -313,7 +313,7 @@ test('Add repetition and group to Scene. Check repetition of non-present object 
 //   expect(scene.objectsInScene(group.toJSON())).toBe(true);
 
 //   const group2 = new ObjectsGroup([cylinder, sphere]);
-//   const e = () => scene.addExistingObject(group2);
+//   const e = () => (scene as any).addExistingObject(group2);
 
 //   expect(e).toThrowError();
 
@@ -321,7 +321,7 @@ test('Add repetition and group to Scene. Check repetition of non-present object 
 //     { type: 'cartesian', x: 10, y: 20, z: 30, num: 10 },
 //     cube,
 //   );
-//   const e2 = () => scene.addExistingObject(rep2);
+//   const e2 = () => (scene as any).addExistingObject(rep2);
 
 //   expect(e2).toThrowError();
 

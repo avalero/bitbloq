@@ -9,24 +9,21 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2018-11-27 14:16:17
+ * Last modified  : 2018-11-28 12:46:25
  */
 
 import Object3D from './Object3D';
 import ObjectsCommon, {
   OperationsArray,
-  IViewOptions,
   IObjectsCommonJSON,
 } from './ObjectsCommon';
 
 import isEqual from 'lodash.isequal';
 import * as THREE from 'three';
 
-import Scene from './Scene';
-
 import './custom.d';
 
-import Worker from './compound.worker';
+import CompoundWorker from './compound.worker';
 
 import {
   ITranslateOperation,
@@ -36,19 +33,18 @@ import {
 } from './ObjectsCommon';
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
-  children: ChildrenArray;
+  children: Array<IObjectsCommonJSON>;
 }
 
 export type ChildrenArray = Array<Object3D>;
 
 export default class CompoundObject extends Object3D {
-  protected worker: Worker;
+  protected worker: CompoundWorker;
   protected children: ChildrenArray;
 
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
-    scene: Scene,
   ) {
     super(ObjectsCommon.createViewOptions(), operations);
     if (children.length === 0)
@@ -58,8 +54,8 @@ export default class CompoundObject extends Object3D {
     this.setOperations();
 
     const t0 = performance.now();
-    if (typeof Worker !== 'undefined') {
-      this.worker = new Worker();
+    if (typeof CompoundWorker !== 'undefined') {
+      this.worker = new CompoundWorker();
     } else {
       throw Error('Bitbloq 3D requires a Web Worker enabled browser');
     }
@@ -129,7 +125,7 @@ export default class CompoundObject extends Object3D {
         console.log('Update Compound Object Mesh');
 
         //check if WebWorkers are enabled
-        if (typeof Worker !== 'undefined') {
+        if (typeof CompoundWorker !== 'undefined') {
           //WEB WORKER //listen to events from web worker
           this.worker.onmessage = (event: any) => {
             const t0 = performance.now();
@@ -269,7 +265,7 @@ export default class CompoundObject extends Object3D {
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-      children: this.children,
+      children: this.children.map(obj => obj.toJSON()),
     };
   }
 }

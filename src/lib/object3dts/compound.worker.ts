@@ -9,13 +9,15 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:29:49
- * Last modified  : 2018-11-27 11:14:42
+ * Last modified  : 2018-11-28 12:45:55
  */
 
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
+import './custom.d';
+import 'jsdom-worker'
 
-const ctx: Worker = self as any;
+const ctx: CompoundWorker = self as any;
 
 export default class CompoundWorker extends Worker{
   constructor(){

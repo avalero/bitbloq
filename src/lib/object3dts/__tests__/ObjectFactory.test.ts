@@ -73,7 +73,7 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
     ObjectsCommon.createViewOptions(),
   );
 
-  scene.addExistingObject(objectCube);
+  (scene as any).addExistingObject(objectCube);
 
   const objectPrism = new Prism(
     { sides, length, height },
@@ -81,7 +81,7 @@ test('Check ObjectsGroup is well created from ObjectFactory', () => {
     ObjectsCommon.createViewOptions(),
   );
 
-  scene.addExistingObject(objectPrism);
+  (scene as any).addExistingObject(objectPrism);
 
   const jsonGroupAux: IObjectsGroupJSON = {
     children: [objectCube.toJSON(), objectPrism.toJSON()],
@@ -103,11 +103,11 @@ test('Check ObjectsGroup rejects object not in Scene from ObjectFactory', () => 
 
   const objectCube = new Cube({ width, height, depth });
 
-  scene.addExistingObject(objectCube);
+  (scene as any).addExistingObject(objectCube);
 
   const objectPrism = new Prism({ sides, length, height });
 
-  scene.addExistingObject(objectPrism);
+  (scene as any).addExistingObject(objectPrism);
 
   const objectPrismAux = new Prism({ sides, length, height });
 
@@ -130,7 +130,7 @@ test('Check RepetitionObject is well created from ObjectFactory', () => {
 
   const objectCube = new Cube({ width, height, depth });
 
-  scene.addExistingObject(objectCube);
+  (scene as any).addExistingObject(objectCube);
 
   const jsonRepetitionAux: IRepetitionObjectJSON = {
     children: [objectCube.toJSON()],
