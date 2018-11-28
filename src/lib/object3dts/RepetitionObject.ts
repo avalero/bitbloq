@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-11-27 14:28:32
+ * Last modified  : 2018-11-28 13:53:32
  */
 
 import Object3D from './Object3D';
@@ -191,5 +191,19 @@ export default class RepetitionObject extends ObjectsGroup {
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
+  }
+
+  public getMeshAsync(): Promise<THREE.Group>{
+    
+    //check if originalObject has changed
+    if(this.originalObject.meshUpdateRequired || this.originalObject.pendingOperation){
+      if (this.parameters.type.toLowerCase() === 'cartesian')
+        this.cartesianRepetition();
+      else if (this.parameters.type.toLowerCase() === 'polar')
+        this.polarRepetition();
+      else throw new Error('Unknown Repetition Command'); 
+    }
+
+    return super.getMeshAsync();
   }
 }

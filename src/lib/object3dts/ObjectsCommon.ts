@@ -215,4 +215,12 @@ export default class ObjectsCommon {
   public updateFromJSON(object: IObjectsCommonJSON): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
+
+  get meshUpdateRequired(): boolean {
+    return false;
+  }
+
+  get pendingOperation(): boolean {
+    return false;
+  }
 }
