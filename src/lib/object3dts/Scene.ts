@@ -274,8 +274,7 @@ export default class Scene {
   public cloneOject(json: IObjectsCommonJSON):ISceneJSON {
     if(this.objectInScene(json)){
       const newobj = this.getObject(json).clone();
-      this.objectCollector.push(newobj);
-      this.objectsInScene.push(newobj);
+      this.addExistingObject(newobj);
       return this.toJSON();
     }else{
       throw new Error('Cannot clone unknown object');
@@ -307,6 +306,7 @@ export default class Scene {
       this.history = this.history.slice(0,this.historyIndex);
       this.history.push(sceneJSON);
       this.historyIndex = this.history.length - 1;
+      this.lastJSON = sceneJSON;
     }
 
     return sceneJSON;
@@ -325,7 +325,16 @@ export default class Scene {
       throw new Error(`Cannot Remove Object from Scene: ${e}`);
     }
 
-    return this.toJSON();
+    const sceneJSON = this.toJSON();
+    //Add to history if someting has changed
+    if(!isEqual(sceneJSON, this.lastJSON)){
+      this.history = this.history.slice(0,this.historyIndex);
+      this.history.push(sceneJSON);
+      this.historyIndex = this.history.length - 1;
+      this.lastJSON = sceneJSON;
+    }
+
+    return sceneJSON;
   }
 
   /**
@@ -347,17 +356,21 @@ export default class Scene {
    */
   public updateObject(obj: IObjectsCommonJSON): ISceneJSON {
     const id = obj.id;
-    let updated = false;
 
-    this.objectCollector.forEach(object => {
-      if (object.getID() === id) {
-        object.updateFromJSON(obj);
-        updated = true;
-      }
-    });
+    const object = this.objectCollector.find(obj => id === obj.getID());
+    if(object) object.updateFromJSON(obj);
+    else throw new Error(`Object id ${id} not found`);
 
-    if (!updated) throw new Error(`Object id ${id} not found`);
-    return this.toJSON();
+    
+    const sceneJSON = this.toJSON();
+    //Add to history if someting has changed
+    if(!isEqual(sceneJSON, this.lastJSON)){
+      this.history = this.history.slice(0,this.historyIndex);
+      this.history.push(sceneJSON);
+      this.historyIndex = this.history.length - 1;
+      this.lastJSON = sceneJSON;
+    }
+    return sceneJSON;
   }
 
   /**
@@ -376,13 +389,10 @@ export default class Scene {
       })
 
       //remove ObjectsGroups from Scene and ObjectCollector
-      this.removeFromObjectCollector(json);
-      this.removeFromScene(json);
+      return this.removeObject(json);
     }catch(e){
       throw new Error(`Cannog ungroup. Unknown group ${e}`);
     }
-
-    return this.toJSON();
   }
 
   /**
