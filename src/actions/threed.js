@@ -1,14 +1,13 @@
 import {createAction} from 'redux-actions';
 
 export const createObject = createAction('THREED_CREATE_OBJECT');
-export const addObjects = createAction('THREED_ADD_OBJECTS');
-export const updateObjectName = createAction(
-  'THREED_UPDATE_OBJECT_NAME',
-  (object, name) => ({object, name}),
-);
 export const updateObjectParameter = createAction(
   'THREED_UPDATE_OBJECT_PARAMETER',
   (object, parameter, value) => ({object, parameter, value}),
+);
+export const updateObjectViewOption = createAction(
+  'THREED_UPDATE_OBJECT_VIEW_OPTION',
+  (object, option, value) => ({object, option, value}),
 );
 export const updateOperationParameter = createAction(
   'THREED_UPDATE_OPERATION_PARAMETER',
@@ -26,7 +25,7 @@ export const composeObjects = createAction(
 );
 export const addOperation = createAction(
   'THREED_ADD_OPERATION',
-  (object, operationName) => ({object, operationName}),
+  (object, operation) => ({object, operation}),
 );
 export const removeOperation = createAction(
   'THREED_REMOVE_OPERATION',

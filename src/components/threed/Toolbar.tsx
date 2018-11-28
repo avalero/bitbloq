@@ -133,8 +133,8 @@ class Toolbar extends React.Component<ToolbarProps> {
 
 const mapStateToProps = ({threed}) => ({
   selectedObjects: getSelectedObjects(threed),
-  canUndo: threed.scene.past.length > 0,
-  canRedo: threed.scene.future.length > 0,
+  canUndo: false, //TODO
+  canRedo: false, //TODO
 });
 
 const mapDispatchToProps = {

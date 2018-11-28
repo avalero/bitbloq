@@ -144,14 +144,14 @@ class ObjectTree extends React.Component {
     this.setState({addDropDownOpen: false});
   };
 
-  onAddObject(shape) {
+  onAddObject(typeConfig) {
     const {advancedMode} = this.props;
     this.setState({addDropDownOpen: false});
 
-    const baseShape = shape.create();
+    const object = typeConfig.create();
 
     if (advancedMode) {
-      this.props.createObject(baseShape);
+      this.props.createObject(object);
     } else {
       const basicModeOperations = config.objectOperations
         .map(operation => {
@@ -162,7 +162,7 @@ class ObjectTree extends React.Component {
         .filter(operation => operation);
 
       this.props.createObject({
-        ...baseShape,
+        ...object,
         operations: basicModeOperations,
       });
     }
@@ -187,8 +187,7 @@ class ObjectTree extends React.Component {
             const isSelectedTop =
               selectedObjects.length > 0 &&
               topObjects.includes(selectedObjects[0]);
-            const {parameters = {}} = object;
-            const {children} = parameters;
+            const {children} = object;
 
             return (
               <ObjectItem key={object.id}>
@@ -217,7 +216,7 @@ class ObjectTree extends React.Component {
                   <DragHandle depth={depth}>
                     <DragIcon />
                   </DragHandle>
-                  <span>{object.name || object.type}</span>
+                  <span>{object.viewOptions.name || object.type}</span>
                 </ObjectName>
                 {this.renderObjectList(children, depth + 1)}
               </ObjectItem>
@@ -239,15 +238,15 @@ class ObjectTree extends React.Component {
           open={addDropDownOpen}>
           <div>+ Add object</div>
           <AddDropdown open={addDropDownOpen}>
-            {config.shapes.map(shape => (
+            {config.objectTypes.map(typeConfig => typeConfig.create && (
               <AddDropdownItem
-                key={shape.name}
+                key={typeConfig.name}
                 onClick={e => {
                   e.stopPropagation();
-                  this.onAddObject(shape);
+                  this.onAddObject(typeConfig);
                 }}>
-                {shape.icon}
-                <div>{shape.label}</div>
+                {typeConfig.icon}
+                <div>{typeConfig.label}</div>
               </AddDropdownItem>
             ))}
           </AddDropdown>
