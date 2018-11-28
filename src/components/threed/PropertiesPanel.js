@@ -4,11 +4,10 @@ import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext} from 'react-beautiful-dnd';
 import {
-  updateObjectName,
   updateObjectParameter,
+  updateObjectViewOption,
   updateOperationParameter,
   createObject,
-  addObjects,
   deleteObject,
   undoComposition,
   duplicateObject,
@@ -206,11 +205,15 @@ class PropertiesPanel extends React.Component {
   }
 
   onObjectNameChange = (object, name) => {
-    this.props.updateObjectName(object, name);
+    this.props.updateObjectViewOption(object, 'name', name);
   };
 
-  onObjectParameterChange = (object, parameter, value) => {
-    this.props.updateObjectParameter(object, parameter, value);
+  onObjectParameterChange = (object, parameter, value, isViewOption) => {
+    if (isViewOption) {
+      this.props.updateObjectViewOption(object, parameter, value);
+    } else {
+      this.props.updateObjectParameter(object, parameter, value);
+    }
   };
 
   onOperationParameterChange = (object, operation, parameter, value) => {
@@ -252,14 +255,7 @@ class PropertiesPanel extends React.Component {
   };
 
   onUngroupClick = () => {
-    const {object, addObjects, deleteObject} = this.props;
-    const compositionConfig = config.compositionOperations.find(
-      c => c.name === object.type,
-    );
-
-    const children = compositionConfig.ungroup(object);
-    addObjects(children);
-    deleteObject(object);
+    // TODO: Ungroup
   };
 
   onUndoClick = () => {
@@ -267,8 +263,8 @@ class PropertiesPanel extends React.Component {
     undoComposition(object);
   };
 
-  onAddOperation(object, operationName) {
-    this.props.addOperation(object, operationName);
+  onAddOperation(object, operation) {
+    this.props.addOperation(object, operation.create());
   }
 
   onRemoveOperation(object, operation) {
@@ -279,32 +275,16 @@ class PropertiesPanel extends React.Component {
     const {draggingOperations, contextMenuOpen, editingName} = this.state;
 
     const {setActiveOperation, unsetActiveOperation, advancedMode} = this.props;
-    const {color} = object.parameters;
+    const {color} = object.viewOptions;
 
-    let baseParameters;
-    let icon;
-    let canUndo;
-    let undoLabel;
-    let canUngroup;
+    /* TODO: canUndo, undoLabel, canUngroup */
+    let canUndo = false;
+    let undoLabel = '';
+    let canUngroup = false;
 
-    const shapeConfig = config.shapes.find(s => s.name === object.type);
-    if (shapeConfig) {
-      baseParameters = shapeConfig.parameters || [];
-      icon = shapeConfig.icon;
-    } else {
-      const compositionConfig = config.compositionOperations.find(
-        c => c.name === object.type,
-      );
-      if (compositionConfig) {
-        baseParameters = compositionConfig.parameters || [];
-        icon = compositionConfig.icon;
-        canUndo = compositionConfig.canUndo;
-        undoLabel = 'Undo ' + compositionConfig.label.toLowerCase();
-        if (compositionConfig.ungroup) {
-          canUngroup = true;
-        }
-      }
-    }
+    const typeConfig =
+      config.objectTypes.find(s => s.name === object.type) || {};
+    const {parameters: baseParameters, icon} = typeConfig;
 
     const parameters = [
       ...baseParameters,
@@ -312,6 +292,7 @@ class PropertiesPanel extends React.Component {
         name: 'color',
         label: 'Color',
         type: 'color',
+        isViewOption: true,
       },
     ];
 
@@ -325,12 +306,12 @@ class PropertiesPanel extends React.Component {
             <NameInput
               type="text"
               innerRef={this.nameInputRef}
-              value={object.name}
+              value={object.viewOptions.name}
               onChange={e => this.onObjectNameChange(object, e.target.value)}
               onBlur={() => this.setState({editingName: false})}
             />
           )}
-          {!editingName && <ObjectName>{object.name}</ObjectName>}
+          {!editingName && <ObjectName>{object.viewOptions.name}</ObjectName>}
           <DropDown>
             {isOpen => (
               <ContextButton isOpen={isOpen}>
@@ -366,14 +347,23 @@ class PropertiesPanel extends React.Component {
               <PropertyInput
                 key={parameter.name}
                 parameter={parameter}
-                value={object.parameters[parameter.name]}
+                value={
+                  parameter.isViewOption
+                    ? object.viewOptions[parameter.name]
+                    : object.parameters[parameter.name]
+                }
                 onChange={value =>
-                  this.onObjectParameterChange(object, parameter.name, value)
+                  this.onObjectParameterChange(
+                    object,
+                    parameter.name,
+                    value,
+                    parameter.isViewOption,
+                  )
                 }
               />
             ))}
           </ParametersPanel>
-          {advancedMode &&
+          {advancedMode && (
             <ObjectButtons>
               {config.objectOperations.map(operation => (
                 <Tooltip key={operation.name} content={operation.label}>
@@ -381,14 +371,14 @@ class PropertiesPanel extends React.Component {
                     <OperationButton
                       {...tooltipProps}
                       color={operation.color}
-                      onClick={() => this.onAddOperation(object, operation.name)}>
+                      onClick={() => this.onAddOperation(object, operation)}>
                       {operation.icon}
                     </OperationButton>
                   )}
                 </Tooltip>
               ))}
             </ObjectButtons>
-          }
+          )}
         </ObjectProperties>
         <OperationsList
           object={object}
@@ -443,18 +433,18 @@ const mapStateToProps = ({threed}) => {
 };
 
 const mapDispatchToProps = dispatch => ({
-  updateObjectName: (object, name) => dispatch(updateObjectName(object, name)),
   updateObjectParameter: (object, parameter, value) =>
     dispatch(updateObjectParameter(object, parameter, value)),
+  updateObjectViewOption: (object, option, value) =>
+    dispatch(updateObjectViewOption(object, option, value)),
   updateOperationParameter: (object, operation, parameter, value) =>
     dispatch(updateOperationParameter(object, operation, parameter, value)),
   createObject: object => dispatch(createObject(object)),
-  addObjects: objects => dispatch(addObjects(objects)),
   deleteObject: object => dispatch(deleteObject(object)),
   undoComposition: object => dispatch(undoComposition(object)),
   duplicateObject: object => dispatch(duplicateObject(object)),
-  addOperation: (object, operationName) =>
-    dispatch(addOperation(object, operationName)),
+  addOperation: (object, operation) =>
+    dispatch(addOperation(object, operation)),
   removeOperation: (object, operation) =>
     dispatch(removeOperation(object, operation)),
   reorderOperation: (object, operation, from, to) =>

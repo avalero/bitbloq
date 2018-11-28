@@ -9,7 +9,7 @@ interface ICommonOperation {
 export interface IObjectsCommonJSON {
   type: string;
   id: string;
-  viewOptions: IViewOptions;
+  viewOptions: Partial<IViewOptions>;
   operations: OperationsArray;
 }
 

@@ -84,7 +84,7 @@ function* watchKeyDown({payload: key}) {
 }
 
 function* watchCreateObject() {
-  const objects = yield select(state => state.threed.scene.present);
+  const objects = yield select(state => state.threed.scene.objects);
   yield put(selectObject(objects[objects.length - 1]));
 }
 
