@@ -70,7 +70,7 @@ test('Test newFromJSON', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
   const scene: Scene = new Scene();
-  scene.addExistingObject(object1);
+  (scene as any).addExistingObject(object1);
 
   const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
@@ -98,7 +98,7 @@ test('Test newFromJSON - id does not match', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
   const scene: Scene = new Scene();
-  scene.addExistingObject(object1);
+  (scene as any).addExistingObject(object1);
 
   const object2 = object1.clone();
 
@@ -118,7 +118,7 @@ test('Test updateFromJSON - Update Parameters', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
   const scene: Scene = new Scene();
-  scene.addExistingObject(object1);
+  (scene as any).addExistingObject(object1);
 
   const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,
@@ -157,7 +157,7 @@ test('Test updateFromJSON - Update Object', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
   const scene: Scene = new Scene();
-  scene.addExistingObject(object1);
+  (scene as any).addExistingObject(object1);
 
   const jsonObj: IRepetitionObjectJSON = {
     type: RepetitionObject.typeName,

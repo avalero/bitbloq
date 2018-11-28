@@ -9,14 +9,14 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2018-11-16 19:32:11
+ * Last modified  : 2018-11-28 12:08:47
  */
 
 import CompoundObject, {
   ICompoundObjectJSON,
   ChildrenArray,
 } from './CompoundObject';
-import { OperationsArray } from './ObjectsCommon';
+import ObjectsCommon, { OperationsArray, IObjectsCommonJSON } from './ObjectsCommon';
 import Object3D from './Object3D';
 import ObjectFactory from './ObjectFactory';
 
@@ -33,19 +33,18 @@ export default class Union extends CompoundObject {
 
     object.children.forEach(element => {
       const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object) as Object3D;
+      const child = ObjectFactory.newFromJSON(object, scene) as Object3D;
       children.push(child);
     });
 
-    return new Union(children, object.operations, scene);
+    return new Union(children, object.operations);
   }
 
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
-    scene: Scene,
   ) {
-    super(children, operations, scene);
+    super(children, operations);
     this.type = Union.typeName;
     console.log(this.toJSON());
   }

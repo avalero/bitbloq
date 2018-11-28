@@ -21,9 +21,9 @@ test('Check addition of objects to Group', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
 
   const group = new ObjectsGroups([object1, object2, object3]);
 
@@ -41,9 +41,9 @@ test('Check translation of group', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
 
@@ -62,9 +62,9 @@ test('Check rotation of group', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
@@ -86,9 +86,9 @@ test('Check several rotations of group', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
@@ -117,9 +117,9 @@ test('Check translation and rotation', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
@@ -147,9 +147,9 @@ test('Check ungroup', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([
@@ -180,9 +180,9 @@ test('Check ungroup with prior', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
 
   const group = new ObjectsGroups([object1, object2, object3]);
 
@@ -209,9 +209,9 @@ test('Check ungroup with other prior', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
   group.setOperations([{ type: 'translation', x, y, z, relative: false }]);
@@ -234,9 +234,9 @@ test('Check UpdateFromJSON', () => {
   const object2 = new Sphere({ radius });
   const object3 = new Cylinder({ r0, r1, height });
 
-  scene.addExistingObject(object1);
-  scene.addExistingObject(object2);
-  scene.addExistingObject(object3);
+  (scene as any).addExistingObject(object1);
+  (scene as any).addExistingObject(object2);
+  (scene as any).addExistingObject(object3);
   const group = new ObjectsGroups([object1, object2, object3]);
 
   const jsonObj: IObjectsGroupJSON = group.toJSON();
