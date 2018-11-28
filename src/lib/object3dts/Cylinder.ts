@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-11-16 17:32:05
+ * Last modified  : 2018-11-28 16:44:05
  */
 
 import * as THREE from 'three';
@@ -46,9 +46,13 @@ export default class Cylinder extends PrimitiveObject {
   constructor(
     parameters: ICylinderParams,
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    super(viewOptions, operations);
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions
+    };
+    super(vO, operations);
     this.type = Cylinder.typeName;
     this.parameters = { ...parameters };
     this._meshUpdateRequired = true;

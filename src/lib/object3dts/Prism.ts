@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2018-11-16 17:31:23
+ * Last modified  : 2018-11-28 16:45:48
  */
 
 /**
@@ -55,9 +55,13 @@ export default class Prism extends PrimitiveObject {
   constructor(
     parameters: IPrismParams,
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    super(viewOptions, operations);
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions
+    };
+    super(vO, operations);
     this.type = Prism.typeName;
     this.parameters = { ...parameters };
     this._meshUpdateRequired = true;

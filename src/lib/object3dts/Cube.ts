@@ -41,9 +41,13 @@ export default class Cube extends PrimitiveObject {
   constructor(
     parameters: ICubeParams,
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    super(viewOptions, operations);
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions
+    };
+    super(vO, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
   }

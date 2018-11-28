@@ -165,7 +165,7 @@ test('Test updateFromJSON - Update Parameters', () => {
   });
 });
 
-test('Test updateFromJSON - Update Object', () => {
+test('Test updateFromJSON - Update Object from repetition', () => {
   const object1: Cube = new Cube({ width, height, depth });
 
   const scene: Scene = new Scene();
@@ -205,4 +205,36 @@ test('Test updateFromJSON - Update Object', () => {
   return repetition.getMeshAsync().then(meshGroup => {
     expect(meshGroup.children.length).toEqual(10);
   });
+});
+
+
+test('Test updateFromJSON - Update Object directly', () => {
+  const object1: Cube = new Cube({ width, height, depth });
+
+  const scene: Scene = new Scene();
+  (scene as any).addExistingObject(object1);
+
+  const jsonObj: IRepetitionObjectJSON = {
+    type: RepetitionObject.typeName,
+    id: '',
+    parameters: { type: 'cartesian', x: 10, y: 20, z: 30, num: 3 },
+    children: [object1.toJSON()],
+    viewOptions: ObjectsCommon.createViewOptions(),
+    operations: [],
+  };
+
+  const repetition: RepetitionObject = RepetitionObject.newFromJSON(
+    jsonObj,
+    scene,
+  );
+
+  const objJJJ = object1.toJSON();
+  (objJJJ as ICubeJSON).parameters.width = 2 * width;
+  object1.updateFromJSON(objJJJ);
+
+  (repetition as any).computeMesh();
+  const group: ObjectsGroup = repetition.getGroup();
+  const objects: Array<ObjectsCommon> = group.unGroup();
+  expect(objects.length).toBe(3);
+  expect((objects[0] as any).parameters.width).toEqual(2 * width);
 });

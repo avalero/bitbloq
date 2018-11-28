@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2018-11-16 17:54:44
+ * Last modified  : 2018-11-28 16:46:13
  */
 
 import isEqual from 'lodash.isequal';
