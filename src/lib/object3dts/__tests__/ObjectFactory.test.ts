@@ -142,6 +142,8 @@ test('Check RepetitionObject is well created from ObjectFactory', () => {
   };
 
   const repetition = ObjectFactory.newFromJSON(jsonRepetitionAux, scene);
+    // force to compute mesh
+    (repetition as any).computeMesh();
   expect(repetition).toBeInstanceOf(RepetitionObject);
   expect((repetition as any).children[0]).toBeInstanceOf(Cube);
   expect((repetition as any).children.length).toEqual(10);
