@@ -34,10 +34,6 @@ import TranslationIcon from '../components/icons/Translation';
 import RotationIcon from '../components/icons/Rotation';
 import ScaleIcon from '../components/icons/Scale';
 
-const convertRepetitionToGroup = object => {
-
-};
-
 const config = {
   colors: [
     '#ff6900',
@@ -52,7 +48,7 @@ const config = {
     '#9900ef',
   ],
 
-  shapes: [
+  objectTypes: [
     {
       name: 'Cube',
       label: 'Cube',
@@ -207,6 +203,36 @@ const config = {
         operations: [],
       }),
     },
+    {
+      name: 'RepetitionObject',
+      label: 'Repetition',
+      icon: <RepeatIcon />,
+      parameters: [
+        {
+          name: 'num',
+          label: 'Repetitions',
+          type: 'integer',
+        },
+        {
+          name: 'x',
+          label: 'x',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'y',
+          label: 'y',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'z',
+          label: 'z',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    }
   ],
 
   objectOperations: [
@@ -349,13 +375,10 @@ const config = {
       icon: <UnionIcon />,
       canUndo: true,
       minObjects: 2,
-      createInstance: children => new Union(children, []),
       create: children => ({
         id: uuid(),
         type: 'Union',
-        parameters: {
-          children,
-        },
+        children,
         operations: [],
       }),
     },
@@ -365,13 +388,10 @@ const config = {
       icon: <DifferenceIcon />,
       minObjects: 2,
       canUndo: true,
-      createInstance: children => new Difference(children, []),
       create: children => ({
         id: uuid(),
         type: 'Difference',
-        parameters: {
-          children,
-        },
+        children,
         operations: [],
       }),
     },
@@ -381,13 +401,10 @@ const config = {
       icon: <IntersectionIcon />,
       minObjects: 2,
       canUndo: true,
-      createInstance: children => new Intersection(children, []),
       create: children => ({
         id: uuid(),
         type: 'Intersection',
-        parameters: {
-          children,
-        },
+        children,
         operations: [],
       }),
     },
@@ -396,13 +413,10 @@ const config = {
       label: 'Group',
       icon: <GroupIcon />,
       minObjects: 2,
-      createInstance: children => new ObjectsGroup(children),
       create: children => ({
         id: uuid(),
         type: 'Group',
-        parameters: {
-          children,
-        },
+        children,
         operations: [],
       }),
       ungroup: ({ operations, parameters }) => (
@@ -421,13 +435,10 @@ const config = {
       icon: <RepeatIcon />,
       minObjects: 1,
       maxObjects: 1,
-      createInstance: (children, parameters) =>
-        new RepetitionObject(parameters, children[0]),
       create: children => ({
-        id: uuid(),
-        type: 'CartesianRepetition',
+        type: 'RepetitionObject',
+        children,
         parameters: {
-          children,
           type: 'cartesian',
           num: 2,
           x: 10,
@@ -436,32 +447,6 @@ const config = {
         },
         operations: [],
       }),
-      parameters: [
-        {
-          name: 'num',
-          label: 'Repetitions',
-          type: 'integer',
-        },
-        {
-          name: 'x',
-          label: 'x',
-          type: 'integer',
-          unit: 'mm',
-        },
-        {
-          name: 'y',
-          label: 'y',
-          type: 'integer',
-          unit: 'mm',
-        },
-        {
-          name: 'z',
-          label: 'z',
-          type: 'integer',
-          unit: 'mm',
-        },
-      ],
-      convertToGroup: convertRepetitionToGroup,
     },
     {
       name: 'PolarRepetition',
@@ -469,17 +454,14 @@ const config = {
       icon: <RepeatPolarIcon />,
       minObjects: 1,
       maxObjects: 1,
-      createInstance: (children, parameters) =>
-        new RepetitionObject(parameters, children[0]),
       create: children => ({
-        id: uuid(),
-        type: 'PolarRepetition',
+        type: 'RepetitionObject',
+        children,
         parameters: {
-          children,
           type: 'polar',
           num: 4,
           axis: 'x',
-          angle: 180,
+          angle: 180
         },
         operations: [],
       }),
@@ -515,7 +497,6 @@ const config = {
           unit: '°',
         },
       ],
-      convertToGroup: convertRepetitionToGroup,
     },
   ],
 };

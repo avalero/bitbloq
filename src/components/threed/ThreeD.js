@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {setAdvancedMode} from '../../actions/threed';
 import styled from 'react-emotion';
 import ObjectTree from './ObjectTree';
-import ThreeDViewer from './ThreeDViewer';
+import ThreeDViewer from './ThreeDViewer.tsx';
 import Toolbar from './Toolbar';
 import PropertiesPanel from './PropertiesPanel';
 import Document, {Tab} from '../Document';

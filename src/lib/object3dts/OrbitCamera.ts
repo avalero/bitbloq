@@ -303,7 +303,7 @@ export default class OrbitCamera {
 
   // rotX in radian
   // rotY in radian
-  private rotateTo(
+  public rotateTo(
     rotTheta: number,
     rotPhi: number,
     enableTransition: boolean,
@@ -411,7 +411,7 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private update(delta: number): boolean {
+  public update(delta: number): boolean {
     const dampingFactor: number = (this.dampingFactor * delta) / 0.016;
     const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta;
     const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi;
