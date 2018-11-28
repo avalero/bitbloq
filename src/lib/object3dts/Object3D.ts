@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-28 13:58:12
+ * Last modified  : 2018-11-28 16:42:20
  */
 
 import * as THREE from 'three';
@@ -61,7 +61,7 @@ export default class Object3D extends ObjectsCommon {
   protected mesh: THREE.Mesh;
 
   constructor(
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
   ) {
     super(viewOptions, operations);
