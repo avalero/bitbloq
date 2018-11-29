@@ -31,13 +31,12 @@ interface HelperDescription {
 interface ISceneSetup {
   base: THREE.Group;
   ambientLight: THREE.AmbientLight;
-  spotLight: THREE.SpotLight; 
+  spotLight: THREE.SpotLight;
 }
 
 export type ISceneJSON = Array<IObjectsCommonJSON>;
 
 export default class Scene {
-  
   // TODO. Need to create children before of creating objects!!
   public static newFromJSON(json: ISceneJSON): Scene {
     const scene = new Scene();
@@ -50,16 +49,14 @@ export default class Scene {
     return scene;
   }
 
-
   private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private objectsInScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
-  private history:Array<ISceneJSON>; /// history of actions
-
+  private history: Array<ISceneJSON>; /// history of actions
 
   private lastJSON: object;
   private objectsGroup: THREE.Group;
-  private historyIndex:number;
+  private historyIndex: number;
 
   constructor() {
     this.objectCollector = [];
@@ -71,14 +68,13 @@ export default class Scene {
     this.history = [];
   }
 
-  public canUndo():boolean{
-    return (this.historyIndex > 0);
+  public canUndo(): boolean {
+    return this.historyIndex > 0;
   }
 
-  public canRedo():boolean{
-    return (this.historyIndex > this.history.length - 1);
+  public canRedo(): boolean {
+    return this.historyIndex > this.history.length - 1;
   }
-
 
   /**
    * Returns the Scene JSON descriptor: Array of Objects.
@@ -93,27 +89,22 @@ export default class Scene {
    * Updates all the objects in a Scene, if object is not present. It adds it.
    * @param json json describin all the objects of the Scene
    */
-  public updateSceneFromJSON(
-    json: ISceneJSON,
-  ): ISceneJSON {
+  public updateSceneFromJSON(json: ISceneJSON): ISceneJSON {
     if (isEqual(json, this.toJSON())) return json;
 
     json.forEach(obj => {
-      if (this.objectInScene(obj))
-        this.getObject(obj).updateFromJSON(obj);
-      else
-        throw new Error(`Object id ${obj.id} not present in Scene`); 
+      if (this.objectInScene(obj)) this.getObject(obj).updateFromJSON(obj);
+      else throw new Error(`Object id ${obj.id} not present in Scene`);
     });
     return this.toJSON();
   }
 
-
   /**
    * Scene lights and basegrid
    */
-  public getSceneSetup(): THREE.Group{
+  public getSceneSetup(): THREE.Group {
     const group: THREE.Group = new THREE.Group();
-    
+
     group.add(this.sceneSetup.ambientLight);
     group.add(this.sceneSetup.spotLight);
     group.add(this.sceneSetup.base);
@@ -121,9 +112,9 @@ export default class Scene {
     return group;
   }
 
-  public getHelpers(): THREE.Group{
+  public getHelpers(): THREE.Group {
     const group: THREE.Group = new THREE.Group();
-    
+
     //TODO
 
     return group;
@@ -133,8 +124,7 @@ export default class Scene {
    * returns a THREE.Group object containing designed 3D objects .
    */
   public async getObjectsAsync(): Promise<THREE.Group> {
-
-    if(isEqual(this.lastJSON, this.toJSON())) return this.objectsGroup;
+    if (isEqual(this.lastJSON, this.toJSON())) return this.objectsGroup;
 
     this.objectsGroup = new THREE.Group();
 
@@ -154,7 +144,6 @@ export default class Scene {
    * Adds floor and lights.
    */
   private setupScene(): void {
-    
     //@David , esto debería ir en algún sitio de opciones de configuracion
     const gridConfig = {
       size: 200,
@@ -180,24 +169,21 @@ export default class Scene {
         color: 0x98f5ff,
       },
     };
-    
-    
+
     this.sceneSetup = {
       base: new BaseGrid(gridConfig).getMesh(),
-      ambientLight: new THREE.AmbientLight(0x555555), 
+      ambientLight: new THREE.AmbientLight(0x555555),
       spotLight: new THREE.SpotLight(0xeeeeee),
     };
 
-    this.sceneSetup.spotLight.position.set(80, -100, 60)   
+    this.sceneSetup.spotLight.position.set(80, -100, 60);
   }
 
   /**
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
    * @param json object descriptor (it ignores id)
    */
-  public addNewObjectFromJSON(
-    json: IObjectsCommonJSON,
-  ): ISceneJSON {
+  public addNewObjectFromJSON(json: IObjectsCommonJSON): ISceneJSON {
     try {
       const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
       return this.addExistingObject(object);
@@ -250,9 +236,7 @@ export default class Scene {
    * Removes Object or Array of Objects from BitbloqScene array
    * @param json Object or Array of objects
    */
-  private removeFromScene(
-    json: ISceneJSON | IObjectsCommonJSON,
-  ): ISceneJSON {
+  private removeFromScene(json: ISceneJSON | IObjectsCommonJSON): ISceneJSON {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromScene(obj));
     } else {
@@ -267,16 +251,16 @@ export default class Scene {
   }
 
   /**
-   * Clones an object and adds it to the scene (and objectCollector). 
+   * Clones an object and adds it to the scene (and objectCollector).
    * If object is not in Scene throws Erro
    * @param json object to be cloned
    */
-  public cloneOject(json: IObjectsCommonJSON):ISceneJSON {
-    if(this.objectInScene(json)){
+  public cloneOject(json: IObjectsCommonJSON): ISceneJSON {
+    if (this.objectInScene(json)) {
       const newobj = this.getObject(json).clone();
       this.addExistingObject(newobj);
       return this.toJSON();
-    }else{
+    } else {
       throw new Error('Cannot clone unknown object');
     }
   }
@@ -286,9 +270,20 @@ export default class Scene {
       throw Error('Object already in Scene');
     } else {
       //In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
-      if ([Union.typeName, Difference.typeName, Intersection.typeName, ObjectsGroup.typeName, RepetitionObject.typeName].includes(object.getTypeName())){
-        (object.toJSON() as IObjectsGroupJSON | IRepetitionObjectJSON | ICompoundObjectJSON).children.forEach( obj => {
-          if (!this.objectInScene(obj  as IObjectsCommonJSON ))
+      if (
+        [
+          Union.typeName,
+          Difference.typeName,
+          Intersection.typeName,
+          ObjectsGroup.typeName,
+          RepetitionObject.typeName,
+        ].includes(object.getTypeName())
+      ) {
+        (object.toJSON() as
+          | IObjectsGroupJSON
+          | IRepetitionObjectJSON
+          | ICompoundObjectJSON).children.forEach(obj => {
+          if (!this.objectInScene(obj as IObjectsCommonJSON))
             throw new Error(
               'Cannot create a group of objects from objects not present in BitbloqScene',
             );
@@ -302,10 +297,10 @@ export default class Scene {
 
     const sceneJSON = this.toJSON();
     //Add to history
-      this.history = this.history.slice(0,this.historyIndex);
-      this.history.push(sceneJSON);
-      this.historyIndex = this.history.length - 1;
-    
+    this.history = this.history.slice(0, this.historyIndex);
+    this.history.push(sceneJSON);
+    this.historyIndex = this.history.length - 1;
+
     return sceneJSON;
   }
 
@@ -324,12 +319,10 @@ export default class Scene {
 
     const sceneJSON = this.toJSON();
     //Add to history if someting has changed
-    
-      this.history = this.history.slice(0,this.historyIndex);
-      this.history.push(sceneJSON);
-      this.historyIndex = this.history.length - 1;
-      
-   
+
+    this.history = this.history.slice(0, this.historyIndex);
+    this.history.push(sceneJSON);
+    this.historyIndex = this.history.length - 1;
 
     return sceneJSON;
   }
@@ -355,18 +348,16 @@ export default class Scene {
     const id = obj.id;
 
     const object = this.objectCollector.find(obj => id === obj.getID());
-    if(object) object.updateFromJSON(obj);
+    if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
 
-    
     const sceneJSON = this.toJSON();
     //Add to history
-    
-      this.history = this.history.slice(0,this.historyIndex);
-      this.history.push(sceneJSON);
-      this.historyIndex = this.history.length - 1;
-      
-   
+
+    this.history = this.history.slice(0, this.historyIndex);
+    this.history.push(sceneJSON);
+    this.historyIndex = this.history.length - 1;
+
     return sceneJSON;
   }
 
@@ -376,18 +367,19 @@ export default class Scene {
    * @param json group object descriptor (it only pays attention to id)
    */
   public unGroup(json: IObjectsGroupJSON): ISceneJSON {
-    try{
+    try {
       const group = this.getObject(json);
-      if(!(group instanceof ObjectsGroup)) throw new Error(`Object is not a group`);
+      if (!(group instanceof ObjectsGroup))
+        throw new Error(`Object is not a group`);
       const objects: Array<ObjectsCommon> = (group as ObjectsGroup).unGroup();
       // add the members of the group to the Scene
       objects.forEach(object => {
         this.objectsInScene.push(object);
-      })
+      });
 
       //remove ObjectsGroups from Scene and ObjectCollector
       return this.removeObject(json);
-    }catch(e){
+    } catch (e) {
       throw new Error(`Cannog ungroup. Unknown group ${e}`);
     }
   }
@@ -406,26 +398,23 @@ export default class Scene {
    * It transform the RepetitionObject to a ObjectsGroup and add it to the Scene and ObjectCollector.
    * @param json RepetitionObject descriptor. It only pays attention to id
    */
-  public repetitionToGroup(
-    json: IRepetitionObjectJSON,
-  ): ISceneJSON {
-
-    try{
+  public repetitionToGroup(json: IRepetitionObjectJSON): ISceneJSON {
+    try {
       const rep = this.getObject(json);
-      if(!(rep instanceof RepetitionObject)) throw new Error(`Object is not a RepetitionObject`);
+      if (!(rep instanceof RepetitionObject))
+        throw new Error(`Object is not a RepetitionObject`);
       const objects: Array<ObjectsCommon> = (rep as RepetitionObject).unGroup();
 
       //add objects to ObjectCollector
       objects.forEach(object => {
         this.objectCollector.push(object);
-      })
-      
+      });
+
       const group: ObjectsGroup = new ObjectsGroup(objects);
 
       // add new group to scene
       this.objectCollector.push(group);
       this.objectsInScene.push(group);
-
 
       //remove original object in repetion from ObjectCollector
       const original = rep.getOriginal();
@@ -434,14 +423,12 @@ export default class Scene {
       //remove ObjectsGroups from Scene and ObjectCollector
       this.removeFromObjectCollector(json);
       this.removeFromScene(json);
-
-    }catch(e){
+    } catch (e) {
       throw new Error(`Cannog ungroup. Unknown group ${e}`);
     }
 
     return this.toJSON();
   }
-
 
   // Establece el helper que debe mostrarse en la vista 3d
   // Si no se le pasa ningún parámetro entonces no mostrar ninguno

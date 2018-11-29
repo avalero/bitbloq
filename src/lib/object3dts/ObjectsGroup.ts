@@ -21,10 +21,14 @@ export default class ObjectsGroup extends ObjectsCommon {
       throw new Error(
         `Types do not match ${ObjectsGroup.typeName}, ${object.type}`,
       );
-    const group: Array<ObjectsCommon> = object.children.map(obj =>
-      scene.getObject(obj),
-    );
-    return new ObjectsGroup(group);
+    try {
+      const group: Array<ObjectsCommon> = object.children.map(obj =>
+        scene.getObject(obj),
+      );
+      return new ObjectsGroup(group);
+    } catch (e) {
+      throw new Error(`Cannot create ObjectsGroup. ${e}`);
+    }
   }
 
   private children: Array<ObjectsCommon>;

@@ -17,37 +17,30 @@ import CompoundObject, {
   ChildrenArray,
 } from './CompoundObject';
 import Object3D from './Object3D';
-import { OperationsArray } from './ObjectsCommon';
-import ObjectFactory from './ObjectFactory';
+import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import Scene from './Scene';
 
 export default class Intersection extends CompoundObject {
   static typeName: string = 'Intersection';
 
-  // FIXME children must be taken from scene
-  public static newFromJSON(
-    object: ICompoundObjectJSON,
-    scene: Scene,
-  ): Intersection {
-    const children: ChildrenArray = [];
+  public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Intersection {
+    if (object.type != Intersection.typeName) throw new Error('Not Union Object');
 
-    if (object.type != Intersection.typeName)
-      throw new Error('Not Intersection Object');
-
-    object.children.forEach(element => {
-      const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object, scene) as Object3D;
-      children.push(child);
-    });
-
-    return new Intersection(children, object.operations);
+    try {
+      const children: ChildrenArray = object.children.map(obj => scene.getObject(obj) as Object3D,);
+      const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
+      return new Intersection(children, object.operations, viewOptions);
+    } catch (e) {
+      throw new Error(`Cannot create ObjectsGroup. ${e}`);
+    }
   }
 
-  constructor(
-    children: ChildrenArray = [],
-    operations: OperationsArray = [],
-    ) {
-    super(children, operations);
+  constructor(children: ChildrenArray = [], operations: OperationsArray = [], viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions()) {
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions,
+    };
+    super(children, operations, vO);
     this.type = Intersection.typeName;
   }
 
@@ -55,7 +48,7 @@ export default class Intersection extends CompoundObject {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Intersection(childrenClone, this.operations);
+    const obj = new Intersection(childrenClone, this.operations, this.viewOptions);
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
     }

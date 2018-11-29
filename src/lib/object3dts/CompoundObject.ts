@@ -16,6 +16,7 @@ import Object3D from './Object3D';
 import ObjectsCommon, {
   OperationsArray,
   IObjectsCommonJSON,
+  IViewOptions,
 } from './ObjectsCommon';
 
 import isEqual from 'lodash.isequal';
@@ -45,22 +46,20 @@ export default class CompoundObject extends Object3D {
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
   ) {
-    super(ObjectsCommon.createViewOptions(), operations);
+    super(viewOptions, operations);
     if (children.length === 0)
       throw new Error('Compound Object requires at least one children');
     this.children = children;
     this._meshUpdateRequired = true;
     this.setOperations();
 
-    const t0 = performance.now();
     if (typeof CompoundWorker !== 'undefined') {
       this.worker = new CompoundWorker();
     } else {
       throw Error('Bitbloq 3D requires a Web Worker enabled browser');
     }
-    const t1 = performance.now();
-    console.log(`WebWorker creation time ${t1 - t0} millis`);
   }
 
   get meshUpdateRequired(): boolean {
@@ -122,13 +121,10 @@ export default class CompoundObject extends Object3D {
   public getMeshAsync(): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
       if (this.meshUpdateRequired) {
-        console.log('Update Compound Object Mesh');
-
         //check if WebWorkers are enabled
         if (typeof CompoundWorker !== 'undefined') {
           //WEB WORKER //listen to events from web worker
           this.worker.onmessage = (event: any) => {
-            const t0 = performance.now();
             if (event.data.status !== 'ok') {
               reject('Compound Object Error');
               return;
@@ -139,10 +135,7 @@ export default class CompoundObject extends Object3D {
             this.fromBufferData(message.vertices, message.normals).then(
               mesh => {
                 this.mesh = mesh;
-                const t1 = performance.now();
-                console.log(
-                  `WebWorker deserialize Execuetion time ${t1 - t0} millis`,
-                );
+                
 
                 if (this.mesh instanceof THREE.Mesh) {
                   this.applyOperationsAsync().then(() => {
@@ -160,7 +153,6 @@ export default class CompoundObject extends Object3D {
           // END OF EVENT HANDLER
 
           //Lets create an array of vertices and normals for each child
-          const t0 = performance.now();
           this.toBufferArrayAsync().then(bufferArray => {
             const message = {
               type: this.getTypeName(),
@@ -168,10 +160,7 @@ export default class CompoundObject extends Object3D {
               bufferArray,
             };
             this.worker.postMessage(message, bufferArray);
-            const t1 = performance.now();
-            console.log(
-              `WebWorker serialize Execuetion time ${t1 - t0} millis`,
-            );
+            
           });
         } else {
           const reason = new Error(

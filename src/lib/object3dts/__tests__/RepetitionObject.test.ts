@@ -94,8 +94,8 @@ test('Test newFromJSON', () => {
     scene,
   );
 
-    // force to compute mesh
-    (repetition as any).computeMesh();
+  // force to compute mesh
+  (repetition as any).computeMesh();
 
   const group: ObjectsGroup = repetition.getGroup();
   const objects: Array<ObjectsCommon> = group.unGroup();
@@ -156,7 +156,6 @@ test('Test updateFromJSON - Update Parameters', () => {
 
   repetition.updateFromJSON(jsonObjUpdate);
 
-
   // const group: ObjectsGroup = repetition.getGroup();
   // const objects: Array<ObjectsCommon> = group.unGroup();
   // expect(objects.length).toBe(10);
@@ -206,7 +205,6 @@ test('Test updateFromJSON - Update Object from repetition', () => {
     expect(meshGroup.children.length).toEqual(10);
   });
 });
-
 
 test('Test updateFromJSON - Update Object directly', () => {
   const object1: Cube = new Cube({ width, height, depth });
