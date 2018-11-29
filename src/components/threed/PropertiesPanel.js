@@ -287,7 +287,7 @@ class PropertiesPanel extends React.Component {
     const {parameters: baseParameters, icon} = typeConfig;
 
     const parameters = [
-      ...baseParameters,
+      ...baseParameters(object),
       {
         name: 'color',
         label: 'Color',
