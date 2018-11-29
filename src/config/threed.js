@@ -54,7 +54,7 @@ const config = {
       label: 'Cube',
       icon: <CubeIcon />,
       objectClass: Cube,
-      parameters: [
+      parameters: () => [
         {
           name: 'width',
           label: 'Width',
@@ -93,7 +93,7 @@ const config = {
       label: 'Sphere',
       icon: <SphereIcon />,
       objectClass: Sphere,
-      parameters: [
+      parameters: () => [
         {
           name: 'radius',
           label: 'Radius',
@@ -116,7 +116,7 @@ const config = {
       label: 'Cylinder',
       icon: <CylinderIcon />,
       objectClass: Cylinder,
-      parameters: [
+      parameters: () => [
         {
           name: 'r0',
           label: 'Radius Bottom',
@@ -152,7 +152,7 @@ const config = {
       label: 'Prism',
       icon: <PrismIcon />,
       objectClass: Prism,
-      parameters: [
+      parameters: () => [
         {
           name: 'sides',
           label: 'Number of sides',
@@ -187,7 +187,7 @@ const config = {
       label: 'STL Object',
       icon: <STLIcon />,
       objectClass: STLObject,
-      parameters: [
+      parameters: () => [
         {
           name: 'geometry',
           label: 'File',
@@ -204,35 +204,104 @@ const config = {
       }),
     },
     {
+      name: 'Union',
+      label: 'Union',
+      icon: <UnionIcon />,
+      canUndo: true,
+      undoLabel: 'Undo union',
+      parameters: () => [],
+    },
+    {
+      name: 'Difference',
+      label: 'Difference',
+      icon: <DifferenceIcon />,
+      canUndo: true,
+      undoLabel: 'Undo difference',
+      parameters: () => [],
+    },
+    {
+      name: 'Intersection',
+      label: 'Intersection',
+      icon: <IntersectionIcon />,
+      canUndo: true,
+      undoLabel: 'Undo intersection',
+      parameters: () => [],
+    },
+    {
+      name: 'Group',
+      label: 'Group',
+      icon: <GroupIcon />,
+      parameters: () => [],
+    },
+    {
       name: 'RepetitionObject',
       label: 'Repetition',
       icon: <RepeatIcon />,
-      parameters: [
-        {
-          name: 'num',
-          label: 'Repetitions',
-          type: 'integer',
-        },
-        {
-          name: 'x',
-          label: 'x',
-          type: 'integer',
-          unit: 'mm',
-        },
-        {
-          name: 'y',
-          label: 'y',
-          type: 'integer',
-          unit: 'mm',
-        },
-        {
-          name: 'z',
-          label: 'z',
-          type: 'integer',
-          unit: 'mm',
-        },
-      ],
-    }
+      withoutColor: true,
+      parameters: ({parameters: {type}}) => {
+        if (type === 'cartesian') {
+          return [
+            {
+              name: 'num',
+              label: 'Repetitions',
+              type: 'integer',
+            },
+            {
+              name: 'x',
+              label: 'x',
+              type: 'integer',
+              unit: 'mm',
+            },
+            {
+              name: 'y',
+              label: 'y',
+              type: 'integer',
+              unit: 'mm',
+            },
+            {
+              name: 'z',
+              label: 'z',
+              type: 'integer',
+              unit: 'mm',
+            },
+          ];
+        }
+        if (type === 'polar') {
+          return [
+            {
+              name: 'num',
+              label: 'Repetitions',
+              type: 'integer',
+            },
+            {
+              name: 'axis',
+              label: 'Axis',
+              type: 'select',
+              options: [
+                {
+                  label: 'X',
+                  value: 'x',
+                },
+                {
+                  label: 'Y',
+                  value: 'y',
+                },
+                {
+                  label: 'Z',
+                  value: 'z',
+                },
+              ],
+            },
+            {
+              name: 'angle',
+              label: 'Angle',
+              type: 'integer',
+              unit: '°',
+            },
+          ];
+        }
+      },
+    },
   ],
 
   objectOperations: [
@@ -371,9 +440,7 @@ const config = {
     {
       name: 'Union',
       label: 'Union',
-      undoLabel: 'Undo union',
       icon: <UnionIcon />,
-      canUndo: true,
       minObjects: 2,
       create: children => ({
         id: uuid(),
@@ -387,7 +454,6 @@ const config = {
       label: 'Difference',
       icon: <DifferenceIcon />,
       minObjects: 2,
-      canUndo: true,
       create: children => ({
         id: uuid(),
         type: 'Difference',
@@ -400,7 +466,6 @@ const config = {
       label: 'Intersection',
       icon: <IntersectionIcon />,
       minObjects: 2,
-      canUndo: true,
       create: children => ({
         id: uuid(),
         type: 'Intersection',
@@ -419,15 +484,6 @@ const config = {
         children,
         operations: [],
       }),
-      ungroup: ({ operations, parameters }) => (
-        parameters.children.map(child => ({
-          ...child,
-          operations: [
-            ...child.operations,
-            ...operations
-          ]
-        }))
-      ),
     },
     {
       name: 'CartesianRepetition',
@@ -461,42 +517,10 @@ const config = {
           type: 'polar',
           num: 4,
           axis: 'x',
-          angle: 180
+          angle: 180,
         },
         operations: [],
       }),
-      parameters: [
-        {
-          name: 'num',
-          label: 'Repetitions',
-          type: 'integer',
-        },
-        {
-          name: 'axis',
-          label: 'Axis',
-          type: 'select',
-          options: [
-            {
-              label: 'X',
-              value: 'x',
-            },
-            {
-              label: 'Y',
-              value: 'y',
-            },
-            {
-              label: 'Z',
-              value: 'z',
-            },
-          ],
-        },
-        {
-          name: 'angle',
-          label: 'Angle',
-          type: 'integer',
-          unit: '°',
-        },
-      ],
     },
   ],
 };
