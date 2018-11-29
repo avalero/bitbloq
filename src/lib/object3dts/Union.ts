@@ -37,7 +37,7 @@ export default class Union extends CompoundObject {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
         ...object.viewOptions,
-      }
+      };
       return new Union(children, object.operations, viewOptions);
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -49,11 +49,11 @@ export default class Union extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    const vO: Partial<IViewOptions> = {
+    const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
       ...viewOptions,
-    }
+    };
     super(children, operations, vO);
     this.type = Union.typeName;
   }
@@ -68,6 +68,4 @@ export default class Union extends CompoundObject {
     }
     return obj;
   }
-
-  
 }

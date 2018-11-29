@@ -128,8 +128,8 @@ export default class ObjectsGroup extends ObjectsCommon {
   public updateFromJSON(object: IObjectsGroupJSON) {
     if (object.id !== this.id)
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
-    
-      try {
+
+    try {
       object.children.forEach(obj => {
         const objToUpdate = this.getChild(obj);
         objToUpdate.updateFromJSON(obj);

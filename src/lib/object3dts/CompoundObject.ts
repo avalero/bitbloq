@@ -63,7 +63,7 @@ export default class CompoundObject extends Object3D {
   }
 
   get meshUpdateRequired(): boolean {
-        this.children.forEach(child => {
+    this.children.forEach(child => {
       this._meshUpdateRequired =
         this._meshUpdateRequired ||
         child.meshUpdateRequired ||
@@ -271,8 +271,8 @@ export default class CompoundObject extends Object3D {
   public updateFromJSON(object: ICompoundObjectJSON) {
     if (this.id !== object.id)
       throw new Error('Object id does not match with JSON id');
-    
-      //update children
+
+    //update children
     try {
       object.children.forEach(obj => {
         const objToUpdate = this.getChild(obj);
@@ -281,7 +281,7 @@ export default class CompoundObject extends Object3D {
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
-    
+
     //update operations and view options
     const vO = {
       ...ObjectsCommon.createViewOptions(),

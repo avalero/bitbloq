@@ -37,7 +37,7 @@ export default class Difference extends CompoundObject {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
         ...object.viewOptions,
-      }
+      };
       return new Difference(children, object.operations, viewOptions);
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -53,7 +53,7 @@ export default class Difference extends CompoundObject {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
       ...viewOptions,
-    }
+    };
     super(children, operations, vO);
     this.type = Difference.typeName;
   }

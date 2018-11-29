@@ -38,7 +38,7 @@ export default class Intersection extends CompoundObject {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
         ...object.viewOptions,
-      }
+      };
       return new Intersection(children, object.operations, viewOptions);
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -50,7 +50,7 @@ export default class Intersection extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    const vO = {
+    const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
       ...viewOptions,

@@ -67,7 +67,7 @@ export default class PrimitiveObject extends Object3D {
   public updateFromJSON(object: IPrimitiveObjectJSON) {
     if (this.id !== object.id)
       throw new Error('Object id does not match with JSON id');
-    
+
     const vO = {
       ...ObjectsCommon.createViewOptions(),
       ...object.viewOptions,
@@ -75,6 +75,5 @@ export default class PrimitiveObject extends Object3D {
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);
-
   }
 }
