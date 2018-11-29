@@ -13,7 +13,8 @@
  * Last modified  : 2018-11-29 19:15:29
  */
 
-import ObjectsCommon, { IObjectsCommonJSON,
+import ObjectsCommon, {
+  IObjectsCommonJSON,
   ITranslateOperation,
   IRotateOperation,
   IMirrorOperation,
@@ -25,13 +26,13 @@ import ObjectsCommon, { IObjectsCommonJSON,
 import Object3D from './Object3D';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
-import * as THREE from 'three'
+import * as THREE from 'three';
 
 import Scene from './Scene';
 
 export interface IRepetitionObjectJSON extends IObjectsCommonJSON {
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
-  children: Array<IObjectsCommonJSON>
+  children: Array<IObjectsCommonJSON>;
 }
 
 export interface IRepetitionParams {
@@ -77,7 +78,7 @@ export default class RepetitionObject extends ObjectsCommon {
 
   private originalObject: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
-  private group:Array<ObjectsCommon>;
+  private group: Array<ObjectsCommon>;
   private mesh: THREE.Group;
 
   /**
@@ -89,15 +90,15 @@ export default class RepetitionObject extends ObjectsCommon {
   constructor(
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
-    viewOptions:Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    const vO:IViewOptions = {
+    const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...original.toJSON().viewOptions,
       ...viewOptions,
     };
 
-    super(vO,[]);
+    super(vO, []);
     this.parameters = { ...params };
     this.originalObject = original;
     this.type = RepetitionObject.typeName;
@@ -114,7 +115,7 @@ export default class RepetitionObject extends ObjectsCommon {
   private cartesianRepetition() {
     this.mesh.children.length = 0;
     this.group.length = 0;
-    
+
     const { x, y, z, type, num } = this
       .parameters as ICartesianRepetitionParams;
     for (let i: number = 0; i < num; i++) {
@@ -138,7 +139,11 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public clone(): RepetitionObject {
-    return new RepetitionObject(this.parameters, this.originalObject, this.viewOptions);
+    return new RepetitionObject(
+      this.parameters,
+      this.originalObject,
+      this.viewOptions,
+    );
   }
 
   /**
@@ -222,11 +227,11 @@ export default class RepetitionObject extends ObjectsCommon {
     if (this.meshUpdateRequired) {
       this.computeMesh();
     }
-    
+
     const meshes = await Promise.all(this.group.map(obj => obj.getMeshAsync()));
     this.mesh.children.length = 0;
     meshes.forEach(mesh => {
-        this.mesh.add(mesh);
+      this.mesh.add(mesh);
     });
 
     //await this.applyOperationsAsync();
@@ -235,9 +240,7 @@ export default class RepetitionObject extends ObjectsCommon {
       await this.applyOperationsAsync();
     }
     return this.mesh;
-
   }
-
 
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);

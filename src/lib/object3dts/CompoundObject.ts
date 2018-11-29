@@ -201,32 +201,34 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<Array<ArrayBuffer>> {
     return new Promise((resolve, reject) => {
       const bufferArray: Array<ArrayBuffer> = [];
-      Promise.all(this.children.map(child => child.getMeshAsync())).then(meshes => {
-        meshes.forEach(mesh => {
-          const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
-          let bufferGeom: THREE.BufferGeometry;
-          if (geom instanceof THREE.BufferGeometry) {
-            bufferGeom = geom as THREE.BufferGeometry;
-          } else {
-            bufferGeom = new THREE.BufferGeometry().fromGeometry(
-              geom as THREE.Geometry,
-            );
-          }
-          const verticesBuffer: ArrayBuffer = new Float32Array(
-            bufferGeom.getAttribute('position').array,
-          ).buffer;
-          const normalsBuffer: ArrayBuffer = new Float32Array(
-            bufferGeom.getAttribute('normal').array,
-          ).buffer;
-          const positionBuffer: ArrayBuffer = Float32Array.from(
-            mesh.matrixWorld.elements,
-          ).buffer;
-          bufferArray.push(verticesBuffer);
-          bufferArray.push(normalsBuffer);
-          bufferArray.push(positionBuffer);
-        });
-        resolve(bufferArray);
-      });
+      Promise.all(this.children.map(child => child.getMeshAsync())).then(
+        meshes => {
+          meshes.forEach(mesh => {
+            const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
+            let bufferGeom: THREE.BufferGeometry;
+            if (geom instanceof THREE.BufferGeometry) {
+              bufferGeom = geom as THREE.BufferGeometry;
+            } else {
+              bufferGeom = new THREE.BufferGeometry().fromGeometry(
+                geom as THREE.Geometry,
+              );
+            }
+            const verticesBuffer: ArrayBuffer = new Float32Array(
+              bufferGeom.getAttribute('position').array,
+            ).buffer;
+            const normalsBuffer: ArrayBuffer = new Float32Array(
+              bufferGeom.getAttribute('normal').array,
+            ).buffer;
+            const positionBuffer: ArrayBuffer = Float32Array.from(
+              mesh.matrixWorld.elements,
+            ).buffer;
+            bufferArray.push(verticesBuffer);
+            bufferArray.push(normalsBuffer);
+            bufferArray.push(positionBuffer);
+          });
+          resolve(bufferArray);
+        },
+      );
     });
   }
 

@@ -33,6 +33,6 @@ const depth = 10;
 //   expect(union.meshUpdateRequired).toBe(true);
 // });
 
-test('', () =>{
+test('', () => {
   expect(1).toBe(1);
-})
+});

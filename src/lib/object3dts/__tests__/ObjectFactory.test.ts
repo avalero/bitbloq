@@ -9,8 +9,6 @@ import Scene from '../Scene';
 import ObjectsGroup, { IObjectsGroupJSON } from '../ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from '../RepetitionObject';
 
-
-
 const width = 10;
 const height = 20;
 const depth = 30;

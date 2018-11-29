@@ -236,7 +236,7 @@ export default class ObjectsCommon {
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-    }
+    };
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {
