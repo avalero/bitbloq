@@ -9,21 +9,21 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:29:49
- * Last modified  : 2018-11-28 16:48:00
+ * Last modified  : 2018-11-28 18:11:22
  */
 
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
 import './custom.d';
-import 'jsdom-worker'
+import 'jsdom-worker';
 
 const ctx: CompoundWorker = self as any;
 
-export default class CompoundWorker extends Worker{
-  constructor(){
+export default class CompoundWorker extends Worker {
+  constructor() {
     super('http://bitbloq.bq.com');
   }
-};
+}
 
 const getUnionFromGeometries = (
   geometries: Array<THREE.Geometry>,

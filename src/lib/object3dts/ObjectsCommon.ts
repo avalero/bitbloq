@@ -49,7 +49,6 @@ export interface IViewOptions {
   highlighted: boolean;
   opacity: number;
   name: string;
-
 }
 
 export default class ObjectsCommon {

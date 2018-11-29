@@ -11,10 +11,9 @@ export interface RendererOptions {
 }
 
 export default class Renderer {
-
   public static defaultOptions: RendererOptions = {
     antialias: true,
-    clearColor: 0xfafafa
+    clearColor: 0xfafafa,
   };
 
   private options: RendererOptions;
@@ -32,13 +31,17 @@ export default class Renderer {
   private wrapElement: HTMLElement;
   private navBoxContainer: HTMLElement;
 
-  constructor(scene: Scene, container: HTMLElement, options: Partial<RendererOptions> = {}) {
+  constructor(
+    scene: Scene,
+    container: HTMLElement,
+    options: Partial<RendererOptions> = {},
+  ) {
     this.scene = scene;
     this.container = container;
 
     this.options = {
       ...options,
-      ...Renderer.defaultOptions
+      ...Renderer.defaultOptions,
     };
 
     this.setup();
@@ -47,7 +50,7 @@ export default class Renderer {
 
   private setup() {
     const rendererParams = {
-      antialias: this.options.antialias
+      antialias: this.options.antialias,
     };
 
     const threeRenderer = new THREE.WebGLRenderer(rendererParams);
@@ -69,13 +72,13 @@ export default class Renderer {
 
     this.cameraControls = new OrbitCamera(
       this.perspectiveCamera,
-      this.threeRenderer.domElement
+      this.threeRenderer.domElement,
     );
   }
 
   private updateSize() {
     const containerRect = this.container.getBoundingClientRect();
-    const {width, height} = containerRect;
+    const { width, height } = containerRect;
     this.threeRenderer.setSize(width, height);
     this.perspectiveCamera.aspect = width / height;
     this.perspectiveCamera.updateProjectionMatrix();
@@ -93,7 +96,7 @@ export default class Renderer {
     requestAnimationFrame(this.renderLoop);
 
     this.threeRenderer.render(this.threeScene, this.perspectiveCamera);
-  }
+  };
 
   public async updateScene(): Promise<void> {
     this.threeScene.remove(this.objectsGroup);
@@ -106,24 +109,15 @@ export default class Renderer {
     this.cameraControls.rotateTo(theta, phi, true);
   }
 
-  public zoomIn(): void {
+  public zoomIn(): void {}
 
-  }
+  public zoomOut(): void {}
 
-  public zoomOut(): void {
+  public setOrtographicCamera(isOrtographic: boolean): void {}
 
-  }
-
-  public setOrtographicCamera(isOrtographic: boolean): void {
-
-  }
-
-  private handleClick(e: MouseEvent, handler: ClickHandler) {
-
-  }
+  private handleClick(e: MouseEvent, handler: ClickHandler) {}
 
   public onClick(handler: ClickHandler): void {
-    this.container.addEventListener('click', (e) =>
-      this.handleClick(e, handler));
+    this.container.addEventListener('click', e => this.handleClick(e, handler));
   }
 }

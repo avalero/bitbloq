@@ -3,15 +3,16 @@ import Cube, { ICubeJSON } from './Cube';
 import Cylinder, { ICylinderJSON } from './Cylinder';
 import Sphere, { ISphereJSON } from './Sphere';
 import Prism, { IPrismJSON } from './Prism';
-// import Union from './Union';
-// import CompoundObject, {ChildrenArray, ICompountObjectJSON} from './CompoundObject';
+import Union from './Union';
+import {
+  ICompoundObjectJSON,
+} from './CompoundObject';
+import Difference from './Difference';
+import Intersection from './Intersection';
 
 import Scene from './Scene';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
-
-// import Difference from './Difference';
-// import Intersection from './Intersection';
 
 export default class ObjectFactory {
   /**
@@ -38,12 +39,12 @@ export default class ObjectFactory {
           obj as IRepetitionObjectJSON,
           scene,
         );
-      // case Union.typeName:
-      //   return Union.newFromJSON(json);
-      // case Difference.typeName:
-      //   return Difference.newFromJSON(json);
-      // case Intersection.typeName:
-      //   return Intersection.newFromJSON(json);
+      case Union.typeName:
+        return Union.newFromJSON(obj as ICompoundObjectJSON, scene);
+      case Difference.typeName:
+        return Difference.newFromJSON(obj as ICompoundObjectJSON, scene);
+      case Intersection.typeName:
+        return Intersection.newFromJSON(obj as ICompoundObjectJSON, scene);
     }
 
     throw new Error('Unknown Primitive Object Type');

@@ -100,9 +100,7 @@ export default class RepetitionObject extends ObjectsGroup {
         objectClone.translate(i * x, i * y, i * z);
         this.add(objectClone);
       } else if (this.originalObject instanceof ObjectsGroup) {
-
         // TODO
-
       }
     }
   }
@@ -136,7 +134,6 @@ export default class RepetitionObject extends ObjectsGroup {
         //objectClone.translate(i*x, i*y, i*z);
         this.add(objectClone);
       } else if (this.originalObject instanceof ObjectsGroup) {
-
       }
     }
   }
@@ -160,7 +157,7 @@ export default class RepetitionObject extends ObjectsGroup {
     return obj;
   }
 
-  public getOriginal():ObjectsCommon{
+  public getOriginal(): ObjectsCommon {
     return this.originalObject;
   }
 
@@ -190,28 +187,27 @@ export default class RepetitionObject extends ObjectsGroup {
   }
 
   get meshUpdateRequired(): boolean {
-    return (this._meshUpdateRequired || this.originalObject.meshUpdateRequired);
+    return this._meshUpdateRequired || this.originalObject.meshUpdateRequired;
   }
 
   get pendingOperation(): boolean {
-    return (this._pendingOperation || this.originalObject.pendingOperation);
+    return this._pendingOperation || this.originalObject.pendingOperation;
   }
 
-  public getMeshAsync(): Promise<THREE.Group>{
-    
+  public getMeshAsync(): Promise<THREE.Group> {
     //check if originalObject has changed
-    if(this.meshUpdateRequired || this.pendingOperation){
+    if (this.meshUpdateRequired || this.pendingOperation) {
       this.computeMesh();
     }
 
     return super.getMeshAsync();
   }
 
-  private computeMesh():void{
+  private computeMesh(): void {
     if (this.parameters.type.toLowerCase() === 'cartesian')
-        this.cartesianRepetition();
-      else if (this.parameters.type.toLowerCase() === 'polar')
-        this.polarRepetition();
-      else throw new Error('Unknown Repetition Command'); 
+      this.cartesianRepetition();
+    else if (this.parameters.type.toLowerCase() === 'polar')
+      this.polarRepetition();
+    else throw new Error('Unknown Repetition Command');
   }
 }

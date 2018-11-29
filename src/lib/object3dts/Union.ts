@@ -16,7 +16,7 @@ import CompoundObject, {
   ICompoundObjectJSON,
   ChildrenArray,
 } from './CompoundObject';
-import ObjectsCommon, { OperationsArray, IObjectsCommonJSON } from './ObjectsCommon';
+import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import Object3D from './Object3D';
 import ObjectFactory from './ObjectFactory';
 
@@ -25,26 +25,28 @@ import Scene from './Scene';
 export default class Union extends CompoundObject {
   static typeName: string = 'Union';
 
-  // FIXME. Children must be taken from scene, not created
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
-    const children: ChildrenArray = [];
-
     if (object.type != Union.typeName) throw new Error('Not Union Object');
 
-    object.children.forEach(element => {
-      const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object, scene) as Object3D;
-      children.push(child);
-    });
-
-    return new Union(children, object.operations);
+    try {
+      const children: ChildrenArray = object.children.map(obj => scene.getObject(obj) as Object3D,);
+      const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
+      return new Union(children, object.operations, viewOptions);
+    } catch (e) {
+      throw new Error(`Cannot create ObjectsGroup. ${e}`);
+    }
   }
 
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    super(children, operations);
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions,
+    };
+    super(children, operations, vO);
     this.type = Union.typeName;
   }
 
@@ -52,7 +54,7 @@ export default class Union extends CompoundObject {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Union(childrenClone, this.operations);
+    const obj = new Union(childrenClone, this.operations, this.viewOptions);
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
     }

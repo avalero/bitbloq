@@ -24,7 +24,6 @@ import {
   IViewOptions,
 } from './ObjectsCommon';
 
-
 export default class Object3D extends ObjectsCommon {
   public static getVerticesFromGeom(
     geometry: THREE.Geometry,
@@ -64,7 +63,11 @@ export default class Object3D extends ObjectsCommon {
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
   ) {
-    super(viewOptions, operations);
+    const vO = {
+      ... ObjectsCommon.createViewOptions(),
+      ... viewOptions,
+    }
+    super(vO, operations);
   }
 
   protected getMaterial(): THREE.MeshLambertMaterial {

@@ -17,35 +17,30 @@ import CompoundObject, {
   ChildrenArray,
 } from './CompoundObject';
 import Object3D from './Object3D';
-import { OperationsArray } from './ObjectsCommon';
-import ObjectFactory from './ObjectFactory';
+import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import Scene from './Scene';
 
 export default class Difference extends CompoundObject {
   static typeName: string = 'Difference';
 
-  public static newFromJSON(
-    object: ICompoundObjectJSON,
-    scene: Scene,
-  ): Difference {
-    const children: ChildrenArray = [];
-
+  public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Difference {
     if (object.type != Difference.typeName) throw new Error('Not Union Object');
 
-    object.children.forEach(element => {
-      const json = JSON.stringify(element);
-      const child = ObjectFactory.newFromJSON(object, scene) as Object3D;
-      children.push(child);
-    });
-
-    return new Difference(children, object.operations);
+    try {
+      const children: ChildrenArray = object.children.map(obj => scene.getObject(obj) as Object3D,);
+      const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
+      return new Difference(children, object.operations, viewOptions);
+    } catch (e) {
+      throw new Error(`Cannot create ObjectsGroup. ${e}`);
+    }
   }
 
-  constructor(
-    children: ChildrenArray = [],
-    operations: OperationsArray = [],
-  ) {
-    super(children, operations);
+  constructor(children: ChildrenArray = [], operations: OperationsArray = [], viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions()) {
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions,
+    };
+    super(children, operations, vO);
     this.type = Difference.typeName;
   }
 
@@ -53,7 +48,7 @@ export default class Difference extends CompoundObject {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Difference(childrenClone, this.operations);
+    const obj = new Difference(childrenClone, this.operations, this.viewOptions);
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
     }
