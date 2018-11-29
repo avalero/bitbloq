@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-11-29 19:06:36
+ * Last modified  : 2018-11-29 19:15:29
  */
 
 import ObjectsCommon, { IObjectsCommonJSON,
@@ -132,14 +132,13 @@ export default class RepetitionObject extends ObjectsCommon {
     parameters: ICartesianRepetitionParams | IPolarRepetitionParams,
   ) {
     if (!isEqual(parameters, this.parameters)) {
-      this.mesh.children.length = 0;
       this.parameters = { ...parameters };
       this._meshUpdateRequired = true;
     }
   }
 
   public clone(): RepetitionObject {
-    return new RepetitionObject(this.parameters, this.originalObject);
+    return new RepetitionObject(this.parameters, this.originalObject, this.viewOptions);
   }
 
   /**
@@ -218,24 +217,23 @@ export default class RepetitionObject extends ObjectsCommon {
 
   public async getMeshAsync(): Promise<THREE.Object3D> {
     //check if originalObject has changed
-    if (this.meshUpdateRequired || this.pendingOperation) {
+    debugger;
+
+    if (this.meshUpdateRequired) {
       this.computeMesh();
     }
-
+    
     const meshes = await Promise.all(this.group.map(obj => obj.getMeshAsync()));
     this.mesh.children.length = 0;
     meshes.forEach(mesh => {
         this.mesh.add(mesh);
     });
-    
-    await this.applyOperationsAsync();
 
+    //await this.applyOperationsAsync();
 
     if (this.pendingOperation) {
       await this.applyOperationsAsync();
     }
-
-
     return this.mesh;
 
   }

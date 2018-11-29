@@ -403,7 +403,8 @@ export default class Scene {
       const rep = this.getObject(json);
       if (!(rep instanceof RepetitionObject))
         throw new Error(`Object is not a RepetitionObject`);
-      const objects: Array<ObjectsCommon> = (rep as RepetitionObject).unGroup();
+      
+      const objects: Array<ObjectsCommon> = (rep as RepetitionObject).getGroup().unGroup();
 
       //add objects to ObjectCollector
       objects.forEach(object => {

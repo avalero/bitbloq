@@ -200,14 +200,8 @@ export default class CompoundObject extends Object3D {
 
   protected toBufferArrayAsync(): Promise<Array<ArrayBuffer>> {
     return new Promise((resolve, reject) => {
-      const promises: any[] = [];
       const bufferArray: Array<ArrayBuffer> = [];
-      this.children.forEach(child => {
-        const promise: Promise<THREE.Mesh> = child.getMeshAsync();
-        promises.push(promise);
-      });
-
-      Promise.all(promises).then(meshes => {
+      Promise.all(this.children.map(child => child.getMeshAsync())).then(meshes => {
         meshes.forEach(mesh => {
           const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
           let bufferGeom: THREE.BufferGeometry;

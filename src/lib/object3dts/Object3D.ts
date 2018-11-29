@@ -94,7 +94,7 @@ export default class Object3D extends ObjectsCommon {
     return this.mesh;
   }
 
-  public async getMeshAsync(): Promise<THREE.Object3D> {
+  public async getMeshAsync(): Promise<THREE.Mesh> {
     // for generic Object3D make it sync
     const mesh = await this.getPrimitiveMeshAsync();
     if (mesh instanceof THREE.Mesh) {

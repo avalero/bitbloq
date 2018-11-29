@@ -166,10 +166,11 @@ export default class ObjectsCommon {
       this.operations.length = 0;
       this.operations = operations.slice();
       this._pendingOperation = true;
+      return;
     }
 
-    this._pendingOperation =
-      this.pendingOperation || !isEqual(this.operations, operations);
+    // this._pendingOperation =
+    //   this.pendingOperation || !isEqual(this.operations, operations);
   }
 
   public addOperations(operations: OperationsArray = []): void {
