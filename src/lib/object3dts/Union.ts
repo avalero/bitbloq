@@ -32,7 +32,12 @@ export default class Union extends CompoundObject {
       const children: ChildrenArray = object.children.map(
         obj => scene.getObject(obj) as Object3D,
       );
-      const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
+
+      const viewOptions: Partial<IViewOptions> = {
+        ...ObjectsCommon.createViewOptions(),
+        ...object.children[0].viewOptions,
+        ...object.viewOptions,
+      }
       return new Union(children, object.operations, viewOptions);
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -44,10 +49,11 @@ export default class Union extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
   ) {
-    const vO = {
+    const vO: Partial<IViewOptions> = {
       ...ObjectsCommon.createViewOptions(),
+      ...children[0].toJSON().viewOptions,
       ...viewOptions,
-    };
+    }
     super(children, operations, vO);
     this.type = Union.typeName;
   }
