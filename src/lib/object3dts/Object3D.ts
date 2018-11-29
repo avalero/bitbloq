@@ -157,6 +157,8 @@ export default class Object3D extends ObjectsCommon {
       }
     });
     this._pendingOperation = false;
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
 
     return;
   }

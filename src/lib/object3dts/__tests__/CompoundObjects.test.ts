@@ -1,3 +1,6 @@
+import 'jsdom-worker';
+import 'jest-fetch-mock';
+
 import Union from '../Union';
 import Difference from '../Difference';
 import Intersection from '../Intersection';
@@ -17,6 +20,9 @@ const depth = 10;
 
 //   const union = new Union([object1, object2]);
 //   expect(union.meshUpdateRequired).toBe(true);
+//   return union.getMeshAsync().then(mesh => {
+//     expect(1).toBe(1);
+//   })
 // });
 
 // test('Union clone', () => {
