@@ -63,6 +63,7 @@ export default class CompoundObject extends Object3D {
   }
 
   get meshUpdateRequired(): boolean {
+    debugger;
     this.children.forEach(child => {
       this._meshUpdateRequired =
         this._meshUpdateRequired ||
@@ -113,6 +114,8 @@ export default class CompoundObject extends Object3D {
         throw Error('ERROR: Unknown Operation');
       }
     });
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
     this._pendingOperation = false;
 
     return;
@@ -201,6 +204,7 @@ export default class CompoundObject extends Object3D {
       const promises: any[] = [];
       const bufferArray: Array<ArrayBuffer> = [];
       this.children.forEach(child => {
+        debugger;
         const promise: Promise<THREE.Mesh> = child.getMeshAsync();
         promises.push(promise);
       });
