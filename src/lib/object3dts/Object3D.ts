@@ -235,6 +235,8 @@ export default class Object3D extends ObjectsCommon {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
   }
 
   public clone(): Object3D {

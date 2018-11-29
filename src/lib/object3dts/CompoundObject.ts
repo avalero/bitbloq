@@ -114,6 +114,8 @@ export default class CompoundObject extends Object3D {
         throw Error('ERROR: Unknown Operation');
       }
     });
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
     this._pendingOperation = false;
 
     return;
