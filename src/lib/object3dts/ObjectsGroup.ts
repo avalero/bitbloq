@@ -39,11 +39,11 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.type = ObjectsGroup.typeName;
   }
   // Group operations. Will be transferred to children only when un-grouped.
-  public setOperations(operations: OperationsArray = []): void {
-    this.operations = [];
-    this.operations = operations.slice();
-    this._pendingOperation = true;
-  }
+  // public setOperations(operations: OperationsArray = []): void {
+  //   this.operations = [];
+  //   this.operations = operations.slice();
+  //   this._pendingOperation = true;
+  // }
 
   public add(object: Object3D): void {
     this.children.push(object);

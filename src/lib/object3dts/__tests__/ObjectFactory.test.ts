@@ -152,6 +152,6 @@ test('Check RepetitionObject is well created from ObjectFactory', () => {
   // force to compute mesh
   (repetition as any).computeMesh();
   expect(repetition).toBeInstanceOf(RepetitionObject);
-  expect((repetition as any).children[0]).toBeInstanceOf(Cube);
-  expect((repetition as any).children.length).toEqual(10);
+  //expect((repetition.toJSON().children[0]).type.toBe(Cube.typeName);
+  expect((repetition as any).group.length).toEqual(10);
 });
