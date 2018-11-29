@@ -1,3 +1,4 @@
+import 'jsdom-worker';
 import Cube from '../Cube';
 import Cylinder from '../Cylinder';
 import ObjectFactory from '../ObjectFactory';
@@ -7,6 +8,8 @@ import ObjectsCommon from '../ObjectsCommon';
 import Scene from '../Scene';
 import ObjectsGroup, { IObjectsGroupJSON } from '../ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from '../RepetitionObject';
+
+
 
 const width = 10;
 const height = 20;

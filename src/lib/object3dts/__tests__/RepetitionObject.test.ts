@@ -1,3 +1,6 @@
+import 'jsdom-worker';
+
+
 import ObjectsGroups from '../ObjectsGroup';
 
 import Cube, { ICubeJSON } from '../Cube';

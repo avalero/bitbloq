@@ -15,7 +15,7 @@
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
 import './custom.d';
-import 'jsdom-worker';
+// import 'jsdom-worker';
 
 const ctx: CompoundWorker = self as any;
 

@@ -135,7 +135,6 @@ export default class CompoundObject extends Object3D {
             this.fromBufferData(message.vertices, message.normals).then(
               mesh => {
                 this.mesh = mesh;
-                
 
                 if (this.mesh instanceof THREE.Mesh) {
                   this.applyOperationsAsync().then(() => {
@@ -160,7 +159,6 @@ export default class CompoundObject extends Object3D {
               bufferArray,
             };
             this.worker.postMessage(message, bufferArray);
-            
           });
         } else {
           const reason = new Error(

@@ -1,3 +1,5 @@
+import 'jsdom-worker';
+
 import Cube, { ICubeJSON } from '../Cube';
 import * as THREE from 'three';
 import ObjectsCommon, {

@@ -23,11 +23,17 @@ import Scene from './Scene';
 export default class Intersection extends CompoundObject {
   static typeName: string = 'Intersection';
 
-  public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Intersection {
-    if (object.type != Intersection.typeName) throw new Error('Not Union Object');
+  public static newFromJSON(
+    object: ICompoundObjectJSON,
+    scene: Scene,
+  ): Intersection {
+    if (object.type != Intersection.typeName)
+      throw new Error('Not Union Object');
 
     try {
-      const children: ChildrenArray = object.children.map(obj => scene.getObject(obj) as Object3D,);
+      const children: ChildrenArray = object.children.map(
+        obj => scene.getObject(obj) as Object3D,
+      );
       const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
       return new Intersection(children, object.operations, viewOptions);
     } catch (e) {
@@ -35,7 +41,11 @@ export default class Intersection extends CompoundObject {
     }
   }
 
-  constructor(children: ChildrenArray = [], operations: OperationsArray = [], viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions()) {
+  constructor(
+    children: ChildrenArray = [],
+    operations: OperationsArray = [],
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+  ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
       ...viewOptions,
@@ -48,7 +58,11 @@ export default class Intersection extends CompoundObject {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Intersection(childrenClone, this.operations, this.viewOptions);
+    const obj = new Intersection(
+      childrenClone,
+      this.operations,
+      this.viewOptions,
+    );
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
     }

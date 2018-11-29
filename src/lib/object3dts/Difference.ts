@@ -23,11 +23,16 @@ import Scene from './Scene';
 export default class Difference extends CompoundObject {
   static typeName: string = 'Difference';
 
-  public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Difference {
+  public static newFromJSON(
+    object: ICompoundObjectJSON,
+    scene: Scene,
+  ): Difference {
     if (object.type != Difference.typeName) throw new Error('Not Union Object');
 
     try {
-      const children: ChildrenArray = object.children.map(obj => scene.getObject(obj) as Object3D,);
+      const children: ChildrenArray = object.children.map(
+        obj => scene.getObject(obj) as Object3D,
+      );
       const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
       return new Difference(children, object.operations, viewOptions);
     } catch (e) {
@@ -35,7 +40,11 @@ export default class Difference extends CompoundObject {
     }
   }
 
-  constructor(children: ChildrenArray = [], operations: OperationsArray = [], viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions()) {
+  constructor(
+    children: ChildrenArray = [],
+    operations: OperationsArray = [],
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+  ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
       ...viewOptions,
@@ -48,7 +57,11 @@ export default class Difference extends CompoundObject {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Difference(childrenClone, this.operations, this.viewOptions);
+    const obj = new Difference(
+      childrenClone,
+      this.operations,
+      this.viewOptions,
+    );
     if (!this.meshUpdateRequired && !this.pendingOperation) {
       obj.setMesh(this.mesh.clone());
     }
