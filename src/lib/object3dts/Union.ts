@@ -68,4 +68,6 @@ export default class Union extends CompoundObject {
     }
     return obj;
   }
+
+  
 }
