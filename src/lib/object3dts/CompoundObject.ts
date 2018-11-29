@@ -63,7 +63,6 @@ export default class CompoundObject extends Object3D {
   }
 
   get meshUpdateRequired(): boolean {
-    debugger;
     this.children.forEach(child => {
       this._meshUpdateRequired =
         this._meshUpdateRequired ||
@@ -204,7 +203,6 @@ export default class CompoundObject extends Object3D {
       const promises: any[] = [];
       const bufferArray: Array<ArrayBuffer> = [];
       this.children.forEach(child => {
-        debugger;
         const promise: Promise<THREE.Mesh> = child.getMeshAsync();
         promises.push(promise);
       });
@@ -258,5 +256,38 @@ export default class CompoundObject extends Object3D {
       operations: this.operations,
       children: this.children.map(obj => obj.toJSON()),
     };
+  }
+
+  /**
+   * Returns Object Reference if found in children. If not, throws Error.
+   * @param obj Object descriptor
+   */
+  private getChild(obj: IObjectsCommonJSON): ObjectsCommon {
+    const result = this.children.find(object => object.getID() === obj.id);
+    if (result) return result;
+    else throw new Error(`Object id ${obj.id} not found in group`);
+  }
+
+  public updateFromJSON(object: ICompoundObjectJSON) {
+    if (this.id !== object.id)
+      throw new Error('Object id does not match with JSON id');
+
+    //update children
+    try {
+      object.children.forEach(obj => {
+        const objToUpdate = this.getChild(obj);
+        objToUpdate.updateFromJSON(obj);
+      });
+    } catch (e) {
+      throw new Error(`Cannot update Group: ${e}`);
+    }
+
+    //update operations and view options
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...object.viewOptions,
+    };
+    this.setOperations(object.operations);
+    this.setViewOptions(vO);
   }
 }

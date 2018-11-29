@@ -114,7 +114,7 @@ export default class ObjectsGroup extends ObjectsCommon {
    * Returns Object Reference if found in group. If not, throws Error.
    * @param obj Object descriptor
    */
-  private getObject(obj: IObjectsCommonJSON): ObjectsCommon {
+  private getChild(obj: IObjectsCommonJSON): ObjectsCommon {
     const result = this.children.find(object => object.getID() === obj.id);
     if (result) return result;
     else throw new Error(`Object id ${obj.id} not found in group`);
@@ -128,11 +128,18 @@ export default class ObjectsGroup extends ObjectsCommon {
   public updateFromJSON(object: IObjectsGroupJSON) {
     if (object.id !== this.id)
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
+
     try {
       object.children.forEach(obj => {
-        const objToUpdate = this.getObject(obj);
+        const objToUpdate = this.getChild(obj);
         objToUpdate.updateFromJSON(obj);
       });
+      const vO = {
+        ...ObjectsCommon.createViewOptions(),
+        ...object.viewOptions,
+      };
+      this.setOperations(object.operations);
+      this.setViewOptions(vO);
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
