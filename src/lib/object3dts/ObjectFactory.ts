@@ -4,9 +4,7 @@ import Cylinder, { ICylinderJSON } from './Cylinder';
 import Sphere, { ISphereJSON } from './Sphere';
 import Prism, { IPrismJSON } from './Prism';
 import Union from './Union';
-import {
-  ICompoundObjectJSON,
-} from './CompoundObject';
+import { ICompoundObjectJSON } from './CompoundObject';
 import Difference from './Difference';
 import Intersection from './Intersection';
 

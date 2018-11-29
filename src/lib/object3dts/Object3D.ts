@@ -64,9 +64,9 @@ export default class Object3D extends ObjectsCommon {
     operations: OperationsArray = [],
   ) {
     const vO = {
-      ... ObjectsCommon.createViewOptions(),
-      ... viewOptions,
-    }
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions,
+    };
     super(vO, operations);
   }
 

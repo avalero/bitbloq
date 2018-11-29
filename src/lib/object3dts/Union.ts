@@ -29,7 +29,9 @@ export default class Union extends CompoundObject {
     if (object.type != Union.typeName) throw new Error('Not Union Object');
 
     try {
-      const children: ChildrenArray = object.children.map(obj => scene.getObject(obj) as Object3D,);
+      const children: ChildrenArray = object.children.map(
+        obj => scene.getObject(obj) as Object3D,
+      );
       const viewOptions: Partial<IViewOptions> = object.children[0].viewOptions;
       return new Union(children, object.operations, viewOptions);
     } catch (e) {

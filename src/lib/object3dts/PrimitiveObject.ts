@@ -67,9 +67,9 @@ export default class PrimitiveObject extends Object3D {
   public updateFromJSON(object: IPrimitiveObjectJSON) {
     if (this.id === object.id) {
       const vO = {
-        ... ObjectsCommon.createViewOptions(),
-        ... object.viewOptions,
-      }
+        ...ObjectsCommon.createViewOptions(),
+        ...object.viewOptions,
+      };
       this.setParameters(object.parameters);
       this.setOperations(object.operations);
       this.setViewOptions(vO);
