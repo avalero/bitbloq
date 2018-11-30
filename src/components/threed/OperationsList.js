@@ -12,60 +12,73 @@ const Container = styled.div`
 
 export default class OperationsList extends React.Component {
   state = {
-    openOperation: null,
+    openOperations: [],
   };
 
   componentDidUpdate(prevProps) {
-    const {openOperation} = this.state;
-    const {object} = this.props;
-    const {object: prevObject} = prevProps;
+    const {openOperations} = this.state;
+    const {operations} = this.props;
+    const {operations: prevOperations} = prevProps;
 
-    if (object !== prevObject) {
-      const {operations = []} = object || {};
-      const {operations: prevOperations = []} = prevObject || {};
+    if (operations && prevOperations) {
       const newOperation = operations.find(
         o => !prevOperations.find(p => p.id === o.id),
       );
 
-      if (newOperation && newOperation.id !== openOperation) {
-        this.setState({openOperation: newOperation.id});
+      if (newOperation) {
+        this.setState(state => ({
+          ...state,
+          openOperations: [...state.openOperations, newOperation.id],
+        }));
       }
     }
   }
 
   onOperationOpen(operation, isOpen, cb) {
-    const {openOperation} = this.state;
-    if (isOpen && openOperation !== operation.id) {
-      this.setState({openOperation: operation.id}, cb);
-    } else if (!isOpen && openOperation === operation.id) {
-      this.setState({openOperation: null}, cb);
+    const {openOperations} = this.state;
+    if (isOpen) {
+      this.setState(
+        state => ({
+          ...state,
+          openOperations: [...state.openOperations, operation.id],
+        }),
+        cb,
+      );
     } else {
-      cb();
+      this.setState(
+        state => ({
+          ...state,
+          openOperations: state.openOperations.filter(
+            id => id !== operation.id,
+          ),
+        }),
+        cb,
+      );
     }
   }
 
   render() {
     const {
-      object,
+      operations,
       onParameterChange,
       onParameterFocus,
       onParameterBlur,
       onRemoveOperation,
       advancedMode,
     } = this.props;
-    const {openOperation} = this.state;
+    const {openOperations} = this.state;
 
     return (
       <Droppable droppableId="operations">
         {provided => (
           <Container innerRef={provided.innerRef} {...provided.droppableProps}>
-            {object.operations.map((operation, i) => (
+            {operations.map((operation, i) => (
               <Operation
                 key={operation.id}
                 index={i}
                 operation={operation}
                 advancedMode={advancedMode}
-                isOpen={openOperation === operation.id}
+                isOpen={openOperations.includes(operation.id)}
                 onOpen={(isOpen, cb) =>
                   this.onOperationOpen(operation, isOpen, cb)
                 }

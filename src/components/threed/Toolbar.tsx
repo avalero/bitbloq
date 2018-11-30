@@ -57,13 +57,16 @@ export interface ToolbarProps {
   createObject: (object: object) => any;
 }
 
-const selectMultipleMessage = <span>
-  Selecciona varios objetos pulsando <i>“Control + clic”</i> en cada uno de ellos para utilizar esta herramienta
-</span>;
+const selectMultipleMessage = (
+  <span>
+    Selecciona varios objetos pulsando <i>“Control + clic”</i> en cada uno de
+    ellos para utilizar esta herramienta
+  </span>
+);
 
-const selectOneMessage = <span>
-  Selecciona un único objeto para utilizar esta herramienta
-</span>;
+const selectOneMessage = (
+  <span>Selecciona un único objeto para utilizar esta herramienta</span>
+);
 
 class Toolbar extends React.Component<ToolbarProps> {
   onComposeObjects(operation) {
@@ -72,15 +75,25 @@ class Toolbar extends React.Component<ToolbarProps> {
   }
 
   render() {
-    const {selectedObjects, undo, redo, canUndo, canRedo} = this.props;
+    const {
+      selectedObjects,
+      advancedMode,
+      undo,
+      redo,
+      canUndo,
+      canRedo,
+    } = this.props;
 
     return (
       <Container>
         <Operations>
           {config.compositionOperations.map(operation => {
-            const { minObjects = 0, maxObjects = Infinity } = operation;
+            if (operation.advancedMode && !advancedMode) return;
+
+            const {minObjects = 0, maxObjects = Infinity} = operation;
             const numObjects = selectedObjects.length;
-            const canApply = numObjects >= minObjects && numObjects <= maxObjects;
+            const canApply =
+              numObjects >= minObjects && numObjects <= maxObjects;
 
             let tooltipContent;
             if (canApply) {
@@ -94,36 +107,41 @@ class Toolbar extends React.Component<ToolbarProps> {
             }
 
             return (
-              <Tooltip
-                key={operation.name}
-                content={tooltipContent}
-              >
-                {tooltipProps =>
+              <Tooltip key={operation.name} content={tooltipContent}>
+                {tooltipProps => (
                   <Button
                     {...tooltipProps}
                     disabled={!canApply}
-                    onClick={() => canApply && this.onComposeObjects(operation)}>
+                    onClick={() =>
+                      canApply && this.onComposeObjects(operation)
+                    }>
                     {operation.icon}
                   </Button>
-                }
+                )}
               </Tooltip>
             );
           })}
         </Operations>
         <UndoRedo>
           <Tooltip content="Undo">
-            {tooltipProps =>
-              <Button {...tooltipProps} disabled={!canUndo} onClick={() => canUndo && undo()}>
+            {tooltipProps => (
+              <Button
+                {...tooltipProps}
+                disabled={!canUndo}
+                onClick={() => canUndo && undo()}>
                 <UndoIcon />
               </Button>
-            }
+            )}
           </Tooltip>
           <Tooltip content="Redo">
-            {tooltipProps =>
-              <Button {...tooltipProps} disabled={!canRedo} onClick={() => canRedo && redo()}>
+            {tooltipProps => (
+              <Button
+                {...tooltipProps}
+                disabled={!canRedo}
+                onClick={() => canRedo && redo()}>
                 <RedoIcon />
               </Button>
-            }
+            )}
           </Tooltip>
         </UndoRedo>
       </Container>
@@ -133,6 +151,7 @@ class Toolbar extends React.Component<ToolbarProps> {
 
 const mapStateToProps = ({threed}) => ({
   selectedObjects: getSelectedObjects(threed),
+  advancedMode: threed.ui.advancedMode,
   canUndo: false, //TODO
   canRedo: false, //TODO
 });
