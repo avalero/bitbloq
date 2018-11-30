@@ -4,18 +4,18 @@ import ui from './ui';
 
 export const getObjects = state => state.scene.objects;
 export const getSelectedObjects = state =>
-  state.ui.selectedIds.map(id =>
-    findObject(state.scene.objects, 'id', id)
-  ).filter(o => o);
+  state.ui.selectedIds
+    .map(id => findObject(state.scene.objects, object => object.id === id))
+    .filter(o => o);
 
 export const getLastObject = state => {
   const objects = state.scene.objects;
   return objects[objects.length - 1];
-}
+};
 
 const threed = combineReducers({
   scene,
-  ui
+  ui,
 });
 
 export default threed;
