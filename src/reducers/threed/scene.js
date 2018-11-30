@@ -147,10 +147,10 @@ const scene = handleActions(
     ],
     [
       actions.deleteObject,
-      (state, {payload}) => {
-        //TODO: Delete object
-        return state;
-      },
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.removeFromScene(payload)
+      }),
     ],
     [
       actions.undoComposition,
