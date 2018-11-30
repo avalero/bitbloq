@@ -258,6 +258,7 @@ export default class Scene {
   public cloneOject(json: IObjectsCommonJSON): ISceneJSON {
     if (this.objectInScene(json)) {
       const newobj = this.getObject(json).clone();
+      newobj.setViewOptions(json.viewOptions);
       this.addExistingObject(newobj);
       return this.toJSON();
     } else {

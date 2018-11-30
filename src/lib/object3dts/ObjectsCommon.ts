@@ -219,8 +219,10 @@ public setOperations(operations: OperationsArray = []): void {
     throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children');
   }
 
-  public setViewOptions(params: IViewOptions) {
-    this.viewOptions = { ...params };
+  public setViewOptions(params: Partial<IViewOptions>) {
+    this.viewOptions = {
+      ...this.viewOptions,
+      ...params };
   }
 
   public clone(): ObjectsCommon {
