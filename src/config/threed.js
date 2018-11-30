@@ -9,12 +9,6 @@ import Object3D from '../lib/object3dts/Object3D';
 import Prism from '../lib/object3dts/Prism';
 import STLObject from '../lib/object3dts/STLObject';
 
-import Union from '../lib/object3dts/Union';
-import Difference from '../lib/object3dts/Difference';
-import Intersection from '../lib/object3dts/Intersection';
-import ObjectsGroup from '../lib/object3dts/ObjectsGroup';
-import RepetitionObject from '../lib/object3dts/RepetitionObject';
-
 // Shape Icons
 import CubeIcon from '../components/icons/Cube';
 import SphereIcon from '../components/icons/Sphere';
@@ -228,7 +222,7 @@ const config = {
       parameters: () => [],
     },
     {
-      name: 'Group',
+      name: 'ObjectsGroup',
       label: 'Group',
       icon: <GroupIcon />,
       parameters: () => [],
@@ -474,13 +468,13 @@ const config = {
       }),
     },
     {
-      name: 'Group',
+      name: 'ObjectsGroup',
       label: 'Group',
       icon: <GroupIcon />,
       minObjects: 2,
       create: children => ({
         id: uuid(),
-        type: 'Group',
+        type: 'ObjectsGroup',
         children,
         operations: [],
       }),
