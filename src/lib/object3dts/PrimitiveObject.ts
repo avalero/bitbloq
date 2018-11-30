@@ -56,11 +56,8 @@ export default class PrimitiveObject extends Object3D {
    */
   public toJSON(): IPrimitiveObjectJSON {
     return {
-      id: this.id,
-      type: this.type,
+      ...super.toJSON(),
       parameters: this.parameters,
-      viewOptions: this.viewOptions,
-      operations: this.operations,
     };
   }
 

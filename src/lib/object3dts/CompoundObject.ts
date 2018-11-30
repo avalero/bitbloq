@@ -246,10 +246,7 @@ export default class CompoundObject extends Object3D {
 
   public toJSON(): ICompoundObjectJSON {
     return {
-      id: this.id,
-      type: this.type,
-      viewOptions: this.viewOptions,
-      operations: this.operations,
+      ...super.toJSON(),
       children: this.children.map(obj => obj.toJSON()),
     };
   }

@@ -98,14 +98,9 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   public toJSON(): IObjectsGroupJSON {
     const obj: IObjectsGroupJSON = {
-      id: this.id,
-      type: this.type,
-      viewOptions: this.viewOptions,
-      operations: this.operations,
-      children: [],
+      ...super.toJSON(),
+      children: this.children.map(obj => obj.toJSON()),
     };
-
-    obj.children = this.children.map(obj => obj.toJSON());
 
     return obj;
   }
