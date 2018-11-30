@@ -165,7 +165,6 @@ public setOperations(operations: OperationsArray = []): void {
     }
 
     if (!isEqual(this.operations, operations)) {
-      this.operations.length = 0;
       this.operations = operations.slice();
       this._pendingOperation = true;
     }
