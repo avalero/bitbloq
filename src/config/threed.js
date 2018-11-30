@@ -315,6 +315,7 @@ const config = {
           name: 'relative',
           label: 'Relative',
           type: 'boolean',
+          advancedMode: true
         },
         {
           name: 'x',
@@ -368,6 +369,7 @@ const config = {
           name: 'relative',
           label: 'Relative',
           type: 'boolean',
+          advancedMode: true
         },
         {
           name: 'axis',
@@ -473,6 +475,7 @@ const config = {
       label: 'Group',
       icon: <GroupIcon />,
       minObjects: 2,
+      advancedMode: true,
       create: children => ({
         id: uuid(),
         type: 'ObjectsGroup',

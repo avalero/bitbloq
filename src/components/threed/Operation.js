@@ -161,16 +161,20 @@ export default class Operation extends React.Component {
               </Header>
               {isOpen && (
                 <Content>
-                  {parameters.map(parameter => (
-                    <PropertyInput
-                      key={parameter.name}
-                      parameter={parameter}
-                      value={operation[parameter.name]}
-                      onChange={value => onParameterChange(parameter, value)}
-                      onFocus={() => onParameterFocus(parameter)}
-                      onBlur={() => onParameterBlur(parameter)}
-                    />
-                  ))}
+                  {parameters.map(parameter => {
+                    if (parameter.advancedMode && !advancedMode) return;
+
+                    return (
+                      <PropertyInput
+                        key={parameter.name}
+                        parameter={parameter}
+                        value={operation[parameter.name]}
+                        onChange={value => onParameterChange(parameter, value)}
+                        onFocus={() => onParameterFocus(parameter)}
+                        onBlur={() => onParameterBlur(parameter)}
+                      />
+                    );
+                  })}
                 </Content>
               )}
             </Container>
