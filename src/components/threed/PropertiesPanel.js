@@ -382,7 +382,7 @@ class PropertiesPanel extends React.Component {
           )}
         </ObjectProperties>
         <OperationsList
-          object={object}
+          operations={object.operations}
           advancedMode={advancedMode}
           onParameterChange={(operation, parameter, value) =>
             this.onOperationParameterChange(
