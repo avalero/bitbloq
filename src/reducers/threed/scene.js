@@ -3,27 +3,19 @@ import undoable from '../../lib/undoable';
 import config from '../../config/threed';
 import uuid from 'uuid/v1';
 import * as actions from '../../actions/threed';
-import Scene from '../../lib/object3dts/Scene'
+import Scene from '../../lib/object3dts/Scene';
 
-export const findObject = (objects = [], field, value) => {
-  if (!objects.length) {
-    return undefined;
-  }
-
+export const findObject = (objects = [], fn) => {
+  if (!objects.length) return undefined;
   const [first, ...rest] = objects;
-  const {children = []} = first;
-
-  if (first[field] === value) {
-    return first;
-  }
-
-  return findObject(children, field, value) || findObject(rest, field, value);
+  if (fn(first)) return first;
+  return findObject(first.children, fn) || findObject(rest, fn);
 };
 
 const createObjectName = (base, objects) => {
   let name = base;
   let nameIndex = 1;
-  while (findObject(objects, 'name', name)) {
+  while (findObject(objects, object => object.viewOptions.name === name)) {
     nameIndex++;
     name = base + nameIndex;
   }
@@ -32,8 +24,8 @@ const createObjectName = (base, objects) => {
 
 const initialState = {
   sceneInstance: new Scene(),
-  objects: []
-}
+  objects: [],
+};
 
 const scene = handleActions(
   new Map([
@@ -44,16 +36,16 @@ const scene = handleActions(
 
         const newObject = {
           ...payload,
-          operations: [],
           viewOptions: {
-            color: config.colors[Math.floor(Math.random() * config.colors.length)],
-            name: createObjectName(payload.type, state),
-          }
+            color:
+              config.colors[Math.floor(Math.random() * config.colors.length)],
+            name: createObjectName(payload.type, objects),
+          },
         };
 
         return {
           ...state,
-          objects: state.sceneInstance.addNewObjectFromJSON(newObject)
+          objects: state.sceneInstance.addNewObjectFromJSON(newObject),
         };
       },
     ],
@@ -64,15 +56,15 @@ const scene = handleActions(
           ...object,
           viewOptions: {
             ...object.viewOptions,
-            [option]: value
-          }
+            [option]: value,
+          },
         };
 
         return {
           ...state,
-          objects: state.sceneInstance.updateObject(updatedObject)
+          objects: state.sceneInstance.updateObject(updatedObject),
         };
-      }
+      },
     ],
     [
       actions.updateObjectParameter,
@@ -81,15 +73,15 @@ const scene = handleActions(
           ...object,
           parameters: {
             ...object.parameters,
-            [parameter]: value
-          }
+            [parameter]: value,
+          },
         };
 
         return {
           ...state,
-          objects: state.sceneInstance.updateObject(updatedObject)
+          objects: state.sceneInstance.updateObject(updatedObject),
         };
-      }
+      },
     ],
     [
       actions.updateOperationParameter,
@@ -99,16 +91,22 @@ const scene = handleActions(
           ...object,
           operations: object.operations.map(
             o => (o === operation ? {...o, [parameter]: value} : o),
-          )
-        })
-      })
+          ),
+        }),
+      }),
     ],
     [
       actions.duplicateObject,
-      (state, {payload}) => {
-        //TODO: Duplicate
-        return state;
-      },
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.cloneOject({
+          ...payload,
+          viewOptions: {
+            ...payload.viewOptions,
+            name: createObjectName(payload.viewOptions.name, state.objects),
+          },
+        }),
+      }),
     ],
     [
       actions.addOperation,
@@ -116,12 +114,9 @@ const scene = handleActions(
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
-          operations: [
-            ...object.operations,
-            operation
-          ]
-        })
-      })
+          operations: [...object.operations, operation],
+        }),
+      }),
     ],
     [
       actions.removeOperation,
@@ -129,11 +124,9 @@ const scene = handleActions(
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
-          operations: object.operations.filter(
-            op => op !== operation
-          )
-        })
-      })
+          operations: object.operations.filter(op => op !== operation),
+        }),
+      }),
     ],
     [
       actions.reorderOperation,
@@ -146,17 +139,17 @@ const scene = handleActions(
           ...state,
           objects: state.sceneInstance.updateObject({
             ...object,
-            operations
-          })
+            operations,
+          }),
         };
       },
     ],
     [
       actions.deleteObject,
-      (state, {payload}) => {
-        //TODO: Delete object
-        return state;
-      }
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.removeFromScene(payload)
+      }),
     ],
     [
       actions.undoComposition,
