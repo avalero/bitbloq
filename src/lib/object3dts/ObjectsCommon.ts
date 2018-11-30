@@ -133,6 +133,8 @@ export default class ObjectsCommon {
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
   ) {
+    this._pendingOperation = false;
+    this._meshUpdateRequired = false;
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
@@ -155,7 +157,7 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
-  public setOperations(operations: OperationsArray = []): void {
+public setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
       if (operations.length > 0) this._pendingOperation = true;
@@ -166,11 +168,10 @@ export default class ObjectsCommon {
       this.operations.length = 0;
       this.operations = operations.slice();
       this._pendingOperation = true;
-      return;
     }
 
-    // this._pendingOperation =
-    //   this.pendingOperation || !isEqual(this.operations, operations);
+    this._pendingOperation =
+      this.pendingOperation || !isEqual(this.operations, operations);
   }
 
   public addOperations(operations: OperationsArray = []): void {

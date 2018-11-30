@@ -346,7 +346,7 @@ export default class Scene {
    */
   public updateObject(obj: IObjectsCommonJSON): ISceneJSON {
     const id = obj.id;
-
+    debugger;
     const object = this.objectCollector.find(obj => id === obj.getID());
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
