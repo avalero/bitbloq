@@ -1,5 +1,5 @@
 import uuid from 'uuid/v1';
-import Scene from './Scene';
+import isEqual from 'lodash.isequal';
 
 interface ICommonOperation {
   type: string;
@@ -133,6 +133,8 @@ export default class ObjectsCommon {
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
   ) {
+    this._pendingOperation = false;
+    this._meshUpdateRequired = false;
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
@@ -155,8 +157,21 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
-  public setOperations(operations: OperationsArray = []): void {
-    throw new Error('ObjectsCommon.setOperations() Implemented on children');
+public setOperations(operations: OperationsArray = []): void {
+    if (!this.operations || this.operations.length === 0) {
+      this.operations = operations.slice(0);
+      if (operations.length > 0) this._pendingOperation = true;
+      return;
+    }
+
+    if (!isEqual(this.operations, operations)) {
+      this.operations.length = 0;
+      this.operations = operations.slice();
+      this._pendingOperation = true;
+    }
+
+    this._pendingOperation =
+      this.pendingOperation || !isEqual(this.operations, operations);
   }
 
   public addOperations(operations: OperationsArray = []): void {
@@ -204,8 +219,10 @@ export default class ObjectsCommon {
     throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children');
   }
 
-  public setViewOptions(params: IViewOptions) {
-    this.viewOptions = { ...params };
+  public setViewOptions(params: Partial<IViewOptions>) {
+    this.viewOptions = {
+      ...this.viewOptions,
+      ...params };
   }
 
   public clone(): ObjectsCommon {
@@ -217,7 +234,12 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    throw new Error('toJSON() Implemented in children');
+    return {
+      id: this.id,
+      type: this.type,
+      viewOptions: this.viewOptions,
+      operations: this.operations,
+    };
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {

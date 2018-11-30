@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-28 16:42:20
+ * Last modified  : 2018-11-29 19:05:25
  */
 
 import * as THREE from 'three';
@@ -117,22 +117,22 @@ export default class Object3D extends ObjectsCommon {
     this.viewOptions.color = color;
   }
 
-  public setOperations(operations: OperationsArray = []): void {
-    if (!this.operations || this.operations.length === 0) {
-      this.operations = operations.slice(0);
-      if (operations.length > 0) this._pendingOperation = true;
-      return;
-    }
+  // public setOperations(operations: OperationsArray = []): void {
+  //   if (!this.operations || this.operations.length === 0) {
+  //     this.operations = operations.slice(0);
+  //     if (operations.length > 0) this._pendingOperation = true;
+  //     return;
+  //   }
 
-    if (!isEqual(this.operations, operations)) {
-      this.operations.length = 0;
-      this.operations = operations.slice();
-      this._pendingOperation = true;
-    }
+  //   if (!isEqual(this.operations, operations)) {
+  //     this.operations.length = 0;
+  //     this.operations = operations.slice();
+  //     this._pendingOperation = true;
+  //   }
 
-    this._pendingOperation =
-      this.pendingOperation || !isEqual(this.operations, operations);
-  }
+  //   this._pendingOperation =
+  //     this.pendingOperation || !isEqual(this.operations, operations);
+  // }
 
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
@@ -240,6 +240,6 @@ export default class Object3D extends ObjectsCommon {
   }
 
   public clone(): Object3D {
-    throw new Error('ObjectsCommon.clone() Implemented in children');
+    throw new Error('Object3D.clone() Implemented in children');
   }
 }

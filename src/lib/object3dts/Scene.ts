@@ -258,6 +258,7 @@ export default class Scene {
   public cloneOject(json: IObjectsCommonJSON): ISceneJSON {
     if (this.objectInScene(json)) {
       const newobj = this.getObject(json).clone();
+      newobj.setViewOptions(json.viewOptions);
       this.addExistingObject(newobj);
       return this.toJSON();
     } else {
@@ -346,7 +347,7 @@ export default class Scene {
    */
   public updateObject(obj: IObjectsCommonJSON): ISceneJSON {
     const id = obj.id;
-
+    debugger;
     const object = this.objectCollector.find(obj => id === obj.getID());
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
@@ -403,7 +404,10 @@ export default class Scene {
       const rep = this.getObject(json);
       if (!(rep instanceof RepetitionObject))
         throw new Error(`Object is not a RepetitionObject`);
-      const objects: Array<ObjectsCommon> = (rep as RepetitionObject).unGroup();
+
+      const objects: Array<
+        ObjectsCommon
+      > = (rep as RepetitionObject).getGroup().unGroup();
 
       //add objects to ObjectCollector
       objects.forEach(object => {
