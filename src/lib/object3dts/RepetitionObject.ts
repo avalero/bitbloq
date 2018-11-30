@@ -119,12 +119,10 @@ export default class RepetitionObject extends ObjectsCommon {
     const { x, y, z, type, num } = this
       .parameters as ICartesianRepetitionParams;
     for (let i: number = 0; i < num; i++) {
-      if (this.originalObject instanceof Object3D) {
-        const objectClone: Object3D = this.originalObject.clone();
+      if (this.originalObject instanceof ObjectsCommon) {
+        const objectClone: ObjectsCommon = this.originalObject.clone();
         objectClone.translate(i * x, i * y, i * z);
         this.group.push(objectClone);
-      } else if (this.originalObject instanceof ObjectsGroup) {
-        // TODO
       }
     }
   }
@@ -222,8 +220,6 @@ export default class RepetitionObject extends ObjectsCommon {
 
   public async getMeshAsync(): Promise<THREE.Object3D> {
     //check if originalObject has changed
-    debugger;
-
     if (this.meshUpdateRequired) {
       this.computeMesh();
     }
@@ -234,11 +230,8 @@ export default class RepetitionObject extends ObjectsCommon {
       this.mesh.add(mesh);
     });
 
-    //await this.applyOperationsAsync();
+    await this.applyOperationsAsync();
 
-    if (this.pendingOperation) {
-      await this.applyOperationsAsync();
-    }
     return this.mesh;
   }
 
