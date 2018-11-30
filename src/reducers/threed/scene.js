@@ -36,7 +36,6 @@ const scene = handleActions(
 
         const newObject = {
           ...payload,
-          operations: [],
           viewOptions: {
             color:
               config.colors[Math.floor(Math.random() * config.colors.length)],
