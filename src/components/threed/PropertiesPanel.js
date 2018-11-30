@@ -286,15 +286,16 @@ class PropertiesPanel extends React.Component {
       config.objectTypes.find(s => s.name === object.type) || {};
     const {parameters: baseParameters, icon} = typeConfig;
 
-    const parameters = [
-      ...baseParameters(object),
-      {
+    const parameters = [...baseParameters(object)];
+
+    if (!typeConfig.withoutColor) {
+      parameters.push({
         name: 'color',
         label: 'Color',
         type: 'color',
         isViewOption: true,
-      },
-    ];
+      });
+    }
 
     return (
       <DragDropContext

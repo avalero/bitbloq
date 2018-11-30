@@ -225,6 +225,7 @@ const config = {
       name: 'ObjectsGroup',
       label: 'Group',
       icon: <GroupIcon />,
+      withoutColor: true,
       parameters: () => [],
     },
     {
