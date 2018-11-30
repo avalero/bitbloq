@@ -62,38 +62,34 @@ export default class ObjectsGroup extends ObjectsCommon {
     return this.children;
   }
 
-  public getMeshAsync(): Promise<THREE.Group> {
-    return new Promise((resolve, reject) => {
-      let meshGroup: THREE.Group = new THREE.Group();
+  public async getMeshAsync(): Promise<THREE.Group> {
 
-      // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
-      if (this.children.length === 0) {
-        reject('No item in group');
-        return;
-      }
+    // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
+    if (this.children.length === 0) {
+      throw new Error('No item in group');
+    }
 
-      const promises: Promise<THREE.Object3D>[] = [];
+    let meshGroup: THREE.Group = new THREE.Group();
 
-      this.children.forEach(object3D => {
-        // only first level objets require to update operations, no need to make deep copy
-        const objectClone = object3D.clone();
-        objectClone.addOperations(this.operations);
-        promises.push(objectClone.getMeshAsync());
-      });
+    const promises: Array <Promise<THREE.Object3D>> = this.children.map( object3D => {
+      const objectClone = object3D.clone();
+      objectClone.addOperations(this.operations);
+      return objectClone.getMeshAsync();
+    })
 
-      Promise.all(promises).then(meshes => {
-        meshes.forEach((mesh, i) => {
-          meshGroup = meshGroup.add(mesh);
-        });
+    const meshes = await Promise.all(promises);
 
-        resolve(meshGroup);
-      });
+    meshes.forEach((mesh) => {
+      meshGroup.add(mesh);
     });
+    return meshGroup;
   }
 
   public clone(): ObjectsGroup {
     const groupClone = this.children.map(obj => obj.clone());
-    return new ObjectsGroup(groupClone);
+    const obj = new ObjectsGroup(groupClone);
+    obj.setOperations(this.operations); 
+    return obj;
   }
 
   public toJSON(): IObjectsGroupJSON {
