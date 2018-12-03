@@ -120,7 +120,8 @@ export default class CompoundObject extends Object3D {
 
   public getMeshAsync(): Promise<THREE.Mesh> {
     if (this.worker) {
-      this.worker.terminate()
+      this.worker.terminate();
+      (this.worker as any) = null;
     }
     this.worker = new CompoundWorker()
 
@@ -132,7 +133,7 @@ export default class CompoundObject extends Object3D {
           //WEB WORKER //listen to events from web worker
           this.worker.onmessage = (event: any) => {
             this.worker.terminate();
-            (this.worker as any) = undefined;
+            (this.worker as any) = null;
 
             if (event.data.status !== 'ok') {
               reject('Compound Object Error');
@@ -176,6 +177,11 @@ export default class CompoundObject extends Object3D {
           reject(reason);
         }
       } else {
+        if(this.worker){
+          this.worker.terminate();
+          (this.worker as any) = undefined;
+        }
+      
         if (this.pendingOperation) {
           this.applyOperationsAsync().then(() => {
             this.mesh.material = this.getMaterial();
