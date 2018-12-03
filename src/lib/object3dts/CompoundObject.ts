@@ -40,8 +40,8 @@ export interface ICompoundObjectJSON extends IObjectsCommonJSON {
 export type ChildrenArray = Array<Object3D>;
 
 export default class CompoundObject extends Object3D {
-  protected worker: CompoundWorker;
   protected children: ChildrenArray;
+  protected worker: CompoundWorker;
 
   constructor(
     children: ChildrenArray = [],
@@ -54,12 +54,6 @@ export default class CompoundObject extends Object3D {
     this.children = children;
     this._meshUpdateRequired = true;
     this.setOperations();
-
-    if (typeof CompoundWorker !== 'undefined') {
-      this.worker = new CompoundWorker();
-    } else {
-      throw Error('Bitbloq 3D requires a Web Worker enabled browser');
-    }
   }
 
   public getChildren():ChildrenArray{
@@ -125,18 +119,27 @@ export default class CompoundObject extends Object3D {
   }
 
   public getMeshAsync(): Promise<THREE.Mesh> {
+    if (this.worker) {
+      this.worker.terminate()
+    }
+    this.worker = new CompoundWorker()
+
     return new Promise((resolve, reject) => {
+            
       if (this.meshUpdateRequired) {
         //check if WebWorkers are enabled
         if (typeof CompoundWorker !== 'undefined') {
           //WEB WORKER //listen to events from web worker
           this.worker.onmessage = (event: any) => {
+            this.worker.terminate();
+            (this.worker as any) = undefined;
+
             if (event.data.status !== 'ok') {
               reject('Compound Object Error');
               return;
             }
             const message = event.data;
-
+            
             //recompute object form vertices and normals
             this.fromBufferData(message.vertices, message.normals).then(
               mesh => {
