@@ -6,6 +6,8 @@ import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 import { ICompoundObjectJSON } from './CompoundObject';
 import BaseGrid from './BaseGrid';
+import PrimitiveObject from './PrimitiveObject';
+import CompoundObject from './CompoundObject'
 
 import isEqual from 'lodash.isequal';
 import Union from './Union';
@@ -261,7 +263,8 @@ export default class Scene {
    */
   public cloneOject(json: IObjectsCommonJSON): ISceneJSON {
     if (this.objectInScene(json)) {
-      const newobj = this.getObject(json).clone();
+      const obj = this.getObject(json);
+      const newobj = obj.clone();
       newobj.setViewOptions(json.viewOptions);
       this.addExistingObject(newobj);
       return this.toJSON();
@@ -275,26 +278,39 @@ export default class Scene {
       throw Error('Object already in Scene');
     } else {
       //In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
-      if (
-        [
-          Union.typeName,
-          Difference.typeName,
-          Intersection.typeName,
-          ObjectsGroup.typeName,
-          RepetitionObject.typeName,
-        ].includes(object.getTypeName())
-      ) {
-        (object.toJSON() as
-          | IObjectsGroupJSON
-          | IRepetitionObjectJSON
-          | ICompoundObjectJSON).children.forEach(obj => {
-          if (!this.objectInScene(obj as IObjectsCommonJSON))
-            throw new Error(
-              'Cannot create a group of objects from objects not present in BitbloqScene',
-            );
-          this.removeFromScene(obj);
+      if (object instanceof CompoundObject){
+        const children = object.getChildren();
+        children.forEach(child => {
+          const obj = child.toJSON();
+          if(this.objectInScene(obj)){
+            this.removeFromScene(obj);
+          }else if( ! this.objectInObjectCollector(obj)){
+            this.addExistingObject(child);
+            this.removeFromScene(obj);
+          }
         });
+      }else if(object instanceof ObjectsGroup){
+        const children = object.getChildren();
+        children.forEach(child => {
+          const obj = child.toJSON();
+          if(this.objectInScene(obj)){
+            this.removeFromScene(obj);
+          }else if( ! this.objectInObjectCollector(obj)){
+            this.addExistingObject(child);
+            this.removeFromScene(obj);
+          }
+        });
+      }else if(object instanceof RepetitionObject){
+        const original = object.getOriginal();
+        const obj = original.toJSON();
+        if(this.objectInScene(obj)){
+          this.removeFromScene(obj);
+        }else if( ! this.objectInObjectCollector(obj)){
+          this.addExistingObject(original);
+          this.removeFromScene(obj);
+        }
       }
+
       // finally, add object to scene and collector
       this.objectsInScene.push(object);
       this.objectCollector.push(object);
