@@ -40,9 +40,8 @@ export interface ICompoundObjectJSON extends IObjectsCommonJSON {
 export type ChildrenArray = Array<Object3D>;
 
 export default class CompoundObject extends Object3D {
-  protected worker: CompoundWorker;
   protected children: ChildrenArray;
-  private workerWorking: boolean;
+  protected worker: CompoundWorker;
 
   constructor(
     children: ChildrenArray = [],
@@ -55,13 +54,6 @@ export default class CompoundObject extends Object3D {
     this.children = children;
     this._meshUpdateRequired = true;
     this.setOperations();
-
-    if (typeof CompoundWorker !== 'undefined') {
-      this.worker = new CompoundWorker();
-      this.workerWorking = false;
-    } else {
-      throw Error('Bitbloq 3D requires a Web Worker enabled browser');
-    }
   }
 
   public getChildren():ChildrenArray{
@@ -127,35 +119,27 @@ export default class CompoundObject extends Object3D {
   }
 
   public getMeshAsync(): Promise<THREE.Mesh> {
-    debugger;
-    if(this.workerWorking){
-      this.worker.terminate;
-      this.workerWorking = false;
+    if (this.worker) {
+      this.worker.terminate()
     }
+    this.worker = new CompoundWorker()
+
     return new Promise((resolve, reject) => {
+            
       if (this.meshUpdateRequired) {
         //check if WebWorkers are enabled
         if (typeof CompoundWorker !== 'undefined') {
           //WEB WORKER //listen to events from web worker
-
-          //ESTO NO PUEDO HACERLO AQUÍ PORQUE DEBO DEVOLER UNA PROMESA CON EL MESH.
-          // ¿COMO LO HAGO?
           this.worker.onmessage = (event: any) => {
-            this.workerWorking = false;
-            switch(event.data.status){
-              case 'starting':
-                console.log('Starting WebWorker');
-                return;
-              case 'finished':
-                console.log('Web Worker finished');
-                return;
-              case 'error':
-                reject('Compound Object Error');
-                return;
+            this.worker.terminate();
+            (this.worker as any) = undefined;
+
+            if (event.data.status !== 'ok') {
+              reject('Compound Object Error');
+              return;
             }
-
             const message = event.data;
-
+            
             //recompute object form vertices and normals
             this.fromBufferData(message.vertices, message.normals).then(
               mesh => {
@@ -184,7 +168,6 @@ export default class CompoundObject extends Object3D {
               bufferArray,
             };
             this.worker.postMessage(message, bufferArray);
-            this.workerWorking = true;
           });
         } else {
           const reason = new Error(
