@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import Scene from './Scene';
+import Scene, {IHelperDescription} from './Scene';
 import ObjectsCommon from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
 
@@ -60,6 +60,9 @@ export default class Renderer {
 
     this.threeScene = new THREE.Scene();
 
+    this.helpersGroup = new THREE.Group();
+    this.threeScene.add(this.helpersGroup);
+
     this.sceneSetupGroup = this.scene.getSceneSetup();
     this.threeScene.add(this.sceneSetupGroup);
 
@@ -78,7 +81,7 @@ export default class Renderer {
 
   private updateSize() {
     const containerRect = this.container.getBoundingClientRect();
-    const { width, height } = containerRect;
+    const {width, height} = containerRect;
     this.threeRenderer.setSize(width, height);
     this.perspectiveCamera.aspect = width / height;
     this.perspectiveCamera.updateProjectionMatrix();
@@ -103,6 +106,16 @@ export default class Renderer {
     const newObjectsGroup = await this.scene.getObjectsAsync();
     this.threeScene.add(newObjectsGroup);
     this.objectsGroup = newObjectsGroup;
+  }
+
+  public async setActiveHelper(
+    activeOperation: IHelperDescription,
+  ): Promise<void> {
+    while (this.helpersGroup.children.length > 0) {
+      this.helpersGroup.remove(this.helpersGroup.children[0]);
+    }
+    const helpers = await this.scene.setActiveHelperAsync(activeOperation);
+    helpers.forEach(helper => this.helpersGroup.add(helper));
   }
 
   public updateCameraAngle(theta: number, phi: number) {
