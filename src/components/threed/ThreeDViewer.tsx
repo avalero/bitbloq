@@ -2,7 +2,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import styled from 'react-emotion';
 import Renderer from '../../lib/object3dts/Renderer'
-import Scene from '../../lib/object3dts/Scene'
+import Scene, {IHelperDescription} from '../../lib/object3dts/Scene'
 import {IObjectsCommonJSON} from '../../lib/object3dts/ObjectsCommon'
 
 const Container = styled.div`
@@ -12,9 +12,10 @@ const Container = styled.div`
   overflow: hidden;
 `;
 
-interface ThreeDViewerProps {
-  scene: Scene,
-  sceneObjects: IObjectsCommonJSON[]
+export interface ThreeDViewerProps {
+  scene: Scene;
+  sceneObjects: IObjectsCommonJSON[];
+  activeOperation: IHelperDescription;
 }
 
 class ThreeDViewer extends React.Component<ThreeDViewerProps> {
@@ -24,9 +25,13 @@ class ThreeDViewer extends React.Component<ThreeDViewerProps> {
   private rendererContainerRef: React.RefObject<HTMLElement> = React.createRef();
 
   componentDidUpdate(prevProps: ThreeDViewerProps) {
-    const {sceneObjects} = this.props;
+    const {scene, sceneObjects, activeOperation} = this.props;
     if (sceneObjects !== prevProps.sceneObjects) {
       this.renderer.updateScene();
+    }
+
+    if (activeOperation !== prevProps.activeOperation) {
+      this.renderer.setActiveHelper(activeOperation);
     }
   }
 
@@ -49,7 +54,8 @@ class ThreeDViewer extends React.Component<ThreeDViewerProps> {
 
 const mapStateToProps = (state: any) => ({
   scene: state.threed.scene.sceneInstance,
-  sceneObjects: state.threed.scene.objects
+  sceneObjects: state.threed.scene.objects,
+  activeOperation: state.threed.ui.activeOperation,
 });
 
 const mapDispatchToProps = () => ({
