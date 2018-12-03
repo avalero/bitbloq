@@ -63,7 +63,6 @@ export default class ObjectsGroup extends ObjectsCommon {
   }
 
   public async getMeshAsync(): Promise<THREE.Group> {
-
     // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
     if (this.children.length === 0) {
       throw new Error('No item in group');
@@ -71,15 +70,17 @@ export default class ObjectsGroup extends ObjectsCommon {
 
     let meshGroup: THREE.Group = new THREE.Group();
 
-    const promises: Array <Promise<THREE.Object3D>> = this.children.map( object3D => {
-      const objectClone = object3D.clone();
-      objectClone.addOperations(this.operations);
-      return objectClone.getMeshAsync();
-    })
+    const promises: Array<Promise<THREE.Object3D>> = this.children.map(
+      object3D => {
+        const objectClone = object3D.clone();
+        objectClone.addOperations(this.operations);
+        return objectClone.getMeshAsync();
+      },
+    );
 
     const meshes = await Promise.all(promises);
 
-    meshes.forEach((mesh) => {
+    meshes.forEach(mesh => {
       meshGroup.add(mesh);
     });
     return meshGroup;
@@ -88,7 +89,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   public clone(): ObjectsGroup {
     const groupClone = this.children.map(obj => obj.clone());
     const obj = new ObjectsGroup(groupClone);
-    obj.setOperations(this.operations); 
+    obj.setOperations(this.operations);
     return obj;
   }
 

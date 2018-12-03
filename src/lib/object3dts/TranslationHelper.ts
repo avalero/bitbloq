@@ -18,7 +18,7 @@ import * as THREE from 'three';
 export default class TranslationHelper {
   private helperMesh: THREE.Group;
 
-  constructor(mesh: THREE.Mesh, axis: string, relative: boolean) {
+  constructor(mesh: THREE.Object3D, axis: string, relative: boolean) {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
     const radius: number = 0.3;
