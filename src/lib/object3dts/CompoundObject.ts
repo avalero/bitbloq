@@ -62,6 +62,10 @@ export default class CompoundObject extends Object3D {
     }
   }
 
+  public getChildren():ChildrenArray{
+    return this.children;
+  }
+
   get meshUpdateRequired(): boolean {
     this.children.forEach(child => {
       this._meshUpdateRequired =
