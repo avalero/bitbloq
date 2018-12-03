@@ -11,6 +11,9 @@ import isEqual from 'lodash.isequal';
 import Union from './Union';
 import Intersection from './Intersection';
 import Difference from './Difference';
+import TranslationHelper from './TranslationHelper';
+import RotationHelper from './RotationHelper';
+import { type } from 'os';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -21,9 +24,9 @@ enum HelperAxis {
   Y = 'y',
   Z = 'z',
 }
-interface HelperDescription {
+export interface IHelperDescription {
   type: HelperType;
-  object: any;
+  object: IObjectsCommonJSON;
   axis: HelperAxis;
   relative: boolean;
 }
@@ -52,6 +55,7 @@ export default class Scene {
   private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private objectsInScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
+  private helpers: Array<THREE.Group>;
   private history: Array<ISceneJSON>; /// history of actions
 
   private lastJSON: object;
@@ -435,7 +439,33 @@ export default class Scene {
 
   // Establece el helper que debe mostrarse en la vista 3d
   // Si no se le pasa ningún parámetro entonces no mostrar ninguno
-  public setActiveHelper(helperDescription?: HelperDescription) {}
+  public async setActiveHelperAsync(
+    helperDescription?: IHelperDescription,
+  ): Promise<Array<THREE.Group>> {
+    this.helpers = [];
+    if (!helperDescription) {
+      return this.helpers;
+    } else {
+      const { type, object, axis, relative } = helperDescription;
+      try {
+        const obj = this.getObject(object);
+        const mesh = await obj.getMeshAsync();
+        if (type === 'rotation') {
+          const helper = new RotationHelper(mesh, axis, relative);
+          this.helpers.push(helper.mesh);
+          return this.helpers;
+        } else if (type === 'translation') {
+          const helper = new TranslationHelper(mesh, axis, relative);
+          this.helpers.push(helper.mesh);
+          return this.helpers;
+        } else {
+          throw new Error(`Unknown helper type: ${type}`);
+        }
+      } catch (e) {
+        throw new Error(`Unable to make helper: ${e}`);
+      }
+    }
+  }
 
   // Deshace la última operación y devuelve la escena después de deshacer
   public undo(): any {}

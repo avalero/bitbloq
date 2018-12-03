@@ -157,7 +157,7 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
-public setOperations(operations: OperationsArray = []): void {
+  public setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
       if (operations.length > 0) this._pendingOperation = true;
@@ -221,7 +221,8 @@ public setOperations(operations: OperationsArray = []): void {
   public setViewOptions(params: Partial<IViewOptions>) {
     this.viewOptions = {
       ...this.viewOptions,
-      ...params };
+      ...params,
+    };
   }
 
   public clone(): ObjectsCommon {
