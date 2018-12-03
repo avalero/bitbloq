@@ -27,7 +27,6 @@ export default class CompoundWorker extends Worker {
 const getUnionFromGeometries = (
   geometries: Array<THREE.Geometry>,
 ): THREE.Geometry => {
-  const t0 = performance.now();
   let geomBSP: any = new ThreeBSP(geometries[0]);
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
@@ -35,15 +34,12 @@ const getUnionFromGeometries = (
     geomBSP = geomBSP.union(bspGeom);
   }
   const geom = geomBSP.toGeometry();
-  const t1 = performance.now();
-  console.log(`Union Time ${t1 - t0} millis`);
   return geom;
 };
 
 const getDifferenceFromGeometries = (
   geometries: Array<THREE.Geometry>,
 ): THREE.Geometry => {
-  const t0 = performance.now();
   let geomBSP: any = new ThreeBSP(geometries[0]);
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
@@ -51,15 +47,12 @@ const getDifferenceFromGeometries = (
     geomBSP = geomBSP.subtract(bspGeom);
   }
   const geom = geomBSP.toGeometry();
-  const t1 = performance.now();
-  console.log(`Difference Time ${t1 - t0} millis`);
   return geom;
 };
 
 const getIntersectionFromGeometries = (
   geometries: Array<THREE.Geometry>,
 ): THREE.Geometry => {
-  const t0 = performance.now();
   let geomBSP: any = new ThreeBSP(geometries[0]);
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
@@ -67,15 +60,13 @@ const getIntersectionFromGeometries = (
     geomBSP = geomBSP.intersect(bspGeom);
   }
   const geom = geomBSP.toGeometry();
-  const t1 = performance.now();
-  console.log(`Intersection Time ${t1 - t0} millis`);
   return geom;
 };
 
 ctx.addEventListener(
   'message',
   e => {
-    const t0 = performance.now();
+    ctx.postMessage({status:'starting'});
     const geometries: Array<THREE.Geometry> = [];
     const bufferArray = e.data.bufferArray;
 
@@ -155,9 +146,6 @@ ctx.addEventListener(
       vertices,
       normals,
     };
-    const t1 = performance.now();
-
-    console.log(`WebWorker Thread Execution time ${t1 - t0} millis`);
 
     ctx.postMessage(message, [message.vertices.buffer, message.normals.buffer]);
   },
