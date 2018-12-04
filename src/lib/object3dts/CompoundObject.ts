@@ -277,8 +277,6 @@ export default class CompoundObject extends Object3D {
   public updateFromJSON(object: ICompoundObjectJSON) {
     if (this.id !== object.id)
       throw new Error('Object id does not match with JSON id');
-
-    debugger;
     const newchildren:Array<Object3D> = []
     //update children
     try {
