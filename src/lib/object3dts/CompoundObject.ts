@@ -278,12 +278,20 @@ export default class CompoundObject extends Object3D {
     if (this.id !== object.id)
       throw new Error('Object id does not match with JSON id');
 
+    debugger;
+    const newchildren:Array<Object3D> = []
     //update children
     try {
       object.children.forEach(obj => {
         const objToUpdate = this.getChild(obj);
+        newchildren.push(objToUpdate as Object3D);
         objToUpdate.updateFromJSON(obj);
       });
+      if(!isEqual(this.children, newchildren)){
+        this._meshUpdateRequired = true;
+        this.children = newchildren.slice(0);
+      }
+      
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
