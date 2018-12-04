@@ -25,6 +25,7 @@ export default class Renderer {
   private scene: Scene;
   private threeScene: THREE.Scene;
   private objectsGroup: THREE.Group;
+  private objectInTransition: THREE.Mesh;
   private helpersGroup: THREE.Group;
   private sceneSetupGroup: THREE.Group;
   private container: HTMLElement;
@@ -95,13 +96,24 @@ export default class Renderer {
     if (cameraNeedsUpdate) {
       // TODO: Update navigation box camera
     }
-
+ 
     requestAnimationFrame(this.renderLoop);
 
     this.threeRenderer.render(this.threeScene, this.perspectiveCamera);
   };
 
   public async updateScene(): Promise<void> {
+    //objects in transition
+
+    const newObjectInTranstion = await this.scene.getObjectInTransitionAsync();
+    if(newObjectInTranstion){
+      this.threeScene.remove(this.objectInTransition);
+      this.objectInTransition = newObjectInTranstion;
+      this.threeScene.add(this.objectInTransition);
+    }else{
+      this.threeScene.remove(this.objectInTransition);
+    }
+    
     this.threeScene.remove(this.objectsGroup);
     const newObjectsGroup = await this.scene.getObjectsAsync();
     this.threeScene.add(newObjectsGroup);
