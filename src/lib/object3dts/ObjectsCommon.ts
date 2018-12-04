@@ -128,6 +128,7 @@ export default class ObjectsCommon {
   protected viewOptions: IViewOptions;
   protected id: string;
   protected type: string;
+  protected _viewOptionsUpdateRequired: boolean;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -219,10 +220,18 @@ export default class ObjectsCommon {
   }
 
   public setViewOptions(params: Partial<IViewOptions>) {
-    this.viewOptions = {
-      ...this.viewOptions,
-      ...params,
-    };
+    if(!isEqual(params,this.viewOptions)){
+      this.viewOptions = {
+        ...ObjectsCommon.createViewOptions(),
+        ...this.viewOptions,
+        ...params,
+      }
+      this._viewOptionsUpdateRequired =true;
+    }
+  }
+
+  public get viewOptionsUpdateRequired():boolean{
+    return this._viewOptionsUpdateRequired;
   }
 
   public clone(): ObjectsCommon {
@@ -245,4 +254,5 @@ export default class ObjectsCommon {
   public updateFromJSON(object: IObjectsCommonJSON): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
+
 }
