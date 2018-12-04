@@ -149,7 +149,10 @@ export default class CompoundObject extends Object3D {
                 if (this.mesh instanceof THREE.Mesh) {
                   this.applyOperationsAsync().then(() => {
                     this._meshUpdateRequired = false;
-                    this.mesh.material = this.getMaterial();
+                    if(this.viewOptionsUpdateRequired){
+                      this.mesh.material = this.getMaterial();
+                      this._viewOptionsUpdateRequired = false;
+                    }
                     resolve(this.mesh);
                   });
                 } else {

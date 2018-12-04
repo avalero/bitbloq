@@ -89,7 +89,10 @@ export default class Object3D extends ObjectsCommon {
       await this.applyOperationsAsync();
     }
 
-    this.mesh.material = this.getMaterial();
+    if(this.viewOptionsUpdateRequired){
+      this.mesh.material = this.getMaterial();
+      this._viewOptionsUpdateRequired = false;
+    }
 
     return this.mesh;
   }

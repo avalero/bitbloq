@@ -220,7 +220,7 @@ export default class RepetitionObject extends ObjectsCommon {
 
   public async getMeshAsync(): Promise<THREE.Object3D> {
     //check if originalObject has changed
-    if (this.meshUpdateRequired || this.originalObject.pendingOperation) {
+    if (this.meshUpdateRequired || this.originalObject.pendingOperation || this.originalObject.viewOptionsUpdateRequired) {
       this.computeMesh();
     }
 
