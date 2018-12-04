@@ -3,6 +3,7 @@ import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import { OperationsArray } from './ObjectsCommon';
 import Object3D from './Object3D';
 import Scene from './Scene';
+import isEqual from 'lodash.isequal';
 
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
   children: Array<IObjectsCommonJSON>;
@@ -125,11 +126,19 @@ export default class ObjectsGroup extends ObjectsCommon {
     if (object.id !== this.id)
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
 
+    const newChildren: Array<ObjectsCommon> = [];
     try {
       object.children.forEach(obj => {
         const objToUpdate = this.getChild(obj);
         objToUpdate.updateFromJSON(obj);
+        newChildren.push(objToUpdate);
       });
+
+      if(!isEqual(newChildren, this.children)){
+        this.children = newChildren.slice(0);
+        this._meshUpdateRequired = true;
+      }
+
       const vO = {
         ...ObjectsCommon.createViewOptions(),
         ...object.viewOptions,
