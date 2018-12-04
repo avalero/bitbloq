@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import Tooltip from '../Tooltip';
 import {createObject, undo, redo} from '../../actions/threed';
-import {getSelectedObjects} from '../../reducers/threed/';
+import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import UndoIcon from '../icons/Undo';
 import RedoIcon from '../icons/Redo';
 import config from '../../config/threed';
@@ -57,6 +57,12 @@ export interface ToolbarProps {
   createObject: (object: object) => any;
 }
 
+const selectTopObject = (
+  <span>
+    Selecciona objetos de primer nivel para poder usar esta herramienta
+  </span>
+);
+
 const selectMultipleMessage = (
   <span>
     Selecciona varios objetos pulsando <i>“Control + clic”</i> en cada uno de
@@ -76,6 +82,7 @@ class Toolbar extends React.Component<ToolbarProps> {
 
   render() {
     const {
+      objects,
       selectedObjects,
       advancedMode,
       undo,
@@ -92,14 +99,18 @@ class Toolbar extends React.Component<ToolbarProps> {
 
             const {minObjects = 0, maxObjects = Infinity} = operation;
             const numObjects = selectedObjects.length;
+            const topObjects = selectedObjects.every(o => objects.includes(o));
             const canApply =
-              numObjects >= minObjects && numObjects <= maxObjects;
+              topObjects &&
+              (numObjects >= minObjects && numObjects <= maxObjects);
 
             let tooltipContent;
             if (canApply) {
               tooltipContent = operation.label;
             } else {
-              if (minObjects > 1) {
+              if (!topObjects) {
+                tooltipContent = selectTopObject;
+              } else if (minObjects > 1) {
                 tooltipContent = selectMultipleMessage;
               } else if (maxObjects === 1) {
                 tooltipContent = selectOneMessage;
@@ -150,6 +161,7 @@ class Toolbar extends React.Component<ToolbarProps> {
 }
 
 const mapStateToProps = ({threed}) => ({
+  objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
   advancedMode: threed.ui.advancedMode,
   canUndo: false, //TODO
