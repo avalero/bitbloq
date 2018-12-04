@@ -490,6 +490,7 @@ const config = {
       icon: <RepeatIcon />,
       minObjects: 1,
       maxObjects: 1,
+      advancedMode: true,
       create: children => ({
         type: 'RepetitionObject',
         children,
@@ -509,6 +510,7 @@ const config = {
       icon: <RepeatPolarIcon />,
       minObjects: 1,
       maxObjects: 1,
+      advancedMode: true,
       create: children => ({
         type: 'RepetitionObject',
         children,
