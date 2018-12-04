@@ -157,25 +157,32 @@ export default class Scene {
     return this.objectsGroup;
   }
 
-  public async getObjectInTransitionAsync():Promise <THREE.Mesh> | undefined{
+  public async getObjectInTransitionAsync():Promise <THREE.Mesh | undefined>{
     // object in Transition
+    debugger;
     if(this.objectInTransition){
-      if((Date.now() / 1000 | 0) - this.objectInTransition.time > 1){
+      if(false && ( (Date.now() / 1000 | 0) - this.objectInTransition.time > 1)) {
         this.objectInTransition = undefined;
         return undefined;
       }else{
+        const pendingOperation = this.objectInTransition.object.pendingOperation;
+        const meshUpdateRequired = this.objectInTransition.object.meshUpdateRequired;
         const mesh = await this.objectInTransition.object.getMeshAsync();
+
+        //feo feo, pero aquí lo dejamos por no cambiar todo
+        (this.objectInTransition.object as any)._pendingOperation = pendingOperation;
+        (this.objectInTransition.object as any)._meshUpdateRequired = meshUpdateRequired;
+
         if(mesh instanceof THREE.Mesh){
-          const mat = new THREE.MeshLambertMaterial({
-            color: (this.objectInTransition.object as Object3D ).getViewOptions().color,
-            transparent: true, 
-            opacity: 0.5,
-          });
-          mesh.material = mat;
+          debugger;
+          (mesh.material as THREE.MeshLambertMaterial).opacity = 0.5;
+          (mesh.material as THREE.MeshLambertMaterial).transparent = true;
+          (mesh.material as THREE.MeshLambertMaterial).depthWrite = false;
           return mesh;
-        }
-        
+        }    
       }
+    }else{
+      return undefined;
     }
   }
 
