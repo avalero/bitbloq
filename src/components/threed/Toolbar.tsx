@@ -76,8 +76,25 @@ const selectOneMessage = (
 
 class Toolbar extends React.Component<ToolbarProps> {
   onComposeObjects(operation) {
-    const {createObject, selectedObjects} = this.props;
-    createObject(operation.create(selectedObjects));
+    const {createObject, selectedObjects, advancedMode} = this.props;
+
+    const object = operation.create(selectedObjects);
+    if (advancedMode) {
+      createObject(object);
+    } else {
+      const basicModeOperations = config.objectOperations
+        .map(operation => {
+          if (['translation', 'rotation', 'scale'].includes(operation.name)) {
+            return operation.create();
+          }
+        })
+        .filter(operation => operation);
+
+      this.props.createObject({
+        ...object,
+        operations: basicModeOperations,
+      });
+    }
   }
 
   render() {
