@@ -211,6 +211,7 @@ const config = {
       icon: <DifferenceIcon />,
       canUndo: true,
       undoLabel: 'Undo difference',
+      showBaseObject: true,
       parameters: () => [],
     },
     {

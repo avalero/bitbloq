@@ -4,6 +4,7 @@ import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext} from 'react-beautiful-dnd';
 import {
+  updateObject,
   updateObjectParameter,
   updateObjectViewOption,
   updateOperationParameter,
@@ -208,11 +209,18 @@ class PropertiesPanel extends React.Component {
     this.props.updateObjectViewOption(object, 'name', name);
   };
 
-  onObjectParameterChange = (object, parameter, value, isViewOption) => {
-    if (isViewOption) {
-      this.props.updateObjectViewOption(object, parameter, value);
+  onObjectParameterChange = (object, parameter, value) => {
+    if (parameter.name === 'baseObject') {
+      const newChildren = object.children.filter(c => c !== value);
+      newChildren.unshift(value);
+      this.props.updateObject({
+        ...object,
+        children: newChildren,
+      });
+    } else if (parameter.isViewOption) {
+      this.props.updateObjectViewOption(object, parameter.name, value);
     } else {
-      this.props.updateObjectParameter(object, parameter, value);
+      this.props.updateObjectParameter(object, parameter.name, value);
     }
   };
 
@@ -288,6 +296,18 @@ class PropertiesPanel extends React.Component {
 
     const parameters = [...baseParameters(object)];
 
+    if (typeConfig.showBaseObject) {
+      parameters.push({
+        name: 'baseObject',
+        label: 'Base object',
+        type: 'select',
+        options: object.children.map(child => ({
+          label: child.viewOptions.name,
+          value: child,
+        })),
+      });
+    }
+
     if (!typeConfig.withoutColor) {
       parameters.push({
         name: 'color',
@@ -350,16 +370,11 @@ class PropertiesPanel extends React.Component {
                 parameter={parameter}
                 value={
                   parameter.isViewOption
-                    ? object.viewOptions[parameter.name]
-                    : object.parameters[parameter.name]
+                    ? object.viewOptions && object.viewOptions[parameter.name]
+                    : object.parameters && object.parameters[parameter.name]
                 }
                 onChange={value =>
-                  this.onObjectParameterChange(
-                    object,
-                    parameter.name,
-                    value,
-                    parameter.isViewOption,
-                  )
+                  this.onObjectParameterChange(object, parameter, value)
                 }
               />
             ))}
@@ -434,6 +449,7 @@ const mapStateToProps = ({threed}) => {
 };
 
 const mapDispatchToProps = dispatch => ({
+  updateObject: object => dispatch(updateObject(object)),
   updateObjectParameter: (object, parameter, value) =>
     dispatch(updateObjectParameter(object, parameter, value)),
   updateObjectViewOption: (object, option, value) =>

@@ -84,6 +84,13 @@ const scene = handleActions(
       },
     ],
     [
+      actions.updateObject,
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.updateObject(payload)
+      })
+    ],
+    [
       actions.updateOperationParameter,
       (state, {payload: {object, operation, parameter, value}}) => ({
         ...state,
