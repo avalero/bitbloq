@@ -29,10 +29,7 @@ class ThreeDViewer extends React.Component<ThreeDViewerProps> {
     if (sceneObjects !== prevProps.sceneObjects) {
       this.renderer.updateScene();
     }
-
-    if (activeOperation !== prevProps.activeOperation) {
-      this.renderer.setActiveHelper(activeOperation);
-    }
+    this.renderer.setActiveHelper(activeOperation);
   }
 
   componentDidMount() {
