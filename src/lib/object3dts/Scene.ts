@@ -16,7 +16,6 @@ import Difference from './Difference';
 import TranslationHelper from './TranslationHelper';
 import RotationHelper from './RotationHelper';
 import { type } from 'os';
-import Object3D from './Object3D';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -40,11 +39,6 @@ interface ISceneSetup {
   spotLight: THREE.SpotLight;
 }
 
-interface ITransitionObject{
-  time: number;
-  object: ObjectsCommon;
-}
-
 export type ISceneJSON = Array<IObjectsCommonJSON>;
 
 export default class Scene {
@@ -60,12 +54,9 @@ export default class Scene {
     return scene;
   }
 
-
-
   private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private objectsInScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
-  private objectInTransition: ITransitionObject | undefined; /// all children being moved -> to be 3D-drawn.
   private helpers: Array<THREE.Group>;
   private history: Array<ISceneJSON>; /// history of actions
 
@@ -151,32 +142,8 @@ export default class Scene {
       this.objectsGroup.add(mesh);
     });
 
-    
-
     this.lastJSON = this.toJSON();
     return this.objectsGroup;
-  }
-
-  public async getObjectInTransitionAsync():Promise <THREE.Mesh> | undefined{
-    // object in Transition
-    if(this.objectInTransition){
-      if((Date.now() / 1000 | 0) - this.objectInTransition.time > 1){
-        this.objectInTransition = undefined;
-        return undefined;
-      }else{
-        const mesh = await this.objectInTransition.object.getMeshAsync();
-        if(mesh instanceof THREE.Mesh){
-          const mat = new THREE.MeshLambertMaterial({
-            color: (this.objectInTransition.object as Object3D ).getViewOptions().color,
-            transparent: true, 
-            opacity: 0.5,
-          });
-          mesh.material = mat;
-          return mesh;
-        }
-        
-      }
-    }
   }
 
   /**
@@ -403,14 +370,6 @@ export default class Scene {
     const object = this.objectCollector.find(obj => id === obj.getID());
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
-
-    if(this.objectInObjectCollector(obj) && ! this.objectInScene(obj)){
-      this.objectInTransition = {
-        object,
-        time: Date.now() / 1000 | 0,
-      }
-    }
-
 
     const sceneJSON = this.toJSON();
     //Add to history
