@@ -102,7 +102,12 @@ export default class NumberInput extends React.Component {
   };
 
   onBlur = (e) => {
+    const {onBlur} = this.props;
     this.setState({ focused: false });
+
+    if (onBlur) {
+      onBlur(e);
+    }
   }
 
   onDecrementClick = () => {

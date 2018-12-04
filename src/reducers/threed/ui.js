@@ -22,6 +22,7 @@ const ui = handleActions(
       selectObject,
       (state, {payload}) => ({
         ...state,
+        activeOperation: null,
         selectedIds: payload.addToSelection
           ? [...new Set(state.selectedIds).add(payload.object.id)]
           : [payload.object.id],
@@ -31,6 +32,7 @@ const ui = handleActions(
       deselectObject,
       (state, {payload}) => ({
         ...state,
+        activeOperation: null,
         selectedIds: state.selectedIds.filter(id => id !== payload.id),
       }),
     ],
@@ -51,6 +53,7 @@ const ui = handleActions(
       deleteObject,
       (state, {payload}) => ({
         ...state,
+        activeOperation: null,
         selectedIds: state.selectedIds.filter(id => id !== payload.id),
       }),
     ],
