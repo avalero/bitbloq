@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import styled from 'react-emotion';
-import Renderer from '../../lib/object3dts/Renderer'
-import Scene, {IHelperDescription} from '../../lib/object3dts/Scene'
-import {IObjectsCommonJSON} from '../../lib/object3dts/ObjectsCommon'
+import Renderer from '../../lib/object3dts/Renderer';
+import {selectObject, deselectAllObjects} from '../../actions/threed';
+import Scene, {IHelperDescription} from '../../lib/object3dts/Scene';
+import {IObjectsCommonJSON} from '../../lib/object3dts/ObjectsCommon';
 
 const Container = styled.div`
   flex: 1;
@@ -16,16 +17,23 @@ export interface ThreeDViewerProps {
   scene: Scene;
   sceneObjects: IObjectsCommonJSON[];
   activeOperation: IHelperDescription;
+  selectObject: (object: IObjectsCommonJSON) => void;
+  deselectAllObjects: () => void;
 }
 
 class ThreeDViewer extends React.Component<ThreeDViewerProps> {
-
-  private scene: Scene
+  private scene: Scene;
   private renderer: Renderer;
-  private rendererContainerRef: React.RefObject<HTMLElement> = React.createRef();
+  private rendererContainerRef: React.RefObject<
+    HTMLElement
+  > = React.createRef();
 
   componentDidUpdate(prevProps: ThreeDViewerProps) {
-    const {scene, sceneObjects, activeOperation} = this.props;
+    const {
+      scene,
+      sceneObjects,
+      activeOperation,
+    } = this.props;
     if (sceneObjects !== prevProps.sceneObjects) {
       this.renderer.updateScene();
     }
@@ -33,19 +41,19 @@ class ThreeDViewer extends React.Component<ThreeDViewerProps> {
   }
 
   componentDidMount() {
-    const {scene} = this.props;
+    const {scene, selectObject, deselectAllObjects} = this.props;
     const container = this.rendererContainerRef.current;
     if (container) {
       this.renderer = new Renderer(scene, container);
       this.renderer.updateScene();
     }
+
+    this.renderer.onObjectClick(object => selectObject(object));
+    this.renderer.onBackgroundClick(() => deselectAllObjects());
   }
 
   render() {
-    return (
-      <Container innerRef={this.rendererContainerRef}>
-      </Container>
-    );
+    return <Container innerRef={this.rendererContainerRef} />;
   }
 }
 
@@ -55,10 +63,12 @@ const mapStateToProps = (state: any) => ({
   activeOperation: state.threed.ui.activeOperation,
 });
 
-const mapDispatchToProps = () => ({
-});
+const mapDispatchToProps = {
+  selectObject,
+  deselectAllObjects
+};
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(ThreeDViewer);

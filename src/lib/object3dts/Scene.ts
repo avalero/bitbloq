@@ -148,7 +148,11 @@ export default class Scene {
     this.objectsGroup = new THREE.Group();
 
     const meshes: Array<THREE.Object3D> = await Promise.all(
-      this.objectsInScene.map(object => object.getMeshAsync()),
+      this.objectsInScene.map(async (object) => {
+        const mesh = await object.getMeshAsync();
+        mesh.userData = object.toJSON();
+        return mesh;
+      }),
     );
 
     meshes.forEach(mesh => {
