@@ -33,6 +33,19 @@ export interface IHelperDescription {
   relative: boolean;
 }
 
+export interface IObjectPosition {
+  position: {
+    x:number;
+    y:number;
+    z:number;
+  };
+  angle:{
+    x:number;
+    y:number;
+    z:number;
+  }
+}
+
 interface ISceneSetup {
   base: THREE.Group;
   ambientLight: THREE.AmbientLight;
@@ -379,6 +392,24 @@ export default class Scene {
     this.historyIndex = this.history.length - 1;
 
     return sceneJSON;
+  }
+
+  /**
+   * 
+   * @param json object descriptor
+   */
+  public async getPositionAsync(json:IObjectsCommonJSON):Promise<IObjectPosition>{
+    try{
+      const obj = this.getObject(json);
+      const mesh:THREE.Object3D = await obj.getMeshAsync();
+      const pos: IObjectPosition = {
+        position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+        angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
+      }
+      return pos;
+    }catch(e){
+      throw new Error(`Cannot find object: ${e}`);
+    }
   }
 
   /**
