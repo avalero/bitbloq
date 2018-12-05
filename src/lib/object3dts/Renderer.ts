@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import Scene, {IHelperDescription} from './Scene';
-import ObjectsCommon from './ObjectsCommon';
+import ObjectsCommon, {IObjectsCommonJSON} from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
 
-type ClickHandler = (object?: any) => void;
+type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
+type BackgroundClickHandler = () => void;
 
 export interface RendererOptions {
   antialias: boolean;
@@ -19,8 +20,7 @@ export default class Renderer {
   private options: RendererOptions;
   private threeRenderer: THREE.WebGLRenderer;
   private clock: THREE.Clock;
-  private perspectiveCamera: THREE.PerspectiveCamera;
-  private ortographicCamera: THREE.OrthographicCamera;
+  private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
   private cameraControls: OrbitCamera;
   private scene: Scene;
   private threeScene: THREE.Scene;
@@ -30,6 +30,11 @@ export default class Renderer {
   private container: HTMLElement;
   private wrapElement: HTMLElement;
   private navBoxContainer: HTMLElement;
+  private objectClickHandlers: ObjectClickHandler[];
+  private backgroundClickHandlers: BackgroundClickHandler[];
+  private containerRect: ClientRect;
+  private mouseDownObject: THREE.Object3D | undefined;
+  private selectOnMouseUp: boolean;
 
   constructor(
     scene: Scene,
@@ -43,6 +48,9 @@ export default class Renderer {
       ...options,
       ...Renderer.defaultOptions,
     };
+
+    this.objectClickHandlers = [];
+    this.backgroundClickHandlers = [];
 
     this.setup();
     this.renderLoop();
@@ -68,23 +76,30 @@ export default class Renderer {
 
     this.clock = new THREE.Clock();
 
-    this.perspectiveCamera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    this.perspectiveCamera.position.set(0, -150, 80);
-    this.perspectiveCamera.up.set(0, 0, 1);
-    this.perspectiveCamera.lookAt(this.threeScene.position);
+    this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    this.camera.position.set(0, -150, 80);
+    this.camera.up.set(0, 0, 1);
+    this.camera.lookAt(this.threeScene.position);
 
     this.cameraControls = new OrbitCamera(
-      this.perspectiveCamera,
+      this.camera,
       this.threeRenderer.domElement,
     );
+
+    this.container.addEventListener('mousedown', this.handleMouseDown);
+    this.container.addEventListener('mousemove', this.handleMouseMove);
+    this.container.addEventListener('mouseup', this.handleMouseUp);
   }
 
   private updateSize() {
-    const containerRect = this.container.getBoundingClientRect();
-    const {width, height} = containerRect;
+    this.containerRect = this.container.getBoundingClientRect();
+    const {width, height} = this.containerRect;
     this.threeRenderer.setSize(width, height);
-    this.perspectiveCamera.aspect = width / height;
-    this.perspectiveCamera.updateProjectionMatrix();
+
+    if (this.camera instanceof THREE.PerspectiveCamera) {
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+    }
   }
 
   private renderLoop = () => {
@@ -98,7 +113,7 @@ export default class Renderer {
 
     requestAnimationFrame(this.renderLoop);
 
-    this.threeRenderer.render(this.threeScene, this.perspectiveCamera);
+    this.threeRenderer.render(this.threeScene, this.camera);
   };
 
   public async updateScene(): Promise<void> {
@@ -128,9 +143,59 @@ export default class Renderer {
 
   public setOrtographicCamera(isOrtographic: boolean): void {}
 
-  private handleClick(e: MouseEvent, handler: ClickHandler) {}
+  private handleMouseDown = (e: MouseEvent) => {
+    this.mouseDownObject = this.getObjectFromPosition(e.clientX, e.clientY);
+    this.selectOnMouseUp = true;
+  };
 
-  public onClick(handler: ClickHandler): void {
-    this.container.addEventListener('click', e => this.handleClick(e, handler));
+  private handleMouseMove = (e: MouseEvent) => {
+    this.selectOnMouseUp = false;
+  };
+
+  private handleMouseUp = (e: MouseEvent) => {
+    if (this.selectOnMouseUp) {
+      if (this.mouseDownObject) {
+        this.objectClickHandlers.forEach(handler => {
+          if (this.mouseDownObject) {
+            const objectJSON = this.mouseDownObject
+              .userData as IObjectsCommonJSON;
+            handler(objectJSON);
+          }
+        });
+      } else {
+        this.backgroundClickHandlers.forEach(handler => handler());
+      }
+    }
+  };
+
+  private getObjectFromPosition(
+    x: number,
+    y: number,
+  ): THREE.Object3D | undefined {
+    const {left, top, width, height} = this.containerRect;
+    const mousePosition = new THREE.Vector2();
+    mousePosition.x = ((x - left) / width) * 2 - 1;
+    mousePosition.y = -((y - top) / height) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mousePosition, this.camera);
+    const intersects = raycaster.intersectObjects(
+      this.objectsGroup.children,
+      true,
+    );
+
+    if (intersects.length > 0) {
+      return intersects[0].object;
+    }
+
+    return undefined;
+  }
+
+  public onObjectClick(handler: ObjectClickHandler): void {
+    this.objectClickHandlers.push(handler);
+  }
+
+  public onBackgroundClick(handler: BackgroundClickHandler): void {
+    this.backgroundClickHandlers.push(handler);
   }
 }
