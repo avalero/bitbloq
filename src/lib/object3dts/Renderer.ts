@@ -2,9 +2,26 @@ import * as THREE from 'three';
 import Scene, {IHelperDescription} from './Scene';
 import ObjectsCommon, {IObjectsCommonJSON} from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
+import NavigationBox from './NavigationBox';
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;
+
+const rendererContainerStyles = `
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+`;
+
+const navBoxContainerStyles = `
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150px;
+  height: 150px;
+`;
 
 export interface RendererOptions {
   antialias: boolean;
@@ -18,6 +35,7 @@ export default class Renderer {
   };
 
   private options: RendererOptions;
+  private navigationBox: NavigationBox;
   private threeRenderer: THREE.WebGLRenderer;
   private clock: THREE.Clock;
   private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
@@ -28,8 +46,6 @@ export default class Renderer {
   private helpersGroup: THREE.Group;
   private sceneSetupGroup: THREE.Group;
   private container: HTMLElement;
-  private wrapElement: HTMLElement;
-  private navBoxContainer: HTMLElement;
   private objectClickHandlers: ObjectClickHandler[];
   private backgroundClickHandlers: BackgroundClickHandler[];
   private containerRect: ClientRect;
@@ -64,7 +80,6 @@ export default class Renderer {
     const threeRenderer = new THREE.WebGLRenderer(rendererParams);
     threeRenderer.setClearColor(this.options.clearColor);
     this.threeRenderer = threeRenderer;
-    this.container.appendChild(threeRenderer.domElement);
 
     this.threeScene = new THREE.Scene();
 
@@ -89,6 +104,21 @@ export default class Renderer {
     this.container.addEventListener('mousedown', this.handleMouseDown);
     this.container.addEventListener('mousemove', this.handleMouseMove);
     this.container.addEventListener('mouseup', this.handleMouseUp);
+
+    this.container.style.position = 'relative';
+
+    const rendererContainer = document.createElement('div');
+    rendererContainer.style.cssText = rendererContainerStyles;
+    this.container.appendChild(rendererContainer);
+
+    const navBoxContainer = document.createElement('div');
+    navBoxContainer.style.cssText = navBoxContainerStyles;
+    this.container.appendChild(navBoxContainer);
+
+    this.navigationBox = new NavigationBox(navBoxContainer);
+    this.updateNavigationBox();
+
+    rendererContainer.appendChild(threeRenderer.domElement);
   }
 
   private updateSize() {
@@ -102,13 +132,20 @@ export default class Renderer {
     }
   }
 
+  private updateNavigationBox() {
+    const direction = new THREE.Vector3();
+    this.camera.getWorldDirection(direction);
+    const {x, y, z} = direction;
+    this.navigationBox.updateCamera(-x, -y, -z);
+  }
+
   private renderLoop = () => {
     this.updateSize();
     const delta = this.clock.getDelta();
     const cameraNeedsUpdate = this.cameraControls.update(delta);
 
     if (cameraNeedsUpdate) {
-      // TODO: Update navigation box camera
+      this.updateNavigationBox();
     }
 
     requestAnimationFrame(this.renderLoop);
