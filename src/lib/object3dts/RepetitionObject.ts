@@ -235,6 +235,10 @@ export default class RepetitionObject extends ObjectsCommon {
     return this.mesh;
   }
 
+  get computedMesh():THREE.Group | undefined{
+    return this.mesh;
+  }
+
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);

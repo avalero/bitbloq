@@ -422,6 +422,22 @@ export default class Scene {
           }
           return pos;
         }
+
+      }else if (obj instanceof RepetitionObject){
+        const mesh = obj.computedMesh;
+        if(mesh){
+          const pos: IObjectPosition = {
+            position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+            angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
+          }
+          return pos;
+        }else{
+          const pos: IObjectPosition = {
+            position: { x: 0, y: 0, z: 0 },
+            angle: { x: 0, y: 0, z: 0 }, 
+          }
+          return pos;
+        }
       }else{
         const pos: IObjectPosition = {
           position: { x: 0, y: 0, z: 0 },
