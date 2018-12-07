@@ -16,6 +16,7 @@ import Difference from './Difference';
 import TranslationHelper from './TranslationHelper';
 import RotationHelper from './RotationHelper';
 import { type } from 'os';
+import Object3D from './Object3D';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -402,15 +403,48 @@ export default class Scene {
    * 
    * @param json object descriptor
    */
-  public async getPositionAsync(json:IObjectsCommonJSON):Promise<IObjectPosition>{
+  public getPosition(json:IObjectsCommonJSON):IObjectPosition{
     try{
       const obj = this.getObject(json);
-      const mesh:THREE.Object3D = await obj.getMeshAsync();
-      const pos: IObjectPosition = {
-        position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
-        angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
+
+      if(obj instanceof Object3D){
+        const mesh = obj.computedMesh;
+        if(mesh){
+          const pos: IObjectPosition = {
+            position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+            angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
+          }
+          return pos;
+        }else{
+          const pos: IObjectPosition = {
+            position: { x: 0, y: 0, z: 0 },
+            angle: { x: 0, y: 0, z: 0 }, 
+          }
+          return pos;
+        }
+
+      }else if (obj instanceof RepetitionObject){
+        const mesh = obj.computedMesh;
+        if(mesh){
+          const pos: IObjectPosition = {
+            position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
+            angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
+          }
+          return pos;
+        }else{
+          const pos: IObjectPosition = {
+            position: { x: 0, y: 0, z: 0 },
+            angle: { x: 0, y: 0, z: 0 }, 
+          }
+          return pos;
+        }
+      }else{
+        const pos: IObjectPosition = {
+          position: { x: 0, y: 0, z: 0 },
+          angle: { x: 0, y: 0, z: 0 }, 
+        }
+        return pos;
       }
-      return pos;
     }catch(e){
       throw new Error(`Cannot find object: ${e}`);
     }

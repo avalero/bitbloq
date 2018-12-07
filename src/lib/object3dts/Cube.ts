@@ -16,8 +16,10 @@
 import * as THREE from 'three';
 import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
-import Scene from './Scene';
 
+/**
+ * Params defining a cube (units are in millimiters)
+ */
 interface ICubeParams {
   width: number;
   depth: number;
@@ -29,14 +31,18 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
 }
 
 export default class Cube extends PrimitiveObject {
+
   public static typeName: string = 'Cube';
 
+  /**
+   * Creates a new Cube instance from json
+   * @param object object descriptor
+   */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type != Cube.typeName) throw new Error('Not Cube Object');
     return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
-  //private parameters: ICubeParams;
 
   constructor(
     parameters: ICubeParams,
@@ -50,6 +56,24 @@ export default class Cube extends PrimitiveObject {
     super(vO, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
+  }
+
+  /**
+   * Creates a cube clone (not sharing references)
+   */
+  public clone(): Cube {
+    const cube = new Cube(
+      this.parameters as ICubeParams,
+      this.operations,
+      this.viewOptions,
+    );
+
+    //if cube object is updated, directly set the mesh
+    if (!this.meshUpdateRequired && !this.pendingOperation) {
+      cube.setMesh(this.mesh.clone());
+    }
+
+    return cube;
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -72,18 +96,5 @@ export default class Cube extends PrimitiveObject {
       Number(depth),
       Number(height),
     );
-  }
-
-  public clone(): Cube {
-    const cube = new Cube(
-      this.parameters as ICubeParams,
-      this.operations,
-      this.viewOptions,
-    );
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      cube.setMesh(this.mesh.clone());
-    }
-
-    return cube;
   }
 }
