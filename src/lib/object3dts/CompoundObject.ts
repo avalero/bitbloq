@@ -71,12 +71,20 @@ export default class CompoundObject extends Object3D {
     return this._meshUpdateRequired;
   }
 
+  set meshUpdateRequired(a:boolean){
+    this._meshUpdateRequired = a;
+  }
+
   get pendingOperation(): boolean {
     this.children.forEach(child => {
       this._pendingOperation = this._pendingOperation || child.pendingOperation;
     });
 
     return this._pendingOperation;
+  }
+
+  set pendingOperation(a: boolean){
+    this._pendingOperation = a;
   }
 
   protected async applyOperationsAsync(): Promise<void> {

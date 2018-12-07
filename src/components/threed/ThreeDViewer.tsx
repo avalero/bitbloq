@@ -97,7 +97,7 @@ class ThreeDViewer extends React.Component<
     const {scene, selectedObjects} = this.props;
     this.setState({selectedPosition: undefined});
     if (selectedObjects && selectedObjects.length === 1) {
-      const selectedPosition = await scene.getPositionAsync(selectedObjects[0]);
+      const selectedPosition = scene.getPosition(selectedObjects[0]);
       this.setState({selectedPosition});
     }
   }

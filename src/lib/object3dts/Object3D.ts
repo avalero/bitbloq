@@ -70,6 +70,11 @@ export default class Object3D extends ObjectsCommon {
     super(vO, operations);
   }
 
+  get computedMesh():THREE.Mesh | undefined {
+    if(this.mesh) return this.mesh;
+    else return undefined; 
+  }
+
   protected getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
       color: this.viewOptions.color,
