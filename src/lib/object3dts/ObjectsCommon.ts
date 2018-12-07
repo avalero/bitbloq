@@ -142,8 +142,16 @@ export default class ObjectsCommon {
     this.id = uuid();
   }
 
+  set meshUpdateRequired(a:boolean) {
+    this._meshUpdateRequired = a;
+  }
+
   get meshUpdateRequired(): boolean {
     return this._meshUpdateRequired;
+  }
+
+  set pendingOperation(a:boolean){
+    this._pendingOperation = a;
   }
 
   get pendingOperation(): boolean {

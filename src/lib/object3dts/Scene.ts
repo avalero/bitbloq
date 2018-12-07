@@ -401,7 +401,16 @@ export default class Scene {
   public async getPositionAsync(json:IObjectsCommonJSON):Promise<IObjectPosition>{
     try{
       const obj = this.getObject(json);
+      
+      const meshUpdateRequired = obj.meshUpdateRequired;
+      const pendingoperation = obj.pendingOperation;
+      
       const mesh:THREE.Object3D = await obj.getMeshAsync();
+      
+      //restore original object propoerties otherwise compound objects stop working
+      obj.meshUpdateRequired = meshUpdateRequired;
+      obj.pendingOperation = pendingoperation;
+
       const pos: IObjectPosition = {
         position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
         angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
