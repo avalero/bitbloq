@@ -170,15 +170,49 @@ const clickBoxes: ClickBox[] = [
   },
 ];
 
+type ChangeCameraAngleHandler = (theta: number, phi: number) => void;
+
+export interface BoxLabels {
+  front: string;
+  back: string;
+  top: string;
+  bottom: string;
+  left: string;
+  right: string;
+}
+
+export interface NavigationBoxOptions {
+  onChangeCameraAngle?: ChangeCameraAngleHandler,
+  boxLabels: BoxLabels;
+}
+
 export default class NavigationBox {
+  public static defaultOptions: NavigationBoxOptions = {
+    boxLabels: {
+      front: 'FRONT',
+      back: 'BACK',
+      top: 'TOP',
+      bottom: 'BOTTOM',
+      left: 'LEFT',
+      right: 'RIGHT'
+    }
+  };
+
   private container: HTMLElement;
+  private options: NavigationBoxOptions;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
   private boxes: THREE.Group;
+  private containerRect: ClientRect;
+  private hoverBox: THREE.Mesh;
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, options: Partial<NavigationBoxOptions> = {}) {
     this.container = container;
+    this.options = {
+      ...options,
+      ...NavigationBox.defaultOptions
+    };
 
     this.setup();
   }
@@ -194,6 +228,10 @@ export default class NavigationBox {
     this.container.appendChild(renderer.domElement);
     this.renderer = renderer;
 
+    this.container.addEventListener('mousemove', this.onMouseMove);
+    this.container.addEventListener('click', this.onClick);
+    this.containerRect = this.container.getBoundingClientRect();
+
     this.scene = new THREE.Scene();
     this.scene.add(new THREE.AmbientLight(0x888888));
     const spotLight = new THREE.SpotLight(0xeeeeee);
@@ -204,8 +242,28 @@ export default class NavigationBox {
     this.scene.add(spotLight2);
 
     const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
-    const material = new THREE.MeshLambertMaterial({color: 0xcccccc});
-    const cube = new THREE.Mesh(boxGeometry, material);
+    const {boxLabels} = this.options;
+    const cubeMaterials = [
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText(boxLabels.right, HALF_PI),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText(boxLabels.left, -HALF_PI),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText(boxLabels.back, Math.PI),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText(boxLabels.front),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText(boxLabels.top),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText(boxLabels.bottom, Math.PI),
+      }),
+    ];
+    const cube = new THREE.Mesh(boxGeometry, cubeMaterials);
     this.scene.add(cube);
 
     this.boxes = new THREE.Group();
@@ -218,9 +276,10 @@ export default class NavigationBox {
       });
       const box = new THREE.Mesh(geometry, material);
       box.position.set(...clickBox.position);
-      box.userData = clickBox.cameraAngle;
+      box.userData = clickBox;
       this.boxes.add(box);
     });
+    this.scene.add(this.boxes);
 
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.aspect = WIDTH / HEIGHT;
@@ -229,6 +288,83 @@ export default class NavigationBox {
     this.camera.lookAt(this.scene.position);
 
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private getBoxFromPosition = (x: number, y: number): THREE.Mesh | undefined => {
+    const {left, top, width, height} = this.containerRect;
+    const mousePosition = new THREE.Vector2();
+    mousePosition.x = ((x - left) / width) * 2 - 1;
+    mousePosition.y = -((y - top) / height) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(mousePosition, this.camera);
+    const intersects = raycaster.intersectObjects(
+      this.boxes.children,
+      true,
+    );
+    if (intersects.length > 0) {
+      return intersects[0].object as THREE.Mesh;
+    }
+
+    return undefined;
+  };
+
+  private onMouseMove = (e: MouseEvent) => {
+    const box = this.getBoxFromPosition(e.clientX, e.clientY);
+    let needsRender = false;
+
+    if (this.hoverBox) {
+      const material = this.hoverBox.material as THREE.MeshBasicMaterial;
+      material.opacity = 0;
+      needsRender = true;
+    }
+
+    if (box) {
+      const material = box.material as THREE.MeshBasicMaterial;
+      material.opacity = 0.6;
+      this.hoverBox = box;
+      needsRender = true;
+    }
+
+    if (needsRender) {
+      this.renderer.render(this.scene, this.camera);
+    }
+  };
+
+  private onClick = (e: MouseEvent) => {
+    const {onChangeCameraAngle} = this.options;
+
+    if (!onChangeCameraAngle) return;
+
+    const box = this.getBoxFromPosition(e.clientX, e.clientY);
+    if (box) {
+      const clickBox = box.userData as ClickBox;
+      onChangeCameraAngle(...clickBox.cameraAngle);
+    }
+  };
+
+  private getTextureForText(text: string, rotation: number = 0): THREE.Texture {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 128;
+    canvas.height = 128;
+
+    if (ctx) {
+      ctx.font = '20px Roboto,Arial';
+      ctx.fillStyle = '#cccccc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    }
+
+    const texture = new THREE.Texture(canvas);
+    texture.center = new THREE.Vector2(0.5, 0.5);
+    texture.rotation = rotation;
+    texture.needsUpdate = true;
+    return texture;
   }
 
   public updateCamera(x: number, y: number, z: number) {

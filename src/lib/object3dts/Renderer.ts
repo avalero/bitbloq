@@ -115,7 +115,11 @@ export default class Renderer {
     navBoxContainer.style.cssText = navBoxContainerStyles;
     this.container.appendChild(navBoxContainer);
 
-    this.navigationBox = new NavigationBox(navBoxContainer);
+    this.navigationBox = new NavigationBox(navBoxContainer, {
+      onChangeCameraAngle: (theta, phi) => {
+        this.cameraControls.rotateTo(theta, phi, true);
+      }
+    });
     this.updateNavigationBox();
 
     rendererContainer.appendChild(threeRenderer.domElement);
