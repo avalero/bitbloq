@@ -19,6 +19,7 @@ import ObjectsCommon, {
   IViewOptions,
 } from './ObjectsCommon';
 
+import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import * as THREE from 'three';
 
@@ -58,9 +59,7 @@ export default class CompoundObject extends Object3D {
 
     //children will have this CompoundObject as Parent
     this.children.forEach(child => child.setParent(this));
-
     this._meshUpdateRequired = true;
-    this.setOperations();
   }
 
   public getChildren(): ChildrenArray {
@@ -134,7 +133,6 @@ export default class CompoundObject extends Object3D {
   }
 
   public async getMeshAsync(): Promise<THREE.Mesh> {
-    // debugger;
     if (this.meshPromise) {
       this.mesh = await this.meshPromise;
       this.meshPromise = null;
@@ -144,7 +142,7 @@ export default class CompoundObject extends Object3D {
     }
   }
 
-  protected async computeMeshAsync(): Promise<THREE.Mesh> {
+  public async computeMeshAsync(): Promise<THREE.Mesh> {
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         if (this.worker) {
@@ -206,7 +204,6 @@ export default class CompoundObject extends Object3D {
       }
     });
 
-    this.lastJSON = this.toJSON();
     return this.meshPromise;
   }
 
@@ -230,10 +227,9 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<Array<ArrayBuffer>> {
     return new Promise((resolve, reject) => {
       const bufferArray: Array<ArrayBuffer> = [];
-      Promise.all(this.children.map(child => child.getMeshAsync())).then(
-        meshes => {
-          meshes.forEach(mesh => {
-            const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
+      Promise.all(this.children.map(child => child.getMeshAsync())).then( meshes => {
+          meshes.forEach( mesh => {
+            const geom: THREE.BufferGeometry | THREE.Geometry = (mesh as THREE.Mesh).geometry;
             let bufferGeom: THREE.BufferGeometry;
             if (geom instanceof THREE.BufferGeometry) {
               bufferGeom = geom as THREE.BufferGeometry;
@@ -255,6 +251,7 @@ export default class CompoundObject extends Object3D {
             bufferArray.push(normalsBuffer);
             bufferArray.push(positionBuffer);
           });
+
           resolve(bufferArray);
         },
       );
@@ -274,10 +271,10 @@ export default class CompoundObject extends Object3D {
   }
 
   public toJSON(): ICompoundObjectJSON {
-    return {
+    return cloneDeep({
       ...super.toJSON(),
       children: this.children.map(obj => obj.toJSON()),
-    };
+    });
   }
 
   /**
@@ -318,12 +315,12 @@ export default class CompoundObject extends Object3D {
     };
     this.setOperations(object.operations);
     this.setViewOptions(vO);
-
     // if anything has changed, recompute mesh
     if (!isEqual(this.lastJSON, this.toJSON())) {
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
       let obj: ObjectsCommon | undefined = this.getParent();
+     
       while (obj) {
         obj.meshUpdateRequired = true;
         obj.computeMeshAsync();

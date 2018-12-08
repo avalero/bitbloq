@@ -16,6 +16,8 @@
 import * as THREE from 'three';
 import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import isEqual from 'lodash.isequal';
+
 
 /**
  * Params defining a cube (units are in millimiters)
@@ -46,6 +48,7 @@ export default class Cube extends PrimitiveObject {
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -55,25 +58,34 @@ export default class Cube extends PrimitiveObject {
     this.type = Cube.typeName;
     this.setParameters(parameters);
     this.lastJSON = this.toJSON();
-    this.meshPromise = this.computeMeshAsync();
+    if(mesh){
+      this.setMesh(mesh);
+    }else{
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
   /**
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    const cube = new Cube(
-      this.parameters as ICubeParams,
-      this.operations,
-      this.viewOptions,
-    );
 
-    //if cube object is updated, directly set the mesh
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      cube.setMesh(this.mesh.clone());
+    if(isEqual(this.lastJSON, this.toJSON())){
+      const cube = new Cube(
+        this.parameters as ICubeParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return cube;
+    }else{
+      const cube = new Cube(
+        this.parameters as ICubeParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return cube;
     }
-
-    return cube;
   }
 
   protected getGeometry(): THREE.Geometry {

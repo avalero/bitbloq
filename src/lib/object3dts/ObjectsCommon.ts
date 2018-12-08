@@ -1,6 +1,8 @@
 import uuid from 'uuid/v1';
 import isEqual from 'lodash.isequal';
 
+import cloneDeep from 'lodash.clonedeep';
+
 interface ICommonOperation {
   type: string;
   id?: string;
@@ -177,11 +179,11 @@ export default class ObjectsCommon {
     return this.id;
   }
 
-  public getOperations(): OperationsArray {
+  protected getOperations(): OperationsArray {
     return this.operations;
   }
 
-  public setOperations(operations: OperationsArray = []): void {
+  protected setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
       if (operations.length > 0) this._pendingOperation = true;
@@ -197,11 +199,11 @@ export default class ObjectsCommon {
       this.pendingOperation || !isEqual(this.operations, operations);
   }
 
-  public addOperations(operations: OperationsArray = []): void {
+  protected addOperations(operations: OperationsArray = []): void {
     this.setOperations(this.operations.concat(operations));
   }
 
-  public translate(
+  protected translate(
     x: number,
     y: number,
     z: number,
@@ -212,19 +214,19 @@ export default class ObjectsCommon {
     ]);
   }
 
-  public rotateX(angle: number, relative: boolean = false): void {
+  protected rotateX(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('x', angle, relative),
     ]);
   }
 
-  public rotateY(angle: number, relative: boolean = false): void {
+  protected rotateY(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('y', angle, relative),
     ]);
   }
 
-  public rotateZ(angle: number, relative: boolean = false): void {
+  protected rotateZ(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('z', angle, relative),
     ]);
@@ -266,12 +268,12 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    return {
+    return cloneDeep({
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-    };
+    });
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {

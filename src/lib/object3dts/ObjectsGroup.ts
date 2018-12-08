@@ -5,6 +5,8 @@ import Object3D from './Object3D';
 import Scene from './Scene';
 import isEqual from 'lodash.isequal';
 
+import cloneDeep from 'lodash.clonedeep';
+
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
   children: Array<IObjectsCommonJSON>;
 }
@@ -62,7 +64,9 @@ export default class ObjectsGroup extends ObjectsCommon {
   // Return the array of objects with all the inherited operations of the group.
   public unGroup(): Array<ObjectsCommon> {
     this.children.forEach(object3D => {
-      object3D.addOperations(this.operations);
+      const json = object3D.toJSON();
+        json.operations = json.operations.concat(this.operations);
+        object3D.updateFromJSON(json);
     });
     return this.children;
   }
@@ -78,7 +82,9 @@ export default class ObjectsGroup extends ObjectsCommon {
     const promises: Array<Promise<THREE.Object3D>> = this.children.map(
       object3D => {
         const objectClone = object3D.clone();
-        objectClone.addOperations(this.operations);
+        const json = objectClone.toJSON();
+        json.operations = json.operations.concat(this.operations);
+        objectClone.updateFromJSON(json);
         return objectClone.getMeshAsync();
       },
     );
@@ -104,7 +110,7 @@ export default class ObjectsGroup extends ObjectsCommon {
       children: this.children.map(obj => obj.toJSON()),
     };
 
-    return obj;
+    return cloneDeep(obj);
   }
 
   /**

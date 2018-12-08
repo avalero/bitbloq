@@ -26,6 +26,7 @@ import ObjectsCommon, {
 import Object3D from './Object3D';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import * as THREE from 'three';
 
 import Scene from './Scene';
@@ -124,9 +125,13 @@ export default class RepetitionObject extends ObjectsCommon {
       .parameters as ICartesianRepetitionParams;
     for (let i: number = 0; i < num; i++) {
       if (this.originalObject instanceof ObjectsCommon) {
-        const objectClone: ObjectsCommon = this.originalObject.clone();
-        objectClone.translate(i * x, i * y, i * z);
-        this.group.push(objectClone);
+        
+          const objectClone: ObjectsCommon = this.originalObject.clone();
+          const json = objectClone.toJSON();
+          json.operations.push(ObjectsCommon.createTranslateOperation(i * x, i * y, i * z));
+          objectClone.updateFromJSON(json);
+          this.group.push(objectClone);
+        
       }
     }
   }
@@ -176,11 +181,11 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public toJSON(): IRepetitionObjectJSON {
-    const obj = {
+    const obj = cloneDeep({
       ...super.toJSON(),
       parameters: this.parameters,
       children: [this.originalObject.toJSON()],
-    };
+    });
 
     return obj;
   }
@@ -226,7 +231,7 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   get meshUpdateRequired(): boolean {
-    return this._meshUpdateRequired || this.originalObject.meshUpdateRequired;
+    return (this._meshUpdateRequired || this.originalObject.meshUpdateRequired);
   }
 
   set meshUpdateRequired(a: boolean) {
@@ -247,9 +252,9 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-  // get computedMesh():THREE.Group | undefined{
-  //   return this.mesh;
-  // }
+  get computedMesh():THREE.Group | undefined{
+    return this.mesh;
+  }
 
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
@@ -385,7 +390,6 @@ export default class RepetitionObject extends ObjectsCommon {
       else reject(new Error('Unexpected Error computing RepetitionObject'));
     });
 
-    this.lastJSON = this.toJSON();
     return this.meshPromise;
   }
 }

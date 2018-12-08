@@ -211,7 +211,7 @@ export default class Object3D extends ObjectsCommon {
     this.mesh.updateMatrix();
   }
 
-  public clone(): Object3D {
+  public clone(): any {
     throw new Error('Object3D.clone() Implemented in children');
   }
 }

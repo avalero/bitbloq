@@ -13,6 +13,7 @@
  */
 
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import Object3D from './Object3D';
 import ObjectsCommon from './ObjectsCommon';
 import {
@@ -55,10 +56,10 @@ export default class PrimitiveObject extends Object3D {
    * For CompoundObjects find function in CompoundObjects Class
    */
   public toJSON(): IPrimitiveObjectJSON {
-    return {
+    return cloneDeep({
       ...super.toJSON(),
       parameters: this.parameters,
-    };
+    });
   }
 
   public updateFromJSON(object: IPrimitiveObjectJSON) {
@@ -96,7 +97,7 @@ export default class PrimitiveObject extends Object3D {
     }
   }
 
-  protected async computeMeshAsync(): Promise<THREE.Mesh> {
+  public async computeMeshAsync(): Promise<THREE.Mesh> {
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
@@ -117,8 +118,6 @@ export default class PrimitiveObject extends Object3D {
       if (this.mesh instanceof THREE.Mesh) resolve(this.mesh);
       else reject(new Error('Mesh has not been computed properly'));
     });
-
-    this.lastJSON = this.toJSON();
     return this.meshPromise;
   }
 }

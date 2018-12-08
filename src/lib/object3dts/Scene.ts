@@ -10,6 +10,7 @@ import PrimitiveObject from './PrimitiveObject';
 import CompoundObject from './CompoundObject';
 
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import Union from './Union';
 import Intersection from './Intersection';
 import Difference from './Difference';
@@ -102,7 +103,7 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): ISceneJSON {
-    return this.objectsInScene.map(object => object.toJSON());
+    return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
   }
 
   /**
@@ -433,7 +434,7 @@ export default class Scene {
           return pos;
         }
       } else if (obj instanceof RepetitionObject) {
-        const mesh = obj.computedMesh;
+        const mesh = await obj.getMeshAsync();
         if (mesh) {
           const pos: IObjectPosition = {
             position: {
