@@ -97,7 +97,7 @@ class ThreeDViewer extends React.Component<
     const {scene, selectedObjects} = this.props;
     this.setState({selectedPosition: undefined});
     if (selectedObjects && selectedObjects.length === 1) {
-      const selectedPosition = scene.getPosition(selectedObjects[0]);
+      const selectedPosition = await scene.getPositionAsync(selectedObjects[0]);
       this.setState({selectedPosition});
     }
   }
@@ -110,7 +110,7 @@ class ThreeDViewer extends React.Component<
         <StatusBar>
           {selectedPosition && (
             <StatusBarGroup>
-              <b>Position:</b>
+              <b>Position (mm):</b>
               <span>X={selectedPosition.position.x.toFixed(2)}</span>
               <span>Y={selectedPosition.position.y.toFixed(2)}</span>
               <span>Z={selectedPosition.position.z.toFixed(2)}</span>
@@ -118,7 +118,7 @@ class ThreeDViewer extends React.Component<
           )}
           {selectedPosition && (
             <StatusBarGroup>
-              <b>Rotation:</b>
+              <b>Rotation (grads):</b>
               <span>X={selectedPosition.angle.x.toFixed(2)}</span>
               <span>Y={selectedPosition.angle.y.toFixed(2)}</span>
               <span>Z={selectedPosition.angle.z.toFixed(2)}</span>

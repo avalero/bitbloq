@@ -47,8 +47,9 @@ export default class Sphere extends PrimitiveObject {
     };
     super(vO, operations);
     this.type = Sphere.typeName;
-    this.parameters = { ...parameters };
-    this._meshUpdateRequired = true;
+    this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    this.meshPromise = this.computeMeshAsync();
   }
 
   protected getGeometry(): THREE.Geometry {

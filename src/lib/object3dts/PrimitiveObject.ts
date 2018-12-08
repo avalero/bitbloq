@@ -20,8 +20,8 @@ import {
   IViewOptions,
   IObjectsCommonJSON,
 } from './ObjectsCommon';
-
-import Scene from './Scene';
+import * as THREE from 'three';
+import CompoundObject from './CompoundObject';
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;
@@ -37,7 +37,7 @@ export default class PrimitiveObject extends Object3D {
     super(viewOptions, operations);
   }
 
-  public setParameters(parameters: Object): void {
+  protected setParameters(parameters: Object): void {
     if (!this.parameters) {
       this.parameters = Object.assign({}, parameters);
       this._meshUpdateRequired = true;
@@ -72,5 +72,53 @@ export default class PrimitiveObject extends Object3D {
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);
+
+    debugger;
+    // if anything has changed, recompute mesh
+    if(!isEqual(this.lastJSON, this.toJSON())){
+      this.lastJSON = this.toJSON();
+      if(this.parent && this.parent instanceof CompoundObject){}
+      this.meshPromise = this.computeMeshAsync();
+      if(this.parent){
+        this.parent.meshUpdateRequired = true;
+        this.parent.computeMeshAsync();
+      }
+    }
+  }
+
+  public async getMeshAsync(): Promise<THREE.Mesh> {
+    if(this.meshPromise){
+      this.mesh = await this.meshPromise;
+      this.meshPromise = null;
+      return this.mesh;
+    }else{
+      return this.mesh;
+    }
+  }
+  
+  protected async computeMeshAsync(): Promise<THREE.Mesh>{
+    this.meshPromise = new Promise( async (resolve, reject) => {
+      if (this.meshUpdateRequired) {
+        const geometry: THREE.Geometry = this.getGeometry();
+        this.mesh = new THREE.Mesh(geometry, this.getMaterial());
+        this._meshUpdateRequired = false;
+        await this.applyOperationsAsync();
+      }
+
+      if (this.pendingOperation) {
+        await this.applyOperationsAsync()
+      }
+      
+      if(this.viewOptionsUpdateRequired){
+        this.mesh.material = this.getMaterial();
+        this._viewOptionsUpdateRequired = false;
+      }
+
+      if(this.mesh instanceof THREE.Mesh)
+        resolve(this.mesh);
+      else
+        reject(new Error('Mesh has not been computed properly'));
+    });
+    return this.meshPromise;
   }
 }

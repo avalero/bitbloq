@@ -56,6 +56,8 @@ export default class Union extends CompoundObject {
     };
     super(children, operations, vO);
     this.type = Union.typeName;
+    this.lastJSON = this.toJSON();
+    this.meshPromise = this.computeMeshAsync();
   }
 
   public clone(): Union {
@@ -63,7 +65,7 @@ export default class Union extends CompoundObject {
       child.clone(),
     );
     const obj = new Union(childrenClone, this.operations, this.viewOptions);
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
+    if (!this.meshUpdateRequired && !this.pendingOperation ) {
       obj.setMesh(this.mesh.clone());
     }
     return obj;

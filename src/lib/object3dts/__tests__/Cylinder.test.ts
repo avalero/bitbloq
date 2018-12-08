@@ -51,9 +51,9 @@ test('Check params are well passed and mesh needs to be recomputed', () => {
   object.setParameters({ r0: 5, r1: 5, height: 5 });
   expect((object as any).parameters).toEqual({ r0: 5, r1: 5, height: 5 });
   expect(object.meshUpdateRequired).toBe(true);
-  object.getPrimitiveMeshAsync().then(mesh1 => {
+  object.computeMeshAsync().then(mesh1 => {
     expect(object.meshUpdateRequired).toBe(false);
-    object.getPrimitiveMeshAsync().then(mesh2 => {
+    object.computeMeshAsync().then(mesh2 => {
       expect(mesh1).toBe(mesh2);
     });
   });
@@ -77,7 +77,7 @@ test('Check Object Dimensions are well Constructed', () => {
     [],
     ObjectsCommon.createViewOptions(),
   );
-  const mesh = object.getPrimitiveMeshAsync().then(mesh => {
+  const mesh = object.computeMeshAsync().then(mesh  => {
     const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
     new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
     expect(boundingBoxDims).toEqual({
@@ -94,7 +94,7 @@ test('Check initial position and rotation', () => {
     [],
     ObjectsCommon.createViewOptions(),
   );
-  object.getPrimitiveMeshAsync().then(mesh => {
+  object.computeMeshAsync().then(mesh  => {
     const center = mesh.position;
     const euler = mesh.rotation;
     expect(center).toEqual(new THREE.Vector3(0, 0, 0));

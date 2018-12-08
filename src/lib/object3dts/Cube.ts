@@ -56,6 +56,8 @@ export default class Cube extends PrimitiveObject {
     super(vO, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    this.meshPromise = this.computeMeshAsync();
   }
 
   /**

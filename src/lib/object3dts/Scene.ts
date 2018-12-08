@@ -403,12 +403,12 @@ export default class Scene {
    * 
    * @param json object descriptor
    */
-  public getPosition(json:IObjectsCommonJSON):IObjectPosition{
+  public async getPositionAsync(json:IObjectsCommonJSON):Promise <IObjectPosition>{
     try{
       const obj = this.getObject(json);
 
       if(obj instanceof Object3D){
-        const mesh = obj.computedMesh;
+        const mesh = await obj.getMeshAsync();
         if(mesh){
           const pos: IObjectPosition = {
             position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
@@ -422,7 +422,6 @@ export default class Scene {
           }
           return pos;
         }
-
       }else if (obj instanceof RepetitionObject){
         const mesh = obj.computedMesh;
         if(mesh){

@@ -129,6 +129,8 @@ export default class ObjectsCommon {
   protected id: string;
   protected type: string;
   protected _viewOptionsUpdateRequired: boolean;
+  protected lastJSON: IObjectsCommonJSON;
+  protected parent: ObjectsCommon | undefined;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -140,6 +142,19 @@ export default class ObjectsCommon {
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
     this.id = uuid();
+    this.parent = undefined;
+  }
+
+  public async computeMeshAsync(): Promise<THREE.Mesh>{
+    throw new Error('Object3D.computeMeshAsync() implemented on children');
+  }
+
+  public setParent(object: ObjectsCommon):void {
+    this.parent = object;
+  }
+
+  public getParent():ObjectsCommon | undefined{
+    return this.parent;
   }
 
   set meshUpdateRequired(a:boolean) {

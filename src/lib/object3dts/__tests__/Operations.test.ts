@@ -5,7 +5,7 @@ const radius = 10;
 
 test('Check initial position and rotation', () => {
   const object = new Sphere({ radius });
-  object.getPrimitiveMeshAsync().then(mesh => {
+  object.computeMeshAsync().then(mesh  => {
     const center = mesh.position;
     const euler = mesh.rotation;
     expect(center).toEqual(new THREE.Vector3(0, 0, 0));
@@ -23,7 +23,7 @@ test('Test translation', () => {
   object.setOperations([{ type: 'translation', x, y, z, relative: false }]);
   expect(object.meshUpdateRequired).toBe(true);
   expect(object.pendingOperation).toBe(true);
-  object.getPrimitiveMeshAsync().then(mesh => {
+  object.computeMeshAsync().then(mesh  => {
     expect(mesh.position).toEqual({ x, y, z });
     object.setOperations([{ type: 'translation', x, y, z, relative: false }]);
     expect(object.meshUpdateRequired).toBe(false);
@@ -34,7 +34,7 @@ test('Test translation', () => {
     ]);
     expect(object.meshUpdateRequired).toBe(false);
     expect(object.pendingOperation).toBe(true);
-    object.getPrimitiveMeshAsync().then(mesh => {
+    object.computeMeshAsync().then(mesh  => {
       expect(mesh.position).toEqual({ x: 2 * x, y: 2 * y, z: 2 * z });
     });
   });
@@ -48,7 +48,7 @@ test('Test rotation', () => {
   ]);
   expect(object.meshUpdateRequired).toBe(true);
   expect(object.pendingOperation).toBe(true);
-  object.getPrimitiveMeshAsync().then(mesh => {
+  object.computeMeshAsync().then(mesh  => {
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
     expect(mesh.rotation.x).toBeCloseTo(0.018277045187202513);
 
@@ -57,7 +57,7 @@ test('Test rotation', () => {
     ]);
     expect(object.meshUpdateRequired).toBe(false);
     expect(object.pendingOperation).toBe(false);
-    object.getPrimitiveMeshAsync().then(mesh => {
+    object.computeMeshAsync().then(mesh  => {
       expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
       expect(mesh.rotation.x).toBeCloseTo(0.018277045187202513);
       object.setOperations([
@@ -66,7 +66,7 @@ test('Test rotation', () => {
       ]);
       expect(object.meshUpdateRequired).toBe(false);
       expect(object.pendingOperation).toBe(true);
-      object.getPrimitiveMeshAsync().then(mesh => {
+      object.computeMeshAsync().then(mesh  => {
         expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
         expect(mesh.rotation.x).toBeCloseTo(0.018277045187202513);
         expect(mesh.rotation.y).toBeCloseTo(0.018277045187202513);
@@ -87,7 +87,7 @@ test('Test translation & rotation', () => {
   ]);
   expect(object.meshUpdateRequired).toBe(true);
   expect(object.pendingOperation).toBe(true);
-  object.getPrimitiveMeshAsync().then(mesh => {
+  object.computeMeshAsync().then(mesh  => {
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
     expect(mesh.rotation.x).toBeCloseTo(0.018277045187202513);
 
@@ -97,7 +97,7 @@ test('Test translation & rotation', () => {
     ]);
     expect(object.meshUpdateRequired).toBe(false);
     expect(object.pendingOperation).toBe(true);
-    object.getPrimitiveMeshAsync().then(mesh => {
+    object.computeMeshAsync().then(mesh  => {
       expect(mesh.position).toEqual({ x, y, z });
       expect(mesh.rotation.x).toBeCloseTo(0.018277045187202513);
 
@@ -107,7 +107,7 @@ test('Test translation & rotation', () => {
       ]);
       expect(object.meshUpdateRequired).toBe(false);
       expect(object.pendingOperation).toBe(true);
-      object.getPrimitiveMeshAsync().then(mesh => {
+      object.computeMeshAsync().then(mesh  => {
         expect(mesh.position.x).toBeCloseTo(10);
         expect(mesh.position.y).toBeCloseTo(5.09);
         expect(mesh.position.z).toBeCloseTo(-4.907);
@@ -118,7 +118,7 @@ test('Test translation & rotation', () => {
         ]);
         expect(object.meshUpdateRequired).toBe(false);
         expect(object.pendingOperation).toBe(true);
-        object.getPrimitiveMeshAsync().then(mesh => {
+        object.computeMeshAsync().then(mesh  => {
           expect(mesh.rotation.x).toBeCloseTo(0.0182);
           expect(mesh.rotation.y).toBeCloseTo(0.0182);
           expect(mesh.rotation.z).toBeCloseTo(0);
