@@ -58,7 +58,7 @@ export default class CompoundObject extends Object3D {
 
     //children will have this CompoundObject as Parent
     this.children.forEach(child => child.setParent(this));
-    
+
     this._meshUpdateRequired = true;
     this.setOperations();
   }
@@ -135,17 +135,17 @@ export default class CompoundObject extends Object3D {
 
   public async getMeshAsync(): Promise<THREE.Mesh> {
     // debugger;
-    if(this.meshPromise){
+    if (this.meshPromise) {
       this.mesh = await this.meshPromise;
       this.meshPromise = null;
       return this.mesh;
-    }else{
+    } else {
       return this.mesh;
     }
   }
 
-  protected async computeMeshAsync(): Promise<THREE.Mesh> { 
-    this.meshPromise = new Promise( async (resolve, reject) => {
+  protected async computeMeshAsync(): Promise<THREE.Mesh> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         if (this.worker) {
           this.worker.terminate();
@@ -164,27 +164,25 @@ export default class CompoundObject extends Object3D {
 
           const message = event.data;
           //recompute object form vertices and normals
-          this.fromBufferData(message.vertices, message.normals).then(
-            mesh => {
-              this.mesh = mesh;
-              if (this.mesh instanceof THREE.Mesh) {
-                this.applyOperationsAsync().then(() => {
-                  this._meshUpdateRequired = false;
-                  if (this.viewOptionsUpdateRequired) {
-                    this.mesh.material = this.getMaterial();
-                    this._viewOptionsUpdateRequired = false;
-                  }
-                  (this.worker as CompoundWorker).terminate();
-                  this.worker = null;
-                  resolve(this.mesh);
-                });
-              } else {
+          this.fromBufferData(message.vertices, message.normals).then(mesh => {
+            this.mesh = mesh;
+            if (this.mesh instanceof THREE.Mesh) {
+              this.applyOperationsAsync().then(() => {
+                this._meshUpdateRequired = false;
+                if (this.viewOptionsUpdateRequired) {
+                  this.mesh.material = this.getMaterial();
+                  this._viewOptionsUpdateRequired = false;
+                }
                 (this.worker as CompoundWorker).terminate();
                 this.worker = null;
-                reject(new Error('Mesh not computed correctly'));
-              }
-            },
-          );
+                resolve(this.mesh);
+              });
+            } else {
+              (this.worker as CompoundWorker).terminate();
+              this.worker = null;
+              reject(new Error('Mesh not computed correctly'));
+            }
+          });
         };
         // END OF EVENT HANDLER
 
@@ -197,8 +195,8 @@ export default class CompoundObject extends Object3D {
           };
           (this.worker as CompoundWorker).postMessage(message, bufferArray);
         });
-      
-      // mesh update not required  
+
+        // mesh update not required
       } else {
         if (this.pendingOperation) {
           await this.applyOperationsAsync();
@@ -208,9 +206,9 @@ export default class CompoundObject extends Object3D {
       }
     });
 
+    this.lastJSON = this.toJSON();
     return this.meshPromise;
   }
-
 
   protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
@@ -295,9 +293,8 @@ export default class CompoundObject extends Object3D {
   public updateFromJSON(object: ICompoundObjectJSON) {
     if (this.id !== object.id)
       throw new Error('Object id does not match with JSON id');
-    
-    
-    const newchildren: Array<Object3D> = []
+
+    const newchildren: Array<Object3D> = [];
     //update children
     try {
       object.children.forEach(obj => {
@@ -326,11 +323,12 @@ export default class CompoundObject extends Object3D {
     if (!isEqual(this.lastJSON, this.toJSON())) {
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
-      if(this.parent){
-        this.parent.meshUpdateRequired = true;
-        this.parent.computeMeshAsync();
+      let obj: ObjectsCommon | undefined = this.getParent();
+      while (obj) {
+        obj.meshUpdateRequired = true;
+        obj.computeMeshAsync();
+        obj = obj.getParent();
       }
     }
-
   }
 }

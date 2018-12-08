@@ -59,7 +59,6 @@ export default class Object3D extends ObjectsCommon {
   protected mesh: THREE.Mesh;
   protected meshPromise: Promise<THREE.Mesh> | null;
 
-
   constructor(
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
@@ -215,6 +214,4 @@ export default class Object3D extends ObjectsCommon {
   public clone(): Object3D {
     throw new Error('Object3D.clone() Implemented in children');
   }
-
-  
 }

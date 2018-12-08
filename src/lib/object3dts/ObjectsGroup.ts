@@ -34,10 +34,10 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   private children: Array<ObjectsCommon>;
 
-  public getChildren():Array<ObjectsCommon>{
+  public getChildren(): Array<ObjectsCommon> {
     return this.children;
   }
-  
+
   constructor(children: Array<ObjectsCommon> = []) {
     super(ObjectsCommon.createViewOptions(), []);
     this.children = children;
@@ -134,7 +134,7 @@ export default class ObjectsGroup extends ObjectsCommon {
         newChildren.push(objToUpdate);
       });
 
-      if(!isEqual(newChildren, this.children)){
+      if (!isEqual(newChildren, this.children)) {
         this.children = newChildren.slice(0);
         this._meshUpdateRequired = true;
       }

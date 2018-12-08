@@ -145,19 +145,19 @@ export default class ObjectsCommon {
     this.parent = undefined;
   }
 
-  public async computeMeshAsync(): Promise<THREE.Mesh>{
+  public async computeMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
     throw new Error('Object3D.computeMeshAsync() implemented on children');
   }
 
-  public setParent(object: ObjectsCommon):void {
+  public setParent(object: ObjectsCommon): void {
     this.parent = object;
   }
 
-  public getParent():ObjectsCommon | undefined{
+  public getParent(): ObjectsCommon | undefined {
     return this.parent;
   }
 
-  set meshUpdateRequired(a:boolean) {
+  set meshUpdateRequired(a: boolean) {
     this._meshUpdateRequired = a;
   }
 
@@ -165,7 +165,7 @@ export default class ObjectsCommon {
     return this._meshUpdateRequired;
   }
 
-  set pendingOperation(a:boolean){
+  set pendingOperation(a: boolean) {
     this._pendingOperation = a;
   }
 
@@ -243,17 +243,17 @@ export default class ObjectsCommon {
   }
 
   public setViewOptions(params: Partial<IViewOptions>) {
-    if(!isEqual(params,this.viewOptions)){
+    if (!isEqual(params, this.viewOptions)) {
       this.viewOptions = {
         ...ObjectsCommon.createViewOptions(),
         ...this.viewOptions,
         ...params,
-      }
-      this._viewOptionsUpdateRequired =true;
+      };
+      this._viewOptionsUpdateRequired = true;
     }
   }
 
-  public get viewOptionsUpdateRequired():boolean{
+  public get viewOptionsUpdateRequired(): boolean {
     return this._viewOptionsUpdateRequired;
   }
 
@@ -277,5 +277,4 @@ export default class ObjectsCommon {
   public updateFromJSON(object: IObjectsCommonJSON): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
-
 }

@@ -76,31 +76,31 @@ const clickBoxes: ClickBox[] = [
   {
     position: [0, -0.876, -0.876],
     size: [1.5, 0.25, 0.25],
-    cameraAngle: [-HALF_PI, 3*QUARTER_PI],
+    cameraAngle: [-HALF_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-LEFT
   {
     position: [-0.876, 0, -0.876],
     size: [0.25, 1.5, 0.25],
-    cameraAngle: [-Math.PI, 3*QUARTER_PI],
+    cameraAngle: [-Math.PI, 3 * QUARTER_PI],
   },
   // BOTTOM-BACK
   {
     position: [0, 0.876, -0.876],
     size: [1.5, 0.25, 0.25],
-    cameraAngle: [HALF_PI, 3*QUARTER_PI],
+    cameraAngle: [HALF_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-RIGHT
   {
     position: [0.876, 0, -0.876],
     size: [0.25, 1.5, 0.25],
-    cameraAngle: [0, 3*QUARTER_PI],
+    cameraAngle: [0, 3 * QUARTER_PI],
   },
   // FRONT-LEFT
   {
     position: [-0.876, -0.876, 0],
     size: [0.25, 0.25, 1.5],
-    cameraAngle: [-3*QUARTER_PI, HALF_PI],
+    cameraAngle: [-3 * QUARTER_PI, HALF_PI],
   },
   // FRONT-RIGHT
   {
@@ -112,7 +112,7 @@ const clickBoxes: ClickBox[] = [
   {
     position: [-0.876, 0.876, 0],
     size: [0.25, 0.25, 1.5],
-    cameraAngle: [3*QUARTER_PI, HALF_PI],
+    cameraAngle: [3 * QUARTER_PI, HALF_PI],
   },
   // BACK-RIGHT
   {
@@ -124,7 +124,7 @@ const clickBoxes: ClickBox[] = [
   {
     position: [-0.876, -0.876, 0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [-3*QUARTER_PI, QUARTER_PI],
+    cameraAngle: [-3 * QUARTER_PI, QUARTER_PI],
   },
   // TOP-FRONT-RIGHT
   {
@@ -136,7 +136,7 @@ const clickBoxes: ClickBox[] = [
   {
     position: [-0.876, 0.876, 0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [3*QUARTER_PI, QUARTER_PI],
+    cameraAngle: [3 * QUARTER_PI, QUARTER_PI],
   },
   // TOP-BACK-RIGHT
   {
@@ -148,25 +148,25 @@ const clickBoxes: ClickBox[] = [
   {
     position: [-0.876, -0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [-3*QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [-3 * QUARTER_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-FRONT-RIGHT
   {
     position: [0.876, -0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [-QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [-QUARTER_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-BACK-LEFT
   {
     position: [-0.876, 0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [3*QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [3 * QUARTER_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-BACK-RIGHT
   {
     position: [0.876, 0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [QUARTER_PI, 3 * QUARTER_PI],
   },
 ];
 
@@ -182,7 +182,7 @@ export interface BoxLabels {
 }
 
 export interface NavigationBoxOptions {
-  onChangeCameraAngle?: ChangeCameraAngleHandler,
+  onChangeCameraAngle?: ChangeCameraAngleHandler;
   boxLabels: BoxLabels;
 }
 
@@ -194,8 +194,8 @@ export default class NavigationBox {
       top: 'TOP',
       bottom: 'BOTTOM',
       left: 'LEFT',
-      right: 'RIGHT'
-    }
+      right: 'RIGHT',
+    },
   };
 
   private container: HTMLElement;
@@ -207,11 +207,14 @@ export default class NavigationBox {
   private containerRect: ClientRect;
   private hoverBox: THREE.Mesh;
 
-  constructor(container: HTMLElement, options: Partial<NavigationBoxOptions> = {}) {
+  constructor(
+    container: HTMLElement,
+    options: Partial<NavigationBoxOptions> = {},
+  ) {
     this.container = container;
     this.options = {
       ...options,
-      ...NavigationBox.defaultOptions
+      ...NavigationBox.defaultOptions,
     };
 
     this.setup();
@@ -242,7 +245,7 @@ export default class NavigationBox {
     this.scene.add(spotLight2);
 
     const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
-    const {boxLabels} = this.options;
+    const { boxLabels } = this.options;
     const cubeMaterials = [
       new THREE.MeshLambertMaterial({
         map: this.getTextureForText(boxLabels.right, HALF_PI),
@@ -290,18 +293,18 @@ export default class NavigationBox {
     this.renderer.render(this.scene, this.camera);
   }
 
-  private getBoxFromPosition = (x: number, y: number): THREE.Mesh | undefined => {
-    const {left, top, width, height} = this.container.getBoundingClientRect();
+  private getBoxFromPosition = (
+    x: number,
+    y: number,
+  ): THREE.Mesh | undefined => {
+    const { left, top, width, height } = this.container.getBoundingClientRect();
     const mousePosition = new THREE.Vector2();
     mousePosition.x = ((x - left) / width) * 2 - 1;
     mousePosition.y = -((y - top) / height) * 2 + 1;
 
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(mousePosition, this.camera);
-    const intersects = raycaster.intersectObjects(
-      this.boxes.children,
-      true,
-    );
+    const intersects = raycaster.intersectObjects(this.boxes.children, true);
     if (intersects.length > 0) {
       return intersects[0].object as THREE.Mesh;
     }
@@ -332,7 +335,7 @@ export default class NavigationBox {
   };
 
   private onClick = (e: MouseEvent) => {
-    const {onChangeCameraAngle} = this.options;
+    const { onChangeCameraAngle } = this.options;
 
     if (!onChangeCameraAngle) return;
 

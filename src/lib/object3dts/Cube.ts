@@ -31,7 +31,6 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
 }
 
 export default class Cube extends PrimitiveObject {
-
   public static typeName: string = 'Cube';
 
   /**
@@ -42,7 +41,6 @@ export default class Cube extends PrimitiveObject {
     if (object.type != Cube.typeName) throw new Error('Not Cube Object');
     return new Cube(object.parameters, object.operations, object.viewOptions);
   }
-
 
   constructor(
     parameters: ICubeParams,

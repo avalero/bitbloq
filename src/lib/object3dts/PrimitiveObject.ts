@@ -73,31 +73,31 @@ export default class PrimitiveObject extends Object3D {
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
-    debugger;
     // if anything has changed, recompute mesh
-    if(!isEqual(this.lastJSON, this.toJSON())){
+    if (!isEqual(this.lastJSON, this.toJSON())) {
       this.lastJSON = this.toJSON();
-      if(this.parent && this.parent instanceof CompoundObject){}
       this.meshPromise = this.computeMeshAsync();
-      if(this.parent){
-        this.parent.meshUpdateRequired = true;
-        this.parent.computeMeshAsync();
+      let obj: ObjectsCommon | undefined = this.getParent();
+      while (obj) {
+        obj.meshUpdateRequired = true;
+        obj.computeMeshAsync();
+        obj = obj.getParent();
       }
     }
   }
 
   public async getMeshAsync(): Promise<THREE.Mesh> {
-    if(this.meshPromise){
+    if (this.meshPromise) {
       this.mesh = await this.meshPromise;
       this.meshPromise = null;
       return this.mesh;
-    }else{
+    } else {
       return this.mesh;
     }
   }
-  
-  protected async computeMeshAsync(): Promise<THREE.Mesh>{
-    this.meshPromise = new Promise( async (resolve, reject) => {
+
+  protected async computeMeshAsync(): Promise<THREE.Mesh> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry, this.getMaterial());
@@ -106,19 +106,19 @@ export default class PrimitiveObject extends Object3D {
       }
 
       if (this.pendingOperation) {
-        await this.applyOperationsAsync()
+        await this.applyOperationsAsync();
       }
-      
-      if(this.viewOptionsUpdateRequired){
+
+      if (this.viewOptionsUpdateRequired) {
         this.mesh.material = this.getMaterial();
         this._viewOptionsUpdateRequired = false;
       }
 
-      if(this.mesh instanceof THREE.Mesh)
-        resolve(this.mesh);
-      else
-        reject(new Error('Mesh has not been computed properly'));
+      if (this.mesh instanceof THREE.Mesh) resolve(this.mesh);
+      else reject(new Error('Mesh has not been computed properly'));
     });
+
+    this.lastJSON = this.toJSON();
     return this.meshPromise;
   }
 }

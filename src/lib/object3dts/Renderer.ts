@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import Scene, {IHelperDescription} from './Scene';
-import ObjectsCommon, {IObjectsCommonJSON} from './ObjectsCommon';
+import Scene, { IHelperDescription } from './Scene';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
 import NavigationBox from './NavigationBox';
 
@@ -118,7 +118,7 @@ export default class Renderer {
     this.navigationBox = new NavigationBox(navBoxContainer, {
       onChangeCameraAngle: (theta, phi) => {
         this.cameraControls.rotateTo(theta, phi, true);
-      }
+      },
     });
     this.updateNavigationBox();
 
@@ -127,7 +127,7 @@ export default class Renderer {
 
   private updateSize() {
     this.containerRect = this.container.getBoundingClientRect();
-    const {width, height} = this.containerRect;
+    const { width, height } = this.containerRect;
     this.threeRenderer.setSize(width, height);
 
     if (this.camera instanceof THREE.PerspectiveCamera) {
@@ -139,7 +139,7 @@ export default class Renderer {
   private updateNavigationBox() {
     const direction = new THREE.Vector3();
     this.camera.getWorldDirection(direction);
-    const {x, y, z} = direction;
+    const { x, y, z } = direction;
     this.navigationBox.updateCamera(-x, -y, -z);
   }
 
@@ -213,7 +213,7 @@ export default class Renderer {
     x: number,
     y: number,
   ): THREE.Object3D | undefined {
-    const {left, top, width, height} = this.containerRect;
+    const { left, top, width, height } = this.containerRect;
     const mousePosition = new THREE.Vector2();
     mousePosition.x = ((x - left) / width) * 2 - 1;
     mousePosition.y = -((y - top) / height) * 2 + 1;

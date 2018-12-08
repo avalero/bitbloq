@@ -80,6 +80,7 @@ export default class RepetitionObject extends ObjectsCommon {
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
   private group: Array<ObjectsCommon>;
   private mesh: THREE.Group;
+  protected meshPromise: Promise<THREE.Group> | null;
 
   /**
    *
@@ -101,11 +102,14 @@ export default class RepetitionObject extends ObjectsCommon {
     super(vO, []);
     this.parameters = { ...params };
     this.originalObject = original;
+    this.originalObject.setParent(this);
     this.type = RepetitionObject.typeName;
     this._meshUpdateRequired = true;
     this._pendingOperation = true;
     this.group = [];
     this.mesh = new THREE.Group();
+    this.lastJSON = this.toJSON();
+    this.meshPromise = this.computeMeshAsync();
   }
 
   /**
@@ -205,6 +209,17 @@ export default class RepetitionObject extends ObjectsCommon {
       this.originalObject.updateFromJSON(object.children[0]);
       this.setParameters(object.parameters);
       this.setOperations(object.operations);
+
+      if (!isEqual(this.lastJSON, this.toJSON())) {
+        this.lastJSON = this.toJSON();
+        this.meshPromise = this.computeMeshAsync();
+        let obj: ObjectsCommon | undefined = this.getParent();
+        while (obj) {
+          obj.meshUpdateRequired = true;
+          obj.computeMeshAsync();
+          obj = obj.getParent();
+        }
+      }
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
@@ -214,30 +229,27 @@ export default class RepetitionObject extends ObjectsCommon {
     return this._meshUpdateRequired || this.originalObject.meshUpdateRequired;
   }
 
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
+  }
+
   get pendingOperation(): boolean {
     return this._pendingOperation || this.originalObject.pendingOperation;
   }
 
   public async getMeshAsync(): Promise<THREE.Object3D> {
-    //check if originalObject has changed
-    if (this.meshUpdateRequired || this.originalObject.pendingOperation || this.originalObject.viewOptionsUpdateRequired) {
-      this.computeMesh();
+    if (this.meshPromise) {
+      this.mesh = await this.meshPromise;
+      this.meshPromise = null;
+      return this.mesh;
+    } else {
+      return this.mesh;
     }
-
-    const meshes = await Promise.all(this.group.map(obj => obj.getMeshAsync()));
-    this.mesh.children.length = 0;
-    meshes.forEach(mesh => {
-      this.mesh.add(mesh);
-    });
-
-    await this.applyOperationsAsync();
-
-    return this.mesh;
   }
 
-  get computedMesh():THREE.Group | undefined{
-    return this.mesh;
-  }
+  // get computedMesh():THREE.Group | undefined{
+  //   return this.mesh;
+  // }
 
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
@@ -347,5 +359,33 @@ export default class RepetitionObject extends ObjectsCommon {
 
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
+  }
+
+  public async computeMeshAsync(): Promise<THREE.Group> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
+      if (
+        this.meshUpdateRequired ||
+        this.originalObject.pendingOperation ||
+        this.originalObject.viewOptionsUpdateRequired
+      ) {
+        this.computeMesh();
+      }
+
+      const meshes = await Promise.all(
+        this.group.map(obj => obj.getMeshAsync()),
+      );
+      this.mesh.children.length = 0;
+      meshes.forEach(mesh => {
+        this.mesh.add(mesh);
+      });
+
+      await this.applyOperationsAsync();
+
+      if (this.mesh instanceof THREE.Group) resolve(this.mesh);
+      else reject(new Error('Unexpected Error computing RepetitionObject'));
+    });
+
+    this.lastJSON = this.toJSON();
+    return this.meshPromise;
   }
 }
