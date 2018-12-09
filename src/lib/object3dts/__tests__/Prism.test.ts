@@ -1,30 +1,30 @@
-import Cube, { ICubeJSON, ICubeParams } from '../Cube';
+import Prism, { IPrismParams, IPrismJSON } from '../Prism';
 import ObjectsCommon, { OperationsArray, IViewOptions } from '../ObjectsCommon';
 import * as THREE from 'three';
 
-const width = 10;
-const height = 15;
-const depth = 20;
+const sides = 10;
+const length = 20;
+const height = 30;
 
-let objParams: ICubeParams = {
-  width,
+let objParams: IPrismParams = {
+  sides,
+  length,
   height,
-  depth,
 };
 let operations: OperationsArray = [];
 let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test('Cube - Constructor', () => {
-  const obj = new Cube(objParams, operations, viewOptions);
+test('Prism - Constructor', () => {
+  const obj = new Prism(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CubeGeometry);
+    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
     expect(mesh.rotation.x).toBeCloseTo(0);
     expect(mesh.rotation.y).toBeCloseTo(0);
@@ -32,15 +32,15 @@ test('Cube - Constructor', () => {
   });
 });
 
-test('Cube - Constructor - Default Params - ViewOptions', () => {
-  const obj = new Cube(objParams, operations);
+test('Prism - Constructor - Default Params - ViewOptions', () => {
+  const obj = new Prism(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CubeGeometry);
+    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
     expect(mesh.rotation.x).toBeCloseTo(0);
     expect(mesh.rotation.y).toBeCloseTo(0);
@@ -48,15 +48,15 @@ test('Cube - Constructor - Default Params - ViewOptions', () => {
   });
 });
 
-test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
-  const obj = new Cube(objParams, operations);
+test('Prism - Constructor - Default Params - Operations - ViewOptions', () => {
+  const obj = new Prism(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CubeGeometry);
+    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
     expect(mesh.rotation.x).toBeCloseTo(0);
     expect(mesh.rotation.y).toBeCloseTo(0);
@@ -64,12 +64,12 @@ test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
   });
 });
 
-test('Cube - Constructor - Set Operations - Translation', () => {
+test('Prism - Constructor - Set Operations - Translation', () => {
   const x = 10;
   const y = 20;
   const z = 30;
   const operations = [ObjectsCommon.createTranslateOperation(x, y, z)];
-  const obj = new Cube(objParams, operations);
+  const obj = new Prism(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
@@ -81,11 +81,11 @@ test('Cube - Constructor - Set Operations - Translation', () => {
   });
 });
 
-test('Cube - Constructor - Set Operations - Rotation', () => {
+test('Prism - Constructor - Set Operations - Rotation', () => {
   const axis = 'y';
   const angle = 45;
   const operations = [ObjectsCommon.createRotateOperation(axis, angle)];
-  const obj = new Cube(objParams, operations);
+  const obj = new Prism(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
@@ -97,10 +97,10 @@ test('Cube - Constructor - Set Operations - Rotation', () => {
   });
 });
 
-test('Cube - Constructor - set Mesh', async () => {
-  const objAux = new Cube(objParams);
+test('Prism - Constructor - set Mesh', async () => {
+  const objAux = new Prism(objParams);
   const meshAux = await objAux.getMeshAsync();
-  const obj = new Cube(objParams, operations, viewOptions, meshAux);
+  const obj = new Prism(objParams, operations, viewOptions, meshAux);
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
   });
@@ -110,8 +110,8 @@ test('Cube - Constructor - set Mesh', async () => {
 
 /// TESTING CUBE.CLONE
 
-test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
-  const obj = new Cube(objParams, operations, viewOptions);
+test('Prism - Clone - Parameters - Operations - viewOptions', async () => {
+  const obj = new Prism(objParams, operations, viewOptions);
   const spy = jest.spyOn((obj as any).mesh, 'clone');
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
@@ -126,13 +126,11 @@ test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
   expect(spy).toBeCalledTimes(1);
 });
 
-/// END CLONE
-
 /// TEST NEW FROM JSON
-test('Cube - newFromJSON', async () => {
-  const obj = new Cube(objParams, operations, viewOptions);
-  const json: ICubeJSON = obj.toJSON() as ICubeJSON;
-  const obj2 = Cube.newFromJSON(json);
+test('Prism - newFromJSON', async () => {
+  const obj = new Prism(objParams, operations, viewOptions);
+  const json: IPrismJSON = obj.toJSON() as IPrismJSON;
+  const obj2 = Prism.newFromJSON(json);
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);

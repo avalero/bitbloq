@@ -35,7 +35,7 @@ import ObjectsCommon, {
 import PrimitiveObject from './PrimitiveObject';
 import isEqual from 'lodash.isequal';
 
-interface IPrismParams {
+export interface IPrismParams {
   sides: number;
   length: number;
   height: number;
@@ -74,6 +74,25 @@ export default class Prism extends PrimitiveObject {
     }
   }
 
+  public clone(): Prism {
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Prism(
+        this.parameters as IPrismParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Prism(
+        this.parameters as IPrismParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
+    }
+  }
+
   protected getGeometry(): THREE.Geometry {
     let { sides, length, height } = this.parameters as IPrismParams;
     sides = Math.max(3, sides);
@@ -100,24 +119,5 @@ export default class Prism extends PrimitiveObject {
       Number(height),
       Number(sides),
     ).rotateX(Math.PI / 2);
-  }
-
-  public clone(): Prism {
-    if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Prism(
-        this.parameters as IPrismParams,
-        this.operations,
-        this.viewOptions,
-        this.mesh.clone(),
-      );
-      return obj;
-    } else {
-      const obj = new Prism(
-        this.parameters as IPrismParams,
-        this.operations,
-        this.viewOptions,
-      );
-      return obj;
-    }
   }
 }

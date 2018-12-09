@@ -22,7 +22,7 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-interface ISphereParams {
+export interface ISphereParams {
   radius: number;
 }
 
@@ -59,6 +59,25 @@ export default class Sphere extends PrimitiveObject {
     }
   }
 
+  public clone(): Sphere {
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
+    }
+  }
+
   protected getGeometry(): THREE.Geometry {
     let { radius } = this.parameters as ISphereParams;
     radius = Math.max(1, radius);
@@ -79,24 +98,5 @@ export default class Sphere extends PrimitiveObject {
       Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
       Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
     );
-  }
-
-  public clone(): Sphere {
-    if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Sphere(
-        this.parameters as ISphereParams,
-        this.operations,
-        this.viewOptions,
-        this.mesh.clone(),
-      );
-      return obj;
-    } else {
-      const obj = new Sphere(
-        this.parameters as ISphereParams,
-        this.operations,
-        this.viewOptions,
-      );
-      return obj;
-    }
   }
 }

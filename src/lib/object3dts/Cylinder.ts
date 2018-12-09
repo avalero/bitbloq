@@ -21,7 +21,7 @@ import ObjectsCommon, {
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 import isEqual from 'lodash.isequal';
 
-interface ICylinderParams {
+export interface ICylinderParams {
   r0: number;
   r1: number;
   height: number;
@@ -65,6 +65,25 @@ export default class Cylinder extends PrimitiveObject {
     }
   }
 
+  public clone(): Cylinder {
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Cylinder(
+        this.parameters as ICylinderParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Cylinder(
+        this.parameters as ICylinderParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
+    }
+  }
+
   protected getGeometry(): THREE.Geometry {
     let { r0, r1, height } = this.parameters as ICylinderParams;
     r0 = Math.max(1, r0);
@@ -93,24 +112,5 @@ export default class Cylinder extends PrimitiveObject {
       32,
       1,
     ).rotateX(Math.PI / 2);
-  }
-
-  public clone(): Cylinder {
-    if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Cylinder(
-        this.parameters as ICylinderParams,
-        this.operations,
-        this.viewOptions,
-        this.mesh.clone(),
-      );
-      return obj;
-    } else {
-      const obj = new Cylinder(
-        this.parameters as ICylinderParams,
-        this.operations,
-        this.viewOptions,
-      );
-      return obj;
-    }
   }
 }
