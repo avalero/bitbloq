@@ -19,6 +19,7 @@ import CompoundObject, {
 import Object3D from './Object3D';
 import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import Scene from './Scene';
+import isEqual from 'lodash.isequal';
 
 export default class Difference extends CompoundObject {
   static typeName: string = 'Difference';
@@ -48,6 +49,7 @@ export default class Difference extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -56,20 +58,34 @@ export default class Difference extends CompoundObject {
     };
     super(children, operations, vO);
     this.type = Difference.typeName;
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
   public clone(): Difference {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Difference(
-      childrenClone,
-      this.operations,
-      this.viewOptions,
-    );
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
+
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Difference(
+        childrenClone,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Difference(
+        childrenClone,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
     }
-    return obj;
   }
 }

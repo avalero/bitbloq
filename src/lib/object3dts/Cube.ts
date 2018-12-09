@@ -18,7 +18,6 @@ import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 import isEqual from 'lodash.isequal';
 
-
 /**
  * Params defining a cube (units are in millimiters)
  */
@@ -58,9 +57,9 @@ export default class Cube extends PrimitiveObject {
     this.type = Cube.typeName;
     this.setParameters(parameters);
     this.lastJSON = this.toJSON();
-    if(mesh){
+    if (mesh) {
       this.setMesh(mesh);
-    }else{
+    } else {
       this.meshPromise = this.computeMeshAsync();
     }
   }
@@ -69,8 +68,7 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-
-    if(isEqual(this.lastJSON, this.toJSON())){
+    if (isEqual(this.lastJSON, this.toJSON())) {
       const cube = new Cube(
         this.parameters as ICubeParams,
         this.operations,
@@ -78,7 +76,7 @@ export default class Cube extends PrimitiveObject {
         this.mesh.clone(),
       );
       return cube;
-    }else{
+    } else {
       const cube = new Cube(
         this.parameters as ICubeParams,
         this.operations,

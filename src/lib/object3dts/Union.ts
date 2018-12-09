@@ -58,23 +58,27 @@ export default class Union extends CompoundObject {
     super(children, operations, vO);
     this.type = Union.typeName;
     this.lastJSON = this.toJSON();
-    if(mesh){
+    if (mesh) {
       this.setMesh(mesh);
-    }else{
+    } else {
       this.meshPromise = this.computeMeshAsync();
     }
-    
   }
 
   public clone(): Union {
-    const childrenClone: Array<Object3D> = this.children.map(child => 
+    const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-  
-    if(isEqual(this.lastJSON, this.toJSON() ) ){
-      const obj = new Union(childrenClone, this.operations, this.viewOptions, this.mesh.clone());
+
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Union(
+        childrenClone,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
       return obj;
-    }else{
+    } else {
       const obj = new Union(childrenClone, this.operations, this.viewOptions);
       return obj;
     }

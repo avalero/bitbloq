@@ -19,6 +19,7 @@ import ObjectsCommon, {
   IObjectsCommonJSON,
 } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import isEqual from 'lodash.isequal';
 
 interface ICylinderParams {
   r0: number;
@@ -47,6 +48,7 @@ export default class Cylinder extends PrimitiveObject {
     parameters: ICylinderParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -56,7 +58,11 @@ export default class Cylinder extends PrimitiveObject {
     this.type = Cylinder.typeName;
     this.setParameters(parameters);
     this.lastJSON = this.toJSON();
-    this.meshPromise = this.computeMeshAsync();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -90,15 +96,21 @@ export default class Cylinder extends PrimitiveObject {
   }
 
   public clone(): Cylinder {
-    const obj = new Cylinder(
-      this.parameters as ICylinderParams,
-      this.operations,
-      this.viewOptions,
-    );
-
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Cylinder(
+        this.parameters as ICylinderParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Cylinder(
+        this.parameters as ICylinderParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
     }
-    return obj;
   }
 }

@@ -52,12 +52,12 @@ export default class Sphere extends PrimitiveObject {
     this.type = Sphere.typeName;
     this.setParameters(parameters);
     this.lastJSON = this.toJSON();
-    if(mesh){
+    if (mesh) {
       this.setMesh(mesh);
-    }else{
+    } else {
       this.meshPromise = this.computeMeshAsync();
     }
-    }
+  }
 
   protected getGeometry(): THREE.Geometry {
     let { radius } = this.parameters as ISphereParams;
@@ -82,15 +82,15 @@ export default class Sphere extends PrimitiveObject {
   }
 
   public clone(): Sphere {
-    if(isEqual(this.lastJSON,this.toJSON())){
-    const obj = new Sphere(
-      this.parameters as ISphereParams,
-      this.operations,
-      this.viewOptions,
-      this.mesh.clone(),
-    );
-    return obj;
-    }else{
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
       const obj = new Sphere(
         this.parameters as ISphereParams,
         this.operations,

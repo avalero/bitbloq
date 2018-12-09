@@ -65,8 +65,8 @@ export default class ObjectsGroup extends ObjectsCommon {
   public unGroup(): Array<ObjectsCommon> {
     this.children.forEach(object3D => {
       const json = object3D.toJSON();
-        json.operations = json.operations.concat(this.operations);
-        object3D.updateFromJSON(json);
+      json.operations = json.operations.concat(this.operations);
+      object3D.updateFromJSON(json);
     });
     return this.children;
   }

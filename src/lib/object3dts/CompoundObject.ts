@@ -227,9 +227,12 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<Array<ArrayBuffer>> {
     return new Promise((resolve, reject) => {
       const bufferArray: Array<ArrayBuffer> = [];
-      Promise.all(this.children.map(child => child.getMeshAsync())).then( meshes => {
-          meshes.forEach( mesh => {
-            const geom: THREE.BufferGeometry | THREE.Geometry = (mesh as THREE.Mesh).geometry;
+      Promise.all(this.children.map(child => child.getMeshAsync())).then(
+        meshes => {
+          meshes.forEach(mesh => {
+            const geom:
+              | THREE.BufferGeometry
+              | THREE.Geometry = (mesh as THREE.Mesh).geometry;
             let bufferGeom: THREE.BufferGeometry;
             if (geom instanceof THREE.BufferGeometry) {
               bufferGeom = geom as THREE.BufferGeometry;
@@ -320,7 +323,7 @@ export default class CompoundObject extends Object3D {
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
       let obj: ObjectsCommon | undefined = this.getParent();
-     
+
       while (obj) {
         obj.meshUpdateRequired = true;
         obj.computeMeshAsync();
