@@ -21,7 +21,7 @@ import isEqual from 'lodash.isequal';
 /**
  * Params defining a cube (units are in millimiters)
  */
-interface ICubeParams {
+export interface ICubeParams {
   width: number;
   depth: number;
   height: number;
