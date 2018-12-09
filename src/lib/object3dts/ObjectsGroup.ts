@@ -42,9 +42,10 @@ export default class ObjectsGroup extends ObjectsCommon {
     return this.children;
   }
 
-  constructor(children: Array<ObjectsCommon> = [],
+  constructor(
+    children: Array<ObjectsCommon> = [],
     mesh: THREE.Group | undefined = undefined,
-    ) {
+  ) {
     super(ObjectsCommon.createViewOptions(), []);
     this.children = children;
     this.children.forEach(child => child.setParent(this));
@@ -59,7 +60,7 @@ export default class ObjectsGroup extends ObjectsCommon {
     }
   }
 
-  private setMesh(mesh: THREE.Group):void{
+  private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
@@ -81,7 +82,6 @@ export default class ObjectsGroup extends ObjectsCommon {
       throw new Error('No item in group');
     }
     this.meshPromise = new Promise(async (resolve, reject) => {
-
       try {
         this.mesh = new THREE.Group();
 
@@ -195,7 +195,6 @@ export default class ObjectsGroup extends ObjectsCommon {
           obj = obj.getParent();
         }
       }
-
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }

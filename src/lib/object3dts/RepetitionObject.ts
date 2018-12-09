@@ -118,8 +118,7 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-
-  private setMesh(mesh: THREE.Group):void{
+  private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
