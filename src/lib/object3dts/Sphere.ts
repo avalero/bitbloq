@@ -13,6 +13,8 @@
  */
 
 import * as THREE from 'three';
+import isEqual from 'lodash.isequal';
+
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
@@ -40,6 +42,7 @@ export default class Sphere extends PrimitiveObject {
     parameters: ISphereParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -47,8 +50,13 @@ export default class Sphere extends PrimitiveObject {
     };
     super(vO, operations);
     this.type = Sphere.typeName;
-    this.parameters = { ...parameters };
-    this._meshUpdateRequired = true;
+    this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -74,14 +82,21 @@ export default class Sphere extends PrimitiveObject {
   }
 
   public clone(): Sphere {
-    const obj = new Sphere(
-      this.parameters as ISphereParams,
-      this.operations,
-      this.viewOptions,
-    );
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
     }
-    return obj;
   }
 }

@@ -7,9 +7,10 @@ import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 import { ICompoundObjectJSON } from './CompoundObject';
 import BaseGrid from './BaseGrid';
 import PrimitiveObject from './PrimitiveObject';
-import CompoundObject from './CompoundObject'
+import CompoundObject from './CompoundObject';
 
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import Union from './Union';
 import Intersection from './Intersection';
 import Difference from './Difference';
@@ -36,15 +37,15 @@ export interface IHelperDescription {
 
 export interface IObjectPosition {
   position: {
-    x:number;
-    y:number;
-    z:number;
+    x: number;
+    y: number;
+    z: number;
   };
-  angle:{
-    x:number;
-    y:number;
-    z:number;
-  }
+  angle: {
+    x: number;
+    y: number;
+    z: number;
+  };
 }
 
 interface ISceneSetup {
@@ -102,7 +103,7 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): ISceneJSON {
-    return this.objectsInScene.map(object => object.toJSON());
+    return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
   }
 
   /**
@@ -149,7 +150,7 @@ export default class Scene {
     this.objectsGroup = new THREE.Group();
 
     const meshes: Array<THREE.Object3D> = await Promise.all(
-      this.objectsInScene.map(async (object) => {
+      this.objectsInScene.map(async object => {
         const mesh = await object.getMeshAsync();
         mesh.userData = object.toJSON();
         return mesh;
@@ -296,34 +297,34 @@ export default class Scene {
       throw Error('Object already in Scene');
     } else {
       //In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
-      if (object instanceof CompoundObject){
+      if (object instanceof CompoundObject) {
         const children = object.getChildren();
         children.forEach(child => {
           const obj = child.toJSON();
-          if(this.objectInScene(obj)){
+          if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
-          }else if( ! this.objectInObjectCollector(obj)){
+          } else if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
           }
         });
-      }else if(object instanceof ObjectsGroup){
+      } else if (object instanceof ObjectsGroup) {
         const children = object.getChildren();
         children.forEach(child => {
           const obj = child.toJSON();
-          if(this.objectInScene(obj)){
+          if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
-          }else if( ! this.objectInObjectCollector(obj)){
+          } else if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
           }
         });
-      }else if(object instanceof RepetitionObject){
+      } else if (object instanceof RepetitionObject) {
         const original = object.getOriginal();
         const obj = original.toJSON();
-        if(this.objectInScene(obj)){
+        if (this.objectInScene(obj)) {
           this.removeFromScene(obj);
-        }else if( ! this.objectInObjectCollector(obj)){
+        } else if (!this.objectInObjectCollector(obj)) {
           this.addExistingObject(original);
           this.removeFromScene(obj);
         }
@@ -400,52 +401,69 @@ export default class Scene {
   }
 
   /**
-   * 
+   *
    * @param json object descriptor
    */
-  public getPosition(json:IObjectsCommonJSON):IObjectPosition{
-    try{
+  public async getPositionAsync(
+    json: IObjectsCommonJSON,
+  ): Promise<IObjectPosition> {
+    try {
       const obj = this.getObject(json);
 
-      if(obj instanceof Object3D){
-        const mesh = obj.computedMesh;
-        if(mesh){
+      if (obj instanceof Object3D) {
+        const mesh = await obj.getMeshAsync();
+        if (mesh) {
           const pos: IObjectPosition = {
-            position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
-            angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
-          }
+            position: {
+              x: mesh.position.x,
+              y: mesh.position.y,
+              z: mesh.position.z,
+            },
+            angle: {
+              x: mesh.rotation.x,
+              y: mesh.rotation.y,
+              z: mesh.rotation.z,
+            },
+          };
           return pos;
-        }else{
-          const pos: IObjectPosition = {
-            position: { x: 0, y: 0, z: 0 },
-            angle: { x: 0, y: 0, z: 0 }, 
-          }
-          return pos;
-        }
-
-      }else if (obj instanceof RepetitionObject){
-        const mesh = obj.computedMesh;
-        if(mesh){
-          const pos: IObjectPosition = {
-            position: { x: mesh.position.x, y: mesh.position.y, z: mesh.position.z },
-            angle: { x: mesh.rotation.x, y: mesh.rotation.y, z: mesh.rotation.z }, 
-          }
-          return pos;
-        }else{
+        } else {
           const pos: IObjectPosition = {
             position: { x: 0, y: 0, z: 0 },
-            angle: { x: 0, y: 0, z: 0 }, 
-          }
+            angle: { x: 0, y: 0, z: 0 },
+          };
           return pos;
         }
-      }else{
+      } else if (obj instanceof RepetitionObject) {
+        const mesh = await obj.getMeshAsync();
+        if (mesh) {
+          const pos: IObjectPosition = {
+            position: {
+              x: mesh.position.x,
+              y: mesh.position.y,
+              z: mesh.position.z,
+            },
+            angle: {
+              x: mesh.rotation.x,
+              y: mesh.rotation.y,
+              z: mesh.rotation.z,
+            },
+          };
+          return pos;
+        } else {
+          const pos: IObjectPosition = {
+            position: { x: 0, y: 0, z: 0 },
+            angle: { x: 0, y: 0, z: 0 },
+          };
+          return pos;
+        }
+      } else {
         const pos: IObjectPosition = {
           position: { x: 0, y: 0, z: 0 },
-          angle: { x: 0, y: 0, z: 0 }, 
-        }
+          angle: { x: 0, y: 0, z: 0 },
+        };
         return pos;
       }
-    }catch(e){
+    } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
     }
   }

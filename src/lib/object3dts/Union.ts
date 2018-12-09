@@ -18,7 +18,7 @@ import CompoundObject, {
 } from './CompoundObject';
 import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import Object3D from './Object3D';
-import ObjectFactory from './ObjectFactory';
+import isEqual from 'lodash.isequal';
 
 import Scene from './Scene';
 
@@ -48,6 +48,7 @@ export default class Union extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -56,16 +57,30 @@ export default class Union extends CompoundObject {
     };
     super(children, operations, vO);
     this.type = Union.typeName;
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
   public clone(): Union {
     const childrenClone: Array<Object3D> = this.children.map(child =>
       child.clone(),
     );
-    const obj = new Union(childrenClone, this.operations, this.viewOptions);
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
+
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Union(
+        childrenClone,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Union(childrenClone, this.operations, this.viewOptions);
+      return obj;
     }
-    return obj;
   }
 }

@@ -56,8 +56,8 @@ export default class Object3D extends ObjectsCommon {
     return mesh;
   }
 
-  //protected mesh: THREE.Mesh;
   protected mesh: THREE.Mesh;
+  protected meshPromise: Promise<THREE.Mesh> | null;
 
   constructor(
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
@@ -70,46 +70,10 @@ export default class Object3D extends ObjectsCommon {
     super(vO, operations);
   }
 
-  get computedMesh():THREE.Mesh | undefined {
-    if(this.mesh) return this.mesh;
-    else return undefined; 
-  }
-
   protected getMaterial(): THREE.MeshLambertMaterial {
     return new THREE.MeshLambertMaterial({
       color: this.viewOptions.color,
     });
-  }
-
-  public async getPrimitiveMeshAsync(): Promise<THREE.Mesh> {
-    if (this.meshUpdateRequired) {
-      //console.log("Recompute Mesh");
-      const geometry: THREE.Geometry = this.getGeometry();
-      this.mesh = new THREE.Mesh(geometry, this.getMaterial());
-      this._meshUpdateRequired = false;
-      await this.applyOperationsAsync();
-    }
-
-    if (this.pendingOperation) {
-      await this.applyOperationsAsync();
-    }
-
-    if(this.viewOptionsUpdateRequired){
-      this.mesh.material = this.getMaterial();
-      this._viewOptionsUpdateRequired = false;
-    }
-
-    return this.mesh;
-  }
-
-  public async getMeshAsync(): Promise<THREE.Mesh> {
-    // for generic Object3D make it sync
-    const mesh = await this.getPrimitiveMeshAsync();
-    if (mesh instanceof THREE.Mesh) {
-      return mesh;
-    } else {
-      throw new Error('Mesh not computed correctly');
-    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -239,7 +203,7 @@ export default class Object3D extends ObjectsCommon {
       );
   }
 
-  public setMesh(mesh: THREE.Mesh) {
+  protected setMesh(mesh: THREE.Mesh): void {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
@@ -247,7 +211,7 @@ export default class Object3D extends ObjectsCommon {
     this.mesh.updateMatrix();
   }
 
-  public clone(): Object3D {
+  public clone(): any {
     throw new Error('Object3D.clone() Implemented in children');
   }
 }

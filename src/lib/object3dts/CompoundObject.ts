@@ -19,6 +19,7 @@ import ObjectsCommon, {
   IViewOptions,
 } from './ObjectsCommon';
 
+import cloneDeep from 'lodash.clonedeep';
 import isEqual from 'lodash.isequal';
 import * as THREE from 'three';
 
@@ -32,6 +33,9 @@ import {
   IMirrorOperation,
   IScaleOperation,
 } from './ObjectsCommon';
+import ThreeDViewer from 'src/components/threed/ThreeDViewer';
+import { promises } from 'fs';
+import { resolve } from 'url';
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
   children: Array<IObjectsCommonJSON>;
@@ -41,7 +45,7 @@ export type ChildrenArray = Array<Object3D>;
 
 export default class CompoundObject extends Object3D {
   protected children: ChildrenArray;
-  protected worker: CompoundWorker;
+  protected worker: CompoundWorker | null;
 
   constructor(
     children: ChildrenArray = [],
@@ -52,11 +56,13 @@ export default class CompoundObject extends Object3D {
     if (children.length === 0)
       throw new Error('Compound Object requires at least one children');
     this.children = children;
+
+    //children will have this CompoundObject as Parent
+    this.children.forEach(child => child.setParent(this));
     this._meshUpdateRequired = true;
-    this.setOperations();
   }
 
-  public getChildren():ChildrenArray{
+  public getChildren(): ChildrenArray {
     return this.children;
   }
 
@@ -71,7 +77,7 @@ export default class CompoundObject extends Object3D {
     return this._meshUpdateRequired;
   }
 
-  set meshUpdateRequired(a:boolean){
+  set meshUpdateRequired(a: boolean) {
     this._meshUpdateRequired = a;
   }
 
@@ -83,7 +89,7 @@ export default class CompoundObject extends Object3D {
     return this._pendingOperation;
   }
 
-  set pendingOperation(a: boolean){
+  set pendingOperation(a: boolean) {
     this._pendingOperation = a;
   }
 
@@ -126,83 +132,79 @@ export default class CompoundObject extends Object3D {
     return;
   }
 
-  public getMeshAsync(): Promise<THREE.Mesh> {
-    if (this.worker) {
-      this.worker.terminate();
-      (this.worker as any) = null;
+  public async getMeshAsync(): Promise<THREE.Mesh> {
+    if (this.meshPromise) {
+      this.mesh = await this.meshPromise;
+      this.meshPromise = null;
+      return this.mesh;
+    } else {
+      return this.mesh;
     }
-    this.worker = new CompoundWorker()
+  }
 
-    return new Promise((resolve, reject) => {
-            
+  public async computeMeshAsync(): Promise<THREE.Mesh> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
-        //check if WebWorkers are enabled
-        if (typeof CompoundWorker !== 'undefined') {
-          //WEB WORKER //listen to events from web worker
-          this.worker.onmessage = (event: any) => {
-            this.worker.terminate();
-            (this.worker as any) = null;
-
-            if (event.data.status !== 'ok') {
-              reject('Compound Object Error');
-              return;
-            }
-            const message = event.data;
-            
-            //recompute object form vertices and normals
-            this.fromBufferData(message.vertices, message.normals).then(
-              mesh => {
-                this.mesh = mesh;
-
-                if (this.mesh instanceof THREE.Mesh) {
-                  this.applyOperationsAsync().then(() => {
-                    this._meshUpdateRequired = false;
-                    if(this.viewOptionsUpdateRequired){
-                      this.mesh.material = this.getMaterial();
-                      this._viewOptionsUpdateRequired = false;
-                    }
-                    resolve(this.mesh);
-                  });
-                } else {
-                  const reason = new Error('Mesh not computed correctly');
-                  reject(reason);
-                }
-              },
-            );
-          };
-          // END OF EVENT HANDLER
-
-          //Lets create an array of vertices and normals for each child
-          this.toBufferArrayAsync().then(bufferArray => {
-            const message = {
-              type: this.getTypeName(),
-              numChildren: this.children.length,
-              bufferArray,
-            };
-            this.worker.postMessage(message, bufferArray);
-          });
-        } else {
-          const reason = new Error(
-            'Bitbloq 3D requires a Web Worker Enabled Browser',
-          );
-          reject(reason);
-        }
-      } else {
-        if(this.worker){
+        if (this.worker) {
           this.worker.terminate();
-          (this.worker as any) = undefined;
+          this.worker = null;
         }
-      
-        if (this.pendingOperation) {
-          this.applyOperationsAsync().then(() => {
-            this.mesh.material = this.getMaterial();
-            resolve(this.mesh);
+
+        this.worker = new CompoundWorker();
+        // listen to events from web worker
+
+        (this.worker as CompoundWorker).onmessage = (event: any) => {
+          if (event.data.status !== 'ok') {
+            (this.worker as CompoundWorker).terminate();
+            this.worker = null;
+            reject(new Error('Compound Object Error'));
+          }
+
+          const message = event.data;
+          //recompute object form vertices and normals
+          this.fromBufferData(message.vertices, message.normals).then(mesh => {
+            this.mesh = mesh;
+            if (this.mesh instanceof THREE.Mesh) {
+              this.applyOperationsAsync().then(() => {
+                this._meshUpdateRequired = false;
+                if (this.viewOptionsUpdateRequired) {
+                  this.mesh.material = this.getMaterial();
+                  this._viewOptionsUpdateRequired = false;
+                }
+                (this.worker as CompoundWorker).terminate();
+                this.worker = null;
+                resolve(this.mesh);
+              });
+            } else {
+              (this.worker as CompoundWorker).terminate();
+              this.worker = null;
+              reject(new Error('Mesh not computed correctly'));
+            }
           });
+        };
+        // END OF EVENT HANDLER
+
+        //Lets create an array of vertices and normals for each child
+        this.toBufferArrayAsync().then(bufferArray => {
+          const message = {
+            type: this.getTypeName(),
+            numChildren: this.children.length,
+            bufferArray,
+          };
+          (this.worker as CompoundWorker).postMessage(message, bufferArray);
+        });
+
+        // mesh update not required
+      } else {
+        if (this.pendingOperation) {
+          await this.applyOperationsAsync();
         }
         this.mesh.material = this.getMaterial();
         resolve(this.mesh);
       }
     });
+
+    return this.meshPromise;
   }
 
   protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh> {
@@ -228,7 +230,9 @@ export default class CompoundObject extends Object3D {
       Promise.all(this.children.map(child => child.getMeshAsync())).then(
         meshes => {
           meshes.forEach(mesh => {
-            const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
+            const geom:
+              | THREE.BufferGeometry
+              | THREE.Geometry = (mesh as THREE.Mesh).geometry;
             let bufferGeom: THREE.BufferGeometry;
             if (geom instanceof THREE.BufferGeometry) {
               bufferGeom = geom as THREE.BufferGeometry;
@@ -250,6 +254,7 @@ export default class CompoundObject extends Object3D {
             bufferArray.push(normalsBuffer);
             bufferArray.push(positionBuffer);
           });
+
           resolve(bufferArray);
         },
       );
@@ -269,10 +274,10 @@ export default class CompoundObject extends Object3D {
   }
 
   public toJSON(): ICompoundObjectJSON {
-    return {
+    return cloneDeep({
       ...super.toJSON(),
       children: this.children.map(obj => obj.toJSON()),
-    };
+    });
   }
 
   /**
@@ -288,7 +293,8 @@ export default class CompoundObject extends Object3D {
   public updateFromJSON(object: ICompoundObjectJSON) {
     if (this.id !== object.id)
       throw new Error('Object id does not match with JSON id');
-    const newchildren:Array<Object3D> = []
+
+    const newchildren: Array<Object3D> = [];
     //update children
     try {
       object.children.forEach(obj => {
@@ -296,13 +302,13 @@ export default class CompoundObject extends Object3D {
         newchildren.push(objToUpdate as Object3D);
         objToUpdate.updateFromJSON(obj);
       });
-      if(!isEqual(this.children, newchildren)){
-        this._meshUpdateRequired = true;
+
+      if (!isEqual(this.children, newchildren)) {
+        this.meshUpdateRequired = true;
         this.children = newchildren.slice(0);
       }
-      
     } catch (e) {
-      throw new Error(`Cannot update Group: ${e}`);
+      throw new Error(`Cannot update Compound Object: ${e}`);
     }
 
     //update operations and view options
@@ -312,5 +318,17 @@ export default class CompoundObject extends Object3D {
     };
     this.setOperations(object.operations);
     this.setViewOptions(vO);
+    // if anything has changed, recompute mesh
+    if (!isEqual(this.lastJSON, this.toJSON())) {
+      this.lastJSON = this.toJSON();
+      this.meshPromise = this.computeMeshAsync();
+      let obj: ObjectsCommon | undefined = this.getParent();
+
+      while (obj) {
+        obj.meshUpdateRequired = true;
+        obj.computeMeshAsync();
+        obj = obj.getParent();
+      }
+    }
   }
 }

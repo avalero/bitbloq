@@ -1,6 +1,8 @@
 import uuid from 'uuid/v1';
 import isEqual from 'lodash.isequal';
 
+import cloneDeep from 'lodash.clonedeep';
+
 interface ICommonOperation {
   type: string;
   id?: string;
@@ -129,6 +131,8 @@ export default class ObjectsCommon {
   protected id: string;
   protected type: string;
   protected _viewOptionsUpdateRequired: boolean;
+  protected lastJSON: IObjectsCommonJSON;
+  protected parent: ObjectsCommon | undefined;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -140,9 +144,22 @@ export default class ObjectsCommon {
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
     this.id = uuid();
+    this.parent = undefined;
   }
 
-  set meshUpdateRequired(a:boolean) {
+  public async computeMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
+    throw new Error('Object3D.computeMeshAsync() implemented on children');
+  }
+
+  public setParent(object: ObjectsCommon): void {
+    this.parent = object;
+  }
+
+  public getParent(): ObjectsCommon | undefined {
+    return this.parent;
+  }
+
+  set meshUpdateRequired(a: boolean) {
     this._meshUpdateRequired = a;
   }
 
@@ -150,7 +167,7 @@ export default class ObjectsCommon {
     return this._meshUpdateRequired;
   }
 
-  set pendingOperation(a:boolean){
+  set pendingOperation(a: boolean) {
     this._pendingOperation = a;
   }
 
@@ -162,11 +179,11 @@ export default class ObjectsCommon {
     return this.id;
   }
 
-  public getOperations(): OperationsArray {
+  protected getOperations(): OperationsArray {
     return this.operations;
   }
 
-  public setOperations(operations: OperationsArray = []): void {
+  protected setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
       if (operations.length > 0) this._pendingOperation = true;
@@ -182,11 +199,11 @@ export default class ObjectsCommon {
       this.pendingOperation || !isEqual(this.operations, operations);
   }
 
-  public addOperations(operations: OperationsArray = []): void {
+  protected addOperations(operations: OperationsArray = []): void {
     this.setOperations(this.operations.concat(operations));
   }
 
-  public translate(
+  protected translate(
     x: number,
     y: number,
     z: number,
@@ -197,19 +214,19 @@ export default class ObjectsCommon {
     ]);
   }
 
-  public rotateX(angle: number, relative: boolean = false): void {
+  protected rotateX(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('x', angle, relative),
     ]);
   }
 
-  public rotateY(angle: number, relative: boolean = false): void {
+  protected rotateY(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('y', angle, relative),
     ]);
   }
 
-  public rotateZ(angle: number, relative: boolean = false): void {
+  protected rotateZ(angle: number, relative: boolean = false): void {
     this.addOperations([
       ObjectsCommon.createRotateOperation('z', angle, relative),
     ]);
@@ -228,17 +245,17 @@ export default class ObjectsCommon {
   }
 
   public setViewOptions(params: Partial<IViewOptions>) {
-    if(!isEqual(params,this.viewOptions)){
+    if (!isEqual(params, this.viewOptions)) {
       this.viewOptions = {
         ...ObjectsCommon.createViewOptions(),
         ...this.viewOptions,
         ...params,
-      }
-      this._viewOptionsUpdateRequired =true;
+      };
+      this._viewOptionsUpdateRequired = true;
     }
   }
 
-  public get viewOptionsUpdateRequired():boolean{
+  public get viewOptionsUpdateRequired(): boolean {
     return this._viewOptionsUpdateRequired;
   }
 
@@ -251,16 +268,15 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    return {
+    return cloneDeep({
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-    };
+    });
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
-
 }
