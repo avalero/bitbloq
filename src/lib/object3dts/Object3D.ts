@@ -203,7 +203,7 @@ export default class Object3D extends ObjectsCommon {
       );
   }
 
-  public setMesh(mesh: THREE.Mesh): void {
+  protected setMesh(mesh: THREE.Mesh): void {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;

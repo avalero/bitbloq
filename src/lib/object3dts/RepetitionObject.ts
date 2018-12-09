@@ -93,6 +93,7 @@ export default class RepetitionObject extends ObjectsCommon {
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Group | undefined = undefined,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -110,9 +111,21 @@ export default class RepetitionObject extends ObjectsCommon {
     this.group = [];
     this.mesh = new THREE.Group();
     this.lastJSON = this.toJSON();
-    this.meshPromise = this.computeMeshAsync();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
+
+  private setMesh(mesh: THREE.Group):void{
+    this.mesh = mesh;
+    this._meshUpdateRequired = false;
+    this._pendingOperation = false;
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+  }
   /**
    * Performs a cartesian repetition of object (nun times), with x,y,z distances
    * It adds repeated objects to ObjectsGroup instance
@@ -146,11 +159,22 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public clone(): RepetitionObject {
-    return new RepetitionObject(
-      this.parameters,
-      this.originalObject,
-      this.viewOptions,
-    );
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new RepetitionObject(
+        this.parameters,
+        this.originalObject.clone(),
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new RepetitionObject(
+        this.parameters,
+        this.originalObject.clone(),
+        this.viewOptions,
+      );
+      return obj;
+    }
   }
 
   /**
