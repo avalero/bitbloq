@@ -132,8 +132,14 @@ export default class Renderer {
 
     if (this.camera instanceof THREE.PerspectiveCamera) {
       this.camera.aspect = width / height;
-      this.camera.updateProjectionMatrix();
+    } else if (this.camera instanceof THREE.OrthographicCamera) {
+      this.camera.left = width / -20;
+      this.camera.right = width / 20;
+      this.camera.top = height / 20;
+      this.camera.bottom = height / -20;
     }
+
+    this.camera.updateProjectionMatrix();
   }
 
   private updateNavigationBox() {
@@ -178,11 +184,37 @@ export default class Renderer {
     this.cameraControls.rotateTo(theta, phi, true);
   }
 
-  public zoomIn(): void {}
+  public zoomIn(): void {
+    this.cameraControls.zoomIn();
+  }
 
-  public zoomOut(): void {}
+  public zoomOut(): void {
+    this.cameraControls.zoomOut();
+  }
 
-  public setOrtographicCamera(isOrtographic: boolean): void {}
+  public setOrtographicCamera(isOrtographic: boolean): void {
+    const { width, height } = this.containerRect;
+
+    if (isOrtographic) {
+      this.camera = new THREE.OrthographicCamera(
+        width / -20, width / 20, height / 20, height / -20, -500, 500
+      );
+    } else {
+      this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    }
+
+    this.camera.up.set(0, 0, 1);
+    this.camera.position.set(0, -150, 80);
+    this.camera.lookAt(this.threeScene.position);
+
+    this.cameraControls = new OrbitCamera(
+      this.camera,
+      this.threeRenderer.domElement,
+    );
+
+    this.navigationBox.setOrtographicCamera(isOrtographic);
+    this.updateNavigationBox();
+  }
 
   private handleMouseDown = (e: MouseEvent) => {
     this.mouseDownObject = this.getObjectFromPosition(e.clientX, e.clientY);

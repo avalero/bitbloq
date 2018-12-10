@@ -9,6 +9,10 @@ import Scene, {
 } from '../../lib/object3dts/Scene';
 import {getSelectedObjects} from '../../reducers/threed/';
 import {IObjectsCommonJSON} from '../../lib/object3dts/ObjectsCommon';
+import PlusIcon from '../icons/Plus';
+import MinusIcon from '../icons/Minus';
+import PerspectiveIcon from '../icons/Perspective';
+import OrthographicIcon from '../icons/Orthographic';
 
 const Container = styled.div`
   flex: 1;
@@ -44,6 +48,33 @@ const StatusBarGroup = styled.div`
   }
 `;
 
+const CameraButtons = styled.div`
+  position: absolute;
+  top: 150px;
+  left: 20px;
+  z-index: 10;
+`;
+
+interface CameraButtonProps {
+  wideIcon?: boolean;
+}
+const CameraButton = styled.div<CameraButtonProps>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33px;
+  height: 33px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #cfcfcf;
+
+  svg {
+    width: ${props => (props.wideIcon ? '18px' : '12px')};
+  }
+`;
+
 export interface ThreeDViewerProps {
   scene: Scene;
   sceneObjects: IObjectsCommonJSON[];
@@ -55,6 +86,7 @@ export interface ThreeDViewerProps {
 
 class ThreeDViewerState {
   readonly selectedPosition?: IObjectPosition | null = null;
+  readonly isOrthographic: boolean = false;
 }
 
 class ThreeDViewer extends React.Component<
@@ -102,11 +134,37 @@ class ThreeDViewer extends React.Component<
     }
   }
 
+  onZoomIn = () => {
+    this.renderer.zoomIn();
+  };
+
+  onZoomOut = () => {
+    this.renderer.zoomOut();
+  };
+
+  onToggleOrthographic = () => {
+    const isOrthographic = !this.state.isOrthographic;
+    this.renderer.setOrtographicCamera(isOrthographic);
+    this.setState({isOrthographic});
+  };
+
   render() {
-    const {selectedPosition} = this.state;
+    const {selectedPosition, isOrthographic} = this.state;
 
     return (
       <Container innerRef={this.rendererContainerRef}>
+        <CameraButtons>
+          <CameraButton onClick={this.onZoomIn}>
+            <PlusIcon />
+          </CameraButton>
+          <CameraButton onClick={this.onZoomOut}>
+            <MinusIcon />
+          </CameraButton>
+          <CameraButton onClick={this.onToggleOrthographic} wideIcon>
+            {isOrthographic && <PerspectiveIcon />}
+            {!isOrthographic && <OrthographicIcon />}
+          </CameraButton>
+        </CameraButtons>
         <StatusBar>
           {selectedPosition && (
             <StatusBarGroup>
