@@ -415,7 +415,7 @@ export default class Scene {
     try {
       const obj = this.getObject(json);
 
-      if (obj instanceof Object3D) {
+      if (obj instanceof Object3D || obj instanceof RepetitionObject ) {
         const mesh = await obj.getMeshAsync();
         if (mesh) {
           const pos: IObjectPosition = {
@@ -440,29 +440,7 @@ export default class Scene {
           const pos: IObjectPosition = {
             position: { x: 0, y: 0, z: 0 },
             angle: { x: 0, y: 0, z: 0 },
-          };
-          return pos;
-        }
-      } else if (obj instanceof RepetitionObject) {
-        const mesh = await obj.getMeshAsync();
-        if (mesh) {
-          const pos: IObjectPosition = {
-            position: {
-              x: mesh.position.x,
-              y: mesh.position.y,
-              z: mesh.position.z,
-            },
-            angle: {
-              x: mesh.rotation.x,
-              y: mesh.rotation.y,
-              z: mesh.rotation.z,
-            },
-          };
-          return pos;
-        } else {
-          const pos: IObjectPosition = {
-            position: { x: 0, y: 0, z: 0 },
-            angle: { x: 0, y: 0, z: 0 },
+            scale: {x:0, y:0, z:0 },
           };
           return pos;
         }
@@ -470,6 +448,7 @@ export default class Scene {
         const pos: IObjectPosition = {
           position: { x: 0, y: 0, z: 0 },
           angle: { x: 0, y: 0, z: 0 },
+          scale: {x:0, y:0, z:0 },
         };
         return pos;
       }
