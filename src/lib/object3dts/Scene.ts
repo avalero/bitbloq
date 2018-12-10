@@ -46,6 +46,11 @@ export interface IObjectPosition {
     y: number;
     z: number;
   };
+  scale: {
+    x: number;
+    y: number;
+    z: number;
+  }
 }
 
 interface ISceneSetup {
@@ -423,6 +428,11 @@ export default class Scene {
               x: mesh.rotation.x,
               y: mesh.rotation.y,
               z: mesh.rotation.z,
+            },
+            scale: {
+              x: mesh.scale.x,
+              y: mesh.scale.y,
+              z: mesh.scale.z,
             },
           };
           return pos;
