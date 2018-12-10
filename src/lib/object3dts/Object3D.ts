@@ -159,34 +159,17 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected applyRotateOperation(operation: IRotateOperation): void {
-    const angle = THREE.Math.degToRad(Number(operation.angle));
-    switch (operation.axis) {
-      case 'x':
-        if (operation.relative) {
-          this.mesh.rotateX(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), angle);
-        }
-        break;
-
-      case 'y':
-        if (operation.relative) {
-          this.mesh.rotateY(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle);
-        }
-        break;
-
-      case 'z':
-        if (operation.relative) {
-          this.mesh.rotateZ(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), angle);
-        }
-        break;
-
-      default:
-        throw new Error('Unexpected Rotation Axis');
+    const x = THREE.Math.degToRad(Number(operation.x));
+    const y = THREE.Math.degToRad(Number(operation.y));
+    const z = THREE.Math.degToRad(Number(operation.z));
+    if (operation.relative) {
+      this.mesh.rotateX(x);
+      this.mesh.rotateY(y);
+      this.mesh.rotateZ(z);
+    } else {
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), x);
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), y);
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), z);
     }
   }
 

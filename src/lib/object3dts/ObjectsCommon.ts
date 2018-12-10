@@ -23,8 +23,9 @@ export interface ITranslateOperation extends ICommonOperation {
 }
 
 export interface IRotateOperation extends ICommonOperation {
-  axis: string;
-  angle: number;
+  x:number,
+  y:number,
+  z:number,
   relative: boolean;
 }
 
@@ -97,14 +98,16 @@ export default class ObjectsCommon {
   }
 
   public static createRotateOperation(
-    axis: string = 'x',
-    angle: number = 0,
+    x:number,
+    y:number,
+    z:number,
     relative: boolean = true,
   ): IRotateOperation {
     return {
       type: 'rotation',
-      axis,
-      angle,
+      x,
+      y,
+      z,
       relative,
       id: uuid(),
     };
@@ -216,19 +219,19 @@ export default class ObjectsCommon {
 
   protected rotateX(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation('x', angle, relative),
+      ObjectsCommon.createRotateOperation(angle, 0,0 , relative),
     ]);
   }
 
   protected rotateY(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation('y', angle, relative),
+      ObjectsCommon.createRotateOperation(0, angle, 0, relative),
     ]);
   }
 
   protected rotateZ(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation('z', angle, relative),
+      ObjectsCommon.createRotateOperation(0,0, angle, relative),
     ]);
   }
 
