@@ -232,6 +232,9 @@ test('PrimitiveObject - getMeshAsync', async () => {
   expect(mesh).toBeInstanceOf(THREE.Mesh);
   expect(mesh.geometry).toBeInstanceOf(THREE.Geometry);
   expect(mesh).toBe((obj as any).mesh);
+
+  const meshPromise = obj.getMeshAsync();
+  expect(meshPromise).toBeInstanceOf(Promise);
 });
 
 test('PrimitiveObject - ComputeMeshAsync - meshUpdateRequired', async () =>{
