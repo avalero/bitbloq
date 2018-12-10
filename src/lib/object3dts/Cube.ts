@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-11-16 17:32:50
+ * Last modified  : 2018-12-10 10:10:58
  */
 
 import * as THREE from 'three';
