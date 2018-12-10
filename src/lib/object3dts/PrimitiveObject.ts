@@ -22,7 +22,6 @@ import {
   IObjectsCommonJSON,
 } from './ObjectsCommon';
 import * as THREE from 'three';
-import CompoundObject from './CompoundObject';
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;

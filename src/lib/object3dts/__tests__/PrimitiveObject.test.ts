@@ -15,8 +15,6 @@ let objParams: ICubeParams = {
 let operations: OperationsArray = [];
 let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
-/// CONSTRUCTOR TESTS
-
 test('PrimitiveObject - toJSON', () => {
   const json: ICubeJSON = {
     parameters: {
@@ -51,3 +49,46 @@ test('PrimitiveObject - toJSON', () => {
   expect(json).toEqual(obj.toJSON());
 
 });
+
+test('PrimitiveObject - UpdateFromJSON', async () => {
+  const json: ICubeJSON = {
+    parameters: {
+      width, height, depth,
+    },
+    operations: [],
+    viewOptions: ObjectsCommon.createViewOptions(),
+    id: "000",
+    type: Cube.typeName,
+  };
+
+  const obj = new Cube(objParams, operations, viewOptions);
+  const spy = jest.spyOn(obj, 'computeMeshAsync');
+  json.id = obj.toJSON().id;
+  expect(json).toEqual(obj.toJSON());
+
+  json.operations = [ObjectsCommon.createTranslateOperation(10,20,30)];
+  obj.updateFromJSON(json);
+  expect(json).toEqual(obj.toJSON());
+  expect(spy).toBeCalledTimes(1);
+
+
+
+  json.operations = [ObjectsCommon.createTranslateOperation(10,20,30), ObjectsCommon.createTranslateOperation(10,20,30)];
+  obj.updateFromJSON(json);
+  expect(json).toEqual(obj.toJSON());
+  expect(spy).toBeCalledTimes(2);
+
+
+  json.parameters = {width: 10, height:20, depth: 30};
+  obj.updateFromJSON(json);
+  expect(spy).toBeCalledTimes(3);
+  expect(json).toEqual(obj.toJSON());
+
+  // no changes, so computeMeshAsync should not be recalled
+  obj.updateFromJSON(json);
+  expect(spy).toBeCalledTimes(3);
+
+  //already computed, so computeMeshAsync should not be recalled
+  await obj.getMeshAsync();
+  expect(spy).toBeCalledTimes(3);
+})
