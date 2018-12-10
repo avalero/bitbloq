@@ -27,6 +27,7 @@ import RepeatPolarIcon from '../components/icons/RepeatPolar';
 import TranslationIcon from '../components/icons/Translation';
 import RotationIcon from '../components/icons/Rotation';
 import ScaleIcon from '../components/icons/Scale';
+import ReflectionIcon from '../components/icons/Reflection';
 
 const config = {
   colors: [
@@ -432,6 +433,34 @@ const config = {
         },
       ],
     },
+    {
+      name: 'mirror',
+      label: 'Reflection',
+      icon: <ReflectionIcon />,
+      color: '#00c1c7',
+      create: () => Object3D.createMirrorOperation(),
+      parameters: [
+        {
+          name: 'plane',
+          label: 'Plane',
+          type: 'select',
+          options: [
+            {
+              label: 'X - Y',
+              value: 'xy',
+            },
+            {
+              label: 'Y - Z',
+              value: 'yz',
+            },
+            {
+              label: 'Z - X',
+              value: 'zx',
+            },
+          ],
+        }
+      ]
+    }
   ],
 
   compositionOperations: [
