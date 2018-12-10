@@ -84,8 +84,8 @@ export default class Sphere extends PrimitiveObject {
     this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
-      Math.max(12, Math.min((Number(radius) * 5) , 16)),
-      Math.max(12, Math.min((Number(radius) * 5) , 16)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
     );
   }
 
@@ -95,8 +95,8 @@ export default class Sphere extends PrimitiveObject {
     this._meshUpdateRequired = false;
     return new THREE.SphereBufferGeometry(
       Number(radius),
-      Math.max(12, Math.min((Number(radius) * 5) , 16)),
-      Math.max(12, Math.min((Number(radius) * 5) , 16)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
     );
   }
 }
