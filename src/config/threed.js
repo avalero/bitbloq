@@ -169,7 +169,7 @@ const config = {
         id: uuid(),
         type: 'Prism',
         parameters: {
-          sides: 5,
+          sides: 6,
           length: 5,
           height: 15,
         },
