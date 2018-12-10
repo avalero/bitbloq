@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-11-28 16:44:05
+ * Last modified  : 2018-12-10 09:19:50
  */
 
 import * as THREE from 'three';
@@ -94,7 +94,7 @@ export default class Cylinder extends PrimitiveObject {
       Number(r1),
       Number(r0),
       Number(height),
-      32,
+      18,
       1,
     ).rotateX(Math.PI / 2);
   }
