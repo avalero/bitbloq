@@ -284,11 +284,7 @@ export default class NavigationBox {
     });
     this.scene.add(this.boxes);
 
-    this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    this.camera.aspect = WIDTH / HEIGHT;
-    this.camera.updateProjectionMatrix();
-    this.camera.up.set(0, 0, 1);
-    this.camera.lookAt(this.scene.position);
+    this.setOrtographicCamera(false);
 
     this.renderer.render(this.scene, this.camera);
   }
@@ -368,6 +364,17 @@ export default class NavigationBox {
     texture.rotation = rotation;
     texture.needsUpdate = true;
     return texture;
+  }
+
+  public setOrtographicCamera(isOrtographic: boolean): void {
+    if (isOrtographic) {
+      this.camera = new THREE.OrthographicCamera(-2, 2, 2, -2, -10, 10);
+    } else {
+      this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+      this.camera.aspect = WIDTH / HEIGHT;
+    }
+    this.camera.up.set(0, 0, 1);
+    this.camera.updateProjectionMatrix();
   }
 
   public updateCamera(x: number, y: number, z: number) {
