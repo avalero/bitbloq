@@ -98,9 +98,9 @@ export default class ObjectsCommon {
   }
 
   public static createRotateOperation(
-    x:number,
-    y:number,
-    z:number,
+    x:number = 0,
+    y:number = 0,
+    z:number = 0,
     relative: boolean = true,
   ): IRotateOperation {
     return {
