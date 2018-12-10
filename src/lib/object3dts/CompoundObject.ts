@@ -33,7 +33,6 @@ import {
   IMirrorOperation,
   IScaleOperation,
 } from './ObjectsCommon';
-import ThreeDViewer from 'src/components/threed/ThreeDViewer';
 import { promises } from 'fs';
 import { resolve } from 'url';
 
@@ -109,7 +108,7 @@ export default class CompoundObject extends Object3D {
 
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;
-    this.mesh.scale.y = 1;
+    this.mesh.scale.z = 1;
 
     this.operations.forEach(operation => {
       // Translate operation
