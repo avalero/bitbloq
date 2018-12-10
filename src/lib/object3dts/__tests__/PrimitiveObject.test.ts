@@ -206,3 +206,15 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
   expect(spy2).toBeCalledTimes(3);
   expect(spy3).toBeCalledTimes(3);
 });
+
+test('PrimitiveObject - getMeshAsync', async () => {
+  const obj = new Cube(objParams, operations, viewOptions);
+  const spy = jest.spyOn(obj, 'computeMeshAsync');
+
+  const mesh = await obj.getMeshAsync();
+  expect((obj as any).meshPromise).toBe(null);
+  expect(spy).toBeCalledTimes(0);
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.Geometry);
+  expect(mesh).toBe((obj as any).mesh);
+});
