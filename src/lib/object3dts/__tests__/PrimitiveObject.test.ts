@@ -266,3 +266,21 @@ test('PrimitiveObject - ComputeMeshAsync - pengingOperation', async () =>{
   expect(spy3).toBeCalledTimes(1);
   expect( (obj as any)._pendingOperation).toBe(false);
 });
+
+test('PrimitiveObject - ComputeMeshAsync - viewOptionsUpdated', async () =>{
+  const obj = new Cube(objParams, operations, viewOptions);
+  (obj as any)._meshUpdateRequired = false;
+  (obj as any)._pendingOperation = false;
+  (obj as any)._viewOptionsUpdateRequired = true;
+
+  const spy1 = jest.spyOn((obj as any), 'getGeometry');
+  const spy2 = jest.spyOn((obj as any), 'getMaterial');
+  const spy3 = jest.spyOn((obj as any), 'applyOperationsAsync');
+
+  await obj.computeMeshAsync();
+
+  expect(spy1).toBeCalledTimes(0);
+  expect(spy2).toBeCalledTimes(1);
+  expect(spy3).toBeCalledTimes(0);
+  expect( (obj as any)._viewOptionsUpdateRequired).toBe(false);
+});
