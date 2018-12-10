@@ -50,7 +50,7 @@ export interface IObjectPosition {
     x: number;
     y: number;
     z: number;
-  }
+  };
 }
 
 interface ISceneSetup {
@@ -415,7 +415,7 @@ export default class Scene {
     try {
       const obj = this.getObject(json);
 
-      if (obj instanceof Object3D || obj instanceof RepetitionObject ) {
+      if (obj instanceof Object3D || obj instanceof RepetitionObject) {
         const mesh = await obj.getMeshAsync();
         if (mesh) {
           const pos: IObjectPosition = {
@@ -440,7 +440,7 @@ export default class Scene {
           const pos: IObjectPosition = {
             position: { x: 0, y: 0, z: 0 },
             angle: { x: 0, y: 0, z: 0 },
-            scale: {x:0, y:0, z:0 },
+            scale: { x: 0, y: 0, z: 0 },
           };
           return pos;
         }
@@ -448,7 +448,7 @@ export default class Scene {
         const pos: IObjectPosition = {
           position: { x: 0, y: 0, z: 0 },
           angle: { x: 0, y: 0, z: 0 },
-          scale: {x:0, y:0, z:0 },
+          scale: { x: 0, y: 0, z: 0 },
         };
         return pos;
       }

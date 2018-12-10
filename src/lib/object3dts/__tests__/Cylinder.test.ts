@@ -85,16 +85,18 @@ test('Cylinder - Constructor - Set Operations - Rotation', () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
-  const operations = [ObjectsCommon.createRotateOperation(xangle,yangle,zangle)];
+  const operations = [
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
+  ];
   const obj = new Cylinder(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(Math.PI * xangle / 180);
-    expect(mesh.rotation.y).toBeCloseTo(Math.PI * yangle / 180);
-    expect(mesh.rotation.z).toBeCloseTo(Math.PI * zangle / 180);
+    expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 180);
+    expect(mesh.rotation.y).toBeCloseTo((Math.PI * yangle) / 180);
+    expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
   });
 });
 

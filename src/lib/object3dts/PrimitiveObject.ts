@@ -45,10 +45,9 @@ export default class PrimitiveObject extends Object3D {
   }
 
   /**
- * For primitive objects. Cube, Cylinder, etc.
- * For CompoundObjects find function in CompoundObjects Class
- */
-
+   * For primitive objects. Cube, Cylinder, etc.
+   * For CompoundObjects find function in CompoundObjects Class
+   */
 
   public updateFromJSON(object: IPrimitiveObjectJSON) {
     if (this.id !== object.id)
@@ -109,7 +108,6 @@ export default class PrimitiveObject extends Object3D {
     return this.meshPromise;
   }
 
-
   protected setParameters(parameters: Object): void {
     if (!this.parameters) {
       this.parameters = Object.assign({}, parameters);
@@ -122,8 +120,5 @@ export default class PrimitiveObject extends Object3D {
       this._meshUpdateRequired = true;
       return;
     }
-
-
   }
-
 }
