@@ -233,3 +233,19 @@ test('PrimitiveObject - getMeshAsync', async () => {
   expect(mesh.geometry).toBeInstanceOf(THREE.Geometry);
   expect(mesh).toBe((obj as any).mesh);
 });
+
+test('PrimitiveObject - ComputeMeshAsync - meshUpdateRequired', async () =>{
+  const obj = new Cube(objParams, operations, viewOptions);
+  (obj as any)._meshUpdateRequired = true;
+
+  const spy1 = jest.spyOn((obj as any), 'getGeometry');
+  const spy2 = jest.spyOn((obj as any), 'getMaterial');
+  const spy3 = jest.spyOn((obj as any), 'applyOperationsAsync');
+
+  await obj.computeMeshAsync();
+
+  expect(spy1).toBeCalledTimes(1);
+  expect(spy2).toBeCalledTimes(2);
+  expect(spy3).toBeCalledTimes(1);
+  expect( (obj as any)._meshUpdateRequired).toBe(false);
+});
