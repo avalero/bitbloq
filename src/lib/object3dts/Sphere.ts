@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2018-11-28 16:45:57
+ * Last modified  : 2018-12-10 09:16:09
  */
 
 import * as THREE from 'three';
@@ -84,8 +84,8 @@ export default class Sphere extends PrimitiveObject {
     this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
+      Math.max(12, Math.min((Number(radius) * 5) , 16)),
+      Math.max(12, Math.min((Number(radius) * 5) , 16)),
     );
   }
 
@@ -95,8 +95,8 @@ export default class Sphere extends PrimitiveObject {
     this._meshUpdateRequired = false;
     return new THREE.SphereBufferGeometry(
       Number(radius),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
+      Math.max(12, Math.min((Number(radius) * 5) , 16)),
+      Math.max(12, Math.min((Number(radius) * 5) , 16)),
     );
   }
 }
