@@ -292,14 +292,11 @@ class PropertiesPanel extends React.Component {
     const {setActiveOperation, unsetActiveOperation, advancedMode} = this.props;
     const {color} = object.viewOptions;
 
-    /* TODO: canUndo, undoLabel, canUngroup */
-    let canUndo = false;
-    let undoLabel = '';
-    let canUngroup = false;
-
     const typeConfig =
       config.objectTypes.find(s => s.name === object.type) || {};
     const {parameters: baseParameters, icon} = typeConfig;
+
+    const {canUndo, undoLabel, canUngroup} = typeConfig;
 
     const parameters = [...baseParameters(object)];
 
