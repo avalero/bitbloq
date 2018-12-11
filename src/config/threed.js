@@ -546,6 +546,18 @@ const config = {
     }
   ],
 
+  defaultOperations: isAdvancedMode => {
+    if (isAdvancedMode) {
+      return [];
+    } else {
+      return [
+        Object3D.createTranslateOperation(0, 0, 0, false),
+        Object3D.createRotateOperation(0, 0, 0, true),
+        Object3D.createScaleOperation(1, 1, 1),
+      ];
+    }
+  },
+
   compositionOperations: [
     {
       name: 'Union',

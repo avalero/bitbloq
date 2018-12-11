@@ -154,24 +154,12 @@ class ObjectTree extends React.Component {
     const {advancedMode} = this.props;
     this.setState({addDropDownOpen: false});
 
-    const object = typeConfig.create();
-
-    if (advancedMode) {
-      this.props.createObject(object);
-    } else {
-      const basicModeOperations = config.objectOperations
-        .map(operation => {
-          if (['translation', 'rotation', 'scale'].includes(operation.name)) {
-            return operation.create();
-          }
-        })
-        .filter(operation => operation);
-
-      this.props.createObject({
-        ...object,
-        operations: basicModeOperations,
-      });
+    const object = {
+      ...typeConfig.create(),
+      operations: config.defaultOperations(advancedMode)
     }
+
+    this.props.createObject(object);
   }
 
   onDragEnd(result) {
