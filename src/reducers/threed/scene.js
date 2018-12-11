@@ -160,11 +160,10 @@ const scene = handleActions(
     ],
     [
       actions.undoComposition,
-      (state, {payload}) => {
-        //TODO: Undo composition
-
-        return state;
-      },
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.undoCompound(payload)
+      }),
     ],
   ]),
   initialState,

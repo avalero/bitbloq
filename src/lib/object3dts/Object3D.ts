@@ -82,7 +82,6 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected applyViewOptions(mesh?: THREE.Mesh): void {
-    debugger;
     if (!this.mesh && !mesh)
       throw new Error('ApplyViewOptions - Mesh not defined');
 
