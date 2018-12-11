@@ -80,8 +80,6 @@ export default class RepetitionObject extends ObjectsCommon {
   private originalObject: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
   private group: Array<ObjectsCommon>;
-  private mesh: THREE.Group;
-  protected meshPromise: Promise<THREE.Group> | null;
 
   /**
    *
@@ -163,7 +161,7 @@ export default class RepetitionObject extends ObjectsCommon {
         this.parameters,
         this.originalObject.clone(),
         this.viewOptions,
-        this.mesh.clone(),
+        (this.mesh as THREE.Group).clone(),
       );
       return obj;
     } else {
@@ -263,20 +261,6 @@ export default class RepetitionObject extends ObjectsCommon {
 
   get pendingOperation(): boolean {
     return this._pendingOperation || this.originalObject.pendingOperation;
-  }
-
-  public async getMeshAsync(): Promise<THREE.Object3D> {
-    if (this.meshPromise) {
-      this.mesh = await this.meshPromise;
-      this.meshPromise = null;
-      return this.mesh;
-    } else {
-      return this.mesh;
-    }
-  }
-
-  get computedMesh(): THREE.Group | undefined {
-    return this.mesh;
   }
 
   protected async applyOperationsAsync(): Promise<void> {
@@ -396,6 +380,6 @@ export default class RepetitionObject extends ObjectsCommon {
       else reject(new Error('Unexpected Error computing RepetitionObject'));
     });
 
-    return this.meshPromise;
+    return this.meshPromise as Promise<THREE.Group>;
   }
 }

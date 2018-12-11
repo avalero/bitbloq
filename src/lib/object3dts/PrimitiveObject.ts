@@ -74,22 +74,13 @@ export default class PrimitiveObject extends Object3D {
     }
   }
 
-  public async getMeshAsync(): Promise<THREE.Mesh> {
-    if (this.meshPromise) {
-      this.mesh = await this.meshPromise;
-      this.meshPromise = null;
-      return this.mesh;
-    } else {
-      return this.mesh;
-    }
-  }
-
   public async computeMeshAsync(): Promise<THREE.Mesh> {
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
-        this.mesh = new THREE.Mesh(geometry, this.getMaterial());
+        this.mesh = new THREE.Mesh(geometry);
         this._meshUpdateRequired = false;
+        this.applyViewOptions();
         await this.applyOperationsAsync();
       }
 
@@ -98,14 +89,13 @@ export default class PrimitiveObject extends Object3D {
       }
 
       if (this.viewOptionsUpdateRequired) {
-        this.mesh.material = this.getMaterial();
-        this._viewOptionsUpdateRequired = false;
+        this.applyViewOptions();
       }
 
       if (this.mesh instanceof THREE.Mesh) resolve(this.mesh);
       else reject(new Error('Mesh has not been computed properly'));
     });
-    return this.meshPromise;
+    return this.meshPromise as Promise<THREE.Mesh>;
   }
 
   protected setParameters(parameters: Object): void {

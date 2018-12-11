@@ -131,16 +131,6 @@ export default class CompoundObject extends Object3D {
     return;
   }
 
-  public async getMeshAsync(): Promise<THREE.Mesh> {
-    if (this.meshPromise) {
-      this.mesh = await this.meshPromise;
-      this.meshPromise = null;
-      return this.mesh;
-    } else {
-      return this.mesh;
-    }
-  }
-
   public async computeMeshAsync(): Promise<THREE.Mesh> {
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
@@ -167,7 +157,7 @@ export default class CompoundObject extends Object3D {
               this.applyOperationsAsync().then(() => {
                 this._meshUpdateRequired = false;
                 if (this.viewOptionsUpdateRequired) {
-                  this.mesh.material = this.getMaterial();
+                  this.applyViewOptions();
                   this._viewOptionsUpdateRequired = false;
                 }
                 (this.worker as CompoundWorker).terminate();
@@ -198,12 +188,12 @@ export default class CompoundObject extends Object3D {
         if (this.pendingOperation) {
           await this.applyOperationsAsync();
         }
-        this.mesh.material = this.getMaterial();
+        this.applyViewOptions();
         resolve(this.mesh);
       }
     });
 
-    return this.meshPromise;
+    return this.meshPromise as Promise<THREE.Mesh>;
   }
 
   protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh> {
@@ -217,8 +207,11 @@ export default class CompoundObject extends Object3D {
         'normal',
         new THREE.BufferAttribute(normals, 3),
       );
-      const material = this.getMaterial();
-      const mesh: THREE.Mesh = new THREE.Mesh(buffGeometry, material);
+      const mesh: THREE.Mesh = new THREE.Mesh(
+        buffGeometry,
+        new THREE.MeshLambertMaterial(),
+      );
+      this.applyViewOptions(mesh);
       resolve(mesh);
     });
   }

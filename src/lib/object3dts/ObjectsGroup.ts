@@ -35,9 +35,6 @@ export default class ObjectsGroup extends ObjectsCommon {
   }
 
   private children: Array<ObjectsCommon>;
-  private meshPromise: Promise<THREE.Group> | null;
-  private mesh: THREE.Group;
-
   public getChildren(): Array<ObjectsCommon> {
     return this.children;
   }
@@ -106,7 +103,7 @@ export default class ObjectsGroup extends ObjectsCommon {
         reject(e);
       }
     });
-    return this.meshPromise;
+    return this.meshPromise as Promise<THREE.Group>;
   }
 
   // When a group is un-grouped all the operations of the group are transferred to the single objects
@@ -118,16 +115,6 @@ export default class ObjectsGroup extends ObjectsCommon {
       object3D.updateFromJSON(json);
     });
     return this.children;
-  }
-
-  public async getMeshAsync(): Promise<THREE.Group> {
-    if (this.meshPromise) {
-      this.mesh = await this.meshPromise;
-      this.meshPromise = null;
-      return this.mesh;
-    } else {
-      return this.mesh;
-    }
   }
 
   public clone(): ObjectsGroup {

@@ -113,7 +113,6 @@ test('Cube - Constructor - set Mesh', async () => {
 /// END TESTING CONSTRUCTOR
 
 /// TESTING CUBE.CLONE
-
 test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const spy = jest.spyOn((obj as any).mesh, 'clone');

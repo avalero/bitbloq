@@ -150,6 +150,7 @@ export default class Scene {
    * returns a THREE.Group object containing designed 3D objects .
    */
   public async getObjectsAsync(): Promise<THREE.Group> {
+    debugger;
     if (isEqual(this.lastJSON, this.toJSON())) return this.objectsGroup;
 
     this.objectsGroup = new THREE.Group();

@@ -197,7 +197,12 @@ export default class Renderer {
 
     if (isOrtographic) {
       this.camera = new THREE.OrthographicCamera(
-        width / -20, width / 20, height / 20, height / -20, -500, 500
+        width / -20,
+        width / 20,
+        height / 20,
+        height / -20,
+        -500,
+        500,
       );
     } else {
       this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
