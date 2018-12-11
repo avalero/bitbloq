@@ -195,22 +195,37 @@ export default class Renderer {
   public setOrtographicCamera(isOrtographic: boolean): void {
     const { width, height } = this.containerRect;
 
+    let cameraPosition: THREE.Vector3;
+    let cameraLookAt: THREE.Vector3;
+    if (this.camera) {
+      cameraPosition = this.camera.position;
+      cameraLookAt = this.cameraControls.target;
+    } else {
+      cameraPosition = new THREE.Vector3(0, -150, 80);
+      cameraLookAt = this.threeScene.position;
+    }
+
     if (isOrtographic) {
       this.camera = new THREE.OrthographicCamera(
-        width / -20,
-        width / 20,
-        height / 20,
-        height / -20,
-        -500,
-        500,
+        -200,
+        200,
+        200,
+        -200,
+        0.1,
+        1000,
       );
     } else {
       this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
     }
 
     this.camera.up.set(0, 0, 1);
-    this.camera.position.set(0, -150, 80);
-    this.camera.lookAt(this.threeScene.position);
+
+    this.camera.position.set(
+      cameraPosition.x,
+      cameraPosition.y,
+      cameraPosition.z,
+    );
+    this.camera.lookAt(cameraLookAt);
 
     this.cameraControls = new OrbitCamera(
       this.camera,

@@ -27,7 +27,7 @@ export default class OrbitCamera {
   private dollySpeed: number;
   private truckSpeed: number;
   private domElement: any;
-  private target: THREE.Vector3;
+  public target: THREE.Vector3;
   private _targetEnd: THREE.Vector3;
 
   private _spherical: SphericalCoordsXYZ;
