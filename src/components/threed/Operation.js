@@ -80,18 +80,20 @@ const Header = styled.div`
       }
     `};
 
-  ${props => props.advancedMode && css`
-    ${Handler} {
-      display: block;
-    }
+  ${props =>
+    props.advancedMode &&
+    css`
+      ${Handler} {
+        display: block;
+      }
 
-    ${HeaderContent} {
-      padding-left: 0px;
-    }
-  `}
+      ${HeaderContent} {
+        padding-left: 0px;
+      }
+    `}
 
   &:hover ${HeaderButtons} {
-    display: ${props => props.advancedMode ? 'block' : 'none'};
+    display: ${props => (props.advancedMode ? 'block' : 'none')};
   }
 `;
 
@@ -162,13 +164,22 @@ export default class Operation extends React.Component {
               {isOpen && (
                 <Content>
                   {parameters.map(parameter => {
-                    if (parameter.advancedMode && !advancedMode) return;
+                    if (
+                      (parameter.advancedMode && !advancedMode) ||
+                      (parameter.basicMode && advancedMode)
+                    ) {
+                      return;
+                    }
+
+                    const value = parameter.getValue
+                      ? parameter.getValue(operation)
+                      : operation[parameter.name];
 
                     return (
                       <PropertyInput
                         key={parameter.name}
                         parameter={parameter}
-                        value={operation[parameter.name]}
+                        value={value}
                         onChange={value => onParameterChange(parameter, value)}
                         onFocus={() => onParameterFocus(parameter)}
                         onBlur={() => onParameterBlur(parameter)}

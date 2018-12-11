@@ -28,7 +28,7 @@ class Select extends React.Component {
         <ReactSelect
           {...selectConfig}
           defaultValue={options[0]}
-          getValue={() => value}
+          value={options.find(o => o.value === value)}
           options={options}
           styles={customStyles}
           onChange={({value}) => onChange(value)}
