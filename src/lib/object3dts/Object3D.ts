@@ -56,9 +56,6 @@ export default class Object3D extends ObjectsCommon {
     return mesh;
   }
 
-  protected mesh: THREE.Mesh;
-  protected meshPromise: Promise<THREE.Mesh> | null;
-
   constructor(
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
@@ -70,11 +67,11 @@ export default class Object3D extends ObjectsCommon {
     super(vO, operations);
   }
 
-  protected getMaterial(): THREE.MeshLambertMaterial {
-    return new THREE.MeshLambertMaterial({
-      color: this.viewOptions.color,
-    });
-  }
+  // protected getMaterial(): THREE.MeshLambertMaterial {
+  //   return new THREE.MeshLambertMaterial({
+  //     color: this.viewOptions.color,
+  //   });
+  // }
 
   protected getGeometry(): THREE.Geometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
@@ -84,27 +81,31 @@ export default class Object3D extends ObjectsCommon {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
-  // DEPRECATED
-  public setColor(color: string) {
-    this.viewOptions.color = color;
+  protected applyViewOptions(mesh?: THREE.Mesh): void {
+    debugger;
+    if (!this.mesh && !mesh)
+      throw new Error('ApplyViewOptions - Mesh not defined');
+
+    let matParams: THREE.MeshLambertMaterialParameters = {
+      color: this.viewOptions.color,
+      transparent: false,
+    };
+
+    if (this.viewOptions.opacity < 1) {
+      matParams = {
+        ...matParams,
+        opacity: this.viewOptions.opacity,
+        transparent: true,
+      };
+    }
+    const material: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial(
+      matParams,
+    );
+
+    if (mesh) mesh.material = material;
+    else (this.mesh as THREE.Mesh).material = material;
+    this._viewOptionsUpdateRequired = false;
   }
-
-  // public setOperations(operations: OperationsArray = []): void {
-  //   if (!this.operations || this.operations.length === 0) {
-  //     this.operations = operations.slice(0);
-  //     if (operations.length > 0) this._pendingOperation = true;
-  //     return;
-  //   }
-
-  //   if (!isEqual(this.operations, operations)) {
-  //     this.operations.length = 0;
-  //     this.operations = operations.slice();
-  //     this._pendingOperation = true;
-  //   }
-
-  //   this._pendingOperation =
-  //     this.pendingOperation || !isEqual(this.operations, operations);
-  // }
 
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);

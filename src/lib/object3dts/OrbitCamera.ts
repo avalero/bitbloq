@@ -233,8 +233,9 @@ export default class OrbitCamera {
             let targetDistance: number;
             if (scope.camera instanceof THREE.PerspectiveCamera) {
               // half of the fov is center to top of screen
-              targetDistance = offset.length()
-                * Math.tan(((scope.camera.fov / 2) * Math.PI) / 180);
+              targetDistance =
+                offset.length() *
+                Math.tan(((scope.camera.fov / 2) * Math.PI) / 180);
             } else {
               targetDistance = offset.length() / 2;
             }

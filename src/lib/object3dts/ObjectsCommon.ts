@@ -136,6 +136,8 @@ export default class ObjectsCommon {
   protected _viewOptionsUpdateRequired: boolean;
   protected lastJSON: IObjectsCommonJSON;
   protected parent: ObjectsCommon | undefined;
+  protected meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
+  protected mesh: THREE.Mesh | THREE.Group;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -148,6 +150,16 @@ export default class ObjectsCommon {
     //each new object must have a new ID
     this.id = uuid();
     this.parent = undefined;
+  }
+
+  public async getMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
+    if (this.meshPromise) {
+      this.mesh = await this.meshPromise;
+      this.meshPromise = null;
+      return this.mesh;
+    } else {
+      return this.mesh;
+    }
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
@@ -243,8 +255,8 @@ export default class ObjectsCommon {
     this.addOperations([ObjectsCommon.createMirrorOperation(plane)]);
   }
 
-  public getMeshAsync(): Promise<THREE.Object3D> {
-    throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children');
+  get computedMesh(): THREE.Group | THREE.Mesh | undefined {
+    return this.mesh;
   }
 
   public setViewOptions(params: Partial<IViewOptions>) {
