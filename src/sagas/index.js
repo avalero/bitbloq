@@ -105,10 +105,10 @@ function* convertToBasicOperations(object, scene) {
         position.y,
         position.z,
       ),
-      //TODO: and the other axis?
       Object3D.createRotateOperation(
-        'x',
-        angle.x
+        angle.x,
+        angle.y,
+        angle.z,
       ),
       Object3D.createScaleOperation(
         scale.x,
@@ -129,8 +129,14 @@ function* convertToAdvancedOperations(object, scene) {
       }
     }
     if (operation.type === 'rotation') {
-      if (operation.angle !== 0) {
-        operations.push(operation);
+      if (operation.x !== 0) {
+        operations.push(Object3D.createRotateOperation(operation.x, 0, 0));
+      }
+      if (operation.y !== 0) {
+        operations.push(Object3D.createRotateOperation(0, operation.y, 0));
+      }
+      if (operation.z !== 0) {
+        operations.push(Object3D.createRotateOperation(0, 0, operation.z));
       }
     }
     if (operation.type === 'scale') {

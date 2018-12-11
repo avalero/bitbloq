@@ -7,7 +7,7 @@ import {
   updateObject,
   updateObjectParameter,
   updateObjectViewOption,
-  updateOperationParameter,
+  updateOperation,
   createObject,
   deleteObject,
   undoComposition,
@@ -225,7 +225,14 @@ class PropertiesPanel extends React.Component {
   };
 
   onOperationParameterChange = (object, operation, parameter, value) => {
-    this.props.updateOperationParameter(object, operation, parameter, value);
+    if (parameter.setValue) {
+      this.props.updateOperation(object, parameter.setValue(operation, value));
+    } else {
+      this.props.updateOperation(object, {
+        ...operation,
+        [parameter.name]: value
+      });
+    }
   };
 
   onDragStart = () => {
@@ -403,7 +410,7 @@ class PropertiesPanel extends React.Component {
             this.onOperationParameterChange(
               object,
               operation,
-              parameter.name,
+              parameter,
               value,
             )
           }
@@ -454,8 +461,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateObjectParameter(object, parameter, value)),
   updateObjectViewOption: (object, option, value) =>
     dispatch(updateObjectViewOption(object, option, value)),
-  updateOperationParameter: (object, operation, parameter, value) =>
-    dispatch(updateOperationParameter(object, operation, parameter, value)),
+  updateOperation: (object, operation, parameter, value) =>
+    dispatch(updateOperation(object, operation, parameter, value)),
   createObject: object => dispatch(createObject(object)),
   deleteObject: object => dispatch(deleteObject(object)),
   undoComposition: object => dispatch(undoComposition(object)),

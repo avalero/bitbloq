@@ -91,13 +91,13 @@ const scene = handleActions(
       })
     ],
     [
-      actions.updateOperationParameter,
-      (state, {payload: {object, operation, parameter, value}}) => ({
+      actions.updateOperation,
+      (state, {payload: {object, operation}}) => ({
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
           operations: object.operations.map(
-            o => (o === operation ? {...o, [parameter]: value} : o),
+            o => (o.id === operation.id ? operation : o),
           ),
         }),
       }),

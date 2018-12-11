@@ -10,14 +10,9 @@ export const updateObjectViewOption = createAction(
   'THREED_UPDATE_OBJECT_VIEW_OPTION',
   (object, option, value) => ({object, option, value}),
 );
-export const updateOperationParameter = createAction(
+export const updateOperation = createAction(
   'THREED_UPDATE_OPERATION_PARAMETER',
-  (object, operation, parameter, value) => ({
-    object,
-    operation,
-    parameter,
-    value,
-  }),
+  (object, operation) => ({object, operation}),
 );
 export const duplicateObject = createAction('THREED_DUPLICATE_OBJECT');
 export const composeObjects = createAction(
