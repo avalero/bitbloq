@@ -18,6 +18,7 @@ import TranslationHelper from './TranslationHelper';
 import RotationHelper from './RotationHelper';
 import { type } from 'os';
 import Object3D from './Object3D';
+import { matchPath } from 'react-router';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -426,9 +427,9 @@ export default class Scene {
               z: mesh.position.z,
             },
             angle: {
-              x: mesh.rotation.x,
-              y: mesh.rotation.y,
-              z: mesh.rotation.z,
+              x: mesh.rotation.x * 180 / Math.PI,
+              y: mesh.rotation.y * 180 / Math.PI,
+              z: mesh.rotation.z * 180 / Math.PI,
             },
             scale: {
               x: mesh.scale.x,
