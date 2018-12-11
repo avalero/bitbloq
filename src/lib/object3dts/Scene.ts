@@ -427,9 +427,9 @@ export default class Scene {
               z: mesh.position.z,
             },
             angle: {
-              x: mesh.rotation.x * 180 / Math.PI,
-              y: mesh.rotation.y * 180 / Math.PI,
-              z: mesh.rotation.z * 180 / Math.PI,
+              x: (mesh.rotation.x * 180) / Math.PI,
+              y: (mesh.rotation.y * 180) / Math.PI,
+              z: (mesh.rotation.z * 180) / Math.PI,
             },
             scale: {
               x: mesh.scale.x,
@@ -464,18 +464,29 @@ export default class Scene {
    * It adds the children to the Scene
    * @param json CompoundObject Descriptor. It only pays attention to id.
    */
-  public undoCompound(json: ICompoundObjectJSON): ISceneJSON{
-    try{
-      if(!this.objectInScene(json)) throw new Error(`Object ${json.id} not present in Scene`);
+  public undoCompound(json: ICompoundObjectJSON): ISceneJSON {
+    try {
+      if (
+        ![Union.typeName, Difference.typeName, Intersection.typeName].includes(
+          json.type,
+        )
+      )
+        throw new Error(`Not a Compound object. ${json.type}`);
+
+      if (!this.objectInScene(json))
+        throw new Error(`Object ${json.id} not present in Scene`);
+
       this.removeFromObjectCollector(json);
       this.removeFromScene(json);
       json.children.forEach(childJSON => {
-        if(this.objectInObjectCollector(json))
+        if (this.objectInObjectCollector(json))
           this.objectsInScene.push(this.getObject(childJSON));
-        else 
-          throw new Error(`Unexepected Error. Object ${childJSON.id} not in Object Collector`);
-      })
-    }catch(e){
+        else
+          throw new Error(
+            `Unexepected Error. Object ${childJSON.id} not in Object Collector`,
+          );
+      });
+    } catch (e) {
       throw new Error(`undoCompoundError ${e}`);
     }
     return this.toJSON();
@@ -504,7 +515,18 @@ export default class Scene {
     }
   }
 
-
+  /**
+   * It removes Object from Scene and ObjectCollector.
+   * It transform the Object to a ObjectsGroup and add it to the Scene and ObjectCollector.
+   * @param json Object descriptor. It only pays attention to id
+   */
+  public convertToGroup(json: IObjectsCommonJSON): ISceneJSON {
+    if (json.type === RepetitionObject.typeName) {
+      return this.repetitionToGroup(json as IRepetitionObjectJSON);
+    } else {
+      throw new Error(`Cannot Convert ${json.type} to Group`);
+    }
+  }
 
   /**
    * It removes RepetitionObject from Scene and ObjectCollector.
@@ -540,7 +562,7 @@ export default class Scene {
       this.removeFromObjectCollector(json);
       this.removeFromScene(json);
     } catch (e) {
-      throw new Error(`Cannog ungroup. Unknown group ${e}`);
+      throw new Error(`Cannot ungroup. Unknown Object ${e}`);
     }
 
     return this.toJSON();
