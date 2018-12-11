@@ -309,7 +309,9 @@ export default class Scene {
           const obj = child.toJSON();
           if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
-          } else if (!this.objectInObjectCollector(obj)) {
+          }
+          
+          if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
           }
@@ -320,7 +322,9 @@ export default class Scene {
           const obj = child.toJSON();
           if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
-          } else if (!this.objectInObjectCollector(obj)) {
+          }
+          
+          if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
           }
@@ -330,7 +334,9 @@ export default class Scene {
         const obj = original.toJSON();
         if (this.objectInScene(obj)) {
           this.removeFromScene(obj);
-        } else if (!this.objectInObjectCollector(obj)) {
+        }
+        
+        if (!this.objectInObjectCollector(obj)) {
           this.addExistingObject(original);
           this.removeFromScene(obj);
         }
@@ -521,6 +527,7 @@ export default class Scene {
    * @param json Object descriptor. It only pays attention to id
    */
   public convertToGroup(json: IObjectsCommonJSON): ISceneJSON {
+    debugger;
     if (json.type === RepetitionObject.typeName) {
       return this.repetitionToGroup(json as IRepetitionObjectJSON);
     } else {
@@ -543,16 +550,17 @@ export default class Scene {
         ObjectsCommon
       > = (rep as RepetitionObject).getGroup().unGroup();
 
-      //add objects to ObjectCollector
-      objects.forEach(object => {
-        this.objectCollector.push(object);
-      });
+      // //add objects to ObjectCollector
+      // objects.forEach(object => {
+      //   this.objectCollector.push(object);
+      // });
 
       const group: ObjectsGroup = new ObjectsGroup(objects);
 
       // add new group to scene
-      this.objectCollector.push(group);
-      this.objectsInScene.push(group);
+      this.addExistingObject(group);
+      // this.objectCollector.push(group);
+      // this.objectsInScene.push(group);
 
       //remove original object in repetion from ObjectCollector
       const original = rep.getOriginal();
