@@ -227,6 +227,7 @@ const config = {
       name: 'ObjectsGroup',
       label: 'Group',
       icon: <GroupIcon />,
+      canUngroup: true,
       withoutColor: true,
       parameters: () => [],
     },
@@ -235,6 +236,7 @@ const config = {
       label: 'Repetition',
       icon: <RepeatIcon />,
       withoutColor: true,
+      canConverToGroup: true,
       parameters: ({parameters: {type}}) => {
         if (type === 'cartesian') {
           return [

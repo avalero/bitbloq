@@ -33,6 +33,8 @@ export const reorderOperation = createAction(
 );
 export const deleteObject = createAction('THREED_DELETE_OBJECT');
 export const undoComposition = createAction('THREED_UNDO_COMPOSITION');
+export const ungroup = createAction('THREED_UNGROUP');
+export const convertToGroup = createAction('THREED_CONVERT_TO_GROUP');
 
 export const selectObject = createAction(
   'THREED_SELECT_OBJECT',

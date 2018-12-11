@@ -18,6 +18,8 @@ import {
   setActiveOperation,
   unsetActiveOperation,
   stopEditingObjectName,
+  ungroup,
+  convertToGroup,
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
@@ -26,6 +28,7 @@ import DuplicateIcon from '../icons/Duplicate';
 import PencilIcon from '../icons/Pencil';
 import TrashIcon from '../icons/Trash';
 import UndoIcon from '../icons/Undo';
+import GroupIcon from '../icons/Group';
 import UngroupIcon from '../icons/Ungroup';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
@@ -270,8 +273,14 @@ class PropertiesPanel extends React.Component {
   };
 
   onUngroupClick = () => {
-    // TODO: Ungroup
+    const {object, ungroup} = this.props;
+    ungroup(object);
   };
+
+  onConvertToGroupClick = () => {
+    const {object, convertToGroup} = this.props;
+    convertToGroup(object);
+  }
 
   onUndoClick = () => {
     const {object, undoComposition} = this.props;
@@ -296,7 +305,7 @@ class PropertiesPanel extends React.Component {
       config.objectTypes.find(s => s.name === object.type) || {};
     const {parameters: baseParameters, icon} = typeConfig;
 
-    const {canUndo, undoLabel, canUngroup} = typeConfig;
+    const {canUndo, undoLabel, canUngroup, canConverToGroup} = typeConfig;
 
     const parameters = [...baseParameters(object)];
 
@@ -353,6 +362,11 @@ class PropertiesPanel extends React.Component {
               {canUngroup && (
                 <ContextMenuOption onClick={this.onUngroupClick}>
                   <UngroupIcon /> Ungroup
+                </ContextMenuOption>
+              )}
+              {canConverToGroup && (
+                <ContextMenuOption onClick={this.onConvertToGroupClick}>
+                  <GroupIcon /> Convert to group
                 </ContextMenuOption>
               )}
               {canUndo && (
@@ -463,6 +477,8 @@ const mapDispatchToProps = dispatch => ({
   createObject: object => dispatch(createObject(object)),
   deleteObject: object => dispatch(deleteObject(object)),
   undoComposition: object => dispatch(undoComposition(object)),
+  ungroup: object => dispatch(ungroup(object)),
+  convertToGroup: object => dispatch(convertToGroup(object)),
   duplicateObject: object => dispatch(duplicateObject(object)),
   addOperation: (object, operation) =>
     dispatch(addOperation(object, operation)),

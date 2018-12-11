@@ -165,6 +165,20 @@ const scene = handleActions(
         objects: state.sceneInstance.undoCompound(payload)
       }),
     ],
+    [
+      actions.ungroup,
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.unGroup(payload)
+      }),
+    ],
+    [
+      actions.convertToGroup,
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.convertToGroup(payload)
+      }),
+    ]
   ]),
   initialState,
 );
