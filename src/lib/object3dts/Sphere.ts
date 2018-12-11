@@ -65,7 +65,7 @@ export default class Sphere extends PrimitiveObject {
         this.parameters as ISphereParams,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        (this.mesh as THREE.Mesh).clone(),
       );
       return obj;
     } else {
