@@ -460,6 +460,28 @@ export default class Scene {
   }
 
   /**
+   * It removes the CompoundObject from Scene and ObjectCollector.
+   * It adds the children to the Scene
+   * @param json CompoundObject Descriptor. It only pays attention to id.
+   */
+  public undoCompound(json: ICompoundObjectJSON): ISceneJSON{
+    try{
+      if(!this.objectInScene(json)) throw new Error(`Object ${json.id} not present in Scene`);
+      this.removeFromObjectCollector(json);
+      this.removeFromScene(json);
+      json.children.forEach(childJSON => {
+        if(this.objectInObjectCollector(json))
+          this.objectsInScene.push(this.getObject(childJSON));
+        else 
+          throw new Error(`Unexepected Error. Object ${childJSON.id} not in Object Collector`);
+      })
+    }catch(e){
+      throw new Error(`undoCompoundError ${e}`);
+    }
+    return this.toJSON();
+  }
+
+  /**
    * It removes the ObjectsGroup from Scene and ObjectCollector.
    * It adds the members of the group to de Scene.
    * @param json group object descriptor (it only pays attention to id)
@@ -482,14 +504,7 @@ export default class Scene {
     }
   }
 
-  /**
-   * It removes the CompoundObject from Scene and ObjectCollector.
-   * It adds the children to the Scene
-   * @param json CompoundObject Descriptor. It only pays attention to id.
-   */
-  public undoCompound(json: ICompoundObjectJSON): ISceneJSON {
-    return this.toJSON();
-  }
+
 
   /**
    * It removes RepetitionObject from Scene and ObjectCollector.
