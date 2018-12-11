@@ -271,7 +271,7 @@ export default class Scene {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromScene(obj));
     } else {
-      if (!this.objectInObjectCollector(json))
+      if (!this.objectInScene(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
       this.objectsInScene = this.objectsInScene.filter(
         obj => obj.getID() !== json.id,
@@ -477,8 +477,9 @@ export default class Scene {
 
       this.removeFromObjectCollector(json);
       this.removeFromScene(json);
+
       json.children.forEach(childJSON => {
-        if (this.objectInObjectCollector(json))
+        if (this.objectInObjectCollector(childJSON))
           this.objectsInScene.push(this.getObject(childJSON));
         else
           throw new Error(
