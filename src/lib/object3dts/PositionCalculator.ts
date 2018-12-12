@@ -8,11 +8,12 @@ export default class PositionCalculator{
   private position: IObjectPosition;
 
   constructor(object: ObjectsCommon){
-    this.object = object.clone();
+    this.object = object;
     this.operations = [];
   }
 
   private async applyOperationsAsync():Promise<void>{
+    debugger;
     let obj:ObjectsCommon | undefined = this.object;
     while(obj){
       this.prePushOperations(obj.getOperations());
