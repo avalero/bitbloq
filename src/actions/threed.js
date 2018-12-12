@@ -1,6 +1,7 @@
 import {createAction} from 'redux-actions';
 
 export const createObject = createAction('THREED_CREATE_OBJECT');
+export const updateObject = createAction('THREED_UPDATE_OBJECT');
 export const updateObjectParameter = createAction(
   'THREED_UPDATE_OBJECT_PARAMETER',
   (object, parameter, value) => ({object, parameter, value}),
@@ -9,14 +10,9 @@ export const updateObjectViewOption = createAction(
   'THREED_UPDATE_OBJECT_VIEW_OPTION',
   (object, option, value) => ({object, option, value}),
 );
-export const updateOperationParameter = createAction(
+export const updateOperation = createAction(
   'THREED_UPDATE_OPERATION_PARAMETER',
-  (object, operation, parameter, value) => ({
-    object,
-    operation,
-    parameter,
-    value,
-  }),
+  (object, operation) => ({object, operation}),
 );
 export const duplicateObject = createAction('THREED_DUPLICATE_OBJECT');
 export const composeObjects = createAction(
@@ -37,6 +33,8 @@ export const reorderOperation = createAction(
 );
 export const deleteObject = createAction('THREED_DELETE_OBJECT');
 export const undoComposition = createAction('THREED_UNDO_COMPOSITION');
+export const ungroup = createAction('THREED_UNGROUP');
+export const convertToGroup = createAction('THREED_CONVERT_TO_GROUP');
 
 export const selectObject = createAction(
   'THREED_SELECT_OBJECT',

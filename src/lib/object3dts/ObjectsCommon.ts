@@ -1,6 +1,8 @@
 import uuid from 'uuid/v1';
 import isEqual from 'lodash.isequal';
 
+import cloneDeep from 'lodash.clonedeep';
+
 interface ICommonOperation {
   type: string;
   id?: string;
@@ -21,8 +23,9 @@ export interface ITranslateOperation extends ICommonOperation {
 }
 
 export interface IRotateOperation extends ICommonOperation {
-  axis: string;
-  angle: number;
+  x: number;
+  y: number;
+  z: number;
   relative: boolean;
 }
 
@@ -95,14 +98,16 @@ export default class ObjectsCommon {
   }
 
   public static createRotateOperation(
-    axis: string = 'x',
-    angle: number = 0,
+    x: number = 0,
+    y: number = 0,
+    z: number = 0,
     relative: boolean = true,
   ): IRotateOperation {
     return {
       type: 'rotation',
-      axis,
-      angle,
+      x,
+      y,
+      z,
       relative,
       id: uuid(),
     };
@@ -128,6 +133,11 @@ export default class ObjectsCommon {
   protected viewOptions: IViewOptions;
   protected id: string;
   protected type: string;
+  protected _viewOptionsUpdateRequired: boolean;
+  protected lastJSON: IObjectsCommonJSON;
+  protected parent: ObjectsCommon | undefined;
+  protected meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
+  protected mesh: THREE.Mesh | THREE.Group;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -139,10 +149,41 @@ export default class ObjectsCommon {
     this.setViewOptions(viewOptions);
     //each new object must have a new ID
     this.id = uuid();
+    this.parent = undefined;
+  }
+
+  public async getMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
+    if (this.meshPromise) {
+      this.mesh = await this.meshPromise;
+      this.meshPromise = null;
+      return this.mesh;
+    } else {
+      return this.mesh;
+    }
+  }
+
+  public async computeMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
+    throw new Error('Object3D.computeMeshAsync() implemented on children');
+  }
+
+  public setParent(object: ObjectsCommon): void {
+    this.parent = object;
+  }
+
+  public getParent(): ObjectsCommon | undefined {
+    return this.parent;
+  }
+
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
   }
 
   get meshUpdateRequired(): boolean {
     return this._meshUpdateRequired;
+  }
+
+  set pendingOperation(a: boolean) {
+    this._pendingOperation = a;
   }
 
   get pendingOperation(): boolean {
@@ -157,7 +198,7 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
-  public setOperations(operations: OperationsArray = []): void {
+  protected setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
       if (operations.length > 0) this._pendingOperation = true;
@@ -174,10 +215,10 @@ export default class ObjectsCommon {
   }
 
   public addOperations(operations: OperationsArray = []): void {
-    this.setOperations(this.operations.concat(operations));
+    this.setOperations([...this.operations, ...operations]);
   }
-
-  public translate(
+  
+  protected translate(
     x: number,
     y: number,
     z: number,
@@ -188,21 +229,21 @@ export default class ObjectsCommon {
     ]);
   }
 
-  public rotateX(angle: number, relative: boolean = false): void {
+  protected rotateX(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation('x', angle, relative),
+      ObjectsCommon.createRotateOperation(angle, 0, 0, relative),
     ]);
   }
 
-  public rotateY(angle: number, relative: boolean = false): void {
+  protected rotateY(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation('y', angle, relative),
+      ObjectsCommon.createRotateOperation(0, angle, 0, relative),
     ]);
   }
 
-  public rotateZ(angle: number, relative: boolean = false): void {
+  protected rotateZ(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation('z', angle, relative),
+      ObjectsCommon.createRotateOperation(0, 0, angle, relative),
     ]);
   }
 
@@ -214,19 +255,23 @@ export default class ObjectsCommon {
     this.addOperations([ObjectsCommon.createMirrorOperation(plane)]);
   }
 
-  public getMeshAsync(): Promise<THREE.Object3D> {
-    throw new Error('ObjectsCommon.getMeshAsyinc() implemented in children');
+  get computedMesh(): THREE.Group | THREE.Mesh | undefined {
+    return this.mesh;
   }
 
   public setViewOptions(params: Partial<IViewOptions>) {
-    this.viewOptions = {
-      ...this.viewOptions,
-      ...params,
-    };
+    if (!isEqual(params, this.viewOptions)) {
+      this.viewOptions = {
+        ...ObjectsCommon.createViewOptions(),
+        ...this.viewOptions,
+        ...params,
+      };
+      this._viewOptionsUpdateRequired = true;
+    }
   }
 
-  public getViewOptions():IViewOptions{
-    return this.viewOptions;
+  public get viewOptionsUpdateRequired(): boolean {
+    return this._viewOptionsUpdateRequired;
   }
 
   public clone(): ObjectsCommon {
@@ -238,12 +283,12 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    return {
+    return cloneDeep({
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-    };
+    });
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {

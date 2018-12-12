@@ -56,9 +56,6 @@ export default class Object3D extends ObjectsCommon {
     return mesh;
   }
 
-  //protected mesh: THREE.Mesh;
-  protected mesh: THREE.Mesh;
-
   constructor(
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
@@ -70,39 +67,11 @@ export default class Object3D extends ObjectsCommon {
     super(vO, operations);
   }
 
-  protected getMaterial(): THREE.MeshLambertMaterial {
-    return new THREE.MeshLambertMaterial({
-      color: this.viewOptions.color,
-    });
-  }
-
-  public async getPrimitiveMeshAsync(): Promise<THREE.Mesh> {
-    if (this.meshUpdateRequired) {
-      //console.log("Recompute Mesh");
-      const geometry: THREE.Geometry = this.getGeometry();
-      this.mesh = new THREE.Mesh(geometry, this.getMaterial());
-      this._meshUpdateRequired = false;
-      await this.applyOperationsAsync();
-    }
-
-    if (this.pendingOperation) {
-      await this.applyOperationsAsync();
-    }
-
-    this.mesh.material = this.getMaterial();
-
-    return this.mesh;
-  }
-
-  public async getMeshAsync(): Promise<THREE.Mesh> {
-    // for generic Object3D make it sync
-    const mesh = await this.getPrimitiveMeshAsync();
-    if (mesh instanceof THREE.Mesh) {
-      return mesh;
-    } else {
-      throw new Error('Mesh not computed correctly');
-    }
-  }
+  // protected getMaterial(): THREE.MeshLambertMaterial {
+  //   return new THREE.MeshLambertMaterial({
+  //     color: this.viewOptions.color,
+  //   });
+  // }
 
   protected getGeometry(): THREE.Geometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
@@ -112,29 +81,32 @@ export default class Object3D extends ObjectsCommon {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
   }
 
-  // DEPRECATED
-  public setColor(color: string) {
-    this.viewOptions.color = color;
+  protected applyViewOptions(mesh?: THREE.Mesh): void {
+    if (!this.mesh && !mesh)
+      throw new Error('ApplyViewOptions - Mesh not defined');
+
+    let matParams: THREE.MeshLambertMaterialParameters = {
+      color: this.viewOptions.color,
+      transparent: false,
+    };
+
+    if (this.viewOptions.opacity < 1) {
+      matParams = {
+        ...matParams,
+        opacity: this.viewOptions.opacity,
+        transparent: true,
+      };
+    }
+    const material: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial(
+      matParams,
+    );
+
+    if (mesh) mesh.material = material;
+    else (this.mesh as THREE.Mesh).material = material;
+    this._viewOptionsUpdateRequired = false;
   }
 
-  // public setOperations(operations: OperationsArray = []): void {
-  //   if (!this.operations || this.operations.length === 0) {
-  //     this.operations = operations.slice(0);
-  //     if (operations.length > 0) this._pendingOperation = true;
-  //     return;
-  //   }
-
-  //   if (!isEqual(this.operations, operations)) {
-  //     this.operations.length = 0;
-  //     this.operations = operations.slice();
-  //     this._pendingOperation = true;
-  //   }
-
-  //   this._pendingOperation =
-  //     this.pendingOperation || !isEqual(this.operations, operations);
-  // }
-
-  protected async applyOperationsAsync(): Promise<void> {
+  public async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
 
@@ -187,34 +159,17 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected applyRotateOperation(operation: IRotateOperation): void {
-    const angle = THREE.Math.degToRad(Number(operation.angle));
-    switch (operation.axis) {
-      case 'x':
-        if (operation.relative) {
-          this.mesh.rotateX(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), angle);
-        }
-        break;
-
-      case 'y':
-        if (operation.relative) {
-          this.mesh.rotateY(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle);
-        }
-        break;
-
-      case 'z':
-        if (operation.relative) {
-          this.mesh.rotateZ(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), angle);
-        }
-        break;
-
-      default:
-        throw new Error('Unexpected Rotation Axis');
+    const x = THREE.Math.degToRad(Number(operation.x));
+    const y = THREE.Math.degToRad(Number(operation.y));
+    const z = THREE.Math.degToRad(Number(operation.z));
+    if (operation.relative) {
+      this.mesh.rotateX(x);
+      this.mesh.rotateY(y);
+      this.mesh.rotateZ(z);
+    } else {
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), x);
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), y);
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), z);
     }
   }
 
@@ -231,7 +186,7 @@ export default class Object3D extends ObjectsCommon {
       );
   }
 
-  public setMesh(mesh: THREE.Mesh) {
+  protected setMesh(mesh: THREE.Mesh): void {
     this.mesh = mesh;
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
@@ -239,7 +194,7 @@ export default class Object3D extends ObjectsCommon {
     this.mesh.updateMatrix();
   }
 
-  public clone(): Object3D {
+  public clone(): any {
     throw new Error('Object3D.clone() Implemented in children');
   }
 }

@@ -84,13 +84,20 @@ const scene = handleActions(
       },
     ],
     [
-      actions.updateOperationParameter,
-      (state, {payload: {object, operation, parameter, value}}) => ({
+      actions.updateObject,
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.updateObject(payload)
+      })
+    ],
+    [
+      actions.updateOperation,
+      (state, {payload: {object, operation}}) => ({
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
           operations: object.operations.map(
-            o => (o === operation ? {...o, [parameter]: value} : o),
+            o => (o.id === operation.id ? operation : o),
           ),
         }),
       }),
@@ -153,12 +160,25 @@ const scene = handleActions(
     ],
     [
       actions.undoComposition,
-      (state, {payload}) => {
-        //TODO: Undo composition
-
-        return state;
-      },
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.undoCompound(payload)
+      }),
     ],
+    [
+      actions.ungroup,
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.unGroup(payload)
+      }),
+    ],
+    [
+      actions.convertToGroup,
+      (state, {payload}) => ({
+        ...state,
+        objects: state.sceneInstance.convertToGroup(payload)
+      }),
+    ]
   ]),
   initialState,
 );

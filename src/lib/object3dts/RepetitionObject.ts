@@ -26,6 +26,7 @@ import ObjectsCommon, {
 import Object3D from './Object3D';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import * as THREE from 'three';
 
 import Scene from './Scene';
@@ -79,7 +80,6 @@ export default class RepetitionObject extends ObjectsCommon {
   private originalObject: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
   private group: Array<ObjectsCommon>;
-  private mesh: THREE.Group;
 
   /**
    *
@@ -91,6 +91,7 @@ export default class RepetitionObject extends ObjectsCommon {
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Group | undefined = undefined,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -101,13 +102,27 @@ export default class RepetitionObject extends ObjectsCommon {
     super(vO, []);
     this.parameters = { ...params };
     this.originalObject = original;
+    this.originalObject.setParent(this);
     this.type = RepetitionObject.typeName;
     this._meshUpdateRequired = true;
     this._pendingOperation = true;
     this.group = [];
     this.mesh = new THREE.Group();
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
   }
 
+  private setMesh(mesh: THREE.Group): void {
+    this.mesh = mesh;
+    this._meshUpdateRequired = false;
+    this._pendingOperation = false;
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+  }
   /**
    * Performs a cartesian repetition of object (nun times), with x,y,z distances
    * It adds repeated objects to ObjectsGroup instance
@@ -121,7 +136,11 @@ export default class RepetitionObject extends ObjectsCommon {
     for (let i: number = 0; i < num; i++) {
       if (this.originalObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = this.originalObject.clone();
-        objectClone.translate(i * x, i * y, i * z);
+        const json = objectClone.toJSON();
+        json.operations.push(
+          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z),
+        );
+        objectClone.updateFromJSON(json);
         this.group.push(objectClone);
       }
     }
@@ -137,11 +156,22 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public clone(): RepetitionObject {
-    return new RepetitionObject(
-      this.parameters,
-      this.originalObject,
-      this.viewOptions,
-    );
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new RepetitionObject(
+        this.parameters,
+        this.originalObject.clone(),
+        this.viewOptions,
+        (this.mesh as THREE.Group).clone(),
+      );
+      return obj;
+    } else {
+      const obj = new RepetitionObject(
+        this.parameters,
+        this.originalObject.clone(),
+        this.viewOptions,
+      );
+      return obj;
+    }
   }
 
   /**
@@ -172,11 +202,11 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public toJSON(): IRepetitionObjectJSON {
-    const obj = {
+    const obj = cloneDeep({
       ...super.toJSON(),
       parameters: this.parameters,
       children: [this.originalObject.toJSON()],
-    };
+    });
 
     return obj;
   }
@@ -205,6 +235,17 @@ export default class RepetitionObject extends ObjectsCommon {
       this.originalObject.updateFromJSON(object.children[0]);
       this.setParameters(object.parameters);
       this.setOperations(object.operations);
+
+      if (!isEqual(this.lastJSON, this.toJSON())) {
+        this.lastJSON = this.toJSON();
+        this.meshPromise = this.computeMeshAsync();
+        let obj: ObjectsCommon | undefined = this.getParent();
+        while (obj) {
+          obj.meshUpdateRequired = true;
+          obj.computeMeshAsync();
+          obj = obj.getParent();
+        }
+      }
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
     }
@@ -214,25 +255,12 @@ export default class RepetitionObject extends ObjectsCommon {
     return this._meshUpdateRequired || this.originalObject.meshUpdateRequired;
   }
 
-  get pendingOperation(): boolean {
-    return this._pendingOperation || this.originalObject.pendingOperation;
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
   }
 
-  public async getMeshAsync(): Promise<THREE.Object3D> {
-    //check if originalObject has changed
-    if (this.meshUpdateRequired || this.originalObject.pendingOperation) {
-      this.computeMesh();
-    }
-
-    const meshes = await Promise.all(this.group.map(obj => obj.getMeshAsync()));
-    this.mesh.children.length = 0;
-    meshes.forEach(mesh => {
-      this.mesh.add(mesh);
-    });
-
-    await this.applyOperationsAsync();
-
-    return this.mesh;
+  get pendingOperation(): boolean {
+    return this._pendingOperation || this.originalObject.pendingOperation;
   }
 
   protected async applyOperationsAsync(): Promise<void> {
@@ -288,34 +316,17 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   protected applyRotateOperation(operation: IRotateOperation): void {
-    const angle = THREE.Math.degToRad(Number(operation.angle));
-    switch (operation.axis) {
-      case 'x':
-        if (operation.relative) {
-          this.mesh.rotateX(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), angle);
-        }
-        break;
-
-      case 'y':
-        if (operation.relative) {
-          this.mesh.rotateY(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), angle);
-        }
-        break;
-
-      case 'z':
-        if (operation.relative) {
-          this.mesh.rotateZ(angle);
-        } else {
-          this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), angle);
-        }
-        break;
-
-      default:
-        throw new Error('Unexpected Rotation Axis');
+    const x = THREE.Math.degToRad(Number(operation.x));
+    const y = THREE.Math.degToRad(Number(operation.y));
+    const z = THREE.Math.degToRad(Number(operation.z));
+    if (operation.relative) {
+      this.mesh.rotateX(x);
+      this.mesh.rotateY(y);
+      this.mesh.rotateZ(z);
+    } else {
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), x);
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), y);
+      this.mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), z);
     }
   }
 
@@ -343,5 +354,32 @@ export default class RepetitionObject extends ObjectsCommon {
 
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
+  }
+
+  public async computeMeshAsync(): Promise<THREE.Group> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
+      if (
+        this.meshUpdateRequired ||
+        this.originalObject.pendingOperation ||
+        this.originalObject.viewOptionsUpdateRequired
+      ) {
+        this.computeMesh();
+      }
+
+      const meshes = await Promise.all(
+        this.group.map(obj => obj.getMeshAsync()),
+      );
+      this.mesh.children.length = 0;
+      meshes.forEach(mesh => {
+        this.mesh.add(mesh);
+      });
+
+      await this.applyOperationsAsync();
+
+      if (this.mesh instanceof THREE.Group) resolve(this.mesh);
+      else reject(new Error('Unexpected Error computing RepetitionObject'));
+    });
+
+    return this.meshPromise as Promise<THREE.Group>;
   }
 }

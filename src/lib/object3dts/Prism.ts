@@ -33,8 +33,9 @@ import ObjectsCommon, {
   IObjectsCommonJSON,
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
+import isEqual from 'lodash.isequal';
 
-interface IPrismParams {
+export interface IPrismParams {
   sides: number;
   length: number;
   height: number;
@@ -56,6 +57,7 @@ export default class Prism extends PrimitiveObject {
     parameters: IPrismParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -63,8 +65,32 @@ export default class Prism extends PrimitiveObject {
     };
     super(vO, operations);
     this.type = Prism.typeName;
-    this.parameters = { ...parameters };
-    this._meshUpdateRequired = true;
+    this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
+  }
+
+  public clone(): Prism {
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Prism(
+        this.parameters as IPrismParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Prism(
+        this.parameters as IPrismParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -93,18 +119,5 @@ export default class Prism extends PrimitiveObject {
       Number(height),
       Number(sides),
     ).rotateX(Math.PI / 2);
-  }
-
-  public clone(): Prism {
-    const obj = new Prism(
-      this.parameters as IPrismParams,
-      this.operations,
-      this.viewOptions,
-    );
-
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
-    }
-    return obj;
   }
 }

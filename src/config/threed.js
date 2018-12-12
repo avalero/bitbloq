@@ -27,6 +27,7 @@ import RepeatPolarIcon from '../components/icons/RepeatPolar';
 import TranslationIcon from '../components/icons/Translation';
 import RotationIcon from '../components/icons/Rotation';
 import ScaleIcon from '../components/icons/Scale';
+import ReflectionIcon from '../components/icons/Reflection';
 
 const config = {
   colors: [
@@ -169,7 +170,7 @@ const config = {
         id: uuid(),
         type: 'Prism',
         parameters: {
-          sides: 5,
+          sides: 6,
           length: 5,
           height: 15,
         },
@@ -211,6 +212,7 @@ const config = {
       icon: <DifferenceIcon />,
       canUndo: true,
       undoLabel: 'Undo difference',
+      showBaseObject: true,
       parameters: () => [],
     },
     {
@@ -225,6 +227,7 @@ const config = {
       name: 'ObjectsGroup',
       label: 'Group',
       icon: <GroupIcon />,
+      canUngroup: true,
       withoutColor: true,
       parameters: () => [],
     },
@@ -233,6 +236,7 @@ const config = {
       label: 'Repetition',
       icon: <RepeatIcon />,
       withoutColor: true,
+      canConverToGroup: true,
       parameters: ({parameters: {type}}) => {
         if (type === 'cartesian') {
           return [
@@ -362,9 +366,48 @@ const config = {
       color: '#d8af31',
       create: () => ({
         id: uuid(),
-        ...Object3D.createRotateOperation('x', 0, false),
+        ...Object3D.createRotateOperation(0, 0, 0, false),
       }),
       parameters: [
+        {
+          name: 'x',
+          label: 'X',
+          type: 'integer',
+          unit: '°',
+          basicMode: true,
+          activeOperation: (object, operation) => ({
+            object,
+            type: 'rotation',
+            axis: 'x',
+            relative: operation.relative,
+          }),
+        },
+        {
+          name: 'y',
+          label: 'Y',
+          type: 'integer',
+          unit: '°',
+          basicMode: true,
+          activeOperation: (object, operation) => ({
+            object,
+            type: 'rotation',
+            axis: 'y',
+            relative: operation.relative,
+          }),
+        },
+        {
+          name: 'z',
+          label: 'Z',
+          type: 'integer',
+          unit: '°',
+          basicMode: true,
+          activeOperation: (object, operation) => ({
+            object,
+            type: 'rotation',
+            axis: 'z',
+            relative: operation.relative,
+          }),
+        },
         {
           name: 'relative',
           label: 'Relative',
@@ -375,6 +418,7 @@ const config = {
           name: 'axis',
           label: 'Axis',
           type: 'select',
+          advancedMode: true,
           options: [
             {
               label: 'X',
@@ -389,18 +433,61 @@ const config = {
               value: 'z',
             },
           ],
+          getValue: operation => {
+            if (operation.x !== 0) {
+              return 'x';
+            }
+            if (operation.y !== 0) {
+              return 'y';
+            }
+            if (operation.z !== 0) {
+              return 'z';
+            }
+          },
+          setValue: (operation, value) => {
+            const {x, y, z} = operation;
+            const angle = x || y || z;
+            return {
+              ...operation,
+              x: value === 'x' ? angle : 0,
+              y: value === 'y' ? angle : 0,
+              z: value === 'z' ? angle : 0,
+              axis: value
+            };
+          }
         },
         {
           name: 'angle',
           label: 'Angle',
           type: 'integer',
           unit: '°',
-          activeOperation: (object, operation) => ({
+          advancedMode: true,
+          activeOperation: (object, {x, y, z, relative, axis = 'x'}) => ({
             object,
             type: 'rotation',
-            axis: operation.axis,
-            relative: operation.relative,
+            axis: (x && 'x') || (y && 'y') || (z && 'z') || axis,
+            relative: relative,
           }),
+          getValue: operation => {
+            const {x, y, z} = operation;
+            return x || y || z;
+          },
+          setValue: (operation, value) => {
+            const {x, y, z, axis = 'x'} = operation;
+            if (x || y || z) {
+              return {
+                ...operation,
+                x: x ? value : 0,
+                y: y ? value : 0,
+                z: z ? value : 0,
+              };
+            } else {
+              return {
+                ...operation,
+                [axis]: value,
+              };
+            }
+          }
         },
       ],
     },
@@ -431,7 +518,47 @@ const config = {
         },
       ],
     },
+    {
+      name: 'mirror',
+      label: 'Reflection',
+      icon: <ReflectionIcon />,
+      color: '#00c1c7',
+      create: () => Object3D.createMirrorOperation(),
+      parameters: [
+        {
+          name: 'plane',
+          label: 'Plane',
+          type: 'select',
+          options: [
+            {
+              label: 'X - Y',
+              value: 'xy',
+            },
+            {
+              label: 'Y - Z',
+              value: 'yz',
+            },
+            {
+              label: 'Z - X',
+              value: 'zx',
+            },
+          ],
+        }
+      ]
+    }
   ],
+
+  defaultOperations: isAdvancedMode => {
+    if (isAdvancedMode) {
+      return [];
+    } else {
+      return [
+        Object3D.createTranslateOperation(0, 0, 0, false),
+        Object3D.createRotateOperation(0, 0, 0, true),
+        Object3D.createScaleOperation(1, 1, 1),
+      ];
+    }
+  },
 
   compositionOperations: [
     {
@@ -489,6 +616,7 @@ const config = {
       icon: <RepeatIcon />,
       minObjects: 1,
       maxObjects: 1,
+      advancedMode: true,
       create: children => ({
         type: 'RepetitionObject',
         children,
@@ -508,6 +636,7 @@ const config = {
       icon: <RepeatPolarIcon />,
       minObjects: 1,
       maxObjects: 1,
+      advancedMode: true,
       create: children => ({
         type: 'RepetitionObject',
         children,

@@ -1,13 +1,20 @@
-import {takeEvery, call, put, select} from 'redux-saga/effects';
+import {takeEvery, call, put, select, fork} from 'redux-saga/effects';
 import {updateCode as updateCodeAction} from '../actions/software';
 import {showNotification, hideNotification} from '../actions/ui';
-import {undo as undoThreed, redo as redoThreed, selectObject} from '../actions/threed';
+import {
+  undo as undoThreed,
+  redo as redoThreed,
+  selectObject,
+  updateObject,
+  updateObjectViewOption,
+} from '../actions/threed';
 import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
 import web2board, {
   ConnectionError,
   CompileError,
   BoardNotDetectedError,
 } from '../lib/web2board';
+import Object3D from '../lib/object3dts/Object3D';
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -88,8 +95,84 @@ function* watchCreateObject() {
   yield put(selectObject(objects[objects.length - 1]));
 }
 
+function* convertToBasicOperations(object, scene) {
+  const {position, angle, scale} = yield call(
+    [scene, scene.getPositionAsync],
+    object,
+  );
+
+  yield put(
+    updateObject({
+      ...object,
+      operations: [
+        Object3D.createTranslateOperation(position.x, position.y, position.z),
+        Object3D.createRotateOperation(angle.x, angle.y, angle.z),
+        Object3D.createScaleOperation(scale.x, scale.y, scale.z),
+      ],
+    }),
+  );
+}
+
+function* convertToAdvancedOperations(object, scene) {
+  const operations = [];
+
+  object.operations.forEach(operation => {
+    if (operation.type === 'translation') {
+      if (operation.x !== 0 || operation.y !== 0 || operation.z !== 0) {
+        operations.push(operation);
+      }
+    }
+    if (operation.type === 'rotation') {
+      if (operation.x !== 0) {
+        operations.push(Object3D.createRotateOperation(operation.x, 0, 0));
+      }
+      if (operation.y !== 0) {
+        operations.push(Object3D.createRotateOperation(0, operation.y, 0));
+      }
+      if (operation.z !== 0) {
+        operations.push(Object3D.createRotateOperation(0, 0, operation.z));
+      }
+    }
+    if (operation.type === 'scale') {
+      if (operation.x !== 1 || operation.y !== 1 || operation.z !== 1) {
+        operations.push(operation);
+      }
+    }
+  });
+
+  yield put(
+    updateObject({
+      ...object,
+      operations,
+    }),
+  );
+}
+
 function* watchSetAdvancedMode({payload: isAdvanced}) {
   sessionStorage.setItem('advancedMode', JSON.stringify(isAdvanced));
+
+  const scene = yield select(state => state.threed.scene.sceneInstance);
+  const objects = yield select(state => state.threed.scene.objects);
+
+  for (const object of objects) {
+    if (isAdvanced) {
+      yield fork(convertToAdvancedOperations, object, scene);
+    } else {
+      yield fork(convertToBasicOperations, object, scene);
+    }
+  }
+}
+
+function* watchSelectedObjects() {
+  const scene = yield select(state => state.threed.scene.sceneInstance);
+  const objects = yield select(state => state.threed.scene.objects);
+  const selectedIds = yield select(state => state.threed.ui.selectedIds);
+
+  for (const object of objects) {
+    const opacity =
+      selectedIds.length > 0 && !selectedIds.includes(object.id) ? 0.5 : 1;
+    yield put(updateObjectViewOption(object, 'opacity', opacity));
+  }
 }
 
 function* rootSaga() {
@@ -99,6 +182,9 @@ function* rootSaga() {
   yield takeEvery('UI_KEY_DOWN', watchKeyDown);
   yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
   yield takeEvery('THREED_SET_ADVANCED_MODE', watchSetAdvancedMode);
+  yield takeEvery('THREED_SELECT_OBJECT', watchSelectedObjects);
+  yield takeEvery('THREED_DESELECT_OBJECT', watchSelectedObjects);
+  yield takeEvery('THREED_DESELECT_ALL_OBJECTS', watchSelectedObjects);
 }
 
 export default rootSaga;

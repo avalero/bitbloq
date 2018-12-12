@@ -10,15 +10,18 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-11-16 17:32:50
+ * Last modified  : 2018-12-10 10:10:58
  */
 
 import * as THREE from 'three';
 import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
-import Scene from './Scene';
+import isEqual from 'lodash.isequal';
 
-interface ICubeParams {
+/**
+ * Params defining a cube (units are in millimiters)
+ */
+export interface ICubeParams {
   width: number;
   depth: number;
   height: number;
@@ -31,17 +34,20 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
 export default class Cube extends PrimitiveObject {
   public static typeName: string = 'Cube';
 
+  /**
+   * Creates a new Cube instance from json
+   * @param object object descriptor
+   */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type != Cube.typeName) throw new Error('Not Cube Object');
     return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
-  //private parameters: ICubeParams;
-
   constructor(
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -50,6 +56,34 @@ export default class Cube extends PrimitiveObject {
     super(vO, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
+  }
+
+  /**
+   * Creates a cube clone (not sharing references)
+   */
+  public clone(): Cube {
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const cube = new Cube(
+        this.parameters as ICubeParams,
+        this.operations,
+        this.viewOptions,
+        this.mesh.clone(),
+      );
+      return cube;
+    } else {
+      const cube = new Cube(
+        this.parameters as ICubeParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return cube;
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -72,18 +106,5 @@ export default class Cube extends PrimitiveObject {
       Number(depth),
       Number(height),
     );
-  }
-
-  public clone(): Cube {
-    const cube = new Cube(
-      this.parameters as ICubeParams,
-      this.operations,
-      this.viewOptions,
-    );
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      cube.setMesh(this.mesh.clone());
-    }
-
-    return cube;
   }
 }

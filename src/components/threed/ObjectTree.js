@@ -2,9 +2,15 @@ import React from 'react';
 import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
+import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {colors, shadow} from '../../base-styles';
 import DragIcon from '../icons/Drag';
-import {selectObject, deselectObject, createObject} from '../../actions/threed';
+import {
+  selectObject,
+  deselectObject,
+  createObject,
+  updateObject,
+} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import config from '../../config/threed';
 
@@ -148,27 +154,36 @@ class ObjectTree extends React.Component {
     const {advancedMode} = this.props;
     this.setState({addDropDownOpen: false});
 
-    const object = typeConfig.create();
-
-    if (advancedMode) {
-      this.props.createObject(object);
-    } else {
-      const basicModeOperations = config.objectOperations
-        .map(operation => {
-          if (['translation', 'rotation', 'scale'].includes(operation.name)) {
-            return operation.create();
-          }
-        })
-        .filter(operation => operation);
-
-      this.props.createObject({
-        ...object,
-        operations: basicModeOperations,
-      });
+    const object = {
+      ...typeConfig.create(),
+      operations: config.defaultOperations(advancedMode)
     }
+
+    this.props.createObject(object);
   }
 
-  renderObjectList(objects, depth = 0) {
+  onDragEnd(result) {
+    const {destination, source, droppableId, draggableId} = result;
+    const {objects, updateObject} = this.props;
+
+    if (!destination || !destination.droppableId) return;
+
+    const parent = objects.find(({id}) => id === destination.droppableId);
+    if (!parent || !parent.children) return;
+
+    const child = parent.children.find(({id}) => id === draggableId);
+    if (!child) return;
+
+    const newChildren = [...parent.children];
+    newChildren.splice(source.index, 1);
+    newChildren.splice(destination.index, 0, child);
+    this.props.updateObject({
+      ...parent,
+      children: newChildren,
+    });
+  }
+
+  renderObjectItem(object, index, depth, parent) {
     const {
       objects: topObjects,
       selectedObjects,
@@ -178,51 +193,66 @@ class ObjectTree extends React.Component {
       shiftPressed,
     } = this.props;
 
-    if (objects && objects.length) {
-      return (
-        <ObjectList>
-          {objects.map(object => {
-            const isSelected = selectedObjects.includes(object);
-            const isTop = topObjects.includes(object);
-            const isSelectedTop =
-              selectedObjects.length > 0 &&
-              topObjects.includes(selectedObjects[0]);
-            const {children} = object;
+    const isSelected = selectedObjects.includes(object);
+    const isTop = topObjects.includes(object);
+    const isSelectedTop =
+      selectedObjects.length > 0 && topObjects.includes(selectedObjects[0]);
+    const {children} = object;
 
-            return (
-              <ObjectItem key={object.id}>
-                <ObjectName
-                  isFirstSelected={selectedObjects.indexOf(object) === 0}
-                  isSelected={isSelected}
-                  onClick={() => {
-                    if (
-                      isTop &&
-                      isSelectedTop &&
-                      (controlPressed || shiftPressed)
-                    ) {
-                      if (isSelected) {
-                        deselectObject(object);
-                      } else {
-                        selectObject(object, true);
-                      }
-                    } else {
-                      if (isSelected && selectedObjects.length === 1) {
-                        deselectObject(object);
-                      } else {
-                        selectObject(object);
-                      }
-                    }
-                  }}>
-                  <DragHandle depth={depth}>
-                    <DragIcon />
-                  </DragHandle>
-                  <span>{object.viewOptions.name || object.type}</span>
-                </ObjectName>
-                {this.renderObjectList(children, depth + 1)}
-              </ObjectItem>
-            );
-          })}
-        </ObjectList>
+    return (
+      <Draggable draggableId={object.id} index={index} key={object.id}>
+        {(provided, snapshot) => (
+          <ObjectItem {...provided.draggableProps} innerRef={provided.innerRef}>
+            <ObjectName
+              isFirstSelected={selectedObjects.indexOf(object) === 0}
+              isSelected={isSelected}
+              onClick={() => {
+                if (
+                  isTop &&
+                  isSelectedTop &&
+                  (controlPressed || shiftPressed)
+                ) {
+                  if (isSelected) {
+                    deselectObject(object);
+                  } else {
+                    selectObject(object, true);
+                  }
+                } else {
+                  if (isSelected && selectedObjects.length === 1) {
+                    deselectObject(object);
+                  } else {
+                    selectObject(object);
+                  }
+                }
+              }}>
+              <DragHandle {...provided.dragHandleProps} depth={depth}>
+                <DragIcon />
+              </DragHandle>
+              <span>{object.viewOptions.name || object.type}</span>
+            </ObjectName>
+            {this.renderObjectList(children, depth + 1, object)}
+          </ObjectItem>
+        )}
+      </Draggable>
+    );
+  }
+
+  renderObjectList(objects, depth = 0, parent) {
+    if (objects && objects.length) {
+      const parentId = parent ? parent.id : 'root';
+      return (
+        <Droppable droppableId={parentId} type={parentId}>
+          {provided => (
+            <ObjectList
+              innerRef={provided.innerRef}
+              {...provided.droppableProps}>
+              {objects.map((object, index) =>
+                this.renderObjectItem(object, index, depth, parent),
+              )}
+              {provided.placeholder}
+            </ObjectList>
+          )}
+        </Droppable>
       );
     }
   }
@@ -232,27 +262,32 @@ class ObjectTree extends React.Component {
     const {objects} = this.props;
 
     return (
-      <Container>
-        <AddButton
-          onClick={() => this.setState({addDropDownOpen: true})}
-          open={addDropDownOpen}>
-          <div>+ Add object</div>
-          <AddDropdown open={addDropDownOpen}>
-            {config.objectTypes.map(typeConfig => typeConfig.create && (
-              <AddDropdownItem
-                key={typeConfig.name}
-                onClick={e => {
-                  e.stopPropagation();
-                  this.onAddObject(typeConfig);
-                }}>
-                {typeConfig.icon}
-                <div>{typeConfig.label}</div>
-              </AddDropdownItem>
-            ))}
-          </AddDropdown>
-        </AddButton>
-        <Tree>{this.renderObjectList(objects)}</Tree>
-      </Container>
+      <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
+        <Container>
+          <AddButton
+            onClick={() => this.setState({addDropDownOpen: true})}
+            open={addDropDownOpen}>
+            <div>+ Add object</div>
+            <AddDropdown open={addDropDownOpen}>
+              {config.objectTypes.map(
+                typeConfig =>
+                  typeConfig.create && (
+                    <AddDropdownItem
+                      key={typeConfig.name}
+                      onClick={e => {
+                        e.stopPropagation();
+                        this.onAddObject(typeConfig);
+                      }}>
+                      {typeConfig.icon}
+                      <div>{typeConfig.label}</div>
+                    </AddDropdownItem>
+                  ),
+              )}
+            </AddDropdown>
+          </AddButton>
+          <Tree>{this.renderObjectList(objects)}</Tree>
+        </Container>
+      </DragDropContext>
     );
   }
 }
@@ -270,6 +305,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
+  updateObject: object => dispatch(updateObject(object)),
 });
 
 export default connect(

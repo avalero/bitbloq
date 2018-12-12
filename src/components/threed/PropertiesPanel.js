@@ -4,9 +4,10 @@ import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext} from 'react-beautiful-dnd';
 import {
+  updateObject,
   updateObjectParameter,
   updateObjectViewOption,
-  updateOperationParameter,
+  updateOperation,
   createObject,
   deleteObject,
   undoComposition,
@@ -17,6 +18,8 @@ import {
   setActiveOperation,
   unsetActiveOperation,
   stopEditingObjectName,
+  ungroup,
+  convertToGroup,
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
@@ -25,6 +28,7 @@ import DuplicateIcon from '../icons/Duplicate';
 import PencilIcon from '../icons/Pencil';
 import TrashIcon from '../icons/Trash';
 import UndoIcon from '../icons/Undo';
+import GroupIcon from '../icons/Group';
 import UngroupIcon from '../icons/Ungroup';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
@@ -208,16 +212,30 @@ class PropertiesPanel extends React.Component {
     this.props.updateObjectViewOption(object, 'name', name);
   };
 
-  onObjectParameterChange = (object, parameter, value, isViewOption) => {
-    if (isViewOption) {
-      this.props.updateObjectViewOption(object, parameter, value);
+  onObjectParameterChange = (object, parameter, value) => {
+    if (parameter.name === 'baseObject') {
+      const newChildren = object.children.filter(c => c !== value);
+      newChildren.unshift(value);
+      this.props.updateObject({
+        ...object,
+        children: newChildren,
+      });
+    } else if (parameter.isViewOption) {
+      this.props.updateObjectViewOption(object, parameter.name, value);
     } else {
-      this.props.updateObjectParameter(object, parameter, value);
+      this.props.updateObjectParameter(object, parameter.name, value);
     }
   };
 
   onOperationParameterChange = (object, operation, parameter, value) => {
-    this.props.updateOperationParameter(object, operation, parameter, value);
+    if (parameter.setValue) {
+      this.props.updateOperation(object, parameter.setValue(operation, value));
+    } else {
+      this.props.updateOperation(object, {
+        ...operation,
+        [parameter.name]: value
+      });
+    }
   };
 
   onDragStart = () => {
@@ -255,8 +273,14 @@ class PropertiesPanel extends React.Component {
   };
 
   onUngroupClick = () => {
-    // TODO: Ungroup
+    const {object, ungroup} = this.props;
+    ungroup(object);
   };
+
+  onConvertToGroupClick = () => {
+    const {object, convertToGroup} = this.props;
+    convertToGroup(object);
+  }
 
   onUndoClick = () => {
     const {object, undoComposition} = this.props;
@@ -277,16 +301,25 @@ class PropertiesPanel extends React.Component {
     const {setActiveOperation, unsetActiveOperation, advancedMode} = this.props;
     const {color} = object.viewOptions;
 
-    /* TODO: canUndo, undoLabel, canUngroup */
-    let canUndo = false;
-    let undoLabel = '';
-    let canUngroup = false;
-
     const typeConfig =
       config.objectTypes.find(s => s.name === object.type) || {};
     const {parameters: baseParameters, icon} = typeConfig;
 
+    const {canUndo, undoLabel, canUngroup, canConverToGroup} = typeConfig;
+
     const parameters = [...baseParameters(object)];
+
+    if (typeConfig.showBaseObject) {
+      parameters.push({
+        name: 'baseObject',
+        label: 'Base object',
+        type: 'select',
+        options: object.children.map(child => ({
+          label: child.viewOptions.name,
+          value: child,
+        })),
+      });
+    }
 
     if (!typeConfig.withoutColor) {
       parameters.push({
@@ -331,6 +364,11 @@ class PropertiesPanel extends React.Component {
                   <UngroupIcon /> Ungroup
                 </ContextMenuOption>
               )}
+              {canConverToGroup && (
+                <ContextMenuOption onClick={this.onConvertToGroupClick}>
+                  <GroupIcon /> Convert to group
+                </ContextMenuOption>
+              )}
               {canUndo && (
                 <ContextMenuOption onClick={this.onUndoClick}>
                   <UndoIcon /> {undoLabel}
@@ -350,16 +388,11 @@ class PropertiesPanel extends React.Component {
                 parameter={parameter}
                 value={
                   parameter.isViewOption
-                    ? object.viewOptions[parameter.name]
-                    : object.parameters[parameter.name]
+                    ? object.viewOptions && object.viewOptions[parameter.name]
+                    : object.parameters && object.parameters[parameter.name]
                 }
                 onChange={value =>
-                  this.onObjectParameterChange(
-                    object,
-                    parameter.name,
-                    value,
-                    parameter.isViewOption,
-                  )
+                  this.onObjectParameterChange(object, parameter, value)
                 }
               />
             ))}
@@ -388,7 +421,7 @@ class PropertiesPanel extends React.Component {
             this.onOperationParameterChange(
               object,
               operation,
-              parameter.name,
+              parameter,
               value,
             )
           }
@@ -434,15 +467,18 @@ const mapStateToProps = ({threed}) => {
 };
 
 const mapDispatchToProps = dispatch => ({
+  updateObject: object => dispatch(updateObject(object)),
   updateObjectParameter: (object, parameter, value) =>
     dispatch(updateObjectParameter(object, parameter, value)),
   updateObjectViewOption: (object, option, value) =>
     dispatch(updateObjectViewOption(object, option, value)),
-  updateOperationParameter: (object, operation, parameter, value) =>
-    dispatch(updateOperationParameter(object, operation, parameter, value)),
+  updateOperation: (object, operation, parameter, value) =>
+    dispatch(updateOperation(object, operation, parameter, value)),
   createObject: object => dispatch(createObject(object)),
   deleteObject: object => dispatch(deleteObject(object)),
   undoComposition: object => dispatch(undoComposition(object)),
+  ungroup: object => dispatch(ungroup(object)),
+  convertToGroup: object => dispatch(convertToGroup(object)),
   duplicateObject: object => dispatch(duplicateObject(object)),
   addOperation: (object, operation) =>
     dispatch(addOperation(object, operation)),

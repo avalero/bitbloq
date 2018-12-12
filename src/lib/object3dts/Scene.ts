@@ -7,9 +7,10 @@ import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 import { ICompoundObjectJSON } from './CompoundObject';
 import BaseGrid from './BaseGrid';
 import PrimitiveObject from './PrimitiveObject';
-import CompoundObject from './CompoundObject'
+import CompoundObject from './CompoundObject';
 
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import Union from './Union';
 import Intersection from './Intersection';
 import Difference from './Difference';
@@ -17,6 +18,8 @@ import TranslationHelper from './TranslationHelper';
 import RotationHelper from './RotationHelper';
 import { type } from 'os';
 import Object3D from './Object3D';
+import { matchPath } from 'react-router';
+import PositionCalculator from './PositionCalculator';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -34,15 +37,29 @@ export interface IHelperDescription {
   relative: boolean;
 }
 
+export interface IObjectPosition {
+  position: {
+    x: number;
+    y: number;
+    z: number;
+  };
+  angle: {
+    x: number;
+    y: number;
+    z: number;
+  };
+  scale: {
+    x: number;
+    y: number;
+    z: number;
+  };
+}
+
 interface ISceneSetup {
   base: THREE.Group;
   ambientLight: THREE.AmbientLight;
   spotLight: THREE.SpotLight;
-}
-
-interface ITransitionObject{
-  time: number;
-  object: ObjectsCommon;
+  spotLight2: THREE.SpotLight;
 }
 
 export type ISceneJSON = Array<IObjectsCommonJSON>;
@@ -60,18 +77,20 @@ export default class Scene {
     return scene;
   }
 
-
-
   private sceneSetup: ISceneSetup;
   private objectCollector: Array<ObjectsCommon>; /// all objects designed by user - including children
   private objectsInScene: Array<ObjectsCommon>; /// all parent objects designed by user -> to be 3D-drawn.
-  private objectInTransition: ITransitionObject | undefined; /// all children being moved -> to be 3D-drawn.
   private helpers: Array<THREE.Group>;
   private history: Array<ISceneJSON>; /// history of actions
 
   private lastJSON: object;
   private objectsGroup: THREE.Group;
   private historyIndex: number;
+
+  private objectInTransition: {
+    time: number;
+    object: ObjectsCommon;
+  }
 
   constructor() {
     this.objectCollector = [];
@@ -97,7 +116,7 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): ISceneJSON {
-    return this.objectsInScene.map(object => object.toJSON());
+    return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
   }
 
   /**
@@ -122,6 +141,7 @@ export default class Scene {
 
     group.add(this.sceneSetup.ambientLight);
     group.add(this.sceneSetup.spotLight);
+    group.add(this.sceneSetup.spotLight2);
     group.add(this.sceneSetup.base);
 
     return group;
@@ -144,37 +164,30 @@ export default class Scene {
     this.objectsGroup = new THREE.Group();
 
     const meshes: Array<THREE.Object3D> = await Promise.all(
-      this.objectsInScene.map(object => object.getMeshAsync()),
+      this.objectsInScene.map(async object => {
+        const mesh = await object.getMeshAsync();
+        mesh.userData = object.toJSON();
+        return mesh;
+      }),
     );
 
     meshes.forEach(mesh => {
       this.objectsGroup.add(mesh);
     });
 
-    
-
     this.lastJSON = this.toJSON();
     return this.objectsGroup;
   }
 
   public async getObjectInTransitionAsync():Promise <THREE.Mesh | undefined>{
-    // object in Transition
-    debugger;
     if(this.objectInTransition){
-      if(false && ( (Date.now() / 1000 | 0) - this.objectInTransition.time > 1)) {
+      if(( (Date.now() / 1000 | 0) - this.objectInTransition.time > 10)) {
         this.objectInTransition = undefined;
         return undefined;
       }else{
-        const pendingOperation = this.objectInTransition.object.pendingOperation;
-        const meshUpdateRequired = this.objectInTransition.object.meshUpdateRequired;
         const mesh = await this.objectInTransition.object.getMeshAsync();
-
-        //feo feo, pero aquí lo dejamos por no cambiar todo
-        (this.objectInTransition.object as any)._pendingOperation = pendingOperation;
-        (this.objectInTransition.object as any)._meshUpdateRequired = meshUpdateRequired;
-
+        const pos = await this.getPositionAsync()
         if(mesh instanceof THREE.Mesh){
-          debugger;
           (mesh.material as THREE.MeshLambertMaterial).opacity = 0.5;
           (mesh.material as THREE.MeshLambertMaterial).transparent = true;
           (mesh.material as THREE.MeshLambertMaterial).depthWrite = false;
@@ -185,7 +198,6 @@ export default class Scene {
       return undefined;
     }
   }
-
   /**
    * Adds floor and lights.
    */
@@ -218,11 +230,13 @@ export default class Scene {
 
     this.sceneSetup = {
       base: new BaseGrid(gridConfig).getMesh(),
-      ambientLight: new THREE.AmbientLight(0x555555),
-      spotLight: new THREE.SpotLight(0xeeeeee),
+      ambientLight: new THREE.AmbientLight(0x666666),
+      spotLight: new THREE.SpotLight(0xdddddd),
+      spotLight2: new THREE.SpotLight(0xbbbbbb),
     };
 
     this.sceneSetup.spotLight.position.set(80, -100, 60);
+    this.sceneSetup.spotLight2.position.set(-160, 200, -120);
   }
 
   /**
@@ -286,7 +300,7 @@ export default class Scene {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromScene(obj));
     } else {
-      if (!this.objectInObjectCollector(json))
+      if (!this.objectInScene(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
       this.objectsInScene = this.objectsInScene.filter(
         obj => obj.getID() !== json.id,
@@ -318,34 +332,40 @@ export default class Scene {
       throw Error('Object already in Scene');
     } else {
       //In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
-      if (object instanceof CompoundObject){
+      if (object instanceof CompoundObject) {
         const children = object.getChildren();
         children.forEach(child => {
           const obj = child.toJSON();
-          if(this.objectInScene(obj)){
+          if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
-          }else if( ! this.objectInObjectCollector(obj)){
+          }
+          
+          if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
           }
         });
-      }else if(object instanceof ObjectsGroup){
+      } else if (object instanceof ObjectsGroup) {
         const children = object.getChildren();
         children.forEach(child => {
           const obj = child.toJSON();
-          if(this.objectInScene(obj)){
+          if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
-          }else if( ! this.objectInObjectCollector(obj)){
+          }
+          
+          if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
           }
         });
-      }else if(object instanceof RepetitionObject){
+      } else if (object instanceof RepetitionObject) {
         const original = object.getOriginal();
         const obj = original.toJSON();
-        if(this.objectInScene(obj)){
+        if (this.objectInScene(obj)) {
           this.removeFromScene(obj);
-        }else if( ! this.objectInObjectCollector(obj)){
+        }
+        
+        if (!this.objectInObjectCollector(obj)) {
           this.addExistingObject(original);
           this.removeFromScene(obj);
         }
@@ -411,14 +431,6 @@ export default class Scene {
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
 
-    if(this.objectInObjectCollector(obj) && ! this.objectInScene(obj)){
-      this.objectInTransition = {
-        object,
-        time: Date.now() / 1000 | 0,
-      }
-    }
-
-
     const sceneJSON = this.toJSON();
     //Add to history
 
@@ -427,6 +439,93 @@ export default class Scene {
     this.historyIndex = this.history.length - 1;
 
     return sceneJSON;
+  }
+
+  /**
+   *
+   * @param json object descriptor
+   */
+  public async getPositionAsync(
+    json: IObjectsCommonJSON,
+  ): Promise<IObjectPosition> {
+    try {
+      const obj = this.getObject(json);
+      return new PositionCalculator(obj).getPositionAsync();
+      // if (obj instanceof Object3D || obj instanceof RepetitionObject) {
+        
+      //   const mesh = await obj.getMeshAsync();
+      //   if (mesh) {
+      //     const pos: IObjectPosition = {
+      //       position: {
+      //         x: mesh.position.x,
+      //         y: mesh.position.y,
+      //         z: mesh.position.z,
+      //       },
+      //       angle: {
+      //         x: (mesh.rotation.x * 180) / Math.PI,
+      //         y: (mesh.rotation.y * 180) / Math.PI,
+      //         z: (mesh.rotation.z * 180) / Math.PI,
+      //       },
+      //       scale: {
+      //         x: mesh.scale.x,
+      //         y: mesh.scale.y,
+      //         z: mesh.scale.z,
+      //       },
+      //     };
+      //     return pos;
+      //   } else {
+      //     const pos: IObjectPosition = {
+      //       position: { x: 0, y: 0, z: 0 },
+      //       angle: { x: 0, y: 0, z: 0 },
+      //       scale: { x: 0, y: 0, z: 0 },
+      //     };
+      //     return pos;
+      //   }
+      // } else {
+      //   const pos: IObjectPosition = {
+      //     position: { x: 0, y: 0, z: 0 },
+      //     angle: { x: 0, y: 0, z: 0 },
+      //     scale: { x: 0, y: 0, z: 0 },
+      //   };
+      //   return pos;
+      // }
+    } catch (e) {
+      throw new Error(`Cannot find object: ${e}`);
+    }
+  }
+
+  /**
+   * It removes the CompoundObject from Scene and ObjectCollector.
+   * It adds the children to the Scene
+   * @param json CompoundObject Descriptor. It only pays attention to id.
+   */
+  public undoCompound(json: ICompoundObjectJSON): ISceneJSON {
+    try {
+      if (
+        ![Union.typeName, Difference.typeName, Intersection.typeName].includes(
+          json.type,
+        )
+      )
+        throw new Error(`Not a Compound object. ${json.type}`);
+
+      if (!this.objectInScene(json))
+        throw new Error(`Object ${json.id} not present in Scene`);
+
+      this.removeFromObjectCollector(json);
+      this.removeFromScene(json);
+
+      json.children.forEach(childJSON => {
+        if (this.objectInObjectCollector(childJSON))
+          this.objectsInScene.push(this.getObject(childJSON));
+        else
+          throw new Error(
+            `Unexepected Error. Object ${childJSON.id} not in Object Collector`,
+          );
+      });
+    } catch (e) {
+      throw new Error(`undoCompoundError ${e}`);
+    }
+    return this.toJSON();
   }
 
   /**
@@ -453,12 +552,17 @@ export default class Scene {
   }
 
   /**
-   * It removes the CompoundObject from Scene and ObjectCollector.
-   * It adds the children to the Scene
-   * @param json CompoundObject Descriptor. It only pays attention to id.
+   * It removes Object from Scene and ObjectCollector.
+   * It transform the Object to a ObjectsGroup and add it to the Scene and ObjectCollector.
+   * @param json Object descriptor. It only pays attention to id
    */
-  public undoCompound(json: ICompoundObjectJSON): ISceneJSON {
-    return this.toJSON();
+  public convertToGroup(json: IObjectsCommonJSON): ISceneJSON {
+    debugger;
+    if (json.type === RepetitionObject.typeName) {
+      return this.repetitionToGroup(json as IRepetitionObjectJSON);
+    } else {
+      throw new Error(`Cannot Convert ${json.type} to Group`);
+    }
   }
 
   /**
@@ -476,16 +580,17 @@ export default class Scene {
         ObjectsCommon
       > = (rep as RepetitionObject).getGroup().unGroup();
 
-      //add objects to ObjectCollector
-      objects.forEach(object => {
-        this.objectCollector.push(object);
-      });
+      // //add objects to ObjectCollector
+      // objects.forEach(object => {
+      //   this.objectCollector.push(object);
+      // });
 
       const group: ObjectsGroup = new ObjectsGroup(objects);
 
       // add new group to scene
-      this.objectCollector.push(group);
-      this.objectsInScene.push(group);
+      this.addExistingObject(group);
+      // this.objectCollector.push(group);
+      // this.objectsInScene.push(group);
 
       //remove original object in repetion from ObjectCollector
       const original = rep.getOriginal();
@@ -495,7 +600,7 @@ export default class Scene {
       this.removeFromObjectCollector(json);
       this.removeFromScene(json);
     } catch (e) {
-      throw new Error(`Cannog ungroup. Unknown group ${e}`);
+      throw new Error(`Cannot ungroup. Unknown Object ${e}`);
     }
 
     return this.toJSON();

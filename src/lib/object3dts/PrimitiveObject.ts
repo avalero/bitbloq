@@ -13,6 +13,7 @@
  */
 
 import isEqual from 'lodash.isequal';
+import cloneDeep from 'lodash.clonedeep';
 import Object3D from './Object3D';
 import ObjectsCommon from './ObjectsCommon';
 import {
@@ -20,8 +21,7 @@ import {
   IViewOptions,
   IObjectsCommonJSON,
 } from './ObjectsCommon';
-
-import Scene from './Scene';
+import * as THREE from 'three';
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;
@@ -37,29 +37,17 @@ export default class PrimitiveObject extends Object3D {
     super(viewOptions, operations);
   }
 
-  public setParameters(parameters: Object): void {
-    if (!this.parameters) {
-      this.parameters = Object.assign({}, parameters);
-      this._meshUpdateRequired = true;
-      return;
-    }
-
-    if (!isEqual(parameters, this.parameters)) {
-      this.parameters = Object.assign({}, parameters);
-      this._meshUpdateRequired = true;
-    }
+  public toJSON(): IPrimitiveObjectJSON {
+    return cloneDeep({
+      ...super.toJSON(),
+      parameters: this.parameters,
+    });
   }
 
   /**
    * For primitive objects. Cube, Cylinder, etc.
    * For CompoundObjects find function in CompoundObjects Class
    */
-  public toJSON(): IPrimitiveObjectJSON {
-    return {
-      ...super.toJSON(),
-      parameters: this.parameters,
-    };
-  }
 
   public updateFromJSON(object: IPrimitiveObjectJSON) {
     if (this.id !== object.id)
@@ -72,5 +60,55 @@ export default class PrimitiveObject extends Object3D {
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);
+
+    // if anything has changed, recompute mesh
+    if (!isEqual(this.lastJSON, this.toJSON())) {
+      this.lastJSON = this.toJSON();
+      this.meshPromise = this.computeMeshAsync();
+      let obj: ObjectsCommon | undefined = this.getParent();
+      while (obj) {
+        obj.meshUpdateRequired = true;
+        obj.computeMeshAsync();
+        obj = obj.getParent();
+      }
+    }
+  }
+
+  public async computeMeshAsync(): Promise<THREE.Mesh> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
+      if (this.meshUpdateRequired) {
+        const geometry: THREE.Geometry = this.getGeometry();
+        this.mesh = new THREE.Mesh(geometry);
+        this._meshUpdateRequired = false;
+        this.applyViewOptions();
+        await this.applyOperationsAsync();
+      }
+
+      if (this.pendingOperation) {
+        await this.applyOperationsAsync();
+      }
+
+      if (this.viewOptionsUpdateRequired) {
+        this.applyViewOptions();
+      }
+
+      if (this.mesh instanceof THREE.Mesh) resolve(this.mesh);
+      else reject(new Error('Mesh has not been computed properly'));
+    });
+    return this.meshPromise as Promise<THREE.Mesh>;
+  }
+
+  protected setParameters(parameters: Object): void {
+    if (!this.parameters) {
+      this.parameters = Object.assign({}, parameters);
+      this._meshUpdateRequired = true;
+      return;
+    }
+
+    if (!isEqual(parameters, this.parameters)) {
+      this.parameters = Object.assign({}, parameters);
+      this._meshUpdateRequired = true;
+      return;
+    }
   }
 }

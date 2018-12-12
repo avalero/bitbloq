@@ -13,7 +13,7 @@ const STATE = {
 };
 
 export default class OrbitCamera {
-  private camera: THREE.PerspectiveCamera;
+  private camera: THREE.Camera;
   private enabled: boolean;
 
   private minDistance: number;
@@ -27,7 +27,7 @@ export default class OrbitCamera {
   private dollySpeed: number;
   private truckSpeed: number;
   private domElement: any;
-  private target: THREE.Vector3;
+  public target: THREE.Vector3;
   private _targetEnd: THREE.Vector3;
 
   private _spherical: SphericalCoordsXYZ;
@@ -40,7 +40,7 @@ export default class OrbitCamera {
 
   private dispose: () => void;
 
-  constructor(camera: THREE.PerspectiveCamera, domElement: any) {
+  constructor(camera: THREE.Camera, domElement: any) {
     this.camera = camera;
     this.enabled = true;
 
@@ -230,10 +230,15 @@ export default class OrbitCamera {
             const offset: THREE.Vector3 = new THREE.Vector3()
               .copy(scope.camera.position)
               .sub(scope.target);
-            // half of the fov is center to top of screen
-            const targetDistance: number =
-              offset.length() *
-              Math.tan(((scope.camera.fov / 2) * Math.PI) / 180);
+            let targetDistance: number;
+            if (scope.camera instanceof THREE.PerspectiveCamera) {
+              // half of the fov is center to top of screen
+              targetDistance =
+                offset.length() *
+                Math.tan(((scope.camera.fov / 2) * Math.PI) / 180);
+            } else {
+              targetDistance = offset.length() / 2;
+            }
             const panX: number =
               (scope.truckSpeed * deltaX * targetDistance) / elementRect.height;
             const panY: number =
@@ -256,14 +261,14 @@ export default class OrbitCamera {
       };
 
       const dollyIn = () => {
-        const zoomScale: number = Math.pow(0.95, scope.dollySpeed);
+        const zoomScale: number = Math.pow(0.7, scope.dollySpeed);
         scope.dolly(
           scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius,
         );
       };
 
       const dollyOut = () => {
-        const zoomScale: number = Math.pow(0.95, scope.dollySpeed);
+        const zoomScale: number = Math.pow(0.7, scope.dollySpeed);
         scope.dolly(
           scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius,
         );
@@ -327,6 +332,20 @@ export default class OrbitCamera {
     }
 
     this._needsUpdate = true;
+  }
+
+  public zoomIn() {
+    const zoomScale: number = Math.pow(0.95, this.dollySpeed);
+    this.dolly(
+      this._sphericalEnd.radius * zoomScale - this._sphericalEnd.radius,
+    );
+  }
+
+  public zoomOut() {
+    const zoomScale: number = Math.pow(0.95, this.dollySpeed);
+    this.dolly(
+      this._sphericalEnd.radius / zoomScale - this._sphericalEnd.radius,
+    );
   }
 
   private dolly(distance: number, enableTransition: boolean = false): void {

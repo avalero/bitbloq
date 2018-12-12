@@ -9,10 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2018-11-28 16:45:57
+ * Last modified  : 2018-12-10 09:16:09
  */
 
 import * as THREE from 'three';
+import isEqual from 'lodash.isequal';
+
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
@@ -20,7 +22,7 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-interface ISphereParams {
+export interface ISphereParams {
   radius: number;
 }
 
@@ -40,6 +42,7 @@ export default class Sphere extends PrimitiveObject {
     parameters: ISphereParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh: THREE.Mesh | undefined = undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -47,8 +50,32 @@ export default class Sphere extends PrimitiveObject {
     };
     super(vO, operations);
     this.type = Sphere.typeName;
-    this.parameters = { ...parameters };
-    this._meshUpdateRequired = true;
+    this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
+    }
+  }
+
+  public clone(): Sphere {
+    if (isEqual(this.lastJSON, this.toJSON())) {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+        (this.mesh as THREE.Mesh).clone(),
+      );
+      return obj;
+    } else {
+      const obj = new Sphere(
+        this.parameters as ISphereParams,
+        this.operations,
+        this.viewOptions,
+      );
+      return obj;
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -57,8 +84,8 @@ export default class Sphere extends PrimitiveObject {
     this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
     );
   }
 
@@ -68,20 +95,8 @@ export default class Sphere extends PrimitiveObject {
     this._meshUpdateRequired = false;
     return new THREE.SphereBufferGeometry(
       Number(radius),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
-      Math.max(16, Math.min((Number(radius) * 24) / 5, 32)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
     );
-  }
-
-  public clone(): Sphere {
-    const obj = new Sphere(
-      this.parameters as ISphereParams,
-      this.operations,
-      this.viewOptions,
-    );
-    if (!this.meshUpdateRequired && !this.pendingOperation) {
-      obj.setMesh(this.mesh.clone());
-    }
-    return obj;
   }
 }
