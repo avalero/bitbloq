@@ -87,19 +87,33 @@ export default class Scene {
   private objectsGroup: THREE.Group;
   private historyIndex: number;
 
-  private objectInTransition: {
-    time: number;
-    object: ObjectsCommon;
-  } | undefined;
+  private objectsInTransition: Array< Object3D >;
+
+  private highlightedMaterial: Object;
+  private transitionMaterial: Object;
 
   constructor() {
     this.objectCollector = [];
     this.objectsInScene = [];
+    this.objectsInTransition = [];
     this.setupScene();
     this.objectsGroup = new THREE.Group();
     this.lastJSON = this.toJSON();
     this.historyIndex = 0;
     this.history = [];
+    this.setMaterials();
+  }
+
+  private setMaterials():void{
+    this.highlightedMaterial = {
+      opacity: 0.8,
+      transparent: true,    
+    };
+
+    this.transitionMaterial = {
+      opacity: 0.8,
+      transparent: true,
+    }
   }
 
   public canUndo(): boolean {
@@ -179,24 +193,21 @@ export default class Scene {
     return this.objectsGroup;
   }
 
-  public async getObjectInTransitionAsync():Promise <THREE.Mesh | undefined>{
-    if(this.objectInTransition){
-      if(( (Date.now() / 1000 | 0) - this.objectInTransition.time > 10)) {
-        this.objectInTransition = undefined;
-        return undefined;
-      }else{
-        const mesh = (await this.objectInTransition.object.getMeshAsync()).clone();
-        const pos = await this.getPositionAsync(this.objectInTransition.object.toJSON());
+  public async getObjectInTransitionAsync():Promise <THREE.Group | undefined>{
+    if(this.objectsInTransition.length > 0 ){
+      const group:THREE.Group = new THREE.Group();
+      this.objectsInTransition.forEach( async (object) => {
+        const mesh = (await object.getMeshAsync()).clone();
         if(mesh instanceof THREE.Mesh){
-          (mesh.material as THREE.MeshLambertMaterial).opacity = 0.8;
-          (mesh.material as THREE.MeshLambertMaterial).transparent = true;
-          (mesh.material as THREE.MeshLambertMaterial).depthWrite = false;
+          const pos = await this.getPositionAsync(object.toJSON());
+          (mesh.material as THREE.MeshLambertMaterial).setValues(this.transitionMaterial);
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
           mesh.setRotationFromEuler( new THREE.Euler(pos.angle.x * Math.PI/180, pos.angle.y * Math.PI/180, pos.angle.z * Math.PI/180));
-          mesh.scale.set(pos.scale.x, pos.scale.y, pos.scale.z);
-          return mesh;
-        }    
-      }
+          mesh.scale.set(pos.scale.x*1.01, pos.scale.y*1.01, pos.scale.z*1.01);
+          group.add(mesh);
+        }
+      });
+      return group;   
     }else{
       return undefined;
     }
@@ -433,13 +444,14 @@ export default class Scene {
     const object = this.objectCollector.find(obj => id === obj.getID());
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
-
-    //transition
-    if(object.getParent() instanceof CompoundObject){
-      this.objectInTransition = {
-        time: (Date.now() / 1000 | 0),
-        object,
-      }
+    
+    //Objects in Transition
+    this.objectsInTransition = [];
+    const parent = object.getParent();
+    if(parent instanceof CompoundObject){
+      parent.getChildren().forEach( object => {
+        this.objectsInTransition.push(object);
+      });
     }
 
     const sceneJSON = this.toJSON();

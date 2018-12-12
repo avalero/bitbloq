@@ -45,7 +45,7 @@ export default class Renderer {
   private scene: Scene;
   private threeScene: THREE.Scene;
   private objectsGroup: THREE.Group;
-  private objectInTransition: THREE.Mesh | undefined;
+  private objectInTransition: THREE.Group | undefined;
   private helpersGroup: THREE.Group;
   private sceneSetupGroup: THREE.Group;
   private container: HTMLElement;
@@ -170,13 +170,13 @@ export default class Renderer {
   public async updateScene(): Promise<void> {
     
     //objects in transition
-    const  newObjectInTranstion: THREE.Mesh | undefined = await this.scene.getObjectInTransitionAsync()
+    const  newObjectInTranstion: THREE.Group | undefined = await this.scene.getObjectInTransitionAsync()
     if(newObjectInTranstion){
       if(this.objectInTransition) this.threeScene.remove(this.objectInTransition);
       this.objectInTransition = newObjectInTranstion;
-      (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
-      (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
-      (this.objectInTransition.material as THREE.MeshLambertMaterial).needsUpdate = true;
+      // (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
+      // (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
+      // (this.objectInTransition.material as THREE.MeshLambertMaterial).needsUpdate = true;
       this.threeScene.add(this.objectInTransition);
     }
 
