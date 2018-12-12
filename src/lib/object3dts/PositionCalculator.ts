@@ -13,7 +13,6 @@ export default class PositionCalculator{
   }
 
   private async applyOperationsAsync():Promise<void>{
-    debugger;
     let obj:ObjectsCommon | undefined = this.object;
     while(obj){
       this.prePushOperations(obj.getOperations());
