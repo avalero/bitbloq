@@ -6,6 +6,7 @@ import {
   redo as redoThreed,
   selectObject,
   updateObject,
+  updateObjectViewOption,
 } from '../actions/threed';
 import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
 import web2board, {
@@ -95,28 +96,21 @@ function* watchCreateObject() {
 }
 
 function* convertToBasicOperations(object, scene) {
-  const {position, angle, scale} = yield call([scene, scene.getPositionAsync], object);
+  const {position, angle, scale} = yield call(
+    [scene, scene.getPositionAsync],
+    object,
+  );
 
-  yield put(updateObject({
-    ...object,
-    operations: [
-      Object3D.createTranslateOperation(
-        position.x,
-        position.y,
-        position.z,
-      ),
-      Object3D.createRotateOperation(
-        angle.x,
-        angle.y,
-        angle.z,
-      ),
-      Object3D.createScaleOperation(
-        scale.x,
-        scale.y,
-        scale.z
-      ),
-    ]
-  }));
+  yield put(
+    updateObject({
+      ...object,
+      operations: [
+        Object3D.createTranslateOperation(position.x, position.y, position.z),
+        Object3D.createRotateOperation(angle.x, angle.y, angle.z),
+        Object3D.createScaleOperation(scale.x, scale.y, scale.z),
+      ],
+    }),
+  );
 }
 
 function* convertToAdvancedOperations(object, scene) {
@@ -146,10 +140,12 @@ function* convertToAdvancedOperations(object, scene) {
     }
   });
 
-  yield put(updateObject({
-    ...object,
-    operations
-  }));
+  yield put(
+    updateObject({
+      ...object,
+      operations,
+    }),
+  );
 }
 
 function* watchSetAdvancedMode({payload: isAdvanced}) {
@@ -167,6 +163,18 @@ function* watchSetAdvancedMode({payload: isAdvanced}) {
   }
 }
 
+function* watchSelectedObjects() {
+  const scene = yield select(state => state.threed.scene.sceneInstance);
+  const objects = yield select(state => state.threed.scene.objects);
+  const selectedIds = yield select(state => state.threed.ui.selectedIds);
+
+  for (const object of objects) {
+    const opacity =
+      selectedIds.length > 0 && !selectedIds.includes(object.id) ? 0.5 : 1;
+    yield put(updateObjectViewOption(object, 'opacity', opacity));
+  }
+}
+
 function* rootSaga() {
   yield takeEvery('SOFTWARE_UPDATE_BLOQS', updateCode);
   yield takeEvery('SOFTWARE_UPLOAD_CODE', uploadCode);
@@ -174,6 +182,9 @@ function* rootSaga() {
   yield takeEvery('UI_KEY_DOWN', watchKeyDown);
   yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
   yield takeEvery('THREED_SET_ADVANCED_MODE', watchSetAdvancedMode);
+  yield takeEvery('THREED_SELECT_OBJECT', watchSelectedObjects);
+  yield takeEvery('THREED_DESELECT_OBJECT', watchSelectedObjects);
+  yield takeEvery('THREED_DESELECT_ALL_OBJECTS', watchSelectedObjects);
 }
 
 export default rootSaga;
