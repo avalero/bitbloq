@@ -163,14 +163,22 @@ function* watchSetAdvancedMode({payload: isAdvanced}) {
   }
 }
 
+function isDescendant(object, id) {
+  if (object.id === id) return true;
+  const {children = []} = object;
+  return children.some(child => isDescendant(child, id));
+}
+
 function* watchSelectedObjects() {
   const scene = yield select(state => state.threed.scene.sceneInstance);
   const objects = yield select(state => state.threed.scene.objects);
   const selectedIds = yield select(state => state.threed.ui.selectedIds);
 
   for (const object of objects) {
-    const opacity =
-      selectedIds.length > 0 && !selectedIds.includes(object.id) ? 0.5 : 1;
+    let opacity = 1;
+    if (selectedIds.length > 0) {
+      opacity = selectedIds.some(id => isDescendant(object, id)) ? 1 : 0.5;
+    }
     yield put(updateObjectViewOption(object, 'opacity', opacity));
   }
 }
