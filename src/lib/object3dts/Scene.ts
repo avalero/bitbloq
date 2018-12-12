@@ -59,6 +59,7 @@ interface ISceneSetup {
   base: THREE.Group;
   ambientLight: THREE.AmbientLight;
   spotLight: THREE.SpotLight;
+  spotLight2: THREE.SpotLight;
 }
 
 export type ISceneJSON = Array<IObjectsCommonJSON>;
@@ -135,6 +136,7 @@ export default class Scene {
 
     group.add(this.sceneSetup.ambientLight);
     group.add(this.sceneSetup.spotLight);
+    group.add(this.sceneSetup.spotLight2);
     group.add(this.sceneSetup.base);
 
     return group;
@@ -204,11 +206,13 @@ export default class Scene {
 
     this.sceneSetup = {
       base: new BaseGrid(gridConfig).getMesh(),
-      ambientLight: new THREE.AmbientLight(0x555555),
-      spotLight: new THREE.SpotLight(0xeeeeee),
+      ambientLight: new THREE.AmbientLight(0x666666),
+      spotLight: new THREE.SpotLight(0xdddddd),
+      spotLight2: new THREE.SpotLight(0xbbbbbb),
     };
 
     this.sceneSetup.spotLight.position.set(80, -100, 60);
+    this.sceneSetup.spotLight2.position.set(-160, 200, -120);
   }
 
   /**
