@@ -106,7 +106,7 @@ export default class Object3D extends ObjectsCommon {
     this._viewOptionsUpdateRequired = false;
   }
 
-  protected async applyOperationsAsync(): Promise<void> {
+  public async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
 

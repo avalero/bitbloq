@@ -19,6 +19,7 @@ import RotationHelper from './RotationHelper';
 import { type } from 'os';
 import Object3D from './Object3D';
 import { matchPath } from 'react-router';
+import PositionCalculator from './PositionCalculator';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -425,44 +426,45 @@ export default class Scene {
   ): Promise<IObjectPosition> {
     try {
       const obj = this.getObject(json);
-
-      if (obj instanceof Object3D || obj instanceof RepetitionObject) {
-        const mesh = await obj.getMeshAsync();
-        if (mesh) {
-          const pos: IObjectPosition = {
-            position: {
-              x: mesh.position.x,
-              y: mesh.position.y,
-              z: mesh.position.z,
-            },
-            angle: {
-              x: (mesh.rotation.x * 180) / Math.PI,
-              y: (mesh.rotation.y * 180) / Math.PI,
-              z: (mesh.rotation.z * 180) / Math.PI,
-            },
-            scale: {
-              x: mesh.scale.x,
-              y: mesh.scale.y,
-              z: mesh.scale.z,
-            },
-          };
-          return pos;
-        } else {
-          const pos: IObjectPosition = {
-            position: { x: 0, y: 0, z: 0 },
-            angle: { x: 0, y: 0, z: 0 },
-            scale: { x: 0, y: 0, z: 0 },
-          };
-          return pos;
-        }
-      } else {
-        const pos: IObjectPosition = {
-          position: { x: 0, y: 0, z: 0 },
-          angle: { x: 0, y: 0, z: 0 },
-          scale: { x: 0, y: 0, z: 0 },
-        };
-        return pos;
-      }
+      return new PositionCalculator(obj).getPositionAsync();
+      // if (obj instanceof Object3D || obj instanceof RepetitionObject) {
+        
+      //   const mesh = await obj.getMeshAsync();
+      //   if (mesh) {
+      //     const pos: IObjectPosition = {
+      //       position: {
+      //         x: mesh.position.x,
+      //         y: mesh.position.y,
+      //         z: mesh.position.z,
+      //       },
+      //       angle: {
+      //         x: (mesh.rotation.x * 180) / Math.PI,
+      //         y: (mesh.rotation.y * 180) / Math.PI,
+      //         z: (mesh.rotation.z * 180) / Math.PI,
+      //       },
+      //       scale: {
+      //         x: mesh.scale.x,
+      //         y: mesh.scale.y,
+      //         z: mesh.scale.z,
+      //       },
+      //     };
+      //     return pos;
+      //   } else {
+      //     const pos: IObjectPosition = {
+      //       position: { x: 0, y: 0, z: 0 },
+      //       angle: { x: 0, y: 0, z: 0 },
+      //       scale: { x: 0, y: 0, z: 0 },
+      //     };
+      //     return pos;
+      //   }
+      // } else {
+      //   const pos: IObjectPosition = {
+      //     position: { x: 0, y: 0, z: 0 },
+      //     angle: { x: 0, y: 0, z: 0 },
+      //     scale: { x: 0, y: 0, z: 0 },
+      //   };
+      //   return pos;
+      // }
     } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
     }
