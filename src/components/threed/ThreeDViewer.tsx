@@ -80,8 +80,10 @@ export interface ThreeDViewerProps {
   sceneObjects: IObjectsCommonJSON[];
   selectedObjects: IObjectsCommonJSON[];
   activeOperation: IHelperDescription;
-  selectObject: (object: IObjectsCommonJSON) => void;
+  selectObject: (object: IObjectsCommonJSON, add: boolean) => void;
   deselectAllObjects: () => void;
+  controlPressed: boolean;
+  shiftPressed: boolean;
 }
 
 class ThreeDViewerState {
@@ -121,7 +123,10 @@ class ThreeDViewer extends React.Component<
       this.renderer.updateScene();
     }
 
-    this.renderer.onObjectClick(object => selectObject(object));
+    this.renderer.onObjectClick(object => {
+      const {controlPressed, shiftPressed} = this.props;
+      selectObject(object, controlPressed || shiftPressed);
+    });
     this.renderer.onBackgroundClick(() => deselectAllObjects());
   }
 
@@ -193,6 +198,8 @@ const mapStateToProps = (state: any) => ({
   sceneObjects: state.threed.scene.objects,
   activeOperation: state.threed.ui.activeOperation,
   selectedObjects: getSelectedObjects(state.threed),
+  controlPressed: state.ui.controlPressed,
+  shiftPressed: state.ui.shiftPressed,
 });
 
 const mapDispatchToProps = {
