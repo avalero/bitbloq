@@ -5,6 +5,7 @@ import styled, {css} from 'react-emotion';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {colors, shadow} from '../../base-styles';
 import DragIcon from '../icons/Drag';
+import AngleIcon from '../icons/Angle';
 import {
   selectObject,
   deselectObject,
@@ -37,7 +38,7 @@ const ObjectItem = styled.li`
 `;
 
 const ObjectName = styled.div`
-  padding: 0px 8px;
+  padding: 0px 18px 0px 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -59,6 +60,7 @@ const ObjectName = styled.div`
 
   span {
     flex: 1;
+    margin-left: 4px;
   }
 
   img {
@@ -67,7 +69,7 @@ const ObjectName = styled.div`
 `;
 
 const DragHandle = styled.div`
-  margin-right: ${props => 8 + 12 * (props.depth || 0)}px;
+  margin-right: ${props => 4 + 12 * (props.depth || 0)}px;
   svg {
     width: 13px;
   }
@@ -133,9 +135,32 @@ const AddDropdownItem = styled.div`
   }
 `;
 
+const CollapseButton = styled.div`
+  display: flex;
+
+  svg {
+    width: 10px;
+  }
+
+  ${props =>
+    props.collapsed &&
+    css`
+      svg {
+        transform: rotate(-90deg);
+      }
+    `};
+`;
+
+const ObjectTypeIcon = styled.div`
+  svg {
+    width: 12px;
+  }
+`
+
 class ObjectTree extends React.Component {
   state = {
     addDropDownOpen: false,
+    collapsedItems: [],
   };
 
   componentDidMount() {
@@ -150,14 +175,24 @@ class ObjectTree extends React.Component {
     this.setState({addDropDownOpen: false});
   };
 
+  onCollapseClick = (e, object) => {
+    e.stopPropagation();
+    this.setState(({collapsedItems, ...state}) => ({
+      ...state,
+      collapsedItems: collapsedItems.includes(object.id)
+        ? collapsedItems.filter(id => id !== object.id)
+        : [...collapsedItems, object.id],
+    }));
+  };
+
   onAddObject(typeConfig) {
     const {advancedMode} = this.props;
     this.setState({addDropDownOpen: false});
 
     const object = {
       ...typeConfig.create(),
-      operations: config.defaultOperations(advancedMode)
-    }
+      operations: config.defaultOperations(advancedMode),
+    };
 
     this.props.createObject(object);
   }
@@ -192,15 +227,23 @@ class ObjectTree extends React.Component {
       controlPressed,
       shiftPressed,
     } = this.props;
+    const {collapsedItems} = this.state;
 
     const isSelected = selectedObjects.includes(object);
     const isTop = topObjects.includes(object);
     const isSelectedTop =
       selectedObjects.length > 0 && topObjects.includes(selectedObjects[0]);
-    const {children} = object;
+    const {children = [], id} = object;
+    const isCollapsed = collapsedItems.includes(id);
+
+    let icon;
+    if (children.length) {
+      const typeConfig = config.objectTypes.find(t => t.name === object.type) || {};
+      icon = typeConfig.icon;
+    }
 
     return (
-      <Draggable draggableId={object.id} index={index} key={object.id}>
+      <Draggable draggableId={id} index={index} key={id}>
         {(provided, snapshot) => (
           <ObjectItem {...provided.draggableProps} innerRef={provided.innerRef}>
             <ObjectName
@@ -228,9 +271,19 @@ class ObjectTree extends React.Component {
               <DragHandle {...provided.dragHandleProps} depth={depth}>
                 <DragIcon />
               </DragHandle>
+              {children.length > 0 && (
+                <CollapseButton
+                  collapsed={isCollapsed}
+                  onClick={e => this.onCollapseClick(e, object)}>
+                  <AngleIcon />
+                </CollapseButton>
+              )}
               <span>{object.viewOptions.name || object.type}</span>
+              {icon &&
+                <ObjectTypeIcon>{icon}</ObjectTypeIcon>
+              }
             </ObjectName>
-            {this.renderObjectList(children, depth + 1, object)}
+            {!isCollapsed && this.renderObjectList(children, depth + 1, object)}
           </ObjectItem>
         )}
       </Draggable>

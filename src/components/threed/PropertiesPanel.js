@@ -298,7 +298,7 @@ class PropertiesPanel extends React.Component {
   renderObjectPanel(object) {
     const {draggingOperations, contextMenuOpen, editingName} = this.state;
 
-    const {setActiveOperation, unsetActiveOperation, advancedMode} = this.props;
+    const {setActiveOperation, unsetActiveOperation, advancedMode, isTopObject} = this.props;
     const {color} = object.viewOptions;
 
     const typeConfig =
@@ -353,9 +353,11 @@ class PropertiesPanel extends React.Component {
               </ContextButton>
             )}
             <ContextMenu>
-              <ContextMenuOption onClick={this.onDuplicateClick}>
-                <DuplicateIcon /> Duplicate
-              </ContextMenuOption>
+              {isTopObject &&
+                <ContextMenuOption onClick={this.onDuplicateClick}>
+                  <DuplicateIcon /> Duplicate
+                </ContextMenuOption>
+              }
               <ContextMenuOption onClick={this.onRenameClick}>
                 <PencilIcon /> Rename
               </ContextMenuOption>
@@ -374,9 +376,11 @@ class PropertiesPanel extends React.Component {
                   <UndoIcon /> {undoLabel}
                 </ContextMenuOption>
               )}
-              <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
-                <TrashIcon /> Delete
-              </ContextMenuOption>
+              {isTopObject &&
+                <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
+                  <TrashIcon /> Delete
+                </ContextMenuOption>
+              }
             </ContextMenu>
           </DropDown>
         </Header>
@@ -459,10 +463,13 @@ class PropertiesPanel extends React.Component {
 }
 
 const mapStateToProps = ({threed}) => {
+  const topObjects = threed.scene.objects;
   const selectedObjects = getSelectedObjects(threed) || [];
+  const object = selectedObjects.length === 1 ? selectedObjects[0] : null;
   return {
-    object: selectedObjects.length === 1 ? selectedObjects[0] : null,
+    object,
     advancedMode: threed.ui.advancedMode,
+    isTopObject: topObjects.includes(object)
   };
 };
 
