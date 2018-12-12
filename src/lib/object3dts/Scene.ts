@@ -87,6 +87,11 @@ export default class Scene {
   private objectsGroup: THREE.Group;
   private historyIndex: number;
 
+  private objectInTransition: {
+    time: number;
+    object: ObjectsCommon;
+  } | undefined;
+
   constructor() {
     this.objectCollector = [];
     this.objectsInScene = [];
@@ -174,6 +179,28 @@ export default class Scene {
     return this.objectsGroup;
   }
 
+  public async getObjectInTransitionAsync():Promise <THREE.Mesh | undefined>{
+    if(this.objectInTransition){
+      if(( (Date.now() / 1000 | 0) - this.objectInTransition.time > 10)) {
+        this.objectInTransition = undefined;
+        return undefined;
+      }else{
+        const mesh = (await this.objectInTransition.object.getMeshAsync()).clone();
+        const pos = await this.getPositionAsync(this.objectInTransition.object.toJSON());
+        if(mesh instanceof THREE.Mesh){
+          (mesh.material as THREE.MeshLambertMaterial).opacity = 0.8;
+          (mesh.material as THREE.MeshLambertMaterial).transparent = true;
+          (mesh.material as THREE.MeshLambertMaterial).depthWrite = false;
+          mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
+          mesh.setRotationFromEuler( new THREE.Euler(pos.angle.x, pos.angle.y, pos.angle.z));
+          mesh.scale.set(pos.scale.x, pos.scale.y, pos.scale.z);
+          return mesh;
+        }    
+      }
+    }else{
+      return undefined;
+    }
+  }
   /**
    * Adds floor and lights.
    */
@@ -407,6 +434,14 @@ export default class Scene {
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
 
+    //transition
+    if(object.getParent() instanceof CompoundObject){
+      this.objectInTransition = {
+        time: (Date.now() / 1000 | 0),
+        object,
+      }
+    }
+
     const sceneJSON = this.toJSON();
     //Add to history
 
@@ -427,44 +462,6 @@ export default class Scene {
     try {
       const obj = this.getObject(json);
       return new PositionCalculator(obj).getPositionAsync();
-      // if (obj instanceof Object3D || obj instanceof RepetitionObject) {
-        
-      //   const mesh = await obj.getMeshAsync();
-      //   if (mesh) {
-      //     const pos: IObjectPosition = {
-      //       position: {
-      //         x: mesh.position.x,
-      //         y: mesh.position.y,
-      //         z: mesh.position.z,
-      //       },
-      //       angle: {
-      //         x: (mesh.rotation.x * 180) / Math.PI,
-      //         y: (mesh.rotation.y * 180) / Math.PI,
-      //         z: (mesh.rotation.z * 180) / Math.PI,
-      //       },
-      //       scale: {
-      //         x: mesh.scale.x,
-      //         y: mesh.scale.y,
-      //         z: mesh.scale.z,
-      //       },
-      //     };
-      //     return pos;
-      //   } else {
-      //     const pos: IObjectPosition = {
-      //       position: { x: 0, y: 0, z: 0 },
-      //       angle: { x: 0, y: 0, z: 0 },
-      //       scale: { x: 0, y: 0, z: 0 },
-      //     };
-      //     return pos;
-      //   }
-      // } else {
-      //   const pos: IObjectPosition = {
-      //     position: { x: 0, y: 0, z: 0 },
-      //     angle: { x: 0, y: 0, z: 0 },
-      //     scale: { x: 0, y: 0, z: 0 },
-      //   };
-      //   return pos;
-      // }
     } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
     }

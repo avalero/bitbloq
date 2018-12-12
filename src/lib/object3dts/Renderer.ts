@@ -26,12 +26,14 @@ const navBoxContainerStyles = `
 export interface RendererOptions {
   antialias: boolean;
   clearColor: number;
+  sortObjects: boolean;
 }
 
 export default class Renderer {
   public static defaultOptions: RendererOptions = {
     antialias: true,
     clearColor: 0xfafafa,
+    sortObjects: false,
   };
 
   private options: RendererOptions;
@@ -43,6 +45,7 @@ export default class Renderer {
   private scene: Scene;
   private threeScene: THREE.Scene;
   private objectsGroup: THREE.Group;
+  private objectInTransition: THREE.Mesh | undefined;
   private helpersGroup: THREE.Group;
   private sceneSetupGroup: THREE.Group;
   private container: HTMLElement;
@@ -75,6 +78,7 @@ export default class Renderer {
   private setup() {
     const rendererParams = {
       antialias: this.options.antialias,
+      sortObjects: this.options.sortObjects,
     };
 
     const threeRenderer = new THREE.WebGLRenderer(rendererParams);
@@ -164,10 +168,28 @@ export default class Renderer {
   };
 
   public async updateScene(): Promise<void> {
-    this.threeScene.remove(this.objectsGroup);
+    
+    //objects in transition
+    const  newObjectInTranstion: THREE.Mesh | undefined = await this.scene.getObjectInTransitionAsync()
+    if(newObjectInTranstion){
+      if(this.objectInTransition) this.threeScene.remove(this.objectInTransition);
+      this.objectInTransition = newObjectInTranstion;
+      (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
+      (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
+      (this.objectInTransition.material as THREE.MeshLambertMaterial).needsUpdate = true;
+      this.threeScene.add(this.objectInTransition);
+    }
+
+    //this.threeScene.remove(this.objectsGroup);
     const newObjectsGroup = await this.scene.getObjectsAsync();
+    this.threeScene.remove(this.objectsGroup);
+    if(this.objectInTransition){ 
+      this.threeScene.remove(this.objectInTransition);
+      (this.objectInTransition as any) = undefined;
+    }
+
     this.threeScene.add(newObjectsGroup);
-    this.objectsGroup = newObjectsGroup;
+    this.objectsGroup = newObjectsGroup;  
   }
 
   public async setActiveHelper(
