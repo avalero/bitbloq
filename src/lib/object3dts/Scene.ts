@@ -192,7 +192,7 @@ export default class Scene {
           (mesh.material as THREE.MeshLambertMaterial).transparent = true;
           (mesh.material as THREE.MeshLambertMaterial).depthWrite = false;
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
-          mesh.setRotationFromEuler( new THREE.Euler(pos.angle.x, pos.angle.y, pos.angle.z));
+          mesh.setRotationFromEuler( new THREE.Euler(pos.angle.x * Math.PI/180, pos.angle.y * Math.PI/180, pos.angle.z * Math.PI/180));
           mesh.scale.set(pos.scale.x, pos.scale.y, pos.scale.z);
           return mesh;
         }    
