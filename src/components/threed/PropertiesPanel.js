@@ -17,7 +17,6 @@ import {
   reorderOperation,
   setActiveOperation,
   unsetActiveOperation,
-  stopEditingObjectName,
   ungroup,
   convertToGroup,
 } from '../../actions/threed';
@@ -35,6 +34,7 @@ import OperationsList from './OperationsList';
 import ColorPicker from '../ColorPicker';
 import DropDown from '../DropDown';
 import Tooltip from '../Tooltip';
+import Input from '../Input';
 import config from '../../config/threed';
 
 const Wrap = styled.div`
@@ -77,9 +77,25 @@ const HeaderIcon = styled.div`
 
 const ObjectName = styled.div`
   flex: 1;
+  display: flex;
+  align-items: center;
   font-weigth: bold;
   font-style: italic;
   font-size: 13px;
+  cursor: pointer;
+
+  svg {
+    display: none;
+    margin-left: 10px;
+    width: 14px;
+    height: auto;
+  }
+
+  &:hover {
+    svg {
+      display: block;
+    }
+  }
 `;
 
 const ObjectProperties = styled.div`
@@ -119,20 +135,9 @@ const OperationButton = styled.div`
   }
 `;
 
-const NameInput = styled.input`
-  flex: 1;
-  font-size: 1em;
-  margin: -2px 0px -4px 0px;
-  padding: 0px;
-  color: #4a4a4a;
-  border-width: 0 0 1px 0;
-  border-color: #4a4a4a;
-  width: 100%;
-  background: transparent;
-
-  &:focus {
-    outline: none;
-  }
+const NameInput = styled(Input)`
+  height: 16px;
+  padding: 6px 8px;
 `;
 
 const ContextButton = styled.div`
@@ -233,7 +238,7 @@ class PropertiesPanel extends React.Component {
     } else {
       this.props.updateOperation(object, {
         ...operation,
-        [parameter.name]: value
+        [parameter.name]: value,
       });
     }
   };
@@ -280,7 +285,7 @@ class PropertiesPanel extends React.Component {
   onConvertToGroupClick = () => {
     const {object, convertToGroup} = this.props;
     convertToGroup(object);
-  }
+  };
 
   onUndoClick = () => {
     const {object, undoComposition} = this.props;
@@ -298,7 +303,12 @@ class PropertiesPanel extends React.Component {
   renderObjectPanel(object) {
     const {draggingOperations, contextMenuOpen, editingName} = this.state;
 
-    const {setActiveOperation, unsetActiveOperation, advancedMode, isTopObject} = this.props;
+    const {
+      setActiveOperation,
+      unsetActiveOperation,
+      advancedMode,
+      isTopObject,
+    } = this.props;
     const {color} = object.viewOptions;
 
     const typeConfig =
@@ -345,7 +355,11 @@ class PropertiesPanel extends React.Component {
               onBlur={() => this.setState({editingName: false})}
             />
           )}
-          {!editingName && <ObjectName>{object.viewOptions.name}</ObjectName>}
+          {!editingName && (
+            <ObjectName onClick={() => this.setState({editingName: true})}>
+              {object.viewOptions.name} <PencilIcon />
+            </ObjectName>
+          )}
           <DropDown>
             {isOpen => (
               <ContextButton isOpen={isOpen}>
@@ -353,11 +367,11 @@ class PropertiesPanel extends React.Component {
               </ContextButton>
             )}
             <ContextMenu>
-              {isTopObject &&
+              {isTopObject && (
                 <ContextMenuOption onClick={this.onDuplicateClick}>
                   <DuplicateIcon /> Duplicate
                 </ContextMenuOption>
-              }
+              )}
               <ContextMenuOption onClick={this.onRenameClick}>
                 <PencilIcon /> Rename
               </ContextMenuOption>
@@ -376,11 +390,11 @@ class PropertiesPanel extends React.Component {
                   <UndoIcon /> {undoLabel}
                 </ContextMenuOption>
               )}
-              {isTopObject &&
+              {isTopObject && (
                 <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
                   <TrashIcon /> Delete
                 </ContextMenuOption>
-              }
+              )}
             </ContextMenu>
           </DropDown>
         </Header>
@@ -422,12 +436,7 @@ class PropertiesPanel extends React.Component {
           operations={object.operations}
           advancedMode={advancedMode}
           onParameterChange={(operation, parameter, value) =>
-            this.onOperationParameterChange(
-              object,
-              operation,
-              parameter,
-              value,
-            )
+            this.onOperationParameterChange(object, operation, parameter, value)
           }
           onParameterFocus={(operation, parameter) => {
             if (parameter.activeOperation) {
@@ -469,7 +478,7 @@ const mapStateToProps = ({threed}) => {
   return {
     object,
     advancedMode: threed.ui.advancedMode,
-    isTopObject: topObjects.includes(object)
+    isTopObject: topObjects.includes(object),
   };
 };
 

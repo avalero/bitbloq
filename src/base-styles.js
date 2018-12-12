@@ -61,6 +61,7 @@ injectGlobal`
   }
   input {
     font-family: 'Roboto', sans-serif;
+    color: ${colors.black}
   }
 `;
 
