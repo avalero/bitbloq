@@ -194,7 +194,7 @@ export default class ObjectsCommon {
     return this.id;
   }
 
-  protected getOperations(): OperationsArray {
+  public getOperations(): OperationsArray {
     return this.operations;
   }
 
@@ -214,10 +214,10 @@ export default class ObjectsCommon {
       this.pendingOperation || !isEqual(this.operations, operations);
   }
 
-  protected addOperations(operations: OperationsArray = []): void {
-    this.setOperations(this.operations.concat(operations));
+  public addOperations(operations: OperationsArray = []): void {
+    this.setOperations([...this.operations, ...operations]);
   }
-
+  
   protected translate(
     x: number,
     y: number,
