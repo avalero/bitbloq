@@ -8,7 +8,7 @@ const Container = styled.div`
   flex: 1;
   display: flex;
   border: 1px solid #cfcfcf;
-  border-radius: 2px;
+  border-radius: 4px;
 
   ${props => props.focused && css`
     border: 1px solid #5d6069;
@@ -24,7 +24,7 @@ const Button = styled.div`
 `;
 
 const DecrementButton = styled(Button)`
-  border-radius: 2px 0px 0px 2px;
+  border-radius: 4px 0px 0px 4px;
   border-right: 1px solid #cfcfcf;
   color: #8c919b;
 
@@ -34,7 +34,7 @@ const DecrementButton = styled(Button)`
 `;
 
 const IncrementButton = styled(Button)`
-  border-radius: 0px 2px 2px 0px;
+  border-radius: 0px 4px 4px 0px;
   border-left: 1px solid #cfcfcf;
   color: #8c919b;
 

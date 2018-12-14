@@ -11,7 +11,7 @@ const Container = styled.div`
 const SquareWrap = styled.div`
   padding: 6px;
   border: 1px solid #cfcfcf;
-  border-radius: 2px;
+  border-radius: 4px;
 
   ${props => props.isOpen && css`
     border: 1px solid #5d6069;
