@@ -94,7 +94,7 @@ test("Prism - Constructor - Set Operations - Rotation", () => {
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 180);
+    expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 80);
     expect(mesh.rotation.y).toBeCloseTo((Math.PI * yangle) / 180);
     expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
   });
