@@ -23,20 +23,20 @@ const navBoxContainerStyles = `
   height: 150px;
 `;
 
-export interface RendererOptions {
+export interface IRendererOptions {
   antialias: boolean;
   clearColor: number;
   sortObjects: boolean;
 }
 
 export default class Renderer {
-  public static defaultOptions: RendererOptions = {
+  public static defaultOptions: IRendererOptions = {
     antialias: true,
     clearColor: 0xfafafa,
     sortObjects: false
   };
 
-  private options: RendererOptions;
+  private options: IRendererOptions;
   private navigationBox: NavigationBox;
   private threeRenderer: THREE.WebGLRenderer;
   private clock: THREE.Clock;
@@ -58,7 +58,7 @@ export default class Renderer {
   constructor(
     scene: Scene,
     container: HTMLElement,
-    options: Partial<RendererOptions> = {}
+    options: Partial<IRendererOptions> = {}
   ) {
     this.scene = scene;
     this.container = container;

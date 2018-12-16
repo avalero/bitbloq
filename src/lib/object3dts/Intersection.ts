@@ -28,7 +28,7 @@ export default class Intersection extends CompoundObject {
     object: ICompoundObjectJSON,
     scene: Scene
   ): Intersection {
-    if (object.type != Intersection.typeName) {
+    if (object.type !== Intersection.typeName) {
       throw new Error("Not Union Object");
     }
 
@@ -51,7 +51,7 @@ export default class Intersection extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -71,20 +71,19 @@ export default class Intersection extends CompoundObject {
   public clone(): Intersection {
     const childrenClone: Object3D[] = this.children.map(child => child.clone());
     if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Intersection(
+      const intObj = new Intersection(
         childrenClone,
         this.operations,
         this.viewOptions,
-        this.mesh.clone()
+        (this.mesh as THREE.Mesh).clone()
       );
-      return obj;
-    } else {
-      const obj = new Intersection(
-        childrenClone,
-        this.operations,
-        this.viewOptions
-      );
-      return obj;
+      return intObj;
     }
+    const obj = new Intersection(
+      childrenClone,
+      this.operations,
+      this.viewOptions
+    );
+    return obj;
   }
 }

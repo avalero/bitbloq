@@ -9,7 +9,10 @@
     "exclude": [
       "config/**/*.js",
       "node_modules/**/*.ts",
-      "coverage/lcov-report/*.js"
+      "src/lib/object3dts/threeCSG.ts",
+      "src/**/*.tsx",
+      "src/**/*.js*",
+      "coverage/**/*"
     ]
   },
   "rules": {
@@ -18,7 +21,8 @@
     "no-debugger": false,
     "ter-arrow-parens": false,
     "import-name": false,
-    "variable-name": [true, "check-format", "allow-leading-underscore"]
+    "variable-name": [true, "check-format", "allow-leading-underscore"],
+    "prefer-array-literal": [true, { "allow-type-parameters": true }]
   },
   "jsRules": {
     //Disable for javascript

@@ -28,7 +28,7 @@ export default class Difference extends CompoundObject {
     object: ICompoundObjectJSON,
     scene: Scene
   ): Difference {
-    if (object.type != Difference.typeName) {
+    if (object.type !== Difference.typeName) {
       throw new Error("Not Union Object");
     }
 
@@ -51,7 +51,7 @@ export default class Difference extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -72,20 +72,19 @@ export default class Difference extends CompoundObject {
     const childrenClone: Object3D[] = this.children.map(child => child.clone());
 
     if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Difference(
+      const diffObj = new Difference(
         childrenClone,
         this.operations,
         this.viewOptions,
-        this.mesh.clone()
+        (this.mesh as THREE.Mesh).clone()
       );
-      return obj;
-    } else {
-      const obj = new Difference(
-        childrenClone,
-        this.operations,
-        this.viewOptions
-      );
-      return obj;
+      return diffObj;
     }
+    const obj = new Difference(
+      childrenClone,
+      this.operations,
+      this.viewOptions
+    );
+    return obj;
   }
 }

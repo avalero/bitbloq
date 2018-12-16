@@ -94,7 +94,7 @@ ctx.addEventListener(
       );
       const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
       matrixWorld.elements = new Float32Array(_positions);
-      if (i == 0) {
+      if (i === 0) {
         firstGeomMatrix = matrixWorld.clone();
       }
       const buffGeometry = new THREE.BufferGeometry();
@@ -106,11 +106,11 @@ ctx.addEventListener(
         "normal",
         new THREE.BufferAttribute(_normals, 3)
       );
-      const geometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
+      const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
         buffGeometry
       );
-      geometry.applyMatrix(matrixWorld);
-      geometries.push(geometry);
+      objectGeometry.applyMatrix(matrixWorld);
+      geometries.push(objectGeometry);
     }
 
     // compute action
@@ -122,10 +122,10 @@ ctx.addEventListener(
     } else if (e.data.type === "Intersection") {
       geometry = getIntersectionFromGeometries(geometries);
     } else {
-      const message = {
+      const postMessage = {
         status: "error"
       };
-      ctx.postMessage(message);
+      ctx.postMessage(postMessage);
     }
 
     // move resulting geometry to origin of coordinates (center on first child on origin)
@@ -145,9 +145,9 @@ ctx.addEventListener(
     const normals = new Float32Array(bufferGeom.getAttribute("normal").array);
 
     const message = {
-      status: "ok",
       vertices,
-      normals
+      normals,
+      status: "ok"
     };
 
     ctx.postMessage(message, [message.vertices.buffer, message.normals.buffer]);

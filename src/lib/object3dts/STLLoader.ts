@@ -14,7 +14,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:46:49
- * Last modified  : 2018-10-16 15:17:25
+ * Last modified  : 2018-12-16 19:49:49
  */
 
 import * as THREE from "three";
@@ -39,7 +39,7 @@ export default class STLLoader {
   public static toLines(array: any) {
     const lines: string[] = [];
     let h: number = 0;
-    for (let i: number = 0; i < array.length; i++) {
+    for (let i: number = 0; i < array.length; i += 1) {
       if (array[i] === 10) {
         const line: string = String.fromCharCode.apply(
           null,
@@ -74,7 +74,7 @@ export default class STLLoader {
     const lines = STLLoader.toLines(new Uint8Array(buffer));
     let index: number = 0;
 
-    const scan = regexp => {
+    const scan = (regexp: RegExp) => {
       while (lines[index].match(/^\s*$/)) {
         index += 1;
       }
@@ -82,7 +82,7 @@ export default class STLLoader {
       return r;
     };
 
-    const scanOk = regexp => {
+    const scanOk = (regexp: RegExp) => {
       const r = scan(regexp);
       if (!r) {
         throw new Error(
@@ -113,7 +113,7 @@ export default class STLLoader {
       geom.vertices.push(STLLoader.m2vec3(v2));
       geom.vertices.push(STLLoader.m2vec3(v3));
       geom.faces.push(
-        new THREE.Face3(base, base + 1, base + 2, m2vec3(normal))
+        new THREE.Face3(base, base + 1, base + 2, STLLoader.m2vec3(normal))
       );
     }
     return geom;

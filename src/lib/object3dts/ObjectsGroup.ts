@@ -2,7 +2,6 @@ import isEqual from "lodash.isequal";
 import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
-import { OperationsArray } from "./ObjectsCommon";
 import Scene from "./Scene";
 
 import cloneDeep from "lodash.clonedeep";
@@ -37,10 +36,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   private children: ObjectsCommon[];
 
-  constructor(
-    children: ObjectsCommon[] = [],
-    mesh: THREE.Group | undefined = undefined
-  ) {
+  constructor(children: ObjectsCommon[] = [], mesh?: THREE.Group | undefined) {
     super(ObjectsCommon.createViewOptions(), []);
     this.children = children;
     this.children.forEach(child => child.setParent(this));
@@ -107,7 +103,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   }
 
   public clone(): ObjectsGroup {
-    const groupClone = this.children.map(obj => obj.clone());
+    const groupClone = this.children.map(obj2clone => obj2clone.clone());
     const obj = new ObjectsGroup(groupClone);
     obj.setOperations(this.operations);
     return obj;
@@ -116,7 +112,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   public toJSON(): IObjectsGroupJSON {
     const obj: IObjectsGroupJSON = {
       ...super.toJSON(),
-      children: this.children.map(obj => obj.toJSON())
+      children: this.children.map(obj2JSON => obj2JSON.toJSON())
     };
 
     return cloneDeep(obj);
@@ -187,8 +183,7 @@ export default class ObjectsGroup extends ObjectsCommon {
     const result = this.children.find(object => object.getID() === obj.id);
     if (result) {
       return result;
-    } else {
-      throw new Error(`Object id ${obj.id} not found in group`);
     }
+    throw new Error(`Object id ${obj.id} not found in group`);
   }
 }

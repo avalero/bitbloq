@@ -16,3 +16,5 @@ script:
   - npm test
 after_success:
   - npm run coveralls
+notifications:
+    slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS
