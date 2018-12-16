@@ -1,14 +1,14 @@
-import Sphere, { ISphereParams, ISphereJSON } from "../Sphere";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "../ObjectsCommon";
 import * as THREE from "three";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
+import Sphere, { ISphereJSON, ISphereParams } from "../Sphere";
 
 const radius = 10;
 
-let objParams: ISphereParams = {
+const objParams: ISphereParams = {
   radius
 };
-let operations: OperationsArray = [];
-let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
+const operations: OperationsArray = [];
+const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 

@@ -1,18 +1,22 @@
-import Cube, { ICubeJSON, ICubeParams } from "../Cube";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "../ObjectsCommon";
 import * as THREE from "three";
+import Cube, { ICubeJSON, ICubeParams } from "../Cube";
+import ObjectsCommon, {
+  ITranslateOperation,
+  IViewOptions,
+  OperationsArray
+} from "../ObjectsCommon";
 
 const width = 10;
 const height = 15;
 const depth = 20;
 
-let objParams: ICubeParams = {
+const objParams: ICubeParams = {
   width,
   height,
   depth
 };
-let operations: OperationsArray = [];
-let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
+const operations: OperationsArray = [];
+const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
@@ -68,7 +72,10 @@ test("Cube - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
-  const operations = [ObjectsCommon.createTranslateOperation(x, y, z)];
+  // tslint:disable-next-line:no-shadowed-variable
+  const operations: ITranslateOperation[] = [
+    ObjectsCommon.createTranslateOperation(x, y, z)
+  ];
   const obj = new Cube(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
@@ -85,7 +92,7 @@ test("Cube - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
-
+  // tslint:disable-next-line:no-shadowed-variable
   const operations = [
     ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];

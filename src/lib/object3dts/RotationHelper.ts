@@ -77,7 +77,9 @@ export default class RotationHelper {
       this.helperMesh.setRotationFromEuler(mesh.rotation);
     }
 
-    if (axis === "y") this.helperMesh.rotateZ(Math.PI / 2);
+    if (axis === "y") {
+      this.helperMesh.rotateZ(Math.PI / 2);
+    }
     if (axis === "z") {
       this.helperMesh.rotateY(-Math.PI / 2);
       this.helperMesh.rotateX(Math.PI / 2);

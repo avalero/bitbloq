@@ -1,18 +1,18 @@
-import * as React from 'react';
-import {connect} from 'react-redux';
-import styled from 'react-emotion';
-import Renderer from '../../lib/object3dts/Renderer';
-import {selectObject, deselectAllObjects} from '../../actions/threed';
+import * as React from "react";
+import { connect } from "react-redux";
+import styled from "react-emotion";
+import Renderer from "../../lib/object3dts/Renderer";
+import { selectObject, deselectAllObjects } from "../../actions/threed";
 import Scene, {
   IHelperDescription,
-  IObjectPosition,
-} from '../../lib/object3dts/Scene';
-import {getSelectedObjects} from '../../reducers/threed/';
-import {IObjectsCommonJSON} from '../../lib/object3dts/ObjectsCommon';
-import PlusIcon from '../icons/Plus';
-import MinusIcon from '../icons/Minus';
-import PerspectiveIcon from '../icons/Perspective';
-import OrthographicIcon from '../icons/Orthographic';
+  IObjectPosition
+} from "../../lib/object3dts/Scene";
+import { getSelectedObjects } from "../../reducers/threed/";
+import { IObjectsCommonJSON } from "../../lib/object3dts/ObjectsCommon";
+import PlusIcon from "../icons/Plus";
+import MinusIcon from "../icons/Minus";
+import PerspectiveIcon from "../icons/Perspective";
+import OrthographicIcon from "../icons/Orthographic";
 
 const Container = styled.div`
   flex: 1;
@@ -71,7 +71,7 @@ const CameraButton = styled.div<CameraButtonProps>`
   border: 1px solid #cfcfcf;
 
   svg {
-    width: ${props => (props.wideIcon ? '18px' : '12px')};
+    width: ${props => (props.wideIcon ? "18px" : "12px")};
   }
 `;
 
@@ -104,7 +104,12 @@ class ThreeDViewer extends React.Component<
   readonly state = new ThreeDViewerState();
 
   componentDidUpdate(prevProps: ThreeDViewerProps) {
-    const {scene, sceneObjects, selectedObjects, activeOperation} = this.props;
+    const {
+      scene,
+      sceneObjects,
+      selectedObjects,
+      activeOperation
+    } = this.props;
     if (sceneObjects !== prevProps.sceneObjects) {
       this.renderer.updateScene();
     }
@@ -116,7 +121,7 @@ class ThreeDViewer extends React.Component<
   }
 
   componentDidMount() {
-    const {scene, selectObject, deselectAllObjects} = this.props;
+    const { scene, selectObject, deselectAllObjects } = this.props;
     const container = this.rendererContainerRef.current;
     if (container) {
       this.renderer = new Renderer(scene, container);
@@ -124,18 +129,18 @@ class ThreeDViewer extends React.Component<
     }
 
     this.renderer.onObjectClick(object => {
-      const {controlPressed, shiftPressed} = this.props;
+      const { controlPressed, shiftPressed } = this.props;
       selectObject(object, controlPressed || shiftPressed);
     });
     this.renderer.onBackgroundClick(() => deselectAllObjects());
   }
 
   async updateStatusBar() {
-    const {scene, selectedObjects} = this.props;
-    this.setState({selectedPosition: undefined});
+    const { scene, selectedObjects } = this.props;
+    this.setState({ selectedPosition: undefined });
     if (selectedObjects && selectedObjects.length === 1) {
       const selectedPosition = await scene.getPositionAsync(selectedObjects[0]);
-      this.setState({selectedPosition});
+      this.setState({ selectedPosition });
     }
   }
 
@@ -150,11 +155,11 @@ class ThreeDViewer extends React.Component<
   onToggleOrthographic = () => {
     const isOrthographic = !this.state.isOrthographic;
     this.renderer.setOrtographicCamera(isOrthographic);
-    this.setState({isOrthographic});
+    this.setState({ isOrthographic });
   };
 
   render() {
-    const {selectedPosition, isOrthographic} = this.state;
+    const { selectedPosition, isOrthographic } = this.state;
 
     return (
       <Container innerRef={this.rendererContainerRef}>
@@ -199,15 +204,15 @@ const mapStateToProps = (state: any) => ({
   activeOperation: state.threed.ui.activeOperation,
   selectedObjects: getSelectedObjects(state.threed),
   controlPressed: state.ui.controlPressed,
-  shiftPressed: state.ui.shiftPressed,
+  shiftPressed: state.ui.shiftPressed
 });
 
 const mapDispatchToProps = {
   selectObject,
-  deselectAllObjects,
+  deselectAllObjects
 };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(ThreeDViewer);

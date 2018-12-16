@@ -12,14 +12,14 @@
  * Last modified  : 2018-12-16 08:54:53
  */
 
+import isEqual from "lodash.isequal";
 import * as THREE from "three";
 import ObjectsCommon, {
-  OperationsArray,
+  IObjectsCommonJSON,
   IViewOptions,
-  IObjectsCommonJSON
+  OperationsArray
 } from "./ObjectsCommon";
 import PrimitiveObject, { IPrimitiveObjectJSON } from "./PrimitiveObject";
-import isEqual from "lodash.isequal";
 
 export interface ICylinderParams {
   r0: number;
@@ -35,8 +35,9 @@ export default class Cylinder extends PrimitiveObject {
   public static typeName: string = "Cylinder";
 
   public static newFromJSON(object: ICylinderJSON): Cylinder {
-    if (object.type != Cylinder.typeName)
+    if (object.type != Cylinder.typeName) {
       throw new Error("Not Cylinder Object");
+    }
     return new Cylinder(
       object.parameters,
       object.operations,

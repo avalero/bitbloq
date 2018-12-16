@@ -12,24 +12,25 @@
  * Last modified  : 2018-11-28 12:41:14
  */
 
+import isEqual from "lodash.isequal";
 import CompoundObject, {
-  ICompoundObjectJSON,
-  ChildrenArray
+  ChildrenArray,
+  ICompoundObjectJSON
 } from "./CompoundObject";
 import Object3D from "./Object3D";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 import Scene from "./Scene";
-import isEqual from "lodash.isequal";
 
 export default class Intersection extends CompoundObject {
-  static typeName: string = "Intersection";
+  public static typeName: string = "Intersection";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
     scene: Scene
   ): Intersection {
-    if (object.type != Intersection.typeName)
+    if (object.type != Intersection.typeName) {
       throw new Error("Not Union Object");
+    }
 
     try {
       const children: ChildrenArray = object.children.map(
@@ -68,9 +69,7 @@ export default class Intersection extends CompoundObject {
   }
 
   public clone(): Intersection {
-    const childrenClone: Array<Object3D> = this.children.map(child =>
-      child.clone()
-    );
+    const childrenClone: Object3D[] = this.children.map(child => child.clone());
     if (isEqual(this.lastJSON, this.toJSON())) {
       const obj = new Intersection(
         childrenClone,

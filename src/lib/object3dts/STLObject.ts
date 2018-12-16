@@ -12,10 +12,10 @@
  * Last modified  : 2018-11-16 17:37:42
  */
 
-import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
-import Object3D from "./Object3D";
 import isEqual from "lodash.isequal";
 import * as THREE from "three";
+import Object3D from "./Object3D";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 
 import Scene from "./Scene";
 

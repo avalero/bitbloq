@@ -36,7 +36,7 @@ export default class ThreeBSP {
     let faceVertexUvs;
     let uvs;
     let polygon: Polygon;
-    let polygons: Array<Polygon> = [];
+    const polygons: Polygon[] = [];
     let tree: Node;
     let geometry: THREE.Geometry;
 
@@ -56,7 +56,7 @@ export default class ThreeBSP {
       this.matrix = new THREE.Matrix4();
       return this;
     } else {
-      throw "ThreeBSP: Given geometry is unsupported";
+      throw new Error("ThreeBSP: Given geometry is unsupported");
     }
 
     for (i = 0, _length_i = geometry.faces.length; i < _length_i; i++) {
@@ -163,7 +163,7 @@ export default class ThreeBSP {
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
       } else {
-        throw `Invalid face type at index ${i}`;
+        throw new Error(`Invalid face type at index ${i}`);
       }
 
       polygon.calculateProperties();
@@ -173,7 +173,7 @@ export default class ThreeBSP {
     this.tree = new Node(polygons);
   }
 
-  subtract(other_tree: ThreeBSP) {
+  public subtract(other_tree: ThreeBSP) {
     let a: any = this.tree.clone(),
       b = other_tree.tree.clone();
 
@@ -190,7 +190,7 @@ export default class ThreeBSP {
     return a;
   }
 
-  union(other_tree: ThreeBSP) {
+  public union(other_tree: ThreeBSP) {
     let a: any = this.tree.clone(),
       b = other_tree.tree.clone();
 
@@ -205,7 +205,7 @@ export default class ThreeBSP {
     return a;
   }
 
-  intersect(other_tree: ThreeBSP) {
+  public intersect(other_tree: ThreeBSP) {
     let a: any = this.tree.clone(),
       b = other_tree.tree.clone();
 
@@ -221,7 +221,7 @@ export default class ThreeBSP {
     return a;
   }
 
-  toGeometry() {
+  public toGeometry() {
     let i,
       j,
       matrix = new THREE.Matrix4().getInverse(this.matrix),
@@ -309,8 +309,8 @@ export default class ThreeBSP {
     return geometry;
   }
 
-  toMesh(material: THREE.MeshBasicMaterial) {
-    let geometry = this.toGeometry(),
+  public toMesh(material: THREE.MeshBasicMaterial) {
+    const geometry = this.toGeometry(),
       mesh = new THREE.Mesh(geometry, material);
 
     mesh.position.setFromMatrixPosition(this.matrix);
@@ -320,12 +320,12 @@ export default class ThreeBSP {
   }
 }
 class Polygon {
-  public vertices: Array<Vertex>;
+  public vertices: Vertex[];
   public normal: any;
   public w: any;
 
   constructor(
-    vertices: Array<Vertex> = [],
+    vertices: Vertex[] = [],
     normal: any = undefined,
     w: any = undefined
   ) {
@@ -341,8 +341,8 @@ class Polygon {
     }
   }
 
-  calculateProperties() {
-    let a = this.vertices[0],
+  public calculateProperties() {
+    const a = this.vertices[0],
       b = this.vertices[1],
       c = this.vertices[2];
 
@@ -357,7 +357,7 @@ class Polygon {
     return this;
   }
 
-  clone() {
+  public clone() {
     let i,
       vertice_count,
       polygon = new Polygon();
@@ -370,7 +370,7 @@ class Polygon {
     return polygon;
   }
 
-  flip() {
+  public flip() {
     let i,
       vertices = [];
 
@@ -385,8 +385,8 @@ class Polygon {
     return this;
   }
 
-  classifyVertex(vertex: Vertex) {
-    var side_value = this.normal.dot(vertex) - this.w;
+  public classifyVertex(vertex: Vertex) {
+    const side_value = this.normal.dot(vertex) - this.w;
 
     if (side_value < -EPSILON) {
       return BACK;
@@ -397,8 +397,8 @@ class Polygon {
     return COPLANAR;
   }
 
-  classifySide(polygon: Polygon) {
-    var i,
+  public classifySide(polygon: Polygon) {
+    let i,
       vertex,
       classification,
       num_positive = 0,
@@ -428,7 +428,7 @@ class Polygon {
     }
   }
 
-  splitPolygon(
+  public splitPolygon(
     polygon: Polygon,
     coplanar_front: any,
     coplanar_back: any,
@@ -470,8 +470,12 @@ class Polygon {
         ti = this.classifyVertex(vi);
         tj = this.classifyVertex(vj);
 
-        if (ti != BACK) f.push(vi);
-        if (ti != FRONT) b.push(vi);
+        if (ti != BACK) {
+          f.push(vi);
+        }
+        if (ti != FRONT) {
+          b.push(vi);
+        }
         if ((ti | tj) === SPANNING) {
           t =
             (this.w - this.normal.dot(vi)) /
@@ -482,8 +486,12 @@ class Polygon {
         }
       }
 
-      if (f.length >= 3) front.push(new Polygon(f).calculateProperties());
-      if (b.length >= 3) back.push(new Polygon(b).calculateProperties());
+      if (f.length >= 3) {
+        front.push(new Polygon(f).calculateProperties());
+      }
+      if (b.length >= 3) {
+        back.push(new Polygon(b).calculateProperties());
+      }
     }
   }
 }
@@ -507,7 +515,7 @@ class Vertex {
     this.uv = uv || new THREE.Vector2();
   }
 
-  clone() {
+  public clone() {
     return new Vertex(
       this.x,
       this.y,
@@ -517,29 +525,29 @@ class Vertex {
     );
   }
 
-  add(vertex: Vertex) {
+  public add(vertex: Vertex) {
     this.x += vertex.x;
     this.y += vertex.y;
     this.z += vertex.z;
     return this;
   }
 
-  subtract(vertex: Vertex) {
+  public subtract(vertex: Vertex) {
     this.x -= vertex.x;
     this.y -= vertex.y;
     this.z -= vertex.z;
     return this;
   }
 
-  multiplyScalar(scalar: number) {
+  public multiplyScalar(scalar: number) {
     this.x *= scalar;
     this.y *= scalar;
     this.z *= scalar;
     return this;
   }
 
-  cross(vertex: Vertex) {
-    let x = this.x,
+  public cross(vertex: Vertex) {
+    const x = this.x,
       y = this.y,
       z = this.z;
 
@@ -550,7 +558,7 @@ class Vertex {
     return this;
   }
 
-  normalize() {
+  public normalize() {
     const length = Math.sqrt(
       this.x * this.x + this.y * this.y + this.z * this.z
     );
@@ -562,11 +570,11 @@ class Vertex {
     return this;
   }
 
-  dot(vertex: Vertex) {
+  public dot(vertex: Vertex) {
     return this.x * vertex.x + this.y * vertex.y + this.z * vertex.z;
   }
 
-  lerp(a: Vertex, t: number) {
+  public lerp(a: Vertex, t: number) {
     this.add(
       a
         .clone()
@@ -591,14 +599,14 @@ class Vertex {
     return this;
   }
 
-  interpolate(other: Vertex, t: number) {
+  public interpolate(other: Vertex, t: number) {
     return this.clone().lerp(other, t);
   }
 
-  applyMatrix4(m: THREE.Matrix4) {
+  public applyMatrix4(m: THREE.Matrix4) {
     // input: THREE.Matrix4 affine matrix
 
-    let x = this.x,
+    const x = this.x,
       y = this.y,
       z = this.z;
 
@@ -612,21 +620,23 @@ class Vertex {
   }
 }
 class Node {
-  private polygons: Array<Polygon>;
+  private polygons: Polygon[];
   private front: Node | undefined;
   private back: Node | undefined;
   private divider: Polygon;
 
-  constructor(polygons: Array<Polygon> = []) {
+  constructor(polygons: Polygon[] = []) {
     let i,
       polygon_count,
-      front: Array<Polygon> = [],
-      back: Array<Polygon> = [];
+      front: Polygon[] = [],
+      back: Polygon[] = [];
 
     this.polygons = [];
     this.front = this.back = undefined;
 
-    if (!(polygons instanceof Array) || polygons.length === 0) return;
+    if (!(polygons instanceof Array) || polygons.length === 0) {
+      return;
+    }
 
     this.divider = polygons[0].clone();
 
@@ -649,7 +659,7 @@ class Node {
     }
   }
 
-  isConvex(polygons: Array<Polygon>) {
+  public isConvex(polygons: Polygon[]) {
     let i, j;
     for (i = 0; i < polygons.length; i++) {
       for (j = 0; j < polygons.length; j++) {
@@ -661,11 +671,11 @@ class Node {
     return true;
   }
 
-  build(polygons: Array<Polygon>) {
+  public build(polygons: Polygon[]) {
     let i,
       polygon_count,
-      front: Array<Polygon> = [],
-      back: Array<Polygon> = [];
+      front: Polygon[] = [],
+      back: Polygon[] = [];
 
     if (!this.divider) {
       this.divider = polygons[0].clone();
@@ -682,24 +692,32 @@ class Node {
     }
 
     if (front.length > 0) {
-      if (!this.front) this.front = new Node();
+      if (!this.front) {
+        this.front = new Node();
+      }
       this.front.build(front);
     }
 
     if (back.length > 0) {
-      if (!this.back) this.back = new Node();
+      if (!this.back) {
+        this.back = new Node();
+      }
       this.back.build(back);
     }
   }
 
-  allPolygons() {
+  public allPolygons() {
     let polygons = this.polygons.slice();
-    if (this.front) polygons = polygons.concat(this.front.allPolygons());
-    if (this.back) polygons = polygons.concat(this.back.allPolygons());
+    if (this.front) {
+      polygons = polygons.concat(this.front.allPolygons());
+    }
+    if (this.back) {
+      polygons = polygons.concat(this.back.allPolygons());
+    }
     return polygons;
   }
 
-  clone() {
+  public clone() {
     const node = new Node();
 
     node.divider = this.divider.clone();
@@ -710,7 +728,7 @@ class Node {
     return node;
   }
 
-  invert() {
+  public invert() {
     let i, polygon_count, temp;
 
     for (i = 0, polygon_count = this.polygons.length; i < polygon_count; i++) {
@@ -718,8 +736,12 @@ class Node {
     }
 
     this.divider.flip();
-    if (this.front) this.front.invert();
-    if (this.back) this.back.invert();
+    if (this.front) {
+      this.front.invert();
+    }
+    if (this.back) {
+      this.back.invert();
+    }
 
     temp = this.front;
     this.front = this.back;
@@ -728,10 +750,12 @@ class Node {
     return this;
   }
 
-  clipPolygons(polygons: Array<Polygon>) {
-    let i, polygon_count, front: Array<Polygon>, back: Array<Polygon>;
+  public clipPolygons(polygons: Polygon[]) {
+    let i, polygon_count, front: Polygon[], back: Polygon[];
 
-    if (!this.divider) return polygons.slice();
+    if (!this.divider) {
+      return polygons.slice();
+    }
 
     front = [];
     back = [];
@@ -740,17 +764,26 @@ class Node {
       this.divider.splitPolygon(polygons[i], front, back, front, back);
     }
 
-    if (this.front) front = this.front.clipPolygons(front);
-    if (this.back) back = this.back.clipPolygons(back);
-    else back = [];
+    if (this.front) {
+      front = this.front.clipPolygons(front);
+    }
+    if (this.back) {
+      back = this.back.clipPolygons(back);
+    } else {
+      back = [];
+    }
 
     return front.concat(back);
   }
 
-  clipTo(node: Node) {
+  public clipTo(node: Node) {
     this.polygons = node.clipPolygons(this.polygons);
-    if (this.front) this.front.clipTo(node);
-    if (this.back) this.back.clipTo(node);
+    if (this.front) {
+      this.front.clipTo(node);
+    }
+    if (this.back) {
+      this.back.clipTo(node);
+    }
   }
 }
 

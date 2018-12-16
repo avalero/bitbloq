@@ -14,26 +14,26 @@
  */
 
 import ObjectsCommon, {
-  IObjectsCommonJSON,
-  ITranslateOperation,
-  IRotateOperation,
   IMirrorOperation,
+  IObjectsCommonJSON,
+  IRotateOperation,
   IScaleOperation,
-  OperationsArray,
-  IViewOptions
+  ITranslateOperation,
+  IViewOptions,
+  OperationsArray
 } from "./ObjectsCommon";
 
+import cloneDeep from "lodash.clonedeep";
+import isEqual from "lodash.isequal";
+import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
-import isEqual from "lodash.isequal";
-import cloneDeep from "lodash.clonedeep";
-import * as THREE from "three";
 
 import Scene from "./Scene";
 
 export interface IRepetitionObjectJSON extends IObjectsCommonJSON {
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
-  children: Array<IObjectsCommonJSON>;
+  children: IObjectsCommonJSON[];
 }
 
 export interface IRepetitionParams {
@@ -57,6 +57,17 @@ export interface IPolarRepetitionParams extends IRepetitionParams {
  * I allows to repeat one object in a cartesian or polar way.
  */
 export default class RepetitionObject extends ObjectsCommon {
+  get meshUpdateRequired(): boolean {
+    return this._meshUpdateRequired || this.originalObject.meshUpdateRequired;
+  }
+
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
+  }
+
+  get pendingOperation(): boolean {
+    return this._pendingOperation || this.originalObject.pendingOperation;
+  }
   public static typeName: string = "RepetitionObject";
 
   /**
@@ -65,10 +76,11 @@ export default class RepetitionObject extends ObjectsCommon {
    * @param scene the scene to which the object belongs
    */
   public static newFromJSON(obj: IRepetitionObjectJSON, scene: Scene) {
-    if (obj.type !== RepetitionObject.typeName)
+    if (obj.type !== RepetitionObject.typeName) {
       throw new Error(
         `Types do not match ${RepetitionObject.typeName}, ${obj.type}`
       );
+    }
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
       return new RepetitionObject(obj.parameters, object, obj.viewOptions);
@@ -79,7 +91,7 @@ export default class RepetitionObject extends ObjectsCommon {
 
   private originalObject: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
-  private group: Array<ObjectsCommon>;
+  private group: ObjectsCommon[];
 
   /**
    *
@@ -116,36 +128,6 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-  private setMesh(mesh: THREE.Group): void {
-    this.mesh = mesh;
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
-    this.mesh.updateMatrixWorld(true);
-    this.mesh.updateMatrix();
-  }
-  /**
-   * Performs a cartesian repetition of object (nun times), with x,y,z distances
-   * It adds repeated objects to ObjectsGroup instance
-   */
-  private cartesianRepetition() {
-    this.mesh.children.length = 0;
-    this.group.length = 0;
-
-    const { x, y, z, type, num } = this
-      .parameters as ICartesianRepetitionParams;
-    for (let i: number = 0; i < num; i++) {
-      if (this.originalObject instanceof ObjectsCommon) {
-        const objectClone: ObjectsCommon = this.originalObject.clone();
-        const json = objectClone.toJSON();
-        json.operations.push(
-          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z)
-        );
-        objectClone.updateFromJSON(json);
-        this.group.push(objectClone);
-      }
-    }
-  }
-
   public setParameters(
     parameters: ICartesianRepetitionParams | IPolarRepetitionParams
   ) {
@@ -171,25 +153,6 @@ export default class RepetitionObject extends ObjectsCommon {
         this.viewOptions
       );
       return obj;
-    }
-  }
-
-  /**
-   * Performs a polar repetition of object (nun times), with x or y or z direction and total ange
-   * It adds repeated objects to ObjectsGroup instance
-   */
-  //TODO
-  private polarRepetition() {
-    const { axis, angle, type, num } = this
-      .parameters as IPolarRepetitionParams;
-
-    for (let i: number = 0; i < num; i++) {
-      if (this.originalObject instanceof Object3D) {
-        const objectClone: Object3D = this.originalObject.clone();
-        //objectClone.translate(i*x, i*y, i*z);
-        this.group.push(objectClone);
-      } else if (this.originalObject instanceof ObjectsGroup) {
-      }
     }
   }
 
@@ -221,15 +184,17 @@ export default class RepetitionObject extends ObjectsCommon {
    * @param object ObjectGroup descriptor object
    */
   public updateFromJSON(object: IRepetitionObjectJSON) {
-    if (object.id !== this.id)
+    if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
+    }
 
-    if (object.children[0].id !== this.originalObject.getID())
+    if (object.children[0].id !== this.originalObject.getID()) {
       throw new Error(
         `object child ids do not match ${
           object.children[0].id
         }, ${this.originalObject.getID()}`
       );
+    }
 
     try {
       this.originalObject.updateFromJSON(object.children[0]);
@@ -251,16 +216,34 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-  get meshUpdateRequired(): boolean {
-    return this._meshUpdateRequired || this.originalObject.meshUpdateRequired;
-  }
+  public async computeMeshAsync(): Promise<THREE.Group> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
+      if (
+        this.meshUpdateRequired ||
+        this.originalObject.pendingOperation ||
+        this.originalObject.viewOptionsUpdateRequired
+      ) {
+        this.computeMesh();
+      }
 
-  set meshUpdateRequired(a: boolean) {
-    this._meshUpdateRequired = a;
-  }
+      const meshes = await Promise.all(
+        this.group.map(obj => obj.getMeshAsync())
+      );
+      this.mesh.children.length = 0;
+      meshes.forEach(mesh => {
+        this.mesh.add(mesh);
+      });
 
-  get pendingOperation(): boolean {
-    return this._pendingOperation || this.originalObject.pendingOperation;
+      await this.applyOperationsAsync();
+
+      if (this.mesh instanceof THREE.Group) {
+        resolve(this.mesh);
+      } else {
+        reject(new Error("Unexpected Error computing RepetitionObject"));
+      }
+    });
+
+    return this.meshPromise as Promise<THREE.Group>;
   }
 
   protected async applyOperationsAsync(): Promise<void> {
@@ -308,7 +291,7 @@ export default class RepetitionObject extends ObjectsCommon {
       this.mesh.translateY(operation.y);
       this.mesh.translateZ(operation.z);
     } else {
-      //absolute x,y,z axis.
+      // absolute x,y,z axis.
       this.mesh.position.x += Number(operation.x);
       this.mesh.position.y += Number(operation.y);
       this.mesh.position.z += Number(operation.z);
@@ -335,51 +318,76 @@ export default class RepetitionObject extends ObjectsCommon {
       Number(operation.x) > 0 &&
       Number(operation.y) > 0 &&
       Number(operation.z) > 0
-    )
+    ) {
       this.mesh.scale.set(
         this.mesh.scale.x * Number(operation.x),
         this.mesh.scale.y * Number(operation.y),
         this.mesh.scale.z * Number(operation.z)
       );
+    }
+  }
+
+  private setMesh(mesh: THREE.Group): void {
+    this.mesh = mesh;
+    this._meshUpdateRequired = false;
+    this._pendingOperation = false;
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+  }
+  /**
+   * Performs a cartesian repetition of object (nun times), with x,y,z distances
+   * It adds repeated objects to ObjectsGroup instance
+   */
+  private cartesianRepetition() {
+    this.mesh.children.length = 0;
+    this.group.length = 0;
+
+    const { x, y, z, type, num } = this
+      .parameters as ICartesianRepetitionParams;
+    for (let i: number = 0; i < num; i++) {
+      if (this.originalObject instanceof ObjectsCommon) {
+        const objectClone: ObjectsCommon = this.originalObject.clone();
+        const json = objectClone.toJSON();
+        json.operations.push(
+          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z)
+        );
+        objectClone.updateFromJSON(json);
+        this.group.push(objectClone);
+      }
+    }
+  }
+
+  /**
+   * Performs a polar repetition of object (nun times), with x or y or z direction and total ange
+   * It adds repeated objects to ObjectsGroup instance
+   */
+  // TODO
+  private polarRepetition() {
+    const { axis, angle, type, num } = this
+      .parameters as IPolarRepetitionParams;
+
+    for (let i: number = 0; i < num; i++) {
+      if (this.originalObject instanceof Object3D) {
+        const objectClone: Object3D = this.originalObject.clone();
+        // objectClone.translate(i*x, i*y, i*z);
+        this.group.push(objectClone);
+      } else if (this.originalObject instanceof ObjectsGroup) {
+      }
+    }
   }
 
   private computeMesh(): void {
     this.mesh.children.length = 0;
     this.group.length = 0;
-    if (this.parameters.type.toLowerCase() === "cartesian")
+    if (this.parameters.type.toLowerCase() === "cartesian") {
       this.cartesianRepetition();
-    else if (this.parameters.type.toLowerCase() === "polar")
+    } else if (this.parameters.type.toLowerCase() === "polar") {
       this.polarRepetition();
-    else throw new Error("Unknown Repetition Command");
+    } else {
+      throw new Error("Unknown Repetition Command");
+    }
 
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
-  }
-
-  public async computeMeshAsync(): Promise<THREE.Group> {
-    this.meshPromise = new Promise(async (resolve, reject) => {
-      if (
-        this.meshUpdateRequired ||
-        this.originalObject.pendingOperation ||
-        this.originalObject.viewOptionsUpdateRequired
-      ) {
-        this.computeMesh();
-      }
-
-      const meshes = await Promise.all(
-        this.group.map(obj => obj.getMeshAsync())
-      );
-      this.mesh.children.length = 0;
-      meshes.forEach(mesh => {
-        this.mesh.add(mesh);
-      });
-
-      await this.applyOperationsAsync();
-
-      if (this.mesh instanceof THREE.Group) resolve(this.mesh);
-      else reject(new Error("Unexpected Error computing RepetitionObject"));
-    });
-
-    return this.meshPromise as Promise<THREE.Group>;
   }
 }

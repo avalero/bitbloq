@@ -26,14 +26,14 @@
  * Last modified  : 2018-10-16 12:51:01
  */
 
+import isEqual from "lodash.isequal";
 import * as THREE from "three";
 import ObjectsCommon, {
-  OperationsArray,
+  IObjectsCommonJSON,
   IViewOptions,
-  IObjectsCommonJSON
+  OperationsArray
 } from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
-import isEqual from "lodash.isequal";
 
 export interface IPrismParams {
   sides: number;
@@ -49,7 +49,9 @@ export default class Prism extends PrimitiveObject {
   public static typeName: string = "Prism";
 
   public static newFromJSON(object: IPrismJSON): Prism {
-    if (object.type != Prism.typeName) throw new Error("Not Prism Object");
+    if (object.type != Prism.typeName) {
+      throw new Error("Not Prism Object");
+    }
     return new Prism(object.parameters, object.operations, object.viewOptions);
   }
 

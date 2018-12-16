@@ -1,7 +1,7 @@
-import * as React from 'react';
-import styled, {css} from 'react-emotion';
-import CloseIcon from './icons/Close';
-import TickIcon from './icons/Tick';
+import * as React from "react";
+import styled, { css } from "react-emotion";
+import CloseIcon from "./icons/Close";
+import TickIcon from "./icons/Tick";
 
 const Container = styled.div`
   position: relative;
@@ -23,10 +23,12 @@ const Toggle = styled.div<ToggleProps>`
   transition: transform 100ms ease-out;
   transform: translate(2px, 2px);
 
-  ${props => props.active && css`
-    transform: translate(32px, 2px);
-    background-color: #82ad3a;
-  `}
+  ${props =>
+    props.active &&
+    css`
+      transform: translate(32px, 2px);
+      background-color: #82ad3a;
+    `};
 `;
 
 interface IconProps {
@@ -41,9 +43,11 @@ const Icon = styled.div<IconProps>`
     width: 13px;
     height: auto;
   }
-  ${props => props.visible && css`
-    display: block;
-  `}
+  ${props =>
+    props.visible &&
+    css`
+      display: block;
+    `};
 `;
 
 const DisabledIcon = styled(Icon)`
@@ -61,7 +65,7 @@ export interface SwitchProps {
   onChange: (newValue: boolean) => void;
 }
 
-export const Switch: React.SFC<SwitchProps> = ({ value, onChange }) =>
+export const Switch: React.SFC<SwitchProps> = ({ value, onChange }) => (
   <Container onClick={() => onChange(!value)}>
     <DisabledIcon visible={!value}>
       <CloseIcon />
@@ -71,5 +75,6 @@ export const Switch: React.SFC<SwitchProps> = ({ value, onChange }) =>
       <TickIcon />
     </ActiveIcon>
   </Container>
+);
 
 export default Switch;

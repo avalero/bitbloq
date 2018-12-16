@@ -1,19 +1,18 @@
-import Cube, { ICubeJSON, ICubeParams } from "../Cube";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "../ObjectsCommon";
 import * as THREE from "three";
-import PrimitiveObject from "../PrimitiveObject";
+import Cube, { ICubeJSON, ICubeParams } from "../Cube";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
 
 const width = 10;
 const height = 15;
 const depth = 20;
 
-let objParams: ICubeParams = {
+const objParams: ICubeParams = {
   width,
   height,
   depth
 };
-let operations: OperationsArray = [];
-let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
+const operations: OperationsArray = [];
+const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 test("PrimitiveObject - toJSON", () => {
   const json: ICubeJSON = {
@@ -99,7 +98,7 @@ test("PrimitiveObject - UpdateFromJSON", async () => {
   obj.updateFromJSON(json);
   expect(spy).toBeCalledTimes(3);
 
-  //already computed, so computeMeshAsync should not be recalled
+  // already computed, so computeMeshAsync should not be recalled
   await obj.getMeshAsync();
   expect(spy).toBeCalledTimes(3);
 });
@@ -153,7 +152,7 @@ test("PrimitiveObject - UpdateFromJSON with parents", async () => {
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
 
-  //already computed, so computeMeshAsync should not be recalled
+  // already computed, so computeMeshAsync should not be recalled
   await obj.getMeshAsync();
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
@@ -215,7 +214,7 @@ test("PrimitiveObject - UpdateFromJSON with 2 level parents", async () => {
   expect(spy2).toBeCalledTimes(3);
   expect(spy3).toBeCalledTimes(3);
 
-  //already computed, so computeMeshAsync should not be recalled
+  // already computed, so computeMeshAsync should not be recalled
   await obj.getMeshAsync();
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);

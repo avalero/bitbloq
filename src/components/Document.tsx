@@ -1,11 +1,11 @@
-import * as React from 'react';
-import Tooltip from './Tooltip';
+import * as React from "react";
+import Tooltip from "./Tooltip";
 import MenuBar, {
   MainMenuOption,
-  OptionClickHandler as MenuOptionClickHandler,
-} from './MenuBar';
-import styled, {css} from 'react-emotion';
-import CollapseIcon from './icons/AngleDouble';
+  OptionClickHandler as MenuOptionClickHandler
+} from "./MenuBar";
+import styled, { css } from "react-emotion";
+import CollapseIcon from "./icons/AngleDouble";
 
 const Container = styled.div`
   display: flex;
@@ -156,13 +156,13 @@ interface State {
 class Document extends React.Component<DocumentProps, State> {
   state = {
     currentTabIndex: 0,
-    isHeaderCollapsed: false,
+    isHeaderCollapsed: false
   };
 
   onCollapseButtonClick = () => {
     this.setState(state => ({
       ...state,
-      isHeaderCollapsed: !state.isHeaderCollapsed,
+      isHeaderCollapsed: !state.isHeaderCollapsed
     }));
   };
 
@@ -171,9 +171,9 @@ class Document extends React.Component<DocumentProps, State> {
       children,
       menuOptions = [],
       menuRightContent,
-      onMenuOptionClick,
+      onMenuOptionClick
     } = this.props;
-    const {currentTabIndex, isHeaderCollapsed} = this.state;
+    const { currentTabIndex, isHeaderCollapsed } = this.state;
 
     const currentTab = React.Children.toArray(children)[currentTabIndex];
 
@@ -190,7 +190,8 @@ class Document extends React.Component<DocumentProps, State> {
           {menuRightContent}
           <CollapseButton
             onClick={this.onCollapseButtonClick}
-            collapsed={isHeaderCollapsed}>
+            collapsed={isHeaderCollapsed}
+          >
             <CollapseIcon />
           </CollapseButton>
         </MenuWrap>
@@ -204,12 +205,13 @@ class Document extends React.Component<DocumentProps, State> {
                     <TabIcon
                       {...tooltipProps}
                       selected={i === currentTabIndex}
-                      onClick={() => this.setState({currentTabIndex: i})}>
+                      onClick={() => this.setState({ currentTabIndex: i })}
+                    >
                       {tab.props.icon}
                     </TabIcon>
                   )}
                 </Tooltip>
-              ),
+              )
             )}
           </Tabs>
           {React.Children.map(
@@ -218,7 +220,7 @@ class Document extends React.Component<DocumentProps, State> {
               <Content active={i === currentTabIndex}>
                 {tab.props.children}
               </Content>
-            ),
+            )
           )}
         </Main>
       </Container>

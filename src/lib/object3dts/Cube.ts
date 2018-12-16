@@ -10,13 +10,13 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-12-16 08:55:22
+ * Last modified  : 2018-12-16 12:32:55
  */
 
+import lodashIsequal from "lodash.isequal";
 import * as THREE from "three";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 import PrimitiveObject, { IPrimitiveObjectJSON } from "./PrimitiveObject";
-import isEqual from "lodash.isequal";
 
 /**
  * Params defining a cube (units are in millimiters)
@@ -39,7 +39,9 @@ export default class Cube extends PrimitiveObject {
    * @param object object descriptor
    */
   public static newFromJSON(object: ICubeJSON): Cube {
-    if (object.type != Cube.typeName) throw new Error("Not Cube Object");
+    if (object.type !== Cube.typeName) {
+      throw new Error("Not Cube Object");
+    }
     return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
@@ -47,7 +49,7 @@ export default class Cube extends PrimitiveObject {
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -68,22 +70,22 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
-      const cube = new Cube(
+    if (this.mesh && lodashIsequal(this.lastJSON, this.toJSON())) {
+      const cubeObj = new Cube(
         this.parameters as ICubeParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone()
       );
-      return cube;
-    } else {
-      const cube = new Cube(
-        this.parameters as ICubeParams,
-        this.operations,
-        this.viewOptions
-      );
-      return cube;
+      return cubeObj;
     }
+
+    const cube = new Cube(
+      this.parameters as ICubeParams,
+      this.operations,
+      this.viewOptions
+    );
+    return cube;
   }
 
   protected getGeometry(): THREE.Geometry {

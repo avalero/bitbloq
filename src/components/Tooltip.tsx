@@ -1,6 +1,6 @@
-import * as React from 'react';
-import TetherComponent from 'react-tether';
-import styled, {css} from 'react-emotion';
+import * as React from "react";
+import TetherComponent from "react-tether";
+import styled, { css } from "react-emotion";
 
 interface ContainerProps {
   position: string;
@@ -18,11 +18,11 @@ const Container = styled.div<ContainerProps>`
   max-width: 220px;
 
   i {
-    color: #4dc3ff
+    color: #4dc3ff;
   }
 
   &::before {
-    content: '';
+    content: "";
     background-color: #373b44;
     width: 8px;
     height: 8px;
@@ -32,33 +32,35 @@ const Container = styled.div<ContainerProps>`
     top: 12px;
     left: 50%;
 
-    ${props => props.position === 'right' && css`
-      transform: translate(0, -50%) rotate(45deg);
-      top: 50%;
-      left: 12px;
-    `}
+    ${props =>
+      props.position === "right" &&
+      css`
+        transform: translate(0, -50%) rotate(45deg);
+        top: 50%;
+        left: 12px;
+      `};
   }
 
   ${props =>
-    props.position === 'right' &&
+    props.position === "right" &&
     css`
       margin-top: 0px;
-      margin-left: 16px
+      margin-left: 16px;
     `};
 `;
 
 const attachmentPostion = {
-  top: 'bottom center',
-  bottom: 'top center',
-  left: 'middle right',
-  right: 'middle left',
+  top: "bottom center",
+  bottom: "top center",
+  left: "middle right",
+  right: "middle left"
 };
 
 const targetPosition = {
-  top: 'top center',
-  bottom: 'bottom center',
-  left: 'middle left',
-  right: 'middle right',
+  top: "top center",
+  bottom: "bottom center",
+  left: "middle left",
+  right: "middle right"
 };
 
 export interface TooltipChildrenProps {
@@ -77,20 +79,20 @@ interface State {
 }
 
 class Tooltip extends React.Component<TooltipProps, State> {
-  state = {isVisible: false};
+  state = { isVisible: false };
 
   onMouseOver = () => {
-    this.setState({isVisible: true});
+    this.setState({ isVisible: true });
   };
 
   onMouseOut = () => {
-    this.setState({isVisible: false});
+    this.setState({ isVisible: false });
   };
 
   render() {
-    const {isVisible} = this.state;
-    const {children, content, position = 'bottom'} = this.props;
-    const {onMouseOver, onMouseOut} = this;
+    const { isVisible } = this.state;
+    const { children, content, position = "bottom" } = this.props;
+    const { onMouseOver, onMouseOut } = this;
 
     if (!content) {
       return children({});
@@ -102,7 +104,7 @@ class Tooltip extends React.Component<TooltipProps, State> {
         targetAttachment={targetPosition[position]}
         style={{ zIndex: 20 }}
       >
-        {children({onMouseOver, onMouseOut})}
+        {children({ onMouseOver, onMouseOut })}
         {isVisible && <Container position={position}>{content}</Container>}
       </TetherComponent>
     );

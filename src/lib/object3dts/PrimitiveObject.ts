@@ -9,26 +9,25 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2018-12-16 09:16:31
+ * Last modified  : 2018-12-16 12:53:32
  */
 
-import isEqual from "lodash.isequal";
 import cloneDeep from "lodash.clonedeep";
-import Object3D from "./Object3D";
-import ObjectsCommon from "./ObjectsCommon";
-import {
-  OperationsArray,
-  IViewOptions,
-  IObjectsCommonJSON
-} from "./ObjectsCommon";
+import isEqual from "lodash.isequal";
 import * as THREE from "three";
+import Object3D from "./Object3D";
+import ObjectsCommon, {
+  IObjectsCommonJSON,
+  IViewOptions,
+  OperationsArray
+} from "./ObjectsCommon";
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;
 }
 
 export default class PrimitiveObject extends Object3D {
-  protected parameters: Object;
+  protected parameters: object;
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
@@ -50,8 +49,9 @@ export default class PrimitiveObject extends Object3D {
    */
 
   public updateFromJSON(object: IPrimitiveObjectJSON) {
-    if (this.id !== object.id)
+    if (this.id !== object.id) {
       throw new Error("Object id does not match with JSON id");
+    }
 
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -102,21 +102,24 @@ export default class PrimitiveObject extends Object3D {
         this.applyViewOptions();
       }
 
-      if (this.mesh instanceof THREE.Mesh) resolve(this.mesh);
-      else reject(new Error("Mesh has not been computed properly"));
+      if (this.mesh instanceof THREE.Mesh) {
+        resolve(this.mesh);
+      } else {
+        reject(new Error("Mesh has not been computed properly"));
+      }
     });
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
-  protected setParameters(parameters: Object): void {
+  protected setParameters(parameters: object): void {
     if (!this.parameters) {
-      this.parameters = Object.assign({}, parameters);
+      this.parameters = { ...parameters };
       this._meshUpdateRequired = true;
       return;
     }
 
     if (!isEqual(parameters, this.parameters)) {
-      this.parameters = Object.assign({}, parameters);
+      this.parameters = { ...parameters };
       this._meshUpdateRequired = true;
       return;
     }

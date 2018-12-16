@@ -90,8 +90,8 @@ class SphericalCoords {
  * The azimuthal angle (theta) is measured from the positive x-axis.
  */
 export class SphericalCoordsXYZ extends SphericalCoords {
-  constructor(r: number = 0, phi: number = 0, theta: number = 0) {
-    super(r, phi, theta);
+  public get cartesian(): ICartesian {
+    return SphericalCoordsXYZ.toCartesian(this.radius, this.phi, this.theta);
   }
 
   public static toCartesian(r: number, phi: number, theta: number): ICartesian {
@@ -102,9 +102,8 @@ export class SphericalCoordsXYZ extends SphericalCoords {
 
     return { x, y, z };
   }
-
-  public get cartesian(): ICartesian {
-    return SphericalCoordsXYZ.toCartesian(this.radius, this.phi, this.theta);
+  constructor(r: number = 0, phi: number = 0, theta: number = 0) {
+    super(r, phi, theta);
   }
 
   public setFromCartesianCoords(

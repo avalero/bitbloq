@@ -1,18 +1,18 @@
-import Prism, { IPrismParams, IPrismJSON } from "../Prism";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "../ObjectsCommon";
 import * as THREE from "three";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
+import Prism, { IPrismJSON, IPrismParams } from "../Prism";
 
 const sides = 10;
 const length = 20;
 const height = 30;
 
-let objParams: IPrismParams = {
+const objParams: IPrismParams = {
   sides,
   length,
   height
 };
-let operations: OperationsArray = [];
-let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
+const operations: OperationsArray = [];
+const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
@@ -68,6 +68,7 @@ test("Prism - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
+  // tslint:disable-next-line:no-shadowed-variable
   const operations = [ObjectsCommon.createTranslateOperation(x, y, z)];
   const obj = new Prism(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -85,6 +86,7 @@ test("Prism - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
+  // tslint:disable-next-line:no-shadowed-variable
   const operations = [
     ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
@@ -94,7 +96,7 @@ test("Prism - Constructor - Set Operations - Rotation", () => {
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 810);
+    expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 180);
     expect(mesh.rotation.y).toBeCloseTo((Math.PI * yangle) / 180);
     expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
   });
@@ -109,6 +111,7 @@ test("Prism - Constructor - set Mesh", async () => {
     viewOptions,
     meshAux as THREE.Mesh
   );
+
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
   });

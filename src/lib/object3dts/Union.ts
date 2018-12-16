@@ -9,24 +9,26 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2018-11-28 16:48:30
+ * Last modified  : 2018-12-16 12:58:16
  */
 
-import CompoundObject, {
-  ICompoundObjectJSON,
-  ChildrenArray
-} from "./CompoundObject";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
-import Object3D from "./Object3D";
 import isEqual from "lodash.isequal";
+import CompoundObject, {
+  ChildrenArray,
+  ICompoundObjectJSON
+} from "./CompoundObject";
+import Object3D from "./Object3D";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 
 import Scene from "./Scene";
 
 export default class Union extends CompoundObject {
-  static typeName: string = "Union";
+  public static typeName: string = "Union";
 
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
-    if (object.type != Union.typeName) throw new Error("Not Union Object");
+    if (object.type !== Union.typeName) {
+      throw new Error("Not Union Object");
+    }
 
     try {
       const children: ChildrenArray = object.children.map(
@@ -48,7 +50,7 @@ export default class Union extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -66,21 +68,19 @@ export default class Union extends CompoundObject {
   }
 
   public clone(): Union {
-    const childrenClone: Array<Object3D> = this.children.map(child =>
-      child.clone()
-    );
+    const childrenClone: Object3D[] = this.children.map(child => child.clone());
 
     if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Union(
+      const unionObj = new Union(
         childrenClone,
         this.operations,
         this.viewOptions,
-        this.mesh.clone()
+        this.mesh.clone() as THREE.Mesh
       );
-      return obj;
-    } else {
-      const obj = new Union(childrenClone, this.operations, this.viewOptions);
-      return obj;
+      return unionObj;
     }
+
+    const obj = new Union(childrenClone, this.operations, this.viewOptions);
+    return obj;
   }
 }
