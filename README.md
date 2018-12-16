@@ -1,4 +1,4 @@
-# Bitbloq Junior
+# Bitbloq 3
 
 ## How to run
 
