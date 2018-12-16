@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2018-11-28 16:46:13
+ * Last modified  : 2018-12-16 09:16:31
  */
 
 import isEqual from "lodash.isequal";
@@ -63,13 +63,22 @@ export default class PrimitiveObject extends Object3D {
 
     // if anything has changed, recompute mesh
     if (!isEqual(this.lastJSON, this.toJSON())) {
+
+      const lastJSONWithoutVO = cloneDeep(this.lastJSON); delete lastJSONWithoutVO.viewOptions;
+      const currentJSONWithoutVO = cloneDeep(this.toJSON()); delete currentJSONWithoutVO.viewOptions;
+      
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
-      let obj: ObjectsCommon | undefined = this.getParent();
-      while (obj) {
-        obj.meshUpdateRequired = true;
-        obj.computeMeshAsync();
-        obj = obj.getParent();
+
+      // parents need update?
+      
+      if (!isEqual(lastJSONWithoutVO, currentJSONWithoutVO)) {
+        let obj: ObjectsCommon | undefined = this.getParent();
+        while (obj) {
+          obj.meshUpdateRequired = true;
+          obj.computeMeshAsync();
+          obj = obj.getParent();
+        }
       }
     }
   }

@@ -99,7 +99,7 @@ test("Sphere - Constructor - Set Operations - Rotation", () => {
 test("Sphere - Constructor - set Mesh", async () => {
   const objAux = new Sphere(objParams);
   const meshAux = await objAux.getMeshAsync();
-  const obj = new Sphere(objParams, operations, viewOptions, meshAux);
+  const obj = new Sphere(objParams, operations, viewOptions, meshAux as THREE.Mesh);
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
   });

@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-12-10 10:10:58
+ * Last modified  : 2018-12-16 08:55:22
  */
 
 import * as THREE from "three";
@@ -68,12 +68,12 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
       const cube = new Cube(
         this.parameters as ICubeParams,
         this.operations,
         this.viewOptions,
-        this.mesh.clone()
+        (this.mesh as THREE.Mesh).clone()
       );
       return cube;
     } else {

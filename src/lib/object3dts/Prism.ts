@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2018-11-28 16:45:48
+ * Last modified  : 2018-12-16 08:55:16
  */
 
 /**
@@ -75,12 +75,12 @@ export default class Prism extends PrimitiveObject {
   }
 
   public clone(): Prism {
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
       const obj = new Prism(
         this.parameters as IPrismParams,
         this.operations,
         this.viewOptions,
-        this.mesh.clone()
+        (this.mesh as THREE.Mesh).clone()
       );
       return obj;
     } else {

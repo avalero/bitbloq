@@ -103,7 +103,7 @@ test("Cylinder - Constructor - Set Operations - Rotation", () => {
 test("Cylinder - Constructor - set Mesh", async () => {
   const objAux = new Cylinder(objParams);
   const meshAux = await objAux.getMeshAsync();
-  const obj = new Cylinder(objParams, operations, viewOptions, meshAux);
+  const obj = new Cylinder(objParams, operations, viewOptions, meshAux as THREE.Mesh);
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
   });

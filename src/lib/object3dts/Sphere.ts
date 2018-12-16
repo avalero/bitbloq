@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2018-12-10 09:16:09
+ * Last modified  : 2018-12-16 08:55:27
  */
 
 import * as THREE from "three";
@@ -60,7 +60,7 @@ export default class Sphere extends PrimitiveObject {
   }
 
   public clone(): Sphere {
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
       const obj = new Sphere(
         this.parameters as ISphereParams,
         this.operations,
