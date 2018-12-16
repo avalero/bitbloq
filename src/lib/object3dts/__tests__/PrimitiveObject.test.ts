@@ -72,6 +72,27 @@ test("PrimitiveObject - UpdateFromJSON", async () => {
   };
 
   const obj = new Cube(objParams, operations, viewOptions);
+  json.id = "kkk";
+
+  const func = () => obj.updateFromJSON(json);
+
+  expect(func).toThrowError();
+});
+
+test("PrimitiveObject - UpdateFromJSON", async () => {
+  const json: ICubeJSON = {
+    parameters: {
+      width,
+      height,
+      depth
+    },
+    operations: [],
+    viewOptions: ObjectsCommon.createViewOptions(),
+    id: "000",
+    type: Cube.typeName
+  };
+
+  const obj = new Cube(objParams, operations, viewOptions);
   const spy = jest.spyOn(obj, "computeMeshAsync");
   json.id = obj.toJSON().id;
   expect(json).toEqual(obj.toJSON());

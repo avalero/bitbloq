@@ -49,7 +49,7 @@ export default class Prism extends PrimitiveObject {
   public static typeName: string = "Prism";
 
   public static newFromJSON(object: IPrismJSON): Prism {
-    if (object.type != Prism.typeName) {
+    if (object.type !== Prism.typeName) {
       throw new Error("Not Prism Object");
     }
     return new Prism(object.parameters, object.operations, object.viewOptions);
@@ -59,7 +59,7 @@ export default class Prism extends PrimitiveObject {
     parameters: IPrismParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -78,44 +78,30 @@ export default class Prism extends PrimitiveObject {
 
   public clone(): Prism {
     if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Prism(
+      const objPrism = new Prism(
         this.parameters as IPrismParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone()
       );
-      return obj;
-    } else {
-      const obj = new Prism(
-        this.parameters as IPrismParams,
-        this.operations,
-        this.viewOptions
-      );
-      return obj;
+      return objPrism;
     }
+    const obj = new Prism(
+      this.parameters as IPrismParams,
+      this.operations,
+      this.viewOptions
+    );
+    return obj;
   }
 
   protected getGeometry(): THREE.Geometry {
     let { sides, length, height } = this.parameters as IPrismParams;
     sides = Math.max(3, sides);
-    (length = Math.max(1, length)), (height = Math.max(1, height));
+    length = Math.max(0, length);
+    height = Math.max(0, height);
     this._meshUpdateRequired = false;
     const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
-      Number(radius),
-      Number(radius),
-      Number(height),
-      Number(sides)
-    ).rotateX(Math.PI / 2);
-  }
-
-  protected getBufferGeometry(): THREE.BufferGeometry {
-    let { sides, length, height } = this.parameters as IPrismParams;
-    sides = Math.max(3, sides);
-    (length = Math.max(1, length)), (height = Math.max(1, height));
-    this._meshUpdateRequired = false;
-    const radius: number = length / (2 * Math.sin(Math.PI / sides));
-    return new THREE.CylinderBufferGeometry(
       Number(radius),
       Number(radius),
       Number(height),

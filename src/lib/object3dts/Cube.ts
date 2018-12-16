@@ -90,23 +90,10 @@ export default class Cube extends PrimitiveObject {
 
   protected getGeometry(): THREE.Geometry {
     let { width, height, depth } = this.parameters as ICubeParams;
-    width = Math.max(1, width);
-    height = Math.max(1, height);
-    depth = Math.max(1, depth);
+    width = Math.max(0, width);
+    height = Math.max(0, height);
+    depth = Math.max(0, depth);
     this._meshUpdateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
-  }
-
-  protected getBufferGeometry(): THREE.BufferGeometry {
-    let { width, height, depth } = this.parameters as ICubeParams;
-    width = Math.max(1, width);
-    height = Math.max(1, height);
-    depth = Math.max(1, depth);
-    this._meshUpdateRequired = false;
-    return new THREE.BoxBufferGeometry(
-      Number(width),
-      Number(depth),
-      Number(height)
-    );
   }
 }

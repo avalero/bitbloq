@@ -8,7 +8,7 @@
     "build": "webpack --mode production",
     "test": "jest --coverage",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
-    "tslint:ts": "tslint --project . \"**/*.{ts}\"",
+    "tslint:ts": "tslint \"**/*.{ts}\"",
     "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "prettier:ts": "prettier --write \"**/*.{ts,tsx}\""
   },

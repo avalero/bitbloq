@@ -138,11 +138,19 @@ test("Cylinder - Clone - Parameters - Operations - viewOptions", async () => {
 });
 
 /// TEST NEW FROM JSON
-test("Cylinder - newFromJSON", async () => {
+test("Cylinder - newFromJSON", () => {
   const obj = new Cylinder(objParams, operations, viewOptions);
   const json: ICylinderJSON = obj.toJSON() as ICylinderJSON;
   const obj2 = Cylinder.newFromJSON(json);
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
+});
+
+test("Cylinder - newFromJSON", () => {
+  const obj = new Cylinder(objParams, operations, viewOptions);
+  const json: ICylinderJSON = obj.toJSON() as ICylinderJSON;
+  json.type = "kkk";
+  const obj2 = () => Cylinder.newFromJSON(json);
+  expect(obj2).toThrowError();
 });

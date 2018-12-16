@@ -81,20 +81,9 @@ export default class Sphere extends PrimitiveObject {
 
   protected getGeometry(): THREE.Geometry {
     let { radius } = this.parameters as ISphereParams;
-    radius = Math.max(1, radius);
+    radius = Math.max(0, radius);
     this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
-      Number(radius),
-      Math.max(12, Math.min(Number(radius) * 5, 16)),
-      Math.max(12, Math.min(Number(radius) * 5, 16))
-    );
-  }
-
-  protected getBufferGeometry(): THREE.BufferGeometry {
-    let { radius } = this.parameters as ISphereParams;
-    radius = Math.max(1, radius);
-    this._meshUpdateRequired = false;
-    return new THREE.SphereBufferGeometry(
       Number(radius),
       Math.max(12, Math.min(Number(radius) * 5, 16)),
       Math.max(12, Math.min(Number(radius) * 5, 16))

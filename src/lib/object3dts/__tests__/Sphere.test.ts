@@ -64,9 +64,9 @@ test("Sphere - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
-  const operations = [ObjectsCommon.createTranslateOperation(x, y, z)];
-  const obj = new Sphere(objParams, operations);
-  expect((obj as any).operations).toEqual(operations);
+  const operationsArr = [ObjectsCommon.createTranslateOperation(x, y, z)];
+  const obj = new Sphere(objParams, operationsArr);
+  expect((obj as any).operations).toEqual(operationsArr);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
@@ -81,11 +81,11 @@ test("Sphere - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
-  const operations = [
+  const operationsArr = [
     ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
-  const obj = new Sphere(objParams, operations);
-  expect((obj as any).operations).toEqual(operations);
+  const obj = new Sphere(objParams, operationsArr);
+  expect((obj as any).operations).toEqual(operationsArr);
   expect((obj as any).lastJSON).toEqual(obj.toJSON());
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
@@ -138,4 +138,12 @@ test("Sphere - newFromJSON", async () => {
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
+});
+
+test("Sphere - newFromJSON", async () => {
+  const obj = new Sphere(objParams, operations, viewOptions);
+  const json: ISphereJSON = obj.toJSON() as ISphereJSON;
+  json.type = "kkk";
+  const obj2 = () => Sphere.newFromJSON(json);
+  expect(obj2).toThrowError();
 });

@@ -35,7 +35,7 @@ export default class Cylinder extends PrimitiveObject {
   public static typeName: string = "Cylinder";
 
   public static newFromJSON(object: ICylinderJSON): Cylinder {
-    if (object.type != Cylinder.typeName) {
+    if (object.type !== Cylinder.typeName) {
       throw new Error("Not Cylinder Object");
     }
     return new Cylinder(
@@ -49,7 +49,7 @@ export default class Cylinder extends PrimitiveObject {
     parameters: ICylinderParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -68,49 +68,33 @@ export default class Cylinder extends PrimitiveObject {
 
   public clone(): Cylinder {
     if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new Cylinder(
+      const objCyl = new Cylinder(
         this.parameters as ICylinderParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone()
       );
-      return obj;
-    } else {
-      const obj = new Cylinder(
-        this.parameters as ICylinderParams,
-        this.operations,
-        this.viewOptions
-      );
-      return obj;
+      return objCyl;
     }
+    const obj = new Cylinder(
+      this.parameters as ICylinderParams,
+      this.operations,
+      this.viewOptions
+    );
+    return obj;
   }
 
   protected getGeometry(): THREE.Geometry {
     let { r0, r1, height } = this.parameters as ICylinderParams;
-    r0 = Math.max(1, r0);
-    r1 = Math.max(1, r1);
-    height = Math.max(1, height);
+    r0 = Math.max(0, r0);
+    r1 = Math.max(0, r1);
+    height = Math.max(0, height);
     this._meshUpdateRequired = false;
     return new THREE.CylinderGeometry(
       Number(r1),
       Number(r0),
       Number(height),
       18,
-      1
-    ).rotateX(Math.PI / 2);
-  }
-
-  protected getBufferGeometry(): THREE.BufferGeometry {
-    let { r0, r1, height } = this.parameters as ICylinderParams;
-    r0 = Math.max(1, r0);
-    r1 = Math.max(1, r1);
-    height = Math.max(1, height);
-    this._meshUpdateRequired = false;
-    return new THREE.CylinderBufferGeometry(
-      Number(r1),
-      Number(r0),
-      Number(height),
-      32,
       1
     ).rotateX(Math.PI / 2);
   }
