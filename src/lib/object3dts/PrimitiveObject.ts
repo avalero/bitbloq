@@ -63,15 +63,16 @@ export default class PrimitiveObject extends Object3D {
 
     // if anything has changed, recompute mesh
     if (!isEqual(this.lastJSON, this.toJSON())) {
+      const lastJSONWithoutVO = cloneDeep(this.lastJSON);
+      delete lastJSONWithoutVO.viewOptions;
+      const currentJSONWithoutVO = cloneDeep(this.toJSON());
+      delete currentJSONWithoutVO.viewOptions;
 
-      const lastJSONWithoutVO = cloneDeep(this.lastJSON); delete lastJSONWithoutVO.viewOptions;
-      const currentJSONWithoutVO = cloneDeep(this.toJSON()); delete currentJSONWithoutVO.viewOptions;
-      
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
 
       // parents need update?
-      
+
       if (!isEqual(lastJSONWithoutVO, currentJSONWithoutVO)) {
         let obj: ObjectsCommon | undefined = this.getParent();
         while (obj) {

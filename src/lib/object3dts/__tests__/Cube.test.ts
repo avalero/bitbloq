@@ -104,7 +104,12 @@ test("Cube - Constructor - Set Operations - Rotation", () => {
 test("Cube - Constructor - set Mesh", async () => {
   const objAux = new Cube(objParams);
   const meshAux = await objAux.getMeshAsync();
-  const obj = new Cube(objParams, operations, viewOptions, meshAux as THREE.Mesh);
+  const obj = new Cube(
+    objParams,
+    operations,
+    viewOptions,
+    meshAux as THREE.Mesh
+  );
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
   });

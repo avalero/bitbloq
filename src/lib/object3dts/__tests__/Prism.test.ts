@@ -103,7 +103,12 @@ test("Prism - Constructor - Set Operations - Rotation", () => {
 test("Prism - Constructor - set Mesh", async () => {
   const objAux = new Prism(objParams);
   const meshAux = await objAux.getMeshAsync();
-  const obj = new Prism(objParams, operations, viewOptions, meshAux as THREE.Mesh);
+  const obj = new Prism(
+    objParams,
+    operations,
+    viewOptions,
+    meshAux as THREE.Mesh
+  );
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
   });
