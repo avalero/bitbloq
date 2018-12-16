@@ -12,19 +12,19 @@
  * Last modified  : 2018-11-16 17:37:42
  */
 
-import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
-import Object3D from './Object3D';
-import isEqual from 'lodash.isequal';
-import * as THREE from 'three';
+import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import Object3D from "./Object3D";
+import isEqual from "lodash.isequal";
+import * as THREE from "three";
 
-import Scene from './Scene';
+import Scene from "./Scene";
 
 interface ISTLParams {
   geometry: THREE.Geometry;
 }
 
 export default class STLObject extends Object3D {
-  public static typeName: string = 'STLObject';
+  public static typeName: string = "STLObject";
 
   private parameters: ISTLParams;
 
@@ -32,7 +32,7 @@ export default class STLObject extends Object3D {
     parameters: ISTLParams,
     operations: OperationsArray = [],
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    scene: Scene,
+    scene: Scene
   ) {
     super(viewOptions, operations, scene);
     this.parameters = { ...parameters };

@@ -14,8 +14,8 @@
  * Last modified  : 2018-11-09 09:55:56
  */
 
-import * as THREE from 'three';
-import cloneDeep from 'lodash.clonedeep';
+import * as THREE from "three";
+import cloneDeep from "lodash.clonedeep";
 
 export interface IGridConfig {
   size: number;
@@ -88,15 +88,15 @@ export default class BaseGrid {
 
     const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
     geometry.addAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(vertices, 3),
+      "position",
+      new THREE.Float32BufferAttribute(vertices, 3)
     );
-    geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.addAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
     const material = new THREE.LineBasicMaterial({
       vertexColors: THREE.VertexColors,
       linewidth: this.gridConfig.bigGrid.lineWidth,
-      fog: false,
+      fog: false
     });
 
     const mesh: THREE.LineSegments = new THREE.LineSegments(geometry, material);
@@ -128,15 +128,15 @@ export default class BaseGrid {
 
     const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
     geometry.addAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(vertices, 3),
+      "position",
+      new THREE.Float32BufferAttribute(vertices, 3)
     );
-    geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.addAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
     const material = new THREE.LineBasicMaterial({
       vertexColors: THREE.VertexColors,
       linewidth: this.gridConfig.smallGrid.lineWidth,
-      fog: false,
+      fog: false
     });
     const mesh: THREE.LineSegments = new THREE.LineSegments(geometry, material);
 
@@ -159,15 +159,15 @@ export default class BaseGrid {
 
     const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
     geometry.addAttribute(
-      'position',
-      new THREE.Float32BufferAttribute(vertices, 3),
+      "position",
+      new THREE.Float32BufferAttribute(vertices, 3)
     );
-    geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    geometry.addAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
 
     const material = new THREE.LineBasicMaterial({
       vertexColors: THREE.VertexColors,
       linewidth: this.gridConfig.centerGrid.lineWidth,
-      fog: false,
+      fog: false
     });
     const mesh: THREE.LineSegments = new THREE.LineSegments(geometry, material);
 
@@ -179,7 +179,7 @@ export default class BaseGrid {
     const helper: THREE.PlaneHelper = new THREE.PlaneHelper(
       plane,
       this.gridConfig.size,
-      this.gridConfig.plane.color,
+      this.gridConfig.plane.color
     );
     return helper;
   }

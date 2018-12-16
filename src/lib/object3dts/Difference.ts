@@ -14,30 +14,30 @@
 
 import CompoundObject, {
   ICompoundObjectJSON,
-  ChildrenArray,
-} from './CompoundObject';
-import Object3D from './Object3D';
-import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
-import Scene from './Scene';
-import isEqual from 'lodash.isequal';
+  ChildrenArray
+} from "./CompoundObject";
+import Object3D from "./Object3D";
+import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import Scene from "./Scene";
+import isEqual from "lodash.isequal";
 
 export default class Difference extends CompoundObject {
-  static typeName: string = 'Difference';
+  static typeName: string = "Difference";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
-    scene: Scene,
+    scene: Scene
   ): Difference {
-    if (object.type != Difference.typeName) throw new Error('Not Union Object');
+    if (object.type != Difference.typeName) throw new Error("Not Union Object");
 
     try {
       const children: ChildrenArray = object.children.map(
-        obj => scene.getObject(obj) as Object3D,
+        obj => scene.getObject(obj) as Object3D
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       return new Difference(children, object.operations, viewOptions);
     } catch (e) {
@@ -49,12 +49,12 @@ export default class Difference extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined,
+    mesh: THREE.Mesh | undefined = undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
     super(children, operations, vO);
     this.type = Difference.typeName;
@@ -68,7 +68,7 @@ export default class Difference extends CompoundObject {
 
   public clone(): Difference {
     const childrenClone: Array<Object3D> = this.children.map(child =>
-      child.clone(),
+      child.clone()
     );
 
     if (isEqual(this.lastJSON, this.toJSON())) {
@@ -76,14 +76,14 @@ export default class Difference extends CompoundObject {
         childrenClone,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        this.mesh.clone()
       );
       return obj;
     } else {
       const obj = new Difference(
         childrenClone,
         this.operations,
-        this.viewOptions,
+        this.viewOptions
       );
       return obj;
     }

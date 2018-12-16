@@ -26,14 +26,14 @@
  * Last modified  : 2018-10-16 12:51:01
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
-  IObjectsCommonJSON,
-} from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
-import isEqual from 'lodash.isequal';
+  IObjectsCommonJSON
+} from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
+import isEqual from "lodash.isequal";
 
 export interface IPrismParams {
   sides: number;
@@ -46,10 +46,10 @@ export interface IPrismJSON extends IObjectsCommonJSON {
 }
 
 export default class Prism extends PrimitiveObject {
-  public static typeName: string = 'Prism';
+  public static typeName: string = "Prism";
 
   public static newFromJSON(object: IPrismJSON): Prism {
-    if (object.type != Prism.typeName) throw new Error('Not Prism Object');
+    if (object.type != Prism.typeName) throw new Error("Not Prism Object");
     return new Prism(object.parameters, object.operations, object.viewOptions);
   }
 
@@ -57,11 +57,11 @@ export default class Prism extends PrimitiveObject {
     parameters: IPrismParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined,
+    mesh: THREE.Mesh | undefined = undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Prism.typeName;
@@ -80,14 +80,14 @@ export default class Prism extends PrimitiveObject {
         this.parameters as IPrismParams,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        this.mesh.clone()
       );
       return obj;
     } else {
       const obj = new Prism(
         this.parameters as IPrismParams,
         this.operations,
-        this.viewOptions,
+        this.viewOptions
       );
       return obj;
     }
@@ -103,7 +103,7 @@ export default class Prism extends PrimitiveObject {
       Number(radius),
       Number(radius),
       Number(height),
-      Number(sides),
+      Number(sides)
     ).rotateX(Math.PI / 2);
   }
 
@@ -117,7 +117,7 @@ export default class Prism extends PrimitiveObject {
       Number(radius),
       Number(radius),
       Number(height),
-      Number(sides),
+      Number(sides)
     ).rotateX(Math.PI / 2);
   }
 }

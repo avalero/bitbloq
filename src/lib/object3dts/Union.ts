@@ -14,29 +14,29 @@
 
 import CompoundObject, {
   ICompoundObjectJSON,
-  ChildrenArray,
-} from './CompoundObject';
-import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
-import Object3D from './Object3D';
-import isEqual from 'lodash.isequal';
+  ChildrenArray
+} from "./CompoundObject";
+import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import Object3D from "./Object3D";
+import isEqual from "lodash.isequal";
 
-import Scene from './Scene';
+import Scene from "./Scene";
 
 export default class Union extends CompoundObject {
-  static typeName: string = 'Union';
+  static typeName: string = "Union";
 
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
-    if (object.type != Union.typeName) throw new Error('Not Union Object');
+    if (object.type != Union.typeName) throw new Error("Not Union Object");
 
     try {
       const children: ChildrenArray = object.children.map(
-        obj => scene.getObject(obj) as Object3D,
+        obj => scene.getObject(obj) as Object3D
       );
 
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       return new Union(children, object.operations, viewOptions);
     } catch (e) {
@@ -48,12 +48,12 @@ export default class Union extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined,
+    mesh: THREE.Mesh | undefined = undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
     super(children, operations, vO);
     this.type = Union.typeName;
@@ -67,7 +67,7 @@ export default class Union extends CompoundObject {
 
   public clone(): Union {
     const childrenClone: Array<Object3D> = this.children.map(child =>
-      child.clone(),
+      child.clone()
     );
 
     if (isEqual(this.lastJSON, this.toJSON())) {
@@ -75,7 +75,7 @@ export default class Union extends CompoundObject {
         childrenClone,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        this.mesh.clone()
       );
       return obj;
     } else {

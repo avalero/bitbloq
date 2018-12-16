@@ -14,31 +14,31 @@
 
 import CompoundObject, {
   ICompoundObjectJSON,
-  ChildrenArray,
-} from './CompoundObject';
-import Object3D from './Object3D';
-import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
-import Scene from './Scene';
-import isEqual from 'lodash.isequal';
+  ChildrenArray
+} from "./CompoundObject";
+import Object3D from "./Object3D";
+import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import Scene from "./Scene";
+import isEqual from "lodash.isequal";
 
 export default class Intersection extends CompoundObject {
-  static typeName: string = 'Intersection';
+  static typeName: string = "Intersection";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
-    scene: Scene,
+    scene: Scene
   ): Intersection {
     if (object.type != Intersection.typeName)
-      throw new Error('Not Union Object');
+      throw new Error("Not Union Object");
 
     try {
       const children: ChildrenArray = object.children.map(
-        obj => scene.getObject(obj) as Object3D,
+        obj => scene.getObject(obj) as Object3D
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       return new Intersection(children, object.operations, viewOptions);
     } catch (e) {
@@ -50,12 +50,12 @@ export default class Intersection extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined,
+    mesh: THREE.Mesh | undefined = undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
     super(children, operations, vO);
     this.type = Intersection.typeName;
@@ -69,21 +69,21 @@ export default class Intersection extends CompoundObject {
 
   public clone(): Intersection {
     const childrenClone: Array<Object3D> = this.children.map(child =>
-      child.clone(),
+      child.clone()
     );
     if (isEqual(this.lastJSON, this.toJSON())) {
       const obj = new Intersection(
         childrenClone,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        this.mesh.clone()
       );
       return obj;
     } else {
       const obj = new Intersection(
         childrenClone,
         this.operations,
-        this.viewOptions,
+        this.viewOptions
       );
       return obj;
     }

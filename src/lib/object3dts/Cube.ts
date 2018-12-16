@@ -13,10 +13,10 @@
  * Last modified  : 2018-12-10 10:10:58
  */
 
-import * as THREE from 'three';
-import ObjectsCommon, { OperationsArray, IViewOptions } from './ObjectsCommon';
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
-import isEqual from 'lodash.isequal';
+import * as THREE from "three";
+import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import PrimitiveObject, { IPrimitiveObjectJSON } from "./PrimitiveObject";
+import isEqual from "lodash.isequal";
 
 /**
  * Params defining a cube (units are in millimiters)
@@ -32,14 +32,14 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
 }
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube';
+  public static typeName: string = "Cube";
 
   /**
    * Creates a new Cube instance from json
    * @param object object descriptor
    */
   public static newFromJSON(object: ICubeJSON): Cube {
-    if (object.type != Cube.typeName) throw new Error('Not Cube Object');
+    if (object.type != Cube.typeName) throw new Error("Not Cube Object");
     return new Cube(object.parameters, object.operations, object.viewOptions);
   }
 
@@ -47,11 +47,11 @@ export default class Cube extends PrimitiveObject {
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined,
+    mesh: THREE.Mesh | undefined = undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cube.typeName;
@@ -73,14 +73,14 @@ export default class Cube extends PrimitiveObject {
         this.parameters as ICubeParams,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        this.mesh.clone()
       );
       return cube;
     } else {
       const cube = new Cube(
         this.parameters as ICubeParams,
         this.operations,
-        this.viewOptions,
+        this.viewOptions
       );
       return cube;
     }
@@ -104,7 +104,7 @@ export default class Cube extends PrimitiveObject {
     return new THREE.BoxBufferGeometry(
       Number(width),
       Number(depth),
-      Number(height),
+      Number(height)
     );
   }
 }

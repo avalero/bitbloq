@@ -12,16 +12,16 @@
  * Last modified  : 2018-11-28 16:46:13
  */
 
-import isEqual from 'lodash.isequal';
-import cloneDeep from 'lodash.clonedeep';
-import Object3D from './Object3D';
-import ObjectsCommon from './ObjectsCommon';
+import isEqual from "lodash.isequal";
+import cloneDeep from "lodash.clonedeep";
+import Object3D from "./Object3D";
+import ObjectsCommon from "./ObjectsCommon";
 import {
   OperationsArray,
   IViewOptions,
-  IObjectsCommonJSON,
-} from './ObjectsCommon';
-import * as THREE from 'three';
+  IObjectsCommonJSON
+} from "./ObjectsCommon";
+import * as THREE from "three";
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;
@@ -32,7 +32,7 @@ export default class PrimitiveObject extends Object3D {
 
   constructor(
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    operations: OperationsArray = [],
+    operations: OperationsArray = []
   ) {
     super(viewOptions, operations);
   }
@@ -40,7 +40,7 @@ export default class PrimitiveObject extends Object3D {
   public toJSON(): IPrimitiveObjectJSON {
     return cloneDeep({
       ...super.toJSON(),
-      parameters: this.parameters,
+      parameters: this.parameters
     });
   }
 
@@ -51,11 +51,11 @@ export default class PrimitiveObject extends Object3D {
 
   public updateFromJSON(object: IPrimitiveObjectJSON) {
     if (this.id !== object.id)
-      throw new Error('Object id does not match with JSON id');
+      throw new Error("Object id does not match with JSON id");
 
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
+      ...object.viewOptions
     };
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
@@ -93,7 +93,7 @@ export default class PrimitiveObject extends Object3D {
       }
 
       if (this.mesh instanceof THREE.Mesh) resolve(this.mesh);
-      else reject(new Error('Mesh has not been computed properly'));
+      else reject(new Error("Mesh has not been computed properly"));
     });
     return this.meshPromise as Promise<THREE.Mesh>;
   }

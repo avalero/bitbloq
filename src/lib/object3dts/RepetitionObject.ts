@@ -20,16 +20,16 @@ import ObjectsCommon, {
   IMirrorOperation,
   IScaleOperation,
   OperationsArray,
-  IViewOptions,
-} from './ObjectsCommon';
+  IViewOptions
+} from "./ObjectsCommon";
 
-import Object3D from './Object3D';
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import isEqual from 'lodash.isequal';
-import cloneDeep from 'lodash.clonedeep';
-import * as THREE from 'three';
+import Object3D from "./Object3D";
+import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
+import isEqual from "lodash.isequal";
+import cloneDeep from "lodash.clonedeep";
+import * as THREE from "three";
 
-import Scene from './Scene';
+import Scene from "./Scene";
 
 export interface IRepetitionObjectJSON extends IObjectsCommonJSON {
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
@@ -57,7 +57,7 @@ export interface IPolarRepetitionParams extends IRepetitionParams {
  * I allows to repeat one object in a cartesian or polar way.
  */
 export default class RepetitionObject extends ObjectsCommon {
-  public static typeName: string = 'RepetitionObject';
+  public static typeName: string = "RepetitionObject";
 
   /**
    *
@@ -67,7 +67,7 @@ export default class RepetitionObject extends ObjectsCommon {
   public static newFromJSON(obj: IRepetitionObjectJSON, scene: Scene) {
     if (obj.type !== RepetitionObject.typeName)
       throw new Error(
-        `Types do not match ${RepetitionObject.typeName}, ${obj.type}`,
+        `Types do not match ${RepetitionObject.typeName}, ${obj.type}`
       );
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
@@ -91,12 +91,12 @@ export default class RepetitionObject extends ObjectsCommon {
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Group | undefined = undefined,
+    mesh: THREE.Group | undefined = undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...original.toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
 
     super(vO, []);
@@ -138,7 +138,7 @@ export default class RepetitionObject extends ObjectsCommon {
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
         json.operations.push(
-          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z),
+          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z)
         );
         objectClone.updateFromJSON(json);
         this.group.push(objectClone);
@@ -147,7 +147,7 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public setParameters(
-    parameters: ICartesianRepetitionParams | IPolarRepetitionParams,
+    parameters: ICartesianRepetitionParams | IPolarRepetitionParams
   ) {
     if (!isEqual(parameters, this.parameters)) {
       this.parameters = { ...parameters };
@@ -161,14 +161,14 @@ export default class RepetitionObject extends ObjectsCommon {
         this.parameters,
         this.originalObject.clone(),
         this.viewOptions,
-        (this.mesh as THREE.Group).clone(),
+        (this.mesh as THREE.Group).clone()
       );
       return obj;
     } else {
       const obj = new RepetitionObject(
         this.parameters,
         this.originalObject.clone(),
-        this.viewOptions,
+        this.viewOptions
       );
       return obj;
     }
@@ -205,7 +205,7 @@ export default class RepetitionObject extends ObjectsCommon {
     const obj = cloneDeep({
       ...super.toJSON(),
       parameters: this.parameters,
-      children: [this.originalObject.toJSON()],
+      children: [this.originalObject.toJSON()]
     });
 
     return obj;
@@ -228,7 +228,7 @@ export default class RepetitionObject extends ObjectsCommon {
       throw new Error(
         `object child ids do not match ${
           object.children[0].id
-        }, ${this.originalObject.getID()}`,
+        }, ${this.originalObject.getID()}`
       );
 
     try {
@@ -282,7 +282,7 @@ export default class RepetitionObject extends ObjectsCommon {
       } else if (operation.type === Object3D.createMirrorOperation().type) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation');
+        throw Error("ERROR: Unknown Operation");
       }
     });
     this._pendingOperation = false;
@@ -293,11 +293,11 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   protected applyMirrorOperation(operation: IMirrorOperation): void {
-    if (operation.plane === 'xy') {
+    if (operation.plane === "xy") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
-    } else if (operation.plane === 'yz') {
+    } else if (operation.plane === "yz") {
       this.applyScaleOperation(Object3D.createScaleOperation(-1, 1, 1));
-    } else if (operation.plane === 'zx') {
+    } else if (operation.plane === "zx") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, -1, 1));
     }
   }
@@ -339,18 +339,18 @@ export default class RepetitionObject extends ObjectsCommon {
       this.mesh.scale.set(
         this.mesh.scale.x * Number(operation.x),
         this.mesh.scale.y * Number(operation.y),
-        this.mesh.scale.z * Number(operation.z),
+        this.mesh.scale.z * Number(operation.z)
       );
   }
 
   private computeMesh(): void {
     this.mesh.children.length = 0;
     this.group.length = 0;
-    if (this.parameters.type.toLowerCase() === 'cartesian')
+    if (this.parameters.type.toLowerCase() === "cartesian")
       this.cartesianRepetition();
-    else if (this.parameters.type.toLowerCase() === 'polar')
+    else if (this.parameters.type.toLowerCase() === "polar")
       this.polarRepetition();
-    else throw new Error('Unknown Repetition Command');
+    else throw new Error("Unknown Repetition Command");
 
     this._meshUpdateRequired = false;
     this._pendingOperation = false;
@@ -367,7 +367,7 @@ export default class RepetitionObject extends ObjectsCommon {
       }
 
       const meshes = await Promise.all(
-        this.group.map(obj => obj.getMeshAsync()),
+        this.group.map(obj => obj.getMeshAsync())
       );
       this.mesh.children.length = 0;
       meshes.forEach(mesh => {
@@ -377,7 +377,7 @@ export default class RepetitionObject extends ObjectsCommon {
       await this.applyOperationsAsync();
 
       if (this.mesh instanceof THREE.Group) resolve(this.mesh);
-      else reject(new Error('Unexpected Error computing RepetitionObject'));
+      else reject(new Error("Unexpected Error computing RepetitionObject"));
     });
 
     return this.meshPromise as Promise<THREE.Group>;

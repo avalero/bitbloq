@@ -1,18 +1,18 @@
-import Sphere, { ISphereParams, ISphereJSON } from '../Sphere';
-import ObjectsCommon, { OperationsArray, IViewOptions } from '../ObjectsCommon';
-import * as THREE from 'three';
+import Sphere, { ISphereParams, ISphereJSON } from "../Sphere";
+import ObjectsCommon, { OperationsArray, IViewOptions } from "../ObjectsCommon";
+import * as THREE from "three";
 
 const radius = 10;
 
 let objParams: ISphereParams = {
-  radius,
+  radius
 };
 let operations: OperationsArray = [];
 let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test('Sphere - Constructor', () => {
+test("Sphere - Constructor", () => {
   const obj = new Sphere(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -28,7 +28,7 @@ test('Sphere - Constructor', () => {
   });
 });
 
-test('Sphere - Constructor - Default Params - ViewOptions', () => {
+test("Sphere - Constructor - Default Params - ViewOptions", () => {
   const obj = new Sphere(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -44,7 +44,7 @@ test('Sphere - Constructor - Default Params - ViewOptions', () => {
   });
 });
 
-test('Sphere - Constructor - Default Params - Operations - ViewOptions', () => {
+test("Sphere - Constructor - Default Params - Operations - ViewOptions", () => {
   const obj = new Sphere(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -60,7 +60,7 @@ test('Sphere - Constructor - Default Params - Operations - ViewOptions', () => {
   });
 });
 
-test('Sphere - Constructor - Set Operations - Translation', () => {
+test("Sphere - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
@@ -77,12 +77,12 @@ test('Sphere - Constructor - Set Operations - Translation', () => {
   });
 });
 
-test('Sphere - Constructor - Set Operations - Rotation', () => {
+test("Sphere - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
   const operations = [
-    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
   const obj = new Sphere(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -96,7 +96,7 @@ test('Sphere - Constructor - Set Operations - Rotation', () => {
   });
 });
 
-test('Sphere - Constructor - set Mesh', async () => {
+test("Sphere - Constructor - set Mesh", async () => {
   const objAux = new Sphere(objParams);
   const meshAux = await objAux.getMeshAsync();
   const obj = new Sphere(objParams, operations, viewOptions, meshAux);
@@ -109,9 +109,9 @@ test('Sphere - Constructor - set Mesh', async () => {
 
 /// TESTING CUBE.CLONE
 
-test('Sphere - Clone - Parameters - Operations - viewOptions', async () => {
+test("Sphere - Clone - Parameters - Operations - viewOptions", async () => {
   const obj = new Sphere(objParams, operations, viewOptions);
-  const spy = jest.spyOn((obj as any).mesh, 'clone');
+  const spy = jest.spyOn((obj as any).mesh, "clone");
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
@@ -126,7 +126,7 @@ test('Sphere - Clone - Parameters - Operations - viewOptions', async () => {
 });
 
 /// TEST NEW FROM JSON
-test('Sphere - newFromJSON', async () => {
+test("Sphere - newFromJSON", async () => {
   const obj = new Sphere(objParams, operations, viewOptions);
   const json: ISphereJSON = obj.toJSON() as ISphereJSON;
   const obj2 = Sphere.newFromJSON(json);

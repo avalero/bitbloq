@@ -40,7 +40,7 @@ class SphericalCoords {
     return {
       radius: rads.radius,
       phi: (rads.phi * 180) / Math.PI,
-      theta: (rads.theta * 180) / Math.PI,
+      theta: (rads.theta * 180) / Math.PI
     };
   }
 
@@ -75,9 +75,9 @@ class SphericalCoords {
   public setFromCartesianCoords(
     x: number,
     y: number,
-    z: number,
+    z: number
   ): SphericalCoords {
-    throw Error('Error: No implemented in parent');
+    throw Error("Error: No implemented in parent");
     return this;
   }
 
@@ -110,7 +110,7 @@ export class SphericalCoordsXYZ extends SphericalCoords {
   public setFromCartesianCoords(
     x: number,
     y: number,
-    z: number,
+    z: number
   ): SphericalCoords {
     this.radius = Math.sqrt(x * x + y * y + z * z);
     this.theta =

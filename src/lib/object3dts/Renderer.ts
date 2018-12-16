@@ -1,8 +1,8 @@
-import * as THREE from 'three';
-import Scene, { IHelperDescription } from './Scene';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import OrbitCamera from './OrbitCamera';
-import NavigationBox from './NavigationBox';
+import * as THREE from "three";
+import Scene, { IHelperDescription } from "./Scene";
+import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
+import OrbitCamera from "./OrbitCamera";
+import NavigationBox from "./NavigationBox";
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;
@@ -33,7 +33,7 @@ export default class Renderer {
   public static defaultOptions: RendererOptions = {
     antialias: true,
     clearColor: 0xfafafa,
-    sortObjects: false,
+    sortObjects: false
   };
 
   private options: RendererOptions;
@@ -58,14 +58,14 @@ export default class Renderer {
   constructor(
     scene: Scene,
     container: HTMLElement,
-    options: Partial<RendererOptions> = {},
+    options: Partial<RendererOptions> = {}
   ) {
     this.scene = scene;
     this.container = container;
 
     this.options = {
       ...options,
-      ...Renderer.defaultOptions,
+      ...Renderer.defaultOptions
     };
 
     this.objectClickHandlers = [];
@@ -78,7 +78,7 @@ export default class Renderer {
   private setup() {
     const rendererParams = {
       antialias: this.options.antialias,
-      sortObjects: this.options.sortObjects,
+      sortObjects: this.options.sortObjects
     };
 
     const threeRenderer = new THREE.WebGLRenderer(rendererParams);
@@ -102,27 +102,27 @@ export default class Renderer {
 
     this.cameraControls = new OrbitCamera(
       this.camera,
-      this.threeRenderer.domElement,
+      this.threeRenderer.domElement
     );
 
-    this.container.addEventListener('mousedown', this.handleMouseDown);
-    this.container.addEventListener('mousemove', this.handleMouseMove);
-    this.container.addEventListener('mouseup', this.handleMouseUp);
+    this.container.addEventListener("mousedown", this.handleMouseDown);
+    this.container.addEventListener("mousemove", this.handleMouseMove);
+    this.container.addEventListener("mouseup", this.handleMouseUp);
 
-    this.container.style.position = 'relative';
+    this.container.style.position = "relative";
 
-    const rendererContainer = document.createElement('div');
+    const rendererContainer = document.createElement("div");
     rendererContainer.style.cssText = rendererContainerStyles;
     this.container.appendChild(rendererContainer);
 
-    const navBoxContainer = document.createElement('div');
+    const navBoxContainer = document.createElement("div");
     navBoxContainer.style.cssText = navBoxContainerStyles;
     this.container.appendChild(navBoxContainer);
 
     this.navigationBox = new NavigationBox(navBoxContainer, {
       onChangeCameraAngle: (theta, phi) => {
         this.cameraControls.rotateTo(theta, phi, true);
-      },
+      }
     });
     this.updateNavigationBox();
 
@@ -168,11 +168,13 @@ export default class Renderer {
   };
 
   public async updateScene(): Promise<void> {
-    
     //objects in transition
-    const  newObjectInTranstion: THREE.Group | undefined = await this.scene.getObjectInTransitionAsync()
-    if(newObjectInTranstion){
-      if(this.objectInTransition) this.threeScene.remove(this.objectInTransition);
+    const newObjectInTranstion:
+      | THREE.Group
+      | undefined = await this.scene.getObjectInTransitionAsync();
+    if (newObjectInTranstion) {
+      if (this.objectInTransition)
+        this.threeScene.remove(this.objectInTransition);
       this.objectInTransition = newObjectInTranstion;
       // (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
       // (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
@@ -183,17 +185,17 @@ export default class Renderer {
     //this.threeScene.remove(this.objectsGroup);
     const newObjectsGroup = await this.scene.getObjectsAsync();
     this.threeScene.remove(this.objectsGroup);
-    if(this.objectInTransition){ 
+    if (this.objectInTransition) {
       this.threeScene.remove(this.objectInTransition);
       (this.objectInTransition as any) = undefined;
     }
 
     this.threeScene.add(newObjectsGroup);
-    this.objectsGroup = newObjectsGroup;  
+    this.objectsGroup = newObjectsGroup;
   }
 
   public async setActiveHelper(
-    activeOperation: IHelperDescription,
+    activeOperation: IHelperDescription
   ): Promise<void> {
     while (this.helpersGroup.children.length > 0) {
       this.helpersGroup.remove(this.helpersGroup.children[0]);
@@ -234,7 +236,7 @@ export default class Renderer {
         200,
         -200,
         0.1,
-        1000,
+        1000
       );
     } else {
       this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
@@ -245,13 +247,13 @@ export default class Renderer {
     this.camera.position.set(
       cameraPosition.x,
       cameraPosition.y,
-      cameraPosition.z,
+      cameraPosition.z
     );
     this.camera.lookAt(cameraLookAt);
 
     this.cameraControls = new OrbitCamera(
       this.camera,
-      this.threeRenderer.domElement,
+      this.threeRenderer.domElement
     );
 
     this.navigationBox.setOrtographicCamera(isOrtographic);
@@ -285,7 +287,7 @@ export default class Renderer {
 
   private getObjectFromPosition(
     x: number,
-    y: number,
+    y: number
   ): THREE.Object3D | undefined {
     const { left, top, width, height } = this.containerRect;
     const mousePosition = new THREE.Vector2();
@@ -296,7 +298,7 @@ export default class Renderer {
     raycaster.setFromCamera(mousePosition, this.camera);
     const intersects = raycaster.intersectObjects(
       this.objectsGroup.children,
-      true,
+      true
     );
 
     if (intersects.length > 0) {

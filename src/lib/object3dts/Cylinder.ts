@@ -12,14 +12,14 @@
  * Last modified  : 2018-12-10 09:19:50
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 import ObjectsCommon, {
   OperationsArray,
   IViewOptions,
-  IObjectsCommonJSON,
-} from './ObjectsCommon';
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
-import isEqual from 'lodash.isequal';
+  IObjectsCommonJSON
+} from "./ObjectsCommon";
+import PrimitiveObject, { IPrimitiveObjectJSON } from "./PrimitiveObject";
+import isEqual from "lodash.isequal";
 
 export interface ICylinderParams {
   r0: number;
@@ -32,15 +32,15 @@ export interface ICylinderJSON extends IPrimitiveObjectJSON {
 }
 
 export default class Cylinder extends PrimitiveObject {
-  public static typeName: string = 'Cylinder';
+  public static typeName: string = "Cylinder";
 
   public static newFromJSON(object: ICylinderJSON): Cylinder {
     if (object.type != Cylinder.typeName)
-      throw new Error('Not Cylinder Object');
+      throw new Error("Not Cylinder Object");
     return new Cylinder(
       object.parameters,
       object.operations,
-      object.viewOptions,
+      object.viewOptions
     );
   }
 
@@ -48,11 +48,11 @@ export default class Cylinder extends PrimitiveObject {
     parameters: ICylinderParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Mesh | undefined = undefined,
+    mesh: THREE.Mesh | undefined = undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cylinder.typeName;
@@ -71,14 +71,14 @@ export default class Cylinder extends PrimitiveObject {
         this.parameters as ICylinderParams,
         this.operations,
         this.viewOptions,
-        this.mesh.clone(),
+        this.mesh.clone()
       );
       return obj;
     } else {
       const obj = new Cylinder(
         this.parameters as ICylinderParams,
         this.operations,
-        this.viewOptions,
+        this.viewOptions
       );
       return obj;
     }
@@ -95,7 +95,7 @@ export default class Cylinder extends PrimitiveObject {
       Number(r0),
       Number(height),
       18,
-      1,
+      1
     ).rotateX(Math.PI / 2);
   }
 
@@ -110,7 +110,7 @@ export default class Cylinder extends PrimitiveObject {
       Number(r0),
       Number(height),
       32,
-      1,
+      1
     ).rotateX(Math.PI / 2);
   }
 }

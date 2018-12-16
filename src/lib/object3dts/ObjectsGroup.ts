@@ -1,18 +1,18 @@
-import * as THREE from 'three';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import { OperationsArray } from './ObjectsCommon';
-import Object3D from './Object3D';
-import Scene from './Scene';
-import isEqual from 'lodash.isequal';
+import * as THREE from "three";
+import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
+import { OperationsArray } from "./ObjectsCommon";
+import Object3D from "./Object3D";
+import Scene from "./Scene";
+import isEqual from "lodash.isequal";
 
-import cloneDeep from 'lodash.clonedeep';
+import cloneDeep from "lodash.clonedeep";
 
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
   children: Array<IObjectsCommonJSON>;
 }
 
 export default class ObjectsGroup extends ObjectsCommon {
-  static typeName: string = 'ObjectsGroup';
+  static typeName: string = "ObjectsGroup";
 
   /**
    *
@@ -22,11 +22,11 @@ export default class ObjectsGroup extends ObjectsCommon {
   public static newFromJSON(object: IObjectsGroupJSON, scene: Scene) {
     if (object.type !== ObjectsGroup.typeName)
       throw new Error(
-        `Types do not match ${ObjectsGroup.typeName}, ${object.type}`,
+        `Types do not match ${ObjectsGroup.typeName}, ${object.type}`
       );
     try {
       const group: Array<ObjectsCommon> = object.children.map(obj =>
-        scene.getObject(obj),
+        scene.getObject(obj)
       );
       return new ObjectsGroup(group);
     } catch (e) {
@@ -41,7 +41,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   constructor(
     children: Array<ObjectsCommon> = [],
-    mesh: THREE.Group | undefined = undefined,
+    mesh: THREE.Group | undefined = undefined
   ) {
     super(ObjectsCommon.createViewOptions(), []);
     this.children = children;
@@ -76,7 +76,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   public async computeMeshAsync(): Promise<THREE.Group> {
     // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
     if (this.children.length === 0) {
-      throw new Error('No item in group');
+      throw new Error("No item in group");
     }
     this.meshPromise = new Promise(async (resolve, reject) => {
       try {
@@ -89,7 +89,7 @@ export default class ObjectsGroup extends ObjectsCommon {
             json.operations = json.operations.concat(this.operations);
             objectClone.updateFromJSON(json);
             return objectClone.getMeshAsync();
-          },
+          }
         );
 
         const meshes = await Promise.all(promises);
@@ -127,7 +127,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   public toJSON(): IObjectsGroupJSON {
     const obj: IObjectsGroupJSON = {
       ...super.toJSON(),
-      children: this.children.map(obj => obj.toJSON()),
+      children: this.children.map(obj => obj.toJSON())
     };
 
     return cloneDeep(obj);
@@ -167,7 +167,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
       const vO = {
         ...ObjectsCommon.createViewOptions(),
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       this.setOperations(object.operations);
       this.setViewOptions(vO);

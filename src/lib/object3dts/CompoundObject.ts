@@ -12,29 +12,29 @@
  * Last modified  : 2018-11-28 12:46:25
  */
 
-import Object3D from './Object3D';
+import Object3D from "./Object3D";
 import ObjectsCommon, {
   OperationsArray,
   IObjectsCommonJSON,
-  IViewOptions,
-} from './ObjectsCommon';
+  IViewOptions
+} from "./ObjectsCommon";
 
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
-import * as THREE from 'three';
+import cloneDeep from "lodash.clonedeep";
+import isEqual from "lodash.isequal";
+import * as THREE from "three";
 
-import './custom.d';
+import "./custom.d";
 
-import CompoundWorker from './compound.worker';
+import CompoundWorker from "./compound.worker";
 
 import {
   ITranslateOperation,
   IRotateOperation,
   IMirrorOperation,
-  IScaleOperation,
-} from './ObjectsCommon';
-import { promises } from 'fs';
-import { resolve } from 'url';
+  IScaleOperation
+} from "./ObjectsCommon";
+import { promises } from "fs";
+import { resolve } from "url";
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
   children: Array<IObjectsCommonJSON>;
@@ -49,11 +49,11 @@ export default class CompoundObject extends Object3D {
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
   ) {
     super(viewOptions, operations);
     if (children.length === 0)
-      throw new Error('Compound Object requires at least one children');
+      throw new Error("Compound Object requires at least one children");
     this.children = children;
 
     //children will have this CompoundObject as Parent
@@ -103,7 +103,7 @@ export default class CompoundObject extends Object3D {
       ch_mesh.quaternion.x,
       ch_mesh.quaternion.y,
       ch_mesh.quaternion.z,
-      ch_mesh.quaternion.w,
+      ch_mesh.quaternion.w
     );
 
     this.mesh.scale.x = 1;
@@ -121,7 +121,7 @@ export default class CompoundObject extends Object3D {
       } else if (operation.type === Object3D.createMirrorOperation().type) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation');
+        throw Error("ERROR: Unknown Operation");
       }
     });
     this.mesh.updateMatrixWorld(true);
@@ -143,10 +143,10 @@ export default class CompoundObject extends Object3D {
         // listen to events from web worker
 
         (this.worker as CompoundWorker).onmessage = (event: any) => {
-          if (event.data.status !== 'ok') {
+          if (event.data.status !== "ok") {
             (this.worker as CompoundWorker).terminate();
             this.worker = null;
-            reject(new Error('Compound Object Error'));
+            reject(new Error("Compound Object Error"));
           }
 
           const message = event.data;
@@ -167,7 +167,7 @@ export default class CompoundObject extends Object3D {
             } else {
               (this.worker as CompoundWorker).terminate();
               this.worker = null;
-              reject(new Error('Mesh not computed correctly'));
+              reject(new Error("Mesh not computed correctly"));
             }
           });
         };
@@ -178,7 +178,7 @@ export default class CompoundObject extends Object3D {
           const message = {
             type: this.getTypeName(),
             numChildren: this.children.length,
-            bufferArray,
+            bufferArray
           };
           (this.worker as CompoundWorker).postMessage(message, bufferArray);
         });
@@ -200,16 +200,16 @@ export default class CompoundObject extends Object3D {
     return new Promise((resolve, reject) => {
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
-        'position',
-        new THREE.BufferAttribute(vertices, 3),
+        "position",
+        new THREE.BufferAttribute(vertices, 3)
       );
       buffGeometry.addAttribute(
-        'normal',
-        new THREE.BufferAttribute(normals, 3),
+        "normal",
+        new THREE.BufferAttribute(normals, 3)
       );
       const mesh: THREE.Mesh = new THREE.Mesh(
         buffGeometry,
-        new THREE.MeshLambertMaterial(),
+        new THREE.MeshLambertMaterial()
       );
       this.applyViewOptions(mesh);
       resolve(mesh);
@@ -230,17 +230,17 @@ export default class CompoundObject extends Object3D {
               bufferGeom = geom as THREE.BufferGeometry;
             } else {
               bufferGeom = new THREE.BufferGeometry().fromGeometry(
-                geom as THREE.Geometry,
+                geom as THREE.Geometry
               );
             }
             const verticesBuffer: ArrayBuffer = new Float32Array(
-              bufferGeom.getAttribute('position').array,
+              bufferGeom.getAttribute("position").array
             ).buffer;
             const normalsBuffer: ArrayBuffer = new Float32Array(
-              bufferGeom.getAttribute('normal').array,
+              bufferGeom.getAttribute("normal").array
             ).buffer;
             const positionBuffer: ArrayBuffer = Float32Array.from(
-              mesh.matrixWorld.elements,
+              mesh.matrixWorld.elements
             ).buffer;
             bufferArray.push(verticesBuffer);
             bufferArray.push(normalsBuffer);
@@ -248,7 +248,7 @@ export default class CompoundObject extends Object3D {
           });
 
           resolve(bufferArray);
-        },
+        }
       );
     });
   }
@@ -268,7 +268,7 @@ export default class CompoundObject extends Object3D {
   public toJSON(): ICompoundObjectJSON {
     return cloneDeep({
       ...super.toJSON(),
-      children: this.children.map(obj => obj.toJSON()),
+      children: this.children.map(obj => obj.toJSON())
     });
   }
 
@@ -284,7 +284,7 @@ export default class CompoundObject extends Object3D {
 
   public updateFromJSON(object: ICompoundObjectJSON) {
     if (this.id !== object.id)
-      throw new Error('Object id does not match with JSON id');
+      throw new Error("Object id does not match with JSON id");
 
     const newchildren: Array<Object3D> = [];
     //update children
@@ -306,7 +306,7 @@ export default class CompoundObject extends Object3D {
     //update operations and view options
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
+      ...object.viewOptions
     };
     this.setOperations(object.operations);
     this.setViewOptions(vO);

@@ -1,16 +1,16 @@
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import Cube, { ICubeJSON } from './Cube';
-import Cylinder, { ICylinderJSON } from './Cylinder';
-import Sphere, { ISphereJSON } from './Sphere';
-import Prism, { IPrismJSON } from './Prism';
-import Union from './Union';
-import { ICompoundObjectJSON } from './CompoundObject';
-import Difference from './Difference';
-import Intersection from './Intersection';
+import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
+import Cube, { ICubeJSON } from "./Cube";
+import Cylinder, { ICylinderJSON } from "./Cylinder";
+import Sphere, { ISphereJSON } from "./Sphere";
+import Prism, { IPrismJSON } from "./Prism";
+import Union from "./Union";
+import { ICompoundObjectJSON } from "./CompoundObject";
+import Difference from "./Difference";
+import Intersection from "./Intersection";
 
-import Scene from './Scene';
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
+import Scene from "./Scene";
+import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
+import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
 
 export default class ObjectFactory {
   /**
@@ -19,7 +19,7 @@ export default class ObjectFactory {
    */
   public static newFromJSON(
     obj: IObjectsCommonJSON,
-    scene: Scene,
+    scene: Scene
   ): ObjectsCommon {
     switch (obj.type) {
       case Cube.typeName:
@@ -35,7 +35,7 @@ export default class ObjectFactory {
       case RepetitionObject.typeName:
         return RepetitionObject.newFromJSON(
           obj as IRepetitionObjectJSON,
-          scene,
+          scene
         );
       case Union.typeName:
         return Union.newFromJSON(obj as ICompoundObjectJSON, scene);
@@ -45,6 +45,6 @@ export default class ObjectFactory {
         return Intersection.newFromJSON(obj as ICompoundObjectJSON, scene);
     }
 
-    throw new Error('Unknown Primitive Object Type');
+    throw new Error("Unknown Primitive Object Type");
   }
 }

@@ -1,6 +1,6 @@
-import Cube, { ICubeJSON, ICubeParams } from '../Cube';
-import ObjectsCommon, { OperationsArray, IViewOptions } from '../ObjectsCommon';
-import * as THREE from 'three';
+import Cube, { ICubeJSON, ICubeParams } from "../Cube";
+import ObjectsCommon, { OperationsArray, IViewOptions } from "../ObjectsCommon";
+import * as THREE from "three";
 
 const width = 10;
 const height = 15;
@@ -9,14 +9,14 @@ const depth = 20;
 let objParams: ICubeParams = {
   width,
   height,
-  depth,
+  depth
 };
 let operations: OperationsArray = [];
 let viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test('Cube - Constructor', () => {
+test("Cube - Constructor", () => {
   const obj = new Cube(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -32,7 +32,7 @@ test('Cube - Constructor', () => {
   });
 });
 
-test('Cube - Constructor - Default Params - ViewOptions', () => {
+test("Cube - Constructor - Default Params - ViewOptions", () => {
   const obj = new Cube(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -48,7 +48,7 @@ test('Cube - Constructor - Default Params - ViewOptions', () => {
   });
 });
 
-test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
+test("Cube - Constructor - Default Params - Operations - ViewOptions", () => {
   const obj = new Cube(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -64,7 +64,7 @@ test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
   });
 });
 
-test('Cube - Constructor - Set Operations - Translation', () => {
+test("Cube - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
@@ -81,13 +81,13 @@ test('Cube - Constructor - Set Operations - Translation', () => {
   });
 });
 
-test('Cube - Constructor - Set Operations - Rotation', () => {
+test("Cube - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
 
   const operations = [
-    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
   const obj = new Cube(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -101,7 +101,7 @@ test('Cube - Constructor - Set Operations - Rotation', () => {
   });
 });
 
-test('Cube - Constructor - set Mesh', async () => {
+test("Cube - Constructor - set Mesh", async () => {
   const objAux = new Cube(objParams);
   const meshAux = await objAux.getMeshAsync();
   const obj = new Cube(objParams, operations, viewOptions, meshAux);
@@ -113,9 +113,9 @@ test('Cube - Constructor - set Mesh', async () => {
 /// END TESTING CONSTRUCTOR
 
 /// TESTING CUBE.CLONE
-test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
+test("Cube - Clone - Parameters - Operations - viewOptions", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
-  const spy = jest.spyOn((obj as any).mesh, 'clone');
+  const spy = jest.spyOn((obj as any).mesh, "clone");
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
@@ -132,7 +132,7 @@ test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
 /// END CLONE
 
 /// TEST NEW FROM JSON
-test('Cube - newFromJSON', async () => {
+test("Cube - newFromJSON", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const json: ICubeJSON = obj.toJSON() as ICubeJSON;
   const obj2 = Cube.newFromJSON(json);

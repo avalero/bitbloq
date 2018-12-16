@@ -13,7 +13,7 @@
  * Last modified  : 2018-11-06 10:37:34
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
 export default class TranslationHelper {
   private helperMesh: THREE.Group;
@@ -29,12 +29,12 @@ export default class TranslationHelper {
     let offset: number;
     let offsetArrow: number;
 
-    if (axis === 'x') {
+    if (axis === "x") {
       color = 0xff0000;
       offset = boundingBoxDims.x / 2 + separation + length / 2;
       offsetArrow =
         boundingBoxDims.x / 2 + separation + arrowLength / 2 + length;
-    } else if (axis === 'y') {
+    } else if (axis === "y") {
       color = 0x0000ff;
       offset = boundingBoxDims.y / 2 + separation + length / 2;
       offsetArrow =
@@ -49,7 +49,7 @@ export default class TranslationHelper {
     const cylinderGeometry: THREE.Geometry = new THREE.CylinderGeometry(
       radius,
       radius,
-      length,
+      length
     );
     cylinderGeometry.rotateZ(Math.PI / 2);
     cylinderGeometry.translate(offset, 0, 0);
@@ -58,7 +58,7 @@ export default class TranslationHelper {
       2 * radius,
       0,
       5,
-      20,
+      20
     );
     arrowGeometry.rotateZ(Math.PI / 2);
     arrowGeometry.translate(offsetArrow, 0, 0);
@@ -67,7 +67,7 @@ export default class TranslationHelper {
       color,
       opacity: 0.5,
       transparent: true,
-      depthWrite: false,
+      depthWrite: false
     });
 
     this.helperMesh = new THREE.Group();
@@ -80,8 +80,8 @@ export default class TranslationHelper {
       this.helperMesh.setRotationFromEuler(mesh.rotation);
     }
 
-    if (axis === 'y') this.helperMesh.rotateZ(Math.PI / 2);
-    if (axis === 'z') {
+    if (axis === "y") this.helperMesh.rotateZ(Math.PI / 2);
+    if (axis === "z") {
       this.helperMesh.rotateY(-Math.PI / 2);
       this.helperMesh.rotateX(Math.PI / 2);
     }

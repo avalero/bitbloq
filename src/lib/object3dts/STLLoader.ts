@@ -17,7 +17,7 @@
  * Last modified  : 2018-10-16 15:17:25
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
 export default class STLLoader {
   static binaryVector3(view: any, offset: number) {
@@ -43,7 +43,7 @@ export default class STLLoader {
       if (array[i] === 10) {
         const line: string = String.fromCharCode.apply(
           null,
-          array.subarray(h, i),
+          array.subarray(h, i)
         );
         lines.push(line);
         h = i + 1;
@@ -86,7 +86,7 @@ export default class STLLoader {
         throw new Error(
           `not text stl: ${regexp.toString()} => (line ${index - 1}) [${
             lines[index - 1]
-          }]`,
+          }]`
         );
       }
 
@@ -111,7 +111,7 @@ export default class STLLoader {
       geom.vertices.push(STLLoader.m2vec3(v2));
       geom.vertices.push(STLLoader.m2vec3(v3));
       geom.faces.push(
-        new THREE.Face3(base, base + 1, base + 2, m2vec3(normal)),
+        new THREE.Face3(base, base + 1, base + 2, m2vec3(normal))
       );
     }
     return geom;

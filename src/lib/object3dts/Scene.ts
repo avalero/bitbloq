@@ -1,34 +1,34 @@
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import * as THREE from 'three';
-import ObjectFactory from './ObjectFactory';
-import { isArray } from 'util';
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
-import { ICompoundObjectJSON } from './CompoundObject';
-import BaseGrid from './BaseGrid';
-import PrimitiveObject from './PrimitiveObject';
-import CompoundObject from './CompoundObject';
+import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
+import * as THREE from "three";
+import ObjectFactory from "./ObjectFactory";
+import { isArray } from "util";
+import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
+import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
+import { ICompoundObjectJSON } from "./CompoundObject";
+import BaseGrid from "./BaseGrid";
+import PrimitiveObject from "./PrimitiveObject";
+import CompoundObject from "./CompoundObject";
 
-import isEqual from 'lodash.isequal';
-import cloneDeep from 'lodash.clonedeep';
-import Union from './Union';
-import Intersection from './Intersection';
-import Difference from './Difference';
-import TranslationHelper from './TranslationHelper';
-import RotationHelper from './RotationHelper';
-import { type } from 'os';
-import Object3D from './Object3D';
-import { matchPath } from 'react-router';
-import PositionCalculator from './PositionCalculator';
+import isEqual from "lodash.isequal";
+import cloneDeep from "lodash.clonedeep";
+import Union from "./Union";
+import Intersection from "./Intersection";
+import Difference from "./Difference";
+import TranslationHelper from "./TranslationHelper";
+import RotationHelper from "./RotationHelper";
+import { type } from "os";
+import Object3D from "./Object3D";
+import { matchPath } from "react-router";
+import PositionCalculator from "./PositionCalculator";
 
 enum HelperType {
-  Rotation = 'rotation',
-  Translation = 'translation',
+  Rotation = "rotation",
+  Translation = "translation"
 }
 enum HelperAxis {
-  X = 'x',
-  Y = 'y',
-  Z = 'z',
+  X = "x",
+  Y = "y",
+  Z = "z"
 }
 export interface IHelperDescription {
   type: HelperType;
@@ -87,7 +87,7 @@ export default class Scene {
   private objectsGroup: THREE.Group;
   private historyIndex: number;
 
-  private objectsInTransition: Array< Object3D >;
+  private objectsInTransition: Array<Object3D>;
 
   private highlightedMaterial: Object;
   private transitionMaterial: Object;
@@ -104,16 +104,16 @@ export default class Scene {
     this.setMaterials();
   }
 
-  private setMaterials():void{
+  private setMaterials(): void {
     this.highlightedMaterial = {
       opacity: 0.8,
-      transparent: true,    
+      transparent: true
     };
 
     this.transitionMaterial = {
       opacity: 0.8,
-      transparent: true,
-    }
+      transparent: true
+    };
   }
 
   public canUndo(): boolean {
@@ -182,7 +182,7 @@ export default class Scene {
         const mesh = await object.getMeshAsync();
         mesh.userData = object.toJSON();
         return mesh;
-      }),
+      })
     );
 
     meshes.forEach(mesh => {
@@ -193,22 +193,34 @@ export default class Scene {
     return this.objectsGroup;
   }
 
-  public async getObjectInTransitionAsync():Promise <THREE.Group | undefined>{
-    if(this.objectsInTransition.length > 0 ){
-      const group:THREE.Group = new THREE.Group();
-      this.objectsInTransition.forEach( async (object) => {
+  public async getObjectInTransitionAsync(): Promise<THREE.Group | undefined> {
+    if (this.objectsInTransition.length > 0) {
+      const group: THREE.Group = new THREE.Group();
+      this.objectsInTransition.forEach(async object => {
         const mesh = (await object.getMeshAsync()).clone();
-        if(mesh instanceof THREE.Mesh){
+        if (mesh instanceof THREE.Mesh) {
           const pos = await this.getPositionAsync(object.toJSON());
-          (mesh.material as THREE.MeshLambertMaterial).setValues(this.transitionMaterial);
+          (mesh.material as THREE.MeshLambertMaterial).setValues(
+            this.transitionMaterial
+          );
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
-          mesh.setRotationFromEuler( new THREE.Euler(pos.angle.x * Math.PI/180, pos.angle.y * Math.PI/180, pos.angle.z * Math.PI/180));
-          mesh.scale.set(pos.scale.x*1.01, pos.scale.y*1.01, pos.scale.z*1.01);
+          mesh.setRotationFromEuler(
+            new THREE.Euler(
+              (pos.angle.x * Math.PI) / 180,
+              (pos.angle.y * Math.PI) / 180,
+              (pos.angle.z * Math.PI) / 180
+            )
+          );
+          mesh.scale.set(
+            pos.scale.x * 1.01,
+            pos.scale.y * 1.01,
+            pos.scale.z * 1.01
+          );
           group.add(mesh);
         }
       });
-      return group;   
-    }else{
+      return group;
+    } else {
       return undefined;
     }
   }
@@ -223,30 +235,30 @@ export default class Scene {
         enabled: true,
         step: 2,
         color: 0xededed,
-        lineWidth: 1,
+        lineWidth: 1
       },
       bigGrid: {
         enabled: true,
         step: 10,
         color: 0xcdcdcd,
-        lineWidth: 2,
+        lineWidth: 2
       },
       centerGrid: {
         enabled: true,
         color: 0x9a9a9a,
-        lineWidth: 2,
+        lineWidth: 2
       },
       plane: {
         enabled: false,
-        color: 0x98f5ff,
-      },
+        color: 0x98f5ff
+      }
     };
 
     this.sceneSetup = {
       base: new BaseGrid(gridConfig).getMesh(),
       ambientLight: new THREE.AmbientLight(0x666666),
       spotLight: new THREE.SpotLight(0xdddddd),
-      spotLight2: new THREE.SpotLight(0xbbbbbb),
+      spotLight2: new THREE.SpotLight(0xbbbbbb)
     };
 
     this.sceneSetup.spotLight.position.set(80, -100, 60);
@@ -291,7 +303,7 @@ export default class Scene {
    * @param json Object or Array of objects
    */
   private removeFromObjectCollector(
-    json: ISceneJSON | IObjectsCommonJSON,
+    json: ISceneJSON | IObjectsCommonJSON
   ): ISceneJSON {
     if (isArray(json)) {
       json.forEach(obj => this.removeFromObjectCollector(obj));
@@ -299,7 +311,7 @@ export default class Scene {
       if (!this.objectInObjectCollector(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
       this.objectCollector = this.objectCollector.filter(
-        obj => obj.getID() !== json.id,
+        obj => obj.getID() !== json.id
       );
     }
 
@@ -317,7 +329,7 @@ export default class Scene {
       if (!this.objectInScene(json))
         throw new Error(`Object id ${json.id} not present in Scene`);
       this.objectsInScene = this.objectsInScene.filter(
-        obj => obj.getID() !== json.id,
+        obj => obj.getID() !== json.id
       );
     }
 
@@ -337,13 +349,13 @@ export default class Scene {
       this.addExistingObject(newobj);
       return this.toJSON();
     } else {
-      throw new Error('Cannot clone unknown object');
+      throw new Error("Cannot clone unknown object");
     }
   }
 
   private addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
-      throw Error('Object already in Scene');
+      throw Error("Object already in Scene");
     } else {
       //In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
       if (object instanceof CompoundObject) {
@@ -353,7 +365,7 @@ export default class Scene {
           if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
           }
-          
+
           if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
@@ -366,7 +378,7 @@ export default class Scene {
           if (this.objectInScene(obj)) {
             this.removeFromScene(obj);
           }
-          
+
           if (!this.objectInObjectCollector(obj)) {
             this.addExistingObject(child);
             this.removeFromScene(obj);
@@ -378,7 +390,7 @@ export default class Scene {
         if (this.objectInScene(obj)) {
           this.removeFromScene(obj);
         }
-        
+
         if (!this.objectInObjectCollector(obj)) {
           this.addExistingObject(original);
           this.removeFromScene(obj);
@@ -444,12 +456,12 @@ export default class Scene {
     const object = this.objectCollector.find(obj => id === obj.getID());
     if (object) object.updateFromJSON(obj);
     else throw new Error(`Object id ${id} not found`);
-    
+
     //Objects in Transition
     this.objectsInTransition = [];
     const parent = object.getParent();
-    if(parent instanceof CompoundObject){
-      parent.getChildren().forEach( object => {
+    if (parent instanceof CompoundObject) {
+      parent.getChildren().forEach(object => {
         this.objectsInTransition.push(object);
       });
     }
@@ -469,7 +481,7 @@ export default class Scene {
    * @param json object descriptor
    */
   public async getPositionAsync(
-    json: IObjectsCommonJSON,
+    json: IObjectsCommonJSON
   ): Promise<IObjectPosition> {
     try {
       const obj = this.getObject(json);
@@ -488,7 +500,7 @@ export default class Scene {
     try {
       if (
         ![Union.typeName, Difference.typeName, Intersection.typeName].includes(
-          json.type,
+          json.type
         )
       )
         throw new Error(`Not a Compound object. ${json.type}`);
@@ -504,7 +516,7 @@ export default class Scene {
           this.objectsInScene.push(this.getObject(childJSON));
         else
           throw new Error(
-            `Unexepected Error. Object ${childJSON.id} not in Object Collector`,
+            `Unexepected Error. Object ${childJSON.id} not in Object Collector`
           );
       });
     } catch (e) {
@@ -594,7 +606,7 @@ export default class Scene {
   // Establece el helper que debe mostrarse en la vista 3d
   // Si no se le pasa ningún parámetro entonces no mostrar ninguno
   public async setActiveHelperAsync(
-    helperDescription?: IHelperDescription,
+    helperDescription?: IHelperDescription
   ): Promise<Array<THREE.Group>> {
     this.helpers = [];
     if (!helperDescription) {
@@ -604,11 +616,11 @@ export default class Scene {
       try {
         const obj = this.getObject(object);
         const mesh = await obj.getMeshAsync();
-        if (type === 'rotation') {
+        if (type === "rotation") {
           const helper = new RotationHelper(mesh, axis, relative);
           this.helpers.push(helper.mesh);
           return this.helpers;
-        } else if (type === 'translation') {
+        } else if (type === "translation") {
           const helper = new TranslationHelper(mesh, axis, relative);
           this.helpers.push(helper.mesh);
           return this.helpers;
