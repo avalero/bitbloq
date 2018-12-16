@@ -14,7 +14,11 @@
 
 import Object3D from "./Object3D";
 import ObjectsCommon, {
+  IMirrorOperation,
   IObjectsCommonJSON,
+  IRotateOperation,
+  IScaleOperation,
+  ITranslateOperation,
   IViewOptions,
   OperationsArray
 } from "./ObjectsCommon";
@@ -26,15 +30,6 @@ import * as THREE from "three";
 import "./custom.d";
 
 import CompoundWorker from "./compound.worker";
-
-import { promises } from "fs";
-import { resolve } from "url";
-import {
-  IMirrorOperation,
-  IRotateOperation,
-  IScaleOperation,
-  ITranslateOperation
-} from "./ObjectsCommon";
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
   children: IObjectsCommonJSON[];
@@ -137,9 +132,9 @@ export default class CompoundObject extends Object3D {
         // Lets create an array of vertices and normals for each child
         this.toBufferArrayAsync().then(bufferArray => {
           const message = {
+            bufferArray,
             type: this.getTypeName(),
-            numChildren: this.children.length,
-            bufferArray
+            numChildren: this.children.length
           };
           (this.worker as CompoundWorker).postMessage(message, bufferArray);
         });
@@ -219,18 +214,18 @@ export default class CompoundObject extends Object3D {
     }
   }
 
-  protected async applyOperationsAsync(): Promise<void> {
+  public async applyOperationsAsync(): Promise<void> {
     // if there are children, mesh is centered at first child position/rotation
 
-    const ch_mesh = await this.children[0].getMeshAsync();
-    this.mesh.position.x = ch_mesh.position.x;
-    this.mesh.position.y = ch_mesh.position.y;
-    this.mesh.position.z = ch_mesh.position.z;
+    const chMesh = await this.children[0].getMeshAsync();
+    this.mesh.position.x = chMesh.position.x;
+    this.mesh.position.y = chMesh.position.y;
+    this.mesh.position.z = chMesh.position.z;
     this.mesh.quaternion.set(
-      ch_mesh.quaternion.x,
-      ch_mesh.quaternion.y,
-      ch_mesh.quaternion.z,
-      ch_mesh.quaternion.w
+      chMesh.quaternion.x,
+      chMesh.quaternion.y,
+      chMesh.quaternion.z,
+      chMesh.quaternion.w
     );
 
     this.mesh.scale.x = 1;
@@ -323,8 +318,7 @@ export default class CompoundObject extends Object3D {
     const result = this.children.find(object => object.getID() === obj.id);
     if (result) {
       return result;
-    } else {
-      throw new Error(`Object id ${obj.id} not found in group`);
     }
+    throw new Error(`Object id ${obj.id} not found in group`);
   }
 }

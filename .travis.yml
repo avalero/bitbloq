@@ -14,5 +14,8 @@ install:
   - npm install
 script:
   - npm test
+  - npm run tslint:ts
 after_success:
   - npm run coveralls
+notifications:
+    slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS

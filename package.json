@@ -1,21 +1,43 @@
 {
   "name": "bitbloq-junior",
   "version": "1.0.0",
-  "description": "",
+  "description": "One Platform to Rule Them All",
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --mode development --open",
     "build": "webpack --mode production",
     "test": "jest --coverage",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
-    "tslint:ts": "tslint \"**/*.{ts}\"",
+    "tslint:ts": "tslint --project ./ ",
     "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "prettier:ts": "prettier --write \"**/*.{ts,tsx}\""
   },
-  "keywords": [],
-  "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "keywords": [
+    "Bitbloq",
+    "3D Design",
+    "Arduino Programming",
+    "Teaching",
+    "STEAM"
+  ],
+  "authors": [
+    {
+      "name": "David García Paredes",
+      "mail": "david.garciaparedes@bq.com",
+      "github": "https://github.com/empoalp"
+    },
+    {
+      "name": "Alda Martín",
+      "mail": "alda.martin@bq.com",
+      "github": "https://github.com/aldaMarMu"
+    },
+    {
+      "name": "Alberto Valero Gómez",
+      "mail": "alberto.valero@bq.com",
+      "github": "https://github.com/avalero"
+    }
+  ],
+  "private": false,
+  "license": "MIT",
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/plugin-syntax-decorators": "^7.1.0",

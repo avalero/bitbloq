@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-11-29 19:15:29
+ * Last modified  : 2018-12-16 19:52:02
  */
 
 import ObjectsCommon, {
@@ -103,7 +103,7 @@ export default class RepetitionObject extends ObjectsCommon {
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh: THREE.Group | undefined = undefined
+    mesh?: THREE.Group | undefined
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -139,21 +139,20 @@ export default class RepetitionObject extends ObjectsCommon {
 
   public clone(): RepetitionObject {
     if (isEqual(this.lastJSON, this.toJSON())) {
-      const obj = new RepetitionObject(
+      const repObj = new RepetitionObject(
         this.parameters,
         this.originalObject.clone(),
         this.viewOptions,
         (this.mesh as THREE.Group).clone()
       );
-      return obj;
-    } else {
-      const obj = new RepetitionObject(
-        this.parameters,
-        this.originalObject.clone(),
-        this.viewOptions
-      );
-      return obj;
+      return repObj;
     }
+    const obj = new RepetitionObject(
+      this.parameters,
+      this.originalObject.clone(),
+      this.viewOptions
+    );
+    return obj;
   }
 
   /**
@@ -344,7 +343,7 @@ export default class RepetitionObject extends ObjectsCommon {
 
     const { x, y, z, type, num } = this
       .parameters as ICartesianRepetitionParams;
-    for (let i: number = 0; i < num; i++) {
+    for (let i: number = 0; i < num; i += 1) {
       if (this.originalObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
@@ -366,12 +365,13 @@ export default class RepetitionObject extends ObjectsCommon {
     const { axis, angle, type, num } = this
       .parameters as IPolarRepetitionParams;
 
-    for (let i: number = 0; i < num; i++) {
+    for (let i: number = 0; i < num; i += 1) {
       if (this.originalObject instanceof Object3D) {
         const objectClone: Object3D = this.originalObject.clone();
         // objectClone.translate(i*x, i*y, i*z);
         this.group.push(objectClone);
       } else if (this.originalObject instanceof ObjectsGroup) {
+        // TODO
       }
     }
   }

@@ -34,7 +34,7 @@ export default class STLObject extends Object3D {
     viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
     scene: Scene
   ) {
-    super(viewOptions, operations, scene);
+    super(viewOptions, operations);
     this.parameters = { ...parameters };
     this._meshUpdateRequired = true;
   }

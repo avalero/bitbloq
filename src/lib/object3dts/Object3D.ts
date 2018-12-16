@@ -9,13 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-11-29 19:05:25
+ * Last modified  : 2018-12-16 19:36:27
  */
 
 import isEqual from "lodash.isequal";
 import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import {
+import ObjectsCommon, {
   IMirrorOperation,
   IRotateOperation,
   IScaleOperation,

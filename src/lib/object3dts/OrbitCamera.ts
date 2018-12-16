@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { SphericalCoordsXYZ } from "./SphericalCoordinates.ts";
+import { SphericalCoordsXYZ } from "./SphericalCoordsXYZ";
 
 const EPSILON: number = 0.001;
 const STATE = {
@@ -76,8 +76,11 @@ export default class OrbitCamera {
     this.update(0);
 
     if (!this.domElement) {
-      this.dispose = () => {};
+      this.dispose = () => {
+        /* Empty on purpose*/
+      };
     } else {
+      // tslint:disable-next-line:no-this-assignment
       const scope = this;
       const dragStart: THREE.Vector2 = new THREE.Vector2();
       const dollyStart: THREE.Vector2 = new THREE.Vector2();

@@ -5,13 +5,13 @@ const QUARTER_PI = Math.PI / 4;
 const WIDTH = 150;
 const HEIGHT = 150;
 
-interface ClickBox {
+interface IClickBox {
   position: [number, number, number];
   size: [number, number, number];
   cameraAngle: [number, number];
 }
 
-const clickBoxes: ClickBox[] = [
+const clickBoxes: IClickBox[] = [
   // TOP
   {
     position: [0, 0, 1],
@@ -172,7 +172,7 @@ const clickBoxes: ClickBox[] = [
 
 type ChangeCameraAngleHandler = (theta: number, phi: number) => void;
 
-export interface BoxLabels {
+export interface IBoxLabels {
   front: string;
   back: string;
   top: string;
@@ -181,13 +181,13 @@ export interface BoxLabels {
   right: string;
 }
 
-export interface NavigationBoxOptions {
+export interface INavigationBoxOptions {
   onChangeCameraAngle?: ChangeCameraAngleHandler;
-  boxLabels: BoxLabels;
+  boxLabels: IBoxLabels;
 }
 
 export default class NavigationBox {
-  public static defaultOptions: NavigationBoxOptions = {
+  public static defaultOptions: INavigationBoxOptions = {
     boxLabels: {
       front: "FRONT",
       back: "BACK",
@@ -199,7 +199,7 @@ export default class NavigationBox {
   };
 
   private container: HTMLElement;
-  private options: NavigationBoxOptions;
+  private options: INavigationBoxOptions;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
@@ -209,7 +209,7 @@ export default class NavigationBox {
 
   constructor(
     container: HTMLElement,
-    options: Partial<NavigationBoxOptions> = {}
+    options: Partial<INavigationBoxOptions> = {}
   ) {
     this.container = container;
     this.options = {
@@ -356,7 +356,7 @@ export default class NavigationBox {
 
     const box = this.getBoxFromPosition(e.clientX, e.clientY);
     if (box) {
-      const clickBox = box.userData as ClickBox;
+      const clickBox = box.userData as IClickBox;
       onChangeCameraAngle(...clickBox.cameraAngle);
     }
   };

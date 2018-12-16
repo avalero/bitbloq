@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-17 12:30:09
- * Last modified  : 2018-11-06 10:33:55
+ * Last modified  : 2018-12-16 19:55:16
  */
 
 import * as THREE from "three";
@@ -73,7 +73,7 @@ export default class RotationHelper {
 
     this.helperMesh.position.copy(mesh.position);
 
-    if (relative === true) {
+    if (relative) {
       this.helperMesh.setRotationFromEuler(mesh.rotation);
     }
 
