@@ -2,17 +2,18 @@ import React from 'react';
 import styled, {css} from 'react-emotion';
 import NumberInput from '../NumberInput';
 import Select from '../Select';
+import Checkbox from '../Checkbox';
 import ColorPicker from '../ColorPicker';
 import STLLoader from '../../lib/object3dts/STLLoader';
 
 const FormGroup = styled.div`
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
 
   label {
     display: block;
-    flex: 1;
+    width: 120px;
   }
 
   input {
@@ -21,6 +22,10 @@ const FormGroup = styled.div`
 `;
 
 const ColorPickerWrap = styled.div`
+  flex: 1;
+`;
+
+const StyledSelect = styled(Select)`
   flex: 1;
 `;
 
@@ -76,7 +81,7 @@ const FileProperty = ({onChange}) => (
 const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
   <FormGroup>
     <label>{label}</label>
-    <Select
+    <StyledSelect
       value={value}
       options={options}
       selectConfig={{isSearchable: false}}
@@ -90,10 +95,9 @@ const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
 const BooleanProperty = ({label, value, onChange}) => (
   <FormGroup>
     <label>{label}</label>
-    <input
-      type="checkbox"
+    <Checkbox
       checked={value}
-      onChange={e => onChange(e.target.checked)}
+      onChange={onChange}
     />
   </FormGroup>
 );

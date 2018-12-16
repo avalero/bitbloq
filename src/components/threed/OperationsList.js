@@ -15,7 +15,7 @@ export default class OperationsList extends React.Component {
     openOperations: [],
   };
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     const {openOperations} = this.state;
     const {operations} = this.props;
     const {operations: prevOperations} = prevProps;
@@ -23,6 +23,7 @@ export default class OperationsList extends React.Component {
     if (operations && prevOperations) {
       const newOperation = operations.find(
         o => !prevOperations.find(p => p.id === o.id),
+
       );
 
       if (newOperation) {
@@ -30,6 +31,16 @@ export default class OperationsList extends React.Component {
           ...state,
           openOperations: [...state.openOperations, newOperation.id],
         }));
+      }
+    }
+
+    const lastOperation = operations[operations.length - 1] || {};
+    if (
+      openOperations.includes(lastOperation.id) &&
+      !prevState.openOperations.includes(lastOperation.id)
+    ) {
+      if (this.container) {
+        this.container.scrollTop = 100000000;
       }
     }
   }
@@ -69,9 +80,14 @@ export default class OperationsList extends React.Component {
     const {openOperations} = this.state;
 
     return (
-      <Droppable droppableId="operations">
+      <Droppable droppableId="operations" ref={this.wrapRef}>
         {provided => (
-          <Container innerRef={provided.innerRef} {...provided.droppableProps}>
+          <Container
+            innerRef={el => {
+              this.container = el;
+              provided.innerRef(el);
+            }}
+            {...provided.droppableProps}>
             {operations.map((operation, i) => (
               <Operation
                 key={operation.id}

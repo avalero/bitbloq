@@ -3,7 +3,7 @@ import styled from 'react-emotion';
 
 const Input = styled.input`
   border: 1px solid #cfcfcf;
-  border-radius: 2px;
+  border-radius: 4px;
   flex: 1;
   height: 21px;
   padding: 6px 12px;
