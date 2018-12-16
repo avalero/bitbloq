@@ -14,8 +14,8 @@
  * Last modified  : 2018-11-09 09:55:56
  */
 
-import * as THREE from "three";
 import cloneDeep from "lodash.clonedeep";
+import * as THREE from "three";
 
 export interface IGridConfig {
   size: number;
@@ -56,17 +56,29 @@ export default class BaseGrid {
     this.colorSmall = new THREE.Color(this.gridConfig.smallGrid.color);
     this.colorCenter = new THREE.Color(this.gridConfig.centerGrid.color);
 
-    if (this.gridConfig.smallGrid.enabled) this.mesh.add(this.smallGrid());
-    if (this.gridConfig.bigGrid.enabled) this.mesh.add(this.bigGrid());
-    if (this.gridConfig.centerGrid.enabled) this.mesh.add(this.centerGrid());
-    if (this.gridConfig.plane.enabled) this.mesh.add(this.plane());
+    if (this.gridConfig.smallGrid.enabled) {
+      this.mesh.add(this.smallGrid());
+    }
+    if (this.gridConfig.bigGrid.enabled) {
+      this.mesh.add(this.bigGrid());
+    }
+    if (this.gridConfig.centerGrid.enabled) {
+      this.mesh.add(this.centerGrid());
+    }
+    if (this.gridConfig.plane.enabled) {
+      this.mesh.add(this.plane());
+    }
+  }
+
+  public getMesh(): THREE.Group {
+    return this.mesh;
   }
 
   private bigGrid(): THREE.LineSegments {
     const halfSize = this.gridConfig.size / 2;
 
-    const vertices: Array<number> = [];
-    const colors: Array<number> = [];
+    const vertices: number[] = [];
+    const colors: number[] = [];
 
     for (
       let j = 0, k = -halfSize;
@@ -105,8 +117,8 @@ export default class BaseGrid {
 
   private smallGrid(): THREE.LineSegments {
     const halfSize = this.gridConfig.size / 2;
-    const vertices: Array<number> = [];
-    const colors: Array<number> = [];
+    const vertices: number[] = [];
+    const colors: number[] = [];
 
     for (
       let j = 0, k = -halfSize;
@@ -145,8 +157,8 @@ export default class BaseGrid {
 
   private centerGrid(): THREE.LineSegments {
     const halfSize = this.gridConfig.size / 2;
-    const vertices: Array<number> = [];
-    const colors: Array<number> = [];
+    const vertices: number[] = [];
+    const colors: number[] = [];
 
     vertices.push(-halfSize, 0, 0, halfSize, 0, 0);
     vertices.push(0, -halfSize, 0, 0, halfSize, 0);
@@ -182,9 +194,5 @@ export default class BaseGrid {
       this.gridConfig.plane.color
     );
     return helper;
-  }
-
-  public getMesh(): THREE.Group {
-    return this.mesh;
   }
 }

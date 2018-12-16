@@ -1,6 +1,6 @@
+import Cube from "./Cube";
 import ObjectsCommon, { OperationsArray } from "./ObjectsCommon";
 import { IObjectPosition } from "./Scene";
-import Cube from "./Cube";
 
 export default class PositionCalculator {
   private operations: OperationsArray;
@@ -10,6 +10,11 @@ export default class PositionCalculator {
   constructor(object: ObjectsCommon) {
     this.object = object;
     this.operations = [];
+  }
+
+  public async getPositionAsync(): Promise<IObjectPosition> {
+    await this.applyOperationsAsync();
+    return this.position;
   }
 
   private async applyOperationsAsync(): Promise<void> {
@@ -44,10 +49,5 @@ export default class PositionCalculator {
 
   private prePushOperations(operations: OperationsArray): void {
     this.operations = [...operations, ...this.operations];
-  }
-
-  public async getPositionAsync(): Promise<IObjectPosition> {
-    await this.applyOperationsAsync();
-    return this.position;
   }
 }

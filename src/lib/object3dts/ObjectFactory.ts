@@ -1,16 +1,16 @@
-import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
+import { ICompoundObjectJSON } from "./CompoundObject";
 import Cube, { ICubeJSON } from "./Cube";
 import Cylinder, { ICylinderJSON } from "./Cylinder";
-import Sphere, { ISphereJSON } from "./Sphere";
-import Prism, { IPrismJSON } from "./Prism";
-import Union from "./Union";
-import { ICompoundObjectJSON } from "./CompoundObject";
 import Difference from "./Difference";
 import Intersection from "./Intersection";
+import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
+import Prism, { IPrismJSON } from "./Prism";
+import Sphere, { ISphereJSON } from "./Sphere";
+import Union from "./Union";
 
-import Scene from "./Scene";
 import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
 import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
+import Scene from "./Scene";
 
 export default class ObjectFactory {
   /**

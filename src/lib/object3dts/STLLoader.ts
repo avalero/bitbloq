@@ -20,7 +20,7 @@
 import * as THREE from "three";
 
 export default class STLLoader {
-  static binaryVector3(view: any, offset: number) {
+  public static binaryVector3(view: any, offset: number) {
     const v: THREE.Vector3 = new THREE.Vector3();
     v.x = view.getFloat32(offset + 0, true);
     v.y = view.getFloat32(offset + 4, true);
@@ -28,7 +28,7 @@ export default class STLLoader {
     return v;
   }
 
-  static m2vec3(match: any) {
+  public static m2vec3(match: any) {
     const v: THREE.Vector3 = new THREE.Vector3();
     v.x = parseFloat(match[1]);
     v.y = parseFloat(match[2]);
@@ -36,8 +36,8 @@ export default class STLLoader {
     return v;
   }
 
-  static toLines(array: any) {
-    const lines: Array<string> = [];
+  public static toLines(array: any) {
+    const lines: string[] = [];
     let h: number = 0;
     for (let i: number = 0; i < array.length; i++) {
       if (array[i] === 10) {
@@ -53,7 +53,7 @@ export default class STLLoader {
     return lines;
   }
 
-  static loadBinaryStl(buffer: any) {
+  public static loadBinaryStl(buffer: any) {
     // binary STL
     const view = new DataView(buffer);
     const size = view.getUint32(80, true);
@@ -70,12 +70,14 @@ export default class STLLoader {
     return geom;
   }
 
-  static loadTextStl(buffer: any) {
+  public static loadTextStl(buffer: any) {
     const lines = STLLoader.toLines(new Uint8Array(buffer));
     let index: number = 0;
 
     const scan = regexp => {
-      while (lines[index].match(/^\s*$/)) index += 1;
+      while (lines[index].match(/^\s*$/)) {
+        index += 1;
+      }
       const r = lines[index].match(regexp);
       return r;
     };

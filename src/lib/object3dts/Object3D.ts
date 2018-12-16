@@ -12,16 +12,16 @@
  * Last modified  : 2018-11-29 19:05:25
  */
 
-import * as THREE from "three";
 import isEqual from "lodash.isequal";
+import * as THREE from "three";
 import ObjectsCommon from "./ObjectsCommon";
 import {
-  ITranslateOperation,
-  IRotateOperation,
   IMirrorOperation,
+  IRotateOperation,
   IScaleOperation,
-  OperationsArray,
-  IViewOptions
+  ITranslateOperation,
+  IViewOptions,
+  OperationsArray
 } from "./ObjectsCommon";
 
 export default class Object3D extends ObjectsCommon {
@@ -67,45 +67,6 @@ export default class Object3D extends ObjectsCommon {
     super(vO, operations);
   }
 
-  // protected getMaterial(): THREE.MeshLambertMaterial {
-  //   return new THREE.MeshLambertMaterial({
-  //     color: this.viewOptions.color,
-  //   });
-  // }
-
-  protected getGeometry(): THREE.Geometry {
-    throw new Error("ERROR. Pure Virtual Function implemented in children");
-  }
-
-  protected getBufferGeometry(): THREE.BufferGeometry {
-    throw new Error("ERROR. Pure Virtual Function implemented in children");
-  }
-
-  protected applyViewOptions(mesh?: THREE.Mesh): void {
-    if (!this.mesh && !mesh)
-      throw new Error("ApplyViewOptions - Mesh not defined");
-
-    let matParams: THREE.MeshLambertMaterialParameters = {
-      color: this.viewOptions.color,
-      transparent: false
-    };
-
-    if (this.viewOptions.opacity < 1) {
-      matParams = {
-        ...matParams,
-        opacity: this.viewOptions.opacity,
-        transparent: true
-      };
-    }
-    const material: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial(
-      matParams
-    );
-
-    if (mesh) mesh.material = material;
-    else (this.mesh as THREE.Mesh).material = material;
-    this._viewOptionsUpdateRequired = false;
-  }
-
   public async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
@@ -135,6 +96,53 @@ export default class Object3D extends ObjectsCommon {
     return;
   }
 
+  public clone(): any {
+    throw new Error("Object3D.clone() Implemented in children");
+  }
+
+  // protected getMaterial(): THREE.MeshLambertMaterial {
+  //   return new THREE.MeshLambertMaterial({
+  //     color: this.viewOptions.color,
+  //   });
+  // }
+
+  protected getGeometry(): THREE.Geometry {
+    throw new Error("ERROR. Pure Virtual Function implemented in children");
+  }
+
+  protected getBufferGeometry(): THREE.BufferGeometry {
+    throw new Error("ERROR. Pure Virtual Function implemented in children");
+  }
+
+  protected applyViewOptions(mesh?: THREE.Mesh): void {
+    if (!this.mesh && !mesh) {
+      throw new Error("ApplyViewOptions - Mesh not defined");
+    }
+
+    let matParams: THREE.MeshLambertMaterialParameters = {
+      color: this.viewOptions.color,
+      transparent: false
+    };
+
+    if (this.viewOptions.opacity < 1) {
+      matParams = {
+        ...matParams,
+        opacity: this.viewOptions.opacity,
+        transparent: true
+      };
+    }
+    const material: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial(
+      matParams
+    );
+
+    if (mesh) {
+      mesh.material = material;
+    } else {
+      (this.mesh as THREE.Mesh).material = material;
+    }
+    this._viewOptionsUpdateRequired = false;
+  }
+
   protected applyMirrorOperation(operation: IMirrorOperation): void {
     if (operation.plane === "xy") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
@@ -151,7 +159,7 @@ export default class Object3D extends ObjectsCommon {
       this.mesh.translateY(operation.y);
       this.mesh.translateZ(operation.z);
     } else {
-      //absolute x,y,z axis.
+      // absolute x,y,z axis.
       this.mesh.position.x += Number(operation.x);
       this.mesh.position.y += Number(operation.y);
       this.mesh.position.z += Number(operation.z);
@@ -178,12 +186,13 @@ export default class Object3D extends ObjectsCommon {
       Number(operation.x) > 0 &&
       Number(operation.y) > 0 &&
       Number(operation.z) > 0
-    )
+    ) {
       this.mesh.scale.set(
         this.mesh.scale.x * Number(operation.x),
         this.mesh.scale.y * Number(operation.y),
         this.mesh.scale.z * Number(operation.z)
       );
+    }
   }
 
   protected setMesh(mesh: THREE.Mesh): void {
@@ -192,9 +201,5 @@ export default class Object3D extends ObjectsCommon {
     this._pendingOperation = false;
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
-  }
-
-  public clone(): any {
-    throw new Error("Object3D.clone() Implemented in children");
   }
 }

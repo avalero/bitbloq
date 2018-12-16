@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import TetherComponent from 'react-tether';
+import React, { Component } from "react";
+import TetherComponent from "react-tether";
 
 export interface DropDownProps {
   closeOnClick: boolean;
@@ -19,15 +19,15 @@ class DropDown extends Component<DropDownProps, State> {
   state = { isOpen: false };
 
   componentDidMount() {
-    document.addEventListener('click', this.onBodyClick, false);
+    document.addEventListener("click", this.onBodyClick, false);
   }
 
   componentWillUnmount() {
-    document.removeEventListener('click', this.onBodyClick, false);
+    document.removeEventListener("click", this.onBodyClick, false);
   }
 
-  onBodyClick = (e) => {
-    const {closeOnClick} = this.props;
+  onBodyClick = e => {
+    const { closeOnClick } = this.props;
     const toggle = this.toggleRef.current;
     const attachment = this.attachmentRef.current;
 
@@ -40,25 +40,16 @@ class DropDown extends Component<DropDownProps, State> {
     } else {
       this.setState({ isOpen: false });
     }
-  }
+  };
 
   render() {
     const { isOpen } = this.state;
     const [element, attachment] = this.props.children;
 
     return (
-      <TetherComponent
-        attachment="top right"
-        targetAttachment="bottom right"
-      >
-        <div ref={this.toggleRef}>
-          {element(isOpen)}
-        </div>
-        {isOpen &&
-          <div ref={this.attachmentRef}>
-            {attachment}
-          </div>
-        }
+      <TetherComponent attachment="top right" targetAttachment="bottom right">
+        <div ref={this.toggleRef}>{element(isOpen)}</div>
+        {isOpen && <div ref={this.attachmentRef}>{attachment}</div>}
       </TetherComponent>
     );
   }

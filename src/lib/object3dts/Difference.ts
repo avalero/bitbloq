@@ -12,23 +12,25 @@
  * Last modified  : 2018-11-28 12:43:42
  */
 
+import isEqual from "lodash.isequal";
 import CompoundObject, {
-  ICompoundObjectJSON,
-  ChildrenArray
+  ChildrenArray,
+  ICompoundObjectJSON
 } from "./CompoundObject";
 import Object3D from "./Object3D";
-import ObjectsCommon, { OperationsArray, IViewOptions } from "./ObjectsCommon";
+import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 import Scene from "./Scene";
-import isEqual from "lodash.isequal";
 
 export default class Difference extends CompoundObject {
-  static typeName: string = "Difference";
+  public static typeName: string = "Difference";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
     scene: Scene
   ): Difference {
-    if (object.type != Difference.typeName) throw new Error("Not Union Object");
+    if (object.type != Difference.typeName) {
+      throw new Error("Not Union Object");
+    }
 
     try {
       const children: ChildrenArray = object.children.map(
@@ -67,9 +69,7 @@ export default class Difference extends CompoundObject {
   }
 
   public clone(): Difference {
-    const childrenClone: Array<Object3D> = this.children.map(child =>
-      child.clone()
-    );
+    const childrenClone: Object3D[] = this.children.map(child => child.clone());
 
     if (isEqual(this.lastJSON, this.toJSON())) {
       const obj = new Difference(

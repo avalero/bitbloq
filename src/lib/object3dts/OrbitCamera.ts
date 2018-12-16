@@ -13,6 +13,7 @@ const STATE = {
 };
 
 export default class OrbitCamera {
+  public target: THREE.Vector3;
   private camera: THREE.Camera;
   private enabled: boolean;
 
@@ -27,7 +28,6 @@ export default class OrbitCamera {
   private dollySpeed: number;
   private truckSpeed: number;
   private domElement: any;
-  public target: THREE.Vector3;
   private _targetEnd: THREE.Vector3;
 
   private _spherical: SphericalCoordsXYZ;
@@ -86,7 +86,9 @@ export default class OrbitCamera {
       let savedDampingFactor: any;
 
       const onMouseDown = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         event.preventDefault();
 
@@ -112,7 +114,9 @@ export default class OrbitCamera {
       };
 
       const onTouchStart = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         event.preventDefault();
 
@@ -138,7 +142,9 @@ export default class OrbitCamera {
       };
 
       const onMouseWheel = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         event.preventDefault();
 
@@ -150,13 +156,17 @@ export default class OrbitCamera {
       };
 
       const onContextMenu = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         event.preventDefault();
       };
 
       const startDragging = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         event.preventDefault();
 
@@ -185,7 +195,9 @@ export default class OrbitCamera {
       };
 
       const dragging = (event: any) => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         event.preventDefault();
 
@@ -249,7 +261,9 @@ export default class OrbitCamera {
       };
 
       const endDragging = () => {
-        if (!scope.enabled) return;
+        if (!scope.enabled) {
+          return;
+        }
 
         scope.dampingFactor = savedDampingFactor;
         state = STATE.NONE;
@@ -294,20 +308,6 @@ export default class OrbitCamera {
 
   // rotX in radian
   // rotY in radian
-  private rotate(
-    rotTheta: number,
-    rotPhi: number,
-    enableTransition: boolean
-  ): void {
-    this.rotateTo(
-      this._sphericalEnd.theta + rotTheta,
-      this._sphericalEnd.phi + rotPhi,
-      enableTransition
-    );
-  }
-
-  // rotX in radian
-  // rotY in radian
   public rotateTo(
     rotTheta: number,
     rotPhi: number,
@@ -345,6 +345,91 @@ export default class OrbitCamera {
     const zoomScale: number = Math.pow(0.95, this.dollySpeed);
     this.dolly(
       this._sphericalEnd.radius / zoomScale - this._sphericalEnd.radius
+    );
+  }
+
+  public update(delta: number): boolean {
+    const dampingFactor: number = (this.dampingFactor * delta) / 0.016;
+    const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta;
+    const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi;
+    const deltaRadius: number =
+      this._sphericalEnd.radius - this._spherical.radius;
+    const deltaTarget: THREE.Vector3 = new THREE.Vector3().subVectors(
+      this._targetEnd,
+      this.target
+    );
+
+    if (
+      Math.abs(deltaTheta) > EPSILON ||
+      Math.abs(deltaPhi) > EPSILON ||
+      Math.abs(deltaRadius) > EPSILON ||
+      Math.abs(deltaTarget.x) > EPSILON ||
+      Math.abs(deltaTarget.y) > EPSILON ||
+      Math.abs(deltaTarget.z) > EPSILON
+    ) {
+      this._spherical.set(
+        this._spherical.radius + deltaRadius * dampingFactor,
+        this._spherical.phi + deltaPhi * dampingFactor,
+        this._spherical.theta + deltaTheta * dampingFactor
+      );
+
+      this.target.add(deltaTarget.multiplyScalar(dampingFactor));
+      this._needsUpdate = true;
+    } else {
+      this._spherical.copy(this._sphericalEnd);
+      this.target.copy(this._targetEnd);
+    }
+
+    this._spherical.makeSafe();
+    this.camera.position
+      .set(
+        this._spherical.cartesian.x,
+        this._spherical.cartesian.y,
+        this._spherical.cartesian.z
+      )
+      .add(this.target);
+    this.camera.lookAt(this.target);
+
+    const needsUpdate = this._needsUpdate;
+    this._needsUpdate = false;
+
+    return needsUpdate;
+  }
+
+  public toJSON(): object {
+    return {
+      enabled: this.enabled,
+
+      minDistance: this.minDistance,
+      maxDistance: infinityToMaxNumber(this.maxDistance),
+      minPolarAngle: this.minPolarAngle,
+      maxPolarAngle: infinityToMaxNumber(this.maxPolarAngle),
+      minAzimuthAngle: infinityToMaxNumber(this.minAzimuthAngle),
+      maxAzimuthAngle: infinityToMaxNumber(this.maxAzimuthAngle),
+      dampingFactor: this.dampingFactor,
+      draggingDampingFactor: this.draggingDampingFactor,
+      dollySpeed: this.dollySpeed,
+      truckSpeed: this.truckSpeed,
+
+      target: this._targetEnd.toArray(),
+      position: this.camera.position.toArray(),
+
+      target0: this._target0.toArray(),
+      position0: this._position0.toArray()
+    };
+  }
+
+  // rotX in radian
+  // rotY in radian
+  private rotate(
+    rotTheta: number,
+    rotPhi: number,
+    enableTransition: boolean
+  ): void {
+    this.rotateTo(
+      this._sphericalEnd.theta + rotTheta,
+      this._sphericalEnd.phi + rotPhi,
+      enableTransition
     );
   }
 
@@ -430,77 +515,6 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  public update(delta: number): boolean {
-    const dampingFactor: number = (this.dampingFactor * delta) / 0.016;
-    const deltaTheta: number = this._sphericalEnd.theta - this._spherical.theta;
-    const deltaPhi: number = this._sphericalEnd.phi - this._spherical.phi;
-    const deltaRadius: number =
-      this._sphericalEnd.radius - this._spherical.radius;
-    const deltaTarget: THREE.Vector3 = new THREE.Vector3().subVectors(
-      this._targetEnd,
-      this.target
-    );
-
-    if (
-      Math.abs(deltaTheta) > EPSILON ||
-      Math.abs(deltaPhi) > EPSILON ||
-      Math.abs(deltaRadius) > EPSILON ||
-      Math.abs(deltaTarget.x) > EPSILON ||
-      Math.abs(deltaTarget.y) > EPSILON ||
-      Math.abs(deltaTarget.z) > EPSILON
-    ) {
-      this._spherical.set(
-        this._spherical.radius + deltaRadius * dampingFactor,
-        this._spherical.phi + deltaPhi * dampingFactor,
-        this._spherical.theta + deltaTheta * dampingFactor
-      );
-
-      this.target.add(deltaTarget.multiplyScalar(dampingFactor));
-      this._needsUpdate = true;
-    } else {
-      this._spherical.copy(this._sphericalEnd);
-      this.target.copy(this._targetEnd);
-    }
-
-    this._spherical.makeSafe();
-    this.camera.position
-      .set(
-        this._spherical.cartesian.x,
-        this._spherical.cartesian.y,
-        this._spherical.cartesian.z
-      )
-      .add(this.target);
-    this.camera.lookAt(this.target);
-
-    const needsUpdate = this._needsUpdate;
-    this._needsUpdate = false;
-
-    return needsUpdate;
-  }
-
-  public toJSON(): object {
-    return {
-      enabled: this.enabled,
-
-      minDistance: this.minDistance,
-      maxDistance: infinityToMaxNumber(this.maxDistance),
-      minPolarAngle: this.minPolarAngle,
-      maxPolarAngle: infinityToMaxNumber(this.maxPolarAngle),
-      minAzimuthAngle: infinityToMaxNumber(this.minAzimuthAngle),
-      maxAzimuthAngle: infinityToMaxNumber(this.maxAzimuthAngle),
-      dampingFactor: this.dampingFactor,
-      draggingDampingFactor: this.draggingDampingFactor,
-      dollySpeed: this.dollySpeed,
-      truckSpeed: this.truckSpeed,
-
-      target: this._targetEnd.toArray(),
-      position: this.camera.position.toArray(),
-
-      target0: this._target0.toArray(),
-      position0: this._position0.toArray()
-    };
-  }
-
   private fromJSON(json: string, enableTransition: boolean): void {
     const obj = JSON.parse(json);
     const position = new THREE.Vector3().fromArray(obj.position);
@@ -534,15 +548,21 @@ export default class OrbitCamera {
 }
 
 const infinityToMaxNumber: (value: number) => number = (value: number) => {
-  if (isFinite(value)) return value;
+  if (isFinite(value)) {
+    return value;
+  }
 
-  if (value < 0) return -Number.MAX_VALUE;
+  if (value < 0) {
+    return -Number.MAX_VALUE;
+  }
 
   return Number.MAX_VALUE;
 };
 
 const maxNumberToInfinity: (value: number) => number = (value: number) => {
-  if (Math.abs(value) < Number.MAX_VALUE) return value;
+  if (Math.abs(value) < Number.MAX_VALUE) {
+    return value;
+  }
 
   return value * Infinity;
 };

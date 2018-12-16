@@ -1,8 +1,8 @@
 import * as THREE from "three";
-import Scene, { IHelperDescription } from "./Scene";
+import NavigationBox from "./NavigationBox";
 import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
 import OrbitCamera from "./OrbitCamera";
-import NavigationBox from "./NavigationBox";
+import Scene, { IHelperDescription } from "./Scene";
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;
@@ -73,6 +73,108 @@ export default class Renderer {
 
     this.setup();
     this.renderLoop();
+  }
+
+  public async updateScene(): Promise<void> {
+    // objects in transition
+    const newObjectInTranstion:
+      | THREE.Group
+      | undefined = await this.scene.getObjectInTransitionAsync();
+    if (newObjectInTranstion) {
+      if (this.objectInTransition) {
+        this.threeScene.remove(this.objectInTransition);
+      }
+      this.objectInTransition = newObjectInTranstion;
+      // (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
+      // (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
+      // (this.objectInTransition.material as THREE.MeshLambertMaterial).needsUpdate = true;
+      this.threeScene.add(this.objectInTransition);
+    }
+
+    // this.threeScene.remove(this.objectsGroup);
+    const newObjectsGroup = await this.scene.getObjectsAsync();
+    this.threeScene.remove(this.objectsGroup);
+    if (this.objectInTransition) {
+      this.threeScene.remove(this.objectInTransition);
+      (this.objectInTransition as any) = undefined;
+    }
+
+    this.threeScene.add(newObjectsGroup);
+    this.objectsGroup = newObjectsGroup;
+  }
+
+  public async setActiveHelper(
+    activeOperation: IHelperDescription
+  ): Promise<void> {
+    while (this.helpersGroup.children.length > 0) {
+      this.helpersGroup.remove(this.helpersGroup.children[0]);
+    }
+    const helpers = await this.scene.setActiveHelperAsync(activeOperation);
+    helpers.forEach(helper => this.helpersGroup.add(helper));
+  }
+
+  public updateCameraAngle(theta: number, phi: number) {
+    this.cameraControls.rotateTo(theta, phi, true);
+  }
+
+  public zoomIn(): void {
+    this.cameraControls.zoomIn();
+  }
+
+  public zoomOut(): void {
+    this.cameraControls.zoomOut();
+  }
+
+  public setOrtographicCamera(isOrtographic: boolean): void {
+    const { width, height } = this.containerRect;
+
+    let cameraPosition: THREE.Vector3;
+    let cameraLookAt: THREE.Vector3;
+    if (this.camera) {
+      cameraPosition = this.camera.position;
+      cameraLookAt = this.cameraControls.target;
+    } else {
+      cameraPosition = new THREE.Vector3(0, -150, 80);
+      cameraLookAt = this.threeScene.position;
+    }
+
+    if (isOrtographic) {
+      this.camera = new THREE.OrthographicCamera(
+        -200,
+        200,
+        200,
+        -200,
+        0.1,
+        1000
+      );
+    } else {
+      this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    }
+
+    this.camera.up.set(0, 0, 1);
+
+    this.camera.position.set(
+      cameraPosition.x,
+      cameraPosition.y,
+      cameraPosition.z
+    );
+    this.camera.lookAt(cameraLookAt);
+
+    this.cameraControls = new OrbitCamera(
+      this.camera,
+      this.threeRenderer.domElement
+    );
+
+    this.navigationBox.setOrtographicCamera(isOrtographic);
+    this.updateNavigationBox();
+  }
+
+  public onObjectClick(handler: ObjectClickHandler): void {
+    this.objectClickHandlers.push(handler);
+  }
+
+  public onBackgroundClick(handler: BackgroundClickHandler): void {
+    this.backgroundClickHandlers.push(handler);
   }
 
   private setup() {
@@ -167,99 +269,6 @@ export default class Renderer {
     this.threeRenderer.render(this.threeScene, this.camera);
   };
 
-  public async updateScene(): Promise<void> {
-    //objects in transition
-    const newObjectInTranstion:
-      | THREE.Group
-      | undefined = await this.scene.getObjectInTransitionAsync();
-    if (newObjectInTranstion) {
-      if (this.objectInTransition)
-        this.threeScene.remove(this.objectInTransition);
-      this.objectInTransition = newObjectInTranstion;
-      // (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
-      // (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
-      // (this.objectInTransition.material as THREE.MeshLambertMaterial).needsUpdate = true;
-      this.threeScene.add(this.objectInTransition);
-    }
-
-    //this.threeScene.remove(this.objectsGroup);
-    const newObjectsGroup = await this.scene.getObjectsAsync();
-    this.threeScene.remove(this.objectsGroup);
-    if (this.objectInTransition) {
-      this.threeScene.remove(this.objectInTransition);
-      (this.objectInTransition as any) = undefined;
-    }
-
-    this.threeScene.add(newObjectsGroup);
-    this.objectsGroup = newObjectsGroup;
-  }
-
-  public async setActiveHelper(
-    activeOperation: IHelperDescription
-  ): Promise<void> {
-    while (this.helpersGroup.children.length > 0) {
-      this.helpersGroup.remove(this.helpersGroup.children[0]);
-    }
-    const helpers = await this.scene.setActiveHelperAsync(activeOperation);
-    helpers.forEach(helper => this.helpersGroup.add(helper));
-  }
-
-  public updateCameraAngle(theta: number, phi: number) {
-    this.cameraControls.rotateTo(theta, phi, true);
-  }
-
-  public zoomIn(): void {
-    this.cameraControls.zoomIn();
-  }
-
-  public zoomOut(): void {
-    this.cameraControls.zoomOut();
-  }
-
-  public setOrtographicCamera(isOrtographic: boolean): void {
-    const { width, height } = this.containerRect;
-
-    let cameraPosition: THREE.Vector3;
-    let cameraLookAt: THREE.Vector3;
-    if (this.camera) {
-      cameraPosition = this.camera.position;
-      cameraLookAt = this.cameraControls.target;
-    } else {
-      cameraPosition = new THREE.Vector3(0, -150, 80);
-      cameraLookAt = this.threeScene.position;
-    }
-
-    if (isOrtographic) {
-      this.camera = new THREE.OrthographicCamera(
-        -200,
-        200,
-        200,
-        -200,
-        0.1,
-        1000
-      );
-    } else {
-      this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    }
-
-    this.camera.up.set(0, 0, 1);
-
-    this.camera.position.set(
-      cameraPosition.x,
-      cameraPosition.y,
-      cameraPosition.z
-    );
-    this.camera.lookAt(cameraLookAt);
-
-    this.cameraControls = new OrbitCamera(
-      this.camera,
-      this.threeRenderer.domElement
-    );
-
-    this.navigationBox.setOrtographicCamera(isOrtographic);
-    this.updateNavigationBox();
-  }
-
   private handleMouseDown = (e: MouseEvent) => {
     this.mouseDownObject = this.getObjectFromPosition(e.clientX, e.clientY);
     this.selectOnMouseUp = true;
@@ -306,13 +315,5 @@ export default class Renderer {
     }
 
     return undefined;
-  }
-
-  public onObjectClick(handler: ObjectClickHandler): void {
-    this.objectClickHandlers.push(handler);
-  }
-
-  public onBackgroundClick(handler: BackgroundClickHandler): void {
-    this.backgroundClickHandlers.push(handler);
   }
 }

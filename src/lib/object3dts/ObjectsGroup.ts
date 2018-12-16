@@ -1,18 +1,18 @@
+import isEqual from "lodash.isequal";
 import * as THREE from "three";
+import Object3D from "./Object3D";
 import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
 import { OperationsArray } from "./ObjectsCommon";
-import Object3D from "./Object3D";
 import Scene from "./Scene";
-import isEqual from "lodash.isequal";
 
 import cloneDeep from "lodash.clonedeep";
 
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
-  children: Array<IObjectsCommonJSON>;
+  children: IObjectsCommonJSON[];
 }
 
 export default class ObjectsGroup extends ObjectsCommon {
-  static typeName: string = "ObjectsGroup";
+  public static typeName: string = "ObjectsGroup";
 
   /**
    *
@@ -20,12 +20,13 @@ export default class ObjectsGroup extends ObjectsCommon {
    * @param scene the scene to which the object belongs
    */
   public static newFromJSON(object: IObjectsGroupJSON, scene: Scene) {
-    if (object.type !== ObjectsGroup.typeName)
+    if (object.type !== ObjectsGroup.typeName) {
       throw new Error(
         `Types do not match ${ObjectsGroup.typeName}, ${object.type}`
       );
+    }
     try {
-      const group: Array<ObjectsCommon> = object.children.map(obj =>
+      const group: ObjectsCommon[] = object.children.map(obj =>
         scene.getObject(obj)
       );
       return new ObjectsGroup(group);
@@ -34,13 +35,10 @@ export default class ObjectsGroup extends ObjectsCommon {
     }
   }
 
-  private children: Array<ObjectsCommon>;
-  public getChildren(): Array<ObjectsCommon> {
-    return this.children;
-  }
+  private children: ObjectsCommon[];
 
   constructor(
-    children: Array<ObjectsCommon> = [],
+    children: ObjectsCommon[] = [],
     mesh: THREE.Group | undefined = undefined
   ) {
     super(ObjectsCommon.createViewOptions(), []);
@@ -56,21 +54,12 @@ export default class ObjectsGroup extends ObjectsCommon {
       this.meshPromise = this.computeMeshAsync();
     }
   }
-
-  private setMesh(mesh: THREE.Group): void {
-    this.mesh = mesh;
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
-    this.mesh.updateMatrixWorld(true);
-    this.mesh.updateMatrix();
+  public getChildren(): ObjectsCommon[] {
+    return this.children;
   }
 
   public add(object: Object3D): void {
     this.children.push(object);
-  }
-
-  protected clean(): void {
-    this.children.length = 0;
   }
 
   public async computeMeshAsync(): Promise<THREE.Group> {
@@ -108,7 +97,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   // When a group is un-grouped all the operations of the group are transferred to the single objects
   // Return the array of objects with all the inherited operations of the group.
-  public unGroup(): Array<ObjectsCommon> {
+  public unGroup(): ObjectsCommon[] {
     this.children.forEach(object3D => {
       const json = object3D.toJSON();
       json.operations = json.operations.concat(this.operations);
@@ -134,25 +123,16 @@ export default class ObjectsGroup extends ObjectsCommon {
   }
 
   /**
-   * Returns Object Reference if found in group. If not, throws Error.
-   * @param obj Object descriptor
-   */
-  private getChild(obj: IObjectsCommonJSON): ObjectsCommon {
-    const result = this.children.find(object => object.getID() === obj.id);
-    if (result) return result;
-    else throw new Error(`Object id ${obj.id} not found in group`);
-  }
-
-  /**
    * Updates objects belonging to a group. Group members cannot be changed.
    * If group members do not match an Error is thrown
    * @param object ObjectGroup descriptor object
    */
   public updateFromJSON(object: IObjectsGroupJSON) {
-    if (object.id !== this.id)
+    if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
+    }
 
-    const newChildren: Array<ObjectsCommon> = [];
+    const newChildren: ObjectsCommon[] = [];
     try {
       object.children.forEach(obj => {
         const objToUpdate = this.getChild(obj);
@@ -184,6 +164,31 @@ export default class ObjectsGroup extends ObjectsCommon {
       }
     } catch (e) {
       throw new Error(`Cannot update Group: ${e}`);
+    }
+  }
+
+  protected clean(): void {
+    this.children.length = 0;
+  }
+
+  private setMesh(mesh: THREE.Group): void {
+    this.mesh = mesh;
+    this._meshUpdateRequired = false;
+    this._pendingOperation = false;
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+  }
+
+  /**
+   * Returns Object Reference if found in group. If not, throws Error.
+   * @param obj Object descriptor
+   */
+  private getChild(obj: IObjectsCommonJSON): ObjectsCommon {
+    const result = this.children.find(object => object.getID() === obj.id);
+    if (result) {
+      return result;
+    } else {
+      throw new Error(`Object id ${obj.id} not found in group`);
     }
   }
 }

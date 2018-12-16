@@ -13,8 +13,8 @@
  */
 
 import * as THREE from "three";
-import ThreeBSP from "./threeCSG";
 import "./custom.d";
+import ThreeBSP from "./threeCSG";
 
 const ctx: CompoundWorker = self as any;
 
@@ -25,7 +25,7 @@ export default class CompoundWorker extends Worker {
 }
 
 const getUnionFromGeometries = (
-  geometries: Array<THREE.Geometry>
+  geometries: THREE.Geometry[]
 ): THREE.Geometry => {
   let geomBSP: any = new ThreeBSP(geometries[0]);
   // Union with the rest
@@ -38,7 +38,7 @@ const getUnionFromGeometries = (
 };
 
 const getDifferenceFromGeometries = (
-  geometries: Array<THREE.Geometry>
+  geometries: THREE.Geometry[]
 ): THREE.Geometry => {
   let geomBSP: any = new ThreeBSP(geometries[0]);
   // Union with the rest
@@ -51,7 +51,7 @@ const getDifferenceFromGeometries = (
 };
 
 const getIntersectionFromGeometries = (
-  geometries: Array<THREE.Geometry>
+  geometries: THREE.Geometry[]
 ): THREE.Geometry => {
   let geomBSP: any = new ThreeBSP(geometries[0]);
   // Union with the rest
@@ -66,14 +66,14 @@ const getIntersectionFromGeometries = (
 ctx.addEventListener(
   "message",
   e => {
-    const geometries: Array<THREE.Geometry> = [];
+    const geometries: THREE.Geometry[] = [];
     const bufferArray = e.data.bufferArray;
 
-    let firstGeomMatrix: THREE.Matrix4 | undefined = undefined;
+    let firstGeomMatrix: THREE.Matrix4 | undefined;
 
-    //add all children to geometries array
+    // add all children to geometries array
     for (let i = 0; i < bufferArray.length; i += 3) {
-      //recompute object form vertices and normals
+      // recompute object form vertices and normals
       const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
       const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
       const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
@@ -94,7 +94,9 @@ ctx.addEventListener(
       );
       const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
       matrixWorld.elements = new Float32Array(_positions);
-      if (i == 0) firstGeomMatrix = matrixWorld.clone();
+      if (i == 0) {
+        firstGeomMatrix = matrixWorld.clone();
+      }
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
         "position",
@@ -111,7 +113,7 @@ ctx.addEventListener(
       geometries.push(geometry);
     }
 
-    //compute action
+    // compute action
     let geometry: THREE.Geometry = new THREE.Geometry();
     if (e.data.type === "Union") {
       geometry = getUnionFromGeometries(geometries);
@@ -126,9 +128,11 @@ ctx.addEventListener(
       ctx.postMessage(message);
     }
 
-    //move resulting geometry to origin of coordinates (center on first child on origin)
+    // move resulting geometry to origin of coordinates (center on first child on origin)
     const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
-    if (firstGeomMatrix) invMatrix.getInverse(firstGeomMatrix);
+    if (firstGeomMatrix) {
+      invMatrix.getInverse(firstGeomMatrix);
+    }
     geometry.applyMatrix(invMatrix);
 
     // get buffer data

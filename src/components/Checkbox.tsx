@@ -1,6 +1,6 @@
-import * as React from 'react';
-import styled, {css} from 'react-emotion';
-import TickIcon from './icons/Tick';
+import * as React from "react";
+import styled, { css } from "react-emotion";
+import TickIcon from "./icons/Tick";
 
 interface ContainerProps {
   checked: boolean;
@@ -45,12 +45,13 @@ export interface CheckboxProps {
 
 export default class Checkbox extends React.Component<CheckboxProps> {
   render() {
-    const {className, checked, onChange} = this.props;
+    const { className, checked, onChange } = this.props;
     return (
       <Container
         className={className}
         checked={checked}
-        onClick={() => onChange(!checked)}>
+        onClick={() => onChange(!checked)}
+      >
         {checked && <TickIcon />}
       </Container>
     );

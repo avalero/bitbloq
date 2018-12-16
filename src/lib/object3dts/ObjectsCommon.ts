@@ -1,7 +1,9 @@
-import uuid from "uuid/v1";
-import isEqual from "lodash.isequal";
+import lodashIsequal from "lodash.isequal";
 
-import cloneDeep from "lodash.clonedeep";
+// tslint:disable-next-line:no-submodule-imports
+import uuid from "uuid/v1";
+
+import lodashCloneDeep from "lodash.clonedeep";
 
 interface ICommonOperation {
   type: string;
@@ -44,7 +46,7 @@ export type Operation =
   | IRotateOperation
   | IScaleOperation
   | IMirrorOperation;
-export type OperationsArray = Array<Operation>;
+export type OperationsArray = Operation[];
 
 export interface IViewOptions {
   color: string;
@@ -55,6 +57,29 @@ export interface IViewOptions {
 }
 
 export default class ObjectsCommon {
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
+  }
+
+  get meshUpdateRequired(): boolean {
+    return this._meshUpdateRequired;
+  }
+
+  set pendingOperation(a: boolean) {
+    this._pendingOperation = a;
+  }
+
+  get pendingOperation(): boolean {
+    return this._pendingOperation;
+  }
+
+  get computedMesh(): THREE.Group | THREE.Mesh | undefined {
+    return this.mesh;
+  }
+
+  public get viewOptionsUpdateRequired(): boolean {
+    return this._viewOptionsUpdateRequired;
+  }
   public static createViewOptions(
     color: string = "#ffffff",
     visible: boolean = true,
@@ -78,21 +103,21 @@ export default class ObjectsCommon {
     relative: boolean = true
   ): ITranslateOperation {
     return {
-      type: "translation",
       x,
       y,
       z,
       relative,
+      type: "translation",
       id: uuid()
     };
   }
 
   public static createMirrorOperation(
-    plane: string = "yz" //xy, yz, zx
+    plane: string = "yz" // xy, yz, zx
   ): IMirrorOperation {
     return {
-      type: "mirror",
       plane,
+      type: "mirror",
       id: uuid()
     };
   }
@@ -104,11 +129,11 @@ export default class ObjectsCommon {
     relative: boolean = true
   ): IRotateOperation {
     return {
-      type: "rotation",
       x,
       y,
       z,
       relative,
+      type: "rotation",
       id: uuid()
     };
   }
@@ -119,10 +144,10 @@ export default class ObjectsCommon {
     z: number = 1
   ): IScaleOperation {
     return {
-      type: "scale",
       x,
       y,
       z,
+      type: "scale",
       id: uuid()
     };
   }
@@ -147,7 +172,7 @@ export default class ObjectsCommon {
     this._meshUpdateRequired = false;
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
-    //each new object must have a new ID
+    // each new object must have a new ID
     this.id = uuid();
     this.parent = undefined;
   }
@@ -157,9 +182,9 @@ export default class ObjectsCommon {
       this.mesh = await this.meshPromise;
       this.meshPromise = null;
       return this.mesh;
-    } else {
-      return this.mesh;
     }
+
+    return this.mesh;
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
@@ -174,22 +199,6 @@ export default class ObjectsCommon {
     return this.parent;
   }
 
-  set meshUpdateRequired(a: boolean) {
-    this._meshUpdateRequired = a;
-  }
-
-  get meshUpdateRequired(): boolean {
-    return this._meshUpdateRequired;
-  }
-
-  set pendingOperation(a: boolean) {
-    this._pendingOperation = a;
-  }
-
-  get pendingOperation(): boolean {
-    return this._pendingOperation;
-  }
-
   public getID() {
     return this.id;
   }
@@ -198,24 +207,66 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
+  public addOperations(operations: OperationsArray = []): void {
+    this.setOperations([...this.operations, ...operations]);
+  }
+
+  public scale(x: number, y: number, z: number): void {
+    this.addOperations([ObjectsCommon.createScaleOperation(x, y, z)]);
+  }
+
+  public mirror(plane: string): void {
+    this.addOperations([ObjectsCommon.createMirrorOperation(plane)]);
+  }
+
+  public setViewOptions(params: Partial<IViewOptions>) {
+    if (!lodashIsequal(params, this.viewOptions)) {
+      this.viewOptions = {
+        ...ObjectsCommon.createViewOptions(),
+        ...this.viewOptions,
+        ...params
+      };
+      this._viewOptionsUpdateRequired = true;
+    }
+  }
+
+  public clone(): ObjectsCommon {
+    throw new Error("ObjectsCommon.clone() Implemented in children");
+  }
+
+  public getTypeName(): string {
+    return this.type;
+  }
+
+  public toJSON(): IObjectsCommonJSON {
+    return lodashCloneDeep({
+      id: this.id,
+      type: this.type,
+      viewOptions: this.viewOptions,
+      operations: this.operations
+    });
+  }
+
+  public updateFromJSON(object: IObjectsCommonJSON): void {
+    throw new Error("updateFromJSON() Implemented in children");
+  }
+
   protected setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = operations.slice(0);
-      if (operations.length > 0) this._pendingOperation = true;
+      if (operations.length > 0) {
+        this._pendingOperation = true;
+      }
       return;
     }
 
-    if (!isEqual(this.operations, operations)) {
+    if (!lodashIsequal(this.operations, operations)) {
       this.operations = operations.slice();
       this._pendingOperation = true;
     }
 
     this._pendingOperation =
-      this.pendingOperation || !isEqual(this.operations, operations);
-  }
-
-  public addOperations(operations: OperationsArray = []): void {
-    this.setOperations([...this.operations, ...operations]);
+      this.pendingOperation || !lodashIsequal(this.operations, operations);
   }
 
   protected translate(
@@ -245,53 +296,5 @@ export default class ObjectsCommon {
     this.addOperations([
       ObjectsCommon.createRotateOperation(0, 0, angle, relative)
     ]);
-  }
-
-  public scale(x: number, y: number, z: number): void {
-    this.addOperations([ObjectsCommon.createScaleOperation(x, y, z)]);
-  }
-
-  public mirror(plane: string): void {
-    this.addOperations([ObjectsCommon.createMirrorOperation(plane)]);
-  }
-
-  get computedMesh(): THREE.Group | THREE.Mesh | undefined {
-    return this.mesh;
-  }
-
-  public setViewOptions(params: Partial<IViewOptions>) {
-    if (!isEqual(params, this.viewOptions)) {
-      this.viewOptions = {
-        ...ObjectsCommon.createViewOptions(),
-        ...this.viewOptions,
-        ...params
-      };
-      this._viewOptionsUpdateRequired = true;
-    }
-  }
-
-  public get viewOptionsUpdateRequired(): boolean {
-    return this._viewOptionsUpdateRequired;
-  }
-
-  public clone(): ObjectsCommon {
-    throw new Error("ObjectsCommon.clone() Implemented in children");
-  }
-
-  public getTypeName(): string {
-    return this.type;
-  }
-
-  public toJSON(): IObjectsCommonJSON {
-    return cloneDeep({
-      id: this.id,
-      type: this.type,
-      viewOptions: this.viewOptions,
-      operations: this.operations
-    });
-  }
-
-  public updateFromJSON(object: IObjectsCommonJSON): void {
-    throw new Error("updateFromJSON() Implemented in children");
   }
 }

@@ -1,12 +1,12 @@
-import * as React from 'react';
-import {connect} from 'react-redux';
-import styled, {css} from 'react-emotion';
-import Tooltip from '../Tooltip';
-import {createObject, undo, redo} from '../../actions/threed';
-import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import UndoIcon from '../icons/Undo';
-import RedoIcon from '../icons/Redo';
-import config from '../../config/threed';
+import * as React from "react";
+import { connect } from "react-redux";
+import styled, { css } from "react-emotion";
+import Tooltip from "../Tooltip";
+import { createObject, undo, redo } from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import UndoIcon from "../icons/Undo";
+import RedoIcon from "../icons/Redo";
+import config from "../../config/threed";
 
 const Container = styled.div`
   height: 50px;
@@ -76,12 +76,12 @@ const selectOneMessage = (
 
 class Toolbar extends React.Component<ToolbarProps> {
   onComposeObjects(operation) {
-    const {createObject, selectedObjects, advancedMode} = this.props;
+    const { createObject, selectedObjects, advancedMode } = this.props;
 
     const object = {
       ...operation.create(selectedObjects),
       operations: config.defaultOperations(advancedMode)
-    }
+    };
 
     createObject(object);
   }
@@ -94,7 +94,7 @@ class Toolbar extends React.Component<ToolbarProps> {
       undo,
       redo,
       canUndo,
-      canRedo,
+      canRedo
     } = this.props;
 
     return (
@@ -103,7 +103,7 @@ class Toolbar extends React.Component<ToolbarProps> {
           {config.compositionOperations.map(operation => {
             if (operation.advancedMode && !advancedMode) return;
 
-            const {minObjects = 0, maxObjects = Infinity} = operation;
+            const { minObjects = 0, maxObjects = Infinity } = operation;
             const numObjects = selectedObjects.length;
             const topObjects = selectedObjects.every(o => objects.includes(o));
             const canApply =
@@ -129,9 +129,8 @@ class Toolbar extends React.Component<ToolbarProps> {
                   <Button
                     {...tooltipProps}
                     disabled={!canApply}
-                    onClick={() =>
-                      canApply && this.onComposeObjects(operation)
-                    }>
+                    onClick={() => canApply && this.onComposeObjects(operation)}
+                  >
                     {operation.icon}
                   </Button>
                 )}
@@ -145,7 +144,8 @@ class Toolbar extends React.Component<ToolbarProps> {
               <Button
                 {...tooltipProps}
                 disabled={!canUndo}
-                onClick={() => canUndo && undo()}>
+                onClick={() => canUndo && undo()}
+              >
                 <UndoIcon />
               </Button>
             )}
@@ -155,7 +155,8 @@ class Toolbar extends React.Component<ToolbarProps> {
               <Button
                 {...tooltipProps}
                 disabled={!canRedo}
-                onClick={() => canRedo && redo()}>
+                onClick={() => canRedo && redo()}
+              >
                 <RedoIcon />
               </Button>
             )}
@@ -166,21 +167,21 @@ class Toolbar extends React.Component<ToolbarProps> {
   }
 }
 
-const mapStateToProps = ({threed}) => ({
+const mapStateToProps = ({ threed }) => ({
   objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
   advancedMode: threed.ui.advancedMode,
   canUndo: false, //TODO
-  canRedo: false, //TODO
+  canRedo: false //TODO
 });
 
 const mapDispatchToProps = {
   createObject,
   undo,
-  redo,
+  redo
 };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(Toolbar);
