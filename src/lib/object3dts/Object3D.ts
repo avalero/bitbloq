@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-12-16 19:36:27
+ * Last modified  : 2018-12-17 17:49:40
  */
 
 import isEqual from "lodash.isequal";
@@ -72,7 +72,7 @@ export default class Object3D extends ObjectsCommon {
 
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;
-    this.mesh.scale.y = 1;
+    this.mesh.scale.z = 1;
 
     this.operations.forEach(operation => {
       // Translate operation

@@ -1,3 +1,4 @@
+import lodashCloneDeep from "lodash.clonedeep";
 import * as THREE from "three";
 import Cube, { ICubeJSON, ICubeParams } from "../Cube";
 import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
@@ -309,4 +310,19 @@ test("PrimitiveObject - ComputeMeshAsync - viewOptionsUpdated", async () => {
   expect(spy2).toBeCalledTimes(1);
   expect(spy3).toBeCalledTimes(0);
   expect((obj as any)._viewOptionsUpdateRequired).toBe(false);
+});
+
+test("PrimitiveObject - SetParameters - same parameters", async () => {
+  const obj = new Cube(objParams, operations, viewOptions);
+  (obj as any).setParameters(objParams);
+  const spy1 = jest.spyOn(obj as any, "computeMeshAsync");
+  expect((obj as any)._meshUpdateRequired).toBe(false);
+});
+
+test("PrimitiveObject - SetParameters - different parameters", async () => {
+  const obj = new Cube(objParams, operations, viewOptions);
+  const paramsClone = lodashCloneDeep(objParams);
+  paramsClone.width = 2 * objParams.width;
+  (obj as any).setParameters(paramsClone);
+  expect((obj as any)._meshUpdateRequired).toBe(true);
 });
