@@ -20,6 +20,12 @@ const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
+test("Cube - Constructor - Default Params", () => {
+  const obj = new Cube(objParams);
+  expect((obj as any).operations).toEqual([]);
+  expect((obj as any).viewOptions).toEqual(ObjectsCommon.createViewOptions());
+});
+
 test("Cube - Constructor", () => {
   const obj = new Cube(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
