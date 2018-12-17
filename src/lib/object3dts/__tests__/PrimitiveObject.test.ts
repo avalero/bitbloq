@@ -2,6 +2,8 @@ import lodashCloneDeep from "lodash.clonedeep";
 import * as THREE from "three";
 import Cube, { ICubeJSON, ICubeParams } from "../Cube";
 import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
+import ObjectsGroup from "../ObjectsGroup";
+import RepetitionObject from "../RepetitionObject";
 
 const width = 10;
 const height = 15;
@@ -178,6 +180,102 @@ test("PrimitiveObject - UpdateFromJSON with parents", async () => {
   await obj.getMeshAsync();
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
+});
+
+test("PrimitiveObject - UpdateFromJSON with parents - change viewOptions", async () => {
+  const json: ICubeJSON = {
+    parameters: {
+      width,
+      height,
+      depth
+    },
+    operations: [],
+    viewOptions: ObjectsCommon.createViewOptions(),
+    id: "000",
+    type: Cube.typeName
+  };
+
+  const obj = new Cube(objParams, operations, viewOptions);
+  const obj2 = new Cube(objParams, operations, viewOptions);
+  obj.setParent(obj2);
+
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
+
+  json.id = obj.toJSON().id;
+  expect(json).toEqual(obj.toJSON());
+
+  json.viewOptions = { ...json.viewOptions, color: "#aaaaaa" };
+  obj.updateFromJSON(json);
+  expect(json).toEqual(obj.toJSON());
+  expect(spy1).toBeCalledTimes(1);
+  expect(spy2).toBeCalledTimes(0);
+});
+
+test("PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptions", async () => {
+  const json: ICubeJSON = {
+    parameters: {
+      width,
+      height,
+      depth
+    },
+    operations: [],
+    viewOptions: ObjectsCommon.createViewOptions(),
+    id: "000",
+    type: Cube.typeName
+  };
+
+  const obj = new Cube(objParams, operations, viewOptions);
+  const obj2 = new RepetitionObject(
+    { type: "cartesian", x: 10, y: 10, z: 10, num: 4 },
+    obj
+  );
+
+  obj.setParent(obj2);
+
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
+
+  json.id = obj.toJSON().id;
+  expect(json).toEqual(obj.toJSON());
+
+  json.viewOptions = { ...json.viewOptions, color: "#aaaaaa" };
+  obj.updateFromJSON(json);
+  expect(json).toEqual(obj.toJSON());
+  expect(spy1).toBeCalledTimes(1);
+  expect(spy2).toBeCalledTimes(1);
+});
+
+test("PrimitiveObject - UpdateFromJSON with parent ObjectsGroup - change viewOptions", async () => {
+  const json: ICubeJSON = {
+    parameters: {
+      width,
+      height,
+      depth
+    },
+    operations: [],
+    viewOptions: ObjectsCommon.createViewOptions(),
+    id: "000",
+    type: Cube.typeName
+  };
+
+  const obj = new Cube(objParams, operations, viewOptions);
+  const obj1 = new Cube(objParams, operations, viewOptions);
+  const obj2 = new ObjectsGroup([obj, obj1]);
+
+  obj.setParent(obj2);
+
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
+
+  json.id = obj.toJSON().id;
+  expect(json).toEqual(obj.toJSON());
+
+  json.viewOptions = { ...json.viewOptions, color: "#aaaaaa" };
+  obj.updateFromJSON(json);
+  expect(json).toEqual(obj.toJSON());
+  expect(spy1).toBeCalledTimes(1);
+  expect(spy2).toBeCalledTimes(1);
 });
 
 test("PrimitiveObject - UpdateFromJSON with 2 level parents", async () => {

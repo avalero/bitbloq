@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2018-12-17 17:46:35
+ * Last modified  : 2018-12-17 18:40:09
  */
 
 import cloneDeep from "lodash.clonedeep";
@@ -21,6 +21,8 @@ import ObjectsCommon, {
   IViewOptions,
   OperationsArray
 } from "./ObjectsCommon";
+import RepetitionObject from "./RepetitionObject";
+import ObjectsGroup from "./ObjectsGroup";
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;
@@ -29,10 +31,7 @@ export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
 export default class PrimitiveObject extends Object3D {
   protected parameters: object;
 
-  constructor(
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    operations: OperationsArray = []
-  ) {
+  constructor(viewOptions: IViewOptions, operations: OperationsArray) {
     super(viewOptions, operations);
   }
 
@@ -73,7 +72,11 @@ export default class PrimitiveObject extends Object3D {
 
       // parents need update?
 
-      if (!isEqual(lastJSONWithoutVO, currentJSONWithoutVO)) {
+      if (
+        !isEqual(lastJSONWithoutVO, currentJSONWithoutVO) ||
+        this.getParent() instanceof RepetitionObject ||
+        this.getParent() instanceof ObjectsGroup
+      ) {
         let obj: ObjectsCommon | undefined = this.getParent();
         while (obj) {
           obj.meshUpdateRequired = true;
