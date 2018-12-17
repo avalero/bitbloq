@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2018-12-16 12:53:32
+ * Last modified  : 2018-12-17 17:46:35
  */
 
 import cloneDeep from "lodash.clonedeep";
@@ -102,11 +102,7 @@ export default class PrimitiveObject extends Object3D {
         this.applyViewOptions();
       }
 
-      if (this.mesh instanceof THREE.Mesh) {
-        resolve(this.mesh);
-      } else {
-        reject(new Error("Mesh has not been computed properly"));
-      }
+      resolve(this.mesh);
     });
     return this.meshPromise as Promise<THREE.Mesh>;
   }
