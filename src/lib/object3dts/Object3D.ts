@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2018-12-17 17:49:40
+ * Last modified  : 2018-12-17 17:58:08
  */
 
 import isEqual from "lodash.isequal";
@@ -143,6 +143,7 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected applyMirrorOperation(operation: IMirrorOperation): void {
+    debugger;
     if (operation.plane === "xy") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
     } else if (operation.plane === "yz") {
@@ -181,17 +182,11 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected applyScaleOperation(operation: IScaleOperation): void {
-    if (
-      Number(operation.x) > 0 &&
-      Number(operation.y) > 0 &&
-      Number(operation.z) > 0
-    ) {
-      this.mesh.scale.set(
-        this.mesh.scale.x * Number(operation.x),
-        this.mesh.scale.y * Number(operation.y),
-        this.mesh.scale.z * Number(operation.z)
-      );
-    }
+    this.mesh.scale.set(
+      this.mesh.scale.x * Number(operation.x),
+      this.mesh.scale.y * Number(operation.y),
+      this.mesh.scale.z * Number(operation.z)
+    );
   }
 
   protected setMesh(mesh: THREE.Mesh): void {
