@@ -400,7 +400,9 @@ export default class Scene {
       this.historyIndex -= 1;
     }
 
-    return this.history[this.historyIndex];
+    const sceneJSON = this.history[this.historyIndex];
+    this.setHistorySceneFromJSON(sceneJSON);
+    return sceneJSON;
   }
 
   // Rehace la última operación y devuelve la escena después de rehacer
@@ -409,7 +411,18 @@ export default class Scene {
       this.historyIndex += 1;
     }
 
-    return this.history[this.historyIndex];
+    const sceneJSON = this.history[this.historyIndex];
+    this.setHistorySceneFromJSON(sceneJSON);
+    return sceneJSON;
+  }
+
+  private setHistorySceneFromJSON(json: ISceneJSON): void {
+    this.objectsInScene = [];
+    json.forEach(jsonObj => {
+      const obj = this.getObject(jsonObj);
+      obj.updateFromJSON(jsonObj);
+      this.objectsInScene.push(obj);
+    });
   }
 
   /**
