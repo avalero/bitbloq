@@ -1,6 +1,6 @@
 import React from 'react';
 import uuid from 'uuid/v1';
-import Object3D from '../lib/object3dts/Object3D';
+import {Object3D} from '@bitbloq/lib3d';
 
 import {Icon} from '@bitbloq/ui';
 

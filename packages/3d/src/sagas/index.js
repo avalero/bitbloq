@@ -14,7 +14,7 @@ import web2board, {
   CompileError,
   BoardNotDetectedError,
 } from '../lib/web2board';
-import Object3D from '../lib/object3dts/Object3D';
+import {Object3D} from '@bitbloq/lib3d';
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 

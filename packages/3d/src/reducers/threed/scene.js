@@ -3,7 +3,7 @@ import undoable from '../../lib/undoable';
 import config from '../../config/threed';
 import uuid from 'uuid/v1';
 import * as actions from '../../actions/threed';
-import Scene from '../../lib/object3dts/Scene';
+import {Scene} from '@bitbloq/lib3d';
 
 export const findObject = (objects = [], fn) => {
   if (!objects.length) return undefined;

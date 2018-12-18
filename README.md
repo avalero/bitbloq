@@ -13,6 +13,7 @@ This is a monorepo containing several packages that you can find inside the `pac
 
 We are using [Lerna](https://lernajs.io/) to manage dependencies between Bitbloq packages. To setup all the packages dependencies run:
 
+    npm install
     npx lerna bootstrap
 
 

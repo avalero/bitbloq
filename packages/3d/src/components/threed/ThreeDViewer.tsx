@@ -1,14 +1,15 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import styled from 'react-emotion';
-import Renderer from '../../lib/object3dts/Renderer';
 import {selectObject, deselectAllObjects} from '../../actions/threed';
-import Scene, {
+import {
+  Scene,
   IHelperDescription,
   IObjectPosition,
-} from '../../lib/object3dts/Scene';
+  IObjectsCommonJSON,
+  Renderer,
+} from '@bitbloq/lib3d';
 import {getSelectedObjects} from '../../reducers/threed/';
-import {IObjectsCommonJSON} from '../../lib/object3dts/ObjectsCommon';
 import {Icon} from '@bitbloq/ui';
 
 const Container = styled.div`

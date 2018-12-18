@@ -74,6 +74,7 @@
   },
   "dependencies": {
     "@bitbloq/ui": "^0.1.0",
+    "@bitbloq/lib3d": "^0.1.0",
     "@babel/core": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "@types/lodash.clonedeep": "^4.5.4",

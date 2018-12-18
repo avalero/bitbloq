@@ -4,7 +4,7 @@ import NumberInput from '../NumberInput';
 import {Select} from '@bitbloq/ui';
 import Checkbox from '../Checkbox';
 import ColorPicker from '../ColorPicker';
-import STLLoader from '../../lib/object3dts/STLLoader';
+import {STLLoader} from '@bitbloq/lib3d';
 
 const FormGroup = styled.div`
   margin-bottom: 10px;
