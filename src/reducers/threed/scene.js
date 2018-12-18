@@ -1,4 +1,4 @@
-import {handleActions} from 'redux-actions';
+import { handleActions } from 'redux-actions';
 import undoable from '../../lib/undoable';
 import config from '../../config/threed';
 import uuid from 'uuid/v1';
@@ -31,8 +31,8 @@ const scene = handleActions(
   new Map([
     [
       actions.createObject,
-      (state, {payload}) => {
-        const {sceneInstance, objects} = state;
+      (state, { payload }) => {
+        const { sceneInstance, objects } = state;
 
         const newObject = {
           ...payload,
@@ -51,7 +51,7 @@ const scene = handleActions(
     ],
     [
       actions.updateObjectViewOption,
-      (state, {payload: {object, option, value}}) => {
+      (state, { payload: { object, option, value } }) => {
         const updatedObject = {
           ...object,
           viewOptions: {
@@ -68,7 +68,7 @@ const scene = handleActions(
     ],
     [
       actions.updateObjectParameter,
-      (state, {payload: {object, parameter, value}}) => {
+      (state, { payload: { object, parameter, value } }) => {
         const updatedObject = {
           ...object,
           parameters: {
@@ -85,26 +85,26 @@ const scene = handleActions(
     ],
     [
       actions.updateObject,
-      (state, {payload}) => ({
+      (state, { payload }) => ({
         ...state,
-        objects: state.sceneInstance.updateObject(payload)
-      })
+        objects: state.sceneInstance.updateObject(payload),
+      }),
     ],
     [
       actions.updateOperation,
-      (state, {payload: {object, operation}}) => ({
+      (state, { payload: { object, operation } }) => ({
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
-          operations: object.operations.map(
-            o => (o.id === operation.id ? operation : o),
+          operations: object.operations.map(o =>
+            o.id === operation.id ? operation : o,
           ),
         }),
       }),
     ],
     [
       actions.duplicateObject,
-      (state, {payload}) => ({
+      (state, { payload }) => ({
         ...state,
         objects: state.sceneInstance.cloneOject({
           ...payload,
@@ -117,7 +117,7 @@ const scene = handleActions(
     ],
     [
       actions.addOperation,
-      (state, {payload: {object, operation}}) => ({
+      (state, { payload: { object, operation } }) => ({
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
@@ -127,7 +127,7 @@ const scene = handleActions(
     ],
     [
       actions.removeOperation,
-      (state, {payload: {object, operation}}) => ({
+      (state, { payload: { object, operation } }) => ({
         ...state,
         objects: state.sceneInstance.updateObject({
           ...object,
@@ -137,7 +137,7 @@ const scene = handleActions(
     ],
     [
       actions.reorderOperation,
-      (state, {payload: {object, operation, from, to}}) => {
+      (state, { payload: { object, operation, from, to } }) => {
         const operations = [...object.operations];
         operations.splice(from, 1);
         operations.splice(to, 0, operation);
@@ -153,32 +153,32 @@ const scene = handleActions(
     ],
     [
       actions.deleteObject,
-      (state, {payload}) => ({
+      (state, { payload }) => ({
         ...state,
-        objects: state.sceneInstance.removeFromScene(payload)
+        objects: state.sceneInstance.removeFromScene(payload),
       }),
     ],
     [
       actions.undoComposition,
-      (state, {payload}) => ({
+      (state, { payload }) => ({
         ...state,
-        objects: state.sceneInstance.undoCompound(payload)
+        objects: state.sceneInstance.undoObject(payload),
       }),
     ],
     [
       actions.ungroup,
-      (state, {payload}) => ({
+      (state, { payload }) => ({
         ...state,
-        objects: state.sceneInstance.unGroup(payload)
+        objects: state.sceneInstance.undoObject(payload),
       }),
     ],
     [
       actions.convertToGroup,
-      (state, {payload}) => ({
+      (state, { payload }) => ({
         ...state,
-        objects: state.sceneInstance.convertToGroup(payload)
+        objects: state.sceneInstance.convertToGroup(payload),
       }),
-    ]
+    ],
   ]),
   initialState,
 );
