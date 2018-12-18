@@ -1,0 +1,33 @@
+{
+  "name": "@bitbloq/lib3d",
+  "version": "0.1.0",
+  "description": "> TODO: description",
+  "author": "David Garcia <empoalp@gmail.com>",
+  "homepage": "https://github.com/empoalp/bitbloq-junior#readme",
+  "license": "ISC",
+  "main": "src/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/empoalp/bitbloq-junior.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/empoalp/bitbloq-junior/issues"
+  },
+  "dependencies": {
+    "@types/three": "^0.93.13",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
+    "three": "^0.99.0",
+    "uuid": "^3.3.2"
+  }
+}
