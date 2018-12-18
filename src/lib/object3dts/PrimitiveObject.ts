@@ -14,15 +14,15 @@
 
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
-import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsCommon, {
   IObjectsCommonJSON,
   IViewOptions,
   OperationsArray
 } from "./ObjectsCommon";
-import RepetitionObject from "./RepetitionObject";
 import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from "./RepetitionObject";
+import * as THREE from "three";
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;

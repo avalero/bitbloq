@@ -22,7 +22,8 @@
     "ter-arrow-parens": false,
     "import-name": false,
     "variable-name": [true, "check-format", "allow-leading-underscore"],
-    "prefer-array-literal": [true, { "allow-type-parameters": true }]
+    "prefer-array-literal": [true, { "allow-type-parameters": true }],
+    "ordered-imports": [false]
   },
   "jsRules": {
     //Disable for javascript
