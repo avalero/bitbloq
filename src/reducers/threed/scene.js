@@ -179,6 +179,20 @@ const scene = handleActions(
         objects: state.sceneInstance.convertToGroup(payload),
       }),
     ],
+    [
+      actions.undo,
+      state => ({
+        ...state,
+        objects: state.sceneInstance.undo()
+      }),
+    ],
+    [
+      actions.redo,
+      state => ({
+        ...state,
+        objects: state.sceneInstance.redo()
+      }),
+    ]
   ]),
   initialState,
 );

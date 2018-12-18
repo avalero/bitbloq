@@ -75,6 +75,21 @@ const selectOneMessage = (
 );
 
 class Toolbar extends React.Component<ToolbarProps> {
+  private readonly state = {
+    canUndo: false,
+    canRedo: false,
+  };
+
+  componentDidUpdate(prevProps) {
+    const { objects, scene } = this.props;
+    if (objects !== prevProps.objects) {
+      this.setState({
+        canUndo: scene.canUndo(),
+        canRedo: scene.canRedo()
+      });
+    }
+  }
+
   onComposeObjects(operation) {
     const { createObject, selectedObjects, advancedMode } = this.props;
 
@@ -93,9 +108,8 @@ class Toolbar extends React.Component<ToolbarProps> {
       advancedMode,
       undo,
       redo,
-      canUndo,
-      canRedo
     } = this.props;
+    const { canUndo, canRedo } = this.state;
 
     return (
       <Container>
@@ -169,10 +183,9 @@ class Toolbar extends React.Component<ToolbarProps> {
 
 const mapStateToProps = ({ threed }) => ({
   objects: getObjects(threed),
+  scene: threed.scene.sceneInstance,
   selectedObjects: getSelectedObjects(threed),
   advancedMode: threed.ui.advancedMode,
-  canUndo: false, //TODO
-  canRedo: false //TODO
 });
 
 const mapDispatchToProps = {
