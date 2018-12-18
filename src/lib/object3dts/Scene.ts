@@ -96,17 +96,46 @@ export default class Scene {
     this.setupScene();
     this.objectsGroup = new THREE.Group();
     this.lastJSON = this.toJSON();
-    this.historyIndex = 0;
+    this.historyIndex = -1;
     this.history = [];
     this.setMaterials();
   }
 
   public canUndo(): boolean {
-    return this.historyIndex > 0;
+    return this.historyIndex >= 0;
   }
 
   public canRedo(): boolean {
     return this.historyIndex < this.history.length - 1;
+  }
+
+  // Deshace la última operación y devuelve la escena después de deshacer
+  public undo(): ISceneJSON {
+    if (this.canUndo()) {
+      this.historyIndex -= 1;
+      // there was only one operation, so, clear de scene
+      if (this.historyIndex < 0) {
+        this.objectsInScene = [];
+        return this.toJSON();
+      }
+
+      const sceneJSON = this.history[this.historyIndex];
+      this.setHistorySceneFromJSON(sceneJSON);
+      return sceneJSON;
+    }
+
+    throw new Error("Cannot undo");
+  }
+
+  // Rehace la última operación y devuelve la escena después de rehacer
+  public redo(): ISceneJSON {
+    if (this.canRedo()) {
+      this.historyIndex += 1;
+      const sceneJSON = this.history[this.historyIndex];
+      this.setHistorySceneFromJSON(sceneJSON);
+      return sceneJSON;
+    }
+    throw new Error("Canno redo");
   }
 
   /**
@@ -394,28 +423,6 @@ export default class Scene {
     }
   }
 
-  // Deshace la última operación y devuelve la escena después de deshacer
-  public undo(): ISceneJSON {
-    if (this.historyIndex > 0) {
-      this.historyIndex -= 1;
-    }
-
-    const sceneJSON = this.history[this.historyIndex];
-    this.setHistorySceneFromJSON(sceneJSON);
-    return sceneJSON;
-  }
-
-  // Rehace la última operación y devuelve la escena después de rehacer
-  public redo(): ISceneJSON {
-    if (this.historyIndex < this.history.length - 1) {
-      this.historyIndex += 1;
-    }
-
-    const sceneJSON = this.history[this.historyIndex];
-    this.setHistorySceneFromJSON(sceneJSON);
-    return sceneJSON;
-  }
-
   private setHistorySceneFromJSON(json: ISceneJSON): void {
     this.objectsInScene = [];
     json.forEach(jsonObj => {
@@ -565,7 +572,7 @@ export default class Scene {
   private updateHistory(): void {
     const sceneJSON = this.toJSON();
     // Add to history
-    this.history = this.history.slice(0, this.historyIndex);
+    this.history = this.history.slice(0, this.historyIndex + 1);
     this.history.push(sceneJSON);
     this.historyIndex = this.history.length - 1;
   }
