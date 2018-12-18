@@ -287,34 +287,34 @@ export default class Scene {
    * If not it triggers an error exception.
    * @param json json describing object
    */
-  public updateObject(obj: IObjectsCommonJSON): ISceneJSON {
-    const id = obj.id;
-    const object = this.objectCollector.find(
-      objMatch => id === objMatch.getID()
-    );
-    if (object) {
-      object.updateFromJSON(obj);
-    } else {
-      throw new Error(`Object id ${id} not found`);
+  public updateObject(objJSON: IObjectsCommonJSON): ISceneJSON {
+    try {
+      const object = this.getObject(objJSON);
+
+      if (isEqual(objJSON, object.toJSON())) {
+        return this.toJSON();
+      }
+
+      object.updateFromJSON(objJSON);
+
+      // Objects in Transition
+      this.objectsInTransition = [];
+      const parent = object.getParent();
+      if (parent instanceof CompoundObject) {
+        parent.getChildren().forEach(transitionObject => {
+          this.objectsInTransition.push(transitionObject);
+        });
+      }
+      const sceneJSON = this.toJSON();
+      // Add to history
+      this.history = this.history.slice(0, this.historyIndex);
+      this.history.push(sceneJSON);
+      this.historyIndex = this.history.length - 1;
+
+      return sceneJSON;
+    } catch (e) {
+      throw new Error(`Cannot update Object ${e}`);
     }
-
-    // Objects in Transition
-    this.objectsInTransition = [];
-    const parent = object.getParent();
-    if (parent instanceof CompoundObject) {
-      parent.getChildren().forEach(transitionObject => {
-        this.objectsInTransition.push(transitionObject);
-      });
-    }
-
-    const sceneJSON = this.toJSON();
-    // Add to history
-
-    this.history = this.history.slice(0, this.historyIndex);
-    this.history.push(sceneJSON);
-    this.historyIndex = this.history.length - 1;
-
-    return sceneJSON;
   }
 
   /**
@@ -332,6 +332,36 @@ export default class Scene {
     }
   }
 
+  public undoRepetion(json: IRepetitionObjectJSON): ISceneJSON {
+    try {
+      if (json.type !== RepetitionObject.typeName) {
+        throw new Error(`Not Repetition Object: ${json.type}`);
+      }
+
+      if (!this.objectInScene(json)) {
+        throw new Error(`Object ${json.id} not present in Scene`);
+      }
+
+      // Add original to Scene
+      const original = (this.getObject(json) as RepetitionObject).getOriginal();
+
+      if (this.objectInObjectCollector(original.toJSON())) {
+        this.objectsInScene.push(original);
+      } else {
+        throw new Error(
+          `Unexepected Error. Object ${original.getID()} not in Object Collector`
+        );
+      }
+
+      // Remove from Scenen and Object Collector Repetiton Object
+      this.removeFromObjectCollector(json);
+      this.removeFromScene(json);
+
+      return this.toJSON();
+    } catch (e) {
+      throw new Error(`Repetion Cannot be Undone ${e}`);
+    }
+  }
   /**
    * It removes the CompoundObject from Scene and ObjectCollector.
    * It adds the children to the Scene
