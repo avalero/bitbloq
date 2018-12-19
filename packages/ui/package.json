@@ -23,7 +23,10 @@
   "dependencies": {
     "@emotion/core": "^10.0.5",
     "@emotion/styled": "^10.0.5",
+    "chroma-js": "^2.0.2",
     "react": "^16.6.3",
-    "react-select": "^2.1.2"
+    "react-color": "^2.14.1",
+    "react-select": "^2.1.2",
+    "react-tether": "^1.0.4"
   }
 }

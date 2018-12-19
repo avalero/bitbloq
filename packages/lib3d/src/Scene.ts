@@ -106,7 +106,6 @@ export default class Scene {
   }
 
   public canRedo(): boolean {
-    debugger;
     return this.historyIndex < this.history.length - 1;
   }
 

@@ -1,11 +1,12 @@
 import * as React from "react";
-import Tooltip from "./Tooltip";
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import MenuBar, {
   MainMenuOption,
   OptionClickHandler as MenuOptionClickHandler,
 } from './MenuBar';
-import styled, {css} from 'react-emotion';
-import {Icon} from '@bitbloq/ui';
+import Icon from './Icon';
+import Tooltip from './Tooltip';
 
 const Container = styled.div`
   display: flex;
@@ -226,5 +227,7 @@ class Document extends React.Component<DocumentProps, State> {
     );
   }
 }
+
+Document.Tab = Tab;
 
 export default Document;

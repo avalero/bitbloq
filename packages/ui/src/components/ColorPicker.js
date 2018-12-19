@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import chroma from 'chroma-js';
 import {TwitterPicker} from 'react-color';
 import DropDown from './DropDown';

@@ -1,9 +1,6 @@
 import React from 'react';
 import styled, {css} from 'react-emotion';
-import NumberInput from '../NumberInput';
-import {Select} from '@bitbloq/ui';
-import Checkbox from '../Checkbox';
-import ColorPicker from '../ColorPicker';
+import {Checkbox, ColorPicker, NumberInput, Select} from '@bitbloq/ui';
 import {STLLoader} from '@bitbloq/lib3d';
 
 const FormGroup = styled.div`
@@ -95,10 +92,7 @@ const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
 const BooleanProperty = ({label, value, onChange}) => (
   <FormGroup>
     <label>{label}</label>
-    <Checkbox
-      checked={value}
-      onChange={onChange}
-    />
+    <Checkbox checked={value} onChange={onChange} />
   </FormGroup>
 );
 

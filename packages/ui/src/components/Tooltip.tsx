@@ -1,6 +1,7 @@
-import * as React from "react";
-import TetherComponent from "react-tether";
-import styled, { css } from "react-emotion";
+import * as React from 'react';
+import TetherComponent from 'react-tether';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 
 interface ContainerProps {
   position: string;

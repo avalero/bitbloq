@@ -24,10 +24,7 @@ import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
-import ColorPicker from '../ColorPicker';
-import DropDown from '../DropDown';
-import Tooltip from '../Tooltip';
-import {Icon, Input} from '@bitbloq/ui';
+import {DropDown, Icon, Input, Tooltip} from '@bitbloq/ui';
 import config from '../../config/threed';
 
 const Wrap = styled.div`
