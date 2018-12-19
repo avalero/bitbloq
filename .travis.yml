@@ -17,7 +17,7 @@ install:
   - npm install
   - npx lerna bootstrap
 script:
-  - npx lerna run tslint
+  - npx lerna run tslint:prod
   - npx lerna run test
 after_success:
   - npx lerna run coveralls

@@ -4,7 +4,8 @@
   "scripts": {
     "test": "lerna exec -- npm run test",
     "coveralls": "lerna exec -- npm run coveralls",
-    "tslint": "lerna run tslint"
+    "tslint:prod": "lerna run tslint:prod",
+    "tslint:dev": "lerna run tslint:dev"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",

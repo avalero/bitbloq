@@ -36,7 +36,8 @@
   "scripts": {
     "test": "jest --coverage",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
-    "tslint": "tslint --project ./",
+    "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
+    "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
     "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\""
   },
   "bugs": {
