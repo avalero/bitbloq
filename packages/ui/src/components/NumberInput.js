@@ -1,6 +1,8 @@
 import React from 'react';
-import styled, {css} from 'react-emotion';
-import {Input, Icon} from '@bitbloq/ui';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
+import Icon from './Icon';
+import Input from './Input';
 
 const Container = styled.div`
   position: relative;

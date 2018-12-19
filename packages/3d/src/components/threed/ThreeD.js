@@ -6,9 +6,7 @@ import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer.tsx';
 import Toolbar from './Toolbar';
 import PropertiesPanel from './PropertiesPanel';
-import Document, {Tab} from '../Document';
-import Switch from '../Switch';
-import {Icon} from '@bitbloq/ui';
+import {Document, Icon, Switch} from '@bitbloq/ui';
 
 const Container = styled.div`
   flex: 1;
@@ -129,7 +127,7 @@ class ThreeD extends React.Component {
         menuOptions={menuOptions(this.props)}
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
-        <Tab icon={<Icon name="threed" />} label="3D">
+        <Document.Tab icon={<Icon name="threed" />} label="3D">
           <Container>
             <ObjectTree />
             <MainArea>
@@ -138,8 +136,8 @@ class ThreeD extends React.Component {
             </MainArea>
             <PropertiesPanel />
           </Container>
-        </Tab>
-        <Tab icon={<Icon name="info" />} label="Información del proyecto" />
+        </Document.Tab>
+        <Document.Tab icon={<Icon name="info" />} label="Información del proyecto" />
       </Document>
     );
   }

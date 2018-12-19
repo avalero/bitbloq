@@ -1,10 +1,9 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
-import Tooltip from '../Tooltip';
 import {createObject, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import {Icon} from '@bitbloq/ui';
+import {Icon, Tooltip} from '@bitbloq/ui';
 import config from '../../config/threed';
 
 const Container = styled.div`

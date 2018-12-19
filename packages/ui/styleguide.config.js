@@ -6,15 +6,19 @@ module.exports = {
     module: {
       rules: [
         {
-          test: /\.tsx?$/,
-          loader: 'babel-loader',
-        },
-        {
-          test: /\.js?$/,
+          test: /\.(js|jsx|ts|tsx)?$/,
           exclude: /node_modules/,
-          loader: 'babel-loader'
+          use: {
+            loader: 'babel-loader',
+            options: {
+              rootMode: 'upward',
+            }
+          },
         },
       ]
-    }
+    },
+    resolve: {
+      extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    },
   }
 };
