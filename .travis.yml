@@ -17,8 +17,8 @@ install:
   - npm install
   - npx lerna bootstrap
 script:
-  - npm test
+  - npx lerna run test
 after_success:
-  - npm run coveralls
+  - npx lerna run coveralls
 notifications:
     slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS
