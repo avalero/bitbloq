@@ -1,0 +1,5 @@
+Example
+
+```js
+<NumberInput />
+```
