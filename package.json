@@ -2,8 +2,9 @@
   "name": "root",
   "private": false,
   "scripts": {
-    "test": "lerna run test",
-    "coveralls": "lerna run coveralls"
+    "test": "lerna exec -- npm run test",
+    "coveralls": "lerna exec -- npm run coveralls",
+    "tslint": "lerna run tslint"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",

@@ -5,10 +5,27 @@
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"No test specified\" && exit 0",
-    "coveralls": "echo \"No test specified\" && exit 0"
+    "coveralls": "echo \"No test specified\" && exit 0",
+    "tslint": "echo \"No tslint specified\" && exit 0"
   },
-  "author": "",
-  "license": "ISC",
+  "authors": [
+    {
+      "name": "David García Paredes",
+      "mail": "david.garciaparedes@bq.com",
+      "github": "https://github.com/empoalp"
+    },
+    {
+      "name": "Alda Martín",
+      "mail": "alda.martin@bq.com",
+      "github": "https://github.com/aldaMarMu"
+    },
+    {
+      "name": "Alberto Valero Gómez",
+      "mail": "alberto.valero@bq.com",
+      "github": "https://github.com/avalero"
+    }
+  ],
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.2.0",
     "@babel/plugin-proposal-class-properties": "^7.2.1",
