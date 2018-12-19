@@ -2,7 +2,7 @@
   "name": "root",
   "private": false,
   "scripts": {
-    "test": "jest --coverage",
+    "test": "lerna run test",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls"
   },
   "devDependencies": {
@@ -10,21 +10,10 @@
     "@babel/plugin-proposal-class-properties": "^7.2.1",
     "@babel/plugin-syntax-decorators": "^7.2.0",
     "@babel/preset-react": "^7.0.0",
-    "@types/jest": "^23.3.10",
-    "babel-plugin-emotion": "^10.0.5",
-    "coveralls": "^3.0.2",
-    "jest": "^23.6.0",
-    "lerna": "^3.6.0",
-    "ts-jest": "^23.10.5",
-    "typescript": "^3.2.2"
+    "babel-plugin-emotion": "^10.0.5"
   },
   "dependencies": {
     "@babel/preset-env": "^7.2.0",
     "@babel/preset-typescript": "^7.1.0"
-  },
-  "jest": {
-    "transformIgnorePatterns": [
-      "<rootDir>.*(node_modules)(?!.*lib3d.*).*$"
-    ]
   }
 }
