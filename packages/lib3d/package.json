@@ -2,8 +2,24 @@
   "name": "@bitbloq/lib3d",
   "version": "0.1.0",
   "description": "> TODO: description",
-  "author": "David Garcia <empoalp@gmail.com>",
-  "homepage": "https://github.com/empoalp/bitbloq-junior#readme",
+  "authors": [
+    {
+      "name": "David García Paredes",
+      "mail": "david.garciaparedes@bq.com",
+      "github": "https://github.com/empoalp"
+    },
+    {
+      "name": "Alda Martín",
+      "mail": "alda.martin@bq.com",
+      "github": "https://github.com/aldaMarMu"
+    },
+    {
+      "name": "Alberto Valero Gómez",
+      "mail": "alberto.valero@bq.com",
+      "github": "https://github.com/avalero"
+    }
+  ],
+  "homepage": "git+https://github.com/bitbloq/bitbloq#readme",
   "license": "ISC",
   "main": "src/index.js",
   "directories": {
@@ -15,19 +31,39 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/empoalp/bitbloq-junior.git"
+    "url": "git+https://github.com/bitbloq/bitbloq.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "jest --coverage",
+    "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
+    "tslint": "tslint \"**/*.{ts}\"",
+    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\""
   },
   "bugs": {
-    "url": "https://github.com/empoalp/bitbloq-junior/issues"
+    "url": "git+https://github.com/bitbloq/bitbloq/issues"
   },
   "dependencies": {
-    "@types/three": "^0.93.13",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "three": "^0.99.0",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/three": "^0.93.13",
+    "@types/jest": "^23.3.10",
+    "@types/lodash.clonedeep": "^4.5.4",
+    "@types/lodash.isequal": "^4.5.3",
+    "@types/uuid": "^3.4.4",
+    "jest": "^23.6.0",
+    "jest-fetch-mock": "^2.1.0",
+    "jsdom-worker": "^0.1.0",
+    "ts-jest": "^23.10.5",
+    "worker-loader": "^2.0.0",
+    "tslint": "^5.11.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.17.0",
+    "prettier-tslint": "^0.4.1",
+    "dtslint": "^0.4.1",
+    "coveralls": "^3.0.2"
   }
 }

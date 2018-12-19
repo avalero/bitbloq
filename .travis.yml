@@ -8,13 +8,16 @@ branches:
 cache:
   directories:
     - node_modules
+    - packages/lib3d/node_modules
+    - packages/3d/node_modules
+    - packages/us/node_modules
 before_install:
   - npm update
 install:
   - npm install
+  - npx lerna bootstrap
 script:
   - npm test
-  - npm run tslint:ts
 after_success:
   - npm run coveralls
 notifications:
