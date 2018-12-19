@@ -1,7 +1,6 @@
 {
   "extends": [
     "tslint:latest",
-    "tslint-react",
     "tslint-config-airbnb",
     "tslint-config-prettier"
   ],
@@ -11,7 +10,7 @@
   "rules": {
     "no-console": false,
     "object-literal-sort-keys": false,
-    "no-debugger": false,
+    "no-debugger": true,
     "ter-arrow-parens": false,
     "import-name": false,
     "variable-name": [true, "check-format", "allow-leading-underscore"],

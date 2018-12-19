@@ -36,7 +36,7 @@
   "scripts": {
     "test": "jest --coverage",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
-    "tslint": "tslint \"**/*.{ts}\"",
+    "tslint": "tslint --project ./",
     "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\""
   },
   "bugs": {
@@ -46,7 +46,8 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
     "three": "^0.99.0",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "jsdom-worker": "^0.1.0"
   },
   "devDependencies": {
     "@types/three": "^0.93.13",

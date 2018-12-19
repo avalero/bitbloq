@@ -106,7 +106,6 @@ export default class Scene {
   }
 
   public canRedo(): boolean {
-    debugger;
     return this.historyIndex < this.history.length - 1;
   }
 
@@ -311,7 +310,10 @@ export default class Scene {
    * @param json json describing object
    * UPDATES HISTORY
    */
-  public updateObject(objJSON: IObjectsCommonJSON, updateHistory: boolean = true): ISceneJSON {
+  public updateObject(
+    objJSON: IObjectsCommonJSON,
+    updateHistory: boolean = true
+  ): ISceneJSON {
     try {
       const object = this.getObject(objJSON);
 
@@ -329,7 +331,7 @@ export default class Scene {
           this.objectsInTransition.push(transitionObject);
         });
       }
-      if(updateHistory){
+      if (updateHistory) {
         this.updateHistory();
       }
       return this.toJSON();
@@ -386,7 +388,6 @@ export default class Scene {
    * UPDATES HISTORY
    */
   public convertToGroup(json: IObjectsCommonJSON): ISceneJSON {
-    debugger;
     if (json.type === RepetitionObject.typeName) {
       this.repetitionToGroup(json as IRepetitionObjectJSON);
       this.updateHistory();
