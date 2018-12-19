@@ -311,7 +311,7 @@ export default class Scene {
    * @param json json describing object
    * UPDATES HISTORY
    */
-  public updateObject(objJSON: IObjectsCommonJSON): ISceneJSON {
+  public updateObject(objJSON: IObjectsCommonJSON, updateHistory: boolean = true): ISceneJSON {
     try {
       const object = this.getObject(objJSON);
 
@@ -329,7 +329,9 @@ export default class Scene {
           this.objectsInTransition.push(transitionObject);
         });
       }
-      this.updateHistory();
+      if(updateHistory){
+        this.updateHistory();
+      }
       return this.toJSON();
     } catch (e) {
       throw new Error(`Cannot update Object ${e}`);

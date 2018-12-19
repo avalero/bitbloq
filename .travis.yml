@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-  - '8'
+  - '10'
 branches:
   only:
     - develop
@@ -10,15 +10,15 @@ cache:
     - node_modules
     - packages/lib3d/node_modules
     - packages/3d/node_modules
-    - packages/us/node_modules
+    - packages/ui/node_modules
 before_install:
   - npm update
 install:
   - npm install
   - npx lerna bootstrap
 script:
-  - npm test
+  - npx lerna run test
 after_success:
-  - npm run coveralls
+  - npx lerna run coveralls
 notifications:
     slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS
