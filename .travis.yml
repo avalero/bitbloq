@@ -1,0 +1,21 @@
+sudo: false
+language: node_js
+node_js:
+  - '8'
+branches:
+  only:
+    - develop
+cache:
+  directories:
+    - node_modules
+before_install:
+  - npm update
+install:
+  - npm install
+script:
+  - npm test
+  - npm run tslint:ts
+after_success:
+  - npm run coveralls
+notifications:
+slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS
