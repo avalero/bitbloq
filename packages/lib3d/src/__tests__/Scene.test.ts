@@ -37,10 +37,15 @@ test("Scene - Undo - 1 step", () => {
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
   scene.addNewObjectFromJSON(cube.toJSON());
 
+  expect((scene as any).history.length).toEqual(1);
+  expect((scene as any).historyIndex).toEqual(0);
+
   scene.undo();
   const lastJSON = scene.toJSON();
 
   expect(firstJSON).toEqual(lastJSON);
+  expect((scene as any).history.length).toEqual(1);
+  expect((scene as any).historyIndex).toEqual(-1);
 });
 
 test("Scene - Undo - 2 steps", () => {
@@ -51,14 +56,24 @@ test("Scene - Undo - 2 steps", () => {
 
   scene.addNewObjectFromJSON(cube.toJSON());
   const secondJSON = scene.toJSON();
+  expect((scene as any).history.length).toEqual(1);
+  expect((scene as any).historyIndex).toEqual(0);
 
   scene.addNewObjectFromJSON(cube.toJSON());
+  expect((scene as any).history.length).toEqual(2);
+  expect((scene as any).historyIndex).toEqual(1);
 
   scene.undo();
+
+  expect((scene as any).history.length).toEqual(2);
+  expect((scene as any).historyIndex).toEqual(0);
 
   expect(scene.toJSON()).toEqual(secondJSON);
 
   scene.undo();
+
+  expect((scene as any).history.length).toEqual(2);
+  expect((scene as any).historyIndex).toEqual(-1);
 
   expect(scene.toJSON()).toEqual(firstJSON);
 

@@ -129,7 +129,6 @@ export default class Scene {
 
   // Rehace la última operación y devuelve la escena después de rehacer
   public redo(): ISceneJSON {
-    // debugger;
     if (this.canRedo()) {
       this.historyIndex += 1;
       const sceneJSON = this.history[this.historyIndex];
@@ -430,11 +429,15 @@ export default class Scene {
 
   private setHistorySceneFromJSON(json: ISceneJSON): void {
     this.objectsInScene = [];
-    json.forEach(jsonObj => {
-      const obj = this.getObject(jsonObj);
-      obj.updateFromJSON(jsonObj);
-      this.objectsInScene.push(obj);
-    });
+    try {
+      json.forEach(jsonObj => {
+        const obj = this.getObject(jsonObj);
+        obj.updateFromJSON(jsonObj);
+        this.objectsInScene.push(obj);
+      });
+    } catch (e) {
+      throw new Error(`Cannot set history scene ${e}`);
+    }
   }
 
   /**
