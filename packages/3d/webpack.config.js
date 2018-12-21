@@ -18,7 +18,7 @@ const providePlugin = new webpack.ProvidePlugin({
 
 const plugins = [htmlPlugin, definePlugin, providePlugin];
 
-if (process.env.WITHOUT_MONACO === 'true') {
+if (true || process.env.WITHOUT_MONACO === 'true') {
   plugins.push(
     new webpack.NormalModuleReplacementPlugin(
       /src\/components\/CodeEditor\.js/,
