@@ -3,6 +3,7 @@ import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import {TranslateContext} from '../TranslateProvider';
 import {colors, shadow} from '../../base-styles';
 import {Icon} from '@bitbloq/ui';
 import {
@@ -157,6 +158,9 @@ const ObjectTypeIcon = styled.div`
 `
 
 class ObjectTree extends React.Component {
+
+  static contextType = TranslateContext;
+
   state = {
     addDropDownOpen: false,
     collapsedItems: [],
@@ -186,11 +190,15 @@ class ObjectTree extends React.Component {
 
   onAddObject(typeConfig) {
     const {advancedMode} = this.props;
+    const t = this.context;
     this.setState({addDropDownOpen: false});
 
     const object = {
       ...typeConfig.create(),
       operations: config.defaultOperations(advancedMode),
+      viewOptions: {
+        name: t(typeConfig.label)
+      }
     };
 
     this.props.createObject(object);
@@ -312,6 +320,7 @@ class ObjectTree extends React.Component {
   render() {
     const {addDropDownOpen} = this.state;
     const {objects} = this.props;
+    const t = this.context;
 
     return (
       <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
@@ -319,7 +328,7 @@ class ObjectTree extends React.Component {
           <AddButton
             onClick={() => this.setState({addDropDownOpen: true})}
             open={addDropDownOpen}>
-            <div>+ Add object</div>
+            <div>+ {t('add-object')}</div>
             <AddDropdown open={addDropDownOpen}>
               {config.objectTypes.map(
                 typeConfig =>
@@ -331,7 +340,7 @@ class ObjectTree extends React.Component {
                         this.onAddObject(typeConfig);
                       }}>
                       {typeConfig.icon}
-                      <div>{typeConfig.label}</div>
+                      <div>{t(typeConfig.label)}</div>
                     </AddDropdownItem>
                   ),
               )}

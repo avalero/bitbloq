@@ -34,12 +34,15 @@ const scene = handleActions(
       (state, { payload }) => {
         const { sceneInstance, objects } = state;
 
+        const viewOptions = payload.viewOptions || {};
+
         const newObject = {
           ...payload,
           viewOptions: {
+            ...viewOptions,
             color:
               config.colors[Math.floor(Math.random() * config.colors.length)],
-            name: createObjectName(payload.type, objects),
+            name: createObjectName(viewOptions.name || payload.type, objects),
           },
         };
 

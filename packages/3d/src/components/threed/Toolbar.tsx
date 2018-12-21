@@ -1,8 +1,10 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
+import Markdown from 'react-markdown';
 import {createObject, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
+import {Translate} from '../TranslateProvider';
 import {Icon, Tooltip} from '@bitbloq/ui';
 import config from '../../config/threed';
 
@@ -58,23 +60,6 @@ export interface ToolbarProps {
   createObject: (object: object) => any;
 }
 
-const selectTopObject = (
-  <span>
-    Selecciona objetos de primer nivel para poder usar esta herramienta
-  </span>
-);
-
-const selectMultipleMessage = (
-  <span>
-    Selecciona varios objetos pulsando <i>“Control + clic”</i> en cada uno de
-    ellos para utilizar esta herramienta
-  </span>
-);
-
-const selectOneMessage = (
-  <span>Selecciona un único objeto para utilizar esta herramienta</span>
-);
-
 class Toolbar extends React.Component<ToolbarProps> {
   private readonly state = {
     canUndo: false,
@@ -113,70 +98,74 @@ class Toolbar extends React.Component<ToolbarProps> {
     const { canUndo, canRedo } = this.state;
 
     return (
-      <Container>
-        <Operations>
-          {config.compositionOperations.map(operation => {
-            if (operation.advancedMode && !advancedMode) return;
+      <Translate>
+        {t => (
+          <Container>
+            <Operations>
+              {config.compositionOperations.map(operation => {
+                if (operation.advancedMode && !advancedMode) return;
 
-            const {minObjects = 0, maxObjects = Infinity} = operation;
-            const numObjects = selectedObjects.length;
-            const topObjects = selectedObjects.every(o => objects.includes(o));
-            const canApply =
-              topObjects &&
-              (numObjects >= minObjects && numObjects <= maxObjects);
+                const {minObjects = 0, maxObjects = Infinity} = operation;
+                const numObjects = selectedObjects.length;
+                const topObjects = selectedObjects.every(o => objects.includes(o));
+                const canApply =
+                  topObjects &&
+                  (numObjects >= minObjects && numObjects <= maxObjects);
 
-            let tooltipContent;
-            if (canApply) {
-              tooltipContent = operation.label;
-            } else {
-              if (!topObjects) {
-                tooltipContent = selectTopObject;
-              } else if (minObjects > 1) {
-                tooltipContent = selectMultipleMessage;
-              } else if (maxObjects === 1) {
-                tooltipContent = selectOneMessage;
-              }
-            }
+                let tooltipContent;
+                if (canApply) {
+                  tooltipContent = t(operation.label);
+                } else {
+                  if (!topObjects) {
+                    tooltipContent = <Markdown source={t('tooltip-select-top')} />;
+                  } else if (minObjects > 1) {
+                    tooltipContent = <Markdown source={t('tooltip-select-multiple')} />;
+                  } else if (maxObjects === 1) {
+                    tooltipContent = <Markdown source={t('tooltip-select-one')} />;
+                  }
+                }
 
-            return (
-              <Tooltip key={operation.name} content={tooltipContent}>
+                return (
+                  <Tooltip key={operation.name} content={tooltipContent}>
+                    {tooltipProps => (
+                      <Button
+                        {...tooltipProps}
+                        disabled={!canApply}
+                        onClick={() =>
+                          canApply && this.onComposeObjects(operation)
+                        }>
+                        {operation.icon}
+                      </Button>
+                    )}
+                  </Tooltip>
+                );
+              })}
+            </Operations>
+            <UndoRedo>
+              <Tooltip content={t('undo')}>
                 {tooltipProps => (
                   <Button
                     {...tooltipProps}
-                    disabled={!canApply}
-                    onClick={() =>
-                      canApply && this.onComposeObjects(operation)
-                    }>
-                    {operation.icon}
+                    disabled={!canUndo}
+                    onClick={() => canUndo && undo()}>
+                    <Icon name="undo" />
                   </Button>
                 )}
               </Tooltip>
-            );
-          })}
-        </Operations>
-        <UndoRedo>
-          <Tooltip content="Undo">
-            {tooltipProps => (
-              <Button
-                {...tooltipProps}
-                disabled={!canUndo}
-                onClick={() => canUndo && undo()}>
-                <Icon name="undo" />
-              </Button>
-            )}
-          </Tooltip>
-          <Tooltip content="Redo">
-            {tooltipProps => (
-              <Button
-                {...tooltipProps}
-                disabled={!canRedo}
-                onClick={() => canRedo && redo()}>
-                <Icon name="redo" />
-              </Button>
-            )}
-          </Tooltip>
-        </UndoRedo>
-      </Container>
+              <Tooltip content={t('redo')}>
+                {tooltipProps => (
+                  <Button
+                    {...tooltipProps}
+                    disabled={!canRedo}
+                    onClick={() => canRedo && redo()}>
+                    <Icon name="redo" />
+                  </Button>
+                )}
+              </Tooltip>
+            </UndoRedo>
+          </Container>
+        )}
+      </Translate>
     );
   }
 }

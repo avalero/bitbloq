@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import NavigationBox from "./NavigationBox";
+import NavigationBox, { IBoxLabels } from "./NavigationBox";
 import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
 import OrbitCamera from "./OrbitCamera";
 import Scene, { IHelperDescription } from "./Scene";
@@ -27,6 +27,7 @@ export interface IRendererOptions {
   antialias: boolean;
   clearColor: number;
   sortObjects: boolean;
+  navigationBoxLabels: IBoxLabels;
 }
 
 export default class Renderer {
@@ -222,6 +223,7 @@ export default class Renderer {
     this.container.appendChild(navBoxContainer);
 
     this.navigationBox = new NavigationBox(navBoxContainer, {
+      boxLabels: this.options.navigationBoxLabels,
       onChangeCameraAngle: (theta, phi) => {
         this.cameraControls.rotateTo(theta, phi, true);
       }

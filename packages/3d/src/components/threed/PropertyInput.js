@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, {css} from 'react-emotion';
+import {Translate} from '../TranslateProvider';
 import {Checkbox, ColorPicker, NumberInput, Select} from '@bitbloq/ui';
 import {STLLoader} from '@bitbloq/lib3d';
 
@@ -28,7 +29,7 @@ const StyledSelect = styled(Select)`
 
 const IntegerProperty = ({label, value, onChange, onFocus, onBlur, unit}) => (
   <FormGroup>
-    <label>{label}</label>
+    <Translate>{t => <label>{t(label)}</label>}</Translate>
     <NumberInput
       value={value}
       unit={unit}
@@ -75,30 +76,44 @@ const FileProperty = ({onChange}) => (
   </FormGroup>
 );
 
-const SelectProperty = ({label, options, value, onChange, onFocus, onBlur}) => (
-  <FormGroup>
-    <label>{label}</label>
-    <StyledSelect
-      value={value}
-      options={options}
-      selectConfig={{isSearchable: false}}
-      onChange={onChange}
-      onFocus={onFocus}
-      onBlur={onBlur}
-    />
-  </FormGroup>
+const SelectProperty = ({
+  label,
+  options = [],
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+}) => (
+  <Translate>
+    {t => (
+      <FormGroup>
+        <label>{t(label)}</label>
+        <StyledSelect
+          value={value}
+          options={options.map(o => ({
+            ...o,
+            label: o.labelId ? t(o.labelId) : o.label,
+          }))}
+          selectConfig={{isSearchable: false}}
+          onChange={onChange}
+          onFocus={onFocus}
+          onBlur={onBlur}
+        />
+      </FormGroup>
+    )}
+  </Translate>
 );
 
 const BooleanProperty = ({label, value, onChange}) => (
   <FormGroup>
-    <label>{label}</label>
+    <Translate>{t => <label>{t(label)}</label>}</Translate>
     <Checkbox checked={value} onChange={onChange} />
   </FormGroup>
 );
 
 const ColorProperty = ({label, value, onChange}) => (
   <FormGroup>
-    <label>{label}</label>
+    <Translate>{t => <label>{t(label)}</label>}</Translate>
     <ColorPickerWrap>
       <ColorPicker color={value} onChange={onChange} position="top-right" />
     </ColorPickerWrap>

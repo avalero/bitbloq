@@ -18,7 +18,7 @@ const Container = styled.div<ContainerProps>`
   line-height: normal;
   max-width: 220px;
 
-  i {
+  i, em {
     color: #4dc3ff;
   }
 

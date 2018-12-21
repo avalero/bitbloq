@@ -21,26 +21,26 @@ const config = {
   objectTypes: [
     {
       name: 'Cube',
-      label: 'Cube',
+      label: 'object-type-cube',
       icon: <Icon name="cube" />,
       parameters: () => [
         {
           name: 'width',
-          label: 'Width',
+          label: 'param-width',
           type: 'integer',
           unit: 'mm',
           min: 0,
         },
         {
           name: 'height',
-          label: 'Height',
+          label: 'param-height',
           type: 'integer',
           unit: 'mm',
           min: 0,
         },
         {
           name: 'depth',
-          label: 'Depth',
+          label: 'param-depth',
           type: 'integer',
           unit: 'mm',
           min: 0,
@@ -59,12 +59,12 @@ const config = {
     },
     {
       name: 'Sphere',
-      label: 'Sphere',
+      label: 'object-type-sphere',
       icon: <Icon name="sphere" />,
       parameters: () => [
         {
           name: 'radius',
-          label: 'Radius',
+          label: 'param-radius',
           type: 'integer',
           unit: 'mm',
           min: 0,
@@ -81,24 +81,24 @@ const config = {
     },
     {
       name: 'Cylinder',
-      label: 'Cylinder',
+      label: 'object-type-cylinder',
       icon: <Icon name="cylinder" />,
       parameters: () => [
         {
           name: 'r0',
-          label: 'Radius Bottom',
+          label: 'param-bottom-radius',
           type: 'integer',
           unit: 'mm',
         },
         {
           name: 'r1',
-          label: 'Radius Top',
+          label: 'param-top-radius',
           type: 'integer',
           unit: 'mm',
         },
         {
           name: 'height',
-          label: 'Height',
+          label: 'param-height',
           type: 'integer',
           unit: 'mm',
         },
@@ -116,23 +116,23 @@ const config = {
     },
     {
       name: 'Prism',
-      label: 'Prism',
+      label: 'object-type-prism',
       icon: <Icon name="prism" />,
       parameters: () => [
         {
           name: 'sides',
-          label: 'Number of sides',
+          label: 'param-number-of-sides',
           type: 'integer',
         },
         {
           name: 'length',
-          label: 'Length of sides',
+          label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
         },
         {
           name: 'height',
-          label: 'Height',
+          label: 'param-height',
           type: 'integer',
           unit: 'mm',
         },
@@ -150,12 +150,12 @@ const config = {
     },
     {
       name: 'STLObject',
-      label: 'STL Object',
+      label: 'object-type-stl-object',
       icon: <Icon name="stl" />,
       parameters: () => [
         {
           name: 'geometry',
-          label: 'File',
+          label: 'param-file',
           type: 'file',
         },
       ],
@@ -170,32 +170,32 @@ const config = {
     },
     {
       name: 'Union',
-      label: 'Union',
+      label: 'object-type-union',
       icon: <Icon name="union" />,
       canUndo: true,
-      undoLabel: 'Undo union',
+      undoLabel: 'menu-undo-union',
       parameters: () => [],
     },
     {
       name: 'Difference',
-      label: 'Difference',
+      label: 'object-type-difference',
       icon: <Icon name="difference" />,
       canUndo: true,
-      undoLabel: 'Undo difference',
+      undoLabel: 'menu-undo-difference',
       showBaseObject: true,
       parameters: () => [],
     },
     {
       name: 'Intersection',
-      label: 'Intersection',
+      label: 'object-type-intersection',
       icon: <Icon name="intersection" />,
       canUndo: true,
-      undoLabel: 'Undo intersection',
+      undoLabel: 'menu-undo-intersection',
       parameters: () => [],
     },
     {
       name: 'ObjectsGroup',
-      label: 'Group',
+      label: 'object-type-group',
       icon: <Icon name="group" />,
       canUngroup: true,
       withoutColor: true,
@@ -203,7 +203,7 @@ const config = {
     },
     {
       name: 'RepetitionObject',
-      label: 'Repetition',
+      label: 'object-type-repetition',
       icon: <Icon name="repeat" />,
       withoutColor: true,
       canConverToGroup: true,
@@ -212,24 +212,24 @@ const config = {
           return [
             {
               name: 'num',
-              label: 'Repetitions',
+              label: 'param-repetitions',
               type: 'integer',
             },
             {
               name: 'x',
-              label: 'x',
+              label: 'param-x',
               type: 'integer',
               unit: 'mm',
             },
             {
               name: 'y',
-              label: 'y',
+              label: 'param-y',
               type: 'integer',
               unit: 'mm',
             },
             {
               name: 'z',
-              label: 'z',
+              label: 'param-z',
               type: 'integer',
               unit: 'mm',
             },
@@ -239,31 +239,31 @@ const config = {
           return [
             {
               name: 'num',
-              label: 'Repetitions',
+              label: 'param-repetitions',
               type: 'integer',
             },
             {
               name: 'axis',
-              label: 'Axis',
+              label: 'param-axis',
               type: 'select',
               options: [
                 {
-                  label: 'X',
+                  labelId: 'param-x',
                   value: 'x',
                 },
                 {
-                  label: 'Y',
+                  labelId: 'param-y',
                   value: 'y',
                 },
                 {
-                  label: 'Z',
+                  labelId: 'param-z',
                   value: 'z',
                 },
               ],
             },
             {
               name: 'angle',
-              label: 'Angle',
+              label: 'param-angle',
               type: 'integer',
               unit: '°',
             },
@@ -276,8 +276,8 @@ const config = {
   objectOperations: [
     {
       name: 'translation',
-      label: 'Translation',
-      basicLabel: 'Position',
+      label: 'operation-translation',
+      basicLabel: 'operation-position',
       icon: <Icon name="translation" />,
       color: '#dd5b0c',
       create: () => ({
@@ -287,13 +287,13 @@ const config = {
       parameters: [
         {
           name: 'relative',
-          label: 'Relative',
+          label: 'param-relative',
           type: 'boolean',
           advancedMode: true
         },
         {
           name: 'x',
-          label: 'X',
+          label: 'param-x',
           type: 'integer',
           unit: 'mm',
           activeOperation: (object, operation) => ({
@@ -305,7 +305,7 @@ const config = {
         },
         {
           name: 'y',
-          label: 'Y',
+          label: 'param-y',
           type: 'integer',
           unit: 'mm',
           activeOperation: (object, operation) => ({
@@ -317,7 +317,7 @@ const config = {
         },
         {
           name: 'z',
-          label: 'Z',
+          label: 'param-z',
           type: 'integer',
           unit: 'mm',
           activeOperation: (object, operation) => ({
@@ -331,7 +331,7 @@ const config = {
     },
     {
       name: 'rotation',
-      label: 'Rotation',
+      label: 'operation-rotation',
       icon: <Icon name="rotation" />,
       color: '#d8af31',
       create: () => ({
@@ -341,7 +341,7 @@ const config = {
       parameters: [
         {
           name: 'x',
-          label: 'X',
+          label: 'param-x',
           type: 'integer',
           unit: '°',
           basicMode: true,
@@ -354,7 +354,7 @@ const config = {
         },
         {
           name: 'y',
-          label: 'Y',
+          label: 'param-y',
           type: 'integer',
           unit: '°',
           basicMode: true,
@@ -367,7 +367,7 @@ const config = {
         },
         {
           name: 'z',
-          label: 'Z',
+          label: 'param-z',
           type: 'integer',
           unit: '°',
           basicMode: true,
@@ -380,26 +380,26 @@ const config = {
         },
         {
           name: 'relative',
-          label: 'Relative',
+          label: 'param-relative',
           type: 'boolean',
           advancedMode: true
         },
         {
           name: 'axis',
-          label: 'Axis',
+          label: 'param-axis',
           type: 'select',
           advancedMode: true,
           options: [
             {
-              label: 'X',
+              labelId: 'param-x',
               value: 'x',
             },
             {
-              label: 'Y',
+              labelId: 'param-y',
               value: 'y',
             },
             {
-              label: 'Z',
+              labelId: 'param-z',
               value: 'z',
             },
           ],
@@ -428,7 +428,7 @@ const config = {
         },
         {
           name: 'angle',
-          label: 'Angle',
+          label: 'param-angle',
           type: 'integer',
           unit: '°',
           advancedMode: true,
@@ -463,7 +463,7 @@ const config = {
     },
     {
       name: 'scale',
-      label: 'Scale',
+      label: 'operation-scale',
       icon: <Icon name="scale" />,
       color: '#59b52e',
       create: () => ({
@@ -473,43 +473,43 @@ const config = {
       parameters: [
         {
           name: 'x',
-          label: 'x',
+          label: 'param-x',
           type: 'integer',
         },
         {
           name: 'y',
-          label: 'y',
+          label: 'param-y',
           type: 'integer',
         },
         {
           name: 'z',
-          label: 'z',
+          label: 'param-z',
           type: 'integer',
         },
       ],
     },
     {
       name: 'mirror',
-      label: 'Reflection',
+      label: 'operation-reflection',
       icon: <Icon name="reflection" />,
       color: '#00c1c7',
       create: () => Object3D.createMirrorOperation(),
       parameters: [
         {
           name: 'plane',
-          label: 'Plane',
+          label: 'param-plane',
           type: 'select',
           options: [
             {
-              label: 'X - Y',
+              labelId: 'param-x-y',
               value: 'xy',
             },
             {
-              label: 'Y - Z',
+              labelId: 'param-y-z',
               value: 'yz',
             },
             {
-              label: 'Z - X',
+              labelId: 'param-z-x',
               value: 'zx',
             },
           ],
@@ -533,7 +533,7 @@ const config = {
   compositionOperations: [
     {
       name: 'Union',
-      label: 'Union',
+      label: 'operation-union',
       icon: <Icon name="union" />,
       minObjects: 2,
       create: children => ({
@@ -545,7 +545,7 @@ const config = {
     },
     {
       name: 'Difference',
-      label: 'Difference',
+      label: 'operation-difference',
       icon: <Icon name="difference" />,
       minObjects: 2,
       create: children => ({
@@ -557,7 +557,7 @@ const config = {
     },
     {
       name: 'Intersection',
-      label: 'Intersection',
+      label: 'operation-intersection',
       icon: <Icon name="intersection" />,
       minObjects: 2,
       create: children => ({
@@ -569,7 +569,7 @@ const config = {
     },
     {
       name: 'ObjectsGroup',
-      label: 'Group',
+      label: 'operation-group',
       icon: <Icon name="group" />,
       minObjects: 2,
       advancedMode: true,
@@ -582,7 +582,7 @@ const config = {
     },
     {
       name: 'CartesianRepetition',
-      label: 'Repeat',
+      label: 'operation-repeat',
       icon: <Icon name="repeat" />,
       minObjects: 1,
       maxObjects: 1,
@@ -602,7 +602,7 @@ const config = {
     },
     {
       name: 'PolarRepetition',
-      label: 'Repeat Polar',
+      label: 'operation-repeat-polar',
       icon: <Icon name="repeat-polar" />,
       minObjects: 1,
       maxObjects: 1,

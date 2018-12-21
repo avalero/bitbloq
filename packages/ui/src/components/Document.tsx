@@ -172,7 +172,8 @@ class Document extends React.Component<DocumentProps, State> {
       children,
       menuOptions = [],
       menuRightContent,
-      onMenuOptionClick
+      onMenuOptionClick,
+      title
     } = this.props;
     const { currentTabIndex, isHeaderCollapsed } = this.state;
 
@@ -183,7 +184,7 @@ class Document extends React.Component<DocumentProps, State> {
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
             <DocumentIcon />
-            <Title>Proyecto sin título</Title>
+            <Title>{title}</Title>
           </Header>
         </HeaderWrap>
         <MenuWrap>
