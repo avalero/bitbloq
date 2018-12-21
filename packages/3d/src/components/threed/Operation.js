@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, {css} from 'react-emotion';
 import {Draggable} from 'react-beautiful-dnd';
+import {TranslateContext} from '../TranslateProvider';
 import PropertyInput from './PropertyInput';
 import config from '../../config/threed';
 import {Icon} from '@bitbloq/ui';
@@ -97,6 +98,7 @@ const Header = styled.div`
 
 const Title = styled.div`
   flex: 1;
+  text-transform: capitalize;
 `;
 
 const Content = styled.div`
@@ -105,6 +107,9 @@ const Content = styled.div`
 `;
 
 export default class Operation extends React.Component {
+
+  static contextType = TranslateContext;
+
   onTitleClick = e => {
     const {onOpen, isOpen} = this.props;
     if (onOpen) {
@@ -129,6 +134,15 @@ export default class Operation extends React.Component {
       operation.type
     ];
 
+    const t = this.context;
+
+    let title;
+    if (advancedMode || !basicLabel) {
+      title = t(label);
+    } else {
+      title = t(basicLabel);
+    }
+
     return (
       <Draggable draggableId={operation.id} index={index}>
         {(provided, snapshot) => (
@@ -151,7 +165,7 @@ export default class Operation extends React.Component {
                 </Handler>
                 <HeaderContent onClick={this.onTitleClick}>
                   <Icon name="angle" />
-                  <Title>{advancedMode ? label : basicLabel || label}</Title>
+                  <Title>{title}</Title>
                 </HeaderContent>
                 <HeaderButtons>
                   <HeaderButton onClick={onRemove}>

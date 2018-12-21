@@ -3,6 +3,7 @@ import {connect} from 'react-redux';
 import styled, {css} from 'react-emotion';
 import {Spring} from 'react-spring';
 import {DragDropContext} from 'react-beautiful-dnd';
+import {TranslateContext} from '../TranslateProvider';
 import {
   updateObject,
   updateObjectParameter,
@@ -189,6 +190,8 @@ const ContextMenuOption = styled.div`
 `;
 
 class PropertiesPanel extends React.Component {
+  static contextType = TranslateContext;
+
   state = {
     draggingOperations: false,
     contextMenuOpen: false,
@@ -292,6 +295,7 @@ class PropertiesPanel extends React.Component {
 
   renderObjectPanel(object) {
     const {draggingOperations, contextMenuOpen, editingName} = this.state;
+    const t = this.context;
 
     const {
       setActiveOperation,
@@ -312,7 +316,7 @@ class PropertiesPanel extends React.Component {
     if (typeConfig.showBaseObject) {
       parameters.push({
         name: 'baseObject',
-        label: 'Base object',
+        label: 'param-base-object',
         type: 'select',
         options: object.children.map(child => ({
           label: child.viewOptions.name,
@@ -324,7 +328,7 @@ class PropertiesPanel extends React.Component {
     if (!typeConfig.withoutColor) {
       parameters.push({
         name: 'color',
-        label: 'Color',
+        label: 'param-color',
         type: 'color',
         isViewOption: true,
       });
@@ -359,30 +363,30 @@ class PropertiesPanel extends React.Component {
             <ContextMenu>
               {isTopObject && (
                 <ContextMenuOption onClick={this.onDuplicateClick}>
-                  <Icon name="duplicate" /> Duplicate
+                  <Icon name="duplicate" /> {t('menu-duplicate')}
                 </ContextMenuOption>
               )}
               <ContextMenuOption onClick={this.onRenameClick}>
-                <Icon name="pencil" /> Rename
+                <Icon name="pencil" /> {t('menu-rename')}
               </ContextMenuOption>
               {canUngroup && (
                 <ContextMenuOption onClick={this.onUngroupClick}>
-                  <Icon name="ungroup" /> Ungroup
+                  <Icon name="ungroup" /> {t('menu-ungroup')}
                 </ContextMenuOption>
               )}
               {canConverToGroup && (
                 <ContextMenuOption onClick={this.onConvertToGroupClick}>
-                  <Icon name="group" /> Convert to group
+                  <Icon name="group" /> {t('menu-convert-to-group')}
                 </ContextMenuOption>
               )}
               {canUndo && (
                 <ContextMenuOption onClick={this.onUndoClick}>
-                  <Icon name="undo" /> {undoLabel}
+                  <Icon name="undo" /> {t(undoLabel)}
                 </ContextMenuOption>
               )}
               {isTopObject && (
                 <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
-                  <Icon name="trash" /> Delete
+                  <Icon name="trash" /> {t('menu-delete')}
                 </ContextMenuOption>
               )}
             </ContextMenu>
@@ -408,7 +412,10 @@ class PropertiesPanel extends React.Component {
           {advancedMode && (
             <ObjectButtons>
               {config.objectOperations.map(operation => (
-                <Tooltip key={operation.name} content={operation.label}>
+                <Tooltip
+                  key={operation.name}
+                  content={t(operation.label)}
+                  >
                   {tooltipProps => (
                     <OperationButton
                       {...tooltipProps}
@@ -497,7 +504,4 @@ const mapDispatchToProps = dispatch => ({
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(PropertiesPanel);
+export default connect(mapStateToProps, mapDispatchToProps)(PropertiesPanel);

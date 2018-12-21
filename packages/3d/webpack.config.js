@@ -60,6 +60,12 @@ module.exports = {
         test: /\.(glb|svg)$/,
         use: ['file-loader'],
       },
+      {
+        type: 'javascript/auto',
+        test: /\.(json)$/,
+        include: [/src\/assets\/messages/],
+        use: ['file-loader'],
+      }
     ],
   },
   plugins,

@@ -1,5 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {TranslateContext} from '../TranslateProvider';
 import {setAdvancedMode} from '../../actions/threed';
 import styled from 'react-emotion';
 import ObjectTree from './ObjectTree';
@@ -32,51 +33,51 @@ const AdvanceModeWrap = styled.div`
   }
 `;
 
-const menuOptions = props => [
+const menuOptions = ({advancedMode}, t) => [
   {
     id: 'file',
-    label: 'File',
+    label: t('menu-file'),
     children: [
       {
         id: 'download-project',
-        label: 'Download Project',
+        label: t('menu-download-project'),
         icon: <Icon name="download" />,
       },
     ],
   },
   {
     id: 'view',
-    label: 'View',
+    label: t('menu-view'),
     children: [
       {
         id: 'mode',
-        label: 'Mode',
+        label: t('menu-mode'),
         icon: <Icon name="difficulty" />,
         children: [
           {
             id: 'basic-mode',
-            label: 'Basic',
-            checked: !props.advancedMode,
+            label: t('menu-basic'),
+            checked: !advancedMode,
           },
           {
             id: 'advanced-mode',
-            label: 'Advanced',
-            checked: props.advancedMode,
+            label: t('menu-advanced'),
+            checked: advancedMode,
           },
         ],
       },
       {
         id: 'change-theme',
-        label: 'Change theme',
+        label: t('menu-change-theme'),
         icon: <Icon name="brush" />,
         children: [
           {
             id: 'color-theme',
-            label: 'Color',
+            label: t('menu-color'),
           },
           {
             id: 'gray-theme',
-            label: 'Gris',
+            label: t('menu-gray'),
           },
         ],
       },
@@ -84,11 +85,11 @@ const menuOptions = props => [
   },
   {
     id: 'share',
-    label: 'Share',
+    label: t('menu-share'),
     children: [
       {
         id: 'publish-explora',
-        label: 'Publish in Explora',
+        label: t('menu-publish-in-explora'),
         icon: <Icon name="publish" />,
       },
     ],
@@ -96,7 +97,10 @@ const menuOptions = props => [
 ];
 
 class ThreeD extends React.Component {
-  onMenuOptionClick = (option) => {
+
+  static contextType = TranslateContext;
+
+  onMenuOptionClick = option => {
     const {setAdvancedMode} = this.props;
     switch (option.id) {
       case 'basic-mode':
@@ -113,21 +117,25 @@ class ThreeD extends React.Component {
   };
 
   render() {
-    const {advancedMode, setAdvancedMode} = this.props;
+    const {advancedMode, setAdvancedMode, intl} = this.props;
+    const t = this.context;
 
     const menuRightContent = (
       <AdvanceModeWrap>
-        <span>Modo avanzado</span>
+        <span>{t('menu-advanced-mode')}</span>
         <Switch value={advancedMode} onChange={setAdvancedMode} />
       </AdvanceModeWrap>
     );
 
     return (
       <Document
-        menuOptions={menuOptions(this.props)}
+        title={t('untitled-project')}
+        menuOptions={menuOptions(this.props, t)}
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
-        <Document.Tab icon={<Icon name="threed" />} label="3D">
+        <Document.Tab
+          icon={<Icon name="threed" />}
+          label={t('tab-3d')}>
           <Container>
             <ObjectTree />
             <MainArea>
@@ -137,7 +145,10 @@ class ThreeD extends React.Component {
             <PropertiesPanel />
           </Container>
         </Document.Tab>
-        <Document.Tab icon={<Icon name="info" />} label="Información del proyecto" />
+        <Document.Tab
+          icon={<Icon name="info" />}
+          label={t('tab-project-info')}
+        />
       </Document>
     );
   }
@@ -151,7 +162,4 @@ const mapDispatchToProps = dispatch => ({
   setAdvancedMode: active => dispatch(setAdvancedMode(active)),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ThreeD);
+export default connect(mapStateToProps, mapDispatchToProps)(ThreeD);

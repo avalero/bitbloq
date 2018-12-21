@@ -2,6 +2,7 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import styled from 'react-emotion';
 import {selectObject, deselectAllObjects} from '../../actions/threed';
+import {TranslateContext} from '../TranslateProvider';
 import {
   Scene,
   IHelperDescription,
@@ -96,6 +97,9 @@ class ThreeDViewer extends React.Component<
   ThreeDViewerProps,
   ThreeDViewerState
 > {
+
+  static contextType = TranslateContext;
+
   private scene: Scene;
   private renderer: Renderer;
   private rendererContainerRef: React.RefObject<
@@ -119,8 +123,19 @@ class ThreeDViewer extends React.Component<
   componentDidMount() {
     const {scene, selectObject, deselectAllObjects} = this.props;
     const container = this.rendererContainerRef.current;
+    const t = this.context;
+
     if (container) {
-      this.renderer = new Renderer(scene, container);
+      this.renderer = new Renderer(scene, container, {
+        navigationBoxLabels: {
+          top: t('navigation-top'),
+          bottom: t('navigation-bottom'),
+          left: t('navigation-left'),
+          right: t('navigation-right'),
+          front: t('navigation-front'),
+          back: t('navigation-back')
+        }
+      });
       this.renderer.updateScene();
     }
 
@@ -156,6 +171,7 @@ class ThreeDViewer extends React.Component<
 
   render() {
     const {selectedPosition, isOrthographic} = this.state;
+    const t = this.context;
 
     return (
       <Container innerRef={this.rendererContainerRef}>
@@ -174,7 +190,7 @@ class ThreeDViewer extends React.Component<
         <StatusBar>
           {selectedPosition && (
             <StatusBarGroup>
-              <b>Position (mm):</b>
+              <b>{t('status-position')}</b>
               <span>X={selectedPosition.position.x.toFixed(2)}</span>
               <span>Y={selectedPosition.position.y.toFixed(2)}</span>
               <span>Z={selectedPosition.position.z.toFixed(2)}</span>
@@ -182,7 +198,7 @@ class ThreeDViewer extends React.Component<
           )}
           {selectedPosition && (
             <StatusBarGroup>
-              <b>Rotation (grads):</b>
+              <b>{t('status-rotation')}</b>
               <span>X={selectedPosition.angle.x.toFixed(2)}</span>
               <span>Y={selectedPosition.angle.y.toFixed(2)}</span>
               <span>Z={selectedPosition.angle.z.toFixed(2)}</span>

@@ -156,7 +156,7 @@ export default class NumberInput extends React.Component {
         </DecrementButton>
         <StyledInput
           {...this.props}
-          innerRef={this.input}
+          ref={this.input}
           value={focused ? text : ''}
           onChange={this.onChange}
           type="number"
