@@ -79,6 +79,7 @@ export default class Scene {
   private objectsInScene: ObjectsCommon[]; /// all parent objects designed by user -> to be 3D-drawn.
   private helpers: THREE.Group[];
   private history: ISceneJSON[]; /// history of actions
+  private lastUpdateTS: number; /// last update. Used to know if action should be added to history
 
   private lastJSON: object;
   private objectsGroup: THREE.Group;
@@ -99,6 +100,7 @@ export default class Scene {
     this.historyIndex = -1;
     this.history = [];
     this.setMaterials();
+    this.lastUpdateTS = 0;
   }
 
   public canUndo(): boolean {
@@ -578,6 +580,11 @@ export default class Scene {
   }
 
   private updateHistory(): void {
+    const currentTime: number = new Date().getTime() / 1000;
+    if (currentTime - this.lastUpdateTS < 1) {
+      return;
+    }
+    this.lastUpdateTS = currentTime;
     const sceneJSON = this.toJSON();
     // Add to history
     this.history = this.history.slice(0, this.historyIndex + 1);
