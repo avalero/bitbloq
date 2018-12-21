@@ -29,14 +29,14 @@ const userController = {
     //TODO: activate account
   },
   login: async (root: any, args: any) => {
-    UserMong.find({ email: args.email }, function(error, contactFinded) {
-      console.log(contactFinded);
-      /* if (contactFinded.password === args.password) {
+    UserMong.find({ email: args.email, password: args.password }, function(error, contactFinded) {
+      if(error || contactFinded.length===0){
+        console.log('NOT FOUND');
+      }else{
+        console.log(contactFinded);
         console.log('You logged in');
-        //TODO: singin token
-      } else {
-        console.log('pass not match');
-      }*/
+        return contactFinded;
+      }
     });
   },
 };

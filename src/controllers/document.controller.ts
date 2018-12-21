@@ -1,18 +1,19 @@
-import DocumentMong from '../models/documentModel';
+import {DocumentMong} from '../models/documentModel';
 
 const DocumentMongController = {
   createDocument: (root: any, args: any) => {
     const DocumentMong_new = new DocumentMong({
+      //user: args.User,
       tittle: args.tittle,
       type: args.type,
-      content: args.content,
-      description: args.description,
-      versions: args.version,
-      exercise: args.exercise,
+      // content: args.content,
+      // description: args.description,
+      // versions: args.version,
+      // exercise: args.exercise,
     });
     console.log('You saved your document');
     //TODO: singup token
-    return DocumentMong_new.save();
+    return DocumentMong.create(DocumentMong_new);
   },
   deleteDocument: (root: any, args: any) =>
     DocumentMong.deleteOne({ email: args.tittle }),
@@ -24,4 +25,4 @@ const DocumentMongController = {
   findAllDocuments: () => DocumentMong.find({}),
 };
 
-export default DocumentMongController;
+export {DocumentMongController};

@@ -10,17 +10,16 @@ const DocumentMongSchema = new Schema({
   tittle: {
     type: String,
     trim: true,
-    default: 'Nuevo Documento',
   },
 
   type: {
     type: String,
     required: true,
-    default: '3D',
   },
 
   content: {
-    type: JSON,
+    //type: JSON,
+    type: String,
     trim: true,
   },
 
@@ -30,7 +29,8 @@ const DocumentMongSchema = new Schema({
 
   versions: [
     {
-      content: JSON,
+      //content: JSON,
+      type: String,
       date: Date,
       id: Number,
     },
@@ -38,7 +38,8 @@ const DocumentMongSchema = new Schema({
 
   exercise: [
     {
-      content: JSON,
+      //content: JSON,
+      type: String,
       date: Date,
       id: Number,
     },
@@ -46,5 +47,4 @@ const DocumentMongSchema = new Schema({
 });
 
 var DocumentMong = mongoose.model('DocumentMong', DocumentMongSchema);
-module.exports = DocumentMong;
-export default DocumentMong;
+export {DocumentMong};
