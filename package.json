@@ -1,0 +1,63 @@
+{
+  "name": "back-bitbloq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "globals": {
+      "ts-jest": {
+        "tsConfigFile": "tsconfig.json"
+      }
+    },
+    "testMatch": [
+      "**/__test__/*.+(ts|tsx|js)"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  },
+  "dependencies": {
+    "@nestjs/common": "^5.5.0",
+    "@nestjs/core": "^5.5.0",
+    "@nestjs/graphql": "^5.4.0",
+    "@types/graphql": "^14.0.3",
+    "@types/jest": "^23.3.10",
+    "@types/mongoose": "^5.3.5",
+    "apollo-server": "^2.2.6",
+    "easygraphql-tester": "^2.1.4",
+    "fs": "0.0.1-security",
+    "graphql-type-json": "^0.2.1",
+    "jest": "^23.6.0",
+    "koa": "^2.6.2",
+    "mongoose": "^5.3.16",
+    "path": "^0.12.7",
+    "reflect-metadata": "^0.1.12",
+    "ts-node": "^7.0.1",
+    "typescript": "^3.2.2"
+  },
+  "devDependencies": {
+    "apollo-server-koa": "^2.3.1",
+    "graphql": "^0.13.2",
+    "graphql-tools": "^4.0.3",
+    "prettier": "1.15.3",
+    "ts-jest": "^23.10.5"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node ./src/server.ts",
+    "prod": "npm run build && npm run start",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
