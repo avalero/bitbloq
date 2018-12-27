@@ -10,7 +10,7 @@ const IndexPage: React.SFC = () => (
     <Global styles={baseStyles} />
     <Wrap>
       <Container>
-        <h1>Bitbloq</h1>
+        <h1>Bitbloq!</h1>
         <Panel>
           <TabContent>
             <TabInfo>
