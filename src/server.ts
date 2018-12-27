@@ -7,9 +7,10 @@ import { mergeSchemas } from 'graphql-tools';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
 
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/back_bitbloq_db';
 mongoose.set('debug', true);
 mongoose.connect(
-  'mongodb://localhost/back_bitbloq_db',
+  mongoUrl,
   { useNewUrlParser: true },
   function(err: any) {
     if (err) throw err;
@@ -35,5 +36,5 @@ const app = new Koa();
 server.applyMiddleware({ app });
 
 app.listen(4000, () =>
-  console.log('🚀 Server ready at http://localhost:4000${server.graphqlPath}'),
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`),
 );
