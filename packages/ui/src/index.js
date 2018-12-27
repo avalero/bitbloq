@@ -8,6 +8,9 @@ import Tooltip from './components/Tooltip';
 import NumberInput from './components/NumberInput';
 import Switch from './components/Switch';
 import Document from './components/Document';
+import Panel from './components/Panel';
+import baseStyles from './base-styles';
+import colors from './colors';
 
 export {
   Input,
@@ -19,5 +22,8 @@ export {
   Tooltip,
   NumberInput,
   Switch,
-  Document
+  Document,
+  Panel,
+  baseStyles,
+  colors
 };
