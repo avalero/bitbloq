@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from '@emotion/styled';
 import ReactSelect, {components as selectComponents} from 'react-select';
 import Icon from './Icon';
 
