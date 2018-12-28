@@ -114,9 +114,9 @@ export default class ObjectsCommon {
   public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
     group.children.forEach(child => {
-      if(child instanceof THREE.Mesh){
+      if (child instanceof THREE.Mesh) {
         bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
-      }else if(child instanceof THREE.Group){
+      } else if (child instanceof THREE.Group) {
         bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
       }
     });
@@ -236,6 +236,10 @@ export default class ObjectsCommon {
 
   public setParent(object: ObjectsCommon): void {
     this.parent = object;
+  }
+
+  public removeParent() {
+    this.parent = undefined;
   }
 
   public getParent(): ObjectsCommon | undefined {

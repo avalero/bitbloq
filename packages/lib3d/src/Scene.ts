@@ -481,6 +481,7 @@ export default class Scene {
 
       if (this.objectInObjectCollector(original.toJSON())) {
         this.objectsInScene.push(original);
+        original.removeParent();
       } else {
         throw new Error(
           `Unexepected Error. Object ${original.getID()} not in Object Collector`
@@ -520,7 +521,9 @@ export default class Scene {
 
       json.children.forEach(childJSON => {
         if (this.objectInObjectCollector(childJSON)) {
-          this.objectsInScene.push(this.getObject(childJSON));
+          const obj = this.getObject(childJSON);
+          obj.removeParent();
+          this.objectsInScene.push(obj);
         } else {
           throw new Error(
             `Unexepected Error. Object ${childJSON.id} not in Object Collector`
@@ -548,6 +551,7 @@ export default class Scene {
       // add the members of the group to the Scene
       objects.forEach(object => {
         this.objectsInScene.push(object);
+        object.removeParent();
       });
 
       // remove ObjectsGroups from Scene and ObjectCollector
