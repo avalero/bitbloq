@@ -30,10 +30,9 @@ const documentGraphSchema: GraphQLSchema = makeExecutableSchema({
       content: String
       description: String
     }
-  `
+  `,
 });
 
 addMockFunctionsToSchema({ schema: documentGraphSchema });
 
 export default documentGraphSchema;
-

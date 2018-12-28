@@ -37,7 +37,9 @@
     "fs": "0.0.1-security",
     "graphql-type-json": "^0.2.1",
     "jest": "^23.6.0",
+    "jsonwebtoken": "^8.4.0",
     "koa": "^2.6.2",
+    "koa-jwt": "^3.5.1",
     "mongoose": "^5.3.16",
     "path": "^0.12.7",
     "reflect-metadata": "^0.1.12",
@@ -45,6 +47,7 @@
     "typescript": "^3.2.2"
   },
   "devDependencies": {
+    "@types/mongodb": "^3.1.18",
     "apollo-server-koa": "^2.3.1",
     "graphql": "^0.13.2",
     "graphql-tools": "^4.0.3",

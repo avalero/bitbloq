@@ -11,4 +11,3 @@ export const allSchemas = [
   //typeDefSub,
   //typeDefVer,
 ];
-

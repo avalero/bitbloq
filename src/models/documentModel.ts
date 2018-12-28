@@ -47,4 +47,4 @@ const DocumentMongSchema = new Schema({
 });
 
 var DocumentMong = mongoose.model('DocumentMong', DocumentMongSchema);
-export {DocumentMong};
+export { DocumentMong };

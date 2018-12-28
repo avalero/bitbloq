@@ -29,11 +29,11 @@ export default exerciseResolver;
 */
 
 const helloResolver = {
-	Query: {
-		hello: () => {
-			return "Hello world!";
-		}
-	}
+  Query: {
+    hello: () => {
+      return 'Hello world!';
+    },
+  },
 };
 
 export default helloResolver;

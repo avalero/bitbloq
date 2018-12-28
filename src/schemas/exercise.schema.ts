@@ -5,20 +5,16 @@ import {
 } from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
-
 const exerciseSchema: GraphQLSchema = makeExecutableSchema({
-	typeDefs: gql`
-		type Query {
-			hello: String
-		}
-	`
+  typeDefs: gql`
+    type Query {
+      hello: String
+    }
+  `,
 });
 addMockFunctionsToSchema({ schema: exerciseSchema });
 
 export default exerciseSchema;
-
-
-
 
 //const exerciseSchema: GraphQLSchema = makeExecutableSchema({
 //  typeDefs: gql`

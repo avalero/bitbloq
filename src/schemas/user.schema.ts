@@ -11,15 +11,11 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       allUsers: [User]
     }
     type Mutation {
-      signUpUser(
-        input: UserIn!
-      ): User
-      activateAccount(sign_up_token: Int!): User
+      signUpUser(input: UserIn!): Token
+      activateAccount(sign_up_token: String!): User
       login(email: String!, password: String!): User
       deleteUser(email: String!): User
-      updateUser(
-       input: UserIn!
-      ): User
+      updateUser(input: UserIn!): User
     }
     type User {
       email: String
@@ -27,26 +23,28 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       name: String
       center: String
       active: Boolean
-      sign_up_token: Int
-      auth_token: Int
+      sign_up_token: String
+      auth_token: String
       notifications: Boolean
     }
 
-    input UserIn{
+    input UserIn {
       email: String
       password: String
       name: String
       center: String
       active: Boolean
-      sign_up_token: Int
-      auth_token: Int
+      sign_up_token: String
+      auth_token: String
       notifications: Boolean
     }
-  `
-});
 
+    type Token {
+      token: String
+    }
+  `,
+});
 
 addMockFunctionsToSchema({ schema: userSchema });
 
 export default userSchema;
-

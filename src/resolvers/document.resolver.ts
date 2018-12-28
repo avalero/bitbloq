@@ -1,4 +1,4 @@
-import {DocumentMongController} from '../controllers/document.controller';
+import { DocumentMongController } from '../controllers/document.controller';
 
 const documentResolver = {
   Mutation: {

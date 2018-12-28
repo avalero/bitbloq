@@ -1,4 +1,4 @@
-import {DocumentMong} from '../models/documentModel';
+import { DocumentMong } from '../models/documentModel';
 
 const DocumentMongController = {
   createDocument: (root: any, args: any) => {
@@ -25,4 +25,4 @@ const DocumentMongController = {
   findAllDocuments: () => DocumentMong.find({}),
 };
 
-export {DocumentMongController};
+export { DocumentMongController };

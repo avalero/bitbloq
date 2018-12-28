@@ -5,8 +5,6 @@ import {
 } from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
-
-
 //const submissionSchema: GraphQLSchema = makeExecutableSchema({
 //  typeDefs: gql`
 const typeDefSub = `
