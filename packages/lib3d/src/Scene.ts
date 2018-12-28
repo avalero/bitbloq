@@ -429,6 +429,26 @@ export default class Scene {
     }
   }
 
+  private addExistingObject(object: ObjectsCommon): ISceneJSON {
+    if (this.objectInObjectCollector(object.toJSON())) {
+      throw Error("Object already in Scene");
+    } else {
+      // In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
+      if (object instanceof CompoundObject) {
+        this.addExistingCompound(object);
+      } else if (object instanceof ObjectsGroup) {
+        this.addExistingGroup(object);
+      } else if (object instanceof RepetitionObject) {
+        this.addExistingRepetition(object);
+      }
+
+      // finally, add object to scene and collector
+      this.objectsInScene.push(object);
+      this.objectCollector.push(object);
+    }
+    return this.toJSON();
+  }
+
   private setHistorySceneFromJSON(json: ISceneJSON): void {
     this.objectsInScene = [];
     try {
@@ -750,25 +770,5 @@ export default class Scene {
       this.addExistingObject(original);
       this.removeFromScene(obj);
     }
-  }
-
-  private addExistingObject(object: ObjectsCommon): ISceneJSON {
-    if (this.objectInObjectCollector(object.toJSON())) {
-      throw Error("Object already in Scene");
-    } else {
-      // In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
-      if (object instanceof CompoundObject) {
-        this.addExistingCompound(object);
-      } else if (object instanceof ObjectsGroup) {
-        this.addExistingGroup(object);
-      } else if (object instanceof RepetitionObject) {
-        this.addExistingRepetition(object);
-      }
-
-      // finally, add object to scene and collector
-      this.objectsInScene.push(object);
-      this.objectCollector.push(object);
-    }
-    return this.toJSON();
   }
 }

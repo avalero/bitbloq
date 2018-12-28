@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53
- * Last modified  : 2018-11-28 12:41:14
+ * Last modified  : 2018-12-28 19:54:21
  */
 
 import isEqual from "lodash.isequal";
@@ -17,7 +17,6 @@ import CompoundObject, {
   ChildrenArray,
   ICompoundObjectJSON
 } from "./CompoundObject";
-import Object3D from "./Object3D";
 import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 import Scene from "./Scene";
 
@@ -33,8 +32,8 @@ export default class Intersection extends CompoundObject {
     }
 
     try {
-      const children: ChildrenArray = object.children.map(
-        obj => scene.getObject(obj) as Object3D
+      const children: ChildrenArray = object.children.map(obj =>
+        scene.getObject(obj)
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
@@ -69,7 +68,9 @@ export default class Intersection extends CompoundObject {
   }
 
   public clone(): Intersection {
-    const childrenClone: Object3D[] = this.children.map(child => child.clone());
+    const childrenClone: ChildrenArray = this.children.map(child =>
+      child.clone()
+    );
     if (isEqual(this.lastJSON, this.toJSON())) {
       const intObj = new Intersection(
         childrenClone,

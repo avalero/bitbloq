@@ -4,6 +4,7 @@ import lodashIsequal from "lodash.isequal";
 import uuid from "uuid/v1";
 
 import lodashCloneDeep from "lodash.clonedeep";
+import * as THREE from "three";
 
 interface ICommonOperation {
   type: string;
@@ -77,9 +78,51 @@ export default class ObjectsCommon {
     return this.mesh;
   }
 
-  public get viewOptionsUpdateRequired(): boolean {
+  get viewOptionsUpdateRequired(): boolean {
     return this._viewOptionsUpdateRequired;
   }
+
+  public static meshToBufferArray(mesh: THREE.Mesh): ArrayBuffer[] {
+    const bufferArray: ArrayBuffer[] = [];
+
+    const geom: THREE.BufferGeometry | THREE.Geometry = mesh.geometry;
+    let bufferGeom: THREE.BufferGeometry;
+
+    if (geom instanceof THREE.BufferGeometry) {
+      bufferGeom = geom as THREE.BufferGeometry;
+    } else {
+      bufferGeom = new THREE.BufferGeometry().fromGeometry(
+        geom as THREE.Geometry
+      );
+    }
+    const verticesBuffer: ArrayBuffer = new Float32Array(
+      bufferGeom.getAttribute("position").array
+    ).buffer;
+    const normalsBuffer: ArrayBuffer = new Float32Array(
+      bufferGeom.getAttribute("normal").array
+    ).buffer;
+    const positionBuffer: ArrayBuffer = Float32Array.from(
+      mesh.matrixWorld.elements
+    ).buffer;
+    bufferArray.push(verticesBuffer);
+    bufferArray.push(normalsBuffer);
+    bufferArray.push(positionBuffer);
+
+    return bufferArray;
+  }
+
+  public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
+    const bufferArray: ArrayBuffer[] = [];
+    group.children.forEach(child => {
+      if(child instanceof THREE.Mesh){
+        bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
+      }else if(child instanceof THREE.Group){
+        bufferArray.push(...ObjectsCommon.GroupToBufferArray(child));
+      }
+    });
+    return bufferArray;
+  }
+
   public static createViewOptions(
     color: string = "#ffffff",
     visible: boolean = true,
