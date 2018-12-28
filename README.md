@@ -1,6 +1,6 @@
 # Bitbloq
 
-Bitbloq is an educational platform designed to teach people robotics and 3D design.
+Bitbloq is an educational platform designed to teach people programming, robotics, 3D design and other technological skills.
 
 ## Packages
 
