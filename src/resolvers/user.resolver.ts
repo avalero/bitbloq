@@ -1,5 +1,4 @@
 import { userController } from '../controllers/user.controller';
-import { publicUserController } from '../public/publicUser.controller';
 
 const userResolver = {
   Mutation: {

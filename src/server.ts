@@ -5,7 +5,6 @@ import * as mongoose from 'mongoose';
 import { GraphQLSchema } from 'graphql';
 import { mergeSchemas } from 'graphql-tools';
 import { PersistedQueryNotFoundError } from 'apollo-server-errors';
-import { publicUserController } from './public/publicUser.controller';
 import { userController } from './controllers/user.controller';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
