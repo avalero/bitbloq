@@ -1,6 +1,6 @@
-import {takeEvery, call, put, select, fork} from 'redux-saga/effects';
-import {updateCode as updateCodeAction} from '../actions/software';
-import {showNotification, hideNotification} from '../actions/ui';
+import { takeEvery, call, put, select, fork } from 'redux-saga/effects';
+import { updateCode as updateCodeAction } from '../actions/software';
+import { showNotification, hideNotification } from '../actions/ui';
 import {
   undo as undoThreed,
   redo as redoThreed,
@@ -8,13 +8,13 @@ import {
   updateObject,
   updateObjectViewOption,
 } from '../actions/threed';
-import {generateArduinoCode, generateOOMLCode} from '../lib/code-generation';
+import { generateArduinoCode } from '../lib/code-generation';
 import web2board, {
   ConnectionError,
   CompileError,
   BoardNotDetectedError,
 } from '../lib/web2board';
-import {Object3D} from '@bitbloq/lib3d';
+import { Object3D } from '@bitbloq/lib3d';
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -32,7 +32,7 @@ function* uploadCode() {
     const uploadGen = web2board.upload(code);
 
     while (true) {
-      const {value: reply, done} = yield call([uploadGen, uploadGen.next]);
+      const { value: reply, done } = yield call([uploadGen, uploadGen.next]);
       const fn = reply['function'];
 
       if (fn === 'is_compiling') {
@@ -69,14 +69,14 @@ function* uploadCode() {
   }
 }
 
-function* watchNotificationTime({payload: {key, time}}) {
+function* watchNotificationTime({ payload: { key, time } }) {
   if (time) {
     yield call(delay, time);
     yield put(hideNotification(key));
   }
 }
 
-function* watchKeyDown({payload: key}) {
+function* watchKeyDown({ payload: key }) {
   const shiftPressed = yield select(state => state.ui.shiftPressed);
   const controlPressed = yield select(state => state.ui.controlPressed);
   const threedPast = yield select(state => state.threed.scene.past);
@@ -96,7 +96,7 @@ function* watchCreateObject() {
 }
 
 function* convertToBasicOperations(object, scene) {
-  const {position, angle, scale} = yield call(
+  const { position, angle, scale } = yield call(
     [scene, scene.getPositionAsync],
     object,
   );
@@ -148,7 +148,7 @@ function* convertToAdvancedOperations(object, scene) {
   );
 }
 
-function* watchSetAdvancedMode({payload: isAdvanced}) {
+function* watchSetAdvancedMode({ payload: isAdvanced }) {
   sessionStorage.setItem('advancedMode', JSON.stringify(isAdvanced));
 
   const scene = yield select(state => state.threed.scene.sceneInstance);
@@ -165,7 +165,7 @@ function* watchSetAdvancedMode({payload: isAdvanced}) {
 
 function isDescendant(object, id) {
   if (object.id === id) return true;
-  const {children = []} = object;
+  const { children = [] } = object;
   return children.some(child => isDescendant(child, id));
 }
 

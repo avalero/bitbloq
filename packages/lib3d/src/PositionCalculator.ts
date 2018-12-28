@@ -1,4 +1,3 @@
-import Cube from "./Cube";
 import ObjectsCommon, { OperationsArray } from "./ObjectsCommon";
 import { IObjectPosition } from "./Scene";
 
@@ -23,8 +22,7 @@ export default class PositionCalculator {
       this.prePushOperations(obj.getOperations());
       obj = obj.getParent();
     }
-
-    const dummyObj = new Cube({ width: 1, height: 1, depth: 1 });
+    const dummyObj = new DummyObject();
     dummyObj.addOperations(this.operations);
     await dummyObj.computeMeshAsync();
     const mesh = await dummyObj.getMeshAsync();
@@ -51,3 +49,5 @@ export default class PositionCalculator {
     this.operations = [...operations, ...this.operations];
   }
 }
+
+import DummyObject from "./DummyObject";
