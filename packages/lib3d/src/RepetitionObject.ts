@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-12-28 18:48:27
+ * Last modified  : 2018-12-28 20:15:41
  */
 
 import ObjectsCommon, {
@@ -353,7 +353,7 @@ export default class RepetitionObject extends ObjectsCommon {
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
         json.operations.push(
-          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z)
+          ObjectsCommon.createTranslateOperation(i * x, i * y, i * z, false)
         );
         objectClone.updateFromJSON(json);
         this.group.push(objectClone);
