@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-12-28 12:57:42
+ * Last modified  : 2018-12-28 13:55:24
  */
 
 import ObjectsCommon, {
@@ -19,19 +19,16 @@ import ObjectsCommon, {
   IRotateOperation,
   IScaleOperation,
   ITranslateOperation,
-  IViewOptions,
-  OperationsArray
+  IViewOptions
 } from "./ObjectsCommon";
 
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 import * as THREE from "three";
 import Object3D from "./Object3D";
-import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
-
-import Scene from "./Scene";
+import ObjectsGroup from "./ObjectsGroup";
 import PositionCalculator from "./PositionCalculator";
-import TranslationHelper from "./TranslationHelper";
+import Scene from "./Scene";
 
 export interface IRepetitionObjectJSON extends IObjectsCommonJSON {
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
@@ -96,11 +93,7 @@ export default class RepetitionObject extends ObjectsCommon {
   private originalObject: ObjectsCommon;
   private parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
   private group: ObjectsCommon[];
-  /**
-   * Performs a cartesian repetition of object (nun times), with x,y,z distances
-   * It adds repeated objects to ObjectsGroup instance
-   */
-  private asiync 
+
   /**
    *
    * @param params The parameters of the repetition
@@ -334,6 +327,11 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
+  /**
+   * Performs a cartesian repetition of object (nun times), with x,y,z distances
+   * It adds repeated objects to ObjectsGroup instance
+   */
+
   private async cartesianRepetitionAsync(): Promise<void> {
     this.mesh.children.length = 0;
     this.group.length = 0;
@@ -380,17 +378,19 @@ export default class RepetitionObject extends ObjectsCommon {
 
     const { axis, angle, type, num } = this.parameters;
     const baseObject = this.originalObject.clone();
-    const basePosition = await new PositionCalculator(
-      baseObject
-    ).getPositionAsync();
+
+    const positionCalculator = new PositionCalculator(baseObject);
+    const basePosition = await positionCalculator.getPositionAsync();
 
     const baseJSON = baseObject.toJSON();
-    baseJSON.operations.push(ObjectsCommon.createTranslateOperation(
-      -basePosition.position.x,
-      -basePosition.position.y,
-      -basePosition.position.z,
-      false
-    ));
+    baseJSON.operations.push(
+      ObjectsCommon.createTranslateOperation(
+        -basePosition.position.x,
+        -basePosition.position.y,
+        -basePosition.position.z,
+        false
+      )
+    );
 
     baseObject.updateFromJSON(baseJSON);
 
@@ -399,7 +399,7 @@ export default class RepetitionObject extends ObjectsCommon {
         const objectClone: ObjectsCommon = baseObject.clone();
         const json = objectClone.toJSON();
         const rotation = ObjectsCommon.createRotateOperation(0, 0, 0, false);
-        rotation[axis] = i * angle / (num-1);
+        rotation[axis] = (i * angle) / (num - 1);
         json.operations.push(rotation);
         json.operations.push(
           ObjectsCommon.createTranslateOperation(
