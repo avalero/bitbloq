@@ -5,6 +5,8 @@ import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
 import Scene from "./Scene";
 
 import cloneDeep from "lodash.clonedeep";
+import Union from "./Union";
+import RepetitionObject from "./RepetitionObject";
 
 export interface IObjectsGroupJSON extends IObjectsCommonJSON {
   children: IObjectsCommonJSON[];
@@ -58,6 +60,19 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.children.push(object);
   }
 
+  public toUnion(): Union {
+    const unionChildren: Object3D[] = [];
+    this.children.forEach(child => {
+      if (child instanceof Object3D) {
+        unionChildren.push(child);
+      } else if (child instanceof RepetitionObject) {
+        unionChildren.push(child.toUnion());
+      } else if (child instanceof ObjectsGroup) {
+        unionChildren.push(child.toUnion());
+      }
+    });
+    return new Union(unionChildren);
+  }
   public async computeMeshAsync(): Promise<THREE.Group> {
     // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
     if (this.children.length === 0) {

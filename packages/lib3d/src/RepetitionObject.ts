@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2018-12-28 13:55:24
+ * Last modified  : 2018-12-28 18:48:27
  */
 
 import ObjectsCommon, {
@@ -29,6 +29,7 @@ import Object3D from "./Object3D";
 import ObjectsGroup from "./ObjectsGroup";
 import PositionCalculator from "./PositionCalculator";
 import Scene from "./Scene";
+import Union from "./Union";
 
 export interface IRepetitionObjectJSON extends IObjectsCommonJSON {
   parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
@@ -127,6 +128,11 @@ export default class RepetitionObject extends ObjectsCommon {
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
+  }
+
+  public toUnion(): Union {
+    const group = this.getGroup();
+    return group.toUnion();
   }
 
   public setParameters(

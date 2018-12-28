@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:00
- * Last modified  : 2018-11-28 12:43:42
+ * Last modified  : 2018-12-28 19:21:00
  */
 
 import isEqual from "lodash.isequal";
@@ -33,8 +33,8 @@ export default class Difference extends CompoundObject {
     }
 
     try {
-      const children: ChildrenArray = object.children.map(
-        obj => scene.getObject(obj) as Object3D
+      const children: ChildrenArray = object.children.map(obj =>
+        scene.getObject(obj)
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
@@ -69,7 +69,9 @@ export default class Difference extends CompoundObject {
   }
 
   public clone(): Difference {
-    const childrenClone: Object3D[] = this.children.map(child => child.clone());
+    const childrenClone: ChildrenArray = this.children.map(child =>
+      child.clone()
+    );
 
     if (isEqual(this.lastJSON, this.toJSON())) {
       const diffObj = new Difference(

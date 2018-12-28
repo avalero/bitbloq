@@ -1,3 +1,4 @@
+import "jsdom-worker";
 import * as THREE from "three";
 import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
 import Sphere, { ISphereJSON, ISphereParams } from "../Sphere";

@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2018-12-16 12:58:16
+ * Last modified  : 2018-12-28 19:20:10
  */
 
 import isEqual from "lodash.isequal";
@@ -29,10 +29,9 @@ export default class Union extends CompoundObject {
     if (object.type !== Union.typeName) {
       throw new Error("Not Union Object");
     }
-
     try {
-      const children: ChildrenArray = object.children.map(
-        obj => scene.getObject(obj) as Object3D
+      const children: ChildrenArray = object.children.map(objJSON =>
+        scene.getObject(objJSON)
       );
 
       const viewOptions: Partial<IViewOptions> = {
@@ -68,7 +67,9 @@ export default class Union extends CompoundObject {
   }
 
   public clone(): Union {
-    const childrenClone: Object3D[] = this.children.map(child => child.clone());
+    const childrenClone: ChildrenArray = this.children.map(child =>
+      child.clone()
+    );
 
     if (isEqual(this.lastJSON, this.toJSON())) {
       const unionObj = new Union(

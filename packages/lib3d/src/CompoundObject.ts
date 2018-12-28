@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2018-11-28 12:46:25
+ * Last modified  : 2018-12-28 19:49:39
  */
 
 import Object3D from "./Object3D";
@@ -35,7 +35,7 @@ export interface ICompoundObjectJSON extends IObjectsCommonJSON {
   children: IObjectsCommonJSON[];
 }
 
-export type ChildrenArray = Object3D[];
+export type ChildrenArray = ObjectsCommon[];
 
 export default class CompoundObject extends Object3D {
   get meshUpdateRequired(): boolean {
@@ -152,7 +152,7 @@ export default class CompoundObject extends Object3D {
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
-  public addChildren(child: Object3D): void {
+  public addChildren(child: ObjectsCommon): void {
     this.children.push(child);
     this._meshUpdateRequired = true;
   }
@@ -176,12 +176,12 @@ export default class CompoundObject extends Object3D {
       throw new Error("Object id does not match with JSON id");
     }
 
-    const newchildren: Object3D[] = [];
+    const newchildren: ChildrenArray = [];
     // update children
     try {
       object.children.forEach(obj => {
         const objToUpdate = this.getChild(obj);
-        newchildren.push(objToUpdate as Object3D);
+        newchildren.push(objToUpdate);
         objToUpdate.updateFromJSON(obj);
       });
 
@@ -234,13 +234,17 @@ export default class CompoundObject extends Object3D {
 
     this.operations.forEach(operation => {
       // Translate operation
-      if (operation.type === Object3D.createTranslateOperation().type) {
+      if (operation.type === ObjectsCommon.createTranslateOperation().type) {
         this.applyTranslateOperation(operation as ITranslateOperation);
-      } else if (operation.type === Object3D.createRotateOperation().type) {
+      } else if (
+        operation.type === ObjectsCommon.createRotateOperation().type
+      ) {
         this.applyRotateOperation(operation as IRotateOperation);
-      } else if (operation.type === Object3D.createScaleOperation().type) {
+      } else if (operation.type === ObjectsCommon.createScaleOperation().type) {
         this.applyScaleOperation(operation as IScaleOperation);
-      } else if (operation.type === Object3D.createMirrorOperation().type) {
+      } else if (
+        operation.type === ObjectsCommon.createMirrorOperation().type
+      ) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
         throw Error("ERROR: Unknown Operation");
@@ -279,31 +283,12 @@ export default class CompoundObject extends Object3D {
       Promise.all(this.children.map(child => child.getMeshAsync())).then(
         meshes => {
           meshes.forEach(mesh => {
-            const geom:
-              | THREE.BufferGeometry
-              | THREE.Geometry = (mesh as THREE.Mesh).geometry;
-            let bufferGeom: THREE.BufferGeometry;
-            if (geom instanceof THREE.BufferGeometry) {
-              bufferGeom = geom as THREE.BufferGeometry;
-            } else {
-              bufferGeom = new THREE.BufferGeometry().fromGeometry(
-                geom as THREE.Geometry
-              );
+            if (mesh instanceof THREE.Mesh) {
+              bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
+            } else if (mesh instanceof THREE.Group) {
+              bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
             }
-            const verticesBuffer: ArrayBuffer = new Float32Array(
-              bufferGeom.getAttribute("position").array
-            ).buffer;
-            const normalsBuffer: ArrayBuffer = new Float32Array(
-              bufferGeom.getAttribute("normal").array
-            ).buffer;
-            const positionBuffer: ArrayBuffer = Float32Array.from(
-              mesh.matrixWorld.elements
-            ).buffer;
-            bufferArray.push(verticesBuffer);
-            bufferArray.push(normalsBuffer);
-            bufferArray.push(positionBuffer);
           });
-
           resolve(bufferArray);
         }
       );
