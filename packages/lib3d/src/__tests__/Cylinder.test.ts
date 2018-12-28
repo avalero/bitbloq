@@ -1,3 +1,4 @@
+import "jsdom-worker";
 import * as THREE from "three";
 import Cylinder, { ICylinderJSON, ICylinderParams } from "../Cylinder";
 import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";

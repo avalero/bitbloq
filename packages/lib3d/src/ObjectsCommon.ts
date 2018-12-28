@@ -117,7 +117,7 @@ export default class ObjectsCommon {
       if(child instanceof THREE.Mesh){
         bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
       }else if(child instanceof THREE.Group){
-        bufferArray.push(...ObjectsCommon.GroupToBufferArray(child));
+        bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
       }
     });
     return bufferArray;

@@ -85,7 +85,7 @@ export default class Scene {
   private objectsGroup: THREE.Group;
   private historyIndex: number;
 
-  private objectsInTransition: Object3D[];
+  private objectsInTransition: ObjectsCommon[];
 
   private highlightedMaterial: object;
   private transitionMaterial: object;
