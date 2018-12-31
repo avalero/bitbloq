@@ -1,6 +1,6 @@
 {
   "name": "@bitbloq/3d",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "One Platform to Rule Them All",
   "main": "index.js",
   "scripts": {
