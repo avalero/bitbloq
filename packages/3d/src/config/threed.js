@@ -207,6 +207,8 @@ const config = {
       icon: <Icon name="repeat" />,
       withoutColor: true,
       canConverToGroup: true,
+      canUndo: true,
+      undoLabel: 'menu-undo-repetition',
       parameters: ({parameters: {type}}) => {
         if (type === 'cartesian') {
           return [

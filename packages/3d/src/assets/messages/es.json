@@ -15,6 +15,7 @@
   "menu-delete": "Eliminar",
   "menu-undo-union": "Deshacer unión",
   "menu-undo-difference": "Deshacer diferencia",
+  "menu-undo-repetition": "Deshacer repetición",
   "menu-undo-intersection": "Deshacer intersección",
   "menu-ungroup": "Desagrupar",
   "menu-convert-to-group": "Convertir en grupo",

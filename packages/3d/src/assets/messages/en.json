@@ -16,6 +16,7 @@
   "menu-undo-union": "Undo union",
   "menu-undo-difference": "Undo difference",
   "menu-undo-intersection": "Undo intersection",
+  "menu-undo-repetition": "Undo repetition",
   "menu-ungroup": "Ungroup",
   "menu-convert-to-group": "Convert to group",
   "menu-advanced-mode": "Advanced mode",
