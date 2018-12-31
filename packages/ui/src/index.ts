@@ -1,3 +1,4 @@
+import Button from './components/Button';
 import Icon from './components/Icon';
 import Input from './components/Input';
 import Select from './components/Select';
@@ -13,6 +14,7 @@ import baseStyles from './base-styles';
 import colors from './colors';
 
 export {
+  Button,
   Input,
   Icon,
   Select,
