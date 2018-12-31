@@ -280,18 +280,27 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<ArrayBuffer[]> {
     return new Promise((resolve, reject) => {
       const bufferArray: ArrayBuffer[] = [];
-      Promise.all(this.children.map(child => child.getMeshAsync())).then(
-        meshes => {
-          meshes.forEach(mesh => {
-            if (mesh instanceof THREE.Mesh) {
-              bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
-            } else if (mesh instanceof THREE.Group) {
-              bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
-            }
-          });
-          resolve(bufferArray);
-        }
-      );
+      Promise.all(
+        this.children.map( child => {
+          if (
+            ["Difference", "Intersection"].includes(this.getTypeName()) &&
+            (child instanceof RepetitionObject || child instanceof ObjectsGroup)
+          ) {
+            const obj = child.toUnion();
+            return obj.getMeshAsync();
+          }
+          return child.getMeshAsync();
+        })
+      ).then(meshes => {
+        meshes.forEach(mesh => {
+          if (mesh instanceof THREE.Mesh) {
+            bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
+          } else if (mesh instanceof THREE.Group) {
+            bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
+          }
+        });
+        resolve(bufferArray);
+      });
     });
   }
 
@@ -307,3 +316,7 @@ export default class CompoundObject extends Object3D {
     throw new Error(`Object id ${obj.id} not found in group`);
   }
 }
+
+// they need to be at bottom to avoid typescript error with circular imports
+import RepetitionObject from "./RepetitionObject";
+import ObjectsGroup from "./ObjectsGroup";
