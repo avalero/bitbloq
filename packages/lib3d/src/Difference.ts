@@ -20,6 +20,8 @@ import CompoundObject, {
 import Object3D from "./Object3D";
 import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
 import Scene from "./Scene";
+import RepetitionObject from "./RepetitionObject";
+import ObjectsGroup from "./ObjectsGroup";
 
 export default class Difference extends CompoundObject {
   public static typeName: string = "Difference";

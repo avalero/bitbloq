@@ -1,22 +1,23 @@
 import * as THREE from "three";
 import { isArray } from "util";
 import BaseGrid from "./BaseGrid";
+import Union from "./Union";
+import Difference from "./Difference";
+import Intersection from "./Intersection";
 import CompoundObject, { ICompoundObjectJSON } from "./CompoundObject";
-import ObjectFactory from "./ObjectFactory";
 import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
-import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
 
+import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
 import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
+
 
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
-import Difference from "./Difference";
-import Intersection from "./Intersection";
-import Object3D from "./Object3D";
+
+import ObjectFactory from "./ObjectFactory";
 import PositionCalculator from "./PositionCalculator";
 import RotationHelper from "./RotationHelper";
 import TranslationHelper from "./TranslationHelper";
-import Union from "./Union";
 
 enum HelperType {
   Rotation = "rotation",
