@@ -4,16 +4,13 @@ import { allResolvers } from './resolvers/resolvers';
 import * as mongoose from 'mongoose';
 import { GraphQLSchema } from 'graphql';
 import { mergeSchemas } from 'graphql-tools';
-import { PersistedQueryNotFoundError } from 'apollo-server-errors';
-import { userController } from './controllers/user.controller';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
-const jwt = require('koa-jwt');
-const jsonwebtoken = require('jsonwebtoken');
 
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/back_bitbloq_db';
 mongoose.set('debug', true);
 mongoose.connect(
-  'mongodb://localhost/back_bitbloq_db',
+  mongoUrl,
   { useNewUrlParser: true },
   function(err: any) {
     if (err) throw err;
@@ -22,25 +19,22 @@ mongoose.connect(
   },
 );
 
-
 const schema: GraphQLSchema = mergeSchemas({
   schemas: allSchemas,
-  resolvers: allResolvers,
-});
+  resolvers: allResolvers
+}); 
+
 
 const server = new ApolloServer({
-  schema,
-  context: async ({ ctx }) => {
-    const user = await userController.getMyUser(ctx);
-    // add the user to the context
-    return { user };
-  },
+  schema
+  //resolver: userResolver
+  //schema:allSchemas,
+  //resolver:allResolvers
 });
 
 const app = new Koa();
-
 server.applyMiddleware({ app });
 
-app.listen(8000, () =>
-  console.log('🚀 Server ready at http://localhost:8000${server.graphqlPath}'),
+app.listen(4000, () =>
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`),
 );
