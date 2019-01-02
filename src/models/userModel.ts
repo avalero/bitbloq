@@ -1,12 +1,11 @@
 import * as mongoose from 'mongoose';
-import { Int32 } from 'bson';
 
 import { Document, Schema, Model, model } from 'mongoose';
-import { IUser } from './iUser';
-import userSchema from '../schemas/user.schema';
-//const Schema = mongoose.Schema;
 
-export interface IUserModel extends IUser, Document {
+interface IUser extends Document{
+  email?: string;
+  password?: string;
+  name?: string;
   center?: string;
   active?: Boolean;
   sign_up_token?: string;
@@ -63,9 +62,7 @@ export const ContactSchema: Schema = new Schema({
   },
 });
 
-export const UserMong: Model<IUserModel> = mongoose.model<IUserModel>(
+export const UserMong: Model<IUser> = mongoose.model<IUser>(
   'UserMongs',
   ContactSchema,
 );
-//module.exports = UserMong;
-//export {UserMong};

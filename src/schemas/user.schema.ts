@@ -8,12 +8,12 @@ import { GraphQLSchema } from 'graphql';
 const userSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     type Query {
-      allUsers: [User]
+      users: [User]
     }
     type Mutation {
-      signUpUser(input: UserIn!): Token
+      signUpUser(input: UserIn!): User
       activateAccount(sign_up_token: String!): User
-      login(email: String!, password: String!): User
+      login(email: String!, password: String!): Token
       deleteUser(email: String!): User
       updateUser(input: UserIn!): User
     }

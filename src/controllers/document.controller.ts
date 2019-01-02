@@ -1,28 +1,19 @@
-import { DocumentMong } from '../models/documentModel';
+import { DocumentModel } from '../models/documentModel';
 
-const DocumentMongController = {
-  createDocument: (root: any, args: any) => {
-    const DocumentMong_new = new DocumentMong({
-      //user: args.User,
-      tittle: args.tittle,
-      type: args.type,
-      // content: args.content,
-      // description: args.description,
-      // versions: args.version,
-      // exercise: args.exercise,
-    });
-    console.log('You saved your document');
-    //TODO: singup token
-    return DocumentMong.create(DocumentMong_new);
+const DocumentModelController = {
+  createDocument: (documentMong_new) => {
+    return DocumentModel.create(documentMong_new);
   },
-  deleteDocument: (root: any, args: any) =>
-    DocumentMong.deleteOne({ email: args.tittle }),
-  updateDocument: (root: any, args: any) => {
-    const tempDocumentMong = { ...args };
-    delete tempDocumentMong.id;
-    return DocumentMong.updateOne({ _id: args.id }, { $set: tempDocumentMong });
+  deleteDocument: (title: any) =>{
+    return DocumentModel.deleteOne({tittle: title});
   },
-  findAllDocuments: () => DocumentMong.find({}),
+    
+  updateDocument: (existDocument, newDocument) => {
+    return DocumentModel.updateOne({ _id: existDocument._id }, { $set: newDocument });
+  },
+  findAllDocuments: (userID) => {
+    return DocumentModel.find({user: userID});
+  }
 };
 
-export { DocumentMongController };
+export { DocumentModelController };

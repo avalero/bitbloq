@@ -22,6 +22,7 @@ mongoose.connect(
   },
 );
 
+
 const schema: GraphQLSchema = mergeSchemas({
   schemas: allSchemas,
   resolvers: allResolvers,

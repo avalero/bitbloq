@@ -5,25 +5,26 @@ import {
 } from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
-const documentGraphSchema: GraphQLSchema = makeExecutableSchema({
+const documentSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     type Query {
-      allDocumentGraphs: [DocumentGraph]
+      documents: [Document]
     }
     type Mutation {
-      createDocumentGraph(type: String!, tittle: String!): DocumentGraph
-      deleteDocumentGraph(tittle: String!): DocumentGraph
-      updateDocumentGraph(
+      createDocument(type: String!, tittle: String!): Document
+      deleteDocument(tittle: String!, type: String!): Document
+      updateDocument(
         user: String!
         tittle: String!
         type: String
         content: String
         description: String
-      ): DocumentGraph
-      createExercise(document_father: String, expireDate: String): DocumentGraph
-      deleteExercise(code: String!): DocumentGraph
+      ): Document
+      createExercise(document_father: String, expireDate: String): Document
+      deleteExercise(code: String!): Document
     }
-    type DocumentGraph {
+    type Document {
+      id: String
       user: String
       tittle: String!
       type: String
@@ -33,6 +34,6 @@ const documentGraphSchema: GraphQLSchema = makeExecutableSchema({
   `,
 });
 
-addMockFunctionsToSchema({ schema: documentGraphSchema });
+addMockFunctionsToSchema({ schema: documentSchema });
 
-export default documentGraphSchema;
+export default documentSchema;

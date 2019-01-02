@@ -1,7 +1,15 @@
 import * as mongoose from 'mongoose';
-const Schema = mongoose.Schema;
+import { Document, Schema, Model} from 'mongoose';
 
-const DocumentMongSchema = new Schema({
+interface IDocument extends Document{
+  user?: String;
+  tittle?: String;
+  type?: String;
+  content?: String;
+  description?: String;
+}
+
+const DocumentMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'UserMong',
@@ -46,5 +54,8 @@ const DocumentMongSchema = new Schema({
   ],
 });
 
-var DocumentMong = mongoose.model('DocumentMong', DocumentMongSchema);
-export { DocumentMong };
+export const DocumentModel: Model<IDocument> = mongoose.model<IDocument>(
+  'DocumentModel',
+  DocumentMongSchema,
+);
+
