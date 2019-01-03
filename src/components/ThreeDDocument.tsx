@@ -1,5 +1,4 @@
 import * as React from 'react';
-import NoSSR from 'react-no-ssr';
 import {ThreeD, TranslateProvider} from '@bitbloq/3d';
 
 const messagesFiles = {
@@ -90,11 +89,9 @@ const initialContent = [
 ];
 
 const ThreeDDocument = () => (
-  <NoSSR>
     <TranslateProvider messagesFiles={messagesFiles}>
       <ThreeD initialContent={initialContent} />
     </TranslateProvider>
-  </NoSSR>
 );
 
 export default ThreeDDocument;

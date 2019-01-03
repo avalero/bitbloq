@@ -1,4 +1,5 @@
 import * as React from 'react';
+import NoSSR from 'react-no-ssr';
 import {Router} from '@reach/router';
 import {Global} from '@emotion/core';
 import Documents from '../components/Documents';
@@ -11,10 +12,12 @@ const AppPage = () => (
   <>
     <SEO title="App" />
     <Global styles={baseStyles} />
-    <Router>
-      <PrivateRoute path="/app" component={Documents} />
-      <PrivateRoute path="/app/3d/:id" component={ThreeDDocument} />
-    </Router>
+    <NoSSR>
+      <Router>
+        <PrivateRoute path="/app" component={Documents} />
+        <PrivateRoute path="/app/3d/:id" component={ThreeDDocument} />
+      </Router>
+    </NoSSR>
   </>
 );
 
