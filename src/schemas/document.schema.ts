@@ -9,11 +9,13 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     type Query {
       documents: [Document]
+      documentByID(id: String!): [Document]
     }
     type Mutation {
       createDocument(type: String!, tittle: String!): Document
-      deleteDocument(tittle: String!, type: String!): Document
+      deleteDocument(id: String, tittle: String!, type: String!): Document
       updateDocument(
+        id: String
         user: String
         tittle: String!
         type: String

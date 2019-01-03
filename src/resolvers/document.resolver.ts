@@ -26,22 +26,15 @@ const documentResolver = {
       if (!context.user) return [];
       if(context.user.signUp) throw new Error('Problem with token, not auth token');
       //return DocumentModelController.deleteDocument(args.tittle);
-      return DocumentModel.deleteOne({tittle: args.tittle, type: args.type});
+      return DocumentModel.deleteOne({_id: args.id, tittle: args.tittle, type: args.type});
     },
     async updateDocument(root: any, args: any, context: any) {
       if (!context.user) return [];
       if(context.user.signUp) throw new Error('Problem with token, not auth token');
-      const existDocument = await DocumentModel.findOne({tittle: args.tittle});
+      const existDocument = await DocumentModel.findOne({_id: args.id});
       if (existDocument) {
-        //delete tempUser.id;
-        //return DocumentModelController.updateDocument(existDocument._id, {args});
-        return DocumentModel.findOneAndUpdate({ _id: existDocument._id }, { $set: args }, {new: true});/*,(err, doc)=>{
-          if(err){
-            return new Error ('Updating error');
-          }
-          console.log(doc.tittle);
-          return doc;
-        });*/
+        return DocumentModel.findOneAndUpdate({ _id: existDocument._id }, { $set: args }, {new: true});
+
       } else {
         return new Error('Document doesnt exist');
       }
@@ -55,6 +48,14 @@ const documentResolver = {
       const userFinded =await UserMong.findOne({ email: context.user.email });
       //return DocumentModelController.findAllDocuments(userFinded._id);
       return DocumentModel.find({user: userFinded._id});
+    },
+    async documentByID(root: any, args: any, context: any) {
+      if (!context.user) return [];
+      if(context.user.signUp) throw new Error('Problem with token, not auth token');
+      const userFinded =await UserMong.findOne({ email: context.user.email });
+      //return DocumentModelController.findAllDocuments(userFinded._id);
+      console.log(args.id);
+      return DocumentModel.find({_id: args.id});
     },
   },
 };
