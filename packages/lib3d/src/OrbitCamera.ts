@@ -49,8 +49,6 @@ export default class OrbitCamera {
 
   constructor(camera: THREE.Camera, domElement: any) {
     this.camera = camera;
-    const proportions: number =
-      domElement.clientWidth / domElement.clientHeight;
 
     if (this.camera instanceof THREE.OrthographicCamera) {
       this.ortho = {
@@ -445,8 +443,6 @@ export default class OrbitCamera {
       this.camera.top = Math.max(this.ortho.right / proportions, 0);
       this.camera.bottom = Math.min(this.ortho.left / proportions, 0);
       this.camera.updateProjectionMatrix();
-      // console.log(`left = ${this.camera.left}, right = ${this.camera.right}, bottom = ${this.camera.bottom},
-      // top = ${this.camera.top} `);
     }
 
     this.camera.position
