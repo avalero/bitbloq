@@ -10,7 +10,9 @@ class Polygon
 {
 public:
     Polygon(const vector<Vertex> &_vertices);
-    Polygon(){}
+    Polygon(const Polygon & p);
+    Polygon();
+
     Polygon &calculateProperties();
     Polygon clone() const;
     Polygon & flip();
@@ -26,11 +28,11 @@ public:
     Vertex normal;
     double w;
 
-    const double EPSILON{1e-5};
-    const char COPLANAR{0};
-    const char FRONT{1};
-    const char BACK{2};
-    const char SPANNING{3};
+    static const double EPSILON;
+    static const char COPLANAR;
+    static const char FRONT;
+    static const char BACK;
+    static const char SPANNING;
 };
 
 

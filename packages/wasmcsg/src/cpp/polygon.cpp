@@ -1,6 +1,10 @@
 #include "polygon.h"
 
-
+const double Polygon::EPSILON = 1e-5;
+const char Polygon::COPLANAR = 0;
+const char Polygon::FRONT = 1;
+const char Polygon::BACK = 2;
+const char Polygon::SPANNING = 3;
 Polygon::Polygon(const vector<Vertex> & _vertices):
     vertices{_vertices}
 {
@@ -9,6 +13,16 @@ Polygon::Polygon(const vector<Vertex> & _vertices):
     }
 
 }
+
+Polygon::Polygon(const Polygon &p):
+    vertices{p.vertices},
+    normal{p.normal},
+    w{p.w}
+{
+}
+
+Polygon::Polygon()
+{}
 
 
 Polygon & Polygon::calculateProperties(){
