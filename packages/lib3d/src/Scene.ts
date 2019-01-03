@@ -10,7 +10,6 @@ import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
 import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
 import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
 
-
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 
@@ -67,7 +66,7 @@ export default class Scene {
   public static newFromJSON(json: ISceneJSON): Scene {
     const scene = new Scene();
     try {
-      scene.updateSceneFromJSON(json);
+      scene.updateSceneFromJSON(json,true);
     } catch (e) {
       throw new Error(`Error creating Scene. ${e}`);
     }
@@ -154,16 +153,28 @@ export default class Scene {
    * Updates all the objects in a Scene, if object is not present. It adds it.
    * @param json json describin all the objects of the Scene
    */
-  public updateSceneFromJSON(json: ISceneJSON): ISceneJSON {
+  public updateSceneFromJSON(
+    json: ISceneJSON,
+    createNew: boolean = false
+  ): ISceneJSON {
     if (isEqual(json, this.toJSON())) {
       return json;
+    }
+
+    if (createNew) {
+      this.objectsInScene = [];
+      this.objectCollector = [];
     }
 
     json.forEach(obj => {
       if (this.objectInScene(obj)) {
         this.getObject(obj).updateFromJSON(obj);
       } else {
-        throw new Error(`Object id ${obj.id} not present in Scene`);
+        if (createNew) {
+          this.addNewObjectFromJSON(obj, createNew);
+        } else {
+          throw new Error(`Object id ${obj.id} not present in Scene`);
+        }
       }
     });
     this.updateHistory();
@@ -246,9 +257,16 @@ export default class Scene {
    * @param json object descriptor (it ignores id)
    * UPDATES HISTORY
    */
-  public addNewObjectFromJSON(json: IObjectsCommonJSON): ISceneJSON {
+  public addNewObjectFromJSON(
+    json: IObjectsCommonJSON,
+    createNew: boolean = false
+  ): ISceneJSON {
     try {
-      const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
+      const object: ObjectsCommon = ObjectFactory.newFromJSON(
+        json,
+        this,
+        createNew
+      );
       this.addExistingObject(object);
       this.updateHistory();
       return this.toJSON();
@@ -430,7 +448,7 @@ export default class Scene {
     }
   }
 
-  private addExistingObject(object: ObjectsCommon): ISceneJSON {
+  public addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
       throw Error("Object already in Scene");
     } else {

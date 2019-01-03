@@ -19,7 +19,8 @@ export default class ObjectFactory {
    */
   public static newFromJSON(
     obj: IObjectsCommonJSON,
-    scene: Scene
+    scene: Scene,
+    createNew: boolean = false
   ): ObjectsCommon {
     switch (obj.type) {
       case Cube.typeName:
@@ -31,17 +32,42 @@ export default class ObjectFactory {
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
       case ObjectsGroup.typeName:
+        if (createNew) {
+          (obj as IObjectsGroupJSON).children.forEach(child =>
+            scene.addExistingObject(ObjectFactory.newFromJSON(child, scene))
+          );
+        }
         return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
       case RepetitionObject.typeName:
+        if (createNew) {
+          (obj as IRepetitionObjectJSON).children.forEach(child =>
+            scene.addExistingObject(ObjectFactory.newFromJSON(child, scene))
+          );
+        }
         return RepetitionObject.newFromJSON(
           obj as IRepetitionObjectJSON,
           scene
         );
       case Union.typeName:
+        if (createNew) {
+          (obj as ICompoundObjectJSON).children.forEach(child =>
+            scene.addExistingObject(ObjectFactory.newFromJSON(child, scene))
+          );
+        }
         return Union.newFromJSON(obj as ICompoundObjectJSON, scene);
       case Difference.typeName:
+        if (createNew) {
+          (obj as ICompoundObjectJSON).children.forEach(child =>
+            scene.addExistingObject(ObjectFactory.newFromJSON(child, scene))
+          );
+        }
         return Difference.newFromJSON(obj as ICompoundObjectJSON, scene);
       case Intersection.typeName:
+        if (createNew) {
+          (obj as ICompoundObjectJSON).children.forEach(child =>
+            scene.addExistingObject(ObjectFactory.newFromJSON(child, scene))
+          );
+        }
         return Intersection.newFromJSON(obj as ICompoundObjectJSON, scene);
     }
 
