@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { SphericalCoordsXYZ } from "./SphericalCoordsXYZ";
+import { OrthographicCamera } from "three";
 
 const EPSILON: number = 0.001;
 const STATE = {
@@ -36,12 +37,38 @@ export default class OrbitCamera {
   private _target0: THREE.Vector3;
   private _position0: THREE.Vector3;
 
+  private ortho: {
+    near: number;
+    far: number;
+    left: number;
+    right: number;
+  };
+
   private _needsUpdate: boolean;
 
   private dispose: () => void;
 
   constructor(camera: THREE.Camera, domElement: any) {
     this.camera = camera;
+    const proportions: number =
+        domElement.clientWidth / domElement.clientHeight;
+
+    if (this.camera instanceof OrthographicCamera) {
+      this.ortho = {
+        near: this.camera.near,
+        far: this.camera.far,
+        left: this.camera.left,
+        right: this.camera.right,
+            };
+    } else {
+      this.ortho = {
+        near: 0.1,
+        far: 10000,
+        left: -200,
+        right: 200,
+      };
+    }
+
     this.enabled = true;
 
     this.minDistance = 0;
@@ -279,16 +306,30 @@ export default class OrbitCamera {
 
       const dollyIn = () => {
         const zoomScale: number = Math.pow(0.7, scope.dollySpeed);
-        scope.dolly(
-          scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius
-        );
+
+        if (scope.camera instanceof THREE.PerspectiveCamera) {
+          scope.dolly(
+            scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius
+          );
+        } else if (scope.camera instanceof THREE.OrthographicCamera) {
+          Object.keys(scope.ortho).forEach(
+            key => (scope.ortho[key] *= zoomScale)
+          );
+        }
       };
 
       const dollyOut = () => {
         const zoomScale: number = Math.pow(0.7, scope.dollySpeed);
-        scope.dolly(
-          scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius
-        );
+
+        if (scope.camera instanceof THREE.PerspectiveCamera) {
+          scope.dolly(
+            scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius
+          );
+        } else if (scope.camera instanceof THREE.OrthographicCamera) {
+          Object.keys(scope.ortho).forEach(
+            key => (scope.ortho[key] /= zoomScale)
+          );
+        }
       };
 
       this.domElement.addEventListener("mousedown", onMouseDown);
@@ -339,16 +380,25 @@ export default class OrbitCamera {
 
   public zoomIn() {
     const zoomScale: number = Math.pow(0.95, this.dollySpeed);
-    this.dolly(
-      this._sphericalEnd.radius * zoomScale - this._sphericalEnd.radius
-    );
+
+    if (this.camera instanceof THREE.PerspectiveCamera) {
+      this.dolly(
+        this._sphericalEnd.radius * zoomScale - this._sphericalEnd.radius
+      );
+    } else if (this.camera instanceof THREE.OrthographicCamera) {
+      Object.keys(this.ortho).forEach(key => (this.ortho[key] *= zoomScale));
+    }
   }
 
   public zoomOut() {
     const zoomScale: number = Math.pow(0.95, this.dollySpeed);
-    this.dolly(
-      this._sphericalEnd.radius / zoomScale - this._sphericalEnd.radius
-    );
+    if (this.camera instanceof THREE.PerspectiveCamera) {
+      this.dolly(
+        this._sphericalEnd.radius / zoomScale - this._sphericalEnd.radius
+      );
+    } else if (this.camera instanceof THREE.OrthographicCamera) {
+      Object.keys(this.ortho).forEach(key => (this.ortho[key] /= zoomScale));
+    }
   }
 
   public update(delta: number): boolean {
@@ -384,6 +434,22 @@ export default class OrbitCamera {
     }
 
     this._spherical.makeSafe();
+
+    if (this.camera instanceof THREE.OrthographicCamera) {
+      const proportions: number =
+        this.domElement.clientWidth / this.domElement.clientHeight;
+
+      this.camera.left = Math.min(this.ortho.left, 0);
+      this.camera.right = Math.max(this.ortho.right, 0);
+      this.camera.near = 0.1;
+      this.camera.far = 100000;
+      this.camera.top = Math.max(this.ortho.right / proportions, 0);
+      this.camera.bottom = Math.min(this.ortho.left / proportions, 0);
+      this.camera.updateProjectionMatrix();
+      // console.log(`left = ${this.camera.left}, right = ${this.camera.right}, bottom = ${this.camera.bottom},
+      // top = ${this.camera.top} `);
+    }
+
     this.camera.position
       .set(
         this._spherical.cartesian.x,
@@ -391,6 +457,7 @@ export default class OrbitCamera {
         this._spherical.cartesian.z
       )
       .add(this.target);
+
     this.camera.lookAt(this.target);
 
     const needsUpdate = this._needsUpdate;

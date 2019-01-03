@@ -22,7 +22,8 @@ public:
     vector<Polygon> allPolygons() const;
     Node clone() const;
     Node & invert();
-    vector<Polygon> clipPolygons(vector<Polygon> _polygons);
+    vector<Polygon> clipPolygons(const vector<Polygon> & _polygons) const;
+    void clipTo(const Node & _node);
 
 private:
     vector<Polygon> polygons;
