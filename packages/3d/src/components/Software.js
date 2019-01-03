@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import styled from 'react-emotion';
+import styled from '@emotion/styled';
 import {Spring, animated, interpolate} from 'react-spring';
 import {resolveSoftwareType} from '../lib/bloq-types';
 import {resolveComponentClass} from '../lib/hardware';

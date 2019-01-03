@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 
 const Wrap = styled.div`
   position: relative;
@@ -69,7 +70,7 @@ export default class PropertiesBloq extends React.Component {
         <BloqShapeContainer width={width + 20} height={height + 20}>
           <path fill="#ffffff" stroke="#979797" d={path} />
         </BloqShapeContainer>
-        <Container innerRef={this.containerRef}>{children}</Container>
+        <Container ref={this.containerRef}>{children}</Container>
       </Wrap>
     );
   }

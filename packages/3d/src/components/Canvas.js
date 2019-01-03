@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'react-emotion';
+import styled from '@emotion/styled';
 import graphPaperImage from '../assets/images/graph-paper.svg';
 
 const Container = styled.div`
@@ -143,7 +143,7 @@ class Canvas extends React.Component {
     const translateY = height / 2 - center.y;
 
     return (
-      <Container innerRef={this.container}>
+      <Container ref={this.container}>
         <Items translateX={translateX} translateY={translateY}>
           {items.map((item, i) => (
             <div

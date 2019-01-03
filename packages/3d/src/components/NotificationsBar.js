@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import styled, {css} from 'react-emotion';
+import styled, {css} from '@emotion/styled';
 import {Transition} from 'react-spring';
 
 const Container = styled.div`

@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import * as Three from 'three';
 import NavigationBoxModel from '../../assets/models/navigation_box.glb';
 import {loadGLTFFromUrl} from '../../lib/object3dts/loaders';
@@ -286,7 +287,7 @@ class ThreeDNavigationBox extends React.Component {
   render() {
     return (
       <Container
-        innerRef={this.container}
+        ref={this.container}
         onClick={this.onClick}
         onMouseMove={this.onMouseMove}
         hovering={this.state.hoverBox}

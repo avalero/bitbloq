@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import {Draggable} from 'react-beautiful-dnd';
 import {TranslateContext} from '../TranslateProvider';
 import PropertyInput from './PropertyInput';
@@ -148,7 +149,7 @@ export default class Operation extends React.Component {
         {(provided, snapshot) => (
           <Wrap
             {...provided.draggableProps}
-            innerRef={provided.innerRef}
+            ref={provided.innerRef}
             isDragging={snapshot.isDragging}
             color={color}>
             <Container>
