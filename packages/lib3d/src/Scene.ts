@@ -62,14 +62,13 @@ interface ISceneSetup {
 export type ISceneJSON = IObjectsCommonJSON[];
 
 export default class Scene {
-  
   public static newFromJSON(json: ISceneJSON): Scene {
     const scene = new Scene();
-    try{
+    try {
       json.forEach(obj => {
         scene.addNewObjectFromJSON(obj, true);
       });
-    }catch (e) {
+    } catch (e) {
       throw new Error(`Error creating Scene. ${e}`);
     }
 
@@ -155,9 +154,7 @@ export default class Scene {
    * Updates all the objects in a Scene, if object is not present. It adds it.
    * @param json json describin all the objects of the Scene
    */
-  public updateSceneFromJSON(
-    json: ISceneJSON,
-  ): ISceneJSON {
+  public updateSceneFromJSON(json: ISceneJSON): ISceneJSON {
     if (isEqual(json, this.toJSON())) {
       return json;
     }
@@ -255,36 +252,36 @@ export default class Scene {
     createNew: boolean = false
   ): ISceneJSON {
     // if createNew children of objects do not exist on scene
-    if(createNew){
-      try{
-        if([
-          Union.typeName, 
-          Difference.typeName, 
-          Intersection.typeName, 
-          RepetitionObject.typeName, 
-          ObjectsGroup.typeName
-        ].includes(json.type))
-        {
-          (json as (ICompoundObjectJSON | IObjectsGroupJSON | IRepetitionObjectJSON)).children.forEach(childJSON =>
-            this.addNewObjectFromJSON(childJSON));
-        }else{
-          const object: ObjectsCommon = ObjectFactory.newFromJSON(
-            json,
-            this,
+    if (createNew) {
+      try {
+        if (
+          [
+            Union.typeName,
+            Difference.typeName,
+            Intersection.typeName,
+            RepetitionObject.typeName,
+            ObjectsGroup.typeName
+          ].includes(json.type)
+        ) {
+          (json as
+            | ICompoundObjectJSON
+            | IObjectsGroupJSON
+            | IRepetitionObjectJSON).children.forEach(childJSON =>
+            this.addNewObjectFromJSON(childJSON)
           );
+        } else {
+          const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
           this.addExistingObject(object);
         }
-      }catch(e){
+      } catch (e) {
         throw new Error(`Cannot add new Object from JSON ${e}`);
       }
       return this.toJSON();
     }
-    else{
+    // children should be already in scene
+    else {
       try {
-        const object: ObjectsCommon = ObjectFactory.newFromJSON(
-          json,
-          this,
-        );
+        const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
         this.addExistingObject(object);
         this.updateHistory();
         return this.toJSON();
