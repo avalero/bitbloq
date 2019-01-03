@@ -6,7 +6,11 @@ const jsonwebtoken = require('jsonwebtoken');
 const userResolver = {
   Mutation: {
     //public methods:
-    signUpUser(root: any, args: any) {
+    async signUpUser(root: any, args: any) {
+      const contactFinded = await UserMong.findOne({ email: args.input.email });
+      if(contactFinded){
+        throw new Error('This user already exists');
+      }
       const token = jsonwebtoken.sign(
         { email: args.input.email, password: args.input.password },
         '\x7f\x981\xcbRc67\x90I\x13\xe5*\xcc\xd2\x0b\\\x9c\x9e\xfd\x99EV\x10',

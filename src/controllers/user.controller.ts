@@ -7,7 +7,7 @@ const userController = {
     return UserMong.create(newUser);
   },
 
-  login: async (userID, token) => {
+  login: (userID, token) => {
     return UserMong.updateOne({_id: userID }, { $set: {authToken: token} });
   },
 
