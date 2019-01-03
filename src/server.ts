@@ -13,10 +13,12 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const PORT=8000;
 
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/back_bitbloq_db';
+
 mongoose.set('debug', true);
 mongoose.set('useFindAndModify', false);
 mongoose.connect(
-  'mongodb://localhost/back_bitbloq_db',
+  mongoUrl,
   { useNewUrlParser: true },
   function(err: any) {
     if (err) throw err;
