@@ -169,8 +169,6 @@ test("Secene.newFromJSON - Compound Objects", () => {
 
   const sceneJSON: ISceneJSON = [cube1.toJSON(), repetition.toJSON()];
 
-  debugger;
-
   const scene: Scene = Scene.newFromJSON(sceneJSON);
 
   const computedSceneJSON: ISceneJSON = scene.toJSON();
