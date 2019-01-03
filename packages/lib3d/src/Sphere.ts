@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2018-12-16 13:00:41
+ * Last modified  : 2019-01-03 18:43:42
  */
 
 import isEqual from "lodash.isequal";
@@ -37,7 +37,13 @@ export default class Sphere extends PrimitiveObject {
     if (object.type !== Sphere.typeName) {
       throw new Error("Not Sphere Object");
     }
-    return new Sphere(object.parameters, object.operations, object.viewOptions);
+    const sphere = new Sphere(
+      object.parameters,
+      object.operations,
+      object.viewOptions
+    );
+    sphere.id = object.id || "";
+    return sphere;
   }
 
   constructor(

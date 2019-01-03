@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-12-16 08:54:53
+ * Last modified  : 2019-01-03 18:42:44
  */
 
 import isEqual from "lodash.isequal";
@@ -38,11 +38,14 @@ export default class Cylinder extends PrimitiveObject {
     if (object.type !== Cylinder.typeName) {
       throw new Error("Not Cylinder Object");
     }
-    return new Cylinder(
+    const cyl = new Cylinder(
       object.parameters,
       object.operations,
       object.viewOptions
     );
+
+    cyl.id = object.id || "";
+    return cyl;
   }
 
   constructor(

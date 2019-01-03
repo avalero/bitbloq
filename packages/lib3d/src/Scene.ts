@@ -251,6 +251,7 @@ export default class Scene {
     json: IObjectsCommonJSON,
     createNew: boolean = false
   ): ISceneJSON {
+
     // if createNew children of objects do not exist on scene
     if (createNew) {
       try {
@@ -263,12 +264,17 @@ export default class Scene {
             ObjectsGroup.typeName
           ].includes(json.type)
         ) {
+          // Add the children
           (json as
             | ICompoundObjectJSON
             | IObjectsGroupJSON
             | IRepetitionObjectJSON).children.forEach(childJSON =>
-            this.addNewObjectFromJSON(childJSON)
+            this.addNewObjectFromJSON(childJSON, true) // children are new
           );
+          
+          // Add de Compound | Group | Repetition parent
+          this.addNewObjectFromJSON(json, false); // children already in Scene
+
         } else {
           const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
           this.addExistingObject(object);
