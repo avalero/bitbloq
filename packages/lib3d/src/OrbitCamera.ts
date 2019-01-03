@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { SphericalCoordsXYZ } from "./SphericalCoordsXYZ";
-import { OrthographicCamera } from "three";
 
 const EPSILON: number = 0.001;
 const STATE = {
@@ -51,21 +50,21 @@ export default class OrbitCamera {
   constructor(camera: THREE.Camera, domElement: any) {
     this.camera = camera;
     const proportions: number =
-        domElement.clientWidth / domElement.clientHeight;
+      domElement.clientWidth / domElement.clientHeight;
 
-    if (this.camera instanceof OrthographicCamera) {
+    if (this.camera instanceof THREE.OrthographicCamera) {
       this.ortho = {
         near: this.camera.near,
         far: this.camera.far,
         left: this.camera.left,
-        right: this.camera.right,
-            };
+        right: this.camera.right
+      };
     } else {
       this.ortho = {
         near: 0.1,
         far: 10000,
         left: -200,
-        right: 200,
+        right: 200
       };
     }
 
