@@ -62,12 +62,14 @@ interface ISceneSetup {
 export type ISceneJSON = IObjectsCommonJSON[];
 
 export default class Scene {
-  // TODO. Need to create children before of creating objects!!
+  
   public static newFromJSON(json: ISceneJSON): Scene {
     const scene = new Scene();
-    try {
-      scene.updateSceneFromJSON(json,true);
-    } catch (e) {
+    try{
+      json.forEach(obj => {
+        scene.addNewObjectFromJSON(obj, true);
+      });
+    }catch (e) {
       throw new Error(`Error creating Scene. ${e}`);
     }
 
@@ -155,26 +157,16 @@ export default class Scene {
    */
   public updateSceneFromJSON(
     json: ISceneJSON,
-    createNew: boolean = false
   ): ISceneJSON {
     if (isEqual(json, this.toJSON())) {
       return json;
-    }
-
-    if (createNew) {
-      this.objectsInScene = [];
-      this.objectCollector = [];
     }
 
     json.forEach(obj => {
       if (this.objectInScene(obj)) {
         this.getObject(obj).updateFromJSON(obj);
       } else {
-        if (createNew) {
-          this.addNewObjectFromJSON(obj, createNew);
-        } else {
-          throw new Error(`Object id ${obj.id} not present in Scene`);
-        }
+        throw new Error(`Object id ${obj.id} not present in Scene`);
       }
     });
     this.updateHistory();
@@ -255,23 +247,50 @@ export default class Scene {
   /**
    * Adds object to Scene and ObjectCollector. It creates a new object and assings a new id
    * @param json object descriptor (it ignores id)
+   * @param createNew  . If true, children of objects are created. If false, children must be already in scene
    * UPDATES HISTORY
    */
   public addNewObjectFromJSON(
     json: IObjectsCommonJSON,
     createNew: boolean = false
   ): ISceneJSON {
-    try {
-      const object: ObjectsCommon = ObjectFactory.newFromJSON(
-        json,
-        this,
-        createNew
-      );
-      this.addExistingObject(object);
-      this.updateHistory();
+    // if createNew children of objects do not exist on scene
+    if(createNew){
+      try{
+        if([
+          Union.typeName, 
+          Difference.typeName, 
+          Intersection.typeName, 
+          RepetitionObject.typeName, 
+          ObjectsGroup.typeName
+        ].includes(json.type))
+        {
+          (json as (ICompoundObjectJSON | IObjectsGroupJSON | IRepetitionObjectJSON)).children.forEach(childJSON =>
+            this.addNewObjectFromJSON(childJSON));
+        }else{
+          const object: ObjectsCommon = ObjectFactory.newFromJSON(
+            json,
+            this,
+          );
+          this.addExistingObject(object);
+        }
+      }catch(e){
+        throw new Error(`Cannot add new Object from JSON ${e}`);
+      }
       return this.toJSON();
-    } catch (e) {
-      throw new Error(`Cannot add new Object from JSON ${e}`);
+    }
+    else{
+      try {
+        const object: ObjectsCommon = ObjectFactory.newFromJSON(
+          json,
+          this,
+        );
+        this.addExistingObject(object);
+        this.updateHistory();
+        return this.toJSON();
+      } catch (e) {
+        throw new Error(`Cannot add new Object from JSON ${e}`);
+      }
     }
   }
 
@@ -448,7 +467,7 @@ export default class Scene {
     }
   }
 
-  public addExistingObject(object: ObjectsCommon): ISceneJSON {
+  private addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
       throw Error("Object already in Scene");
     } else {
