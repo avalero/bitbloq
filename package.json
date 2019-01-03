@@ -5,23 +5,30 @@
   "version": "0.1.0",
   "author": "Kyle Mathews <mathews.kyle@gmail.com>",
   "dependencies": {
+    "@bitbloq/3d": "^0.1.1",
+    "@bitbloq/lib3d": "^0.1.1",
+    "@bitbloq/ui": "^0.1.1",
     "@emotion/core": "^10.0.5",
     "@emotion/styled": "^10.0.5",
-    "@types/react": "^16.7.17",
+    "@types/react": "^16.7.18",
+    "apollo-boost": "^0.1.23",
     "gatsby": "^2.0.53",
     "gatsby-image": "^2.0.20",
     "gatsby-plugin-emotion": "^4.0.1",
     "gatsby-plugin-manifest": "^2.0.9",
     "gatsby-plugin-offline": "^2.0.16",
     "gatsby-plugin-react-helmet": "^3.0.2",
-    "gatsby-plugin-sharp": "^2.0.14",
+    "gatsby-plugin-sharp": "^2.0.17",
     "gatsby-plugin-typescript": "^2.0.3",
     "gatsby-source-filesystem": "^2.0.8",
     "gatsby-transformer-sharp": "^2.1.8",
+    "isomorphic-fetch": "^2.2.1",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
+    "react-apollo": "^2.3.3",
     "react-dom": "^16.6.3",
     "react-helmet": "^5.2.0",
+    "react-no-ssr": "^1.1.0",
     "typescript": "^3.2.2"
   },
   "keywords": [
@@ -44,5 +51,8 @@
   },
   "bugs": {
     "url": "https://github.com/gatsbyjs/gatsby/issues"
+  },
+  "resolutions": {
+    "graphql": "0.13.2"
   }
 }
