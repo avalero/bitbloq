@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-12-16 12:32:55
+ * Last modified  : 2019-01-03 18:41:43
  */
 
 import lodashIsequal from "lodash.isequal";
@@ -42,7 +42,14 @@ export default class Cube extends PrimitiveObject {
     if (object.type !== Cube.typeName) {
       throw new Error("Not Cube Object");
     }
-    return new Cube(object.parameters, object.operations, object.viewOptions);
+    const cube = new Cube(
+      object.parameters,
+      object.operations,
+      object.viewOptions
+    );
+
+    cube.id = object.id || "";
+    return cube;
   }
 
   constructor(

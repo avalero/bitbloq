@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53
- * Last modified  : 2018-12-28 19:54:21
+ * Last modified  : 2019-01-03 18:48:10
  */
 
 import isEqual from "lodash.isequal";
@@ -40,7 +40,13 @@ export default class Intersection extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions
       };
-      return new Intersection(children, object.operations, viewOptions);
+      const intersect = new Intersection(
+        children,
+        object.operations,
+        viewOptions
+      );
+      intersect.id = object.id || "";
+      return intersect;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
     }

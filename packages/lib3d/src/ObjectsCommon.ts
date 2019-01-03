@@ -216,7 +216,7 @@ export default class ObjectsCommon {
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
     // each new object must have a new ID
-    this.id = uuid();
+    if (this.id !== "") this.id = uuid();
     this.parent = undefined;
   }
 

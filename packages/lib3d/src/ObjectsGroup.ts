@@ -30,7 +30,9 @@ export default class ObjectsGroup extends ObjectsCommon {
       const group: ObjectsCommon[] = object.children.map(obj =>
         scene.getObject(obj)
       );
-      return new ObjectsGroup(group);
+      const obj = new ObjectsGroup(group);
+      obj.id = object.id || "";
+      return obj;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
     }

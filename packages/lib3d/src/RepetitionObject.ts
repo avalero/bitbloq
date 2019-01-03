@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2019-01-03 07:38:40
+ * Last modified  : 2019-01-03 18:46:00
  */
 
 import ObjectsCommon, {
@@ -85,7 +85,9 @@ export default class RepetitionObject extends ObjectsCommon {
     }
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
-      return new RepetitionObject(obj.parameters, object, obj.viewOptions);
+      const rep = new RepetitionObject(obj.parameters, object, obj.viewOptions);
+      rep.id = obj.id || "";
+      return rep;
     } catch (e) {
       throw new Error(`Cannot create RepetitionObject: ${e}`);
     }

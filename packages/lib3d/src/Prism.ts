@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2018-12-16 08:55:16
+ * Last modified  : 2019-01-03 18:44:18
  */
 
 /**
@@ -52,7 +52,14 @@ export default class Prism extends PrimitiveObject {
     if (object.type !== Prism.typeName) {
       throw new Error("Not Prism Object");
     }
-    return new Prism(object.parameters, object.operations, object.viewOptions);
+    const prism = new Prism(
+      object.parameters,
+      object.operations,
+      object.viewOptions
+    );
+    prism.id = object.id || "";
+
+    return prism;
   }
 
   constructor(
