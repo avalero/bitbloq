@@ -2,9 +2,6 @@ import * as React from 'react';
 
 export const TranslateContext = React.createContext((id: string) => id);
 
-const language = navigator.language;
-const langCode = language.split('-')[0] || language;
-
 interface TranslateProviderProps {
   messagesFiles: any;
 }
@@ -20,6 +17,9 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 
   async getLanguageMessages() {
     const {messagesFiles} = this.props;
+    const language = navigator.language;
+    const langCode = language.split('-')[0] || language;
+
     const langFile = messagesFiles[langCode] || messagesFiles.en;
 
     const response = await fetch(langFile);
@@ -32,7 +32,7 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 
     const translateFn = (id: string) => {
       if (messages[id]) return messages[id];
-      console.warn(`Missing translation for ${id} language ${langCode}`);
+      console.warn(`Missing translation for ${id}`);
       return id;
     };
 
