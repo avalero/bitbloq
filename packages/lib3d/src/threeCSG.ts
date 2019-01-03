@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-11 15:03:15
- * Last modified  : 2018-11-28 11:30:07
+ * Last modified  : 2019-01-02 18:16:45
  */
 
 import * as THREE from "three";
@@ -430,10 +430,10 @@ class Polygon {
 
   public splitPolygon(
     polygon: Polygon,
-    coplanar_front: any,
-    coplanar_back: any,
-    front: any,
-    back: any
+    coplanar_front: Array<Polygon>,
+    coplanar_back: Array<Polygon>,
+    front: Array<Polygon>,
+    back: Array<Polygon>
   ) {
     const classification = this.classifySide(polygon);
 

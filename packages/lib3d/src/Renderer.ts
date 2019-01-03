@@ -151,7 +151,7 @@ export default class Renderer {
         200,
         -200,
         0.1,
-        1000
+        100000
       );
     } else {
       this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
