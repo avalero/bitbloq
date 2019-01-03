@@ -11,7 +11,10 @@ const { ApolloServer } = require('apollo-server-koa');
 const jwt = require('koa-jwt');
 const jsonwebtoken = require('jsonwebtoken');
 
+const PORT=8000;
+
 mongoose.set('debug', true);
+mongoose.set('useFindAndModify', false);
 mongoose.connect(
   'mongodb://localhost/back_bitbloq_db',
   { useNewUrlParser: true },
@@ -41,6 +44,6 @@ const app = new Koa();
 
 server.applyMiddleware({ app });
 
-app.listen(7000, () =>
-  console.log('🚀 Server ready at http://localhost:7000${server.graphqlPath}'),
+app.listen(PORT, () =>
+  console.log('🚀 Server ready at http://localhost:8000${server.graphqlPath}'),
 );

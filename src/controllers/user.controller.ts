@@ -7,10 +7,6 @@ const userController = {
     return UserMong.create(newUser);
   },
 
-  login: (userID, token) => {
-    return UserMong.updateOne({_id: userID }, { $set: {authToken: token} });
-  },
-
   getMyUser: async context => {
     const token1 = context.headers.authorization || '';
     const justToken = token1.split(' ')[1];
@@ -27,7 +23,6 @@ const userController = {
     }
   },
  
-  
   deleteUser:(userID) => {
     return UserMong.deleteOne({ _id: userID});
   },
@@ -36,10 +31,6 @@ const userController = {
   },
   findAllUsers: () => {
     return UserMong.find({});
-  },
-
-  activateAccount: async (root: any, args: any) => {
-    //TODO: activate account
   },
 };
 

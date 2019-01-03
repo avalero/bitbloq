@@ -9,11 +9,11 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     type Query {
       users: [User]
+      activateAccount: String
     }
     type Mutation {
-      signUpUser(input: UserIn!): User
-      activateAccount(sign_up_token: String!): User
-      login(email: String!, password: String!): Token
+      signUpUser(input: UserIn!): String
+      login(email: String!, password: String!): String
       deleteUser(email: String!): User
       updateUser(input: UserIn!): User
     }
@@ -37,10 +37,6 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       sign_up_token: String
       auth_token: String
       notifications: Boolean
-    }
-
-    type Token {
-      token: String
     }
   `,
 });

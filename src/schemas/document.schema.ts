@@ -14,7 +14,7 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
       createDocument(type: String!, tittle: String!): Document
       deleteDocument(tittle: String!, type: String!): Document
       updateDocument(
-        user: String!
+        user: String
         tittle: String!
         type: String
         content: String
