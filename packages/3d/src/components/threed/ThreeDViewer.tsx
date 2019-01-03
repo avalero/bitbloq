@@ -1,8 +1,8 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import styled from 'react-emotion';
+import styled from '@emotion/styled';
 import {selectObject, deselectAllObjects} from '../../actions/threed';
-import {TranslateContext} from '../TranslateProvider';
+import {withTranslate} from '../TranslateProvider';
 import {
   Scene,
   IHelperDescription,
@@ -57,10 +57,7 @@ const CameraButtons = styled.div`
 interface CameraButtonProps {
   wideIcon?: boolean;
 }
-const CameraButton =
-  styled.div <
-  CameraButtonProps >
-  `
+const CameraButton = styled.div<CameraButtonProps>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,9 +94,6 @@ class ThreeDViewer extends React.Component<
   ThreeDViewerProps,
   ThreeDViewerState
 > {
-
-  static contextType = TranslateContext;
-
   private scene: Scene;
   private renderer: Renderer;
   private rendererContainerRef: React.RefObject<
@@ -116,14 +110,16 @@ class ThreeDViewer extends React.Component<
     if (selectedObjects !== prevProps.selectedObjects) {
       this.updateStatusBar();
     }
+    if (scene !== prevProps.scene) {
+      this.renderer.setScene(scene);
+    }
 
     this.renderer.setActiveHelper(activeOperation);
   }
 
   componentDidMount() {
-    const {scene, selectObject, deselectAllObjects} = this.props;
+    const {scene, selectObject, deselectAllObjects, t} = this.props;
     const container = this.rendererContainerRef.current;
-    const t = this.context;
 
     if (container) {
       this.renderer = new Renderer(scene, container, {
@@ -133,8 +129,8 @@ class ThreeDViewer extends React.Component<
           left: t('navigation-left'),
           right: t('navigation-right'),
           front: t('navigation-front'),
-          back: t('navigation-back')
-        }
+          back: t('navigation-back'),
+        },
       });
       this.renderer.updateScene();
     }
@@ -171,10 +167,10 @@ class ThreeDViewer extends React.Component<
 
   render() {
     const {selectedPosition, isOrthographic} = this.state;
-    const t = this.context;
+    const {t} = this.props;
 
     return (
-      <Container innerRef={this.rendererContainerRef}>
+      <Container ref={this.rendererContainerRef}>
         <CameraButtons>
           <CameraButton onClick={this.onZoomIn}>
             <Icon name="plus" />
@@ -224,4 +220,7 @@ const mapDispatchToProps = {
   deselectAllObjects,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ThreeDViewer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withTranslate(ThreeDViewer));

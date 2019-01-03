@@ -30,6 +30,17 @@ const initialState = {
 const scene = handleActions(
   new Map([
     [
+      actions.newScene,
+      (state, { payload }) => {
+        const scene = Scene.newFromJSON(payload);
+        return ({
+          ...state,
+          sceneInstance: scene,
+          objects: scene.toJSON()
+        });
+      }
+    ],
+    [
       actions.createObject,
       (state, { payload }) => {
         const { sceneInstance, objects } = state;

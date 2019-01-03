@@ -1,14 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+import Root from './root';
+import TranslateProvider from './components/TranslateProvider';
 import './base-styles';
-import App from './components/App';
-import store from './store';
 
-const Index = () => (
-  <Provider store={store}>
-    <App />
-  </Provider>
-)
+import en from './assets/messages/en.json';
+import es from './assets/messages/es.json';
 
-ReactDOM.render(<Index />, document.getElementById("index"));
+const messagesFiles = { en, es };
+
+ReactDOM.render(
+  <TranslateProvider messagesFiles={messagesFiles}>
+    <Root />,
+  </TranslateProvider>,
+  document.getElementById("index")
+);

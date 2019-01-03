@@ -1,6 +1,6 @@
 import React from 'react';
 import chroma from 'chroma-js';
-import styled from 'react-emotion';
+import styled from '@emotion/styled';
 import {colors} from '../base-styles';
 
 const fill = colors.green;

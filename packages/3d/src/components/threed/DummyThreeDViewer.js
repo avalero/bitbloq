@@ -20,7 +20,8 @@ import {selectObject, deselectAllObjects, undo, redo} from '../../actions/threed
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import OrbitCamera from '../../lib/object3dts/OrbitCamera.ts';
 import {createFromJSON} from '../../lib/object3d';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import TranslationHelper from '../../lib/object3d/TranslationHelper';
 import RotationHelper from '../../lib/object3d/RotationHelper';
 import ThreeDNavigationBox from './ThreeDNavigationBox';

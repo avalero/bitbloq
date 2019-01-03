@@ -1,5 +1,6 @@
 import React from 'react';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import {Droppable} from 'react-beautiful-dnd';
 import Operation from './Operation';
 
@@ -83,7 +84,7 @@ export default class OperationsList extends React.Component {
       <Droppable droppableId="operations" ref={this.wrapRef}>
         {provided => (
           <Container
-            innerRef={el => {
+            ref={el => {
               this.container = el;
               provided.innerRef(el);
             }}

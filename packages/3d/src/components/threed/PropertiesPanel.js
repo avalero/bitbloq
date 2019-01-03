@@ -1,9 +1,10 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import {Spring} from 'react-spring';
 import {DragDropContext} from 'react-beautiful-dnd';
-import {TranslateContext} from '../TranslateProvider';
+import {withTranslate} from '../TranslateProvider';
 import {
   updateObject,
   updateObjectParameter,
@@ -190,8 +191,6 @@ const ContextMenuOption = styled.div`
 `;
 
 class PropertiesPanel extends React.Component {
-  static contextType = TranslateContext;
-
   state = {
     draggingOperations: false,
     contextMenuOpen: false,
@@ -295,7 +294,7 @@ class PropertiesPanel extends React.Component {
 
   renderObjectPanel(object) {
     const {draggingOperations, contextMenuOpen, editingName} = this.state;
-    const t = this.context;
+    const {t} = this.props;
 
     const {
       setActiveOperation,
@@ -412,10 +411,7 @@ class PropertiesPanel extends React.Component {
           {advancedMode && (
             <ObjectButtons>
               {config.objectOperations.map(operation => (
-                <Tooltip
-                  key={operation.name}
-                  content={t(operation.label)}
-                  >
+                <Tooltip key={operation.name} content={t(operation.label)}>
                   {tooltipProps => (
                     <OperationButton
                       {...tooltipProps}
@@ -504,4 +500,7 @@ const mapDispatchToProps = dispatch => ({
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(PropertiesPanel);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withTranslate(PropertiesPanel));

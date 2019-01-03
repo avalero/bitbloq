@@ -1,8 +1,8 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {TranslateContext} from '../TranslateProvider';
-import {setAdvancedMode} from '../../actions/threed';
-import styled from 'react-emotion';
+import {withTranslate} from '../TranslateProvider';
+import {setAdvancedMode, newScene} from '../../actions/threed';
+import styled from '@emotion/styled';
 import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer.tsx';
 import Toolbar from './Toolbar';
@@ -98,7 +98,13 @@ const menuOptions = ({advancedMode}, t) => [
 
 class ThreeD extends React.Component {
 
-  static contextType = TranslateContext;
+  componentDidMount() {
+    const {initialContent, newScene} = this.props;
+
+    if (initialContent) {
+      newScene(initialContent);
+    }
+  }
 
   onMenuOptionClick = option => {
     const {setAdvancedMode} = this.props;
@@ -117,8 +123,7 @@ class ThreeD extends React.Component {
   };
 
   render() {
-    const {advancedMode, setAdvancedMode, intl} = this.props;
-    const t = this.context;
+    const {advancedMode, setAdvancedMode, t} = this.props;
 
     const menuRightContent = (
       <AdvanceModeWrap>
@@ -160,6 +165,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   setAdvancedMode: active => dispatch(setAdvancedMode(active)),
+  newScene: json => dispatch(newScene(json)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ThreeD);
+export default connect(mapStateToProps, mapDispatchToProps)(withTranslate(ThreeD));

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {connect} from 'react-redux';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import Markdown from 'react-markdown';
 import {createObject, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';

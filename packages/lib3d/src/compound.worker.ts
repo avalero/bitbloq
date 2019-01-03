@@ -13,7 +13,6 @@
  */
 
 import * as THREE from "three";
-import "./custom.d";
 import ThreeBSP from "./threeCSG";
 
 const ctx: CompoundWorker = self as any;
@@ -68,6 +67,8 @@ ctx.addEventListener(
   e => {
     const geometries: THREE.Geometry[] = [];
     const bufferArray = e.data.bufferArray;
+
+    if (!bufferArray) return;
 
     let firstGeomMatrix: THREE.Matrix4 | undefined;
 

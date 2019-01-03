@@ -1,9 +1,10 @@
 import React from 'react';
 import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
-import styled, {css} from 'react-emotion';
+import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import {TranslateContext} from '../TranslateProvider';
+import {withTranslate} from '../TranslateProvider';
 import {colors, shadow} from '../../base-styles';
 import {Icon} from '@bitbloq/ui';
 import {
@@ -159,8 +160,6 @@ const ObjectTypeIcon = styled.div`
 
 class ObjectTree extends React.Component {
 
-  static contextType = TranslateContext;
-
   state = {
     addDropDownOpen: false,
     collapsedItems: [],
@@ -189,8 +188,7 @@ class ObjectTree extends React.Component {
   };
 
   onAddObject(typeConfig) {
-    const {advancedMode} = this.props;
-    const t = this.context;
+    const {advancedMode, t} = this.props;
     this.setState({addDropDownOpen: false});
 
     const object = {
@@ -252,7 +250,7 @@ class ObjectTree extends React.Component {
     return (
       <Draggable draggableId={id} index={index} key={id}>
         {(provided, snapshot) => (
-          <ObjectItem {...provided.draggableProps} innerRef={provided.innerRef}>
+          <ObjectItem {...provided.draggableProps} ref={provided.innerRef}>
             <ObjectName
               isFirstSelected={selectedObjects.indexOf(object) === 0}
               isSelected={isSelected}
@@ -304,7 +302,7 @@ class ObjectTree extends React.Component {
         <Droppable droppableId={parentId} type={parentId}>
           {provided => (
             <ObjectList
-              innerRef={provided.innerRef}
+              ref={provided.innerRef}
               {...provided.droppableProps}>
               {objects.map((object, index) =>
                 this.renderObjectItem(object, index, depth, parent),
@@ -319,8 +317,7 @@ class ObjectTree extends React.Component {
 
   render() {
     const {addDropDownOpen} = this.state;
-    const {objects} = this.props;
-    const t = this.context;
+    const {objects, t} = this.props;
 
     return (
       <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
@@ -372,4 +369,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(ObjectTree);
+)(withTranslate(ObjectTree));

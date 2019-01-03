@@ -1,6 +1,6 @@
 import React from 'react';
 import uuid from 'uuid/v1';
-import styled from 'react-emotion';
+import styled from '@emotion/styled';
 import BloqFactory from './BloqFactory';
 import Canvas from './Canvas';
 

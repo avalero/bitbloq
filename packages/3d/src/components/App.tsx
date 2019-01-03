@@ -1,16 +1,6 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { keyDown, keyUp, appClick } from "../actions/ui";
-import {
-  BrowserRouter as Router,
-  Route,
-  Redirect,
-  Switch
-} from "react-router-dom";
-
-import Hardware from "./Hardware";
-import Software from "./Software";
-import TranslateProvider from './TranslateProvider';
 import ThreeD from "./threed/ThreeD";
 
 export interface AppProps {
@@ -44,18 +34,9 @@ class App extends React.Component<AppProps> {
 
   render() {
     return (
-      <TranslateProvider>
-        <div onClick={this.onClick}>
-          <Router>
-            <Switch>
-              <Route path="/software" component={Software} />
-              <Route path="/hardware" component={Hardware} />
-              <Route path="/3d" component={ThreeD} />
-              <Route render={() => <Redirect to="/3d" />} />
-            </Switch>
-          </Router>
-        </div>
-      </TranslateProvider>
+      <div onClick={this.onClick}>
+        <ThreeD {...this.props} />
+      </div>
     );
   }
 }

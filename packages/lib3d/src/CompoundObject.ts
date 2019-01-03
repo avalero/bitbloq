@@ -27,8 +27,6 @@ import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 import * as THREE from "three";
 
-import "./custom.d";
-
 import CompoundWorker from "./compound.worker";
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
