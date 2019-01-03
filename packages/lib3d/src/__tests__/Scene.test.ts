@@ -145,6 +145,8 @@ test("Secene.newFromJSON - Simple Objects", () => {
 
   const computedSceneJSON: ISceneJSON = scene.toJSON();
 
+  expect(computedSceneJSON).toEqual(sceneJSON);
+
   expect(computedSceneJSON.length).toEqual(2);
   expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
   expect(computedSceneJSON[1].type).toEqual(Cube.typeName);
@@ -173,8 +175,7 @@ test("Secene.newFromJSON - Compound Objects", () => {
 
   const computedSceneJSON: ISceneJSON = scene.toJSON();
 
-  console.log(sceneJSON);
-  console.log(computedSceneJSON);
+  expect(computedSceneJSON).toEqual(sceneJSON);
 
   expect(computedSceneJSON.length).toEqual(2);
   expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
@@ -188,5 +189,42 @@ test("Secene.newFromJSON - Compound Objects", () => {
       .parameters as ICartesianRepetitionParams).num
   ).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(3);
+  expect((scene as any).objectsInScene.length).toEqual(2);
+});
+
+test("Secene.newFromJSON - Two level Compound Objects", () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: "cartesian",
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10
+  };
+  const repetition1 = new RepetitionObject(repParams, cube2);
+  const repetition2 = new RepetitionObject(repParams, repetition1);
+
+  const sceneJSON: ISceneJSON = [cube1.toJSON(), repetition2.toJSON()];
+
+  const scene: Scene = Scene.newFromJSON(sceneJSON);
+
+  const computedSceneJSON: ISceneJSON = scene.toJSON();
+
+  expect(computedSceneJSON).toEqual(sceneJSON);
+
+  expect(computedSceneJSON.length).toEqual(2);
+  expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
+  expect(computedSceneJSON[1].type).toEqual(RepetitionObject.typeName);
+  expect(
+    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type
+  ).toEqual(RepetitionObject.typeName);
+  expect((computedSceneJSON[0] as ICubeJSON).parameters.width).toEqual(10);
+  expect(
+    ((computedSceneJSON[1] as IRepetitionObjectJSON)
+      .parameters as ICartesianRepetitionParams).num
+  ).toEqual(repParams.num);
+  expect((scene as any).objectCollector.length).toEqual(4);
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
