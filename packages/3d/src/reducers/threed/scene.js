@@ -30,11 +30,15 @@ const initialState = {
 const scene = handleActions(
   new Map([
     [
-      actions.updateScene,
-      (state, { payload }) => ({
-        ...state,
-        objects: state.sceneInstance.updateSceneFromJSON(payload)
-      })
+      actions.newScene,
+      (state, { payload }) => {
+        const scene = Scene.newFromJSON(payload);
+        return ({
+          ...state,
+          sceneInstance: scene,
+          objects: scene.toJSON()
+        });
+      }
     ],
     [
       actions.createObject,

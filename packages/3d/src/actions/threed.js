@@ -1,6 +1,6 @@
 import {createAction} from 'redux-actions';
 
-export const updateScene = createAction('THREED_UPDATE_SCENE');
+export const newScene = createAction('THREED_NEW_SCENE');
 export const createObject = createAction('THREED_CREATE_OBJECT');
 export const updateObject = createAction('THREED_UPDATE_OBJECT');
 export const updateObjectParameter = createAction(

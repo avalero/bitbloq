@@ -104,6 +104,11 @@ export default class Renderer {
     this.objectsGroup = newObjectsGroup;
   }
 
+  public setScene(scene: Scene) {
+    this.scene = scene;
+    this.updateScene();
+  }
+
   public async setActiveHelper(
     activeOperation: IHelperDescription
   ): Promise<void> {
