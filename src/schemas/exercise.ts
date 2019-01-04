@@ -1,8 +1,4 @@
-import {
-  addMockFunctionsToSchema,
-  gql,
-  makeExecutableSchema,
-} from 'apollo-server-koa';
+import { addMockFunctionsToSchema, gql, makeExecutableSchema } from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
 const exerciseSchema: GraphQLSchema = makeExecutableSchema({

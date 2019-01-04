@@ -6,14 +6,13 @@ import { allResolvers } from './resolvers/resolvers';
 import * as mongoose from 'mongoose';
 import { GraphQLSchema } from 'graphql';
 import { mergeSchemas } from 'graphql-tools';
-import { PersistedQueryNotFoundError } from 'apollo-server-errors';
-import { userController } from './controllers/user.controller';
+import { contextController } from './controllers/context';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
-const jwt = require('koa-jwt');
-const jsonwebtoken = require('jsonwebtoken');
 
-const PORT=8000;
+const PORT=4000;
+
+const mongoUrl = process.env.MONGO_URL;
 
 const mongoUrl = process.env.MONGO_URL;
 
@@ -38,7 +37,7 @@ const schema: GraphQLSchema = mergeSchemas({
 const server = new ApolloServer({
   schema,
   context: async ({ ctx }) => {
-    const user = await userController.getMyUser(ctx);
+    const user = await contextController.getMyUser(ctx);
     // add the user to the context
     return { user };
   },
@@ -49,5 +48,5 @@ const app = new Koa();
 server.applyMiddleware({ app });
 
 app.listen(PORT, () =>
-  console.log('🚀 Server ready at http://localhost:8000${server.graphqlPath}'),
+  console.log('🚀 Server ready at http://localhost:4000${server.graphqlPath}'),
 );
