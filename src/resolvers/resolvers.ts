@@ -1,6 +1,6 @@
-import userResolver from './user.resolver';
-import exerciseResolver from './exercise.resolver';
-import documentResolver from './document.resolver';
+import userResolver from './user';
+import exerciseResolver from './exercise';
+import documentResolver from './document';
 
 export const allResolvers = [userResolver, exerciseResolver, documentResolver];
 

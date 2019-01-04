@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 
 import { Document, Schema, Model, model } from 'mongoose';
 
-interface IUser extends Document{
+interface IUser extends Document {
   email?: string;
   password?: string;
   name?: string;
@@ -14,7 +14,7 @@ interface IUser extends Document{
 }
 
 export const ContactSchema: Schema = new Schema({
-  id: Schema.Types.ObjectId,
+  //id: Schema.Types.ObjectId,
 
   email: {
     type: String,
@@ -62,7 +62,7 @@ export const ContactSchema: Schema = new Schema({
   },
 });
 
-export const UserMong: Model<IUser> = mongoose.model<IUser>(
-  'UserMongs',
+export const UserModel: Model<IUser> = mongoose.model<IUser>(
+  'UserModels',
   ContactSchema,
 );

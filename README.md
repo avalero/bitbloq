@@ -54,18 +54,22 @@ Hay que mandar la siguiente mutation:
 *** Las queries y mutations de los documentos son: ***   
 
     QUERIES:
-        documents: [Document]    
+        documents: [Document]
+        documentByID(id: String!): [Document]   
     
     MUTATIONS:
-        createDocument(type: String!, tittle: String!): Document
-        deleteDocument(tittle: String!, type: String!): Document
+        createDocument(type: String!, title: String!): Document
+        deleteDocument(id: String, title: String!, type: String!): Document
         updateDocument(
+            id: String
             user: String
-            tittle: String!
+            title: String!
             type: String
             content: String
             description: String
         ): Document
+        createExercise(document_father: String, expireDate: String): Document
+        deleteExercise(code: String!): Document
 
 
 

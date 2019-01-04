@@ -33,6 +33,7 @@
     "@types/jest": "^23.3.10",
     "@types/mongoose": "^5.3.5",
     "apollo-server": "^2.2.6",
+    "dotenv": "^6.2.0",
     "easygraphql-tester": "^2.1.4",
     "fs": "0.0.1-security",
     "graphql-type-json": "^0.2.1",

@@ -24,7 +24,7 @@ describe('ADD new user', () => {
       expect(espera.email).toEqual('aaa1@bbb.com');
       await new document_({
         user: espera._id,
-        tittle: 'Prueba1',
+        title: 'Prueba1',
         type: '3D',
         description: 'Hola hola',
         versions: [
@@ -42,8 +42,8 @@ describe('ADD new user', () => {
           },
         ],
       }).save(async () => {
-        const docesp = await document_.findOne({ tittle: 'Prueba1' });
-        expect(docesp.tittle).toEqual('Prueba1');
+        const docesp = await document_.findOne({ title: 'Prueba1' });
+        expect(docesp.title).toEqual('Prueba1');
         await new exercise({
           document: docesp._id,
           code: '22222',

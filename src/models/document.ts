@@ -1,9 +1,9 @@
 import * as mongoose from 'mongoose';
-import { Document, Schema, Model} from 'mongoose';
+import { Document, Schema, Model } from 'mongoose';
 
-interface IDocument extends Document{
+interface IDocument extends Document {
   user?: String;
-  tittle?: String;
+  title?: String;
   type?: String;
   content?: String;
   description?: String;
@@ -12,10 +12,10 @@ interface IDocument extends Document{
 const DocumentMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'UserMong',
+    ref: 'UserModel',
   },
 
-  tittle: {
+  title: {
     type: String,
     trim: true,
   },
@@ -58,4 +58,3 @@ export const DocumentModel: Model<IDocument> = mongoose.model<IDocument>(
   'DocumentModel',
   DocumentMongSchema,
 );
-

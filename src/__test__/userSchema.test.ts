@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from 'graphql-tools';
 import { graphql, GraphQLSchema } from 'graphql';
-import typeDefs from '../schemas/user.schema';
+import typeDefs from '../schemas/user';
 
 const expectMut = describe('Schema', () => {
   // Array of case types

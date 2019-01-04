@@ -1,8 +1,8 @@
-import UserSchema from './user.schema';
-import documentSchema from './document.schema';
-import typeDefSub from './submission.schema';
-import exerciseSchema from './exercise.schema';
-import typeDefVer from './version.schema';
+import UserSchema from './user';
+import documentSchema from './document';
+import typeDefSub from './submission';
+import exerciseSchema from './exercise';
+import typeDefVer from './version';
 
 export const allSchemas = [
   UserSchema,
