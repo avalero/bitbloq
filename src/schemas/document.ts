@@ -10,7 +10,7 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
     }
     type Mutation {
       createDocument(type: String!, title: String!): Document
-      deleteDocument(id: String, title: String!, type: String!): Document
+      deleteDocument(id: String): Document
       updateDocument(
         id: String
         user: String

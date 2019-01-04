@@ -48,8 +48,8 @@ Hay que mandar la siguiente mutation:
     MUTATIONS:
         signUpUser(input: UserIn!): String
         login(email: String!, password: String!): String
-        deleteUser(email: String!): User
-        updateUser(input: UserIn!): Null
+        deleteUser(id: String!): User
+        updateUser(id: String!, input: UserIn!): User
 
 *** Las queries y mutations de los documentos son: ***   
 
@@ -59,7 +59,7 @@ Hay que mandar la siguiente mutation:
     
     MUTATIONS:
         createDocument(type: String!, title: String!): Document
-        deleteDocument(id: String, title: String!, type: String!): Document
+        deleteDocument(id: String): Document
         updateDocument(
             id: String
             user: String
