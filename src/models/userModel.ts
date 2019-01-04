@@ -8,8 +8,8 @@ interface IUser extends Document{
   name?: string;
   center?: string;
   active?: Boolean;
-  sign_up_token?: string;
-  auth_token?: string;
+  signUpToken?: string;
+  authToken?: string;
   notifications?: Boolean;
 }
 
