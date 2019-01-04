@@ -14,8 +14,6 @@ const PORT=4000;
 
 const mongoUrl = process.env.MONGO_URL;
 
-const mongoUrl = process.env.MONGO_URL;
-
 mongoose.set('debug', true);
 mongoose.set('useFindAndModify', false);
 mongoose.connect(
