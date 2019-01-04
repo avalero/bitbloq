@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import { allSchemas } from './schemas/schemas';
 import { allResolvers } from './resolvers/resolvers';
 
@@ -13,7 +15,7 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const PORT=8000;
 
-const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost/back_bitbloq_db';
+const mongoUrl = process.env.MONGO_URL;
 
 mongoose.set('debug', true);
 mongoose.set('useFindAndModify', false);

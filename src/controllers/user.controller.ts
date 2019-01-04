@@ -15,7 +15,7 @@ const userController = {
       try {
         return await jsonwebtoken.verify(
           justToken,
-          '\x7f\x981\xcbRc67\x90I\x13\xe5*\xcc\xd2\x0b\\\x9c\x9e\xfd\x99EV\x10',
+          process.env.JWT_SECRET
         );
       } catch (e) {
         throw new AuthenticationError('Your session expired. Sign in again.');

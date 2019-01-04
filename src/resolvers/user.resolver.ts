@@ -14,7 +14,7 @@ const userResolver = {
       }
       const token = jsonwebtoken.sign(
         { email: args.input.email, password: args.input.password, signUp: true },
-        '\x7f\x981\xcbRc67\x90I\x13\xe5*\xcc\xd2\x0b\\\x9c\x9e\xfd\x99EV\x10',
+        process.env.JWT_SECRET,
         { expiresIn: '1h' },
       );
       console.log(args.input);
@@ -41,7 +41,7 @@ const userResolver = {
       }
       const token: String = jsonwebtoken.sign(
         { email: contactFinded.email, password: contactFinded.password, signUp: false },
-        '\x7f\x981\xcbRc67\x90I\x13\xe5*\xcc\xd2\x0b\\\x9c\x9e\xfd\x99EV\x10',
+        process.env.JWT_SECRET,
       );
       userController.updateUser(contactFinded._id, {authToken: token});
       return token;
@@ -81,7 +81,7 @@ const userResolver = {
       if(context.user.signUp===true){
         var token: String = jsonwebtoken.sign(
           { email: contactFinded.email, password: contactFinded.password },
-          '\x7f\x981\xcbRc67\x90I\x13\xe5*\xcc\xd2\x0b\\\x9c\x9e\xfd\x99EV\x10',
+          process.env.JWT_SECRET,
           { expiresIn: '1h' },
         );
         userController.updateUser(contactFinded._id, {active: true, authToken: token, signUpToken: " "});
