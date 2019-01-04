@@ -24,6 +24,13 @@ exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
         /node_modules/.test(modulePath) &&
         !/node_modules\/\@bitbloq\/*/.test(modulePath),
     },
+
+    {
+      type: 'javascript/auto',
+      test: /\.(json)$/,
+      include: [/src\/messages/],
+      use: ['file-loader'],
+    }
   ];
 
   if (stage === "build-html") {

@@ -2,13 +2,6 @@ import * as React from 'react';
 import styled from '@emotion/styled';
 import {colors} from '@bitbloq/ui';
 
-const Container = styled.div`
-  display: flex;
-  height: 60px;
-  padding: 0px 40px;
-  align-items: center;
-`;
-
 const AppHeader = () => (
   <Container>
     <Logo>Bitbloq</Logo>
@@ -19,6 +12,17 @@ const AppHeader = () => (
 );
 
 export default AppHeader;
+
+/* styled components */
+
+const Container = styled.div`
+  background-color: white;
+  display: flex;
+  height: 60px;
+  padding: 0px 40px;
+  align-items: center;
+  border-bottom: 1px solid ${colors.gray3};
+`;
 
 const Logo = styled.div`
   flex: 1;

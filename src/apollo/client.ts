@@ -3,6 +3,14 @@ import fetch from 'isomorphic-fetch';
 
 export const client = new ApolloClient({
   uri: '/api/graphql',
+  request: async operation => {
+    const token = window.localStorage.getItem('authToken');
+    operation.setContext({
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
   fetch
 });
 

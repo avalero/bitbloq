@@ -23,6 +23,7 @@
     "gatsby-source-filesystem": "^2.0.8",
     "gatsby-transformer-sharp": "^2.1.8",
     "isomorphic-fetch": "^2.2.1",
+    "lodash.debounce": "^4.0.8",
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
     "react-apollo": "^2.3.3",

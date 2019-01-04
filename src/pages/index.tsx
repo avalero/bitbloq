@@ -3,6 +3,8 @@ import styled from '@emotion/styled';
 import {navigate} from 'gatsby';
 import {Global, css} from '@emotion/core';
 import {baseStyles, colors, Input, Panel, Button} from '@bitbloq/ui';
+import gql from 'graphql-tag';
+import {Mutation} from 'react-apollo';
 import SEO from '../components/SEO';
 
 enum TabType {
@@ -14,12 +16,21 @@ interface IndexPageProps {}
 
 class IndexPageState {
   readonly currentTab: TabType = TabType.Teacher;
+  readonly email: string = '';
+  readonly password: string = '';
 }
+
+const LOGIN_MUTATION = gql`
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password)
+  }
+`;
 
 class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   readonly state = new IndexPageState();
 
-  onTeacherLogin = () => {
+  onTeacherLogin = ({login: token}) => {
+    window.localStorage.setItem('authToken', token);
     navigate('/app');
   };
 
@@ -59,7 +70,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   }
 
   renderTabContent() {
-    const {currentTab} = this.state;
+    const {currentTab, email, password} = this.state;
 
     if (currentTab === TabType.Teacher) {
       return (
@@ -67,9 +78,29 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
           <TabInfo />
           <DashedLine />
           <LoginForm>
-            <Input placeholder="Correo electrónico" type="email" />
-            <Input placeholder="Contraseña" type="password" />
-            <LoginButton onClick={this.onTeacherLogin}>Entrar</LoginButton>
+            <Input
+              value={email}
+              onChange={e => this.setState({email: e.target.value})}
+              placeholder="Correo electrónico"
+              type="email"
+            />
+            <Input
+              value={password}
+              onChange={e => this.setState({password: e.target.value})}
+              placeholder="Contraseña"
+              type="password"
+            />
+            <Mutation
+              mutation={LOGIN_MUTATION}
+              onCompleted={this.onTeacherLogin}>
+              {(login, {loading}) => (
+                <LoginButton
+                  disabled={loading}
+                  onClick={() => login({variables: {email, password}})}>
+                  Entrar
+                </LoginButton>
+              )}
+            </Mutation>
           </LoginForm>
         </TabContent>
       );
@@ -129,15 +160,11 @@ const Tabs = styled.div`
 interface TabProps {
   active: boolean;
 }
-const Tab =
-  styled.div <
-  TabProps >
-  `
+const Tab = styled.div<TabProps>`
   background-color: ${colors.gray2};
   border-width: 1px 1px 1px 1px;
   border-style: solid;
-  border-color: ${colors.gray2} white
-    ${colors.gray2} ${colors.gray2};
+  border-color: ${colors.gray2} white ${colors.gray2} ${colors.gray2};
   font-size: 16px;
   font-weight: bold;
   color: ${colors.gray4};
