@@ -2,16 +2,27 @@ import * as React from 'react';
 import styled from '@emotion/styled';
 import {colors, Button, Select, Input, HorizontalRule} from '@bitbloq/ui';
 import {navigate} from 'gatsby';
-import {Query} from 'react-apollo';
+import {Query, Mutation} from 'react-apollo';
 import gql from 'graphql-tag';
+import {supportedDocumentTypes} from '../config';
 import AppHeader from './AppHeader';
+import DocumentTypeTag from './DocumentTypeTag';
 
 const DOCUMENTS_QUERY = gql`
   query {
     documents {
       id
       type
-      tittle
+      title
+    }
+  }
+`;
+
+const CREATE_DOCUMENT_MUTATION = gql`
+  mutation CreateDocument($type: String!, $title: String!) {
+    createDocument(type: $type, title: $title) {
+      id
+      type
     }
   }
 `;
@@ -19,17 +30,25 @@ const DOCUMENTS_QUERY = gql`
 const orderOptions = [
   {
     label: 'Orden: Más recientes',
-    value: 'creation'
+    value: 'creation',
   },
-  { 
+  {
     label: 'Orden: Nombre',
-    value: 'name'
-  }
+    value: 'name',
+  },
 ];
 
 class Documents extends React.Component {
   onDocumentClick = ({id, type}) => {
-    navigate(`/app/${type}/${id}`);
+    navigate(`/app/document/${id}`);
+  };
+
+  onNewDocument(createDocument, type, title) {
+    createDocument({variables: {type, title}});
+  }
+
+  onDocumentCreated = ({createDocument: {id, type}}) => {
+    navigate(`/app/edit/${type}/${id}`);
   };
 
   renderHeader() {
@@ -37,7 +56,18 @@ class Documents extends React.Component {
       <Header>
         <h1>Mis Documentos</h1>
         <div>
-          <Button>Nuevo documento</Button>
+          <Mutation
+            mutation={CREATE_DOCUMENT_MUTATION}
+            onCompleted={this.onDocumentCreated}>
+            {createDocument => (
+              <Button
+                onClick={() =>
+                  this.onNewDocument(createDocument, '3d', 'Nuevo documento')
+                }>
+                Nuevo documento
+              </Button>
+            )}
+          </Mutation>
         </div>
       </Header>
     );
@@ -58,18 +88,27 @@ class Documents extends React.Component {
                 <Rule />
                 <DocumentListHeader>
                   <ViewOptions>
-                    <OrderSelect options={orderOptions} />
+                    <OrderSelect
+                      options={orderOptions}
+                      selectConfig={{isSearchable: false}}
+                    />
                   </ViewOptions>
                   <SearchInput placeholder="Buscar..." />
                 </DocumentListHeader>
                 <DocumentList>
-                  {data.documents.map(document => (
-                    <DocumentCard
-                      key={document.id}
-                      onClick={() => this.onDocumentClick(document)}>
-                      {document.tittle}
-                    </DocumentCard>
-                  ))}
+                  {data.documents
+                    .filter(d => supportedDocumentTypes.includes(d.type))
+                    .map(document => (
+                      <DocumentCard
+                        key={document.id}
+                        onClick={() => this.onDocumentClick(document)}>
+                        <DocumentImage />
+                        <DocumentInfo>
+                          <DocumentTypeTag small document={document} />
+                          <DocumentTitle>{document.title}</DocumentTitle>
+                        </DocumentInfo>
+                      </DocumentCard>
+                    ))}
                 </DocumentList>
               </Content>
             </Container>
@@ -118,7 +157,7 @@ const DocumentListHeader = styled.div`
   display: flex;
   height: 115px;
   align-items: center;
-`
+`;
 
 const ViewOptions = styled.div`
   flex: 1;
@@ -155,8 +194,44 @@ const DocumentList = styled.div`
 `;
 
 const DocumentCard = styled.div`
+  display: flex;
+  flex-direction: column;
   border-radius: 4px;
   border: 1px solid ${colors.gray3};
   cursor: pointer;
   background-color: white;
+  overflow: hidden;
+`;
+
+const DocumentImage = styled.div`
+  flex: 1;
+  background-color: ${colors.gray2};
+`;
+
+const DocumentInfo = styled.div`
+  height: 80px;
+  padding: 14px;
+  font-weight: 500;
+  box-sizing: border-box;
+`;
+
+interface DocumentTypeProps {
+  color: string;
+}
+const DocumentType = styled.div<DocumentTypeProps>`
+  border-width: 2px;
+  border-style: solid;
+  border-color: ${props => props.color};
+  color: ${props => props.color};
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0px 10px;
+  font-size: 12px;
+  box-sizing: border-box;
+`;
+
+const DocumentTitle = styled.div`
+  margin-top: 10px;
+  font-size: 16px;
 `;

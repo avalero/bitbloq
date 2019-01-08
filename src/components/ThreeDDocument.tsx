@@ -9,15 +9,15 @@ const DOCUMENT_QUERY = gql`
     documentByID(id: $id) {
       id
       type
-      tittle
+      title
       content
     }
   }
 `;
 
 const UPDATE_DOCUMENT_MUTATION = gql`
-  mutation UpdateDocument($id: String!, $tittle: String!, $content: String!) {
-    updateDocument(id: $id, tittle: $tittle, content: $content) {
+  mutation UpdateDocument($id: String!, $title: String!, $content: String!) {
+    updateDocument(id: $id, title: $title, content: $content) {
       content
     }
   }
@@ -30,7 +30,7 @@ const ThreeDDocument = ({id}) => (
       if (error) return <p>Error :(</p>;
 
       const document = data.documentByID[0];
-      const {id, tittle} = document;
+      const {id, title} = document;
       let content = [];
       try {
         content = JSON.parse(document.content);
@@ -47,7 +47,7 @@ const ThreeDDocument = ({id}) => (
               initialContent={content}
               onContentChange={content =>
                 update({
-                  variables: {id, tittle, content: JSON.stringify(content)},
+                  variables: {id, title, content: JSON.stringify(content)},
                 })
               }
             />

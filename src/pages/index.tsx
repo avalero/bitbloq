@@ -201,7 +201,7 @@ const DashedLine = styled.div`
   background-size: 100% 24px;
 `;
 
-const LoginForm = styled.div`
+const LoginForm = styled.form`
   box-sizing: border-box;
   width: 360px;
   padding: 40px;
