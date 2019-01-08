@@ -10,7 +10,7 @@ import { contextController } from './controllers/context';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
 
-const PORT=4000;
+const PORT = 4000;
 
 const mongoUrl = process.env.MONGO_URL;
 
@@ -25,7 +25,6 @@ mongoose.connect(
     console.log('Successfully connected to Mongo');
   },
 );
-
 
 const schema: GraphQLSchema = mergeSchemas({
   schemas: allSchemas,

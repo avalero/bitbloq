@@ -1,33 +1,33 @@
 import { DocumentModel } from '../models/document';
 
 const DocumentModelController = {
-  createDocument: (newDocument) => {
+  createDocument: newDocument => {
     return DocumentModel.create(newDocument);
   },
-  deleteDocument: (documentID) => {
+  deleteDocument: documentID => {
     return DocumentModel.deleteOne({ _id: documentID });
   },
-  deleteManyDocs: (userID: String)=>{
-    return DocumentModel.deleteMany({user: userID}, (err)=>{
-      if(err) throw new Error('Error borrando los documentos');
+  deleteManyDocs: (userID: String) => {
+    return DocumentModel.deleteMany({ user: userID }, err => {
+      if (err) throw new Error('Error borrando los documentos');
     });
   },
   updateDocument: (existDocumentID, newDocument) => {
     return DocumentModel.findOneAndUpdate(
       { _id: existDocumentID },
       { $set: newDocument },
-      {new: true}
+      { new: true },
     );
   },
   findAllDocuments: () => {
     return DocumentModel.find({});
   },
-  findDocumentByUser: (userID) => {
+  findDocumentByUser: userID => {
     return DocumentModel.find({ user: userID });
   },
-  findDocumentByID: (documentID, userID) =>{
-    return DocumentModel.find({ _id: documentID, user: userID });
-  }
+  findDocumentByID: (documentID, userID) => {
+    return DocumentModel.findOne({ _id: documentID, user: userID });
+  },
 };
 
 export { DocumentModelController };

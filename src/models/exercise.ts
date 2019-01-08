@@ -1,11 +1,19 @@
 import * as mongoose from 'mongoose';
+import { Document, Schema, Model } from 'mongoose';
 
-const Schema = mongoose.Schema;
+interface IExercise extends Document {
+  document_father?: String;
+  code?: String;
+  title?: String;
+  versions?: [String];
+  submissions?: [String];
+  expireDate?: String;
+}
 
-const ExerciseSchema = new Schema({
-  documentmong: {
+const ExerciseMongSchema: Schema = new Schema({
+  document_father: {
     type: Schema.Types.ObjectId,
-    ref: 'DocumentMong',
+    ref: 'DocumentModel',
   },
 
   code: {
@@ -13,29 +21,36 @@ const ExerciseSchema = new Schema({
     default: '111111',
   },
 
+  title: {
+    type: String,
+    default: 'New Exercise',
+  },
+
   versions: [
     {
-      content: JSON,
-      date: Date,
-      id: Number,
+      id: String,
+      content: String,
+      date: String,
     },
   ],
 
   submission: [
     {
-      nick: String,
-      content: JSON,
-      date: Date,
-      //id: Number,
+      id: String,
+      studentNick: String,
+      content: String,
+      date: String,
+      finished: Boolean,
       comment: String,
     },
   ],
 
   expireDate: {
-    expireTime: Date,
+    type: String,
   },
 });
 
-var Exercise = mongoose.model('Exercise', ExerciseSchema);
-module.exports = Exercise;
-export default Exercise;
+export const ExerciseModel: Model<IExercise> = mongoose.model<IExercise>(
+  'ExerciseModel',
+  ExerciseMongSchema,
+);

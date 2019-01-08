@@ -6,6 +6,8 @@ interface IDocument extends Document {
   title?: String;
   type?: String;
   content?: String;
+  createdAt?: Date;
+  updatedAt?: Date;
   description?: String;
 }
 
@@ -33,6 +35,16 @@ const DocumentMongSchema: Schema = new Schema({
 
   description: {
     type: String,
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+
+  updatedAt: {
+    type: Date,
+    default: Date.now(),
   },
 
   versions: [
