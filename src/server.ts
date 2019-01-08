@@ -10,7 +10,7 @@ import { contextController } from './controllers/context';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
 
-const PORT=4000;
+const PORT = process.env.PORT;
 
 const mongoUrl = process.env.MONGO_URL;
 
