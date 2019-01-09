@@ -5,6 +5,7 @@ import RepetitionObject, {
   ICartesianRepetitionParams,
   IRepetitionObjectJSON
 } from "../RepetitionObject";
+import ObjectsGroup from "../ObjectsGroup";
 
 test("Scene - Constructor", () => {
   const scene = new Scene();
@@ -13,6 +14,9 @@ test("Scene - Constructor", () => {
   expect((scene as any).objectsInTransition).toEqual([]);
   expect((scene as any).history).toEqual([]);
   expect((scene as any).historyIndex).toEqual(-1);
+  expect((scene as any).sceneSetup).toBeDefined();
+  expect((scene as any).highlightedMaterial).toBeDefined();
+  expect((scene as any).transitionMaterial).toBeDefined();
 });
 
 test("Scene - Can Redo/Undo", () => {
@@ -227,4 +231,138 @@ test("Secene.newFromJSON - Two level Compound Objects", () => {
   ).toEqual(repParams.num);
   expect((scene as any).objectCollector.length).toEqual(4);
   expect((scene as any).objectsInScene.length).toEqual(2);
+});
+
+test("Scene AddNewObjectFromJSON", () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: "cartesian",
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10
+  };
+  const repetition1 = new RepetitionObject(repParams, cube2);
+  const repetition2 = new RepetitionObject(repParams, repetition1);
+
+  const group = new ObjectsGroup([cube1, repetition2]);
+
+  const scene: Scene = new Scene();
+  scene.addNewObjectFromJSON(cube1.toJSON());
+  scene.addNewObjectFromJSON(cube2.toJSON());
+  scene.addNewObjectFromJSON(repetition1.toJSON());
+  scene.addNewObjectFromJSON(repetition2.toJSON());
+  const sceneJSON = scene.addNewObjectFromJSON(group.toJSON());
+
+  const expectedSceneJSON: ISceneJSON = [group.toJSON()];
+
+  expect(sceneJSON).toEqual(expectedSceneJSON);
+
+  expect((scene as any).objectCollector.length).toEqual(5);
+  expect((scene as any).objectsInScene.length).toEqual(1);
+
+  expect((scene as any).objectInObjectCollector(cube1.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(cube1.toJSON())).toBe(false);
+
+  expect((scene as any).objectInObjectCollector(group.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(group.toJSON())).toBe(true);
+});
+
+test("Scene - RemoveFromObjectCollector", () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: "cartesian",
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10
+  };
+  const repetition1 = new RepetitionObject(repParams, cube2);
+  const repetition2 = new RepetitionObject(repParams, repetition1);
+
+  const group = new ObjectsGroup([cube1, repetition2]);
+
+  const scene: Scene = new Scene();
+  scene.addNewObjectFromJSON(cube1.toJSON());
+  scene.addNewObjectFromJSON(cube2.toJSON());
+  scene.addNewObjectFromJSON(repetition1.toJSON());
+  scene.addNewObjectFromJSON(repetition2.toJSON());
+  scene.addNewObjectFromJSON(group.toJSON());
+
+  expect((scene as any).objectCollector.length).toEqual(5);
+
+  expect((scene as any).objectInObjectCollector(cube1.toJSON())).toBe(true);
+  (scene as any).removeFromObjectCollector(cube1.toJSON());
+  expect((scene as any).objectInObjectCollector(cube1.toJSON())).toBe(false);
+
+  expect((scene as any).objectInObjectCollector(cube2.toJSON())).toBe(true);
+  expect((scene as any).objectInObjectCollector(repetition1.toJSON())).toBe(
+    true
+  );
+  (scene as any).removeFromObjectCollector([
+    cube2.toJSON(),
+    repetition1.toJSON()
+  ]);
+  expect((scene as any).objectInObjectCollector(cube2.toJSON())).toBe(false);
+  expect((scene as any).objectInObjectCollector(repetition1.toJSON())).toBe(
+    false
+  );
+});
+
+test("Scene - RemoveFromScene", () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: "cartesian",
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10
+  };
+  const repetition1 = new RepetitionObject(repParams, cube2);
+  const repetition2 = new RepetitionObject(repParams, repetition1);
+
+  const group = new ObjectsGroup([cube1, repetition2]);
+
+  const scene: Scene = new Scene();
+  scene.addNewObjectFromJSON(cube1.toJSON());
+  scene.addNewObjectFromJSON(cube2.toJSON());
+  scene.addNewObjectFromJSON(cube3.toJSON());
+  scene.addNewObjectFromJSON(cube4.toJSON());
+
+  scene.addNewObjectFromJSON(repetition1.toJSON());
+  scene.addNewObjectFromJSON(repetition2.toJSON());
+  scene.addNewObjectFromJSON(group.toJSON());
+
+  expect((scene as any).objectCollector.length).toEqual(7);
+  expect((scene as any).objectsInScene.length).toEqual(3);
+
+  // Remove Object not present in Scene
+  expect((scene as any).objectInScene(cube1.toJSON())).toBe(false);
+  const a = () => (scene as any).removeFromScene(cube1.toJSON());
+  expect(a).toThrowError();
+
+  // Remove Object present in Scene
+  expect((scene as any).objectInScene(cube3.toJSON())).toBe(true);
+  (scene as any).removeFromScene(cube3.toJSON());
+  expect((scene as any).objectInScene(cube3.toJSON())).toBe(false);
+  expect((scene as any).objectCollector.length).toEqual(7);
+  expect((scene as any).objectsInScene.length).toEqual(2);
+
+  // Remove Array of Objects present in Scene
+  expect((scene as any).objectInScene(cube4.toJSON())).toBe(true);
+  expect((scene as any).objectInScene(group.toJSON())).toBe(true);
+  (scene as any).removeFromScene([cube4.toJSON(), group.toJSON()]);
+  expect((scene as any).objectInScene(cube4.toJSON())).toBe(false);
+  expect((scene as any).objectInScene(group.toJSON())).toBe(false);
+
+  expect((scene as any).objectCollector.length).toEqual(7);
+  expect((scene as any).objectsInScene.length).toEqual(0);
 });

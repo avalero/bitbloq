@@ -197,6 +197,14 @@ export default class Scene {
     const meshes: THREE.Object3D[] = await Promise.all(
       this.objectsInScene.map(async object => {
         const mesh = await object.getMeshAsync();
+        // if object is selected highlight
+        if (object.getViewOptions().highlighted) {
+          if (mesh instanceof THREE.Mesh) {
+            (mesh.material as THREE.MeshLambertMaterial).setValues(
+              this.highlightedMaterial
+            );
+          }
+        }
         mesh.userData = object.toJSON();
         return mesh;
       })
@@ -251,7 +259,6 @@ export default class Scene {
     json: IObjectsCommonJSON,
     createNew: boolean = false
   ): ISceneJSON {
-
     // if createNew children of objects do not exist on scene
     if (createNew) {
       try {
@@ -268,13 +275,12 @@ export default class Scene {
           (json as
             | ICompoundObjectJSON
             | IObjectsGroupJSON
-            | IRepetitionObjectJSON).children.forEach(childJSON =>
-            this.addNewObjectFromJSON(childJSON, true) // children are new
+            | IRepetitionObjectJSON).children.forEach(
+            childJSON => this.addNewObjectFromJSON(childJSON, true) // children are new
           );
-          
+
           // Add de Compound | Group | Repetition parent
           this.addNewObjectFromJSON(json, false); // children already in Scene
-
         } else {
           const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
           this.addExistingObject(object);
@@ -295,6 +301,28 @@ export default class Scene {
         throw new Error(`Cannot add new Object from JSON ${e}`);
       }
     }
+  }
+
+  /**
+   *
+   * @param jsonArray Objects to mark as selected
+   */
+  public selectedObjects(jsonArray: IObjectsCommonJSON[]): ISceneJSON {
+    // Deselect all objects
+    this.objectCollector.forEach(obj => {
+      obj.setViewOptions({ highlighted: false });
+    });
+
+    // Select chosen array of objects
+    jsonArray.forEach(json => {
+      if (!this.objectInObjectCollector(json)) {
+        throw new Error(`Object not present in ObjectCollector ${json.id}`);
+      }
+      const obj = this.getObject(json);
+      obj.setViewOptions({ highlighted: true });
+    });
+
+    return this.toJSON();
   }
 
   /**
@@ -782,6 +810,8 @@ export default class Scene {
         this.removeFromScene(obj);
       }
 
+      // relaxed condition. Children should be in objectCollector,
+      // but just in case they are not we add them
       if (!this.objectInObjectCollector(obj)) {
         this.addExistingObject(child);
         this.removeFromScene(obj);
@@ -797,6 +827,8 @@ export default class Scene {
         this.removeFromScene(obj);
       }
 
+      // relaxed condition. Children should be in objectCollector,
+      // but just in case they are not we add them
       if (!this.objectInObjectCollector(obj)) {
         this.addExistingObject(child);
         this.removeFromScene(obj);
@@ -811,6 +843,8 @@ export default class Scene {
       this.removeFromScene(obj);
     }
 
+    // relaxed condition. Children should be in objectCollector,
+    // but just in case they are not we add them
     if (!this.objectInObjectCollector(obj)) {
       this.addExistingObject(original);
       this.removeFromScene(obj);
