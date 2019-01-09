@@ -277,6 +277,10 @@ export default class ObjectsCommon {
     }
   }
 
+  public getViewOptions(): IViewOptions {
+    return this.viewOptions;
+  }
+
   public clone(): ObjectsCommon {
     throw new Error("ObjectsCommon.clone() Implemented in children");
   }
