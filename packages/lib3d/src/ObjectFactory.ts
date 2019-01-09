@@ -11,6 +11,7 @@ import Union from "./Union";
 import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
 import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
 import Scene from "./Scene";
+import STLObject, {ISTLJSON} from "./STLObject";
 
 export default class ObjectFactory {
   /**
@@ -21,6 +22,8 @@ export default class ObjectFactory {
     obj: IObjectsCommonJSON,
     scene: Scene
   ): ObjectsCommon {
+    debugger;
+
     switch (obj.type) {
       case Cube.typeName:
         return Cube.newFromJSON(obj as ICubeJSON);
@@ -30,6 +33,8 @@ export default class ObjectFactory {
         return Sphere.newFromJSON(obj as ISphereJSON);
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
+      case STLObject.typeName:
+        return STLObject.newFromJSON(obj as ISTLJSON);
       case ObjectsGroup.typeName:
         return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
       case RepetitionObject.typeName:
