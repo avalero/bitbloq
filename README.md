@@ -9,22 +9,24 @@ La interacción con la API se hace a través de QUERIES y MUTATIONS.
 
 1)mandar la siguiente mutation:
 
-    mutation {
-        signUpUser(input:{
-            email: "email",
-            password: "pass",
-            name: "name",
-            center: "center",
-            notifications: true
-        })
-    }
+        mutation {
+            signUpUser(input:{
+                email: "email",
+                password: "pass",
+                name: "name",
+                center: "center",
+                notifications: true
+            })
+        }
+
     Esta devuelve un String con el Token de registro en la plataforma.
 
-2) Para activar la cuenta es necesario mandar la siguiente query con el token recibido en la cabecera de la petición (como Bearer Token).
+2) Para activar la cuenta es necesario mandar la siguiente mutation con el token recibido como parámetro:
 
-    query{
-        activateAccount
-    }
+        mutation{
+            activateAccount(token: "aaaaaaaaa")
+        }
+
     Esta devuelve el token de inicio de sesión. Para acceder a las demás funciones hay que mandar este token en la cabecera de la petición (como Bearer Token).
 
 
@@ -32,9 +34,9 @@ La interacción con la API se hace a través de QUERIES y MUTATIONS.
 
 Hay que mandar la siguiente mutation: 
 
-    mutation{
-        login(email: "email", password: "pass")
-    }
+        mutation{
+            login(email: "email", password: "pass")
+        }
 
     Esta devuelve un String con el token de inicio de sesión. Para acceder a las demás funciones hay que mandar este token en la cabecera de la petición (como Bearer Token).
 
@@ -42,34 +44,54 @@ Hay que mandar la siguiente mutation:
 *** Las queries y mutations del usuario son: ***
 
     QUERIES:
-        users: [User]
-        activateAccount: String
+      me: User
+      users: [User]
 
     MUTATIONS:
-        signUpUser(input: UserIn!): String
-        login(email: String!, password: String!): String
-        deleteUser(id: String!): User
-        updateUser(id: String!, input: UserIn!): User
+      activateAccount(token: String): String
+      signUpUser(input: UserIn!): String
+      login(email: String!, password: String!): String
+      deleteUser(id: String!): User
+      updateUser(id: String!, input: UserIn!): User
 
 *** Las queries y mutations de los documentos son: ***   
 
     QUERIES:
-        documents: [Document]
-        documentByID(id: String!): [Document]   
+      documents: [Document]
+      documentsByUser: [Document]
+      documentByID(id: String!): Document
     
     MUTATIONS:
-        createDocument(type: String!, title: String!): Document
-        deleteDocument(id: String): Document
-        updateDocument(
-            id: String
-            user: String
-            title: String!
-            type: String
-            content: String
-            description: String
-        ): Document
-        createExercise(document_father: String, expireDate: String): Document
-        deleteExercise(code: String!): Document
+      createDocument(input: DocumentIn!): Document
+      deleteDocument(id: String!): Document
+      updateDocument(id: String!, input: DocumentIn!): Document
+
+
+*** Las queries y mutations de los ejercicios son: ***   
+
+    QUERIES:
+      exercises: [Exercise]
+      exercisesByDocument(document_father: String!): [Exercise]
+      exerciseByID(id: String!): Exercise
+    
+    MUTATIONS:
+      createExercise(input: ExerciseIn!): Exercise
+      updateExercise(id: String!, input: ExerciseIn!): Exercise
+      deleteExercise(id: String!, code: String!): Exercise
+
+*** Las queries y mutations de las entregas son: ***   
+
+    QUERIES:
+      submissions: [Submission]
+      submissionsByExercise(exercise_father: String!): [Submission]
+      submissionByID(id: String!): Submission
+    
+    MUTATIONS:
+      createSubmission(input: SubmissionIn!): Submission
+      updateSubmission(id: String): Submission
+      finishSubmission(id: String, comment: String): Submission
+      deleteSubmission(id: String): Submission
+
 
 
 

@@ -1,4 +1,8 @@
-import { addMockFunctionsToSchema, gql, makeExecutableSchema } from 'apollo-server-koa';
+import {
+  addMockFunctionsToSchema,
+  gql,
+  makeExecutableSchema,
+} from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
 const documentSchema: GraphQLSchema = makeExecutableSchema({
@@ -6,23 +10,28 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
     type Query {
       documents: [Document]
       documentsByUser: [Document]
-      documentByID(id: String!): [Document]
+      documentByID(id: String!): Document
     }
     type Mutation {
-      createDocument(type: String!, title: String!): Document
-      deleteDocument(id: String): Document
-      updateDocument(
-        id: String
-        user: String
-        title: String!
-        type: String
-        content: String
-        description: String
-      ): Document
-      createExercise(document_father: String, expireDate: String): Document
-      deleteExercise(code: String!): Document
+      createDocument(input: DocumentIn!): Document
+      deleteDocument(id: String!): Document
+      updateDocument(id: String!, input: DocumentIn!): Document
     }
+
+    scalar Date
+
     type Document {
+      id: String
+      user: String
+      title: String!
+      type: String
+      content: String
+      description: String
+      createdAt: Date
+      updatedAt: Date
+    }
+
+    input DocumentIn {
       id: String
       user: String
       title: String!

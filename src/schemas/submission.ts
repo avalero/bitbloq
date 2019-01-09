@@ -1,41 +1,43 @@
-import { addMockFunctionsToSchema, gql, makeExecutableSchema } from 'apollo-server-koa';
+import {
+  addMockFunctionsToSchema,
+  gql,
+  makeExecutableSchema,
+} from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
-//const submissionSchema: GraphQLSchema = makeExecutableSchema({
-//  typeDefs: gql`
-const typeDefSub = `
-
-  extend type Query {
-      allSubmissions: [Submission]
+const submissionSchema: GraphQLSchema = makeExecutableSchema({
+  typeDefs: gql`
+    type Query {
+      submissions: [Submission]
+      submissionsByExercise(exercise_father: String!): [Submission]
+      submissionByID(id: String!): Submission
     }
-    extend type Mutation {
-      createSubmission(
-        id: Int!
-        nick: String
-        content: String
-        date: String
-        comment: String
-      ): Submission
-      updateSubmission(
-        id: Int!
-        nick: String
-        content: String
-        date: String
-        comment: String
-      ): Submission
-      finishSubmission(id: Int!, comment: String): Submission
+    type Mutation {
+      createSubmission(input: SubmissionIn!): Submission
+      updateSubmission(id: String): Submission
+      finishSubmission(id: String, comment: String): Submission
+      deleteSubmission(id: String): Submission
     }
+    scalar Date
     type Submission {
-      id: Int
-      nick: String
+      id: String
+      title: String
+      exercise_father: String
+      student_nick: String
       content: String
-      date: String
+      finished: Boolean
+      comment: String
+      createdAt: Date
+      updatedAt: Date
+    }
+    input SubmissionIn {
+      title: String
+      exercise_father: String
+      student_nick: String
       comment: String
     }
-  `;
-//});
+  `,
+});
 
-//addMockFunctionsToSchema({ schema: submissionSchema });
-//export default submissionSchema;
-
-export default typeDefSub;
+addMockFunctionsToSchema({ schema: submissionSchema });
+export default submissionSchema;

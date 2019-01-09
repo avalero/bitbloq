@@ -1,11 +1,20 @@
-import * as mongoose from 'mongoose';
+//import * as mongoose from 'mongoose';
+import { Document, Schema, Model, model } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
-const Schema = mongoose.Schema;
+interface IExercise extends Document {
+  document_father?: String;
+  code?: String;
+  title?: String;
+  versions?: [String];
+  submissions?: [String];
+  expireDate?: String;
+}
 
-const ExerciseSchema = new Schema({
-  documentmong: {
+const ExerciseMongSchema: Schema = new Schema({
+  document_father: {
     type: Schema.Types.ObjectId,
-    ref: 'DocumentMong',
+    ref: 'DocumentModel',
   },
 
   code: {
@@ -13,29 +22,25 @@ const ExerciseSchema = new Schema({
     default: '111111',
   },
 
+  title: {
+    type: String,
+    default: 'New Exercise',
+  },
+
   versions: [
     {
-      content: JSON,
-      date: Date,
-      id: Number,
-    },
-  ],
-
-  submission: [
-    {
-      nick: String,
-      content: JSON,
-      date: Date,
-      //id: Number,
-      comment: String,
+      id: String,
+      content: String,
+      date: String,
     },
   ],
 
   expireDate: {
-    expireTime: Date,
+    type: String,
   },
 });
-
-var Exercise = mongoose.model('Exercise', ExerciseSchema);
-module.exports = Exercise;
-export default Exercise;
+ExerciseMongSchema.plugin(timestamps);
+export const ExerciseModel: Model<IExercise> = model<IExercise>(
+  'ExerciseModel',
+  ExerciseMongSchema,
+);

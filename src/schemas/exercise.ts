@@ -1,47 +1,67 @@
-import { addMockFunctionsToSchema, gql, makeExecutableSchema } from 'apollo-server-koa';
+import {
+  addMockFunctionsToSchema,
+  gql,
+  makeExecutableSchema,
+} from 'apollo-server-koa';
 import { GraphQLSchema } from 'graphql';
 
 const exerciseSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     type Query {
-      hello: String
+      exercises: [Exercise]
+      exercisesByDocument(document_father: String!): [Exercise]
+      exerciseByID(id: String!): Exercise
     }
-  `,
-});
-addMockFunctionsToSchema({ schema: exerciseSchema });
-
-export default exerciseSchema;
-
-//const exerciseSchema: GraphQLSchema = makeExecutableSchema({
-//  typeDefs: gql`
-/* const typeDefEx = `
-
-  extend type Query {
-      allExercises: [Exercise]
+    type Mutation {
+      createExercise(input: ExerciseIn!): Exercise
+      updateExercise(id: String!, input: ExerciseIn!): Exercise
+      deleteExercise(id: String!, code: String!): Exercise
     }
-    extend type Mutation {
-      createExercise(document_father: String, expireDate: String): Exercise
-      deleteExercise(code: String!): Exercise
-    }
+
+    scalar Date
+
     type Exercise {
+      id: String
       document_father: String
-      versions: [Version]
+      title: String
       code: String
-      submissions: [Submission]
+      versions: [String]
+      expireDate: String
+      createdAt: Date
+      updatedAt: Date
+    }
+
+    input ExerciseIn {
+      id: String
+      document_father: String
+      title: String
+      code: String
+      versions: Version
       expireDate: String
     }
 
-    input SubmissionIn {
-      id: Int
-      nick: String
+    input Version {
+      id: String
       content: String
       date: String
-      comment: String
     }
+  `,
+});
 
-  `; */
-//});
+addMockFunctionsToSchema({ schema: exerciseSchema });
+export default exerciseSchema;
 
-//addMockFunctionsToSchema({ schema: exerciseSchema });
-//export default exerciseSchema;
-//export default typeDefEx;
+// output Version {
+//     id: String
+//     content: String
+//     date: String
+//   }
+
+//   output Submission {
+//     id: String
+//     student_nick: String
+//     content: String
+//     date: String
+//     finished: Boolean
+//     comment: String
+//   }
