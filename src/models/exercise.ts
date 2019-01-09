@@ -1,5 +1,6 @@
-import * as mongoose from 'mongoose';
-import { Document, Schema, Model } from 'mongoose';
+//import * as mongoose from 'mongoose';
+import { Document, Schema, Model, model } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
 interface IExercise extends Document {
   document_father?: String;
@@ -34,23 +35,12 @@ const ExerciseMongSchema: Schema = new Schema({
     },
   ],
 
-  submission: [
-    {
-      id: String,
-      studentNick: String,
-      content: String,
-      date: String,
-      finished: Boolean,
-      comment: String,
-    },
-  ],
-
   expireDate: {
     type: String,
   },
 });
-
-export const ExerciseModel: Model<IExercise> = mongoose.model<IExercise>(
+ExerciseMongSchema.plugin(timestamps);
+export const ExerciseModel: Model<IExercise> = model<IExercise>(
   'ExerciseModel',
   ExerciseMongSchema,
 );

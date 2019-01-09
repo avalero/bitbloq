@@ -28,20 +28,6 @@ const ExerciseModelController = {
   findExerciseByID: ExerciseID => {
     return ExerciseModel.findOne({ _id: ExerciseID });
   },
-
-  createSubmission: (root, args) => {
-    console.log('create Submission');
-  },
-  updateSubmission: (root, args) => {
-    console.log('update Submission');
-  },
-
-  finishSubmission: (root, args) => {
-    console.log('finish Submission');
-  },
-  deleteSubmission: (root, args) => {
-    console.log('delete Submission');
-  },
 };
 
 export { ExerciseModelController };

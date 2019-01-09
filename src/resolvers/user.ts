@@ -4,7 +4,10 @@ import { UserModel } from '../models/user';
 import { contextController } from '../controllers/context';
 import { AuthenticationError } from 'apollo-server-koa';
 import { ObjectID } from 'bson';
+const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
+
+const saltRounds = 7;
 
 const userResolver = {
   Mutation: {
@@ -16,20 +19,21 @@ const userResolver = {
       if (contactFinded) {
         throw new Error('This user already exists');
       }
-      const token = jsonwebtoken.sign(
+      //Store the password with a hash
+      const hash: String = await bcrypt.hash(args.input.password, saltRounds);
+      const token: String = jsonwebtoken.sign(
         {
           email: args.input.email,
-          password: args.input.password,
+          password: hash,
           signUp: true,
         },
         process.env.JWT_SECRET,
         { expiresIn: '1h' },
       );
-      console.log(args.input);
       const user_new = new UserModel({
         id: ObjectID,
         email: args.input.email,
-        password: args.input.password,
+        password: hash,
         name: args.input.name,
         center: args.input.center,
         active: false,
@@ -37,28 +41,38 @@ const userResolver = {
         authToken: 'patata',
         notifications: args.input.notifications,
       });
+      console.log(token);
       userController.signUpUser(user_new);
       return token;
     },
     async login(root: any, { email, password }) {
       const contactFinded = await UserModel.findOne({ email });
-      if (!contactFinded || contactFinded.password != password) {
+      if (!contactFinded) {
         throw new Error('Contact not found or password incorrect');
       }
       if (!contactFinded.active) {
         throw new Error('Not active user, please activate your account');
       }
-      const token: String = jsonwebtoken.sign(
-        {
-          email: contactFinded.email,
-          password: contactFinded.password,
-          signUp: false,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' },
+      //Compare passwords from request and database
+      const valid: Boolean = await bcrypt.compare(
+        password,
+        contactFinded.password,
       );
-      userController.updateUser(contactFinded._id, { authToken: token });
-      return token;
+      if (valid) {
+        const token: String = jsonwebtoken.sign(
+          {
+            email: contactFinded.email,
+            password: contactFinded.password,
+            signUp: false,
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' },
+        );
+        userController.updateUser(contactFinded._id, { authToken: token });
+        return token;
+      } else {
+        throw new Error('comparing passwords valid=false');
+      }
     },
 
     //private methods:

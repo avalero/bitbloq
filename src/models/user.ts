@@ -1,6 +1,6 @@
-import * as mongoose from 'mongoose';
-
+//import * as mongoose from 'mongoose';
 import { Document, Schema, Model, model } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
 interface IUser extends Document {
   email?: string;
@@ -62,7 +62,8 @@ export const ContactSchema: Schema = new Schema({
   },
 });
 
-export const UserModel: Model<IUser> = mongoose.model<IUser>(
+ContactSchema.plugin(timestamps);
+export const UserModel: Model<IUser> = model<IUser>(
   'UserModels',
   ContactSchema,
 );

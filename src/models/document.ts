@@ -1,5 +1,6 @@
-import * as mongoose from 'mongoose';
-import { Document, Schema, Model } from 'mongoose';
+//import * as mongoose from 'mongoose';
+import { Document, Schema, Model, model } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
 interface IDocument extends Document {
   user?: String;
@@ -37,16 +38,6 @@ const DocumentMongSchema: Schema = new Schema({
     type: String,
   },
 
-  createdAt: {
-    type: Date,
-    default: Date.now(),
-  },
-
-  updatedAt: {
-    type: Date,
-    default: Date.now(),
-  },
-
   versions: [
     {
       //content: JSON,
@@ -66,7 +57,8 @@ const DocumentMongSchema: Schema = new Schema({
   ],
 });
 
-export const DocumentModel: Model<IDocument> = mongoose.model<IDocument>(
+DocumentMongSchema.plugin(timestamps);
+export const DocumentModel: Model<IDocument> = model<IDocument>(
   'DocumentModel',
   DocumentMongSchema,
 );

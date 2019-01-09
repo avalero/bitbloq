@@ -16,12 +16,9 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
       createExercise(input: ExerciseIn!): Exercise
       updateExercise(id: String!, input: ExerciseIn!): Exercise
       deleteExercise(id: String!, code: String!): Exercise
-
-      createSubmission(student_nick: String, comment: String): Exercise
-      updateSubmission(id: String): Exercise
-      finishSubmission(id: String, comment: String): Exercise
-      deleteSubmission(id: String): Exercise
     }
+
+    scalar Date
 
     type Exercise {
       id: String
@@ -29,8 +26,9 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
       title: String
       code: String
       versions: [String]
-      submissions: [String]
       expireDate: String
+      createdAt: Date
+      updatedAt: Date
     }
 
     input ExerciseIn {
@@ -38,9 +36,14 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
       document_father: String
       title: String
       code: String
-      versions: [String]
-      submissions: [String]
+      versions: Version
       expireDate: String
+    }
+
+    input Version {
+      id: String
+      content: String
+      date: String
     }
   `,
 });

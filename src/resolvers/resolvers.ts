@@ -1,7 +1,11 @@
 import userResolver from './user';
-import exerciseResolver from './exercise';
 import documentResolver from './document';
+import exerciseResolver from './exercise';
+import submissionResolver from './submission';
 
-export const allResolvers = [userResolver, documentResolver, exerciseResolver];
-
-//export default allResolvers;
+export const allResolvers = [
+  userResolver,
+  documentResolver,
+  exerciseResolver,
+  submissionResolver,
+];

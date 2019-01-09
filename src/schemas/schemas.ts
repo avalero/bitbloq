@@ -1,13 +1,12 @@
 import UserSchema from './user';
 import documentSchema from './document';
-// import typeDefSub from './submission';
 import exerciseSchema from './exercise';
-// import typeDefVer from './version';
+import submissionSchema from './submission';
 
 export const allSchemas = [
   UserSchema,
-  exerciseSchema,
   documentSchema,
-  //typeDefSub,
+  exerciseSchema,
+  submissionSchema,
   //typeDefVer,
 ];

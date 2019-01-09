@@ -44,40 +44,54 @@ Hay que mandar la siguiente mutation:
 *** Las queries y mutations del usuario son: ***
 
     QUERIES:
-        me: User
-        users: [User]
+      me: User
+      users: [User]
 
     MUTATIONS:
-        activateAccount(token: String): String
-        signUpUser(input: UserIn!): String
-        login(email: String!, password: String!): String
-        deleteUser(id: String!): User
-        updateUser(id: String!, input: UserIn!): User
+      activateAccount(token: String): String
+      signUpUser(input: UserIn!): String
+      login(email: String!, password: String!): String
+      deleteUser(id: String!): User
+      updateUser(id: String!, input: UserIn!): User
 
 *** Las queries y mutations de los documentos son: ***   
 
     QUERIES:
-        documents: [Document]
-        documentsByUser: [Document]
-        documentByID(id: String!): Document
+      documents: [Document]
+      documentsByUser: [Document]
+      documentByID(id: String!): Document
     
     MUTATIONS:
-        createDocument(input: DocumentIn!): Document
-        deleteDocument(id: String!): Document
-        updateDocument(id: String!, input: DocumentIn!): Document
+      createDocument(input: DocumentIn!): Document
+      deleteDocument(id: String!): Document
+      updateDocument(id: String!, input: DocumentIn!): Document
 
 
 *** Las queries y mutations de los ejercicios son: ***   
 
     QUERIES:
-        exercises: [Exercise]
-        exercisesByDocument(document_father: String!): [Exercise]
-        exerciseByID(id: String!): Exercise
+      exercises: [Exercise]
+      exercisesByDocument(document_father: String!): [Exercise]
+      exerciseByID(id: String!): Exercise
     
     MUTATIONS:
-        createExercise(input: ExerciseIn!): Exercise
-        updateExercise(id: String!,input: ExerciseIn!): Exercise
-        deleteExercise(id: String!, code: String!): Exercise
+      createExercise(input: ExerciseIn!): Exercise
+      updateExercise(id: String!, input: ExerciseIn!): Exercise
+      deleteExercise(id: String!, code: String!): Exercise
+
+*** Las queries y mutations de las entregas son: ***   
+
+    QUERIES:
+      submissions: [Submission]
+      submissionsByExercise(exercise_father: String!): [Submission]
+      submissionByID(id: String!): Submission
+    
+    MUTATIONS:
+      createSubmission(input: SubmissionIn!): Submission
+      updateSubmission(id: String): Submission
+      finishSubmission(id: String, comment: String): Submission
+      deleteSubmission(id: String): Submission
+
 
 
 

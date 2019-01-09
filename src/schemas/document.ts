@@ -17,6 +17,7 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
       deleteDocument(id: String!): Document
       updateDocument(id: String!, input: DocumentIn!): Document
     }
+
     scalar Date
 
     type Document {

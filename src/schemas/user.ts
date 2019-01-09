@@ -18,6 +18,8 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       deleteUser(id: String!): User
       updateUser(id: String!, input: UserIn!): User
     }
+    scalar Date
+
     type User {
       id: String
       email: String
@@ -28,6 +30,8 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       sign_up_token: String
       auth_token: String
       notifications: Boolean
+      createdAt: Date
+      updatedAt: Date
     }
 
     input UserIn {
