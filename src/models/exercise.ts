@@ -3,6 +3,7 @@ import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface IExercise extends Document {
+  user?: String;
   document_father?: String;
   code?: String;
   title?: String;
@@ -12,6 +13,11 @@ interface IExercise extends Document {
 }
 
 const ExerciseMongSchema: Schema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'UserModel',
+  },
+
   document_father: {
     type: Schema.Types.ObjectId,
     ref: 'DocumentModel',

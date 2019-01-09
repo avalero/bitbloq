@@ -12,10 +12,18 @@ const exerciseResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const userFinded = await UserModel.findOne({ email: context.user.email });
+      const docFound = await DocumentModel.findOne({
+        _id: args.input.document_father,
+        user: context.user.id,
+      });
+      if (!docFound)
+        throw new Error(
+          'Error creating exercise, it should part of one of your documents',
+        );
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
-        document_father: args.input.document_father,
+        user: context.user.id,
+        document_father: docFound._id,
         title: args.input.title,
         expireDate: args.input.expireDate,
       });
@@ -37,7 +45,10 @@ const exerciseResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const existExercise = await ExerciseModel.findOne({ _id: args.id });
+      const existExercise = await ExerciseModel.findOne({
+        _id: args.id,
+        user: context.user.id,
+      });
       if (existExercise) {
         return ExerciseModelController.updateExercise(existExercise._id, args);
       } else {
@@ -51,18 +62,19 @@ const exerciseResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const documentFinded = await DocumentModel.findOne({
+      const documentFound = await DocumentModel.findOne({
         _id: args.document_father,
+        user: context.user.id,
       });
-      if (!documentFinded) throw new Error('document doesnt exist');
-      return ExerciseModelController.findExerciseByDocument(documentFinded._id);
+      if (!documentFound) throw new Error('document doesnt exist');
+      return ExerciseModelController.findExerciseByDocument(documentFound._id);
     },
     async exerciseByID(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      //const userFinded = await UserModel.findOne({ email: context.user.email });
+      //const userFound = await UserModel.findOne({ email: context.user.email });
       return ExerciseModelController.findExerciseByID(args.id);
     },
     exercises(root: any, args: any, context: any) {

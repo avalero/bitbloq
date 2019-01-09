@@ -1,4 +1,5 @@
 import { DocumentModel } from '../models/document';
+import { ExerciseModelController } from './exercise';
 
 const DocumentModelController = {
   createDocument: newDocument => {

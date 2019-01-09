@@ -23,6 +23,7 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       id: String
       title: String
       exercise_father: String
+      user: String
       student_nick: String
       content: String
       finished: Boolean

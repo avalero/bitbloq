@@ -1,4 +1,5 @@
 import { UserModel } from '../models/user';
+import { DocumentModelController } from './document';
 
 const userController = {
   signUpUser: newUser => {

@@ -11,10 +11,10 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const userFinded = await UserModel.findOne({ email: context.user.email });
+      const userFound = await UserModel.findOne({ email: context.user.email });
       const document_new = new DocumentModel({
         id: ObjectId,
-        user: userFinded._id,
+        user: context.user.id,
         title: args.input.title,
         type: args.input.type,
         content: args.input.content,
@@ -60,16 +60,16 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const userFinded = await UserModel.findOne({ email: context.user.email });
-      return DocumentModelController.findDocumentByUser(userFinded._id);
+      const userFound = await UserModel.findOne({ email: context.user.email });
+      return DocumentModelController.findDocumentByUser(context.user.id);
     },
     async documentByID(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const userFinded = await UserModel.findOne({ email: context.user.email });
-      return DocumentModelController.findDocumentByID(args.id, userFinded._id);
+      const userFound = await UserModel.findOne({ email: context.user.email });
+      return DocumentModelController.findDocumentByID(args.id, context.user.id);
     },
   },
 };

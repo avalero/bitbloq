@@ -13,10 +13,18 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const userFinded = await UserModel.findOne({ email: context.user.email });
+      const exFound = await ExerciseModel.findOne({
+        _id: args.input.exercise_father,
+        user: context.user.id,
+      });
+      if (!exFound)
+        throw new Error(
+          'Error creating submission, it should part of one of your exercises',
+        );
       const submissionNew = new SubmissionModel({
         id: ObjectId,
-        exercise_father: args.input.exercise_father,
+        exercise_father: exFound._id,
+        user: exFound.user,
         title: args.input.title,
         student_nick: args.input.student_nick,
         comment: args.input.comment,
@@ -28,7 +36,14 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const existSubmission = await SubmissionModel.findOne({ _id: args.id });
+      const existSubmission = await SubmissionModel.findOne({
+        _id: args.id,
+        user: context.user.id,
+      });
+      if (!existSubmission)
+        throw new Error(
+          'Error updating submission, it should part of one of your exercises',
+        );
       if (existSubmission) {
         return SubmissionModelController.updateSubmission(
           existSubmission._id,
@@ -43,16 +58,30 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const existSubmission = await SubmissionModel.findOne({ _id: args.id });
+      const existSubmission = await SubmissionModel.findOne({
+        _id: args.id,
+        user: context.user.id,
+      });
+      if (!existSubmission)
+        throw new Error(
+          'Error updating submission, it should part of one of your exercises',
+        );
       return SubmissionModelController.finishSubmission(existSubmission._id);
     },
-    deleteSubmission(root: any, args: any, context: any) {
+    async deleteSubmission(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-
-      return SubmissionModelController.deleteSubmission(args.id);
+      const existSubmission = await SubmissionModel.findOne({
+        _id: args.id,
+        user: context.user.id,
+      });
+      if (!existSubmission)
+        throw new Error(
+          'Error updating submission, it should part of one of your exercises',
+        );
+      return SubmissionModelController.deleteSubmission(existSubmission._id);
     },
   },
   Query: {
@@ -61,12 +90,13 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const exerciseFinded = await ExerciseModel.findOne({
+      const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise_father,
+        user: context.user.id,
       });
-      if (!exerciseFinded) throw new Error('exercise doesnt exist');
+      if (!exerciseFound) throw new Error('exercise doesnt exist');
       return SubmissionModelController.findSubmissionByExercise(
-        exerciseFinded._id,
+        exerciseFound._id,
       );
     },
     async submissionByID(root: any, args: any, context: any) {
@@ -74,7 +104,7 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      //const userFinded = await UserModel.findOne({ email: context.user.email });
+      //const userFound = await UserModel.findOne({ email: context.user.email });
       return SubmissionModelController.findSubmissionByID(args.id);
     },
     submissions(root: any, args: any, context: any) {

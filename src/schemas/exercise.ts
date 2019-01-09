@@ -23,6 +23,7 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
     type Exercise {
       id: String
       document_father: String
+      user: String
       title: String
       code: String
       versions: [String]

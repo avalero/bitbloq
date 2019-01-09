@@ -2,6 +2,7 @@ import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface ISubmission extends Document {
+  user?: String;
   title: String;
   exercise_father?: String;
   student_nick?: String;
@@ -11,6 +12,11 @@ interface ISubmission extends Document {
 }
 
 const SubmissionMongSchema: Schema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'UserModel',
+  },
+
   title: {
     type: String,
     default: 'New Submission',

@@ -7,7 +7,7 @@ La interacción con la API se hace a través de QUERIES y MUTATIONS.
 
 *** Para darse de alta en la plataforma hay que realizar dos pasos: ***
 
-1)mandar la siguiente mutation:
+1) Mandar la siguiente mutation:
 
         mutation {
             signUpUser(input:{
