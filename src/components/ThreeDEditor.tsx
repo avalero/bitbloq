@@ -3,8 +3,14 @@ import styled from '@emotion/styled';
 import {Query, Mutation} from 'react-apollo';
 import debounce from 'lodash.debounce';
 import {ThreeD} from '@bitbloq/3d';
-import {withTranslate} from '@bitbloq/3d/src/components/TranslateProvider';
-import {colors, Document, Icon, Input, TextArea} from '@bitbloq/ui';
+import {
+  colors,
+  Document,
+  Icon,
+  Input,
+  TextArea,
+  withTranslate,
+} from '@bitbloq/ui';
 import gql from 'graphql-tag';
 
 const DOCUMENT_QUERY = gql`
@@ -21,15 +27,15 @@ const DOCUMENT_QUERY = gql`
 
 const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
-    $id: String!,
-    $title: String!,
-    $content: String!,
+    $id: String!
+    $title: String!
+    $content: String!
     $description: String!
   ) {
     updateDocument(
-      id: $id,
-      title: $title,
-      content: $content,
+      id: $id
+      title: $title
+      content: $content
       description: $description
     ) {
       content
@@ -52,15 +58,23 @@ class ThreeDEditor extends React.Component {
             <InfoHeader>Información del documento</InfoHeader>
             <InfoForm>
               <FormRow>
-                <FormLabel><label>Título del ejercicio</label></FormLabel>
+                <FormLabel>
+                  <label>Título del ejercicio</label>
+                </FormLabel>
                 <FormInput>
                   <Input value={title} placeholder="Título del ejercicio" />
                 </FormInput>
               </FormRow>
               <FormRow>
-                <FormLabel><label>Descripción del ejercicio</label></FormLabel>
+                <FormLabel>
+                  <label>Descripción del ejercicio</label>
+                </FormLabel>
                 <FormInput>
-                  <TextArea value={description} placeholder="Descripción del ejercicio" rows="3" />
+                  <TextArea
+                    value={description}
+                    placeholder="Descripción del ejercicio"
+                    rows="3"
+                  />
                 </FormInput>
               </FormRow>
             </InfoForm>
@@ -109,11 +123,9 @@ class ThreeDEditor extends React.Component {
   }
 }
 
-const withUpdateDocument = Component => (props) => (
+const withUpdateDocument = Component => props => (
   <Mutation mutation={UPDATE_DOCUMENT_MUTATION}>
-    {mutate =>(
-      <Component updateDocument={debounce(mutate , 1000)} {...props} />
-    )}
+    {mutate => <Component updateDocument={debounce(mutate, 1000)} {...props} />}
   </Mutation>
 );
 

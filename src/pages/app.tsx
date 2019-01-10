@@ -6,8 +6,7 @@ import Documents from '../components/Documents';
 import Document from '../components/Document';
 import ThreeDEditor from '../components/ThreeDEditor';
 import PrivateRoute from '../components/PrivateRoute';
-import {baseStyles} from '@bitbloq/ui';
-import {TranslateProvider} from '@bitbloq/3d';
+import {TranslateProvider, baseStyles} from '@bitbloq/ui';
 import SEO from '../components/SEO';
 
 import enMessages from '../messages/en.json';
