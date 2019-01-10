@@ -40,7 +40,7 @@ class Document extends React.Component {
             onClick={() =>
               navigate(`/app/edit/${document.type}/${document.id}`)
             }>
-            Editar ejercicio
+            Editar documento
           </Button>
         </div>
       </DocumentInfo>
@@ -65,10 +65,10 @@ class Document extends React.Component {
             <Container>
               <AppHeader />
               <Content>
-                {this.renderHeader(data.document[0])}
+                {this.renderHeader(data.document)}
                 <Rule />
-                {this.renderDocumentInfo(data.document[0])}
-                {this.renderExercises(data.document[0])}
+                {this.renderDocumentInfo(data.document)}
+                {this.renderExercises(data.document)}
               </Content>
             </Container>
           );
