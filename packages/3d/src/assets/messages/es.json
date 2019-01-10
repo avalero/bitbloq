@@ -38,6 +38,7 @@
   "object-type-sphere": "Esfera",
   "object-type-cylinder": "Cilindro",
   "object-type-prism": "Prisma",
+  "object-type-pyramid": "Piramide",
   "object-type-stl-object": "Objeto STL",
   "object-type-union": "Unión",
   "object-type-difference": "Diferencia",

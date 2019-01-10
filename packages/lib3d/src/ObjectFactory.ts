@@ -5,6 +5,7 @@ import Difference from './Difference';
 import Intersection from './Intersection';
 import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import Prism, { IPrismJSON } from './Prism';
+import Pyramid, { IPyramidJSON } from './Pyramid';
 import Sphere, { ISphereJSON } from './Sphere';
 import Union from './Union';
 
@@ -31,6 +32,8 @@ export default class ObjectFactory {
         return Sphere.newFromJSON(obj as ISphereJSON);
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
+      case Pyramid.typeName:
+        return Pyramid.newFromJSON(obj as IPyramidJSON);
       case STLObject.typeName:
         return STLObject.newFromJSON(obj as ISTLJSON);
       case ObjectsGroup.typeName:
