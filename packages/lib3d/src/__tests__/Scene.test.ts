@@ -244,6 +244,7 @@ test('Scene AddNewObjectFromJSON', () => {
     y: 10,
     z: 10,
   };
+
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
 
@@ -365,4 +366,84 @@ test('Scene - RemoveFromScene', () => {
 
   expect((scene as any).objectCollector.length).toEqual(7);
   expect((scene as any).objectsInScene.length).toEqual(0);
+});
+
+test('Load JSON', () => {
+  const json = [
+    {
+      id: 'bed6f9f6-1372-11e9-afb2-05c7a1a0b2e6',
+      type: 'Cylinder',
+      viewOptions: {
+        color: '#00d084',
+        visible: true,
+        highlighted: false,
+        name: 'Cylinder',
+        opacity: 0.5,
+      },
+      operations: [],
+      parameters: { r0: 5, r1: 5, height: 20 },
+    },
+    {
+      id: 'bed76f20-1372-11e9-afb2-05c7a1a0b2e6',
+      type: 'Sphere',
+      viewOptions: {
+        color: '#0693e3',
+        visible: true,
+        highlighted: false,
+        name: 'Sphere',
+        opacity: 0.5,
+      },
+      operations: [],
+      parameters: { radius: 9 },
+    },
+    {
+      id: 'c5d80960-1372-11e9-afb2-05c7a1a0b2e6',
+      type: 'RepetitionObject',
+      viewOptions: {
+        color: '#7bdcb5',
+        visible: true,
+        highlighted: false,
+        name: 'RepetitionObject2',
+        opacity: 1,
+      },
+      operations: [],
+      parameters: { type: 'cartesian', num: 4, x: -16, y: 22, z: 10 },
+      children: [
+        {
+          id: 'c2fc87c0-1372-11e9-afb2-05c7a1a0b2e6',
+          type: 'RepetitionObject',
+          viewOptions: {
+            color: '#abb8c3',
+            visible: true,
+            highlighted: false,
+            name: 'RepetitionObject',
+            opacity: 1,
+          },
+          operations: [],
+          parameters: { type: 'cartesian', num: 5, x: 10, y: 10, z: 10 },
+          children: [
+            {
+              id: 'bed6d2e0-1372-11e9-afb2-05c7a1a0b2e6',
+              type: 'Cube',
+              viewOptions: {
+                color: '#ff6900',
+                visible: true,
+                highlighted: false,
+                name: 'Cube',
+                opacity: 1,
+              },
+              operations: [],
+              parameters: { width: 18, height: 7, depth: 26 },
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  const scene = Scene.newFromJSON(json);
+
+  // expect((scene as any).objectCollector.length).toEqual(7);
+  expect((scene as any).objectsInScene.length).toEqual(json.length);
+  expect((scene as any).objectCollector.length).toEqual(5);
 });
