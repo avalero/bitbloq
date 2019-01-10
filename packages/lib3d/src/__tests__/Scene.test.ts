@@ -1,13 +1,13 @@
-import "jsdom-worker";
-import Scene, { ISceneJSON } from "../Scene";
-import Cube, { ICubeJSON } from "../Cube";
+import 'jsdom-worker';
+import Scene, { ISceneJSON } from '../Scene';
+import Cube, { ICubeJSON } from '../Cube';
 import RepetitionObject, {
   ICartesianRepetitionParams,
-  IRepetitionObjectJSON
-} from "../RepetitionObject";
-import ObjectsGroup from "../ObjectsGroup";
+  IRepetitionObjectJSON,
+} from '../RepetitionObject';
+import ObjectsGroup from '../ObjectsGroup';
 
-test("Scene - Constructor", () => {
+test('Scene - Constructor', () => {
   const scene = new Scene();
   expect((scene as any).objectCollector).toEqual([]);
   expect((scene as any).objectsInScene).toEqual([]);
@@ -19,7 +19,7 @@ test("Scene - Constructor", () => {
   expect((scene as any).transitionMaterial).toBeDefined();
 });
 
-test("Scene - Can Redo/Undo", () => {
+test('Scene - Can Redo/Undo', () => {
   const scene = new Scene();
   expect(scene.canRedo()).toEqual(false);
   expect(scene.canUndo()).toEqual(false);
@@ -40,7 +40,7 @@ test("Scene - Can Redo/Undo", () => {
   }, 1500);
 });
 
-test("Scene - Undo - 1 step", () => {
+test('Scene - Undo - 1 step', () => {
   const scene = new Scene();
   const firstJSON = scene.toJSON();
 
@@ -58,7 +58,7 @@ test("Scene - Undo - 1 step", () => {
   expect((scene as any).historyIndex).toEqual(-1);
 });
 
-test("Scene - Undo - 2 steps", () => {
+test('Scene - Undo - 2 steps', () => {
   const scene = new Scene();
   const firstJSON = scene.toJSON();
 
@@ -93,7 +93,7 @@ test("Scene - Undo - 2 steps", () => {
   }, 1500);
 });
 
-test("Scene - Redo - 1 step", () => {
+test('Scene - Redo - 1 step', () => {
   const scene = new Scene();
 
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
@@ -108,7 +108,7 @@ test("Scene - Redo - 1 step", () => {
   expect((scene as any).historyIndex).toEqual(0);
 });
 
-test("Scene - Redo - 2 steps", () => {
+test('Scene - Redo - 2 steps', () => {
   const scene = new Scene();
 
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
@@ -139,7 +139,7 @@ test("Scene - Redo - 2 steps", () => {
   }, 1500);
 });
 
-test("Secene.newFromJSON - Simple Objects", () => {
+test('Secene.newFromJSON - Simple Objects', () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
@@ -160,16 +160,16 @@ test("Secene.newFromJSON - Simple Objects", () => {
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
 
-test("Secene.newFromJSON - Compound Objects", () => {
+test('Secene.newFromJSON - Compound Objects', () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParamas: ICartesianRepetitionParams = {
-    type: "cartesian",
+    type: 'cartesian',
     num: 3,
     x: 10,
     y: 10,
-    z: 10
+    z: 10,
   };
   const repetition = new RepetitionObject(repParamas, cube2);
 
@@ -185,27 +185,27 @@ test("Secene.newFromJSON - Compound Objects", () => {
   expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
   expect(computedSceneJSON[1].type).toEqual(RepetitionObject.typeName);
   expect(
-    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type
+    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type,
   ).toEqual(Cube.typeName);
   expect((computedSceneJSON[0] as ICubeJSON).parameters.width).toEqual(10);
   expect(
     ((computedSceneJSON[1] as IRepetitionObjectJSON)
-      .parameters as ICartesianRepetitionParams).num
+      .parameters as ICartesianRepetitionParams).num,
   ).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(3);
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
 
-test("Secene.newFromJSON - Two level Compound Objects", () => {
+test('Secene.newFromJSON - Two level Compound Objects', () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: "cartesian",
+    type: 'cartesian',
     num: 3,
     x: 10,
     y: 10,
-    z: 10
+    z: 10,
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
@@ -222,27 +222,27 @@ test("Secene.newFromJSON - Two level Compound Objects", () => {
   expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
   expect(computedSceneJSON[1].type).toEqual(RepetitionObject.typeName);
   expect(
-    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type
+    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type,
   ).toEqual(RepetitionObject.typeName);
   expect((computedSceneJSON[0] as ICubeJSON).parameters.width).toEqual(10);
   expect(
     ((computedSceneJSON[1] as IRepetitionObjectJSON)
-      .parameters as ICartesianRepetitionParams).num
+      .parameters as ICartesianRepetitionParams).num,
   ).toEqual(repParams.num);
   expect((scene as any).objectCollector.length).toEqual(4);
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
 
-test("Scene AddNewObjectFromJSON", () => {
+test('Scene AddNewObjectFromJSON', () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: "cartesian",
+    type: 'cartesian',
     num: 3,
     x: 10,
     y: 10,
-    z: 10
+    z: 10,
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
@@ -270,16 +270,16 @@ test("Scene AddNewObjectFromJSON", () => {
   expect((scene as any).objectInScene(group.toJSON())).toBe(true);
 });
 
-test("Scene - RemoveFromObjectCollector", () => {
+test('Scene - RemoveFromObjectCollector', () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: "cartesian",
+    type: 'cartesian',
     num: 3,
     x: 10,
     y: 10,
-    z: 10
+    z: 10,
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
@@ -301,30 +301,30 @@ test("Scene - RemoveFromObjectCollector", () => {
 
   expect((scene as any).objectInObjectCollector(cube2.toJSON())).toBe(true);
   expect((scene as any).objectInObjectCollector(repetition1.toJSON())).toBe(
-    true
+    true,
   );
   (scene as any).removeFromObjectCollector([
     cube2.toJSON(),
-    repetition1.toJSON()
+    repetition1.toJSON(),
   ]);
   expect((scene as any).objectInObjectCollector(cube2.toJSON())).toBe(false);
   expect((scene as any).objectInObjectCollector(repetition1.toJSON())).toBe(
-    false
+    false,
   );
 });
 
-test("Scene - RemoveFromScene", () => {
+test('Scene - RemoveFromScene', () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: "cartesian",
+    type: 'cartesian',
     num: 3,
     x: 10,
     y: 10,
-    z: 10
+    z: 10,
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);

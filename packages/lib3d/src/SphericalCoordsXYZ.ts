@@ -1,4 +1,4 @@
-import { ICartesian, SphericalCoords } from "./SphericalCoordinates";
+import { ICartesian, SphericalCoords } from './SphericalCoordinates';
 /* The polar angle (phi) is measured from the positive z-axis. The positive z-axis is up.
  * The azimuthal angle (theta) is measured from the positive x-axis.
  */
@@ -19,7 +19,7 @@ export class SphericalCoordsXYZ extends SphericalCoords {
   public setFromCartesianCoords(
     x: number,
     y: number,
-    z: number
+    z: number,
   ): SphericalCoords {
     this.radius = Math.sqrt(x * x + y * y + z * z);
     this.theta =

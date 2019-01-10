@@ -1,5 +1,5 @@
-import * as THREE from "three";
-import { SphericalCoordsXYZ } from "./SphericalCoordsXYZ";
+import * as THREE from 'three';
+import { SphericalCoordsXYZ } from './SphericalCoordsXYZ';
 
 const EPSILON: number = 0.001;
 const STATE = {
@@ -9,7 +9,7 @@ const STATE = {
   PAN: 2,
   TOUCH_ROTATE: 3,
   TOUCH_DOLLY: 4,
-  TOUCH_PAN: 5
+  TOUCH_PAN: 5,
 };
 
 export default class OrbitCamera {
@@ -55,14 +55,14 @@ export default class OrbitCamera {
         near: this.camera.near,
         far: this.camera.far,
         left: this.camera.left,
-        right: this.camera.right
+        right: this.camera.right,
       };
     } else {
       this.ortho = {
         near: 0.1,
         far: 10000,
         left: -200,
-        right: 200
+        right: 200,
       };
     }
 
@@ -215,10 +215,10 @@ export default class OrbitCamera {
         savedDampingFactor = scope.dampingFactor;
         scope.dampingFactor = scope.draggingDampingFactor;
 
-        document.addEventListener("mousemove", dragging, { passive: false });
-        document.addEventListener("touchmove", dragging, { passive: false });
-        document.addEventListener("mouseup", endDragging);
-        document.addEventListener("touchend", endDragging);
+        document.addEventListener('mousemove', dragging, { passive: false });
+        document.addEventListener('touchmove', dragging, { passive: false });
+        document.addEventListener('mouseup', endDragging);
+        document.addEventListener('touchend', endDragging);
       };
 
       const dragging = (event: any) => {
@@ -295,10 +295,10 @@ export default class OrbitCamera {
         scope.dampingFactor = savedDampingFactor;
         state = STATE.NONE;
 
-        document.removeEventListener("mousemove", dragging);
-        document.removeEventListener("touchmove", dragging);
-        document.removeEventListener("mouseup", endDragging);
-        document.removeEventListener("touchend", endDragging);
+        document.removeEventListener('mousemove', dragging);
+        document.removeEventListener('touchmove', dragging);
+        document.removeEventListener('mouseup', endDragging);
+        document.removeEventListener('touchend', endDragging);
       };
 
       const dollyIn = () => {
@@ -306,11 +306,11 @@ export default class OrbitCamera {
 
         if (scope.camera instanceof THREE.PerspectiveCamera) {
           scope.dolly(
-            scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius
+            scope._sphericalEnd.radius * zoomScale - scope._sphericalEnd.radius,
           );
         } else if (scope.camera instanceof THREE.OrthographicCamera) {
           Object.keys(scope.ortho).forEach(
-            key => (scope.ortho[key] *= zoomScale)
+            key => (scope.ortho[key] *= zoomScale),
           );
         }
       };
@@ -320,29 +320,29 @@ export default class OrbitCamera {
 
         if (scope.camera instanceof THREE.PerspectiveCamera) {
           scope.dolly(
-            scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius
+            scope._sphericalEnd.radius / zoomScale - scope._sphericalEnd.radius,
           );
         } else if (scope.camera instanceof THREE.OrthographicCamera) {
           Object.keys(scope.ortho).forEach(
-            key => (scope.ortho[key] /= zoomScale)
+            key => (scope.ortho[key] /= zoomScale),
           );
         }
       };
 
-      this.domElement.addEventListener("mousedown", onMouseDown);
-      this.domElement.addEventListener("touchstart", onTouchStart);
-      this.domElement.addEventListener("wheel", onMouseWheel);
-      this.domElement.addEventListener("contextmenu", onContextMenu);
+      this.domElement.addEventListener('mousedown', onMouseDown);
+      this.domElement.addEventListener('touchstart', onTouchStart);
+      this.domElement.addEventListener('wheel', onMouseWheel);
+      this.domElement.addEventListener('contextmenu', onContextMenu);
 
       this.dispose = () => {
-        scope.domElement.removeEventListener("mousedown", onMouseDown);
-        scope.domElement.removeEventListener("touchstart", onTouchStart);
-        scope.domElement.removeEventListener("wheel", onMouseWheel);
-        scope.domElement.removeEventListener("contextmenu", onContextMenu);
-        document.removeEventListener("mousemove", dragging);
-        document.removeEventListener("touchmove", dragging);
-        document.removeEventListener("mouseup", endDragging);
-        document.removeEventListener("touchend", endDragging);
+        scope.domElement.removeEventListener('mousedown', onMouseDown);
+        scope.domElement.removeEventListener('touchstart', onTouchStart);
+        scope.domElement.removeEventListener('wheel', onMouseWheel);
+        scope.domElement.removeEventListener('contextmenu', onContextMenu);
+        document.removeEventListener('mousemove', dragging);
+        document.removeEventListener('touchmove', dragging);
+        document.removeEventListener('mouseup', endDragging);
+        document.removeEventListener('touchend', endDragging);
       };
     }
   }
@@ -352,15 +352,15 @@ export default class OrbitCamera {
   public rotateTo(
     rotTheta: number,
     rotPhi: number,
-    enableTransition: boolean
+    enableTransition: boolean,
   ): void {
     const theta: number = Math.max(
       this.minAzimuthAngle,
-      Math.min(this.maxAzimuthAngle, rotTheta)
+      Math.min(this.maxAzimuthAngle, rotTheta),
     );
     const phi: number = Math.max(
       this.minPolarAngle,
-      Math.min(this.maxPolarAngle, rotPhi)
+      Math.min(this.maxPolarAngle, rotPhi),
     );
 
     this._sphericalEnd.theta = theta;
@@ -380,7 +380,7 @@ export default class OrbitCamera {
 
     if (this.camera instanceof THREE.PerspectiveCamera) {
       this.dolly(
-        this._sphericalEnd.radius * zoomScale - this._sphericalEnd.radius
+        this._sphericalEnd.radius * zoomScale - this._sphericalEnd.radius,
       );
     } else if (this.camera instanceof THREE.OrthographicCamera) {
       Object.keys(this.ortho).forEach(key => (this.ortho[key] *= zoomScale));
@@ -391,7 +391,7 @@ export default class OrbitCamera {
     const zoomScale: number = Math.pow(0.95, this.dollySpeed);
     if (this.camera instanceof THREE.PerspectiveCamera) {
       this.dolly(
-        this._sphericalEnd.radius / zoomScale - this._sphericalEnd.radius
+        this._sphericalEnd.radius / zoomScale - this._sphericalEnd.radius,
       );
     } else if (this.camera instanceof THREE.OrthographicCamera) {
       Object.keys(this.ortho).forEach(key => (this.ortho[key] /= zoomScale));
@@ -406,7 +406,7 @@ export default class OrbitCamera {
       this._sphericalEnd.radius - this._spherical.radius;
     const deltaTarget: THREE.Vector3 = new THREE.Vector3().subVectors(
       this._targetEnd,
-      this.target
+      this.target,
     );
 
     if (
@@ -420,7 +420,7 @@ export default class OrbitCamera {
       this._spherical.set(
         this._spherical.radius + deltaRadius * dampingFactor,
         this._spherical.phi + deltaPhi * dampingFactor,
-        this._spherical.theta + deltaTheta * dampingFactor
+        this._spherical.theta + deltaTheta * dampingFactor,
       );
 
       this.target.add(deltaTarget.multiplyScalar(dampingFactor));
@@ -449,7 +449,7 @@ export default class OrbitCamera {
       .set(
         this._spherical.cartesian.x,
         this._spherical.cartesian.y,
-        this._spherical.cartesian.z
+        this._spherical.cartesian.z,
       )
       .add(this.target);
 
@@ -480,7 +480,7 @@ export default class OrbitCamera {
       position: this.camera.position.toArray(),
 
       target0: this._target0.toArray(),
-      position0: this._position0.toArray()
+      position0: this._position0.toArray(),
     };
   }
 
@@ -489,12 +489,12 @@ export default class OrbitCamera {
   private rotate(
     rotTheta: number,
     rotPhi: number,
-    enableTransition: boolean
+    enableTransition: boolean,
   ): void {
     this.rotateTo(
       this._sphericalEnd.theta + rotTheta,
       this._sphericalEnd.phi + rotPhi,
-      enableTransition
+      enableTransition,
     );
   }
 
@@ -506,7 +506,7 @@ export default class OrbitCamera {
     this._sphericalEnd.radius = THREE.Math.clamp(
       distance,
       this.minDistance,
-      this.maxDistance
+      this.maxDistance,
     );
 
     if (!enableTransition) {
@@ -525,11 +525,11 @@ export default class OrbitCamera {
 
     const _xColumn: THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(
       this.camera.matrix,
-      0
+      0,
     );
     const _yColumn: THREE.Vector3 = new THREE.Vector3().setFromMatrixColumn(
       this.camera.matrix,
-      1
+      1,
     );
     _xColumn.multiplyScalar(x);
     _yColumn.multiplyScalar(-y);
@@ -550,7 +550,7 @@ export default class OrbitCamera {
     x: number,
     y: number,
     z: number,
-    enableTransition: boolean
+    enableTransition: boolean,
   ): void {
     this._targetEnd.set(x, y, z);
 

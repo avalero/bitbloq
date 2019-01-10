@@ -1,7 +1,7 @@
-import "jsdom-worker";
-import * as THREE from "three";
-import Cylinder, { ICylinderJSON, ICylinderParams } from "../Cylinder";
-import ObjectsCommon, { IViewOptions, OperationsArray } from "../ObjectsCommon";
+import 'jsdom-worker';
+import * as THREE from 'three';
+import Cylinder, { ICylinderJSON, ICylinderParams } from '../Cylinder';
+import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
 
 const r0 = 10;
 const height = 15;
@@ -10,14 +10,14 @@ const r1 = 20;
 const objParams: ICylinderParams = {
   r0,
   r1,
-  height
+  height,
 };
 const operations: OperationsArray = [];
 const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test("Cylinder - Constructor", () => {
+test('Cylinder - Constructor', () => {
   const obj = new Cylinder(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -33,7 +33,7 @@ test("Cylinder - Constructor", () => {
   });
 });
 
-test("Cylinder - Constructor - Default Params - ViewOptions", () => {
+test('Cylinder - Constructor - Default Params - ViewOptions', () => {
   const obj = new Cylinder(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -49,7 +49,7 @@ test("Cylinder - Constructor - Default Params - ViewOptions", () => {
   });
 });
 
-test("Cylinder - Constructor - Default Params - Operations - ViewOptions", () => {
+test('Cylinder - Constructor - Default Params - Operations - ViewOptions', () => {
   const obj = new Cylinder(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -65,7 +65,7 @@ test("Cylinder - Constructor - Default Params - Operations - ViewOptions", () =>
   });
 });
 
-test("Cylinder - Constructor - Set Operations - Translation", () => {
+test('Cylinder - Constructor - Set Operations - Translation', () => {
   const x = 10;
   const y = 20;
   const z = 30;
@@ -83,13 +83,13 @@ test("Cylinder - Constructor - Set Operations - Translation", () => {
   });
 });
 
-test("Cylinder - Constructor - Set Operations - Rotation", () => {
+test('Cylinder - Constructor - Set Operations - Rotation', () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
   // tslint:disable-next-line:no-shadowed-variable
   const operations = [
-    ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
   ];
   const obj = new Cylinder(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -103,14 +103,14 @@ test("Cylinder - Constructor - Set Operations - Rotation", () => {
   });
 });
 
-test("Cylinder - Constructor - set Mesh", async () => {
+test('Cylinder - Constructor - set Mesh', async () => {
   const objAux = new Cylinder(objParams);
   const meshAux = await objAux.getMeshAsync();
   const obj = new Cylinder(
     objParams,
     operations,
     viewOptions,
-    meshAux as THREE.Mesh
+    meshAux as THREE.Mesh,
   );
 
   return obj.getMeshAsync().then(mesh => {
@@ -122,9 +122,9 @@ test("Cylinder - Constructor - set Mesh", async () => {
 
 /// TESTING CUBE.CLONE
 
-test("Cylinder - Clone - Parameters - Operations - viewOptions", async () => {
+test('Cylinder - Clone - Parameters - Operations - viewOptions', async () => {
   const obj = new Cylinder(objParams, operations, viewOptions);
-  const spy = jest.spyOn((obj as any).mesh, "clone");
+  const spy = jest.spyOn((obj as any).mesh, 'clone');
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
@@ -139,7 +139,7 @@ test("Cylinder - Clone - Parameters - Operations - viewOptions", async () => {
 });
 
 /// TEST NEW FROM JSON
-test("Cylinder - newFromJSON", () => {
+test('Cylinder - newFromJSON', () => {
   const obj = new Cylinder(objParams, operations, viewOptions);
   const json: ICylinderJSON = obj.toJSON() as ICylinderJSON;
   const obj2 = Cylinder.newFromJSON(json);
@@ -148,10 +148,10 @@ test("Cylinder - newFromJSON", () => {
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
 });
 
-test("Cylinder - newFromJSON", () => {
+test('Cylinder - newFromJSON', () => {
   const obj = new Cylinder(objParams, operations, viewOptions);
   const json: ICylinderJSON = obj.toJSON() as ICylinderJSON;
-  json.type = "kkk";
+  json.type = 'kkk';
   const obj2 = () => Cylinder.newFromJSON(json);
   expect(obj2).toThrowError();
 });

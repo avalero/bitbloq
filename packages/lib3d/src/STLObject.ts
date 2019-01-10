@@ -9,49 +9,107 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2018-11-16 17:37:42
+ * Last modified  : 2019-01-09 18:08:31
  */
 
-import isEqual from "lodash.isequal";
-import * as THREE from "three";
-import Object3D from "./Object3D";
-import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
+import isEqual from 'lodash.isequal';
+import * as THREE from 'three';
+import ObjectsCommon, {
+  IViewOptions,
+  OperationsArray,
+  IObjectsCommonJSON,
+} from './ObjectsCommon';
+import cloneDeep from 'lodash.clonedeep';
 
-import Scene from "./Scene";
+import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import STLLoader from './STLLoader';
 
 interface ISTLParams {
-  geometry: THREE.Geometry;
+  blob: ArrayBuffer;
+  fileType: string;
 }
 
-export default class STLObject extends Object3D {
-  public static typeName: string = "STLObject";
+export interface ISTLJSON extends IObjectsCommonJSON {
+  parameters: ISTLParams;
+}
 
-  private parameters: ISTLParams;
+export default class STLObject extends PrimitiveObject {
+  public static typeName: string = 'STLObject';
+
+  public static newFromJSON(object: ISTLJSON): STLObject {
+    if (object.type !== STLObject.typeName) {
+      throw new Error('Not STL Object');
+    }
+
+    const stl = new STLObject(
+      object.parameters,
+      object.operations,
+      object.viewOptions,
+    );
+
+    stl.id = object.id || '';
+
+    return stl;
+  }
 
   constructor(
     parameters: ISTLParams,
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
-    scene: Scene
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    mesh?: THREE.Mesh | undefined,
   ) {
-    super(viewOptions, operations);
-    this.parameters = { ...parameters };
-    this._meshUpdateRequired = true;
-  }
-
-  protected setParameters(parameters: ISTLParams): void {
-    if (!isEqual(parameters, this.parameters)) {
-      this.parameters = { ...parameters };
-      this._meshUpdateRequired = true;
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...viewOptions,
+    };
+    super(vO, operations);
+    this.type = STLObject.typeName;
+    this.setParameters(parameters);
+    this.lastJSON = this.toJSON();
+    if (mesh) {
+      this.setMesh(mesh);
+    } else {
+      this.meshPromise = this.computeMeshAsync();
     }
   }
 
-  protected getBufferGeometry(): THREE.BufferGeometry {
-    return new THREE.BufferGeometry().fromGeometry(this.getGeometry());
+  public clone(): STLObject {
+    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+      const objSTL = new STLObject(
+        this.parameters as ISTLParams,
+        this.operations,
+        this.viewOptions,
+        (this.mesh as THREE.Mesh).clone(),
+      );
+      return objSTL;
+    }
+
+    const obj = new STLObject(
+      this.parameters as ISTLParams,
+      this.operations,
+      this.viewOptions,
+    );
+    return obj;
   }
 
   protected getGeometry(): THREE.Geometry {
-    const { geometry } = this.parameters;
-    return geometry;
+    if ((this.parameters as ISTLParams).fileType.match('empty')) {
+      // TODO . Manage when there is no file
+      return new THREE.BoxGeometry(1, 1, 1);
+    }
+    const blob = (this.parameters as ISTLParams).blob;
+    if ((this.parameters as ISTLParams).fileType.match('model/x.stl-binary')) {
+      const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
+      return binaryGeom;
+    }
+
+    if ((this.parameters as ISTLParams).fileType.match('model/x.stl-ascii')) {
+      const asciiGeom = STLLoader.loadTextStl(blob);
+      return asciiGeom;
+    }
+
+    throw new Error(
+      `No STL file format: ${(this.parameters as ISTLParams).fileType} `,
+    );
   }
 }

@@ -1,8 +1,8 @@
 import React from 'react';
 import uuid from 'uuid/v1';
-import {Object3D} from '@bitbloq/lib3d';
+import { Object3D } from '@bitbloq/lib3d';
 
-import {Icon} from '@bitbloq/ui';
+import { Icon } from '@bitbloq/ui';
 
 const config = {
   colors: [
@@ -154,7 +154,7 @@ const config = {
       icon: <Icon name="stl" />,
       parameters: () => [
         {
-          name: 'geometry',
+          name: 'blob',
           label: 'param-file',
           type: 'file',
         },
@@ -163,7 +163,8 @@ const config = {
         id: uuid(),
         type: 'STLObject',
         parameters: {
-          geometry: 0,
+          blob: [],
+          fileType: 'empty',
         },
         operations: [],
       }),
@@ -209,7 +210,7 @@ const config = {
       canConverToGroup: true,
       canUndo: true,
       undoLabel: 'menu-undo-repetition',
-      parameters: ({parameters: {type}}) => {
+      parameters: ({ parameters: { type } }) => {
         if (type === 'cartesian') {
           return [
             {
@@ -291,7 +292,7 @@ const config = {
           name: 'relative',
           label: 'param-relative',
           type: 'boolean',
-          advancedMode: true
+          advancedMode: true,
         },
         {
           name: 'x',
@@ -384,7 +385,7 @@ const config = {
           name: 'relative',
           label: 'param-relative',
           type: 'boolean',
-          advancedMode: true
+          advancedMode: true,
         },
         {
           name: 'axis',
@@ -417,16 +418,16 @@ const config = {
             }
           },
           setValue: (operation, value) => {
-            const {x, y, z} = operation;
+            const { x, y, z } = operation;
             const angle = x || y || z;
             return {
               ...operation,
               x: value === 'x' ? angle : 0,
               y: value === 'y' ? angle : 0,
               z: value === 'z' ? angle : 0,
-              axis: value
+              axis: value,
             };
-          }
+          },
         },
         {
           name: 'angle',
@@ -434,18 +435,18 @@ const config = {
           type: 'integer',
           unit: '°',
           advancedMode: true,
-          activeOperation: (object, {x, y, z, relative, axis = 'x'}) => ({
+          activeOperation: (object, { x, y, z, relative, axis = 'x' }) => ({
             object,
             type: 'rotation',
             axis: (x && 'x') || (y && 'y') || (z && 'z') || axis,
             relative: relative,
           }),
           getValue: operation => {
-            const {x, y, z} = operation;
+            const { x, y, z } = operation;
             return x || y || z;
           },
           setValue: (operation, value) => {
-            const {x, y, z, axis = 'x'} = operation;
+            const { x, y, z, axis = 'x' } = operation;
             if (x || y || z) {
               return {
                 ...operation,
@@ -459,7 +460,7 @@ const config = {
                 [axis]: value,
               };
             }
-          }
+          },
         },
       ],
     },
@@ -515,9 +516,9 @@ const config = {
               value: 'zx',
             },
           ],
-        }
-      ]
-    }
+        },
+      ],
+    },
   ],
 
   defaultOperations: isAdvancedMode => {

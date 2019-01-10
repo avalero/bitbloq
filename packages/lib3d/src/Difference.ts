@@ -12,39 +12,39 @@
  * Last modified  : 2019-01-03 18:47:20
  */
 
-import isEqual from "lodash.isequal";
+import isEqual from 'lodash.isequal';
 import CompoundObject, {
   ChildrenArray,
-  ICompoundObjectJSON
-} from "./CompoundObject";
-import Object3D from "./Object3D";
-import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
-import Scene from "./Scene";
-import RepetitionObject from "./RepetitionObject";
-import ObjectsGroup from "./ObjectsGroup";
+  ICompoundObjectJSON,
+} from './CompoundObject';
+import Object3D from './Object3D';
+import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+import Scene from './Scene';
+import RepetitionObject from './RepetitionObject';
+import ObjectsGroup from './ObjectsGroup';
 
 export default class Difference extends CompoundObject {
-  public static typeName: string = "Difference";
+  public static typeName: string = 'Difference';
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
-    scene: Scene
+    scene: Scene,
   ): Difference {
     if (object.type !== Difference.typeName) {
-      throw new Error("Not Union Object");
+      throw new Error('Not Union Object');
     }
 
     try {
       const children: ChildrenArray = object.children.map(obj =>
-        scene.getObject(obj)
+        scene.getObject(obj),
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions
+        ...object.viewOptions,
       };
       const dif = new Difference(children, object.operations, viewOptions);
-      dif.id = object.id || "";
+      dif.id = object.id || '';
       return dif;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -55,12 +55,12 @@ export default class Difference extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions
+      ...viewOptions,
     };
     super(children, operations, vO);
     this.type = Difference.typeName;
@@ -74,7 +74,7 @@ export default class Difference extends CompoundObject {
 
   public clone(): Difference {
     const childrenClone: ChildrenArray = this.children.map(child =>
-      child.clone()
+      child.clone(),
     );
 
     if (isEqual(this.lastJSON, this.toJSON())) {
@@ -82,14 +82,14 @@ export default class Difference extends CompoundObject {
         childrenClone,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
       );
       return diffObj;
     }
     const obj = new Difference(
       childrenClone,
       this.operations,
-      this.viewOptions
+      this.viewOptions,
     );
     return obj;
   }

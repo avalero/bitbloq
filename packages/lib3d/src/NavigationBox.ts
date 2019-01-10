@@ -262,7 +262,7 @@ export default class NavigationBox {
     this.scene.add(spotLight2);
 
     const boxGeometry = new THREE.BoxGeometry(2, 2, 2);
-    const {boxLabels} = this.options;
+    const { boxLabels } = this.options;
     const cubeMaterials = [
       new THREE.MeshLambertMaterial({
         map: this.getTextureForText(boxLabels.right, HALF_PI),
@@ -310,9 +310,9 @@ export default class NavigationBox {
     x: number,
     y: number,
   ): THREE.Mesh | undefined => {
-    const {left, top, width, height} = this.container.getBoundingClientRect();
+    const { left, top, width, height } = this.container.getBoundingClientRect();
     const mousePosition = new THREE.Vector2();
-    mousePosition.x = (x - left) / width * 2 - 1;
+    mousePosition.x = ((x - left) / width) * 2 - 1;
     mousePosition.y = -((y - top) / height) * 2 + 1;
 
     const raycaster = new THREE.Raycaster();
@@ -348,7 +348,7 @@ export default class NavigationBox {
   };
 
   private onClick = (e: MouseEvent) => {
-    const {onChangeCameraAngle} = this.options;
+    const { onChangeCameraAngle } = this.options;
 
     if (!onChangeCameraAngle) {
       return;

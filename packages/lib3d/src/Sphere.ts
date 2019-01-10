@@ -12,15 +12,15 @@
  * Last modified  : 2019-01-03 18:43:42
  */
 
-import isEqual from "lodash.isequal";
-import * as THREE from "three";
+import isEqual from 'lodash.isequal';
+import * as THREE from 'three';
 
 import ObjectsCommon, {
   IObjectsCommonJSON,
   IViewOptions,
-  OperationsArray
-} from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+  OperationsArray,
+} from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 export interface ISphereParams {
   radius: number;
@@ -31,18 +31,18 @@ export interface ISphereJSON extends IObjectsCommonJSON {
 }
 
 export default class Sphere extends PrimitiveObject {
-  public static typeName: string = "Sphere";
+  public static typeName: string = 'Sphere';
 
   public static newFromJSON(object: ISphereJSON): Sphere {
     if (object.type !== Sphere.typeName) {
-      throw new Error("Not Sphere Object");
+      throw new Error('Not Sphere Object');
     }
     const sphere = new Sphere(
       object.parameters,
       object.operations,
-      object.viewOptions
+      object.viewOptions,
     );
-    sphere.id = object.id || "";
+    sphere.id = object.id || '';
     return sphere;
   }
 
@@ -50,11 +50,11 @@ export default class Sphere extends PrimitiveObject {
     parameters: ISphereParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Sphere.typeName;
@@ -73,14 +73,14 @@ export default class Sphere extends PrimitiveObject {
         this.parameters as ISphereParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
       );
       return objSphere;
     }
     const obj = new Sphere(
       this.parameters as ISphereParams,
       this.operations,
-      this.viewOptions
+      this.viewOptions,
     );
     return obj;
   }
@@ -92,7 +92,7 @@ export default class Sphere extends PrimitiveObject {
     return new THREE.SphereGeometry(
       Number(radius),
       Math.max(12, Math.min(Number(radius) * 5, 16)),
-      Math.max(12, Math.min(Number(radius) * 5, 16))
+      Math.max(12, Math.min(Number(radius) * 5, 16)),
     );
   }
 }

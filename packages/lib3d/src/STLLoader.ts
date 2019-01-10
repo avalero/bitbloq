@@ -14,10 +14,10 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-09-14 10:46:49
- * Last modified  : 2018-12-16 19:49:49
+ * Last modified  : 2019-01-09 17:18:39
  */
 
-import * as THREE from "three";
+import * as THREE from 'three';
 
 export default class STLLoader {
   public static binaryVector3(view: any, offset: number) {
@@ -43,7 +43,7 @@ export default class STLLoader {
       if (array[i] === 10) {
         const line: string = String.fromCharCode.apply(
           null,
-          array.subarray(h, i)
+          array.subarray(h, i),
         );
         lines.push(line);
         h = i + 1;
@@ -88,7 +88,7 @@ export default class STLLoader {
         throw new Error(
           `not text stl: ${regexp.toString()} => (line ${index - 1}) [${
             lines[index - 1]
-          }]`
+          }]`,
         );
       }
 
@@ -113,7 +113,7 @@ export default class STLLoader {
       geom.vertices.push(STLLoader.m2vec3(v2));
       geom.vertices.push(STLLoader.m2vec3(v3));
       geom.faces.push(
-        new THREE.Face3(base, base + 1, base + 2, STLLoader.m2vec3(normal))
+        new THREE.Face3(base, base + 1, base + 2, STLLoader.m2vec3(normal)),
       );
     }
     return geom;
