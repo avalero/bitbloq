@@ -26,14 +26,14 @@
  * Last modified  : 2018-10-16 12:51:01
  */
 
-import isEqual from "lodash.isequal";
-import * as THREE from "three";
+import isEqual from 'lodash.isequal';
+import * as THREE from 'three';
 import ObjectsCommon, {
   IObjectsCommonJSON,
   IViewOptions,
-  OperationsArray
-} from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+  OperationsArray,
+} from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 export interface IPrismParams {
   sides: number;
@@ -46,18 +46,18 @@ export interface IPrismJSON extends IObjectsCommonJSON {
 }
 
 export default class Prism extends PrimitiveObject {
-  public static typeName: string = "Prism";
+  public static typeName: string = 'Prism';
 
   public static newFromJSON(object: IPrismJSON): Prism {
     if (object.type !== Prism.typeName) {
-      throw new Error("Not Prism Object");
+      throw new Error('Not Prism Object');
     }
     const prism = new Prism(
       object.parameters,
       object.operations,
-      object.viewOptions
+      object.viewOptions,
     );
-    prism.id = object.id || "";
+    prism.id = object.id || '';
 
     return prism;
   }
@@ -66,11 +66,11 @@ export default class Prism extends PrimitiveObject {
     parameters: IPrismParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Prism.typeName;
@@ -89,14 +89,14 @@ export default class Prism extends PrimitiveObject {
         this.parameters as IPrismParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
       );
       return objPrism;
     }
     const obj = new Prism(
       this.parameters as IPrismParams,
       this.operations,
-      this.viewOptions
+      this.viewOptions,
     );
     return obj;
   }
@@ -112,7 +112,7 @@ export default class Prism extends PrimitiveObject {
       Number(radius),
       Number(radius),
       Number(height),
-      Number(sides)
+      Number(sides),
     ).rotateX(Math.PI / 2);
   }
 }

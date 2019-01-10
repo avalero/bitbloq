@@ -12,7 +12,7 @@
  * Last modified  : 2018-12-28 19:49:39
  */
 
-import Object3D from "./Object3D";
+import Object3D from './Object3D';
 import ObjectsCommon, {
   IMirrorOperation,
   IObjectsCommonJSON,
@@ -20,14 +20,14 @@ import ObjectsCommon, {
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
-  OperationsArray
-} from "./ObjectsCommon";
+  OperationsArray,
+} from './ObjectsCommon';
 
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import * as THREE from "three";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import * as THREE from 'three';
 
-import CompoundWorker from "./compound.worker";
+import CompoundWorker from './compound.worker';
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
   children: IObjectsCommonJSON[];
@@ -68,11 +68,11 @@ export default class CompoundObject extends Object3D {
   constructor(
     children: ChildrenArray = [],
     operations: OperationsArray = [],
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions()
+    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
   ) {
     super(viewOptions, operations);
     if (children.length === 0) {
-      throw new Error("Compound Object requires at least one children");
+      throw new Error('Compound Object requires at least one children');
     }
     this.children = children;
 
@@ -97,10 +97,10 @@ export default class CompoundObject extends Object3D {
         // listen to events from web worker
 
         (this.worker as CompoundWorker).onmessage = (event: any) => {
-          if (event.data.status !== "ok") {
+          if (event.data.status !== 'ok') {
             (this.worker as CompoundWorker).terminate();
             this.worker = null;
-            reject(new Error("Compound Object Error"));
+            reject(new Error('Compound Object Error'));
           }
 
           const message = event.data;
@@ -121,7 +121,7 @@ export default class CompoundObject extends Object3D {
             } else {
               (this.worker as CompoundWorker).terminate();
               this.worker = null;
-              reject(new Error("Mesh not computed correctly"));
+              reject(new Error('Mesh not computed correctly'));
             }
           });
         };
@@ -132,7 +132,7 @@ export default class CompoundObject extends Object3D {
           const message = {
             bufferArray,
             type: this.getTypeName(),
-            numChildren: this.children.length
+            numChildren: this.children.length,
           };
           (this.worker as CompoundWorker).postMessage(message, bufferArray);
         });
@@ -165,13 +165,13 @@ export default class CompoundObject extends Object3D {
   public toJSON(): ICompoundObjectJSON {
     return cloneDeep({
       ...super.toJSON(),
-      children: this.children.map(obj => obj.toJSON())
+      children: this.children.map(obj => obj.toJSON()),
     });
   }
 
   public updateFromJSON(object: ICompoundObjectJSON) {
     if (this.id !== object.id) {
-      throw new Error("Object id does not match with JSON id");
+      throw new Error('Object id does not match with JSON id');
     }
 
     const newchildren: ChildrenArray = [];
@@ -194,7 +194,7 @@ export default class CompoundObject extends Object3D {
     // update operations and view options
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions
+      ...object.viewOptions,
     };
     this.setOperations(object.operations);
     this.setViewOptions(vO);
@@ -223,7 +223,7 @@ export default class CompoundObject extends Object3D {
       chMesh.quaternion.x,
       chMesh.quaternion.y,
       chMesh.quaternion.z,
-      chMesh.quaternion.w
+      chMesh.quaternion.w,
     );
 
     this.mesh.scale.x = 1;
@@ -245,7 +245,7 @@ export default class CompoundObject extends Object3D {
       ) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error("ERROR: Unknown Operation");
+        throw Error('ERROR: Unknown Operation');
       }
     });
     this.mesh.updateMatrixWorld(true);
@@ -259,16 +259,16 @@ export default class CompoundObject extends Object3D {
     return new Promise((resolve, reject) => {
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
-        "position",
-        new THREE.BufferAttribute(vertices, 3)
+        'position',
+        new THREE.BufferAttribute(vertices, 3),
       );
       buffGeometry.addAttribute(
-        "normal",
-        new THREE.BufferAttribute(normals, 3)
+        'normal',
+        new THREE.BufferAttribute(normals, 3),
       );
       const mesh: THREE.Mesh = new THREE.Mesh(
         buffGeometry,
-        new THREE.MeshLambertMaterial()
+        new THREE.MeshLambertMaterial(),
       );
       this.applyViewOptions(mesh);
       resolve(mesh);
@@ -279,16 +279,16 @@ export default class CompoundObject extends Object3D {
     return new Promise((resolve, reject) => {
       const bufferArray: ArrayBuffer[] = [];
       Promise.all(
-        this.children.map( child => {
+        this.children.map(child => {
           if (
-            ["Difference", "Intersection"].includes(this.getTypeName()) &&
+            ['Difference', 'Intersection'].includes(this.getTypeName()) &&
             (child instanceof RepetitionObject || child instanceof ObjectsGroup)
           ) {
             const obj = child.toUnion();
             return obj.getMeshAsync();
           }
           return child.getMeshAsync();
-        })
+        }),
       ).then(meshes => {
         meshes.forEach(mesh => {
           if (mesh instanceof THREE.Mesh) {
@@ -316,5 +316,5 @@ export default class CompoundObject extends Object3D {
 }
 
 // they need to be at bottom to avoid typescript error with circular imports
-import RepetitionObject from "./RepetitionObject";
-import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from './RepetitionObject';
+import ObjectsGroup from './ObjectsGroup';

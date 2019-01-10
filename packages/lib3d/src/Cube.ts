@@ -13,10 +13,10 @@
  * Last modified  : 2019-01-03 18:41:43
  */
 
-import lodashIsequal from "lodash.isequal";
-import * as THREE from "three";
-import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
-import PrimitiveObject, { IPrimitiveObjectJSON } from "./PrimitiveObject";
+import lodashIsequal from 'lodash.isequal';
+import * as THREE from 'three';
+import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
 /**
  * Params defining a cube (units are in millimiters)
@@ -32,7 +32,7 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
 }
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = "Cube";
+  public static typeName: string = 'Cube';
 
   /**
    * Creates a new Cube instance from json
@@ -40,15 +40,15 @@ export default class Cube extends PrimitiveObject {
    */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type !== Cube.typeName) {
-      throw new Error("Not Cube Object");
+      throw new Error('Not Cube Object');
     }
     const cube = new Cube(
       object.parameters,
       object.operations,
-      object.viewOptions
+      object.viewOptions,
     );
 
-    cube.id = object.id || "";
+    cube.id = object.id || '';
     return cube;
   }
 
@@ -56,11 +56,11 @@ export default class Cube extends PrimitiveObject {
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Cube.typeName;
@@ -82,7 +82,7 @@ export default class Cube extends PrimitiveObject {
         this.parameters as ICubeParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
       );
       return cubeObj;
     }
@@ -90,7 +90,7 @@ export default class Cube extends PrimitiveObject {
     const cube = new Cube(
       this.parameters as ICubeParams,
       this.operations,
-      this.viewOptions
+      this.viewOptions,
     );
     return cube;
   }

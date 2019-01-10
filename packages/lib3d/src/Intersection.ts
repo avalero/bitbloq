@@ -12,40 +12,40 @@
  * Last modified  : 2019-01-03 18:48:10
  */
 
-import isEqual from "lodash.isequal";
+import isEqual from 'lodash.isequal';
 import CompoundObject, {
   ChildrenArray,
-  ICompoundObjectJSON
-} from "./CompoundObject";
-import ObjectsCommon, { IViewOptions, OperationsArray } from "./ObjectsCommon";
-import Scene from "./Scene";
+  ICompoundObjectJSON,
+} from './CompoundObject';
+import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+import Scene from './Scene';
 
 export default class Intersection extends CompoundObject {
-  public static typeName: string = "Intersection";
+  public static typeName: string = 'Intersection';
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
-    scene: Scene
+    scene: Scene,
   ): Intersection {
     if (object.type !== Intersection.typeName) {
-      throw new Error("Not Union Object");
+      throw new Error('Not Union Object');
     }
 
     try {
       const children: ChildrenArray = object.children.map(obj =>
-        scene.getObject(obj)
+        scene.getObject(obj),
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions
+        ...object.viewOptions,
       };
       const intersect = new Intersection(
         children,
         object.operations,
-        viewOptions
+        viewOptions,
       );
-      intersect.id = object.id || "";
+      intersect.id = object.id || '';
       return intersect;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -56,12 +56,12 @@ export default class Intersection extends CompoundObject {
     children: ChildrenArray = [],
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions
+      ...viewOptions,
     };
     super(children, operations, vO);
     this.type = Intersection.typeName;
@@ -75,21 +75,21 @@ export default class Intersection extends CompoundObject {
 
   public clone(): Intersection {
     const childrenClone: ChildrenArray = this.children.map(child =>
-      child.clone()
+      child.clone(),
     );
     if (isEqual(this.lastJSON, this.toJSON())) {
       const intObj = new Intersection(
         childrenClone,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
       );
       return intObj;
     }
     const obj = new Intersection(
       childrenClone,
       this.operations,
-      this.viewOptions
+      this.viewOptions,
     );
     return obj;
   }

@@ -12,17 +12,17 @@
  * Last modified  : 2019-01-09 18:08:31
  */
 
-import isEqual from "lodash.isequal";
-import * as THREE from "three";
+import isEqual from 'lodash.isequal';
+import * as THREE from 'three';
 import ObjectsCommon, {
   IViewOptions,
   OperationsArray,
-  IObjectsCommonJSON
-} from "./ObjectsCommon";
-import cloneDeep from "lodash.clonedeep";
+  IObjectsCommonJSON,
+} from './ObjectsCommon';
+import cloneDeep from 'lodash.clonedeep';
 
-import PrimitiveObject, { IPrimitiveObjectJSON } from "./PrimitiveObject";
-import STLLoader from "./STLLoader";
+import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import STLLoader from './STLLoader';
 
 interface ISTLParams {
   blob: ArrayBuffer;
@@ -34,20 +34,20 @@ export interface ISTLJSON extends IObjectsCommonJSON {
 }
 
 export default class STLObject extends PrimitiveObject {
-  public static typeName: string = "STLObject";
+  public static typeName: string = 'STLObject';
 
   public static newFromJSON(object: ISTLJSON): STLObject {
     if (object.type !== STLObject.typeName) {
-      throw new Error("Not STL Object");
+      throw new Error('Not STL Object');
     }
 
     const stl = new STLObject(
       object.parameters,
       object.operations,
-      object.viewOptions
+      object.viewOptions,
     );
 
-    stl.id = object.id || "";
+    stl.id = object.id || '';
 
     return stl;
   }
@@ -56,11 +56,11 @@ export default class STLObject extends PrimitiveObject {
     parameters: ISTLParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = STLObject.typeName;
@@ -79,7 +79,7 @@ export default class STLObject extends PrimitiveObject {
         this.parameters as ISTLParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
       );
       return objSTL;
     }
@@ -87,30 +87,29 @@ export default class STLObject extends PrimitiveObject {
     const obj = new STLObject(
       this.parameters as ISTLParams,
       this.operations,
-      this.viewOptions
+      this.viewOptions,
     );
     return obj;
   }
 
   protected getGeometry(): THREE.Geometry {
-    if ((this.parameters as ISTLParams).blob) {
-      const blob = (this.parameters as ISTLParams).blob;
-      if (
-        (this.parameters as ISTLParams).fileType.match("model/x.stl-binary")
-      ) {
-        const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
-        return binaryGeom;
-      }
-
-      if ((this.parameters as ISTLParams).fileType.match("model/x.stl-ascii")) {
-        const asciiGeom = STLLoader.loadTextStl(blob);
-        return asciiGeom;
-      }
-      throw new Error(
-        `No STL file format: ${(this.parameters as ISTLParams).fileType} `
-      );
+    if ((this.parameters as ISTLParams).fileType.match('empty')) {
+      // TODO . Manage when there is no file
+      return new THREE.BoxGeometry(1, 1, 1);
     }
-    // TODO - Manage when blob is not defined
-    return new THREE.BoxGeometry(1,1,1);
+    const blob = (this.parameters as ISTLParams).blob;
+    if ((this.parameters as ISTLParams).fileType.match('model/x.stl-binary')) {
+      const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
+      return binaryGeom;
+    }
+
+    if ((this.parameters as ISTLParams).fileType.match('model/x.stl-ascii')) {
+      const asciiGeom = STLLoader.loadTextStl(blob);
+      return asciiGeom;
+    }
+
+    throw new Error(
+      `No STL file format: ${(this.parameters as ISTLParams).fileType} `,
+    );
   }
 }

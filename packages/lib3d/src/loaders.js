@@ -1,5 +1,5 @@
-import "three";
-import "three/GLTFLoader";
+import 'three';
+import 'three/GLTFLoader';
 /* global THREE */
 
 export default function loadGLTFFromUrl(url) {

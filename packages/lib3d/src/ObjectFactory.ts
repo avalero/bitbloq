@@ -1,17 +1,17 @@
-import { ICompoundObjectJSON } from "./CompoundObject";
-import Cube, { ICubeJSON } from "./Cube";
-import Cylinder, { ICylinderJSON } from "./Cylinder";
-import Difference from "./Difference";
-import Intersection from "./Intersection";
-import ObjectsCommon, { IObjectsCommonJSON } from "./ObjectsCommon";
-import Prism, { IPrismJSON } from "./Prism";
-import Sphere, { ISphereJSON } from "./Sphere";
-import Union from "./Union";
+import { ICompoundObjectJSON } from './CompoundObject';
+import Cube, { ICubeJSON } from './Cube';
+import Cylinder, { ICylinderJSON } from './Cylinder';
+import Difference from './Difference';
+import Intersection from './Intersection';
+import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
+import Prism, { IPrismJSON } from './Prism';
+import Sphere, { ISphereJSON } from './Sphere';
+import Union from './Union';
 
-import ObjectsGroup, { IObjectsGroupJSON } from "./ObjectsGroup";
-import RepetitionObject, { IRepetitionObjectJSON } from "./RepetitionObject";
-import Scene from "./Scene";
-import STLObject, {ISTLJSON} from "./STLObject";
+import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
+import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
+import Scene from './Scene';
+import STLObject, { ISTLJSON } from './STLObject';
 
 export default class ObjectFactory {
   /**
@@ -20,7 +20,7 @@ export default class ObjectFactory {
    */
   public static newFromJSON(
     obj: IObjectsCommonJSON,
-    scene: Scene
+    scene: Scene,
   ): ObjectsCommon {
     debugger;
 
@@ -40,7 +40,7 @@ export default class ObjectFactory {
       case RepetitionObject.typeName:
         return RepetitionObject.newFromJSON(
           obj as IRepetitionObjectJSON,
-          scene
+          scene,
         );
       case Union.typeName:
         return Union.newFromJSON(obj as ICompoundObjectJSON, scene);
@@ -50,6 +50,6 @@ export default class ObjectFactory {
         return Intersection.newFromJSON(obj as ICompoundObjectJSON, scene);
     }
 
-    throw new Error("Unknown Primitive Object Type");
+    throw new Error('Unknown Primitive Object Type');
   }
 }

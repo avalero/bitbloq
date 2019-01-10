@@ -12,17 +12,17 @@
  * Last modified  : 2019-01-09 17:18:10
  */
 
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import Object3D from "./Object3D";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import Object3D from './Object3D';
 import ObjectsCommon, {
   IObjectsCommonJSON,
   IViewOptions,
-  OperationsArray
-} from "./ObjectsCommon";
-import ObjectsGroup from "./ObjectsGroup";
-import RepetitionObject from "./RepetitionObject";
-import * as THREE from "three";
+  OperationsArray,
+} from './ObjectsCommon';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
+import * as THREE from 'three';
 
 export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
   parameters: object;
@@ -38,7 +38,7 @@ export default class PrimitiveObject extends Object3D {
   public toJSON(): IPrimitiveObjectJSON {
     return cloneDeep({
       ...super.toJSON(),
-      parameters: this.parameters
+      parameters: this.parameters,
     });
   }
 
@@ -49,12 +49,12 @@ export default class PrimitiveObject extends Object3D {
 
   public updateFromJSON(object: IPrimitiveObjectJSON) {
     if (this.id !== object.id) {
-      throw new Error("Object id does not match with JSON id");
+      throw new Error('Object id does not match with JSON id');
     }
 
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions
+      ...object.viewOptions,
     };
     this.setParameters(object.parameters);
     this.setOperations(object.operations);

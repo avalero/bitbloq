@@ -40,7 +40,7 @@ export class SphericalCoords {
     return {
       radius: rads.radius,
       phi: (rads.phi * 180) / Math.PI,
-      theta: (rads.theta * 180) / Math.PI
+      theta: (rads.theta * 180) / Math.PI,
     };
   }
 
@@ -75,14 +75,14 @@ export class SphericalCoords {
   public setFromCartesianCoords(
     x: number,
     y: number,
-    z: number
+    z: number,
   ): SphericalCoords {
-    throw Error("Error: No implemented in parent");
+    throw Error('Error: No implemented in parent');
     return this;
   }
 
   public get cartesian(): ICartesian {
-    throw new Error("Implemented in child");
+    throw new Error('Implemented in child');
   }
 
   public setFromVector3(v: THREE.Vector3): SphericalCoords {

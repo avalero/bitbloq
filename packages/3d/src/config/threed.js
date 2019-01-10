@@ -164,7 +164,7 @@ const config = {
         type: 'STLObject',
         parameters: {
           blob: [],
-          fileType: '',
+          fileType: 'empty',
         },
         operations: [],
       }),
