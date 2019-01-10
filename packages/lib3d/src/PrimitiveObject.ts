@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-09 17:18:10
+ * Last modified  : 2019-01-10 10:26:43
  */
 
 import cloneDeep from 'lodash.clonedeep';

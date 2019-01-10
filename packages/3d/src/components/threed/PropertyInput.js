@@ -89,8 +89,8 @@ const FileProperty = ({ onChange }) => (
         const file = e.target.files[0];
         const reader = new FileReader();
         reader.onload = e => {
-          const blob = reader.result;
-          onChange({ blob, filetype: file.type });
+          const buffer = reader.result;
+          onChange({ buffer, filetype: file.type });
         };
 
         reader.readAsArrayBuffer(file);
