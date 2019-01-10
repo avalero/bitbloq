@@ -83,7 +83,7 @@ class Select extends React.Component {
           value={options.find(o => o.value === value)}
           options={options}
           styles={customStyles}
-          onChange={({value}) => onChange(value)}
+          onChange={({value}) => onChange && onChange(value)}
         />
       </div>
     );

@@ -123,7 +123,7 @@ class ThreeD extends React.Component {
   };
 
   render() {
-    const {advancedMode, setAdvancedMode, t} = this.props;
+    const {children, advancedMode, setAdvancedMode, t} = this.props;
 
     const menuRightContent = (
       <AdvanceModeWrap>
@@ -132,28 +132,29 @@ class ThreeD extends React.Component {
       </AdvanceModeWrap>
     );
 
+    const mainTab = (
+      <Document.Tab
+        key="3d"
+        icon={<Icon name="threed" />}
+        label={t('tab-3d')}>
+        <Container>
+          <ObjectTree />
+          <MainArea>
+            <Toolbar />
+            <ThreeDViewer />
+          </MainArea>
+          <PropertiesPanel />
+        </Container>
+      </Document.Tab>
+    );
+
     return (
       <Document
         title={t('untitled-project')}
         menuOptions={menuOptions(this.props, t)}
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
-        <Document.Tab
-          icon={<Icon name="threed" />}
-          label={t('tab-3d')}>
-          <Container>
-            <ObjectTree />
-            <MainArea>
-              <Toolbar />
-              <ThreeDViewer />
-            </MainArea>
-            <PropertiesPanel />
-          </Container>
-        </Document.Tab>
-        <Document.Tab
-          icon={<Icon name="info" />}
-          label={t('tab-project-info')}
-        />
+        {(typeof children === 'function') ? children(mainTab) : mainTab}
       </Document>
     );
   }
