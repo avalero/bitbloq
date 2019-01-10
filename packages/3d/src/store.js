@@ -4,14 +4,18 @@ import bloqtest from './reducers';
 
 import mySaga from './sagas';
 
-const sagaMiddleware = createSagaMiddleware();
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const create = () => {
+  const sagaMiddleware = createSagaMiddleware();
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
-const store = createStore(
-  bloqtest,
-  composeEnhancers(applyMiddleware(sagaMiddleware)),
-);
+  const store = createStore(
+    bloqtest,
+    composeEnhancers(applyMiddleware(sagaMiddleware)),
+  );
 
-sagaMiddleware.run(mySaga);
+  sagaMiddleware.run(mySaga);
 
-export default store;
+  return store
+};
+
+export default create;

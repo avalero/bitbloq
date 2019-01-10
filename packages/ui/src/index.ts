@@ -10,6 +10,8 @@ import NumberInput from './components/NumberInput';
 import Switch from './components/Switch';
 import Document from './components/Document';
 import Panel from './components/Panel';
+import HorizontalRule from './components/HorizontalRule';
+import TextArea from './components/TextArea';
 import baseStyles from './base-styles';
 import colors from './colors';
 
@@ -26,6 +28,8 @@ export {
   Switch,
   Document,
   Panel,
+  HorizontalRule,
   baseStyles,
+  TextArea,
   colors
 };

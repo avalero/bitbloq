@@ -49,7 +49,7 @@ export default css`
     border-collapse: collapse;
     border-spacing: 0;
   }
-  input {
+  input, textarea {
     font-family: 'Roboto', sans-serif;
     color: ${colors.black}
   }
