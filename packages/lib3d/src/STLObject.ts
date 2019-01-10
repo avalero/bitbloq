@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-10 11:48:51
+ * Last modified  : 2019-01-10 18:32:53
  */
 
 import isEqual from 'lodash.isequal';
@@ -103,13 +103,47 @@ export default class STLObject extends PrimitiveObject {
     return obj;
   }
 
+  public async computeMeshAsync(): Promise<THREE.Mesh> {
+    this.meshPromise = new Promise(async (resolve, reject) => {
+      if (
+        !(this.parameters as ISTLParams).blob ||
+        (this.parameters as ISTLParams).blob.filetype.match('empty')
+      ) {
+        // TODO . PREGUNTAR A DAVID!!!!
+        this.mesh = this.getNoFileMesh();
+        this._meshUpdateRequired = false;
+        resolve(this.mesh);
+        return;
+      }
+
+      if (this.meshUpdateRequired) {
+        const geometry: THREE.Geometry = this.getGeometry();
+        this.mesh = new THREE.Mesh(geometry);
+        this._meshUpdateRequired = false;
+        this.applyViewOptions();
+        await this.applyOperationsAsync();
+      }
+
+      if (this.pendingOperation) {
+        await this.applyOperationsAsync();
+      }
+
+      if (this.viewOptionsUpdateRequired) {
+        this.applyViewOptions();
+      }
+
+      resolve(this.mesh);
+    });
+
+    return this.meshPromise as Promise<THREE.Mesh>;
+  }
+
   protected getGeometry(): THREE.Geometry {
     if (
       !(this.parameters as ISTLParams).blob ||
       (this.parameters as ISTLParams).blob.filetype.match('empty')
     ) {
-      // TODO . Manage when there is no file
-      return new THREE.BoxGeometry(1, 1, 1);
+      throw new Error('No STL file loaded');
     }
 
     const blob = (this.parameters as ISTLParams).blob.buffer;
@@ -131,5 +165,62 @@ export default class STLObject extends PrimitiveObject {
     throw new Error(
       `No STL file format: ${(this.parameters as ISTLParams).blob.filetype} `,
     );
+  }
+
+  private getNoFileMesh(): THREE.Mesh {
+    const HALF_PI = Math.PI / 2;
+
+    const boxGeometry = new THREE.BoxGeometry(10, 10, 10).translate(0, 0, 5);
+    const cubeMaterials = [
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText('STL', HALF_PI),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText('STL', -HALF_PI),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText('STL', Math.PI),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText('STL'),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText('STL'),
+      }),
+      new THREE.MeshLambertMaterial({
+        map: this.getTextureForText('STL', Math.PI),
+      }),
+    ];
+    const cube = new THREE.Mesh(boxGeometry, cubeMaterials);
+
+    return cube;
+  }
+
+  private getTextureForText(text: string, rotation: number = 0): THREE.Texture {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = 128;
+    canvas.height = 128;
+
+    if (ctx) {
+      ctx.font = '20px Roboto,Arial';
+      ctx.fillStyle = '#cccccc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(
+        (text || '').toUpperCase(),
+        canvas.width / 2,
+        canvas.height / 2,
+      );
+    }
+
+    const texture = new THREE.Texture(canvas);
+    texture.center = new THREE.Vector2(0.5, 0.5);
+    texture.rotation = rotation;
+    texture.needsUpdate = true;
+    return texture;
   }
 }
