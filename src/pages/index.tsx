@@ -1,11 +1,23 @@
 import * as React from 'react';
 import styled from '@emotion/styled';
-import {navigate} from 'gatsby';
+import {navigate, Link} from 'gatsby';
 import {Global, css} from '@emotion/core';
-import {baseStyles, colors, Input, Panel, Button} from '@bitbloq/ui';
+import {
+  baseStyles,
+  colors,
+  Input,
+  Panel,
+  Button,
+  HorizontalRule,
+} from '@bitbloq/ui';
 import gql from 'graphql-tag';
 import {Mutation} from 'react-apollo';
 import SEO from '../components/SEO';
+import logoBetaImage from '../images/logo-beta.svg';
+import studentStep1Image from '../images/student-step-1.svg';
+import studentStep2Image from '../images/student-step-2.svg';
+import teacherStep1Image from '../images/teacher-step-1.svg';
+import teacherStep2Image from '../images/teacher-step-2.svg';
 
 enum TabType {
   Teacher,
@@ -47,9 +59,20 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
         <Global styles={baseStyles} />
         <Wrap>
           <Container>
-            <h1>Bitbloq!</h1>
+            <Logo src={logoBetaImage} alt="Bitbloq Beta" />
+            <DiscoverRow>
+              <DiscoverTitle>Descubre el nuevo Bitbloq</DiscoverTitle>
+              <DiscoverText>
+                Prueba ya la beta del nuevo Bitbloq, el ecosistema de
+                herramientas que ayudarán a los centros a cubrir todas las
+                necesidades de aprendizaje tecnológico de las aulas del siglo
+                XXI.
+              </DiscoverText>
+            </DiscoverRow>
+            <Rule />
             <LoginPanel>
               <Tabs>
+                <LoginAs>Acceder como:</LoginAs>
                 <Tab
                   active={currentTab === TabType.Teacher}
                   onClick={() => this.setState({currentTab: TabType.Teacher})}>
@@ -75,7 +98,24 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
     if (currentTab === TabType.Teacher) {
       return (
         <TabContent key={TabType.Teacher}>
-          <TabInfo />
+          <TabInfo>
+            <Step>
+              <img src={teacherStep1Image} />
+              <p>
+                1. Para poder crear una cuenta de profesor, haz clic en este
+                enlace:
+                <br />
+                <Link to="/signup">Crear cuenta de profesor.</Link>
+              </p>
+            </Step>
+            <Step>
+              <img src={teacherStep2Image} />
+              <p>
+                2. A partir de entonces siempre podrás acceder a tu cuenta
+                usando el login de la derecha.
+              </p>
+            </Step>
+          </TabInfo>
           <DashedLine />
           <LoginForm>
             <Input
@@ -109,7 +149,20 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
     if (currentTab === TabType.Student) {
       return (
         <TabContent key={TabType.Student}>
-          <TabInfo />
+          <TabInfo>
+            <Step>
+              <img src={studentStep1Image} />
+              <p>
+                1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu profesor un código de ejercicio.
+              </p>
+            </Step>
+            <Step>
+              <img src={studentStep2Image} />
+              <p>
+                2. Inserta el código en el formulario de la derecha y escribe el nombre de usuario que quieras usar.
+              </p>
+            </Step>
+          </TabInfo>
           <DashedLine />
           <LoginForm>
             <Input placeholder="Nombre de usuario" />
@@ -132,7 +185,7 @@ const Wrap = styled.div`
   top: 0px;
   left: 0px;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   align-items: center;
   justify-content: center;
   background-color: ${colors.gray1};
@@ -142,10 +195,45 @@ const Container = styled.div`
   max-width: 1085px;
   margin: 60px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Logo = styled.img`
+  width: 300px;
+  margin-bottom: 40px;
+`;
+
+const DiscoverRow = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+`;
+
+const DiscoverTitle = styled.div`
+  font-size: 30px;
+  font-weight: 300;
+  padding: 40px;
+  flex: 1;
+  text-align: center;
+`;
+
+const DiscoverText = styled.div`
+  font-size: 14px;
+  line-height: 1.57;
+  padding: 40px;
+  flex: 1;
+`;
+
+const Rule = styled(HorizontalRule)`
+  margin: 0px 140px 50px 140px;
+  align-self: stretch;
 `;
 
 const LoginPanel = styled(Panel)`
   display: flex;
+  align-self: stretch;
 `;
 
 const Tabs = styled.div`
@@ -153,8 +241,16 @@ const Tabs = styled.div`
   flex-direction: column;
   align-items: flex-end;
   width: 180px;
-  padding-top: 40px;
+  padding-top: 74px;
   border-right: 1px solid ${colors.gray3};
+  position: relative;
+`;
+
+const LoginAs = styled.div`
+  position: absolute;
+  font-size: 14px;
+  top: 30px;
+  left: 40px;
 `;
 
 interface TabProps {
@@ -172,10 +268,11 @@ const Tab = styled.div<TabProps>`
   align-items: center;
   justify-content: center;
   width: 140px;
-  height: 60px;
+  height: 58px;
   border-radius: 4px 0 0 4px;
   margin-right: -1px;
   cursor: pointer;
+  box-sizing: border-box;
 
   ${props =>
     props.active &&
@@ -193,12 +290,42 @@ const TabContent = styled.div`
 
 const TabInfo = styled.div`
   flex: 1;
+  display: flex;
+  padding: 30px;
+  justify-content: space-around;
+`;
+
+const Step = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px 10px;
+  max-width: 210px;
+
+  img {
+    height: 80px;
+    width: 80px;
+  }
+
+  p {
+    margin-top: 24px;
+    font-size: 12px;
+    line-height: 22px;
+  }
+
+  a {
+    color: ${colors.brandBlue};
+    font-weight: bold;
+    font-style: italic;
+    text-decoration: none;
+  }
 `;
 
 const DashedLine = styled.div`
   width: 1px;
   background-image: linear-gradient(${colors.gray3} 55%, white 45%);
-  background-size: 100% 24px;
+  background-size: 100% 20px;
 `;
 
 const LoginForm = styled.form`
