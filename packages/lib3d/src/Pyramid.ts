@@ -1,29 +1,13 @@
 /**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
  * License: MIT
  *
  * long description for the file
  *
  * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
+ * @author Alberto Valero <https://github.com/avalero>
  *
- * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2019-01-10 11:24:10
- */
-
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-10-16 12:51:01
+ * Created at     : 2019-01-10 11:23:22
+ * Last modified  : 2019-01-10 11:32:31
  */
 
 import isEqual from 'lodash.isequal';
@@ -35,24 +19,24 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-export interface IPrismParams {
+export interface IPyramidParams {
   sides: number;
   length: number;
   height: number;
 }
 
-export interface IPrismJSON extends IObjectsCommonJSON {
-  parameters: IPrismParams;
+export interface IPyramidJSON extends IObjectsCommonJSON {
+  parameters: IPyramidParams;
 }
 
-export default class Prism extends PrimitiveObject {
-  public static typeName: string = 'Prism';
+export default class Pyramid extends PrimitiveObject {
+  public static typeName: string = 'Pyramid';
 
-  public static newFromJSON(object: IPrismJSON): Prism {
-    if (object.type !== Prism.typeName) {
-      throw new Error('Not Prism Object');
+  public static newFromJSON(object: IPyramidJSON): Pyramid {
+    if (object.type !== Pyramid.typeName) {
+      throw new Error('Not Pyramid Object');
     }
-    const prism = new Prism(
+    const prism = new Pyramid(
       object.parameters,
       object.operations,
       object.viewOptions,
@@ -63,7 +47,7 @@ export default class Prism extends PrimitiveObject {
   }
 
   constructor(
-    parameters: IPrismParams,
+    parameters: IPyramidParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
@@ -73,7 +57,7 @@ export default class Prism extends PrimitiveObject {
       ...viewOptions,
     };
     super(vO, operations);
-    this.type = Prism.typeName;
+    this.type = Pyramid.typeName;
     this.setParameters(parameters);
     this.lastJSON = this.toJSON();
     if (mesh) {
@@ -83,18 +67,18 @@ export default class Prism extends PrimitiveObject {
     }
   }
 
-  public clone(): Prism {
+  public clone(): Pyramid {
     if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
-      const objPrism = new Prism(
-        this.parameters as IPrismParams,
+      const objPrism = new Pyramid(
+        this.parameters as IPyramidParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone(),
       );
       return objPrism;
     }
-    const obj = new Prism(
-      this.parameters as IPrismParams,
+    const obj = new Pyramid(
+      this.parameters as IPyramidParams,
       this.operations,
       this.viewOptions,
     );
@@ -102,17 +86,19 @@ export default class Prism extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { sides, length, height } = this.parameters as IPrismParams;
+    let { sides, length, height } = this.parameters as IPyramidParams;
     sides = Math.max(3, sides);
     length = Math.max(0, length);
     height = Math.max(0, height);
     this._meshUpdateRequired = false;
     const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
-      Number(radius),
+      0,
       Number(radius),
       Number(height),
       Number(sides),
-    ).rotateX(Math.PI / 2);
+    )
+      .rotateX(Math.PI / 2)
+      .rotateZ(Math.PI / 4);
   }
 }

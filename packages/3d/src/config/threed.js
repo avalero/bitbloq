@@ -143,6 +143,40 @@ const config = {
         parameters: {
           sides: 6,
           length: 5,
+          height: 10,
+        },
+        operations: [],
+      }),
+    },
+    {
+      name: 'Pyramid',
+      label: 'object-type-pyramid',
+      icon: <Icon name="pyramid" />,
+      parameters: () => [
+        {
+          name: 'sides',
+          label: 'param-number-of-sides',
+          type: 'integer',
+        },
+        {
+          name: 'length',
+          label: 'param-side-length',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'Pyramid',
+        parameters: {
+          sides: 4,
+          length: 10,
           height: 15,
         },
         operations: [],
