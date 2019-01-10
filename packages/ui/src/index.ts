@@ -12,6 +12,10 @@ import Document from './components/Document';
 import Panel from './components/Panel';
 import HorizontalRule from './components/HorizontalRule';
 import TextArea from './components/TextArea';
+import TranslateProvider, {
+  Translate,
+  withTranslate,
+} from './components/TranslateProvider';
 import baseStyles from './base-styles';
 import colors from './colors';
 
@@ -29,7 +33,10 @@ export {
   Document,
   Panel,
   HorizontalRule,
-  baseStyles,
   TextArea,
-  colors
+  TranslateProvider,
+  Translate,
+  withTranslate,
+  baseStyles,
+  colors,
 };

@@ -4,9 +4,8 @@ import {connect} from 'react-redux';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import {withTranslate} from '../TranslateProvider';
 import {colors, shadow} from '../../base-styles';
-import {Icon} from '@bitbloq/ui';
+import {Icon, withTranslate} from '@bitbloq/ui';
 import {
   selectObject,
   deselectObject,

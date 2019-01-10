@@ -2,7 +2,6 @@ import * as React from 'react';
 import {connect} from 'react-redux';
 import styled from '@emotion/styled';
 import {selectObject, deselectAllObjects} from '../../actions/threed';
-import {withTranslate} from '../TranslateProvider';
 import {
   Scene,
   IHelperDescription,
@@ -11,7 +10,7 @@ import {
   Renderer,
 } from '@bitbloq/lib3d';
 import {getSelectedObjects} from '../../reducers/threed/';
-import {Icon} from '@bitbloq/ui';
+import {Icon, withTranslate} from '@bitbloq/ui';
 
 const Container = styled.div`
   flex: 1;
