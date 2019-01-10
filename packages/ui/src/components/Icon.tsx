@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'
 import Angle from './icons/Angle'
 import AngleDouble from './icons/AngleDouble'
 import Arrow from './icons/Arrow'
@@ -92,7 +92,7 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <Plus />;
     case 'prism':
       return <Prism />;
-      case 'pyramid':
+    case 'pyramid':
       return <Pyramid />;
     case 'publish':
       return <Publish />;

@@ -71,6 +71,9 @@ Icons:
   <Icon name="prism" /><span> prism</span>
 </div>
 <div>
+  <Icon name="pyramid" /><span> pyramid</span>
+</div>
+<div>
   <Icon name="publish" /><span> publish</span>
 </div>
 <div>

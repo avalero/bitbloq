@@ -7,7 +7,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-10 11:23:22
- * Last modified  : 2019-01-10 11:32:31
+ * Last modified  : 2019-01-10 13:25:41
  */
 
 import isEqual from 'lodash.isequal';
@@ -36,14 +36,14 @@ export default class Pyramid extends PrimitiveObject {
     if (object.type !== Pyramid.typeName) {
       throw new Error('Not Pyramid Object');
     }
-    const prism = new Pyramid(
+    const pyramid = new Pyramid(
       object.parameters,
       object.operations,
       object.viewOptions,
     );
-    prism.id = object.id || '';
+    pyramid.id = object.id || '';
 
-    return prism;
+    return pyramid;
   }
 
   constructor(

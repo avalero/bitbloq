@@ -1,10 +1,9 @@
 import React from 'react';
-import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import {colors, shadow} from '../../base-styles';
+import {shadow} from '../../base-styles';
 import {Icon, withTranslate} from '@bitbloq/ui';
 import {
   selectObject,
