@@ -5,8 +5,7 @@ import {css} from '@emotion/core';
 import Markdown from 'react-markdown';
 import {createObject, undo, redo} from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import {Translate} from '../TranslateProvider';
-import {Icon, Tooltip} from '@bitbloq/ui';
+import {Icon, Tooltip, Translate} from '@bitbloq/ui';
 import config from '../../config/threed';
 
 const Container = styled.div`

@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Root from './root';
-import TranslateProvider from './components/TranslateProvider';
+import {TranslateProvider} from '@bitbloq/ui';
 import './base-styles';
 
 import en from './assets/messages/en.json';

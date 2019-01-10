@@ -2,10 +2,9 @@ import React from 'react';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import {Draggable} from 'react-beautiful-dnd';
-import {TranslateContext} from '../TranslateProvider';
 import PropertyInput from './PropertyInput';
 import config from '../../config/threed';
-import {Icon} from '@bitbloq/ui';
+import {Icon, withTranslate} from '@bitbloq/ui';
 
 const objectOperationsMap = {};
 config.objectOperations.forEach(
@@ -107,9 +106,7 @@ const Content = styled.div`
   font-size: 13px;
 `;
 
-export default class Operation extends React.Component {
-
-  static contextType = TranslateContext;
+class Operation extends React.Component {
 
   onTitleClick = e => {
     const {onOpen, isOpen} = this.props;
@@ -129,13 +126,12 @@ export default class Operation extends React.Component {
       onOpen,
       onRemove,
       advancedMode,
+      t
     } = this.props;
 
     const {label, basicLabel, parameters, color} = objectOperationsMap[
       operation.type
     ];
-
-    const t = this.context;
 
     let title;
     if (advancedMode || !basicLabel) {
@@ -208,3 +204,5 @@ export default class Operation extends React.Component {
     );
   }
 }
+
+export default withTranslate(Operation);

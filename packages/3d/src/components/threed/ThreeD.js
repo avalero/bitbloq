@@ -1,13 +1,12 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {withTranslate} from '../TranslateProvider';
 import {setAdvancedMode, newScene} from '../../actions/threed';
 import styled from '@emotion/styled';
 import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer.tsx';
 import Toolbar from './Toolbar';
 import PropertiesPanel from './PropertiesPanel';
-import {Document, Icon, Switch} from '@bitbloq/ui';
+import {Document, Icon, Switch, withTranslate} from '@bitbloq/ui';
 
 const Container = styled.div`
   flex: 1;

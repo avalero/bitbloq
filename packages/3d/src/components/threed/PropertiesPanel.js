@@ -4,7 +4,6 @@ import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import {Spring} from 'react-spring';
 import {DragDropContext} from 'react-beautiful-dnd';
-import {withTranslate} from '../TranslateProvider';
 import {
   updateObject,
   updateObjectParameter,
@@ -26,7 +25,7 @@ import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import {colors} from '../../base-styles';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
-import {DropDown, Icon, Input, Tooltip} from '@bitbloq/ui';
+import {DropDown, Icon, Input, Tooltip, withTranslate} from '@bitbloq/ui';
 import config from '../../config/threed';
 
 const Wrap = styled.div`

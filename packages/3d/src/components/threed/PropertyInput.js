@@ -1,9 +1,14 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import { Translate } from '../TranslateProvider';
-import { Checkbox, ColorPicker, NumberInput, Select } from '@bitbloq/ui';
-import { STLLoader } from '@bitbloq/lib3d';
+import {css} from '@emotion/core';
+import {
+  Checkbox,
+  ColorPicker,
+  NumberInput,
+  Select,
+  Translate,
+} from '@bitbloq/ui';
+import {STLLoader} from '@bitbloq/lib3d';
 
 const FormGroup = styled.div`
   margin-bottom: 10px;
@@ -28,7 +33,7 @@ const StyledSelect = styled(Select)`
   flex: 1;
 `;
 
-const IntegerProperty = ({ label, value, onChange, onFocus, onBlur, unit }) => (
+const IntegerProperty = ({label, value, onChange, onFocus, onBlur, unit}) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <NumberInput
@@ -80,7 +85,7 @@ const IntegerProperty = ({ label, value, onChange, onFocus, onBlur, unit }) => (
 //   </FormGroup>
 // );
 
-const FileProperty = ({ onChange }) => (
+const FileProperty = ({onChange}) => (
   <FormGroup>
     <input
       type="file"
@@ -90,7 +95,7 @@ const FileProperty = ({ onChange }) => (
         const reader = new FileReader();
         reader.onload = e => {
           const buffer = reader.result;
-          onChange({ buffer, filetype: file.type });
+          onChange({buffer, filetype: file.type});
         };
 
         reader.readAsArrayBuffer(file);
@@ -120,7 +125,7 @@ const SelectProperty = ({
             ...o,
             label: o.labelId ? t(o.labelId) : o.label,
           }))}
-          selectConfig={{ isSearchable: false }}
+          selectConfig={{isSearchable: false}}
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -130,14 +135,14 @@ const SelectProperty = ({
   </Translate>
 );
 
-const BooleanProperty = ({ label, value, onChange }) => (
+const BooleanProperty = ({label, value, onChange}) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <Checkbox checked={value} onChange={onChange} />
   </FormGroup>
 );
 
-const ColorProperty = ({ label, value, onChange }) => (
+const ColorProperty = ({label, value, onChange}) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <ColorPickerWrap>
@@ -146,7 +151,7 @@ const ColorProperty = ({ label, value, onChange }) => (
   </FormGroup>
 );
 
-const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
+const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
   switch (parameter.type) {
     case 'integer':
       return (
