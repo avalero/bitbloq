@@ -112,7 +112,7 @@
     "uuid": "^3.3.2",
     "webpack": "^4.28.0",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.1.10"
+    "webpack-dev-server": "^3.1.14"
   },
   "publishConfig": {
     "access": "public"
