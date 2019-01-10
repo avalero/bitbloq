@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-10 10:26:48
+ * Last modified  : 2019-01-10 11:48:51
  */
 
 import isEqual from 'lodash.isequal';
@@ -71,7 +71,7 @@ export default class STLObject extends PrimitiveObject {
       ...parameters,
       blob: parameters.blob || {
         buffer: new ArrayBuffer(0),
-        filetype: 'emtpy',
+        filetype: 'empty',
       },
     };
 
@@ -111,6 +111,7 @@ export default class STLObject extends PrimitiveObject {
       // TODO . Manage when there is no file
       return new THREE.BoxGeometry(1, 1, 1);
     }
+
     const blob = (this.parameters as ISTLParams).blob.buffer;
 
     if (
