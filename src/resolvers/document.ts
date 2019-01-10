@@ -69,7 +69,7 @@ const documentResolver = {
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const userFinded = await UserModel.findOne({ email: context.user.email });
-      return DocumentModelController.findDocumentByID(args.id, userFinded._id);
+      return DocumentModelController.findDocumentByID(args.id);
     },
   },
 };

@@ -65,8 +65,7 @@ const userResolver = {
             password: contactFinded.password,
             signUp: false,
           },
-          process.env.JWT_SECRET,
-          { expiresIn: '1h' },
+          process.env.JWT_SECRET
         );
         userController.updateUser(contactFinded._id, { authToken: token });
         return token;

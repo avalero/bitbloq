@@ -25,8 +25,8 @@ const DocumentModelController = {
   findDocumentByUser: userID => {
     return DocumentModel.find({ user: userID });
   },
-  findDocumentByID: (documentID, userID) => {
-    return DocumentModel.findOne({ _id: documentID, user: userID });
+  findDocumentByID: (documentID) => {
+    return DocumentModel.findOne({ _id: documentID });
   },
 };
 
