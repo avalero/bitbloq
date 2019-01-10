@@ -22,7 +22,7 @@ export default class ObjectFactory {
     obj: IObjectsCommonJSON,
     scene: Scene,
   ): ObjectsCommon {
-    debugger;
+    // debugger;
 
     switch (obj.type) {
       case Cube.typeName:
