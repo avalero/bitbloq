@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-09 18:08:31
+ * Last modified  : 2019-01-10 10:26:48
  */
 
 import isEqual from 'lodash.isequal';
@@ -25,8 +25,10 @@ import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
 interface ISTLParams {
-  blob: ArrayBuffer;
-  fileType: string;
+  blob: {
+    buffer: ArrayBuffer;
+    filetype: string;
+  };
 }
 
 export interface ISTLJSON extends IObjectsCommonJSON {
@@ -53,7 +55,7 @@ export default class STLObject extends PrimitiveObject {
   }
 
   constructor(
-    parameters: ISTLParams,
+    parameters: Partial<ISTLParams>,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
@@ -64,7 +66,16 @@ export default class STLObject extends PrimitiveObject {
     };
     super(vO, operations);
     this.type = STLObject.typeName;
-    this.setParameters(parameters);
+
+    const params: ISTLParams = {
+      ...parameters,
+      blob: parameters.blob || {
+        buffer: new ArrayBuffer(0),
+        filetype: 'emtpy',
+      },
+    };
+
+    this.setParameters(params);
     this.lastJSON = this.toJSON();
     if (mesh) {
       this.setMesh(mesh);
@@ -93,23 +104,31 @@ export default class STLObject extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    if ((this.parameters as ISTLParams).fileType.match('empty')) {
+    if (
+      !(this.parameters as ISTLParams).blob ||
+      (this.parameters as ISTLParams).blob.filetype.match('empty')
+    ) {
       // TODO . Manage when there is no file
       return new THREE.BoxGeometry(1, 1, 1);
     }
-    const blob = (this.parameters as ISTLParams).blob;
-    if ((this.parameters as ISTLParams).fileType.match('model/x.stl-binary')) {
+    const blob = (this.parameters as ISTLParams).blob.buffer;
+
+    if (
+      (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-binary')
+    ) {
       const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
       return binaryGeom;
     }
 
-    if ((this.parameters as ISTLParams).fileType.match('model/x.stl-ascii')) {
+    if (
+      (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-ascii')
+    ) {
       const asciiGeom = STLLoader.loadTextStl(blob);
       return asciiGeom;
     }
 
     throw new Error(
-      `No STL file format: ${(this.parameters as ISTLParams).fileType} `,
+      `No STL file format: ${(this.parameters as ISTLParams).blob.filetype} `,
     );
   }
 }

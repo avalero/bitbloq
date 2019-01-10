@@ -22,8 +22,6 @@ export default class ObjectFactory {
     obj: IObjectsCommonJSON,
     scene: Scene,
   ): ObjectsCommon {
-    // debugger;
-
     switch (obj.type) {
       case Cube.typeName:
         return Cube.newFromJSON(obj as ICubeJSON);

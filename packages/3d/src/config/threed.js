@@ -163,8 +163,7 @@ const config = {
         id: uuid(),
         type: 'STLObject',
         parameters: {
-          blob: [],
-          fileType: 'empty',
+          blob: null,
         },
         operations: [],
       }),
