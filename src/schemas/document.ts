@@ -7,6 +7,9 @@ import { GraphQLSchema } from 'graphql';
 
 const documentSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
+    scalar Date
+    scalar JSON
+
     type Query {
       documents: [Document]
       documentsByUser: [Document]
@@ -18,14 +21,12 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
       updateDocument(id: String!, input: DocumentIn!): Document
     }
 
-    scalar Date
-
     type Document {
       id: String
       user: String
       title: String!
       type: String
-      content: String
+      content: JSON
       description: String
       createdAt: Date
       updatedAt: Date
@@ -36,7 +37,7 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
       user: String
       title: String!
       type: String
-      content: String
+      content: JSON
       description: String
     }
   `,

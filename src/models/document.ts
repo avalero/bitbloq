@@ -1,4 +1,4 @@
-//import * as mongoose from 'mongoose';
+import * as mongoose from 'mongoose';
 import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
@@ -7,6 +7,7 @@ interface IDocument extends Document {
   title?: String;
   type?: String;
   content?: String;
+  image?: { Mixed };
   createdAt?: Date;
   updatedAt?: Date;
   description?: String;
@@ -29,9 +30,15 @@ const DocumentMongSchema: Schema = new Schema({
   },
 
   content: {
-    //type: JSON,
-    type: String,
+    type: JSON,
+    //type: String,
     trim: true,
+    default: 'content',
+  },
+
+  image: {
+    type: String,
+    default: 'default',
   },
 
   description: {

@@ -8,23 +8,29 @@ import { ExerciseModel } from '../models/exercise';
 
 const submissionResolver = {
   Mutation: {
+    //registrar nueva entrega: alumno que se une al aula
     async createSubmission(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      const exFound = await ExerciseModel.findOne({
-        _id: args.input.exercise_father,
-        user: context.user.id,
+      const exFather = await ExerciseModel.findOne({
+        code: args.input.exercise_code,
+        acceptSubmissions: true
       });
-      if (!exFound)
+      if (!exFather)
         throw new Error(
-          'Error creating submission, it should part of one of your exercises',
+          'Error creating submission, check your exercise code',
         );
+      if(!exFather.acceptSubmissions){
+        throw new Error(
+          'This exercise doesnt accept submissions now',
+        );
+      }
       const submissionNew = new SubmissionModel({
         id: ObjectId,
-        exercise_father: exFound._id,
-        user: exFound.user,
+        exercise_father: exFather._id,
+        user: exFather.user,
         title: args.input.title,
         student_nick: args.input.student_nick,
         comment: args.input.comment,
@@ -61,11 +67,24 @@ const submissionResolver = {
       const existSubmission = await SubmissionModel.findOne({
         _id: args.id,
         user: context.user.id,
-      });
-      if (!existSubmission)
+      });        
+      if (!existSubmission){
         throw new Error(
-          'Error updating submission, it should part of one of your exercises',
+          'Error finishing submission, it doesnt exist',
+        );}
+      
+      const exFather= await ExerciseModel.findOne({_id: existSubmission.exercise_father, user: context.user.id});
+      //check if the exercise accepts submissions
+      if(!exFather.acceptSubmissions){
+        throw new Error(
+          'This exercise doesnt accept submissions now',
         );
+      }
+      //check if the submission is in time
+      const timeNow: Date= new Date();
+      if(timeNow>(exFather.expireDate)){
+        throw new Error('Your submission is late');
+      }
       return SubmissionModelController.finishSubmission(existSubmission._id);
     },
     async deleteSubmission(root: any, args: any, context: any) {

@@ -7,9 +7,11 @@ interface IExercise extends Document {
   document_father?: String;
   code?: String;
   title?: String;
+  content?: String;
+  acceptSubmissions?: Boolean;
   versions?: [String];
   submissions?: [String];
-  expireDate?: String;
+  expireDate?: Date;
 }
 
 const ExerciseMongSchema: Schema = new Schema({
@@ -33,6 +35,18 @@ const ExerciseMongSchema: Schema = new Schema({
     default: 'New Exercise',
   },
 
+  content: {
+    //type: JSON,
+    type: String,
+    trim: true,
+    default: 'content',
+  },
+
+  acceptSubmissions: {
+    type: Boolean,
+    default: true
+  },
+
   versions: [
     {
       id: String,
@@ -42,7 +56,8 @@ const ExerciseMongSchema: Schema = new Schema({
   ],
 
   expireDate: {
-    type: String,
+    type: Date,
+    default: new Date(2020, 12, 30), //fecha de caducidad por defecto
   },
 });
 ExerciseMongSchema.plugin(timestamps);

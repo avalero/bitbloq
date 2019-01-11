@@ -20,15 +20,34 @@ const exerciseResolver = {
         throw new Error(
           'Error creating exercise, it should part of one of your documents',
         );
+      const newCode=Math.random().toString(36).substr(2, 6);
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
         user: context.user.id,
         document_father: docFound._id,
         title: args.input.title,
+        code: newCode,
+        acceptSubmissions: args.input.acceptSubmissions,
         expireDate: args.input.expireDate,
       });
       return ExerciseModelController.createExercise(exerciseNew);
     },
+
+    async changeSubmissionsState(root: any, args: any, context: any){
+      if (!context.user)
+        throw new AuthenticationError('You need to be logged in');
+      if (context.user.signUp)
+        throw new Error('Problem with token, not auth token');
+      const existExercise = await ExerciseModel.findOne({
+        _id: args.id,
+        user: context.user.id,
+      });
+      if (!existExercise) {
+        return new Error('Exercise doesnt exist'); 
+      }
+      return ExerciseModelController.updateExercise(existExercise._id, {acceptSubmissions: args.subState});
+    },
+
     deleteExercise(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
@@ -50,7 +69,7 @@ const exerciseResolver = {
         user: context.user.id,
       });
       if (existExercise) {
-        return ExerciseModelController.updateExercise(existExercise._id, args);
+        return ExerciseModelController.updateExercise(existExercise._id, args.input);
       } else {
         return new Error('Exercise doesnt exist');
       }

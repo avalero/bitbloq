@@ -29,6 +29,10 @@ const DocumentModelController = {
   findDocumentByID: (documentID, userID) => {
     return DocumentModel.findOne({ _id: documentID, user: userID });
   },
+
+  getAllUploads: documentID => {
+    return DocumentModel.findOne({ _id: documentID }); //devuelve imagenes??? o documento???
+  },
 };
 
 export { DocumentModelController };

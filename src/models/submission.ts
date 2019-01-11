@@ -33,8 +33,10 @@ const SubmissionMongSchema: Schema = new Schema({
   },
 
   content: {
+    //type: JSON,
     type: String,
-    default: 'bbbbb',
+    trim: true,
+    default: 'content',
   },
 
   finished: {

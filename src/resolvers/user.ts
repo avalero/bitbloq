@@ -14,7 +14,9 @@ const saltRounds = 7;
 const userResolver = {
   Mutation: {
     //public methods:
+
     async signUpUser(root: any, args: any) {
+      console.log(args);
       const contactFound = await UserModel.findOne({
         email: args.input.email,
       });
@@ -40,13 +42,14 @@ const userResolver = {
         center: args.input.center,
         active: false,
         signUpToken: token,
-        authToken: 'patata',
+        authToken: ' ',
         notifications: args.input.notifications,
       });
       console.log(token);
       userController.signUpUser(user_new);
       return token;
     },
+
     async login(root: any, { email, password }) {
       const contactFound = await UserModel.findOne({ email });
       if (!contactFound) {
@@ -64,7 +67,6 @@ const userResolver = {
         const token: String = jsonwebtoken.sign(
           {
             email: contactFound.email,
-            password: contactFound.password,
             id: contactFound._id,
             signUp: false,
           },
@@ -141,6 +143,7 @@ const userResolver = {
 
   Query: {
     async me(root: any, args: any, context: any) {
+      console.log(context);
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
@@ -150,6 +153,7 @@ const userResolver = {
       return contactFound;
     },
     users(root: any, args: any, context: any) {
+      console.log(context);
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
