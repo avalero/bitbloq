@@ -109,7 +109,6 @@ export default class STLObject extends PrimitiveObject {
         !(this.parameters as ISTLParams).blob ||
         (this.parameters as ISTLParams).blob.filetype.match('empty')
       ) {
-        // TODO . PREGUNTAR A DAVID!!!!
         this.mesh = this.getNoFileMesh();
         this._meshUpdateRequired = false;
         resolve(this.mesh);
