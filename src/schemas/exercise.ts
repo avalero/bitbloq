@@ -8,7 +8,6 @@ import { GraphQLSchema } from 'graphql';
 const exerciseSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     scalar Date
-    scalar JSON
 
     type Query {
       exercises: [Exercise]
@@ -27,7 +26,7 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
       document_father: String
       user: String
       title: String
-      content: JSON
+      content: String
       code: String
       acceptSubmissions: Boolean
       versions: [String]

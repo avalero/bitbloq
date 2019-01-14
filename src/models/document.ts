@@ -1,4 +1,3 @@
-import * as mongoose from 'mongoose';
 import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
@@ -30,8 +29,7 @@ const DocumentMongSchema: Schema = new Schema({
   },
 
   content: {
-    type: JSON,
-    //type: String,
+    type: String,
     trim: true,
     default: 'content',
   },
@@ -47,7 +45,6 @@ const DocumentMongSchema: Schema = new Schema({
 
   versions: [
     {
-      //content: JSON,
       type: String,
       date: Date,
       id: Number,
@@ -56,7 +53,6 @@ const DocumentMongSchema: Schema = new Schema({
 
   exercise: [
     {
-      //content: JSON,
       type: String,
       date: Date,
       id: Number,

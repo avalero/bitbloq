@@ -36,7 +36,6 @@ const ExerciseMongSchema: Schema = new Schema({
   },
 
   content: {
-    //type: JSON,
     type: String,
     trim: true,
     default: 'content',
