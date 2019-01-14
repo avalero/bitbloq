@@ -7,7 +7,7 @@ La interacción con la API se hace a través de QUERIES y MUTATIONS.
 
 *** Para darse de alta en la plataforma hay que realizar dos pasos: ***
 
-1)mandar la siguiente mutation:
+1) Mandar la siguiente mutation:
 
         mutation {
             signUpUser(input:{
@@ -19,7 +19,7 @@ La interacción con la API se hace a través de QUERIES y MUTATIONS.
             })
         }
 
-    Esta devuelve un String con el Token de registro en la plataforma.
+Esta devuelve un String con el Token de registro en la plataforma.
 
 2) Para activar la cuenta es necesario mandar la siguiente mutation con el token recibido como parámetro:
 
@@ -27,7 +27,7 @@ La interacción con la API se hace a través de QUERIES y MUTATIONS.
             activateAccount(token: "aaaaaaaaa")
         }
 
-    Esta devuelve el token de inicio de sesión. Para acceder a las demás funciones hay que mandar este token en la cabecera de la petición (como Bearer Token).
+Esta devuelve el token de inicio de sesión. Para acceder a las demás funciones hay que mandar este token en la cabecera de la petición (como Bearer Token).
 
 
 *** Para iniciar sesión en la plataforma: ***
@@ -38,7 +38,7 @@ Hay que mandar la siguiente mutation:
             login(email: "email", password: "pass")
         }
 
-    Esta devuelve un String con el token de inicio de sesión. Para acceder a las demás funciones hay que mandar este token en la cabecera de la petición (como Bearer Token).
+Esta devuelve un String con el token de inicio de sesión. Para acceder a las demás funciones hay que mandar este token en la cabecera de la petición (como Bearer Token).
 
 
 *** Las queries y mutations del usuario son: ***
@@ -54,6 +54,7 @@ Hay que mandar la siguiente mutation:
       deleteUser(id: String!): User
       updateUser(id: String!, input: UserIn!): User
 
+
 *** Las queries y mutations de los documentos son: ***   
 
     QUERIES:
@@ -65,6 +66,7 @@ Hay que mandar la siguiente mutation:
       createDocument(input: DocumentIn!): Document
       deleteDocument(id: String!): Document
       updateDocument(id: String!, input: DocumentIn!): Document
+
 
 
 *** Las queries y mutations de los ejercicios son: ***   
@@ -79,6 +81,7 @@ Hay que mandar la siguiente mutation:
       updateExercise(id: String!, input: ExerciseIn!): Exercise
       deleteExercise(id: String!, code: String!): Exercise
 
+
 *** Las queries y mutations de las entregas son: ***   
 
     QUERIES:
@@ -87,10 +90,13 @@ Hay que mandar la siguiente mutation:
       submissionByID(id: String!): Submission
     
     MUTATIONS:
-      createSubmission(input: SubmissionIn!): Submission
-      updateSubmission(id: String): Submission
-      finishSubmission(id: String, comment: String): Submission
-      deleteSubmission(id: String): Submission
+      createSubmission(exercise_code: String, student_nick: String): String
+      updateSubmission(input: SubmissionIn): Submission
+      finishSubmission(comment: String): Submission
+      deleteSubmission: Submission
+
+La mutation createSumission devuelve un token de "login" para que el alumno realice el ejercicio. El token guarda el nick del alumno, el id del ejercio al que se refiere la entrega y el id de la propia entrega. Es necesario pasar el token para el resto de mutations de las entregas.
+Para ejecutar las queries sin embargo hay que estar logueado como profesor.
 
 
 

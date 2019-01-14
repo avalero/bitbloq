@@ -7,6 +7,8 @@ import { GraphQLSchema } from 'graphql';
 
 const documentSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
+    scalar Date
+
     type Query {
       documents: [Document]
       documentsByUser: [Document]
@@ -17,8 +19,6 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
       deleteDocument(id: String!): Document
       updateDocument(id: String!, input: DocumentIn!): Document
     }
-
-    scalar Date
 
     type Document {
       id: String

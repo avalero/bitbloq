@@ -3,15 +3,23 @@ import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface IExercise extends Document {
+  user?: String;
   document_father?: String;
   code?: String;
   title?: String;
+  content?: String;
+  acceptSubmissions?: Boolean;
   versions?: [String];
   submissions?: [String];
-  expireDate?: String;
+  expireDate?: Date;
 }
 
 const ExerciseMongSchema: Schema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'UserModel',
+  },
+
   document_father: {
     type: Schema.Types.ObjectId,
     ref: 'DocumentModel',
@@ -27,6 +35,17 @@ const ExerciseMongSchema: Schema = new Schema({
     default: 'New Exercise',
   },
 
+  content: {
+    type: String,
+    trim: true,
+    default: 'content',
+  },
+
+  acceptSubmissions: {
+    type: Boolean,
+    default: true
+  },
+
   versions: [
     {
       id: String,
@@ -36,7 +55,8 @@ const ExerciseMongSchema: Schema = new Schema({
   ],
 
   expireDate: {
-    type: String,
+    type: Date,
+    default: new Date(2020, 12, 30), //fecha de caducidad por defecto
   },
 });
 ExerciseMongSchema.plugin(timestamps);
