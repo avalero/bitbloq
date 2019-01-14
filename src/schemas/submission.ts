@@ -16,10 +16,10 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       submissionByID(id: String!): Submission
     }
     type Mutation {
-      createSubmission(input: SubmissionIn!): Submission
-      updateSubmission(id: String): Submission
-      finishSubmission(id: String, comment: String): Submission
-      deleteSubmission(id: String): Submission
+      createSubmission(exercise_code: String, student_nick: String): String
+      updateSubmission(input: SubmissionIn): Submission
+      finishSubmission(comment: String): Submission
+      deleteSubmission: Submission
     }
 
     type Submission {
@@ -27,9 +27,10 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       title: String
       exercise_code: String
       exercise_father: String
-      user: String
+      teacher: String
       student_nick: String
       content: JSON
+      sub_token: String
       finished: Boolean
       comment: String
       createdAt: Date
@@ -37,9 +38,9 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
     }
     input SubmissionIn {
       title: String
-      exercise_code: String
-      student_nick: String
+      finished: Boolean
       comment: String
+      student_nick: String
     }
   `,
 });

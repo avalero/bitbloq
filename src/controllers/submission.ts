@@ -7,10 +7,10 @@ const SubmissionModelController = {
   deleteSubmission: SubmissionID => {
     return SubmissionModel.deleteOne({ _id: SubmissionID });
   },
-  finishSubmission: SubmissionID => {
+  finishSubmission: (SubmissionID, student_comment) => {
     return SubmissionModel.findOneAndUpdate(
       { _id: SubmissionID },
-      { $set: { finished: true } },
+      { $set: { finished: true, comment: student_comment } },
       { new: true },
     );
   },
