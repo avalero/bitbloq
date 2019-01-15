@@ -1,0 +1,10 @@
+{
+    "mailer":{
+        "auth":{
+            "user": "pp9989064",
+            "password": "bitbloq19"
+        },
+        "domain": "@smtp.gmail.com",
+        "defaultFromAdress": "Bitbloq <bitbloq-noreply@bqcc.com>"
+    }
+}

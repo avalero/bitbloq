@@ -1,8 +1,9 @@
 import { UserModel } from '../models/user';
-import {DocumentModel} from '../models/document';
-import {ExerciseModel} from '../models/exercise';
-import {SubmissionModel} from '../models/submission';
+import { DocumentModel } from '../models/document';
+import { ExerciseModel } from '../models/exercise';
+import { SubmissionModel } from '../models/submission';
 import { contextController } from '../controllers/context';
+import { mailerController } from '../controllers/mailer';
 import { AuthenticationError } from 'apollo-server-koa';
 import { ObjectID } from 'bson';
 const bcrypt = require('bcrypt');
@@ -43,10 +44,15 @@ const userResolver = {
         signUpToken: token,
         authToken: ' ',
         notifications: args.input.notifications,
+        signUpSurvey: args.input.signUpSurvey,
       });
       console.log(token);
-      //userController.signUpUser(user_new);
-      UserModel.create(user_new);
+      const newUser= await UserModel.create(user_new);
+      // mensaje del email: Y el link debe mandar a: ${url_del_servidor}/activate/${token_de_signup}
+      //const message: String = process.env.SERVER_URL +process.env.PORT + '/activate/' +token;
+      const message: String = 'http://localhost:4000' + '/activate/' + token;
+      console.log(message);
+      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       return token;
     },
 
@@ -70,10 +76,12 @@ const userResolver = {
             user_id: contactFound._id,
             signUp: false,
           },
-          process.env.JWT_SECRET
+          process.env.JWT_SECRET,
         );
-        UserModel.updateOne({ _id: contactFound._id }, { $set: { authToken: token } });
-        //userController.updateUser(contactFound._id, { authToken: token });
+        UserModel.updateOne(
+          { _id: contactFound._id },
+          { $set: { authToken: token } },
+        );
         return token;
       } else {
         throw new Error('comparing passwords valid=false');
@@ -91,25 +99,25 @@ const userResolver = {
       });
       if (userInToken.signUp && !contactFound.active) {
         var token: String = jsonwebtoken.sign(
-          { 
+          {
             email: contactFound.email,
             user_id: contactFound._id,
             signUp: false,
-           },
+          },
           process.env.JWT_SECRET,
           { expiresIn: '1h' },
         );
-        console.log("llega a entrar en el if")
-        await UserModel.findOneAndUpdate({ _id: contactFound._id }, { $set: {
-          active: true,
-          authToken: token,
-          signUpToken: ' ',
-         }});
-        // userController.updateUser(contactFound._id, {
-        //   active: true,
-        //   authToken: token,
-        //   signUpToken: ' ',
-        // });
+        console.log('llega a entrar en el if');
+        await UserModel.findOneAndUpdate(
+          { _id: contactFound._id },
+          {
+            $set: {
+              active: true,
+              authToken: token,
+              signUpToken: ' ',
+            },
+          },
+        );
         return token;
       } else {
         return new Error('Error with sign up token, try again');
@@ -125,14 +133,10 @@ const userResolver = {
         email: context.user.email,
       });
       if (contactFound._id == args.id) {
-        SubmissionModel.deleteMany({ teacher: contactFound._id });
-        //SubmissionModelController.deleteManySubs(contactFound._id);
-        ExerciseModel.deleteMany({ user: contactFound._id });
-        //ExerciseModelController.deleteManyExs(contactFound._id);
-        DocumentModel.deleteMany({ user: contactFound._id });
-        //DocumentModelController.deleteManyDocs(contactFound._id); // Delete all the user's documents
-        return UserModel.deleteOne({ _id: contactFound._id });
-        //return userController.deleteUser(contactFound._id); //Delete the user
+        await SubmissionModel.deleteMany({ teacher: contactFound._id });
+        await ExerciseModel.deleteMany({ user: contactFound._id });
+        await DocumentModel.deleteMany({ user: contactFound._id });
+        return UserModel.deleteOne({ _id: contactFound._id }); //Delete every data of the user
       } else {
         throw new Error('Cant deleteUser');
       }
@@ -149,7 +153,6 @@ const userResolver = {
       if (contactFound._id == args.id) {
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
-        //return userController.updateUser(contactFound._id, data);
       } else {
         return new Error('User doesnt exist');
       }
@@ -163,7 +166,7 @@ const userResolver = {
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
-        _id: context.user.user_id
+        _id: context.user.user_id,
       });
       if (!contactFound) return new Error('Error with user in context');
       return contactFound;

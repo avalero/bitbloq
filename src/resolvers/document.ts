@@ -10,7 +10,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      //const userFound = await UserModel.findOne({ email: context.user.email });
       const document_new = new DocumentModel({
         id: ObjectId,
         user: context.user.user_id,
@@ -22,16 +21,16 @@ const documentResolver = {
         exercise: args.input.exercise,
       });
       return DocumentModel.create(document_new);
-      //return DocumentModelController.createDocument(document_new);
     },
+
     deleteDocument(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       return DocumentModel.deleteOne({ _id: args.id });
-      //return DocumentModelController.deleteDocument(args.id);
     },
+
     async updateDocument(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
@@ -44,10 +43,6 @@ const documentResolver = {
           { $set: args.input },
           { new: true },
         );
-        // return DocumentModelController.updateDocument(
-        //   existDocument._id,
-        //   args.input,
-        // );
       } else {
         return new Error('Document doesnt exist');
       }
@@ -60,25 +55,23 @@ const documentResolver = {
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       return DocumentModel.find({});
-      //return DocumentModelController.findAllDocuments();
     },
     async documentsByUser(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      //const userFound = await UserModel.findOne({ email: context.user.email });
       return DocumentModel.find({ user: context.user.user_id });
-      //return DocumentModelController.findDocumentByUser(context.user.user_id);
     },
     async documentByID(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      //const userFound = await UserModel.findOne({ email: context.user.email });
-      return DocumentModel.findOne({ _id: args.id, user: context.user.user_id });
-      //return DocumentModelController.findDocumentByID(args.id, context.user.user_id);
+      return DocumentModel.findOne({
+        _id: args.id,
+        user: context.user.user_id,
+      });
     },
   },
 };

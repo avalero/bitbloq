@@ -44,6 +44,7 @@
     "koa-jwt": "^3.5.1",
     "mongoose": "^5.3.16",
     "mongoose-timestamp": "^0.6.0",
+    "nodemailer": "^5.1.1",
     "path": "^0.12.7",
     "reflect-metadata": "^0.1.12",
     "ts-node": "^7.0.1",

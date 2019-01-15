@@ -7,6 +7,10 @@ import { GraphQLSchema } from 'graphql';
 
 const userSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
+    scalar Date
+    scalar JSON
+    scalar ObjectID
+
     type Query {
       me: User
       users: [User]
@@ -15,13 +19,12 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       activateAccount(token: String): String
       signUpUser(input: UserIn!): String
       login(email: String!, password: String!): String
-      deleteUser(id: String!): User
-      updateUser(id: String!, input: UserIn!): User
+      deleteUser(id: ObjectID!): User
+      updateUser(id: ObjectID!, input: UserIn!): User
     }
-    scalar Date
 
     type User {
-      id: String
+      id: ObjectID
       email: String
       password: String
       name: String
@@ -32,6 +35,7 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       notifications: Boolean
       createdAt: Date
       updatedAt: Date
+      signUpSurvey: JSON
     }
 
     input UserIn {
@@ -43,6 +47,7 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       sign_up_token: String
       auth_token: String
       notifications: Boolean
+      signUpSurvey: JSON
     }
   `,
 });

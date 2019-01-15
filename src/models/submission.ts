@@ -38,9 +38,9 @@ const SubmissionMongSchema: Schema = new Schema({
     default: 'content',
   },
 
-  sub_token:{
+  sub_token: {
     type: String,
-    trim: true
+    trim: true,
   },
 
   finished: {

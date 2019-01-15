@@ -8,23 +8,24 @@ import { GraphQLSchema } from 'graphql';
 const exerciseSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     scalar Date
+    scalar ObjectID
 
     type Query {
       exercises: [Exercise]
-      exercisesByDocument(document_father: String!): [Exercise]
-      exerciseByID(id: String!): Exercise
+      exercisesByDocument(document_father: ObjectID!): [Exercise]
+      exerciseByID(id: ObjectID!): Exercise
     }
     type Mutation {
       createExercise(input: ExerciseIn!): Exercise
-      changeSubmissionsState(id: String!, subState: Boolean!): Exercise
-      updateExercise(id: String!, input: ExerciseIn!): Exercise
-      deleteExercise(id: String!, code: String!): Exercise
+      changeSubmissionsState(id: ObjectID!, subState: Boolean!): Exercise
+      updateExercise(id: ObjectID!, input: ExerciseIn): Exercise
+      deleteExercise(id: ObjectID!, code: String!): Exercise
     }
 
     type Exercise {
-      id: String
-      document_father: String
-      user: String
+      id: ObjectID
+      document_father: ObjectID
+      user: ObjectID
       title: String
       content: String
       code: String
@@ -36,8 +37,7 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
     }
 
     input ExerciseIn {
-      id: String
-      document_father: String
+      document_father: ObjectID
       title: String
       code: String
       acceptSubmissions: Boolean

@@ -1,5 +1,6 @@
 //import * as mongoose from 'mongoose';
 import { Document, Schema, Model, model } from 'mongoose';
+import { MAX_UNSIGNED_VALUE } from 'long';
 const timestamps = require('mongoose-timestamp');
 
 interface IUser extends Document {
@@ -11,6 +12,7 @@ interface IUser extends Document {
   signUpToken?: string;
   authToken?: string;
   notifications?: Boolean;
+  signUpSurvey?: JSON
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -60,6 +62,11 @@ export const ContactSchema: Schema = new Schema({
   created_date: {
     type: Date,
   },
+
+  signUpSurvey:{
+    type: JSON,
+  }
+
 });
 
 ContactSchema.plugin(timestamps);

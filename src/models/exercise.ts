@@ -43,7 +43,7 @@ const ExerciseMongSchema: Schema = new Schema({
 
   acceptSubmissions: {
     type: Boolean,
-    default: true
+    default: true,
   },
 
   versions: [

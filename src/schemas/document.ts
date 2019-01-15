@@ -8,21 +8,22 @@ import { GraphQLSchema } from 'graphql';
 const documentSchema: GraphQLSchema = makeExecutableSchema({
   typeDefs: gql`
     scalar Date
+    scalar ObjectID
 
     type Query {
       documents: [Document]
       documentsByUser: [Document]
-      documentByID(id: String!): Document
+      documentByID(id: ObjectID!): Document
     }
     type Mutation {
       createDocument(input: DocumentIn!): Document
-      deleteDocument(id: String!): Document
-      updateDocument(id: String!, input: DocumentIn!): Document
+      deleteDocument(id: ObjectID!): Document
+      updateDocument(id: ObjectID!, input: DocumentIn): Document
     }
 
     type Document {
-      id: String
-      user: String
+      id: ObjectID
+      user: ObjectID
       title: String!
       type: String
       content: String
@@ -32,8 +33,8 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
     }
 
     input DocumentIn {
-      id: String
-      user: String
+      id: ObjectID
+      user: ObjectID
       title: String!
       type: String
       content: String
