@@ -203,6 +203,41 @@ const config = {
       }),
     },
     {
+      name: 'Text',
+      label: 'object-type-text-object',
+      icon: <Icon name="text" />,
+      parameters: () => [
+        {
+          name: 'text',
+          label: 'param-text',
+          type: 'string',
+          unit: 'mm',
+        },
+        {
+          name: 'size',
+          label: 'param-size',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'TextObject',
+        parameters: {
+          text: 'Text',
+          size: 100,
+          height: 10,
+        },
+        operations: [],
+      }),
+    },
+    {
       name: 'Union',
       label: 'object-type-union',
       icon: <Icon name="union" />,

@@ -7,6 +7,7 @@ import DropDown from './components/DropDown';
 import Checkbox from './components/Checkbox';
 import Tooltip from './components/Tooltip';
 import NumberInput from './components/NumberInput';
+import StringInput from './components/StringInput';
 import Switch from './components/Switch';
 import Document from './components/Document';
 import Panel from './components/Panel';
@@ -29,6 +30,7 @@ export {
   Checkbox,
   Tooltip,
   NumberInput,
+  StringInput,
   Switch,
   Document,
   Panel,
