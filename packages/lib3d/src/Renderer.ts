@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import NavigationBox, { IBoxLabels } from './NavigationBox';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
+import AxisHelper from './AxisHelper';
+import { IObjectsCommonJSON } from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
 import Scene, { IHelperDescription } from './Scene';
 
@@ -23,6 +24,14 @@ const navBoxContainerStyles = `
   height: 150px;
 `;
 
+const axisHelperContainerStyles = `
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 150px;
+  height: 150px;
+`;
+
 export interface IRendererOptions {
   antialias: boolean;
   clearColor: number;
@@ -35,10 +44,12 @@ export default class Renderer {
     antialias: true,
     clearColor: 0xfafafa,
     sortObjects: false,
+    navigationBoxLabels: NavigationBox.defaultOptions.boxLabels,
   };
 
   private options: IRendererOptions;
   private navigationBox: NavigationBox;
+  private axisHelper: AxisHelper;
   private threeRenderer: THREE.WebGLRenderer;
   private clock: THREE.Clock;
   private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
@@ -173,6 +184,9 @@ export default class Renderer {
 
     this.navigationBox.setOrtographicCamera(isOrtographic);
     this.updateNavigationBox();
+
+    this.axisHelper.setOrtographicCamera(isOrtographic);
+    this.updateAxisHelper();
   }
 
   public onObjectClick(handler: ObjectClickHandler): void {
@@ -235,6 +249,14 @@ export default class Renderer {
     });
     this.updateNavigationBox();
 
+    const axisHelperContainer = document.createElement('div');
+    axisHelperContainer.style.cssText = axisHelperContainerStyles;
+    this.container.appendChild(axisHelperContainer);
+
+    this.axisHelper = new AxisHelper(axisHelperContainer);
+
+    this.updateAxisHelper();
+
     rendererContainer.appendChild(threeRenderer.domElement);
   }
 
@@ -262,6 +284,13 @@ export default class Renderer {
     this.navigationBox.updateCamera(-x, -y, -z);
   }
 
+  private updateAxisHelper() {
+    const direction = new THREE.Vector3();
+    this.camera.getWorldDirection(direction);
+    const { x, y, z } = direction;
+    this.axisHelper.updateCamera(-x, -y, -z);
+  }
+
   private renderLoop = () => {
     this.updateSize();
     const delta = this.clock.getDelta();
@@ -269,6 +298,7 @@ export default class Renderer {
 
     if (cameraNeedsUpdate) {
       this.updateNavigationBox();
+      this.updateAxisHelper();
     }
 
     requestAnimationFrame(this.renderLoop);

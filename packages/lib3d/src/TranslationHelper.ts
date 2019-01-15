@@ -35,12 +35,12 @@ export default class TranslationHelper {
       offsetArrow =
         boundingBoxDims.x / 2 + separation + arrowLength / 2 + length;
     } else if (axis === 'y') {
-      color = 0x0000ff;
+      color = 0x00ff00;
       offset = boundingBoxDims.y / 2 + separation + length / 2;
       offsetArrow =
         boundingBoxDims.y / 2 + separation + arrowLength / 2 + length;
     } else {
-      color = 0x00ff00;
+      color = 0x0000ff;
       offset = boundingBoxDims.z / 2 + separation + length / 2;
       offsetArrow =
         boundingBoxDims.z / 2 + separation + arrowLength / 2 + length;
