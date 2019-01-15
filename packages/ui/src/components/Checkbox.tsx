@@ -54,7 +54,7 @@ export default class Checkbox extends React.Component<CheckboxProps> {
       <Container
         className={className}
         checked={checked}
-        onClick={() => onChange(!checked)}>
+        onClick={() => onChange && onChange(!checked)}>
         {checked && <Icon name="tick" />}
       </Container>
     );

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import {css} from '@emotion/core';
 import colors from '../colors';
 
 const Button = styled.button`
@@ -14,6 +15,45 @@ const Button = styled.button`
   font-weight: bold;
   background-color: ${colors.green};
   cursor: pointer;
+
+  &:hover {
+    background-color: ${colors.greenHover};
+  }
+
+  &:active {
+    background-color: ${colors.greenPressed};
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  ${props => props.secondary && css`
+    background-color: ${colors.black};
+    &:hover {
+      background-color: ${colors.blackHover};
+    }
+    &:active {
+      background-color: ${colors.blackPressed};
+    }
+  `}
+
+  ${props => props.tertiary && css`
+    color: ${colors.black};
+    background-color: ${colors.tertiary};
+    &:hover {
+      background-color: ${colors.tertiaryHover};
+    }
+    &:active {
+      background-color: ${colors.tertiaryPressed};
+    }
+  `}
+
+  &[disabled] {
+    color: ${colors.disabledColor};
+    background-color: ${colors.disabledBackground};
+    cursor: not-allowed;
+  }
 `;
 
 /** @component */
