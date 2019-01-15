@@ -12,6 +12,7 @@ import Document from './components/Document';
 import Panel from './components/Panel';
 import HorizontalRule from './components/HorizontalRule';
 import TextArea from './components/TextArea';
+import Option from './components/Option';
 import TranslateProvider, {
   Translate,
   withTranslate,
@@ -34,6 +35,7 @@ export {
   Panel,
   HorizontalRule,
   TextArea,
+  Option,
   TranslateProvider,
   Translate,
   withTranslate,

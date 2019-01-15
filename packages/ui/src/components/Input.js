@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import colors from '../colors';
 
 const Input = styled.input`
   border: 1px solid #cfcfcf;
@@ -18,6 +19,12 @@ const Input = styled.input`
   &::placeholder {
     font-style: italic;
     color: #8c919b;
+  }
+
+  &[disabled] {
+    color: ${colors.disabledColor};
+    background-color: ${colors.disabledBackground};
+    cursor: not-allowed;
   }
 `;
 
