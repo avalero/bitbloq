@@ -5,7 +5,7 @@ import {
   Checkbox,
   ColorPicker,
   NumberInput,
-  StringInput,
+  Input,
   Select,
   Translate,
 } from '@bitbloq/ui';
@@ -47,10 +47,10 @@ const IntegerProperty = ({ label, value, onChange, onFocus, onBlur, unit }) => (
   </FormGroup>
 );
 
-const StringProperty = ({ label, value, onChange, onFocus, onBlur }) => (
+const StringProperty = ({ label, value, onChange }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
-    <StringInput value={value} onChange={value => onChange(value)} />
+    <Input value={value} onChange={e => onChange(e.target.value)} />
   </FormGroup>
 );
 
@@ -132,15 +132,12 @@ const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
           onBlur={onBlur}
         />
       );
-    case 'text':
+    case 'string':
       return (
         <StringProperty
           label={parameter.label}
-          unit={parameter.unit}
           value={value}
-          onChange={onChange}
-          onFocus={onFocus}
-          onBlur={onBlur}
+          onChange={e => onChange(e.target.value)}
         />
       );
     case 'select':

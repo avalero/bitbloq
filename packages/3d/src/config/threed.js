@@ -203,15 +203,14 @@ const config = {
       }),
     },
     {
-      name: 'Text',
+      name: 'String',
       label: 'object-type-text-object',
       icon: <Icon name="text" />,
       parameters: () => [
         {
           name: 'text',
-          label: 'param-text',
+          label: 'param-string',
           type: 'string',
-          unit: 'mm',
         },
         {
           name: 'size',
@@ -230,7 +229,7 @@ const config = {
         id: uuid(),
         type: 'TextObject',
         parameters: {
-          text: 'Text',
+          text: 'Hello',
           size: 100,
           height: 10,
         },

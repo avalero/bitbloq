@@ -7,7 +7,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-15 16:22:05
- * Last modified  : 2019-01-15 16:37:11
+ * Last modified  : 2019-01-16 10:21:28
  */
 
 import isEqual from 'lodash.isequal';
@@ -93,7 +93,7 @@ export default class TextObject extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { text, height, size, font } = this.parameters as ITextObjectParams;
+    let { text, height, size } = this.parameters as ITextObjectParams;
     height = Math.max(0.1, height);
     size = Math.max(0.1, size);
     text = text || 'TEXT';
