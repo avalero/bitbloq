@@ -137,7 +137,7 @@ const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
         <StringProperty
           label={parameter.label}
           value={value}
-          onChange={e => onChange(e.target.value)}
+          onChange={onChange}
         />
       );
     case 'select':
