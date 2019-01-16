@@ -19,8 +19,11 @@ const DOCUMENTS_QUERY = gql`
 `;
 
 const CREATE_DOCUMENT_MUTATION = gql`
-  mutation CreateDocument($type: String!, $title: String!) {
-    createDocument(type: $type, title: $title) {
+  mutation CreateDocument(
+    $type: String!,
+    $title: String!
+  ) {
+    createDocument(input: {type: $type, title: $title}) {
       id
       type
     }
@@ -44,11 +47,16 @@ class Documents extends React.Component {
   };
 
   onNewDocument(createDocument, type, title) {
-    createDocument({variables: {type, title}});
+    createDocument({
+      variables: {type, title},
+      refetchQueries: [
+        { query: DOCUMENTS_QUERY }
+      ]
+    });
   }
 
   onDocumentCreated = ({createDocument: {id, type}}) => {
-    navigate(`/app/edit/${type}/${id}`);
+    navigate(`/app/document/${type}/${id}`);
   };
 
   renderHeader() {

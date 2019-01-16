@@ -14,7 +14,7 @@ import {
 import gql from 'graphql-tag';
 
 const DOCUMENT_QUERY = gql`
-  query Document($id: String!) {
+  query Document($id: ObjectID!) {
     documentByID(id: $id) {
       id
       type
@@ -27,16 +27,18 @@ const DOCUMENT_QUERY = gql`
 
 const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
-    $id: String!
+    $id: ObjectID!
     $title: String!
     $content: String!
-    $description: String!
+    $description: String
   ) {
     updateDocument(
       id: $id
-      title: $title
-      content: $content
-      description: $description
+      input: {
+        title: $title,
+        content: $content
+        description: $description
+      }
     ) {
       content
     }
@@ -112,6 +114,9 @@ class ThreeDEditor extends React.Component {
                     title,
                     content: JSON.stringify(content),
                   },
+                  refetchQueries: [
+                    { query: DOCUMENT_QUERY, variables: { id }}
+                  ]
                 })
               }>
               {mainTab => [mainTab, this.renderInfoTab(document)]}

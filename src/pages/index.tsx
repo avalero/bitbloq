@@ -1,57 +1,175 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {navigate, Link} from 'gatsby';
-import {Global, css} from '@emotion/core';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { navigate, Link } from "gatsby";
+import { Global, css } from "@emotion/core";
 import {
   baseStyles,
   colors,
   Input,
   Panel,
   Button,
-  HorizontalRule,
-} from '@bitbloq/ui';
-import gql from 'graphql-tag';
-import {Mutation} from 'react-apollo';
-import SEO from '../components/SEO';
-import logoBetaImage from '../images/logo-beta.svg';
-import studentStep1Image from '../images/student-step-1.svg';
-import studentStep2Image from '../images/student-step-2.svg';
-import teacherStep1Image from '../images/teacher-step-1.svg';
-import teacherStep2Image from '../images/teacher-step-2.svg';
+  HorizontalRule
+} from "@bitbloq/ui";
+import gql from "graphql-tag";
+import { Mutation } from "react-apollo";
+import SEO from "../components/SEO";
+import logoBetaImage from "../images/logo-beta.svg";
+import studentStep1Image from "../images/student-step-1.svg";
+import studentStep2Image from "../images/student-step-2.svg";
+import teacherStep1Image from "../images/teacher-step-1.svg";
+import teacherStep2Image from "../images/teacher-step-2.svg";
 
 enum TabType {
   Teacher,
-  Student,
+  Student
 }
 
 interface IndexPageProps {}
 
 class IndexPageState {
   readonly currentTab: TabType = TabType.Teacher;
-  readonly email: string = '';
-  readonly password: string = '';
+  readonly email: string = "";
+  readonly password: string = "";
+  readonly studentNick: string = "";
+  readonly exerciseCode: string = "";
 }
 
 const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
+  mutation Login($email: EmailAddress!, $password: String!) {
     login(email: $email, password: $password)
+  }
+`;
+
+const CREATE_SUBMISSION_MUTATION = gql`
+  mutation CreateSubmission($studentNick: String!, $exerciseCode: String!) {
+    createSubmission(student_nick: $studentNick, exercise_code: $exerciseCode) {
+      token
+      exercise_id
+      type
+    }
   }
 `;
 
 class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   readonly state = new IndexPageState();
 
-  onTeacherLogin = ({login: token}) => {
+  onTeacherLogin = ({ login: token }) => {
     window.localStorage.setItem('authToken', token);
     navigate('/app');
   };
 
-  onStudentLogin = () => {
-    navigate('/app');
+  onStudentLogin = ({ createSubmission: { token, exercise_id, type }}) => {
+    window.localStorage.setItem('authToken', token);
+    navigate(`/app/exercise/${type}/${exercise_id}/`);
   };
 
+  renderTeacherTab() {
+    const { email, password } = this.state;
+
+    return (
+      <TabContent key={TabType.Teacher}>
+        <TabInfo>
+          <Step>
+            <img src={teacherStep1Image} />
+            <p>
+              1. Para poder crear una cuenta de profesor, haz clic en este
+              enlace:
+              <br />
+              <Link to="/signup">Crear cuenta de profesor.</Link>
+            </p>
+          </Step>
+          <Step>
+            <img src={teacherStep2Image} />
+            <p>
+              2. A partir de entonces siempre podrás acceder a tu cuenta usando
+              el login de la derecha.
+            </p>
+          </Step>
+        </TabInfo>
+        <DashedLine />
+        <LoginForm>
+          <Input
+            value={email}
+            onChange={e => this.setState({ email: e.target.value })}
+            placeholder="Correo electrónico"
+            type="email"
+          />
+          <Input
+            value={password}
+            onChange={e => this.setState({ password: e.target.value })}
+            placeholder="Contraseña"
+            type="password"
+          />
+          <Mutation mutation={LOGIN_MUTATION} onCompleted={this.onTeacherLogin}>
+            {(login, { loading }) => (
+              <LoginButton
+                disabled={loading}
+                onClick={() => login({ variables: { email, password } })}
+              >
+                Entrar
+              </LoginButton>
+            )}
+          </Mutation>
+        </LoginForm>
+      </TabContent>
+    );
+  }
+
+  renderStudentTab() {
+    const { studentNick, exerciseCode } = this.state;
+
+    return (
+      <TabContent key={TabType.Student}>
+        <TabInfo>
+          <Step>
+            <img src={studentStep1Image} />
+            <p>
+              1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu
+              profesor un código de ejercicio.
+            </p>
+          </Step>
+          <Step>
+            <img src={studentStep2Image} />
+            <p>
+              2. Inserta el código en el formulario de la derecha y escribe el
+              nombre de usuario que quieras usar.
+            </p>
+          </Step>
+        </TabInfo>
+        <DashedLine />
+        <LoginForm>
+          <Input
+            value={studentNick}
+            onChange={e => this.setState({ studentNick: e.target.value })}
+            placeholder="Nombre de usuario"
+          />
+          <Input
+            value={exerciseCode}
+            onChange={e => this.setState({ exerciseCode: e.target.value })}
+            placeholder="Código de ejercicio"
+          />
+          <Mutation
+            mutation={CREATE_SUBMISSION_MUTATION}
+            onCompleted={this.onStudentLogin}
+          >
+            {(createSubmission, { loading }) => (
+              <LoginButton
+                disabled={loading}
+                onClick={() =>
+                  createSubmission({ variables: { studentNick, exerciseCode } })
+                }
+              >
+                Entrar
+              </LoginButton>
+            )}
+          </Mutation>
+        </LoginForm>
+      </TabContent>
+    );
+  }
+
   render() {
-    const {currentTab} = this.state;
+    const { currentTab } = this.state;
 
     return (
       <>
@@ -75,103 +193,24 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                 <LoginAs>Acceder como:</LoginAs>
                 <Tab
                   active={currentTab === TabType.Teacher}
-                  onClick={() => this.setState({currentTab: TabType.Teacher})}>
+                  onClick={() => this.setState({ currentTab: TabType.Teacher })}
+                >
                   Profesor
                 </Tab>
                 <Tab
                   active={currentTab === TabType.Student}
-                  onClick={() => this.setState({currentTab: TabType.Student})}>
+                  onClick={() => this.setState({ currentTab: TabType.Student })}
+                >
                   Alumno
                 </Tab>
               </Tabs>
-              {this.renderTabContent()}
+              {currentTab === TabType.Teacher && this.renderTeacherTab()}
+              {currentTab === TabType.Student && this.renderStudentTab()}
             </LoginPanel>
           </Container>
         </Wrap>
       </>
     );
-  }
-
-  renderTabContent() {
-    const {currentTab, email, password} = this.state;
-
-    if (currentTab === TabType.Teacher) {
-      return (
-        <TabContent key={TabType.Teacher}>
-          <TabInfo>
-            <Step>
-              <img src={teacherStep1Image} />
-              <p>
-                1. Para poder crear una cuenta de profesor, haz clic en este
-                enlace:
-                <br />
-                <Link to="/signup">Crear cuenta de profesor.</Link>
-              </p>
-            </Step>
-            <Step>
-              <img src={teacherStep2Image} />
-              <p>
-                2. A partir de entonces siempre podrás acceder a tu cuenta
-                usando el login de la derecha.
-              </p>
-            </Step>
-          </TabInfo>
-          <DashedLine />
-          <LoginForm>
-            <Input
-              value={email}
-              onChange={e => this.setState({email: e.target.value})}
-              placeholder="Correo electrónico"
-              type="email"
-            />
-            <Input
-              value={password}
-              onChange={e => this.setState({password: e.target.value})}
-              placeholder="Contraseña"
-              type="password"
-            />
-            <Mutation
-              mutation={LOGIN_MUTATION}
-              onCompleted={this.onTeacherLogin}>
-              {(login, {loading}) => (
-                <LoginButton
-                  disabled={loading}
-                  onClick={() => login({variables: {email, password}})}>
-                  Entrar
-                </LoginButton>
-              )}
-            </Mutation>
-          </LoginForm>
-        </TabContent>
-      );
-    }
-
-    if (currentTab === TabType.Student) {
-      return (
-        <TabContent key={TabType.Student}>
-          <TabInfo>
-            <Step>
-              <img src={studentStep1Image} />
-              <p>
-                1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu profesor un código de ejercicio.
-              </p>
-            </Step>
-            <Step>
-              <img src={studentStep2Image} />
-              <p>
-                2. Inserta el código en el formulario de la derecha y escribe el nombre de usuario que quieras usar.
-              </p>
-            </Step>
-          </TabInfo>
-          <DashedLine />
-          <LoginForm>
-            <Input placeholder="Nombre de usuario" />
-            <Input placeholder="Código de ejercicio" />
-            <LoginButton onClick={this.onStudentLogin}>Entrar</LoginButton>
-          </LoginForm>
-        </TabContent>
-      );
-    }
   }
 }
 

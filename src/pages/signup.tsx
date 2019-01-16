@@ -1,8 +1,8 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {navigate} from 'gatsby';
-import {Global} from '@emotion/core';
-import SEO from '../components/SEO';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { navigate } from "gatsby";
+import { Global } from "@emotion/core";
+import SEO from "../components/SEO";
 import {
   baseStyles,
   colors,
@@ -10,64 +10,64 @@ import {
   Panel,
   Button,
   HorizontalRule,
-  Checkbox,
-} from '@bitbloq/ui';
-import Survey, {Question, QuestionType} from '../components/Survey';
-import logoBetaImage from '../images/logo-beta.svg';
+  Checkbox
+} from "@bitbloq/ui";
+import Survey, { Question, QuestionType } from "../components/Survey";
+import logoBetaImage from "../images/logo-beta.svg";
 
 const questions: Question[] = [
   {
-    id: 'isTeacher',
+    id: "isTeacher",
     type: QuestionType.SingleOption,
-    title: '¿Eres profesor?',
-    options: [{label: 'Sí', value: true}, {label: 'No', value: false}],
+    title: "¿Eres profesor?",
+    options: [{ label: "Sí", value: true }, { label: "No", value: false }]
   },
   {
-    id: 'courses',
+    id: "courses",
     type: QuestionType.MultipleOption,
-    title: '¿A qué cursos das clases?',
+    title: "¿A qué cursos das clases?",
     options: [
-      {label: 'Primaria', value: 'primary'},
-      {label: 'Secundaria', value: 'secondary'},
-      {label: 'Universidad', value: 'university'},
+      { label: "Primaria", value: "primary" },
+      { label: "Secundaria", value: "secondary" },
+      { label: "Universidad", value: "university" }
     ],
     allowOther: true,
-    otherLabel: 'Otros (Especificar)',
-    otherPlaceholder: 'Respuesta',
+    otherLabel: "Otros (Especificar)",
+    otherPlaceholder: "Respuesta"
   },
   {
-    id: 'useReason',
+    id: "useReason",
     type: QuestionType.SingleOption,
-    title: '¿Para qué quieres usar Bitbloq Beta?',
+    title: "¿Para qué quieres usar Bitbloq Beta?",
     options: [
-      {label: 'Probarlo', value: 'test'},
-      {label: 'Usarlo en clase', value: 'useInClass'},
-      {label: 'Ambas', value: 'both'},
-    ],
+      { label: "Probarlo", value: "test" },
+      { label: "Usarlo en clase", value: "useInClass" },
+      { label: "Ambas", value: "both" }
+    ]
   },
   {
-    id: 'howDidYouKnow',
+    id: "howDidYouKnow",
     type: QuestionType.SingleOption,
-    title: '¿Cómo has conocido la existencia de esta beta?',
+    title: "¿Cómo has conocido la existencia de esta beta?",
     options: [
-      {label: 'Alguien te lo ha contado', value: 'someoneTold'},
-      {label: 'Lo has visto en las redes sociales', value: 'socialNetworks'},
-      {label: 'Te hemos avisado por correo electrónico', value: 'email'},
-    ],
+      { label: "Alguien te lo ha contado", value: "someoneTold" },
+      { label: "Lo has visto en las redes sociales", value: "socialNetworks" },
+      { label: "Te hemos avisado por correo electrónico", value: "email" }
+    ]
   },
   {
-    id: 'usedBefore',
+    id: "usedBefore",
     type: QuestionType.Text,
-    title: '¿Habías usado antes Bitbloq? ¿Durante cuanto tiempo?',
-    placeholder: 'Respuesta',
+    title: "¿Habías usado antes Bitbloq? ¿Durante cuanto tiempo?",
+    placeholder: "Respuesta"
   },
   {
-    id: 'worked3DBefore',
+    id: "worked3DBefore",
     type: QuestionType.Text,
     title:
-      '¿Has trabajado el diseño 3D alguna vez? ¿Qué plataformas de 3D has utilizado?',
-    placeholder: 'Respuesta',
-  },
+      "¿Has trabajado el diseño 3D alguna vez? ¿Qué plataformas de 3D has utilizado?",
+    placeholder: "Respuesta"
+  }
 ];
 
 interface UserField {
@@ -79,32 +79,32 @@ interface UserField {
 
 const userFields: UserField[] = [
   {
-    label: 'Nombre',
-    field: 'name',
-    placeholder: 'Pepe Pérez',
-    type: 'text',
+    label: "Nombre",
+    field: "name",
+    placeholder: "Pepe Pérez",
+    type: "text"
   },
   {
-    label: 'Correo electrónico',
-    field: 'email',
-    placeholder: 'pepe@perez.com',
-    type: 'email',
+    label: "Correo electrónico",
+    field: "email",
+    placeholder: "pepe@perez.com",
+    type: "email"
   },
   {
-    label: 'Contraseña',
-    field: 'password',
-    type: 'password',
+    label: "Contraseña",
+    field: "password",
+    type: "password"
   },
   {
-    label: 'Repetir contraseña',
-    field: 'repeatPassword',
-    type: 'password',
-  },
+    label: "Repetir contraseña",
+    field: "repeatPassword",
+    type: "password"
+  }
 ];
 
 enum SignupStep {
   Survey,
-  UserData,
+  UserData
 }
 
 interface UserData {
@@ -118,10 +118,10 @@ class SignupPageState {
   readonly currentStep: SignupStep = SignupStep.Survey;
   readonly surveyValues: object = {};
   readonly userData: UserData = {
-    name: '',
-    email: '',
-    password: '',
-    repeatPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    repeatPassword: ""
   };
   readonly receiveNews: boolean = false;
   readonly legalAge: boolean = false;
@@ -134,7 +134,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
   wrapRef = React.createRef();
 
   componentDidUpdate(prevProps, prevState: SignupPageState) {
-    const {currentStep} = this.state;
+    const { currentStep } = this.state;
     if (currentStep !== prevState.currentStep && this.wrapRef.current) {
       this.wrapRef.current.scrollIntoView();
     }
@@ -143,8 +143,8 @@ class SignupPage extends React.Component<any, SignupPageState> {
   onCreateAccount = () => {};
 
   canCreateAccount() {
-    const {userData, receiveNews, legalAge, acceptTerms} = this.state;
-    const {name, email, password, repeatPassword} = userData;
+    const { userData, receiveNews, legalAge, acceptTerms } = this.state;
+    const { name, email, password, repeatPassword } = userData;
 
     if (!name || !email || !password || !legalAge || !acceptTerms) {
       return false;
@@ -158,7 +158,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
   }
 
   renderSurveyStep() {
-    const {surveyValues} = this.state;
+    const { surveyValues } = this.state;
 
     return (
       <StepContent>
@@ -172,15 +172,16 @@ class SignupPage extends React.Component<any, SignupPageState> {
         <Survey
           questions={questions}
           values={surveyValues}
-          onChange={values => this.setState({surveyValues: values})}
+          onChange={values => this.setState({ surveyValues: values })}
         />
         <Buttons>
-          <Button secondary onClick={() => navigate('/')}>
+          <Button secondary onClick={() => navigate("/")}>
             Cancelar
           </Button>
           <Button
             tertiary
-            onClick={() => this.setState({currentStep: SignupStep.UserData})}>
+            onClick={() => this.setState({ currentStep: SignupStep.UserData })}
+          >
             Siguiente
           </Button>
         </Buttons>
@@ -189,7 +190,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
   }
 
   renderUserDataStep() {
-    const {userData, receiveNews, legalAge, acceptTerms} = this.state;
+    const { userData, receiveNews, legalAge, acceptTerms } = this.state;
 
     return (
       <StepContent>
@@ -204,23 +205,27 @@ class SignupPage extends React.Component<any, SignupPageState> {
               value={userData[field.field]}
               onChange={e =>
                 this.setState({
-                  userData: {...userData, [field.field]: e.target.value},
+                  userData: { ...userData, [field.field]: e.target.value }
                 })
               }
             />
           </FormGroup>
         ))}
-        <CheckOption onClick={() => this.setState({receiveNews: !receiveNews})}>
+        <CheckOption
+          onClick={() => this.setState({ receiveNews: !receiveNews })}
+        >
           <Checkbox checked={receiveNews} />
           <span>
             Acepto recibir noticias y novedades en mi correo electrónico.
           </span>
         </CheckOption>
-        <CheckOption onClick={() => this.setState({legalAge: !legalAge})}>
+        <CheckOption onClick={() => this.setState({ legalAge: !legalAge })}>
           <Checkbox checked={legalAge} />
           <span>Soy mayor de edad.</span>
         </CheckOption>
-        <CheckOption onClick={() => this.setState({acceptTerms: !acceptTerms})}>
+        <CheckOption
+          onClick={() => this.setState({ acceptTerms: !acceptTerms })}
+        >
           <Checkbox checked={acceptTerms} />
           <span>
             He leido y acepto la <a href="#">política de privacidad.</a>
@@ -229,12 +234,14 @@ class SignupPage extends React.Component<any, SignupPageState> {
         <Buttons>
           <Button
             tertiary
-            onClick={() => this.setState({currentStep: SignupStep.Survey})}>
+            onClick={() => this.setState({ currentStep: SignupStep.Survey })}
+          >
             Volver
           </Button>
           <Button
             onClick={this.onCreateAccount}
-            disabled={!this.canCreateAccount()}>
+            disabled={!this.canCreateAccount()}
+          >
             Crear cuenta
           </Button>
         </Buttons>
@@ -243,7 +250,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
   }
 
   render() {
-    const {currentStep} = this.state;
+    const { currentStep } = this.state;
 
     return (
       <>
