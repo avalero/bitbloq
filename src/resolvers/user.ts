@@ -56,7 +56,7 @@ const userResolver = {
         '/activate/' +
         token;
       console.log(message);
-      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       return token;
     },
 
