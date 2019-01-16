@@ -203,6 +203,72 @@ const config = {
       }),
     },
     {
+      name: 'TextObject',
+      label: 'object-type-text-object',
+      icon: <Icon name="text" />,
+      parameters: () => [
+        {
+          name: 'text',
+          label: 'param-text',
+          type: 'string',
+        },
+        {
+          name: 'size',
+          label: 'param-size',
+          type: 'integer',
+          unit: '',
+        },
+        {
+          name: 'thickness',
+          label: 'param-thickness',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'font',
+          label: 'param-font',
+          type: 'select',
+          options: [
+            {
+              labelId: 'gentilis_regular',
+              value: 'gentilis_regular',
+            },
+            {
+              labelId: 'gentilis_bold',
+              value: 'gentilis_bold',
+            },
+            {
+              labelId: 'helvetiker_regular',
+              value: 'helvetiker_regular',
+            },
+            {
+              labelId: 'helvetiker_bold',
+              value: 'helvetiker_bold',
+            },
+            {
+              labelId: 'optimer_regular',
+              value: 'optimer_regular',
+            },
+            {
+              labelId: 'optimer_bold',
+              value: 'optimer_bold',
+            },
+          ],
+        },
+      ],
+      create: () => ({
+        id: uuid(),
+        type: 'TextObject',
+        parameters: {
+          text: 'Hello',
+          size: 10,
+          thickness: 5,
+          font: 'gentilis_regular',
+        },
+        operations: [],
+      }),
+    },
+    {
       name: 'Union',
       label: 'object-type-union',
       icon: <Icon name="union" />,

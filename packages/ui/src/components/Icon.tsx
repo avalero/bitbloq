@@ -22,6 +22,7 @@ import Pencil from './icons/Pencil'
 import Perspective from './icons/Perspective'
 import Plus from './icons/Plus'
 import Prism from './icons/Prism'
+import Text from './icons/Text'
 import Pyramid from './icons/Pyramid'
 import Publish from './icons/Publish'
 import Redo from './icons/Redo'
@@ -92,6 +93,8 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <Plus />;
     case 'prism':
       return <Prism />;
+    case 'text':
+      return <Text />;
     case 'pyramid':
       return <Pyramid />;
     case 'publish':

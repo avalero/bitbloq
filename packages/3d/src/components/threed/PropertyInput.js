@@ -1,14 +1,15 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import {css} from '@emotion/core';
+import { css } from '@emotion/core';
 import {
   Checkbox,
   ColorPicker,
   NumberInput,
+  Input,
   Select,
   Translate,
 } from '@bitbloq/ui';
-import {STLLoader} from '@bitbloq/lib3d';
+import { STLLoader } from '@bitbloq/lib3d';
 
 const FormGroup = styled.div`
   margin-bottom: 10px;
@@ -33,7 +34,7 @@ const StyledSelect = styled(Select)`
   flex: 1;
 `;
 
-const IntegerProperty = ({label, value, onChange, onFocus, onBlur, unit}) => (
+const IntegerProperty = ({ label, value, onChange, onFocus, onBlur, unit }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <NumberInput
@@ -46,56 +47,23 @@ const IntegerProperty = ({label, value, onChange, onFocus, onBlur, unit}) => (
   </FormGroup>
 );
 
-// const FileProperty = ({ onChange }) => (
-//   <FormGroup>
-//     <input
-//       type="file"
-//       onChange={e => {
-//         debugger;
-//         //console.log(e.target.files[0].name);
-//         const file = e.target.files[0];
-//         if (file.type.match('model/x.stl-binary')) {
-//           const reader = new FileReader();
+const StringProperty = ({ label, value, onChange }) => (
+  <FormGroup>
+    <Translate>{t => <label>{t(label)}</label>}</Translate>
+    <Input value={value} onChange={e => onChange(e.target.value)} />
+  </FormGroup>
+);
 
-//           reader.onload = e => {
-//             const blob = reader.result;
-//             // const geom = STLLoader.loadBinaryStl(blob);
-//             // const bufferGeometry = THREE.BufferGeometry().fromGeometry(geom);
-//             onChange(blob);
-//           };
-//           reader.readAsArrayBuffer(file);
-//         } else if (file.type.match('model/x.stl-ascii')) {
-//           const reader = new FileReader();
-
-//           reader.onload = e => {
-//             const blob = reader.result;
-//             const geom = STLLoader.loadBinaryStl(blob);
-//             const bufferGeometry = THREE.BufferGeometry().fromGeometry(geom);
-//             onChange(bufferGeometry);
-//           };
-//           reader.readAsArrayBuffer(file);
-//         } else {
-//           throw 'Error: Not recognized file type';
-//         }
-//       }}
-//       id="stlFile"
-//       name="stlFile"
-//       accept="model/stl, model/x.stl-binary, model/x.stl-ascii"
-//     />
-//   </FormGroup>
-// );
-
-const FileProperty = ({onChange}) => (
+const FileProperty = ({ onChange }) => (
   <FormGroup>
     <input
       type="file"
       onChange={e => {
-        //console.log(e.target.files[0].name);
         const file = e.target.files[0];
         const reader = new FileReader();
         reader.onload = e => {
           const buffer = reader.result;
-          onChange({buffer, filetype: file.type});
+          onChange({ buffer, filetype: file.type });
         };
 
         reader.readAsArrayBuffer(file);
@@ -125,7 +93,7 @@ const SelectProperty = ({
             ...o,
             label: o.labelId ? t(o.labelId) : o.label,
           }))}
-          selectConfig={{isSearchable: false}}
+          selectConfig={{ isSearchable: false }}
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}
@@ -135,14 +103,14 @@ const SelectProperty = ({
   </Translate>
 );
 
-const BooleanProperty = ({label, value, onChange}) => (
+const BooleanProperty = ({ label, value, onChange }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <Checkbox checked={value} onChange={onChange} />
   </FormGroup>
 );
 
-const ColorProperty = ({label, value, onChange}) => (
+const ColorProperty = ({ label, value, onChange }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <ColorPickerWrap>
@@ -151,7 +119,7 @@ const ColorProperty = ({label, value, onChange}) => (
   </FormGroup>
 );
 
-const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
+const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
   switch (parameter.type) {
     case 'integer':
       return (
@@ -162,6 +130,14 @@ const PropertyInput = ({parameter, value, onChange, onFocus, onBlur}) => {
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}
+        />
+      );
+    case 'string':
+      return (
+        <StringProperty
+          label={parameter.label}
+          value={value}
+          onChange={onChange}
         />
       );
     case 'select':

@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-10 10:26:43
+ * Last modified  : 2019-01-16 11:08:36
  */
 
 import cloneDeep from 'lodash.clonedeep';
@@ -89,23 +89,28 @@ export default class PrimitiveObject extends Object3D {
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
     this.meshPromise = new Promise(async (resolve, reject) => {
-      if (this.meshUpdateRequired) {
-        const geometry: THREE.Geometry = this.getGeometry();
-        this.mesh = new THREE.Mesh(geometry);
-        this._meshUpdateRequired = false;
-        this.applyViewOptions();
-        await this.applyOperationsAsync();
-      }
+      try {
+        if (this.meshUpdateRequired) {
+          const geometry: THREE.Geometry = this.getGeometry();
+          this.mesh = new THREE.Mesh(geometry);
+          this._meshUpdateRequired = false;
+          this.applyViewOptions();
+          await this.applyOperationsAsync();
+        }
 
-      if (this.pendingOperation) {
-        await this.applyOperationsAsync();
-      }
+        if (this.pendingOperation) {
+          await this.applyOperationsAsync();
+        }
 
-      if (this.viewOptionsUpdateRequired) {
-        this.applyViewOptions();
-      }
+        if (this.viewOptionsUpdateRequired) {
+          this.applyViewOptions();
+        }
 
-      resolve(this.mesh);
+        resolve(this.mesh);
+      } catch (e) {
+        reject(e);
+        throw new Error(`Cannot compute Mesh: ${e}`);
+      }
     });
     return this.meshPromise as Promise<THREE.Mesh>;
   }

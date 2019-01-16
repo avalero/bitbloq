@@ -1,9 +1,9 @@
 import React from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import {Spring} from 'react-spring';
-import {DragDropContext} from 'react-beautiful-dnd';
+import { css } from '@emotion/core';
+import { Spring } from 'react-spring';
+import { DragDropContext } from 'react-beautiful-dnd';
 import {
   updateObject,
   updateObjectParameter,
@@ -21,11 +21,11 @@ import {
   ungroup,
   convertToGroup,
 } from '../../actions/threed';
-import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import {colors} from '../../base-styles';
+import { getObjects, getSelectedObjects } from '../../reducers/threed/';
+import { colors } from '../../base-styles';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
-import {DropDown, Icon, Input, Tooltip, withTranslate} from '@bitbloq/ui';
+import { DropDown, Icon, Input, Tooltip, withTranslate } from '@bitbloq/ui';
 import config from '../../config/threed';
 
 const Wrap = styled.div`
@@ -235,14 +235,14 @@ class PropertiesPanel extends React.Component {
   };
 
   onDragStart = () => {
-    this.setState({draggingOperations: true});
+    this.setState({ draggingOperations: true });
   };
 
   onDragEnd = (result, object) => {
-    const {destination, source, draggableId} = result;
-    const operation = object.operations.find(({id}) => id === draggableId);
+    const { destination, source, draggableId } = result;
+    const operation = object.operations.find(({ id }) => id === draggableId);
 
-    this.setState({draggingOperations: false});
+    this.setState({ draggingOperations: false });
 
     if (!destination || !operation) return;
 
@@ -255,31 +255,31 @@ class PropertiesPanel extends React.Component {
   };
 
   onRenameClick = () => {
-    this.setState({editingName: true});
+    this.setState({ editingName: true });
   };
 
   onDeleteClick = () => {
-    const {object, deleteObject} = this.props;
+    const { object, deleteObject } = this.props;
     deleteObject(object);
   };
 
   onDuplicateClick = () => {
-    const {object, duplicateObject} = this.props;
+    const { object, duplicateObject } = this.props;
     duplicateObject(object);
   };
 
   onUngroupClick = () => {
-    const {object, ungroup} = this.props;
+    const { object, ungroup } = this.props;
     ungroup(object);
   };
 
   onConvertToGroupClick = () => {
-    const {object, convertToGroup} = this.props;
+    const { object, convertToGroup } = this.props;
     convertToGroup(object);
   };
 
   onUndoClick = () => {
-    const {object, undoComposition} = this.props;
+    const { object, undoComposition } = this.props;
     undoComposition(object);
   };
 
@@ -292,8 +292,8 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const {draggingOperations, contextMenuOpen, editingName} = this.state;
-    const {t} = this.props;
+    const { draggingOperations, contextMenuOpen, editingName } = this.state;
+    const { t } = this.props;
 
     const {
       setActiveOperation,
@@ -301,13 +301,13 @@ class PropertiesPanel extends React.Component {
       advancedMode,
       isTopObject,
     } = this.props;
-    const {color} = object.viewOptions;
+    const { color } = object.viewOptions;
 
     const typeConfig =
       config.objectTypes.find(s => s.name === object.type) || {};
-    const {parameters: baseParameters, icon} = typeConfig;
+    const { parameters: baseParameters, icon } = typeConfig;
 
-    const {canUndo, undoLabel, canUngroup, canConverToGroup} = typeConfig;
+    const { canUndo, undoLabel, canUngroup, canConverToGroup } = typeConfig;
 
     const parameters = [...baseParameters(object)];
 
@@ -335,7 +335,8 @@ class PropertiesPanel extends React.Component {
     return (
       <DragDropContext
         onDragStart={this.onDragStart}
-        onDragEnd={result => this.onDragEnd(result, object)}>
+        onDragEnd={result => this.onDragEnd(result, object)}
+      >
         <Header>
           <HeaderIcon>{icon}</HeaderIcon>
           {editingName && (
@@ -344,11 +345,11 @@ class PropertiesPanel extends React.Component {
               innerRef={this.nameInputRef}
               value={object.viewOptions.name}
               onChange={e => this.onObjectNameChange(object, e.target.value)}
-              onBlur={() => this.setState({editingName: false})}
+              onBlur={() => this.setState({ editingName: false })}
             />
           )}
           {!editingName && (
-            <ObjectName onClick={() => this.setState({editingName: true})}>
+            <ObjectName onClick={() => this.setState({ editingName: true })}>
               {object.viewOptions.name} <Icon name="pencil" />
             </ObjectName>
           )}
@@ -415,7 +416,8 @@ class PropertiesPanel extends React.Component {
                     <OperationButton
                       {...tooltipProps}
                       color={operation.color}
-                      onClick={() => this.onAddOperation(object, operation)}>
+                      onClick={() => this.onAddOperation(object, operation)}
+                    >
                       {operation.icon}
                     </OperationButton>
                   )}
@@ -449,10 +451,10 @@ class PropertiesPanel extends React.Component {
   }
 
   render() {
-    const {object} = this.props;
+    const { object } = this.props;
 
     return (
-      <Spring from={{width: 0}} to={{width: object ? 310 : 0}}>
+      <Spring from={{ width: 0 }} to={{ width: object ? 310 : 0 }}>
         {style => (
           <Wrap style={style}>
             <Container>{object && this.renderObjectPanel(object)}</Container>
@@ -463,7 +465,7 @@ class PropertiesPanel extends React.Component {
   }
 }
 
-const mapStateToProps = ({threed}) => {
+const mapStateToProps = ({ threed }) => {
   const topObjects = threed.scene.objects;
   const selectedObjects = getSelectedObjects(threed) || [];
   const object = selectedObjects.length === 1 ? selectedObjects[0] : null;
@@ -494,7 +496,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(removeOperation(object, operation)),
   reorderOperation: (object, operation, from, to) =>
     dispatch(reorderOperation(object, operation, from, to)),
-  setActiveOperation: ({object, type, axis, relative}) =>
+  setActiveOperation: ({ object, type, axis, relative }) =>
     dispatch(setActiveOperation(object, type, axis, relative)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
 });
