@@ -8,13 +8,13 @@ const submissionResolver = {
   Mutation: {
     //registrar nueva entrega: alumno que se une al aula
     async createSubmission(root: any, args: any, context: any) {
-      const exFather = await ExerciseModel.findOne({
+      const exercise = await ExerciseModel.findOne({
         code: args.exercise_code,
         acceptSubmissions: true,
       });
-      if (!exFather)
+      if (!exercise)
         throw new Error('Error creating submission, check your exercise code');
-      if (!exFather.acceptSubmissions) {
+      if (!exercise.acceptSubmissions) {
         throw new Error('This exercise doesnt accept submissions now');
       }
       if (await SubmissionModel.findOne({ student_nick: args.student_nick, exercise: exFather._id })) {
@@ -22,16 +22,16 @@ const submissionResolver = {
       }
       const submission_new = new SubmissionModel({
         id: ObjectId,
-        exercise: exFather._id,
+        exercise: exercise._id,
         student_nick: args.student_nick,
-        content: exFather.content,
-        teacher: exFather.user,
-        title: exFather.title,
+        content: exercise.content,
+        teacher: exercise.user,
+        title: exercise.title,
       });
       const newSub = await SubmissionModel.create(submission_new);
       const token: String = jsonwebtoken.sign(
         {
-          exercise_id: exFather._id,
+          exercise_id: exercise._id,
           submission_id: newSub._id,
           student_nick: args.student_nick,
         },
@@ -46,7 +46,8 @@ const submissionResolver = {
       return {
         token: token,
         submission_id: newSub._id,
-        exercise_id: exFather._id,
+        exercise_id: exercise._id,
+        type: exercise.type
       };
     },
 
@@ -87,16 +88,16 @@ const submissionResolver = {
       if (!existSubmission) {
         throw new Error('Error finishing submission, it doesnt exist');
       }
-      const exFather = await ExerciseModel.findOne({
+      const exercise = await ExerciseModel.findOne({
         _id: existSubmission.exercise,
       });
       //check if the exercise accepts submissions
-      if (!exFather.acceptSubmissions) {
+      if (!exercise.acceptSubmissions) {
         throw new Error('This exercise doesnt accept submissions now');
       }
       //check if the submission is in time
       const timeNow: Date = new Date();
-      if (timeNow > exFather.expireDate) {
+      if (timeNow > exercise.expireDate) {
         throw new Error('Your submission is late');
       }
       return SubmissionModel.findOneAndUpdate(

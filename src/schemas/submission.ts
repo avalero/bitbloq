@@ -35,6 +35,7 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       createdAt: Date
       updatedAt: Date
     }
+
     input SubmissionIn {
       title: String
       finished: Boolean
@@ -45,6 +46,7 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       token: String
       submission_id: ObjectID
       exercise_id: ObjectID
+      type: String
     }
   `,
 });
