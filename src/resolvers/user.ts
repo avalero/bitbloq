@@ -47,12 +47,16 @@ const userResolver = {
         signUpSurvey: args.input.signUpSurvey,
       });
       console.log(token);
-      const newUser= await UserModel.create(user_new);
-      // mensaje del email: Y el link debe mandar a: ${url_del_servidor}/activate/${token_de_signup}
-      //const message: String = process.env.SERVER_URL +process.env.PORT + '/activate/' +token;
-      const message: String = 'http://localhost:4000' + '/activate/' + token;
+      const newUser = await UserModel.create(user_new);
+      // mensaje del email: Y el link debe mandar a: ${url_del_servidor}/activate/${token_de_signup} -> http://localhost:4000/activate/token
+      const message: String =
+        'Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq: ' +
+        process.env.SERVER_URL +
+        process.env.PORT +
+        '/activate/' +
+        token;
       console.log(message);
-      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       return token;
     },
 
@@ -107,7 +111,6 @@ const userResolver = {
           process.env.JWT_SECRET,
           { expiresIn: '1h' },
         );
-        console.log('llega a entrar en el if');
         await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
           {

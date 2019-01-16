@@ -11,7 +11,7 @@ const exerciseResolver = {
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const docFound = await DocumentModel.findOne({
-        _id: args.input.document_father,
+        _id: args.input.document,
         user: context.user.user_id,
       });
       if (!docFound)
@@ -24,9 +24,10 @@ const exerciseResolver = {
       const exercise_new = new ExerciseModel({
         id: ObjectId,
         user: context.user.user_id,
-        document_father: docFound._id,
+        document: docFound._id,
         title: args.input.title,
         code: newCode,
+        type: docFound.type,
         acceptSubmissions: args.input.acceptSubmissions,
         content: docFound.content,
         expireDate: args.input.expireDate,
@@ -91,11 +92,11 @@ const exerciseResolver = {
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const documentFound = await DocumentModel.findOne({
-        _id: args.document_father,
+        _id: args.document,
         user: context.user.user_id,
       });
       if (!documentFound) throw new Error('document doesnt exist');
-      return ExerciseModel.find({ document_father: documentFound._id });
+      return ExerciseModel.find({ document: documentFound._id });
     },
 
     async exerciseByID(root: any, args: any, context: any) {

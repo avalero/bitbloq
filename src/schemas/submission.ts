@@ -12,11 +12,11 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
 
     type Query {
       submissions: [Submission]
-      submissionsByExercise(exercise_father: String!): [Submission]
+      submissionsByExercise(exercise: String!): [Submission]
       submissionByID(id: ObjectID!): Submission
     }
     type Mutation {
-      createSubmission(exercise_code: String!, student_nick: String!): String
+      createSubmission(exercise_code: String!, student_nick: String!): createOut
       updateSubmission(input: SubmissionIn): Submission
       finishSubmission(comment: String): Submission
       deleteSubmission: Submission
@@ -25,7 +25,7 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
     type Submission {
       id: ObjectID
       title: String
-      exercise_father: ObjectID
+      exercise: ObjectID
       teacher: ObjectID
       student_nick: String
       content: String
@@ -40,6 +40,11 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       finished: Boolean
       comment: String
       student_nick: String
+    }
+    type createOut {
+      token: String
+      submission_id: ObjectID
+      exercise_id: ObjectID
     }
   `,
 });

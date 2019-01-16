@@ -10,6 +10,7 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
     scalar Date
     scalar JSON
     scalar ObjectID
+    scalar EmailAdress
 
     type Query {
       me: User
@@ -18,14 +19,14 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
     type Mutation {
       activateAccount(token: String): String
       signUpUser(input: UserIn!): String
-      login(email: String!, password: String!): String
+      login(email: EmailAdress!, password: String!): String
       deleteUser(id: ObjectID!): User
       updateUser(id: ObjectID!, input: UserIn!): User
     }
 
     type User {
       id: ObjectID
-      email: String
+      email: EmailAdress
       password: String
       name: String
       center: String
@@ -39,7 +40,7 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
     }
 
     input UserIn {
-      email: String
+      email: EmailAdress
       password: String
       name: String
       center: String

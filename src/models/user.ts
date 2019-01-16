@@ -12,7 +12,7 @@ interface IUser extends Document {
   signUpToken?: string;
   authToken?: string;
   notifications?: Boolean;
-  signUpSurvey?: JSON
+  signUpSurvey?: JSON;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -63,10 +63,9 @@ export const ContactSchema: Schema = new Schema({
     type: Date,
   },
 
-  signUpSurvey:{
-    type: JSON,
-  }
-
+  signUpSurvey: {
+    type: Schema.Types.Mixed,
+  },
 });
 
 ContactSchema.plugin(timestamps);

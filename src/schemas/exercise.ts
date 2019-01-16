@@ -12,7 +12,7 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
 
     type Query {
       exercises: [Exercise]
-      exercisesByDocument(document_father: ObjectID!): [Exercise]
+      exercisesByDocument(document: ObjectID!): [Exercise]
       exerciseByID(id: ObjectID!): Exercise
     }
     type Mutation {
@@ -24,11 +24,12 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
 
     type Exercise {
       id: ObjectID
-      document_father: ObjectID
+      document: ObjectID
       user: ObjectID
       title: String
       content: String
       code: String
+      type: String
       acceptSubmissions: Boolean
       versions: [String]
       expireDate: Date
@@ -37,7 +38,7 @@ const exerciseSchema: GraphQLSchema = makeExecutableSchema({
     }
 
     input ExerciseIn {
-      document_father: ObjectID
+      document: ObjectID
       title: String
       code: String
       acceptSubmissions: Boolean

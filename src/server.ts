@@ -45,5 +45,7 @@ const app = new Koa();
 server.applyMiddleware({ app });
 
 app.listen(PORT, () =>
-  console.log('🚀 Server ready at ' + process.env.SERVER_URL + PORT + '/graphql'),
+  console.log(
+    '🚀 Server ready at ' + process.env.SERVER_URL + PORT + '/graphql',
+  ),
 );

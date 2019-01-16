@@ -1,4 +1,3 @@
-import { DocumentModelController } from '../controllers/document';
 import { AuthenticationError } from 'apollo-server-koa';
 import { DocumentModel } from '../models/document';
 
@@ -26,9 +25,9 @@ const uploadResolver = {
 
       // 3. Record the file upload in your DB.
       // const id = await recordFile( … )
-      DocumentModelController.updateDocument(documentFound._id, {
-        image: args.file,
-      });
+      // DocumentModelController.updateDocument(documentFound._id, {
+      //   image: args.file,
+      // });
 
       return { filename, mimetype, encoding };
     },
@@ -40,10 +39,10 @@ const uploadResolver = {
       if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const documentFound = await DocumentModel.findOne({
-        _id: args.document_father,
+        _id: args.document,
         user: context.user.id,
       });
-      DocumentModelController.getAllUploads(documentFound._id);
+      //DocumentModelController.getAllUploads(documentFound._id);
     },
   },
 };
