@@ -52,7 +52,7 @@ const userResolver = {
         '/activate/' +
         token;
       console.log(message);
-      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
