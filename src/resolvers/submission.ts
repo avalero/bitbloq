@@ -12,15 +12,13 @@ const submissionResolver = {
         code: args.exercise_code,
         acceptSubmissions: true,
       });
-      console.log(args);
-      console.log(exFather);
       if (!exFather)
         throw new Error('Error creating submission, check your exercise code');
       if (!exFather.acceptSubmissions) {
         throw new Error('This exercise doesnt accept submissions now');
       }
-      if (await SubmissionModel.findOne({ student_nick: args.student_nick })) {
-        throw new Error('This nick already exists, try another one');
+      if (await SubmissionModel.findOne({ student_nick: args.student_nick, exercise: exFather._id })) {
+        throw new Error('This nick already exists in this exercise, try another one');
       }
       const submission_new = new SubmissionModel({
         id: ObjectId,
@@ -126,12 +124,29 @@ const submissionResolver = {
   },
 
   Query: {
+    //Student and teacher querie:
+    async submissionByID(root: any, args: any, context: any) {
+      if (!context.user)
+        throw new AuthenticationError('You need to be logged in as a teacher or as a student');
+        
+      if (context.user.submission_id){ //Token de alumno
+        if(context.user.submission_id != args.id)
+          throw new Error('You only can ask for your token submission');
+        return SubmissionModel.findOne({ _id: context.user.submission_id });
+      } else if(context.user.user_id){ //token de profesor
+        if (context.user.signUp)
+          throw new Error('Problem with token, not auth token');
+        return SubmissionModel.findOne({ _id: args.id, teacher: context.user.user_id });
+      }
+    },
+
+    //teacher queries:
     async submissionsByExercise(root: any, args: any, context: any) {
-      if (!context.user.user_id)
-        throw new AuthenticationError(
-          'You need to be logged in. Only teachers',
-        );
-      if (context.user.signUp)
+      if (!context.user)
+        throw new AuthenticationError('You need to be logged in as a teacher');
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in as a teacher');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise,
@@ -140,20 +155,12 @@ const submissionResolver = {
       return SubmissionModel.find({ exercise: exerciseFound._id });
     },
 
-    async submissionByID(root: any, args: any, context: any) {
-      if (!context.user.user_id)
-        throw new AuthenticationError(
-          'You need to be logged in. Only teachers',
-        );
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
-      return SubmissionModel.findOne({ _id: args.id });
-    },
-
     submissions(root: any, args: any, context: any) {
-      if (!context.user.user_id)
-        throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      if (!context.user)
+        throw new AuthenticationError('You need to be logged in as a teacher');
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in as a teacher');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       return SubmissionModel.find({});
     },

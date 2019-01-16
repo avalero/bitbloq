@@ -90,4 +90,4 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       deleteSubmission: Submission
 
 La mutation createSumission devuelve un token de "login" para que el alumno realice el ejercicio, el ID de la submission creada (submission_id) y el ID del ejercio (exercise_id) al que pertenece. El token guarda el nick del alumno, el id del ejercio al que se refiere la entrega y el id de la propia entrega. Es necesario pasar el token para el resto de mutations de las entregas.
-Para ejecutar las queries sin embargo, hay que estar logueado como profesor.
+Para ejecutar las queries sin embargo, hay que estar logueado como profesor. En submissionByID puedes ser alumno o profesor para pedir tu propia submission.

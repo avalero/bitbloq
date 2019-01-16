@@ -16,7 +16,6 @@ const userResolver = {
     //public methods:
 
     async signUpUser(root: any, args: any) {
-      console.log(args);
       const contactFound = await UserModel.findOne({
         email: args.input.email,
       });
@@ -56,7 +55,7 @@ const userResolver = {
         '/activate/' +
         token;
       console.log(message);
-      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       return token;
     },
 
@@ -128,9 +127,11 @@ const userResolver = {
     },
 
     async deleteUser(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -146,9 +147,11 @@ const userResolver = {
     },
 
     async updateUser(root: any, args: any, context: any, input: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -164,9 +167,12 @@ const userResolver = {
 
   Query: {
     async me(root: any, args: any, context: any) {
-      console.log(context);
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
+        throw new Error('Problem with token, not auth token');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.user_id,
@@ -175,10 +181,11 @@ const userResolver = {
       return contactFound;
     },
     users(root: any, args: any, context: any) {
-      console.log(context);
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       return UserModel.find({});
     },

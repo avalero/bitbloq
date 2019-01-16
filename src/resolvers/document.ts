@@ -6,9 +6,11 @@ import { ObjectId } from 'bson';
 const documentResolver = {
   Mutation: {
     async createDocument(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const document_new = new DocumentModel({
         id: ObjectId,
@@ -24,17 +26,21 @@ const documentResolver = {
     },
 
     deleteDocument(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       return DocumentModel.deleteOne({ _id: args.id });
     },
 
     async updateDocument(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       const existDocument = await DocumentModel.findOne({ _id: args.id });
       if (existDocument) {
@@ -50,28 +56,41 @@ const documentResolver = {
   },
   Query: {
     async documents(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
+      
       return DocumentModel.find({});
     },
     async documentsByUser(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
       return DocumentModel.find({ user: context.user.user_id });
     },
     async documentByID(root: any, args: any, context: any) {
-      if (!context.user.user_id)
+      if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
+      else if(!context.user.user_id)
+        throw new AuthenticationError('You need to be logged in');
+      else if (context.user.signUp)
         throw new Error('Problem with token, not auth token');
-      return DocumentModel.findOne({
+      const doc= await DocumentModel.findOne({
         _id: args.id,
-        user: context.user.user_id,
       });
+      if(!doc){
+        throw new Error('Document does not exist');
+      }
+      if(doc.user!=context.user.user_id){
+        throw new Error('This ID does not belong to one of your documents');
+      }
+      return doc;
     },
   },
 };

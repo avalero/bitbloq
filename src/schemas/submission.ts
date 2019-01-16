@@ -11,9 +11,9 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
     scalar ObjectID
 
     type Query {
+      submissionByID(id: ObjectID!): Submission
       submissions: [Submission]
       submissionsByExercise(exercise: String!): [Submission]
-      submissionByID(id: ObjectID!): Submission
     }
     type Mutation {
       createSubmission(exercise_code: String!, student_nick: String!): createOut
