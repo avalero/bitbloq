@@ -8,8 +8,6 @@ const exerciseResolver = {
     async createExercise(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const docFound = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.user_id,
@@ -39,8 +37,6 @@ const exerciseResolver = {
     async changeSubmissionsState(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.user_id,
@@ -58,8 +54,6 @@ const exerciseResolver = {
     deleteExercise(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
 
       return ExerciseModel.deleteOne({ _id: args.id });
     },
@@ -67,8 +61,6 @@ const exerciseResolver = {
     async updateExercise(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.user_id,
@@ -89,8 +81,6 @@ const exerciseResolver = {
     async exercisesByDocument(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const documentFound = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.user_id,
@@ -102,16 +92,12 @@ const exerciseResolver = {
     async exerciseByID(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       return ExerciseModel.findOne({ _id: args.id });
     },
 
     exercises(root: any, args: any, context: any) {
       if (!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       return ExerciseModel.find({});
     },
   },

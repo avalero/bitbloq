@@ -24,15 +24,6 @@ const userResolver = {
       }
       //Store the password with a hash
       const hash: String = await bcrypt.hash(args.input.password, saltRounds);
-      const token: String = jsonwebtoken.sign(
-        {
-          email: args.input.email,
-          password: hash,
-          signUp: true,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '1h' },
-      );
       const user_new = new UserModel({
         id: ObjectID,
         email: args.input.email,
@@ -40,13 +31,19 @@ const userResolver = {
         name: args.input.name,
         center: args.input.center,
         active: false,
-        signUpToken: token,
         authToken: ' ',
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
       });
-      console.log(token);
       const newUser = await UserModel.create(user_new);
+      const token: String = jsonwebtoken.sign(
+        {
+          signUpUserID: newUser._id,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' },
+      );
+      console.log(token);
       // mensaje del email: Y el link debe mandar a: ${url_del_servidor}/activate/${token_de_signup} -> http://localhost:4000/activate/token
       const message: String =
         'Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq: ' +
@@ -56,6 +53,11 @@ const userResolver = {
         token;
       console.log(message);
       //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      await UserModel.findOneAndUpdate(
+        { _id: newUser._id },
+        { $set: { signUpToken: token } },
+        { new: true },
+      );
       return token;
     },
 
@@ -77,7 +79,6 @@ const userResolver = {
           {
             email: contactFound.email,
             user_id: contactFound._id,
-            signUp: false,
           },
           process.env.JWT_SECRET,
         );
@@ -98,14 +99,13 @@ const userResolver = {
         throw new Error('Error with sign up token, no token in args');
       const userInToken = await contextController.getDataInToken(args.token);
       const contactFound = await UserModel.findOne({
-        email: userInToken.email,
+        _id: userInToken.signUpUserID,
       });
-      if (userInToken.signUp && !contactFound.active) {
+      if (userInToken.signUpUserID && !contactFound.active) {
         var token: String = jsonwebtoken.sign(
           {
             email: contactFound.email,
             user_id: contactFound._id,
-            signUp: false,
           },
           process.env.JWT_SECRET,
           { expiresIn: '1h' },
@@ -131,8 +131,6 @@ const userResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
       });
@@ -151,8 +149,6 @@ const userResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
       });
@@ -171,8 +167,6 @@ const userResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.user_id,
@@ -185,8 +179,6 @@ const userResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       return UserModel.find({});
     },
   },

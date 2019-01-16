@@ -10,8 +10,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const document_new = new DocumentModel({
         id: ObjectId,
         user: context.user.user_id,
@@ -30,8 +28,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       return DocumentModel.deleteOne({ _id: args.id });
     },
 
@@ -40,8 +36,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const existDocument = await DocumentModel.findOne({ _id: args.id });
       if (existDocument) {
         return DocumentModel.findOneAndUpdate(
@@ -60,8 +54,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       
       return DocumentModel.find({});
     },
@@ -70,8 +62,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       return DocumentModel.find({ user: context.user.user_id });
     },
     async documentByID(root: any, args: any, context: any) {
@@ -79,8 +69,6 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const doc= await DocumentModel.findOne({
         _id: args.id,
       });

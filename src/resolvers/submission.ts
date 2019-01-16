@@ -134,8 +134,6 @@ const submissionResolver = {
           throw new Error('You only can ask for your token submission');
         return SubmissionModel.findOne({ _id: context.user.submission_id });
       } else if(context.user.user_id){ //token de profesor
-        if (context.user.signUp)
-          throw new Error('Problem with token, not auth token');
         return SubmissionModel.findOne({ _id: args.id, teacher: context.user.user_id });
       }
     },
@@ -146,8 +144,6 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in as a teacher');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in as a teacher');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise,
       });
@@ -160,8 +156,6 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in as a teacher');
       else if(!context.user.user_id)
         throw new AuthenticationError('You need to be logged in as a teacher');
-      else if (context.user.signUp)
-        throw new Error('Problem with token, not auth token');
       return SubmissionModel.find({});
     },
   },
