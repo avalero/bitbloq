@@ -3,6 +3,8 @@ import styled from "@emotion/styled";
 import { navigate } from "gatsby";
 import { Global } from "@emotion/core";
 import SEO from "../components/SEO";
+import { Mutation } from "react-apollo";
+import gql from "graphql-tag";
 import {
   baseStyles,
   colors,
@@ -14,6 +16,12 @@ import {
 } from "@bitbloq/ui";
 import Survey, { Question, QuestionType } from "../components/Survey";
 import logoBetaImage from "../images/logo-beta.svg";
+
+const SIGNUP_MUTATION = gql`
+  mutation Signup($user: UserIn!) {
+    signUpUser(input: $user)
+  }
+`;
 
 const questions: Question[] = [
   {
@@ -140,7 +148,9 @@ class SignupPage extends React.Component<any, SignupPageState> {
     }
   }
 
-  onCreateAccount = () => {};
+  onCreateAccount = () => {
+    const { userData, surveyValues } = this.state;
+  };
 
   canCreateAccount() {
     const { userData, receiveNews, legalAge, acceptTerms } = this.state;
@@ -190,7 +200,13 @@ class SignupPage extends React.Component<any, SignupPageState> {
   }
 
   renderUserDataStep() {
-    const { userData, receiveNews, legalAge, acceptTerms } = this.state;
+    const {
+      userData,
+      receiveNews,
+      legalAge,
+      acceptTerms,
+      surveyValues
+    } = this.state;
 
     return (
       <StepContent>
@@ -238,12 +254,30 @@ class SignupPage extends React.Component<any, SignupPageState> {
           >
             Volver
           </Button>
-          <Button
-            onClick={this.onCreateAccount}
-            disabled={!this.canCreateAccount()}
+          <Mutation
+            mutation={SIGNUP_MUTATION}
+            onCompleted={() => navigate("/")}
           >
-            Crear cuenta
-          </Button>
+            {(signUp, { loading }) => (
+              <Button
+                onClick={() =>
+                  signUp({
+                    variables: {
+                      user: {
+                        email: userData.email,
+                        password: userData.password,
+                        notifications: receiveNews,
+                        signUpSurvey: surveyValues
+                      }
+                    }
+                  })
+                }
+                disabled={!this.canCreateAccount() || loading}
+              >
+                Crear cuenta
+              </Button>
+            )}
+          </Mutation>
         </Buttons>
       </StepContent>
     );

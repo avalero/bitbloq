@@ -1,19 +1,20 @@
-import * as React from 'react';
-import NoSSR from 'react-no-ssr';
-import {Router} from '@reach/router';
-import {Global} from '@emotion/core';
-import Documents from '../components/Documents';
-import Document from '../components/Document';
-import ThreeDEditor from '../components/ThreeDEditor';
-import ThreeDExercise from '../components/ThreeDExercise';
-import PrivateRoute from '../components/PrivateRoute';
-import {TranslateProvider, baseStyles} from '@bitbloq/ui';
-import SEO from '../components/SEO';
+import * as React from "react";
+import NoSSR from "react-no-ssr";
+import { Router } from "@reach/router";
+import { Global } from "@emotion/core";
+import Activate from "../components/Activate";
+import Documents from "../components/Documents";
+import Document from "../components/Document";
+import ThreeDEditor from "../components/ThreeDEditor";
+import ThreeDExercise from "../components/ThreeDExercise";
+import PrivateRoute from "../components/PrivateRoute";
+import { TranslateProvider, baseStyles } from "@bitbloq/ui";
+import SEO from "../components/SEO";
 
-import enMessages from '../messages/en.json';
+import enMessages from "../messages/en.json";
 
 const messagesFiles = {
-  'en': enMessages
+  en: enMessages
 };
 
 const AppPage = () => (
@@ -26,7 +27,11 @@ const AppPage = () => (
           <PrivateRoute path="/app" component={Documents} />
           <PrivateRoute path="/app/document/:id" component={Document} />
           <PrivateRoute path="/app/document/3d/:id" component={ThreeDEditor} />
-          <PrivateRoute path="/app/exercise/3d/:id" component={ThreeDExercise} />
+          <PrivateRoute
+            path="/app/exercise/3d/:id"
+            component={ThreeDExercise}
+          />
+          <PrivateRoute path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>
     </NoSSR>
