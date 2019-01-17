@@ -13,6 +13,7 @@ import Panel from './components/Panel';
 import HorizontalRule from './components/HorizontalRule';
 import TextArea from './components/TextArea';
 import Option from './components/Option';
+import Modal from './components/Modal';
 import TranslateProvider, {
   Translate,
   withTranslate,
@@ -38,6 +39,7 @@ export {
   Option,
   TranslateProvider,
   Translate,
+  Modal,
   withTranslate,
   baseStyles,
   colors,

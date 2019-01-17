@@ -43,10 +43,17 @@ type ChangeHandler = (cheked: boolean) => void;
 
 export interface CheckboxProps {
   className: string;
+
+  /** If the checkbox is checked or not */
   checked: boolean;
+
+  /** Called everytime the checkbox is changed */
   onChange: ChangeHandler;
 }
 
+/**
+ * Component that displays a checkbox component
+ */
 export default class Checkbox extends React.Component<CheckboxProps> {
   render() {
     const {className, checked, onChange} = this.props;

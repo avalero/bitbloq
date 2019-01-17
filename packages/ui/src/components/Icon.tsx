@@ -42,9 +42,13 @@ import Ungroup from './icons/Ungroup'
 import Union from './icons/Union'
 
 export interface IconProps {
+  /** Name of the icon to display */
   name: string;
 }
 
+/**
+ * Icon component that renders an svg from a catalog of icons
+ */
 const Icon: React.SFC<IconProps> = ({name}) => {
   switch(name) {
     case 'angle':
