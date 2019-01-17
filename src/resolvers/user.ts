@@ -44,13 +44,13 @@ const userResolver = {
         { expiresIn: '1h' },
       );
       console.log(token);
-      // mensaje del email: Y el link debe mandar a: ${url_del_servidor}/activate/${token_de_signup} -> http://localhost:4000/activate/token
+
       const message: String =
-        'Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq: ' +
-        process.env.SERVER_URL +
-        process.env.PORT +
-        '/activate/' +
-        token;
+        `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
+        <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
+          pulse aquí
+        </a>
+      `;
       console.log(message);
       await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(

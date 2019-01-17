@@ -17,7 +17,7 @@ const submissionResolver = {
       if (!exercise.acceptSubmissions) {
         throw new Error('This exercise doesnt accept submissions now');
       }
-      if (await SubmissionModel.findOne({ student_nick: args.student_nick, exercise: exFather._id })) {
+      if (await SubmissionModel.findOne({ student_nick: args.student_nick, exercise: exercise._id })) {
         throw new Error('This nick already exists in this exercise, try another one');
       }
       const submission_new = new SubmissionModel({
