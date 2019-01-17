@@ -1,31 +1,14 @@
 import React from "react";
-import uuid from 'uuid/v1';
 
-const SvgPrism = props => {
-  const gradientId = uuid();
-  return (
-    <svg viewBox="0 0 24 26" width="1em" height="1em" {...props}>
-      <defs>
-        <linearGradient id={gradientId} x1="0%" y1="56.091%" y2="85.849%">
-          <stop offset="0%" stopColor="#4DA6FF" />
-          <stop offset="100%" stopColor="#4DC3FF" />
-        </linearGradient>
-      </defs>
-      <g fill="none" fillRule="evenodd">
-        <path
-          fill={`url(#${gradientId})`}
-          d="M20.284 3.39L10.142 0v24.718l10.142-3.39V10.17z"
-          transform="translate(1.818 .364)"
-        />
-        <path fill="#4DC3FF" d="M11.96.364L1.818 3.754v17.938l10.142 3.39z" />
-        <path
-          fill="#4DE1FF"
-          d="M22.102 10.533v-6.78L11.96.363 1.818 3.754v6.78l10.142 3.39z"
-        />
-      </g>
-    </svg>
-  );
-};
+const SvgText = props => (
+  <svg width="1em" height="1em" viewBox="0 0 24 26" {...props}>
+    <path
+      fill="#4DC3FF"
+      fillRule="evenodd"
+      d="M4.077 2.8a.478.478 0 0 0-.477.478V7.95c0 .264.214.478.477.478h1.298c.23 0 .428-.164.47-.39l.362-1.944h3.969v14.064h-.528a.48.48 0 0 0-.203.045l-2.077.973a.477.477 0 0 0-.275.433v.713c0 .264.214.478.478.478h9.15a.478.478 0 0 0 .478-.478v-.713a.477.477 0 0 0-.275-.433l-2.077-.973a.479.479 0 0 0-.202-.045h-.529V6.094h3.97l.361 1.943c.042.227.24.39.47.39h1.298a.478.478 0 0 0 .477-.477V3.278a.478.478 0 0 0-.477-.478H4.077z"
+    />
+  </svg>
+);
 
-export default SvgPrism;
+export default SvgText;
 

@@ -192,6 +192,8 @@ export default class Scene {
       return this.objectsGroup;
     }
 
+    this.testPoint();
+
     this.objectsGroup = new THREE.Group();
 
     const meshes: THREE.Object3D[] = await Promise.all(
@@ -498,6 +500,10 @@ export default class Scene {
     }
   }
 
+  public testPoint(): void {
+    const a = 2;
+  }
+
   private addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
       throw Error('Object already in Scene');
@@ -646,17 +652,12 @@ export default class Scene {
         .getGroup()
         .unGroup();
 
-      // //add objects to ObjectCollector
-      // objects.forEach(object => {
-      //   this.objectCollector.push(object);
-      // });
 
       const group: ObjectsGroup = new ObjectsGroup(objects);
 
       // add new group to scene
       this.addExistingObject(group);
-      // this.objectCollector.push(group);
-      // this.objectsInScene.push(group);
+
 
       // remove original object in repetion from ObjectCollector
       const original = rep.getOriginal();

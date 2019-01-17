@@ -6,9 +6,16 @@ import RepetitionObject, {
   IRepetitionObjectJSON,
 } from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
+import * as THREE from 'three';
+import { Group } from 'three';
 
 test('Scene - Constructor', () => {
+  const spySetupScene = jest.spyOn(Scene.prototype as any, 'setupScene');
+  const spySetMaterials = jest.spyOn(Scene.prototype as any, 'setMaterials');
   const scene = new Scene();
+
+  expect(spySetupScene).toBeCalledTimes(1);
+  expect(spySetMaterials).toBeCalledTimes(1);
   expect((scene as any).objectCollector).toEqual([]);
   expect((scene as any).objectsInScene).toEqual([]);
   expect((scene as any).objectsInTransition).toEqual([]);
@@ -368,82 +375,142 @@ test('Scene - RemoveFromScene', () => {
   expect((scene as any).objectsInScene.length).toEqual(0);
 });
 
-test('Load JSON', () => {
-  const json = [
-    {
-      id: 'bed6f9f6-1372-11e9-afb2-05c7a1a0b2e6',
-      type: 'Cylinder',
-      viewOptions: {
-        color: '#00d084',
-        visible: true,
-        highlighted: false,
-        name: 'Cylinder',
-        opacity: 0.5,
-      },
-      operations: [],
-      parameters: { r0: 5, r1: 5, height: 20 },
-    },
-    {
-      id: 'bed76f20-1372-11e9-afb2-05c7a1a0b2e6',
-      type: 'Sphere',
-      viewOptions: {
-        color: '#0693e3',
-        visible: true,
-        highlighted: false,
-        name: 'Sphere',
-        opacity: 0.5,
-      },
-      operations: [],
-      parameters: { radius: 9 },
-    },
-    {
-      id: 'c5d80960-1372-11e9-afb2-05c7a1a0b2e6',
-      type: 'RepetitionObject',
-      viewOptions: {
-        color: '#7bdcb5',
-        visible: true,
-        highlighted: false,
-        name: 'RepetitionObject2',
-        opacity: 1,
-      },
-      operations: [],
-      parameters: { type: 'cartesian', num: 4, x: -16, y: 22, z: 10 },
-      children: [
-        {
-          id: 'c2fc87c0-1372-11e9-afb2-05c7a1a0b2e6',
-          type: 'RepetitionObject',
-          viewOptions: {
-            color: '#abb8c3',
-            visible: true,
-            highlighted: false,
-            name: 'RepetitionObject',
-            opacity: 1,
-          },
-          operations: [],
-          parameters: { type: 'cartesian', num: 5, x: 10, y: 10, z: 10 },
-          children: [
-            {
-              id: 'bed6d2e0-1372-11e9-afb2-05c7a1a0b2e6',
-              type: 'Cube',
-              viewOptions: {
-                color: '#ff6900',
-                visible: true,
-                highlighted: false,
-                name: 'Cube',
-                opacity: 1,
-              },
-              operations: [],
-              parameters: { width: 18, height: 7, depth: 26 },
-            },
-          ],
-        },
-      ],
-    },
-  ];
+test('Scene - getObjectsAsync', async () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
 
-  const scene = Scene.newFromJSON(json);
+  const spy = jest.spyOn(Scene.prototype, 'testPoint');
 
-  // expect((scene as any).objectCollector.length).toEqual(7);
-  expect((scene as any).objectsInScene.length).toEqual(json.length);
-  expect((scene as any).objectCollector.length).toEqual(5);
+  const scene: Scene = new Scene();
+  scene.addNewObjectFromJSON(cube1.toJSON());
+  scene.addNewObjectFromJSON(cube2.toJSON());
+
+  const objects: THREE.Group = await scene.getObjectsAsync();
+  expect(spy).toBeCalledTimes(1);
+  expect(objects.children.length).toEqual(2);
+  expect(objects.children[0]).toBeInstanceOf(THREE.Mesh);
+
+  // testPoint should not be recalled if scene is unchanged
+  const objects2: THREE.Group = await scene.getObjectsAsync();
+  expect(spy).toBeCalledTimes(1);
+
+  // testPoint should be called again as scene has changed
+  scene.addNewObjectFromJSON(cube3.toJSON());
+  scene.addNewObjectFromJSON(cube4.toJSON());
+  const objects3: THREE.Group = await scene.getObjectsAsync();
+  expect(spy).toBeCalledTimes(2);
+  expect(objects3.children.length).toEqual(4);
+});
+
+test('Scene - addExistingGroup', async () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
+
+  const group = new ObjectsGroup([cube1, cube2, cube3, cube4]);
+  const scene: Scene = new Scene();
+
+  const spy = jest.spyOn(Scene.prototype as any, 'addExistingGroup');
+  (scene as any).addExistingObject(group);
+  const objects: THREE.Group = await scene.getObjectsAsync();
+
+  expect(spy).toBeCalledTimes(1);
+  expect(objects.children.length).toEqual(1);
+  expect(objects.children[0]).toBeInstanceOf(THREE.Group);
+  expect((scene as any).objectsInScene[0]).toBeInstanceOf(ObjectsGroup);
+  expect((scene as any).objectsInScene[0]).toBe(group);
+});
+
+test('Scene - addExistingRepetition', async () => {
+  const cube = new Cube({ width: 10, height: 10, depth: 10 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: 'cartesian',
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10,
+  };
+  const repetition = new RepetitionObject(repParams, cube);
+  const scene: Scene = new Scene();
+
+  const spy = jest.spyOn(Scene.prototype as any, 'addExistingRepetition');
+  (scene as any).addExistingObject(repetition);
+  const objects: THREE.Group = await scene.getObjectsAsync();
+
+  expect(spy).toBeCalledTimes(1);
+  expect(objects.children.length).toEqual(1);
+  expect(objects.children[0]).toBeInstanceOf(THREE.Group);
+  expect((scene as any).objectsInScene[0]).toBeInstanceOf(RepetitionObject);
+  expect((scene as any).objectsInScene[0]).toBe(repetition);
+});
+
+test('Scene - repetitionToGroup', async () => {
+  const cube = new Cube({ width: 10, height: 10, depth: 10 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: 'cartesian',
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10,
+  };
+  const repetition = new RepetitionObject(repParams, cube);
+  const scene: Scene = new Scene();
+
+  (scene as any).addExistingObject(repetition);
+  (scene as any).repetitionToGroup(repetition.toJSON());
+
+  const objects: THREE.Group = await scene.getObjectsAsync();
+
+  expect(objects.children.length).toEqual(1);
+  expect(objects.children[0]).toBeInstanceOf(THREE.Group);
+  expect((scene as any).objectsInScene[0]).toBeInstanceOf(ObjectsGroup);
+});
+
+test('Scene - unGroup', async () => {
+  const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
+  const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
+  const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
+
+  const group = new ObjectsGroup([cube1, cube2, cube3, cube4]);
+  const scene: Scene = new Scene();
+
+  (scene as any).addExistingObject(group);
+  (scene as any).unGroup(group.toJSON());
+
+  const objects: THREE.Group = await scene.getObjectsAsync();
+
+  expect(objects.children.length).toEqual(4);
+  expect(objects.children[0]).toBeInstanceOf(THREE.Mesh);
+  expect((scene as any).objectsInScene[0]).toBeInstanceOf(Cube);
+  expect((scene as any).objectsInScene[0]).toBe(cube1);
+});
+
+test('Scene - undoRepetition', async () => {
+  const cube = new Cube({ width: 10, height: 10, depth: 10 });
+
+  const repParams: ICartesianRepetitionParams = {
+    type: 'cartesian',
+    num: 3,
+    x: 10,
+    y: 10,
+    z: 10,
+  };
+  const repetition = new RepetitionObject(repParams, cube);
+  const scene: Scene = new Scene();
+
+  (scene as any).addExistingObject(repetition);
+  (scene as any).undoRepetition(repetition.toJSON());
+
+  const objects: THREE.Group = await scene.getObjectsAsync();
+
+  expect(objects.children.length).toEqual(1);
+  expect(objects.children[0]).toBeInstanceOf(THREE.Mesh);
+  expect((scene as any).objectsInScene[0]).toBeInstanceOf(Cube);
+  expect((scene as any).objectsInScene[0]).toBe(cube);
 });
