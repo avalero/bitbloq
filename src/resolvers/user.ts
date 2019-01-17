@@ -11,6 +11,9 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const saltRounds = 7;
 
+//graphql-import -> importSchema
+
+
 const userResolver = {
   Mutation: {
     //public methods:
@@ -24,7 +27,7 @@ const userResolver = {
       }
       //Store the password with a hash
       const hash: String = await bcrypt.hash(args.input.password, saltRounds);
-      const user_new = new UserModel({
+      const userNew = new UserModel({
         id: ObjectID,
         email: args.input.email,
         password: hash,
@@ -35,7 +38,7 @@ const userResolver = {
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
       });
-      const newUser = await UserModel.create(user_new);
+      const newUser = await UserModel.create(userNew);
       const token: String = jsonwebtoken.sign(
         {
           signUpUserID: newUser._id,
@@ -58,7 +61,7 @@ const userResolver = {
         { $set: { signUpToken: token } },
         { new: true },
       );
-      return token;
+      return "OK";
     },
 
     async login(root: any, { email, password }) {
@@ -78,7 +81,7 @@ const userResolver = {
         const token: String = jsonwebtoken.sign(
           {
             email: contactFound.email,
-            user_id: contactFound._id,
+            userID: contactFound._id,
           },
           process.env.JWT_SECRET,
         );
@@ -105,7 +108,7 @@ const userResolver = {
         var token: String = jsonwebtoken.sign(
           {
             email: contactFound.email,
-            user_id: contactFound._id,
+            userID: contactFound._id,
           },
           process.env.JWT_SECRET,
           { expiresIn: '1h' },
@@ -129,7 +132,7 @@ const userResolver = {
     async deleteUser(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -147,7 +150,7 @@ const userResolver = {
     async updateUser(root: any, args: any, context: any, input: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -165,11 +168,11 @@ const userResolver = {
     async me(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
-        _id: context.user.user_id,
+        _id: context.user.userID,
       });
       if (!contactFound) return new Error('Error with user in context');
       return contactFound;
@@ -177,7 +180,7 @@ const userResolver = {
     users(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       return UserModel.find({});
     },

@@ -12,8 +12,7 @@ const documentSchema: GraphQLSchema = makeExecutableSchema({
 
     type Query {
       documents: [Document]
-      documentsByUser: [Document]
-      documentByID(id: ObjectID!): Document
+      document(id: ObjectID!): Document
     }
     type Mutation {
       createDocument(input: DocumentIn!): Document

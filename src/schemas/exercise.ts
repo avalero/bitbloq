@@ -65,7 +65,7 @@ export default exerciseSchema;
 
 //   output Submission {
 //     id: String
-//     student_nick: String
+//     studentNick: String
 //     content: String
 //     date: String
 //     finished: Boolean

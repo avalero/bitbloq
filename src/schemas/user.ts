@@ -31,8 +31,8 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       name: String
       center: String
       active: Boolean
-      sign_up_token: String
-      auth_token: String
+      signUpToken: String
+      authToken: String
       notifications: Boolean
       createdAt: Date
       updatedAt: Date
@@ -45,8 +45,8 @@ const userSchema: GraphQLSchema = makeExecutableSchema({
       name: String
       center: String
       active: Boolean
-      sign_up_token: String
-      auth_token: String
+      signUpToken: String
+      authToken: String
       notifications: Boolean
       signUpSurvey: JSON
     }

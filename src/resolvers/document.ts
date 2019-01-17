@@ -8,11 +8,11 @@ const documentResolver = {
     async createDocument(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      const document_new = new DocumentModel({
+      const documentNew = new DocumentModel({
         id: ObjectId,
-        user: context.user.user_id,
+        user: context.user.userID,
         title: args.input.title,
         type: args.input.type,
         content: args.input.content,
@@ -20,13 +20,13 @@ const documentResolver = {
         versions: args.input.version,
         exercise: args.input.exercise,
       });
-      return DocumentModel.create(document_new);
+      return DocumentModel.create(documentNew);
     },
 
     deleteDocument(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       return DocumentModel.deleteOne({ _id: args.id });
     },
@@ -34,7 +34,7 @@ const documentResolver = {
     async updateDocument(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const existDocument = await DocumentModel.findOne({ _id: args.id });
       if (existDocument) {
@@ -52,22 +52,15 @@ const documentResolver = {
     async documents(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       
-      return DocumentModel.find({});
+      return DocumentModel.find({ user: context.user.userID});
     },
-    async documentsByUser(root: any, args: any, context: any) {
+    async document(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
-        throw new AuthenticationError('You need to be logged in');
-      return DocumentModel.find({ user: context.user.user_id });
-    },
-    async documentByID(root: any, args: any, context: any) {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const doc= await DocumentModel.findOne({
         _id: args.id,
@@ -75,7 +68,7 @@ const documentResolver = {
       if(!doc){
         throw new Error('Document does not exist');
       }
-      if(doc.user!=context.user.user_id){
+      if(doc.user!=context.user.userID){
         throw new Error('This ID does not belong to one of your documents');
       }
       return doc;

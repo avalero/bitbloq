@@ -9,7 +9,7 @@ const submissionResolver = {
     //registrar nueva entrega: alumno que se une al aula
     async createSubmission(root: any, args: any, context: any) {
       const exFather = await ExerciseModel.findOne({
-        code: args.exercise_code,
+        code: args.exerciseCode,
         acceptSubmissions: true,
       });
       if (!exFather)
@@ -17,13 +17,13 @@ const submissionResolver = {
       if (!exFather.acceptSubmissions) {
         throw new Error('This exercise doesnt accept submissions now');
       }
-      if (await SubmissionModel.findOne({ student_nick: args.student_nick, exercise: exFather._id })) {
+      if (await SubmissionModel.findOne({ studentNick: args.studentNick, exercise: exFather._id })) {
         throw new Error('This nick already exists in this exercise, try another one');
       }
       const submission_new = new SubmissionModel({
         id: ObjectId,
         exercise: exFather._id,
-        student_nick: args.student_nick,
+        studentNick: args.studentNick,
         content: exFather.content,
         teacher: exFather.user,
         title: exFather.title,
@@ -31,31 +31,31 @@ const submissionResolver = {
       const newSub = await SubmissionModel.create(submission_new);
       const token: String = jsonwebtoken.sign(
         {
-          exercise_id: exFather._id,
-          submission_id: newSub._id,
-          student_nick: args.student_nick,
+          exerciseID: exFather._id,
+          submissionID: newSub._id,
+          studentNick: args.studentNick,
         },
         process.env.JWT_SECRET,
         { expiresIn: '3h' },
       );
       await SubmissionModel.findOneAndUpdate(
         { _id: newSub._id },
-        { $set: { sub_token: token } },
+        { $set: { submissionToken: token } },
         { new: true },
       );
       return {
         token: token,
-        submission_id: newSub._id,
-        exercise_id: exFather._id,
+        submissionID: newSub._id,
+        exerciseID: exFather._id,
       };
     },
 
     async updateSubmission(root: any, args: any, context: any) {
-      if (!context.user.exercise_id)
+      if (!context.user.exerciseID)
         throw new AuthenticationError('You need to login with exercise code');
       const existSubmission = await SubmissionModel.findOne({
-        _id: context.user.submission_id,
-        exercise: context.user.exercise_id,
+        _id: context.user.submissionID,
+        exercise: context.user.exerciseID,
       });
       if (!existSubmission)
         throw new Error(
@@ -76,13 +76,13 @@ const submissionResolver = {
     },
 
     async finishSubmission(root: any, args: any, context: any) {
-      if (!context.user.exercise_id)
+      if (!context.user.exerciseID)
         throw new AuthenticationError(
           'You need to be logged in with exercise code',
         );
       const existSubmission = await SubmissionModel.findOne({
-        _id: context.user.submission_id,
-        exercise: context.user.exercise_id,
+        _id: context.user.submissionID,
+        exercise: context.user.exerciseID,
       });
       if (!existSubmission) {
         throw new Error('Error finishing submission, it doesnt exist');
@@ -107,13 +107,13 @@ const submissionResolver = {
     },
 
     async deleteSubmission(root: any, args: any, context: any) {
-      if (!context.user.exercise_id)
+      if (!context.user.exerciseID)
         throw new AuthenticationError(
           'You need to be logged in with exercise code',
         );
       const existSubmission = await SubmissionModel.findOne({
-        _id: context.user.submission_id,
-        exercise: context.user.exercise_id,
+        _id: context.user.submissionID,
+        exercise: context.user.exerciseID,
       });
       if (!existSubmission)
         throw new Error(
@@ -129,12 +129,12 @@ const submissionResolver = {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in as a teacher or as a student');
         
-      if (context.user.submission_id){ //Token de alumno
-        if(context.user.submission_id != args.id)
+      if (context.user.submissionID){ //Token de alumno
+        if(context.user.submissionID != args.id)
           throw new Error('You only can ask for your token submission');
-        return SubmissionModel.findOne({ _id: context.user.submission_id });
-      } else if(context.user.user_id){ //token de profesor
-        return SubmissionModel.findOne({ _id: args.id, teacher: context.user.user_id });
+        return SubmissionModel.findOne({ _id: context.user.submissionID });
+      } else if(context.user.userID){ //token de profesor
+        return SubmissionModel.findOne({ _id: args.id, teacher: context.user.userID });
       }
     },
 
@@ -142,7 +142,7 @@ const submissionResolver = {
     async submissionsByExercise(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in as a teacher');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in as a teacher');
       const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise,
@@ -154,7 +154,7 @@ const submissionResolver = {
     submissions(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in as a teacher');
-      else if(!context.user.user_id)
+      else if(!context.user.userID)
         throw new AuthenticationError('You need to be logged in as a teacher');
       return SubmissionModel.find({});
     },
