@@ -17,6 +17,8 @@ import ObjectFactory from './ObjectFactory';
 import PositionCalculator from './PositionCalculator';
 import RotationHelper from './RotationHelper';
 import TranslationHelper from './TranslationHelper';
+import meshArray2STL from './STLExporter';
+import TextObject, { ITextObjectJSON } from './TextObject';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -110,6 +112,43 @@ export default class Scene {
 
   public canRedo(): boolean {
     return this.historyIndex < this.history.length - 1;
+  }
+
+  public async exportToSTLAsync(name: string): Promise<void> {
+    // update objectsGroup if required
+    if (!isEqual(this.lastJSON, this.toJSON())) {
+      this.objectsGroup = new THREE.Group();
+
+      const objects3D: THREE.Object3D[] = await Promise.all(
+        this.objectsInScene.map(async object => {
+          const mesh = await object.getMeshAsync();
+          // if object is selected highlight
+          if (object.getViewOptions().highlighted) {
+            if (mesh instanceof THREE.Mesh) {
+              (mesh.material as THREE.MeshLambertMaterial).setValues(
+                this.highlightedMaterial,
+              );
+            }
+          }
+          mesh.userData = object.toJSON();
+          return mesh;
+        }),
+      );
+
+      objects3D.forEach(mesh => {
+        this.objectsGroup.add(mesh);
+      });
+    }
+
+    // create array of meshes
+    let meshArray: THREE.Mesh[] = [];
+    this.objectsGroup.children.forEach(child => {
+      meshArray = [...meshArray, ...this.toMeshArray(child)];
+    });
+
+    meshArray2STL(meshArray, name);
+
+    return;
   }
 
   // Deshace la última operación y devuelve la escena después de deshacer
@@ -387,6 +426,15 @@ export default class Scene {
     objJSON: IObjectsCommonJSON,
     updateHistory: boolean = true,
   ): ISceneJSON {
+    // easter egg to save stl files
+    if (objJSON.type.match(TextObject.typeName)) {
+      if ((objJSON as ITextObjectJSON).parameters.text.match('save')) {
+        this.exportToSTLAsync('scene');
+        return this.toJSON();
+      }
+    }
+    // end of easter egg
+
     try {
       const object = this.getObject(objJSON);
 
@@ -652,12 +700,10 @@ export default class Scene {
         .getGroup()
         .unGroup();
 
-
       const group: ObjectsGroup = new ObjectsGroup(objects);
 
       // add new group to scene
       this.addExistingObject(group);
-
 
       // remove original object in repetion from ObjectCollector
       const original = rep.getOriginal();
@@ -850,5 +896,20 @@ export default class Scene {
       this.addExistingObject(original);
       this.removeFromScene(obj);
     }
+  }
+
+  private toMeshArray(object: THREE.Object3D): THREE.Mesh[] {
+    if (object instanceof THREE.Mesh) {
+      return [object];
+    }
+
+    if (object instanceof THREE.Group) {
+      let result: THREE.Mesh[] = [];
+      object.children.forEach(child => {
+        result = [...result, ...this.toMeshArray(child)];
+        return result;
+      });
+    }
+    throw new Error(`Unknown object type`);
   }
 }

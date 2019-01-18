@@ -7,7 +7,6 @@ import RepetitionObject, {
 } from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
 import * as THREE from 'three';
-import { Group } from 'three';
 
 test('Scene - Constructor', () => {
   const spySetupScene = jest.spyOn(Scene.prototype as any, 'setupScene');

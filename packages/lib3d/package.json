@@ -44,6 +44,8 @@
     "url": "git+https://github.com/bitbloq/bitbloq/issues"
   },
   "dependencies": {
+    "@types/file-saver": "^2.0.0",
+    "file-saver": "^2.0.0",
     "jsdom-worker": "^0.1.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.isequal": "^4.5.0",
