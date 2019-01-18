@@ -15,7 +15,7 @@ const PORT = process.env.PORT;
 const mongoUrl = process.env.MONGO_URL;
 
 mongoose.set('debug', true);
-mongoose.set('useFindAndModify', false);
+//mongoose.set('useFindAndModify', false); //ojo con esto al desplegar
 mongoose.connect(
   mongoUrl,
   { useNewUrlParser: true },
