@@ -2,13 +2,14 @@ import { UserModel } from '../models/user';
 import { DocumentModel } from '../models/document';
 import { AuthenticationError } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
+import { ExerciseModel } from '../models/exercise';
 
 const documentResolver = {
   Mutation: {
-    async createDocument(root: any, args: any, context: any) {
+    createDocument: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const documentNew = new DocumentModel({
         id: ObjectId,
@@ -17,24 +18,24 @@ const documentResolver = {
         type: args.input.type,
         content: args.input.content,
         description: args.input.description,
-        versions: args.input.version,
+        version: args.input.version,
         exercise: args.input.exercise,
       });
       return DocumentModel.create(documentNew);
     },
 
-    deleteDocument(root: any, args: any, context: any) {
+    deleteDocument: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       return DocumentModel.deleteOne({ _id: args.id });
     },
 
-    async updateDocument(root: any, args: any, context: any) {
+    updateDocument: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const existDocument = await DocumentModel.findOne({ _id: args.id });
       if (existDocument) {
@@ -49,30 +50,36 @@ const documentResolver = {
     },
   },
   Query: {
-    async documents(root: any, args: any, context: any) {
+    documents: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      
-      return DocumentModel.find({ user: context.user.userID});
+      const docs = await DocumentModel.find({ user: context.user.userID });
+      if (docs.length == 0) {
+        throw new Error('No documents for this user session');
+      }
+      return docs;
     },
-    async document(root: any, args: any, context: any) {
+    document: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      const doc= await DocumentModel.findOne({
+      const doc = await DocumentModel.findOne({
         _id: args.id,
       });
-      if(!doc){
+      if (!doc) {
         throw new Error('Document does not exist');
       }
-      if(doc.user!=context.user.userID){
+      if (doc.user != context.user.userID) {
         throw new Error('This ID does not belong to one of your documents');
       }
       return doc;
     },
+  },
+  Document: {
+    exercises: async document => ExerciseModel.find({ document: document._id }),
   },
 };
 

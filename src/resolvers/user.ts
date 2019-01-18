@@ -13,12 +13,11 @@ const saltRounds = 7;
 
 //graphql-import -> importSchema
 
-
 const userResolver = {
   Mutation: {
     //public methods:
 
-    async signUpUser(root: any, args: any) {
+    signUpUser: async (root: any, args: any) => {
       const contactFound = await UserModel.findOne({
         email: args.input.email,
       });
@@ -55,16 +54,17 @@ const userResolver = {
         '/activate/' +
         token;
       console.log(message);
-      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
         { new: true },
       );
-      return "OK";
+      console.log(token);
+      return 'OK';
     },
 
-    async login(root: any, { email, password }) {
+    login: async (root: any, { email, password }) => {
       const contactFound = await UserModel.findOne({ email });
       if (!contactFound) {
         throw new Error('Contact not found or password incorrect');
@@ -97,7 +97,7 @@ const userResolver = {
 
     //private methods:
 
-    async activateAccount(root: any, args: any, context: any) {
+    activateAccount: async (root: any, args: any, context: any) => {
       if (!args.token)
         throw new Error('Error with sign up token, no token in args');
       const userInToken = await contextController.getDataInToken(args.token);
@@ -129,10 +129,10 @@ const userResolver = {
       }
     },
 
-    async deleteUser(root: any, args: any, context: any) {
+    deleteUser: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -147,10 +147,10 @@ const userResolver = {
       }
     },
 
-    async updateUser(root: any, args: any, context: any, input: any) {
+    updateUser: async (root: any, args: any, context: any, input: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -165,10 +165,10 @@ const userResolver = {
   },
 
   Query: {
-    async me(root: any, args: any, context: any) {
+    me: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -180,10 +180,14 @@ const userResolver = {
     users(root: any, args: any, context: any) {
       if (!context.user)
         throw new AuthenticationError('You need to be logged in');
-      else if(!context.user.userID)
+      else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
       return UserModel.find({});
     },
+  },
+
+  User: {
+    documents: async user => DocumentModel.find({ user: user._id }),
   },
 };
 

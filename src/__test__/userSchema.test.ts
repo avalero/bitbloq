@@ -1,6 +1,6 @@
 import { graphql, GraphQLSchema } from 'graphql';
-import  userSchema  from '../schemas/user';
-import {UserModel} from '../models/user';
+import userSchema from '../schemas/user';
+import { UserModel } from '../models/user';
 
 const expectMut = describe('Schema', () => {
   // Array of case types

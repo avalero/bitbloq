@@ -1,0 +1,36 @@
+# import Date, ObjectID from './scalars.graphql'
+# import Exercise from './exercise.graphql'
+
+
+type Query {
+    documents: [Document]
+    document(id: ObjectID!): Document
+}
+type Mutation {
+    createDocument(input: DocumentIn!): Document
+    deleteDocument(id: ObjectID!): Document
+    updateDocument(id: ObjectID!, input: DocumentIn): Document
+}
+
+type Document {
+    id: ObjectID
+    user: ObjectID
+    title: String!
+    type: String
+    content: String
+    description: String
+    version: String
+    createdAt: Date
+    updatedAt: Date
+    exercises: [Exercise]
+}
+
+input DocumentIn {
+    id: ObjectID
+    user: ObjectID
+    title: String!
+    type: String
+    content: String
+    description: String
+    version: String
+}

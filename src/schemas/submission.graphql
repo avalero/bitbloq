@@ -1,0 +1,39 @@
+# import Date, ObjectID from './scalars.graphql'
+# import Exercise from './exercise.graphql'
+
+type Query {
+    submission(id: ObjectID!): Submission
+    submissions: [Submission]
+    submissionsByExercise(exercise: String!): [Submission]
+}
+type Mutation {
+    createSubmission(exerciseCode: String!, studentNick: String!): createOut
+    updateSubmission(input: SubmissionIn): Submission
+    finishSubmission(content: String, comment: String): Submission
+    deleteSubmission: Submission
+}
+
+type Submission {
+    id: ObjectID
+    title: String
+    exercise: ObjectID
+    user: ObjectID
+    studentNick: String
+    content: String
+    submissionToken: String
+    finished: Boolean
+    comment: String
+    createdAt: Date
+    updatedAt: Date
+}
+input SubmissionIn {
+    title: String
+    finished: Boolean
+    comment: String
+    studentNick: String
+}
+type createOut {
+    token: String
+    submissionID: ObjectID
+    exerciseID: ObjectID
+}

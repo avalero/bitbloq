@@ -63,7 +63,6 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
         signUpSurvey: JSON
       }
 
-
 **_ Las queries y mutations de los documentos son: _**
 
     QUERIES:
@@ -105,7 +104,6 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       versions: Version
       expireDate: Date
     }
-
 
 **_ Las queries y mutations de las entregas son: _**
 

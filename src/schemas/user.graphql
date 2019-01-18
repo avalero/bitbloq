@@ -1,0 +1,42 @@
+# import Date, ObjectID, EmailAddress, JSON from './scalars.graphql'
+# import Document from './document.graphql'
+
+type Query {
+      me: User
+      users: [User]
+}
+type Mutation {
+    activateAccount(token: String): String
+    signUpUser(input: UserIn!): String
+    login(email: EmailAddress!, password: String!): String
+    deleteUser(id: ObjectID!): User
+    updateUser(id: ObjectID!, input: UserIn!): User
+}
+
+type User {
+    id: ObjectID
+    email: EmailAddress
+    password: String
+    name: String
+    center: String
+    active: Boolean
+    signUpToken: String
+    authToken: String
+    notifications: Boolean
+    createdAt: Date
+    updatedAt: Date
+    signUpSurvey: JSON
+    documents: [Document]
+}
+
+input UserIn {
+    email: EmailAddress
+    password: String
+    name: String
+    center: String
+    active: Boolean
+    signUpToken: String
+    authToken: String
+    notifications: Boolean
+    signUpSurvey: JSON
+}
