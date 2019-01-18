@@ -12,7 +12,7 @@ interface ISubmission extends Document {
 }
 
 const SubmissionMongSchema: Schema = new Schema({
-  teacher: {
+  user: {
     type: Schema.Types.ObjectId,
     ref: 'UserModel',
   },

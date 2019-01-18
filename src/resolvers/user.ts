@@ -138,7 +138,7 @@ const userResolver = {
         email: context.user.email,
       });
       if (contactFound._id == args.id) {
-        await SubmissionModel.deleteMany({ teacher: contactFound._id });
+        await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
         return UserModel.deleteOne({ _id: contactFound._id }); //Delete every data of the user

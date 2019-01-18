@@ -26,7 +26,7 @@ const submissionSchema: GraphQLSchema = makeExecutableSchema({
       id: ObjectID
       title: String
       exercise: ObjectID
-      teacher: ObjectID
+      user: ObjectID
       studentNick: String
       content: String
       submissionToken: String

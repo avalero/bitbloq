@@ -2,6 +2,7 @@ import { AuthenticationError } from 'apollo-server-koa';
 import { SubmissionModel } from '../models/submission';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
+import { userInfo } from 'os';
 const jsonwebtoken = require('jsonwebtoken');
 
 const submissionResolver = {
@@ -25,7 +26,7 @@ const submissionResolver = {
         exercise: exFather._id,
         studentNick: args.studentNick,
         content: exFather.content,
-        teacher: exFather.user,
+        user: exFather.user,
         title: exFather.title,
       });
       const newSub = await SubmissionModel.create(submission_new);
@@ -124,26 +125,26 @@ const submissionResolver = {
   },
 
   Query: {
-    //Student and teacher querie:
+    //Student and user querie:
     async submissionByID(root: any, args: any, context: any) {
       if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a teacher or as a student');
+        throw new AuthenticationError('You need to be logged in as a user or as a student');
         
       if (context.user.submissionID){ //Token de alumno
         if(context.user.submissionID != args.id)
           throw new Error('You only can ask for your token submission');
         return SubmissionModel.findOne({ _id: context.user.submissionID });
       } else if(context.user.userID){ //token de profesor
-        return SubmissionModel.findOne({ _id: args.id, teacher: context.user.userID });
+        return SubmissionModel.findOne({ _id: args.id, user: context.user.userID });
       }
     },
 
-    //teacher queries:
+    //user queries:
     async submissionsByExercise(root: any, args: any, context: any) {
       if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a teacher');
+        throw new AuthenticationError('You need to be logged in as a user');
       else if(!context.user.userID)
-        throw new AuthenticationError('You need to be logged in as a teacher');
+        throw new AuthenticationError('You need to be logged in as a user');
       const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise,
       });
@@ -153,10 +154,10 @@ const submissionResolver = {
 
     submissions(root: any, args: any, context: any) {
       if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a teacher');
+        throw new AuthenticationError('You need to be logged in as a user');
       else if(!context.user.userID)
-        throw new AuthenticationError('You need to be logged in as a teacher');
-      return SubmissionModel.find({});
+        throw new AuthenticationError('You need to be logged in as a user');
+      return SubmissionModel.find({user: context.user.userID});
     },
   },
 };

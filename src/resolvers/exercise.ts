@@ -98,7 +98,7 @@ const exerciseResolver = {
     exercises(root: any, args: any, context: any) {
       if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      return ExerciseModel.find({});
+      return ExerciseModel.find({user: context.user.userID});
     },
   },
 };
