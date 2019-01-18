@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2019-01-03 18:46:00
+ * Last modified  : 2019-01-18 18:52:17
  */
 
 import ObjectsCommon, {
@@ -22,8 +22,7 @@ import ObjectsCommon, {
   IViewOptions,
 } from './ObjectsCommon';
 
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
+import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import Object3D from './Object3D';
 import ObjectsGroup from './ObjectsGroup';

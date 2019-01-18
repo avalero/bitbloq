@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-16 16:57:15
+ * Last modified  : 2019-01-18 19:21:40
  */
 
 import Object3D from './Object3D';
@@ -23,11 +23,10 @@ import ObjectsCommon, {
   OperationsArray,
 } from './ObjectsCommon';
 
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
+import { cloneDeep, isEqual } from 'lodash';
 import * as THREE from 'three';
 
-import CompoundWorker from './compound.worker';
+import Worker from './compound.worker';
 
 export interface ICompoundObjectJSON extends IObjectsCommonJSON {
   children: IObjectsCommonJSON[];
@@ -63,7 +62,7 @@ export default class CompoundObject extends Object3D {
     this._pendingOperation = a;
   }
   protected children: ChildrenArray;
-  protected worker: CompoundWorker | null;
+  protected worker: Worker | null;
 
   constructor(
     children: ChildrenArray = [],
@@ -93,12 +92,12 @@ export default class CompoundObject extends Object3D {
           this.worker = null;
         }
 
-        this.worker = new CompoundWorker();
+        this.worker = new Worker('http://bitbloq.bq.com');
         // listen to events from web worker
 
-        (this.worker as CompoundWorker).onmessage = (event: any) => {
+        (this.worker as Worker).onmessage = (event: any) => {
           if (event.data.status !== 'ok') {
-            (this.worker as CompoundWorker).terminate();
+            (this.worker as Worker).terminate();
             this.worker = null;
             reject(new Error('Compound Object Error'));
           }
@@ -114,12 +113,12 @@ export default class CompoundObject extends Object3D {
                   this.applyViewOptions();
                   this._viewOptionsUpdateRequired = false;
                 }
-                (this.worker as CompoundWorker).terminate();
+                (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
               });
             } else {
-              (this.worker as CompoundWorker).terminate();
+              (this.worker as Worker).terminate();
               this.worker = null;
               reject(new Error('Mesh not computed correctly'));
             }
@@ -134,7 +133,7 @@ export default class CompoundObject extends Object3D {
             type: this.getTypeName(),
             numChildren: this.children.length,
           };
-          (this.worker as CompoundWorker).postMessage(message, bufferArray);
+          (this.worker as Worker).postMessage(message, bufferArray);
         });
 
         // mesh update not required
@@ -225,8 +224,6 @@ export default class CompoundObject extends Object3D {
       chMesh.quaternion.z,
       chMesh.quaternion.w,
     );
-
-
 
     this.mesh.scale.x = chMesh.scale.x;
     this.mesh.scale.y = chMesh.scale.y;

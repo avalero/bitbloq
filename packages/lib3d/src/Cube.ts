@@ -10,10 +10,10 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-03 18:41:43
+ * Last modified  : 2019-01-18 18:50:30
  */
 
-import lodashIsequal from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
@@ -77,7 +77,7 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    if (this.mesh && lodashIsequal(this.lastJSON, this.toJSON())) {
+    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
       const cubeObj = new Cube(
         this.parameters as ICubeParams,
         this.operations,

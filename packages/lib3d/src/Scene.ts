@@ -10,8 +10,7 @@ import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
 import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
 
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
+import { isEqual, cloneDeep } from 'lodash';
 
 import ObjectFactory from './ObjectFactory';
 import PositionCalculator from './PositionCalculator';

@@ -11,10 +11,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-06 10:52:42
- * Last modified  : 2018-11-09 09:55:56
+ * Last modified  : 2019-01-18 19:00:19
  */
 
-import cloneDeep from 'lodash.clonedeep';
+import { cloneDeep } from 'lodash';
 import * as THREE from 'three';
 
 export interface IGridConfig {

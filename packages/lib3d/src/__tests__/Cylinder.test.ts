@@ -1,4 +1,6 @@
 import 'jsdom-worker';
+global.fetch = require('jest-fetch-mock');
+
 import * as THREE from 'three';
 import Cylinder, { ICylinderJSON, ICylinderParams } from '../Cylinder';
 import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';

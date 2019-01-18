@@ -7,10 +7,10 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-15 16:22:05
- * Last modified  : 2019-01-16 16:01:54
+ * Last modified  : 2019-01-18 18:52:50
  */
 
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon, {
   IObjectsCommonJSON,
@@ -19,12 +19,12 @@ import ObjectsCommon, {
 } from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-import gentilis_regular from './fonts/gentilis_regular.typeface.json';
-import gentilis_bold from './fonts/gentilis_bold.typeface.json';
-import helvetiker_bold from './fonts/helvetiker_bold.typeface.json';
-import helvetiker_regular from './fonts/helvetiker_regular.typeface.json';
-import optimer_bold from './fonts/optimer_bold.typeface.json';
-import optimer_regular from './fonts/optimer_regular.typeface.json';
+import gentilis_regular from './assets/fonts/gentilis_regular.typeface.json';
+import gentilis_bold from './assets/fonts/gentilis_bold.typeface.json';
+import helvetiker_bold from './assets/fonts/helvetiker_bold.typeface.json';
+import helvetiker_regular from './assets/fonts/helvetiker_regular.typeface.json';
+import optimer_bold from './assets/fonts/optimer_bold.typeface.json';
+import optimer_regular from './assets/fonts/optimer_regular.typeface.json';
 
 export interface ITextObjectParams {
   text: string;

@@ -9,16 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-03 18:42:44
+ * Last modified  : 2019-01-18 18:49:50
  */
 
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
+import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
 import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
 
 export interface ICylinderParams {

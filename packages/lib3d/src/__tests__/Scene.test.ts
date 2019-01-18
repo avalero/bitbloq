@@ -1,4 +1,6 @@
 import 'jsdom-worker';
+global.fetch = require('jest-fetch-mock');
+
 import Scene, { ISceneJSON } from '../Scene';
 import Cube, { ICubeJSON } from '../Cube';
 import RepetitionObject, {

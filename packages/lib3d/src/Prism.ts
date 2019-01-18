@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2019-01-10 11:24:10
+ * Last modified  : 2019-01-18 18:51:57
  */
 
 /**
@@ -26,7 +26,7 @@
  * Last modified  : 2018-10-16 12:51:01
  */
 
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon, {
   IObjectsCommonJSON,

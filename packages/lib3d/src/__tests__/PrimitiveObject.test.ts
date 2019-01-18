@@ -1,5 +1,7 @@
 import 'jsdom-worker';
-import lodashCloneDeep from 'lodash.clonedeep';
+global.fetch = require('jest-fetch-mock');
+
+import { cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import Cube, { ICubeJSON, ICubeParams } from '../Cube';
 import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
@@ -420,7 +422,7 @@ test('PrimitiveObject - SetParameters - same parameters', async () => {
 
 test('PrimitiveObject - SetParameters - different parameters', async () => {
   const obj = new Cube(objParams, operations, viewOptions);
-  const paramsClone = lodashCloneDeep(objParams);
+  const paramsClone = cloneDeep(objParams);
   paramsClone.width = 2 * objParams.width;
   (obj as any).setParameters(paramsClone);
   expect((obj as any)._meshUpdateRequired).toBe(true);
