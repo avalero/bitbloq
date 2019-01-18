@@ -39,7 +39,6 @@ export default class ObjectFactory {
         return STLObject.newFromJSON(obj as ISTLJSON);
       case TextObject.typeName:
         return TextObject.newFromJSON(obj as ITextObjectJSON);
-
       case ObjectsGroup.typeName:
         return ObjectsGroup.newFromJSON(obj as IObjectsGroupJSON, scene);
       case RepetitionObject.typeName:
