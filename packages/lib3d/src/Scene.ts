@@ -484,7 +484,7 @@ export default class Scene {
   public undoObject(json: IObjectsCommonJSON): ISceneJSON {
     switch (json.type) {
       case RepetitionObject.typeName:
-        this.undoRepetion(json as IRepetitionObjectJSON);
+        this.undoRepetition(json as IRepetitionObjectJSON);
         break;
       case ObjectsGroup.typeName:
         this.unGroup(json as IObjectsGroupJSON);
@@ -589,7 +589,7 @@ export default class Scene {
    * Remove a repetition object and places the original object (unchanged) in the Scene
    * @param json object descriptor
    */
-  private undoRepetion(json: IRepetitionObjectJSON): ISceneJSON {
+  private undoRepetition(json: IRepetitionObjectJSON): ISceneJSON {
     try {
       if (json.type !== RepetitionObject.typeName) {
         throw new Error(`Not Repetition Object: ${json.type}`);
