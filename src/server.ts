@@ -1,11 +1,8 @@
 require('dotenv').config();
 
-import { allSchemas } from './schemas/schemas';
-import { allResolvers } from './resolvers/resolvers';
+import exSchema from './schemas/allSchemas';
 
 import * as mongoose from 'mongoose';
-import { GraphQLSchema } from 'graphql';
-import { mergeSchemas } from 'graphql-tools';
 import { contextController } from './controllers/context';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
@@ -15,7 +12,7 @@ const PORT = process.env.PORT;
 const mongoUrl = process.env.MONGO_URL;
 
 mongoose.set('debug', true);
-mongoose.set('useFindAndModify', false);
+//mongoose.set('useFindAndModify', false); //ojo con esto al desplegar
 mongoose.connect(
   mongoUrl,
   { useNewUrlParser: true },
@@ -26,13 +23,8 @@ mongoose.connect(
   },
 );
 
-const schema: GraphQLSchema = mergeSchemas({
-  schemas: allSchemas,
-  resolvers: allResolvers,
-});
-
 const server = new ApolloServer({
-  schema,
+  schema: exSchema,
   context: async ({ ctx }) => {
     const user = await contextController.getMyUser(ctx);
     // add the user to the context

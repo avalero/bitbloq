@@ -8,6 +8,8 @@ interface IExercise extends Document {
   code?: String;
   title?: String;
   type?: String;
+  description: String;
+  teacherName: String;
   content?: String;
   acceptSubmissions?: Boolean;
   versions?: [String];
@@ -40,9 +42,16 @@ const ExerciseMongSchema: Schema = new Schema({
     type: String,
   },
 
+  description: {
+    type: String,
+  },
+
+  teacherName: {
+    type: String,
+  },
+
   content: {
     type: String,
-    trim: true,
     default: 'content',
   },
 

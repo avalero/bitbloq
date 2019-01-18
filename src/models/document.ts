@@ -10,6 +10,7 @@ interface IDocument extends Document {
   createdAt?: Date;
   updatedAt?: Date;
   description?: String;
+  version: String;
 }
 
 const DocumentMongSchema: Schema = new Schema({
@@ -43,21 +44,9 @@ const DocumentMongSchema: Schema = new Schema({
     type: String,
   },
 
-  versions: [
-    {
-      type: String,
-      date: Date,
-      id: Number,
-    },
-  ],
-
-  exercise: [
-    {
-      type: String,
-      date: Date,
-      id: Number,
-    },
-  ],
+  version: {
+    type: String,
+  },
 });
 
 DocumentMongSchema.plugin(timestamps);

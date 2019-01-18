@@ -5,14 +5,14 @@ interface ISubmission extends Document {
   user?: String;
   title: String;
   exercise?: String;
-  student_nick?: String;
+  studentNick?: String;
   content?: String;
   finished?: Boolean;
   comment?: String;
 }
 
 const SubmissionMongSchema: Schema = new Schema({
-  teacher: {
+  user: {
     type: Schema.Types.ObjectId,
     ref: 'UserModel',
   },
@@ -27,7 +27,7 @@ const SubmissionMongSchema: Schema = new Schema({
     ref: 'ExerciseModel',
   },
 
-  student_nick: {
+  studentNick: {
     type: String,
     default: 'aaaaa',
   },
@@ -38,7 +38,7 @@ const SubmissionMongSchema: Schema = new Schema({
     default: 'content',
   },
 
-  sub_token: {
+  submissionToken: {
     type: String,
     trim: true,
   },

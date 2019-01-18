@@ -1,27 +1,26 @@
-import { makeExecutableSchema } from 'graphql-tools';
 import { graphql, GraphQLSchema } from 'graphql';
-import typeDefs from '../schemas/user';
+import userSchema from '../schemas/user';
+import { UserModel } from '../models/user';
 
 const expectMut = describe('Schema', () => {
   // Array of case types
   //const tester = new EasyGraphQLTester(schemaCode);
-  const schema: GraphQLSchema = makeExecutableSchema({ typeDefs });
 
-  it('shold be null when no one signed up', async () => {
+  it('should be null when no one signed up', async () => {
     const query = `
         query {
-          allUsers {
+          users {
              email
           }
         }
       `;
     const rootValue = {};
 
-    const result = await graphql(schema, query, rootValue);
+    const result = await graphql(userSchema, query, rootValue);
     const { data } = result;
 
     //tester.test(true, query)
-    expect(data.allUsers).toBe(null);
+    expect(data.users).toBe(null);
   });
 
   it('should register a new user', async () => {
@@ -37,7 +36,7 @@ const expectMut = describe('Schema', () => {
     `;
     const rootValue = {};
 
-    const result = await graphql(schema, mutation, rootValue);
+    const result = await graphql(userSchema, mutation, rootValue);
     const { data } = result;
     console.log(data);
     /*tester.test(true, mutation, [{
