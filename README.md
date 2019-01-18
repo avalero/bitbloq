@@ -41,13 +41,13 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 **_ Las queries y mutations del usuario son: _**
 
     QUERIES:
-      me: User
       users: [User]
+      me: User
 
     MUTATIONS:
       activateAccount(token: String): String
       signUpUser(input: UserIn!): String
-      login(email: EmailAdress!, password: String!): String
+      login(email: EmailAddress!, password: String!): String
       deleteUser(id: ObjectID!): User
       updateUser(id: ObjectID!, input: UserIn!): User
 
@@ -87,8 +87,8 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     QUERIES:
       exercises: [Exercise]
+      exercise(id: ObjectID!): Exercise
       exercisesByDocument(document: ObjectID!): [Exercise]
-      exerciseByID(id: ObjectID!): Exercise
 
     MUTATIONS:
       createExercise(input: ExerciseIn!): Exercise
@@ -97,25 +97,27 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       deleteExercise(id: ObjectID!, code: String!): Exercise
 
     input ExerciseIn {
-      document: ObjectID
-      title: String
-      code: String
-      acceptSubmissions: Boolean
-      versions: Version
-      expireDate: Date
+        document: ObjectID
+        title: String
+        code: String
+        description: String
+        acceptSubmissions: Boolean
+        versions: Version
+        expireDate: Date
     }
 
 **_ Las queries y mutations de las entregas son: _**
 
     QUERIES:
       submissions: [Submission]
+      submission(id: ObjectID!): Submission
       submissionsByExercise(exercise: String!): [Submission]
-      submissionByID(id: ObjectID!): Submission
 
     MUTATIONS:
       createSubmission(exerciseCode: String!, studentNick: String!): createOut
       updateSubmission(input: SubmissionIn): Submission
-      finishSubmission(comment: String): Submission
+      finishSubmission(content: String, comment: String): Submission
+      cancelSubmission: Submission
       deleteSubmission: Submission
 
     input SubmissionIn {

@@ -2,14 +2,15 @@
 # import Exercise from './exercise.graphql'
 
 type Query {
-    submission(id: ObjectID!): Submission
     submissions: [Submission]
+    submission(id: ObjectID!): Submission
     submissionsByExercise(exercise: String!): [Submission]
 }
 type Mutation {
     createSubmission(exerciseCode: String!, studentNick: String!): createOut
     updateSubmission(input: SubmissionIn): Submission
     finishSubmission(content: String, comment: String): Submission
+    cancelSubmission: Submission
     deleteSubmission: Submission
 }
 

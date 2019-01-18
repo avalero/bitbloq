@@ -3,8 +3,8 @@
 
 type Query {
     exercises: [Exercise]
-    exercisesByDocument(document: ObjectID!): [Exercise]
     exercise(id: ObjectID!): Exercise
+    exercisesByDocument(document: ObjectID!): [Exercise]
 }
 type Mutation {
     createExercise(input: ExerciseIn!): Exercise

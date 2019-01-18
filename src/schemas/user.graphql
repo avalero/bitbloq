@@ -2,8 +2,8 @@
 # import Document from './document.graphql'
 
 type Query {
-      me: User
       users: [User]
+      me: User
 }
 type Mutation {
     activateAccount(token: String): String

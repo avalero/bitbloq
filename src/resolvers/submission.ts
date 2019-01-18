@@ -119,7 +119,8 @@ const submissionResolver = {
       );
     },
 
-    deleteSubmission: async (root: any, args: any, context: any) => {
+    //alumno cancela su propia submission
+    cancelSubmission: async (root: any, args: any, context: any) => {
       if (!context.user.exerciseID)
         throw new AuthenticationError(
           'You need to be logged in with exercise code',
@@ -127,6 +128,23 @@ const submissionResolver = {
       const existSubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
+      });
+      if (!existSubmission)
+        throw new Error(
+          'Error canceling submission, it should part of one of your exercises',
+        );
+      return SubmissionModel.deleteOne({ _id: existSubmission._id });
+    },
+
+    //el profesor borra la sumbission de un alumno
+    deleteSubmission: async (root: any, args: any, context: any) => {
+      if (!context.user)
+        throw new AuthenticationError('You need to be logged in as a user');
+      else if (!context.user.userID)
+        throw new AuthenticationError('You need to be logged in as a user');
+      const existSubmission = await SubmissionModel.findOne({
+        _id: args.submissionID,
+        user: context.user.userID,
       });
       if (!existSubmission)
         throw new Error(
