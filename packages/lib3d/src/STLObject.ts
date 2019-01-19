@@ -25,7 +25,7 @@ import STLLoader from './STLLoader';
 
 interface ISTLParams {
   blob: {
-    buffer: ArrayBuffer;
+    buffer: ArrayBuffer | Uint8Array;
     filetype: string;
   };
 }
@@ -136,6 +136,19 @@ export default class STLObject extends PrimitiveObject {
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
+  public toJSON(): ISTLJSON {
+    // As data can be an ArrayBuffer or an Uint8Array, we force it is an ArrayBuffer
+    const data: ArrayBuffer | Uint8Array = (this.parameters as ISTLParams).blob
+      .buffer;
+
+    if (data instanceof Uint8Array) {
+      // Convert to ArrayBuffer
+      (this.parameters as ISTLParams).blob.buffer = data.buffer;
+    }
+
+    return super.toJSON() as ISTLJSON;
+  }
+
   protected getGeometry(): THREE.Geometry {
     if (
       !(this.parameters as ISTLParams).blob ||
@@ -144,20 +157,35 @@ export default class STLObject extends PrimitiveObject {
       throw new Error('No STL file loaded');
     }
 
-    const blob = (this.parameters as ISTLParams).blob.buffer;
+    let blob: ArrayBuffer = new ArrayBuffer(0);
+    const data: ArrayBuffer | Uint8Array = (this.parameters as ISTLParams).blob
+      .buffer;
+    if (data instanceof ArrayBuffer) {
+      blob = data;
+    } else if (data instanceof Uint8Array) {
+      blob = data.buffer;
+    }
 
     if (
       (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-binary')
     ) {
       const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
-      return binaryGeom;
+      if (binaryGeom instanceof THREE.Geometry) {
+        return binaryGeom;
+      }
+
+      throw new Error('Geometry not properly computed');
     }
 
     if (
       (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-ascii')
     ) {
       const asciiGeom = STLLoader.loadTextStl(blob);
-      return asciiGeom;
+      if (asciiGeom instanceof THREE.Geometry) {
+        return asciiGeom;
+      }
+
+      throw new Error('Geometry not properly computed');
     }
 
     throw new Error(
