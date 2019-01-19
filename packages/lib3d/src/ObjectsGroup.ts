@@ -1,10 +1,9 @@
-import isEqual from 'lodash.isequal';
+import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import Object3D from './Object3D';
 import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
 import Scene from './Scene';
 
-import cloneDeep from 'lodash.clonedeep';
 import Union from './Union';
 import RepetitionObject from './RepetitionObject';
 

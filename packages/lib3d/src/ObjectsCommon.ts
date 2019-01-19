@@ -1,9 +1,8 @@
-import lodashIsequal from 'lodash.isequal';
+import { isEqual, cloneDeep } from 'lodash';
 
-// tslint:disable-next-line:no-submodule-imports
-import uuid from 'uuid/v1';
+import { v1 } from 'uuid';
+const uuid = v1;
 
-import lodashCloneDeep from 'lodash.clonedeep';
 import * as THREE from 'three';
 
 interface ICommonOperation {
@@ -267,7 +266,7 @@ export default class ObjectsCommon {
   }
 
   public setViewOptions(params: Partial<IViewOptions>) {
-    if (!lodashIsequal(params, this.viewOptions)) {
+    if (!isEqual(params, this.viewOptions)) {
       this.viewOptions = {
         ...ObjectsCommon.createViewOptions(),
         ...this.viewOptions,
@@ -290,7 +289,7 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    return lodashCloneDeep({
+    return cloneDeep({
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
@@ -311,13 +310,13 @@ export default class ObjectsCommon {
       return;
     }
 
-    if (!lodashIsequal(this.operations, operations)) {
+    if (!isEqual(this.operations, operations)) {
       this.operations = operations.slice();
       this._pendingOperation = true;
     }
 
     this._pendingOperation =
-      this.pendingOperation || !lodashIsequal(this.operations, operations);
+      this.pendingOperation || !isEqual(this.operations, operations);
   }
 
   protected translate(

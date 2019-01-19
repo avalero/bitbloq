@@ -1,4 +1,6 @@
 import 'jsdom-worker';
+global.fetch = require('jest-fetch-mock');
+
 import * as THREE from 'three';
 import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
 import Prism, { IPrismJSON, IPrismParams } from '../Prism';

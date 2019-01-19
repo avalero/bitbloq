@@ -21,7 +21,7 @@
   ],
   "homepage": "git+https://github.com/bitbloq/bitbloq#readme",
   "license": "ISC",
-  "main": "src/index.js",
+  "main": "src/index.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -45,17 +45,15 @@
   },
   "dependencies": {
     "@types/file-saver": "^2.0.0",
+    "@types/lodash": "^4.14.120",
     "file-saver": "^2.0.0",
     "jsdom-worker": "^0.1.0",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
+    "lodash": "^4.17.11",
     "three": "^0.99.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/jest": "^23.3.10",
-    "@types/lodash.clonedeep": "^4.5.4",
-    "@types/lodash.isequal": "^4.5.3",
     "@types/three": "^0.93.13",
     "@types/uuid": "^3.4.4",
     "coveralls": "^3.0.2",

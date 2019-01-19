@@ -1,4 +1,6 @@
 import 'jsdom-worker';
+global.fetch = require('jest-fetch-mock');
+
 import * as THREE from 'three';
 import Cube, { ICubeJSON, ICubeParams } from '../Cube';
 import ObjectsCommon, {

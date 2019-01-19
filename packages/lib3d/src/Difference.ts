@@ -12,7 +12,7 @@
  * Last modified  : 2019-01-03 18:47:20
  */
 
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import CompoundObject, {
   ChildrenArray,
   ICompoundObjectJSON,

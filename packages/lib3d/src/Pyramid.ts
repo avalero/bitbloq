@@ -7,10 +7,10 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-10 11:23:22
- * Last modified  : 2019-01-10 13:25:41
+ * Last modified  : 2019-01-18 18:52:03
  */
 
-import isEqual from 'lodash.isequal';
+import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon, {
   IObjectsCommonJSON,

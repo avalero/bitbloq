@@ -9,11 +9,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-16 11:08:36
+ * Last modified  : 2019-01-18 18:51:50
  */
 
-import cloneDeep from 'lodash.clonedeep';
-import isEqual from 'lodash.isequal';
+import { isEqual, cloneDeep } from 'lodash';
 import Object3D from './Object3D';
 import ObjectsCommon, {
   IObjectsCommonJSON,
