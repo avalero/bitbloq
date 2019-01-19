@@ -3,5 +3,14 @@
   "rules": {
     "no-console": true,
     "no-debugger": true
+  },
+
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**/*",
+      "src/threeCSG.ts",
+      "coverage/**/*",
+      "src/__tests__/**/*"
+    ]
   }
 }
