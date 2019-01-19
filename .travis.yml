@@ -20,8 +20,8 @@ install:
   - npx lerna bootstrap
 script:
   - npm run tslint:prod
-  - npx run test
+  - npm run test
 after_success:
-  - npx run coveralls
+  - npm run coveralls
 notifications:
     slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS
