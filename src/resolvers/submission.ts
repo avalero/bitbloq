@@ -15,7 +15,7 @@ const submissionResolver = {
       if (!exFather)
         throw new Error('Error creating submission, check your exercise code');
       if (!exFather.acceptSubmissions) {
-        throw new Error('This exercise doesnt accept submissions now');
+        throw new Error('This exercise does not accept submissions now');
       }
       if (
         await SubmissionModel.findOne({
@@ -34,6 +34,7 @@ const submissionResolver = {
         content: exFather.content,
         user: exFather.user,
         title: exFather.title,
+        type: exFather.type,
       });
       const newSub = await SubmissionModel.create(submission_new);
       const token: String = jsonwebtoken.sign(
@@ -78,7 +79,7 @@ const submissionResolver = {
           { new: true },
         );
       } else {
-        return new Error('Exercise doesnt exist');
+        return new Error('Exercise does not exist');
       }
     },
 
@@ -99,7 +100,7 @@ const submissionResolver = {
       });
       //check if the exercise accepts submissions
       if (!exercise.acceptSubmissions) {
-        throw new Error('This exercise doesnt accept submissions now');
+        throw new Error('This exercise does not accept submissions now');
       }
       //check if the submission is in time
       const timeNow: Date = new Date();
@@ -113,6 +114,7 @@ const submissionResolver = {
             finished: true,
             content: args.content,
             comment: args.comment,
+            finishedAt: Date.now(),
           },
         },
         { new: true },
@@ -170,7 +172,7 @@ const submissionResolver = {
           _id: context.user.submissionID,
         });
         if (!sub) {
-          throw new Error('Submission doesnt exist');
+          throw new Error('Submission does not exist');
         }
         return sub;
       } else if (context.user.userID) {
@@ -180,7 +182,7 @@ const submissionResolver = {
           user: context.user.userID,
         });
         if (!sub) {
-          throw new Error('Submission doesnt exist');
+          throw new Error('Submission does not exist');
         }
         return sub;
       }
@@ -195,7 +197,7 @@ const submissionResolver = {
       const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise,
       });
-      if (!exerciseFound) throw new Error('exercise doesnt exist');
+      if (!exerciseFound) throw new Error('exercise does not exist');
       const subs = await SubmissionModel.find({ exercise: exerciseFound._id });
       if (subs.length == 0) {
         throw new Error('No submissions for this exercise');
@@ -208,11 +210,7 @@ const submissionResolver = {
         throw new AuthenticationError('You need to be logged in as a user');
       else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in as a user');
-      const subs = await SubmissionModel.find({ user: context.user.userID });
-      if (subs.length == 0) {
-        throw new Error('No submissions for this exercise');
-      }
-      return subs;
+      return SubmissionModel.find({ user: context.user.userID });
     },
   },
 };

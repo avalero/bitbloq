@@ -45,7 +45,7 @@ const documentResolver = {
           { new: true },
         );
       } else {
-        return new Error('Document doesnt exist');
+        return new Error('Document does not exist');
       }
     },
   },
@@ -55,11 +55,7 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      const docs = await DocumentModel.find({ user: context.user.userID });
-      if (docs.length == 0) {
-        throw new Error('No documents for this user session');
-      }
-      return docs;
+      return DocumentModel.find({ user: context.user.userID });
     },
     document: async (root: any, args: any, context: any) => {
       if (!context.user)

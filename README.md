@@ -118,7 +118,7 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       updateSubmission(input: SubmissionIn): Submission
       finishSubmission(content: String, comment: String): Submission
       cancelSubmission: Submission
-      deleteSubmission: Submission
+      deleteSubmission(submissionID: String): Submission
 
     input SubmissionIn {
       title: String

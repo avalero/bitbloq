@@ -11,7 +11,7 @@ type Mutation {
     updateSubmission(input: SubmissionIn): Submission
     finishSubmission(content: String, comment: String): Submission
     cancelSubmission: Submission
-    deleteSubmission: Submission
+    deleteSubmission(submissionID: String): Submission
 }
 
 type Submission {
@@ -24,8 +24,10 @@ type Submission {
     submissionToken: String
     finished: Boolean
     comment: String
+    type: String
     createdAt: Date
     updatedAt: Date
+    finishedAt: Date
 }
 input SubmissionIn {
     title: String

@@ -11,9 +11,8 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const saltRounds = 7;
 
-//graphql-import -> importSchema
-
 const userResolver = {
+
   Mutation: {
     //public methods:
 
@@ -53,14 +52,14 @@ const userResolver = {
           pulse aquí
         </a>
       `;
-      console.log(message);
-      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      //console.log(message);
+      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
         { new: true },
       );
-      console.log(token);
+      //console.log(token);
       return 'OK';
     },
 
@@ -159,7 +158,7 @@ const userResolver = {
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
-        return new Error('User doesnt exist');
+        return new Error('User does not exist');
       }
     },
   },
