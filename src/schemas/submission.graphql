@@ -37,6 +37,7 @@ input SubmissionIn {
 }
 type createOut {
     token: String
+    type: String
     submissionID: ObjectID
     exerciseID: ObjectID
 }
