@@ -1,39 +1,81 @@
-import * as React from 'react';
-import {Query, Mutation} from 'react-apollo';
-import {colors, Button, HorizontalRule, Icon} from '@bitbloq/ui';
-import styled from '@emotion/styled';
-import {Link, navigate} from 'gatsby';
-import gql from 'graphql-tag';
-import AppHeader from './AppHeader';
-import DocumentTypeTag from './DocumentTypeTag';
+import * as React from "react";
+import { Query, Mutation } from "react-apollo";
+import {
+  colors,
+  Button,
+  HorizontalRule,
+  Icon,
+  Input,
+  Modal
+} from "@bitbloq/ui";
+import styled from "@emotion/styled";
+import { Link, navigate } from "gatsby";
+import gql from "graphql-tag";
+import AppHeader from "./AppHeader";
+import DocumentTypeTag from "./DocumentTypeTag";
+import ExercisePanel from "./ExercisePanel";
+import { sortByCreatedAt } from "../util";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
-    document: documentByID(id: $id) {
+    document(id: $id) {
       id
       type
       title
       description
-    }
-    exercises: exercisesByDocument(document: $id) {
-      id,
-      code,
-      title,
-      acceptSubmissions,
-      createdAt
+      exercises {
+        id
+        code
+        title
+        acceptSubmissions
+        createdAt
+        submissions {
+          id
+          studentNick
+          finished
+          finishedAt
+          type
+        }
+      }
     }
   }
 `;
 
 const CREATE_EXERCISE_MUTATION = gql`
-  mutation CreateExercise($documentId: ObjectID!) {
-    createExercise(input: {document: $documentId}) {
+  mutation CreateExercise($documentId: ObjectID!, $title: String!) {
+    createExercise(input: { document: $documentId, title: $title }) {
       id
     }
   }
 `;
 
-class Document extends React.Component {
+const DELETE_SUBMISSION_MUTATION = gql`
+  mutation DeleteSubmission($id: String!) {
+    deleteSubmission(submissionID: $id) {
+      id
+    }
+  }
+`;
+
+class DocumentState {
+  readonly isCreateExerciseOpen: boolean = false;
+  readonly newExerciseTitle: string = "";
+}
+
+class Document extends React.Component<any, DocumentState> {
+  readonly state = new DocumentState();
+  newExerciseTitleInput = React.createRef<HTMLInputElement>();
+
+  componentDidUpdate(prevProps, prevState) {
+    const { isCreateExerciseOpen } = this.state;
+    if (isCreateExerciseOpen && !prevState.isCreateExerciseOpen) {
+      const input = this.newExerciseTitleInput.current;
+      if (input) {
+        input.focus();
+      }
+    }
+  }
+
   renderHeader(document) {
     return (
       <Header>
@@ -56,28 +98,21 @@ class Document extends React.Component {
               tertiary
               onClick={() =>
                 navigate(`/app/document/${document.type}/${document.id}`)
-              }>
+              }
+            >
               Editar documento
             </Button>
-            <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-              {createExercise => (
-                <Button
-                  onClick={() =>
-                    createExercise({
-                      variables: {documentId: document.id},
-                      refetchQueries: [
-                        {
-                          query: DOCUMENT_QUERY,
-                          variables: {id: document.id}
-                        }
-                      ]
-                    })
-                  }>
-                  <Icon name="plus" />
-                  Crear ejercicio
-                </Button>
-              )}
-            </Mutation>
+            <Button
+              onClick={() =>
+                this.setState({
+                  isCreateExerciseOpen: true,
+                  newExerciseTitle: ""
+                })
+              }
+            >
+              <Icon name="plus" />
+              Crear ejercicio
+            </Button>
           </Buttons>
         </div>
       </DocumentInfo>
@@ -85,43 +120,116 @@ class Document extends React.Component {
   }
 
   renderExercises(exercises) {
+    const { id: documentId } = this.props;
+
     return (
-      <Exercises>
-        <h2>Ejercicios creados</h2>
-        {exercises.map(exercise => (
-          <Exercise key={exercise.id}>
-            <ExerciseHeader>
-              <ExerciseHeaderLeft>
-                <ExerciseTitle>{exercise.title}</ExerciseTitle>
-              </ExerciseHeaderLeft>
-              <ExerciseHeaderRight>
-                {exercise.code}
-              </ExerciseHeaderRight>
-            </ExerciseHeader>
-          </Exercise>
-        ))}
-      </Exercises>
+      <Mutation mutation={DELETE_SUBMISSION_MUTATION}>
+        {deleteSubmission => (
+          <Exercises>
+            {exercises && exercises.length > 0 && <h2>Ejercicios creados</h2>}
+            {exercises
+              .slice()
+              .sort(sortByCreatedAt)
+              .map(exercise => (
+                <ExercisePanel
+                  exercise={exercise}
+                  key={exercise.id}
+                  onCancelSubmission={submission =>
+                    deleteSubmission({
+                      variables: { id: submission.id },
+                      refetchQueries: [
+                        { query: DOCUMENT_QUERY, variables: { id: documentId } }
+                      ]
+                    })
+                  }
+                  onCheckSubmission={({ type, id }) =>
+                    window.open(`/app/submission/${type}/${id}`)
+                  }
+                />
+              ))}
+          </Exercises>
+        )}
+      </Mutation>
+    );
+  }
+
+  renderCreateExerciseModal(document) {
+    const { isCreateExerciseOpen, newExerciseTitle } = this.state;
+
+    return (
+      <Modal
+        isOpen={isCreateExerciseOpen}
+        title="Crear ejercicio"
+        onClose={() => this.setState({ isCreateExerciseOpen: false })}
+      >
+        <ModalContent>
+          <p>Introduce un nombre para el nuevo ejercicio</p>
+          <form>
+            <Input
+              value={newExerciseTitle}
+              ref={this.newExerciseTitleInput}
+              onChange={e =>
+                this.setState({ newExerciseTitle: e.target.value })
+              }
+            />
+            <ModalButtons>
+              <Mutation mutation={CREATE_EXERCISE_MUTATION}>
+                {createExercise => (
+                  <ModalButton
+                    onClick={() => {
+                      createExercise({
+                        variables: {
+                          documentId: document.id,
+                          title: newExerciseTitle
+                        },
+                        refetchQueries: [
+                          {
+                            query: DOCUMENT_QUERY,
+                            variables: { id: document.id }
+                          }
+                        ]
+                      });
+                      this.setState({ isCreateExerciseOpen: false });
+                    }}
+                  >
+                    Crear
+                  </ModalButton>
+                )}
+              </Mutation>
+              <ModalButton
+                tertiary
+                onClick={() => this.setState({ isCreateExerciseOpen: false })}
+              >
+                Cancel
+              </ModalButton>
+            </ModalButtons>
+          </form>
+        </ModalContent>
+      </Modal>
     );
   }
 
   render() {
-    const {id} = this.props;
+    const { id } = this.props;
 
     return (
-      <Query query={DOCUMENT_QUERY} variables={{id}}>
-        {({loading, error, data}) => {
+      <Query query={DOCUMENT_QUERY} variables={{ id }}>
+        {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>Error :(</p>;
+
+          const { document } = data;
 
           return (
             <Container>
               <AppHeader />
               <Content>
-                {this.renderHeader(data.document)}
+                {this.renderHeader(document)}
                 <Rule />
-                {this.renderDocumentInfo(data.document)}
-                {this.renderExercises(data.exercises)}
+                {this.renderDocumentInfo(document)}
+                {this.renderExercises(document.exercises)}
               </Content>
+              {this.renderCreateExerciseModal(document)}
             </Container>
           );
         }}
@@ -221,26 +329,24 @@ const Exercises = styled.div`
   }
 `;
 
-const Exercise = styled.div`
-  border: 1px solid;
-  border-radius: 4px;
+const ModalContent = styled.div`
+  padding: 30px;
+  width: 500px;
+  box-sizing: border-box;
+
+  p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
 `;
 
-const ExerciseHeader = styled.div`
+const ModalButtons = styled.div`
   display: flex;
-  padding: 16px 20px;
+  margin-top: 50px;
 `;
 
-const ExerciseHeaderLeft = styled.div`
-  flex: 1;
-`;
-
-const ExerciseHeaderRight = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-`;
-
-const ExerciseTitle = styled.div`
-  font-size: 20px;
+const ModalButton = styled(Button)`
+  height: 50px;
+  width: 170px;
+  margin-right: 20px;
 `;

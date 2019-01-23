@@ -265,6 +265,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
                     variables: {
                       user: {
                         email: userData.email,
+                        name: userData.name,
                         password: userData.password,
                         notifications: receiveNews,
                         signUpSurvey: surveyValues

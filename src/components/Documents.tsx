@@ -1,12 +1,13 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {colors, Button, Select, Input, HorizontalRule} from '@bitbloq/ui';
-import {navigate} from 'gatsby';
-import {Query, Mutation} from 'react-apollo';
-import gql from 'graphql-tag';
-import {supportedDocumentTypes} from '../config';
-import AppHeader from './AppHeader';
-import DocumentTypeTag from './DocumentTypeTag';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { colors, Button, Select, Input, HorizontalRule } from "@bitbloq/ui";
+import { navigate } from "gatsby";
+import { Query, Mutation } from "react-apollo";
+import gql from "graphql-tag";
+import { supportedDocumentTypes } from "../config";
+import AppHeader from "./AppHeader";
+import DocumentTypeTag from "./DocumentTypeTag";
+import { sortByCreatedAt, sortByTitle } from "../util";
 
 const DOCUMENTS_QUERY = gql`
   query {
@@ -14,49 +15,66 @@ const DOCUMENTS_QUERY = gql`
       id
       type
       title
+      createdAt
     }
   }
 `;
 
 const CREATE_DOCUMENT_MUTATION = gql`
-  mutation CreateDocument(
-    $type: String!,
-    $title: String!
-  ) {
-    createDocument(input: {type: $type, title: $title}) {
+  mutation CreateDocument($type: String!, $title: String!) {
+    createDocument(input: { type: $type, title: $title }) {
       id
       type
     }
   }
 `;
 
+enum OrderType {
+  Creation = "creation",
+  Name = "name"
+}
+
 const orderOptions = [
   {
-    label: 'Orden: Más recientes',
-    value: 'creation',
+    label: "Orden: Más recientes",
+    value: OrderType.Creation
   },
   {
-    label: 'Orden: Nombre',
-    value: 'name',
-  },
+    label: "Orden: Nombre",
+    value: OrderType.Name
+  }
 ];
 
-class Documents extends React.Component {
-  onDocumentClick = ({id, type}) => {
+const orderFunctions = {
+  [OrderType.Creation]: sortByCreatedAt,
+  [OrderType.Name]: sortByTitle
+};
+
+class DocumentsState {
+  readonly order: string = OrderType.Creation;
+  readonly searchText: string = "";
+}
+
+class Documents extends React.Component<any, DocumentsState> {
+  readonly state = new DocumentsState();
+
+  onDocumentClick = ({ id, type }) => {
     navigate(`/app/document/${id}`);
   };
 
   onNewDocument(createDocument, type, title) {
     createDocument({
-      variables: {type, title},
-      refetchQueries: [
-        { query: DOCUMENTS_QUERY }
-      ]
+      variables: { type, title },
+      refetchQueries: [{ query: DOCUMENTS_QUERY }]
     });
   }
 
-  onDocumentCreated = ({createDocument: {id, type}}) => {
+  onDocumentCreated = ({ createDocument: { id, type } }) => {
     navigate(`/app/document/${type}/${id}`);
+  };
+
+  onOrderChange = order => {
+    this.setState({ order });
   };
 
   renderHeader() {
@@ -66,12 +84,14 @@ class Documents extends React.Component {
         <div>
           <Mutation
             mutation={CREATE_DOCUMENT_MUTATION}
-            onCompleted={this.onDocumentCreated}>
+            onCompleted={this.onDocumentCreated}
+          >
             {createDocument => (
               <Button
                 onClick={() =>
-                  this.onNewDocument(createDocument, '3d', 'Nuevo documento')
-                }>
+                  this.onNewDocument(createDocument, "3d", "Nuevo documento")
+                }
+              >
                 Nuevo documento
               </Button>
             )}
@@ -82,9 +102,12 @@ class Documents extends React.Component {
   }
 
   render() {
+    const { order, searchText } = this.state;
+    const orderFunction = orderFunctions[order];
+
     return (
       <Query query={DOCUMENTS_QUERY}>
-        {({loading, error, data}) => {
+        {({ loading, error, data }) => {
           if (loading) return <p>Loading...</p>;
           if (error) return <p>Error :(</p>;
 
@@ -98,18 +121,34 @@ class Documents extends React.Component {
                   <ViewOptions>
                     <OrderSelect
                       options={orderOptions}
-                      selectConfig={{isSearchable: false}}
+                      onChange={this.onOrderChange}
+                      selectConfig={{ isSearchable: false }}
                     />
                   </ViewOptions>
-                  <SearchInput placeholder="Buscar..." />
+                  <SearchInput
+                    value={searchText}
+                    onChange={e =>
+                      this.setState({ searchText: e.target.value })
+                    }
+                    placeholder="Buscar..."
+                  />
                 </DocumentListHeader>
                 <DocumentList>
                   {data.documents
+                    .slice()
+                    .sort(orderFunction)
                     .filter(d => supportedDocumentTypes.includes(d.type))
+                    .filter(
+                      d =>
+                        !searchText ||
+                        (d.title &&
+                          d.title.toLowerCase().indexOf(searchText) >= 0)
+                    )
                     .map(document => (
                       <DocumentCard
                         key={document.id}
-                        onClick={() => this.onDocumentClick(document)}>
+                        onClick={() => this.onDocumentClick(document)}
+                      >
                         <DocumentImage />
                         <DocumentInfo>
                           <DocumentTypeTag small document={document} />
@@ -188,7 +227,7 @@ const DocumentList = styled.div`
   grid-row-gap: 40px;
 
   &::before {
-    content: '';
+    content: "";
     width: 0px;
     padding-bottom: 100%;
     grid-row: 1 / 1;

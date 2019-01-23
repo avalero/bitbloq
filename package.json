@@ -12,6 +12,7 @@
     "@emotion/styled": "^10.0.5",
     "@types/react": "^16.7.18",
     "apollo-boost": "^0.1.23",
+    "dayjs": "^1.8.0",
     "gatsby": "^2.0.53",
     "gatsby-image": "^2.0.20",
     "gatsby-plugin-emotion": "^4.0.1",
@@ -20,6 +21,7 @@
     "gatsby-plugin-react-helmet": "^3.0.2",
     "gatsby-plugin-sharp": "^2.0.17",
     "gatsby-plugin-typescript": "^2.0.3",
+    "gatsby-plugin-web-font-loader": "^1.0.4",
     "gatsby-source-filesystem": "^2.0.8",
     "gatsby-transformer-sharp": "^2.1.8",
     "isomorphic-fetch": "^2.2.1",
@@ -30,6 +32,7 @@
     "react-dom": "^16.6.3",
     "react-helmet": "^5.2.0",
     "react-no-ssr": "^1.1.0",
+    "react-spring": "^7.2.9",
     "typescript": "^3.2.2"
   },
   "keywords": [

@@ -42,9 +42,9 @@ const LOGIN_MUTATION = gql`
 
 const CREATE_SUBMISSION_MUTATION = gql`
   mutation CreateSubmission($studentNick: String!, $exerciseCode: String!) {
-    createSubmission(student_nick: $studentNick, exercise_code: $exerciseCode) {
+    createSubmission(studentNick: $studentNick, exerciseCode: $exerciseCode) {
       token
-      exercise_id
+      exerciseID
       type
     }
   }
@@ -54,13 +54,14 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   readonly state = new IndexPageState();
 
   onTeacherLogin = ({ login: token }) => {
+    window.sessionStorage.setItem('authToken', '');
     window.localStorage.setItem('authToken', token);
     navigate('/app');
   };
 
-  onStudentLogin = ({ createSubmission: { token, exercise_id, type }}) => {
-    window.localStorage.setItem('authToken', token);
-    navigate(`/app/exercise/${type}/${exercise_id}/`);
+  onStudentLogin = ({ createSubmission: { token, exerciseID, type }}) => {
+    window.sessionStorage.setItem('authToken', token);
+    navigate(`/app/exercise/${type}/${exerciseID}/`);
   };
 
   renderTeacherTab() {
@@ -143,7 +144,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             onChange={e => this.setState({ studentNick: e.target.value })}
             placeholder="Nombre de usuario"
           />
-          <Input
+          <CodeInput
             value={exerciseCode}
             onChange={e => this.setState({ exerciseCode: e.target.value })}
             placeholder="Código de ejercicio"
@@ -367,12 +368,16 @@ const DashedLine = styled.div`
   background-size: 100% 20px;
 `;
 
+const CodeInput = styled(Input)`
+  font-family: 'Roboto Mono';
+`;
+
 const LoginForm = styled.form`
   box-sizing: border-box;
   width: 360px;
   padding: 40px;
 
-  ${Input} {
+  ${Input}, ${CodeInput} {
     margin-bottom: 20px;
   }
 `;
@@ -380,3 +385,4 @@ const LoginForm = styled.form`
 const LoginButton = styled(Button)`
   width: 100%;
 `;
+

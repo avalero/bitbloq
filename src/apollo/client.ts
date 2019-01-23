@@ -1,16 +1,17 @@
-import ApolloClient from 'apollo-boost';
-import fetch from 'isomorphic-fetch';
+import ApolloClient from "apollo-boost";
+import fetch from "isomorphic-fetch";
 
 export const client = new ApolloClient({
-  uri: '/api/graphql',
+  uri: "/api/graphql",
   request: async operation => {
-    const token = window.localStorage.getItem('authToken');
+    const token =
+      window.sessionStorage.getItem("authToken") ||
+      window.localStorage.getItem("authToken");
     operation.setContext({
       headers: {
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`
       }
     });
   },
   fetch
 });
-
