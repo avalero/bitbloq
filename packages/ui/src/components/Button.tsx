@@ -28,6 +28,10 @@ const Button = styled.button`
     outline: none;
   }
 
+  ${props => props.small && css`
+    height: 30px;
+  `}
+
   ${props => props.secondary && css`
     background-color: ${colors.black};
     &:hover {

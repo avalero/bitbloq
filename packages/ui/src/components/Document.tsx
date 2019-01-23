@@ -34,8 +34,23 @@ const HeaderWrap = styled.div<HeaderWrapProps>`
 `;
 
 const Header = styled.div`
-  height: 70px;
+  height: 69px;
   display: flex;
+  border-bottom: 1px solid #dadada;
+`;
+
+const HeaderButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  border-left: 1px solid #dadada;
+  cursor: pointer;
+
+  svg {
+    width: 24px;
+    height: 24px;
+  }
 `;
 
 const DocumentIcon = styled.div`
@@ -143,10 +158,16 @@ export interface TabProps {
 
 export const Tab: React.SFC<TabProps> = props => null;
 
+export interface HeaderButton {
+  id: string;
+  icon: string;
+}
+
 export interface DocumentProps {
   menuOptions?: MainMenuOption[];
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
+  headerButtons?: HeaderButton[];
 }
 
 interface State {
@@ -173,7 +194,9 @@ class Document extends React.Component<DocumentProps, State> {
       menuOptions = [],
       menuRightContent,
       onMenuOptionClick,
-      title
+      title,
+      headerButtons = [],
+      onHeaderButtonClick
     } = this.props;
     const { currentTabIndex, isHeaderCollapsed } = this.state;
 
@@ -185,6 +208,11 @@ class Document extends React.Component<DocumentProps, State> {
           <Header>
             <DocumentIcon />
             <Title>{title}</Title>
+            {headerButtons.map(button => (
+              <HeaderButton onClick={() => onHeaderButtonClick(button.id)}>
+                <Icon name={button.icon} />
+              </HeaderButton>
+            ))}
           </Header>
         </HeaderWrap>
         <MenuWrap>

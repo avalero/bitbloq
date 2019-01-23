@@ -96,7 +96,6 @@ const menuOptions = ({advancedMode}, t) => [
 ];
 
 class ThreeD extends React.Component {
-
   componentDidMount() {
     const {initialContent, newScene} = this.props;
 
@@ -122,7 +121,17 @@ class ThreeD extends React.Component {
   };
 
   render() {
-    const {children, advancedMode, setAdvancedMode, t} = this.props;
+    const {
+      children,
+      advancedMode,
+      setAdvancedMode,
+      title,
+      canEditTitle,
+      onEditTitle,
+      headerButtons,
+      onHeaderButtonClick,
+      t,
+    } = this.props;
 
     const menuRightContent = (
       <AdvanceModeWrap>
@@ -132,10 +141,7 @@ class ThreeD extends React.Component {
     );
 
     const mainTab = (
-      <Document.Tab
-        key="3d"
-        icon={<Icon name="threed" />}
-        label={t('tab-3d')}>
+      <Document.Tab key="3d" icon={<Icon name="threed" />} label={t('tab-3d')}>
         <Container>
           <ObjectTree />
           <MainArea>
@@ -149,11 +155,15 @@ class ThreeD extends React.Component {
 
     return (
       <Document
-        title={t('untitled-project')}
+        title={title || t('untitled-project')}
+        canEditTitle={canEditTitle}
+        onEditTitle={onEditTitle}
+        headerButtons={headerButtons}
+        onHeaderButtonClick={onHeaderButtonClick}
         menuOptions={menuOptions(this.props, t)}
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
-        {(typeof children === 'function') ? children(mainTab) : mainTab}
+        {typeof children === 'function' ? children(mainTab) : mainTab}
       </Document>
     );
   }
@@ -168,4 +178,7 @@ const mapDispatchToProps = dispatch => ({
   newScene: json => dispatch(newScene(json)),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withTranslate(ThreeD));
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(withTranslate(ThreeD));
