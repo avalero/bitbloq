@@ -1,4 +1,5 @@
 import * as React from 'react'
+import Airplane from './icons/Airplane'
 import Angle from './icons/Angle'
 import AngleDouble from './icons/AngleDouble'
 import Arrow from './icons/Arrow'
@@ -51,6 +52,8 @@ export interface IconProps {
  */
 const Icon: React.SFC<IconProps> = ({name}) => {
   switch(name) {
+    case 'airplane':
+      return <Airplane />;
     case 'angle':
       return <Angle />;
     case 'angle-double':
