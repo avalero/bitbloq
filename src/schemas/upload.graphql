@@ -5,6 +5,7 @@
     path: String!
     filename: String!
     mimetype: String!
+    url:String
   }
 
   type Query {

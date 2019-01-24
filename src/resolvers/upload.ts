@@ -15,22 +15,36 @@ const processUpload = async upload => {
       cacheControl: 'private, max-age=0, no-transform',
     },
   };
-  const stream = upload.createWriteStream(opts);
+  const fileStream = createReadStream();
+  const gStream = file.createWriteStream(opts);
 
-  stream.on('error', function(err) {
-    throw new Error('Error uploading image');
-  });
+  gStream
+    .on('error', function(err) {
+        throw new Error('Error uploading image');
+    })
 
-  stream.on('finish', () => {
-    file.makePublic().then(() => {
-      return 'Finished upload';
-    });
-  });
+    .on('finish', (err) => {
+        if(err) throw new Error ('Error uploading file');
+        console.log("ENTRA EN FINISH");
+        upload.cloudStorageObject = gcsname;
+        file.makePublic().then(() => {
+          upload.cloudStoragePublicUrl = getPublicUrl(gcsname);
+          console.log(upload.cloudStoragePublicUrl);
+        });
+    
+    })
+  
+    fileStream.pipe(gStream);
 
-  stream.end(upload.buffer);
 
-  console.log(`${filename} uploaded.`);
+    console.log(`${filename} uploaded.`);
 };
+
+function getPublicUrl (filename) {
+    return `https://storage.googleapis.com/${process.env.CLOUDSTORAGEBUCKET}/${filename}`;
+  }
+
+
 
 const uploadResolver = {
   Query: {
@@ -38,13 +52,13 @@ const uploadResolver = {
   },
   Mutation: {
     async singleUpload(parent, { file }) {
-      const { stream, filename, mimetype, encoding } = await file;
+      const { filename, mimetype, encoding } = await file;
 
-      await processUpload(file);
+      const fileRes = await processUpload(file);
 
-      UploadModel.create(file);
+      await UploadModel.create(file);
 
-      return { filename, mimetype, encoding };
+      return fileRes;
     },
   },
 };

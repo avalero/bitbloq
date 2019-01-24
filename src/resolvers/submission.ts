@@ -55,7 +55,7 @@ const submissionResolver = {
         token: token,
         submissionID: newSub._id,
         exerciseID: exFather._id,
-        type: exFather.type
+        type: exFather.type,
       };
     },
 
