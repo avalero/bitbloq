@@ -1,12 +1,12 @@
 import * as React from "react";
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
 import MenuBar, {
   MainMenuOption,
-  OptionClickHandler as MenuOptionClickHandler,
-} from './MenuBar';
-import Icon from './Icon';
-import Tooltip from './Tooltip';
+  OptionClickHandler as MenuOptionClickHandler
+} from "./MenuBar";
+import Icon from "./Icon";
+import Tooltip from "./Tooltip";
 
 const Container = styled.div`
   display: flex;
@@ -181,6 +181,13 @@ class Document extends React.Component<DocumentProps, State> {
     isHeaderCollapsed: false
   };
 
+  componentDidMount() {
+    const { initialTab } = this.props;
+    if (initialTab) {
+      this.setState({ currentTabIndex: initialTab });
+    }
+  }
+
   onCollapseButtonClick = () => {
     this.setState(state => ({
       ...state,
@@ -220,7 +227,8 @@ class Document extends React.Component<DocumentProps, State> {
           {menuRightContent}
           <CollapseButton
             onClick={this.onCollapseButtonClick}
-            collapsed={isHeaderCollapsed}>
+            collapsed={isHeaderCollapsed}
+          >
             <Icon name="angle-double" />
           </CollapseButton>
         </MenuWrap>

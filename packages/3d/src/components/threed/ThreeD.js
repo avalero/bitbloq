@@ -130,6 +130,7 @@ class ThreeD extends React.Component {
       onEditTitle,
       headerButtons,
       onHeaderButtonClick,
+      initialTab,
       t,
     } = this.props;
 
@@ -156,6 +157,7 @@ class ThreeD extends React.Component {
     return (
       <Document
         title={title || t('untitled-project')}
+        initialTab={initialTab}
         canEditTitle={canEditTitle}
         onEditTitle={onEditTitle}
         headerButtons={headerButtons}
