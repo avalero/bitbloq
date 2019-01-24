@@ -1,7 +1,7 @@
 import { UploadModel } from '../models/upload';
 const { Storage } = require('@google-cloud/storage');
-const storage = new Storage(process.env.GCLOUD); //proyect ID
-const bucket = storage.bucket(process.env.CLOUDSTORAGEBUCKET); //bucket name
+const storage = new Storage(process.env.GCLOUD_PROJECT_ID); //proyect ID
+const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); //bucket name
 
 const processUpload = async upload => {
   const { createReadStream, filename, mimetype } = await upload;
