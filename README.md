@@ -1,4 +1,32 @@
-**_BITBLOQ API_**
+# Bitbloq Space API
+
+## Despliegue
+
+Para desplegar la API desde la carpeta de `api` hacer
+
+    npm install
+
+Establecer las siguientes variables de entorno
+
+    MONGO_URL=mongodb://localhost/back_bitbloq_db
+    JWT_SECRET=averyveryverylongandrandompassword
+    PORT=4000
+    FRONTEND_URL=http://localhost:8000
+    MAILER_HOST=smtp.gmail.com
+    MAILER_PORT=587
+    MAILER_USER=myuser@gmail.com
+    MAILER_PASSWORD=mygmailpassword
+    MAILER_FROM=from_address@domain.com
+    GCLOUD_PROJECT_ID=gcloud
+    GCLOUD_STORAGE_BUCKET=bitbloq-dev
+    GOOGLE_APPLICATION_CREDENTIALS=/home/alda/Documentos/bitbloq-dev-bq-contacts.json
+
+Y arrancar con
+
+    npm start
+
+
+## Uso API
 
 Apollo - GraphQL - Koa - Mongoose
 
