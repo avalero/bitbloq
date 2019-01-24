@@ -26,6 +26,7 @@
     ]
   },
   "dependencies": {
+    "@google-cloud/storage": "^2.3.4",
     "@nestjs/common": "^5.5.0",
     "@nestjs/core": "^5.5.0",
     "@nestjs/graphql": "^5.4.0",
@@ -43,11 +44,14 @@
     "jsonwebtoken": "^8.4.0",
     "koa": "^2.6.2",
     "koa-jwt": "^3.5.1",
+    "lowdb": "^1.0.0",
     "mongoose": "^5.3.16",
     "mongoose-timestamp": "^0.6.0",
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
+    "promises-all": "^1.0.0",
     "reflect-metadata": "^0.1.12",
+    "shortid": "^2.2.14",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
   },

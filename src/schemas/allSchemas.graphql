@@ -2,3 +2,4 @@
 # import Query.*, Mutation.*, * from "./document.graphql"
 # import Query.*, Mutation.*, * from "./exercise.graphql"
 # import Query.*, Mutation.*, * from "./submission.graphql"
+# import Query.*, Mutation.*, * from "./upload.graphql"

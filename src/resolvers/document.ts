@@ -3,6 +3,7 @@ import { DocumentModel } from '../models/document';
 import { AuthenticationError } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
+import { UploadModel } from '../models/upload';
 
 const documentResolver = {
   Mutation: {
@@ -55,6 +56,8 @@ const documentResolver = {
         throw new AuthenticationError('You need to be logged in');
       else if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
+      console.log(args);
+      console.log(context);
       return DocumentModel.find({ user: context.user.userID });
     },
     document: async (root: any, args: any, context: any) => {
@@ -76,6 +79,7 @@ const documentResolver = {
   },
   Document: {
     exercises: async document => ExerciseModel.find({ document: document._id }),
+    uploads: async document => UploadModel.find(),
   },
 };
 

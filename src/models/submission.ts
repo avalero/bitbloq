@@ -50,16 +50,16 @@ const SubmissionMongSchema: Schema = new Schema({
   },
 
   type: {
-    type: String
+    type: String,
   },
 
   comment: {
     type: String,
   },
 
-  finishedAt:{
+  finishedAt: {
     type: Date,
-  }
+  },
 });
 SubmissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(

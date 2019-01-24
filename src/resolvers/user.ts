@@ -12,7 +12,6 @@ const jsonwebtoken = require('jsonwebtoken');
 const saltRounds = 7;
 
 const userResolver = {
-
   Mutation: {
     //public methods:
 
@@ -46,8 +45,7 @@ const userResolver = {
       );
       console.log(token);
 
-      const message: String =
-        `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
+      const message: String = `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
         <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
           pulse aquí
         </a>

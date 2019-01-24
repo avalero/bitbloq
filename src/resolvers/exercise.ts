@@ -1,4 +1,5 @@
 import { AuthenticationError } from 'apollo-server-koa';
+import shortid from 'shortid';
 import { ExerciseModel } from '../models/exercise';
 import { DocumentModel } from '../models/document';
 import { ObjectId } from 'bson';
@@ -19,9 +20,10 @@ const exerciseResolver = {
           'Error creating exercise, it should part of one of your documents',
         );
       const user = await UserModel.findById(context.user.userID);
-      const newCode = Math.random()
-        .toString(36)
-        .substr(2, 6);
+      // const newCode = Math.random()
+      //   .toString(36)
+      //   .substr(2, 6);
+      const newCode: String = shortid.generate();
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
         user: context.user.userID,
@@ -31,7 +33,7 @@ const exerciseResolver = {
         type: docFound.type,
         acceptSubmissions: args.input.acceptSubmissions,
         content: docFound.content,
-        description: args.input.description,
+        description: args.input.description || docFound.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
         versions: args.input.versions,
@@ -104,9 +106,9 @@ const exerciseResolver = {
     //student and user query
     exercise: async (root: any, args: any, context: any) => {
       if (!context.user)
-      throw new AuthenticationError(
-        'You need to be logged in as a user or as a student',
-      );
+        throw new AuthenticationError(
+          'You need to be logged in as a user or as a student',
+        );
       if (context.user.exerciseID) {
         //Token de alumno
         if (context.user.exerciseID != args.id)
@@ -134,7 +136,7 @@ const exerciseResolver = {
     exercises: async (root: any, args: any, context: any) => {
       if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      return  ExerciseModel.find({ user: context.user.userID });
+      return ExerciseModel.find({ user: context.user.userID });
     },
   },
 

@@ -24,11 +24,16 @@ mongoose.connect(
 );
 
 const server = new ApolloServer({
-  schema: exSchema,
   context: async ({ ctx }) => {
     const user = await contextController.getMyUser(ctx);
     // add the user to the context
     return { user };
+    //return ctx;
+  },
+  schema: exSchema,
+  upload: {
+    maxFileSize: 10000000,
+    maxFiles: 20,
   },
 });
 

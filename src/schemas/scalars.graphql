@@ -2,3 +2,4 @@ scalar Date
 scalar JSON
 scalar ObjectID
 scalar EmailAddress
+scalar Upload

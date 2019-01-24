@@ -1,9 +1,10 @@
 # import Date, ObjectID from './scalars.graphql'
 # import Exercise from './exercise.graphql'
+# import File from './upload.graphql'
 
 
 type Query {
-    documents: [Document]
+    documents: [Document] 
     document(id: ObjectID!): Document
 }
 type Mutation {
@@ -23,6 +24,7 @@ type Document {
     createdAt: Date
     updatedAt: Date
     exercises: [Exercise]
+    uploads: [File]
 }
 
 input DocumentIn {
