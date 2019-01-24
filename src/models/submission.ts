@@ -30,7 +30,6 @@ const SubmissionMongSchema: Schema = new Schema({
 
   studentNick: {
     type: String,
-    default: 'aaaaa',
   },
 
   content: {
