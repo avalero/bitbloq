@@ -27,6 +27,7 @@ const AppPage = () => (
         <Router>
           <PrivateRoute path="/app" component={Documents} />
           <PrivateRoute path="/app/document/:id" component={Document} />
+          <PrivateRoute path="/app/document/3d/:id" component={ThreeDEditor} />
           <PrivateRoute
             path="/app/exercise/3d/:id"
             component={ThreeDExercise}

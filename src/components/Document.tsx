@@ -301,6 +301,7 @@ const DocumentTitle = styled.div`
 
 const DocumentDescription = styled.div`
   font-size: 16px;
+  margin-bottom: 25px;
 `;
 
 const Buttons = styled.div`

@@ -19,6 +19,7 @@ const EXERCISE_QUERY = gql`
       type
       title
       content
+      description
     }
   }
 `;
@@ -45,7 +46,7 @@ class ThreeDExercise extends React.Component<any, State> {
 
   renderInfoTab() {
     const { t, exercise } = this.props;
-    const { id, title, content } = exercise;
+    const { id, title, content, description } = exercise;
 
     return (
       <Document.Tab
@@ -60,7 +61,7 @@ class ThreeDExercise extends React.Component<any, State> {
               <ExerciseImage />
               <ExerciseInfo>
                 <h2>{title}</h2>
-                <p>Description</p>
+                <p>{description}</p>
               </ExerciseInfo>
             </InfoContent>
           </InfoPanel>
@@ -89,6 +90,7 @@ class ThreeDExercise extends React.Component<any, State> {
           {finishSubmission => (
             <ThreeD
               initialContent={content}
+              initialTab={1}
               onContentChange={content => (this.content = content)}
               title={title}
               headerButtons={[{ id: "submit", icon: "airplane" }]}

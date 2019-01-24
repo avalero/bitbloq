@@ -30,7 +30,6 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
   componentDidUpdate(prevProps) {
     const { title, description } = this.props;
     if (title !== prevProps.title || description !== prevProps.description) {
-      console.log("asdasdasd");
       this.setState({
         title,
         description
@@ -54,9 +53,12 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
                 <Input
                   value={title}
                   placeholder="Título del ejercicio"
-                  onChange={e =>
-                    onChange({ title: e.target.value, description })
-                  }
+                  onChange={e => {
+                    this.setState({
+                      title: e.target.value
+                    });
+                    onChange({ title: e.target.value, description });
+                  }}
                 />
               </FormInput>
             </FormRow>
@@ -68,6 +70,12 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
                 <TextArea
                   value={description}
                   placeholder="Descripción del ejercicio"
+                  onChange={e => {
+                    this.setState({
+                      description: e.target.value
+                    });
+                    onChange({ title, description: e.target.value });
+                  }}
                   rows="3"
                 />
               </FormInput>

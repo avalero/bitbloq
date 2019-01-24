@@ -3,14 +3,9 @@ import styled from "@emotion/styled";
 import { Query, Mutation } from "react-apollo";
 import debounce from "lodash.debounce";
 import { ThreeD } from "@bitbloq/3d";
-import {
-  colors,
-  Document,
-  Icon,
-  withTranslate
-} from "@bitbloq/ui";
+import { colors, Document, Icon, withTranslate } from "@bitbloq/ui";
 import gql from "graphql-tag";
-import DocumentInfoForm from './DocumentInfoForm';
+import DocumentInfoForm from "./DocumentInfoForm";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -35,6 +30,8 @@ const UPDATE_DOCUMENT_MUTATION = gql`
       id: $id
       input: { title: $title, content: $content, description: $description }
     ) {
+      id
+      type
       content
     }
   }
@@ -44,8 +41,8 @@ class ThreeDEditor extends React.Component {
   onEditTitle(document) {}
 
   renderInfoTab(document) {
-    const { t } = this.props;
-    const { id, title, description } = document;
+    const { t, updateDocument } = this.props;
+    const { id, title, description, content } = document;
 
     return (
       <Document.Tab
@@ -56,6 +53,17 @@ class ThreeDEditor extends React.Component {
         <DocumentInfoForm
           title={title}
           description={description}
+          onChange={({ title, description }) =>
+            updateDocument({
+              variables: { id, title, content, description },
+              refetchQueries: [
+                {
+                  query: DOCUMENT_QUERY,
+                  variables: { id }
+                }
+              ]
+            })
+          }
         />
       </Document.Tab>
     );
@@ -112,4 +120,3 @@ const withUpdateDocument = Component => props => (
 );
 
 export default withTranslate(withUpdateDocument(ThreeDEditor));
-
