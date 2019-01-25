@@ -47,7 +47,6 @@ const uploadResolver = {
   },
   Mutation: {
     singleUpload: async (file, documentID) => {
-      console.log(file);
       const { createReadStream, filename, mimetype, encoding } = await file;
 
       await new Promise((resolve, reject) =>
@@ -62,7 +61,6 @@ const uploadResolver = {
         encoding: encoding,
         publicURL: publicURL,
       });
-      console.log(uploadNew);
       return UploadModel.create(uploadNew);
     },
   },
