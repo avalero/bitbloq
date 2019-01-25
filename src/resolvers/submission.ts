@@ -158,7 +158,17 @@ const submissionResolver = {
   },
 
   Query: {
+    //devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
+    submissions: async (root: any, args: any, context: any) => {
+      if (!context.user)
+        throw new AuthenticationError('You need to be logged in as a user');
+      else if (!context.user.userID)
+        throw new AuthenticationError('You need to be logged in as a user');
+      return SubmissionModel.find({ user: context.user.userID });
+    },
+
     //Student and user querie:
+    //devuelve la información de la submission que se le pasa en el id con el tocken del alumno o de usuario
     submission: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError(
@@ -204,14 +214,6 @@ const submissionResolver = {
         throw new Error('No submissions for this exercise');
       }
       return subs;
-    },
-
-    submissions: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a user');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in as a user');
-      return SubmissionModel.find({ user: context.user.userID });
     },
   },
 };

@@ -6,7 +6,7 @@ interface IDocument extends Document {
   title?: String;
   type?: String;
   content?: String;
-  image?: { Mixed };
+  image: String;
   createdAt?: Date;
   updatedAt?: Date;
   description?: String;
@@ -21,7 +21,7 @@ const DocumentMongSchema: Schema = new Schema({
 
   title: {
     type: String,
-    trim: true,
+    default: 'New document',
   },
 
   type: {
@@ -31,13 +31,11 @@ const DocumentMongSchema: Schema = new Schema({
 
   content: {
     type: String,
-    trim: true,
     default: 'content',
   },
 
   image: {
     type: String,
-    default: 'default',
   },
 
   description: {

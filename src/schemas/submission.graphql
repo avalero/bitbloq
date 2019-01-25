@@ -2,42 +2,42 @@
 # import Exercise from './exercise.graphql'
 
 type Query {
-    submissions: [Submission]
-    submission(id: ObjectID!): Submission
-    submissionsByExercise(exercise: String!): [Submission]
+  submissions: [Submission]
+  submission(id: ObjectID!): Submission
+  submissionsByExercise(exercise: String!): [Submission]
 }
 type Mutation {
-    createSubmission(exerciseCode: String!, studentNick: String!): createOut
-    updateSubmission(input: SubmissionIn): Submission
-    finishSubmission(content: String, comment: String): Submission
-    cancelSubmission: Submission
-    deleteSubmission(submissionID: String): Submission
+  createSubmission(exerciseCode: String!, studentNick: String!): createOut
+  updateSubmission(input: SubmissionIn): Submission
+  finishSubmission(content: String, comment: String): Submission
+  cancelSubmission: Submission
+  deleteSubmission(submissionID: String): Submission
 }
 
 type Submission {
-    id: ObjectID
-    title: String
-    exercise: ObjectID
-    user: ObjectID
-    studentNick: String
-    content: String
-    submissionToken: String
-    finished: Boolean
-    comment: String
-    type: String
-    createdAt: Date
-    updatedAt: Date
-    finishedAt: Date
+  id: ObjectID
+  title: String
+  exercise: ObjectID
+  user: ObjectID
+  studentNick: String
+  content: String
+  submissionToken: String
+  finished: Boolean
+  comment: String
+  type: String
+  createdAt: Date
+  updatedAt: Date
+  finishedAt: Date
 }
 input SubmissionIn {
-    title: String
-    finished: Boolean
-    comment: String
-    studentNick: String
+  title: String
+  finished: Boolean
+  comment: String
+  studentNick: String
 }
 type createOut {
-    token: String
-    type: String
-    submissionID: ObjectID
-    exerciseID: ObjectID
+  token: String
+  type: String
+  submissionID: ObjectID
+  exerciseID: ObjectID
 }

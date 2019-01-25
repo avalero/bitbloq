@@ -10,6 +10,7 @@ interface ISubmission extends Document {
   finished?: Boolean;
   comment?: String;
   type: String;
+  image: String;
 }
 
 const SubmissionMongSchema: Schema = new Schema({
@@ -34,13 +35,11 @@ const SubmissionMongSchema: Schema = new Schema({
 
   content: {
     type: String,
-    trim: true,
     default: 'content',
   },
 
   submissionToken: {
     type: String,
-    trim: true,
   },
 
   finished: {

@@ -1,4 +1,3 @@
-//import * as mongoose from 'mongoose';
 import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
@@ -12,9 +11,8 @@ interface IExercise extends Document {
   teacherName: String;
   content?: String;
   acceptSubmissions?: Boolean;
-  versions?: [String];
-  submissions?: [String];
   expireDate?: Date;
+  image: String;
 }
 
 const ExerciseMongSchema: Schema = new Schema({
@@ -60,13 +58,7 @@ const ExerciseMongSchema: Schema = new Schema({
     default: true,
   },
 
-  versions: [
-    {
-      id: String,
-      content: String,
-      date: String,
-    },
-  ],
+  image: String,
 
   expireDate: {
     type: Date,

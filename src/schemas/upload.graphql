@@ -1,19 +1,17 @@
-# import Upload from './scalars.graphql'
-  
-  type File {
-    id: ID!
-    path: String!
-    filename: String!
-    mimetype: String!
-    url:String
-  }
+# import Upload, ObjectID from './scalars.graphql'
 
-  type Query {
-    uploads: [File]
-  }
+type File {
+  id: ID!
+  filename: String
+  mimetype: String
+  publicURL: String
+  document: ObjectID
+}
 
-  type Mutation {
-    singleUpload(file: Upload!): File!
-    multipleUpload(files: [Upload!]!): [File!]!
-  }
+type Query {
+  uploads: [File]
+}
 
+type Mutation {
+  singleUpload(file: Upload!, documentID: String): File
+}

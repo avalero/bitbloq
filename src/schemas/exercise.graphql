@@ -2,47 +2,47 @@
 # import Submission from './submission.graphql'
 
 type Query {
-    exercises: [Exercise]
-    exercise(id: ObjectID!): Exercise
-    exercisesByDocument(document: ObjectID!): [Exercise]
+  exercises: [Exercise]
+  exercise(id: ObjectID!): Exercise
+  exercisesByDocument(document: ObjectID!): [Exercise]
 }
 type Mutation {
-    createExercise(input: ExerciseIn!): Exercise
-    changeSubmissionsState(id: ObjectID!, subState: Boolean!): Exercise
-    updateExercise(id: ObjectID!, input: ExerciseIn): Exercise
-    deleteExercise(id: ObjectID!, code: String!): Exercise
+  createExercise(input: ExerciseIn!): Exercise
+  changeSubmissionsState(id: ObjectID!, subState: Boolean!): Exercise
+  updateExercise(id: ObjectID!, input: ExerciseIn): Exercise
+  deleteExercise(id: ObjectID!, code: String!): Exercise
 }
 
 type Exercise {
-    id: ObjectID
-    document: ObjectID
-    user: ObjectID
-    title: String
-    content: String
-    code: String
-    type: String
-    description: String
-    teacherName: String
-    acceptSubmissions: Boolean
-    versions: [String]
-    expireDate: Date
-    createdAt: Date
-    updatedAt: Date
-    submissions:[Submission]
+  id: ObjectID
+  document: ObjectID
+  user: ObjectID
+  title: String
+  content: String
+  code: String
+  type: String
+  description: String
+  teacherName: String
+  acceptSubmissions: Boolean
+  image: String
+  expireDate: Date
+  createdAt: Date
+  updatedAt: Date
+  submissions: [Submission]
 }
 
 input ExerciseIn {
-    document: ObjectID
-    title: String
-    code: String
-    description: String
-    acceptSubmissions: Boolean
-    versions: Version
-    expireDate: Date
+  document: ObjectID
+  title: String
+  code: String
+  description: String
+  acceptSubmissions: Boolean
+  versions: Version
+  expireDate: Date
 }
 
 input Version {
-    id: String
-    content: String
-    date: String
+  id: String
+  content: String
+  date: String
 }

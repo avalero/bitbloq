@@ -20,10 +20,10 @@ const exerciseResolver = {
           'Error creating exercise, it should part of one of your documents',
         );
       const user = await UserModel.findById(context.user.userID);
-      // const newCode = Math.random()
-      //   .toString(36)
-      //   .substr(2, 6);
-      const newCode: String = shortid.generate();
+      const newCode = Math.random()
+        .toString(36)
+        .substr(2, 6);
+      //const newCode: String = shortid.generate();
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
         user: context.user.userID,
@@ -37,6 +37,7 @@ const exerciseResolver = {
         teacherName: user.name,
         expireDate: args.input.expireDate,
         versions: args.input.versions,
+        image: docFound.image,
       });
       return ExerciseModel.create(exerciseNew);
     },
@@ -61,8 +62,15 @@ const exerciseResolver = {
     deleteExercise: async (root: any, args: any, context: any) => {
       if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-
-      return ExerciseModel.deleteOne({ _id: args.id });
+      const existExercise = await ExerciseModel.findOne({
+        _id: args.id,
+        user: context.user.userID,
+      });
+      if (existExercise) {
+        return ExerciseModel.deleteOne({ _id: args.id });
+      } else {
+        return new Error('Exercise does not exist');
+      }
     },
 
     updateExercise: async (root: any, args: any, context: any) => {
@@ -85,25 +93,14 @@ const exerciseResolver = {
   },
 
   Query: {
-    exercisesByDocument: async (root: any, args: any, context: any) => {
+    //devuelve todos los ejercicios del usuario logeado
+    exercises: async (root: any, args: any, context: any) => {
       if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      const documentFound = await DocumentModel.findOne({
-        _id: args.document,
-        user: context.user.userID,
-      });
-      if (!documentFound) throw new Error('document does not exist');
-      const ex = await ExerciseModel.find({
-        document: documentFound._id,
-        user: context.user.userID,
-      });
-      if (ex.length == 0) {
-        throw new Error('No exercises for this document');
-      }
-      return ex;
+      return ExerciseModel.find({ user: context.user.userID });
     },
 
-    //student and user query
+    //student and user query, devuelve la información del ejercicio que se le pasa en el id con el tocken del alumno o de usuario
     exercise: async (root: any, args: any, context: any) => {
       if (!context.user)
         throw new AuthenticationError(
@@ -133,10 +130,22 @@ const exerciseResolver = {
       }
     },
 
-    exercises: async (root: any, args: any, context: any) => {
+    exercisesByDocument: async (root: any, args: any, context: any) => {
       if (!context.user.userID)
         throw new AuthenticationError('You need to be logged in');
-      return ExerciseModel.find({ user: context.user.userID });
+      const documentFound = await DocumentModel.findOne({
+        _id: args.document,
+        user: context.user.userID,
+      });
+      if (!documentFound) throw new Error('document does not exist');
+      const ex = await ExerciseModel.find({
+        document: documentFound._id,
+        user: context.user.userID,
+      });
+      if (ex.length == 0) {
+        throw new Error('No exercises for this document');
+      }
+      return ex;
     },
   },
 
