@@ -16,6 +16,7 @@ const DOCUMENTS_QUERY = gql`
       type
       title
       createdAt
+      image
     }
   }
 `;
@@ -149,7 +150,7 @@ class Documents extends React.Component<any, DocumentsState> {
                         key={document.id}
                         onClick={() => this.onDocumentClick(document)}
                       >
-                        <DocumentImage />
+                        <DocumentImage src={document.image} />
                         <DocumentInfo>
                           <DocumentTypeTag small document={document} />
                           <DocumentTitle>{document.title}</DocumentTitle>
@@ -250,9 +251,15 @@ const DocumentCard = styled.div`
   overflow: hidden;
 `;
 
-const DocumentImage = styled.div`
+interface DocumentImageProps {
+  src: string;
+}
+const DocumentImage = styled.div<DocumentImageProps>`
   flex: 1;
   background-color: ${colors.gray2};
+  background-image: url(${props => props.src});
+  background-size: cover;
+  background-position: center;
 `;
 
 const DocumentInfo = styled.div`

@@ -15,6 +15,7 @@ const DOCUMENT_QUERY = gql`
       title
       description
       content
+      image
     }
   }
 `;
@@ -25,14 +26,21 @@ const UPDATE_DOCUMENT_MUTATION = gql`
     $title: String!
     $content: String
     $description: String
+    $image: Upload
   ) {
     updateDocument(
       id: $id
-      input: { title: $title, content: $content, description: $description }
+      input: {
+        title: $title,
+        content: $content,
+        description: $description,
+        image: $image
+      }
     ) {
       id
       type
       content
+      image
     }
   }
 `;
@@ -42,7 +50,7 @@ class ThreeDEditor extends React.Component {
 
   renderInfoTab(document) {
     const { t, updateDocument } = this.props;
-    const { id, title, description, content } = document;
+    const { id, title, description, content, image } = document;
 
     return (
       <Document.Tab
@@ -53,9 +61,10 @@ class ThreeDEditor extends React.Component {
         <DocumentInfoForm
           title={title}
           description={description}
-          onChange={({ title, description }) =>
+          image={image}
+          onChange={({ title, description, image }) =>
             updateDocument({
-              variables: { id, title, content, description },
+              variables: { id, title, content, description, image },
               refetchQueries: [
                 {
                   query: DOCUMENT_QUERY,

@@ -23,6 +23,7 @@ const DOCUMENT_QUERY = gql`
       type
       title
       description
+      image
       exercises {
         id
         code
@@ -88,7 +89,7 @@ class Document extends React.Component<any, DocumentState> {
   renderDocumentInfo(document) {
     return (
       <DocumentInfo>
-        <DocumentImage />
+        <DocumentImage src={document.image} />
         <div>
           <DocumentTypeTag document={document} />
           <DocumentTitle>{document.title}</DocumentTitle>
@@ -285,12 +286,18 @@ const DocumentInfo = styled.div`
   display: flex;
 `;
 
-const DocumentImage = styled.div`
+interface DocumentImageProps {
+  src: string;
+}
+const DocumentImage = styled.div<DocumentImageProps>`
   width: 300px;
   height: 240px;
   background-color: ${colors.gray2};
   border-radius: 4px;
   margin-right: 40px;
+  background-image: url(${props => props.src});
+  background-size: cover;
+  background-position: center;
 `;
 
 const DocumentTitle = styled.div`

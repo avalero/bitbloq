@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "@emotion/styled";
-import { colors, Input, TextArea } from "@bitbloq/ui";
+import { colors, FileSelectButton, Input, TextArea } from "@bitbloq/ui";
 
 export interface DocumentInfoFormProps {
   title: string;
@@ -38,7 +38,7 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
   }
 
   render() {
-    const { onChange } = this.props;
+    const { onChange, image } = this.props;
     const { title, description } = this.state;
     return (
       <Container>
@@ -78,6 +78,25 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
                   }}
                   rows="3"
                 />
+              </FormInput>
+            </FormRow>
+            <FormRow>
+              <FormLabel>
+                <label>Imagen del ejercicio</label>
+                <FormSubLabel>
+                  Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1Mb.
+                </FormSubLabel>
+              </FormLabel>
+              <FormInput>
+                <Image src={image} />
+                <ImageButton
+                  tertiary
+                  onFileSelected={image =>
+                    onChange({ title, description, image })
+                  }
+                >
+                  Seleccionar imagen
+                </ImageButton>
               </FormInput>
             </FormRow>
           </Form>
@@ -142,6 +161,30 @@ const FormLabel = styled.div`
   }
 `;
 
+const FormSubLabel = styled.div`
+  font-size: 12px;
+  font-style: italic;
+  margin-top: 10px;
+`;
+
 const FormInput = styled.div`
   flex: 2;
+`;
+
+interface ImageProps {
+  src: string;
+}
+const Image = styled.div<ImageProps>`
+  border: 1px solid ${colors.gray3};
+  border-radius: 4px;
+  width: 250px;
+  height: 160px;
+  margin-bottom: 10px;
+  background-image: url(${props => props.src});
+  background-size: cover;
+  background-position: center;
+`;
+
+const ImageButton = styled(FileSelectButton)`
+  width: 250px;
 `;
