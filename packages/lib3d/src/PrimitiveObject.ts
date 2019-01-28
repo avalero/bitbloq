@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-28 18:47:12
+ * Last modified  : 2019-01-28 19:44:12
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -35,10 +35,15 @@ export default class PrimitiveObject extends Object3D {
   }
 
   public toJSON(): IPrimitiveObjectJSON {
-    return cloneDeep({
+    // return cloneDeep({
+    //   ...super.toJSON(),
+    //   parameters: this.parameters,
+    // });
+
+    return {
       ...super.toJSON(),
       parameters: this.parameters,
-    });
+    };
   }
 
   /**

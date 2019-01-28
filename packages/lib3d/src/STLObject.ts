@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-28 19:20:12
+ * Last modified  : 2019-01-28 19:45:45
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -102,34 +102,27 @@ export default class STLObject extends PrimitiveObject {
       ...object.viewOptions,
     };
 
-    
-
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
-    
-
-
     // if anything has changed, recompute mesh
-    if (object.parameters.blob.newfile) {
-      
-      delete (this.lastJSON as ISTLJSON).parameters.blob.uint8Data;
-      const lastJSONWithoutVOAndData = cloneDeep(this.lastJSON);
-      delete lastJSONWithoutVOAndData.viewOptions;
-      const thisJSON = this.toJSON();
+    if (object.parameters.blob.newfile || this.pendingOperation || this.viewOptionsUpdateRequired) {
+      // delete (this.lastJSON as ISTLJSON).parameters.blob.uint8Data;
+      // const lastJSONWithoutVOAndData = cloneDeep(this.lastJSON);
+      // delete lastJSONWithoutVOAndData.viewOptions;
+      // const thisJSON = this.toJSON();
 
-      delete (thisJSON as ISTLJSON).parameters.blob.uint8Data;
-      delete (thisJSON as ISTLJSON).viewOptions;
-      const currentJSONWithoutVOAndData = cloneDeep(thisJSON);
+      // delete (thisJSON as ISTLJSON).parameters.blob.uint8Data;
+      // delete (thisJSON as ISTLJSON).viewOptions;
+      // const currentJSONWithoutVOAndData = cloneDeep(thisJSON);
 
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
 
       // parents need update?
-
       if (
-        !isEqual(lastJSONWithoutVOAndData, currentJSONWithoutVOAndData) ||
+        this.pendingOperation ||
         this.getParent() instanceof RepetitionObject ||
         this.getParent() instanceof ObjectsGroup
       ) {
