@@ -100,7 +100,6 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       createDocument(input: DocumentIn!): Document
       deleteDocument(id: ObjectID!): Document
       updateDocument(id: ObjectID!, input: DocumentIn): Document
-      updateDocumentImage(id: ObjectID!, input: DocumentIn): Document
 
     input DocumentIn {
       id: ObjectID

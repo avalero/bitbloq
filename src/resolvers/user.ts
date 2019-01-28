@@ -41,7 +41,7 @@ const userResolver = {
           signUpUserID: newUser._id,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' },
+        { expiresIn: '1h' }, //Quitar si no queremos que el token caduque
       );
       console.log(token);
 
@@ -57,7 +57,6 @@ const userResolver = {
         { $set: { signUpToken: token } },
         { new: true },
       );
-      //console.log(token);
       return 'OK';
     },
 
@@ -81,6 +80,7 @@ const userResolver = {
             userID: contactFound._id,
           },
           process.env.JWT_SECRET,
+          { expiresIn: '4h' },
         );
         UserModel.updateOne(
           { _id: contactFound._id },

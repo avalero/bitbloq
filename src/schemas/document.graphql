@@ -4,11 +4,11 @@
 # import Upload from './scalars.graphql'
 
 type Query {
-  documents: [Document]
+  documents: [Document] 
   document(id: ObjectID!): Document
 }
 type Mutation {
-  createDocument(input: DocumentIn!): Document
+  createDocument(input: DocumentIn!): Document 
   deleteDocument(id: ObjectID!): Document
   updateDocument(id: ObjectID!, input: DocumentIn): Document
   updateDocumentImage(id: ObjectID!, input: DocumentIn): Document

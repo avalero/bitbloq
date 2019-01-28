@@ -15,7 +15,7 @@ mongoose.set('debug', true);
 mongoose.set('useFindAndModify', false); //ojo con esto al desplegar
 mongoose.connect(
   mongoUrl,
-  { useNewUrlParser: true },
+  { useNewUrlParser: true, useCreateIndex: true },
   function(err: any) {
     if (err) throw err;
 
@@ -24,11 +24,11 @@ mongoose.connect(
 );
 
 const server = new ApolloServer({
-  context: async ({ ctx }) => {
+  //context: async ({ctx})=> {return {ctx};},
+  context: async ({ ctx}) => {
     const user = await contextController.getMyUser(ctx);
-    // add the user to the context
+    // add the user to the ctx
     return { user };
-    //return ctx;
   },
   schema: exSchema,
   upload: {

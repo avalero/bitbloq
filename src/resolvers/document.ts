@@ -22,7 +22,6 @@ const documentResolver = {
         content: args.input.content,
         description: args.input.description,
         version: args.input.version,
-        exercise: args.input.exercise,
       });
       const newDocument = await DocumentModel.create(documentNew);
 
@@ -66,10 +65,25 @@ const documentResolver = {
         _id: args.id,
         user: context.user.userID,
       });
+
       if (existDocument) {
         if (args.input.image) {
-          return new Error(
-            'Please update images with updateDocumentImage mutation',
+          const imageUploaded = await uploadResolver.Mutation.singleUpload(
+            args.input.image,
+            existDocument._id,
+          );
+          const documentUpdate ={
+            title: args.input.title || existDocument.title,
+            type: args.input.type || existDocument.type,
+            content: args.input.content || existDocument.content,
+            description: args.input.description || existDocument.description,
+            version: args.input.version || existDocument.version,
+            image: imageUploaded.publicURL
+          };
+          return DocumentModel.findOneAndUpdate(
+            { _id: existDocument._id },
+            { $set: documentUpdate  },
+            { new: true },
           );
         } else {
           return DocumentModel.findOneAndUpdate(
@@ -77,34 +91,6 @@ const documentResolver = {
             { $set: args.input },
             { new: true },
           );
-        }
-      } else {
-        return new Error('Document does not exist');
-      }
-    },
-
-    updateDocumentImage: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
-      const existDocument = await DocumentModel.findOne({
-        _id: args.id,
-        user: context.user.userID,
-      });
-      if (existDocument) {
-        if (args.input.image) {
-          const imageUploaded = await uploadResolver.Mutation.singleUpload(
-            args.input.image,
-            existDocument._id,
-          );
-          return DocumentModel.findOneAndUpdate(
-            { _id: existDocument._id },
-            { $set: { image: imageUploaded.publicURL } },
-            { new: true },
-          );
-        } else {
-          return new Error('Insert one new image');
         }
       } else {
         return new Error('Document does not exist');
