@@ -14,6 +14,7 @@ import HorizontalRule from './components/HorizontalRule';
 import TextArea from './components/TextArea';
 import Option from './components/Option';
 import Modal from './components/Modal';
+import FileSelectButton from './components/FileSelectButton';
 import TranslateProvider, {
   Translate,
   withTranslate,
@@ -38,6 +39,7 @@ export {
   TextArea,
   Option,
   TranslateProvider,
+  FileSelectButton,
   Translate,
   Modal,
   withTranslate,
