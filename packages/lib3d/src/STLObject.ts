@@ -9,10 +9,10 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-18 20:50:21
+ * Last modified  : 2019-01-28 18:55:48
  */
 
-import { isEqual } from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon, {
   IViewOptions,
@@ -20,13 +20,17 @@ import ObjectsCommon, {
   IObjectsCommonJSON,
 } from './ObjectsCommon';
 
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
+
+import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
 interface ISTLParams {
   blob: {
-    buffer: ArrayBuffer | Uint8Array;
+    uint8Data: Uint8Array;
     filetype: string;
+    newfile: boolean;
   };
 }
 
@@ -53,6 +57,9 @@ export default class STLObject extends PrimitiveObject {
     return stl;
   }
 
+  private arrayBufferData: ArrayBuffer;
+  private geometry: THREE.Geometry;
+
   constructor(
     parameters: Partial<ISTLParams>,
     operations: OperationsArray = [],
@@ -69,17 +76,63 @@ export default class STLObject extends PrimitiveObject {
     const params: ISTLParams = {
       ...parameters,
       blob: parameters.blob || {
-        buffer: new ArrayBuffer(0),
+        uint8Data: new Uint8Array(0),
         filetype: 'empty',
+        newfile: false,
       },
     };
 
     this.setParameters(params);
     this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
       this.meshPromise = this.computeMeshAsync();
+    }
+  }
+
+  public updateFromJSON(object: ISTLJSON) {
+    if (this.id !== object.id) {
+      throw new Error('Object id does not match with JSON id');
+    }
+
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...object.viewOptions,
+    };
+    this.setParameters(object.parameters);
+    this.setOperations(object.operations);
+    this.setViewOptions(vO);
+
+    // if anything has changed, recompute mesh
+    if (object.parameters.blob.newfile) {
+      delete (this.lastJSON as ISTLJSON).parameters.blob.uint8Data;
+      const lastJSONWithoutVOAndData = cloneDeep(this.lastJSON);
+      delete lastJSONWithoutVOAndData.viewOptions;
+      const thisJSON = this.toJSON();
+
+      delete (thisJSON as ISTLJSON).parameters.blob.uint8Data;
+      delete (thisJSON as ISTLJSON).viewOptions;
+      const currentJSONWithoutVOAndData = cloneDeep(thisJSON);
+
+      this.lastJSON = this.toJSON();
+      this.meshPromise = this.computeMeshAsync();
+
+      // parents need update?
+
+      if (
+        !isEqual(lastJSONWithoutVOAndData, currentJSONWithoutVOAndData) ||
+        this.getParent() instanceof RepetitionObject ||
+        this.getParent() instanceof ObjectsGroup
+      ) {
+        let obj: ObjectsCommon | undefined = this.getParent();
+        while (obj) {
+          obj.meshUpdateRequired = true;
+          obj.computeMeshAsync();
+          obj = obj.getParent();
+        }
+      }
     }
   }
 
@@ -137,14 +190,14 @@ export default class STLObject extends PrimitiveObject {
   }
 
   public toJSON(): ISTLJSON {
-    // As data can be an ArrayBuffer or an Uint8Array, we force it is an ArrayBuffer
-    const data: ArrayBuffer | Uint8Array = (this.parameters as ISTLParams).blob
-      .buffer;
+    // // As data can be an ArrayBuffer or an Uint8Array, we force it is an ArrayBuffer
+    // const data: Uint8Array = (this.parameters as ISTLParams).blob
+    //   .uint8Data;
 
-    if (data instanceof Uint8Array) {
-      // Convert to ArrayBuffer
-      (this.parameters as ISTLParams).blob.buffer = data.buffer;
-    }
+    // if (data instanceof Uint8Array) {
+    //   // Convert to ArrayBuffer
+    //   (this.parameters as ISTLParams).blob.uint8Data = data.buffer;
+    // }
 
     return super.toJSON() as ISTLJSON;
   }
@@ -154,43 +207,46 @@ export default class STLObject extends PrimitiveObject {
       !(this.parameters as ISTLParams).blob ||
       (this.parameters as ISTLParams).blob.filetype.match('empty')
     ) {
-      throw new Error('No STL file loaded');
+      throw new Error(`No STL file loaded`);
     }
 
-    let blob: ArrayBuffer = new ArrayBuffer(0);
-    const data: ArrayBuffer | Uint8Array = (this.parameters as ISTLParams).blob
-      .buffer;
-    if (data instanceof ArrayBuffer) {
-      blob = data;
-    } else if (data instanceof Uint8Array) {
-      blob = data.buffer;
+    // recompute geometry only if blob has changed (new file loaded)
+    if ((this.parameters as ISTLParams).blob.newfile) {
+      try {
+        (this.parameters as ISTLParams).blob.newfile = false;
+        return this.computeGeometry();
+      } catch (e) {
+        throw e;
+      }
     }
+    return this.geometry;
+  }
 
-    if (
-      (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-binary')
-    ) {
-      const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
-      if (binaryGeom instanceof THREE.Geometry) {
-        return binaryGeom;
+  private computeGeometry(): THREE.Geometry {
+    console.log('Recompute STL Geometry');
+    const data: Uint8Array = (this.parameters as ISTLParams).blob.uint8Data;
+    this.arrayBufferData = data.buffer;
+    const filetype: string = (this.parameters as ISTLParams).blob.filetype;
+
+    if (filetype.match('model/x.stl-binary')) {
+      this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+      if (this.geometry instanceof THREE.Geometry) {
+        return this.geometry;
       }
 
       throw new Error('Geometry not properly computed');
     }
 
-    if (
-      (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-ascii')
-    ) {
-      const asciiGeom = STLLoader.loadTextStl(blob);
-      if (asciiGeom instanceof THREE.Geometry) {
-        return asciiGeom;
+    if (filetype.match('model/x.stl-ascii')) {
+      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      if (this.geometry instanceof THREE.Geometry) {
+        return this.geometry;
       }
 
       throw new Error('Geometry not properly computed');
     }
 
-    throw new Error(
-      `No STL file format: ${(this.parameters as ISTLParams).blob.filetype} `,
-    );
+    throw new Error(`No STL file format: filetype: ${filetype} `);
   }
 
   private getNoFileMesh(): THREE.Mesh {
