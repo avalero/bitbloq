@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-28 18:55:48
+ * Last modified  : 2019-01-28 19:20:12
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -101,12 +101,19 @@ export default class STLObject extends PrimitiveObject {
       ...ObjectsCommon.createViewOptions(),
       ...object.viewOptions,
     };
+
+    
+
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
+    
+
+
     // if anything has changed, recompute mesh
     if (object.parameters.blob.newfile) {
+      
       delete (this.lastJSON as ISTLJSON).parameters.blob.uint8Data;
       const lastJSONWithoutVOAndData = cloneDeep(this.lastJSON);
       delete lastJSONWithoutVOAndData.viewOptions;
@@ -228,7 +235,7 @@ export default class STLObject extends PrimitiveObject {
     this.arrayBufferData = data.buffer;
     const filetype: string = (this.parameters as ISTLParams).blob.filetype;
 
-    if (filetype.match('model/x.stl-binary')) {
+    if (filetype.match('model/x.stl-binary') || filetype.match('model/stl')) {
       this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
       if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
