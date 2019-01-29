@@ -33,6 +33,7 @@ import RepeatPolar from './icons/RepeatPolar'
 import Rotation from './icons/Rotation'
 import Scale from './icons/Scale'
 import Sphere from './icons/Sphere'
+import Spinner from './icons/Spinner'
 import STL from './icons/STL'
 import ThreeD from './icons/ThreeD'
 import Tick from './icons/Tick'
@@ -120,6 +121,8 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <Scale />;
     case 'sphere':
       return <Sphere />;
+    case 'spinner':
+      return <Spinner />;
     case 'stl':
       return <STL />;
     case 'threed':
