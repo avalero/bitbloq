@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-29 09:24:39
+ * Last modified  : 2019-01-29 14:00:08
  */
 
 import Object3D from './Object3D';
@@ -50,6 +50,14 @@ export default class CompoundObject extends Object3D {
     this._meshUpdateRequired = a;
   }
 
+  set viewOptionsUpdateRequired(a: boolean) {
+    this._viewOptionsUpdateRequired = a;
+  }
+
+  get viewOptionsUpdateRequired(): boolean {
+    return this._viewOptionsUpdateRequired;
+  }
+
   get pendingOperation(): boolean {
     this.children.forEach(child => {
       this._pendingOperation = this._pendingOperation || child.pendingOperation;
@@ -85,6 +93,7 @@ export default class CompoundObject extends Object3D {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
+    // if (this.meshPromise) this.meshUpdateRequired = true;
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         if (this.worker) {
@@ -108,15 +117,17 @@ export default class CompoundObject extends Object3D {
             this.mesh = mesh;
             if (this.mesh instanceof THREE.Mesh) {
               this.applyOperationsAsync().then(() => {
-                // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-                this.meshUpdateRequired = this.parent ? true : false;
                 if (this.viewOptionsUpdateRequired) {
                   this.applyViewOptions();
-                  this._viewOptionsUpdateRequired = false;
                 }
                 (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
+
+                // mesh updated and resolved
+                this.pendingOperation = false;
+                this.meshUpdateRequired = false;
+                this.viewOptionsUpdateRequired = false;
               });
             } else {
               (this.worker as Worker).terminate();
@@ -142,8 +153,15 @@ export default class CompoundObject extends Object3D {
         if (this.pendingOperation) {
           await this.applyOperationsAsync();
         }
-        this.applyViewOptions();
+
+        if (this.viewOptionsUpdateRequired) {
+          this.applyViewOptions();
+        }
         resolve(this.mesh);
+        // mesh updated and resolved
+        this.pendingOperation = false;
+        this.meshUpdateRequired = false;
+        this.viewOptionsUpdateRequired = false;
       }
     });
 
@@ -169,48 +187,56 @@ export default class CompoundObject extends Object3D {
     });
   }
 
-  public updateFromJSON(object: ICompoundObjectJSON) {
+  public updateFromJSON(
+    object: ICompoundObjectJSON,
+    fromParent: boolean = false,
+  ) {
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
 
+    debugger;
     const newchildren: ChildrenArray = [];
     // update children
     try {
-      object.children.forEach(obj => {
-        const objToUpdate: ObjectsCommon = this.getChild(obj);
+      object.children.forEach(objChild => {
+        const objToUpdate: ObjectsCommon = this.getChild(objChild);
         newchildren.push(objToUpdate);
-        objToUpdate.updateFromJSON(obj);
+        objToUpdate.updateFromJSON(objChild, true);
       });
 
       // if (!isEqual(this.children, newchildren)) {
       if (this.meshUpdateRequired || this.pendingOperation) {
         this.meshUpdateRequired = true;
-        this.children = newchildren.slice(0);
+        this.children = [...newchildren];
+      }
+
+      // update operations and view options
+      const vO = {
+        ...ObjectsCommon.createViewOptions(),
+        ...object.viewOptions,
+      };
+      this.setOperations(object.operations);
+      this.setViewOptions(vO);
+
+      // if has no parent, update mesh, else update through parent
+      const objParent: ObjectsCommon | undefined = this.getParent();
+      if (objParent && !fromParent) {
+        objParent.updateFromJSON(objParent.toJSON());
+      } else {
+        // if anything has changed, recompute mesh
+        if (this.meshUpdateRequired || this.pendingOperation) {
+          this.meshPromise = this.computeMeshAsync();
+        }
+
+        if (this.viewOptionsUpdateRequired) {
+          this.applyViewOptions();
+        }
+
+        this.lastJSON = this.toJSON();
       }
     } catch (e) {
       throw new Error(`Cannot update Compound Object: ${e}`);
-    }
-
-    // update operations and view options
-    const vO = {
-      ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
-    };
-    this.setOperations(object.operations);
-    this.setViewOptions(vO);
-    // if anything has changed, recompute mesh
-    // if (!isEqual(this.lastJSON, this.toJSON())) {
-    if (this.meshUpdateRequired || this.pendingOperation) {
-      this.lastJSON = this.toJSON();
-      this.meshPromise = this.computeMeshAsync();
-      let obj: ObjectsCommon | undefined = this.getParent();
-
-      while (obj) {
-        obj.meshUpdateRequired = true;
-        obj.computeMeshAsync();
-        obj = obj.getParent();
-      }
     }
   }
 

@@ -370,8 +370,8 @@ export default class RepetitionObject extends ObjectsCommon {
 
   private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
-    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-    this.meshUpdateRequired = this.parent ? true : false;
+    
+    this.meshUpdateRequired = false;
 
     // if it has parent, mark pending operation as false, as parent must be recomputed
     this.pendingOperation = this.parent ? true : false;
@@ -444,8 +444,8 @@ export default class RepetitionObject extends ObjectsCommon {
       throw new Error('Unknown Repetition Command');
     }
 
-    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-    this.meshUpdateRequired = this.parent ? true : false;
+    
+    this.meshUpdateRequired = false;
 
     // if it has parent, mark pending operation as false, as parent must be recomputed
     this.pendingOperation = this.parent ? true : false;

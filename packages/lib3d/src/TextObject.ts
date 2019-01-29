@@ -135,8 +135,8 @@ export default class TextObject extends PrimitiveObject {
       );
     }
 
-    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-    this.meshUpdateRequired = this.parent ? true : false;
+    
+    this.meshUpdateRequired = false;
 
     try {
       const geom = new THREE.TextGeometry(text, {

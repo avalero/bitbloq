@@ -193,6 +193,7 @@ export default class ObjectsCommon {
       id: uuid(),
     };
   }
+  public meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
 
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
@@ -203,7 +204,6 @@ export default class ObjectsCommon {
   protected _viewOptionsUpdateRequired: boolean;
   protected lastJSON: IObjectsCommonJSON;
   protected parent: ObjectsCommon | undefined;
-  protected meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
   protected mesh: THREE.Mesh | THREE.Group;
 
   constructor(
@@ -304,25 +304,25 @@ export default class ObjectsCommon {
     };
   }
 
-  public updateFromJSON(object: IObjectsCommonJSON): void {
+  public updateFromJSON(object: IObjectsCommonJSON, fromParent:boolean = false): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
 
   protected setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
-      this.operations = operations.slice(0);
+      this.operations = [...operations];
       if (operations.length > 0) {
-        this._pendingOperation = true;
+        this.pendingOperation = true;
       }
       return;
     }
 
     if (!isEqual(this.operations, operations)) {
-      this.operations = operations.slice();
-      this._pendingOperation = true;
+      this.operations = [...operations];
+      this.pendingOperation = true;
     }
 
-    this._pendingOperation =
+    this.pendingOperation =
       this.pendingOperation || !isEqual(this.operations, operations);
   }
 

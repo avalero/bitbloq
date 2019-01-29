@@ -126,8 +126,8 @@ export default class STLObject extends PrimitiveObject {
         (this.parameters as ISTLParams).blob.filetype.match('empty')
       ) {
         this.mesh = this.getNoFileMesh();
-        // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-        this.meshUpdateRequired = this.parent ? true : false;
+        
+        this.meshUpdateRequired = false;
         resolve(this.mesh);
         return;
       }
@@ -135,8 +135,8 @@ export default class STLObject extends PrimitiveObject {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry);
-        // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-        this.meshUpdateRequired = this.parent ? true : false;
+        
+        this.meshUpdateRequired = false;
         this.applyViewOptions();
         await this.applyOperationsAsync();
       }

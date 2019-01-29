@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-29 10:02:47
+ * Last modified  : 2019-01-29 12:41:03
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -51,7 +51,10 @@ export default class PrimitiveObject extends Object3D {
    * For CompoundObjects find function in CompoundObjects Class
    */
 
-  public updateFromJSON(object: IPrimitiveObjectJSON) {
+  public updateFromJSON(
+    object: IPrimitiveObjectJSON,
+    fromParent: boolean = false,
+  ) {
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
@@ -64,38 +67,21 @@ export default class PrimitiveObject extends Object3D {
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
-    const updateParents: boolean =
-      this.meshUpdateRequired || this.pendingOperation;
+    // const updateParents: boolean =
+    //   this.meshUpdateRequired || this.pendingOperation;
 
-    // if anything has changed, recompute mesh
-    // if (!isEqual(this.lastJSON, this.toJSON())) {
-    if (
-      this.meshUpdateRequired ||
-      this.pendingOperation ||
-      this.viewOptionsUpdateRequired
-    ) {
-      // const lastJSONWithoutVO = cloneDeep(this.lastJSON);
-      // delete lastJSONWithoutVO.viewOptions;
-      // const currentJSONWithoutVO = cloneDeep(this.toJSON());
-      // delete currentJSONWithoutVO.viewOptions;
-
-      this.lastJSON = this.toJSON();
-      this.meshPromise = this.computeMeshAsync();
-
-      // parents need update?
-
+    // if has no parent, update mesh, else update through parent
+    const obj: ObjectsCommon | undefined = this.getParent();
+    if (obj && !fromParent) {
+      obj.updateFromJSON(obj.toJSON());
+    } else {
       if (
-        // !isEqual(lastJSONWithoutVO, currentJSONWithoutVO) ||
-        updateParents ||
-        this.getParent() instanceof RepetitionObject ||
-        this.getParent() instanceof ObjectsGroup
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
       ) {
-        let obj: ObjectsCommon | undefined = this.getParent();
-        while (obj) {
-          obj.meshUpdateRequired = true;
-          obj.computeMeshAsync();
-          obj = obj.getParent();
-        }
+        this.lastJSON = this.toJSON();
+        this.meshPromise = this.computeMeshAsync();
       }
     }
   }
@@ -106,8 +92,7 @@ export default class PrimitiveObject extends Object3D {
         if (this.meshUpdateRequired) {
           const geometry: THREE.Geometry = this.getGeometry();
           this.mesh = new THREE.Mesh(geometry);
-          // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-          this.meshUpdateRequired = this.parent ? true : false;
+          this.meshUpdateRequired = false;
 
           this.applyViewOptions();
           await this.applyOperationsAsync();
@@ -120,7 +105,6 @@ export default class PrimitiveObject extends Object3D {
         if (this.viewOptionsUpdateRequired) {
           this.applyViewOptions();
         }
-
         resolve(this.mesh);
       } catch (e) {
         reject(e);

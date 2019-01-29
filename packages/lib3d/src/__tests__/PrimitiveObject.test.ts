@@ -7,6 +7,7 @@ import Cube, { ICubeJSON, ICubeParams } from '../Cube';
 import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
 import ObjectsGroup from '../ObjectsGroup';
 import RepetitionObject from '../RepetitionObject';
+import { OBJLoader2 } from 'three';
 
 const width = 10;
 const height = 15;
@@ -122,6 +123,7 @@ test('PrimitiveObject - UpdateFromJSON', async () => {
   expect(json).toEqual(obj.toJSON());
 
   // no changes, so computeMeshAsync should not be recalled
+
   obj.updateFromJSON(json);
   expect(spy).toBeCalledTimes(3);
 
@@ -175,7 +177,10 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   expect(json).toEqual(obj.toJSON());
 
   // no changes, so computeMeshAsync should not be recalled
+  debugger;
+
   obj.updateFromJSON(json);
+
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
 

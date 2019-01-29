@@ -191,8 +191,8 @@ export default class Object3D extends ObjectsCommon {
 
   protected setMesh(mesh: THREE.Mesh): void {
     this.mesh = mesh;
-    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
-    this.meshUpdateRequired = this.parent ? true : false;
+    
+    this.meshUpdateRequired = false;
 
     // if it has parent, mark pending operation as false, as parent must be recomputed
     this.pendingOperation = this.parent ? true : false;

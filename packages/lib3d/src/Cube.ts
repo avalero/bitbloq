@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-29 09:54:22
+ * Last modified  : 2019-01-29 10:12:20
  */
 
 import { isEqual } from 'lodash';
@@ -96,7 +96,6 @@ export default class Cube extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    console.log('Recompute Cube Geometry');
     let { width, height, depth } = this.parameters as ICubeParams;
     width = Math.max(0, width);
     height = Math.max(0, height);
