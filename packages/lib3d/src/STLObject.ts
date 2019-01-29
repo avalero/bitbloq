@@ -9,19 +9,15 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-29 09:15:00
+ * Last modified  : 2019-01-29 14:55:05
  */
 
-import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon, {
   IViewOptions,
   OperationsArray,
   IObjectsCommonJSON,
 } from './ObjectsCommon';
-
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
 
 import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
@@ -83,7 +79,6 @@ export default class STLObject extends PrimitiveObject {
     };
 
     this.setParameters(params);
-    this.lastJSON = this.toJSON();
 
     if (mesh) {
       this.setMesh(mesh);
@@ -97,11 +92,18 @@ export default class STLObject extends PrimitiveObject {
   }
 
   set meshUpdateRequired(a: boolean) {
-    (this.parameters as ISTLParams).blob.newfile = true;
+    (this.parameters as ISTLParams).blob.newfile = a;
   }
 
   public clone(): STLObject {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objSTL = new STLObject(
         this.parameters as ISTLParams,
         this.operations,
@@ -120,13 +122,13 @@ export default class STLObject extends PrimitiveObject {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
+    debugger;
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (
         !(this.parameters as ISTLParams).blob ||
         (this.parameters as ISTLParams).blob.filetype.match('empty')
       ) {
         this.mesh = this.getNoFileMesh();
-        
         this.meshUpdateRequired = false;
         resolve(this.mesh);
         return;
@@ -135,10 +137,13 @@ export default class STLObject extends PrimitiveObject {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry);
-        
-        this.meshUpdateRequired = false;
         this.applyViewOptions();
         await this.applyOperationsAsync();
+        resolve(this.mesh);
+        this.meshUpdateRequired = false;
+        this.pendingOperation = false;
+        this.viewOptionsUpdateRequired = false;
+        return;
       }
 
       if (this.pendingOperation) {
@@ -150,9 +155,26 @@ export default class STLObject extends PrimitiveObject {
       }
 
       resolve(this.mesh);
+      this.meshUpdateRequired = false;
+      this.pendingOperation = false;
+      this.viewOptionsUpdateRequired = false;
     });
 
     return this.meshPromise as Promise<THREE.Mesh>;
+  }
+
+  protected setParameters(parameters: ISTLParams): void {
+    if (!this.parameters) {
+      this.parameters = { ...parameters };
+      this.meshUpdateRequired = true;
+      return;
+    }
+
+    if (parameters.blob.newfile) {
+      this.parameters = { ...parameters };
+      this.meshUpdateRequired = true;
+      return;
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -166,7 +188,6 @@ export default class STLObject extends PrimitiveObject {
     // recompute geometry only if blob has changed (new file loaded)
     if ((this.parameters as ISTLParams).blob.newfile) {
       try {
-        (this.parameters as ISTLParams).blob.newfile = false;
         return this.computeGeometry();
       } catch (e) {
         throw e;

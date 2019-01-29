@@ -1,4 +1,3 @@
-import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import Object3D from './Object3D';
 import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
@@ -159,7 +158,7 @@ export default class ObjectsGroup extends ObjectsCommon {
       children: this.children.map(obj2JSON => obj2JSON.toJSON()),
     };
 
-    return cloneDeep(obj);
+    return obj;
   }
 
   /**

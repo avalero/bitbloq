@@ -1,4 +1,4 @@
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
 
 import { v1 } from 'uuid';
 const uuid = v1;
@@ -79,6 +79,10 @@ export default class ObjectsCommon {
 
   get viewOptionsUpdateRequired(): boolean {
     return this._viewOptionsUpdateRequired;
+  }
+
+  set viewOptionsUpdateRequired(a: boolean) {
+    this._viewOptionsUpdateRequired = a;
   }
 
   public static meshToBufferArray(mesh: THREE.Mesh): ArrayBuffer[] {
@@ -304,7 +308,10 @@ export default class ObjectsCommon {
     };
   }
 
-  public updateFromJSON(object: IObjectsCommonJSON, fromParent:boolean = false): void {
+  public updateFromJSON(
+    object: IObjectsCommonJSON,
+    fromParent: boolean = false,
+  ): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
 

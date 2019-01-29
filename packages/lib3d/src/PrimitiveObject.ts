@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-29 12:41:03
+ * Last modified  : 2019-01-29 14:16:19
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -111,6 +111,7 @@ export default class PrimitiveObject extends Object3D {
         throw new Error(`Cannot compute Mesh: ${e}`);
       }
     });
+
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 

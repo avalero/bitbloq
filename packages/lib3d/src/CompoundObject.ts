@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-29 14:00:08
+ * Last modified  : 2019-01-29 14:51:52
  */
 
 import Object3D from './Object3D';
@@ -23,7 +23,6 @@ import ObjectsCommon, {
   OperationsArray,
 } from './ObjectsCommon';
 
-import { cloneDeep, isEqual } from 'lodash';
 import * as THREE from 'three';
 
 import Worker from './compound.worker';
@@ -173,18 +172,18 @@ export default class CompoundObject extends Object3D {
     this._meshUpdateRequired = true;
   }
 
-  public setChildren(children: ChildrenArray): void {
-    if (!isEqual(children, this.children)) {
-      this.children = children.slice();
-      this._meshUpdateRequired = true;
-    }
-  }
+  // public setChildren(children: ChildrenArray): void {
+  //   if (!isEqual(children, this.children)) {
+  //     this.children = children.slice();
+  //     this._meshUpdateRequired = true;
+  //   }
+  // }
 
   public toJSON(): ICompoundObjectJSON {
-    return cloneDeep({
+    return {
       ...super.toJSON(),
       children: this.children.map(obj => obj.toJSON()),
-    });
+    };
   }
 
   public updateFromJSON(
@@ -205,7 +204,8 @@ export default class CompoundObject extends Object3D {
         objToUpdate.updateFromJSON(objChild, true);
       });
 
-      // if (!isEqual(this.children, newchildren)) {
+      this.children = newchildren;
+
       if (this.meshUpdateRequired || this.pendingOperation) {
         this.meshUpdateRequired = true;
         this.children = [...newchildren];
@@ -232,8 +232,6 @@ export default class CompoundObject extends Object3D {
         if (this.viewOptionsUpdateRequired) {
           this.applyViewOptions();
         }
-
-        this.lastJSON = this.toJSON();
       }
     } catch (e) {
       throw new Error(`Cannot update Compound Object: ${e}`);
