@@ -14,9 +14,12 @@ const submissionResolver = {
       });
       if (!exFather)
         throw new Error('Error creating submission, check your exercise code');
-      if (!exFather.acceptSubmissions) {
+      //check if the submission is in time
+      const timeNow: Date = new Date();
+      if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
         throw new Error('This exercise does not accept submissions now');
       }
+
       if (
         await SubmissionModel.findOne({
           studentNick: args.studentNick,
@@ -42,6 +45,7 @@ const submissionResolver = {
           exerciseID: exFather._id,
           submissionID: newSub._id,
           studentNick: args.studentNick,
+          role: 'EPHEMERAL',
         },
         process.env.JWT_SECRET,
         { expiresIn: '3h' },
@@ -60,8 +64,6 @@ const submissionResolver = {
     },
 
     updateSubmission: async (root: any, args: any, context: any) => {
-      if (!context.user.exerciseID)
-        throw new AuthenticationError('You need to login with exercise code');
       const existSubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
@@ -85,10 +87,6 @@ const submissionResolver = {
     },
 
     finishSubmission: async (root: any, args: any, context: any) => {
-      if (!context.user.exerciseID)
-        throw new AuthenticationError(
-          'You need to be logged in with exercise code',
-        );
       const existSubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
@@ -108,6 +106,10 @@ const submissionResolver = {
       if (timeNow > exercise.expireDate) {
         throw new Error('Your submission is late');
       }
+      //check if the submission has been finished
+      if (existSubmission.finished) {
+        throw new Error('This submission is already finished');
+      }
       return SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
@@ -124,10 +126,6 @@ const submissionResolver = {
 
     //alumno cancela su propia submission
     cancelSubmission: async (root: any, args: any, context: any) => {
-      if (!context.user.exerciseID)
-        throw new AuthenticationError(
-          'You need to be logged in with exercise code',
-        );
       const existSubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
@@ -141,10 +139,6 @@ const submissionResolver = {
 
     //el profesor borra la sumbission de un alumno
     deleteSubmission: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a user');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in as a user');
       const existSubmission = await SubmissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID,
@@ -160,21 +154,12 @@ const submissionResolver = {
   Query: {
     //devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
     submissions: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a user');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in as a user');
       return SubmissionModel.find({ user: context.user.userID });
     },
 
     //Student and user querie:
     //devuelve la información de la submission que se le pasa en el id con el tocken del alumno o de usuario
     submission: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError(
-          'You need to be logged in as a user or as a student',
-        );
-
       if (context.user.submissionID) {
         //Token de alumno
         if (context.user.submissionID != args.id)
@@ -201,10 +186,6 @@ const submissionResolver = {
 
     //user queries:
     submissionsByExercise: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in as a user');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in as a user');
       const exerciseFound = await ExerciseModel.findOne({
         _id: args.exercise,
       });

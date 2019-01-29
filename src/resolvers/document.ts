@@ -1,6 +1,4 @@
-import { UserModel } from '../models/user';
 import { DocumentModel } from '../models/document';
-import { AuthenticationError } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
 import { UploadModel } from '../models/upload';
@@ -9,11 +7,6 @@ import uploadResolver from './upload';
 const documentResolver = {
   Mutation: {
     createDocument: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
-
       const documentNew = new DocumentModel({
         id: ObjectId,
         user: context.user.userID,
@@ -41,10 +34,6 @@ const documentResolver = {
     },
 
     deleteDocument: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -57,10 +46,6 @@ const documentResolver = {
     },
 
     updateDocument: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -72,17 +57,17 @@ const documentResolver = {
             args.input.image,
             existDocument._id,
           );
-          const documentUpdate ={
+          const documentUpdate = {
             title: args.input.title || existDocument.title,
             type: args.input.type || existDocument.type,
             content: args.input.content || existDocument.content,
             description: args.input.description || existDocument.description,
             version: args.input.version || existDocument.version,
-            image: imageUploaded.publicURL
+            image: imageUploaded.publicURL,
           };
           return DocumentModel.findOneAndUpdate(
             { _id: existDocument._id },
-            { $set: documentUpdate  },
+            { $set: documentUpdate },
             { new: true },
           );
         } else {
@@ -99,17 +84,9 @@ const documentResolver = {
   },
   Query: {
     documents: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       return DocumentModel.find({ user: context.user.userID });
     },
     document: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const doc = await DocumentModel.findOne({
         _id: args.id,
       });

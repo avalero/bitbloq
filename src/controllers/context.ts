@@ -1,10 +1,4 @@
 import { AuthenticationError, SchemaDirectiveVisitor } from 'apollo-server-koa';
-import {
-  defaultFieldResolver,
-  GraphQLDirective,
-  DirectiveLocation,
-} from 'graphql';
-import { nonExecutableDefinitionMessage } from 'graphql/validation/rules/ExecutableDefinitions';
 const jsonwebtoken = require('jsonwebtoken');
 
 const contextController = {

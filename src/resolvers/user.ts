@@ -50,8 +50,8 @@ const userResolver = {
           pulse aquí
         </a>
       `;
-      //console.log(message);
-      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      console.log(message);
+      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
@@ -78,6 +78,7 @@ const userResolver = {
           {
             email: contactFound.email,
             userID: contactFound._id,
+            role: 'USER',
           },
           process.env.JWT_SECRET,
           { expiresIn: '4h' },
@@ -106,9 +107,10 @@ const userResolver = {
           {
             email: contactFound.email,
             userID: contactFound._id,
+            role: 'USER',
           },
           process.env.JWT_SECRET,
-          { expiresIn: '1h' },
+          { expiresIn: '4h' },
         );
         await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
@@ -127,10 +129,6 @@ const userResolver = {
     },
 
     deleteUser: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
       });
@@ -145,10 +143,6 @@ const userResolver = {
     },
 
     updateUser: async (root: any, args: any, context: any, input: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
       });
@@ -163,10 +157,6 @@ const userResolver = {
 
   Query: {
     me: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
@@ -175,10 +165,6 @@ const userResolver = {
       return contactFound;
     },
     users(root: any, args: any, context: any) {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       return UserModel.find({});
     },
   },

@@ -4,6 +4,7 @@ import exSchema from './schemas/allSchemas';
 
 import * as mongoose from 'mongoose';
 import { contextController } from './controllers/context';
+import { AuthDirectiveResolvers } from './controllers/authDirective';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
 
@@ -24,8 +25,8 @@ mongoose.connect(
 );
 
 const server = new ApolloServer({
-  //context: async ({ctx})=> {return {ctx};},
-  context: async ({ ctx}) => {
+  //  context: async ({ctx})=> {return {ctx};},
+  context: async ({ ctx }) => {
     const user = await contextController.getMyUser(ctx);
     // add the user to the ctx
     return { user };

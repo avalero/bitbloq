@@ -1,5 +1,4 @@
 import { AuthenticationError } from 'apollo-server-koa';
-import shortid from 'shortid';
 import { ExerciseModel } from '../models/exercise';
 import { DocumentModel } from '../models/document';
 import { ObjectId } from 'bson';
@@ -9,8 +8,6 @@ import { UserModel } from '../models/user';
 const exerciseResolver = {
   Mutation: {
     createExercise: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const docFound = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.userID,
@@ -23,7 +20,6 @@ const exerciseResolver = {
       const newCode = Math.random()
         .toString(36)
         .substr(2, 6);
-      //const newCode: String = shortid.generate();
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
         user: context.user.userID,
@@ -43,8 +39,6 @@ const exerciseResolver = {
     },
 
     changeSubmissionsState: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -60,8 +54,6 @@ const exerciseResolver = {
     },
 
     deleteExercise: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -74,8 +66,6 @@ const exerciseResolver = {
     },
 
     updateExercise: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -95,17 +85,11 @@ const exerciseResolver = {
   Query: {
     //devuelve todos los ejercicios del usuario logeado
     exercises: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       return ExerciseModel.find({ user: context.user.userID });
     },
 
     //student and user query, devuelve la información del ejercicio que se le pasa en el id con el tocken del alumno o de usuario
     exercise: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError(
-          'You need to be logged in as a user or as a student',
-        );
       if (context.user.exerciseID) {
         //Token de alumno
         if (context.user.exerciseID != args.id)
@@ -131,8 +115,6 @@ const exerciseResolver = {
     },
 
     exercisesByDocument: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const documentFound = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.userID,
