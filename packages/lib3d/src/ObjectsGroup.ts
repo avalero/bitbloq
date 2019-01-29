@@ -29,7 +29,7 @@ export default class ObjectsGroup extends ObjectsCommon {
         scene.getObject(obj),
       );
       const groupObj = new ObjectsGroup(group);
-      groupObj.id = object.id || '';
+      groupObj.id = object.id || groupObj.id;
       return groupObj;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -45,7 +45,7 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.type = ObjectsGroup.typeName;
     this.mesh = new THREE.Group();
     this.meshPromise = null;
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -203,7 +203,6 @@ export default class ObjectsGroup extends ObjectsCommon {
           this.pendingOperation ||
           this.viewOptionsUpdateRequired
         ) {
-          this.lastJSON = this.toJSON();
           this.meshPromise = this.computeMeshAsync();
         }
       }
@@ -220,9 +219,8 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.mesh = mesh;
 
     this.meshUpdateRequired = false;
-
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
 
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();

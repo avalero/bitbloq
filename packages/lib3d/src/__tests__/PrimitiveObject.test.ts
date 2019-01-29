@@ -177,7 +177,7 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   expect(json).toEqual(obj.toJSON());
 
   // no changes, so computeMeshAsync should not be recalled
-  debugger;
+  
 
   obj.updateFromJSON(json);
 

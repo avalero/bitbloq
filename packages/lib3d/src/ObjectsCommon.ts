@@ -206,7 +206,6 @@ export default class ObjectsCommon {
   protected id: string;
   protected type: string;
   protected _viewOptionsUpdateRequired: boolean;
-  protected lastJSON: IObjectsCommonJSON;
   protected parent: ObjectsCommon | undefined;
   protected mesh: THREE.Mesh | THREE.Group;
 

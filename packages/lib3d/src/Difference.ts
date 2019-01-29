@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:00
- * Last modified  : 2019-01-03 18:47:20
+ * Last modified  : 2019-01-29 15:43:56
  */
 
 import { isEqual } from 'lodash';
@@ -44,7 +44,7 @@ export default class Difference extends CompoundObject {
         ...object.viewOptions,
       };
       const dif = new Difference(children, object.operations, viewOptions);
-      dif.id = object.id || '';
+      dif.id = object.id || dif.id;
       return dif;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -64,7 +64,6 @@ export default class Difference extends CompoundObject {
     };
     super(children, operations, vO);
     this.type = Difference.typeName;
-    this.lastJSON = this.toJSON();
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -77,7 +76,14 @@ export default class Difference extends CompoundObject {
       child.clone(),
     );
 
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const diffObj = new Difference(
         childrenClone,
         this.operations,

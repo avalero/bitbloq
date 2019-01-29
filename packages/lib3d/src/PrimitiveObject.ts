@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-29 14:16:19
+ * Last modified  : 2019-01-29 17:34:38
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -55,6 +55,7 @@ export default class PrimitiveObject extends Object3D {
     object: IPrimitiveObjectJSON,
     fromParent: boolean = false,
   ) {
+
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
@@ -67,9 +68,6 @@ export default class PrimitiveObject extends Object3D {
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
-    // const updateParents: boolean =
-    //   this.meshUpdateRequired || this.pendingOperation;
-
     // if has no parent, update mesh, else update through parent
     const obj: ObjectsCommon | undefined = this.getParent();
     if (obj && !fromParent) {
@@ -80,7 +78,6 @@ export default class PrimitiveObject extends Object3D {
         this.pendingOperation ||
         this.viewOptionsUpdateRequired
       ) {
-        this.lastJSON = this.toJSON();
         this.meshPromise = this.computeMeshAsync();
       }
     }

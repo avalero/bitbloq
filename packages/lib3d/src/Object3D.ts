@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2019-01-29 09:29:59
+ * Last modified  : 2019-01-29 16:25:41
  */
 
 import * as THREE from 'three';
@@ -87,8 +87,8 @@ export default class Object3D extends ObjectsCommon {
         throw Error('ERROR: Unknown Operation');
       }
     });
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+
+    this.pendingOperation = false;
 
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
@@ -191,11 +191,10 @@ export default class Object3D extends ObjectsCommon {
 
   protected setMesh(mesh: THREE.Mesh): void {
     this.mesh = mesh;
-    
-    this.meshUpdateRequired = false;
 
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+    this.meshUpdateRequired = false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
 
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();

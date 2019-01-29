@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2019-01-29 09:19:58
+ * Last modified  : 2019-01-29 15:44:36
  */
 
 /**
@@ -57,7 +57,7 @@ export default class Prism extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    prism.id = object.id || '';
+    prism.id = object.id || prism.id;
 
     return prism;
   }
@@ -75,7 +75,7 @@ export default class Prism extends PrimitiveObject {
     super(vO, operations);
     this.type = Prism.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -84,7 +84,14 @@ export default class Prism extends PrimitiveObject {
   }
 
   public clone(): Prism {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objPrism = new Prism(
         this.parameters as IPrismParams,
         this.operations,

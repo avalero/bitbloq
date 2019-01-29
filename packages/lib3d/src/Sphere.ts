@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2019-01-29 09:20:42
+ * Last modified  : 2019-01-29 15:26:18
  */
 
 import { isEqual } from 'lodash';
@@ -42,7 +42,7 @@ export default class Sphere extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    sphere.id = object.id || '';
+    sphere.id = object.id || sphere.id;
     return sphere;
   }
 
@@ -59,7 +59,7 @@ export default class Sphere extends PrimitiveObject {
     super(vO, operations);
     this.type = Sphere.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -68,7 +68,14 @@ export default class Sphere extends PrimitiveObject {
   }
 
   public clone(): Sphere {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objSphere = new Sphere(
         this.parameters as ISphereParams,
         this.operations,

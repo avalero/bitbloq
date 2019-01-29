@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-29 14:51:52
+ * Last modified  : 2019-01-29 18:31:10
  */
 
 import Object3D from './Object3D';
@@ -190,11 +190,25 @@ export default class CompoundObject extends Object3D {
     object: ICompoundObjectJSON,
     fromParent: boolean = false,
   ) {
+
+    
+
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
 
+
+    // update operations and view options
+    const vO = {
+      ...ObjectsCommon.createViewOptions(),
+      ...object.viewOptions,
+    };
     debugger;
+    this.setOperations(object.operations);
+    this.setViewOptions(vO);
+
+    const update = this.meshUpdateRequired || this.pendingOperation || this.viewOptionsUpdateRequired;
+
     const newchildren: ChildrenArray = [];
     // update children
     try {
@@ -206,32 +220,17 @@ export default class CompoundObject extends Object3D {
 
       this.children = newchildren;
 
-      if (this.meshUpdateRequired || this.pendingOperation) {
-        this.meshUpdateRequired = true;
-        this.children = [...newchildren];
-      }
-
-      // update operations and view options
-      const vO = {
-        ...ObjectsCommon.createViewOptions(),
-        ...object.viewOptions,
-      };
-      this.setOperations(object.operations);
-      this.setViewOptions(vO);
-
       // if has no parent, update mesh, else update through parent
       const objParent: ObjectsCommon | undefined = this.getParent();
       if (objParent && !fromParent) {
         objParent.updateFromJSON(objParent.toJSON());
       } else {
         // if anything has changed, recompute mesh
-        if (this.meshUpdateRequired || this.pendingOperation) {
+        if (update || this.meshUpdateRequired || this.pendingOperation || this.viewOptionsUpdateRequired) {
           this.meshPromise = this.computeMeshAsync();
         }
 
-        if (this.viewOptionsUpdateRequired) {
-          this.applyViewOptions();
-        }
+        
       }
     } catch (e) {
       throw new Error(`Cannot update Compound Object: ${e}`);
@@ -276,8 +275,7 @@ export default class CompoundObject extends Object3D {
     });
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+    this.pendingOperation = false;
 
     return;
   }

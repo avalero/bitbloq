@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-29 10:12:20
+ * Last modified  : 2019-01-29 15:22:38
  */
 
 import { isEqual } from 'lodash';
@@ -48,7 +48,7 @@ export default class Cube extends PrimitiveObject {
       object.viewOptions,
     );
 
-    cube.id = object.id || '';
+    cube.id = object.id || cube.id;
     return cube;
   }
 
@@ -65,7 +65,7 @@ export default class Cube extends PrimitiveObject {
     super(vO, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -77,7 +77,14 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const cubeObj = new Cube(
         this.parameters as ICubeParams,
         this.operations,

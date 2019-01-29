@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-29 09:15:41
+ * Last modified  : 2019-01-29 15:43:31
  */
 
 import { isEqual } from 'lodash';
@@ -40,7 +40,7 @@ export default class Cylinder extends PrimitiveObject {
       object.viewOptions,
     );
 
-    cyl.id = object.id || '';
+    cyl.id = object.id || cyl.id;
     return cyl;
   }
 
@@ -57,7 +57,7 @@ export default class Cylinder extends PrimitiveObject {
     super(vO, operations);
     this.type = Cylinder.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -66,7 +66,14 @@ export default class Cylinder extends PrimitiveObject {
   }
 
   public clone(): Cylinder {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objCyl = new Cylinder(
         this.parameters as ICylinderParams,
         this.operations,

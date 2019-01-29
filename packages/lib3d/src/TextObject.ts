@@ -7,7 +7,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-15 16:22:05
- * Last modified  : 2019-01-29 09:20:31
+ * Last modified  : 2019-01-29 15:45:13
  */
 
 import { isEqual } from 'lodash';
@@ -49,7 +49,7 @@ export default class TextObject extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    text.id = object.id || '';
+    text.id = object.id || text.id;
 
     return text;
   }
@@ -71,7 +71,7 @@ export default class TextObject extends PrimitiveObject {
       ...parameters,
     };
     this.setParameters(params);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -80,7 +80,14 @@ export default class TextObject extends PrimitiveObject {
   }
 
   public clone(): TextObject {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objText = new TextObject(
         this.parameters as ITextObjectParams,
         this.operations,
@@ -135,7 +142,6 @@ export default class TextObject extends PrimitiveObject {
       );
     }
 
-    
     this.meshUpdateRequired = false;
 
     try {

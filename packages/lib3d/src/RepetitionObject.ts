@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2019-01-29 09:32:40
+ * Last modified  : 2019-01-29 18:51:38
  */
 
 import ObjectsCommon, {
@@ -22,7 +22,7 @@ import ObjectsCommon, {
   IViewOptions,
 } from './ObjectsCommon';
 
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import Object3D from './Object3D';
 import ObjectsGroup from './ObjectsGroup';
@@ -90,7 +90,7 @@ export default class RepetitionObject extends ObjectsCommon {
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
       const rep = new RepetitionObject(obj.parameters, object, obj.viewOptions);
-      rep.id = obj.id || '';
+      rep.id = obj.id || rep.id;
       return rep;
     } catch (e) {
       throw new Error(`Cannot create RepetitionObject: ${e}`);
@@ -124,11 +124,10 @@ export default class RepetitionObject extends ObjectsCommon {
     this.originalObject = original;
     this.originalObject.setParent(this);
     this.type = RepetitionObject.typeName;
-    this._meshUpdateRequired = true;
-    this._pendingOperation = true;
+    this.meshUpdateRequired = true;
+    this.pendingOperation = true;
     this.group = [];
     this.mesh = new THREE.Group();
-    this.lastJSON = this.toJSON();
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -151,7 +150,14 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public clone(): RepetitionObject {
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const repObj = new RepetitionObject(
         this.parameters,
         this.originalObject.clone(),
@@ -177,11 +183,11 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public toJSON(): IRepetitionObjectJSON {
-    const obj = cloneDeep({
+    const obj = {
       ...super.toJSON(),
       parameters: this.parameters,
       children: [this.originalObject.toJSON()],
-    });
+    };
 
     return obj;
   }
@@ -195,7 +201,10 @@ export default class RepetitionObject extends ObjectsCommon {
    * If group members do not match an Error is thrown
    * @param object ObjectGroup descriptor object
    */
-  public updateFromJSON(object: IRepetitionObjectJSON) {
+  public updateFromJSON(
+    object: IRepetitionObjectJSON,
+    fromParent: boolean = false,
+  ) {
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }
@@ -209,18 +218,28 @@ export default class RepetitionObject extends ObjectsCommon {
     }
 
     try {
-      this.originalObject.updateFromJSON(object.children[0]);
       this.setParameters(object.parameters);
       this.setOperations(object.operations);
+      // check if there are any updates pending on Original Object before updating it
+      const update =
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired;
+      this.meshUpdateRequired = update;
+      this.originalObject.updateFromJSON(object.children[0], true);
 
-      if (!isEqual(this.lastJSON, this.toJSON())) {
-        this.lastJSON = this.toJSON();
-        this.meshPromise = this.computeMeshAsync();
-        let obj: ObjectsCommon | undefined = this.getParent();
-        while (obj) {
-          obj.meshUpdateRequired = true;
-          obj.computeMeshAsync();
-          obj = obj.getParent();
+      // if it has a parent, update through parent
+      const obj: ObjectsCommon | undefined = this.getParent();
+      if (obj && !fromParent) {
+        obj.updateFromJSON(obj.toJSON());
+      } else {
+        if (
+          update ||
+          this.meshUpdateRequired ||
+          this.pendingOperation ||
+          this.viewOptionsUpdateRequired
+        ) {
+          this.meshPromise = this.computeMeshAsync();
         }
       }
     } catch (e) {
@@ -280,8 +299,8 @@ export default class RepetitionObject extends ObjectsCommon {
         throw Error('ERROR: Unknown Operation');
       }
     });
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+
+    this.pendingOperation = false;
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
 
@@ -359,6 +378,8 @@ export default class RepetitionObject extends ObjectsCommon {
       if (this.originalObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
+        // clone operations (to avoid changing referenced array)
+        json.operations = [...json.operations];
         json.operations.push(
           ObjectsCommon.createTranslateOperation(i * x, i * y, i * z, false),
         );
@@ -370,11 +391,10 @@ export default class RepetitionObject extends ObjectsCommon {
 
   private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
-    
-    this.meshUpdateRequired = false;
 
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+    this.meshUpdateRequired = false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
 
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
@@ -444,10 +464,8 @@ export default class RepetitionObject extends ObjectsCommon {
       throw new Error('Unknown Repetition Command');
     }
 
-    
     this.meshUpdateRequired = false;
-
-    // if it has parent, mark pending operation as false, as parent must be recomputed
-    this.pendingOperation = this.parent ? true : false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
   }
 }

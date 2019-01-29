@@ -7,7 +7,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-10 11:23:22
- * Last modified  : 2019-01-29 09:20:03
+ * Last modified  : 2019-01-29 15:44:44
  */
 
 import { isEqual } from 'lodash';
@@ -41,7 +41,7 @@ export default class Pyramid extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    pyramid.id = object.id || '';
+    pyramid.id = object.id || pyramid.id;
 
     return pyramid;
   }
@@ -59,7 +59,7 @@ export default class Pyramid extends PrimitiveObject {
     super(vO, operations);
     this.type = Pyramid.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -68,7 +68,14 @@ export default class Pyramid extends PrimitiveObject {
   }
 
   public clone(): Pyramid {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objPrism = new Pyramid(
         this.parameters as IPyramidParams,
         this.operations,
