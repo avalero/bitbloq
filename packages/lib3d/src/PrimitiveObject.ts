@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-28 19:44:12
+ * Last modified  : 2019-01-29 10:02:47
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -64,12 +64,20 @@ export default class PrimitiveObject extends Object3D {
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
+    const updateParents: boolean =
+      this.meshUpdateRequired || this.pendingOperation;
+
     // if anything has changed, recompute mesh
-    if (!isEqual(this.lastJSON, this.toJSON())) {
-      const lastJSONWithoutVO = cloneDeep(this.lastJSON);
-      delete lastJSONWithoutVO.viewOptions;
-      const currentJSONWithoutVO = cloneDeep(this.toJSON());
-      delete currentJSONWithoutVO.viewOptions;
+    // if (!isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.meshUpdateRequired ||
+      this.pendingOperation ||
+      this.viewOptionsUpdateRequired
+    ) {
+      // const lastJSONWithoutVO = cloneDeep(this.lastJSON);
+      // delete lastJSONWithoutVO.viewOptions;
+      // const currentJSONWithoutVO = cloneDeep(this.toJSON());
+      // delete currentJSONWithoutVO.viewOptions;
 
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
@@ -77,7 +85,8 @@ export default class PrimitiveObject extends Object3D {
       // parents need update?
 
       if (
-        !isEqual(lastJSONWithoutVO, currentJSONWithoutVO) ||
+        // !isEqual(lastJSONWithoutVO, currentJSONWithoutVO) ||
+        updateParents ||
         this.getParent() instanceof RepetitionObject ||
         this.getParent() instanceof ObjectsGroup
       ) {
@@ -97,7 +106,9 @@ export default class PrimitiveObject extends Object3D {
         if (this.meshUpdateRequired) {
           const geometry: THREE.Geometry = this.getGeometry();
           this.mesh = new THREE.Mesh(geometry);
-          this._meshUpdateRequired = false;
+          // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+          this.meshUpdateRequired = this.parent ? true : false;
+
           this.applyViewOptions();
           await this.applyOperationsAsync();
         }
@@ -122,13 +133,13 @@ export default class PrimitiveObject extends Object3D {
   protected setParameters(parameters: object): void {
     if (!this.parameters) {
       this.parameters = { ...parameters };
-      this._meshUpdateRequired = true;
+      this.meshUpdateRequired = true;
       return;
     }
 
     if (!isEqual(parameters, this.parameters)) {
       this.parameters = { ...parameters };
-      this._meshUpdateRequired = true;
+      this.meshUpdateRequired = true;
       return;
     }
   }

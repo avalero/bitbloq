@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-28 19:45:45
+ * Last modified  : 2019-01-29 09:15:00
  */
 
 import { isEqual, cloneDeep } from 'lodash';
@@ -92,48 +92,12 @@ export default class STLObject extends PrimitiveObject {
     }
   }
 
-  public updateFromJSON(object: ISTLJSON) {
-    if (this.id !== object.id) {
-      throw new Error('Object id does not match with JSON id');
-    }
+  get meshUpdateRequired(): boolean {
+    return (this.parameters as ISTLParams).blob.newfile;
+  }
 
-    const vO = {
-      ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
-    };
-
-    this.setParameters(object.parameters);
-    this.setOperations(object.operations);
-    this.setViewOptions(vO);
-
-    // if anything has changed, recompute mesh
-    if (object.parameters.blob.newfile || this.pendingOperation || this.viewOptionsUpdateRequired) {
-      // delete (this.lastJSON as ISTLJSON).parameters.blob.uint8Data;
-      // const lastJSONWithoutVOAndData = cloneDeep(this.lastJSON);
-      // delete lastJSONWithoutVOAndData.viewOptions;
-      // const thisJSON = this.toJSON();
-
-      // delete (thisJSON as ISTLJSON).parameters.blob.uint8Data;
-      // delete (thisJSON as ISTLJSON).viewOptions;
-      // const currentJSONWithoutVOAndData = cloneDeep(thisJSON);
-
-      this.lastJSON = this.toJSON();
-      this.meshPromise = this.computeMeshAsync();
-
-      // parents need update?
-      if (
-        this.pendingOperation ||
-        this.getParent() instanceof RepetitionObject ||
-        this.getParent() instanceof ObjectsGroup
-      ) {
-        let obj: ObjectsCommon | undefined = this.getParent();
-        while (obj) {
-          obj.meshUpdateRequired = true;
-          obj.computeMeshAsync();
-          obj = obj.getParent();
-        }
-      }
-    }
+  set meshUpdateRequired(a: boolean) {
+    (this.parameters as ISTLParams).blob.newfile = true;
   }
 
   public clone(): STLObject {
@@ -162,7 +126,8 @@ export default class STLObject extends PrimitiveObject {
         (this.parameters as ISTLParams).blob.filetype.match('empty')
       ) {
         this.mesh = this.getNoFileMesh();
-        this._meshUpdateRequired = false;
+        // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+        this.meshUpdateRequired = this.parent ? true : false;
         resolve(this.mesh);
         return;
       }
@@ -170,7 +135,8 @@ export default class STLObject extends PrimitiveObject {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry);
-        this._meshUpdateRequired = false;
+        // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+        this.meshUpdateRequired = this.parent ? true : false;
         this.applyViewOptions();
         await this.applyOperationsAsync();
       }
@@ -187,19 +153,6 @@ export default class STLObject extends PrimitiveObject {
     });
 
     return this.meshPromise as Promise<THREE.Mesh>;
-  }
-
-  public toJSON(): ISTLJSON {
-    // // As data can be an ArrayBuffer or an Uint8Array, we force it is an ArrayBuffer
-    // const data: Uint8Array = (this.parameters as ISTLParams).blob
-    //   .uint8Data;
-
-    // if (data instanceof Uint8Array) {
-    //   // Convert to ArrayBuffer
-    //   (this.parameters as ISTLParams).blob.uint8Data = data.buffer;
-    // }
-
-    return super.toJSON() as ISTLJSON;
   }
 
   protected getGeometry(): THREE.Geometry {

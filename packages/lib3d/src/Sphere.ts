@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2019-01-18 18:52:38
+ * Last modified  : 2019-01-29 09:20:42
  */
 
 import { isEqual } from 'lodash';
@@ -88,7 +88,7 @@ export default class Sphere extends PrimitiveObject {
   protected getGeometry(): THREE.Geometry {
     let { radius } = this.parameters as ISphereParams;
     radius = Math.max(0, radius);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     return new THREE.SphereGeometry(
       Number(radius),
       Math.max(12, Math.min(Number(radius) * 5, 16)),

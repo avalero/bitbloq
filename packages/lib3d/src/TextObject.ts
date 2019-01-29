@@ -7,7 +7,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-15 16:22:05
- * Last modified  : 2019-01-18 18:52:50
+ * Last modified  : 2019-01-29 09:20:31
  */
 
 import { isEqual } from 'lodash';
@@ -135,7 +135,9 @@ export default class TextObject extends PrimitiveObject {
       );
     }
 
-    this._meshUpdateRequired = false;
+    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+    this.meshUpdateRequired = this.parent ? true : false;
+
     try {
       const geom = new THREE.TextGeometry(text, {
         size,

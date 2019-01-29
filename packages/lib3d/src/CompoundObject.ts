@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-18 19:21:40
+ * Last modified  : 2019-01-29 09:24:39
  */
 
 import Object3D from './Object3D';
@@ -108,7 +108,8 @@ export default class CompoundObject extends Object3D {
             this.mesh = mesh;
             if (this.mesh instanceof THREE.Mesh) {
               this.applyOperationsAsync().then(() => {
-                this._meshUpdateRequired = false;
+                // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+                this.meshUpdateRequired = this.parent ? true : false;
                 if (this.viewOptionsUpdateRequired) {
                   this.applyViewOptions();
                   this._viewOptionsUpdateRequired = false;
@@ -177,12 +178,13 @@ export default class CompoundObject extends Object3D {
     // update children
     try {
       object.children.forEach(obj => {
-        const objToUpdate = this.getChild(obj);
+        const objToUpdate: ObjectsCommon = this.getChild(obj);
         newchildren.push(objToUpdate);
         objToUpdate.updateFromJSON(obj);
       });
 
-      if (!isEqual(this.children, newchildren)) {
+      // if (!isEqual(this.children, newchildren)) {
+      if (this.meshUpdateRequired || this.pendingOperation) {
         this.meshUpdateRequired = true;
         this.children = newchildren.slice(0);
       }
@@ -198,7 +200,8 @@ export default class CompoundObject extends Object3D {
     this.setOperations(object.operations);
     this.setViewOptions(vO);
     // if anything has changed, recompute mesh
-    if (!isEqual(this.lastJSON, this.toJSON())) {
+    // if (!isEqual(this.lastJSON, this.toJSON())) {
+    if (this.meshUpdateRequired || this.pendingOperation) {
       this.lastJSON = this.toJSON();
       this.meshPromise = this.computeMeshAsync();
       let obj: ObjectsCommon | undefined = this.getParent();
@@ -249,7 +252,8 @@ export default class CompoundObject extends Object3D {
     });
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
-    this._pendingOperation = false;
+    // if it has parent, mark pending operation as false, as parent must be recomputed
+    this.pendingOperation = this.parent ? true : false;
 
     return;
   }

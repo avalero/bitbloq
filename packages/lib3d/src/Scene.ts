@@ -185,7 +185,8 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): ISceneJSON {
-    return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
+    // return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
+    return this.objectsInScene.map(object => object.toJSON());
   }
 
   /**

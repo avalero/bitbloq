@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-18 18:49:50
+ * Last modified  : 2019-01-29 09:15:41
  */
 
 import { isEqual } from 'lodash';
@@ -88,7 +88,7 @@ export default class Cylinder extends PrimitiveObject {
     r0 = Math.max(0, r0);
     r1 = Math.max(0, r1);
     height = Math.max(0, height);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     return new THREE.CylinderGeometry(
       Number(r1),
       Number(r0),

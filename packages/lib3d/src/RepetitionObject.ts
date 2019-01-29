@@ -10,7 +10,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2019-01-18 18:52:17
+ * Last modified  : 2019-01-29 09:32:40
  */
 
 import ObjectsCommon, {
@@ -69,6 +69,11 @@ export default class RepetitionObject extends ObjectsCommon {
   get pendingOperation(): boolean {
     return this._pendingOperation || this.originalObject.pendingOperation;
   }
+
+  set pendingOperation(a: boolean) {
+    this._pendingOperation = a;
+  }
+
   public static typeName: string = 'RepetitionObject';
 
   /**
@@ -275,7 +280,8 @@ export default class RepetitionObject extends ObjectsCommon {
         throw Error('ERROR: Unknown Operation');
       }
     });
-    this._pendingOperation = false;
+    // if it has parent, mark pending operation as false, as parent must be recomputed
+    this.pendingOperation = this.parent ? true : false;
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
 
@@ -364,8 +370,12 @@ export default class RepetitionObject extends ObjectsCommon {
 
   private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
+    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+    this.meshUpdateRequired = this.parent ? true : false;
+
+    // if it has parent, mark pending operation as false, as parent must be recomputed
+    this.pendingOperation = this.parent ? true : false;
+
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
   }
@@ -434,7 +444,10 @@ export default class RepetitionObject extends ObjectsCommon {
       throw new Error('Unknown Repetition Command');
     }
 
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
+    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+    this.meshUpdateRequired = this.parent ? true : false;
+
+    // if it has parent, mark pending operation as false, as parent must be recomputed
+    this.pendingOperation = this.parent ? true : false;
   }
 }

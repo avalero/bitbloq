@@ -289,12 +289,19 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    return cloneDeep({
+    // return cloneDeep({
+    //   id: this.id,
+    //   type: this.type,
+    //   viewOptions: this.viewOptions,
+    //   operations: this.operations,
+    // });
+
+    return {
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-    });
+    };
   }
 
   public updateFromJSON(object: IObjectsCommonJSON): void {

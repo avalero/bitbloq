@@ -7,7 +7,7 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-10 11:23:22
- * Last modified  : 2019-01-18 18:52:03
+ * Last modified  : 2019-01-29 09:20:03
  */
 
 import { isEqual } from 'lodash';
@@ -90,7 +90,7 @@ export default class Pyramid extends PrimitiveObject {
     sides = Math.max(3, sides);
     length = Math.max(0, length);
     height = Math.max(0, height);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
       0,

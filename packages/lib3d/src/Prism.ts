@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2019-01-18 18:51:57
+ * Last modified  : 2019-01-29 09:19:58
  */
 
 /**
@@ -106,7 +106,7 @@ export default class Prism extends PrimitiveObject {
     sides = Math.max(3, sides);
     length = Math.max(0, length);
     height = Math.max(0, height);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
       Number(radius),

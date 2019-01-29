@@ -53,6 +53,34 @@ export default class ObjectsGroup extends ObjectsCommon {
       this.meshPromise = this.computeMeshAsync();
     }
   }
+
+  get meshUpdateRequired(): boolean {
+    this.children.forEach(child => {
+      this._meshUpdateRequired =
+        this._meshUpdateRequired ||
+        child.meshUpdateRequired ||
+        child.pendingOperation;
+    });
+
+    return this._meshUpdateRequired;
+  }
+
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
+  }
+
+  get pendingOperation(): boolean {
+    this.children.forEach(child => {
+      this._pendingOperation = this._pendingOperation || child.pendingOperation;
+    });
+
+    return this._pendingOperation;
+  }
+
+  set pendingOperation(a: boolean) {
+    this._pendingOperation = a;
+  }
+
   public getChildren(): ObjectsCommon[] {
     return this.children;
   }
@@ -185,8 +213,12 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
+    // If it has a parent, meshUpdateRequired must be true (as parent needs to be recomputed)
+    this.meshUpdateRequired = this.parent ? true : false;
+
+    // if it has parent, mark pending operation as false, as parent must be recomputed
+    this.pendingOperation = this.parent ? true : false;
+
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
   }
