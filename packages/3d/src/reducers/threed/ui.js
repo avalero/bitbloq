@@ -20,13 +20,18 @@ const ui = handleActions(
   new Map([
     [
       selectObject,
-      (state, {payload}) => ({
-        ...state,
-        activeOperation: null,
-        selectedIds: payload.addToSelection
-          ? [...new Set(state.selectedIds).add(payload.object.id)]
-          : [payload.object.id],
-      }),
+      (state, {payload}) => {
+        console.log('ASDASDASD');
+        console.log(payload.addToSelection);
+        console.log(Array.from(new Set(state.selectedIds).add(payload.object.id)));
+        return ({
+          ...state,
+          activeOperation: null,
+          selectedIds: payload.addToSelection
+            ? Array.from(new Set(state.selectedIds).add(payload.object.id))
+            : [payload.object.id],
+        });
+      },
     ],
     [
       deselectObject,

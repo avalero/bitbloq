@@ -15,10 +15,10 @@ class FileSelectButton extends React.Component<
   };
 
   render() {
-    const {onFileSelected} = this.props;
+    const {onFileSelected, ...restProps} = this.props;
     return (
       <>
-        <Button {...this.props} onClick={this.onClick} />
+        <Button {...restProps} onClick={this.onClick} />
         <input
           type="file"
           style={{display: 'none'}}
