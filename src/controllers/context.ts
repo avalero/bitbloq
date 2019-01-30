@@ -10,7 +10,7 @@ const contextController = {
       try {
         return await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
       } catch (e) {
-        throw new AuthenticationError('Your session expired. Sign in again.');
+        return undefined;
       }
     }
   },

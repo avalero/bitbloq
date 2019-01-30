@@ -1,6 +1,7 @@
 import { DocumentModel } from '../models/document';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
+import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
 import uploadResolver from './upload';
 
@@ -39,7 +40,10 @@ const documentResolver = {
         user: context.user.userID,
       });
       if (existDocument) {
-        return DocumentModel.deleteOne({ _id: args.id });
+        await UploadModel.deleteMany({ document: existDocument._id });
+        await SubmissionModel.deleteMany({ document: existDocument._id });
+        await ExerciseModel.deleteMany({ document: existDocument._id });
+        return DocumentModel.deleteOne({ _id: args.id }); //delete all the document dependencies
       } else {
         throw new Error('You only can delete your documents');
       }
@@ -87,16 +91,16 @@ const documentResolver = {
       return DocumentModel.find({ user: context.user.userID });
     },
     document: async (root: any, args: any, context: any) => {
-      const doc = await DocumentModel.findOne({
+      const existDocument = await DocumentModel.findOne({
         _id: args.id,
       });
-      if (!doc) {
+      if (!existDocument) {
         throw new Error('Document does not exist');
       }
-      if (doc.user != context.user.userID) {
+      if (existDocument.user != context.user.userID) {
         throw new Error('This ID does not belong to one of your documents');
       }
-      return doc;
+      return existDocument;
     },
   },
   Document: {

@@ -7,7 +7,6 @@ directive @authRequired(
 
 enum Role {
   ADMIN
-  REVIEWER
   USER
   EPHEMERAL
 }
@@ -48,12 +47,6 @@ input ExerciseIn {
   code: String
   description: String
   acceptSubmissions: Boolean
-  versions: Version
   expireDate: Date
 }
 
-input Version {
-  id: String
-  content: String
-  date: String
-}

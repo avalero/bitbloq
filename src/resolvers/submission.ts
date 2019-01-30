@@ -36,6 +36,7 @@ const submissionResolver = {
         studentNick: args.studentNick,
         content: exFather.content,
         user: exFather.user,
+        document: exFather.document,
         title: exFather.title,
         type: exFather.type,
       });
@@ -94,16 +95,16 @@ const submissionResolver = {
       if (!existSubmission) {
         throw new Error('Error finishing submission, it does not exist');
       }
-      const exercise = await ExerciseModel.findOne({
+      const exFather = await ExerciseModel.findOne({
         _id: existSubmission.exercise,
       });
       //check if the exercise accepts submissions
-      if (!exercise.acceptSubmissions) {
+      if (!exFather.acceptSubmissions) {
         throw new Error('This exercise does not accept submissions now');
       }
       //check if the submission is in time
       const timeNow: Date = new Date();
-      if (timeNow > exercise.expireDate) {
+      if (timeNow > exFather.expireDate) {
         throw new Error('Your submission is late');
       }
       //check if the submission has been finished
@@ -164,37 +165,37 @@ const submissionResolver = {
         //Token de alumno
         if (context.user.submissionID != args.id)
           throw new Error('You only can ask for your token submission');
-        const sub = await SubmissionModel.findOne({
+        const existSubmission = await SubmissionModel.findOne({
           _id: context.user.submissionID,
         });
-        if (!sub) {
+        if (!existSubmission) {
           throw new Error('Submission does not exist');
         }
-        return sub;
+        return existSubmission;
       } else if (context.user.userID) {
         //token de profesor
-        const sub = await SubmissionModel.findOne({
+        const existSubmission = await SubmissionModel.findOne({
           _id: args.id,
           user: context.user.userID,
         });
-        if (!sub) {
+        if (!existSubmission) {
           throw new Error('Submission does not exist');
         }
-        return sub;
+        return existSubmission;
       }
     },
 
     //user queries:
     submissionsByExercise: async (root: any, args: any, context: any) => {
-      const exerciseFound = await ExerciseModel.findOne({
+      const exFather = await ExerciseModel.findOne({
         _id: args.exercise,
       });
-      if (!exerciseFound) throw new Error('exercise does not exist');
-      const subs = await SubmissionModel.find({ exercise: exerciseFound._id });
-      if (subs.length == 0) {
+      if (!exFather) throw new Error('exercise does not exist');
+      const existSubmissions = await SubmissionModel.find({ exercise: exFather._id });
+      if (existSubmissions.length == 0) {
         throw new Error('No submissions for this exercise');
       }
-      return subs;
+      return existSubmissions;
     },
   },
 };

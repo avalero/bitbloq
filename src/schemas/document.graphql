@@ -9,7 +9,6 @@ directive @authRequired(
 
 enum Role {
   ADMIN
-  REVIEWER
   USER
   EPHEMERAL
 }
