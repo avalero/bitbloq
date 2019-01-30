@@ -191,7 +191,9 @@ const submissionResolver = {
         _id: args.exercise,
       });
       if (!exFather) throw new Error('exercise does not exist');
-      const existSubmissions = await SubmissionModel.find({ exercise: exFather._id });
+      const existSubmissions = await SubmissionModel.find({
+        exercise: exFather._id,
+      });
       if (existSubmissions.length == 0) {
         throw new Error('No submissions for this exercise');
       }

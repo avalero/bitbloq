@@ -54,8 +54,8 @@ const userResolver = {
           pulse aquí
         </a>
       `;
-      console.log(message);
-      //await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      //console.log(message);
+      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
@@ -108,7 +108,8 @@ const userResolver = {
       Activate Account: activates the new account of the user registered.
       It takes the information of the token received and activates the account created before.
       args: sign up token. This token is provided in the email sent.
-    */    
+    */
+
     activateAccount: async (root: any, args: any, context: any) => {
       if (!args.token)
         throw new Error('Error with sign up token, no token in args');
@@ -147,7 +148,8 @@ const userResolver = {
       It deletes the user passed by the ID if it is the same as the passed by token. 
       This method deletes all the documents, exercises and submissions related with this user.
       args: user ID. 
-    */    
+    */
+
     deleteUser: async (root: any, args: any, context: any) => {
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -199,7 +201,8 @@ const userResolver = {
     /*
       Users: returns all the users in the platform. It can be executed only by admin user.
       args: nothing. 
-    */    
+    */
+
     users(root: any, args: any, context: any) {
       return UserModel.find({});
     },
