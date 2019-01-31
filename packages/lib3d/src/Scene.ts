@@ -410,7 +410,6 @@ export default class Scene {
     }
 
     this.updateHistory();
-
     return this.toJSON();
   }
 
