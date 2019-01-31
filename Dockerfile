@@ -3,7 +3,7 @@ FROM node:current
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-COPY api package.json package-lock.json tsconfig.json ./
+COPY src package.json package-lock.json tsconfig.json ./
 
 RUN npm install --yes
 RUN chmod +x /usr/src/app/docker-entrypoint.sh
