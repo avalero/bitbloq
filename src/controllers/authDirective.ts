@@ -53,7 +53,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
                 );
               return resolve.apply(this, args);
             default:
-              throw Error('You need to be logged in. Role');
+              throw new AuthenticationError('You need to be logged in. Role');
           }
         }
       };

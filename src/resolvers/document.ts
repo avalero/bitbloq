@@ -1,3 +1,4 @@
+import { ApolloError } from 'apollo-server-koa';
 import { DocumentModel } from '../models/document';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
@@ -46,7 +47,10 @@ const documentResolver = {
         await ExerciseModel.deleteMany({ document: existDocument._id });
         return DocumentModel.deleteOne({ _id: args.id }); //delete all the document dependencies
       } else {
-        throw new Error('You only can delete your documents');
+        throw new ApolloError(
+          'You only can delete your documents',
+          'DOCUMENT_NOT_FOUND',
+        );
       }
     },
 
@@ -97,7 +101,7 @@ const documentResolver = {
           );
         }
       } else {
-        return new Error('Document does not exist');
+        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
     },
   },
@@ -110,10 +114,13 @@ const documentResolver = {
         _id: args.id,
       });
       if (!existDocument) {
-        throw new Error('Document does not exist');
+        throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
       if (existDocument.user != context.user.userID) {
-        throw new Error('This ID does not belong to one of your documents');
+        throw new ApolloError(
+          'This ID does not belong to one of your documents',
+          'NOT_YOUR_DOCUMENT',
+        );
       }
       return existDocument;
     },

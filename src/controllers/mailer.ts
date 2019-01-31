@@ -1,3 +1,5 @@
+import { ApolloError } from 'apollo-server-koa';
+
 const nodemailer = require('nodemailer');
 
 const mailerController = {
@@ -22,7 +24,10 @@ const mailerController = {
 
     const info = await transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-        return new Error('Error sending message');
+        return new ApolloError(
+          'Error sending message',
+          'SENDING_MESSAGE_ERROR',
+        );
       }
       console.log(info.response);
       console.log('Message sent: %s', info.messageId);
