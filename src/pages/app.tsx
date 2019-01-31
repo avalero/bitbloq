@@ -13,9 +13,11 @@ import { TranslateProvider, baseStyles } from "@bitbloq/ui";
 import SEO from "../components/SEO";
 
 import enMessages from "../messages/en.json";
+import esMessages from "../messages/es.json";
 
 const messagesFiles = {
-  en: enMessages
+  en: enMessages,
+  es: esMessages
 };
 
 const AppPage = () => (

@@ -12,7 +12,17 @@ exports.onCreatePage = async ({page, actions}) => {
 exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
   const config = getConfig();
 
+  config.output = {
+    ...config.output,
+    globalObject: 'this'
+  };
+
   config.module.rules = [
+    {
+      test: /\.worker\.ts$/,
+      use: { loader: 'worker-loader' }
+    },
+
     ...config.module.rules.filter(
       rule => String(rule.test) !== String(/\.jsx?$/)
     ),

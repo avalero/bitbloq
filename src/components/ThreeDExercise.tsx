@@ -8,6 +8,7 @@ import {
   Document,
   Icon,
   Modal,
+  Spinner,
   withTranslate
 } from "@bitbloq/ui";
 import gql from "graphql-tag";
@@ -20,6 +21,7 @@ const EXERCISE_QUERY = gql`
       title
       content
       description
+      image
     }
   }
 `;
@@ -46,7 +48,7 @@ class ThreeDExercise extends React.Component<any, State> {
 
   renderInfoTab() {
     const { t, exercise } = this.props;
-    const { id, title, content, description } = exercise;
+    const { id, title, content, description, image } = exercise;
 
     return (
       <Document.Tab
@@ -58,7 +60,7 @@ class ThreeDExercise extends React.Component<any, State> {
           <InfoPanel>
             <InfoHeader>Información del ejercicio</InfoHeader>
             <InfoContent>
-              <ExerciseImage />
+              <ExerciseImage src={image} />
               <ExerciseInfo>
                 <h2>{title}</h2>
                 <p>{description}</p>
@@ -136,7 +138,7 @@ class ThreeDExercise extends React.Component<any, State> {
 const ThreeDExerciseWithData = props => (
   <Query query={EXERCISE_QUERY} variables={{ id: props.id }}>
     {({ loading, error, data }) => {
-      if (loading) return <p>Loading...</p>;
+      if (loading) return <Loading />;
       if (error) return <p>Error :(</p>;
 
       const { exercise } = data;
@@ -148,6 +150,16 @@ const ThreeDExerciseWithData = props => (
 export default withTranslate(ThreeDExerciseWithData);
 
 /* styled components */
+
+const Loading = styled(Spinner)`
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+  color: white;
+  background-color: ${colors.brandBlue};
+`;
 
 const InfoContainer = styled.div`
   flex: 1;
@@ -185,6 +197,9 @@ const InfoContent = styled.div`
 
 const ExerciseImage = styled.div`
   background-color: ${colors.gray2};
+  background-image: url(${props => props.src});
+  background-size: cover;
+  background-position: center;
   margin-right: 30px;
   height: 250px;
   flex: 1;

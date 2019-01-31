@@ -6,6 +6,7 @@ import {
   HorizontalRule,
   Icon,
   Input,
+  Spinner,
   Modal
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -155,6 +156,7 @@ class Document extends React.Component<any, DocumentState> {
   }
 
   renderCreateExerciseModal(document) {
+    const { id: documentId } = this.props;
     const { isCreateExerciseOpen, newExerciseTitle } = this.state;
 
     return (
@@ -180,13 +182,13 @@ class Document extends React.Component<any, DocumentState> {
                     onClick={() => {
                       createExercise({
                         variables: {
-                          documentId: document.id,
+                          documentId,
                           title: newExerciseTitle
                         },
                         refetchQueries: [
                           {
                             query: DOCUMENT_QUERY,
-                            variables: { id: document.id }
+                            variables: { id: documentId }
                           }
                         ]
                       });
@@ -214,27 +216,27 @@ class Document extends React.Component<any, DocumentState> {
     const { id } = this.props;
 
     return (
-      <Query query={DOCUMENT_QUERY} variables={{ id }}>
-        {({ loading, error, data }) => {
-          if (loading) return <p>Loading...</p>;
-          if (error) return <p>Error :(</p>;
+      <Container>
+        <AppHeader />
+        <Query query={DOCUMENT_QUERY} variables={{ id }}>
+          {({ loading, error, data }) => {
+            if (loading) return <Loading />;
+            if (error) return <p>Error :(</p>;
 
-          const { document } = data;
+            const { document } = data;
 
-          return (
-            <Container>
-              <AppHeader />
+            return (
               <Content>
                 {this.renderHeader(document)}
                 <Rule />
                 {this.renderDocumentInfo(document)}
                 {this.renderExercises(document.exercises)}
               </Content>
-              {this.renderCreateExerciseModal(document)}
-            </Container>
-          );
-        }}
-      </Query>
+            );
+          }}
+        </Query>
+        {this.renderCreateExerciseModal(document)}
+      </Container>
     );
   }
 }
@@ -275,6 +277,10 @@ const Header = styled.div`
     text-decoration: none;
     margin-right: 6px;
   }
+`;
+
+const Loading = styled(Spinner)`
+  flex: 1;
 `;
 
 const Rule = styled(HorizontalRule)`

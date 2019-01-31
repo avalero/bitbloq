@@ -11,7 +11,7 @@ import {
   HorizontalRule
 } from "@bitbloq/ui";
 import gql from "graphql-tag";
-import { Mutation } from "react-apollo";
+import { Query, Mutation } from "react-apollo";
 import SEO from "../components/SEO";
 import logoBetaImage from "../images/logo-beta.svg";
 import studentStep1Image from "../images/student-step-1.svg";
@@ -33,6 +33,14 @@ class IndexPageState {
   readonly studentNick: string = "";
   readonly exerciseCode: string = "";
 }
+
+const ME_QUERY = gql`
+  query Me {
+    me {
+      name
+    }
+  }
+`;
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: EmailAddress!, $password: String!) {
@@ -88,30 +96,35 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
           </Step>
         </TabInfo>
         <DashedLine />
-        <LoginForm>
-          <Input
-            value={email}
-            onChange={e => this.setState({ email: e.target.value })}
-            placeholder="Correo electrónico"
-            type="email"
-          />
-          <Input
-            value={password}
-            onChange={e => this.setState({ password: e.target.value })}
-            placeholder="Contraseña"
-            type="password"
-          />
-          <Mutation mutation={LOGIN_MUTATION} onCompleted={this.onTeacherLogin}>
-            {(login, { loading }) => (
+        <Mutation mutation={LOGIN_MUTATION} onCompleted={this.onTeacherLogin}>
+          {(login, { loading, error }) => (
+            <LoginForm>
+              <Input
+                error={!loading && error}
+                value={email}
+                onChange={e => this.setState({ email: e.target.value })}
+                placeholder="Correo electrónico"
+                type="email"
+              />
+              <Input
+                error={!loading && error}
+                value={password}
+                onChange={e => this.setState({ password: e.target.value })}
+                placeholder="Contraseña"
+                type="password"
+              />
+              {(!loading && error) &&
+                <ErrorMessage>Email o contraseña incorrectos</ErrorMessage>
+              }
               <LoginButton
                 disabled={loading}
                 onClick={() => login({ variables: { email, password } })}
               >
                 Entrar
               </LoginButton>
-            )}
-          </Mutation>
-        </LoginForm>
+            </LoginForm>
+          )}
+        </Mutation>
       </TabContent>
     );
   }
@@ -138,22 +151,27 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
           </Step>
         </TabInfo>
         <DashedLine />
-        <LoginForm>
-          <Input
-            value={studentNick}
-            onChange={e => this.setState({ studentNick: e.target.value })}
-            placeholder="Nombre de usuario"
-          />
-          <CodeInput
-            value={exerciseCode}
-            onChange={e => this.setState({ exerciseCode: e.target.value })}
-            placeholder="Código de ejercicio"
-          />
-          <Mutation
-            mutation={CREATE_SUBMISSION_MUTATION}
-            onCompleted={this.onStudentLogin}
-          >
-            {(createSubmission, { loading }) => (
+        <Mutation
+          mutation={CREATE_SUBMISSION_MUTATION}
+          onCompleted={this.onStudentLogin}
+        >
+          {(createSubmission, { loading, error }) => (
+            <LoginForm>
+              <Input
+                error={!loading && error}
+                value={studentNick}
+                onChange={e => this.setState({ studentNick: e.target.value })}
+                placeholder="Nombre de usuario"
+              />
+              <CodeInput
+                error={!loading && error}
+                value={exerciseCode}
+                onChange={e => this.setState({ exerciseCode: e.target.value })}
+                placeholder="Código de ejercicio"
+              />
+              {(!loading && error) &&
+                <ErrorMessage>Error</ErrorMessage>
+              }
               <LoginButton
                 disabled={loading}
                 onClick={() =>
@@ -162,9 +180,9 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
               >
                 Entrar
               </LoginButton>
-            )}
-          </Mutation>
-        </LoginForm>
+            </LoginForm>
+          )}
+        </Mutation>
       </TabContent>
     );
   }
@@ -210,6 +228,14 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             </LoginPanel>
           </Container>
         </Wrap>
+        <Query query={ME_QUERY} fetchPolicy="network-only">
+          {({ loading, error, data }) => {
+            if (!loading && !error && data) {
+              navigate('/app');
+            }
+            return null;
+          }}
+        </Query>
       </>
     );
   }
@@ -386,3 +412,10 @@ const LoginButton = styled(Button)`
   width: 100%;
 `;
 
+const ErrorMessage = styled.div`
+  margin-top: -10px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  font-style: italic;
+  color: #d82b32;
+`;

@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { navigate } from "gatsby";
 import styled from '@emotion/styled';
-import {colors} from '@bitbloq/ui';
+import {css} from '@emotion/core';
+import {colors, DropDown, Icon} from '@bitbloq/ui';
 import { Query } from "react-apollo";
 import logoBetaImage from '../images/logo-horizontal.svg';
 import gql from "graphql-tag";
@@ -16,14 +18,39 @@ const ME_QUERY = gql`
 const AppHeader = () => (
   <Container>
     <Logo src={logoBetaImage} alt="Bitbloq" />
-    <Query query={ME_QUERY}>
+    <Query
+      query={ME_QUERY}
+      fetchPolicy="network-only"
+    >
       {({ loading, error, data }) => {
-        if (loading || error) return null;
+        if (loading) return null;
+
+        if (error) {
+          localStorage.setItem('authToken', '');
+          navigate('/');
+          return null;
+        }
+
+        console.log(data)
 
         return (
           <UserContainer>
-            <UserName>{data.me.name}</UserName>
-            <UserAvatar />
+            <UserName>{data.me && data.me.name}</UserName>
+            <DropDown>
+              {isOpen => (
+                <ContextButton isOpen={isOpen}>
+                  <Icon name="ellipsis" />
+                </ContextButton>
+              )}
+              <ContextMenu>
+                <ContextMenuOption onClick={() => {
+                  localStorage.setItem('authToken', '');
+                  navigate('/');
+                }}>
+                  Cerrar sesión
+                </ContextMenuOption>
+              </ContextMenu>
+            </DropDown>
           </UserContainer>
         );
       }}
@@ -59,9 +86,53 @@ const UserName = styled.div`
   margin-right: 10px;
 `;
 
-const UserAvatar = styled.div`
-  background-color: ${colors.gray2};
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
+interface ContextButtonProps {
+  isOpen: boolean;
+}
+const ContextButton = styled.div<ContextButtonProps>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  border: solid 1px white;
+
+  ${props =>
+    props.isOpen &&
+    css`
+      border: solid 1px #dddddd;
+      background-color: #e8e8e8;
+    `} svg {
+    transform: rotate(90deg);
+  }
+`;
+
+const ContextMenu = styled.div`
+  background-color: white;
+  margin-top: 36px;
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  border: solid 1px #cfcfcf;
+`;
+
+const ContextMenuOption = styled.div`
+  width: 220px;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  border-bottom: 1px solid #ebebeb;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0px 20px;
+
+  &:hover {
+    background-color: #ebebeb;
+  }
+
+  &:last-child {
+    border: none;
+  }
 `;
