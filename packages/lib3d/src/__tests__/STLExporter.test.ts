@@ -1,9 +1,9 @@
 import 'jsdom-worker';
+const global: any = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import scene2STL from '../STLExporter';
-import Cube, { ICubeJSON } from '../Cube';
-
+import Cube from '../Cube';
 import * as THREE from 'three';
 
 test('Scene - Constructor', async () => {

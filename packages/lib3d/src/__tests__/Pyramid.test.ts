@@ -1,9 +1,17 @@
 import 'jsdom-worker';
+const global: any = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import * as THREE from 'three';
-import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
-import Pyramid, { IPyramidJSON, IPyramidParams } from '../Pyramid';
+import ObjectsCommon from '../ObjectsCommon';
+import Pyramid from '../Pyramid';
+
+import {
+  IViewOptions,
+  OperationsArray,
+  IPyramidJSON,
+  IPyramidParams,
+} from '../Interfaces';
 
 const sides = 10;
 const length = 20;

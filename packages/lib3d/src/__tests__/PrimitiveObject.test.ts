@@ -1,13 +1,20 @@
 import 'jsdom-worker';
+const global: any = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import { cloneDeep } from 'lodash';
 import * as THREE from 'three';
-import Cube, { ICubeJSON, ICubeParams } from '../Cube';
-import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
+import Cube from '../Cube';
+import ObjectsCommon from '../ObjectsCommon';
 import ObjectsGroup from '../ObjectsGroup';
 import RepetitionObject from '../RepetitionObject';
-import { OBJLoader2 } from 'three';
+
+import {
+  ICubeJSON,
+  ICubeParams,
+  IViewOptions,
+  OperationsArray,
+} from '../Interfaces';
 
 const width = 10;
 const height = 15;
@@ -177,7 +184,6 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   expect(json).toEqual(obj.toJSON());
 
   // no changes, so computeMeshAsync should not be recalled
-  
 
   obj.updateFromJSON(json);
 

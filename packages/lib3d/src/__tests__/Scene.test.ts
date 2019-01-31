@@ -2,13 +2,16 @@ import 'jsdom-worker';
 global.fetch = require('jest-fetch-mock');
 
 import Scene, { ISceneJSON } from '../Scene';
-import Cube, { ICubeJSON } from '../Cube';
-import RepetitionObject, {
-  ICartesianRepetitionParams,
-  IRepetitionObjectJSON,
-} from '../RepetitionObject';
+import Cube from '../Cube';
+import RepetitionObject from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
 import * as THREE from 'three';
+
+import {
+  ICartesianRepetitionParams,
+  IRepetitionObjectJSON,
+  ICubeJSON,
+} from '../Interfaces';
 
 test('Scene - Constructor', () => {
   const spySetupScene = jest.spyOn(Scene.prototype as any, 'setupScene');

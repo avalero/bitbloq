@@ -4,11 +4,11 @@ import BaseGrid from './BaseGrid';
 import Union from './Union';
 import Difference from './Difference';
 import Intersection from './Intersection';
-import CompoundObject, { ICompoundObjectJSON } from './CompoundObject';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
+import CompoundObject from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
 
 import { isEqual } from 'lodash';
 
@@ -17,7 +17,9 @@ import PositionCalculator from './PositionCalculator';
 import RotationHelper from './RotationHelper';
 import TranslationHelper from './TranslationHelper';
 import meshArray2STL from './STLExporter';
-import TextObject, { ITextObjectJSON } from './TextObject';
+import TextObject from './TextObject';
+
+import {ITextObjectJSON, ICompoundObjectJSON, IObjectsCommonJSON, IRepetitionObjectJSON, IObjectsGroupJSON } from './Interfaces';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -125,9 +127,9 @@ export default class Scene {
           // if object is selected highlight
           if (object.getViewOptions().highlighted) {
             if (mesh instanceof THREE.Mesh) {
-              (mesh.material as THREE.MeshLambertMaterial).setValues(
-                this.highlightedMaterial,
-              );
+              if (mesh.material instanceof THREE.MeshLambertMaterial) {
+                mesh.material.setValues(this.highlightedMaterial);
+              }
             }
           }
           mesh.userData = object.toJSON();
@@ -247,9 +249,9 @@ export default class Scene {
         // if object is selected highlight
         if (object.getViewOptions().highlighted) {
           if (mesh instanceof THREE.Mesh) {
-            (mesh.material as THREE.MeshLambertMaterial).setValues(
-              this.highlightedMaterial,
-            );
+            if (mesh.material instanceof THREE.MeshLambertMaterial) {
+              mesh.material.setValues(this.highlightedMaterial);
+            }
           }
         }
         mesh.userData = object.toJSON();
@@ -272,9 +274,9 @@ export default class Scene {
         const mesh = (await object.getMeshAsync()).clone();
         if (mesh instanceof THREE.Mesh) {
           const pos = await this.getPositionAsync(object.toJSON());
-          (mesh.material as THREE.MeshLambertMaterial).setValues(
-            this.transitionMaterial,
-          );
+          if (mesh.material instanceof THREE.MeshLambertMaterial) {
+            mesh.material.setValues(this.highlightedMaterial);
+          }
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
           mesh.setRotationFromEuler(
             new THREE.Euler(

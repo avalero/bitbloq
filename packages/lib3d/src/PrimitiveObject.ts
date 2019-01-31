@@ -9,23 +9,21 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-16 17:30:44
- * Last modified  : 2019-01-29 17:34:38
+ * Last modified  : 2019-01-31 10:37:34
  */
 
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
 import Object3D from './Object3D';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
+
 import * as THREE from 'three';
 
-export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
-  parameters: object;
-}
+import ObjectsCommon from './ObjectsCommon';
+
+import {
+  IPrimitiveObjectJSON,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class PrimitiveObject extends Object3D {
   protected parameters: object;
@@ -55,7 +53,6 @@ export default class PrimitiveObject extends Object3D {
     object: IPrimitiveObjectJSON,
     fromParent: boolean = false,
   ) {
-
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
@@ -64,20 +61,21 @@ export default class PrimitiveObject extends Object3D {
       ...ObjectsCommon.createViewOptions(),
       ...object.viewOptions,
     };
+
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);
 
-    // if has no parent, update mesh, else update through parent
-    const obj: ObjectsCommon | undefined = this.getParent();
-    if (obj && !fromParent) {
-      obj.updateFromJSON(obj.toJSON());
-    } else {
-      if (
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      ) {
+    if (
+      this.meshUpdateRequired ||
+      this.pendingOperation ||
+      this.viewOptionsUpdateRequired
+    ) {
+      // if has no parent, update mesh, else update through parent
+      const obj: ObjectsCommon | undefined = this.getParent();
+      if (obj && !fromParent) {
+        obj.updateFromJSON(obj.toJSON());
+      } else {
         this.meshPromise = this.computeMeshAsync();
       }
     }

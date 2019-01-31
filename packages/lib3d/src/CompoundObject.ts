@@ -9,11 +9,13 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-29 18:31:10
+ * Last modified  : 2019-01-31 10:33:02
  */
 
+import * as Bitbloq from './Bitbloq';
 import Object3D from './Object3D';
-import ObjectsCommon, {
+import ObjectsCommon from './ObjectsCommon';
+import {
   IMirrorOperation,
   IObjectsCommonJSON,
   IRotateOperation,
@@ -21,15 +23,16 @@ import ObjectsCommon, {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-} from './ObjectsCommon';
-
+  ICompoundObjectJSON,
+  ISTLJSON,
+} from './Interfaces';
 import * as THREE from 'three';
-
+import { isEqual } from 'lodash';
 import Worker from './compound.worker';
 
-export interface ICompoundObjectJSON extends IObjectsCommonJSON {
-  children: IObjectsCommonJSON[];
-}
+// export interface ICompoundObjectJSON extends IObjectsCommonJSON {
+//   children: IObjectsCommonJSON[];
+// }
 
 export type ChildrenArray = ObjectsCommon[];
 
@@ -190,47 +193,38 @@ export default class CompoundObject extends Object3D {
     object: ICompoundObjectJSON,
     fromParent: boolean = false,
   ) {
-
-    
-
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
-
 
     // update operations and view options
     const vO = {
       ...ObjectsCommon.createViewOptions(),
       ...object.viewOptions,
     };
-    debugger;
     this.setOperations(object.operations);
     this.setViewOptions(vO);
+    const update =
+      this.meshUpdateRequired ||
+      this.pendingOperation ||
+      this.viewOptionsUpdateRequired;
+    this.setChildren(object.children);
 
-    const update = this.meshUpdateRequired || this.pendingOperation || this.viewOptionsUpdateRequired;
-
-    const newchildren: ChildrenArray = [];
-    // update children
     try {
-      object.children.forEach(objChild => {
-        const objToUpdate: ObjectsCommon = this.getChild(objChild);
-        newchildren.push(objToUpdate);
-        objToUpdate.updateFromJSON(objChild, true);
-      });
-
-      this.children = newchildren;
-
-      // if has no parent, update mesh, else update through parent
-      const objParent: ObjectsCommon | undefined = this.getParent();
-      if (objParent && !fromParent) {
-        objParent.updateFromJSON(objParent.toJSON());
-      } else {
-        // if anything has changed, recompute mesh
-        if (update || this.meshUpdateRequired || this.pendingOperation || this.viewOptionsUpdateRequired) {
+      if (
+        update ||
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      ) {
+        // if has no parent, update mesh, else update through parent
+        const objParent: ObjectsCommon | undefined = this.getParent();
+        if (objParent && !fromParent) {
+          objParent.updateFromJSON(objParent.toJSON());
+        } else {
+          // if anything has changed, recompute mesh
           this.meshPromise = this.computeMeshAsync();
         }
-
-        
       }
     } catch (e) {
       throw new Error(`Cannot update Compound Object: ${e}`);
@@ -325,6 +319,26 @@ export default class CompoundObject extends Object3D {
         resolve(bufferArray);
       });
     });
+  }
+
+  private setChildren(children: IObjectsCommonJSON[]) {
+    const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
+
+    // children are the same do not update anything.
+    if (Bitbloq.compareObjectsJSONArray(currentChildren, children)) return;
+
+    // if children are not the same
+    this.meshUpdateRequired = true;
+    const newchildren: ChildrenArray = [];
+    // update children
+
+    children.forEach(objChild => {
+      const objToUpdate: ObjectsCommon = this.getChild(objChild);
+      newchildren.push(objToUpdate);
+      objToUpdate.updateFromJSON(objChild, true);
+    });
+
+    this.children = newchildren;
   }
 
   /**

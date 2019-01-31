@@ -10,26 +10,20 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-29 15:22:38
+ * Last modified  : 2019-01-31 10:33:27
  */
 
 import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
-/**
- * Params defining a cube (units are in millimiters)
- */
-export interface ICubeParams {
-  width: number;
-  depth: number;
-  height: number;
-}
-
-export interface ICubeJSON extends IPrimitiveObjectJSON {
-  parameters: ICubeParams;
-}
+import {
+  ICubeJSON,
+  ICubeParams,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class Cube extends PrimitiveObject {
   public static typeName: string = 'Cube';

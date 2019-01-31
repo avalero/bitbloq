@@ -1,19 +1,31 @@
-import { ICompoundObjectJSON } from './CompoundObject';
-import Cube, { ICubeJSON } from './Cube';
-import Cylinder, { ICylinderJSON } from './Cylinder';
+import {
+  IRepetitionObjectJSON,
+  IObjectsGroupJSON,
+  ITextObjectJSON,
+  ICompoundObjectJSON,
+  ICubeJSON,
+  ICylinderJSON,
+  IObjectsCommonJSON,
+  IPrismJSON,
+  IPyramidJSON,
+  ISphereJSON,
+  ISTLJSON,
+} from './Interfaces';
+import Cube from './Cube';
+import Cylinder from './Cylinder';
 import Difference from './Difference';
 import Intersection from './Intersection';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
-import Prism, { IPrismJSON } from './Prism';
-import TextObject, { ITextObjectJSON } from './TextObject';
-import Pyramid, { IPyramidJSON } from './Pyramid';
-import Sphere, { ISphereJSON } from './Sphere';
+import ObjectsCommon from './ObjectsCommon';
+import Prism from './Prism';
+import TextObject from './TextObject';
+import Pyramid from './Pyramid';
+import Sphere from './Sphere';
 import Union from './Union';
 
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
 import Scene from './Scene';
-import STLObject, { ISTLJSON } from './STLObject';
+import STLObject from './STLObject';
 
 export default class ObjectFactory {
   /**

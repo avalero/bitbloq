@@ -7,27 +7,19 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-10 11:23:22
- * Last modified  : 2019-01-29 15:44:44
+ * Last modified  : 2019-01-31 09:52:17
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-export interface IPyramidParams {
-  sides: number;
-  length: number;
-  height: number;
-}
-
-export interface IPyramidJSON extends IObjectsCommonJSON {
-  parameters: IPyramidParams;
-}
+import {
+  OperationsArray,
+  IViewOptions,
+  IPyramidParams,
+  IPyramidJSON,
+} from './Interfaces';
 
 export default class Pyramid extends PrimitiveObject {
   public static typeName: string = 'Pyramid';

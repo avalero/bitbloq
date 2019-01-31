@@ -9,19 +9,22 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:00
- * Last modified  : 2019-01-29 15:43:56
+ * Last modified  : 2019-01-31 10:34:59
  */
 
 import { isEqual } from 'lodash';
-import CompoundObject, {
-  ChildrenArray,
-  ICompoundObjectJSON,
-} from './CompoundObject';
+import CompoundObject, { ChildrenArray } from './CompoundObject';
 import Object3D from './Object3D';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
 import RepetitionObject from './RepetitionObject';
 import ObjectsGroup from './ObjectsGroup';
+
+import {
+  ICompoundObjectJSON,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class Difference extends CompoundObject {
   public static typeName: string = 'Difference';

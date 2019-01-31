@@ -9,15 +9,17 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53
- * Last modified  : 2019-01-29 15:44:04
+ * Last modified  : 2019-01-31 10:35:43
  */
 
-import { isEqual } from 'lodash';
-import CompoundObject, {
-  ChildrenArray,
+import {
   ICompoundObjectJSON,
-} from './CompoundObject';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
+
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
 
 export default class Intersection extends CompoundObject {

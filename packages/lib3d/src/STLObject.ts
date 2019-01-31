@@ -9,30 +9,21 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-29 18:15:47
+ * Last modified  : 2019-01-31 10:05:22
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IViewOptions,
-  OperationsArray,
-  IObjectsCommonJSON,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 
 import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
-interface ISTLParams {
-  blob: {
-    uint8Data: Uint8Array;
-    filetype: string;
-    newfile: boolean;
-  };
-}
-
-export interface ISTLJSON extends IObjectsCommonJSON {
-  parameters: ISTLParams;
-}
+import {
+  ISTLJSON,
+  ISTLParams,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class STLObject extends PrimitiveObject {
   public static typeName: string = 'STLObject';
@@ -122,7 +113,6 @@ export default class STLObject extends PrimitiveObject {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
-    
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (
         !(this.parameters as ISTLParams).blob ||
@@ -197,7 +187,6 @@ export default class STLObject extends PrimitiveObject {
   }
 
   private computeGeometry(): THREE.Geometry {
-    console.log('Recompute STL Geometry');
     const data: Uint8Array = (this.parameters as ISTLParams).blob.uint8Data;
     this.arrayBufferData = data.buffer;
     const filetype: string = (this.parameters as ISTLParams).blob.filetype;

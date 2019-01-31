@@ -9,41 +9,19 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2019-01-29 15:44:36
+ * Last modified  : 2019-01-31 10:37:50
  */
 
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-10-16 12:51:01
- */
-
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-export interface IPrismParams {
-  sides: number;
-  length: number;
-  height: number;
-}
-
-export interface IPrismJSON extends IObjectsCommonJSON {
-  parameters: IPrismParams;
-}
+import {
+  IViewOptions,
+  OperationsArray,
+  IPrismParams,
+  IPrismJSON,
+} from './Interfaces';
 
 export default class Prism extends PrimitiveObject {
   public static typeName: string = 'Prism';

@@ -1,14 +1,12 @@
 import * as THREE from 'three';
 import Object3D from './Object3D';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
 
 import Union from './Union';
 import RepetitionObject from './RepetitionObject';
 
-export interface IObjectsGroupJSON extends IObjectsCommonJSON {
-  children: IObjectsCommonJSON[];
-}
+import { IObjectsGroupJSON, IObjectsCommonJSON } from './Interfaces';
 
 export default class ObjectsGroup extends ObjectsCommon {
   public static typeName: string = 'ObjectsGroup';

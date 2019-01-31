@@ -9,26 +9,20 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2019-01-29 15:26:18
+ * Last modified  : 2019-01-31 10:03:38
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
 
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-export interface ISphereParams {
-  radius: number;
-}
-
-export interface ISphereJSON extends IObjectsCommonJSON {
-  parameters: ISphereParams;
-}
+import {
+  ISphereJSON,
+  ISphereParams,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class Sphere extends PrimitiveObject {
   public static typeName: string = 'Sphere';

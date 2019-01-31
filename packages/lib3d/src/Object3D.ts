@@ -9,18 +9,20 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2019-01-29 16:25:41
+ * Last modified  : 2019-01-31 10:36:23
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {
+import ObjectsCommon from './ObjectsCommon';
+
+import {
   IMirrorOperation,
   IRotateOperation,
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-} from './ObjectsCommon';
+} from './Interfaces';
 
 export default class Object3D extends ObjectsCommon {
   public static getVerticesFromGeom(

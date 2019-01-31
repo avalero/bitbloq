@@ -1,9 +1,17 @@
 import 'jsdom-worker';
+const global: any = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import * as THREE from 'three';
-import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
-import Prism, { IPrismJSON, IPrismParams } from '../Prism';
+import ObjectsCommon from '../ObjectsCommon';
+import Prism from '../Prism';
+
+import {
+  IViewOptions,
+  OperationsArray,
+  IPrismJSON,
+  IPrismParams,
+} from '../Interfaces';
 
 const sides = 10;
 const length = 20;

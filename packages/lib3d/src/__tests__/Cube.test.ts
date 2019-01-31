@@ -1,13 +1,17 @@
 import 'jsdom-worker';
+const global: any = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import * as THREE from 'three';
-import Cube, { ICubeJSON, ICubeParams } from '../Cube';
-import ObjectsCommon, {
+import Cube from '../Cube';
+import ObjectsCommon from '../ObjectsCommon';
+import {
+  ICubeJSON,
+  ICubeParams,
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-} from '../ObjectsCommon';
+} from '../Interfaces';
 
 const width = 10;
 const height = 15;

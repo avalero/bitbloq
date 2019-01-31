@@ -1,9 +1,17 @@
 import 'jsdom-worker';
+const global: any = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import * as THREE from 'three';
-import ObjectsCommon, { IViewOptions, OperationsArray } from '../ObjectsCommon';
-import Sphere, { ISphereJSON, ISphereParams } from '../Sphere';
+import ObjectsCommon from '../ObjectsCommon';
+import Sphere from '../Sphere';
+
+import {
+  IViewOptions,
+  OperationsArray,
+  ISphereJSON,
+  ISphereParams,
+} from '../Interfaces';
 
 const radius = 10;
 

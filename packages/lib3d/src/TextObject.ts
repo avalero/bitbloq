@@ -7,17 +7,20 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-15 16:22:05
- * Last modified  : 2019-01-29 15:45:13
+ * Last modified  : 2019-01-31 10:31:10
  */
 
 import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
+
+import {
+  ITextObjectJSON,
+  ITextObjectParams,
   IViewOptions,
   OperationsArray,
-} from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+} from './Interfaces';
 
 import gentilis_regular from './assets/fonts/gentilis_regular.typeface.json';
 import gentilis_bold from './assets/fonts/gentilis_bold.typeface.json';
@@ -25,17 +28,6 @@ import helvetiker_bold from './assets/fonts/helvetiker_bold.typeface.json';
 import helvetiker_regular from './assets/fonts/helvetiker_regular.typeface.json';
 import optimer_bold from './assets/fonts/optimer_bold.typeface.json';
 import optimer_regular from './assets/fonts/optimer_regular.typeface.json';
-
-export interface ITextObjectParams {
-  text: string;
-  thickness: number;
-  size: number;
-  font: string;
-}
-
-export interface ITextObjectJSON extends IObjectsCommonJSON {
-  parameters: ITextObjectParams;
-}
 
 export default class TextObject extends PrimitiveObject {
   public static typeName: string = 'TextObject';

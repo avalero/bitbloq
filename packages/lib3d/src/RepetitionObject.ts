@@ -10,17 +10,10 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2019-01-29 18:51:38
+ * Last modified  : 2019-01-31 09:58:02
  */
 
-import ObjectsCommon, {
-  IMirrorOperation,
-  IObjectsCommonJSON,
-  IRotateOperation,
-  IScaleOperation,
-  ITranslateOperation,
-  IViewOptions,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 
 import { isEqual } from 'lodash';
 import * as THREE from 'three';
@@ -30,28 +23,16 @@ import PositionCalculator from './PositionCalculator';
 import Scene from './Scene';
 import Union from './Union';
 
-export interface IRepetitionObjectJSON extends IObjectsCommonJSON {
-  parameters: ICartesianRepetitionParams | IPolarRepetitionParams;
-  children: IObjectsCommonJSON[];
-}
-
-export interface IRepetitionParams {
-  num: number;
-  type: string;
-}
-
-export interface ICartesianRepetitionParams extends IRepetitionParams {
-  type: 'cartesian';
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface IPolarRepetitionParams extends IRepetitionParams {
-  type: 'polar';
-  angle: number;
-  axis: string;
-}
+import {
+  IMirrorOperation,
+  IRotateOperation,
+  IScaleOperation,
+  ITranslateOperation,
+  IViewOptions,
+  IRepetitionObjectJSON,
+  IPolarRepetitionParams,
+  ICartesianRepetitionParams,
+} from './Interfaces';
 
 /**
  * RepetitionObject Class

@@ -9,17 +9,17 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2019-01-29 15:45:25
+ * Last modified  : 2019-01-31 10:32:18
  */
 
-import { isEqual } from 'lodash';
-import CompoundObject, {
-  ChildrenArray,
-  ICompoundObjectJSON,
-} from './CompoundObject';
-import Object3D from './Object3D';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 
+import {
+  ICompoundObjectJSON,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 import Scene from './Scene';
 
 export default class Union extends CompoundObject {
