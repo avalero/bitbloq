@@ -4,7 +4,8 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 COPY bitbloq bitbloq-space ./
-RUN cd bitbloq && npx lerna bootstrap
+RUN cd bitbloq
+RUN npx lerna bootstrap
 RUN cd ../bitbloq-space/frontend
 RUN npm install --yes
 RUN npm link ../../bitbloq/packages/ui
