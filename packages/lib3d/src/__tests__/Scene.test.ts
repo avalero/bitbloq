@@ -1,14 +1,21 @@
 import 'jsdom-worker';
+interface Global {
+  fetch: any;
+}
+const global: Global = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import Scene, { ISceneJSON } from '../Scene';
-import Cube, { ICubeJSON } from '../Cube';
-import RepetitionObject, {
-  ICartesianRepetitionParams,
-  IRepetitionObjectJSON,
-} from '../RepetitionObject';
+import Cube from '../Cube';
+import RepetitionObject from '../RepetitionObject';
 import ObjectsGroup from '../ObjectsGroup';
 import * as THREE from 'three';
+
+import {
+  ICartesianRepetitionParams,
+  IRepetitionObjectJSON,
+  ICubeJSON,
+} from '../Interfaces';
 
 test('Scene - Constructor', () => {
   const spySetupScene = jest.spyOn(Scene.prototype as any, 'setupScene');
@@ -415,14 +422,17 @@ test('Scene - addExistingGroup', async () => {
   const scene: Scene = new Scene();
 
   const spy = jest.spyOn(Scene.prototype as any, 'addExistingGroup');
-  (scene as any).addExistingObject(group);
+  scene.addNewObjectFromJSON(cube1.toJSON());
+  scene.addNewObjectFromJSON(cube2.toJSON());
+  scene.addNewObjectFromJSON(cube3.toJSON());
+  scene.addNewObjectFromJSON(cube4.toJSON());
+  scene.addNewObjectFromJSON(group.toJSON());
   const objects: THREE.Group = await scene.getObjectsAsync();
 
   expect(spy).toBeCalledTimes(1);
   expect(objects.children.length).toEqual(1);
   expect(objects.children[0]).toBeInstanceOf(THREE.Group);
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(ObjectsGroup);
-  expect((scene as any).objectsInScene[0]).toBe(group);
 });
 
 test('Scene - addExistingRepetition', async () => {
@@ -439,14 +449,14 @@ test('Scene - addExistingRepetition', async () => {
   const scene: Scene = new Scene();
 
   const spy = jest.spyOn(Scene.prototype as any, 'addExistingRepetition');
-  (scene as any).addExistingObject(repetition);
+  scene.addNewObjectFromJSON(cube.toJSON());
+  scene.addNewObjectFromJSON(repetition.toJSON());
   const objects: THREE.Group = await scene.getObjectsAsync();
 
   expect(spy).toBeCalledTimes(1);
   expect(objects.children.length).toEqual(1);
   expect(objects.children[0]).toBeInstanceOf(THREE.Group);
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(RepetitionObject);
-  expect((scene as any).objectsInScene[0]).toBe(repetition);
 });
 
 test('Scene - repetitionToGroup', async () => {
@@ -463,7 +473,7 @@ test('Scene - repetitionToGroup', async () => {
   const scene: Scene = new Scene();
 
   (scene as any).addExistingObject(repetition);
-  (scene as any).repetitionToGroup(repetition.toJSON());
+  scene.convertToGroup(repetition.toJSON());
 
   const objects: THREE.Group = await scene.getObjectsAsync();
 
@@ -505,13 +515,13 @@ test('Scene - undoRepetition', async () => {
   const repetition = new RepetitionObject(repParams, cube);
   const scene: Scene = new Scene();
 
-  (scene as any).addExistingObject(repetition);
-  (scene as any).undoRepetition(repetition.toJSON());
+  scene.addNewObjectFromJSON(cube.toJSON());
+  scene.addNewObjectFromJSON(repetition.toJSON());
+  scene.undoObject(repetition.toJSON());
 
   const objects: THREE.Group = await scene.getObjectsAsync();
 
   expect(objects.children.length).toEqual(1);
   expect(objects.children[0]).toBeInstanceOf(THREE.Mesh);
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(Cube);
-  expect((scene as any).objectsInScene[0]).toBe(cube);
 });

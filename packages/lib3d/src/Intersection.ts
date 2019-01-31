@@ -9,15 +9,17 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:53
- * Last modified  : 2019-01-18 18:50:48
+ * Last modified  : 2019-01-31 10:35:43
  */
 
-import { isEqual } from 'lodash';
-import CompoundObject, {
-  ChildrenArray,
+import {
   ICompoundObjectJSON,
-} from './CompoundObject';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
+
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
 
 export default class Intersection extends CompoundObject {
@@ -45,7 +47,7 @@ export default class Intersection extends CompoundObject {
         object.operations,
         viewOptions,
       );
-      intersect.id = object.id || '';
+      intersect.id = object.id || intersect.id;
       return intersect;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -65,7 +67,7 @@ export default class Intersection extends CompoundObject {
     };
     super(children, operations, vO);
     this.type = Intersection.typeName;
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -77,7 +79,14 @@ export default class Intersection extends CompoundObject {
     const childrenClone: ChildrenArray = this.children.map(child =>
       child.clone(),
     );
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const intObj = new Intersection(
         childrenClone,
         this.operations,

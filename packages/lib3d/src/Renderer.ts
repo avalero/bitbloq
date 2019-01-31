@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import NavigationBox, { IBoxLabels } from './NavigationBox';
 import AxisHelper from './AxisHelper';
-import { IObjectsCommonJSON } from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
 import Scene, { IHelperDescription } from './Scene';
+import { IObjectsCommonJSON } from './Interfaces';
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;

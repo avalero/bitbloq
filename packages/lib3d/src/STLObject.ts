@@ -9,30 +9,21 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-18 20:50:21
+ * Last modified  : 2019-01-31 10:05:22
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IViewOptions,
-  OperationsArray,
-  IObjectsCommonJSON,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
-interface ISTLParams {
-  blob: {
-    buffer: ArrayBuffer | Uint8Array;
-    filetype: string;
-  };
-}
-
-export interface ISTLJSON extends IObjectsCommonJSON {
-  parameters: ISTLParams;
-}
+import {
+  ISTLJSON,
+  ISTLParams,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class STLObject extends PrimitiveObject {
   public static typeName: string = 'STLObject';
@@ -48,10 +39,13 @@ export default class STLObject extends PrimitiveObject {
       object.viewOptions,
     );
 
-    stl.id = object.id || '';
+    stl.id = object.id || stl.id;
 
     return stl;
   }
+
+  private arrayBufferData: ArrayBuffer;
+  private geometry: THREE.Geometry;
 
   constructor(
     parameters: Partial<ISTLParams>,
@@ -69,13 +63,14 @@ export default class STLObject extends PrimitiveObject {
     const params: ISTLParams = {
       ...parameters,
       blob: parameters.blob || {
-        buffer: new ArrayBuffer(0),
+        uint8Data: new Uint8Array(0),
         filetype: 'empty',
+        newfile: false,
       },
     };
 
     this.setParameters(params);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -83,8 +78,23 @@ export default class STLObject extends PrimitiveObject {
     }
   }
 
+  get meshUpdateRequired(): boolean {
+    return (this.parameters as ISTLParams).blob.newfile;
+  }
+
+  set meshUpdateRequired(a: boolean) {
+    (this.parameters as ISTLParams).blob.newfile = a;
+  }
+
   public clone(): STLObject {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objSTL = new STLObject(
         this.parameters as ISTLParams,
         this.operations,
@@ -109,7 +119,7 @@ export default class STLObject extends PrimitiveObject {
         (this.parameters as ISTLParams).blob.filetype.match('empty')
       ) {
         this.mesh = this.getNoFileMesh();
-        this._meshUpdateRequired = false;
+        this.meshUpdateRequired = false;
         resolve(this.mesh);
         return;
       }
@@ -117,9 +127,13 @@ export default class STLObject extends PrimitiveObject {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry);
-        this._meshUpdateRequired = false;
         this.applyViewOptions();
         await this.applyOperationsAsync();
+        resolve(this.mesh);
+        this.meshUpdateRequired = false;
+        this.pendingOperation = false;
+        this.viewOptionsUpdateRequired = false;
+        return;
       }
 
       if (this.pendingOperation) {
@@ -131,22 +145,26 @@ export default class STLObject extends PrimitiveObject {
       }
 
       resolve(this.mesh);
+      this.meshUpdateRequired = false;
+      this.pendingOperation = false;
+      this.viewOptionsUpdateRequired = false;
     });
 
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
-  public toJSON(): ISTLJSON {
-    // As data can be an ArrayBuffer or an Uint8Array, we force it is an ArrayBuffer
-    const data: ArrayBuffer | Uint8Array = (this.parameters as ISTLParams).blob
-      .buffer;
-
-    if (data instanceof Uint8Array) {
-      // Convert to ArrayBuffer
-      (this.parameters as ISTLParams).blob.buffer = data.buffer;
+  protected setParameters(parameters: ISTLParams): void {
+    if (!this.parameters) {
+      this.parameters = { ...parameters };
+      this.meshUpdateRequired = true;
+      return;
     }
 
-    return super.toJSON() as ISTLJSON;
+    if (parameters.blob.newfile) {
+      this.parameters = { ...parameters };
+      this.meshUpdateRequired = true;
+      return;
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -154,43 +172,44 @@ export default class STLObject extends PrimitiveObject {
       !(this.parameters as ISTLParams).blob ||
       (this.parameters as ISTLParams).blob.filetype.match('empty')
     ) {
-      throw new Error('No STL file loaded');
+      throw new Error(`No STL file loaded`);
     }
 
-    let blob: ArrayBuffer = new ArrayBuffer(0);
-    const data: ArrayBuffer | Uint8Array = (this.parameters as ISTLParams).blob
-      .buffer;
-    if (data instanceof ArrayBuffer) {
-      blob = data;
-    } else if (data instanceof Uint8Array) {
-      blob = data.buffer;
+    // recompute geometry only if blob has changed (new file loaded)
+    if ((this.parameters as ISTLParams).blob.newfile) {
+      try {
+        return this.computeGeometry();
+      } catch (e) {
+        throw e;
+      }
     }
+    return this.geometry;
+  }
 
-    if (
-      (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-binary')
-    ) {
-      const binaryGeom: THREE.Geometry = STLLoader.loadBinaryStl(blob);
-      if (binaryGeom instanceof THREE.Geometry) {
-        return binaryGeom;
+  private computeGeometry(): THREE.Geometry {
+    const data: Uint8Array = (this.parameters as ISTLParams).blob.uint8Data;
+    this.arrayBufferData = data.buffer;
+    const filetype: string = (this.parameters as ISTLParams).blob.filetype;
+
+    if (filetype.match('model/x.stl-binary') || filetype.match('model/stl')) {
+      this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+      if (this.geometry instanceof THREE.Geometry) {
+        return this.geometry;
       }
 
       throw new Error('Geometry not properly computed');
     }
 
-    if (
-      (this.parameters as ISTLParams).blob.filetype.match('model/x.stl-ascii')
-    ) {
-      const asciiGeom = STLLoader.loadTextStl(blob);
-      if (asciiGeom instanceof THREE.Geometry) {
-        return asciiGeom;
+    if (filetype.match('model/x.stl-ascii')) {
+      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      if (this.geometry instanceof THREE.Geometry) {
+        return this.geometry;
       }
 
       throw new Error('Geometry not properly computed');
     }
 
-    throw new Error(
-      `No STL file format: ${(this.parameters as ISTLParams).blob.filetype} `,
-    );
+    throw new Error(`No STL file format: filetype: ${filetype} `);
   }
 
   private getNoFileMesh(): THREE.Mesh {

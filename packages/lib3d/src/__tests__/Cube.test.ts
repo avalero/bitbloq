@@ -1,13 +1,20 @@
 import 'jsdom-worker';
+interface Global {
+  fetch: any;
+}
+const global: Global = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import * as THREE from 'three';
-import Cube, { ICubeJSON, ICubeParams } from '../Cube';
-import ObjectsCommon, {
+import Cube from '../Cube';
+import ObjectsCommon from '../ObjectsCommon';
+import {
+  ICubeJSON,
+  ICubeParams,
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-} from '../ObjectsCommon';
+} from '../Interfaces';
 
 const width = 10;
 const height = 15;
@@ -34,7 +41,7 @@ test('Cube - Constructor', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.geometry).toBeInstanceOf(THREE.CubeGeometry);
@@ -50,7 +57,7 @@ test('Cube - Constructor - Default Params - ViewOptions', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.geometry).toBeInstanceOf(THREE.CubeGeometry);
@@ -66,7 +73,7 @@ test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.geometry).toBeInstanceOf(THREE.CubeGeometry);
@@ -87,7 +94,7 @@ test('Cube - Constructor - Set Operations - Translation', () => {
   ];
   const obj = new Cube(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x, y, z });
@@ -107,7 +114,7 @@ test('Cube - Constructor - Set Operations - Rotation', () => {
   ];
   const obj = new Cube(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
@@ -142,11 +149,6 @@ test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
   // mesh clone should be called on this instance because obj has NOT been changed
-  expect(spy).toBeCalledTimes(1);
-
-  (obj as any).operations = [ObjectsCommon.createTranslateOperation(0, 0, 0)];
-  const obj3 = obj.clone();
-  // mesh clone should not be called on this instance because obj has been changed
   expect(spy).toBeCalledTimes(1);
 });
 

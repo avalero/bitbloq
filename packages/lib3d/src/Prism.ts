@@ -9,41 +9,19 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:38
- * Last modified  : 2019-01-18 18:51:57
+ * Last modified  : 2019-01-31 10:37:50
  */
 
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2018-10-16 12:51:01
- */
-
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-export interface IPrismParams {
-  sides: number;
-  length: number;
-  height: number;
-}
-
-export interface IPrismJSON extends IObjectsCommonJSON {
-  parameters: IPrismParams;
-}
+import {
+  IViewOptions,
+  OperationsArray,
+  IPrismParams,
+  IPrismJSON,
+} from './Interfaces';
 
 export default class Prism extends PrimitiveObject {
   public static typeName: string = 'Prism';
@@ -57,7 +35,7 @@ export default class Prism extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    prism.id = object.id || '';
+    prism.id = object.id || prism.id;
 
     return prism;
   }
@@ -75,7 +53,7 @@ export default class Prism extends PrimitiveObject {
     super(vO, operations);
     this.type = Prism.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -84,7 +62,14 @@ export default class Prism extends PrimitiveObject {
   }
 
   public clone(): Prism {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objPrism = new Prism(
         this.parameters as IPrismParams,
         this.operations,
@@ -106,7 +91,7 @@ export default class Prism extends PrimitiveObject {
     sides = Math.max(3, sides);
     length = Math.max(0, length);
     height = Math.max(0, height);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
       Number(radius),
