@@ -14,6 +14,7 @@ import {
   ICubeParams,
   IViewOptions,
   OperationsArray,
+  ICartesianRepetitionParams,
 } from '../Interfaces';
 
 const width = 10;
@@ -152,9 +153,16 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
     type: Cube.typeName,
   };
 
-  const obj = new Cube(objParams, operations, viewOptions);
-  const obj2 = new Cube(objParams, operations, viewOptions);
-  obj.setParent(obj2);
+  const repParamas: ICartesianRepetitionParams = {
+    type: 'cartesian',
+    x: 10,
+    y: 0,
+    z: 0,
+    num: 2,
+  };
+
+  const obj = new Cube({ ...objParams }, [...operations], { ...viewOptions });
+  const obj2 = new RepetitionObject(repParamas, obj);
 
   const spy1 = jest.spyOn(obj, 'computeMeshAsync');
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
@@ -209,9 +217,16 @@ test('PrimitiveObject - UpdateFromJSON with parents - change viewOptions', async
     type: Cube.typeName,
   };
 
-  const obj = new Cube(objParams, operations, viewOptions);
-  const obj2 = new Cube(objParams, operations, viewOptions);
-  obj.setParent(obj2);
+  const repParamas: ICartesianRepetitionParams = {
+    type: 'cartesian',
+    x: 10,
+    y: 0,
+    z: 0,
+    num: 2,
+  };
+
+  const obj = new Cube({ ...objParams }, [...operations], { ...viewOptions });
+  const obj2 = new RepetitionObject(repParamas, obj);
 
   const spy1 = jest.spyOn(obj, 'computeMeshAsync');
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
@@ -219,11 +234,11 @@ test('PrimitiveObject - UpdateFromJSON with parents - change viewOptions', async
   json.id = obj.toJSON().id;
   expect(json).toEqual(obj.toJSON());
 
-  json.viewOptions = { ...json.viewOptions, color: '#aaaaaa' };
+  json.parameters.depth = 1000;
   obj.updateFromJSON(json);
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(1);
-  expect(spy2).toBeCalledTimes(0);
+  expect(spy2).toBeCalledTimes(1);
 });
 
 test('PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptions', async () => {
@@ -305,11 +320,17 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
     type: Cube.typeName,
   };
 
-  const obj = new Cube(objParams, operations, viewOptions);
-  const obj2 = new Cube(objParams, operations, viewOptions);
-  const obj3 = new Cube(objParams, operations, viewOptions);
-  obj.setParent(obj2);
-  obj2.setParent(obj3);
+  const repParamas: ICartesianRepetitionParams = {
+    type: 'cartesian',
+    x: 10,
+    y: 0,
+    z: 0,
+    num: 2,
+  };
+
+  const obj = new Cube({ ...objParams }, [...operations], { ...viewOptions });
+  const obj2 = new RepetitionObject(repParamas, obj);
+  const obj3 = new RepetitionObject(repParamas, obj2);
 
   const spy1 = jest.spyOn(obj, 'computeMeshAsync');
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');

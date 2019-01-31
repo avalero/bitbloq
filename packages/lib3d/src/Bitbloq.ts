@@ -13,18 +13,6 @@ import {
   ISTLJSON,
   IPrimitiveObjectJSON,
 } from './Interfaces';
-import Cube from './Cube';
-import Cylinder from './Cylinder';
-import Sphere from './Sphere';
-import Prism from './Prism';
-import TextObject from './TextObject';
-import Pyramid from './Pyramid';
-import { STLObject } from '.';
-import Union from './Union';
-import Difference from './Difference';
-import RepetitionObject from './RepetitionObject';
-import ObjectsGroup from './ObjectsGroup';
-import CompoundObject, { ChildrenArray } from './CompoundObject';
 
 type objJSON =
   | IRepetitionObjectJSON
@@ -41,21 +29,17 @@ type objJSON =
 
 export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   const primitiveTypes: string[] = [
-    Cube.typeName,
-    Cylinder.typeName,
-    Sphere.typeName,
-    Prism.typeName,
-    TextObject.typeName,
-    Pyramid.typeName,
+    'Cube',
+    'Cylinder',
+    'Sphere',
+    'Prism',
+    'TextObject',
+    'Pyramid',
   ];
 
-  const compoundObjectTypes: string[] = [
-    Union.typeName,
-    Difference.typeName,
-    Cylinder.typeName,
-  ];
+  const compoundObjectTypes: string[] = ['Union', 'Difference', 'Cylinder'];
 
-  const stlType = STLObject.typeName;
+  const stlType = 'STLObject';
 
   const obj1Basics = {
     id: obj1.id,
@@ -99,7 +83,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   }
 
   // RepetitionObject
-  if (obj1.type === RepetitionObject.typeName) {
+  if (obj1.type === 'RepetitionObject') {
     const obj1Rep = obj1 as IRepetitionObjectJSON;
     const obj2Rep = obj2 as IRepetitionObjectJSON;
 
@@ -112,7 +96,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
 
   // Group
 
-  if (obj1.type === ObjectsGroup.typeName) {
+  if (obj1.type === 'ObjectsGroup') {
     const obj1Group: IObjectsGroupJSON = obj1 as IObjectsGroupJSON;
     const obj2Group: IObjectsGroupJSON = obj2 as IObjectsGroupJSON;
 
@@ -138,3 +122,15 @@ export function compareObjectsJSONArray(
   }
   return equalChildren; // true
 }
+
+// import Cube from './Cube';
+// import Cylinder from './Cylinder';
+// import Sphere from './Sphere';
+// import Prism from './Prism';
+// import TextObject from './TextObject';
+// import Pyramid from './Pyramid';
+// import STLObject from './STLObject';
+// import Union from './Union';
+// import Difference from './Difference';
+// import RepetitionObject from './RepetitionObject';
+// import ObjectsGroup from './ObjectsGroup';

@@ -62,6 +62,7 @@ export default class PrimitiveObject extends Object3D {
       ...object.viewOptions,
     };
 
+    debugger;
     this.setParameters(object.parameters);
     this.setOperations(object.operations);
     this.setViewOptions(vO);

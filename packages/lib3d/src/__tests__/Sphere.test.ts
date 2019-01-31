@@ -28,7 +28,7 @@ test('Sphere - Constructor', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.geometry).toBeInstanceOf(THREE.SphereGeometry);
@@ -44,7 +44,7 @@ test('Sphere - Constructor - Default Params - ViewOptions', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.geometry).toBeInstanceOf(THREE.SphereGeometry);
@@ -60,7 +60,7 @@ test('Sphere - Constructor - Default Params - Operations - ViewOptions', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.geometry).toBeInstanceOf(THREE.SphereGeometry);
@@ -78,7 +78,7 @@ test('Sphere - Constructor - Set Operations - Translation', () => {
   const operationsArr = [ObjectsCommon.createTranslateOperation(x, y, z)];
   const obj = new Sphere(objParams, operationsArr);
   expect((obj as any).operations).toEqual(operationsArr);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x, y, z });
@@ -97,7 +97,7 @@ test('Sphere - Constructor - Set Operations - Rotation', () => {
   ];
   const obj = new Sphere(objParams, operationsArr);
   expect((obj as any).operations).toEqual(operationsArr);
-  expect((obj as any).lastJSON).toEqual(obj.toJSON());
+
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
     expect(mesh).toBeInstanceOf(THREE.Mesh);
     expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
@@ -133,11 +133,6 @@ test('Sphere - Clone - Parameters - Operations - viewOptions', async () => {
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
   // mesh clone should be called on this instance because obj has NOT been changed
-  expect(spy).toBeCalledTimes(1);
-
-  (obj as any).operations = [ObjectsCommon.createTranslateOperation(0, 0, 0)];
-  const obj3 = obj.clone();
-  // mesh clone should not be called on this instance because obj has been changed
   expect(spy).toBeCalledTimes(1);
 });
 

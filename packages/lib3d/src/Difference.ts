@@ -12,13 +12,9 @@
  * Last modified  : 2019-01-31 10:34:59
  */
 
-import { isEqual } from 'lodash';
 import CompoundObject, { ChildrenArray } from './CompoundObject';
-import Object3D from './Object3D';
 import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
-import RepetitionObject from './RepetitionObject';
-import ObjectsGroup from './ObjectsGroup';
 
 import {
   ICompoundObjectJSON,
