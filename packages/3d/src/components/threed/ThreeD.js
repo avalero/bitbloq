@@ -32,18 +32,7 @@ const AdvanceModeWrap = styled.div`
   }
 `;
 
-const menuOptions = ({advancedMode}, t) => [
-  {
-    id: 'file',
-    label: t('menu-file'),
-    children: [
-      {
-        id: 'download-project',
-        label: t('menu-download-project'),
-        icon: <Icon name="download" />,
-      },
-    ],
-  },
+const getBaseMenuOptions = ({advancedMode}, t) => [
   {
     id: 'view',
     label: t('menu-view'),
@@ -82,17 +71,6 @@ const menuOptions = ({advancedMode}, t) => [
       },
     ],
   },
-  {
-    id: 'share',
-    label: t('menu-share'),
-    children: [
-      {
-        id: 'publish-explora',
-        label: t('menu-publish-in-explora'),
-        icon: <Icon name="publish" />,
-      },
-    ],
-  },
 ];
 
 class ThreeD extends React.Component {
@@ -105,7 +83,8 @@ class ThreeD extends React.Component {
   }
 
   onMenuOptionClick = option => {
-    const {setAdvancedMode} = this.props;
+    const {setAdvancedMode, onMenuOptionClick} = this.props;
+
     switch (option.id) {
       case 'basic-mode':
         setAdvancedMode(false);
@@ -116,6 +95,7 @@ class ThreeD extends React.Component {
         return;
 
       default:
+        onMenuOptionClick && onMenuOptionClick(option)
         return;
     }
   };
@@ -131,6 +111,7 @@ class ThreeD extends React.Component {
       headerButtons,
       onHeaderButtonClick,
       initialTab,
+      menuOptions,
       t,
     } = this.props;
 
@@ -154,6 +135,8 @@ class ThreeD extends React.Component {
       </Document.Tab>
     );
 
+    const baseMenuOptions = getBaseMenuOptions(this.props, t);
+
     return (
       <Document
         title={title || t('untitled-project')}
@@ -162,7 +145,7 @@ class ThreeD extends React.Component {
         onEditTitle={onEditTitle}
         headerButtons={headerButtons}
         onHeaderButtonClick={onHeaderButtonClick}
-        menuOptions={menuOptions(this.props, t)}
+        menuOptions={menuOptions ? menuOptions(baseMenuOptions) : baseMenuOptions}
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
         {typeof children === 'function' ? children(mainTab) : mainTab}
