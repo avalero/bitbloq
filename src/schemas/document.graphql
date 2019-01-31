@@ -21,7 +21,6 @@ type Mutation {
   createDocument(input: DocumentIn!): Document                      @authRequired(requires: USER)
   deleteDocument(id: ObjectID!): Document                           @authRequired(requires: USER)
   updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: USER)
-  updateDocumentImage(id: ObjectID!, input: DocumentIn): Document   @authRequired(requires: USER)
 }
 
 type Document {

@@ -1,6 +1,7 @@
 import { UploadModel } from '../models/upload';
 const { Storage } = require('@google-cloud/storage');
 import { ObjectID } from 'bson';
+import { ApolloError } from 'apollo-server-koa';
 
 const storage = new Storage(process.env.GCLOUD_PROJECT_ID); //proyect ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); //bucket name
@@ -23,11 +24,11 @@ const processUpload = async (createReadStream, filename, resolve, reject) => {
   gStream
     .on('error', err => {
       reject('KO');
-      throw new Error('Error uploading image');
+      throw new ApolloError('Error uploading image', 'UPLOAD_ERROR');
     })
 
     .on('finish', async err => {
-      if (err) throw new Error('Error uploading file');
+      if (err) throw new ApolloError('Error uploading file', 'UPLOAD_ERROR');
       file.makePublic().then(() => {
         publicUrl = getPublicUrl(gcsname);
         resolve('OK');
@@ -38,7 +39,8 @@ const processUpload = async (createReadStream, filename, resolve, reject) => {
 };
 
 function getPublicUrl(filename) {
-  return `https://storage.googleapis.com/${bucketName}/${filename}`;
+  const finalName: String = encodeURIComponent(filename);
+  return `https://storage.googleapis.com/${bucketName}/${finalName}`;
 }
 
 const uploadResolver = {

@@ -1,4 +1,4 @@
-import { AuthenticationError } from 'apollo-server-koa';
+import { ApolloError } from 'apollo-server-koa';
 import { SubmissionModel } from '../models/submission';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
@@ -13,11 +13,17 @@ const submissionResolver = {
         acceptSubmissions: true,
       });
       if (!exFather)
-        throw new Error('Error creating submission, check your exercise code');
+        throw new ApolloError(
+          'Error creating submission, check your exercise code',
+          'INVALID_EXERCISE_CODE',
+        );
       //check if the submission is in time
       const timeNow: Date = new Date();
       if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
-        throw new Error('This exercise does not accept submissions now');
+        throw new ApolloError(
+          'This exercise does not accept submissions now',
+          'NOT_ACCEPT_SUBMISSIONS',
+        );
       }
 
       if (
@@ -26,8 +32,9 @@ const submissionResolver = {
           exercise: exFather._id,
         })
       ) {
-        throw new Error(
+        throw new ApolloError(
           'This nick already exists in this exercise, try another one',
+          'STUDENT_NICK_EXISTS',
         );
       }
       const submission_new = new SubmissionModel({
@@ -70,11 +77,15 @@ const submissionResolver = {
         exercise: context.user.exerciseID,
       });
       if (!existSubmission)
-        throw new Error(
+        throw new ApolloError(
           'Error updating submission, it should part of one of your exercises',
+          'SUBMISSION_NOT_FOUND',
         );
       if (existSubmission.finished) {
-        throw new Error('You already finished the exercise');
+        throw new ApolloError(
+          'You already finished the exercise',
+          'SUBMISSION_FINISHED',
+        );
       }
       if (existSubmission) {
         return SubmissionModel.findOneAndUpdate(
@@ -82,8 +93,6 @@ const submissionResolver = {
           { $set: args.input },
           { new: true },
         );
-      } else {
-        return new Error('Exercise does not exist');
       }
     },
 
@@ -93,23 +102,32 @@ const submissionResolver = {
         exercise: context.user.exerciseID,
       });
       if (!existSubmission) {
-        throw new Error('Error finishing submission, it does not exist');
+        throw new ApolloError(
+          'Error finishing submission, it does not exist',
+          'SUBMISSION_NOT_FOUND',
+        );
       }
       const exFather = await ExerciseModel.findOne({
         _id: existSubmission.exercise,
       });
       //check if the exercise accepts submissions
       if (!exFather.acceptSubmissions) {
-        throw new Error('This exercise does not accept submissions now');
+        throw new ApolloError(
+          'This exercise does not accept submissions now',
+          'NOT_ACCEPT_SUBMISSIONS',
+        );
       }
       //check if the submission is in time
       const timeNow: Date = new Date();
       if (timeNow > exFather.expireDate) {
-        throw new Error('Your submission is late');
+        throw new ApolloError('Your submission is late', 'SUBMISSION_LATE');
       }
       //check if the submission has been finished
       if (existSubmission.finished) {
-        throw new Error('This submission is already finished');
+        throw new ApolloError(
+          'This submission is already finished',
+          'SUBMISSION_FINISHED',
+        );
       }
       return SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
@@ -132,8 +150,9 @@ const submissionResolver = {
         exercise: context.user.exerciseID,
       });
       if (!existSubmission)
-        throw new Error(
+        throw new ApolloError(
           'Error canceling submission, it should part of one of your exercises',
+          'SUBMISSION_NOT_FOUND',
         );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
@@ -145,8 +164,9 @@ const submissionResolver = {
         user: context.user.userID,
       });
       if (!existSubmission)
-        throw new Error(
+        throw new ApolloError(
           'Error updating submission, it should part of one of your exercises',
+          'SUBMISSION_NOT_FOUND',
         );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
@@ -164,12 +184,18 @@ const submissionResolver = {
       if (context.user.submissionID) {
         //Token de alumno
         if (context.user.submissionID != args.id)
-          throw new Error('You only can ask for your token submission');
+          throw new ApolloError(
+            'You only can ask for your token submission',
+            'NOT_YOUR_SUBMISSION',
+          );
         const existSubmission = await SubmissionModel.findOne({
           _id: context.user.submissionID,
         });
         if (!existSubmission) {
-          throw new Error('Submission does not exist');
+          throw new ApolloError(
+            'Submission does not exist',
+            'SUBMISSION_NOT_FOUND',
+          );
         }
         return existSubmission;
       } else if (context.user.userID) {
@@ -179,7 +205,10 @@ const submissionResolver = {
           user: context.user.userID,
         });
         if (!existSubmission) {
-          throw new Error('Submission does not exist');
+          throw new ApolloError(
+            'Submission does not exist',
+            'SUBMISSION_NOT_FOUND',
+          );
         }
         return existSubmission;
       }
@@ -190,13 +219,11 @@ const submissionResolver = {
       const exFather = await ExerciseModel.findOne({
         _id: args.exercise,
       });
-      if (!exFather) throw new Error('exercise does not exist');
+      if (!exFather)
+        throw new ApolloError('exercise does not exist', 'EXERCISE_NOT_FOUND');
       const existSubmissions = await SubmissionModel.find({
         exercise: exFather._id,
       });
-      if (existSubmissions.length == 0) {
-        throw new Error('No submissions for this exercise');
-      }
       return existSubmissions;
     },
   },

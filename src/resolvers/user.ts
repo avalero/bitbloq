@@ -4,7 +4,7 @@ import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
 import { contextController } from '../controllers/context';
 import { mailerController } from '../controllers/mailer';
-import { AuthenticationError } from 'apollo-server-koa';
+import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 import { ObjectID } from 'bson';
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -25,7 +25,7 @@ const userResolver = {
         email: args.input.email,
       });
       if (contactFound) {
-        throw new Error('This user already exists');
+        throw new ApolloError('This user already exists', 'USER_EMAIL_EXISTS');
       }
       //Store the password with a hash
       const hash: String = await bcrypt.hash(args.input.password, saltRounds);
@@ -50,7 +50,7 @@ const userResolver = {
       console.log(token);
 
       const message: String = `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
-        <a href="${process.env.FRONTEND_Url}/app/activate?token=${token}">
+        <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
           pulse aquí
         </a>
       `;
@@ -75,7 +75,10 @@ const userResolver = {
         throw new AuthenticationError('Email or password incorrect');
       }
       if (!contactFound.active) {
-        throw new Error('Not active user, please activate your account');
+        throw new ApolloError(
+          'Not active user, please activate your account',
+          'NOT_ACTIVE_USER',
+        );
       }
       //Compare passwords from request and database
       const valid: Boolean = await bcrypt.compare(
@@ -98,7 +101,10 @@ const userResolver = {
         );
         return token;
       } else {
-        throw new Error('comparing passwords valid=false');
+        throw new ApolloError(
+          'comparing passwords valid=false',
+          'PASSWORD_ERROR',
+        );
       }
     },
 
@@ -111,7 +117,10 @@ const userResolver = {
     */
     activateAccount: async (root: any, args: any, context: any) => {
       if (!args.token)
-        throw new Error('Error with sign up token, no token in args');
+        throw new ApolloError(
+          'Error with sign up token, no token in args',
+          'NOT_TOKEN_PROVIDED',
+        );
       const userInToken = await contextController.getDataInToken(args.token);
       const contactFound = await UserModel.findOne({
         _id: userInToken.signUpUserID,
@@ -138,7 +147,10 @@ const userResolver = {
         );
         return token;
       } else {
-        return new Error('Error with sign up token, try again');
+        return new ApolloError(
+          'Error with sign up token, try again',
+          'TOKEN_NOT_VALUE',
+        );
       }
     },
 
@@ -159,7 +171,10 @@ const userResolver = {
         await DocumentModel.deleteMany({ user: contactFound._id });
         return UserModel.deleteOne({ _id: contactFound._id }); //Delete every data of the user
       } else {
-        throw new Error('Cant deleteUser');
+        throw new ApolloError(
+          'Can not delete a user that is not yours',
+          'DELETE_USER_ERROR',
+        );
       }
     },
 
@@ -177,7 +192,7 @@ const userResolver = {
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
-        return new Error('User does not exist');
+        return new ApolloError('User does not exist', 'USER_NOT_FOUND');
       }
     },
   },
@@ -192,7 +207,8 @@ const userResolver = {
         email: context.user.email,
         _id: context.user.userID,
       });
-      if (!contactFound) return new Error('Error with user in context');
+      if (!contactFound)
+        return new ApolloError('Error with user in context', 'USER_NOT_FOUND');
       return contactFound;
     },
 

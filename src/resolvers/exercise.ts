@@ -1,4 +1,4 @@
-import { AuthenticationError } from 'apollo-server-koa';
+import { AuthenticationError, ApolloError } from 'apollo-server-koa';
 import { ExerciseModel } from '../models/exercise';
 import { DocumentModel } from '../models/document';
 import { ObjectId } from 'bson';
@@ -13,8 +13,9 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (!docFather)
-        throw new Error(
+        throw new ApolloError(
           'Error creating exercise, it should part of one of your documents',
+          'DOCUMENT_NOT_FOUND',
         );
       const user = await UserModel.findById(context.user.userID);
       const newCode = Math.random()
@@ -43,7 +44,7 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (!existExercise) {
-        return new Error('Exercise does not exist');
+        return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
       return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
@@ -61,7 +62,7 @@ const exerciseResolver = {
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); //delete all the exercise dependencies
       } else {
-        return new Error('Exercise does not exist');
+        return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
     },
 
@@ -77,7 +78,7 @@ const exerciseResolver = {
           { new: true },
         );
       } else {
-        return new Error('Exercise does not exist');
+        return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
     },
   },
@@ -93,12 +94,18 @@ const exerciseResolver = {
       if (context.user.exerciseID) {
         //Token de alumno
         if (context.user.exerciseID != args.id)
-          throw new Error('You only can ask for your token exercise');
+          throw new ApolloError(
+            'You only can ask for your token exercise',
+            'NOT_YOUR_EXERCISE',
+          );
         const existExercise = await ExerciseModel.findOne({
           _id: context.user.exerciseID,
         });
         if (!existExercise) {
-          throw new Error('Exercise does not exist');
+          throw new ApolloError(
+            'Exercise does not exist',
+            'EXERCISE_NOT_FOUND',
+          );
         }
         return existExercise;
       } else if (context.user.userID) {
@@ -108,7 +115,10 @@ const exerciseResolver = {
           user: context.user.userID,
         });
         if (!existExercise) {
-          throw new Error('Exercise does not exist');
+          throw new ApolloError(
+            'Exercise does not exist',
+            'EXERCISE_NOT_FOUND',
+          );
         }
         return existExercise;
       }
@@ -119,14 +129,12 @@ const exerciseResolver = {
         _id: args.document,
         user: context.user.userID,
       });
-      if (!docFather) throw new Error('document does not exist');
+      if (!docFather)
+        throw new ApolloError('document does not exist', 'DOCUMENT_NOT_FOUND');
       const existExercise = await ExerciseModel.find({
         document: docFather._id,
         user: context.user.userID,
       });
-      if (existExercise.length == 0) {
-        throw new Error('No exercises for this document');
-      }
       return existExercise;
     },
   },
