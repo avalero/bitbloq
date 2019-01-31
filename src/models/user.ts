@@ -2,13 +2,13 @@ import { Document, Schema, Model, model } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface IUser extends Document {
-  email?: string;
-  password?: string;
-  name?: string;
-  center?: string;
+  email?: String;
+  password?: String;
+  name?: String;
+  center?: String;
   active?: Boolean;
-  signUpToken?: string;
-  authToken?: string;
+  signUpToken?: String;
+  authToken?: String;
   notifications?: Boolean;
   signUpSurvey?: JSON;
 }

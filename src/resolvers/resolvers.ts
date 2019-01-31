@@ -3,7 +3,6 @@ import documentResolver from './document';
 import exerciseResolver from './exercise';
 import submissionResolver from './submission';
 import uploadResolver from './upload';
-import GraphQLJSON from 'graphql-type-json';
 
 const JSONType = {
   __parseValue(value: any) {

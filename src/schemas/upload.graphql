@@ -4,7 +4,7 @@ type File {
   id: ID!
   filename: String
   mimetype: String
-  publicURL: String
+  publicUrl: String
   document: ObjectID
 }
 
@@ -13,5 +13,5 @@ type Query {
 }
 
 type Mutation {
-  singleUpload(file: Upload!, documentID: String): File
+  singleUpload(file: Upload!, documentID: ObjectID): File
 }

@@ -29,6 +29,11 @@ const SubmissionMongSchema: Schema = new Schema({
     ref: 'ExerciseModel',
   },
 
+  document: {
+    type: Schema.Types.ObjectId,
+    ref: 'DocumentModel',
+  },
+
   studentNick: {
     type: String,
   },

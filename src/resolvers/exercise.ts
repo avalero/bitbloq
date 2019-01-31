@@ -1,5 +1,4 @@
 import { AuthenticationError } from 'apollo-server-koa';
-import shortid from 'shortid';
 import { ExerciseModel } from '../models/exercise';
 import { DocumentModel } from '../models/document';
 import { ObjectId } from 'bson';
@@ -9,13 +8,11 @@ import { UserModel } from '../models/user';
 const exerciseResolver = {
   Mutation: {
     createExercise: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
-      const docFound = await DocumentModel.findOne({
+      const docFather = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.userID,
       });
-      if (!docFound)
+      if (!docFather)
         throw new Error(
           'Error creating exercise, it should part of one of your documents',
         );
@@ -23,28 +20,24 @@ const exerciseResolver = {
       const newCode = Math.random()
         .toString(36)
         .substr(2, 6);
-      //const newCode: String = shortid.generate();
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
         user: context.user.userID,
-        document: docFound._id,
+        document: docFather._id,
         title: args.input.title,
         code: newCode,
-        type: docFound.type,
+        type: docFather.type,
         acceptSubmissions: args.input.acceptSubmissions,
-        content: docFound.content,
-        description: args.input.description || docFound.description,
+        content: docFather.content,
+        description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        versions: args.input.versions,
-        image: docFound.image,
+        image: docFather.image,
       });
       return ExerciseModel.create(exerciseNew);
     },
 
     changeSubmissionsState: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -60,22 +53,19 @@ const exerciseResolver = {
     },
 
     deleteExercise: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
       if (existExercise) {
-        return ExerciseModel.deleteOne({ _id: args.id });
+        await SubmissionModel.deleteMany({ exercise: existExercise._id });
+        return ExerciseModel.deleteOne({ _id: args.id }); //delete all the exercise dependencies
       } else {
         return new Error('Exercise does not exist');
       }
     },
 
     updateExercise: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const existExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID,
@@ -95,57 +85,49 @@ const exerciseResolver = {
   Query: {
     //devuelve todos los ejercicios del usuario logeado
     exercises: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       return ExerciseModel.find({ user: context.user.userID });
     },
 
     //student and user query, devuelve la información del ejercicio que se le pasa en el id con el tocken del alumno o de usuario
     exercise: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError(
-          'You need to be logged in as a user or as a student',
-        );
       if (context.user.exerciseID) {
         //Token de alumno
         if (context.user.exerciseID != args.id)
           throw new Error('You only can ask for your token exercise');
-        const ex = await ExerciseModel.findOne({
+        const existExercise = await ExerciseModel.findOne({
           _id: context.user.exerciseID,
         });
-        if (!ex) {
+        if (!existExercise) {
           throw new Error('Exercise does not exist');
         }
-        return ex;
+        return existExercise;
       } else if (context.user.userID) {
         //token de profesor
-        const ex = await ExerciseModel.findOne({
+        const existExercise = await ExerciseModel.findOne({
           _id: args.id,
           user: context.user.userID,
         });
-        if (!ex) {
+        if (!existExercise) {
           throw new Error('Exercise does not exist');
         }
-        return ex;
+        return existExercise;
       }
     },
 
     exercisesByDocument: async (root: any, args: any, context: any) => {
-      if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
-      const documentFound = await DocumentModel.findOne({
+      const docFather = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.userID,
       });
-      if (!documentFound) throw new Error('document does not exist');
-      const ex = await ExerciseModel.find({
-        document: documentFound._id,
+      if (!docFather) throw new Error('document does not exist');
+      const existExercise = await ExerciseModel.find({
+        document: docFather._id,
         user: context.user.userID,
       });
-      if (ex.length == 0) {
+      if (existExercise.length == 0) {
         throw new Error('No exercises for this document');
       }
-      return ex;
+      return existExercise;
     },
   },
 

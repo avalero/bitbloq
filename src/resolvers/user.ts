@@ -13,8 +13,13 @@ const saltRounds = 7;
 
 const userResolver = {
   Mutation: {
-    //public methods:
+    //Public mutations:
 
+    /*
+      Sign up user: register a new uer.
+      It sends a e-mail to activate the account and check if the registered account exists.
+      args: email, password and user information. 
+    */
     signUpUser: async (root: any, args: any) => {
       const contactFound = await UserModel.findOne({
         email: args.input.email,
@@ -41,12 +46,11 @@ const userResolver = {
           signUpUserID: newUser._id,
         },
         process.env.JWT_SECRET,
-        { expiresIn: '1h' }, //Quitar si no queremos que el token caduque
       );
       console.log(token);
 
       const message: String = `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
-        <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
+        <a href="${process.env.FRONTEND_Url}/app/activate?token=${token}">
           pulse aquí
         </a>
       `;
@@ -60,10 +64,15 @@ const userResolver = {
       return 'OK';
     },
 
+    /*
+      Login: login with a registered user.
+      It returns the authorization token with user information.
+      args: email and password.
+    */
     login: async (root: any, { email, password }) => {
       const contactFound = await UserModel.findOne({ email });
       if (!contactFound) {
-        throw new Error('Contact not found or password incorrect');
+        throw new AuthenticationError('Email or password incorrect');
       }
       if (!contactFound.active) {
         throw new Error('Not active user, please activate your account');
@@ -78,6 +87,7 @@ const userResolver = {
           {
             email: contactFound.email,
             userID: contactFound._id,
+            role: 'USER',
           },
           process.env.JWT_SECRET,
           { expiresIn: '4h' },
@@ -92,8 +102,13 @@ const userResolver = {
       }
     },
 
-    //private methods:
+    //Private methods:
 
+    /*
+      Activate Account: activates the new account of the user registered.
+      It takes the information of the token received and activates the account created before.
+      args: sign up token. This token is provided in the email sent.
+    */
     activateAccount: async (root: any, args: any, context: any) => {
       if (!args.token)
         throw new Error('Error with sign up token, no token in args');
@@ -106,9 +121,10 @@ const userResolver = {
           {
             email: contactFound.email,
             userID: contactFound._id,
+            role: 'USER',
           },
           process.env.JWT_SECRET,
-          { expiresIn: '1h' },
+          { expiresIn: '4h' },
         );
         await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
@@ -126,13 +142,16 @@ const userResolver = {
       }
     },
 
+    /*
+      Delete user: delete own user.
+      It deletes the user passed by the ID if it is the same as the passed by token. 
+      This method deletes all the documents, exercises and submissions related with this user.
+      args: user ID. 
+    */
     deleteUser: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
+        _id: context.user.userID,
       });
       if (contactFound._id == args.id) {
         await SubmissionModel.deleteMany({ user: contactFound._id });
@@ -144,13 +163,15 @@ const userResolver = {
       }
     },
 
+    /*
+      Update user: update existing user.
+      It updates the user with the new information provided.
+      args: user ID, new user information. 
+    */
     updateUser: async (root: any, args: any, context: any, input: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
+        _id: context.user.userID,
       });
       if (contactFound._id == args.id) {
         const data = args.input;
@@ -162,11 +183,11 @@ const userResolver = {
   },
 
   Query: {
+    /*
+      Me: returns the information of the user provided in the authorization token.
+      args: nothing. 
+    */
     me: async (root: any, args: any, context: any) => {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       const contactFound = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
@@ -174,11 +195,12 @@ const userResolver = {
       if (!contactFound) return new Error('Error with user in context');
       return contactFound;
     },
+
+    /*
+      Users: returns all the users in the platform. It can be executed only by admin user.
+      args: nothing. 
+    */
     users(root: any, args: any, context: any) {
-      if (!context.user)
-        throw new AuthenticationError('You need to be logged in');
-      else if (!context.user.userID)
-        throw new AuthenticationError('You need to be logged in');
       return UserModel.find({});
     },
   },

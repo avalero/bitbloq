@@ -1,17 +1,27 @@
 # import Date, ObjectID from './scalars.graphql'
 # import Exercise from './exercise.graphql'
 
+directive @authRequired(
+  requires: Role = ADMIN,
+) on QUERY | FIELD
+
+enum Role {
+  ADMIN
+  USER
+  EPHEMERAL
+}
+
 type Query {
-  submissions: [Submission]
-  submission(id: ObjectID!): Submission
-  submissionsByExercise(exercise: String!): [Submission]
+  submissions: [Submission]                                 @authRequired(requires: USER)
+  submission(id: ObjectID!): Submission                     @authRequired(requires: EPHEMERAL, requires: USER)
+  submissionsByExercise(exercise: ObjectID!): [Submission]  @authRequired(requires: USER)
 }
 type Mutation {
   createSubmission(exerciseCode: String!, studentNick: String!): createOut
-  updateSubmission(input: SubmissionIn): Submission
-  finishSubmission(content: String, comment: String): Submission
-  cancelSubmission: Submission
-  deleteSubmission(submissionID: String): Submission
+  updateSubmission(input: SubmissionIn): Submission                         @authRequired(requires: EPHEMERAL)
+  finishSubmission(content: String, comment: String): Submission            @authRequired(requires: EPHEMERAL)
+  cancelSubmission: Submission                                              @authRequired(requires: USER)
+  deleteSubmission(submissionID: ObjectID!): Submission                     @authRequired(requires: USER)
 }
 
 type Submission {
@@ -19,6 +29,7 @@ type Submission {
   title: String
   exercise: ObjectID
   user: ObjectID
+  document: ObjectID
   studentNick: String
   content: String
   submissionToken: String

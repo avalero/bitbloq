@@ -5,7 +5,7 @@ interface IUpload extends Document {
   filename: String;
   mimetype: String;
   encoding: String;
-  publicURL: String;
+  publicUrl: String;
   document: String;
   createdAt?: Date;
   updatedAt?: Date;
@@ -15,7 +15,7 @@ const UploadMongSchema: Schema = new Schema({
   filename: String,
   mimetype: String,
   encoding: String,
-  publicURL: String,
+  publicUrl: String,
   document: {
     type: Schema.Types.ObjectId,
     ref: 'DocumentModel',
