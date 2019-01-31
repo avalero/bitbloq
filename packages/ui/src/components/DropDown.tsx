@@ -15,7 +15,7 @@ class DropDown extends Component<DropDownProps, State> {
   static defaultProps = {
     closeOnClick: true,
     attachmentPosition: 'top right',
-    targetPosition: 'top right',
+    targetPosition: 'bottom right',
   };
 
   toggleRef = React.createRef();
