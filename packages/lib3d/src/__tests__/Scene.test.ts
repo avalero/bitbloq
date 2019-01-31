@@ -1,4 +1,8 @@
 import 'jsdom-worker';
+interface Global {
+  fetch: any;
+}
+const global: Global = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import Scene, { ISceneJSON } from '../Scene';

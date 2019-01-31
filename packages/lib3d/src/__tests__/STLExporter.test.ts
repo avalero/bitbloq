@@ -1,5 +1,8 @@
 import 'jsdom-worker';
-const global: any = { fetch: undefined };
+interface Global {
+  fetch: any;
+}
+const global: Global = { fetch: undefined };
 global.fetch = require('jest-fetch-mock');
 
 import scene2STL from '../STLExporter';

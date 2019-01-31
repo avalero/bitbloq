@@ -186,7 +186,6 @@ export default class CompoundObject extends Object3D {
     object: ICompoundObjectJSON,
     fromParent: boolean = false,
   ) {
-    debugger;
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
     }
@@ -295,7 +294,6 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<ArrayBuffer[]> {
     return new Promise((resolve, reject) => {
       const bufferArray: ArrayBuffer[] = [];
-      debugger;
       Promise.all(
         this.children.map(child => {
           if (
