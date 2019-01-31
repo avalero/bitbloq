@@ -50,7 +50,7 @@ const userResolver = {
       console.log(token);
 
       const message: String = `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
-        <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
+        <a href="${process.env.FRONTEND_Url}/app/activate?token=${token}">
           pulse aquí
         </a>
       `;
@@ -109,7 +109,6 @@ const userResolver = {
       It takes the information of the token received and activates the account created before.
       args: sign up token. This token is provided in the email sent.
     */
-
     activateAccount: async (root: any, args: any, context: any) => {
       if (!args.token)
         throw new Error('Error with sign up token, no token in args');
@@ -149,7 +148,6 @@ const userResolver = {
       This method deletes all the documents, exercises and submissions related with this user.
       args: user ID. 
     */
-
     deleteUser: async (root: any, args: any, context: any) => {
       const contactFound = await UserModel.findOne({
         email: context.user.email,
@@ -202,7 +200,6 @@ const userResolver = {
       Users: returns all the users in the platform. It can be executed only by admin user.
       args: nothing. 
     */
-
     users(root: any, args: any, context: any) {
       return UserModel.find({});
     },

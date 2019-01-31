@@ -48,4 +48,5 @@ input DocumentIn {
   description: String
   version: String
   image: Upload
+  imageUrl: String
 }

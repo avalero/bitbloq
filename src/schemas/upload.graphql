@@ -4,7 +4,7 @@ type File {
   id: ID!
   filename: String
   mimetype: String
-  publicURL: String
+  publicUrl: String
   document: ObjectID
 }
 

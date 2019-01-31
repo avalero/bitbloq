@@ -6,7 +6,7 @@ const storage = new Storage(process.env.GCLOUD_PROJECT_ID); //proyect ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); //bucket name
 const bucketName: String = process.env.GCLOUD_STORAGE_BUCKET;
 
-let publicURL: String;
+let publicUrl: String;
 
 const processUpload = async (createReadStream, filename, resolve, reject) => {
   const gcsname = Date.now() + filename;
@@ -29,7 +29,7 @@ const processUpload = async (createReadStream, filename, resolve, reject) => {
     .on('finish', async err => {
       if (err) throw new Error('Error uploading file');
       file.makePublic().then(() => {
-        publicURL = getPublicUrl(gcsname);
+        publicUrl = getPublicUrl(gcsname);
         resolve('OK');
       });
     });
@@ -59,7 +59,7 @@ const uploadResolver = {
         filename: filename,
         mimetype: mimetype,
         encoding: encoding,
-        publicURL: publicURL,
+        publicUrl: publicUrl,
       });
       return UploadModel.create(uploadNew);
     },

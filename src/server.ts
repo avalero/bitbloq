@@ -3,12 +3,13 @@ require('dotenv').config();
 import exSchema from './schemas/allSchemas';
 import * as mongoose from 'mongoose';
 import { contextController } from './controllers/context';
+import { IncomingMessage } from 'http';
 const Koa = require('koa');
 const { ApolloServer } = require('apollo-server-koa');
 
 const PORT = process.env.PORT;
 
-const mongoUrl = process.env.MONGO_URL;
+const mongoUrl: string = <string>process.env.MONGO_URL;
 
 mongoose.set('debug', true);
 mongoose.set('useFindAndModify', false); //ojo con esto al desplegar
@@ -22,8 +23,10 @@ mongoose.connect(
   },
 );
 
+type Context = { ctx: IncomingMessage };
+
 const server = new ApolloServer({
-  context: async ({ ctx }) => {
+  context: async ({ ctx }: Context) => {
     const user = await contextController.getMyUser(ctx);
     return { user }; // add the user to the ctx
   },

@@ -16,6 +16,7 @@ const documentResolver = {
         content: args.input.content,
         description: args.input.description,
         version: args.input.version,
+        image: args.input.imageUrl,
       });
       const newDocument = await DocumentModel.create(documentNew);
 
@@ -25,8 +26,8 @@ const documentResolver = {
           newDocument._id,
         );
         return DocumentModel.findOneAndUpdate(
-          { _id: documentNew },
-          { $set: { image: imageUploaded.publicURL } },
+          { _id: documentNew._id },
+          { $set: { image: imageUploaded.publicUrl } },
           { new: true },
         );
       } else {
@@ -67,7 +68,21 @@ const documentResolver = {
             content: args.input.content || existDocument.content,
             description: args.input.description || existDocument.description,
             version: args.input.version || existDocument.version,
-            image: imageUploaded.publicURL,
+            image: imageUploaded.publicUrl,
+          };
+          return DocumentModel.findOneAndUpdate(
+            { _id: existDocument._id },
+            { $set: documentUpdate },
+            { new: true },
+          );
+        } else if (args.input.imageUrl) {
+          const documentUpdate = {
+            title: args.input.title || existDocument.title,
+            type: args.input.type || existDocument.type,
+            content: args.input.content || existDocument.content,
+            description: args.input.description || existDocument.description,
+            version: args.input.version || existDocument.version,
+            image: args.input.imageUrl,
           };
           return DocumentModel.findOneAndUpdate(
             { _id: existDocument._id },
