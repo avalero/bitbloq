@@ -9,6 +9,7 @@ const Container = styled.div`
   overflow-y: auto;
   flex: 1;
   padding: 10px;
+  height: 0;
 `;
 
 export default class OperationsList extends React.Component {

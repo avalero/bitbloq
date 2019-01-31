@@ -35,6 +35,7 @@
   },
   "scripts": {
     "test": "jest --coverage",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand",
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
     "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
     "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",

@@ -108,6 +108,9 @@ class ThreeDViewer extends React.Component<
     }
     if (selectedObjects !== prevProps.selectedObjects) {
       this.updateStatusBar();
+      if (scene) {
+        scene.selectedObjects(selectedObjects);
+      }
     }
     if (scene !== prevProps.scene) {
       this.renderer.setScene(scene);

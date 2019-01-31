@@ -1,60 +1,19 @@
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
+
+import {
+  IObjectsCommonJSON,
+  ITranslateOperation,
+  IRotateOperation,
+  IScaleOperation,
+  IMirrorOperation,
+  OperationsArray,
+  IViewOptions,
+} from './Interfaces';
 
 import { v1 } from 'uuid';
 const uuid = v1;
 
 import * as THREE from 'three';
-
-interface ICommonOperation {
-  type: string;
-  id?: string;
-}
-
-export interface IObjectsCommonJSON {
-  type: string;
-  id: string;
-  viewOptions: Partial<IViewOptions>;
-  operations: OperationsArray;
-}
-
-export interface ITranslateOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-  relative: boolean;
-}
-
-export interface IRotateOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-  relative: boolean;
-}
-
-export interface IScaleOperation extends ICommonOperation {
-  x: number;
-  y: number;
-  z: number;
-}
-
-export interface IMirrorOperation extends ICommonOperation {
-  plane: string;
-}
-
-export type Operation =
-  | ITranslateOperation
-  | IRotateOperation
-  | IScaleOperation
-  | IMirrorOperation;
-export type OperationsArray = Operation[];
-
-export interface IViewOptions {
-  color: string;
-  visible: boolean;
-  highlighted: boolean;
-  opacity: number;
-  name: string;
-}
 
 export default class ObjectsCommon {
   set meshUpdateRequired(a: boolean) {
@@ -79,6 +38,10 @@ export default class ObjectsCommon {
 
   get viewOptionsUpdateRequired(): boolean {
     return this._viewOptionsUpdateRequired;
+  }
+
+  set viewOptionsUpdateRequired(a: boolean) {
+    this._viewOptionsUpdateRequired = a;
   }
 
   public static meshToBufferArray(mesh: THREE.Mesh): ArrayBuffer[] {
@@ -193,6 +156,7 @@ export default class ObjectsCommon {
       id: uuid(),
     };
   }
+  public meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
 
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
@@ -201,9 +165,7 @@ export default class ObjectsCommon {
   protected id: string;
   protected type: string;
   protected _viewOptionsUpdateRequired: boolean;
-  protected lastJSON: IObjectsCommonJSON;
   protected parent: ObjectsCommon | undefined;
-  protected meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
   protected mesh: THREE.Mesh | THREE.Group;
 
   constructor(
@@ -289,33 +251,43 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    return cloneDeep({
+    // return cloneDeep({
+    //   id: this.id,
+    //   type: this.type,
+    //   viewOptions: this.viewOptions,
+    //   operations: this.operations,
+    // });
+
+    return {
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
-    });
+    };
   }
 
-  public updateFromJSON(object: IObjectsCommonJSON): void {
+  public updateFromJSON(
+    object: IObjectsCommonJSON,
+    fromParent: boolean = false,
+  ): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
 
   protected setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
-      this.operations = operations.slice(0);
+      this.operations = [...operations];
       if (operations.length > 0) {
-        this._pendingOperation = true;
+        this.pendingOperation = true;
       }
       return;
     }
 
     if (!isEqual(this.operations, operations)) {
-      this.operations = operations.slice();
-      this._pendingOperation = true;
+      this.operations = [...operations];
+      this.pendingOperation = true;
     }
 
-    this._pendingOperation =
+    this.pendingOperation =
       this.pendingOperation || !isEqual(this.operations, operations);
   }
 

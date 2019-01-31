@@ -169,30 +169,17 @@ function isDescendant(object, id) {
   return children.some(child => isDescendant(child, id));
 }
 
-function* watchSelectedObjects() {
-  const scene = yield select(state => state.threed.scene.sceneInstance);
-  const objects = yield select(state => state.threed.scene.objects);
-  const selectedIds = yield select(state => state.threed.ui.selectedIds);
-
-  for (const object of objects) {
-    let opacity = 1;
-    if (selectedIds.length > 0) {
-      opacity = selectedIds.some(id => isDescendant(object, id)) ? 1 : 0.5;
-    }
-    yield put(updateObjectViewOption(object, 'opacity', opacity));
-  }
-}
-
 function* rootSaga() {
-  yield takeEvery('SOFTWARE_UPDATE_BLOQS', updateCode);
-  yield takeEvery('SOFTWARE_UPLOAD_CODE', uploadCode);
-  yield takeEvery('UI_SHOW_NOTIFICATION', watchNotificationTime);
-  yield takeEvery('UI_KEY_DOWN', watchKeyDown);
-  yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
-  yield takeEvery('THREED_SET_ADVANCED_MODE', watchSetAdvancedMode);
-  yield takeEvery('THREED_SELECT_OBJECT', watchSelectedObjects);
-  yield takeEvery('THREED_DESELECT_OBJECT', watchSelectedObjects);
-  yield takeEvery('THREED_DESELECT_ALL_OBJECTS', watchSelectedObjects);
+  try {
+    yield takeEvery('SOFTWARE_UPDATE_BLOQS', updateCode);
+    yield takeEvery('SOFTWARE_UPLOAD_CODE', uploadCode);
+    yield takeEvery('UI_SHOW_NOTIFICATION', watchNotificationTime);
+    yield takeEvery('UI_KEY_DOWN', watchKeyDown);
+    yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
+    yield takeEvery('THREED_SET_ADVANCED_MODE', watchSetAdvancedMode);
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 export default rootSaga;

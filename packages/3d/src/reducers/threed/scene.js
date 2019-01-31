@@ -3,7 +3,7 @@ import undoable from '../../lib/undoable';
 import config from '../../config/threed';
 import uuid from 'uuid/v1';
 import * as actions from '../../actions/threed';
-import {Scene} from '@bitbloq/lib3d';
+import { Scene } from '@bitbloq/lib3d';
 
 export const findObject = (objects = [], fn) => {
   if (!objects.length) return undefined;
@@ -33,12 +33,12 @@ const scene = handleActions(
       actions.newScene,
       (state, { payload }) => {
         const scene = Scene.newFromJSON(payload);
-        return ({
+        return {
           ...state,
           sceneInstance: scene,
-          objects: scene.toJSON()
-        });
-      }
+          objects: scene.toJSON(),
+        };
+      },
     ],
     [
       actions.createObject,
@@ -169,7 +169,7 @@ const scene = handleActions(
       actions.deleteObject,
       (state, { payload }) => ({
         ...state,
-        objects: state.sceneInstance.removeFromScene(payload),
+        objects: state.sceneInstance.removeObject(payload),
       }),
     ],
     [
@@ -197,16 +197,16 @@ const scene = handleActions(
       actions.undo,
       state => ({
         ...state,
-        objects: state.sceneInstance.undo()
+        objects: state.sceneInstance.undo(),
       }),
     ],
     [
       actions.redo,
       state => ({
         ...state,
-        objects: state.sceneInstance.redo()
+        objects: state.sceneInstance.redo(),
       }),
-    ]
+    ],
   ]),
   initialState,
 );

@@ -216,7 +216,7 @@ class Document extends React.Component<DocumentProps, State> {
             <DocumentIcon />
             <Title>{title}</Title>
             {headerButtons.map(button => (
-              <HeaderButton onClick={() => onHeaderButtonClick(button.id)}>
+              <HeaderButton key={button.id} onClick={() => onHeaderButtonClick(button.id)}>
                 <Icon name={button.icon} />
               </HeaderButton>
             ))}

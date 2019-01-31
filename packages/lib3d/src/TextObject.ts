@@ -7,17 +7,20 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-15 16:22:05
- * Last modified  : 2019-01-18 18:52:50
+ * Last modified  : 2019-01-31 10:31:10
  */
 
 import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
+
+import {
+  ITextObjectJSON,
+  ITextObjectParams,
   IViewOptions,
   OperationsArray,
-} from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+} from './Interfaces';
 
 import gentilis_regular from './assets/fonts/gentilis_regular.typeface.json';
 import gentilis_bold from './assets/fonts/gentilis_bold.typeface.json';
@@ -25,17 +28,6 @@ import helvetiker_bold from './assets/fonts/helvetiker_bold.typeface.json';
 import helvetiker_regular from './assets/fonts/helvetiker_regular.typeface.json';
 import optimer_bold from './assets/fonts/optimer_bold.typeface.json';
 import optimer_regular from './assets/fonts/optimer_regular.typeface.json';
-
-export interface ITextObjectParams {
-  text: string;
-  thickness: number;
-  size: number;
-  font: string;
-}
-
-export interface ITextObjectJSON extends IObjectsCommonJSON {
-  parameters: ITextObjectParams;
-}
 
 export default class TextObject extends PrimitiveObject {
   public static typeName: string = 'TextObject';
@@ -49,7 +41,7 @@ export default class TextObject extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    text.id = object.id || '';
+    text.id = object.id || text.id;
 
     return text;
   }
@@ -71,7 +63,7 @@ export default class TextObject extends PrimitiveObject {
       ...parameters,
     };
     this.setParameters(params);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -80,7 +72,14 @@ export default class TextObject extends PrimitiveObject {
   }
 
   public clone(): TextObject {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objText = new TextObject(
         this.parameters as ITextObjectParams,
         this.operations,
@@ -135,7 +134,8 @@ export default class TextObject extends PrimitiveObject {
       );
     }
 
-    this._meshUpdateRequired = false;
+    this.meshUpdateRequired = false;
+
     try {
       const geom = new THREE.TextGeometry(text, {
         size,

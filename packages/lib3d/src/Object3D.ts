@@ -9,18 +9,20 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 18:56:46
- * Last modified  : 2019-01-18 18:50:53
+ * Last modified  : 2019-01-31 10:36:23
  */
 
 import * as THREE from 'three';
-import ObjectsCommon, {
+import ObjectsCommon from './ObjectsCommon';
+
+import {
   IMirrorOperation,
   IRotateOperation,
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-} from './ObjectsCommon';
+} from './Interfaces';
 
 export default class Object3D extends ObjectsCommon {
   public static getVerticesFromGeom(
@@ -87,7 +89,9 @@ export default class Object3D extends ObjectsCommon {
         throw Error('ERROR: Unknown Operation');
       }
     });
-    this._pendingOperation = false;
+
+    this.pendingOperation = false;
+
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
 
@@ -189,8 +193,11 @@ export default class Object3D extends ObjectsCommon {
 
   protected setMesh(mesh: THREE.Mesh): void {
     this.mesh = mesh;
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
+
+    this.meshUpdateRequired = false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
+
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
   }
