@@ -33,7 +33,6 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         if (!requiredRole) {
           return resolve.apply(this, args);
         }
-        console.log('entra en DIRECTIVE');
         let context = args[2];
         if (!context.user)
           throw new AuthenticationError('You need to be logged in');
