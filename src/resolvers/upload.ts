@@ -20,19 +20,17 @@ const processUpload = async (createReadStream, filename, resolve, reject) => {
   };
   const fileStream = createReadStream();
   const gStream = file.createWriteStream(opts);
-
   gStream
     .on('error', err => {
-      reject('KO');
-      throw new ApolloError('Error uploading image', 'UPLOAD_ERROR');
+      reject(new ApolloError ('Error uploading file', 'UPLOAD_ERROR'));
     })
-
     .on('finish', async err => {
       if (err) throw new ApolloError('Error uploading file', 'UPLOAD_ERROR');
+  
       file.makePublic().then(() => {
         publicUrl = getPublicUrl(gcsname);
         resolve('OK');
-      });
+      })
     });
 
   fileStream.pipe(gStream);
@@ -51,9 +49,9 @@ const uploadResolver = {
     singleUpload: async (file, documentID) => {
       const { createReadStream, filename, mimetype, encoding } = await file;
 
-      await new Promise((resolve, reject) =>
-        processUpload(createReadStream, filename, resolve, reject),
-      );
+      await new Promise((resolve, reject) => {
+        processUpload(createReadStream, filename, resolve, reject);
+      });
 
       const uploadNew = new UploadModel({
         id: ObjectID,
