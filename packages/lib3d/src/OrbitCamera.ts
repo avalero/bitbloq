@@ -375,6 +375,11 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
+  public center() {
+    this.rotateTo(-1.5707963267948966, 1.0808390005411683, true);
+    this.dollyTo(170,true);
+  }
+
   public zoomIn() {
     const zoomScale: number = Math.pow(0.95, this.dollySpeed);
 

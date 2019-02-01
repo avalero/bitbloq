@@ -56,6 +56,9 @@ Icons:
   <Icon name="minus" /><span> minus</span>
 </div>
 <div>
+  <Icon name="center" /><span> center</span>
+</div>
+<div>
   <Icon name="orthographic" /><span> orthographic</span>
 </div>
 <div>

@@ -18,6 +18,7 @@ import Group from './icons/Group'
 import Info from './icons/Info'
 import Intersection from './icons/Intersection'
 import Minus from './icons/Minus'
+import Center from './icons/Center'
 import NewDocument from './icons/NewDocument'
 import Orthographic from './icons/Orthographic'
 import Pencil from './icons/Pencil'
@@ -90,6 +91,8 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <Info />;
     case 'intersection':
       return <Intersection />;
+    case 'center':
+      return <Center />;
     case 'minus':
       return <Minus />;
     case 'new-document':

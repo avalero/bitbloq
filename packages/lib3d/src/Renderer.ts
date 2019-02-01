@@ -134,6 +134,9 @@ export default class Renderer {
     this.cameraControls.rotateTo(theta, phi, true);
   }
 
+  public center(): void{
+    this.cameraControls.center();
+  }
   public zoomIn(): void {
     this.cameraControls.zoomIn();
   }
