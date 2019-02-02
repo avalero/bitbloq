@@ -35,9 +35,9 @@ fs.readdirSync(stlFolder).forEach(async file => {
     json.id = '';
     delete json.viewOptions;
     const jsonFileName: string = `${file.substr(0, file.length - 3)}json`;
-    console.log(`${jsonFolder}/${jsonFileName}`);
+    console.log(`Saving to ${jsonFolder}/${jsonFileName}...`);
+    fs.writeFileSync('./hola.txt', 'hola');
     fs.writeFileSync(`${jsonFolder}/${jsonFileName}`, JSON.stringify(json));
-    console.log(JSON.stringify(json));
     console.log('Done!');
   } catch (e) {
     console.error(e);
