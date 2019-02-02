@@ -7,27 +7,19 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2019-01-10 11:23:22
- * Last modified  : 2019-01-18 18:52:03
+ * Last modified  : 2019-01-31 09:52:17
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IObjectsCommonJSON,
-  IViewOptions,
-  OperationsArray,
-} from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
-export interface IPyramidParams {
-  sides: number;
-  length: number;
-  height: number;
-}
-
-export interface IPyramidJSON extends IObjectsCommonJSON {
-  parameters: IPyramidParams;
-}
+import {
+  OperationsArray,
+  IViewOptions,
+  IPyramidParams,
+  IPyramidJSON,
+} from './Interfaces';
 
 export default class Pyramid extends PrimitiveObject {
   public static typeName: string = 'Pyramid';
@@ -41,7 +33,7 @@ export default class Pyramid extends PrimitiveObject {
       object.operations,
       object.viewOptions,
     );
-    pyramid.id = object.id || '';
+    pyramid.id = object.id || pyramid.id;
 
     return pyramid;
   }
@@ -59,7 +51,7 @@ export default class Pyramid extends PrimitiveObject {
     super(vO, operations);
     this.type = Pyramid.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -68,7 +60,14 @@ export default class Pyramid extends PrimitiveObject {
   }
 
   public clone(): Pyramid {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objPrism = new Pyramid(
         this.parameters as IPyramidParams,
         this.operations,
@@ -90,7 +89,7 @@ export default class Pyramid extends PrimitiveObject {
     sides = Math.max(3, sides);
     length = Math.max(0, length);
     height = Math.max(0, height);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     const radius: number = length / (2 * Math.sin(Math.PI / sides));
     return new THREE.CylinderGeometry(
       0,

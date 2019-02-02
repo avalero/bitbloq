@@ -9,23 +9,19 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-18 18:49:50
+ * Last modified  : 2019-01-31 10:34:20
  */
 
 import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
-
-export interface ICylinderParams {
-  r0: number;
-  r1: number;
-  height: number;
-}
-
-export interface ICylinderJSON extends IPrimitiveObjectJSON {
-  parameters: ICylinderParams;
-}
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
+import {
+  IViewOptions,
+  OperationsArray,
+  ICylinderJSON,
+  ICylinderParams,
+} from './Interfaces';
 
 export default class Cylinder extends PrimitiveObject {
   public static typeName: string = 'Cylinder';
@@ -40,7 +36,7 @@ export default class Cylinder extends PrimitiveObject {
       object.viewOptions,
     );
 
-    cyl.id = object.id || '';
+    cyl.id = object.id || cyl.id;
     return cyl;
   }
 
@@ -57,7 +53,7 @@ export default class Cylinder extends PrimitiveObject {
     super(vO, operations);
     this.type = Cylinder.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -66,7 +62,14 @@ export default class Cylinder extends PrimitiveObject {
   }
 
   public clone(): Cylinder {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objCyl = new Cylinder(
         this.parameters as ICylinderParams,
         this.operations,
@@ -88,7 +91,7 @@ export default class Cylinder extends PrimitiveObject {
     r0 = Math.max(0, r0);
     r1 = Math.max(0, r1);
     height = Math.max(0, height);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     return new THREE.CylinderGeometry(
       Number(r1),
       Number(r0),

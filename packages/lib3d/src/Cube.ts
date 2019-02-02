@@ -10,26 +10,20 @@
  * @author Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-18 18:50:30
+ * Last modified  : 2019-01-31 10:33:27
  */
 
 import { isEqual } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
-import PrimitiveObject, { IPrimitiveObjectJSON } from './PrimitiveObject';
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
-/**
- * Params defining a cube (units are in millimiters)
- */
-export interface ICubeParams {
-  width: number;
-  depth: number;
-  height: number;
-}
-
-export interface ICubeJSON extends IPrimitiveObjectJSON {
-  parameters: ICubeParams;
-}
+import {
+  ICubeJSON,
+  ICubeParams,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class Cube extends PrimitiveObject {
   public static typeName: string = 'Cube';
@@ -48,7 +42,7 @@ export default class Cube extends PrimitiveObject {
       object.viewOptions,
     );
 
-    cube.id = object.id || '';
+    cube.id = object.id || cube.id;
     return cube;
   }
 
@@ -65,7 +59,7 @@ export default class Cube extends PrimitiveObject {
     super(vO, operations);
     this.type = Cube.typeName;
     this.setParameters(parameters);
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -77,7 +71,14 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const cubeObj = new Cube(
         this.parameters as ICubeParams,
         this.operations,
@@ -100,7 +101,7 @@ export default class Cube extends PrimitiveObject {
     width = Math.max(0, width);
     height = Math.max(0, height);
     depth = Math.max(0, depth);
-    this._meshUpdateRequired = false;
+    // this._meshUpdateRequired = false;
     return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 }

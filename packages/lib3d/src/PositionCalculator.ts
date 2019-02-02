@@ -1,5 +1,6 @@
-import ObjectsCommon, { OperationsArray } from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import { IObjectPosition } from './Scene';
+import { OperationsArray } from './Interfaces';
 
 export default class PositionCalculator {
   private operations: OperationsArray;

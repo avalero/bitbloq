@@ -1,15 +1,12 @@
-import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import Object3D from './Object3D';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
+import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
 
 import Union from './Union';
 import RepetitionObject from './RepetitionObject';
 
-export interface IObjectsGroupJSON extends IObjectsCommonJSON {
-  children: IObjectsCommonJSON[];
-}
+import { IObjectsGroupJSON, IObjectsCommonJSON } from './Interfaces';
 
 export default class ObjectsGroup extends ObjectsCommon {
   public static typeName: string = 'ObjectsGroup';
@@ -30,7 +27,7 @@ export default class ObjectsGroup extends ObjectsCommon {
         scene.getObject(obj),
       );
       const groupObj = new ObjectsGroup(group);
-      groupObj.id = object.id || '';
+      groupObj.id = object.id || groupObj.id;
       return groupObj;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -46,13 +43,41 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.type = ObjectsGroup.typeName;
     this.mesh = new THREE.Group();
     this.meshPromise = null;
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
   }
+
+  get meshUpdateRequired(): boolean {
+    this.children.forEach(child => {
+      this._meshUpdateRequired =
+        this._meshUpdateRequired ||
+        child.meshUpdateRequired ||
+        child.pendingOperation;
+    });
+
+    return this._meshUpdateRequired;
+  }
+
+  set meshUpdateRequired(a: boolean) {
+    this._meshUpdateRequired = a;
+  }
+
+  get pendingOperation(): boolean {
+    this.children.forEach(child => {
+      this._pendingOperation = this._pendingOperation || child.pendingOperation;
+    });
+
+    return this._pendingOperation;
+  }
+
+  set pendingOperation(a: boolean) {
+    this._pendingOperation = a;
+  }
+
   public getChildren(): ObjectsCommon[] {
     return this.children;
   }
@@ -88,7 +113,7 @@ export default class ObjectsGroup extends ObjectsCommon {
             const objectClone = object3D.clone();
             const json = objectClone.toJSON();
             json.operations = json.operations.concat(this.operations);
-            objectClone.updateFromJSON(json);
+            objectClone.updateFromJSON(json, true);
             return objectClone.getMeshAsync();
           },
         );
@@ -113,7 +138,7 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.children.forEach(object3D => {
       const json = object3D.toJSON();
       json.operations = json.operations.concat(this.operations);
-      object3D.updateFromJSON(json);
+      object3D.updateFromJSON(json, true);
     });
     return this.children;
   }
@@ -131,7 +156,7 @@ export default class ObjectsGroup extends ObjectsCommon {
       children: this.children.map(obj2JSON => obj2JSON.toJSON()),
     };
 
-    return cloneDeep(obj);
+    return obj;
   }
 
   /**
@@ -139,22 +164,25 @@ export default class ObjectsGroup extends ObjectsCommon {
    * If group members do not match an Error is thrown
    * @param object ObjectGroup descriptor object
    */
-  public updateFromJSON(object: IObjectsGroupJSON) {
+  public updateFromJSON(
+    object: IObjectsGroupJSON,
+    fromParent: boolean = false,
+  ) {
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }
 
     const newChildren: ObjectsCommon[] = [];
     try {
-      object.children.forEach(obj => {
-        const objToUpdate = this.getChild(obj);
-        objToUpdate.updateFromJSON(obj);
+      object.children.forEach(objChild => {
+        const objToUpdate = this.getChild(objChild);
         newChildren.push(objToUpdate);
+        objToUpdate.updateFromJSON(objChild, true);
       });
 
-      if (!isEqual(newChildren, this.children)) {
-        this.children = newChildren.slice(0);
+      if (this.meshUpdateRequired || this.pendingOperation) {
         this._meshUpdateRequired = true;
+        this.children = [...newChildren];
       }
 
       const vO = {
@@ -163,15 +191,17 @@ export default class ObjectsGroup extends ObjectsCommon {
       };
       this.setOperations(object.operations);
       this.setViewOptions(vO);
-
-      if (!isEqual(this.lastJSON, this.toJSON())) {
-        this.lastJSON = this.toJSON();
-        this.meshPromise = this.computeMeshAsync();
-        let obj: ObjectsCommon | undefined = this.getParent();
-        while (obj) {
-          obj.meshUpdateRequired = true;
-          obj.computeMeshAsync();
-          obj = obj.getParent();
+      // if has no parent, update mesh, else update through parent
+      const objParent: ObjectsCommon | undefined = this.getParent();
+      if (objParent && !fromParent) {
+        objParent.updateFromJSON(objParent.toJSON());
+      } else {
+        if (
+          this.meshUpdateRequired ||
+          this.pendingOperation ||
+          this.viewOptionsUpdateRequired
+        ) {
+          this.meshPromise = this.computeMeshAsync();
         }
       }
     } catch (e) {
@@ -185,8 +215,11 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   private setMesh(mesh: THREE.Group): void {
     this.mesh = mesh;
-    this._meshUpdateRequired = false;
-    this._pendingOperation = false;
+
+    this.meshUpdateRequired = false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
+
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
   }

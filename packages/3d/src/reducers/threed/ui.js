@@ -24,9 +24,9 @@ const ui = handleActions(
         ...state,
         activeOperation: null,
         selectedIds: payload.addToSelection
-          ? [...new Set(state.selectedIds).add(payload.object.id)]
+          ? Array.from(new Set(state.selectedIds).add(payload.object.id))
           : [payload.object.id],
-      }),
+      })
     ],
     [
       deselectObject,

@@ -21,6 +21,12 @@ class Root extends React.Component {
     });
   }
 
+  exportToSTL() {
+    const state = this.store.getState();
+    const scene = state.threed.scene.sceneInstance;
+    scene.exportToSTLAsync();
+  }
+
   render() {
     return (
       <Provider store={this.store}>

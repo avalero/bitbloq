@@ -9,11 +9,12 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-18 19:21:40
+ * Last modified  : 2019-01-31 10:33:02
  */
-
+import * as Bitbloq from './Bitbloq';
 import Object3D from './Object3D';
-import ObjectsCommon, {
+import ObjectsCommon from './ObjectsCommon';
+import {
   IMirrorOperation,
   IObjectsCommonJSON,
   IRotateOperation,
@@ -21,16 +22,10 @@ import ObjectsCommon, {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-} from './ObjectsCommon';
-
-import { cloneDeep, isEqual } from 'lodash';
+  ICompoundObjectJSON,
+} from './Interfaces';
 import * as THREE from 'three';
-
 import Worker from './compound.worker';
-
-export interface ICompoundObjectJSON extends IObjectsCommonJSON {
-  children: IObjectsCommonJSON[];
-}
 
 export type ChildrenArray = ObjectsCommon[];
 
@@ -48,6 +43,14 @@ export default class CompoundObject extends Object3D {
 
   set meshUpdateRequired(a: boolean) {
     this._meshUpdateRequired = a;
+  }
+
+  set viewOptionsUpdateRequired(a: boolean) {
+    this._viewOptionsUpdateRequired = a;
+  }
+
+  get viewOptionsUpdateRequired(): boolean {
+    return this._viewOptionsUpdateRequired;
   }
 
   get pendingOperation(): boolean {
@@ -85,6 +88,7 @@ export default class CompoundObject extends Object3D {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
+    // if (this.meshPromise) this.meshUpdateRequired = true;
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         if (this.worker) {
@@ -108,14 +112,17 @@ export default class CompoundObject extends Object3D {
             this.mesh = mesh;
             if (this.mesh instanceof THREE.Mesh) {
               this.applyOperationsAsync().then(() => {
-                this._meshUpdateRequired = false;
                 if (this.viewOptionsUpdateRequired) {
                   this.applyViewOptions();
-                  this._viewOptionsUpdateRequired = false;
                 }
                 (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
+
+                // mesh updated and resolved
+                this.pendingOperation = false;
+                this.meshUpdateRequired = false;
+                this.viewOptionsUpdateRequired = false;
               });
             } else {
               (this.worker as Worker).terminate();
@@ -141,8 +148,15 @@ export default class CompoundObject extends Object3D {
         if (this.pendingOperation) {
           await this.applyOperationsAsync();
         }
-        this.applyViewOptions();
+
+        if (this.viewOptionsUpdateRequired) {
+          this.applyViewOptions();
+        }
         resolve(this.mesh);
+        // mesh updated and resolved
+        this.pendingOperation = false;
+        this.meshUpdateRequired = false;
+        this.viewOptionsUpdateRequired = false;
       }
     });
 
@@ -154,40 +168,26 @@ export default class CompoundObject extends Object3D {
     this._meshUpdateRequired = true;
   }
 
-  public setChildren(children: ChildrenArray): void {
-    if (!isEqual(children, this.children)) {
-      this.children = children.slice();
-      this._meshUpdateRequired = true;
-    }
-  }
+  // public setChildren(children: ChildrenArray): void {
+  //   if (!isEqual(children, this.children)) {
+  //     this.children = children.slice();
+  //     this._meshUpdateRequired = true;
+  //   }
+  // }
 
   public toJSON(): ICompoundObjectJSON {
-    return cloneDeep({
+    return {
       ...super.toJSON(),
       children: this.children.map(obj => obj.toJSON()),
-    });
+    };
   }
 
-  public updateFromJSON(object: ICompoundObjectJSON) {
+  public updateFromJSON(
+    object: ICompoundObjectJSON,
+    fromParent: boolean = false,
+  ) {
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
-    }
-
-    const newchildren: ChildrenArray = [];
-    // update children
-    try {
-      object.children.forEach(obj => {
-        const objToUpdate = this.getChild(obj);
-        newchildren.push(objToUpdate);
-        objToUpdate.updateFromJSON(obj);
-      });
-
-      if (!isEqual(this.children, newchildren)) {
-        this.meshUpdateRequired = true;
-        this.children = newchildren.slice(0);
-      }
-    } catch (e) {
-      throw new Error(`Cannot update Compound Object: ${e}`);
     }
 
     // update operations and view options
@@ -197,17 +197,34 @@ export default class CompoundObject extends Object3D {
     };
     this.setOperations(object.operations);
     this.setViewOptions(vO);
-    // if anything has changed, recompute mesh
-    if (!isEqual(this.lastJSON, this.toJSON())) {
-      this.lastJSON = this.toJSON();
-      this.meshPromise = this.computeMeshAsync();
-      let obj: ObjectsCommon | undefined = this.getParent();
+    const update =
+      this.meshUpdateRequired ||
+      this.pendingOperation ||
+      this.viewOptionsUpdateRequired;
+    this.setChildren(object.children);
 
-      while (obj) {
-        obj.meshUpdateRequired = true;
-        obj.computeMeshAsync();
-        obj = obj.getParent();
+    try {
+      if (
+        update ||
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      ) {
+        // if has no parent, update mesh, else update through parent
+        const objParent: ObjectsCommon | undefined = this.getParent();
+        if (objParent && !fromParent) {
+          objParent.updateFromJSON(objParent.toJSON());
+        } else {
+          // if anything has changed, recompute children and then recompute mesh
+          this.children.forEach(child => {
+            child.updateFromJSON(child.toJSON(), true);
+          });
+
+          this.meshPromise = this.computeMeshAsync();
+        }
       }
+    } catch (e) {
+      throw new Error(`Cannot update Compound Object: ${e}`);
     }
   }
 
@@ -249,7 +266,7 @@ export default class CompoundObject extends Object3D {
     });
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();
-    this._pendingOperation = false;
+    this.pendingOperation = false;
 
     return;
   }
@@ -299,6 +316,26 @@ export default class CompoundObject extends Object3D {
         resolve(bufferArray);
       });
     });
+  }
+
+  private setChildren(children: IObjectsCommonJSON[]) {
+    const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
+
+    // children are the same do not update anything.
+    if (Bitbloq.compareObjectsJSONArray(currentChildren, children)) return;
+
+    // if children are not the same
+    this.meshUpdateRequired = true;
+    const newchildren: ChildrenArray = [];
+    // update children
+
+    children.forEach(objChild => {
+      const objToUpdate: ObjectsCommon = this.getChild(objChild);
+      newchildren.push(objToUpdate);
+      objToUpdate.updateFromJSON(objChild, true);
+    });
+
+    this.children = newchildren;
   }
 
   /**

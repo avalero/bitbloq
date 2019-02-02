@@ -9,34 +9,21 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-28 19:20:12
+ * Last modified  : 2019-02-01 09:52:58
  */
 
-import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
-import ObjectsCommon, {
-  IViewOptions,
-  OperationsArray,
-  IObjectsCommonJSON,
-} from './ObjectsCommon';
-
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
+import ObjectsCommon from './ObjectsCommon';
 
 import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
-interface ISTLParams {
-  blob: {
-    uint8Data: Uint8Array;
-    filetype: string;
-    newfile: boolean;
-  };
-}
-
-export interface ISTLJSON extends IObjectsCommonJSON {
-  parameters: ISTLParams;
-}
+import {
+  ISTLJSON,
+  ISTLParams,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 
 export default class STLObject extends PrimitiveObject {
   public static typeName: string = 'STLObject';
@@ -52,7 +39,7 @@ export default class STLObject extends PrimitiveObject {
       object.viewOptions,
     );
 
-    stl.id = object.id || '';
+    stl.id = object.id || stl.id;
 
     return stl;
   }
@@ -83,7 +70,6 @@ export default class STLObject extends PrimitiveObject {
     };
 
     this.setParameters(params);
-    this.lastJSON = this.toJSON();
 
     if (mesh) {
       this.setMesh(mesh);
@@ -92,59 +78,23 @@ export default class STLObject extends PrimitiveObject {
     }
   }
 
-  public updateFromJSON(object: ISTLJSON) {
-    if (this.id !== object.id) {
-      throw new Error('Object id does not match with JSON id');
-    }
+  get meshUpdateRequired(): boolean {
+    return (this.parameters as ISTLParams).blob.newfile;
+  }
 
-    const vO = {
-      ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
-    };
-
-    
-
-    this.setParameters(object.parameters);
-    this.setOperations(object.operations);
-    this.setViewOptions(vO);
-
-    
-
-
-    // if anything has changed, recompute mesh
-    if (object.parameters.blob.newfile) {
-      
-      delete (this.lastJSON as ISTLJSON).parameters.blob.uint8Data;
-      const lastJSONWithoutVOAndData = cloneDeep(this.lastJSON);
-      delete lastJSONWithoutVOAndData.viewOptions;
-      const thisJSON = this.toJSON();
-
-      delete (thisJSON as ISTLJSON).parameters.blob.uint8Data;
-      delete (thisJSON as ISTLJSON).viewOptions;
-      const currentJSONWithoutVOAndData = cloneDeep(thisJSON);
-
-      this.lastJSON = this.toJSON();
-      this.meshPromise = this.computeMeshAsync();
-
-      // parents need update?
-
-      if (
-        !isEqual(lastJSONWithoutVOAndData, currentJSONWithoutVOAndData) ||
-        this.getParent() instanceof RepetitionObject ||
-        this.getParent() instanceof ObjectsGroup
-      ) {
-        let obj: ObjectsCommon | undefined = this.getParent();
-        while (obj) {
-          obj.meshUpdateRequired = true;
-          obj.computeMeshAsync();
-          obj = obj.getParent();
-        }
-      }
-    }
+  set meshUpdateRequired(a: boolean) {
+    (this.parameters as ISTLParams).blob.newfile = a;
   }
 
   public clone(): STLObject {
-    if (this.mesh && isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const objSTL = new STLObject(
         this.parameters as ISTLParams,
         this.operations,
@@ -169,7 +119,7 @@ export default class STLObject extends PrimitiveObject {
         (this.parameters as ISTLParams).blob.filetype.match('empty')
       ) {
         this.mesh = this.getNoFileMesh();
-        this._meshUpdateRequired = false;
+        this.meshUpdateRequired = false;
         resolve(this.mesh);
         return;
       }
@@ -177,9 +127,13 @@ export default class STLObject extends PrimitiveObject {
       if (this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry);
-        this._meshUpdateRequired = false;
         this.applyViewOptions();
         await this.applyOperationsAsync();
+        resolve(this.mesh);
+        this.meshUpdateRequired = false;
+        this.pendingOperation = false;
+        this.viewOptionsUpdateRequired = false;
+        return;
       }
 
       if (this.pendingOperation) {
@@ -191,22 +145,26 @@ export default class STLObject extends PrimitiveObject {
       }
 
       resolve(this.mesh);
+      this.meshUpdateRequired = false;
+      this.pendingOperation = false;
+      this.viewOptionsUpdateRequired = false;
     });
 
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
-  public toJSON(): ISTLJSON {
-    // // As data can be an ArrayBuffer or an Uint8Array, we force it is an ArrayBuffer
-    // const data: Uint8Array = (this.parameters as ISTLParams).blob
-    //   .uint8Data;
+  protected setParameters(parameters: ISTLParams): void {
+    if (!this.parameters) {
+      this.parameters = { ...parameters };
+      this.meshUpdateRequired = true;
+      return;
+    }
 
-    // if (data instanceof Uint8Array) {
-    //   // Convert to ArrayBuffer
-    //   (this.parameters as ISTLParams).blob.uint8Data = data.buffer;
-    // }
-
-    return super.toJSON() as ISTLJSON;
+    if (parameters.blob.newfile) {
+      this.parameters = { ...parameters };
+      this.meshUpdateRequired = true;
+      return;
+    }
   }
 
   protected getGeometry(): THREE.Geometry {
@@ -220,7 +178,6 @@ export default class STLObject extends PrimitiveObject {
     // recompute geometry only if blob has changed (new file loaded)
     if ((this.parameters as ISTLParams).blob.newfile) {
       try {
-        (this.parameters as ISTLParams).blob.newfile = false;
         return this.computeGeometry();
       } catch (e) {
         throw e;
@@ -230,13 +187,20 @@ export default class STLObject extends PrimitiveObject {
   }
 
   private computeGeometry(): THREE.Geometry {
-    console.log('Recompute STL Geometry');
     const data: Uint8Array = (this.parameters as ISTLParams).blob.uint8Data;
     this.arrayBufferData = data.buffer;
     const filetype: string = (this.parameters as ISTLParams).blob.filetype;
 
-    if (filetype.match('model/x.stl-binary') || filetype.match('model/stl')) {
+    if (
+      filetype.match('model/x.stl-binary') ||
+      filetype.match('model/stl') ||
+      filetype.match('application/sla')
+    ) {
+      try{
       this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+      }catch(e){
+        throw new Error('Cannot parse STL file');
+      }
       if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
       }
@@ -245,12 +209,27 @@ export default class STLObject extends PrimitiveObject {
     }
 
     if (filetype.match('model/x.stl-ascii')) {
-      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
-      if (this.geometry instanceof THREE.Geometry) {
+      try{
+        this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      }catch(e){
+        throw new Error('Cannot parse STL file');
+      }
+        if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
       }
-
       throw new Error('Geometry not properly computed');
+    }
+    try {
+      // not able to parse binary, try text
+      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+    } catch (e) {
+      console.warn(`No text STL file: ${e}`);
+      // not able to parse text, throw exception
+      throw new Error(`Cannot parse STL file ${e}`);
+    }
+    
+    if (this.geometry instanceof THREE.Geometry) {
+      return this.geometry;
     }
 
     throw new Error(`No STL file format: filetype: ${filetype} `);

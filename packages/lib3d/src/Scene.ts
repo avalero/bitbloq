@@ -4,20 +4,22 @@ import BaseGrid from './BaseGrid';
 import Union from './Union';
 import Difference from './Difference';
 import Intersection from './Intersection';
-import CompoundObject, { ICompoundObjectJSON } from './CompoundObject';
-import ObjectsCommon, { IObjectsCommonJSON } from './ObjectsCommon';
+import CompoundObject from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 
-import ObjectsGroup, { IObjectsGroupJSON } from './ObjectsGroup';
-import RepetitionObject, { IRepetitionObjectJSON } from './RepetitionObject';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
 
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
 
 import ObjectFactory from './ObjectFactory';
 import PositionCalculator from './PositionCalculator';
 import RotationHelper from './RotationHelper';
 import TranslationHelper from './TranslationHelper';
 import meshArray2STL from './STLExporter';
-import TextObject, { ITextObjectJSON } from './TextObject';
+import TextObject from './TextObject';
+
+import {ITextObjectJSON, ICompoundObjectJSON, IObjectsCommonJSON, IRepetitionObjectJSON, IObjectsGroupJSON } from './Interfaces';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -86,6 +88,7 @@ export default class Scene {
   private lastJSON: object;
   private objectsGroup: THREE.Group;
   private historyIndex: number;
+  private sceneUpdated: boolean;
 
   private objectsInTransition: ObjectsCommon[];
 
@@ -98,7 +101,6 @@ export default class Scene {
     this.objectsInTransition = [];
     this.setupScene();
     this.objectsGroup = new THREE.Group();
-    this.lastJSON = this.toJSON();
     this.historyIndex = -1;
     this.history = [];
     this.setMaterials();
@@ -115,7 +117,8 @@ export default class Scene {
 
   public async exportToSTLAsync(name: string): Promise<void> {
     // update objectsGroup if required
-    if (!isEqual(this.lastJSON, this.toJSON())) {
+
+    if (this.sceneUpdated) {
       this.objectsGroup = new THREE.Group();
 
       const objects3D: THREE.Object3D[] = await Promise.all(
@@ -124,9 +127,9 @@ export default class Scene {
           // if object is selected highlight
           if (object.getViewOptions().highlighted) {
             if (mesh instanceof THREE.Mesh) {
-              (mesh.material as THREE.MeshLambertMaterial).setValues(
-                this.highlightedMaterial,
-              );
+              if (mesh.material instanceof THREE.MeshLambertMaterial) {
+                mesh.material.setValues(this.highlightedMaterial);
+              }
             }
           }
           mesh.userData = object.toJSON();
@@ -157,11 +160,13 @@ export default class Scene {
       // there was only one operation, so, clear de scene
       if (this.historyIndex < 0) {
         this.objectsInScene = [];
+
         return this.toJSON();
       }
 
       const sceneJSON = this.history[this.historyIndex];
       this.setHistorySceneFromJSON(sceneJSON);
+
       return sceneJSON;
     }
 
@@ -174,9 +179,10 @@ export default class Scene {
       this.historyIndex += 1;
       const sceneJSON = this.history[this.historyIndex];
       this.setHistorySceneFromJSON(sceneJSON);
+
       return sceneJSON;
     }
-    throw new Error('Canno redo');
+    throw new Error('Cannot redo');
   }
 
   /**
@@ -185,28 +191,31 @@ export default class Scene {
    * It does not contain helpers, plane, etc.
    */
   public toJSON(): ISceneJSON {
-    return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
+    // return this.objectsInScene.map(object => cloneDeep(object.toJSON()));
+    return this.objectsInScene.map(object => object.toJSON());
   }
 
-  /**
-   * Updates all the objects in a Scene, if object is not present. It adds it.
-   * @param json json describin all the objects of the Scene
-   */
-  public updateSceneFromJSON(json: ISceneJSON): ISceneJSON {
-    if (isEqual(json, this.toJSON())) {
-      return json;
-    }
+  // /**
+  //  * Updates all the objects in a Scene, if object is not present. It adds it.
+  //  * @param json json describin all the objects of the Scene
+  //  */
+  // public updateSceneFromJSON(json: ISceneJSON): ISceneJSON {
+  //   if (isEqual(json, this.toJSON())) {
+  //     return json;
+  //   }
 
-    json.forEach(obj => {
-      if (this.objectInScene(obj)) {
-        this.getObject(obj).updateFromJSON(obj);
-      } else {
-        throw new Error(`Object id ${obj.id} not present in Scene`);
-      }
-    });
-    this.updateHistory();
-    return this.toJSON();
-  }
+  //   json.forEach(obj => {
+  //     if (this.objectInScene(obj)) {
+  //       this.getObject(obj).updateFromJSON(obj);
+  //     } else {
+  //       throw new Error(`Object id ${obj.id} not present in Scene`);
+  //     }
+  //   });
+
+  //   this.updateHistory();
+
+  //   return this.toJSON();
+  // }
 
   /**
    * Scene lights and basegrid
@@ -226,7 +235,7 @@ export default class Scene {
    * returns a THREE.Group object containing designed 3D objects .
    */
   public async getObjectsAsync(): Promise<THREE.Group> {
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (!this.sceneUpdated) {
       return this.objectsGroup;
     }
 
@@ -240,9 +249,9 @@ export default class Scene {
         // if object is selected highlight
         if (object.getViewOptions().highlighted) {
           if (mesh instanceof THREE.Mesh) {
-            (mesh.material as THREE.MeshLambertMaterial).setValues(
-              this.highlightedMaterial,
-            );
+            if (mesh.material instanceof THREE.MeshLambertMaterial) {
+              mesh.material.setValues(this.highlightedMaterial);
+            }
           }
         }
         mesh.userData = object.toJSON();
@@ -254,7 +263,7 @@ export default class Scene {
       this.objectsGroup.add(mesh);
     });
 
-    this.lastJSON = this.toJSON();
+    this.sceneUpdated = false;
     return this.objectsGroup;
   }
 
@@ -265,9 +274,9 @@ export default class Scene {
         const mesh = (await object.getMeshAsync()).clone();
         if (mesh instanceof THREE.Mesh) {
           const pos = await this.getPositionAsync(object.toJSON());
-          (mesh.material as THREE.MeshLambertMaterial).setValues(
-            this.transitionMaterial,
-          );
+          if (mesh.material instanceof THREE.MeshLambertMaterial) {
+            mesh.material.setValues(this.highlightedMaterial);
+          }
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
           mesh.setRotationFromEuler(
             new THREE.Euler(
@@ -328,6 +337,7 @@ export default class Scene {
       } catch (e) {
         throw new Error(`Cannot add new Object from JSON ${e}`);
       }
+
       return this.toJSON();
     }
     // children should be already in scene
@@ -336,6 +346,7 @@ export default class Scene {
         const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
         this.addExistingObject(object);
         this.updateHistory();
+
         return this.toJSON();
       } catch (e) {
         throw new Error(`Cannot add new Object from JSON ${e}`);
@@ -378,6 +389,7 @@ export default class Scene {
       newobj.setViewOptions(json.viewOptions);
       this.addExistingObject(newobj);
       this.updateHistory();
+
       return this.toJSON();
     }
     throw new Error('Cannot clone unknown object');
@@ -719,6 +731,7 @@ export default class Scene {
   }
 
   private updateHistory(): void {
+    this.sceneUpdated = true;
     const currentTime: number = new Date().getTime() / 1000;
     if (currentTime - this.lastUpdateTS < 1) {
       return;

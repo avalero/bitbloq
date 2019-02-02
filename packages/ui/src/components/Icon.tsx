@@ -18,6 +18,8 @@ import Group from './icons/Group'
 import Info from './icons/Info'
 import Intersection from './icons/Intersection'
 import Minus from './icons/Minus'
+import Center from './icons/Center'
+import NewDocument from './icons/NewDocument'
 import Orthographic from './icons/Orthographic'
 import Pencil from './icons/Pencil'
 import Perspective from './icons/Perspective'
@@ -33,6 +35,7 @@ import RepeatPolar from './icons/RepeatPolar'
 import Rotation from './icons/Rotation'
 import Scale from './icons/Scale'
 import Sphere from './icons/Sphere'
+import Spinner from './icons/Spinner'
 import STL from './icons/STL'
 import ThreeD from './icons/ThreeD'
 import Tick from './icons/Tick'
@@ -88,8 +91,12 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <Info />;
     case 'intersection':
       return <Intersection />;
+    case 'center':
+      return <Center />;
     case 'minus':
       return <Minus />;
+    case 'new-document':
+      return <NewDocument />;
     case 'orthographic':
       return <Orthographic />;
     case 'pencil':
@@ -120,6 +127,8 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <Scale />;
     case 'sphere':
       return <Sphere />;
+    case 'spinner':
+      return <Spinner />;
     case 'stl':
       return <STL />;
     case 'threed':

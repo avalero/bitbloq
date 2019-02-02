@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import NavigationBox, { IBoxLabels } from './NavigationBox';
 import AxisHelper from './AxisHelper';
-import { IObjectsCommonJSON } from './ObjectsCommon';
 import OrbitCamera from './OrbitCamera';
 import Scene, { IHelperDescription } from './Scene';
+import { IObjectsCommonJSON } from './Interfaces';
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;
@@ -134,6 +134,9 @@ export default class Renderer {
     this.cameraControls.rotateTo(theta, phi, true);
   }
 
+  public center(): void{
+    this.cameraControls.center();
+  }
   public zoomIn(): void {
     this.cameraControls.zoomIn();
   }

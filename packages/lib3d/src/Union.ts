@@ -9,17 +9,17 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2019-01-18 18:52:52
+ * Last modified  : 2019-01-31 10:32:18
  */
 
-import { isEqual } from 'lodash';
-import CompoundObject, {
-  ChildrenArray,
-  ICompoundObjectJSON,
-} from './CompoundObject';
-import Object3D from './Object3D';
-import ObjectsCommon, { IViewOptions, OperationsArray } from './ObjectsCommon';
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 
+import {
+  ICompoundObjectJSON,
+  IViewOptions,
+  OperationsArray,
+} from './Interfaces';
 import Scene from './Scene';
 
 export default class Union extends CompoundObject {
@@ -40,7 +40,7 @@ export default class Union extends CompoundObject {
         ...object.viewOptions,
       };
       const union = new Union(children, object.operations, viewOptions);
-      union.id = object.id || '';
+      union.id = object.id || union.id;
       return union;
     } catch (e) {
       throw new Error(`Cannot create ObjectsGroup. ${e}`);
@@ -60,7 +60,7 @@ export default class Union extends CompoundObject {
     };
     super(children, operations, vO);
     this.type = Union.typeName;
-    this.lastJSON = this.toJSON();
+
     if (mesh) {
       this.setMesh(mesh);
     } else {
@@ -73,7 +73,14 @@ export default class Union extends CompoundObject {
       child.clone(),
     );
 
-    if (isEqual(this.lastJSON, this.toJSON())) {
+    if (
+      this.mesh &&
+      !(
+        this.meshUpdateRequired ||
+        this.pendingOperation ||
+        this.viewOptionsUpdateRequired
+      )
+    ) {
       const unionObj = new Union(
         childrenClone,
         this.operations,
