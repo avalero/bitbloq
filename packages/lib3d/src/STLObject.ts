@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-31 10:05:22
+ * Last modified  : 2019-02-01 09:52:58
  */
 
 import * as THREE from 'three';
@@ -191,8 +191,16 @@ export default class STLObject extends PrimitiveObject {
     this.arrayBufferData = data.buffer;
     const filetype: string = (this.parameters as ISTLParams).blob.filetype;
 
-    if (filetype.match('model/x.stl-binary') || filetype.match('model/stl')) {
+    if (
+      filetype.match('model/x.stl-binary') ||
+      filetype.match('model/stl') ||
+      filetype.match('application/sla')
+    ) {
+      try{
       this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+      }catch(e){
+        throw new Error('Cannot parse STL file');
+      }
       if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
       }
@@ -201,12 +209,27 @@ export default class STLObject extends PrimitiveObject {
     }
 
     if (filetype.match('model/x.stl-ascii')) {
-      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
-      if (this.geometry instanceof THREE.Geometry) {
+      try{
+        this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      }catch(e){
+        throw new Error('Cannot parse STL file');
+      }
+        if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
       }
-
       throw new Error('Geometry not properly computed');
+    }
+    try {
+      // not able to parse binary, try text
+      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+    } catch (e) {
+      console.warn(`No text STL file: ${e}`);
+      // not able to parse text, throw exception
+      throw new Error(`Cannot parse STL file ${e}`);
+    }
+    
+    if (this.geometry instanceof THREE.Geometry) {
+      return this.geometry;
     }
 
     throw new Error(`No STL file format: filetype: ${filetype} `);
