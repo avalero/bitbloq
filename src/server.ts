@@ -37,9 +37,6 @@ const server = new ApolloServer({
     maxFileSize: 10000000,
     maxFiles: 20,
   },
-  engine: {
-    apiKey: "backend"
-  },
 });
 
 const app = new Koa();
