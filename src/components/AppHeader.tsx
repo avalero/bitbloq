@@ -31,8 +31,6 @@ const AppHeader = () => (
           return null;
         }
 
-        console.log(data)
-
         return (
           <UserContainer>
             <UserName>{data.me && data.me.name}</UserName>
@@ -112,7 +110,7 @@ const ContextButton = styled.div<ContextButtonProps>`
 
 const ContextMenu = styled.div`
   background-color: white;
-  margin-top: 36px;
+  margin-top: 6px;
   box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
   border-radius: 4px;
   border: solid 1px #cfcfcf;

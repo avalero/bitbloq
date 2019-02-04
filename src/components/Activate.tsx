@@ -20,7 +20,7 @@ class Activate extends React.Component<ActivateProps> {
   }
 
   render() {
-    return <div />;
+    return <div>Activating account</div>;
   }
 }
 
@@ -28,7 +28,6 @@ export default () =>
   <Mutation
     mutation={ACTIVATE_ACCOUNT_MUTATION}
     onCompleted={({ activateAccount: token }) => {
-      debugger;
       window.localStorage.setItem("authToken", token);
       navigate("/app");
     }}
