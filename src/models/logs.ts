@@ -1,10 +1,10 @@
-import * as mongoose from 'mongoose';
+import * as mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const LogsSchema = new Schema({
   user: {
     id: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
   },
 
   action: {
@@ -21,6 +21,6 @@ const LogsSchema = new Schema({
   },
 });
 
-var Logs = mongoose.model('Logs', LogsSchema);
+const Logs = mongoose.model("Logs", LogsSchema);
 module.exports = Logs;
 export default Logs;

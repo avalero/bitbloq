@@ -1,5 +1,5 @@
-# import Date, ObjectID from './scalars.graphql'
-# import Exercise from './exercise.graphql'
+# import Date, ObjectID from "./scalars.graphql"
+# import Exercise from "./exercise.graphql"
 
 directive @authRequired(
   requires: Role = ADMIN,

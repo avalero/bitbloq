@@ -1,9 +1,6 @@
 {
     "extends": [
-      "tslint:latest",
-      "tslint-react",
-      "tslint-config-airbnb",
-      "tslint-config-prettier"
+      "tslint:latest"
     ],
     "linterOptions": {
       "exclude": [
@@ -18,8 +15,7 @@
       "no-debugger": false,
       "ter-arrow-parens": false,
       "import-name": false,
-      "variable-name": [true, "check-format", "allow-leading-underscore"],
-      "prefer-array-literal": [true, { "allow-type-parameters": true }]
+      "variable-name": [true, "check-format", "allow-leading-underscore"]
     },
     "jsRules": {
       //Disable for javascript

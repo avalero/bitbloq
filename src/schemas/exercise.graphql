@@ -1,5 +1,5 @@
-# import Date, ObjectID from './scalars.graphql'
-# import Submission from './submission.graphql'
+# import Date, ObjectID from "./scalars.graphql"
+# import Submission from "./submission.graphql"
 
 directive @authRequired(
   requires: Role = ADMIN,

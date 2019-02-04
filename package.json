@@ -55,11 +55,12 @@
     "reflect-metadata": "^0.1.12",
     "shortid": "^2.2.14",
     "ts-node": "^7.0.1",
+    "tslint": "^5.12.1",
     "typescript": "^3.2.2"
   },
   "devDependencies": {
     "@types/mongodb": "^3.1.18",
-    "apollo-server-koa": "^2.3.1",
+    "apollo-server-koa": "^2.3.3",
     "graphql": "^0.13.2",
     "graphql-tools": "^4.0.3",
     "nodemon": "^1.18.9",

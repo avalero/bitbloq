@@ -1,10 +1,10 @@
-import { AuthenticationError, SchemaDirectiveVisitor } from 'apollo-server-koa';
-const jsonwebtoken = require('jsonwebtoken');
+import { AuthenticationError, SchemaDirectiveVisitor } from "apollo-server-koa";
+const jsonwebtoken = require("jsonwebtoken");
 
 const contextController = {
   getMyUser: async context => {
-    const token1 = context.headers.authorization || '';
-    const justToken = token1.split(' ')[1];
+    const token1 = context.headers.authorization || "";
+    const justToken = token1.split(" ")[1];
 
     if (justToken) {
       try {
@@ -19,7 +19,7 @@ const contextController = {
       try {
         return await jsonwebtoken.verify(inToken, process.env.JWT_SECRET);
       } catch (e) {
-        throw new AuthenticationError('Token not value.');
+        throw new AuthenticationError("Token not value.");
       }
     }
   },

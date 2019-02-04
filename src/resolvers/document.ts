@@ -1,13 +1,19 @@
-import { ApolloError } from 'apollo-server-koa';
-import { DocumentModel } from '../models/document';
-import { ObjectId } from 'bson';
-import { ExerciseModel } from '../models/exercise';
-import { SubmissionModel } from '../models/submission';
-import { UploadModel } from '../models/upload';
-import uploadResolver from './upload';
+import { ApolloError } from "apollo-server-koa";
+import { ObjectId } from "bson";
+import { DocumentModel } from "../models/document";
+import { ExerciseModel } from "../models/exercise";
+import { SubmissionModel } from "../models/submission";
+import { UploadModel } from "../models/upload";
+import uploadResolver from "./upload";
 
 const documentResolver = {
   Mutation: {
+    /**
+     * Create document: create a new empty document
+     * It stores the new document in the database and if there is a image,
+     * it uploads to Google Cloud and stores the public URL.
+     * args: document information
+     */
     createDocument: async (root: any, args: any, context: any) => {
       const documentNew = new DocumentModel({
         id: ObjectId,
@@ -36,6 +42,12 @@ const documentResolver = {
       }
     },
 
+    /**
+     * Delete document: delete one document of the user logged.
+     * It deletes the document passed in the arguments if it belongs to the user logged.
+     * This method deletes all the exercises, submissions and uploads related with the document ID.
+     * args: document ID
+     */
     deleteDocument: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
         _id: args.id,
@@ -45,15 +57,19 @@ const documentResolver = {
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
         await ExerciseModel.deleteMany({ document: existDocument._id });
-        return DocumentModel.deleteOne({ _id: args.id }); //delete all the document dependencies
+        return DocumentModel.deleteOne({ _id: args.id }); // delete all the document dependencies
       } else {
         throw new ApolloError(
-          'You only can delete your documents',
-          'DOCUMENT_NOT_FOUND',
+          "You only can delete your documents",
+          "DOCUMENT_NOT_FOUND",
         );
       }
     },
-
+    /**
+     * Update document: update existing document.
+     * It updates the document with the new information provided.
+     * args: document ID, new document information.
+     */
     updateDocument: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
         _id: args.id,
@@ -101,33 +117,42 @@ const documentResolver = {
           );
         }
       } else {
-        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
     },
   },
   Query: {
+    /**
+     * Documents: returns all the documents of the user logged.
+     * args: nothing.
+     */
     documents: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ user: context.user.userID });
     },
+    /**
+     * Document: returns the information of the document ID provided in the arguments.
+     * args: document ID.
+     */
     document: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
         _id: args.id,
       });
       if (!existDocument) {
-        throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      if (existDocument.user != context.user.userID) {
+      if (existDocument.user !== context.user.userID) {
         throw new ApolloError(
-          'This ID does not belong to one of your documents',
-          'NOT_YOUR_DOCUMENT',
+          "This ID does not belong to one of your documents",
+          "NOT_YOUR_DOCUMENT",
         );
       }
       return existDocument;
     },
   },
+
   Document: {
-    exercises: async document => ExerciseModel.find({ document: document._id }),
-    images: async document => UploadModel.find({ document: document._id }),
+    exercises: async (document) => ExerciseModel.find({ document: document._id }),
+    images: async (document) => UploadModel.find({ document: document._id }),
   },
 };
 

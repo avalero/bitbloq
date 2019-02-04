@@ -1,4 +1,4 @@
-# import Upload, ObjectID from './scalars.graphql'
+# import Upload, ObjectID from "./scalars.graphql"
 
 type File {
   id: ID!

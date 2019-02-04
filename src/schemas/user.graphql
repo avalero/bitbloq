@@ -1,5 +1,5 @@
-# import Date, ObjectID, EmailAddress, JSON from './scalars.graphql'
-# import Document from './document.graphql'
+# import Date, ObjectID, EmailAddress, JSON from "./scalars.graphql"
+# import Document from "./document.graphql"
 
 directive @authRequired(
   requires: Role = ADMIN,

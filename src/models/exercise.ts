@@ -1,39 +1,39 @@
-import { Document, Schema, Model, model } from 'mongoose';
-const timestamps = require('mongoose-timestamp');
+import { Document, Model, model, Schema  } from "mongoose";
+const timestamps = require("mongoose-timestamp");
 
 interface IExercise extends Document {
-  user?: String;
-  document?: String;
-  code?: String;
-  title?: String;
-  type?: String;
-  description: String;
-  teacherName: String;
-  content?: String;
-  acceptSubmissions?: Boolean;
+  user?: string;
+  document?: string;
+  code?: string;
+  title?: string;
+  type?: string;
+  description: string;
+  teacherName: string;
+  content?: string;
+  acceptSubmissions?: boolean;
   expireDate?: Date;
-  image: String;
+  image: string;
 }
 
 const ExerciseMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'UserModel',
+    ref: "UserModel",
   },
 
   document: {
     type: Schema.Types.ObjectId,
-    ref: 'DocumentModel',
+    ref: "DocumentModel",
   },
 
   code: {
     type: String,
-    default: '111111',
+    default: "111111",
   },
 
   title: {
     type: String,
-    default: 'New Exercise',
+    default: "New Exercise",
   },
 
   type: {
@@ -50,7 +50,7 @@ const ExerciseMongSchema: Schema = new Schema({
 
   content: {
     type: String,
-    default: 'content',
+    default: "content",
   },
 
   acceptSubmissions: {
@@ -62,11 +62,11 @@ const ExerciseMongSchema: Schema = new Schema({
 
   expireDate: {
     type: Date,
-    default: new Date(2020, 12, 30), //fecha de caducidad por defecto
+    default: new Date(2020, 12, 30), // fecha de caducidad por defecto
   },
 });
 ExerciseMongSchema.plugin(timestamps);
 export const ExerciseModel: Model<IExercise> = model<IExercise>(
-  'ExerciseModel',
+  "ExerciseModel",
   ExerciseMongSchema,
 );
