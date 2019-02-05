@@ -28,14 +28,13 @@ interface IContext { ctx: IncomingMessage; }
 
 const server = new ApolloServer({
   context: async ({ ctx }: IContext) => {
-    console.log(ctx);
     const user = await contextController.getMyUser(ctx);
     return { user }; //  add the user to the ctx
   },
   schema: exSchema,
   upload: {
     maxFileSize: 10000000,
-    maxFiles: 20,
+    maxFiles: 1,
   },
 });
 
