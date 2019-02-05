@@ -4,6 +4,7 @@ import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { DocumentModel } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
+import { LogModel } from "../models/logs";
 import { SubmissionModel } from "../models/submission";
 import { UserModel } from "../models/user";
 
@@ -62,6 +63,10 @@ const userResolver = {
         { $set: { signUpToken: token } },
         { new: true },
       );
+      await LogModel.create({
+        user: newUser._id,
+        action: "USER_create",
+      });
       return "OK";
     },
 
@@ -100,6 +105,10 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
+        await LogModel.create({
+          user: contactFound._id,
+          action: "USER_login",
+        });
         return token;
       } else {
         throw new ApolloError(
@@ -168,6 +177,10 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
+        await LogModel.create({
+          user: contactFound._id,
+          action: "USER_delete",
+        });
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -191,6 +204,10 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
+        await LogModel.create({
+          user: contactFound._id,
+          action: "USER_update",
+        });
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
@@ -212,6 +229,10 @@ const userResolver = {
       if (!contactFound) {
         return new ApolloError("Error with user in context", "USER_NOT_FOUND");
       }
+      await LogModel.create({
+        user: contactFound._id,
+        action: "USER_me",
+      });
       return contactFound;
     },
 

@@ -2,6 +2,7 @@ import { ApolloError } from "apollo-server-koa";
 import { ObjectId } from "bson";
 import { DocumentModel } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
+import { LogModel } from "../models/logs";
 import { SubmissionModel } from "../models/submission";
 import { UploadModel } from "../models/upload";
 import uploadResolver from "./upload";
@@ -26,7 +27,11 @@ const documentResolver = {
         image: args.input.imageUrl,
       });
       const newDocument = await DocumentModel.create(documentNew);
-
+      await LogModel.create({
+        user: context.user.userID,
+        object: documentNew._id,
+        action: "DOC_create",
+      });
       if (args.input.image) {
         const imageUploaded = await uploadResolver.Mutation.singleUpload(
           args.input.image,
@@ -54,6 +59,11 @@ const documentResolver = {
         user: context.user.userID,
       });
       if (existDocument) {
+        await LogModel.create({
+          user: context.user.userID,
+          object: args.id,
+          action: "DOC_delete",
+        });
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
         await ExerciseModel.deleteMany({ document: existDocument._id });
@@ -77,6 +87,11 @@ const documentResolver = {
       });
 
       if (existDocument) {
+        await LogModel.create({
+          user: context.user.userID,
+          object: args.id,
+          action: "DOC_update",
+        });
         if (args.input.image) {
           const imageUploaded = await uploadResolver.Mutation.singleUpload(
             args.input.image,
@@ -127,6 +142,10 @@ const documentResolver = {
      * args: nothing.
      */
     documents: async (root: any, args: any, context: any) => {
+      await LogModel.create({
+        user: context.user.userID,
+        action: "DOC_documents",
+      });
       return DocumentModel.find({ user: context.user.userID });
     },
     /**
@@ -146,6 +165,11 @@ const documentResolver = {
           "NOT_YOUR_DOCUMENT",
         );
       }
+      await LogModel.create({
+        user: context.user.userID,
+        object: args.id,
+        action: "DOC_document",
+      });
       return existDocument;
     },
   },

@@ -2,8 +2,10 @@ import { ApolloError } from "apollo-server-koa";
 import { ObjectId } from "bson";
 import { DocumentModel } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
+import { LogModel } from "../models/logs";
 import { SubmissionModel } from "../models/submission";
 import { UserModel } from "../models/user";
+import { create } from "domain";
 
 const exerciseResolver = {
   Mutation: {
@@ -41,7 +43,13 @@ const exerciseResolver = {
         expireDate: args.input.expireDate,
         image: docFather.image,
       });
-      return ExerciseModel.create(exerciseNew);
+      const newEx=await ExerciseModel.create(exerciseNew);
+      await LogModel.create({
+        user: context.user.userID,
+        object: newEx._id,
+        action: "EX_create",
+      });
+      return newEx;
     },
 
     /**
@@ -56,6 +64,11 @@ const exerciseResolver = {
       if (!existExercise) {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
+      await LogModel.create({
+        user: context.user.userID,
+        object: existExercise._id,
+        action: "EX_changeSubState",
+      });
       return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
         { $set: { acceptSubmissions: args.subState } },
@@ -75,6 +88,11 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
+        await LogModel.create({
+          user: context.user.userID,
+          object: existExercise._id,
+          action: "EX_delete",
+        });
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
@@ -93,6 +111,11 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
+        await LogModel.create({
+          user: context.user.userID,
+          object: existExercise._id,
+          action: "EX_update",
+        });
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
           { $set: args.input },
@@ -111,6 +134,10 @@ const exerciseResolver = {
      * args: nothing.
      */
     exercises: async (root: any, args: any, context: any) => {
+      await LogModel.create({
+        user: context.user.userID,
+        action: "EX_exercises",
+      });
       return ExerciseModel.find({ user: context.user.userID });
     },
 
@@ -137,6 +164,11 @@ const exerciseResolver = {
             "EXERCISE_NOT_FOUND",
           );
         }
+        await LogModel.create({
+          user: context.user.userID,
+          object: existExercise._id,
+          action: "EX_exercise",
+        });
         return existExercise;
       } else if (context.user.userID) {
         //  token de profesor
@@ -150,6 +182,11 @@ const exerciseResolver = {
             "EXERCISE_NOT_FOUND",
           );
         }
+        await LogModel.create({
+          user: context.user.userID,
+          object: existExercise._id,
+          action: "EX_exercise",
+        });
         return existExercise;
       }
     },
@@ -169,6 +206,10 @@ const exerciseResolver = {
       const existExercise = await ExerciseModel.find({
         document: docFather._id,
         user: context.user.userID,
+      });
+      await LogModel.create({
+        user: context.user.userID,
+        action: "EX_exerciseDocument",
       });
       return existExercise;
     },
