@@ -27,7 +27,7 @@ const LogsSchema = new Schema({
     type: String,
   },
 
-  data: {
+  docType: {
     type: String,
   },
 });

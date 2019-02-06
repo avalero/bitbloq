@@ -76,6 +76,7 @@ const submissionResolver = {
         user: exFather.user,
         object: submissionNew._id,
         action: "SUB_create",
+        docType: submissionNew.type,
       });
       return {
         token,
@@ -112,6 +113,7 @@ const submissionResolver = {
           user: existSubmission.user,
           object: existSubmission._id,
           action: "SUB_update",
+          docType: existSubmission.type,
         });
         return SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
@@ -165,6 +167,7 @@ const submissionResolver = {
         user: existSubmission.user,
         object: existSubmission._id,
         action: "SUB_finish",
+        docType: existSubmission.type,
       });
       return SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
@@ -201,6 +204,7 @@ const submissionResolver = {
         user: existSubmission.user,
         object: existSubmission._id,
         action: "SUB_cancel",
+        docType: existSubmission.type,
       });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
@@ -226,6 +230,7 @@ const submissionResolver = {
         user: existSubmission.user,
         object: existSubmission._id,
         action: "SUB_delete",
+        docType: existSubmission.type,
       });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
@@ -274,6 +279,7 @@ const submissionResolver = {
         await LogModel.create({
           user: existSubmission.user,
           action: "SUB_submission",
+          docType: existSubmission.type,
         });
         return existSubmission;
       } else if (context.user.userID) {
@@ -291,6 +297,7 @@ const submissionResolver = {
         await LogModel.create({
           user: context.user.userID,
           action: "SUB_submission",
+          docType: existSubmission.type,
         });
         return existSubmission;
       }

@@ -17,7 +17,7 @@ mongoose.set("useFindAndModify", false); // ojo con esto al desplegar
 mongoose.connect(
   mongoUrl,
   { useNewUrlParser: true, useCreateIndex: true },
-  (err: any) =>{
+  (err: any) => {
     if (err) {throw err; }
 
     console.log("Successfully connected to Mongo");

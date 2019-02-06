@@ -31,6 +31,7 @@ const documentResolver = {
         user: context.user.userID,
         object: documentNew._id,
         action: "DOC_create",
+        docType: documentNew.type,
       });
       if (args.input.image) {
         const imageUploaded = await uploadResolver.Mutation.singleUpload(
@@ -63,6 +64,7 @@ const documentResolver = {
           user: context.user.userID,
           object: args.id,
           action: "DOC_delete",
+          docType: existDocument.type,
         });
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
@@ -91,6 +93,7 @@ const documentResolver = {
           user: context.user.userID,
           object: args.id,
           action: "DOC_update",
+          docType: existDocument.type,
         });
         if (args.input.image) {
           const imageUploaded = await uploadResolver.Mutation.singleUpload(
@@ -169,6 +172,7 @@ const documentResolver = {
         user: context.user.userID,
         object: args.id,
         action: "DOC_document",
+        docType: existDocument.type,
       });
       return existDocument;
     },

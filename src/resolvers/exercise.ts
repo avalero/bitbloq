@@ -48,6 +48,7 @@ const exerciseResolver = {
         user: context.user.userID,
         object: newEx._id,
         action: "EX_create",
+        docType: newEx.type,
       });
       return newEx;
     },
@@ -68,6 +69,7 @@ const exerciseResolver = {
         user: context.user.userID,
         object: existExercise._id,
         action: "EX_changeSubState",
+        docType: existExercise.type,
       });
       return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
@@ -92,6 +94,7 @@ const exerciseResolver = {
           user: context.user.userID,
           object: existExercise._id,
           action: "EX_delete",
+          docType: existExercise.type,
         });
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
@@ -115,6 +118,7 @@ const exerciseResolver = {
           user: context.user.userID,
           object: existExercise._id,
           action: "EX_update",
+          docType: existExercise.type,
         });
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
@@ -168,6 +172,7 @@ const exerciseResolver = {
           user: context.user.userID,
           object: existExercise._id,
           action: "EX_exercise",
+          docType: existExercise.type,
         });
         return existExercise;
       } else if (context.user.userID) {
@@ -186,6 +191,7 @@ const exerciseResolver = {
           user: context.user.userID,
           object: existExercise._id,
           action: "EX_exercise",
+          docType: existExercise.type,
         });
         return existExercise;
       }
