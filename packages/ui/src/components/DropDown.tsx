@@ -53,6 +53,7 @@ class DropDown extends Component<DropDownProps, State> {
 
     return (
       <TetherComponent
+        ref={tether => this.tether = tether}
         attachment={attachmentPosition}
         targetAttachment={targetPosition}>
         <div ref={this.toggleRef}>{element(isOpen)}</div>

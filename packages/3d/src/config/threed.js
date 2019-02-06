@@ -18,6 +18,88 @@ const config = {
     '#9900ef',
   ],
 
+  addShapeGroups: [
+    {
+      label: 'basic-shapes',
+      icon: 'info',
+      shapes: [
+        {
+          type: 'Cube',
+          parameters: {
+            width: 10,
+            height: 10,
+            depth: 10,
+          }
+        },
+        {
+          type: 'Sphere',
+          parameters: {
+            radius: 5,
+          },
+        },
+        {
+          type: 'Cylinder',
+          parameters: {
+            r0: 5,
+            r1: 5,
+            height: 10,
+          },
+        },
+        {
+          type: 'Prism',
+          parameters: {
+            sides: 6,
+            length: 5,
+            height: 10,
+          },
+        },
+        {
+          type: 'Pyramid',
+          parameters: {
+            sides: 4,
+            length: 10,
+            height: 15,
+          },
+        },
+        {
+          type: 'STLObject',
+          parameters: {
+            blob: null,
+          },
+        },
+        {
+          type: 'TextObject',
+          parameters: {
+            text: 'Hello',
+            size: 10,
+            thickness: 5,
+            font: 'gentilis_regular',
+          },
+        },
+      ]
+    },
+    {
+      label: 'city-elements',
+      icon: 'info',
+      shapes: [
+        {
+          type: 'Cube',
+          parameters: {
+            width: 10,
+            height: 10,
+            depth: 10,
+          }
+        },
+        {
+          type: 'STLObject',
+          parameters: {
+            blob: '',
+          },
+        },
+      ]
+    }
+  ],
+
   objectTypes: [
     {
       name: 'Cube',
@@ -46,16 +128,6 @@ const config = {
           min: 0,
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'Cube',
-        parameters: {
-          width: 10,
-          height: 10,
-          depth: 10,
-        },
-        operations: [],
-      }),
     },
     {
       name: 'Sphere',
@@ -70,14 +142,6 @@ const config = {
           min: 0,
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'Sphere',
-        parameters: {
-          radius: 5,
-        },
-        operations: [],
-      }),
     },
     {
       name: 'Cylinder',
@@ -103,16 +167,6 @@ const config = {
           unit: 'mm',
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'Cylinder',
-        parameters: {
-          r0: 5,
-          r1: 5,
-          height: 10,
-        },
-        operations: [],
-      }),
     },
     {
       name: 'Prism',
@@ -137,16 +191,6 @@ const config = {
           unit: 'mm',
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'Prism',
-        parameters: {
-          sides: 6,
-          length: 5,
-          height: 10,
-        },
-        operations: [],
-      }),
     },
     {
       name: 'Pyramid',
@@ -171,16 +215,6 @@ const config = {
           unit: 'mm',
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'Pyramid',
-        parameters: {
-          sides: 4,
-          length: 10,
-          height: 15,
-        },
-        operations: [],
-      }),
     },
     {
       name: 'STLObject',
@@ -193,14 +227,6 @@ const config = {
           type: 'file',
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'STLObject',
-        parameters: {
-          blob: null,
-        },
-        operations: [],
-      }),
     },
     {
       name: 'TextObject',
@@ -256,17 +282,6 @@ const config = {
           ],
         },
       ],
-      create: () => ({
-        id: uuid(),
-        type: 'TextObject',
-        parameters: {
-          text: 'Hello',
-          size: 10,
-          thickness: 5,
-          font: 'gentilis_regular',
-        },
-        operations: [],
-      }),
     },
     {
       name: 'Union',
