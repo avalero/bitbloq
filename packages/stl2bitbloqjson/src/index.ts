@@ -5,26 +5,27 @@ import * as fs from 'fs';
 
 interface ISTLParams {
   blob: {
-    buffer: ArrayBuffer;
+    uint8Data: Uint8Array;
     filetype: string;
+    newfile: boolean;
   };
 }
 
-const stlFolder = './stl/';
-const jsonFolder = './json/';
+const stlFolder = './stl';
+const jsonFolder = './json';
 
 fs.readdirSync(stlFolder).forEach(async file => {
   console.log(`Converting ${file} ...`);
 
   try {
     const blob: ArrayBuffer = fs.readFileSync(`${stlFolder}/${file}`);
-
-    // const buffer: ArrayBuffer = new Uint8Array(blob).buffer;
+    const uint8Data: Uint8Array = new Uint8Array(blob);
 
     const parameters: ISTLParams = {
       blob: {
-        buffer: blob,
+        uint8Data,
         filetype: 'model/x.stl-binary',
+        newfile: true,
       },
     };
 
@@ -34,6 +35,8 @@ fs.readdirSync(stlFolder).forEach(async file => {
     json.id = '';
     delete json.viewOptions;
     const jsonFileName: string = `${file.substr(0, file.length - 3)}json`;
+    console.log(`Saving to ${jsonFolder}/${jsonFileName}...`);
+    fs.writeFileSync('./hola.txt', 'hola');
     fs.writeFileSync(`${jsonFolder}/${jsonFileName}`, JSON.stringify(json));
     console.log('Done!');
   } catch (e) {
