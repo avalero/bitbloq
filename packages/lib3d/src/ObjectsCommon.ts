@@ -88,14 +88,14 @@ export default class ObjectsCommon {
   public static createViewOptions(
     color: string = '#ffffff',
     visible: boolean = true,
-    highlighted: boolean = false,
+    selected: boolean = false,
     name: string = '',
     opacity: number = 100,
   ): IViewOptions {
     return {
       color,
       visible,
-      highlighted,
+      selected,
       name,
       opacity,
     };

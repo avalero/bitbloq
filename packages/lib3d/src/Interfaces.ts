@@ -47,7 +47,7 @@ export type OperationsArray = Operation[];
 export interface IViewOptions {
   color: string;
   visible: boolean;
-  highlighted: boolean;
+  selected: boolean;
   opacity: number;
   name: string;
 }
