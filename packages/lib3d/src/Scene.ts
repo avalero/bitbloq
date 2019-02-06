@@ -214,7 +214,6 @@ export default class Scene {
    * returns a THREE.Group object containing designed 3D objects .
    */
   public async getObjectsAsync(): Promise<THREE.Group> {
-    debugger;
     if (!this.sceneUpdated) {
       return this.objectsGroup;
     }
@@ -229,7 +228,6 @@ export default class Scene {
 
         if (this.anySelectedObjects) {
           // if object is selected highlight
-          debugger;
           if (object.getViewOptions().selected) {
             if (mesh instanceof THREE.Mesh) {
               if (mesh.material instanceof THREE.MeshLambertMaterial) {
@@ -357,7 +355,6 @@ export default class Scene {
    */
   public selectedObjects(jsonArray: IObjectsCommonJSON[]): ISceneJSON {
     // Deselect all objects
-    debugger;
     this.anySelectedObjects = false;
     this.objectCollector.forEach(obj => {
       obj.setViewOptions({ selected: false });
@@ -373,6 +370,7 @@ export default class Scene {
       this.anySelectedObjects = true;
     });
 
+    this.updateHistory();
     return this.toJSON();
   }
 
