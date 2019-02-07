@@ -125,7 +125,7 @@ export default class Scene {
     return this.historyIndex < this.history.length - 1;
   }
 
-  public async exportToSTLAsync(name: string): Promise<void> {
+  public async exportToSTLAsync(name: string = ''): Promise<void> {
     // update objectsGroup if required
 
     if (this.sceneUpdated) {
@@ -438,7 +438,7 @@ export default class Scene {
     // easter egg to save stl files
     if (objJSON.type.match(TextObject.typeName)) {
       if ((objJSON as ITextObjectJSON).parameters.text.match('save')) {
-        this.exportToSTLAsync('scene');
+        this.exportToSTLAsync();
         return this.toJSON();
       }
     }
