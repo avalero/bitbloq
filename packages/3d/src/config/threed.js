@@ -389,9 +389,19 @@ const config = {
       parameters: [
         {
           name: 'relative',
-          label: 'param-relative',
-          type: 'boolean',
+          label: 'param-translation-relative',
+          type: 'select',
           advancedMode: true,
+          options: [
+            {
+              labelId: 'param-relative-axis',
+              value: true,
+            },
+            {
+              labelId: 'param-absolute-axis',
+              value: false,
+            },
+          ],
         },
         {
           name: 'x',
@@ -482,9 +492,19 @@ const config = {
         },
         {
           name: 'relative',
-          label: 'param-relative',
-          type: 'boolean',
+          label: 'param-translation-relative',
+          type: 'select',
           advancedMode: true,
+          options: [
+            {
+              labelId: 'param-relative-axis',
+              value: true,
+            },
+            {
+              labelId: 'param-absolute-axis',
+              value: false,
+            },
+          ],
         },
         {
           name: 'axis',
