@@ -85,6 +85,7 @@ export default class ObjectsCommon {
     return bufferArray;
   }
 
+  
   public static createViewOptions(
     color: string = '#ffffff',
     visible: boolean = true,

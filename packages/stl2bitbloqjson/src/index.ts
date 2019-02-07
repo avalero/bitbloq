@@ -36,6 +36,7 @@ fs.readdirSync(stlFolder).forEach(async file => {
     delete json.viewOptions;
     const jsonFileName: string = `${file.substr(0, file.length - 3)}json`;
     console.log(`Saving to ${jsonFolder}/${jsonFileName}...`);
+
     fs.writeFileSync(`${jsonFolder}/${jsonFileName}`, JSON.stringify(json));
     console.log('Done!');
   } catch (e) {
