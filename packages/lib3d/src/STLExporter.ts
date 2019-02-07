@@ -15,11 +15,12 @@ import { saveAs } from 'file-saver';
 
 export default function meshArray2STL(
   meshes: THREE.Mesh[],
-  name: string,
+  name: string = '',
 ): void {
   const vector = new THREE.Vector3();
   const normalMatrixWorld = new THREE.Matrix3();
   const stlData: any = [];
+  const stlNames: string[] = [];
 
   meshes.forEach(threeObj => {
     let object: {
@@ -30,6 +31,7 @@ export default function meshArray2STL(
 
     if (threeObj instanceof THREE.Mesh) {
       const mesh = threeObj;
+      stlNames.push(`${name}${mesh.userData.viewOptions.name}`);
       let geometry: THREE.Geometry | THREE.BufferGeometry = mesh.geometry;
 
       if (geometry instanceof THREE.BufferGeometry) {
@@ -92,6 +94,6 @@ export default function meshArray2STL(
 
   stlData.forEach((data: any, i: number) => {
     const blob = new Blob([data], { type: 'application/octet-stream' });
-    saveAs(blob, `${name}_${i}.stl`);
+    saveAs(blob, `${stlNames[i]}.stl`);
   });
 }

@@ -125,7 +125,7 @@ export default class Scene {
     return this.historyIndex < this.history.length - 1;
   }
 
-  public async exportToSTLAsync(name: string): Promise<void> {
+  public async exportToSTLAsync(name: string = ''): Promise<void> {
     // update objectsGroup if required
 
     if (this.sceneUpdated) {
