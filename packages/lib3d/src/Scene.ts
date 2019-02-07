@@ -438,7 +438,7 @@ export default class Scene {
     // easter egg to save stl files
     if (objJSON.type.match(TextObject.typeName)) {
       if ((objJSON as ITextObjectJSON).parameters.text.match('save')) {
-        this.exportToSTLAsync('scene');
+        this.exportToSTLAsync();
         return this.toJSON();
       }
     }
