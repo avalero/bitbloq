@@ -21,10 +21,12 @@ const config = {
   addShapeGroups: [
     {
       label: 'basic-shapes',
-      icon: 'info',
+      icon: <Icon name="basic-shapes" />,
       shapes: [
         {
           type: 'Cube',
+          label: 'object-type-cube',
+          icon: <Icon name="cube" />,
           parameters: {
             width: 10,
             height: 10,
@@ -33,12 +35,16 @@ const config = {
         },
         {
           type: 'Sphere',
+          label: 'object-type-sphere',
+          icon: <Icon name="sphere" />,
           parameters: {
             radius: 5,
           },
         },
         {
           type: 'Cylinder',
+          label: 'object-type-cylinder',
+          icon: <Icon name="cylinder" />,
           parameters: {
             r0: 5,
             r1: 5,
@@ -47,6 +53,8 @@ const config = {
         },
         {
           type: 'Prism',
+          label: 'object-type-prism',
+          icon: <Icon name="prism" />,
           parameters: {
             sides: 6,
             length: 5,
@@ -55,6 +63,8 @@ const config = {
         },
         {
           type: 'Pyramid',
+          label: 'object-type-pyramid',
+          icon: <Icon name="pyramid" />,
           parameters: {
             sides: 4,
             length: 10,
@@ -63,12 +73,16 @@ const config = {
         },
         {
           type: 'STLObject',
+          label: 'object-type-stl-object',
+          icon: <Icon name="stl" />,
           parameters: {
             blob: null,
           },
         },
         {
           type: 'TextObject',
+          label: 'object-type-text-object',
+          icon: <Icon name="text" />,
           parameters: {
             text: 'Hello',
             size: 10,
@@ -78,26 +92,6 @@ const config = {
         },
       ]
     },
-    {
-      label: 'city-elements',
-      icon: 'info',
-      shapes: [
-        {
-          type: 'Cube',
-          parameters: {
-            width: 10,
-            height: 10,
-            depth: 10,
-          }
-        },
-        {
-          type: 'STLObject',
-          parameters: {
-            blob: '',
-          },
-        },
-      ]
-    }
   ],
 
   objectTypes: [

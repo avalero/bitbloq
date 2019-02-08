@@ -1,4 +1,5 @@
 import React from 'react';
+import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
@@ -131,7 +132,9 @@ class ObjectTree extends React.Component {
     this.setState({addDropDownOpen: false});
 
     const object = {
-      ...typeConfig.create(),
+      id: uuid(),
+      type: typeConfig.type,
+      parameters: typeConfig.parameters,
       operations: config.defaultOperations(advancedMode),
       viewOptions: {
         name: t(typeConfig.label)
@@ -256,13 +259,13 @@ class ObjectTree extends React.Component {
 
   render() {
     const {addDropDownOpen} = this.state;
-    const {objects, t} = this.props;
+    const {objects, shapeGroups, t} = this.props;
 
     return (
       <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
         <Container>
           <AddObjectDropdown
-            shapeGroups={config.addShapeGroups}
+            shapeGroups={shapeGroups}
             onAddObject={this.onAddObject}
           />
           <Tree>{this.renderObjectList(objects)}</Tree>
