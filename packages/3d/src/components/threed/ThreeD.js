@@ -6,6 +6,7 @@ import ObjectTree from './ObjectTree';
 import ThreeDViewer from './ThreeDViewer.tsx';
 import Toolbar from './Toolbar';
 import PropertiesPanel from './PropertiesPanel';
+import config from '../../config/threed';
 import {Document, Icon, Switch, withTranslate} from '@bitbloq/ui';
 
 const Container = styled.div`
@@ -95,7 +96,7 @@ class ThreeD extends React.Component {
         return;
 
       default:
-        onMenuOptionClick && onMenuOptionClick(option)
+        onMenuOptionClick && onMenuOptionClick(option);
         return;
     }
   };
@@ -112,6 +113,7 @@ class ThreeD extends React.Component {
       onHeaderButtonClick,
       initialTab,
       menuOptions,
+      addShapeGroups,
       t,
     } = this.props;
 
@@ -122,10 +124,16 @@ class ThreeD extends React.Component {
       </AdvanceModeWrap>
     );
 
+    const baseShapeGroups = config.addShapeGroups;
+
     const mainTab = (
       <Document.Tab key="3d" icon={<Icon name="threed" />} label={t('tab-3d')}>
         <Container>
-          <ObjectTree />
+          <ObjectTree
+            shapeGroups={
+              addShapeGroups ? addShapeGroups(baseShapeGroups) : baseShapeGroups
+            }
+          />
           <MainArea>
             <Toolbar />
             <ThreeDViewer />
@@ -145,7 +153,9 @@ class ThreeD extends React.Component {
         onEditTitle={onEditTitle}
         headerButtons={headerButtons}
         onHeaderButtonClick={onHeaderButtonClick}
-        menuOptions={menuOptions ? menuOptions(baseMenuOptions) : baseMenuOptions}
+        menuOptions={
+          menuOptions ? menuOptions(baseMenuOptions) : baseMenuOptions
+        }
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
         {typeof children === 'function' ? children(mainTab) : mainTab}

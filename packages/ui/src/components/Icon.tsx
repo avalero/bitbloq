@@ -3,7 +3,9 @@ import Airplane from './icons/Airplane'
 import Angle from './icons/Angle'
 import AngleDouble from './icons/AngleDouble'
 import Arrow from './icons/Arrow'
+import BasicShapes from './icons/BasicShapes'
 import Brush from './icons/Brush'
+import CityElements from './icons/CityElements'
 import Close from './icons/Close'
 import Cube from './icons/Cube'
 import Cylinder from './icons/Cylinder'
@@ -26,6 +28,7 @@ import Perspective from './icons/Perspective'
 import Plus from './icons/Plus'
 import Prism from './icons/Prism'
 import Text from './icons/Text'
+import People from './icons/People'
 import Pyramid from './icons/Pyramid'
 import Publish from './icons/Publish'
 import Redo from './icons/Redo'
@@ -63,8 +66,12 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <AngleDouble />;
     case 'arrow':
       return <Arrow />;
+    case 'basic-shapes':
+      return <BasicShapes />;
     case 'brush':
       return <Brush />;
+    case 'city-elements':
+      return <CityElements />;
     case 'close':
       return <Close />;
     case 'cube':
@@ -99,6 +106,8 @@ const Icon: React.SFC<IconProps> = ({name}) => {
       return <NewDocument />;
     case 'orthographic':
       return <Orthographic />;
+    case 'people':
+      return <People />;
     case 'pencil':
       return <Pencil />;
     case 'perspective':
