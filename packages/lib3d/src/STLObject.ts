@@ -19,6 +19,7 @@ import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
 import {
+  IPrimitiveObjectJSON,
   ISTLJSON,
   ISTLParams,
   IViewOptions,
@@ -187,7 +188,14 @@ export default class STLObject extends PrimitiveObject {
   }
 
   private computeGeometry(): THREE.Geometry {
-    const data: Uint8Array = (this.parameters as ISTLParams).blob.uint8Data;
+    const uint8Data = (this.parameters as ISTLParams).blob.uint8Data;
+    let data: Uint8Array = new Uint8Array([]);
+    if (uint8Data instanceof Uint8Array) {
+      data = uint8Data;
+    }
+    if (uint8Data instanceof Array) {
+      data = new Uint8Array(uint8Data)
+    }
     this.arrayBufferData = data.buffer;
     const filetype: string = (this.parameters as ISTLParams).blob.filetype;
 
@@ -290,5 +298,24 @@ export default class STLObject extends PrimitiveObject {
     texture.rotation = rotation;
     texture.needsUpdate = true;
     return texture;
+  }
+
+  public toJSON(): IPrimitiveObjectJSON {
+    const base = super.toJSON();
+    const blob = (base.parameters as  ISTLParams).blob;
+    if (blob && blob.uint8Data instanceof Uint8Array) {
+      return {
+        ...base,
+        parameters: {
+          ...base.parameters,
+          blob: {
+            ...blob,
+            uint8Data: Array.from(blob.uint8Data)
+          }
+        }
+      };
+    } else {
+      return base;
+    }
   }
 }

@@ -121,7 +121,7 @@ export interface ISphereJSON extends IObjectsCommonJSON {
 // STL Object
 export interface ISTLParams {
   blob: {
-    uint8Data: Uint8Array;
+    uint8Data: Uint8Array | number[];
     filetype: string;
     newfile: boolean;
   };

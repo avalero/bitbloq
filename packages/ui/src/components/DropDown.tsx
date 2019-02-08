@@ -55,8 +55,6 @@ class DropDown extends Component<DropDownProps, State> {
     const {attachmentPosition, targetPosition} = this.props;
     const [element, attachment] = this.props.children;
 
-    console.log('Render Dropdown')
-
     return (
       <TetherComponent
         attachment={attachmentPosition}

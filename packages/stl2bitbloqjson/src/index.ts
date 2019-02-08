@@ -5,7 +5,7 @@ import * as fs from 'fs';
 
 interface ISTLParams {
   blob: {
-    uint8Data: Uint8Array;
+    uint8Data: Uint8Array | number[];
     filetype: string;
     newfile: boolean;
   };
@@ -23,7 +23,7 @@ fs.readdirSync(stlFolder).forEach(async file => {
 
     const parameters: ISTLParams = {
       blob: {
-        uint8Data,
+        uint8Data: Array.from(uint8Data),
         filetype: 'model/x.stl-binary',
         newfile: true,
       },
