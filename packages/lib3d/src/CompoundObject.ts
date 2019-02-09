@@ -211,9 +211,9 @@ export default class CompoundObject extends Object3D {
         this.viewOptionsUpdateRequired
       ) {
         // if has no parent, update mesh, else update through parent
-        const objParent: ObjectsCommon | undefined = this.getParent();
-        if (objParent && !fromParent) {
-          objParent.updateFromJSON(objParent.toJSON());
+        const parentObj: ObjectsCommon | undefined = this.getParent();
+        if (parentObj && !fromParent) {
+          parentObj.updateFromJSON(parentObj.toJSON());
         } else {
           // if anything has changed, recompute children and then recompute mesh
           this.children.forEach(child => {

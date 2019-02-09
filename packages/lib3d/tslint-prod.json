@@ -10,7 +10,8 @@
       "node_modules/**/*",
       "src/threeCSG.ts",
       "coverage/**/*",
-      "src/__tests__/**/*"
+      "src/__tests__/**/*",
+      "src/Renderer.ts"
     ]
   }
 }

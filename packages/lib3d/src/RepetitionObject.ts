@@ -186,6 +186,7 @@ export default class RepetitionObject extends ObjectsCommon {
     object: IRepetitionObjectJSON,
     fromParent: boolean = false,
   ) {
+    debugger;
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }
@@ -207,12 +208,15 @@ export default class RepetitionObject extends ObjectsCommon {
         this.pendingOperation ||
         this.viewOptionsUpdateRequired;
       this.meshUpdateRequired = update;
+
+      debugger;
+
       this.originalObject.updateFromJSON(object.children[0], true);
 
       // if it has a parent, update through parent
-      const obj: ObjectsCommon | undefined = this.getParent();
-      if (obj && !fromParent) {
-        obj.updateFromJSON(obj.toJSON());
+      const parentObject: ObjectsCommon | undefined = this.getParent();
+      if (parentObject && !fromParent) {
+        parentObject.updateFromJSON(parentObject.toJSON());
       } else {
         if (
           update ||
