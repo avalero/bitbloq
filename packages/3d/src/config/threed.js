@@ -501,7 +501,7 @@ const config = {
         },
         {
           name: 'relative',
-          label: 'param-translation-relative',
+          label: 'param-rotation-relative',
           type: 'select',
           advancedMode: true,
           options: [

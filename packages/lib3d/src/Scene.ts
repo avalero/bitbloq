@@ -115,6 +115,7 @@ export default class Scene {
     this.history = [];
     this.setMaterials();
     this.lastUpdateTS = 0;
+    
   }
 
   public canUndo(): boolean {

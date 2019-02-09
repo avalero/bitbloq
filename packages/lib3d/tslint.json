@@ -5,7 +5,12 @@
     "tslint-config-prettier"
   ],
   "linterOptions": {
-    "exclude": ["node_modules/**/*", "src/threeCSG.ts", "coverage/**/*"]
+    "exclude": [
+      "node_modules/**/*",
+      "src/threeCSG.ts",
+      "coverage/**/*",
+      "src/Renderer.ts"
+    ]
   },
   "rules": {
     "no-console": false,

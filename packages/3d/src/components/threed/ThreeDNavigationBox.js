@@ -1,9 +1,9 @@
 import React from 'react';
 import styled from '@emotion/styled';
-import {css} from '@emotion/core';
+import { css } from '@emotion/core';
 import * as Three from 'three';
 import NavigationBoxModel from '../../assets/models/navigation_box.glb';
-import {loadGLTFFromUrl} from '../../lib/object3dts/loaders';
+import { loadGLTFFromUrl } from '../../lib/object3dts/loaders';
 
 const HALF_PI = Math.PI / 2;
 const QUARTER_PI = Math.PI / 4;
@@ -17,9 +17,11 @@ const Container = styled.div`
   width: ${WIDTH}px;
   height: ${HEIGHT}px;
 
-  ${props => props.hovering && css`
-    cursor: pointer;
-  `}
+  ${props =>
+    props.hovering &&
+    css`
+      cursor: pointer;
+    `}
 `;
 
 const clickBoxes = [
@@ -87,31 +89,31 @@ const clickBoxes = [
   {
     position: [0, -0.876, -0.876],
     size: [1.5, 0.25, 0.25],
-    cameraAngle: [-HALF_PI, 3*QUARTER_PI],
+    cameraAngle: [-HALF_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-LEFT
   {
     position: [-0.876, 0, -0.876],
     size: [0.25, 1.5, 0.25],
-    cameraAngle: [-Math.PI, 3*QUARTER_PI],
+    cameraAngle: [-Math.PI, 3 * QUARTER_PI],
   },
   // BOTTOM-BACK
   {
     position: [0, 0.876, -0.876],
     size: [1.5, 0.25, 0.25],
-    cameraAngle: [HALF_PI, 3*QUARTER_PI],
+    cameraAngle: [HALF_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-RIGHT
   {
     position: [0.876, 0, -0.876],
     size: [0.25, 1.5, 0.25],
-    cameraAngle: [0, 3*QUARTER_PI],
+    cameraAngle: [0, 3 * QUARTER_PI],
   },
   // FRONT-LEFT
   {
     position: [-0.876, -0.876, 0],
     size: [0.25, 0.25, 1.5],
-    cameraAngle: [-3*QUARTER_PI, HALF_PI],
+    cameraAngle: [-3 * QUARTER_PI, HALF_PI],
   },
   // FRONT-RIGHT
   {
@@ -123,7 +125,7 @@ const clickBoxes = [
   {
     position: [-0.876, 0.876, 0],
     size: [0.25, 0.25, 1.5],
-    cameraAngle: [3*QUARTER_PI, HALF_PI],
+    cameraAngle: [3 * QUARTER_PI, HALF_PI],
   },
   // BACK-RIGHT
   {
@@ -135,7 +137,7 @@ const clickBoxes = [
   {
     position: [-0.876, -0.876, 0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [-3*QUARTER_PI, QUARTER_PI],
+    cameraAngle: [-3 * QUARTER_PI, QUARTER_PI],
   },
   // TOP-FRONT-RIGHT
   {
@@ -147,7 +149,7 @@ const clickBoxes = [
   {
     position: [-0.876, 0.876, 0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [3*QUARTER_PI, QUARTER_PI],
+    cameraAngle: [3 * QUARTER_PI, QUARTER_PI],
   },
   // TOP-BACK-RIGHT
   {
@@ -159,32 +161,32 @@ const clickBoxes = [
   {
     position: [-0.876, -0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [-3*QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [-3 * QUARTER_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-FRONT-RIGHT
   {
     position: [0.876, -0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [-QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [-QUARTER_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-BACK-LEFT
   {
     position: [-0.876, 0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [3*QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [3 * QUARTER_PI, 3 * QUARTER_PI],
   },
   // BOTTOM-BACK-RIGHT
   {
     position: [0.876, 0.876, -0.876],
     size: [0.25, 0.25, 0.25],
-    cameraAngle: [QUARTER_PI, 3*QUARTER_PI],
+    cameraAngle: [QUARTER_PI, 3 * QUARTER_PI],
   },
 ];
 
 class ThreeDNavigationBox extends React.Component {
   container = React.createRef();
-  containerRect = {left: 0, top: 0, width: 0, height: 0};
-  renderer = new Three.WebGLRenderer({alpha: true, antialias: true});
+  containerRect = { left: 0, top: 0, width: 0, height: 0 };
+  renderer = new Three.WebGLRenderer({ alpha: true, antialias: true });
   scene = new Three.Scene();
   camera = new Three.PerspectiveCamera(50, 1, 0.1, 1000);
   raycaster = new Three.Raycaster();
@@ -192,7 +194,7 @@ class ThreeDNavigationBox extends React.Component {
   mousePosition = new Three.Vector2();
 
   state = {
-    hoverBox: null
+    hoverBox: null,
   };
 
   componentDidMount() {
@@ -241,7 +243,7 @@ class ThreeDNavigationBox extends React.Component {
   }
 
   onClick = e => {
-    const {onChangeCameraAngle} = this.props;
+    const { onChangeCameraAngle } = this.props;
     const box = this.getBoxFromPosition(e.clientX, e.clientY);
     if (box) {
       onChangeCameraAngle(...box.cameraAngle);
@@ -267,17 +269,17 @@ class ThreeDNavigationBox extends React.Component {
     if (needsRender) {
       this.renderer.render(this.scene, this.camera);
     }
-  }
+  };
 
   getBoxFromPosition = (x, y) => {
-    const {left, top, width, height} = this.containerRect;
+    const { left, top, width, height } = this.containerRect;
     this.mousePosition.x = ((x - left) / width) * 2 - 1;
     this.mousePosition.y = -((y - top) / height) * 2 + 1;
 
     this.raycaster.setFromCamera(this.mousePosition, this.camera);
     const intersects = this.raycaster.intersectObjects(
       this.boxes.children,
-      true,
+      true
     );
     if (intersects.length > 0) {
       return intersects[0].object;
