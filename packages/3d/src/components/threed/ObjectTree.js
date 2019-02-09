@@ -1,4 +1,5 @@
 import React from 'react';
+import uuid from 'uuid/v1';
 import {connect} from 'react-redux';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
@@ -13,6 +14,7 @@ import {
 } from '../../actions/threed';
 import {getObjects, getSelectedObjects} from '../../reducers/threed/';
 import config from '../../config/threed';
+import AddObjectDropdown from './AddObjectDropdown';
 
 const Container = styled.div`
   width: 180px;
@@ -74,66 +76,6 @@ const DragHandle = styled.div`
   }
 `;
 
-const AddButton = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 50px;
-  background-color: #ebebeb;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  position: relative;
-  border-bottom: 1px solid #cfcfcf;
-  z-index: 2;
-
-  ${props =>
-    props.open &&
-    css`
-      ${shadow};
-    `};
-`;
-
-const AddDropdown = styled.div`
-  background-color: white;
-  color: #333;
-  position: absolute;
-  top: 51px;
-  left: 0px;
-  right: 0px;
-  transition: opacity 0.3s;
-  ${shadow} border-radius: 0px 0px 4px 4px;
-  opacity: 0;
-  display: none;
-
-  ${props =>
-    props.open &&
-    css`
-      opacity: 1;
-      display: block;
-    `};
-`;
-
-const AddDropdownItem = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 0px 20px;
-  height: 42px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: normal;
-
-  &:hover {
-    background-color: #ebebeb;
-  }
-
-  svg {
-    height: auto;
-    width: 24px;
-    margin-right: 10px;
-  }
-`;
-
 const CollapseButton = styled.div`
   display: flex;
 
@@ -185,12 +127,14 @@ class ObjectTree extends React.Component {
     }));
   };
 
-  onAddObject(typeConfig) {
+  onAddObject = (typeConfig) => {
     const {advancedMode, t} = this.props;
     this.setState({addDropDownOpen: false});
 
     const object = {
-      ...typeConfig.create(),
+      id: uuid(),
+      type: typeConfig.type,
+      parameters: typeConfig.parameters,
       operations: config.defaultOperations(advancedMode),
       viewOptions: {
         name: t(typeConfig.label)
@@ -315,32 +259,15 @@ class ObjectTree extends React.Component {
 
   render() {
     const {addDropDownOpen} = this.state;
-    const {objects, t} = this.props;
+    const {objects, shapeGroups, t} = this.props;
 
     return (
       <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
         <Container>
-          <AddButton
-            onClick={() => this.setState({addDropDownOpen: true})}
-            open={addDropDownOpen}>
-            <div>+ {t('add-object')}</div>
-            <AddDropdown open={addDropDownOpen}>
-              {config.objectTypes.map(
-                typeConfig =>
-                  typeConfig.create && (
-                    <AddDropdownItem
-                      key={typeConfig.name}
-                      onClick={e => {
-                        e.stopPropagation();
-                        this.onAddObject(typeConfig);
-                      }}>
-                      {typeConfig.icon}
-                      <div>{t(typeConfig.label)}</div>
-                    </AddDropdownItem>
-                  ),
-              )}
-            </AddDropdown>
-          </AddButton>
+          <AddObjectDropdown
+            shapeGroups={shapeGroups}
+            onAddObject={this.onAddObject}
+          />
           <Tree>{this.renderObjectList(objects)}</Tree>
         </Container>
       </DragDropContext>

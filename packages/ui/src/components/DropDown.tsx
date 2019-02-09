@@ -30,6 +30,10 @@ class DropDown extends Component<DropDownProps, State> {
     document.removeEventListener('click', this.onBodyClick, false);
   }
 
+  close() {
+    this.setState({isOpen: false});
+  }
+
   onBodyClick = e => {
     const {closeOnClick} = this.props;
     const toggle = this.toggleRef.current;
@@ -54,10 +58,21 @@ class DropDown extends Component<DropDownProps, State> {
     return (
       <TetherComponent
         attachment={attachmentPosition}
-        targetAttachment={targetPosition}>
-        <div ref={this.toggleRef}>{element(isOpen)}</div>
-        {isOpen && <div ref={this.attachmentRef}>{attachment}</div>}
-      </TetherComponent>
+        targetAttachment={targetPosition}
+        style={{ zIndex: 20 }}
+        renderTarget={ref => (
+          <div ref={el => {
+            ref.current = el;
+            this.toggleRef.current = el;
+          }}>{element(isOpen)}</div>
+        )}
+        renderElement={ref =>
+          isOpen && <div ref={el => {
+            ref.current = el;
+            this.attachmentRef.current = el;
+          }}>{attachment}</div>
+        }
+      />
     );
   }
 }

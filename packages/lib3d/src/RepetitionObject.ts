@@ -186,7 +186,6 @@ export default class RepetitionObject extends ObjectsCommon {
     object: IRepetitionObjectJSON,
     fromParent: boolean = false,
   ) {
-    debugger;
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }
@@ -208,8 +207,6 @@ export default class RepetitionObject extends ObjectsCommon {
         this.pendingOperation ||
         this.viewOptionsUpdateRequired;
       this.meshUpdateRequired = update;
-
-      debugger;
 
       this.originalObject.updateFromJSON(object.children[0], true);
 

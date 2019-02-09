@@ -48,7 +48,7 @@
     "react": "^16.6.3",
     "react-color": "^2.14.1",
     "react-select": "^2.1.2",
-    "react-tether": "^1.0.4"
+    "react-tether": "^2.0.0"
   },
   "publishConfig": {
     "access": "public"
