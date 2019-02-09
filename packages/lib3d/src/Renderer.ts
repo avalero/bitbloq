@@ -4,7 +4,6 @@ import AxisHelper from './AxisHelper';
 import OrbitCamera from './OrbitCamera';
 import Scene, { IHelperDescription } from './Scene';
 import { IObjectsCommonJSON } from './Interfaces';
-import { OutlinePass } from 'three-full';
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;
@@ -67,7 +66,6 @@ export default class Renderer {
   private containerRect: ClientRect;
   private mouseDownObject: THREE.Object3D | undefined;
   private selectOnMouseUp: boolean;
-  private outlinePass: OutlinePass;
   constructor(
     scene: Scene,
     container: HTMLElement,
@@ -83,13 +81,6 @@ export default class Renderer {
 
     this.objectClickHandlers = [];
     this.backgroundClickHandlers = [];
-
-    this.outlinePass = new OutlinePass(
-      new THREE.Vector2(container.clientWidth, container.clientHeight),
-      this.threeScene,
-      this.camera,
-    );
-    this.outlinePass.visibleEdgeColor.set('#ff0000');
 
     this.setup();
     this.renderLoop();
@@ -110,7 +101,6 @@ export default class Renderer {
 
     // set objects
     const newObjectsGroup = await this.scene.getObjectsAsync();
-    this.outlinePass.selectedObjects = [newObjectsGroup];
     this.threeScene.remove(this.objectsGroup);
     if (this.objectInTransition) {
       this.threeScene.remove(this.objectInTransition);
