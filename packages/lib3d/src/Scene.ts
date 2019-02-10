@@ -271,7 +271,7 @@ export default class Scene {
         if (mesh instanceof THREE.Mesh) {
           const pos = await this.getPositionAsync(object.toJSON());
           if (mesh.material instanceof THREE.MeshLambertMaterial) {
-            mesh.material.setValues(this.selectedMaterial);
+            mesh.material.setValues(this.secondaryMaterial);
           }
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
           mesh.setRotationFromEuler(
@@ -367,7 +367,16 @@ export default class Scene {
         throw new Error(`Object not present in ObjectCollector ${json.id}`);
       }
       const obj = this.getObject(json);
-      obj.setViewOptions({ selected: true });
+      let parent:ObjectsCommon | undefined = obj.getParent();
+      if(parent){
+        // mark as selected the parents
+        while(parent){
+          parent.setViewOptions({ selected: true });
+          parent = parent.getParent();
+        }
+      }else{
+        obj.setViewOptions({ selected: true });
+      }
       this.anySelectedObjects = true;
     });
 
@@ -750,7 +759,7 @@ export default class Scene {
     };
 
     this.secondaryMaterial = {
-      opacity: 0.8,
+      opacity: 0.5,
       transparent: true,
     };
 
