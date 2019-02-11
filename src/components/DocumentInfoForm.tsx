@@ -24,7 +24,7 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
   constructor(props) {
     super(props);
 
-    this.state = new State(props.title, props.description);
+    this.state = new State(props.title || '', props.description || '');
   }
 
   componentDidUpdate(prevProps) {

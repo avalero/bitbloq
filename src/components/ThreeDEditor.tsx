@@ -7,6 +7,7 @@ import { ThreeD } from "@bitbloq/3d";
 import { colors, Document, Icon, Spinner, withTranslate } from "@bitbloq/ui";
 import gql from "graphql-tag";
 import DocumentInfoForm from "./DocumentInfoForm";
+import {addShapeGroups} from "../config";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -160,6 +161,7 @@ class ThreeDEditor extends React.Component {
               canEditTitle
               onEditTitle={() => this.onEditTitle(document)}
               menuOptions={base => getMenuOptions(base, t)}
+              addShapeGroups={base => ([...base, ...addShapeGroups])}
               onMenuOptionClick={option => this.onMenuOptionClick(option, document)}
               onContentChange={content => {
                 this.currentContent = content;
