@@ -5,7 +5,7 @@ import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
 import {shadow} from '../../base-styles';
-import {Icon, withTranslate} from '@bitbloq/ui';
+import {DropDown, Icon, withTranslate} from '@bitbloq/ui';
 import {
   selectObject,
   deselectObject,
@@ -21,6 +21,22 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   border-right: 1px solid #cfcfcf;
+`;
+
+const AddButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  background-color: #ebebeb;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  border-bottom: 1px solid #cfcfcf;
+  z-index: 2;
+  box-shadow: ${props =>
+    props.isOpen ? '0 3px 7px 0 rgba(0, 0, 0, 0.5);' : 'none'};
 `;
 
 const Tree = styled.div`
@@ -99,22 +115,10 @@ const ObjectTypeIcon = styled.div`
 `
 
 class ObjectTree extends React.Component {
+  addDropdown = React.createRef();
 
   state = {
-    addDropDownOpen: false,
     collapsedItems: [],
-  };
-
-  componentDidMount() {
-    document.body.addEventListener('click', this.onBodyClick);
-  }
-
-  componentWillUnmount() {
-    document.body.removeEventListener('click', this.onBodyClick);
-  }
-
-  onBodyClick = () => {
-    this.setState({addDropDownOpen: false});
   };
 
   onCollapseClick = (e, object) => {
@@ -129,7 +133,6 @@ class ObjectTree extends React.Component {
 
   onAddObject = (typeConfig) => {
     const {advancedMode, t} = this.props;
-    this.setState({addDropDownOpen: false});
 
     const object = {
       id: uuid(),
@@ -140,6 +143,11 @@ class ObjectTree extends React.Component {
         name: t(typeConfig.label)
       }
     };
+
+    const addDropdown = this.addDropdown.current;
+    if (addDropdown) {
+      addDropdown.close();
+    }
 
     this.props.createObject(object);
   }
@@ -258,16 +266,26 @@ class ObjectTree extends React.Component {
   }
 
   render() {
-    const {addDropDownOpen} = this.state;
     const {objects, shapeGroups, t} = this.props;
 
     return (
       <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
         <Container>
-          <AddObjectDropdown
-            shapeGroups={shapeGroups}
-            onAddObject={this.onAddObject}
-          />
+          <DropDown
+            ref={this.addDropdown}
+            attachmentPosition="top left"
+            targetPosition="bottom left"
+            closeOnClick={false}>
+            {isOpen => (
+              <AddButton isOpen={isOpen}>
+                <div>+ {t('add-object')}</div>
+              </AddButton>
+            )}
+            <AddObjectDropdown
+              shapeGroups={shapeGroups}
+              onAddObject={this.onAddObject}
+            />
+          </DropDown>
           <Tree>{this.renderObjectList(objects)}</Tree>
         </Container>
       </DragDropContext>
