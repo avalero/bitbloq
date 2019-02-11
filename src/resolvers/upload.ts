@@ -1,8 +1,8 @@
-import { ApolloError } from "apollo-server-koa";
-import { ObjectID } from "bson";
-import { UploadModel } from "../models/upload";
+import { ApolloError } from 'apollo-server-koa';
+import { ObjectID } from 'bson';
+import { UploadModel } from '../models/upload';
 
-const { Storage } = require("@google-cloud/storage");
+const { Storage } = require('@google-cloud/storage');
 
 const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // proyect ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
@@ -16,21 +16,23 @@ const processUpload = async (createReadStream, filename, resolve, reject) => {
 
   const opts = {
     metadata: {
-      cacheControl: "private, max-age=0, no-transform",
+      cacheControl: 'private, max-age=0, no-transform',
     },
   };
   const fileStream = createReadStream();
   const gStream = file.createWriteStream(opts);
   gStream
-    .on("error", (err) => {
-      reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
+    .on('error', err => {
+      reject(new ApolloError('Error uploading file', 'UPLOAD_ERROR'));
     })
-    .on("finish", async (err) => {
-      if (err) {throw new ApolloError("Error uploading file", "UPLOAD_ERROR");}
+    .on('finish', async err => {
+      if (err) {
+        throw new ApolloError('Error uploading file', 'UPLOAD_ERROR');
+      }
 
       file.makePublic().then(() => {
         publicUrl = getPublicUrl(gcsName);
-        resolve("OK");
+        resolve('OK');
       });
     });
 

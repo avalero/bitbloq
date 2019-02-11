@@ -1,5 +1,5 @@
-import { Document, Model, model, Schema  } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import { Document, Model, model, Schema } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
 interface IUser extends Document {
   email?: string;
@@ -19,7 +19,7 @@ export const ContactSchema: Schema = new Schema({
   email: {
     type: String,
     unique: true,
-    required: "Please enter your email",
+    required: 'Please enter your email',
     trim: true,
     lowercase: true,
   },
@@ -45,12 +45,12 @@ export const ContactSchema: Schema = new Schema({
 
   signUpToken: {
     type: String,
-    default: "aa",
+    default: 'aa',
   },
 
   authToken: {
     type: String,
-    default: "aa",
+    default: 'aa',
   },
 
   notifications: {
@@ -64,6 +64,6 @@ export const ContactSchema: Schema = new Schema({
 
 ContactSchema.plugin(timestamps);
 export const UserModel: Model<IUser> = model<IUser>(
-  "UserModels",
+  'UserModels',
   ContactSchema,
 );

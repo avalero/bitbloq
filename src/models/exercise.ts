@@ -1,5 +1,5 @@
-import { Document, Model, model, Schema  } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import { Document, Model, model, Schema } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
 interface IExercise extends Document {
   user?: string;
@@ -18,22 +18,22 @@ interface IExercise extends Document {
 const ExerciseMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "UserModel",
+    ref: 'UserModel',
   },
 
   document: {
     type: Schema.Types.ObjectId,
-    ref: "DocumentModel",
+    ref: 'DocumentModel',
   },
 
   code: {
     type: String,
-    default: "111111",
+    default: '111111',
   },
 
   title: {
     type: String,
-    default: "New Exercise",
+    default: 'New Exercise',
   },
 
   type: {
@@ -50,7 +50,7 @@ const ExerciseMongSchema: Schema = new Schema({
 
   content: {
     type: String,
-    default: "content",
+    default: 'content',
   },
 
   acceptSubmissions: {
@@ -67,6 +67,6 @@ const ExerciseMongSchema: Schema = new Schema({
 });
 ExerciseMongSchema.plugin(timestamps);
 export const ExerciseModel: Model<IExercise> = model<IExercise>(
-  "ExerciseModel",
+  'ExerciseModel',
   ExerciseMongSchema,
 );

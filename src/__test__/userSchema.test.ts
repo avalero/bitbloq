@@ -1,12 +1,12 @@
-import { graphql, GraphQLSchema } from "graphql";
-import userSchema from "../schemas/user";
-import { UserModel } from "../models/user";
+import { graphql, GraphQLSchema } from 'graphql';
+import userSchema from '../schemas/user';
+import { UserModel } from '../models/user';
 
-const expectMut = describe("Schema", () => {
+const expectMut = describe('Schema', () => {
   //  Array of case types
   // const tester = new EasyGraphQLTester(schemaCode);
 
-  it("should be null when no one signed up", async () => {
+  it('should be null when no one signed up', async () => {
     const query = `
         query {
           users {
@@ -23,7 +23,7 @@ const expectMut = describe("Schema", () => {
     expect(data.users).toBe(null);
   });
 
-  it("should register a new user", async () => {
+  it('should register a new user', async () => {
     const mutation = `
     mutation{
         singUpUser(email: "pepe@bbb.com", password: "pass", name: "Pepito", center: "GGM"){
@@ -45,6 +45,6 @@ const expectMut = describe("Schema", () => {
         name: "Pepito",
         center: "GGM"
     }]);*/
-    expect(data.singUpUser.user.email).toBe("pepe@bbb.com");
+    expect(data.singUpUser.user.email).toBe('pepe@bbb.com');
   });
 });

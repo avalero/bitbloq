@@ -1,11 +1,10 @@
-import { ApolloError } from "apollo-server-koa";
-import { ObjectId } from "bson";
-import { DocumentModel } from "../models/document";
-import { ExerciseModel } from "../models/exercise";
-import { LogModel } from "../models/logs";
-import { SubmissionModel } from "../models/submission";
-import { UserModel } from "../models/user";
-import { create } from "domain";
+import { ApolloError, PubSub } from 'apollo-server-koa';
+import { ObjectId } from 'bson';
+import { DocumentModel } from '../models/document';
+import { ExerciseModel } from '../models/exercise';
+import { LogModel } from '../models/logs';
+import { SubmissionModel } from '../models/submission';
+import { UserModel } from '../models/user';
 
 const exerciseResolver = {
   Mutation: {
@@ -19,10 +18,10 @@ const exerciseResolver = {
         _id: args.input.document,
         user: context.user.userID,
       });
-      if (!docFather){
+      if (!docFather) {
         throw new ApolloError(
-          "Error creating exercise, it should part of one of your documents",
-          "DOCUMENT_NOT_FOUND",
+          'Error creating exercise, it should part of one of your documents',
+          'DOCUMENT_NOT_FOUND',
         );
       }
       const user = await UserModel.findById(context.user.userID);
@@ -43,11 +42,11 @@ const exerciseResolver = {
         expireDate: args.input.expireDate,
         image: docFather.image,
       });
-      const newEx=await ExerciseModel.create(exerciseNew);
+      const newEx = await ExerciseModel.create(exerciseNew);
       await LogModel.create({
         user: context.user.userID,
         object: newEx._id,
-        action: "EX_create",
+        action: 'EX_create',
         docType: newEx.type,
       });
       return newEx;
@@ -63,12 +62,12 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (!existExercise) {
-        return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
+        return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
       await LogModel.create({
         user: context.user.userID,
         object: existExercise._id,
-        action: "EX_changeSubState",
+        action: 'EX_changeSubState',
         docType: existExercise.type,
       });
       return ExerciseModel.findOneAndUpdate(
@@ -93,13 +92,13 @@ const exerciseResolver = {
         await LogModel.create({
           user: context.user.userID,
           object: existExercise._id,
-          action: "EX_delete",
+          action: 'EX_delete',
           docType: existExercise.type,
         });
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
-        return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
+        return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
     },
 
@@ -117,7 +116,7 @@ const exerciseResolver = {
         await LogModel.create({
           user: context.user.userID,
           object: existExercise._id,
-          action: "EX_update",
+          action: 'EX_update',
           docType: existExercise.type,
         });
         return ExerciseModel.findOneAndUpdate(
@@ -126,13 +125,12 @@ const exerciseResolver = {
           { new: true },
         );
       } else {
-        return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
+        return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
     },
   },
 
   Query: {
-
     /**
      * Exercises: returns all the exercises of the user logged.
      * args: nothing.
@@ -140,7 +138,7 @@ const exerciseResolver = {
     exercises: async (root: any, args: any, context: any) => {
       await LogModel.create({
         user: context.user.userID,
-        action: "EX_exercises",
+        action: 'EX_exercises',
       });
       return ExerciseModel.find({ user: context.user.userID });
     },
@@ -153,10 +151,10 @@ const exerciseResolver = {
     exercise: async (root: any, args: any, context: any) => {
       if (context.user.exerciseID) {
         //  Token de alumno
-        if (context.user.exerciseID !== args.id){
+        if (context.user.exerciseID !== args.id) {
           throw new ApolloError(
-            "You only can ask for your token exercise",
-            "NOT_YOUR_EXERCISE",
+            'You only can ask for your token exercise',
+            'NOT_YOUR_EXERCISE',
           );
         }
         const existExercise = await ExerciseModel.findOne({
@@ -164,14 +162,14 @@ const exerciseResolver = {
         });
         if (!existExercise) {
           throw new ApolloError(
-            "Exercise does not exist",
-            "EXERCISE_NOT_FOUND",
+            'Exercise does not exist',
+            'EXERCISE_NOT_FOUND',
           );
         }
         await LogModel.create({
           user: context.user.userID,
           object: existExercise._id,
-          action: "EX_exercise",
+          action: 'EX_exercise',
           docType: existExercise.type,
         });
         return existExercise;
@@ -183,14 +181,14 @@ const exerciseResolver = {
         });
         if (!existExercise) {
           throw new ApolloError(
-            "Exercise does not exist",
-            "EXERCISE_NOT_FOUND",
+            'Exercise does not exist',
+            'EXERCISE_NOT_FOUND',
           );
         }
         await LogModel.create({
           user: context.user.userID,
           object: existExercise._id,
-          action: "EX_exercise",
+          action: 'EX_exercise',
           docType: existExercise.type,
         });
         return existExercise;
@@ -207,7 +205,7 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (!docFather) {
-        throw new ApolloError("document does not exist", "DOCUMENT_NOT_FOUND");
+        throw new ApolloError('document does not exist', 'DOCUMENT_NOT_FOUND');
       }
       const existExercise = await ExerciseModel.find({
         document: docFather._id,
@@ -215,14 +213,14 @@ const exerciseResolver = {
       });
       await LogModel.create({
         user: context.user.userID,
-        action: "EX_exerciseDocument",
+        action: 'EX_exerciseDocument',
       });
       return existExercise;
     },
   },
 
   Exercise: {
-    submissions: async (exercise) =>
+    submissions: async exercise =>
       SubmissionModel.find({ exercise: exercise._id }),
   },
 };

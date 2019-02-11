@@ -1,15 +1,15 @@
-import { ApolloError, AuthenticationError  } from "apollo-server-koa";
-import { ObjectID } from "bson";
-import { contextController } from "../controllers/context";
-import { mailerController } from "../controllers/mailer";
-import { DocumentModel } from "../models/document";
-import { ExerciseModel } from "../models/exercise";
-import { LogModel } from "../models/logs";
-import { SubmissionModel } from "../models/submission";
-import { UserModel } from "../models/user";
+import { ApolloError, AuthenticationError } from 'apollo-server-koa';
+import { ObjectID } from 'bson';
+import { contextController } from '../controllers/context';
+import { mailerController } from '../controllers/mailer';
+import { DocumentModel } from '../models/document';
+import { ExerciseModel } from '../models/exercise';
+import { LogModel } from '../models/logs';
+import { SubmissionModel } from '../models/submission';
+import { UserModel } from '../models/user';
 
-const bcrypt = require("bcrypt");
-const jsonwebtoken = require("jsonwebtoken");
+const bcrypt = require('bcrypt');
+const jsonwebtoken = require('jsonwebtoken');
 
 const saltRounds = 7;
 
@@ -20,14 +20,14 @@ const userResolver = {
     /**
      * Sign up user: register a new uer.
      * It sends a e-mail to activate the account and check if the registered account exists.
-     * args: email, password and user information. 
+     * args: email, password and user information.
      */
     signUpUser: async (root: any, args: any) => {
       const contactFound = await UserModel.findOne({
         email: args.input.email,
       });
       if (contactFound) {
-        throw new ApolloError("This user already exists", "USER_EMAIL_EXISTS");
+        throw new ApolloError('This user already exists', 'USER_EMAIL_EXISTS');
       }
       // Store the password with a hash
       const hash: string = await bcrypt.hash(args.input.password, saltRounds);
@@ -38,7 +38,7 @@ const userResolver = {
         name: args.input.name,
         center: args.input.center,
         active: false,
-        authToken: " ",
+        authToken: ' ',
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
       });
@@ -57,7 +57,7 @@ const userResolver = {
         </a>
       `;
       // console.log(message);
-      await mailerController.sendEmail(newUser.email, "Sign Up ✔", message);
+      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
@@ -65,9 +65,9 @@ const userResolver = {
       );
       await LogModel.create({
         user: newUser._id,
-        action: "USER_create",
+        action: 'USER_create',
       });
-      return "OK";
+      return 'OK';
     },
 
     /*
@@ -78,12 +78,12 @@ const userResolver = {
     login: async (root: any, { email, password }) => {
       const contactFound = await UserModel.findOne({ email });
       if (!contactFound) {
-        throw new AuthenticationError("Email or password incorrect");
+        throw new AuthenticationError('Email or password incorrect');
       }
       if (!contactFound.active) {
         throw new ApolloError(
-          "Not active user, please activate your account",
-          "NOT_ACTIVE_USER",
+          'Not active user, please activate your account',
+          'NOT_ACTIVE_USER',
         );
       }
       // Compare passwords from request and database
@@ -96,10 +96,10 @@ const userResolver = {
           {
             email: contactFound.email,
             userID: contactFound._id,
-            role: "USER",
+            role: 'USER',
           },
           process.env.JWT_SECRET,
-          { expiresIn: "4h" },
+          { expiresIn: '4h' },
         );
         UserModel.updateOne(
           { _id: contactFound._id },
@@ -107,13 +107,13 @@ const userResolver = {
         );
         await LogModel.create({
           user: contactFound._id,
-          action: "USER_login",
+          action: 'USER_login',
         });
         return token;
       } else {
         throw new ApolloError(
-          "comparing passwords valid=false",
-          "PASSWORD_ERROR",
+          'comparing passwords valid=false',
+          'PASSWORD_ERROR',
         );
       }
     },
@@ -128,8 +128,8 @@ const userResolver = {
     activateAccount: async (root: any, args: any, context: any) => {
       if (!args.token) {
         throw new ApolloError(
-          "Error with sign up token, no token in args",
-          "NOT_TOKEN_PROVIDED",
+          'Error with sign up token, no token in args',
+          'NOT_TOKEN_PROVIDED',
         );
       }
       const userInToken = await contextController.getDataInToken(args.token);
@@ -141,10 +141,10 @@ const userResolver = {
           {
             email: contactFound.email,
             userID: contactFound._id,
-            role: "USER",
+            role: 'USER',
           },
           process.env.JWT_SECRET,
-          { expiresIn: "4h" },
+          { expiresIn: '4h' },
         );
         await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
@@ -152,15 +152,15 @@ const userResolver = {
             $set: {
               active: true,
               authToken: token,
-              signUpToken: " ",
+              signUpToken: ' ',
             },
           },
         );
         return token;
       } else {
         return new ApolloError(
-          "Error with sign up token, try again",
-          "TOKEN_NOT_VALUE",
+          'Error with sign up token, try again',
+          'TOKEN_NOT_VALUE',
         );
       }
     },
@@ -179,7 +179,7 @@ const userResolver = {
       if (contactFound._id === args.id) {
         await LogModel.create({
           user: contactFound._id,
-          action: "USER_delete",
+          action: 'USER_delete',
         });
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
@@ -187,8 +187,8 @@ const userResolver = {
         return UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
       } else {
         throw new ApolloError(
-          "Can not delete a user that is not yours",
-          "DELETE_USER_ERROR",
+          'Can not delete a user that is not yours',
+          'DELETE_USER_ERROR',
         );
       }
     },
@@ -206,12 +206,12 @@ const userResolver = {
       if (contactFound._id === args.id) {
         await LogModel.create({
           user: contactFound._id,
-          action: "USER_update",
+          action: 'USER_update',
         });
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
-        return new ApolloError("User does not exist", "USER_NOT_FOUND");
+        return new ApolloError('User does not exist', 'USER_NOT_FOUND');
       }
     },
   },
@@ -227,11 +227,11 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (!contactFound) {
-        return new ApolloError("Error with user in context", "USER_NOT_FOUND");
+        return new ApolloError('Error with user in context', 'USER_NOT_FOUND');
       }
       await LogModel.create({
         user: contactFound._id,
-        action: "USER_me",
+        action: 'USER_me',
       });
       return contactFound;
     },
@@ -246,7 +246,7 @@ const userResolver = {
   },
 
   User: {
-    documents: async (user) => DocumentModel.find({ user: user._id }),
+    documents: async user => DocumentModel.find({ user: user._id }),
   },
 };
 

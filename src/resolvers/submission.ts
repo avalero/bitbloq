@@ -1,17 +1,29 @@
-import { ApolloError } from "apollo-server-koa";
-import { ObjectId } from "bson";
-import { ExerciseModel } from "../models/exercise";
-import { LogModel } from "../models/logs";
-import { SubmissionModel } from "../models/submission";
+import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
+import { ObjectId } from 'bson';
+import { ExerciseModel } from '../models/exercise';
+import { LogModel } from '../models/logs';
+import { SubmissionModel } from '../models/submission';
 
-const jsonwebtoken = require("jsonwebtoken");
+export const pubsub = new PubSub();
+const jsonwebtoken = require('jsonwebtoken');
+
+const SUBMISSION_UPDATED: string = 'SUBMISSION_UPDATED';
 
 const submissionResolver = {
+  Subscription: {
+    submissionUpdated: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
+        (payload, variables) => {
+          return payload.submissionUpdated.exercise == variables.exercise;
+        },
+      ),
+    },
+  },
   Mutation: {
-
     /**
      * Create submission: register a new student than joins the exercise.
-     * It stores the new student information in the database and 
+     * It stores the new student information in the database and
      * returns a login token with the exercise and submission ID.
      * args: exercise code and student nickname.
      */
@@ -20,18 +32,18 @@ const submissionResolver = {
         code: args.exerciseCode,
         acceptSubmissions: true,
       });
-      if (!exFather){
+      if (!exFather) {
         throw new ApolloError(
-          "Error creating submission, check your exercise code",
-          "INVALID_EXERCISE_CODE",
+          'Error creating submission, check your exercise code',
+          'INVALID_EXERCISE_CODE',
         );
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
       if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
         throw new ApolloError(
-          "This exercise does not accept submissions now",
-          "NOT_ACCEPT_SUBMISSIONS",
+          'This exercise does not accept submissions now',
+          'NOT_ACCEPT_SUBMISSIONS',
         );
       }
 
@@ -42,8 +54,8 @@ const submissionResolver = {
         })
       ) {
         throw new ApolloError(
-          "This nick already exists in this exercise, try another one",
-          "STUDENT_NICK_EXISTS",
+          'This nick already exists in this exercise, try another one',
+          'STUDENT_NICK_EXISTS',
         );
       }
       const submissionNew = new SubmissionModel({
@@ -62,10 +74,10 @@ const submissionResolver = {
           exerciseID: exFather._id,
           submissionID: newSub._id,
           studentNick: args.studentNick,
-          role: "EPHEMERAL",
+          role: 'EPHEMERAL',
         },
         process.env.JWT_SECRET,
-        { expiresIn: "3h" },
+        { expiresIn: '3h' },
       );
       await SubmissionModel.findOneAndUpdate(
         { _id: newSub._id },
@@ -75,9 +87,10 @@ const submissionResolver = {
       await LogModel.create({
         user: exFather.user,
         object: submissionNew._id,
-        action: "SUB_create",
+        action: 'SUB_create',
         docType: submissionNew.type,
       });
+      pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
       return {
         token,
         submissionID: newSub._id,
@@ -98,33 +111,37 @@ const submissionResolver = {
       });
       if (!existSubmission) {
         throw new ApolloError(
-          "Error updating submission, it should part of one of your exercises",
-          "SUBMISSION_NOT_FOUND",
+          'Error updating submission, it should part of one of your exercises',
+          'SUBMISSION_NOT_FOUND',
         );
-        }
+      }
       if (existSubmission.finished) {
         throw new ApolloError(
-          "You already finished the exercise",
-          "SUBMISSION_FINISHED",
+          'You already finished the exercise',
+          'SUBMISSION_FINISHED',
         );
       }
       if (existSubmission) {
         await LogModel.create({
           user: existSubmission.user,
           object: existSubmission._id,
-          action: "SUB_update",
+          action: 'SUB_update',
           docType: existSubmission.type,
         });
-        return SubmissionModel.findOneAndUpdate(
+        const updatedSubmission = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: args.input },
           { new: true },
         );
+        pubsub.publish(SUBMISSION_UPDATED, {
+          submissionUpdated: updatedSubmission,
+        });
+        return updatedSubmission;
       }
     },
 
     /**
-     * Finish submission: set the finished property of the submission to true 
+     * Finish submission: set the finished property of the submission to true
      * and stores the content and a comment in the database.
      * It checks if the exercise accept new submissions and if the submission is in time.
      * It is necessary to be logged in as student.
@@ -137,8 +154,8 @@ const submissionResolver = {
       });
       if (!existSubmission) {
         throw new ApolloError(
-          "Error finishing submission, it does not exist",
-          "SUBMISSION_NOT_FOUND",
+          'Error finishing submission, it does not exist',
+          'SUBMISSION_NOT_FOUND',
         );
       }
       const exFather = await ExerciseModel.findOne({
@@ -147,29 +164,29 @@ const submissionResolver = {
       // check if the exercise accepts submissions
       if (!exFather.acceptSubmissions) {
         throw new ApolloError(
-          "This exercise does not accept submissions now",
-          "NOT_ACCEPT_SUBMISSIONS",
+          'This exercise does not accept submissions now',
+          'NOT_ACCEPT_SUBMISSIONS',
         );
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
       if (timeNow > exFather.expireDate) {
-        throw new ApolloError("Your submission is late", "SUBMISSION_LATE");
+        throw new ApolloError('Your submission is late', 'SUBMISSION_LATE');
       }
       // check if the submission has been finished
       if (existSubmission.finished) {
         throw new ApolloError(
-          "This submission is already finished",
-          "SUBMISSION_FINISHED",
+          'This submission is already finished',
+          'SUBMISSION_FINISHED',
         );
       }
       await LogModel.create({
         user: existSubmission.user,
         object: existSubmission._id,
-        action: "SUB_finish",
+        action: 'SUB_finish',
         docType: existSubmission.type,
       });
-      return SubmissionModel.findOneAndUpdate(
+      const updatedSubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -181,6 +198,10 @@ const submissionResolver = {
         },
         { new: true },
       );
+      pubsub.publish(SUBMISSION_UPDATED, {
+        submissionUpdated: updatedSubmission,
+      });
+      return updatedSubmission;
     },
 
     /**
@@ -196,14 +217,14 @@ const submissionResolver = {
       });
       if (!existSubmission) {
         throw new ApolloError(
-          "Error canceling submission, it should part of one of your exercises",
-          "SUBMISSION_NOT_FOUND",
+          'Error canceling submission, it should part of one of your exercises',
+          'SUBMISSION_NOT_FOUND',
         );
-        }
+      }
       await LogModel.create({
         user: existSubmission.user,
         object: existSubmission._id,
-        action: "SUB_cancel",
+        action: 'SUB_cancel',
         docType: existSubmission.type,
       });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
@@ -213,7 +234,8 @@ const submissionResolver = {
      * Delete submission: user logged deletes one submission of the students registered.
      * It deletes the submission passed in the arguments if it belongs to the user logged.
      * args: submission ID
-     */    
+     */
+
     // el profesor borra la sumbission de un alumno
     deleteSubmission: async (root: any, args: any, context: any) => {
       const existSubmission = await SubmissionModel.findOne({
@@ -222,14 +244,14 @@ const submissionResolver = {
       });
       if (!existSubmission) {
         throw new ApolloError(
-          "Error updating submission, it should part of one of your exercises",
-          "SUBMISSION_NOT_FOUND",
+          'Error updating submission, it should part of one of your exercises',
+          'SUBMISSION_NOT_FOUND',
         );
       }
       await LogModel.create({
         user: existSubmission.user,
         object: existSubmission._id,
-        action: "SUB_delete",
+        action: 'SUB_delete',
         docType: existSubmission.type,
       });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
@@ -237,7 +259,6 @@ const submissionResolver = {
   },
 
   Query: {
-
     /**
      * Submissions: returns all the submissions of the user logged.
      * args: nothing.
@@ -246,7 +267,7 @@ const submissionResolver = {
     submissions: async (root: any, args: any, context: any) => {
       await LogModel.create({
         user: context.user.userID,
-        action: "SUB_submissions",
+        action: 'SUB_submissions',
       });
       return SubmissionModel.find({ user: context.user.userID });
     },
@@ -263,8 +284,8 @@ const submissionResolver = {
         // Token de alumno
         if (context.user.submissionID !== args.id) {
           throw new ApolloError(
-            "You only can ask for your token submission",
-            "NOT_YOUR_SUBMISSION",
+            'You only can ask for your token submission',
+            'NOT_YOUR_SUBMISSION',
           );
         }
         const existSubmission = await SubmissionModel.findOne({
@@ -272,13 +293,13 @@ const submissionResolver = {
         });
         if (!existSubmission) {
           throw new ApolloError(
-            "Submission does not exist",
-            "SUBMISSION_NOT_FOUND",
+            'Submission does not exist',
+            'SUBMISSION_NOT_FOUND',
           );
         }
         await LogModel.create({
           user: existSubmission.user,
-          action: "SUB_submission",
+          action: 'SUB_submission',
           docType: existSubmission.type,
         });
         return existSubmission;
@@ -290,13 +311,13 @@ const submissionResolver = {
         });
         if (!existSubmission) {
           throw new ApolloError(
-            "Submission does not exist",
-            "SUBMISSION_NOT_FOUND",
+            'Submission does not exist',
+            'SUBMISSION_NOT_FOUND',
           );
         }
         await LogModel.create({
           user: context.user.userID,
-          action: "SUB_submission",
+          action: 'SUB_submission',
           docType: existSubmission.type,
         });
         return existSubmission;
@@ -314,14 +335,14 @@ const submissionResolver = {
         _id: args.exercise,
       });
       if (!exFather) {
-        throw new ApolloError("exercise does not exist", "EXERCISE_NOT_FOUND");
-        }
+        throw new ApolloError('exercise does not exist', 'EXERCISE_NOT_FOUND');
+      }
       const existSubmissions = await SubmissionModel.find({
         exercise: exFather._id,
       });
       await LogModel.create({
         user: context.user.userID,
-        action: "SUB_submissionsExercise",
+        action: 'SUB_submissionsExercise',
       });
       return existSubmissions;
     },

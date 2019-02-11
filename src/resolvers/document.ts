@@ -1,11 +1,11 @@
-import { ApolloError } from "apollo-server-koa";
-import { ObjectId } from "bson";
-import { DocumentModel } from "../models/document";
-import { ExerciseModel } from "../models/exercise";
-import { LogModel } from "../models/logs";
-import { SubmissionModel } from "../models/submission";
-import { UploadModel } from "../models/upload";
-import uploadResolver from "./upload";
+import { ApolloError } from 'apollo-server-koa';
+import { ObjectId } from 'bson';
+import { DocumentModel } from '../models/document';
+import { ExerciseModel } from '../models/exercise';
+import { LogModel } from '../models/logs';
+import { SubmissionModel } from '../models/submission';
+import { UploadModel } from '../models/upload';
+import uploadResolver from './upload';
 
 const documentResolver = {
   Mutation: {
@@ -30,7 +30,7 @@ const documentResolver = {
       await LogModel.create({
         user: context.user.userID,
         object: documentNew._id,
-        action: "DOC_create",
+        action: 'DOC_create',
         docType: documentNew.type,
       });
       if (args.input.image) {
@@ -63,7 +63,7 @@ const documentResolver = {
         await LogModel.create({
           user: context.user.userID,
           object: args.id,
-          action: "DOC_delete",
+          action: 'DOC_delete',
           docType: existDocument.type,
         });
         await UploadModel.deleteMany({ document: existDocument._id });
@@ -72,8 +72,8 @@ const documentResolver = {
         return DocumentModel.deleteOne({ _id: args.id }); // delete all the document dependencies
       } else {
         throw new ApolloError(
-          "You only can delete your documents",
-          "DOCUMENT_NOT_FOUND",
+          'You only can delete your documents',
+          'DOCUMENT_NOT_FOUND',
         );
       }
     },
@@ -92,7 +92,7 @@ const documentResolver = {
         await LogModel.create({
           user: context.user.userID,
           object: args.id,
-          action: "DOC_update",
+          action: 'DOC_update',
           docType: existDocument.type,
         });
         if (args.input.image) {
@@ -135,7 +135,7 @@ const documentResolver = {
           );
         }
       } else {
-        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
+        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
     },
   },
@@ -147,7 +147,7 @@ const documentResolver = {
     documents: async (root: any, args: any, context: any) => {
       await LogModel.create({
         user: context.user.userID,
-        action: "DOC_documents",
+        action: 'DOC_documents',
       });
       return DocumentModel.find({ user: context.user.userID });
     },
@@ -160,18 +160,18 @@ const documentResolver = {
         _id: args.id,
       });
       if (!existDocument) {
-        throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
+        throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
       if (existDocument.user !== context.user.userID) {
         throw new ApolloError(
-          "This ID does not belong to one of your documents",
-          "NOT_YOUR_DOCUMENT",
+          'This ID does not belong to one of your documents',
+          'NOT_YOUR_DOCUMENT',
         );
       }
       await LogModel.create({
         user: context.user.userID,
         object: args.id,
-        action: "DOC_document",
+        action: 'DOC_document',
         docType: existDocument.type,
       });
       return existDocument;
@@ -179,8 +179,8 @@ const documentResolver = {
   },
 
   Document: {
-    exercises: async (document) => ExerciseModel.find({ document: document._id }),
-    images: async (document) => UploadModel.find({ document: document._id }),
+    exercises: async document => ExerciseModel.find({ document: document._id }),
+    images: async document => UploadModel.find({ document: document._id }),
   },
 };
 

@@ -1,5 +1,5 @@
-import { Document, Model, model, Schema  } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import { Document, Model, model, Schema } from 'mongoose';
+const timestamps = require('mongoose-timestamp');
 
 interface ILogs extends Document {
   user?: string;
@@ -12,7 +12,7 @@ interface ILogs extends Document {
 const LogsSchema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "UserModel",
+    ref: 'UserModel',
   },
 
   object: {
@@ -33,7 +33,4 @@ const LogsSchema = new Schema({
 });
 
 LogsSchema.plugin(timestamps);
-export const LogModel: Model<ILogs> = model<ILogs>(
-  "LogModel",
-  LogsSchema,
-);
+export const LogModel: Model<ILogs> = model<ILogs>('LogModel', LogsSchema);

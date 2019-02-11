@@ -1,5 +1,5 @@
-import { AuthenticationError, SchemaDirectiveVisitor } from "apollo-server-koa";
-const { defaultFieldResolver } = require("graphql");
+import { AuthenticationError, SchemaDirectiveVisitor } from 'apollo-server-koa';
+const { defaultFieldResolver } = require('graphql');
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
   public visitObject(type) {
@@ -16,12 +16,14 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
 
   private ensureFieldsWrapped(objectType) {
     //  Mark the GraphQLObjectType object to avoid re-wrapping:
-    if (objectType._authFieldsWrapped) {return []};
+    if (objectType._authFieldsWrapped) {
+      return [];
+    }
     objectType._authFieldsWrapped = true;
 
     const fields = objectType.getFields();
 
-    Object.keys(fields).forEach((fieldName) => {
+    Object.keys(fields).forEach(fieldName => {
       const field = fields[fieldName];
       const { resolve = defaultFieldResolver } = field;
       field.resolve = async function(...args) {
@@ -33,28 +35,28 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         if (!requiredRole) {
           return resolve.apply(this, args);
         }
-        let context = args[2];
+        const context = args[2];
         if (!context.user) {
-          throw new AuthenticationError("You need to be logged in");
+          throw new AuthenticationError('You need to be logged in');
         } else {
           const userRole: string = context.user.role;
           switch (userRole) {
-            case "USER":
+            case 'USER':
               if (!context.user.userID) {
                 throw new AuthenticationError(
-                  "You need to be logged in as User",
+                  'You need to be logged in as User',
                 );
               }
               return resolve.apply(this, args);
-            case "EPHEMERAL":
+            case 'EPHEMERAL':
               if (!context.user.exerciseID) {
                 throw new AuthenticationError(
-                  "You need to login with exercise code",
+                  'You need to login with exercise code',
                 );
               }
               return resolve.apply(this, args);
             default:
-              throw new AuthenticationError("You need to be logged in. Role");
+              throw new AuthenticationError('You need to be logged in. Role');
           }
         }
       };

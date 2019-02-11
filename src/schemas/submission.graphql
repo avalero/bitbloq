@@ -23,6 +23,9 @@ type Mutation {
   cancelSubmission: Submission                                              @authRequired(requires: USER)
   deleteSubmission(submissionID: ObjectID!): Submission                     @authRequired(requires: USER)
 }
+type Subscription {
+  submissionUpdated(exercise: ObjectID!): Submission   @authRequired(requires: USER)
+}
 
 type Submission {
   id: ObjectID
