@@ -3,8 +3,8 @@ import userSchema from '../schemas/user';
 import { UserModel } from '../models/user';
 
 const expectMut = describe('Schema', () => {
-  // Array of case types
-  //const tester = new EasyGraphQLTester(schemaCode);
+  //  Array of case types
+  // const tester = new EasyGraphQLTester(schemaCode);
 
   it('should be null when no one signed up', async () => {
     const query = `
@@ -19,7 +19,7 @@ const expectMut = describe('Schema', () => {
     const result = await graphql(userSchema, query, rootValue);
     const { data } = result;
 
-    //tester.test(true, query)
+    // tester.test(true, query)
     expect(data.users).toBe(null);
   });
 

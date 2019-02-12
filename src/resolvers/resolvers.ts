@@ -1,8 +1,8 @@
-import userResolver from './user';
 import documentResolver from './document';
 import exerciseResolver from './exercise';
 import submissionResolver from './submission';
 import uploadResolver from './upload';
+import userResolver from './user';
 
 const JSONType = {
   __parseValue(value: any) {

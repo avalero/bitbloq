@@ -5,7 +5,7 @@ const exercise = require('../models/exerciseModel');
 
 describe('ADD new user', () => {
   mongoose.connect(
-    `mongodb://localhost/back_bitbloq_db`, // <------- IMPORTANT
+    `mongodb://localhost/back_bitbloq_db`, //  <------- IMPORTANT
     { useNewUrlParser: true },
   );
   test('should register a new user, with document and exercise', async () => {
@@ -59,7 +59,7 @@ describe('ADD new user', () => {
               nick: 'Pepito1',
               content: JSON,
               date: Date.now(),
-              //id: Number,
+              // id: Number,
               comment: 'Lo he hecho muy bien',
             },
           ],

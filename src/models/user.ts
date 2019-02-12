@@ -1,20 +1,20 @@
-import { Document, Schema, Model, model } from 'mongoose';
+import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface IUser extends Document {
-  email?: String;
-  password?: String;
-  name?: String;
-  center?: String;
-  active?: Boolean;
-  signUpToken?: String;
-  authToken?: String;
-  notifications?: Boolean;
+  email?: string;
+  password?: string;
+  name?: string;
+  center?: string;
+  active?: boolean;
+  signUpToken?: string;
+  authToken?: string;
+  notifications?: boolean;
   signUpSurvey?: JSON;
 }
 
 export const ContactSchema: Schema = new Schema({
-  //id: Schema.Types.ObjectId,
+  // id: Schema.Types.ObjectId,
 
   email: {
     type: String,

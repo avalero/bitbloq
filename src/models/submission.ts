@@ -1,16 +1,16 @@
-import { Document, Schema, Model, model } from 'mongoose';
+import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface ISubmission extends Document {
-  user?: String;
-  title: String;
-  exercise?: String;
-  studentNick?: String;
-  content?: String;
-  finished?: Boolean;
-  comment?: String;
-  type: String;
-  image: String;
+  user?: string;
+  title: string;
+  exercise?: string;
+  studentNick?: string;
+  content?: string;
+  finished?: boolean;
+  comment?: string;
+  type: string;
+  image: string;
 }
 
 const SubmissionMongSchema: Schema = new Schema({

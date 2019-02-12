@@ -1,10 +1,10 @@
-# import Date, ObjectID, Role from './scalars.graphql'
-# import Exercise from './exercise.graphql'
-# import File from './upload.graphql'
-# import Upload from './scalars.graphql'
+# import Date, ObjectID, Role from "./scalars.graphql"
+# import Exercise from "./exercise.graphql"
+# import File from "./upload.graphql"
+# import Upload from "./scalars.graphql"
 
 directive @authRequired(
-  requires: Role = ADMIN,
+  requires: [Role] = [ADMIN],
 ) on QUERY | FIELD
 
 enum Role {
@@ -14,13 +14,13 @@ enum Role {
 }
 
 type Query {
-  documents: [Document]               @authRequired(requires: USER)
-  document(id: ObjectID!): Document   @authRequired(requires: USER)
+  documents: [Document]               @authRequired(requires: [USER])
+  document(id: ObjectID!): Document   @authRequired(requires: [USER])
 }
 type Mutation {
-  createDocument(input: DocumentIn!): Document                      @authRequired(requires: USER)
-  deleteDocument(id: ObjectID!): Document                           @authRequired(requires: USER)
-  updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: USER)
+  createDocument(input: DocumentIn!): Document                      @authRequired(requires: [USER])
+  deleteDocument(id: ObjectID!): Document                           @authRequired(requires: [USER])
+  updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
 }
 
 type Document {

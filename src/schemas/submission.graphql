@@ -1,8 +1,8 @@
-# import Date, ObjectID from './scalars.graphql'
-# import Exercise from './exercise.graphql'
+# import Date, ObjectID from "./scalars.graphql"
+# import Exercise from "./exercise.graphql"
 
 directive @authRequired(
-  requires: Role = ADMIN,
+  requires: [Role] = [ADMIN],
 ) on QUERY | FIELD
 
 enum Role {
@@ -12,16 +12,19 @@ enum Role {
 }
 
 type Query {
-  submissions: [Submission]                                 @authRequired(requires: USER)
-  submission(id: ObjectID!): Submission                     @authRequired(requires: EPHEMERAL, requires: USER)
-  submissionsByExercise(exercise: ObjectID!): [Submission]  @authRequired(requires: USER)
+  submissions: [Submission]                                 @authRequired(requires: [USER])
+  submission(id: ObjectID!): Submission                     @authRequired(requires: [EPHEMERAL, USER])
+  submissionsByExercise(exercise: ObjectID!): [Submission]  @authRequired(requires: [USER])
 }
 type Mutation {
   createSubmission(exerciseCode: String!, studentNick: String!): createOut
-  updateSubmission(input: SubmissionIn): Submission                         @authRequired(requires: EPHEMERAL)
-  finishSubmission(content: String, comment: String): Submission            @authRequired(requires: EPHEMERAL)
-  cancelSubmission: Submission                                              @authRequired(requires: USER)
-  deleteSubmission(submissionID: ObjectID!): Submission                     @authRequired(requires: USER)
+  updateSubmission(input: SubmissionIn): Submission                         @authRequired(requires: [EPHEMERAL])
+  finishSubmission(content: String, comment: String): Submission            @authRequired(requires: [EPHEMERAL])
+  cancelSubmission: Submission                                              @authRequired(requires: [USER])
+  deleteSubmission(submissionID: ObjectID!): Submission                     @authRequired(requires: [USER])
+}
+type Subscription {
+  submissionUpdated(exercise: ObjectID!): Submission   @authRequired(requires: [USER])
 }
 
 type Submission {

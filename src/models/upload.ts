@@ -1,12 +1,12 @@
-import { Document, Schema, Model, model } from 'mongoose';
+import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
 interface IUpload extends Document {
-  filename: String;
-  mimetype: String;
-  encoding: String;
-  publicUrl: String;
-  document: String;
+  filename: string;
+  mimetype: string;
+  encoding: string;
+  publicUrl: string;
+  document: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
