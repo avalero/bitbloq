@@ -39,26 +39,35 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         if (!context.user) {
           throw new AuthenticationError('You need to be logged in');
         } else {
-          const userRole: string = context.user.role;
-          switch (userRole) {
-            case 'USER':
+          let passed: boolean=false;
+          for(let roleReq of requiredRole){
+            console.log(roleReq);
+            console.log(context.user.role);
+            if(roleReq==='USER' && context.user.role==='USER'){
+              console.log('entra 1')
               if (!context.user.userID) {
                 throw new AuthenticationError(
-                  'You need to be logged in as User',
+                  'You need to be logged in as User 1',
                 );
               }
+              passed=true;
               return resolve.apply(this, args);
-            case 'EPHEMERAL':
+            }else if(roleReq==='EPHEMERAL' && context.user.role==='EPHEMERAL'){
+              console.log('entra 2')
               if (!context.user.exerciseID) {
                 throw new AuthenticationError(
-                  'You need to login with exercise code',
+                  'You need to login with exercise code 1',
                 );
               }
+              passed=true;
               return resolve.apply(this, args);
-            default:
+            }
+            }
+            
+            if(!passed){
               throw new AuthenticationError('You need to be logged in. Role');
+            }        
           }
-        }
       };
     });
   }

@@ -2,7 +2,7 @@
 # import Document from "./document.graphql"
 
 directive @authRequired(
-  requires: Role = ADMIN,
+  requires: [Role] = [ADMIN],
 ) on QUERY | FIELD
 
 enum Role {
@@ -12,15 +12,15 @@ enum Role {
 }
 
 type Query {
-  users: [User]   @authRequired(requires: ADMIN)
-  me: User        @authRequired(requires: USER)
+  users: [User]   @authRequired(requires: [ADMIN])
+  me: User        @authRequired(requires: [USER])
 }
 type Mutation {
   activateAccount(token: String): String
   signUpUser(input: UserIn!): String
   login(email: EmailAddress!, password: String!): String
-  deleteUser(id: ObjectID!): User                           @authRequired(requires: USER)
-  updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: USER)
+  deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
+  updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
 }
 
 type User {
