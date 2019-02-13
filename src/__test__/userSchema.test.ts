@@ -1,11 +1,13 @@
 import { graphql, GraphQLSchema } from 'graphql';
-import userSchema from '../schemas/user';
-import { UserModel } from '../models/user';
+import { importSchema } from 'graphql-import';
+import * as path from 'path';
+const typeDefs = importSchema(path.join(__dirname, '../schemas/allSchemas.graphql'));
+import { makeExecutableSchema } from 'graphql-tools';
+import {allResolvers} from '../resolvers/resolvers';
+import { merge } from 'lodash';
+const schemas: GraphQLSchema = makeExecutableSchema({  typeDefs });
 
-const expectMut = describe('Schema', () => {
-  //  Array of case types
-  // const tester = new EasyGraphQLTester(schemaCode);
-
+describe('Schema', () => {
   it('should be null when no one signed up', async () => {
     const query = `
         query {
@@ -14,37 +16,28 @@ const expectMut = describe('Schema', () => {
           }
         }
       `;
-    const rootValue = {};
-
-    const result = await graphql(userSchema, query, rootValue);
-    const { data } = result;
-
-    // tester.test(true, query)
-    expect(data.users).toBe(null);
-  });
-
+      const rootValue = {};
+      const expected={"data": {"users": null}};
+      return await expect(
+          graphql(schemas, query, rootValue)
+      ).resolves.toEqual(expected);
+    });
+  
   it('should register a new user', async () => {
     const mutation = `
-    mutation{
-        singUpUser(email: "pepe@bbb.com", password: "pass", name: "Pepito", center: "GGM"){
-            email
-            password
-            name
-            center
-        }
+    mutation{ signUpUser(input:{
+            email: "pepe@bq.com",
+            password: "pass",
+            name: "aaaa"
+            center: "ZZ",
+        })
     }
     `;
     const rootValue = {};
-
-    const result = await graphql(userSchema, mutation, rootValue);
-    const { data } = result;
-    console.log(data);
-    /*tester.test(true, mutation, [{
-        email: "pepe@bbb.com",
-        password: "pass",
-        name: "Pepito",
-        center: "GGM"
-    }]);*/
-    expect(data.singUpUser.user.email).toBe('pepe@bbb.com');
+    const expected={"data": {"signUpUser": null}};
+    return await expect(
+        graphql(schemas, mutation, rootValue)
+    ).resolves.toEqual(expected);
   });
+
 });
