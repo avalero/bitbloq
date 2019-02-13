@@ -22,6 +22,9 @@ type Mutation {
   deleteDocument(id: ObjectID!): Document                           @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
 }
+type Subscription {
+  documentUpdated: Document   @authRequired(requires: [USER])
+}
 
 type Document {
   id: ObjectID

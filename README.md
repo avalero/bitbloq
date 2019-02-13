@@ -101,6 +101,9 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       deleteDocument(id: ObjectID!): Document
       updateDocument(id: ObjectID!, input: DocumentIn): Document
 
+    SUBSCRIPTIONS:
+        documentUpdated: Document
+
     input DocumentIn {
       id: ObjectID
       user: ObjectID
