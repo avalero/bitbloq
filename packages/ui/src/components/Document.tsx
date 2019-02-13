@@ -58,7 +58,10 @@ const DocumentIcon = styled.div`
   background-color: #4dc3ff;
 `;
 
-const Title = styled.div`
+interface TitleProps {
+  canEdit: boolean;
+}
+const Title = styled.div<TitleProps>`
   display: flex;
   align-items: center;
   padding-left: 18px;
@@ -66,6 +69,28 @@ const Title = styled.div`
   flex: 1;
   font-weight: 500;
   font-style: italic;
+
+  span {
+    display: flex;
+    align-items: center;
+    svg {
+      display: none;
+      width: 14px;
+      height: 14px;
+      margin-left: 12px;
+    }
+  }
+
+  ${props => props.canEdit && css`
+    span {
+      cursor: pointer;
+      &:hover {
+        svg {
+          display: block;
+        }
+      }
+    }
+  `}
 `;
 
 const Main = styled.div`
@@ -168,6 +193,10 @@ export interface DocumentProps {
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
   headerButtons?: HeaderButton[];
+  title?: string;
+  initialTab: number;
+  onEditTitle: () => any;
+  onHeaderButtonClick: (buttonId: string) => any;
 }
 
 interface State {
@@ -176,6 +205,8 @@ interface State {
 }
 
 class Document extends React.Component<DocumentProps, State> {
+  static Tab = Tab;
+
   state = {
     currentTabIndex: 0,
     isHeaderCollapsed: false
@@ -202,6 +233,7 @@ class Document extends React.Component<DocumentProps, State> {
       menuRightContent,
       onMenuOptionClick,
       title,
+      onEditTitle,
       headerButtons = [],
       onHeaderButtonClick
     } = this.props;
@@ -214,7 +246,12 @@ class Document extends React.Component<DocumentProps, State> {
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
             <DocumentIcon />
-            <Title>{title}</Title>
+            <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
+              <span>
+                {title}
+                <Icon name="pencil" />
+              </span>
+            </Title>
             {headerButtons.map(button => (
               <HeaderButton key={button.id} onClick={() => onHeaderButtonClick(button.id)}>
                 <Icon name={button.icon} />
@@ -264,7 +301,5 @@ class Document extends React.Component<DocumentProps, State> {
     );
   }
 }
-
-Document.Tab = Tab;
 
 export default Document;

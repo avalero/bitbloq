@@ -107,7 +107,6 @@ class ThreeD extends React.Component {
       advancedMode,
       setAdvancedMode,
       title,
-      canEditTitle,
       onEditTitle,
       headerButtons,
       onHeaderButtonClick,
@@ -149,7 +148,6 @@ class ThreeD extends React.Component {
       <Document
         title={title || t('untitled-project')}
         initialTab={initialTab}
-        canEditTitle={canEditTitle}
         onEditTitle={onEditTitle}
         headerButtons={headerButtons}
         onHeaderButtonClick={onHeaderButtonClick}
