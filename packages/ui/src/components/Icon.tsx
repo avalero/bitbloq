@@ -1,52 +1,53 @@
-import * as React from 'react'
-import Airplane from './icons/Airplane'
-import Angle from './icons/Angle'
-import AngleDouble from './icons/AngleDouble'
-import Arrow from './icons/Arrow'
-import BasicShapes from './icons/BasicShapes'
-import Brush from './icons/Brush'
-import CityElements from './icons/CityElements'
-import Close from './icons/Close'
-import Cube from './icons/Cube'
-import Cylinder from './icons/Cylinder'
-import Difference from './icons/Difference'
-import Difficulty from './icons/Difficulty'
-import Download from './icons/Download'
-import Drag from './icons/Drag'
-import Dropdown from './icons/Dropdown'
-import Duplicate from './icons/Duplicate'
-import Ellipsis from './icons/Ellipsis'
-import Group from './icons/Group'
-import Info from './icons/Info'
-import Intersection from './icons/Intersection'
-import Minus from './icons/Minus'
-import Center from './icons/Center'
-import NewDocument from './icons/NewDocument'
-import Orthographic from './icons/Orthographic'
-import Pencil from './icons/Pencil'
-import Perspective from './icons/Perspective'
-import Plus from './icons/Plus'
-import Prism from './icons/Prism'
-import Text from './icons/Text'
-import People from './icons/People'
-import Pyramid from './icons/Pyramid'
-import Publish from './icons/Publish'
-import Redo from './icons/Redo'
-import Reflection from './icons/Reflection'
-import Repeat from './icons/Repeat'
-import RepeatPolar from './icons/RepeatPolar'
-import Rotation from './icons/Rotation'
-import Scale from './icons/Scale'
-import Sphere from './icons/Sphere'
-import Spinner from './icons/Spinner'
-import STL from './icons/STL'
-import ThreeD from './icons/ThreeD'
-import Tick from './icons/Tick'
-import Translation from './icons/Translation'
-import Trash from './icons/Trash'
-import Undo from './icons/Undo'
-import Ungroup from './icons/Ungroup'
-import Union from './icons/Union'
+import * as React from "react";
+import Airplane from "./icons/Airplane";
+import Angle from "./icons/Angle";
+import AngleDouble from "./icons/AngleDouble";
+import Arrow from "./icons/Arrow";
+import BasicShapes from "./icons/BasicShapes";
+import Brush from "./icons/Brush";
+import CityElements from "./icons/CityElements";
+import Close from "./icons/Close";
+import Cube from "./icons/Cube";
+import CurveAngle from "./icons/CurveAngle";
+import Cylinder from "./icons/Cylinder";
+import Difference from "./icons/Difference";
+import Difficulty from "./icons/Difficulty";
+import Download from "./icons/Download";
+import Drag from "./icons/Drag";
+import Dropdown from "./icons/Dropdown";
+import Duplicate from "./icons/Duplicate";
+import Ellipsis from "./icons/Ellipsis";
+import Group from "./icons/Group";
+import Info from "./icons/Info";
+import Intersection from "./icons/Intersection";
+import Minus from "./icons/Minus";
+import Center from "./icons/Center";
+import NewDocument from "./icons/NewDocument";
+import Orthographic from "./icons/Orthographic";
+import Pencil from "./icons/Pencil";
+import Perspective from "./icons/Perspective";
+import Plus from "./icons/Plus";
+import Prism from "./icons/Prism";
+import Text from "./icons/Text";
+import People from "./icons/People";
+import Pyramid from "./icons/Pyramid";
+import Publish from "./icons/Publish";
+import Redo from "./icons/Redo";
+import Reflection from "./icons/Reflection";
+import Repeat from "./icons/Repeat";
+import RepeatPolar from "./icons/RepeatPolar";
+import Rotation from "./icons/Rotation";
+import Scale from "./icons/Scale";
+import Sphere from "./icons/Sphere";
+import Spinner from "./icons/Spinner";
+import STL from "./icons/STL";
+import ThreeD from "./icons/ThreeD";
+import Tick from "./icons/Tick";
+import Translation from "./icons/Translation";
+import Trash from "./icons/Trash";
+import Undo from "./icons/Undo";
+import Ungroup from "./icons/Ungroup";
+import Union from "./icons/Union";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -56,108 +57,110 @@ export interface IconProps {
 /**
  * Icon component that renders an svg from a catalog of icons
  */
-const Icon: React.SFC<IconProps> = ({name}) => {
-  switch(name) {
-    case 'airplane':
+const Icon: React.SFC<IconProps> = ({ name }) => {
+  switch (name) {
+    case "airplane":
       return <Airplane />;
-    case 'angle':
+    case "angle":
       return <Angle />;
-    case 'angle-double':
+    case "angle-double":
       return <AngleDouble />;
-    case 'arrow':
+    case "arrow":
       return <Arrow />;
-    case 'basic-shapes':
+    case "basic-shapes":
       return <BasicShapes />;
-    case 'brush':
+    case "brush":
       return <Brush />;
-    case 'city-elements':
+    case "city-elements":
       return <CityElements />;
-    case 'close':
+    case "close":
       return <Close />;
-    case 'cube':
+    case "cube":
       return <Cube />;
-    case 'cylinder':
+    case "curve-angle":
+      return <CurveAngle />;
+    case "cylinder":
       return <Cylinder />;
-    case 'difference':
+    case "difference":
       return <Difference />;
-    case 'difficulty':
+    case "difficulty":
       return <Difficulty />;
-    case 'download':
+    case "download":
       return <Download />;
-    case 'drag':
+    case "drag":
       return <Drag />;
-    case 'dropdown':
+    case "dropdown":
       return <Dropdown />;
-    case 'duplicate':
+    case "duplicate":
       return <Duplicate />;
-    case 'ellipsis':
+    case "ellipsis":
       return <Ellipsis />;
-    case 'group':
+    case "group":
       return <Group />;
-    case 'info':
+    case "info":
       return <Info />;
-    case 'intersection':
+    case "intersection":
       return <Intersection />;
-    case 'center':
+    case "center":
       return <Center />;
-    case 'minus':
+    case "minus":
       return <Minus />;
-    case 'new-document':
+    case "new-document":
       return <NewDocument />;
-    case 'orthographic':
+    case "orthographic":
       return <Orthographic />;
-    case 'people':
+    case "people":
       return <People />;
-    case 'pencil':
+    case "pencil":
       return <Pencil />;
-    case 'perspective':
+    case "perspective":
       return <Perspective />;
-    case 'plus':
+    case "plus":
       return <Plus />;
-    case 'prism':
+    case "prism":
       return <Prism />;
-    case 'text':
+    case "text":
       return <Text />;
-    case 'pyramid':
+    case "pyramid":
       return <Pyramid />;
-    case 'publish':
+    case "publish":
       return <Publish />;
-    case 'redo':
+    case "redo":
       return <Redo />;
-    case 'reflection':
+    case "reflection":
       return <Reflection />;
-    case 'repeat':
+    case "repeat":
       return <Repeat />;
-    case 'repeat-polar':
+    case "repeat-polar":
       return <RepeatPolar />;
-    case 'rotation':
+    case "rotation":
       return <Rotation />;
-    case 'scale':
+    case "scale":
       return <Scale />;
-    case 'sphere':
+    case "sphere":
       return <Sphere />;
-    case 'spinner':
+    case "spinner":
       return <Spinner />;
-    case 'stl':
+    case "stl":
       return <STL />;
-    case 'threed':
+    case "threed":
       return <ThreeD />;
-    case 'tick':
+    case "tick":
       return <Tick />;
-    case 'translation':
+    case "translation":
       return <Translation />;
-    case 'trash':
+    case "trash":
       return <Trash />;
-    case 'undo':
+    case "undo":
       return <Undo />;
-    case 'ungroup':
+    case "ungroup":
       return <Ungroup />;
-    case 'union':
+    case "union":
       return <Union />;
     default:
-      console.warn('Icon not found');
+      console.warn("Icon not found");
       return null;
   }
-}
+};
 
 export default Icon;

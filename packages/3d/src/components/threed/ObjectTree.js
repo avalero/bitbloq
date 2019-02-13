@@ -1,20 +1,20 @@
-import React from 'react';
-import uuid from 'uuid/v1';
-import {connect} from 'react-redux';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
-import {shadow} from '../../base-styles';
-import {DropDown, Icon, withTranslate} from '@bitbloq/ui';
+import React from "react";
+import uuid from "uuid/v1";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { shadow } from "../../base-styles";
+import { DropDown, Icon, withTranslate } from "@bitbloq/ui";
 import {
   selectObject,
   deselectObject,
   createObject,
-  updateObject,
-} from '../../actions/threed';
-import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import config from '../../config/threed';
-import AddObjectDropdown from './AddObjectDropdown';
+  updateObject
+} from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import config from "../../config/threed";
+import AddObjectDropdown from "./AddObjectDropdown";
 
 const Container = styled.div`
   width: 180px;
@@ -36,7 +36,7 @@ const AddButton = styled.div`
   border-bottom: 1px solid #cfcfcf;
   z-index: 2;
   box-shadow: ${props =>
-    props.isOpen ? '0 3px 7px 0 rgba(0, 0, 0, 0.5);' : 'none'};
+    props.isOpen ? "0 3px 7px 0 rgba(0, 0, 0, 0.5);" : "none"};
 `;
 
 const Tree = styled.div`
@@ -52,6 +52,23 @@ const ObjectList = styled.ul`
 
 const ObjectItem = styled.li`
   width: 100%;
+  box-sizing: border-box;
+  ${props =>
+    props.isSelected &&
+    props.isParent &&
+    css`
+      border-width: 0px 2px 3px 2px;
+      border-style: solid;
+      border-color: #4dc3ff;
+    `}
+`;
+
+const DragHandle = styled.div`
+  margin-right: 4px;
+  color: #cccccc;
+  svg {
+    width: 13px;
+  }
 `;
 
 const ObjectName = styled.div`
@@ -68,16 +85,25 @@ const ObjectName = styled.div`
   margin-bottom: -1px;
 
   ${props =>
+    props.isParent &&
+    css`
+      background-color: #eeeeee;
+    `};
+
+  ${props =>
     props.isSelected &&
     css`
       color: white;
       background-color: #4dc3ff;
       border-color: inherit;
+
+      ${DragHandle} {
+        color: white;
+      }
     `};
 
   span {
     flex: 1;
-    margin-left: 4px;
   }
 
   img {
@@ -85,10 +111,12 @@ const ObjectName = styled.div`
   }
 `;
 
-const DragHandle = styled.div`
-  margin-right: ${props => 4 + 12 * (props.depth || 0)}px;
+const AngleIcon = styled.div`
+  margin-left: ${props => (props.depth - 1) * 16}px;
   svg {
-    width: 13px;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
   }
 `;
 
@@ -97,6 +125,7 @@ const CollapseButton = styled.div`
 
   svg {
     width: 10px;
+    margin-right: 6px;
   }
 
   ${props =>
@@ -112,27 +141,27 @@ const ObjectTypeIcon = styled.div`
   svg {
     width: 12px;
   }
-`
+`;
 
 class ObjectTree extends React.Component {
   addDropdown = React.createRef();
 
   state = {
-    collapsedItems: [],
+    collapsedItems: []
   };
 
   onCollapseClick = (e, object) => {
     e.stopPropagation();
-    this.setState(({collapsedItems, ...state}) => ({
+    this.setState(({ collapsedItems, ...state }) => ({
       ...state,
       collapsedItems: collapsedItems.includes(object.id)
         ? collapsedItems.filter(id => id !== object.id)
-        : [...collapsedItems, object.id],
+        : [...collapsedItems, object.id]
     }));
   };
 
-  onAddObject = (typeConfig) => {
-    const {advancedMode, t} = this.props;
+  onAddObject = typeConfig => {
+    const { advancedMode, t } = this.props;
 
     const object = {
       id: uuid(),
@@ -150,18 +179,18 @@ class ObjectTree extends React.Component {
     }
 
     this.props.createObject(object);
-  }
+  };
 
   onDragEnd(result) {
-    const {destination, source, droppableId, draggableId} = result;
-    const {objects, updateObject} = this.props;
+    const { destination, source, droppableId, draggableId } = result;
+    const { objects, updateObject } = this.props;
 
     if (!destination || !destination.droppableId) return;
 
-    const parent = objects.find(({id}) => id === destination.droppableId);
+    const parent = objects.find(({ id }) => id === destination.droppableId);
     if (!parent || !parent.children) return;
 
-    const child = parent.children.find(({id}) => id === draggableId);
+    const child = parent.children.find(({ id }) => id === draggableId);
     if (!child) return;
 
     const newChildren = [...parent.children];
@@ -169,7 +198,7 @@ class ObjectTree extends React.Component {
     newChildren.splice(destination.index, 0, child);
     this.props.updateObject({
       ...parent,
-      children: newChildren,
+      children: newChildren
     });
   }
 
@@ -180,30 +209,37 @@ class ObjectTree extends React.Component {
       selectObject,
       deselectObject,
       controlPressed,
-      shiftPressed,
+      shiftPressed
     } = this.props;
-    const {collapsedItems} = this.state;
+    const { collapsedItems } = this.state;
 
     const isSelected = selectedObjects.includes(object);
     const isTop = topObjects.includes(object);
     const isSelectedTop =
       selectedObjects.length > 0 && topObjects.includes(selectedObjects[0]);
-    const {children = [], id} = object;
+    const { children = [], id } = object;
     const isCollapsed = collapsedItems.includes(id);
 
     let icon;
     if (children.length) {
-      const typeConfig = config.objectTypes.find(t => t.name === object.type) || {};
+      const typeConfig =
+        config.objectTypes.find(t => t.name === object.type) || {};
       icon = typeConfig.icon;
     }
 
     return (
       <Draggable draggableId={id} index={index} key={id}>
         {(provided, snapshot) => (
-          <ObjectItem {...provided.draggableProps} ref={provided.innerRef}>
+          <ObjectItem
+            {...provided.draggableProps}
+            isSelected={isSelected}
+            isParent={children.length > 0}
+            ref={provided.innerRef}
+          >
             <ObjectName
               isFirstSelected={selectedObjects.indexOf(object) === 0}
               isSelected={isSelected}
+              isParent={children.length > 0}
               onClick={() => {
                 if (
                   isTop &&
@@ -222,21 +258,26 @@ class ObjectTree extends React.Component {
                     selectObject(object);
                   }
                 }
-              }}>
-              <DragHandle {...provided.dragHandleProps} depth={depth}>
+              }}
+            >
+              <DragHandle {...provided.dragHandleProps}>
                 <Icon name="drag" />
               </DragHandle>
+              {depth > 0 && (
+                <AngleIcon depth={depth}>
+                  <Icon name="curve-angle" />
+                </AngleIcon>
+              )}
               {children.length > 0 && (
                 <CollapseButton
                   collapsed={isCollapsed}
-                  onClick={e => this.onCollapseClick(e, object)}>
+                  onClick={e => this.onCollapseClick(e, object)}
+                >
                   <Icon name="angle" />
                 </CollapseButton>
               )}
               <span>{object.viewOptions.name || object.type}</span>
-              {icon &&
-                <ObjectTypeIcon>{icon}</ObjectTypeIcon>
-              }
+              {icon && <ObjectTypeIcon>{icon}</ObjectTypeIcon>}
             </ObjectName>
             {!isCollapsed && this.renderObjectList(children, depth + 1, object)}
           </ObjectItem>
@@ -247,15 +288,13 @@ class ObjectTree extends React.Component {
 
   renderObjectList(objects, depth = 0, parent) {
     if (objects && objects.length) {
-      const parentId = parent ? parent.id : 'root';
+      const parentId = parent ? parent.id : "root";
       return (
         <Droppable droppableId={parentId} type={parentId}>
           {provided => (
-            <ObjectList
-              ref={provided.innerRef}
-              {...provided.droppableProps}>
+            <ObjectList ref={provided.innerRef} {...provided.droppableProps}>
               {objects.map((object, index) =>
-                this.renderObjectItem(object, index, depth, parent),
+                this.renderObjectItem(object, index, depth, parent)
               )}
               {provided.placeholder}
             </ObjectList>
@@ -266,7 +305,7 @@ class ObjectTree extends React.Component {
   }
 
   render() {
-    const {objects, shapeGroups, t} = this.props;
+    const { objects, shapeGroups, t } = this.props;
 
     return (
       <DragDropContext onDragEnd={result => this.onDragEnd(result)}>
@@ -275,10 +314,11 @@ class ObjectTree extends React.Component {
             ref={this.addDropdown}
             attachmentPosition="top left"
             targetPosition="bottom left"
-            closeOnClick={false}>
+            closeOnClick={false}
+          >
             {isOpen => (
               <AddButton isOpen={isOpen}>
-                <div>+ {t('add-object')}</div>
+                <div>+ {t("add-object")}</div>
               </AddButton>
             )}
             <AddObjectDropdown
@@ -293,12 +333,12 @@ class ObjectTree extends React.Component {
   }
 }
 
-const mapStateToProps = ({ui, threed}) => ({
+const mapStateToProps = ({ ui, threed }) => ({
   objects: getObjects(threed),
   selectedObjects: getSelectedObjects(threed),
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
-  advancedMode: threed.ui.advancedMode,
+  advancedMode: threed.ui.advancedMode
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -306,10 +346,10 @@ const mapDispatchToProps = dispatch => ({
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
-  updateObject: object => dispatch(updateObject(object)),
+  updateObject: object => dispatch(updateObject(object))
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(withTranslate(ObjectTree));
