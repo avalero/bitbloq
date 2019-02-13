@@ -148,6 +148,9 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       cancelSubmission: Submission
       deleteSubmission(submissionID: String): Submission
 
+    SUBSCRIPTIONS:
+      submissionUpdated(exercise: ObjectID!): Submission
+
     input SubmissionIn {
       title: String
       finished: Boolean

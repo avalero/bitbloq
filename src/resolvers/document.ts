@@ -162,7 +162,7 @@ const documentResolver = {
       if (!existDocument) {
         throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
-      if (existDocument.user !== context.user.userID) {
+      if (existDocument.user != context.user.userID) {
         throw new ApolloError(
           'This ID does not belong to one of your documents',
           'NOT_YOUR_DOCUMENT',

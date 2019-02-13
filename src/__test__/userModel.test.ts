@@ -1,15 +1,17 @@
 import * as mongoose from 'mongoose';
-const user = require('../models/userModel');
-const document_ = require('../models/documentModel');
-const exercise = require('../models/exerciseModel');
+import { DocumentModel } from '../models/document';
+import { ExerciseModel } from '../models/exercise';
+import { LogModel } from '../models/logs';
+import { SubmissionModel } from '../models/submission';
+import { UserModel } from '../models/user';
 
 describe('ADD new user', () => {
   mongoose.connect(
-    `mongodb://localhost/back_bitbloq_db`, //  <------- IMPORTANT
+    `mongodb://localhost/back_bitbloq_db_test`, //  <------- IMPORTANT
     { useNewUrlParser: true },
   );
   test('should register a new user, with document and exercise', async () => {
-    await new user({
+    await new UserModel({
       email: 'aaa1@bbb.com',
       password: 'pass',
       name: 'Pepe',
@@ -20,9 +22,9 @@ describe('ADD new user', () => {
       notifications: false,
       created_date: Date.now(),
     }).save(async () => {
-      const espera = await user.findOne({ email: 'aaa1@bbb.com' });
+      const espera = await UserModel.findOne({ email: 'aaa1@bbb.com' });
       expect(espera.email).toEqual('aaa1@bbb.com');
-      await new document_({
+      await new DocumentModel({
         user: espera._id,
         title: 'Prueba1',
         type: '3D',
@@ -42,32 +44,15 @@ describe('ADD new user', () => {
           },
         ],
       }).save(async () => {
-        const docesp = await document_.findOne({ title: 'Prueba1' });
+        const docesp = await DocumentModel.findOne({ title: 'Prueba1' });
         expect(docesp.title).toEqual('Prueba1');
-        await new exercise({
+        await new ExerciseModel({
           document: docesp._id,
-          code: '22222',
-          versions: [
-            {
-              content: JSON,
-              date: Date.now(),
-              id: 345,
-            },
-          ],
-          submission: [
-            {
-              nick: 'Pepito1',
-              content: JSON,
-              date: Date.now(),
-              // id: Number,
-              comment: 'Lo he hecho muy bien',
-            },
-          ],
           expireDate: {
             expireTime: Date.now() + 4000,
           },
         }).save();
-        const exesp = await exercise.findOne({ code: '22222' });
+        const exesp = await ExerciseModel.findOne({ code: '22222' });
         expect(exesp.code).toEqual('22222');
       });
     });
