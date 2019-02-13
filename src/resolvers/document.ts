@@ -1,4 +1,4 @@
-import { ApolloError } from 'apollo-server-koa';
+import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
@@ -7,7 +7,23 @@ import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
 import uploadResolver from './upload';
 
+export const pubsub = new PubSub();
+
+const DOCUMENT_UPDATED: string = 'DOCUMENT_UPDATED';
+
 const documentResolver = {
+
+  Subscription: {
+    documentUpdated: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
+        (payload, variables, context) => {
+          return context.user.userID==payload.documentUpdated.user;
+        },
+      ),
+    },
+  },
+
   Mutation: {
     /**
      * Create document: create a new empty document
@@ -38,12 +54,15 @@ const documentResolver = {
           args.input.image,
           newDocument._id,
         );
-        return DocumentModel.findOneAndUpdate(
+        const newDoc=await  DocumentModel.findOneAndUpdate(
           { _id: documentNew._id },
           { $set: { image: imageUploaded.publicUrl } },
           { new: true },
         );
+        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
+        return newDoc;
       } else {
+        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
         return newDocument;
       }
     },
@@ -108,11 +127,13 @@ const documentResolver = {
             version: args.input.version || existDocument.version,
             image: imageUploaded.publicUrl,
           };
-          return DocumentModel.findOneAndUpdate(
+          const upDoc=await DocumentModel.findOneAndUpdate(
             { _id: existDocument._id },
             { $set: documentUpdate },
             { new: true },
           );
+          pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
+          return upDoc;
         } else if (args.input.imageUrl) {
           const documentUpdate = {
             title: args.input.title || existDocument.title,
@@ -122,17 +143,21 @@ const documentResolver = {
             version: args.input.version || existDocument.version,
             image: args.input.imageUrl,
           };
-          return DocumentModel.findOneAndUpdate(
+          const upDoc=await DocumentModel.findOneAndUpdate(
             { _id: existDocument._id },
             { $set: documentUpdate },
             { new: true },
           );
+          pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
+          return upDoc;
         } else {
-          return DocumentModel.findOneAndUpdate(
+          const upDoc= DocumentModel.findOneAndUpdate(
             { _id: existDocument._id },
             { $set: args.input },
             { new: true },
           );
+          pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
+          return upDoc;
         }
       } else {
         return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
