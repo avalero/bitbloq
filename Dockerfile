@@ -4,7 +4,6 @@ RUN mkdir -p /usr/src/app
 RUN mkdir -p /usr/src/app/src
 WORKDIR /usr/src/app
 
-COPY src package.json package-lock.json tsconfig.json docker-entrypoint.sh ./
 COPY package.json package-lock.json tsconfig.json docker-entrypoint.sh ./
 COPY src ./src
 
