@@ -11,6 +11,9 @@ const contextController = {
     }else if(context.authorization){ //authorization for subscriptions
       token1 = context.authorization || '' ;
       justToken = token1.split(' ')[1];
+    }else{
+      token1='';
+      justToken='';
     }
     if (justToken) {
       try {
@@ -18,8 +21,6 @@ const contextController = {
       } catch (e) {
         return undefined;
       }
-    } else{
-      throw new AuthenticationError('Error in headers');
     }
   },
   getDataInToken: async inToken => {
