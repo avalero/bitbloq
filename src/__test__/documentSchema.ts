@@ -1,11 +1,32 @@
-import { graphql, GraphQLSchema } from 'graphql';
+import { graphql, GraphQLSchema, GraphQLInputObjectType } from 'graphql';
 import { importSchema } from 'graphql-import';
 import * as path from 'path';
 import {allResolvers} from '../resolvers/resolvers';
 import { merge } from 'lodash';
 const typeDefs = importSchema(path.join(__dirname, '../schemas/allSchemas.graphql'));
-import { makeExecutableSchema } from 'graphql-tools';
-const schemas: GraphQLSchema = makeExecutableSchema({  typeDefs });
+import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
+
+
+
+import {setupTest} from '../__helpers__/setupTest';
+
+const schemas: GraphQLSchema = makeExecutableSchema({  typeDefs, resolvers: merge(allResolvers) });
+addMockFunctionsToSchema({ schema: schemas,
+  mocks: {
+    Boolean: () => false,
+    ObjectID: () => '11111111111111',
+    Int: () => 1,
+    Float: () => 12.34,
+    String: () => 'Holita vecinito',
+    EmailAddress: () => 'aaaa@zzz.com',
+} });
+
+beforeEach(async () => {
+  jest.resetModules();
+  await setupTest();
+  require('dotenv').config();
+  //process.env = Object.assign(process.env, { CUSTOM_VAR: 'value' });
+});
 
 describe('Schema', () => {
 
@@ -19,12 +40,15 @@ describe('Schema', () => {
       `;
     const rootValue = {};
     const context={
-            "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFsZGEubWFydGluQGJxLmNvbSIsInVzZXJJRCI6IjVjNjNlNjM3MTYwMjM3NzUyYzRlZDc5YiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNTUwMDUwODg2LCJleHAiOjE1NTAwNjUyODZ9.NBJ77TT3s6m4B6aqVEYI-ULp56zb8CQDGwzf8nRzXN0"
-        
-    }
-    const expected={"data": {"documents": null}};
+       "user": {
+          "email": 'alda.martin@bq.com',
+          "userID": '5c63e637160237752c4ed79b',
+          "role": 'USER' 
+        }
+      } 
+    const expected={"data": {"documents": [{"title": "Hello World"}, {"title": "Hello World"}]}};
     return await expect(
-        graphql(schemas, query, rootValue, context)
+        graphql({schema: schemas, source: query, rootValue: rootValue, contextValue: context})
     ).resolves.toEqual(expected);
   });
 
@@ -40,23 +64,56 @@ describe('Schema', () => {
             }
         }
     `;
+    const rootValue = {};
     const context={
-        "headers": {
-            "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFhYWFAenp6ei5jb20iLCJ1c2VySUQiOiI1YzUxODFmMzdkMDVmZjdmZmY4YTNjNTQiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTU0OTk2MzExMSwiZXhwIjoxNTQ5OTc3NTExfQ.3sgXdb8LieWbvTCjvnVOZf1yKdKmONuPUtRwV_NVges"
-        }
+      "user": {
+        "email": 'alda.martin@bq.com',
+        "userID": '5c63e637160237752c4ed79b',
+        "role": 'USER' 
+      }
     }
     const expected={
-        "data": {
-          "createDocument": 
-            
-            {"title": "Documento nuevo AAAA 44",
-            "image": null}
+      "data": {
+        "createDocument": 
           
-        }
-      };
-    return await expect(
-        graphql(schemas, mutation, context)
-    ).resolves.toEqual(expected);
+          {"title":  "Hello World",
+          "image":  "Hello World"}
+        
+      }
+    };
+    return await expect(graphql({schema: schemas, source: mutation, rootValue: rootValue, contextValue: {context}})).resolves.toEqual(expected);
   });
 
+  it('should be one when there are document', async () => {
+    const query = `
+        query {
+          documents {
+             title
+          }
+        }
+      `;
+    const rootValue = {};
+    const context={
+      "user": {
+        "email": 'alda.martin@bq.com',
+        "userID": '5c63e637160237752c4ed79b',
+        "role": 'USER' 
+      }
+  }
+    const expected={
+      "data": {
+        "documents": [
+          {
+            "title": "Hello World",
+          },
+          {
+            "title": "Hello World",
+          }
+        ]
+      }
+    }
+    return await expect(
+        graphql({schema: schemas, source: query, rootValue: rootValue, contextValue: context})
+    ).resolves.toEqual(expected);
+  });
 });

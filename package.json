@@ -1,7 +1,7 @@
 {
   "name": "back-bitbloq",
   "version": "1.0.0",
-  "description": "",
+  "description": "## Despliegue",
   "main": "index.js",
   "jest": {
     "testEnvironment": "node",

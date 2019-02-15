@@ -1,3 +1,5 @@
 node_modules
 .env
-./src/controllers/config.json
+/src/__test__/*
+/src/__helpers__/*
+/src/email/*

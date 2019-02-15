@@ -31,7 +31,7 @@ const documentResolver = {
      * it uploads to Google Cloud and stores the public URL.
      * args: document information
      */
-    createDocument: async (root: any, args: any, context: any) => {
+    createDocument: async (root: any, args: any, context: any) => {    
       const documentNew = new DocumentModel({
         id: ObjectId,
         user: context.user.userID,
