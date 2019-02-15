@@ -115,12 +115,6 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      if (existSubmission.finished) {
-        throw new ApolloError(
-          'You already finished the exercise',
-          'SUBMISSION_FINISHED',
-        );
-      }
       if (existSubmission) {
         await LogModel.create({
           user: existSubmission.user,
@@ -172,13 +166,6 @@ const submissionResolver = {
       const timeNow: Date = new Date();
       if (timeNow > exFather.expireDate) {
         throw new ApolloError('Your submission is late', 'SUBMISSION_LATE');
-      }
-      // check if the submission has been finished
-      if (existSubmission.finished) {
-        throw new ApolloError(
-          'This submission is already finished',
-          'SUBMISSION_FINISHED',
-        );
       }
       await LogModel.create({
         user: existSubmission.user,
