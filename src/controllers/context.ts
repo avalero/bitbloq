@@ -9,7 +9,7 @@ const contextController = {
       token1 = context.headers.authorization || '' ;
       justToken = token1.split(' ')[1];
     }else if(context.authorization){ //authorization for subscriptions
-      token1 = context.authorization || context.authorization ;
+      token1 = context.authorization || '' ;
       justToken = token1.split(' ')[1];
     }else{
       token1='';
