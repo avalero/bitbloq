@@ -31,9 +31,7 @@ const documentResolver = {
      * it uploads to Google Cloud and stores the public URL.
      * args: document information
      */
-    createDocument: async (root: any, args: any, context: any) => {
-      console.log(args);
-      console.log(context);
+    createDocument: async (root: any, args: any, context: any) => {    
       const documentNew = new DocumentModel({
         id: ObjectId,
         user: context.user.userID,
@@ -172,7 +170,6 @@ const documentResolver = {
      * args: nothing.
      */
     documents: async (root: any, args: any, context: any) => {
-      console.log(context);
       await LogModel.create({
         user: context.user.userID,
         action: 'DOC_documents',

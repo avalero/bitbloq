@@ -3,7 +3,6 @@ const jsonwebtoken = require('jsonwebtoken');
 
 const contextController = {
   getMyUser: async context => {
-    console.log(context)
     let token1: string;
     if(context.headers){ //authorization for queries and mutations
       token1 = context.headers.authorization || '' ;
