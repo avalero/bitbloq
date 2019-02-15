@@ -4,21 +4,22 @@ const jsonwebtoken = require('jsonwebtoken');
 const contextController = {
   getMyUser: async context => {
     let token1: string;
+    let justToken: string;
     if(context.headers){ //authorization for queries and mutations
       token1 = context.headers.authorization || '' ;
+      justToken = token1.split(' ')[1];
     }else if(context.authorization){ //authorization for subscriptions
       token1 = context.authorization || '' ;
-    }else{
-      token1=context;
+      justToken = token1.split(' ')[1];
     }
-    const justToken = token1.split(' ')[1];
-
     if (justToken) {
       try {
         return await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
       } catch (e) {
         return undefined;
       }
+    } else{
+      throw new AuthenticationError('Error in headers');
     }
   },
   getDataInToken: async inToken => {
