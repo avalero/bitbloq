@@ -3,3 +3,4 @@ node_modules
 /src/__test__/*
 /src/__helpers__/*
 /src/email/*
+/src/images/*
