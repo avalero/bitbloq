@@ -33,15 +33,16 @@ export default class PrimitiveObject extends Object3D {
   }
 
   public toJSON(): IPrimitiveObjectJSON {
-    // return cloneDeep({
-    //   ...super.toJSON(),
-    //   parameters: this.parameters,
-    // });
-
-    return {
+    const json: IPrimitiveObjectJSON = {
       ...super.toJSON(),
       parameters: this.parameters,
     };
+
+    if (this.mesh instanceof THREE.Mesh) {
+      json.mesh = this.mesh.toJSON();
+    }
+
+    return json;
   }
 
   /**

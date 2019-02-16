@@ -150,6 +150,7 @@ test('Pyramid - newFromJSON', () => {
   const obj = new Pyramid(objParams, operations, viewOptions);
   const json: IPyramidJSON = obj.toJSON() as IPyramidJSON;
   const obj2 = Pyramid.newFromJSON(json);
+  expect(json.mesh).toEqual(obj2.toJSON().mesh);
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);

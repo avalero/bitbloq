@@ -47,6 +47,7 @@ test('PrimitiveObject - toJSON', () => {
 
   const obj = new Cube(objParams, operations, viewOptions);
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
 
   (obj as any).operations = [
@@ -113,10 +114,12 @@ test('PrimitiveObject - UpdateFromJSON', async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const spy = jest.spyOn(obj, 'computeMeshAsync');
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
 
   json.operations = [ObjectsCommon.createTranslateOperation(10, 20, 30)];
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy).toBeCalledTimes(1);
 
@@ -125,17 +128,20 @@ test('PrimitiveObject - UpdateFromJSON', async () => {
     ObjectsCommon.createTranslateOperation(10, 20, 30),
   ];
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy).toBeCalledTimes(2);
 
   json.parameters = { width: 10, height: 20, depth: 30 };
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(spy).toBeCalledTimes(3);
   expect(json).toEqual(obj.toJSON());
 
   // no changes, so computeMeshAsync should not be recalled
 
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(spy).toBeCalledTimes(3);
 
   // already computed, so computeMeshAsync should not be recalled
@@ -171,10 +177,12 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
 
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
 
   json.operations = [ObjectsCommon.createTranslateOperation(10, 20, 30)];
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(1);
   expect(spy2).toBeCalledTimes(1);
@@ -184,12 +192,14 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
     ObjectsCommon.createTranslateOperation(10, 20, 30),
   ];
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(2);
   expect(spy2).toBeCalledTimes(2);
 
   json.parameters = { width: 10, height: 20, depth: 30 };
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
   expect(json).toEqual(obj.toJSON());
@@ -197,6 +207,7 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   // no changes, so computeMeshAsync should not be recalled
 
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
 
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
@@ -235,10 +246,12 @@ test('PrimitiveObject - UpdateFromJSON with parents - change viewOptions', async
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
 
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
 
   json.parameters.depth = 1000;
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(1);
   expect(spy2).toBeCalledTimes(1);
@@ -269,10 +282,12 @@ test('PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptio
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
 
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
 
   json.viewOptions = { ...json.viewOptions, color: '#aaaaaa' };
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(1);
   expect(spy2).toBeCalledTimes(1);
@@ -301,10 +316,12 @@ test('PrimitiveObject - UpdateFromJSON with parent ObjectsGroup - change viewOpt
   const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
 
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
 
   json.viewOptions = { ...json.viewOptions, color: '#aaaaaa' };
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(1);
   expect(spy2).toBeCalledTimes(1);
@@ -340,10 +357,11 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
   const spy3 = jest.spyOn(obj3, 'computeMeshAsync');
 
   json.id = obj.toJSON().id;
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
-
   json.operations = [ObjectsCommon.createTranslateOperation(10, 20, 30)];
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(1);
   expect(spy2).toBeCalledTimes(1);
@@ -354,6 +372,7 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
     ObjectsCommon.createTranslateOperation(10, 20, 30),
   ];
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(json).toEqual(obj.toJSON());
   expect(spy1).toBeCalledTimes(2);
   expect(spy2).toBeCalledTimes(2);
@@ -361,6 +380,7 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
 
   json.parameters = { width: 10, height: 20, depth: 30 };
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
   expect(spy3).toBeCalledTimes(3);
@@ -368,6 +388,7 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
 
   // no changes, so computeMeshAsync should not be recalled
   obj.updateFromJSON(json);
+  json.mesh = obj.toJSON().mesh;
   expect(spy1).toBeCalledTimes(3);
   expect(spy2).toBeCalledTimes(3);
   expect(spy3).toBeCalledTimes(3);

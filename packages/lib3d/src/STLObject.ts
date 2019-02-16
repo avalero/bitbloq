@@ -41,11 +41,23 @@ export default class STLObject extends PrimitiveObject {
       throw new Error('Not STL Object');
     }
 
-    const stl = new STLObject(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    let stl: STLObject;
+    let mesh: THREE.Mesh;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      stl = new STLObject(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      stl = new STLObject(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+      );
+    }
 
     stl.id = object.id || stl.id;
 
