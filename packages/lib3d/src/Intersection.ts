@@ -17,7 +17,7 @@ import {
   IViewOptions,
   OperationsArray,
 } from './Interfaces';
-
+import * as THREE from 'three';
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
@@ -42,11 +42,20 @@ export default class Intersection extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions,
       };
-      const intersect = new Intersection(
-        children,
-        object.operations,
-        viewOptions,
-      );
+      let intersect: Intersection;
+      let mesh: THREE.Mesh;
+      // if mesh is in JSON, load mesh from JSON (to avoid recomputing)
+      if (object.mesh) {
+        mesh = new THREE.ObjectLoader().parse(object.mesh);
+        intersect = new Intersection(
+          children,
+          object.operations,
+          viewOptions,
+          mesh,
+        );
+      } else {
+        intersect = new Intersection(children, object.operations, viewOptions);
+      }
       intersect.id = object.id || intersect.id;
       return intersect;
     } catch (e) {

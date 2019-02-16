@@ -15,7 +15,7 @@
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
-
+import * as THREE from 'three';
 import {
   ICompoundObjectJSON,
   IViewOptions,
@@ -42,7 +42,15 @@ export default class Difference extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions,
       };
-      const dif = new Difference(children, object.operations, viewOptions);
+      let dif: Difference;
+      let mesh: THREE.Mesh;
+      // if mesh is in JSON, load mesh from JSON (to avoid recomputing)
+      if (object.mesh) {
+        mesh = new THREE.ObjectLoader().parse(object.mesh);
+        dif = new Difference(children, object.operations, viewOptions, mesh);
+      } else {
+        dif = new Difference(children, object.operations, viewOptions);
+      }
       dif.id = object.id || dif.id;
       return dif;
     } catch (e) {

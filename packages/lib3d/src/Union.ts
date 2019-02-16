@@ -14,6 +14,7 @@
 
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
+import * as THREE from 'three';
 
 import {
   ICompoundObjectJSON,
@@ -39,7 +40,17 @@ export default class Union extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions,
       };
-      const union = new Union(children, object.operations, viewOptions);
+
+      let union: Union;
+      let mesh: THREE.Mesh;
+      // if mesh is in JSON, load mesh from JSON (to avoid recomputing)
+      if (object.mesh) {
+        mesh = new THREE.ObjectLoader().parse(object.mesh);
+        union = new Union(children, object.operations, viewOptions, mesh);
+      } else {
+        union = new Union(children, object.operations, viewOptions);
+      }
+
       union.id = object.id || union.id;
       return union;
     } catch (e) {

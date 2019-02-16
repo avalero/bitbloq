@@ -168,22 +168,20 @@ export default class CompoundObject extends Object3D {
     this._meshUpdateRequired = true;
   }
 
-  // public setChildren(children: ChildrenArray): void {
-  //   if (!isEqual(children, this.children)) {
-  //     this.children = children.slice();
-  //     this._meshUpdateRequired = true;
-  //   }
-  // }
-
   public toJSON(): ICompoundObjectJSON {
     const json: ICompoundObjectJSON = {
       ...super.toJSON(),
       children: this.children.map(obj => obj.toJSON()),
     };
 
+    const t1 = performance.now();
+
     if (this.mesh instanceof THREE.Mesh) {
       json.mesh = this.mesh.toJSON();
     }
+    const t2 = performance.now();
+
+    console.log(`time: ${t2 - t1}`);
 
     return json;
   }
