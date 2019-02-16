@@ -175,7 +175,6 @@ test('Cube - newFromJSON - invalid type', () => {
 test('Cube - newFromJSON - with mesh', async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const json: ICubeJSON = obj.toJSON() as ICubeJSON;
-  expect(json.mesh).toBeDefined();
+  expect(json.mesh).toBeUndefined();
   const obj2 = Cube.newFromJSON(json);
-  expect(json.mesh).toEqual(obj2.toJSON().mesh);
 });

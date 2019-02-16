@@ -38,10 +38,6 @@ export default class PrimitiveObject extends Object3D {
       parameters: this.parameters,
     };
 
-    if (this.mesh instanceof THREE.Mesh) {
-      json.mesh = this.mesh.toJSON();
-    }
-
     return json;
   }
 

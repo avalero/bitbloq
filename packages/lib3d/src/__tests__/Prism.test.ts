@@ -151,7 +151,7 @@ test('Prism - newFromJSON', () => {
   const obj = new Prism(objParams, operations, viewOptions);
   const json: IPrismJSON = obj.toJSON() as IPrismJSON;
   const obj2 = Prism.newFromJSON(json);
-  expect(json.mesh).toEqual(obj2.toJSON().mesh);
+  expect(json.mesh).toBeUndefined();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);

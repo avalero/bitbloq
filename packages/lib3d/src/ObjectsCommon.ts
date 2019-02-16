@@ -85,7 +85,6 @@ export default class ObjectsCommon {
     return bufferArray;
   }
 
-  
   public static createViewOptions(
     color: string = '#ffffff',
     visible: boolean = true,
@@ -252,19 +251,14 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    // return cloneDeep({
-    //   id: this.id,
-    //   type: this.type,
-    //   viewOptions: this.viewOptions,
-    //   operations: this.operations,
-    // });
-
-    return {
+    const json: IObjectsCommonJSON = {
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
     };
+
+    return json;
   }
 
   public updateFromJSON(

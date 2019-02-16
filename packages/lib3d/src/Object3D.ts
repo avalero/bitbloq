@@ -22,6 +22,7 @@ import {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
+  IObjectsCommonJSON,
 } from './Interfaces';
 
 export default class Object3D extends ObjectsCommon {
