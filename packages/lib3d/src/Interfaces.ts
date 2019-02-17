@@ -6,6 +6,10 @@ export interface IObjectsCommonJSON {
   viewOptions: Partial<IViewOptions>;
   operations: OperationsArray;
   mesh?: object;
+  geometry?: {
+    vertices: number[];
+    normals: number[];
+  };
 }
 
 interface ICommonOperation {

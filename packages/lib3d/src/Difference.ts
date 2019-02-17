@@ -43,11 +43,28 @@ export default class Difference extends CompoundObject {
         ...object.viewOptions,
       };
       let dif: Difference;
-      let mesh: THREE.Mesh;
-      // if mesh is in JSON, load mesh from JSON (to avoid recomputing)
-      if (object.mesh) {
-        mesh = new THREE.ObjectLoader().parse(object.mesh);
-        dif = new Difference(children, object.operations, viewOptions, mesh);
+
+      // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
+      if (object.geometry) {
+        const vertices: number[] = object.geometry.vertices;
+        const normals: number[] = object.geometry.normals;
+        const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
+          vertices,
+          normals,
+        );
+        const mesh: THREE.Mesh = new THREE.Mesh(
+          geometry,
+          new THREE.MeshLambertMaterial(),
+        );
+        dif = new Difference(
+          children,
+          object.operations,
+          viewOptions,
+          mesh,
+          true,
+        );
+        dif.verticesArray = vertices;
+        dif.normalsArray = normals;
       } else {
         dif = new Difference(children, object.operations, viewOptions);
       }
@@ -63,6 +80,7 @@ export default class Difference extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
+    applyOperations: boolean = false,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -73,6 +91,11 @@ export default class Difference extends CompoundObject {
     this.type = Difference.typeName;
     if (mesh) {
       this.setMesh(mesh);
+      if (applyOperations) {
+        this.pendingOperation = true;
+        this.viewOptionsUpdateRequired = true;
+        this.meshPromise = this.computeMeshAsync();
+      }
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
@@ -104,6 +127,10 @@ export default class Difference extends CompoundObject {
       this.operations,
       this.viewOptions,
     );
+
+    obj.verticesArray = this.verticesArray;
+    obj.normalsArray = this.normalsArray;
+
     return obj;
   }
 }

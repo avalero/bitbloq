@@ -42,11 +42,22 @@ export default class Union extends CompoundObject {
       };
 
       let union: Union;
-      let mesh: THREE.Mesh;
-      // if mesh is in JSON, load mesh from JSON (to avoid recomputing)
-      if (object.mesh) {
-        mesh = new THREE.ObjectLoader().parse(object.mesh);
-        union = new Union(children, object.operations, viewOptions, mesh);
+
+      // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
+      if (object.geometry) {
+        const vertices: number[] = object.geometry.vertices;
+        const normals: number[] = object.geometry.normals;
+        const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
+          vertices,
+          normals,
+        );
+        const mesh: THREE.Mesh = new THREE.Mesh(
+          geometry,
+          new THREE.MeshLambertMaterial(),
+        );
+        union = new Union(children, object.operations, viewOptions, mesh, true);
+        union.verticesArray = vertices;
+        union.normalsArray = normals;
       } else {
         union = new Union(children, object.operations, viewOptions);
       }
@@ -63,6 +74,7 @@ export default class Union extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
+    applyOperations: boolean = false,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -74,6 +86,12 @@ export default class Union extends CompoundObject {
 
     if (mesh) {
       this.setMesh(mesh);
+      // we have a mesh withoug operations and viewoptions
+      if (applyOperations) {
+        this.pendingOperation = true;
+        this.viewOptionsUpdateRequired = true;
+        this.meshPromise = this.computeMeshAsync();
+      }
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
@@ -98,6 +116,9 @@ export default class Union extends CompoundObject {
         this.viewOptions,
         this.mesh.clone() as THREE.Mesh,
       );
+      unionObj.verticesArray = this.verticesArray;
+      unionObj.normalsArray = this.normalsArray;
+
       return unionObj;
     }
 
