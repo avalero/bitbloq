@@ -115,7 +115,6 @@ export default class Scene {
     this.history = [];
     this.setMaterials();
     this.lastUpdateTS = 0;
-    
   }
 
   public canUndo(): boolean {
@@ -367,14 +366,14 @@ export default class Scene {
         throw new Error(`Object not present in ObjectCollector ${json.id}`);
       }
       const obj = this.getObject(json);
-      let parent:ObjectsCommon | undefined = obj.getParent();
-      if(parent){
+      let parent: ObjectsCommon | undefined = obj.getParent();
+      if (parent) {
         // mark as selected the parents
-        while(parent){
+        while (parent) {
           parent.setViewOptions({ selected: true });
           parent = parent.getParent();
         }
-      }else{
+      } else {
         obj.setViewOptions({ selected: true });
       }
       this.anySelectedObjects = true;

@@ -15,7 +15,7 @@
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
-
+import * as THREE from 'three';
 import {
   ICompoundObjectJSON,
   IViewOptions,
@@ -42,7 +42,32 @@ export default class Difference extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions,
       };
-      const dif = new Difference(children, object.operations, viewOptions);
+      let dif: Difference;
+
+      // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
+      if (object.geometry) {
+        const vertices: number[] = object.geometry.vertices;
+        const normals: number[] = object.geometry.normals;
+        const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
+          vertices,
+          normals,
+        );
+        const mesh: THREE.Mesh = new THREE.Mesh(
+          geometry,
+          new THREE.MeshLambertMaterial(),
+        );
+        dif = new Difference(
+          children,
+          object.operations,
+          viewOptions,
+          mesh,
+          true,
+        );
+        dif.verticesArray = vertices;
+        dif.normalsArray = normals;
+      } else {
+        dif = new Difference(children, object.operations, viewOptions);
+      }
       dif.id = object.id || dif.id;
       return dif;
     } catch (e) {
@@ -55,6 +80,7 @@ export default class Difference extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
+    applyOperations: boolean = false,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -65,6 +91,11 @@ export default class Difference extends CompoundObject {
     this.type = Difference.typeName;
     if (mesh) {
       this.setMesh(mesh);
+      if (applyOperations) {
+        this.pendingOperation = true;
+        this.viewOptionsUpdateRequired = true;
+        this.meshPromise = this.computeMeshAsync();
+      }
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
@@ -96,6 +127,10 @@ export default class Difference extends CompoundObject {
       this.operations,
       this.viewOptions,
     );
+
+    obj.verticesArray = this.verticesArray;
+    obj.normalsArray = this.normalsArray;
+
     return obj;
   }
 }

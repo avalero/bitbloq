@@ -73,6 +73,28 @@ export default class ObjectsCommon {
     return bufferArray;
   }
 
+  public static geometryFromVerticesNormals(
+    vertices: number[],
+    normals: number[],
+  ): THREE.Geometry {
+    const _vertices: ArrayLike<number> = new Float32Array(vertices);
+    const _normals: ArrayLike<number> = new Float32Array(normals);
+
+    const buffGeometry = new THREE.BufferGeometry();
+    buffGeometry.addAttribute(
+      'position',
+      new THREE.BufferAttribute(_vertices, 3),
+    );
+
+    buffGeometry.addAttribute('normal', new THREE.BufferAttribute(_normals, 3));
+
+    const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
+      buffGeometry,
+    );
+
+    return objectGeometry;
+  }
+
   public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
     group.children.forEach(child => {
@@ -85,7 +107,6 @@ export default class ObjectsCommon {
     return bufferArray;
   }
 
-  
   public static createViewOptions(
     color: string = '#ffffff',
     visible: boolean = true,
@@ -252,19 +273,14 @@ export default class ObjectsCommon {
   }
 
   public toJSON(): IObjectsCommonJSON {
-    // return cloneDeep({
-    //   id: this.id,
-    //   type: this.type,
-    //   viewOptions: this.viewOptions,
-    //   operations: this.operations,
-    // });
-
-    return {
+    const json: IObjectsCommonJSON = {
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
       operations: this.operations,
     };
+
+    return json;
   }
 
   public updateFromJSON(

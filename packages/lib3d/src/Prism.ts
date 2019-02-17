@@ -30,11 +30,23 @@ export default class Prism extends PrimitiveObject {
     if (object.type !== Prism.typeName) {
       throw new Error('Not Prism Object');
     }
-    const prism = new Prism(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    let prism: Prism;
+    let mesh: THREE.Mesh;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      prism = new Prism(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      prism = new Prism(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+      );
+    }
     prism.id = object.id || prism.id;
 
     return prism;

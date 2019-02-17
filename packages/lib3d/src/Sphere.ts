@@ -31,11 +31,24 @@ export default class Sphere extends PrimitiveObject {
     if (object.type !== Sphere.typeName) {
       throw new Error('Not Sphere Object');
     }
-    const sphere = new Sphere(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+
+    let sphere: Sphere;
+    let mesh: THREE.Mesh;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      sphere = new Sphere(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      sphere = new Sphere(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+      );
+    }
     sphere.id = object.id || sphere.id;
     return sphere;
   }
