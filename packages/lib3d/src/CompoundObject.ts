@@ -374,5 +374,3 @@ export default class CompoundObject extends Object3D {
 // they need to be at bottom to avoid typescript error with circular imports
 import RepetitionObject from './RepetitionObject';
 import ObjectsGroup from './ObjectsGroup';
-import { Geometry } from 'three';
-import { timingSafeEqual } from 'crypto';
