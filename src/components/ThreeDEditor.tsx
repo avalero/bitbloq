@@ -8,7 +8,9 @@ import { colors, Document, Icon, Spinner, withTranslate } from "@bitbloq/ui";
 import gql from "graphql-tag";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
+import BrowserVersionWarning from "./BrowserVersionWarning";
 import { addShapeGroups } from "../config";
+import { getChromeVersion } from "../util";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -156,6 +158,10 @@ class ThreeDEditor extends React.Component<any, State> {
     const { isEditTitleVisible } = this.state;
     const { id, updateDocument, t } = this.props;
 
+    if (getChromeVersion() < 69) {
+      return <BrowserVersionWarning version={69} color={colors.brandBlue} />;
+    }
+
     return (
       <>
         <Query query={DOCUMENT_QUERY} variables={{ id }}>
@@ -240,3 +246,4 @@ const Loading = styled(Spinner)`
   color: white;
   background-color: ${colors.brandBlue};
 `;
+

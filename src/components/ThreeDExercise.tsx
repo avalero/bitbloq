@@ -12,6 +12,8 @@ import {
   withTranslate
 } from "@bitbloq/ui";
 import gql from "graphql-tag";
+import BrowserVersionWarning from "./BrowserVersionWarning";
+import { getChromeVersion } from "../util";
 
 const EXERCISE_QUERY = gql`
   query Exercise($id: ObjectID!) {
@@ -81,6 +83,10 @@ class ThreeDExercise extends React.Component<any, State> {
       content = JSON.parse(exercise.content);
     } catch (e) {
       console.warn("Error parsing document content", e);
+    }
+
+    if (getChromeVersion() < 69) {
+      return <BrowserVersionWarning version={69} color={colors.brandBlue} />;
     }
 
     return (

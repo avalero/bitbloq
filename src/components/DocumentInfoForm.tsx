@@ -5,6 +5,7 @@ import { colors, FileSelectButton, Input, TextArea } from "@bitbloq/ui";
 export interface DocumentInfoFormProps {
   title: string;
   description: string;
+  image: string;
   onChange: (any) => void;
 }
 
