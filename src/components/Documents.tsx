@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import {
   colors,
   Icon,
+  DialogModal,
   DropDown,
   Select,
   Spinner,
@@ -31,21 +32,31 @@ const DOCUMENTS_QUERY = gql`
 
 const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
-    $type: String!,
-    $title: String!,
-    $description: String,
-    $content: String,
+    $type: String!
+    $title: String!
+    $description: String
+    $content: String
     $image: String
   ) {
-    createDocument(input: {
-      type: $type,
-      title: $title,
-      description: $description,
-      content: $content,
-      imageUrl: $image
-    }) {
+    createDocument(
+      input: {
+        type: $type
+        title: $title
+        description: $description
+        content: $content
+        imageUrl: $image
+      }
+    ) {
       id
       type
+    }
+  }
+`;
+
+const DELETE_DOCUMENT_MUTATION = gql`
+  mutation DeleteDocument($id: ObjectID!) {
+    deleteDocument(id: $id) {
+      id
     }
   }
 `;
@@ -82,6 +93,7 @@ const orderFunctions = {
 class DocumentsState {
   readonly order: string = OrderType.Creation;
   readonly searchText: string = "";
+  readonly deleteDocumentId: string | null = "";
 }
 
 class Documents extends React.Component<any, DocumentsState> {
@@ -107,7 +119,19 @@ class Documents extends React.Component<any, DocumentsState> {
 
   onOpenDocumentClick = () => {
     this.openFile.current.click();
-  }
+  };
+
+  onDocumentDeleteClick = (e, document) => {
+    e.stopPropagation();
+    this.setState({ deleteDocumentId: document.id });
+  };
+
+  onDeleteDocument = () => {
+    const { deleteDocumentId } = this.state;
+    const { deleteDocument } = this.props;
+    deleteDocument(deleteDocumentId);
+    this.setState({ deleteDocumentId: null });
+  };
 
   onFileSelected = (file, createDocument) => {
     const reader = new FileReader();
@@ -146,10 +170,7 @@ class Documents extends React.Component<any, DocumentsState> {
                     color={documentTypes[type].color}
                     onClick={() =>
                       documentTypes[type].supported &&
-                      this.onNewDocument(
-                        type,
-                        "Nuevo documento"
-                      )
+                      this.onNewDocument(type, "Nuevo documento")
                     }
                   >
                     <NewDocumentOptionIcon>+</NewDocumentOptionIcon>
@@ -174,7 +195,7 @@ class Documents extends React.Component<any, DocumentsState> {
   }
 
   render() {
-    const { order, searchText } = this.state;
+    const { order, searchText, deleteDocumentId } = this.state;
     const orderFunction = orderFunctions[order];
 
     return (
@@ -217,7 +238,9 @@ class Documents extends React.Component<any, DocumentsState> {
                       d =>
                         !searchText ||
                         (d.title &&
-                          d.title.toLowerCase().indexOf(searchText) >= 0)
+                          d.title
+                            .toLowerCase()
+                            .indexOf(searchText.toLowerCase()) >= 0)
                     )
                     .map(document => (
                       <DocumentCard
@@ -229,6 +252,11 @@ class Documents extends React.Component<any, DocumentsState> {
                           <DocumentTypeTag small document={document} />
                           <DocumentTitle>{document.title}</DocumentTitle>
                         </DocumentInfo>
+                        <DeleteDocument
+                          onClick={e => this.onDocumentDeleteClick(e, document)}
+                        >
+                          <Icon name="trash" />
+                        </DeleteDocument>
                       </DocumentCard>
                     ))}
                 </DocumentList>
@@ -243,6 +271,15 @@ class Documents extends React.Component<any, DocumentsState> {
             );
           }}
         </Query>
+        <DialogModal
+          isOpen={deleteDocumentId}
+          title="Eliminar"
+          text="¿Seguro que quieres eliminar este documento?"
+          okText="Aceptar"
+          cancelText="Cancelar"
+          onOk={this.onDeleteDocument}
+          onCancel={() => this.setState({ deleteDocumentId: null })}
+        />
         <Mutation
           mutation={CREATE_DOCUMENT_MUTATION}
           onCompleted={this.onDocumentCreated}
@@ -251,8 +288,10 @@ class Documents extends React.Component<any, DocumentsState> {
             <input
               ref={this.openFile}
               type="file"
-              onChange={e => this.onFileSelected(e.target.files[0], createDocument)}
-              style={{ display: 'none' }}
+              onChange={e =>
+                this.onFileSelected(e.target.files[0], createDocument)
+              }
+              style={{ display: "none" }}
             />
           )}
         </Mutation>
@@ -261,7 +300,23 @@ class Documents extends React.Component<any, DocumentsState> {
   }
 }
 
-export default Documents;
+const DocumentsWithDelete = props => (
+  <Mutation mutation={DELETE_DOCUMENT_MUTATION}>
+    {mutate => (
+      <Documents
+        {...props}
+        deleteDocument={id =>
+          mutate({
+            variables: { id },
+            refetchQueries: [{ query: DOCUMENTS_QUERY }]
+          })
+        }
+      />
+    )}
+  </Mutation>
+);
+
+export default DocumentsWithDelete;
 
 /* styled components */
 
@@ -340,6 +395,25 @@ const DocumentList = styled.div`
   }
 `;
 
+const DeleteDocument = styled.div`
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid ${colors.gray3};
+  background-color: white;
+  display: none;
+
+  &:hover {
+    background-color: ${colors.gray1};
+    border-color: ${colors.gray4};
+  }
+`;
+
 const DocumentCard = styled.div`
   display: flex;
   flex-direction: column;
@@ -348,6 +422,14 @@ const DocumentCard = styled.div`
   cursor: pointer;
   background-color: white;
   overflow: hidden;
+  position: relative;
+
+  &:hover {
+    border-color: ${colors.gray4};
+    ${DeleteDocument} {
+      display: flex;
+    }
+  }
 `;
 
 interface DocumentImageProps {

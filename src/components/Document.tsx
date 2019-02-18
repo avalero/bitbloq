@@ -107,7 +107,7 @@ class Document extends React.Component<any, DocumentState> {
             <Button
               tertiary
               onClick={() =>
-                navigate(`/app/document/${document.type}/${document.id}`)
+                window.open(`/app/document/${document.type}/${document.id}`)
               }
             >
               Editar documento
