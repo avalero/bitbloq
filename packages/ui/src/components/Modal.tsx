@@ -1,32 +1,38 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import Icon from './Icon';
-import colors from '../colors';
+import * as React from "react";
+import styled from "@emotion/styled";
+import Icon from "./Icon";
+import colors from "../colors";
 
 interface ModalProps {
   isOpen: boolean;
   title?: string;
+  showHeader: boolean;
   onClose: () => void;
 }
 
 export default class Modal extends React.Component<ModalProps> {
+  static defaultProps: Partial<ModalProps> = {
+    isOpen: false,
+    showHeader: true
+  };
+
   render() {
-    const { isOpen, title, onClose, children } = this.props;
+    const { isOpen, title, onClose, children, showHeader } = this.props;
 
     if (!isOpen) return false;
 
     return (
-      <Overlay>
-        <Container>
-          <Header>
-            <Title>{title}</Title>
-            <Close onClick={onClose && onClose}>
-              <Icon name="close" />
-            </Close>
-          </Header>
-          <div>
-            {children}
-          </div>
+      <Overlay onClick={onClose}>
+        <Container onClick={e => e.stopPropagation()}>
+          {showHeader && (
+            <Header>
+              <Title>{title}</Title>
+              <Close onClick={onClose}>
+                <Icon name="close" />
+              </Close>
+            </Header>
+          )}
+          <div>{children}</div>
         </Container>
       </Overlay>
     );
