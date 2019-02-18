@@ -4,7 +4,7 @@ import { keyframes } from '@emotion/core';
 import Icon from './Icon';
 
 export interface SpinnerProps {
-  className: string;
+  className?: string;
 }
 
 const Spinner: React.SFC<SpinnerProps> = ({ className }) => (
