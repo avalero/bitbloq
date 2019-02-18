@@ -1,5 +1,5 @@
-import * as React from 'react';
-import Button from './Button';
+import * as React from "react";
+import Button from "./Button";
 
 export interface FileSelectButtonProps {
   onFileSelected: (file: File) => void;
@@ -8,24 +8,29 @@ export interface FileSelectButtonProps {
 class FileSelectButton extends React.Component<
   FileSelectButtonProps & React.HTMLProps<HTMLButtonElement>
 > {
-  input = React.createRef();
+  input = React.createRef<HTMLInputElement>();
 
   onClick = () => {
-    this.input.current.click();
+    if (this.input.current) {
+      this.input.current.click();
+    }
   };
 
   render() {
-    const {onFileSelected, ...restProps} = this.props;
+    const { onFileSelected, ...restProps } = this.props;
     return (
       <>
         <Button {...restProps} onClick={this.onClick} />
         <input
           type="file"
-          style={{display: 'none'}}
+          style={{ display: "none" }}
           ref={this.input}
-          onChange={(e: React.FormEvent<HTMLInputElement>) =>
-            onFileSelected(e.target.files[0])
-          }
+          onChange={(e: React.FormEvent<HTMLInputElement>) => {
+            const files = (e.target as HTMLInputElement).files;
+            if (files && files[0]) {
+              onFileSelected(files[0]);
+            }
+          }}
         />
       </>
     );
