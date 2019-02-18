@@ -10,7 +10,7 @@ import {
   HorizontalRule
 } from "@bitbloq/ui";
 import { navigate } from "gatsby";
-import { Query, Mutation } from "react-apollo";
+import { Query, Mutation, Subscription } from "react-apollo";
 import gql from "graphql-tag";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
@@ -50,6 +50,14 @@ const CREATE_DOCUMENT_MUTATION = gql`
   }
 `;
 
+const DOCUMENT_UPDATED_SUBSCRIPTION = gql`
+  subscription OnDocumentUpdated {
+    documentUpdated {
+      id
+    }
+  }
+`;
+
 enum OrderType {
   Creation = "creation",
   Name = "name"
@@ -85,11 +93,8 @@ class Documents extends React.Component<any, DocumentsState> {
     navigate(`/app/document/${id}`);
   };
 
-  onNewDocument(createDocument, type, title) {
-    createDocument({
-      variables: { type, title },
-      refetchQueries: [{ query: DOCUMENTS_QUERY }]
-    });
+  onNewDocument(type, title) {
+    window.open(`/app/document/${type}/new`);
   }
 
   onDocumentCreated = ({ createDocument: { id, type } }) => {
@@ -122,55 +127,47 @@ class Documents extends React.Component<any, DocumentsState> {
       <Header>
         <h1>Mis Documentos</h1>
         <div>
-          <Mutation
-            mutation={CREATE_DOCUMENT_MUTATION}
-            onCompleted={this.onDocumentCreated}
+          <DropDown
+            attachmentPosition={"top center"}
+            targetPosition={"bottom center"}
           >
-            {createDocument => (
-              <DropDown
-                attachmentPosition={"top center"}
-                targetPosition={"bottom center"}
-              >
-                {isOpen => (
-                  <NewDocumentButton isOpen={isOpen}>
-                    <Icon name="new-document" />
-                    Nuevo documento
-                  </NewDocumentButton>
-                )}
-                <NewDocumentDropDown>
-                  <NewDocumentOptions>
-                    {Object.keys(documentTypes).map(type => (
-                      <NewDocumentOption
-                        key={type}
-                        comingSoon={!documentTypes[type].supported}
-                        color={documentTypes[type].color}
-                        onClick={() =>
-                          documentTypes[type].supported &&
-                          this.onNewDocument(
-                            createDocument,
-                            type,
-                            "Nuevo documento"
-                          )
-                        }
-                      >
-                        <NewDocumentOptionIcon>+</NewDocumentOptionIcon>
-                        <NewDocumentLabel>
-                          {documentTypes[type].label}
-                          {!documentTypes[type].supported && (
-                            <ComingSoon>Proximamente</ComingSoon>
-                          )}
-                        </NewDocumentLabel>
-                      </NewDocumentOption>
-                    ))}
-                  </NewDocumentOptions>
-                  <OpenDocumentButton onClick={this.onOpenDocumentClick}>
-                    <Icon name="new-document" />
-                    Abrir documento
-                  </OpenDocumentButton>
-                </NewDocumentDropDown>
-              </DropDown>
+            {isOpen => (
+              <NewDocumentButton isOpen={isOpen}>
+                <Icon name="new-document" />
+                Nuevo documento
+              </NewDocumentButton>
             )}
-          </Mutation>
+            <NewDocumentDropDown>
+              <NewDocumentOptions>
+                {Object.keys(documentTypes).map(type => (
+                  <NewDocumentOption
+                    key={type}
+                    comingSoon={!documentTypes[type].supported}
+                    color={documentTypes[type].color}
+                    onClick={() =>
+                      documentTypes[type].supported &&
+                      this.onNewDocument(
+                        type,
+                        "Nuevo documento"
+                      )
+                    }
+                  >
+                    <NewDocumentOptionIcon>+</NewDocumentOptionIcon>
+                    <NewDocumentLabel>
+                      {documentTypes[type].label}
+                      {!documentTypes[type].supported && (
+                        <ComingSoon>Proximamente</ComingSoon>
+                      )}
+                    </NewDocumentLabel>
+                  </NewDocumentOption>
+                ))}
+              </NewDocumentOptions>
+              <OpenDocumentButton onClick={this.onOpenDocumentClick}>
+                <Icon name="new-document" />
+                Abrir documento
+              </OpenDocumentButton>
+            </NewDocumentDropDown>
+          </DropDown>
         </div>
       </Header>
     );
@@ -184,7 +181,7 @@ class Documents extends React.Component<any, DocumentsState> {
       <Container>
         <AppHeader />
         <Query query={DOCUMENTS_QUERY}>
-          {({ loading, error, data }) => {
+          {({ loading, error, data, refetch }) => {
             if (loading) return <Loading />;
             if (error) return <p>Error :(</p>;
 
@@ -235,6 +232,13 @@ class Documents extends React.Component<any, DocumentsState> {
                       </DocumentCard>
                     ))}
                 </DocumentList>
+                <Subscription
+                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                  shouldResubscribe={true}
+                  onSubscriptionData={() => {
+                    refetch();
+                  }}
+                />
               </Content>
             );
           }}

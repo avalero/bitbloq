@@ -6,6 +6,7 @@ import debounce from "lodash.debounce";
 import { ThreeD } from "@bitbloq/3d";
 import { colors, Document, Icon, Spinner, withTranslate } from "@bitbloq/ui";
 import gql from "graphql-tag";
+import { navigate } from "gatsby";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
 import BrowserVersionWarning from "./BrowserVersionWarning";
@@ -21,6 +22,29 @@ const DOCUMENT_QUERY = gql`
       description
       content
       image
+    }
+  }
+`;
+
+const CREATE_DOCUMENT_MUTATION = gql`
+  mutation CreateDocument(
+    $type: String!
+    $title: String!
+    $description: String
+    $content: String
+    $image: String
+  ) {
+    createDocument(
+      input: {
+        type: $type
+        title: $title
+        description: $description
+        content: $content
+        imageUrl: $image
+      }
+    ) {
+      id
+      type
     }
   }
 `;
@@ -79,26 +103,19 @@ class ThreeDEditor extends React.Component<any, State> {
   private currentContent: any;
   threedRef = React.createRef<ThreeD>();
 
-  onEditTitle(document) {
+  onEditTitle = () => {
+    const { document } = this.props;
     this.setState({ isEditTitleVisible: true });
-  }
+  };
 
-  onSaveTitle = (title, document) => {
-    const { updateDocument } = this.props;
-    const { id, description, content, image } = document;
-    updateDocument({
-      variables: { id, title, description, content, image },
-      refetchQueries: [
-        {
-          query: DOCUMENT_QUERY,
-          variables: { id }
-        }
-      ]
-    });
+  onSaveTitle = title => {
+    const { updateDocument, document } = this.props;
+    updateDocument({ ...document, title });
     this.setState({ isEditTitleVisible: false });
   };
 
-  onMenuOptionClick = (option, document) => {
+  onMenuOptionClick = option => {
+    const { document } = this.props;
     const { type, title, description, content, image } = document;
     switch (option.id) {
       case "download-document":
@@ -124,8 +141,8 @@ class ThreeDEditor extends React.Component<any, State> {
     }
   };
 
-  renderInfoTab(document) {
-    const { t, updateDocument } = this.props;
+  renderInfoTab() {
+    const { t, document, updateDocument } = this.props;
     const { id, title, description, content, image } = document;
 
     return (
@@ -139,15 +156,7 @@ class ThreeDEditor extends React.Component<any, State> {
           description={description}
           image={image}
           onChange={({ title, description, image }) =>
-            updateDocument({
-              variables: { id, title, content, description, image },
-              refetchQueries: [
-                {
-                  query: DOCUMENT_QUERY,
-                  variables: { id }
-                }
-              ]
-            })
+            updateDocument({ ...document, title, description, image })
           }
         />
       </Document.Tab>
@@ -156,84 +165,104 @@ class ThreeDEditor extends React.Component<any, State> {
 
   render() {
     const { isEditTitleVisible } = this.state;
-    const { id, updateDocument, t } = this.props;
+    const { document, updateDocument, t } = this.props;
 
     if (getChromeVersion() < 69) {
       return <BrowserVersionWarning version={69} color={colors.brandBlue} />;
     }
 
+    const { id, title } = document;
+    let content = [];
+    try {
+      content = JSON.parse(document.content);
+    } catch (e) {
+      console.warn("Error parsing document content", e);
+    }
+
+    this.currentContent = content;
+
     return (
       <>
-        <Query query={DOCUMENT_QUERY} variables={{ id }}>
-          {({ loading, error, data }) => {
-            if (loading) return <Loading />;
-            if (error) return <p>Error :(</p>;
-
-            const { document } = data;
-            const { id, title } = document;
-            let content = [];
-            try {
-              content = JSON.parse(document.content);
-            } catch (e) {
-              console.warn("Error parsing document content", e);
-            }
-
+        <ThreeD
+          ref={this.threedRef}
+          initialContent={content}
+          title={title}
+          canEditTitle
+          onEditTitle={this.onEditTitle}
+          menuOptions={base => getMenuOptions(base, t)}
+          addShapeGroups={base => [...base, ...addShapeGroups]}
+          onMenuOptionClick={this.onMenuOptionClick}
+          onContentChange={content => {
             this.currentContent = content;
-
-            return (
-              <>
-                <ThreeD
-                  ref={this.threedRef}
-                  initialContent={content}
-                  title={title}
-                  canEditTitle
-                  onEditTitle={() => this.onEditTitle(document)}
-                  menuOptions={base => getMenuOptions(base, t)}
-                  addShapeGroups={base => [...base, ...addShapeGroups]}
-                  onMenuOptionClick={option =>
-                    this.onMenuOptionClick(option, document)
-                  }
-                  onContentChange={content => {
-                    this.currentContent = content;
-                    updateDocument({
-                      variables: {
-                        id,
-                        title,
-                        content: JSON.stringify(content)
-                      },
-                      refetchQueries: [
-                        { query: DOCUMENT_QUERY, variables: { id } }
-                      ]
-                    });
-                  }}
-                >
-                  {mainTab => [mainTab, this.renderInfoTab(document)]}
-                </ThreeD>
-                {isEditTitleVisible && (
-                  <EditTitleModal
-                    title={title}
-                    onCancel={() =>
-                      this.setState({ isEditTitleVisible: false })
-                    }
-                    onSave={title => this.onSaveTitle(title, document)}
-                  />
-                )}
-              </>
-            );
+            updateDocument({ ...document, content: JSON.stringify(content) });
           }}
-        </Query>
+        >
+          {mainTab => [mainTab, this.renderInfoTab()]}
+        </ThreeD>
+        {isEditTitleVisible && (
+          <EditTitleModal
+            title={title}
+            onCancel={() => this.setState({ isEditTitleVisible: false })}
+            onSave={this.onSaveTitle}
+          />
+        )}
       </>
     );
   }
 }
 
-const withUpdateDocument = Component => props => (
-  <Mutation mutation={UPDATE_DOCUMENT_MUTATION}>
-    {mutate => <Component updateDocument={debounce(mutate, 1000)} {...props} />}
-  </Mutation>
-);
+const ThreeDEditorWithData = props =>
+  props.id === "new" ? (
+    <Mutation
+      mutation={CREATE_DOCUMENT_MUTATION}
+      onCompleted={({ createDocument: { id, type } }) =>
+        navigate(`/app/document/${type}/${id}`)
+      }
+    >
+      {(createDocument, { loading }) => {
+        if (loading) return <Loading />;
 
-export default withTranslate(withUpdateDocument(ThreeDEditor));
+        return (
+          <ThreeDEditor
+            {...props}
+            document={{ content: "[]", title: "", description: "", type: "3d" }}
+            updateDocument={document => createDocument({ variables: document })}
+          />
+        );
+      }}
+    </Mutation>
+  ) : (
+    <Query query={DOCUMENT_QUERY} variables={{ id: props.id }}>
+      {({ loading, error, data }) => {
+        if (loading) return <Loading />;
+        if (error) return <p>Error :(</p>;
+
+        return (
+          <Mutation mutation={UPDATE_DOCUMENT_MUTATION}>
+            {mutate => (
+              <ThreeDEditor
+                {...props}
+                document={data.document}
+                updateDocument={debounce(document => {
+                  mutate({
+                    variables: document,
+                    refetchQueries: [
+                      {
+                        query: DOCUMENT_QUERY,
+                        variables: { id: props.id }
+                      }
+                    ]
+                  });
+                }, 1000)}
+              />
+            )}
+          </Mutation>
+        );
+      }}
+    </Query>
+  );
+
+export default withTranslate(ThreeDEditorWithData);
 
 /* styled components */
 
@@ -246,4 +275,3 @@ const Loading = styled(Spinner)`
   color: white;
   background-color: ${colors.brandBlue};
 `;
-
