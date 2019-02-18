@@ -8,6 +8,9 @@ import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 
+import { template } from '../email/welcomeMail';
+import  * as mjml2html from 'mjml';
+
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 
@@ -52,12 +55,17 @@ const userResolver = {
       );
       console.log(token);
 
+      const data={
+        activationUrl: `${process.env.FRONTEND_URL}/app/activate?token=${token}`
+      }
+      const mjml=template(data);
+      const htmlMessage=mjml2html(mjml, {keepComments: false, beautify:true, minify: true});
       const message: string = `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
         <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
           pulse aquí
         </a>
       `;
-      await mailerController.sendEmail(newUser.email, 'Sign Up ✔', message);
+      await mailerController.sendEmail(newUser.email, 'Bitbloq Sign Up ✔', htmlMessage.html);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token } },
