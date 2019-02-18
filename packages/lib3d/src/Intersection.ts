@@ -17,7 +17,7 @@ import {
   IViewOptions,
   OperationsArray,
 } from './Interfaces';
-
+import * as THREE from 'three';
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
 import Scene from './Scene';
@@ -42,11 +42,32 @@ export default class Intersection extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions,
       };
-      const intersect = new Intersection(
-        children,
-        object.operations,
-        viewOptions,
-      );
+      let intersect: Intersection;
+
+      // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
+      if (object.geometry) {
+        const vertices: number[] = object.geometry.vertices;
+        const normals: number[] = object.geometry.normals;
+        const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
+          vertices,
+          normals,
+        );
+        const mesh: THREE.Mesh = new THREE.Mesh(
+          geometry,
+          new THREE.MeshLambertMaterial(),
+        );
+        intersect = new Intersection(
+          children,
+          object.operations,
+          viewOptions,
+          mesh,
+          true,
+        );
+        intersect.verticesArray = vertices;
+        intersect.normalsArray = normals;
+      } else {
+        intersect = new Intersection(children, object.operations, viewOptions);
+      }
       intersect.id = object.id || intersect.id;
       return intersect;
     } catch (e) {
@@ -59,6 +80,7 @@ export default class Intersection extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
+    applyOperations: boolean = false,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -70,6 +92,12 @@ export default class Intersection extends CompoundObject {
 
     if (mesh) {
       this.setMesh(mesh);
+      // we have a mesh withoug operations and viewoptions
+      if (applyOperations) {
+        this.pendingOperation = true;
+        this.viewOptionsUpdateRequired = true;
+        this.meshPromise = this.computeMeshAsync();
+      }
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
@@ -93,6 +121,10 @@ export default class Intersection extends CompoundObject {
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone(),
       );
+
+      intObj.verticesArray = this.verticesArray;
+      intObj.normalsArray = this.normalsArray;
+
       return intObj;
     }
     const obj = new Intersection(

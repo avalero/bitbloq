@@ -151,6 +151,7 @@ test('Cylinder - newFromJSON', () => {
   const obj = new Cylinder(objParams, operations, viewOptions);
   const json: ICylinderJSON = obj.toJSON() as ICylinderJSON;
   const obj2 = Cylinder.newFromJSON(json);
+  expect(json.mesh).toBeUndefined();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);

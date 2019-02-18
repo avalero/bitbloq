@@ -1,12 +1,11 @@
 import * as React from "react";
 import { connect } from "react-redux";
-import { keyDown, keyUp, appClick } from "../actions/ui";
+import { keyDown, keyUp } from "../actions/ui";
 import ThreeD from "./threed/ThreeD";
 
 export interface AppProps {
   keyDown: (key: string) => any;
   keyUp: (key: string) => any;
-  appClick: (x: number, y: number) => any;
 }
 
 class App extends React.Component<AppProps> {
@@ -28,13 +27,9 @@ class App extends React.Component<AppProps> {
     this.props.keyUp(e.key);
   };
 
-  onClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    this.props.appClick(e.clientX, e.clientY);
-  };
-
   render() {
     return (
-      <div onClick={this.onClick}>
+      <div>
         <ThreeD {...this.props} />
       </div>
     );
@@ -43,7 +38,7 @@ class App extends React.Component<AppProps> {
 
 const mapStateToProps = () => ({});
 
-const mapDispatchToProps = { keyDown, keyUp, appClick };
+const mapDispatchToProps = { keyDown, keyUp };
 
 export default connect(
   mapStateToProps,

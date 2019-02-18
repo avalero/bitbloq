@@ -9,7 +9,7 @@
  * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
  *
  * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-01-31 10:05:22
+ * Last modified  : 2019-02-01 09:52:58
  */
 
 import * as THREE from 'three';
@@ -19,6 +19,7 @@ import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
 import {
+  IPrimitiveObjectJSON,
   ISTLJSON,
   ISTLParams,
   IViewOptions,
@@ -26,6 +27,13 @@ import {
 } from './Interfaces';
 
 export default class STLObject extends PrimitiveObject {
+  get meshUpdateRequired(): boolean {
+    return (this.parameters as ISTLParams).blob.newfile;
+  }
+
+  set meshUpdateRequired(a: boolean) {
+    (this.parameters as ISTLParams).blob.newfile = a;
+  }
   public static typeName: string = 'STLObject';
 
   public static newFromJSON(object: ISTLJSON): STLObject {
@@ -33,11 +41,23 @@ export default class STLObject extends PrimitiveObject {
       throw new Error('Not STL Object');
     }
 
-    const stl = new STLObject(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    let stl: STLObject;
+    let mesh: THREE.Mesh;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      stl = new STLObject(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      stl = new STLObject(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+      );
+    }
 
     stl.id = object.id || stl.id;
 
@@ -76,14 +96,6 @@ export default class STLObject extends PrimitiveObject {
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
-  }
-
-  get meshUpdateRequired(): boolean {
-    return (this.parameters as ISTLParams).blob.newfile;
-  }
-
-  set meshUpdateRequired(a: boolean) {
-    (this.parameters as ISTLParams).blob.newfile = a;
   }
 
   public clone(): STLObject {
@@ -153,6 +165,24 @@ export default class STLObject extends PrimitiveObject {
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
+  public toJSON(): IPrimitiveObjectJSON {
+    const base = super.toJSON();
+    const blob = (base.parameters as ISTLParams).blob;
+    if (blob && blob.uint8Data instanceof Uint8Array) {
+      return {
+        ...base,
+        parameters: {
+          ...base.parameters,
+          blob: {
+            ...blob,
+            uint8Data: Array.from(blob.uint8Data),
+          },
+        },
+      };
+    }
+    return base;
+  }
+
   protected setParameters(parameters: ISTLParams): void {
     if (!this.parameters) {
       this.parameters = { ...parameters };
@@ -187,12 +217,27 @@ export default class STLObject extends PrimitiveObject {
   }
 
   private computeGeometry(): THREE.Geometry {
-    const data: Uint8Array = (this.parameters as ISTLParams).blob.uint8Data;
+    const uint8Data = (this.parameters as ISTLParams).blob.uint8Data;
+    let data: Uint8Array = new Uint8Array([]);
+    if (uint8Data instanceof Uint8Array) {
+      data = uint8Data;
+    }
+    if (uint8Data instanceof Array) {
+      data = new Uint8Array(uint8Data);
+    }
     this.arrayBufferData = data.buffer;
     const filetype: string = (this.parameters as ISTLParams).blob.filetype;
 
-    if (filetype.match('model/x.stl-binary') || filetype.match('model/stl')) {
-      this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+    if (
+      filetype.match('model/x.stl-binary') ||
+      filetype.match('model/stl') ||
+      filetype.match('application/sla')
+    ) {
+      try {
+        this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+      } catch (e) {
+        throw new Error('Cannot parse STL file');
+      }
       if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
       }
@@ -201,12 +246,27 @@ export default class STLObject extends PrimitiveObject {
     }
 
     if (filetype.match('model/x.stl-ascii')) {
-      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      try {
+        this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      } catch (e) {
+        throw new Error('Cannot parse STL file');
+      }
       if (this.geometry instanceof THREE.Geometry) {
         return this.geometry;
       }
-
       throw new Error('Geometry not properly computed');
+    }
+    try {
+      // not able to parse binary, try text
+      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+    } catch (e) {
+      console.warn(`No text STL file: ${e}`);
+      // not able to parse text, throw exception
+      throw new Error(`Cannot parse STL file ${e}`);
+    }
+
+    if (this.geometry instanceof THREE.Geometry) {
+      return this.geometry;
     }
 
     throw new Error(`No STL file format: filetype: ${filetype} `);

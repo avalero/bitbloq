@@ -19,7 +19,13 @@ import TranslationHelper from './TranslationHelper';
 import meshArray2STL from './STLExporter';
 import TextObject from './TextObject';
 
-import {ITextObjectJSON, ICompoundObjectJSON, IObjectsCommonJSON, IRepetitionObjectJSON, IObjectsGroupJSON } from './Interfaces';
+import {
+  ITextObjectJSON,
+  ICompoundObjectJSON,
+  IObjectsCommonJSON,
+  IRepetitionObjectJSON,
+  IObjectsGroupJSON,
+} from './Interfaces';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -92,10 +98,14 @@ export default class Scene {
 
   private objectsInTransition: ObjectsCommon[];
 
-  private highlightedMaterial: object;
+  private anySelectedObjects: boolean;
+  private selectedMaterial: object;
+  private secondaryMaterial: object;
+  private normalMaterial: object;
   private transitionMaterial: object;
 
   constructor() {
+    this.anySelectedObjects = false;
     this.objectCollector = [];
     this.objectsInScene = [];
     this.objectsInTransition = [];
@@ -115,7 +125,7 @@ export default class Scene {
     return this.historyIndex < this.history.length - 1;
   }
 
-  public async exportToSTLAsync(name: string): Promise<void> {
+  public async exportToSTLAsync(name: string = ''): Promise<void> {
     // update objectsGroup if required
 
     if (this.sceneUpdated) {
@@ -124,15 +134,6 @@ export default class Scene {
       const objects3D: THREE.Object3D[] = await Promise.all(
         this.objectsInScene.map(async object => {
           const mesh = await object.getMeshAsync();
-          // if object is selected highlight
-          if (object.getViewOptions().highlighted) {
-            if (mesh instanceof THREE.Mesh) {
-              if (mesh.material instanceof THREE.MeshLambertMaterial) {
-                mesh.material.setValues(this.highlightedMaterial);
-              }
-            }
-          }
-          mesh.userData = object.toJSON();
           return mesh;
         }),
       );
@@ -195,28 +196,6 @@ export default class Scene {
     return this.objectsInScene.map(object => object.toJSON());
   }
 
-  // /**
-  //  * Updates all the objects in a Scene, if object is not present. It adds it.
-  //  * @param json json describin all the objects of the Scene
-  //  */
-  // public updateSceneFromJSON(json: ISceneJSON): ISceneJSON {
-  //   if (isEqual(json, this.toJSON())) {
-  //     return json;
-  //   }
-
-  //   json.forEach(obj => {
-  //     if (this.objectInScene(obj)) {
-  //       this.getObject(obj).updateFromJSON(obj);
-  //     } else {
-  //       throw new Error(`Object id ${obj.id} not present in Scene`);
-  //     }
-  //   });
-
-  //   this.updateHistory();
-
-  //   return this.toJSON();
-  // }
-
   /**
    * Scene lights and basegrid
    */
@@ -246,14 +225,30 @@ export default class Scene {
     const meshes: THREE.Object3D[] = await Promise.all(
       this.objectsInScene.map(async object => {
         const mesh = await object.getMeshAsync();
-        // if object is selected highlight
-        if (object.getViewOptions().highlighted) {
+
+        if (this.anySelectedObjects) {
+          // if object is selected highlight
+          if (object.getViewOptions().selected) {
+            if (mesh instanceof THREE.Mesh) {
+              if (mesh.material instanceof THREE.MeshLambertMaterial) {
+                mesh.material.setValues(this.selectedMaterial);
+              }
+            }
+          } else {
+            if (mesh instanceof THREE.Mesh) {
+              if (mesh.material instanceof THREE.MeshLambertMaterial) {
+                mesh.material.setValues(this.secondaryMaterial);
+              }
+            }
+          }
+        } else {
           if (mesh instanceof THREE.Mesh) {
             if (mesh.material instanceof THREE.MeshLambertMaterial) {
-              mesh.material.setValues(this.highlightedMaterial);
+              mesh.material.setValues(this.normalMaterial);
             }
           }
         }
+
         mesh.userData = object.toJSON();
         return mesh;
       }),
@@ -275,7 +270,7 @@ export default class Scene {
         if (mesh instanceof THREE.Mesh) {
           const pos = await this.getPositionAsync(object.toJSON());
           if (mesh.material instanceof THREE.MeshLambertMaterial) {
-            mesh.material.setValues(this.highlightedMaterial);
+            mesh.material.setValues(this.secondaryMaterial);
           }
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
           mesh.setRotationFromEuler(
@@ -360,8 +355,9 @@ export default class Scene {
    */
   public selectedObjects(jsonArray: IObjectsCommonJSON[]): ISceneJSON {
     // Deselect all objects
+    this.anySelectedObjects = false;
     this.objectCollector.forEach(obj => {
-      obj.setViewOptions({ highlighted: false });
+      obj.setViewOptions({ selected: false });
     });
 
     // Select chosen array of objects
@@ -370,9 +366,20 @@ export default class Scene {
         throw new Error(`Object not present in ObjectCollector ${json.id}`);
       }
       const obj = this.getObject(json);
-      obj.setViewOptions({ highlighted: true });
+      let parent: ObjectsCommon | undefined = obj.getParent();
+      if (parent) {
+        // mark as selected the parents
+        while (parent) {
+          parent.setViewOptions({ selected: true });
+          parent = parent.getParent();
+        }
+      } else {
+        obj.setViewOptions({ selected: true });
+      }
+      this.anySelectedObjects = true;
     });
 
+    this.updateHistory();
     return this.toJSON();
   }
 
@@ -440,7 +447,7 @@ export default class Scene {
     // easter egg to save stl files
     if (objJSON.type.match(TextObject.typeName)) {
       if ((objJSON as ITextObjectJSON).parameters.text.match('save')) {
-        this.exportToSTLAsync('scene');
+        this.exportToSTLAsync();
         return this.toJSON();
       }
     }
@@ -745,9 +752,19 @@ export default class Scene {
   }
 
   private setMaterials(): void {
-    this.highlightedMaterial = {
-      opacity: 0.8,
+    this.selectedMaterial = {
+      opacity: 1,
+      transparent: false,
+    };
+
+    this.secondaryMaterial = {
+      opacity: 0.5,
       transparent: true,
+    };
+
+    this.normalMaterial = {
+      opacity: 1,
+      transparent: false,
     };
 
     this.transitionMaterial = {

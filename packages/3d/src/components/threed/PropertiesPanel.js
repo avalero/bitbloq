@@ -127,7 +127,7 @@ const OperationButton = styled.div`
 `;
 
 const NameInput = styled(Input)`
-  height: 16px;
+  height: 30px;
   padding: 6px 8px;
 `;
 
@@ -342,7 +342,7 @@ class PropertiesPanel extends React.Component {
           {editingName && (
             <NameInput
               type="text"
-              innerRef={this.nameInputRef}
+              ref={this.nameInputRef}
               value={object.viewOptions.name}
               onChange={e => this.onObjectNameChange(object, e.target.value)}
               onBlur={() => this.setState({ editingName: false })}

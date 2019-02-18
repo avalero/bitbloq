@@ -1,8 +1,13 @@
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import colors from '../colors';
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import colors from "../colors";
 
-const Button = styled.button`
+interface ButtonProps {
+  small?: boolean;
+  secondary?: boolean;
+  tertiary?: boolean;
+}
+const Button = styled.button<ButtonProps>`
   border-radius: 4px;
   border: none;
   height: 40px;
@@ -28,30 +33,36 @@ const Button = styled.button`
     outline: none;
   }
 
-  ${props => props.small && css`
-    height: 30px;
-  `}
+  ${props =>
+    props.small &&
+    css`
+      height: 30px;
+    `}
 
-  ${props => props.secondary && css`
-    background-color: ${colors.black};
-    &:hover {
-      background-color: ${colors.blackHover};
-    }
-    &:active {
-      background-color: ${colors.blackPressed};
-    }
-  `}
+  ${props =>
+    props.secondary &&
+    css`
+      background-color: ${colors.black};
+      &:hover {
+        background-color: ${colors.blackHover};
+      }
+      &:active {
+        background-color: ${colors.blackPressed};
+      }
+    `}
 
-  ${props => props.tertiary && css`
-    color: ${colors.black};
-    background-color: ${colors.tertiary};
-    &:hover {
-      background-color: ${colors.tertiaryHover};
-    }
-    &:active {
-      background-color: ${colors.tertiaryPressed};
-    }
-  `}
+  ${props =>
+    props.tertiary &&
+    css`
+      color: ${colors.black};
+      background-color: ${colors.tertiary};
+      &:hover {
+        background-color: ${colors.tertiaryHover};
+      }
+      &:active {
+        background-color: ${colors.tertiaryPressed};
+      }
+    `}
 
   &[disabled] {
     color: ${colors.disabledColor};

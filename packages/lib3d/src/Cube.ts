@@ -13,7 +13,6 @@
  * Last modified  : 2019-01-31 10:33:27
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
@@ -36,11 +35,19 @@ export default class Cube extends PrimitiveObject {
     if (object.type !== Cube.typeName) {
       throw new Error('Not Cube Object');
     }
-    const cube = new Cube(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    let mesh: THREE.Mesh;
+    let cube: Cube;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      cube = new Cube(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      cube = new Cube(object.parameters, object.operations, object.viewOptions);
+    }
 
     cube.id = object.id || cube.id;
     return cube;

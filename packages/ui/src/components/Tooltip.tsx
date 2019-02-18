@@ -104,10 +104,11 @@ class Tooltip extends React.Component<TooltipProps, State> {
         attachment={attachmentPostion[position]}
         targetAttachment={targetPosition[position]}
         style={{ zIndex: 20 }}
-      >
-        {children({ onMouseOver, onMouseOut })}
-        {isVisible && <Container position={position}>{content}</Container>}
-      </TetherComponent>
+        renderTarget={ref => children({ ref, onMouseOver, onMouseOut })}
+        renderElement={ref => isVisible &&
+          <Container ref={ref} position={position}>{content}</Container>
+        }
+      />
     );
   }
 }

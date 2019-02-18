@@ -5,6 +5,11 @@ export interface IObjectsCommonJSON {
   id: string;
   viewOptions: Partial<IViewOptions>;
   operations: OperationsArray;
+  mesh?: object;
+  geometry?: {
+    vertices: number[];
+    normals: number[];
+  };
 }
 
 interface ICommonOperation {
@@ -47,7 +52,7 @@ export type OperationsArray = Operation[];
 export interface IViewOptions {
   color: string;
   visible: boolean;
-  highlighted: boolean;
+  selected: boolean;
   opacity: number;
   name: string;
 }
@@ -121,7 +126,7 @@ export interface ISphereJSON extends IObjectsCommonJSON {
 // STL Object
 export interface ISTLParams {
   blob: {
-    uint8Data: Uint8Array;
+    uint8Data: Uint8Array | number[];
     filetype: string;
     newfile: boolean;
   };

@@ -207,12 +207,13 @@ export default class RepetitionObject extends ObjectsCommon {
         this.pendingOperation ||
         this.viewOptionsUpdateRequired;
       this.meshUpdateRequired = update;
+
       this.originalObject.updateFromJSON(object.children[0], true);
 
       // if it has a parent, update through parent
-      const obj: ObjectsCommon | undefined = this.getParent();
-      if (obj && !fromParent) {
-        obj.updateFromJSON(obj.toJSON());
+      const parentObject: ObjectsCommon | undefined = this.getParent();
+      if (parentObject && !fromParent) {
+        parentObject.updateFromJSON(parentObject.toJSON());
       } else {
         if (
           update ||

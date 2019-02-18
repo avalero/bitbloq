@@ -1,7 +1,7 @@
 {
   "extends": ["./tslint.json"],
   "rules": {
-    "no-console": true,
+    "no-console": [true, "log", "error"],
     "no-debugger": true
   },
 
@@ -10,7 +10,8 @@
       "node_modules/**/*",
       "src/threeCSG.ts",
       "coverage/**/*",
-      "src/__tests__/**/*"
+      "src/__tests__/**/*",
+      "src/Renderer.ts"
     ]
   }
 }

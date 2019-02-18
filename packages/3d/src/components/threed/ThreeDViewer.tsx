@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
+import {connect} from 'react-redux';
 import styled from '@emotion/styled';
-import { selectObject, deselectAllObjects } from '../../actions/threed';
+import {selectObject, deselectAllObjects} from '../../actions/threed';
 import {
   Scene,
   IHelperDescription,
@@ -9,8 +9,8 @@ import {
   IObjectsCommonJSON,
   Renderer,
 } from '@bitbloq/lib3d';
-import { getSelectedObjects } from '../../reducers/threed/';
-import { Icon, withTranslate } from '@bitbloq/ui';
+import {getSelectedObjects} from '../../reducers/threed/';
+import {Icon, withTranslate} from '@bitbloq/ui';
 
 const Container = styled.div`
   flex: 1;
@@ -102,12 +102,7 @@ class ThreeDViewer extends React.Component<
   readonly state = new ThreeDViewerState();
 
   componentDidUpdate(prevProps: ThreeDViewerProps) {
-    const {
-      scene,
-      sceneObjects,
-      selectedObjects,
-      activeOperation,
-    } = this.props;
+    const {scene, sceneObjects, selectedObjects, activeOperation} = this.props;
     if (sceneObjects !== prevProps.sceneObjects) {
       this.renderer.updateScene();
     }
@@ -115,6 +110,7 @@ class ThreeDViewer extends React.Component<
       this.updateStatusBar();
       if (scene) {
         scene.selectedObjects(selectedObjects);
+        this.renderer.updateScene();
       }
     }
     if (scene !== prevProps.scene) {
@@ -125,7 +121,12 @@ class ThreeDViewer extends React.Component<
   }
 
   componentDidMount() {
-    const { scene, selectObject, deselectAllObjects, t } = this.props;
+    const {
+      scene,
+      selectObject,
+      deselectAllObjects,
+      t,
+    } = this.props;
     const container = this.rendererContainerRef.current;
 
     if (container) {
@@ -143,18 +144,22 @@ class ThreeDViewer extends React.Component<
     }
 
     this.renderer.onObjectClick(object => {
-      const { controlPressed, shiftPressed } = this.props;
+      const {controlPressed, shiftPressed} = this.props;
       selectObject(object, controlPressed || shiftPressed);
     });
-    this.renderer.onBackgroundClick(() => deselectAllObjects());
+    this.renderer.onBackgroundClick(() => {
+      if (this.props.selectedObjects.length > 0 ) {
+        deselectAllObjects();
+      }
+    });
   }
 
   async updateStatusBar() {
-    const { scene, selectedObjects } = this.props;
-    this.setState({ selectedPosition: undefined });
+    const {scene, selectedObjects} = this.props;
+    this.setState({selectedPosition: undefined});
     if (selectedObjects && selectedObjects.length === 1) {
       const selectedPosition = await scene.getPositionAsync(selectedObjects[0]);
-      this.setState({ selectedPosition });
+      this.setState({selectedPosition});
     }
   }
 
@@ -173,12 +178,12 @@ class ThreeDViewer extends React.Component<
   onToggleOrthographic = () => {
     const isOrthographic = !this.state.isOrthographic;
     this.renderer.setOrtographicCamera(isOrthographic);
-    this.setState({ isOrthographic });
+    this.setState({isOrthographic});
   };
 
   render() {
-    const { selectedPosition, isOrthographic } = this.state;
-    const { t } = this.props;
+    const {selectedPosition, isOrthographic} = this.state;
+    const {t} = this.props;
 
     return (
       <Container ref={this.rendererContainerRef}>

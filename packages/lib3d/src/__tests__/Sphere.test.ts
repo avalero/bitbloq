@@ -144,6 +144,7 @@ test('Sphere - newFromJSON', async () => {
   const obj = new Sphere(objParams, operations, viewOptions);
   const json: ISphereJSON = obj.toJSON() as ISphereJSON;
   const obj2 = Sphere.newFromJSON(json);
+  expect(json.mesh).toBeUndefined();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);

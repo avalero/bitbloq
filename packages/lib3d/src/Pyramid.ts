@@ -28,11 +28,23 @@ export default class Pyramid extends PrimitiveObject {
     if (object.type !== Pyramid.typeName) {
       throw new Error('Not Pyramid Object');
     }
-    const pyramid = new Pyramid(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    let pyramid: Pyramid;
+    let mesh: THREE.Mesh;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      pyramid = new Pyramid(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      pyramid = new Pyramid(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+      );
+    }
     pyramid.id = object.id || pyramid.id;
 
     return pyramid;

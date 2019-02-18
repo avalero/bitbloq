@@ -5,7 +5,6 @@ import {
   hideNotification,
   keyDown,
   keyUp,
-  appClick,
 } from '../actions/ui';
 
 const initialState = {

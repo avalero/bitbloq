@@ -30,7 +30,9 @@ test('Scene - Constructor', () => {
   expect((scene as any).history).toEqual([]);
   expect((scene as any).historyIndex).toEqual(-1);
   expect((scene as any).sceneSetup).toBeDefined();
-  expect((scene as any).highlightedMaterial).toBeDefined();
+  expect((scene as any).selectedMaterial).toBeDefined();
+  expect((scene as any).secondaryMaterial).toBeDefined();
+  expect((scene as any).normalMaterial).toBeDefined();
   expect((scene as any).transitionMaterial).toBeDefined();
 });
 

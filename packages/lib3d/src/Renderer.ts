@@ -66,7 +66,6 @@ export default class Renderer {
   private containerRect: ClientRect;
   private mouseDownObject: THREE.Object3D | undefined;
   private selectOnMouseUp: boolean;
-
   constructor(
     scene: Scene,
     container: HTMLElement,
@@ -97,13 +96,10 @@ export default class Renderer {
         this.threeScene.remove(this.objectInTransition);
       }
       this.objectInTransition = newObjectInTranstion;
-      // (this.objectInTransition.material as THREE.MeshLambertMaterial).opacity = 0.5;
-      // (this.objectInTransition.material as THREE.MeshLambertMaterial).transparent = true;
-      // (this.objectInTransition.material as THREE.MeshLambertMaterial).needsUpdate = true;
       this.threeScene.add(this.objectInTransition);
     }
 
-    // this.threeScene.remove(this.objectsGroup);
+    // set objects
     const newObjectsGroup = await this.scene.getObjectsAsync();
     this.threeScene.remove(this.objectsGroup);
     if (this.objectInTransition) {
@@ -134,7 +130,7 @@ export default class Renderer {
     this.cameraControls.rotateTo(theta, phi, true);
   }
 
-  public center(): void{
+  public center(): void {
     this.cameraControls.center();
   }
   public zoomIn(): void {

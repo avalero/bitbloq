@@ -12,7 +12,6 @@
  * Last modified  : 2019-01-31 10:34:20
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
@@ -30,11 +29,23 @@ export default class Cylinder extends PrimitiveObject {
     if (object.type !== Cylinder.typeName) {
       throw new Error('Not Cylinder Object');
     }
-    const cyl = new Cylinder(
-      object.parameters,
-      object.operations,
-      object.viewOptions,
-    );
+    let cyl: Cylinder;
+    let mesh: THREE.Mesh;
+    if (object.mesh) {
+      mesh = new THREE.ObjectLoader().parse(object.mesh);
+      cyl = new Cylinder(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+        mesh,
+      );
+    } else {
+      cyl = new Cylinder(
+        object.parameters,
+        object.operations,
+        object.viewOptions,
+      );
+    }
 
     cyl.id = object.id || cyl.id;
     return cyl;

@@ -14,6 +14,7 @@
 
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
+import * as THREE from 'three';
 
 import {
   ICompoundObjectJSON,
@@ -39,7 +40,28 @@ export default class Union extends CompoundObject {
         ...object.children[0].viewOptions,
         ...object.viewOptions,
       };
-      const union = new Union(children, object.operations, viewOptions);
+
+      let union: Union;
+
+      // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
+      if (object.geometry) {
+        const vertices: number[] = object.geometry.vertices;
+        const normals: number[] = object.geometry.normals;
+        const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
+          vertices,
+          normals,
+        );
+        const mesh: THREE.Mesh = new THREE.Mesh(
+          geometry,
+          new THREE.MeshLambertMaterial(),
+        );
+        union = new Union(children, object.operations, viewOptions, mesh, true);
+        union.verticesArray = vertices;
+        union.normalsArray = normals;
+      } else {
+        union = new Union(children, object.operations, viewOptions);
+      }
+
       union.id = object.id || union.id;
       return union;
     } catch (e) {
@@ -52,6 +74,7 @@ export default class Union extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
+    applyOperations: boolean = false,
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
@@ -63,6 +86,12 @@ export default class Union extends CompoundObject {
 
     if (mesh) {
       this.setMesh(mesh);
+      // we have a mesh withoug operations and viewoptions
+      if (applyOperations) {
+        this.pendingOperation = true;
+        this.viewOptionsUpdateRequired = true;
+        this.meshPromise = this.computeMeshAsync();
+      }
     } else {
       this.meshPromise = this.computeMeshAsync();
     }
@@ -87,6 +116,9 @@ export default class Union extends CompoundObject {
         this.viewOptions,
         this.mesh.clone() as THREE.Mesh,
       );
+      unionObj.verticesArray = this.verticesArray;
+      unionObj.normalsArray = this.normalsArray;
+
       return unionObj;
     }
 

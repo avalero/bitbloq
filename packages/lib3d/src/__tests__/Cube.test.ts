@@ -164,10 +164,17 @@ test('Cube - newFromJSON', async () => {
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
 });
 
-test('Cube - newFromJSON', () => {
+test('Cube - newFromJSON - invalid type', () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const json: ICubeJSON = obj.toJSON() as ICubeJSON;
   json.type = 'kkk';
   const obj2 = () => Cube.newFromJSON(json);
   expect(obj2).toThrowError();
+});
+
+test('Cube - newFromJSON - with mesh', async () => {
+  const obj = new Cube(objParams, operations, viewOptions);
+  const json: ICubeJSON = obj.toJSON() as ICubeJSON;
+  expect(json.mesh).toBeUndefined();
+  const obj2 = Cube.newFromJSON(json);
 });
