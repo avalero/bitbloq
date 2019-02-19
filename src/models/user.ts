@@ -31,12 +31,10 @@ export const ContactSchema: Schema = new Schema({
 
   name: {
     type: String,
-    trim: true,
   },
 
   center: {
     type: String,
-    trim: true,
   },
 
   active: {

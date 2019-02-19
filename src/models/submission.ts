@@ -36,6 +36,7 @@ const SubmissionMongSchema: Schema = new Schema({
 
   studentNick: {
     type: String,
+    required: true
   },
 
   content: {
@@ -56,13 +57,25 @@ const SubmissionMongSchema: Schema = new Schema({
     type: String,
   },
 
-  comment: {
+  studentComment: {
     type: String,
   },
 
   finishedAt: {
     type: Date,
   },
+
+  grade:{
+    type: Number,
+  },
+
+  teacherComment: {
+    type: String,
+  },
+
+  gradedAt:{
+    type: Date,
+  }
 });
 SubmissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(

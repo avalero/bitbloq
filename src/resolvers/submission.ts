@@ -28,6 +28,12 @@ const submissionResolver = {
      * args: exercise code and student nickname.
      */
     createSubmission: async (root: any, args: any, context: any) => {
+      if(!args.studentNick){
+        throw new ApolloError(
+          'Error creating submission, you must introduce a nickname',
+          'NOT_NICKNAME_PROVIDED',
+        );
+      }
       const exFather = await ExerciseModel.findOne({
         code: args.exerciseCode,
         acceptSubmissions: true,
@@ -179,7 +185,7 @@ const submissionResolver = {
           $set: {
             finished: true,
             content: args.content,
-            comment: args.comment,
+            studentComment: args.studentComment,
             finishedAt: Date.now(),
           },
         },
@@ -222,7 +228,6 @@ const submissionResolver = {
      * It deletes the submission passed in the arguments if it belongs to the user logged.
      * args: submission ID
      */
-
     // el profesor borra la sumbission de un alumno
     deleteSubmission: async (root: any, args: any, context: any) => {
       const existSubmission = await SubmissionModel.findOne({
@@ -231,7 +236,7 @@ const submissionResolver = {
       });
       if (!existSubmission) {
         throw new ApolloError(
-          'Error updating submission, it should part of one of your exercises',
+          'Error deleting submission, not found',
           'SUBMISSION_NOT_FOUND',
         );
       }
@@ -243,6 +248,50 @@ const submissionResolver = {
       });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
+
+    /**
+     * Grade submission: user logged grades a student submission.
+     * It updates the submission with the new information provided: grade and teacher comment.
+     * args: submissionID, grade and teacherComment
+     */
+    gradeSubmission: async (root:any, args: any, context: any)=>{
+      const existSubmission = await SubmissionModel.findOne({
+        _id: args.submissionID,
+        user: context.user.userID,
+      });
+      if (!existSubmission) {
+        throw new ApolloError(
+          'Error grading submission, not found',
+          'SUBMISSION_NOT_FOUND',
+        );
+      }
+      //La sumission tiene que estar acabada
+      if(!existSubmission.finished){
+        throw new ApolloError(
+          'Error grading submission, submission not finished by student',
+          'SUBMISSION_NOT_FINISHED',
+        );
+      }
+      await LogModel.create({
+        user: existSubmission.user,
+        object: existSubmission._id,
+        action: 'SUB_graded',
+        docType: existSubmission.type,
+      });
+
+      const updatedSubmission = await SubmissionModel.findOneAndUpdate(
+        { _id: existSubmission._id },
+        {
+          $set: {
+            grade: args.grade,
+            teacherComment: args.teacherComment,
+            gradedAt: Date.now(),
+          },
+        },
+        { new: true },
+      );
+      return updatedSubmission;
+    }
   },
 
   Query: {

@@ -18,10 +18,11 @@ type Query {
 }
 type Mutation {
   createSubmission(exerciseCode: String!, studentNick: String!): createOut
-  updateSubmission(input: SubmissionIn): Submission                         @authRequired(requires: [EPHEMERAL])
-  finishSubmission(content: String, comment: String): Submission            @authRequired(requires: [EPHEMERAL])
-  cancelSubmission: Submission                                              @authRequired(requires: [USER])
-  deleteSubmission(submissionID: ObjectID!): Submission                     @authRequired(requires: [USER])
+  updateSubmission(input: SubmissionIn): Submission                                           @authRequired(requires: [EPHEMERAL])
+  finishSubmission(content: String, studentComment: String): Submission                       @authRequired(requires: [EPHEMERAL])
+  cancelSubmission: Submission                                                                @authRequired(requires: [EPHEMERAL])
+  deleteSubmission(submissionID: ObjectID!): Submission                                       @authRequired(requires: [USER])
+  gradeSubmission(submissionID: ObjectID, grade: Float, teacherComment: String): Submission   @authRequired(requires: [USER])
 }
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission   @authRequired(requires: [USER])
@@ -37,17 +38,22 @@ type Submission {
   content: String
   submissionToken: String
   finished: Boolean
-  comment: String
+  studentComment: String
   type: String
   createdAt: Date
   updatedAt: Date
   finishedAt: Date
+  grade: Float
+  teacherComment: String
+  gradedAt: Date
 }
 input SubmissionIn {
   title: String
   finished: Boolean
-  comment: String
+  studentComment: String
   studentNick: String
+  content: String
+  type: String
 }
 type createOut {
   token: String
