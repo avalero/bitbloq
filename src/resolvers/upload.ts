@@ -41,7 +41,7 @@ const processUpload = async (createReadStream, filename, resolve, reject) => {
 
 function getPublicUrl(filename) {
   const finalName: string = encodeURIComponent(filename);
-  return `https:// storage.googleapis.com/${bucketName}/${finalName}`;
+  return `https://storage.googleapis.com/${bucketName}/${finalName}`;
 }
 
 const uploadResolver = {
