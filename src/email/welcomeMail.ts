@@ -41,7 +41,7 @@ const template = compile(`
           En ella disfrutarás de las nuevas herramientas y funcionalidades de Bitbloq 3.0 antes que nadie. Recuerda que esta versión está en fase de desarrollo: en ocasiones, puede que encuentres cambios o incluso pequeños fallos. 
         </mj-text>
         <mj-text color="#313741" font-size="14px">
-          Nos encantaría conocer tu opinión y experiencia usando esta nueva versión en "00000@000.com”. ¡Todas las sugerencias son bienvenidas!
+          Nos encantaría conocer tu opinión y experiencia usando esta nueva versión en "info@bitbloq.cc”. ¡Todas las sugerencias son bienvenidas!
         </mj-text>
         <mj-text color="#313741" font-size="14px">
           Para empezar a usar la beta, confirma tu dirección de correo en este enlace:
