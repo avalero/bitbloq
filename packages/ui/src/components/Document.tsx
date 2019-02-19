@@ -177,7 +177,7 @@ const Content = styled.div<ContentProps>`
 
 export interface TabProps {
   label: string;
-  icon: string;
+  icon: JSX.Element;
   children: React.ReactChild;
 }
 
