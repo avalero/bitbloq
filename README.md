@@ -144,12 +144,15 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       submission(id: ObjectID!): Submission
       submissionsByExercise(exercise: String!): [Submission]
 
-    MUTATIONS:
+    STUDENT MUTATIONS:
       createSubmission(exerciseCode: String!, studentNick: String!): createOut
       updateSubmission(input: SubmissionIn): Submission
-      finishSubmission(content: String, comment: String): Submission
+      finishSubmission(content: String, studentComment: String): Submission
       cancelSubmission: Submission
+
+    TEACHER MUTATIONS:
       deleteSubmission(submissionID: String): Submission
+      gradeSubmission(submissionID: ObjectID, grade: Float, teacherComment: String): Submission
 
     SUBSCRIPTIONS:
       submissionUpdated(exercise: ObjectID!): Submission
