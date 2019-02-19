@@ -58,17 +58,30 @@ const CREATE_SUBMISSION_MUTATION = gql`
   }
 `;
 
+const getErrorText = ({ graphQLErrors: errors }) => {
+  const error = errors && errors[0];
+  if (error) {
+    const code = error.extensions && error.extensions.code;
+    switch (code) {
+      case "INVALID_EXERCISE_CODE":
+        return "El ejercicio no existe o ya no admite más alumnos";
+      default:
+        return "Error";
+    }
+  }
+};
+
 class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   readonly state = new IndexPageState();
 
   onTeacherLogin = ({ login: token }) => {
-    window.sessionStorage.setItem('authToken', '');
-    window.localStorage.setItem('authToken', token);
-    navigate('/app');
+    window.sessionStorage.setItem("authToken", "");
+    window.localStorage.setItem("authToken", token);
+    navigate("/app");
   };
 
-  onStudentLogin = ({ createSubmission: { token, exerciseID, type }}) => {
-    window.sessionStorage.setItem('authToken', token);
+  onStudentLogin = ({ createSubmission: { token, exerciseID, type } }) => {
+    window.sessionStorage.setItem("authToken", token);
     navigate(`/app/exercise/${type}/${exerciseID}/`);
   };
 
@@ -113,9 +126,9 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                 placeholder="Contraseña"
                 type="password"
               />
-              {(!loading && error) &&
+              {!loading && error && (
                 <ErrorMessage>Email o contraseña incorrectos</ErrorMessage>
-              }
+              )}
               <LoginButton
                 disabled={loading}
                 onClick={() => login({ variables: { email, password } })}
@@ -169,9 +182,9 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                 onChange={e => this.setState({ exerciseCode: e.target.value })}
                 placeholder="Código de ejercicio"
               />
-              {(!loading && error) &&
-                <ErrorMessage>Error</ErrorMessage>
-              }
+              {!loading && error && (
+                <ErrorMessage>{getErrorText(error)}</ErrorMessage>
+              )}
               <LoginButton
                 disabled={loading}
                 onClick={() =>
@@ -231,7 +244,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
         <Query query={ME_QUERY} fetchPolicy="network-only">
           {({ loading, error, data }) => {
             if (!loading && !error && data) {
-              navigate('/app');
+              navigate("/app");
             }
             return null;
           }}
@@ -395,7 +408,7 @@ const DashedLine = styled.div`
 `;
 
 const CodeInput = styled(Input)`
-  font-family: 'Roboto Mono';
+  font-family: "Roboto Mono";
 `;
 
 const LoginForm = styled.form`
