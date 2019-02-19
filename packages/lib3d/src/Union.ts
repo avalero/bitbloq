@@ -102,14 +102,7 @@ export default class Union extends CompoundObject {
       child.clone(),
     );
 
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const unionObj = new Union(
         childrenClone,
         this.operations,

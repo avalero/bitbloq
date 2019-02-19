@@ -72,14 +72,7 @@ export default class TextObject extends PrimitiveObject {
   }
 
   public clone(): TextObject {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const objText = new TextObject(
         this.parameters as ITextObjectParams,
         this.operations,

@@ -99,14 +99,7 @@ export default class STLObject extends PrimitiveObject {
   }
 
   public clone(): STLObject {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const objSTL = new STLObject(
         this.parameters as ISTLParams,
         this.operations,
