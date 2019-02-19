@@ -73,14 +73,7 @@ export default class Cylinder extends PrimitiveObject {
   }
 
   public clone(): Cylinder {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const objCyl = new Cylinder(
         this.parameters as ICylinderParams,
         this.operations,

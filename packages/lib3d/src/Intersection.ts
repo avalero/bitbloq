@@ -107,14 +107,7 @@ export default class Intersection extends CompoundObject {
     const childrenClone: ChildrenArray = this.children.map(child =>
       child.clone(),
     );
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const intObj = new Intersection(
         childrenClone,
         this.operations,

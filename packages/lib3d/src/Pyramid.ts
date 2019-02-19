@@ -72,14 +72,7 @@ export default class Pyramid extends PrimitiveObject {
   }
 
   public clone(): Pyramid {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const objPrism = new Pyramid(
         this.parameters as IPyramidParams,
         this.operations,
