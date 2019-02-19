@@ -349,7 +349,6 @@ export default class RepetitionObject extends ObjectsCommon {
 
     const { x, y, z, type, num } = this.parameters;
 
-    debugger;
     for (let i: number = 0; i < num; i += 1) {
       if (this.originalObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = this.originalObject.clone();
