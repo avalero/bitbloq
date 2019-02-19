@@ -18,46 +18,46 @@ const template = compile(`
     </mj-style>
 
   </mj-head>
-  <mj-body background-color="#fbfbfb" width="1000px">
-    <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px">
+  <mj-body background-color="#ffffff" width="520px" height="827px" border-radius="4px">
+    <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="40px">
       <mj-column width="40%">
         <mj-image align="left" src="https://storage.googleapis.com/bitbloq-dev/1550495188742logo-vertical.png" width="120px" height="55.2px" alt=""  />
       </mj-column>
       <mj-column width="60%">
       </mj-column>
     </mj-section>
-    <mj-section padding-left="15px" padding-right="15px" padding-top="1px" padding-bottom="1px" background-color="#ffffff">
+    <mj-section padding-top="1px" padding-bottom="1px" background-color="#ffffff">
       <mj-column width="100%">
-        <mj-image align="center" src="https://storage.googleapis.com/bitbloq-dev/1550494517787cuadrados.png" height="2px" />
+        <mj-image align="left" width="520px" src="https://storage.googleapis.com/bitbloq-dev/1550567814460color-line.png" height="1px" />
       </mj-column>
     </mj-section>
-    <mj-wrapper padding-top="0" padding-bottom="0" css-class="body-section">
-      <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px">
-        <mj-column width="100%">
-          <mj-text color="#313741" font-size="24px">
-            ¡Bienvenido a la beta del nuevo Bitbloq!
-          </mj-text>
-          <mj-text color="#313741" font-size="14px">
-            En ella disfrutarás de las nuevas herramientas y funcionalidades de Bitbloq 3.0 antes que nadie. Recuerda que esta versión está en fase de desarrollo: en ocasiones, puede que encuentres cambios o incluso pequeños fallos. 
-          </mj-text>
-          <mj-text color="#313741" font-size="14px">
-            Nos encantaría conocer tu opinión y experiencia usando esta nueva versión en "00000@000.com”. ¡Todas las sugerencias son bienvenidas!
-          </mj-text>
-          <mj-text color="#313741" font-size="14px">
-            Para empezar a usar la beta, confirma tu dirección de correo en este enlace:
-          </mj-text>
-          <mj-button background-color="#ebebeb" align="center" color="#313741" font-size="14px" font-weight="bold" href="{{activationUrl}}" width="420px" height="110px" border-radius="4px">
-            {{activationUrl}}
-          </mj-button>
-          <mj-text color="#313741" font-size="14px" padding-bottom="0">
-            Un saludo,
-            <p>el equipo de Bitbloq.</p>
-          </mj-text>
-        </mj-column>
-      
-      
-    </mj-wrapper>
+    
+    <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px">
+      <mj-column width="100%">
+        <mj-text color="#313741" font-size="24px">
+          ¡Bienvenido a la beta del nuevo Bitbloq!
+        </mj-text>
+        <mj-text color="#313741" font-size="14px">
+          En ella disfrutarás de las nuevas herramientas y funcionalidades de Bitbloq 3.0 antes que nadie. Recuerda que esta versión está en fase de desarrollo: en ocasiones, puede que encuentres cambios o incluso pequeños fallos. 
+        </mj-text>
+        <mj-text color="#313741" font-size="14px">
+          Nos encantaría conocer tu opinión y experiencia usando esta nueva versión en "00000@000.com”. ¡Todas las sugerencias son bienvenidas!
+        </mj-text>
+        <mj-text color="#313741" font-size="14px">
+          Para empezar a usar la beta, confirma tu dirección de correo en este enlace:
+        </mj-text>
+        <mj-button background-color="#ebebeb" align="center" color="#313741" font-size="14px" font-weight="bold" href="{{activationUrl}}" width="420px" height="110px" border-radius="4px">
+          {{activationUrl}}
+        </mj-button>
+        <mj-text color="#313741" font-size="14px" padding-bottom="0">
+          Un saludo,
+          <p>el equipo de Bitbloq.</p>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding-top="1px" padding-bottom="1px" background-color="#fbfbfb">
 
+    </mj-section>
     <mj-wrapper full-width="full-width">
         <mj-section background-color="#ffffff" >
             <mj-column width="100%">
