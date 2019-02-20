@@ -107,6 +107,18 @@ export default class PrimitiveObject extends Object3D {
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
+  protected computeMesh(): void {
+    try {
+      const geometry: THREE.Geometry = this.getGeometry();
+      this.mesh = new THREE.Mesh(geometry);
+      this.applyOperations();
+      this.applyViewOptions();
+      this.setMesh(this.mesh);
+    } catch (e) {
+      throw new Error(`Cannot compute Mesh: ${e}`);
+    }
+  }
+
   protected setParameters(parameters: object): void {
     if (!this.parameters) {
       this.parameters = { ...parameters };

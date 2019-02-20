@@ -68,7 +68,8 @@ export default class Cylinder extends PrimitiveObject {
     if (mesh) {
       this.setMesh(mesh);
     } else {
-      this.meshPromise = this.computeMeshAsync();
+      this.computeMesh();
+      this.meshPromise = null;
     }
   }
 

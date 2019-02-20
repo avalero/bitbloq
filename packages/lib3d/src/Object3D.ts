@@ -103,6 +103,37 @@ export default class Object3D extends ObjectsCommon {
     throw new Error('Object3D.clone() Implemented in children');
   }
 
+  protected applyOperations(): void {
+    this.mesh.position.set(0, 0, 0);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
+
+    this.mesh.scale.x = 1;
+    this.mesh.scale.y = 1;
+    this.mesh.scale.z = 1;
+
+    this.operations.forEach(operation => {
+      // Translate operation
+      if (operation.type === Object3D.createTranslateOperation().type) {
+        this.applyTranslateOperation(operation as ITranslateOperation);
+      } else if (operation.type === Object3D.createRotateOperation().type) {
+        this.applyRotateOperation(operation as IRotateOperation);
+      } else if (operation.type === Object3D.createScaleOperation().type) {
+        this.applyScaleOperation(operation as IScaleOperation);
+      } else if (operation.type === Object3D.createMirrorOperation().type) {
+        this.applyMirrorOperation(operation as IMirrorOperation);
+      } else {
+        throw Error('ERROR: Unknown Operation');
+      }
+    });
+
+    this.pendingOperation = false;
+
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+
+    return;
+  }
+
   // protected getMaterial(): THREE.MeshLambertMaterial {
   //   return new THREE.MeshLambertMaterial({
   //     color: this.viewOptions.color,

@@ -70,7 +70,8 @@ export default class Cube extends PrimitiveObject {
     if (mesh) {
       this.setMesh(mesh);
     } else {
-      this.meshPromise = this.computeMeshAsync();
+      this.computeMesh();
+      this.meshPromise = null;
     }
   }
 
@@ -78,13 +79,7 @@ export default class Cube extends PrimitiveObject {
    * Creates a cube clone (not sharing references)
    */
   public clone(): Cube {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const cubeObj = new Cube(
         this.parameters as ICubeParams,
         this.operations,
