@@ -392,6 +392,9 @@ export default class RepetitionObject extends ObjectsCommon {
     }
 
     const { axis, angle, type, num } = this.parameters;
+    if (this.originalObject.meshPromise) {
+      await this.originalObject.computeMeshAsync();
+    }
     const baseObject = this.originalObject.clone();
 
     const positionCalculator = new PositionCalculator(baseObject);
