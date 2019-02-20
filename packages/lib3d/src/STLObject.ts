@@ -94,7 +94,8 @@ export default class STLObject extends PrimitiveObject {
     if (mesh) {
       this.setMesh(mesh);
     } else {
-      this.meshPromise = this.computeMeshAsync();
+      this.computeMesh();
+      this.meshPromise = null;
     }
   }
 

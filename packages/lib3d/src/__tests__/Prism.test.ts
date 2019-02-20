@@ -36,14 +36,13 @@ test('Prism - Constructor', () => {
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
 
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Prism - Constructor - Default Params - ViewOptions', () => {
@@ -51,15 +50,13 @@ test('Prism - Constructor - Default Params - ViewOptions', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Prism - Constructor - Default Params - Operations - ViewOptions', () => {
@@ -68,14 +65,13 @@ test('Prism - Constructor - Default Params - Operations - ViewOptions', () => {
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
 
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Prism - Constructor - Set Operations - Translation', () => {
@@ -87,13 +83,12 @@ test('Prism - Constructor - Set Operations - Translation', () => {
   const obj = new Prism(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
 
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.position).toEqual({ x, y, z });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.position).toEqual({ x, y, z });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Prism - Constructor - Set Operations - Rotation', () => {
@@ -107,13 +102,12 @@ test('Prism - Constructor - Set Operations - Rotation', () => {
   const obj = new Prism(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
 
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 180);
-    expect(mesh.rotation.y).toBeCloseTo((Math.PI * yangle) / 180);
-    expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo((Math.PI * xangle) / 180);
+  expect(mesh.rotation.y).toBeCloseTo((Math.PI * yangle) / 180);
+  expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
 });
 
 test('Prism - Constructor - set Mesh', async () => {

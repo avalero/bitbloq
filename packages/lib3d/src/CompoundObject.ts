@@ -109,7 +109,29 @@ export default class CompoundObject extends Object3D {
           }
 
           const message = event.data;
+
+          // save vertices and normals
+
+          const verticesBuffer: ArrayBuffer = message.vertices;
+          const normalsBuffer: ArrayBuffer = message.normals;
+
+          const vertices: ArrayLike<number> = new Float32Array(
+            verticesBuffer,
+            0,
+            verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          );
+
+          const normals: ArrayLike<number> = new Float32Array(
+            normalsBuffer,
+            0,
+            normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          );
+
+          this.verticesArray = Array.from(vertices);
+          this.normalsArray = Array.from(normals);
+
           // recompute object form vertices and normals
+
           this.fromBufferData(message.vertices, message.normals).then(mesh => {
             this.mesh = mesh;
             if (this.mesh instanceof THREE.Mesh) {
@@ -137,22 +159,6 @@ export default class CompoundObject extends Object3D {
 
         // Lets create an array of vertices and normals for each child
         this.toBufferArrayAsync().then(bufferArray => {
-          const verticesBuffer: ArrayBuffer = bufferArray[0];
-          const normalsBuffer: ArrayBuffer = bufferArray[1];
-
-          const vertices: ArrayLike<number> = new Float32Array(
-            verticesBuffer,
-            0,
-            verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
-          );
-          const normals: ArrayLike<number> = new Float32Array(
-            normalsBuffer,
-            0,
-            normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
-          );
-          this.verticesArray = Array.from(vertices);
-          this.normalsArray = Array.from(normals);
-
           const message = {
             bufferArray,
             type: this.getTypeName(),
@@ -192,13 +198,13 @@ export default class CompoundObject extends Object3D {
       children: this.children.map(obj => obj.toJSON()),
     };
 
-    if (this.verticesArray && this.normalsArray) {
-      json.geometry = {
-        vertices: this.verticesArray,
-        normals: this.normalsArray,
-      };
-    }
-
+    // too much networkd load - uncommenting should work!!
+    // if (this.verticesArray && this.normalsArray) {
+    //   json.geometry = {
+    //     vertices: this.verticesArray,
+    //     normals: this.normalsArray,
+    //   };
+    // }
     return json;
   }
 
