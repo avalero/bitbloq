@@ -41,20 +41,31 @@ class EditTitleModal extends React.Component<EditTitleModalProps> {
         onClose={onCancel}
       >
         <Content>
-          <p>Introduce un nuevo nombre para el proyecto</p>
-          <form>
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              onSave(title);
+            }}
+          >
+            <p>Introduce un nuevo nombre para el proyecto</p>
             <Input
               value={title}
               ref={this.titleInput}
               onChange={e => this.setState({ title: e.target.value })}
             />
+            <Buttons>
+              <Button onClick={() => onSave(title)}>Guardar</Button>
+              <Button
+                tertiary
+                onClick={e => {
+                  e.preventDefault();
+                  onCancel();
+                }}
+              >
+                Cancelar
+              </Button>
+            </Buttons>
           </form>
-          <Buttons>
-            <Button onClick={() => onSave(title)}>Guardar</Button>
-            <Button tertiary onClick={() => onCancel()}>
-              Cancelar
-            </Button>
-          </Buttons>
         </Content>
       </Modal>
     );

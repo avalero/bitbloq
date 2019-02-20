@@ -5,6 +5,7 @@ import { colors, FileSelectButton, Input, TextArea } from "@bitbloq/ui";
 export interface DocumentInfoFormProps {
   title: string;
   description: string;
+  image: string;
   onChange: (any) => void;
 }
 
@@ -47,12 +48,12 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
           <Form>
             <FormRow>
               <FormLabel>
-                <label>Título del ejercicio</label>
+                <label>Nombre del documento</label>
               </FormLabel>
               <FormInput>
                 <Input
                   value={title}
-                  placeholder="Título del ejercicio"
+                  placeholder="Nombre del documento"
                   onChange={e => {
                     this.setState({
                       title: e.target.value
@@ -64,12 +65,12 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
             </FormRow>
             <FormRow>
               <FormLabel>
-                <label>Descripción del ejercicio</label>
+                <label>Descripción del documento</label>
               </FormLabel>
               <FormInput>
                 <TextArea
                   value={description}
-                  placeholder="Descripción del ejercicio"
+                  placeholder="Descripción del documento"
                   onChange={e => {
                     this.setState({
                       description: e.target.value
@@ -82,7 +83,7 @@ class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
             </FormRow>
             <FormRow>
               <FormLabel>
-                <label>Imagen del ejercicio</label>
+                <label>Imagen del documento</label>
                 <FormSubLabel>
                   Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1Mb.
                 </FormSubLabel>

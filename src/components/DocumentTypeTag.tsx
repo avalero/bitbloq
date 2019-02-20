@@ -2,7 +2,12 @@ import * as React from "react";
 import styled from "@emotion/styled";
 import { documentTypes } from "../config";
 
-const DocumentTypeTag = ({ document, small }) => (
+interface DocumentTypeTagProps {
+  document: any;
+  small?: boolean;
+}
+
+const DocumentTypeTag: React.SFC<DocumentTypeTagProps> = ({ document, small }) => (
   <Container
     color={documentTypes[document.type] && documentTypes[document.type].color}
     small={small}
