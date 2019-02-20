@@ -351,6 +351,9 @@ export default class RepetitionObject extends ObjectsCommon {
 
     for (let i: number = 0; i < num; i += 1) {
       if (this.originalObject instanceof ObjectsCommon) {
+        if (this.originalObject.meshPromise) {
+          await this.originalObject.computeMeshAsync();
+        }
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
         // clone operations (to avoid changing referenced array)
@@ -385,10 +388,13 @@ export default class RepetitionObject extends ObjectsCommon {
     this.group.length = 0;
 
     if (this.parameters.type !== 'polar') {
-      throw new Error('No cartesian operation');
+      throw new Error('No polar operation');
     }
 
     const { axis, angle, type, num } = this.parameters;
+    if (this.originalObject.meshPromise) {
+      await this.originalObject.computeMeshAsync();
+    }
     const baseObject = this.originalObject.clone();
 
     const positionCalculator = new PositionCalculator(baseObject);
