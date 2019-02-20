@@ -106,14 +106,7 @@ export default class Difference extends CompoundObject {
       child.clone(),
     );
 
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const diffObj = new Difference(
         childrenClone,
         this.operations,

@@ -131,14 +131,7 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   public clone(): RepetitionObject {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const repObj = new RepetitionObject(
         this.parameters,
         this.originalObject.clone(),

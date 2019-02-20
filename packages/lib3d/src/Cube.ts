@@ -82,8 +82,7 @@ export default class Cube extends PrimitiveObject {
       this.mesh &&
       !(
         this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
+        this.pendingOperation
       )
     ) {
       const cubeObj = new Cube(

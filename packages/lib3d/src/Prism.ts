@@ -74,14 +74,7 @@ export default class Prism extends PrimitiveObject {
   }
 
   public clone(): Prism {
-    if (
-      this.mesh &&
-      !(
-        this.meshUpdateRequired ||
-        this.pendingOperation ||
-        this.viewOptionsUpdateRequired
-      )
-    ) {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const objPrism = new Prism(
         this.parameters as IPrismParams,
         this.operations,
