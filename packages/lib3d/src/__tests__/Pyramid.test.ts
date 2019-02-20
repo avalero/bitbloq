@@ -35,14 +35,13 @@ test('Pyramid - Constructor', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Pyramid - Constructor - Default Params - ViewOptions', () => {
@@ -50,15 +49,13 @@ test('Pyramid - Constructor - Default Params - ViewOptions', () => {
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
-
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Pyramid - Constructor - Default Params - Operations - ViewOptions', () => {
@@ -67,14 +64,13 @@ test('Pyramid - Constructor - Default Params - Operations - ViewOptions', () => 
   expect((obj as any).operations).toEqual(operations);
   expect((obj as any).viewOptions).toEqual(viewOptions);
 
-  return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
-    expect(mesh).toBeInstanceOf(THREE.Mesh);
-    expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
-    expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
-    expect(mesh.rotation.x).toBeCloseTo(0);
-    expect(mesh.rotation.y).toBeCloseTo(0);
-    expect(mesh.rotation.z).toBeCloseTo(0);
-  });
+  const mesh: THREE.Mesh = (obj as any).mesh;
+  expect(mesh).toBeInstanceOf(THREE.Mesh);
+  expect(mesh.geometry).toBeInstanceOf(THREE.CylinderGeometry);
+  expect(mesh.position).toEqual({ x: 0, y: 0, z: 0 });
+  expect(mesh.rotation.x).toBeCloseTo(0);
+  expect(mesh.rotation.y).toBeCloseTo(0);
+  expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
 test('Pyramid - Constructor - Set Operations - Translation', () => {
@@ -84,6 +80,7 @@ test('Pyramid - Constructor - Set Operations - Translation', () => {
   // tslint:disable-next-line:no-shadowed-variable
   const operations = [ObjectsCommon.createTranslateOperation(x, y, z)];
   const obj = new Pyramid(objParams, operations);
+  obj.computeMeshAsync();
   expect((obj as any).operations).toEqual(operations);
 
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
@@ -104,6 +101,7 @@ test('Pyramid - Constructor - Set Operations - Rotation', () => {
     ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
   ];
   const obj = new Pyramid(objParams, operations);
+  obj.computeMeshAsync();
   expect((obj as any).operations).toEqual(operations);
 
   return (obj as any).meshPromise.then((mesh: THREE.Mesh) => {
