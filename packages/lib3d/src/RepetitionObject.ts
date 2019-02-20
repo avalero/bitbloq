@@ -388,7 +388,7 @@ export default class RepetitionObject extends ObjectsCommon {
     this.group.length = 0;
 
     if (this.parameters.type !== 'polar') {
-      throw new Error('No cartesian operation');
+      throw new Error('No polar operation');
     }
 
     const { axis, angle, type, num } = this.parameters;

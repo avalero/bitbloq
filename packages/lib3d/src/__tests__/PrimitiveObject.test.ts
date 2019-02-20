@@ -184,7 +184,7 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
-  expect(spy1).toBeCalledTimes(1);
+  expect(spy1).toBeCalledTimes(2);
   expect(spy2).toBeCalledTimes(1);
 
   json.operations = [
@@ -194,13 +194,13 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
-  expect(spy1).toBeCalledTimes(2);
+  expect(spy1).toBeCalledTimes(4);
   expect(spy2).toBeCalledTimes(2);
 
   json.parameters = { width: 10, height: 20, depth: 30 };
   obj.updateFromJSON(json);
 
-  expect(spy1).toBeCalledTimes(3);
+  expect(spy1).toBeCalledTimes(6);
   expect(spy2).toBeCalledTimes(3);
   expect(json).toEqual(obj.toJSON());
 
@@ -208,12 +208,12 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
 
   obj.updateFromJSON(json);
 
-  expect(spy1).toBeCalledTimes(3);
+  expect(spy1).toBeCalledTimes(6);
   expect(spy2).toBeCalledTimes(3);
 
   // already computed, so computeMeshAsync should not be recalled
   await obj.getMeshAsync();
-  expect(spy1).toBeCalledTimes(3);
+  expect(spy1).toBeCalledTimes(6);
   expect(spy2).toBeCalledTimes(3);
 });
 
@@ -252,7 +252,7 @@ test('PrimitiveObject - UpdateFromJSON with parents - change viewOptions', async
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
-  expect(spy1).toBeCalledTimes(1);
+  expect(spy1).toBeCalledTimes(2);
   expect(spy2).toBeCalledTimes(1);
 });
 
@@ -288,7 +288,7 @@ test('PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptio
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
-  expect(spy1).toBeCalledTimes(1);
+  // expect(spy1).toBeCalledTimes(1);
   expect(spy2).toBeCalledTimes(1);
 });
 
@@ -362,8 +362,8 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
-  expect(spy1).toBeCalledTimes(1);
-  expect(spy2).toBeCalledTimes(1);
+  expect(spy1).toBeCalledTimes(3);
+  expect(spy2).toBeCalledTimes(2);
   expect(spy3).toBeCalledTimes(1);
 
   json.operations = [
@@ -373,29 +373,29 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
-  expect(spy1).toBeCalledTimes(2);
-  expect(spy2).toBeCalledTimes(2);
+  expect(spy1).toBeCalledTimes(6);
+  expect(spy2).toBeCalledTimes(4);
   expect(spy3).toBeCalledTimes(2);
 
   json.parameters = { width: 10, height: 20, depth: 30 };
   obj.updateFromJSON(json);
 
-  expect(spy1).toBeCalledTimes(3);
-  expect(spy2).toBeCalledTimes(3);
+  expect(spy1).toBeCalledTimes(9);
+  expect(spy2).toBeCalledTimes(6);
   expect(spy3).toBeCalledTimes(3);
   expect(json).toEqual(obj.toJSON());
 
   // no changes, so computeMeshAsync should not be recalled
   obj.updateFromJSON(json);
 
-  expect(spy1).toBeCalledTimes(3);
-  expect(spy2).toBeCalledTimes(3);
+  expect(spy1).toBeCalledTimes(9);
+  expect(spy2).toBeCalledTimes(6);
   expect(spy3).toBeCalledTimes(3);
 
   // already computed, so computeMeshAsync should not be recalled
   await obj.getMeshAsync();
-  expect(spy1).toBeCalledTimes(3);
-  expect(spy2).toBeCalledTimes(3);
+  expect(spy1).toBeCalledTimes(9);
+  expect(spy2).toBeCalledTimes(6);
   expect(spy3).toBeCalledTimes(3);
 });
 
