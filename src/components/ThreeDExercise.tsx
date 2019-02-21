@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "@emotion/styled";
+import { css } from "@emotion/core";
 import { Query, Mutation } from "react-apollo";
 import { ThreeD } from "@bitbloq/3d";
 import {
@@ -13,6 +14,7 @@ import {
 } from "@bitbloq/ui";
 import gql from "graphql-tag";
 import BrowserVersionWarning from "./BrowserVersionWarning";
+import ExerciseInfo from "./ExerciseInfo";
 import { getChromeVersion } from "../util";
 
 const EXERCISE_QUERY = gql`
@@ -38,6 +40,7 @@ const FINISH_SUBMISSION_MUTATITON = gql`
 
 class State {
   readonly isSubmissionSuccessOpen: boolean = false;
+  readonly tabIndex: number = 1;
 }
 
 class ThreeDExercise extends React.Component<any, State> {
@@ -48,35 +51,9 @@ class ThreeDExercise extends React.Component<any, State> {
     this.setState({ isSubmissionSuccessOpen: true });
   };
 
-  renderInfoTab() {
-    const { t, exercise } = this.props;
-    const { id, title, content, description, image } = exercise;
-
-    return (
-      <Document.Tab
-        key="info"
-        icon={<Icon name="info" />}
-        label={t("tab-project-info")}
-      >
-        <InfoContainer>
-          <InfoPanel>
-            <InfoHeader>Información del ejercicio</InfoHeader>
-            <InfoContent>
-              <ExerciseImage src={image} />
-              <ExerciseInfo>
-                <h2>{title}</h2>
-                <p>{description}</p>
-              </ExerciseInfo>
-            </InfoContent>
-          </InfoPanel>
-        </InfoContainer>
-      </Document.Tab>
-    );
-  }
-
   render() {
-    const { isSubmissionSuccessOpen } = this.state;
-    const { exercise } = this.props;
+    const { isSubmissionSuccessOpen, tabIndex } = this.state;
+    const { t, exercise } = this.props;
     const { id, title } = exercise;
     let content = [];
     try {
@@ -98,7 +75,8 @@ class ThreeDExercise extends React.Component<any, State> {
           {finishSubmission => (
             <ThreeD
               initialContent={content}
-              initialTab={1}
+              tabIndex={tabIndex}
+              onTabChange={tabIndex => this.setState({ tabIndex })}
               onContentChange={content => (this.content = content)}
               title={title}
               headerButtons={[{ id: "submit", icon: "airplane" }]}
@@ -114,7 +92,19 @@ class ThreeDExercise extends React.Component<any, State> {
                 }
               }}
             >
-              {mainTab => [mainTab, this.renderInfoTab()]}
+              {mainTab => [
+                mainTab,
+                <Document.Tab
+                  key="info"
+                  icon={<Icon name="info" />}
+                  label={t("tab-project-info")}
+                >
+                  <ExerciseInfo
+                    exercise={exercise}
+                    onGotoExercise={() => this.setState({ tabIndex: 0 })}
+                  />
+                </Document.Tab>
+              ]}
             </ThreeD>
           )}
         </Mutation>
@@ -165,64 +155,6 @@ const Loading = styled(Spinner)`
   height: 100%;
   color: white;
   background-color: ${colors.brandBlue};
-`;
-
-const InfoContainer = styled.div`
-  flex: 1;
-  display: flex;
-  overflow: hidden;
-  justify-content: center;
-  padding: 40px;
-  background-color: ${colors.gray1};
-`;
-
-const InfoPanel = styled.div`
-  align-self: flex-start;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 2px 3px 0 #c7c7c7;
-  background-color: white;
-  width: 100%;
-  max-width: 900px;
-`;
-
-const InfoHeader = styled.div`
-  border-bottom: 1px solid ${colors.gray2};
-  font-size: 16px;
-  font-weight: bold;
-  padding: 0px 30px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-`;
-
-const InfoContent = styled.div`
-  display: flex;
-  padding: 30px;
-`;
-
-const ExerciseImage = styled.div`
-  background-color: ${colors.gray2};
-  background-image: url(${props => props.src});
-  background-size: cover;
-  background-position: center;
-  margin-right: 30px;
-  height: 250px;
-  flex: 1;
-`;
-
-const ExerciseInfo = styled.div`
-  flex: 1;
-
-  h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-
-  p {
-    font-size: 12px;
-    line-height: 22px;
-  }
 `;
 
 const ModalContent = styled.div`
