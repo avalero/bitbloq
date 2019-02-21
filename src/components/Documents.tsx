@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import {
   colors,
   Icon,
+  DialogModal,
   DropDown,
   Select,
   Spinner,
@@ -10,7 +11,7 @@ import {
   HorizontalRule
 } from "@bitbloq/ui";
 import { navigate } from "gatsby";
-import { Query, Mutation } from "react-apollo";
+import { Query, Mutation, Subscription } from "react-apollo";
 import gql from "graphql-tag";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
@@ -31,21 +32,39 @@ const DOCUMENTS_QUERY = gql`
 
 const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
-    $type: String!,
-    $title: String!,
-    $description: String,
-    $content: String,
+    $type: String!
+    $title: String!
+    $description: String
+    $content: String
     $image: String
   ) {
-    createDocument(input: {
-      type: $type,
-      title: $title,
-      description: $description,
-      content: $content,
-      imageUrl: $image
-    }) {
+    createDocument(
+      input: {
+        type: $type
+        title: $title
+        description: $description
+        content: $content
+        imageUrl: $image
+      }
+    ) {
       id
       type
+    }
+  }
+`;
+
+const DELETE_DOCUMENT_MUTATION = gql`
+  mutation DeleteDocument($id: ObjectID!) {
+    deleteDocument(id: $id) {
+      id
+    }
+  }
+`;
+
+const DOCUMENT_UPDATED_SUBSCRIPTION = gql`
+  subscription OnDocumentUpdated {
+    documentUpdated {
+      id
     }
   }
 `;
@@ -74,6 +93,7 @@ const orderFunctions = {
 class DocumentsState {
   readonly order: string = OrderType.Creation;
   readonly searchText: string = "";
+  readonly deleteDocumentId: string | null = "";
 }
 
 class Documents extends React.Component<any, DocumentsState> {
@@ -85,11 +105,8 @@ class Documents extends React.Component<any, DocumentsState> {
     navigate(`/app/document/${id}`);
   };
 
-  onNewDocument(createDocument, type, title) {
-    createDocument({
-      variables: { type, title },
-      refetchQueries: [{ query: DOCUMENTS_QUERY }]
-    });
+  onNewDocument(type, title) {
+    window.open(`/app/document/${type}/new`);
   }
 
   onDocumentCreated = ({ createDocument: { id, type } }) => {
@@ -102,7 +119,19 @@ class Documents extends React.Component<any, DocumentsState> {
 
   onOpenDocumentClick = () => {
     this.openFile.current.click();
-  }
+  };
+
+  onDocumentDeleteClick = (e, document) => {
+    e.stopPropagation();
+    this.setState({ deleteDocumentId: document.id });
+  };
+
+  onDeleteDocument = () => {
+    const { deleteDocumentId } = this.state;
+    const { deleteDocument } = this.props;
+    deleteDocument(deleteDocumentId);
+    this.setState({ deleteDocumentId: null });
+  };
 
   onFileSelected = (file, createDocument) => {
     const reader = new FileReader();
@@ -122,69 +151,58 @@ class Documents extends React.Component<any, DocumentsState> {
       <Header>
         <h1>Mis Documentos</h1>
         <div>
-          <Mutation
-            mutation={CREATE_DOCUMENT_MUTATION}
-            onCompleted={this.onDocumentCreated}
+          <DropDown
+            attachmentPosition={"top center"}
+            targetPosition={"bottom center"}
           >
-            {createDocument => (
-              <DropDown
-                attachmentPosition={"top center"}
-                targetPosition={"bottom center"}
-              >
-                {isOpen => (
-                  <NewDocumentButton isOpen={isOpen}>
-                    <Icon name="new-document" />
-                    Nuevo documento
-                  </NewDocumentButton>
-                )}
-                <NewDocumentDropDown>
-                  <NewDocumentOptions>
-                    {Object.keys(documentTypes).map(type => (
-                      <NewDocumentOption
-                        key={type}
-                        comingSoon={!documentTypes[type].supported}
-                        color={documentTypes[type].color}
-                        onClick={() =>
-                          documentTypes[type].supported &&
-                          this.onNewDocument(
-                            createDocument,
-                            type,
-                            "Nuevo documento"
-                          )
-                        }
-                      >
-                        <NewDocumentOptionIcon>+</NewDocumentOptionIcon>
-                        <NewDocumentLabel>
-                          {documentTypes[type].label}
-                          {!documentTypes[type].supported && (
-                            <ComingSoon>Proximamente</ComingSoon>
-                          )}
-                        </NewDocumentLabel>
-                      </NewDocumentOption>
-                    ))}
-                  </NewDocumentOptions>
-                  <OpenDocumentButton onClick={this.onOpenDocumentClick}>
-                    <Icon name="new-document" />
-                    Abrir documento
-                  </OpenDocumentButton>
-                </NewDocumentDropDown>
-              </DropDown>
+            {isOpen => (
+              <NewDocumentButton isOpen={isOpen}>
+                <Icon name="new-document" />
+                Nuevo documento
+              </NewDocumentButton>
             )}
-          </Mutation>
+            <NewDocumentDropDown>
+              <NewDocumentOptions>
+                {Object.keys(documentTypes).map(type => (
+                  <NewDocumentOption
+                    key={type}
+                    comingSoon={!documentTypes[type].supported}
+                    color={documentTypes[type].color}
+                    onClick={() =>
+                      documentTypes[type].supported &&
+                      this.onNewDocument(type, "Nuevo documento")
+                    }
+                  >
+                    <NewDocumentOptionIcon>+</NewDocumentOptionIcon>
+                    <NewDocumentLabel>
+                      {documentTypes[type].label}
+                      {!documentTypes[type].supported && (
+                        <ComingSoon>Proximamente</ComingSoon>
+                      )}
+                    </NewDocumentLabel>
+                  </NewDocumentOption>
+                ))}
+              </NewDocumentOptions>
+              <OpenDocumentButton onClick={this.onOpenDocumentClick}>
+                <Icon name="new-document" />
+                Abrir documento
+              </OpenDocumentButton>
+            </NewDocumentDropDown>
+          </DropDown>
         </div>
       </Header>
     );
   }
 
   render() {
-    const { order, searchText } = this.state;
+    const { order, searchText, deleteDocumentId } = this.state;
     const orderFunction = orderFunctions[order];
 
     return (
       <Container>
         <AppHeader />
         <Query query={DOCUMENTS_QUERY}>
-          {({ loading, error, data }) => {
+          {({ loading, error, data, refetch }) => {
             if (loading) return <Loading />;
             if (error) return <p>Error :(</p>;
 
@@ -220,7 +238,9 @@ class Documents extends React.Component<any, DocumentsState> {
                       d =>
                         !searchText ||
                         (d.title &&
-                          d.title.toLowerCase().indexOf(searchText) >= 0)
+                          d.title
+                            .toLowerCase()
+                            .indexOf(searchText.toLowerCase()) >= 0)
                     )
                     .map(document => (
                       <DocumentCard
@@ -232,13 +252,34 @@ class Documents extends React.Component<any, DocumentsState> {
                           <DocumentTypeTag small document={document} />
                           <DocumentTitle>{document.title}</DocumentTitle>
                         </DocumentInfo>
+                        <DeleteDocument
+                          onClick={e => this.onDocumentDeleteClick(e, document)}
+                        >
+                          <Icon name="trash" />
+                        </DeleteDocument>
                       </DocumentCard>
                     ))}
                 </DocumentList>
+                <Subscription
+                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                  shouldResubscribe={true}
+                  onSubscriptionData={() => {
+                    refetch();
+                  }}
+                />
               </Content>
             );
           }}
         </Query>
+        <DialogModal
+          isOpen={deleteDocumentId}
+          title="Eliminar"
+          text="¿Seguro que quieres eliminar este documento?"
+          okText="Aceptar"
+          cancelText="Cancelar"
+          onOk={this.onDeleteDocument}
+          onCancel={() => this.setState({ deleteDocumentId: null })}
+        />
         <Mutation
           mutation={CREATE_DOCUMENT_MUTATION}
           onCompleted={this.onDocumentCreated}
@@ -247,8 +288,10 @@ class Documents extends React.Component<any, DocumentsState> {
             <input
               ref={this.openFile}
               type="file"
-              onChange={e => this.onFileSelected(e.target.files[0], createDocument)}
-              style={{ display: 'none' }}
+              onChange={e =>
+                this.onFileSelected(e.target.files[0], createDocument)
+              }
+              style={{ display: "none" }}
             />
           )}
         </Mutation>
@@ -257,7 +300,23 @@ class Documents extends React.Component<any, DocumentsState> {
   }
 }
 
-export default Documents;
+const DocumentsWithDelete = props => (
+  <Mutation mutation={DELETE_DOCUMENT_MUTATION}>
+    {mutate => (
+      <Documents
+        {...props}
+        deleteDocument={id =>
+          mutate({
+            variables: { id },
+            refetchQueries: [{ query: DOCUMENTS_QUERY }]
+          })
+        }
+      />
+    )}
+  </Mutation>
+);
+
+export default DocumentsWithDelete;
 
 /* styled components */
 
@@ -336,6 +395,25 @@ const DocumentList = styled.div`
   }
 `;
 
+const DeleteDocument = styled.div`
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  width: 34px;
+  height: 34px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid ${colors.gray3};
+  background-color: white;
+  display: none;
+
+  &:hover {
+    background-color: ${colors.gray1};
+    border-color: ${colors.gray4};
+  }
+`;
+
 const DocumentCard = styled.div`
   display: flex;
   flex-direction: column;
@@ -344,6 +422,14 @@ const DocumentCard = styled.div`
   cursor: pointer;
   background-color: white;
   overflow: hidden;
+  position: relative;
+
+  &:hover {
+    border-color: ${colors.gray4};
+    ${DeleteDocument} {
+      display: flex;
+    }
+  }
 `;
 
 interface DocumentImageProps {

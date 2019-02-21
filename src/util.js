@@ -9,7 +9,7 @@ export const sortByCreatedAt = (a, b) => {
     return -1;
   }
   return 0;
-}
+};
 
 export const sortByTitle = (a, b) => {
   const aTitle = a && a.title;
@@ -22,4 +22,11 @@ export const sortByTitle = (a, b) => {
     return 1;
   }
   return 0;
-}
+};
+
+export const getChromeVersion = () => {
+  const pieces = navigator.userAgent.match(
+    /Chrom(?:e|ium)\/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/
+  );
+  return pieces && pieces[1] ? parseInt(pieces[1]) : 0;
+};
