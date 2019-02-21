@@ -108,6 +108,7 @@ export default class Scene {
   private selectedMaterial: object;
   private secondaryMaterial: object;
   private normalMaterial: object;
+  private transitionMaterial: object;
 
   constructor() {
     this.anySelectedObjects = false;
