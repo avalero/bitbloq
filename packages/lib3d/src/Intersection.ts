@@ -46,6 +46,9 @@ export default class Intersection extends CompoundObject {
 
       // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
       if (object.geometry) {
+        if (object.geometry.id !== object.id) {
+          throw new Error('geometry and object id do not match');
+        }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
         const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
