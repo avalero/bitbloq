@@ -42,13 +42,13 @@ const Container =
 type ChangeHandler = (cheked: boolean) => void;
 
 export interface CheckboxProps {
-  className: string;
+  className?: string;
 
   /** If the checkbox is checked or not */
   checked: boolean;
 
   /** Called everytime the checkbox is changed */
-  onChange: ChangeHandler;
+  onChange?: ChangeHandler;
 }
 
 /**

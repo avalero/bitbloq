@@ -81,16 +81,18 @@ const Title = styled.div<TitleProps>`
     }
   }
 
-  ${props => props.canEdit && css`
-    span {
-      cursor: pointer;
-      &:hover {
-        svg {
-          display: block;
+  ${props =>
+    props.canEdit &&
+    css`
+      span {
+        cursor: pointer;
+        &:hover {
+          svg {
+            display: block;
+          }
         }
       }
-    }
-  `}
+    `}
 `;
 
 const Main = styled.div`
@@ -194,13 +196,13 @@ export interface DocumentProps {
   menuRightContent?: React.ReactChild;
   headerButtons?: HeaderButton[];
   title?: string;
-  initialTab: number;
+  tabIndex: number;
+  onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
   onHeaderButtonClick: (buttonId: string) => any;
 }
 
 interface State {
-  currentTabIndex: number;
   isHeaderCollapsed: boolean;
 }
 
@@ -208,16 +210,8 @@ class Document extends React.Component<DocumentProps, State> {
   static Tab = Tab;
 
   state = {
-    currentTabIndex: 0,
     isHeaderCollapsed: false
   };
-
-  componentDidMount() {
-    const { initialTab } = this.props;
-    if (initialTab) {
-      this.setState({ currentTabIndex: initialTab });
-    }
-  }
 
   onCollapseButtonClick = () => {
     this.setState(state => ({
@@ -235,11 +229,13 @@ class Document extends React.Component<DocumentProps, State> {
       title,
       onEditTitle,
       headerButtons = [],
-      onHeaderButtonClick
+      onHeaderButtonClick,
+      tabIndex,
+      onTabChange
     } = this.props;
-    const { currentTabIndex, isHeaderCollapsed } = this.state;
+    const { isHeaderCollapsed } = this.state;
 
-    const currentTab = React.Children.toArray(children)[currentTabIndex];
+    const currentTab = React.Children.toArray(children)[tabIndex];
 
     return (
       <Container>
@@ -253,7 +249,10 @@ class Document extends React.Component<DocumentProps, State> {
               </span>
             </Title>
             {headerButtons.map(button => (
-              <HeaderButton key={button.id} onClick={() => onHeaderButtonClick(button.id)}>
+              <HeaderButton
+                key={button.id}
+                onClick={() => onHeaderButtonClick(button.id)}
+              >
                 <Icon name={button.icon} />
               </HeaderButton>
             ))}
@@ -278,8 +277,8 @@ class Document extends React.Component<DocumentProps, State> {
                   {tooltipProps => (
                     <TabIcon
                       {...tooltipProps}
-                      selected={i === currentTabIndex}
-                      onClick={() => this.setState({ currentTabIndex: i })}
+                      selected={i === tabIndex}
+                      onClick={() => onTabChange && onTabChange(i)}
                     >
                       {tab.props.icon}
                     </TabIcon>
@@ -291,7 +290,7 @@ class Document extends React.Component<DocumentProps, State> {
           {React.Children.map(
             children,
             (tab: React.ReactElement<TabProps>, i) => (
-              <Content active={i === currentTabIndex}>
+              <Content active={i === tabIndex}>
                 {tab.props.children}
               </Content>
             )

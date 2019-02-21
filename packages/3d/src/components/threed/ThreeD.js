@@ -110,7 +110,8 @@ class ThreeD extends React.Component {
       onEditTitle,
       headerButtons,
       onHeaderButtonClick,
-      initialTab,
+      tabIndex = 0,
+      onTabChange,
       menuOptions,
       addShapeGroups,
       t,
@@ -147,7 +148,8 @@ class ThreeD extends React.Component {
     return (
       <Document
         title={title || t('untitled-project')}
-        initialTab={initialTab}
+        tabIndex={tabIndex}
+        onTabChange={onTabChange}
         onEditTitle={onEditTitle}
         headerButtons={headerButtons}
         onHeaderButtonClick={onHeaderButtonClick}
