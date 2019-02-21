@@ -349,11 +349,12 @@ export default class RepetitionObject extends ObjectsCommon {
 
     const { x, y, z, type, num } = this.parameters;
 
+    if (this.originalObject.meshPromise) {
+      await this.originalObject.computeMeshAsync();
+    }
+
     for (let i: number = 0; i < num; i += 1) {
       if (this.originalObject instanceof ObjectsCommon) {
-        if (this.originalObject.meshPromise) {
-          await this.originalObject.computeMeshAsync();
-        }
         const objectClone: ObjectsCommon = this.originalObject.clone();
         const json = objectClone.toJSON();
         // clone operations (to avoid changing referenced array)
@@ -392,9 +393,11 @@ export default class RepetitionObject extends ObjectsCommon {
     }
 
     const { axis, angle, type, num } = this.parameters;
+
     if (this.originalObject.meshPromise) {
       await this.originalObject.computeMeshAsync();
     }
+
     const baseObject = this.originalObject.clone();
 
     const positionCalculator = new PositionCalculator(baseObject);
