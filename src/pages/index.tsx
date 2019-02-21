@@ -159,7 +159,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             <img src={studentStep2Image} />
             <p>
               2. Inserta el código en el formulario de la derecha y escribe el
-              nombre de usuario que quieras usar.
+              nombre de acceso que quieras usar.
             </p>
           </Step>
         </TabInfo>
