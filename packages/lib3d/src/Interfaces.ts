@@ -7,9 +7,16 @@ export interface IObjectsCommonJSON {
   operations: OperationsArray;
   mesh?: object;
   geometry?: {
+    id: string;
     vertices: number[];
     normals: number[];
   };
+}
+
+export interface IGeometry {
+  id: string;
+  vertices: number[];
+  normals: number[];
 }
 
 interface ICommonOperation {

@@ -20,6 +20,7 @@ import meshArray2STL from './STLExporter';
 import TextObject from './TextObject';
 
 import {
+  IGeometry,
   ITextObjectJSON,
   ICompoundObjectJSON,
   IObjectsCommonJSON,
@@ -84,6 +85,7 @@ export default class Scene {
     return scene;
   }
 
+  private geometries: IGeometry[];
   private sceneSetup: ISceneSetup;
   private objectCollector: ObjectsCommon[]; /// all objects designed by user - including children
   private objectsInScene: ObjectsCommon[]; /// all parent objects designed by user -> to be 3D-drawn.
@@ -115,6 +117,34 @@ export default class Scene {
     this.history = [];
     this.setMaterials();
     this.lastUpdateTS = 0;
+    this.geometries = [];
+  }
+
+  /**
+   * Returns array geometry data (vertices and normals) of Compound Objets
+   * If array has changed (including objects order) it returns a new reference
+   * If array is unchanged it reamins same reference
+   */
+  public getGeometries(): IGeometry[] {
+    const aux: IGeometry[] = [];
+    this.objectCollector.forEach(object => {
+      if (object instanceof CompoundObject) {
+        aux.push(object.getGeometryData());
+      }
+    });
+
+    if (aux.length !== this.geometries.length) {
+      this.geometries = aux;
+    }
+
+    for (let i = 0; i < aux.length; i += 1) {
+      if (aux[i] !== this.geometries[i]) {
+        this.geometries = aux;
+        break;
+      }
+    }
+
+    return this.geometries;
   }
 
   public canUndo(): boolean {
