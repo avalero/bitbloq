@@ -72,8 +72,14 @@ interface ISceneSetup {
 export type ISceneJSON = IObjectsCommonJSON[];
 
 export default class Scene {
-  public static newFromJSON(json: ISceneJSON): Scene {
+  public static newFromJSON(json: ISceneJSON, geometries?: IGeometry[]): Scene {
+
     const scene = new Scene();
+
+    if (geometries) {
+      scene.setGeometries(geometries);
+    }
+
     try {
       json.forEach(obj => {
         scene.addNewObjectFromJSON(obj, true);
@@ -118,6 +124,10 @@ export default class Scene {
     this.setMaterials();
     this.lastUpdateTS = 0;
     this.geometries = [];
+  }
+
+  public setGeometries(geometries: IGeometry[]): void {
+    this.geometries = geometries;
   }
 
   /**
@@ -350,10 +360,25 @@ export default class Scene {
             | ICompoundObjectJSON
             | IObjectsGroupJSON
             | IRepetitionObjectJSON).children.forEach(
-            childJSON => this.addNewObjectFromJSON(childJSON, true), // children are new
-          );
+              childJSON => this.addNewObjectFromJSON(childJSON, true), // children are new
+            );
 
           // Add de Compound | Group | Repetition parent
+
+          // if compound object check if we already have the geometry computed
+          if ([Union.typeName, Difference.typeName, Intersection.typeName,].includes(json.type)) {
+            for (const geom of this.geometries) {
+              if (geom.id === json.id) {
+                json.geometry = {
+                  id: geom[0].id,
+                  vertices: geom[0].vertices,
+                  normals: geom[0].normals
+                };
+                break;
+              }
+            }
+          }
+
           this.addNewObjectFromJSON(json, false); // children already in Scene
         } else {
           const object: ObjectsCommon = ObjectFactory.newFromJSON(json, this);
