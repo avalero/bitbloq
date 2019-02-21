@@ -161,7 +161,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                 error={!loading && error}
                 value={studentNick}
                 onChange={e => this.setState({ studentNick: e.target.value })}
-                placeholder="Nombre de usuario"
+                placeholder="Nombre de acceso"
               />
               <CodeInput
                 error={!loading && error}
