@@ -73,7 +73,6 @@ export type ISceneJSON = IObjectsCommonJSON[];
 
 export default class Scene {
   public static newFromJSON(json: ISceneJSON, geometries?: IGeometry[]): Scene {
-
     const scene = new Scene();
 
     if (geometries) {
@@ -99,7 +98,6 @@ export default class Scene {
   private history: ISceneJSON[]; /// history of actions
   private lastUpdateTS: number; /// last update. Used to know if action should be added to history
 
-  private lastJSON: object;
   private objectsGroup: THREE.Group;
   private historyIndex: number;
   private sceneUpdated: boolean;
@@ -110,7 +108,6 @@ export default class Scene {
   private selectedMaterial: object;
   private secondaryMaterial: object;
   private normalMaterial: object;
-  private transitionMaterial: object;
 
   constructor() {
     this.anySelectedObjects = false;
@@ -360,19 +357,25 @@ export default class Scene {
             | ICompoundObjectJSON
             | IObjectsGroupJSON
             | IRepetitionObjectJSON).children.forEach(
-              childJSON => this.addNewObjectFromJSON(childJSON, true), // children are new
-            );
+            childJSON => this.addNewObjectFromJSON(childJSON, true), // children are new
+          );
 
           // Add de Compound | Group | Repetition parent
 
           // if compound object check if we already have the geometry computed
-          if ([Union.typeName, Difference.typeName, Intersection.typeName,].includes(json.type)) {
+          if (
+            [
+              Union.typeName,
+              Difference.typeName,
+              Intersection.typeName,
+            ].includes(json.type)
+          ) {
             for (const geom of this.geometries) {
               if (geom.id === json.id) {
                 json.geometry = {
                   id: geom[0].id,
                   vertices: geom[0].vertices,
-                  normals: geom[0].normals
+                  normals: geom[0].normals,
                 };
                 break;
               }
