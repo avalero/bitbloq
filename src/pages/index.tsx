@@ -155,7 +155,8 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             <img src={studentStep1Image} />
             <p>
               1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu
-              profesor un código de ejercicio.
+              profesor o profesora un código de ejercicio. Podrás
+              entrar en el ejercicio mientras tu profesor lo mantenga abierto.
             </p>
           </Step>
           <Step>
