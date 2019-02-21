@@ -96,6 +96,7 @@ const getMenuOptions = (baseMenuOptions, t) => [
 
 class State {
   readonly isEditTitleVisible: boolean = false;
+  readonly tabIndex: number = 0;
 }
 
 class ThreeDEditor extends React.Component<any, State> {
@@ -164,7 +165,7 @@ class ThreeDEditor extends React.Component<any, State> {
   }
 
   render() {
-    const { isEditTitleVisible } = this.state;
+    const { isEditTitleVisible, tabIndex } = this.state;
     const { document, updateDocument, t } = this.props;
 
     if (getChromeVersion() < 69) {
@@ -186,6 +187,8 @@ class ThreeDEditor extends React.Component<any, State> {
         <ThreeD
           ref={this.threedRef}
           initialContent={content}
+          tabIndex={tabIndex}
+          onTabChange={tabIndex => this.setState({ tabIndex })}
           title={title}
           canEditTitle
           onEditTitle={this.onEditTitle}

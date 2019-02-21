@@ -139,7 +139,7 @@ class SignupPageState {
 class SignupPage extends React.Component<any, SignupPageState> {
   readonly state = new SignupPageState();
 
-  wrapRef = React.createRef();
+  wrapRef = React.createRef<HTMLDivElement>();
 
   componentDidUpdate(prevProps, prevState: SignupPageState) {
     const { currentStep } = this.state;
@@ -175,9 +175,11 @@ class SignupPage extends React.Component<any, SignupPageState> {
         <StepCount>Paso 1 de 2</StepCount>
         <StepTitle>Encuesta previa</StepTitle>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquet
-          massa id quam lobortis lobortis. Nullam aliquam lorem vitae dignissim
-          maximus. Donec accumsan gravida lacinia.
+          Bienvenido a la beta del nuevo Bitbloq. Para poder crear una cuenta de
+          usuario necesitamos que rellenes la siguiente información que nos
+          ayudará a conocer mejor tus necesidades. Por motivos técnicos la
+          cuenta de usuario que crees y su contenido se eliminará tras finalizar
+          la beta.
         </p>
         <Survey
           questions={questions}
