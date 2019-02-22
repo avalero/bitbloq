@@ -23,6 +23,7 @@ import {
   IViewOptions,
   OperationsArray,
   IObjectsCommonJSON,
+  IGeometry,
 } from './Interfaces';
 
 export default class Object3D extends ObjectsCommon {
@@ -56,6 +57,9 @@ export default class Object3D extends ObjectsCommon {
 
     return mesh;
   }
+
+  protected normalsArray: number[];
+  protected verticesArray: number[];
 
   constructor(
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
@@ -103,6 +107,14 @@ export default class Object3D extends ObjectsCommon {
     throw new Error('Object3D.clone() Implemented in children');
   }
 
+  public getGeometryData(): IGeometry {
+    return {
+      id: this.id,
+      vertices: this.verticesArray,
+      normals: this.normalsArray,
+    };
+  }
+
   protected applyOperations(): void {
     this.mesh.position.set(0, 0, 0);
     this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
@@ -133,12 +145,6 @@ export default class Object3D extends ObjectsCommon {
 
     return;
   }
-
-  // protected getMaterial(): THREE.MeshLambertMaterial {
-  //   return new THREE.MeshLambertMaterial({
-  //     color: this.viewOptions.color,
-  //   });
-  // }
 
   protected getGeometry(): THREE.Geometry {
     throw new Error('ERROR. Pure Virtual Function implemented in children');
@@ -229,6 +235,11 @@ export default class Object3D extends ObjectsCommon {
     this.meshUpdateRequired = false;
     this.pendingOperation = false;
     this.viewOptionsUpdateRequired = false;
+
+    if (mesh.userData.vertices && mesh.userData.normals) {
+      this.verticesArray = mesh.userData.vertices;
+      this.normalsArray = mesh.userData.normals;
+    }
 
     this.mesh.updateMatrixWorld(true);
     this.mesh.updateMatrix();

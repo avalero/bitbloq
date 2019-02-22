@@ -59,6 +59,10 @@ export default class Intersection extends CompoundObject {
           geometry,
           new THREE.MeshLambertMaterial(),
         );
+
+        mesh.userData.vertices = vertices;
+        mesh.userData.normals = normals;
+
         intersect = new Intersection(
           children,
           object.operations,
@@ -66,8 +70,6 @@ export default class Intersection extends CompoundObject {
           mesh,
           true,
         );
-        intersect.verticesArray = vertices;
-        intersect.normalsArray = normals;
       } else {
         intersect = new Intersection(children, object.operations, viewOptions);
       }

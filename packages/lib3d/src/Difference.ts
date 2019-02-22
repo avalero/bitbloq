@@ -61,6 +61,9 @@ export default class Difference extends CompoundObject {
           geometry,
           new THREE.MeshLambertMaterial(),
         );
+        mesh.userData.vertices = vertices;
+        mesh.userData.normals = normals;
+
         dif = new Difference(
           children,
           object.operations,
@@ -68,8 +71,6 @@ export default class Difference extends CompoundObject {
           mesh,
           true,
         );
-        dif.verticesArray = vertices;
-        dif.normalsArray = normals;
       } else {
         dif = new Difference(children, object.operations, viewOptions);
       }

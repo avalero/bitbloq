@@ -15,7 +15,9 @@ import {
   ICartesianRepetitionParams,
   IRepetitionObjectJSON,
   ICubeJSON,
+  IGeometry,
 } from '../Interfaces';
+import Union from '../Union';
 
 test('Scene - Constructor', () => {
   const spySetupScene = jest.spyOn(Scene.prototype as any, 'setupScene');
@@ -526,4 +528,35 @@ test('Scene - undoRepetition', async () => {
   expect(objects.children.length).toEqual(1);
   expect(objects.children[0]).toBeInstanceOf(THREE.Mesh);
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(Cube);
+});
+
+test('Scene - getGeometries', async () => {
+  const cube = new Cube({ width: 10, height: 10, depth: 10 });
+  const mesh = (await cube.getMeshAsync()) as THREE.Mesh;
+  const vertices = [10, 20, 30];
+  const normals = [40, 50, 60];
+  mesh.userData.vertices = vertices;
+  mesh.userData.normals = normals;
+
+  const cube2: Cube = cube.clone();
+
+  const union = new Union([cube, cube2], [], {}, mesh);
+
+  const geometry: IGeometry = union.getGeometryData();
+
+  expect(geometry.id).toEqual(union.getID());
+  expect(geometry.vertices).toBe(vertices);
+  expect(geometry.normals).toBe(normals);
+
+  const scene: Scene = new Scene();
+  (scene as any).objectCollector.push(cube);
+  (scene as any).objectCollector.push(cube2);
+  (scene as any).objectCollector.push(union);
+  (scene as any).objectsInScene.push(union);
+
+  const geometries: IGeometry[] = scene.getGeometries();
+
+  expect(geometries.length).toEqual(1);
+  expect(geometries[0].vertices).toBe(vertices);
+  expect(geometries[0].normals).toBe(normals);
 });
