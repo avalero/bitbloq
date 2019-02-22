@@ -58,9 +58,9 @@ export default class Union extends CompoundObject {
           geometry,
           new THREE.MeshLambertMaterial(),
         );
+        mesh.userData.vertices = vertices;
+        mesh.userData.normals = normals;
         union = new Union(children, object.operations, viewOptions, mesh, true);
-        union.verticesArray = vertices;
-        union.normalsArray = normals;
       } else {
         union = new Union(children, object.operations, viewOptions);
       }
@@ -89,8 +89,9 @@ export default class Union extends CompoundObject {
 
     if (mesh) {
       this.setMesh(mesh);
-      // we have a mesh withoug operations and viewoptions
+
       if (applyOperations) {
+        // we have a mesh withoug operations and viewoptions
         this.pendingOperation = true;
         this.viewOptionsUpdateRequired = true;
         this.meshPromise = this.computeMeshAsync();

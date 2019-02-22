@@ -374,9 +374,9 @@ export default class Scene {
             for (const geom of this.geometries) {
               if (geom.id === json.id) {
                 json.geometry = {
-                  id: geom[0].id,
-                  vertices: geom[0].vertices,
-                  normals: geom[0].normals,
+                  id: geom.id,
+                  vertices: geom.vertices,
+                  normals: geom.normals,
                 };
                 break;
               }

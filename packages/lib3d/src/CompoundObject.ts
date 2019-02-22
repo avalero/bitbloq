@@ -23,7 +23,6 @@ import {
   IViewOptions,
   OperationsArray,
   ICompoundObjectJSON,
-  IGeometry,
 } from './Interfaces';
 import * as THREE from 'three';
 import Worker from './compound.worker';
@@ -67,8 +66,6 @@ export default class CompoundObject extends Object3D {
   }
   protected children: ChildrenArray;
   protected worker: Worker | null;
-  protected normalsArray: number[];
-  protected verticesArray: number[];
 
   constructor(
     children: ChildrenArray = [],
@@ -84,14 +81,6 @@ export default class CompoundObject extends Object3D {
     // children will have this CompoundObject as Parent
     this.children.forEach(child => child.setParent(this));
     this._meshUpdateRequired = true;
-  }
-
-  public getGeometryData(): IGeometry {
-    return {
-      id: this.id,
-      vertices: this.verticesArray,
-      normals: this.normalsArray,
-    };
   }
 
   public getChildren(): ChildrenArray {
