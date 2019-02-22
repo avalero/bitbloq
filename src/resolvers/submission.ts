@@ -227,7 +227,7 @@ const submissionResolver = {
           $set: {
             finished: true,
             content: args.content,
-            geometries: exFather.geometries,
+            geometries: args.geometries,
             studentComment: args.studentComment,
             finishedAt: Date.now(),
           },
