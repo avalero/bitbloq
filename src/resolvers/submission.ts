@@ -111,6 +111,7 @@ const submissionResolver = {
           studentNick: args.studentNick,
           password: hash,
           content: exFather.content,
+          geometries: exFather.geometries,
           user: exFather.user,
           document: exFather.document,
           title: exFather.title,
@@ -226,6 +227,7 @@ const submissionResolver = {
           $set: {
             finished: true,
             content: args.content,
+            geometries: exFather.geometries,
             studentComment: args.studentComment,
             finishedAt: Date.now(),
           },

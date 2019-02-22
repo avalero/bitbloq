@@ -37,6 +37,7 @@ type Submission {
   studentNick: String
   password: String
   content: String
+  geometries: String
   submissionToken: String
   finished: Boolean
   studentComment: String
@@ -54,6 +55,7 @@ input SubmissionIn {
   studentComment: String
   studentNick: String
   content: String
+  geometries: String
   type: String
 }
 type loginOut {

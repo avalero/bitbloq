@@ -32,6 +32,7 @@ type Document {
   title: String!
   type: String
   content: String
+  geometries: String
   description: String
   version: String
   image: String
@@ -47,6 +48,7 @@ input DocumentIn {
   title: String
   type: String
   content: String
+  geometries: String
   description: String
   version: String
   image: Upload
