@@ -13,11 +13,11 @@ enum Role {
 
 type Query {
   submissions: [Submission]                                 @authRequired(requires: [USER])
-  submission(id: ObjectID!): Submission                     @authRequired(requires: [EPHEMERAL, USER])
+  submission(id: ObjectID): Submission                      @authRequired(requires: [EPHEMERAL, USER])
   submissionsByExercise(exercise: ObjectID!): [Submission]  @authRequired(requires: [USER])
 }
 type Mutation {
-  createSubmission(exerciseCode: String!, studentNick: String!): createOut
+  loginSubmission(exerciseCode: String!, studentNick: String!, password: String!): loginOut
   updateSubmission(input: SubmissionIn): Submission                                           @authRequired(requires: [EPHEMERAL])
   finishSubmission(content: String, studentComment: String): Submission                       @authRequired(requires: [EPHEMERAL])
   cancelSubmission: Submission                                                                @authRequired(requires: [EPHEMERAL])
@@ -35,6 +35,7 @@ type Submission {
   user: ObjectID
   document: ObjectID
   studentNick: String
+  password: String
   content: String
   submissionToken: String
   finished: Boolean
@@ -55,9 +56,8 @@ input SubmissionIn {
   content: String
   type: String
 }
-type createOut {
+type loginOut {
   token: String
+  exerciseID: String
   type: String
-  submissionID: ObjectID
-  exerciseID: ObjectID
 }

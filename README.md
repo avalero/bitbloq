@@ -141,11 +141,11 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     QUERIES:
       submissions: [Submission]
-      submission(id: ObjectID!): Submission
+      submission(id: ObjectID): Submission
       submissionsByExercise(exercise: String!): [Submission]
 
     STUDENT MUTATIONS:
-      createSubmission(exerciseCode: String!, studentNick: String!): createOut
+      loginSubmission(exerciseCode: String!, studentNick: String!, password: String!): loginOut
       updateSubmission(input: SubmissionIn): Submission
       finishSubmission(content: String, studentComment: String): Submission
       cancelSubmission: Submission
