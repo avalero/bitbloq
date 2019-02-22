@@ -6,6 +6,7 @@ interface IDocument extends Document {
   title?: string;
   type?: string;
   content?: string;
+  geometries?: string
   image: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -32,6 +33,10 @@ const DocumentMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: 'content',
+  },
+
+  geometries: {
+    type: String,
   },
 
   image: {

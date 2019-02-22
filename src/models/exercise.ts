@@ -10,6 +10,7 @@ interface IExercise extends Document {
   description: string;
   teacherName: string;
   content?: string;
+  geometries?: string
   acceptSubmissions?: boolean;
   expireDate?: Date;
   image: string;
@@ -51,6 +52,10 @@ const ExerciseMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: 'content',
+  },
+
+  geometries: {
+    type: String,
   },
 
   acceptSubmissions: {
