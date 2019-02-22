@@ -26,7 +26,6 @@ const userResolver = {
      * args: email, password and user information.
      */
     signUpUser: async (root: any, args: any) => {
-      console.log(args)
       const contactFound = await UserModel.findOne({
         email: args.input.email,
       });

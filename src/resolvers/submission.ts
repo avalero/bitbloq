@@ -3,9 +3,13 @@ import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
 import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
+import { isRegExp } from 'util';
 
 export const pubsub = new PubSub();
 const jsonwebtoken = require('jsonwebtoken');
+
+const bcrypt = require('bcrypt');
+const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = 'SUBMISSION_UPDATED';
 
@@ -21,13 +25,8 @@ const submissionResolver = {
     },
   },
   Mutation: {
-    /**
-     * Create submission: register a new student than joins the exercise.
-     * It stores the new student information in the database and
-     * returns a login token with the exercise and submission ID.
-     * args: exercise code and student nickname.
-     */
-    createSubmission: async (root: any, args: any, context: any) => {
+
+    loginSubmission: async (root: any, args: any, context: any)=>{
       if(!args.studentNick){
         throw new ApolloError(
           'Error creating submission, you must introduce a nickname',
@@ -52,58 +51,205 @@ const submissionResolver = {
           'NOT_ACCEPT_SUBMISSIONS',
         );
       }
-
-      if (
-        await SubmissionModel.findOne({
-          studentNick: args.studentNick,
-          exercise: exFather._id,
-        })
-      ) {
-        throw new ApolloError(
-          'This nick already exists in this exercise, try another one',
-          'STUDENT_NICK_EXISTS',
-        );
-      }
-      const submissionNew = new SubmissionModel({
-        id: ObjectId,
-        exercise: exFather._id,
+      // check if there is a submission with this nickname and password. If true, return it.
+      const existSubmission=await SubmissionModel.findOne({
         studentNick: args.studentNick,
-        content: exFather.content,
-        user: exFather.user,
-        document: exFather.document,
-        title: exFather.title,
-        type: exFather.type,
+        exercise: exFather._id,
       });
-      const newSub = await SubmissionModel.create(submissionNew);
-      const token: string = jsonwebtoken.sign(
-        {
-          exerciseID: exFather._id,
-          submissionID: newSub._id,
+      if(existSubmission){
+        //si existe la submission, compruebo la contraseña y la devuelvo
+        const valid: boolean = await bcrypt.compare(
+          args.password,
+          existSubmission.password,
+        );
+        console.log("existe")
+        if(valid){
+          console.log("valida")
+          const token: string = jsonwebtoken.sign(
+            {
+              exerciseID: exFather._id,
+              submissionID: existSubmission._id,
+              studentNick: args.studentNick,
+              role: 'EPHEMERAL',
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '3h' },
+          );
+          await SubmissionModel.findOneAndUpdate(
+            { _id: existSubmission._id },
+            { $set: { submissionToken: token } },
+            { new: true },
+          );
+          await LogModel.create({
+            user: exFather.user,
+            object: existSubmission._id,
+            action: 'SUB_login',
+            docType: existSubmission.type,
+          });
+          pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
+          return {
+            token,
+            submission: existSubmission
+          };
+        }else{
+          throw new ApolloError(
+            'comparing passwords valid=false',
+            'PASSWORD_ERROR',
+          );
+        }
+      }else{
+        //la submission no existe, se crea una nueva
+        const hash: string = await bcrypt.hash(args.password, saltRounds);
+        const submissionNew = new SubmissionModel({
+          id: ObjectId,
+          exercise: exFather._id,
           studentNick: args.studentNick,
-          role: 'EPHEMERAL',
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '3h' },
-      );
-      await SubmissionModel.findOneAndUpdate(
-        { _id: newSub._id },
-        { $set: { submissionToken: token } },
-        { new: true },
-      );
-      await LogModel.create({
-        user: exFather.user,
-        object: submissionNew._id,
-        action: 'SUB_create',
-        docType: submissionNew.type,
-      });
-      pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
-      return {
-        token,
-        submissionID: newSub._id,
-        exerciseID: exFather._id,
-        type: exFather.type,
-      };
+          password: hash,
+          content: exFather.content,
+          user: exFather.user,
+          document: exFather.document,
+          title: exFather.title,
+          type: exFather.type,
+        });
+        const newSub = await SubmissionModel.create(submissionNew);
+        const token: string = jsonwebtoken.sign(
+          {
+            exerciseID: exFather._id,
+            submissionID: newSub._id,
+            studentNick: args.studentNick,
+            role: 'EPHEMERAL',
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: '3h' },
+        );
+        await SubmissionModel.findOneAndUpdate(
+          { _id: newSub._id },
+          { $set: { submissionToken: token } },
+          { new: true },
+        );
+        await LogModel.create({
+          user: exFather.user,
+          object: submissionNew._id,
+          action: 'SUB_create',
+          docType: submissionNew.type,
+        });
+        pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
+        return {
+          token,
+          submission: newSub
+        };
+      }
     },
+
+    /**
+     * Create submission: register a new student than joins the exercise.
+     * It stores the new student information in the database and
+     * returns a login token with the exercise and submission ID.
+     * args: exercise code and student nickname.
+     */
+    // createSubmission: async (root: any, args: any, context: any) => {
+    //   if(!args.studentNick){
+    //     throw new ApolloError(
+    //       'Error creating submission, you must introduce a nickname',
+    //       'NOT_NICKNAME_PROVIDED',
+    //     );
+    //   }
+    //   const exFather = await ExerciseModel.findOne({
+    //     code: args.exerciseCode,
+    //     acceptSubmissions: true,
+    //   });
+    //   if (!exFather) {
+    //     throw new ApolloError(
+    //       'Error creating submission, check your exercise code',
+    //       'INVALID_EXERCISE_CODE',
+    //     );
+    //   }
+    //   // check if the submission is in time
+    //   const timeNow: Date = new Date();
+    //   if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
+    //     throw new ApolloError(
+    //       'This exercise does not accept submissions now',
+    //       'NOT_ACCEPT_SUBMISSIONS',
+    //     );
+    //   }
+    //   // check if there is a submission with this nickname and password. If true, return it.
+    //   const existSub=await SubmissionModel.findOne({
+    //     studentNick: args.studentNick,
+    //     exercise: exFather._id,
+    //     password: args.password,
+    //   })
+    //   if (existSub) {
+    //     const token: string = jsonwebtoken.sign(
+    //       {
+    //         exerciseID: exFather._id,
+    //         submissionID: existSub._id,
+    //         studentNick: args.studentNick,
+    //         role: 'EPHEMERAL',
+    //       },
+    //       process.env.JWT_SECRET,
+    //       { expiresIn: '3h' },
+    //     );
+    //     await SubmissionModel.findOneAndUpdate(
+    //       { _id: existSub._id },
+    //       { $set: { submissionToken: token } },
+    //       { new: true },
+    //     );
+    //     await LogModel.create({
+    //       user: exFather.user,
+    //       object: existSub._id,
+    //       action: 'SUB_login',
+    //       docType: existSub.type,
+    //     });
+    //     pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSub });
+    //     return {
+    //       token,
+    //       submissionID: existSub._id,
+    //       exerciseID: exFather._id,
+    //       type: exFather.type,
+    //     };
+    //   }else{
+    //     const submissionNew = new SubmissionModel({
+    //       id: ObjectId,
+    //       exercise: exFather._id,
+    //       studentNick: args.studentNick,
+    //       password: args.password,
+    //       content: exFather.content,
+    //       user: exFather.user,
+    //       document: exFather.document,
+    //       title: exFather.title,
+    //       type: exFather.type,
+    //     });
+    //     const newSub = await SubmissionModel.create(submissionNew);
+    //     const token: string = jsonwebtoken.sign(
+    //       {
+    //         exerciseID: exFather._id,
+    //         submissionID: newSub._id,
+    //         studentNick: args.studentNick,
+    //         role: 'EPHEMERAL',
+    //       },
+    //       process.env.JWT_SECRET,
+    //       { expiresIn: '3h' },
+    //     );
+    //     await SubmissionModel.findOneAndUpdate(
+    //       { _id: newSub._id },
+    //       { $set: { submissionToken: token } },
+    //       { new: true },
+    //     );
+    //     await LogModel.create({
+    //       user: exFather.user,
+    //       object: submissionNew._id,
+    //       action: 'SUB_create',
+    //       docType: submissionNew.type,
+    //     });
+    //     pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
+    //     return {
+    //       token,
+    //       submissionID: newSub._id,
+    //       exerciseID: exFather._id,
+    //       type: exFather.type,
+    //     };
+    //   }
+    // },
 
     /**
      * Update submission: update existing submission.

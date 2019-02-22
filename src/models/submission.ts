@@ -6,6 +6,7 @@ interface ISubmission extends Document {
   title: string;
   exercise?: string;
   studentNick?: string;
+  password?: string;
   content?: string;
   finished?: boolean;
   comment?: string;
@@ -37,6 +38,10 @@ const SubmissionMongSchema: Schema = new Schema({
   studentNick: {
     type: String,
     required: true
+  },
+
+  password: {
+    type: String,
   },
 
   content: {
