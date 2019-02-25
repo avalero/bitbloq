@@ -12,6 +12,6 @@ export default class PredesignedObject extends STLObject {
     mesh?: THREE.Mesh | undefined,
   ) {
     super(parameters, operations, viewOptions, mesh);
-    this.type = STLObject.typeName;
+    this.type = PredesignedObject.typeName;
   }
 }
