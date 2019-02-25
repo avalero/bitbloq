@@ -25,9 +25,11 @@ const exerciseResolver = {
         );
       }
       const user = await UserModel.findById(context.user.userID);
-      const newCode = Math.random()
-        .toString(36)
-        .substr(2, 6);
+      let newCode: string = Math.random().toString(36).substr(2, 6);
+      while(await ExerciseModel.findOne({code: newCode}) != null){
+        console.log("The exercise code already exists");
+        newCode  = Math.random().toString(36).substr(2, 6);
+      }
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
         user: context.user.userID,
