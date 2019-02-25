@@ -25,3 +25,5 @@ COPY --from=node /usr/src/app/public/ /usr/share/nginx/html
 COPY /bitbloq-space/frontend/nginx-config.conf /etc/nginx/conf.d/default.conf
 
 RUN rm -rf bitbloq bitbloq-space
+
+CMD /bin/bash -c "nginx -g 'daemon off;'"
