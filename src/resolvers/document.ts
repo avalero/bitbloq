@@ -37,6 +37,7 @@ const documentResolver = {
         user: context.user.userID,
         title: args.input.title,
         type: args.input.type,
+        folder: args.input.folder,
         content: args.input.content,
         geometries: args.input.geometries,
         description: args.input.description,
@@ -123,6 +124,7 @@ const documentResolver = {
           const documentUpdate = {
             title: args.input.title || existDocument.title,
             type: args.input.type || existDocument.type,
+            folder: args.input.folder || existDocument.folder,
             content: args.input.content || existDocument.content,
             geometries: args.input.geometries || existDocument.geometries,
             description: args.input.description || existDocument.description,
@@ -140,6 +142,7 @@ const documentResolver = {
           const documentUpdate = {
             title: args.input.title || existDocument.title,
             type: args.input.type || existDocument.type,
+            folder: args.input.folder || existDocument.folder,
             content: args.input.content || existDocument.content,
             geometries: args.input.geometries || existDocument.geometries,
             description: args.input.description || existDocument.description,

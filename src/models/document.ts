@@ -5,6 +5,7 @@ interface IDocument extends Document {
   user?: string;
   title?: string;
   type?: string;
+  folder?: string;
   content?: string;
   geometries?: string
   image: string;
@@ -28,6 +29,11 @@ const DocumentMongSchema: Schema = new Schema({
   type: {
     type: String,
     required: true,
+  },
+
+  folder: {
+    type: Schema.Types.ObjectId,
+    ref: 'FolderModel',
   },
 
   content: {
