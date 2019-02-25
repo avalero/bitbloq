@@ -1,20 +1,20 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-16 12:59:08
- * Last modified  : 2019-02-01 09:52:58
+/*
+ * File: STLObject.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Copyright 2018 - 2019 BQ Educacion.
+ * -----
+ * File Created: Monday, 25th February 2019
+ * Last Modified:: Monday, 25th February 2019 9:59:21 am
+ * -----
+ * Author: David García (david.garciaparedes@bq.com)
+ * Author: Alda Martín (alda.marting@bq.com)
+ * Author: Alberto Valero (alberto.valero@bq.com)
+ * -----
  */
 
 import * as THREE from 'three';
 import ObjectsCommon from './ObjectsCommon';
-
 import PrimitiveObject from './PrimitiveObject';
 import STLLoader from './STLLoader';
 
@@ -28,11 +28,16 @@ import {
 
 export default class STLObject extends PrimitiveObject {
   get meshUpdateRequired(): boolean {
-    return (this.parameters as ISTLParams).blob.newfile;
+    const params = this.parameters as ISTLParams;
+    if (params.blob) {
+      return params.blob.newfile || this._meshUpdateRequired;
+    }
+
+    return this._meshUpdateRequired;
   }
 
   set meshUpdateRequired(a: boolean) {
-    (this.parameters as ISTLParams).blob.newfile = a;
+    this._meshUpdateRequired = a;
   }
   public static typeName: string = 'STLObject';
 
@@ -66,6 +71,7 @@ export default class STLObject extends PrimitiveObject {
 
   private arrayBufferData: ArrayBuffer;
   private geometry: THREE.Geometry;
+  private url: string;
 
   constructor(
     parameters: Partial<ISTLParams>,
@@ -82,20 +88,26 @@ export default class STLObject extends PrimitiveObject {
 
     const params: ISTLParams = {
       ...parameters,
-      blob: parameters.blob || {
-        uint8Data: new Uint8Array(0),
-        filetype: 'empty',
-        newfile: false,
-      },
+      url: parameters.url,
+      blob: parameters.blob,
     };
+
+    // if we have url we prioritize it wrt. blob
+    if (params.url) {
+      delete params.blob;
+    }
 
     this.setParameters(params);
 
     if (mesh) {
       this.setMesh(mesh);
     } else {
-      this.computeMesh();
-      this.meshPromise = null;
+      if ((this.parameters as ISTLParams).blob) {
+        this.computeMesh();
+        this.meshPromise = null;
+      } else {
+        this.meshPromise = this.computeMeshAsync();
+      }
     }
   }
 
@@ -119,10 +131,12 @@ export default class STLObject extends PrimitiveObject {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
+    const params = this.parameters as ISTLParams;
     this.meshPromise = new Promise(async (resolve, reject) => {
+      // No stl file defined
       if (
-        !(this.parameters as ISTLParams).blob ||
-        (this.parameters as ISTLParams).blob.filetype.match('empty')
+        (!params.url && !params.blob) ||
+        (params.blob && params.blob.filetype.match('empty'))
       ) {
         this.mesh = this.getNoFileMesh();
         this.meshUpdateRequired = false;
@@ -130,7 +144,24 @@ export default class STLObject extends PrimitiveObject {
         return;
       }
 
-      if (this.meshUpdateRequired) {
+      // file defined by url
+      if (params.url && this.meshUpdateRequired) {
+        const url = params.url;
+        const response = await fetch(url);
+        const arrayBuffer = await response.arrayBuffer();
+        this.geometry = STLLoader.loadBinaryStl(arrayBuffer);
+        this.mesh = new THREE.Mesh(this.geometry);
+        this.applyViewOptions();
+        await this.applyOperationsAsync();
+        resolve(this.mesh);
+        this.meshUpdateRequired = false;
+        this.pendingOperation = false;
+        this.viewOptionsUpdateRequired = false;
+        return;
+      }
+
+      // else -> file defined by blob
+      if (params.blob && this.meshUpdateRequired) {
         const geometry: THREE.Geometry = this.getGeometry();
         this.mesh = new THREE.Mesh(geometry);
         this.applyViewOptions();
@@ -180,11 +211,22 @@ export default class STLObject extends PrimitiveObject {
   protected setParameters(parameters: ISTLParams): void {
     if (!this.parameters) {
       this.parameters = { ...parameters };
+      this.url = parameters.url || '';
       this.meshUpdateRequired = true;
       return;
     }
 
-    if (parameters.blob.newfile) {
+    // If object is set by url remove blob (if exists)
+    if (parameters.url) {
+      delete parameters.blob;
+      if (parameters.url !== this.url) {
+        this.url = parameters.url;
+        this.meshUpdateRequired = true;
+        return;
+      }
+    }
+
+    if (parameters.blob && parameters.blob.newfile) {
       this.parameters = { ...parameters };
       this.meshUpdateRequired = true;
       return;
@@ -192,15 +234,14 @@ export default class STLObject extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    if (
-      !(this.parameters as ISTLParams).blob ||
-      (this.parameters as ISTLParams).blob.filetype.match('empty')
-    ) {
+    const params = this.parameters as ISTLParams;
+
+    if (!params.blob || params.blob.filetype.match('empty')) {
       throw new Error(`No STL file loaded`);
     }
 
     // recompute geometry only if blob has changed (new file loaded)
-    if ((this.parameters as ISTLParams).blob.newfile) {
+    if (params.blob.newfile) {
       try {
         return this.computeGeometry();
       } catch (e) {
@@ -211,7 +252,10 @@ export default class STLObject extends PrimitiveObject {
   }
 
   private computeGeometry(): THREE.Geometry {
-    const uint8Data = (this.parameters as ISTLParams).blob.uint8Data;
+    const params = this.parameters as ISTLParams;
+    if (!params.blob) throw new Error(`No blob to compute`);
+
+    const uint8Data = params.blob.uint8Data;
     let data: Uint8Array = new Uint8Array([]);
     if (uint8Data instanceof Uint8Array) {
       data = uint8Data;
@@ -220,7 +264,7 @@ export default class STLObject extends PrimitiveObject {
       data = new Uint8Array(uint8Data);
     }
     this.arrayBufferData = data.buffer;
-    const filetype: string = (this.parameters as ISTLParams).blob.filetype;
+    const filetype: string = params.blob.filetype;
 
     if (
       filetype.match('model/x.stl-binary') ||
