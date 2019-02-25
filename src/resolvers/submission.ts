@@ -60,7 +60,7 @@ const submissionResolver = {
       }
       // check if there is a submission with this nickname and password. If true, return it.
       const existSubmission=await SubmissionModel.findOne({
-        studentNick: args.studentNick,
+        studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id,
       });
       if(existSubmission){
@@ -108,7 +108,7 @@ const submissionResolver = {
         const submissionNew = new SubmissionModel({
           id: ObjectId,
           exercise: exFather._id,
-          studentNick: args.studentNick,
+          studentNick: args.studentNick.toLowerCase(),
           password: hash,
           content: exFather.content,
           geometries: exFather.geometries,
@@ -170,6 +170,13 @@ const submissionResolver = {
           action: 'SUB_update',
           docType: existSubmission.type,
         });
+        //importante! no se puede actualizar el nickname
+        if(args.input.studentNick){
+          throw new ApolloError(
+            'Error updating submission, you can not change your nickname',
+            'CANT_UPDATE_NICKNAME',
+          );
+        }
         const updatedSubmission = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: args.input },
