@@ -155,14 +155,16 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             <img src={studentStep1Image} />
             <p>
               1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu
-              profesor un código de ejercicio.
+              profesor o profesora un código de ejercicio. Podrás
+              entrar en el ejercicio mientras tu profesor lo mantenga abierto.
             </p>
           </Step>
           <Step>
             <img src={studentStep2Image} />
             <p>
               2. Inserta el código en el formulario de la derecha y escribe el
-              nombre de usuario que quieras usar.
+              nombre de acceso que quieras usar y una contraseña (opcional). 
+              Recuérdalos para continuar el ejercicio otro día.
             </p>
           </Step>
         </TabInfo>
@@ -178,7 +180,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                   error={!loading && error}
                   value={studentNick}
                   onChange={e => this.setState({ studentNick: e.target.value })}
-                  placeholder="Nombre de usuario"
+                  placeholder="Nombre de acceso"
                 />
                 <CodeInput
                   error={!loading && error}
@@ -190,7 +192,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                   error={!loading && error}
                   value={studentPassword}
                   onChange={e => this.setState({ studentPassword: e.target.value })}
-                  placeholder="Contraseña (Opcional)"
+                  placeholder="Contraseña (opcional)"
                   type="password"
                 />
                 {!loading && error && (
