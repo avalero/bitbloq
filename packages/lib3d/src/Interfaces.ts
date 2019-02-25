@@ -1,4 +1,15 @@
-// ObjectsCommon
+/*
+ * File: Interfaces.ts
+ * Project: Bitbloq
+ * File Created: Monday, 25th February 2019
+ * Last Modified:: Monday, 25th February 2019 9:56:35 am
+ * -----
+ * Author: David García (david.garciaparedes@bq.com)
+ * Author: Alda Martín (alda.marting@bq.com)
+ * Author: Alberto Valero (alberto.valero@bq.com)
+ * -----
+ * Copyright 2018 - 2019 BQ Educacion.
+ */
 
 export interface IObjectsCommonJSON {
   type: string;
@@ -132,7 +143,8 @@ export interface ISphereJSON extends IObjectsCommonJSON {
 
 // STL Object
 export interface ISTLParams {
-  blob: {
+  url?: string;
+  blob?: {
     uint8Data: Uint8Array | number[];
     filetype: string;
     newfile: boolean;

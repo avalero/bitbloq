@@ -1,3 +1,18 @@
+/*
+ * File: Bitbloq.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Copyright 2018 - 2019 BQ Educacion.
+ * -----
+ * File Created: Monday, 25th February 2019
+ * Last Modified:: Monday, 25th February 2019 7:04:57 pm
+ * -----
+ * Author: David García (david.garciaparedes@bq.com)
+ * Author: Alda Martín (alda.marting@bq.com)
+ * Author: Alberto Valero (alberto.valero@bq.com)
+ * -----
+ */
+
 import { isEqual } from 'lodash';
 import {
   IRepetitionObjectJSON,
@@ -67,9 +82,19 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
 
   // If STLObject, check if any of them is a newFile
   if (obj1.type === stlType) {
+    // TODO
+    // I am not sure if this works. I am too tired
+
+    const json1 = obj1 as ISTLJSON;
+    const json2 = obj2 as ISTLJSON;
+
+    if (json1.parameters.url && json2.parameters.url) {
+      return json1.parameters.url === json2.parameters.url;
+    }
+
     return !(
-      (obj1 as ISTLJSON).parameters.blob.newfile ||
-      (obj2 as ISTLJSON).parameters.blob.newfile
+      (json1.parameters.blob && json1.parameters.blob.newfile) ||
+      (json2.parameters.blob && json2.parameters.blob.newfile)
     );
   }
 
