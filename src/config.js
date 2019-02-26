@@ -21,24 +21,24 @@ import building2Icon from './images/building-2.svg';
 import building3Icon from './images/building-3.svg';
 import building4Icon from './images/building-4.svg';
 
-import carJson from './json/3d/car.json';
-import busJson from './json/3d/bus.json';
-import pickupJson from './json/3d/pickup.json';
-import vanJson from './json/3d/van.json';
-import truckJson from './json/3d/truck.json';
-import helicopterJson from './json/3d/helicopter.json';
-import tree1Json from './json/3d/tree-1.json';
-import tree2Json from './json/3d/tree-2.json';
-import streetlightJson from './json/3d/streetlight.json';
-import trafficlightJson from './json/3d/trafficlight.json';
-import trafficSign1Json from './json/3d/traffic-sign-1.json';
-import trafficSign2Json from './json/3d/traffic-sign-2.json';
-import trafficSign3Json from './json/3d/traffic-sign-3.json';
-import windmillJson from './json/3d/windmill.json';
-import building1Json from './json/3d/building-1.json';
-import building2Json from './json/3d/building-2.json';
-import building3Json from './json/3d/building-3.json';
-import building4Json from './json/3d/building-4.json';
+import carSTL from './assets/stl/car.stl';
+import busSTL from './assets/stl/bus.stl';
+import pickupSTL from './assets/stl/pickup.stl';
+import vanSTL from './assets/stl/van.stl';
+import truckSTL from './assets/stl/truck.stl';
+import helicopterSTL from './assets/stl/helicopter.stl';
+import tree1STL from './assets/stl/tree-1.stl';
+import tree2STL from './assets/stl/tree-2.stl';
+import streetlightSTL from './assets/stl/streetlight.stl';
+import trafficlightSTL from './assets/stl/trafficlight.stl';
+import trafficSign1STL from './assets/stl/traffic-sign-1.stl';
+import trafficSign2STL from './assets/stl/traffic-sign-2.stl';
+import trafficSign3STL from './assets/stl/traffic-sign-3.stl';
+import windmillSTL from './assets/stl/windmill.stl';
+import building1STL from './assets/stl/building-1.stl';
+import building2STL from './assets/stl/building-2.stl';
+import building3STL from './assets/stl/building-3.stl';
+import building4STL from './assets/stl/building-4.stl';
 
 export const documentTypes = {
   'bloqs': {
@@ -80,72 +80,86 @@ export const addShapeGroups = [
     icon: <Icon name="city-elements" />,
     shapes: [
       {
-        ...carJson,
+        type: 'PredesignedObject',
+        parameters: { url: carSTL },
         label: 'shape-car',
         icon: <img src={carIcon} />,
       },
       {
-        ...busJson,
+        type: 'PredesignedObject',
+        parameters: { url: busSTL },
         label: 'shape-bus',
         icon: <img src={busIcon} />,
       },
       {
-        ...pickupJson,
+        type: 'PredesignedObject',
+        parameters: { url: pickupSTL },
         label: 'shape-pickup',
         icon: <img src={pickupIcon} />,
       },
       {
-        ...vanJson,
+        type: 'PredesignedObject',
+        parameters: { url: vanSTL },
         label: 'shape-van',
         icon: <img src={vanIcon} />,
       },
       {
-        ...truckJson,
+        type: 'PredesignedObject',
+        parameters: { url: truckSTL },
         label: 'shape-truck',
         icon: <img src={truckIcon} />,
       },
       {
-        ...helicopterJson,
+        type: 'PredesignedObject',
+        parameters: { url: helicopterSTL },
         label: 'shape-helicopter',
         icon: <img src={helicopterIcon} />,
       },
       {
-        ...tree1Json,
+        type: 'PredesignedObject',
+        parameters: { url: tree1STL },
         label: 'shape-tree-1',
         icon: <img src={tree1Icon} />,
       },
       {
-        ...tree2Json,
+        type: 'PredesignedObject',
+        parameters: { url: tree2STL },
         label: 'shape-tree-2',
         icon: <img src={tree2Icon} />,
       },
       {
-        ...streetlightJson,
+        type: 'PredesignedObject',
+        parameters: { url: streetlightSTL },
         label: 'shape-streetlight',
         icon: <img src={streetlightIcon} />,
       },
       {
-        ...trafficlightJson,
+        type: 'PredesignedObject',
+        parameters: { url: trafficlightSTL },
         label: 'shape-trafficlight',
         icon: <img src={trafficlightIcon} />,
       },
       {
-        ...trafficSign1Json,
+        type: 'PredesignedObject',
+        parameters: { url: trafficSign1STL },
         label: 'shape-traffic-sign-1',
         icon: <img src={trafficSign1Icon} />,
       },
       {
-        ...trafficSign2Json,
+        type: 'PredesignedObject',
+        parameters: { url: trafficSign2STL },
         label: 'shape-traffic-sign-2',
         icon: <img src={trafficSign2Icon} />,
       },
       {
-        ...trafficSign3Json,
+        type: 'PredesignedObject',
+        parameters: { url: trafficSign3STL },
         label: 'shape-traffic-sign-3',
         icon: <img src={trafficSign3Icon} />,
       },
       {
-        ...windmillJson,
+        type: 'PredesignedObject',
+        parameters: { url: windmillSTL },
         label: 'shape-windmill',
         icon: <img src={windmillIcon} />,
       },
@@ -156,22 +170,26 @@ export const addShapeGroups = [
     icon: <Icon name="people" />,
     shapes: [
       {
-        ...building1Json,
+        type: 'PredesignedObject',
+        parameters: { url: building1STL },
         label: 'shape-building-1',
         icon: <img src={building1Icon} />,
       },
       {
-        ...building2Json,
+        type: 'PredesignedObject',
+        parameters: { url: building2STL },
         label: 'shape-building-2',
         icon: <img src={building2Icon} />,
       },
       {
-        ...building3Json,
+        type: 'PredesignedObject',
+        parameters: { url: building3STL },
         label: 'shape-building-3',
         icon: <img src={building3Icon} />,
       },
       {
-        ...building4Json,
+        type: 'PredesignedObject',
+        parameters: { url: building4STL },
         label: 'shape-building-4',
         icon: <img src={building4Icon} />,
       },
