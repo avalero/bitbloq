@@ -1,5 +1,7 @@
 import {colors, Icon} from '@bitbloq/ui';
 
+import ThreeDEditor from './components/ThreeDEditor';
+
 import carIcon from './images/car.svg';
 import busIcon from './images/bus.svg';
 import pickupIcon from './images/pickup.svg';
@@ -49,7 +51,8 @@ export const documentTypes = {
     label: 'Diseño 3D',
     shortLabel: 'Diseño 3D',
     color: colors.brandBlue,
-    supported: true
+    supported: true,
+    editorComponent: ThreeDEditor
   },
   'code': {
     label: 'Robótica por código',

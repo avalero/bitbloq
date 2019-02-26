@@ -45,7 +45,7 @@ const httpLink = createUploadLink({
   fetch
 });
 
-export const client = isBrowser =>
+export const createClient = isBrowser =>
   new ApolloClient({
     link: ApolloLink.from([
       onError(({ graphQLErrors, networkError }) => {
