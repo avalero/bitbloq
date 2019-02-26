@@ -51,11 +51,12 @@ const uploadResolver = {
   Mutation: {
     singleUpload: async (file, documentID) => {
       const { createReadStream, filename, mimetype, encoding } = await file;
-
+      if(!createReadStream || !filename || !mimetype || !encoding){
+        throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
+      }
       await new Promise((resolve, reject) => {
         processUpload(createReadStream, filename, resolve, reject);
       });
-
       const uploadNew = new UploadModel({
         id: ObjectID,
         document: documentID,
