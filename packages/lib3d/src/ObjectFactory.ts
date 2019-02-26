@@ -26,6 +26,7 @@ import ObjectsGroup from './ObjectsGroup';
 import RepetitionObject from './RepetitionObject';
 import Scene from './Scene';
 import STLObject from './STLObject';
+import PredesignedObject from './PredesignedObject';
 
 export default class ObjectFactory {
   /**
@@ -49,6 +50,8 @@ export default class ObjectFactory {
         return Pyramid.newFromJSON(obj as IPyramidJSON);
       case STLObject.typeName:
         return STLObject.newFromJSON(obj as ISTLJSON);
+      case PredesignedObject.typeName:
+        return PredesignedObject.newFromJSON(obj as ISTLJSON);
       case TextObject.typeName:
         return TextObject.newFromJSON(obj as ITextObjectJSON);
       case ObjectsGroup.typeName:
