@@ -9,7 +9,7 @@ import Checkbox from './components/Checkbox';
 import Tooltip from './components/Tooltip';
 import NumberInput from './components/NumberInput';
 import Switch from './components/Switch';
-import Document from './components/Document';
+import Document, { HeaderButton } from './components/Document';
 import Panel from './components/Panel';
 import HorizontalRule from './components/HorizontalRule';
 import TextArea from './components/TextArea';

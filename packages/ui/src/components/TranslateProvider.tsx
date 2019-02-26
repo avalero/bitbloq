@@ -46,14 +46,14 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 
 export const Translate = TranslateContext.Consumer;
 
-interface WithTranslateProps {
+export interface WithTranslateProps {
   t: () => string;
 }
 
 export const withTranslate = <P extends object>(
   Component: React.ComponentType<P>,
 ) =>
-  class WithTranslate extends React.Component<P & WithTranslateProps> {
+  class WithTranslate extends React.Component<P> {
     render() {
       return <Translate>{t => <Component t={t} {...this.props} />}</Translate>;
     }
