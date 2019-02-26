@@ -196,10 +196,17 @@ export default class Renderer {
     this.backgroundClickHandlers.push(handler);
   }
 
+  public getCanvasImage(): string {
+    const strMime: string = 'image/jpeg';
+    const imgData: string = this.threeRenderer.domElement.toDataURL(strMime);
+    return imgData;
+  }
+
   private setup() {
     const rendererParams = {
       antialias: this.options.antialias,
       sortObjects: this.options.sortObjects,
+      preserveDrawingBuffer: true,
     };
 
     const threeRenderer = new THREE.WebGLRenderer(rendererParams);
