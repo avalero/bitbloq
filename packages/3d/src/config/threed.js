@@ -223,6 +223,12 @@ const config = {
       ],
     },
     {
+      name: 'PredesignedObject',
+      label: 'object-type-predesigned-object',
+      icon: <Icon name="stl" />,
+      parameters: () => []
+    },
+    {
       name: 'TextObject',
       label: 'object-type-text-object',
       icon: <Icon name="text" />,
