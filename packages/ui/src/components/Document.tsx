@@ -1,3 +1,4 @@
+/// <reference path="../index.d.ts" />
 import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
@@ -185,21 +186,16 @@ export interface TabProps {
 
 export const Tab: React.SFC<TabProps> = props => null;
 
-export interface HeaderButton {
-  id: string;
-  icon: string;
-}
-
 export interface DocumentProps {
   menuOptions?: MainMenuOption[];
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
-  headerButtons?: HeaderButton[];
+  headerButtons?: BBUI.HeaderButton[];
   title?: string;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
-  onHeaderButtonClick: (buttonId: string) => any;
+  onHeaderButtonClick: BBUI.HeaderButtonClickCallback;
 }
 
 interface State {
