@@ -4,28 +4,59 @@ import { DocumentModel } from '../models/document';
 import { FolderModel } from '../models/folder';
 import { LogModel } from '../models/logs';
 import documentResolver from './document';
+import { UserModel } from '../models/user';
 
 const folderResolver = {
   Mutation: {
+    /**
+     * Create Root Folder: create the initial root folder for each new user.
+     * args: user ID
+     */
+    createRootFolder: async (user: ObjectId) =>{
+      const folderNew = new FolderModel({
+        name: 'root',
+        user: user,
+      });
+      return await FolderModel.create(folderNew);
+    },
     /**
      * Create folder: create a new empty folder.
      * args: folder information
      */
     createFolder: async (root: any, args: any, context: any) => {
+      const user = await UserModel.findOne({_id: context.user.userID});
       const folderNew = new FolderModel({
-        id: ObjectId,
         name: args.input.name,
         user: context.user.userID,
         parent: args.input.parent,
-        root: args.input.root
+        root: user.rootFolder
       });
       const newFolder = await FolderModel.create(folderNew);
+      if(args.input.parent){
+        await FolderModel.findOneAndUpdate(
+          { _id: args.input.parent },
+          { $push: {foldersID: newFolder._id} },
+          { new: true },
+        )
+      }else{ //si no tienen parent, van dentro de root
+        await FolderModel.findOneAndUpdate(
+          { _id: newFolder._id },                //modifico el parent de la carpeta para que sea root
+          { $set: {parent: newFolder.root} },
+          { new: true },
+        )
+        await FolderModel.findOneAndUpdate(
+          { _id: newFolder.root },                //modifico los foldersID del root
+          { $push: {foldersID: newFolder._id} },
+          { new: true },
+        )
+      }
       await LogModel.create({
         user: context.user.userID,
         object: newFolder._id,
         action: 'FOL_create',
         docType: 'Folder',
       });
+      
       return newFolder;
     },
 
@@ -40,6 +71,9 @@ const folderResolver = {
         _id: args.id,
         user: context.user.userID,
       });
+      if(existFolder.name =='root'){
+        throw new ApolloError('You can not delete your Root folder', 'CANT_DELETE_ROOT')
+      }
       if (existFolder) {
         await LogModel.create({
           user: context.user.userID,
@@ -48,10 +82,25 @@ const folderResolver = {
           docType: 'Folder',
         });
         if(existFolder.documentsID.length >0){
-            for(let document in existFolder.documentsID){
+            for(let document of existFolder.documentsID){
                 await documentResolver.Mutation.deleteDocument('',{id: document}, context);
+                await FolderModel.updateOne(
+                  { _id: existFolder.parent },
+                  { $pull: {documentsID: document} },
+                  { new: true },
+                )
             }
         }
+        if(existFolder.foldersID.length >0){
+          for(let folder of existFolder.foldersID){
+              await this.Mutation.deleteFolder('', {id: folder}, context);
+          }
+        }
+        await FolderModel.updateOne(
+          { _id: existFolder.parent },
+          { $pull: {foldersID: existFolder._id} },
+          { new: true },
+        )
         return await FolderModel.deleteOne({ _id: args.id });
       } else {
         return new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
@@ -68,6 +117,9 @@ const folderResolver = {
         _id: args.id,
         user: context.user.userID,
       });
+      if(existFolder.name =='root'){
+        throw new ApolloError('You can not update your Root folder', 'CANT_UPDATE_ROOT')
+      }
       if (existFolder) {
         await LogModel.create({
           user: context.user.userID,
@@ -75,6 +127,33 @@ const folderResolver = {
           action: 'FOL_update',
           docType: 'Folder',
         });
+        if(args.input.foldersID){ //si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
+          console.log(args.input.foldersID.length)
+          for(let folder of args.input.foldersID){
+            console.log(folder)
+            await FolderModel.updateOne(
+              {_id: folder},
+              { parent: existFolder._id}
+            );
+          }
+        }
+        if(args.input.documentsID){ //si se pasa lista de documentos hay que modificarlos para añadir la carpeta
+          console.log(args.input.documentsID.length)
+          for(let document of args.input.documentsID){
+            console.log(document)
+            await DocumentModel.updateOne(
+              {_id: document},
+              { folder: existFolder._id}
+            );
+          }
+        }
+        if(args.input.parent){ //si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
+          await FolderModel.updateOne(
+            {_id: args.input.parent},
+            { $push: existFolder._id}
+          );
+        }
+    
         return FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           { $set: args.input },
@@ -144,6 +223,8 @@ const folderResolver = {
   Folder: {
     documents: async folder =>
       DocumentModel.find({ folder: folder }),
+    folders: async folder =>
+      FolderModel.find({parent: folder}),
   },
 };
 

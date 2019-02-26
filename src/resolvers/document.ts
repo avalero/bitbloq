@@ -6,6 +6,8 @@ import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
 import uploadResolver from './upload';
+import { UserModel } from '../models/user';
+import { FolderModel } from '../models/folder';
 
 export const pubsub = new PubSub();
 
@@ -31,13 +33,13 @@ const documentResolver = {
      * it uploads to Google Cloud and stores the public URL.
      * args: document information
      */
-    createDocument: async (root: any, args: any, context: any) => {    
+    createDocument: async (root: any, args: any, context: any) => {
       const documentNew = new DocumentModel({
         id: ObjectId,
         user: context.user.userID,
         title: args.input.title,
         type: args.input.type,
-        folder: args.input.folder,
+        folder: args.input.folder || ( await UserModel.findOne({_id: context.user.userID})).rootFolder,
         content: args.input.content,
         geometries: args.input.geometries,
         description: args.input.description,
@@ -51,6 +53,19 @@ const documentResolver = {
         action: 'DOC_create',
         docType: documentNew.type,
       });
+      if(args.input.folder){
+        await FolderModel.updateOne(
+          { _id: args.input.folder },                //modifico los documentsID de la carpeta
+          { $push: {documentsID: newDocument._id} },
+          { new: true },
+        )
+      }else{
+        await FolderModel.updateOne(
+          { _id:  (await UserModel.findOne({_id: context.user.userID})).rootFolder},  //modifico los documentsID de la carpeta
+          { $push: {documentsID: newDocument._id} },
+          { new: true },
+        )
+      }
       if (args.input.image) {
         const imageUploaded = await uploadResolver.Mutation.singleUpload(
           args.input.image,
@@ -87,6 +102,10 @@ const documentResolver = {
           action: 'DOC_delete',
           docType: existDocument.type,
         });
+        await FolderModel.updateOne(
+          { _id: existDocument.folder },                //modifico los documentsID de la carpeta
+          { $pull: {documentsID: existDocument._id} }
+        )
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
         await ExerciseModel.deleteMany({ document: existDocument._id });

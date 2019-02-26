@@ -10,6 +10,8 @@ import { UserModel } from '../models/user';
 
 import { template } from '../email/welcomeMail';
 import  * as mjml2html from 'mjml';
+import { FolderModel } from '../models/folder';
+import folderResolver from './folder';
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -65,9 +67,12 @@ const userResolver = {
         </a>
       `;
       await mailerController.sendEmail(newUser.email, 'Bitbloq Sign Up ✔', htmlMessage.html);
+
+      // Create user root folder for documents
+      const userFolder=await folderResolver.Mutation.createRootFolder(newUser._id);
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
-        { $set: { signUpToken: token } },
+        { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true },
       );
       await LogModel.create({

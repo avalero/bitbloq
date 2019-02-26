@@ -4,7 +4,7 @@ import { UploadModel } from '../models/upload';
 
 const { Storage } = require('@google-cloud/storage');
 
-const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // proyect ID
+const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 

@@ -17,6 +17,7 @@ type Query {
   rootFolder: Folder                                  @authRequired(requires: [USER])
 }
 type Mutation {
+  createRootFolder(user: ObjectID!): Folder
   createFolder(input: FolderIn!): Folder                @authRequired(requires: [USER])
   updateFolder(id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
   deleteFolder(id: ObjectID!): Folder                   @authRequired(requires: [USER])
