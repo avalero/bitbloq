@@ -246,7 +246,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
         >
           <Checkbox checked={acceptTerms} />
           <span>
-            He leido y acepto la <a href="#">política de privacidad.</a>
+            He leido y acepto la <a target='_blank' href='https://bitbloq.bq.com/#/cookies'>política de privacidad.</a>
           </span>
         </CheckOption>
         <Buttons>
