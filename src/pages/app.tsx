@@ -5,9 +5,9 @@ import { Global } from "@emotion/core";
 import Activate from "../components/Activate";
 import Documents from "../components/Documents";
 import Document from "../components/Document";
-import ThreeDEditor from "../components/ThreeDEditor";
-import ThreeDExercise from "../components/ThreeDExercise";
-import ThreeDSubmission from "../components/ThreeDSubmission";
+import EditDocument from "../components/EditDocument";
+import EditExercise from "../components/EditExercise";
+import ViewSubmission from "../components/ViewSubmission";
 import PrivateRoute from "../components/PrivateRoute";
 import { TranslateProvider, baseStyles } from "@bitbloq/ui";
 import SEO from "../components/SEO";
@@ -29,14 +29,17 @@ const AppPage = () => (
         <Router>
           <PrivateRoute path="/app" component={Documents} />
           <PrivateRoute path="/app/document/:id" component={Document} />
-          <PrivateRoute path="/app/document/3d/:id" component={ThreeDEditor} />
           <PrivateRoute
-            path="/app/exercise/3d/:id"
-            component={ThreeDExercise}
+            path="/app/document/:type/:id"
+            component={EditDocument}
           />
           <PrivateRoute
-            path="/app/submission/3d/:id"
-            component={ThreeDSubmission}
+            path="/app/exercise/:type/:id"
+            component={EditExercise}
+          />
+          <PrivateRoute
+            path="/app/submission/:type/:id"
+            component={ViewSubmission}
           />
           <PrivateRoute path="/app/activate" component={Activate} />
         </Router>

@@ -49,9 +49,17 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-const CREATE_SUBMISSION_MUTATION = gql`
-  mutation CreateSubmission($studentNick: String!, $exerciseCode: String!) {
-    createSubmission(studentNick: $studentNick, exerciseCode: $exerciseCode) {
+const LOGIN_SUBMISSION_MUTATION = gql`
+  mutation LoginSubmission(
+    $studentNick: String!
+    $exerciseCode: String!
+    $password: String!
+  ) {
+    loginSubmission(
+      studentNick: $studentNick
+      exerciseCode: $exerciseCode
+      password: $password
+    ) {
       token
       exerciseID
       type
@@ -66,6 +74,8 @@ const getErrorText = ({ graphQLErrors: errors }) => {
     switch (code) {
       case "INVALID_EXERCISE_CODE":
         return "El ejercicio no existe o ya no admite más alumnos";
+      case "PASSWORD_ERROR":
+        return "La contraseña es incorrecta";
       default:
         return "Error";
     }
@@ -81,7 +91,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
     navigate("/app");
   };
 
-  onStudentLogin = ({ createSubmission: { token, exerciseID, type } }) => {
+  onStudentLogin = ({ loginSubmission: { token, exerciseID, type } }) => {
     window.sessionStorage.setItem("authToken", token);
     navigate(`/app/exercise/${type}/${exerciseID}/`);
   };
@@ -155,31 +165,33 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             <img src={studentStep1Image} />
             <p>
               1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu
-              profesor o profesora un código de ejercicio. Podrás
-              entrar en el ejercicio mientras tu profesor lo mantenga abierto.
+              profesor o profesora un código de ejercicio. Podrás entrar en el
+              ejercicio mientras tu profesor lo mantenga abierto.
             </p>
           </Step>
           <Step>
             <img src={studentStep2Image} />
             <p>
-              2. Inserta el código del ejercicio en el formulario de la derecha y escribe el
-              nombre de acceso que quieras usar y una contraseña (opcional). 
+              2. Inserta el código de ejercicio en el formulario de la derecha y escribe el
+              nombre de acceso que quieras usar y una contraseña (opcional).
               Recuérdalos para continuar el ejercicio otro día.
             </p>
           </Step>
         </TabInfo>
         <DashedLine />
         <Mutation
-          mutation={CREATE_SUBMISSION_MUTATION}
+          mutation={LOGIN_SUBMISSION_MUTATION}
           onCompleted={this.onStudentLogin}
         >
-          {(createSubmission, { loading, error }) => (
+          {(loginSubmission, { loading, error }) => (
             <LoginForm>
               <div>
                 <CodeInput
                   error={!loading && error}
                   value={exerciseCode}
-                  onChange={e => this.setState({ exerciseCode: e.target.value })}
+                  onChange={e =>
+                    this.setState({ exerciseCode: e.target.value })
+                  }
                   placeholder="Código de ejercicio"
                 />
                 <Input
@@ -191,7 +203,9 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                 <Input
                   error={!loading && error}
                   value={studentPassword}
-                  onChange={e => this.setState({ studentPassword: e.target.value })}
+                  onChange={e =>
+                    this.setState({ studentPassword: e.target.value })
+                  }
                   placeholder="Contraseña (opcional)"
                   type="password"
                 />
@@ -201,7 +215,13 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
                 <LoginButton
                   disabled={loading}
                   onClick={() =>
-                    createSubmission({ variables: { studentNick, exerciseCode } })
+                    loginSubmission({
+                      variables: {
+                        studentNick,
+                        exerciseCode,
+                        password: studentPassword
+                      }
+                    })
                   }
                 >
                   Entrar

@@ -40,6 +40,11 @@ exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
       test: /\.(json)$/,
       include: [/src\/messages/],
       use: ['file-loader'],
+    },
+
+    {
+      test: /\.(stl)$/,
+      use: ['file-loader'],
     }
   ];
 
