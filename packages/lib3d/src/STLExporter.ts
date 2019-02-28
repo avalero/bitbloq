@@ -1,22 +1,32 @@
-/**
- * @author Alberto Valero <alberto.valero@bq.com>
+/*
+ * File: STLExporter.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Copyright 2018 - 2019 BQ Educacion.
+ * -----
+ * File Created: Thursday, 28th February 2019
+ * Last Modified:: Thursday, 28th February 2019 3:25:47 pm
+ * -----
+ * Author: David García (david.garciaparedes@bq.com)
+ * Author: Alda Martín (alda.marting@bq.com)
+ * Author: Alberto Valero (alberto.valero@bq.com)
+ * -----
  *
  * Derived from STLExporter.js from
  * @author kovacsv / http://kovacsv.hu/
  * @author mrdoob / http://mrdoob.com/
  * @author mudcube / http://mudcu.be/
  * @author Mugen87 / https://github.com/Mugen87
- *
- *
  */
 
+import JSZip from 'jszip';
 import * as THREE from 'three';
 import { saveAs } from 'file-saver';
 
-export default function meshArray2STL(
+export default async function meshArray2STLAsync(
   meshes: THREE.Mesh[],
   name: string = '',
-): void {
+): Promise<void> {
   const vector = new THREE.Vector3();
   const normalMatrixWorld = new THREE.Matrix3();
   const stlData: any = [];
@@ -92,8 +102,14 @@ export default function meshArray2STL(
     }
   });
 
+  const zip = new JSZip();
+
   stlData.forEach((data: any, i: number) => {
     const blob = new Blob([data], { type: 'application/octet-stream' });
-    saveAs(blob, `${stlNames[i]}.stl`);
+    zip.file(`${stlNames[i]}.stl`, blob);
+    // saveAs(blob, `${stlNames[i]}.stl`);
   });
+
+  const content = await zip.generateAsync({ type: 'blob' });
+  saveAs(content, 'scene.zip');
 }
