@@ -1,16 +1,14 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import Icon from './Icon';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Icon from "./Icon";
 
 interface ContainerProps {
   checked: boolean;
+  error?: boolean;
 }
 
-const Container =
-  styled.div <
-  ContainerProps >
-  `
+const Container = styled.div<ContainerProps>`
   border-radius: 3px;
   width: 14px;
   height: 14px;
@@ -37,6 +35,15 @@ const Container =
     `} &:hover {
     border-color: #5d6069;
   }
+
+  ${props =>
+    props.error &&
+    css`
+      box-shadow: 0 0 2px 2px rgba(255, 51, 51, 0.7);
+      background-color: #ffd6d6;
+      border: 1px solid white;
+      color: #d82b32;
+    `}
 `;
 
 type ChangeHandler = (cheked: boolean) => void;
@@ -49,6 +56,8 @@ export interface CheckboxProps {
 
   /** Called everytime the checkbox is changed */
   onChange?: ChangeHandler;
+
+  error?: boolean;
 }
 
 /**
@@ -56,12 +65,14 @@ export interface CheckboxProps {
  */
 export default class Checkbox extends React.Component<CheckboxProps> {
   render() {
-    const {className, checked, onChange} = this.props;
+    const { className, checked, error, onChange } = this.props;
     return (
       <Container
         className={className}
         checked={checked}
-        onClick={() => onChange && onChange(!checked)}>
+        error={error}
+        onClick={() => onChange && onChange(!checked)}
+      >
         {checked && <Icon name="tick" />}
       </Container>
     );
