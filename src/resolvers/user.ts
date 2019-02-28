@@ -8,10 +8,11 @@ import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 
+import folderResolver from './folder';
+
 import { template } from '../email/welcomeMail';
 import  * as mjml2html from 'mjml';
-import { FolderModel } from '../models/folder';
-import folderResolver from './folder';
+
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -56,20 +57,17 @@ const userResolver = {
       );
       console.log(token);
 
+      // Generate the email with the activation link and send it
       const data={
         activationUrl: `${process.env.FRONTEND_URL}/app/activate?token=${token}`
       }
       const mjml=template(data);
       const htmlMessage=mjml2html(mjml, {keepComments: false, beautify:true, minify: true});
-      const message: string = `Ha registrado este e-mail para crear una cuenta en el nuevo Bitbloq, si es así, pulse este link para confirmar su correo electrónico y activar su cuenta Bitbloq:
-        <a href="${process.env.FRONTEND_URL}/app/activate?token=${token}">
-          pulse aquí
-        </a>
-      `;
       await mailerController.sendEmail(newUser.email, 'Bitbloq Sign Up ✔', htmlMessage.html);
 
       // Create user root folder for documents
       const userFolder=await folderResolver.Mutation.createRootFolder(newUser._id);
+      // Update the user information in the database
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
@@ -113,7 +111,8 @@ const userResolver = {
           process.env.JWT_SECRET,
           { expiresIn: '4h' },
         );
-        UserModel.updateOne(
+        // Update the user information in the database
+        await UserModel.updateOne(
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );

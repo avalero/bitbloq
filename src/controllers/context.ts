@@ -1,4 +1,5 @@
 import { AuthenticationError, SchemaDirectiveVisitor } from 'apollo-server-koa';
+import { UserModel } from '../models/user';
 const jsonwebtoken = require('jsonwebtoken');
 
 const contextController = {
@@ -15,12 +16,21 @@ const contextController = {
       token1='';
       justToken='';
     }
+    //comprobar si el token que recibe es el que está guardado en la base de datos
+    // -> sesión única simultánea
     if (justToken) {
+      let user;
       try {
-        return await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
+        user= await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
       } catch (e) {
         return undefined;
       }
+      if(!(await UserModel.findOne({authToken: justToken})) && user){
+        throw new AuthenticationError('Token not value. More than one session opened');
+      }else{
+        return user;
+      }
+
     }
   },
   getDataInToken: async inToken => {

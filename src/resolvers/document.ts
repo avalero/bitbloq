@@ -135,6 +135,16 @@ const documentResolver = {
           action: 'DOC_update',
           docType: existDocument.type,
         });
+        if(args.input.folder){
+          await FolderModel.updateOne(
+            { _id: args.input.folder },                //modifico los documentsID de la carpeta
+            { $push: {documentsID: existDocument._id} },
+          )
+          await FolderModel.updateOne(
+            { _id: existDocument.folder },                //modifico los documentsID de la carpeta donde estaba el documento
+            { $pull: {documentsID: existDocument._id} },
+          )
+        }
         if (args.input.image) {
           const imageUploaded = await uploadResolver.Mutation.singleUpload(
             args.input.image,
@@ -176,9 +186,18 @@ const documentResolver = {
           pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
           return upDoc;
         } else {
-          const upDoc= DocumentModel.findOneAndUpdate(
+          const documentUpdate = {
+            title: args.input.title || existDocument.title,
+            type: args.input.type || existDocument.type,
+            folder: args.input.folder || existDocument.folder,
+            content: args.input.content || existDocument.content,
+            geometries: args.input.geometries || existDocument.geometries,
+            description: args.input.description || existDocument.description,
+            version: args.input.version || existDocument.version,
+          };
+          const upDoc=await DocumentModel.findOneAndUpdate(
             { _id: existDocument._id },
-            { $set: args.input },
+            { $set: documentUpdate },
             { new: true },
           );
           pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
