@@ -30,3 +30,6 @@ export const getChromeVersion = () => {
   );
   return pieces && pieces[1] ? parseInt(pieces[1]) : 0;
 };
+
+export const isValidEmail = email =>
+  /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
