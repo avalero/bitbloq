@@ -16,7 +16,7 @@ import ObjectFactory from './ObjectFactory';
 import PositionCalculator from './PositionCalculator';
 import RotationHelper from './RotationHelper';
 import TranslationHelper from './TranslationHelper';
-import meshArray2STL from './STLExporter';
+import meshArray2STLAsync from './STLExporter';
 import TextObject from './TextObject';
 
 import {
@@ -187,7 +187,7 @@ export default class Scene {
       meshArray = [...meshArray, ...this.toMeshArray(child)];
     });
 
-    meshArray2STL(meshArray, name);
+    meshArray2STLAsync(meshArray, name);
 
     return;
   }
