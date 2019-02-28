@@ -78,17 +78,39 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       deleteUser(id: ObjectID!): User
       updateUser(id: ObjectID!, input: UserIn!): User
 
-      input UserIn {
-        email: EmailAddress
-        password: String
-        name: String
-        center: String
-        active: Boolean
-        signUpToken: String
-        authToken: String
-        notifications: Boolean
-        signUpSurvey: JSON
-      }
+    input UserIn {
+      email: EmailAddress
+      password: String
+      name: String
+      center: String
+      active: Boolean
+      signUpToken: String
+      authToken: String
+      notifications: Boolean
+      signUpSurvey: JSON
+    }
+
+**_ Las queries y mutations de las carpetas son: _**
+
+    QUERIES:
+      folders: [Folder]
+      folder(id: ObjectID!): Folder
+      rootFolder: Folder
+
+    MUTATIONS:
+      createRootFolder(user: ObjectID!): Folder
+      createFolder(input: FolderIn): Folder 
+      updateFolder(id: ObjectID!, input: FolderIn): Folder
+      deleteFolder(id: ObjectID!): Folder
+
+    input FolderIn {
+      name: String
+      user: ObjectID
+      documentsID: [ObjectID] //solo en update
+      foldersID: [ObjectID]   //solo en update
+      parent: ObjectID
+      root: ObjectID
+    }      
 
 **_ Las queries y mutations de los documentos son: _**
 
@@ -102,16 +124,20 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       updateDocument(id: ObjectID!, input: DocumentIn): Document
 
     SUBSCRIPTIONS:
-        documentUpdated: Document
+      documentUpdated: Document
 
     input DocumentIn {
       id: ObjectID
       user: ObjectID
       title: String
       type: String
+      folder: ObjectID
       content: String
+      geometries: String
       description: String
+      version: String
       image: Upload
+      imageUrl: String
     }
 
 **_ Las queries y mutations de los ejercicios son: _**
@@ -128,13 +154,13 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       deleteExercise(id: ObjectID!, code: String!): Exercise
 
     input ExerciseIn {
-        document: ObjectID
-        title: String
-        code: String
-        description: String
-        acceptSubmissions: Boolean
-        versions: Version
-        expireDate: Date
+      document: ObjectID
+      title: String
+      code: String
+      description: String
+      acceptSubmissions: Boolean
+      versions: Version
+      expireDate: Date
     }
 
 **_ Las queries y mutations de las entregas son: _**

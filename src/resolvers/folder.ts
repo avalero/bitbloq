@@ -134,9 +134,7 @@ const folderResolver = {
           docType: 'Folder',
         });
         if(args.input.foldersID){ //si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
-          console.log(args.input.foldersID.length)
           for(let folder of args.input.foldersID){
-            console.log(folder)
             await FolderModel.updateOne(
               {_id: folder},
               { parent: existFolder._id}
@@ -154,9 +152,7 @@ const folderResolver = {
           }
         }
         if(args.input.documentsID){ //si se pasa lista de documentos hay que modificarlos para añadir la carpeta
-          console.log(args.input.documentsID.length)
           for(let document of args.input.documentsID){
-            console.log(document)
             await DocumentModel.updateOne(
               {_id: document},
               { folder: existFolder._id}
