@@ -109,7 +109,6 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       documentsID: [ObjectID] //solo en update
       foldersID: [ObjectID]   //solo en update
       parent: ObjectID
-      root: ObjectID
     }      
 
 **_ Las queries y mutations de los documentos son: _**

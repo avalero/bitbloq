@@ -1,5 +1,4 @@
 import { ApolloError, PubSub } from 'apollo-server-koa';
-import { ObjectId } from 'bson';
 import { DocumentModel } from '../models/document';
 import { FolderModel } from '../models/folder';
 import documentResolver from './document';
