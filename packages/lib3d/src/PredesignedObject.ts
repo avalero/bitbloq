@@ -1,11 +1,30 @@
+/*
+ * File: PredesignedObject.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Copyright 2018 - 2019 BQ Educacion.
+ * -----
+ * File Created: Tuesday, 26th February 2019
+ * Last Modified:: Friday, 1st March 2019 3:49:36 pm
+ * -----
+ * Author: David García (david.garciaparedes@bq.com)
+ * Author: Alda Martín (alda.marting@bq.com)
+ * Author: Alberto Valero (alberto.valero@bq.com)
+ * -----
+ */
+
 import * as THREE from 'three';
 import STLObject from './STLObject';
-import { ISTLParams, OperationsArray, IViewOptions, ISTLJSON } from './Interfaces';
+import {
+  ISTLParams,
+  OperationsArray,
+  IViewOptions,
+  ISTLJSON,
+} from './Interfaces';
 import ObjectsCommon from './ObjectsCommon';
 
 export default class PredesignedObject extends STLObject {
   public static typeName: string = 'PredesignedObject';
-
 
   public static newFromJSON(object: ISTLJSON): PredesignedObject {
     if (object.type !== PredesignedObject.typeName) {

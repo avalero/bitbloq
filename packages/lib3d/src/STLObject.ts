@@ -150,6 +150,7 @@ export default class STLObject extends PrimitiveObject {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
         this.geometry = STLLoader.loadBinaryStl(arrayBuffer);
+        this.centerGeometry();
         this.mesh = new THREE.Mesh(this.geometry);
         this.applyViewOptions();
         await this.applyOperationsAsync();
@@ -251,6 +252,14 @@ export default class STLObject extends PrimitiveObject {
     return this.geometry;
   }
 
+  private centerGeometry(): void {
+    this.geometry.computeBoundingBox();
+    const box: THREE.Box3 = this.geometry.boundingBox;
+    const center: THREE.Vector3 = new THREE.Vector3();
+    box.getCenter(center);
+    this.geometry.translate(-center.x, -center.y, -box.min.z);
+  }
+
   private computeGeometry(): THREE.Geometry {
     const params = this.parameters as ISTLParams;
     if (!params.blob) throw new Error(`No blob to compute`);
@@ -297,11 +306,7 @@ export default class STLObject extends PrimitiveObject {
     }
 
     if (this.geometry instanceof THREE.Geometry) {
-      this.geometry.computeBoundingBox();
-      const box: THREE.Box3 = this.geometry.boundingBox;
-      const center: THREE.Vector3 = new THREE.Vector3();
-      box.getCenter(center);
-      this.geometry.translate(-center.x, -center.y, -box.min.z);
+      this.centerGeometry();
       return this.geometry;
     }
 
