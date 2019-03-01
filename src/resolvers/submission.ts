@@ -2,7 +2,8 @@ import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
-import { isRegExp } from 'util';
+
+import { logger } from '../controllers/logs';
 
 export const pubsub = new PubSub();
 const jsonwebtoken = require('jsonwebtoken');
@@ -83,7 +84,7 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-  
+          logger.info("SUB_login");
           pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
           return {
             token: token,
@@ -126,7 +127,7 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-
+        logger.info("SUB_login");
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
           token: token,
@@ -169,6 +170,7 @@ const submissionResolver = {
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission,
         });
+        logger.info("SUB_update");
         return updatedSubmission;
       }
     },
@@ -222,6 +224,7 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_UPDATED, {
         submissionUpdated: updatedSubmission,
       });
+      logger.info("SUB_finish");
       return updatedSubmission;
     },
 
@@ -242,6 +245,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
+      logger.info("SUB_finish");
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -262,6 +266,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
+      logger.info("SUB_delete");
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -300,6 +305,7 @@ const submissionResolver = {
         },
         { new: true },
       );
+      logger.info("SUB_grade");
       return updatedSubmission;
     }
   },

@@ -8,6 +8,8 @@ import uploadResolver from './upload';
 import { UserModel } from '../models/user';
 import { FolderModel } from '../models/folder';
 
+import { logger } from '../controllers/logs';
+
 export const pubsub = new PubSub();
 
 const DOCUMENT_UPDATED: string = 'DOCUMENT_UPDATED';
@@ -61,9 +63,11 @@ const documentResolver = {
           { $set: { image: imageUploaded.publicUrl } },
           { new: true },
         );
+        logger.info("DOC_create");
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
         return newDoc;
       } else {
+        logger.info("DOC_create");
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
         return newDocument;
       }
@@ -81,6 +85,7 @@ const documentResolver = {
         user: context.user.userID,
       });
       if (existDocument) {
+        logger.info("DOC_delete");
         await FolderModel.updateOne(
           { _id: existDocument.folder },                //modifico los documentsID de la carpeta
           { $pull: {documentsID: existDocument._id} }
@@ -144,6 +149,7 @@ const documentResolver = {
           { $set: documentUpdate },
           { new: true },
         );
+        logger.info("DOC_update");
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
         return upDoc;
       } else {

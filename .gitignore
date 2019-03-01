@@ -5,3 +5,4 @@ node_modules
 /src/email/mail.html
 /src/email/welcomeMail.mjml
 /src/images/*
+/logs/*

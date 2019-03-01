@@ -11,6 +11,8 @@ import { UserModel } from '../models/user';
 import { template } from '../email/welcomeMail';
 import  * as mjml2html from 'mjml';
 
+import { logger } from '../controllers/logs';
+
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -74,6 +76,7 @@ const userResolver = {
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true },
       );
+      logger.info("USER_signUp");
       return 'OK';
     },
 
@@ -113,7 +116,7 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
-
+        logger.info("USER_login");
         return token;
       } else {
         throw new ApolloError(
@@ -161,6 +164,7 @@ const userResolver = {
             },
           },
         );
+        logger.info("USER_activate");
         return token;
       } else {
         return new ApolloError(
@@ -182,7 +186,7 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-
+        logger.info("USER_delete");
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -206,7 +210,7 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-
+        logger.info("USER_update");
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
