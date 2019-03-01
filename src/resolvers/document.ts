@@ -2,7 +2,6 @@ import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
-import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
 import uploadResolver from './upload';
@@ -47,25 +46,11 @@ const documentResolver = {
         image: args.input.imageUrl,
       });
       const newDocument = await DocumentModel.create(documentNew);
-      await LogModel.create({
-        user: context.user.userID,
-        object: documentNew._id,
-        action: 'DOC_create',
-        docType: documentNew.type,
-      });
-      if(args.input.folder){
-        await FolderModel.updateOne(
-          { _id: args.input.folder },                //modifico los documentsID de la carpeta
-          { $push: {documentsID: newDocument._id} },
-          { new: true },
-        )
-      }else{
-        await FolderModel.updateOne(
-          { _id:  (await UserModel.findOne({_id: context.user.userID})).rootFolder},  //modifico los documentsID de la carpeta
-          { $push: {documentsID: newDocument._id} },
-          { new: true },
-        )
-      }
+      await FolderModel.updateOne( 
+        { _id: documentNew.folder }, 
+        { $push: {documentsID: newDocument._id} }, 
+        { new: true }, 
+      )
       if (args.input.image) {
         const imageUploaded = await uploadResolver.Mutation.singleUpload(
           args.input.image,
@@ -96,12 +81,6 @@ const documentResolver = {
         user: context.user.userID,
       });
       if (existDocument) {
-        await LogModel.create({
-          user: context.user.userID,
-          object: args.id,
-          action: 'DOC_delete',
-          docType: existDocument.type,
-        });
         await FolderModel.updateOne(
           { _id: existDocument.folder },                //modifico los documentsID de la carpeta
           { $pull: {documentsID: existDocument._id} }
@@ -129,12 +108,6 @@ const documentResolver = {
       });
 
       if (existDocument) {
-        await LogModel.create({
-          user: context.user.userID,
-          object: args.id,
-          action: 'DOC_update',
-          docType: existDocument.type,
-        });
         if(args.input.folder){
           await FolderModel.updateOne(
             { _id: args.input.folder },                //modifico los documentsID de la carpeta
@@ -145,64 +118,34 @@ const documentResolver = {
             { $pull: {documentsID: existDocument._id} },
           )
         }
+        let image;
         if (args.input.image) {
           const imageUploaded = await uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,
           );
-          const documentUpdate = {
-            title: args.input.title || existDocument.title,
-            type: args.input.type || existDocument.type,
-            folder: args.input.folder || existDocument.folder,
-            content: args.input.content || existDocument.content,
-            geometries: args.input.geometries || existDocument.geometries,
-            description: args.input.description || existDocument.description,
-            version: args.input.version || existDocument.version,
-            image: imageUploaded.publicUrl,
-          };
-          const upDoc=await DocumentModel.findOneAndUpdate(
-            { _id: existDocument._id },
-            { $set: documentUpdate },
-            { new: true },
-          );
-          pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
-          return upDoc;
+          image=imageUploaded.publicUrl;
+
         } else if (args.input.imageUrl) {
-          const documentUpdate = {
-            title: args.input.title || existDocument.title,
-            type: args.input.type || existDocument.type,
-            folder: args.input.folder || existDocument.folder,
-            content: args.input.content || existDocument.content,
-            geometries: args.input.geometries || existDocument.geometries,
-            description: args.input.description || existDocument.description,
-            version: args.input.version || existDocument.version,
-            image: args.input.imageUrl,
-          };
-          const upDoc=await DocumentModel.findOneAndUpdate(
-            { _id: existDocument._id },
-            { $set: documentUpdate },
-            { new: true },
-          );
-          pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
-          return upDoc;
-        } else {
-          const documentUpdate = {
-            title: args.input.title || existDocument.title,
-            type: args.input.type || existDocument.type,
-            folder: args.input.folder || existDocument.folder,
-            content: args.input.content || existDocument.content,
-            geometries: args.input.geometries || existDocument.geometries,
-            description: args.input.description || existDocument.description,
-            version: args.input.version || existDocument.version,
-          };
-          const upDoc=await DocumentModel.findOneAndUpdate(
-            { _id: existDocument._id },
-            { $set: documentUpdate },
-            { new: true },
-          );
-          pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
-          return upDoc;
+          image=args.input.imageUrl;
         }
+        const documentUpdate = {
+          title: args.input.title || existDocument.title,
+          type: args.input.type || existDocument.type,
+          folder: args.input.folder || existDocument.folder,
+          content: args.input.content || existDocument.content,
+          geometries: args.input.geometries || existDocument.geometries,
+          description: args.input.description || existDocument.description,
+          version: args.input.version || existDocument.version,
+          image: image,
+        };
+        const upDoc=await DocumentModel.findOneAndUpdate(
+          { _id: existDocument._id },
+          { $set: documentUpdate },
+          { new: true },
+        );
+        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
+        return upDoc;
       } else {
         return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
@@ -214,10 +157,6 @@ const documentResolver = {
      * args: nothing.
      */
     documents: async (root: any, args: any, context: any) => {
-      await LogModel.create({
-        user: context.user.userID,
-        action: 'DOC_documents',
-      });
       return DocumentModel.find({ user: context.user.userID });
     },
     /**
@@ -237,12 +176,6 @@ const documentResolver = {
           'NOT_YOUR_DOCUMENT',
         );
       }
-      await LogModel.create({
-        user: context.user.userID,
-        object: args.id,
-        action: 'DOC_document',
-        docType: existDocument.type,
-      });
       return existDocument;
     },
   },

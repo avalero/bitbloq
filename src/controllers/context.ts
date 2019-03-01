@@ -26,7 +26,7 @@ const contextController = {
         return undefined;
       }
       if(!(await UserModel.findOne({authToken: justToken})) && user){
-        throw new AuthenticationError('Token not value. More than one session opened');
+        throw new AuthenticationError('Token not valid. More than one session opened');
       }else{
         return user;
       }

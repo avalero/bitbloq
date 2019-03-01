@@ -1,7 +1,6 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
-import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
 import { isRegExp } from 'util';
 
@@ -84,12 +83,7 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-          await LogModel.create({
-            user: exFather.user,
-            object: existSubmission._id,
-            action: 'SUB_login',
-            docType: existSubmission.type,
-          });
+  
           pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
           return {
             token: token,
@@ -132,12 +126,7 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-        await LogModel.create({
-          user: exFather.user,
-          object: submissionNew._id,
-          action: 'SUB_create',
-          docType: submissionNew.type,
-        });
+
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
           token: token,
@@ -164,12 +153,7 @@ const submissionResolver = {
         );
       }
       if (existSubmission) {
-        await LogModel.create({
-          user: existSubmission.user,
-          object: existSubmission._id,
-          action: 'SUB_update',
-          docType: existSubmission.type,
-        });
+
         //importante! no se puede actualizar el nickname
         if(args.input.studentNick){
           throw new ApolloError(
@@ -222,12 +206,6 @@ const submissionResolver = {
       if (timeNow > exFather.expireDate) {
         throw new ApolloError('Your submission is late', 'SUBMISSION_LATE');
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_finish',
-        docType: existSubmission.type,
-      });
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
@@ -264,12 +242,6 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_cancel',
-        docType: existSubmission.type,
-      });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -290,12 +262,6 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_delete',
-        docType: existSubmission.type,
-      });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -322,12 +288,6 @@ const submissionResolver = {
           'SUBMISSION_NOT_FINISHED',
         );
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_graded',
-        docType: existSubmission.type,
-      });
 
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
@@ -351,10 +311,6 @@ const submissionResolver = {
      */
     // devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
     submissions: async (root: any, args: any, context: any) => {
-      await LogModel.create({
-        user: context.user.userID,
-        action: 'SUB_submissions',
-      });
       return SubmissionModel.find({ user: context.user.userID });
     },
 
@@ -377,11 +333,6 @@ const submissionResolver = {
             'SUBMISSION_NOT_FOUND',
           );
         }
-        await LogModel.create({
-          user: existSubmission.user,
-          action: 'SUB_submission',
-          docType: existSubmission.type,
-        });
         return existSubmission;
       } else if (context.user.userID) {
         // token de profesor
@@ -395,11 +346,6 @@ const submissionResolver = {
             'SUBMISSION_NOT_FOUND',
           );
         }
-        await LogModel.create({
-          user: context.user.userID,
-          action: 'SUB_submission',
-          docType: existSubmission.type,
-        });
         return existSubmission;
       }
     },
@@ -419,10 +365,6 @@ const submissionResolver = {
       }
       const existSubmissions = await SubmissionModel.find({
         exercise: exFather._id,
-      });
-      await LogModel.create({
-        user: context.user.userID,
-        action: 'SUB_submissionsExercise',
       });
       return existSubmissions;
     },

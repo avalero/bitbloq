@@ -4,11 +4,9 @@ import { contextController } from '../controllers/context';
 import { mailerController } from '../controllers/mailer';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
-import { LogModel } from '../models/logs';
+import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
-
-import folderResolver from './folder';
 
 import { template } from '../email/welcomeMail';
 import  * as mjml2html from 'mjml';
@@ -66,17 +64,16 @@ const userResolver = {
       await mailerController.sendEmail(newUser.email, 'Bitbloq Sign Up ✔', htmlMessage.html);
 
       // Create user root folder for documents
-      const userFolder=await folderResolver.Mutation.createRootFolder(newUser._id);
+      const userFolder=await FolderModel.create({
+        name: 'root',
+        user: newUser._id,
+      });
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
         { _id: newUser._id },
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true },
       );
-      await LogModel.create({
-        user: newUser._id,
-        action: 'USER_create',
-      });
       return 'OK';
     },
 
@@ -116,10 +113,7 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
-        await LogModel.create({
-          user: contactFound._id,
-          action: 'USER_login',
-        });
+
         return token;
       } else {
         throw new ApolloError(
@@ -188,10 +182,7 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-        await LogModel.create({
-          user: contactFound._id,
-          action: 'USER_delete',
-        });
+
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -215,10 +206,7 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-        await LogModel.create({
-          user: contactFound._id,
-          action: 'USER_update',
-        });
+
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
@@ -240,10 +228,6 @@ const userResolver = {
       if (!contactFound) {
         return new ApolloError('Error with user in context', 'USER_NOT_FOUND');
       }
-      await LogModel.create({
-        user: contactFound._id,
-        action: 'USER_me',
-      });
       return contactFound;
     },
 

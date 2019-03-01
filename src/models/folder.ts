@@ -7,7 +7,6 @@ interface IFolder extends Document {
     documentsID?: [string];
     foldersID?: [string];
     parent?: string;
-    root?: string;
 }
 
 const FolderMongSchema: Schema = new Schema({
@@ -35,11 +34,6 @@ const FolderMongSchema: Schema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'FolderModel',
     },
-
-    root: {
-        type: Schema.Types.ObjectId,
-        ref: 'FolderModel',
-    }
 });
 
 FolderMongSchema.plugin(timestamps);
