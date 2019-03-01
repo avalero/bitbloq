@@ -108,7 +108,7 @@ const documentResolver = {
       });
 
       if (existDocument) {
-        if(args.input.folder){
+        if(args.input.folder && (args.input.folder != existDocument.folder)){
           await FolderModel.updateOne(
             { _id: args.input.folder },                //modifico los documentsID de la carpeta
             { $push: {documentsID: existDocument._id} },

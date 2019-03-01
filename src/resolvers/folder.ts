@@ -83,39 +83,38 @@ const folderResolver = {
       if(!existFolder){
         throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND')
       }
-      // if(existFolder.name =='root'){
-      //   throw new ApolloError('You can not update your Root folder', 'CANT_UPDATE_ROOT')
-      // }
       if (existFolder) {
         if(args.input.foldersID){ //si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
           for(let folder of args.input.foldersID){
-            await FolderModel.updateOne(
+            const fol=await FolderModel.findOne({_id: folder});
+            await FolderModel.updateOne( // quito la carpeta de la carpeta en la que estuviera
+              { _id: fol.parent },
+              { $pull: {foldersID: folder} },
+              { new: true },
+            )
+            await FolderModel.updateOne( //acutualizo la carpeta con el nuevo padre
               {_id: folder},
               { parent: existFolder._id}
             );
-            await FolderModel.updateOne(
-              { _id: existFolder.parent },
-              { $pull: {foldersID: folder} }, //borro el hijo de la carpeta padre
-              { new: true },
-            )
-            await FolderModel.updateOne(
+            await FolderModel.updateOne( 
               { _id: existFolder._id },
-              { $push: {foldersID: folder} }, //añado el nuevo folder a los hijos de la carpeta
+              { $push: {foldersID: folder} }, //añado la nueva carpeta a los hijos de la carpeta
               { new: true },
             )
           }
         }
         if(args.input.documentsID){ //si se pasa lista de documentos hay que modificarlos para añadir la carpeta
           for(let document of args.input.documentsID){
-            await DocumentModel.updateOne(
-              {_id: document},
-              { folder: existFolder._id}
-            );
-            await FolderModel.updateOne(
-              { _id: existFolder.parent },
+            const doc=await DocumentModel.findOne({_id: document});
+            await FolderModel.updateOne( // quito el documento de la carpeta en la que estuviera
+              { _id: doc.folder },
               { $pull: {documentsID: document} },
               { new: true },
             )
+            await DocumentModel.updateOne( //actualizo el documento con la nueva carpeta
+              {_id: document},
+              { folder: existFolder._id}
+            );
             await FolderModel.updateOne(
               { _id: existFolder._id },
               { $push: {documentsID: document} }, //añado el nuevo document a los hijos de la carpeta
@@ -123,7 +122,7 @@ const folderResolver = {
             )
           }
         }
-        if(args.input.parent){ //si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
+        if(args.input.parent && (args.input.parent != existFolder.parent)){ //si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
           await FolderModel.updateOne(
             {_id: args.input.parent},
             { $push: {foldersID: existFolder._id}}
