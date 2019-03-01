@@ -1,11 +1,11 @@
 import React from 'react';
-import {Provider} from 'react-redux';
+import { Provider } from 'react-redux';
 import App from './components/App';
 import createStore from './store';
 
 class Root extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.store = createStore();
 
     this.store.subscribe(() => {

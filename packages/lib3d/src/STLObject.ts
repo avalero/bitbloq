@@ -150,6 +150,7 @@ export default class STLObject extends PrimitiveObject {
         const response = await fetch(url);
         const arrayBuffer = await response.arrayBuffer();
         this.geometry = STLLoader.loadBinaryStl(arrayBuffer);
+        this.centerGeometry();
         this.mesh = new THREE.Mesh(this.geometry);
         this.applyViewOptions();
         await this.applyOperationsAsync();
@@ -251,18 +252,29 @@ export default class STLObject extends PrimitiveObject {
     return this.geometry;
   }
 
+  private centerGeometry(): void {
+    this.geometry.computeBoundingBox();
+    const box: THREE.Box3 = this.geometry.boundingBox;
+    const center: THREE.Vector3 = new THREE.Vector3();
+    box.getCenter(center);
+    this.geometry.translate(-center.x, -center.y, -box.min.z);
+  }
+
   private computeGeometry(): THREE.Geometry {
     const params = this.parameters as ISTLParams;
     if (!params.blob) throw new Error(`No blob to compute`);
 
     const uint8Data = params.blob.uint8Data;
     let data: Uint8Array = new Uint8Array([]);
+
     if (uint8Data instanceof Uint8Array) {
       data = uint8Data;
     }
+
     if (uint8Data instanceof Array) {
       data = new Uint8Array(uint8Data);
     }
+
     this.arrayBufferData = data.buffer;
     const filetype: string = params.blob.filetype;
 
@@ -276,34 +288,25 @@ export default class STLObject extends PrimitiveObject {
       } catch (e) {
         throw new Error('Cannot parse STL file');
       }
-      if (this.geometry instanceof THREE.Geometry) {
-        return this.geometry;
-      }
-
-      throw new Error('Geometry not properly computed');
-    }
-
-    if (filetype.match('model/x.stl-ascii')) {
+    } else if (filetype.match('model/x.stl-ascii')) {
       try {
         this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
       } catch (e) {
         throw new Error('Cannot parse STL file');
       }
-      if (this.geometry instanceof THREE.Geometry) {
-        return this.geometry;
+    } else {
+      try {
+        // not able to parse binary, try text
+        this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+      } catch (e) {
+        console.warn(`No text STL file: ${e}`);
+        // not able to parse text, throw exception
+        throw new Error(`Cannot parse STL file ${e}`);
       }
-      throw new Error('Geometry not properly computed');
-    }
-    try {
-      // not able to parse binary, try text
-      this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
-    } catch (e) {
-      console.warn(`No text STL file: ${e}`);
-      // not able to parse text, throw exception
-      throw new Error(`Cannot parse STL file ${e}`);
     }
 
     if (this.geometry instanceof THREE.Geometry) {
+      this.centerGeometry();
       return this.geometry;
     }
 
