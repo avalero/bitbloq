@@ -1,5 +1,6 @@
 # import Date, ObjectID, EmailAddress, JSON from "./scalars.graphql"
 # import Document from "./document.graphql"
+# import Folder from "./folder.graphql"
 
 directive @authRequired(
   requires: [Role] = [ADMIN],
@@ -36,7 +37,9 @@ type User {
   createdAt: Date
   updatedAt: Date
   signUpSurvey: JSON
+  rootFolder: ObjectID
   documents: [Document]
+  folders: [Folder]
 }
 
 input UserIn {

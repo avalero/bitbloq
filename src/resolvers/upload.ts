@@ -4,7 +4,7 @@ import { UploadModel } from '../models/upload';
 
 const { Storage } = require('@google-cloud/storage');
 
-const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // proyect ID
+const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
@@ -51,7 +51,7 @@ const uploadResolver = {
   Mutation: {
     singleUpload: async (file, documentID) => {
       const { createReadStream, filename, mimetype, encoding } = await file;
-      if(!createReadStream || !filename || !mimetype || !encoding){
+      if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
       }
       await new Promise((resolve, reject) => {

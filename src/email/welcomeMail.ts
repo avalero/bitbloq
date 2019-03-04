@@ -70,4 +70,4 @@ const template = compile(`
 </mjml>
   `);
 
-  export {template};
+export { template };

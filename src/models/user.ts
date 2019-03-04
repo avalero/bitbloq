@@ -11,6 +11,7 @@ interface IUser extends Document {
   authToken?: string;
   notifications?: boolean;
   signUpSurvey?: JSON;
+  rootFolder?: string;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -57,6 +58,11 @@ export const ContactSchema: Schema = new Schema({
 
   signUpSurvey: {
     type: Schema.Types.Mixed,
+  },
+
+  rootFolder: {
+    type: Schema.Types.ObjectId,
+    ref: 'FolderModel',
   },
 });
 

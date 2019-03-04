@@ -10,7 +10,7 @@ interface IExercise extends Document {
   description: string;
   teacherName: string;
   content?: string;
-  geometries?: string
+  geometries?: string;
   acceptSubmissions?: boolean;
   expireDate?: Date;
   image: string;
@@ -67,7 +67,7 @@ const ExerciseMongSchema: Schema = new Schema({
 
   expireDate: {
     type: Date,
-    default: new Date(2020, 12, 30), // fecha de caducidad por defecto
+    default: new Date(3000, 12, 30), // fecha de caducidad por defecto
   },
 });
 ExerciseMongSchema.plugin(timestamps);

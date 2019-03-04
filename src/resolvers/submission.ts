@@ -1,7 +1,6 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
-import { LogModel } from '../models/logs';
 import { SubmissionModel } from '../models/submission';
 import { isRegExp } from 'util';
 
@@ -30,11 +29,11 @@ const submissionResolver = {
      * It stores the new student information in the database and
      * returns a login token with the exercise and submission ID.
      * If a submission with the nick and password provided exists, the mutation
-     * returns it. If not, it create a new empty submission.     * 
+     * returns it. If not, it create a new empty submission.     *
      * args: exercise code and student nickname and password.
      */
-    loginSubmission: async (root: any, args: any, context: any)=>{
-      if(!args.studentNick){
+    loginSubmission: async (root: any, args: any, context: any) => {
+      if (!args.studentNick) {
         throw new ApolloError(
           'Error creating submission, you must introduce a nickname',
           'NOT_NICKNAME_PROVIDED',
@@ -59,17 +58,17 @@ const submissionResolver = {
         );
       }
       // check if there is a submission with this nickname and password. If true, return it.
-      const existSubmission=await SubmissionModel.findOne({
+      const existSubmission = await SubmissionModel.findOne({
         studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id,
       });
-      if(existSubmission){
+      if (existSubmission) {
         //si existe la submission, compruebo la contraseña y la devuelvo
         const valid: boolean = await bcrypt.compare(
           args.password,
           existSubmission.password,
         );
-        if(valid){
+        if (valid) {
           const token: string = jsonwebtoken.sign(
             {
               exerciseID: exFather._id,
@@ -84,25 +83,22 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-          await LogModel.create({
-            user: exFather.user,
-            object: existSubmission._id,
-            action: 'SUB_login',
-            docType: existSubmission.type,
+
+          pubsub.publish(SUBMISSION_UPDATED, {
+            submissionUpdated: existSubmission,
           });
-          pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
           return {
             token: token,
             exerciseID: exFather._id,
-            type: existSubmission.type
+            type: existSubmission.type,
           };
-        }else{
+        } else {
           throw new ApolloError(
             'comparing passwords valid=false',
             'PASSWORD_ERROR',
           );
         }
-      }else{
+      } else {
         //la submission no existe, se crea una nueva
         const hash: string = await bcrypt.hash(args.password, saltRounds);
         const submissionNew = new SubmissionModel({
@@ -132,17 +128,12 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-        await LogModel.create({
-          user: exFather.user,
-          object: submissionNew._id,
-          action: 'SUB_create',
-          docType: submissionNew.type,
-        });
+
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
           token: token,
           exerciseID: exFather._id,
-          type: newSub.type
+          type: newSub.type,
         };
       }
     },
@@ -164,14 +155,8 @@ const submissionResolver = {
         );
       }
       if (existSubmission) {
-        await LogModel.create({
-          user: existSubmission.user,
-          object: existSubmission._id,
-          action: 'SUB_update',
-          docType: existSubmission.type,
-        });
         //importante! no se puede actualizar el nickname
-        if(args.input.studentNick){
+        if (args.input.studentNick) {
           throw new ApolloError(
             'Error updating submission, you can not change your nickname',
             'CANT_UPDATE_NICKNAME',
@@ -222,12 +207,6 @@ const submissionResolver = {
       if (timeNow > exFather.expireDate) {
         throw new ApolloError('Your submission is late', 'SUBMISSION_LATE');
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_finish',
-        docType: existSubmission.type,
-      });
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
@@ -264,12 +243,6 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_cancel',
-        docType: existSubmission.type,
-      });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -290,12 +263,6 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_delete',
-        docType: existSubmission.type,
-      });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -304,7 +271,7 @@ const submissionResolver = {
      * It updates the submission with the new information provided: grade and teacher comment.
      * args: submissionID, grade and teacherComment
      */
-    gradeSubmission: async (root:any, args: any, context: any)=>{
+    gradeSubmission: async (root: any, args: any, context: any) => {
       const existSubmission = await SubmissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID,
@@ -316,18 +283,12 @@ const submissionResolver = {
         );
       }
       //La sumission tiene que estar acabada
-      if(!existSubmission.finished){
+      if (!existSubmission.finished) {
         throw new ApolloError(
           'Error grading submission, submission not finished by student',
           'SUBMISSION_NOT_FINISHED',
         );
       }
-      await LogModel.create({
-        user: existSubmission.user,
-        object: existSubmission._id,
-        action: 'SUB_graded',
-        docType: existSubmission.type,
-      });
 
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
@@ -341,7 +302,7 @@ const submissionResolver = {
         { new: true },
       );
       return updatedSubmission;
-    }
+    },
   },
 
   Query: {
@@ -351,10 +312,6 @@ const submissionResolver = {
      */
     // devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
     submissions: async (root: any, args: any, context: any) => {
-      await LogModel.create({
-        user: context.user.userID,
-        action: 'SUB_submissions',
-      });
       return SubmissionModel.find({ user: context.user.userID });
     },
 
@@ -377,11 +334,6 @@ const submissionResolver = {
             'SUBMISSION_NOT_FOUND',
           );
         }
-        await LogModel.create({
-          user: existSubmission.user,
-          action: 'SUB_submission',
-          docType: existSubmission.type,
-        });
         return existSubmission;
       } else if (context.user.userID) {
         // token de profesor
@@ -395,11 +347,6 @@ const submissionResolver = {
             'SUBMISSION_NOT_FOUND',
           );
         }
-        await LogModel.create({
-          user: context.user.userID,
-          action: 'SUB_submission',
-          docType: existSubmission.type,
-        });
         return existSubmission;
       }
     },
@@ -419,10 +366,6 @@ const submissionResolver = {
       }
       const existSubmissions = await SubmissionModel.find({
         exercise: exFather._id,
-      });
-      await LogModel.create({
-        user: context.user.userID,
-        action: 'SUB_submissionsExercise',
       });
       return existSubmissions;
     },

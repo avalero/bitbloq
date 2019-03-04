@@ -31,6 +31,7 @@ type Document {
   user: ObjectID
   title: String!
   type: String
+  folder: ObjectID
   content: String
   geometries: String
   description: String
@@ -47,6 +48,7 @@ input DocumentIn {
   user: ObjectID
   title: String
   type: String
+  folder: ObjectID
   content: String
   geometries: String
   description: String
