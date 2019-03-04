@@ -9,8 +9,7 @@ import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 
 import { template } from '../email/welcomeMail';
-import  * as mjml2html from 'mjml';
-
+import * as mjml2html from 'mjml';
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -56,15 +55,25 @@ const userResolver = {
       console.log(token);
 
       // Generate the email with the activation link and send it
-      const data={
-        activationUrl: `${process.env.FRONTEND_URL}/app/activate?token=${token}`
-      }
-      const mjml=template(data);
-      const htmlMessage=mjml2html(mjml, {keepComments: false, beautify:true, minify: true});
-      await mailerController.sendEmail(newUser.email, 'Bitbloq Sign Up ✔', htmlMessage.html);
+      const data = {
+        activationUrl: `${
+          process.env.FRONTEND_URL
+        }/app/activate?token=${token}`,
+      };
+      const mjml = template(data);
+      const htmlMessage = mjml2html(mjml, {
+        keepComments: false,
+        beautify: true,
+        minify: true,
+      });
+      await mailerController.sendEmail(
+        newUser.email,
+        'Bitbloq Sign Up ✔',
+        htmlMessage.html,
+      );
 
       // Create user root folder for documents
-      const userFolder=await FolderModel.create({
+      const userFolder = await FolderModel.create({
         name: 'root',
         user: newUser._id,
       });
@@ -182,7 +191,6 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -206,7 +214,6 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {

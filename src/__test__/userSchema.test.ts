@@ -1,14 +1,20 @@
 import { graphql, GraphQLSchema } from 'graphql';
 import { importSchema } from 'graphql-import';
 import * as path from 'path';
-const typeDefs = importSchema(path.join(__dirname, '../schemas/allSchemas.graphql'));
+const typeDefs = importSchema(
+  path.join(__dirname, '../schemas/allSchemas.graphql'),
+);
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
-import {allResolvers} from '../resolvers/resolvers';
+import { allResolvers } from '../resolvers/resolvers';
 import { merge } from 'lodash';
-import {setupTest} from '../__helpers__/setupTest';
+import { setupTest } from '../__helpers__/setupTest';
 
-const schemas: GraphQLSchema = makeExecutableSchema({  typeDefs, resolvers: merge(allResolvers) });
-addMockFunctionsToSchema({ schema: schemas,
+const schemas: GraphQLSchema = makeExecutableSchema({
+  typeDefs,
+  resolvers: merge(allResolvers),
+});
+addMockFunctionsToSchema({
+  schema: schemas,
   mocks: {
     Boolean: () => false,
     ObjectID: () => '11111111111111',
@@ -16,13 +22,14 @@ addMockFunctionsToSchema({ schema: schemas,
     Float: () => 12.34,
     String: () => 'Holita vecinito',
     EmailAddress: () => 'aaaa@zzz.com',
-} });
+  },
+});
 
 beforeEach(async () => {
   jest.resetModules();
   await setupTest();
   require('dotenv').config();
-//  process.env = Object.assign(process.env, { CUSTOM_VAR: 'value' });
+  //  process.env = Object.assign(process.env, { CUSTOM_VAR: 'value' });
 });
 
 describe('Schema', () => {
@@ -34,14 +41,21 @@ describe('Schema', () => {
           }
         }
       `;
-      const rootValue = {};
-      const context={};
-      const expected={"data": {"users": [{"name": "Hello World"}, {"name": "Hello World"}]}};
-      return await expect(
-          graphql({schema: schemas, source: query, rootValue: rootValue, contextValue: context})
-      ).resolves.toEqual(expected);
+    const rootValue = {};
+    const context = {};
+    const expected = {
+      data: { users: [{ name: 'Hello World' }, { name: 'Hello World' }] },
+    };
+    return await expect(
+      graphql({
+        schema: schemas,
+        source: query,
+        rootValue: rootValue,
+        contextValue: context,
+      }),
+    ).resolves.toEqual(expected);
   });
-  
+
   it('should register a new user', async () => {
     const mutation = `
       mutation{ 
@@ -56,11 +70,15 @@ describe('Schema', () => {
       }
     `;
     const rootValue = {};
-    const context={};
-    const expected={"data": {"signUpUser": "Hello World"}};
+    const context = {};
+    const expected = { data: { signUpUser: 'Hello World' } };
     return await expect(
-      graphql({schema: schemas, source: mutation, rootValue: rootValue, contextValue: context})
-  ).resolves.toEqual(expected);
+      graphql({
+        schema: schemas,
+        source: mutation,
+        rootValue: rootValue,
+        contextValue: context,
+      }),
+    ).resolves.toEqual(expected);
   });
-
 });

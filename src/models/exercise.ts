@@ -10,7 +10,7 @@ interface IExercise extends Document {
   description: string;
   teacherName: string;
   content?: string;
-  geometries?: string
+  geometries?: string;
   acceptSubmissions?: boolean;
   expireDate?: Date;
   image: string;

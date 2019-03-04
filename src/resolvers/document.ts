@@ -2,24 +2,23 @@ import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
+import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
-import uploadResolver from './upload';
 import { UserModel } from '../models/user';
-import { FolderModel } from '../models/folder';
+import uploadResolver from './upload';
 
-export const pubsub = new PubSub();
+export const pubsub: PubSub = new PubSub();
 
 const DOCUMENT_UPDATED: string = 'DOCUMENT_UPDATED';
 
 const documentResolver = {
-
   Subscription: {
     documentUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
         (payload, variables, context) => {
-          return context.user.userID==payload.documentUpdated.user;
+          return context.user.userID == payload.documentUpdated.user;
         },
       ),
     },
@@ -38,7 +37,9 @@ const documentResolver = {
         user: context.user.userID,
         title: args.input.title,
         type: args.input.type,
-        folder: args.input.folder || ( await UserModel.findOne({_id: context.user.userID})).rootFolder,
+        folder:
+          args.input.folder ||
+          (await UserModel.findOne({ _id: context.user.userID })).rootFolder,
         content: args.input.content,
         geometries: args.input.geometries,
         description: args.input.description,
@@ -46,17 +47,17 @@ const documentResolver = {
         image: args.input.imageUrl,
       });
       const newDocument = await DocumentModel.create(documentNew);
-      await FolderModel.updateOne( 
-        { _id: documentNew.folder }, 
-        { $push: {documentsID: newDocument._id} }, 
-        { new: true }, 
-      )
+      await FolderModel.updateOne(
+        { _id: documentNew.folder },
+        { $push: { documentsID: newDocument._id } },
+        { new: true },
+      );
       if (args.input.image) {
         const imageUploaded = await uploadResolver.Mutation.singleUpload(
           args.input.image,
           newDocument._id,
         );
-        const newDoc=await  DocumentModel.findOneAndUpdate(
+        const newDoc = await DocumentModel.findOneAndUpdate(
           { _id: documentNew._id },
           { $set: { image: imageUploaded.publicUrl } },
           { new: true },
@@ -82,9 +83,9 @@ const documentResolver = {
       });
       if (existDocument) {
         await FolderModel.updateOne(
-          { _id: existDocument.folder },                //modifico los documentsID de la carpeta
-          { $pull: {documentsID: existDocument._id} }
-        )
+          { _id: existDocument.folder }, //modifico los documentsID de la carpeta
+          { $pull: { documentsID: existDocument._id } },
+        );
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
         await ExerciseModel.deleteMany({ document: existDocument._id });
@@ -108,26 +109,25 @@ const documentResolver = {
       });
 
       if (existDocument) {
-        if(args.input.folder && (args.input.folder != existDocument.folder)){
+        if (args.input.folder && args.input.folder != existDocument.folder) {
           await FolderModel.updateOne(
-            { _id: args.input.folder },                //modifico los documentsID de la carpeta
-            { $push: {documentsID: existDocument._id} },
-          )
+            { _id: args.input.folder }, //modifico los documentsID de la carpeta
+            { $push: { documentsID: existDocument._id } },
+          );
           await FolderModel.updateOne(
-            { _id: existDocument.folder },                //modifico los documentsID de la carpeta donde estaba el documento
-            { $pull: {documentsID: existDocument._id} },
-          )
+            { _id: existDocument.folder }, //modifico los documentsID de la carpeta donde estaba el documento
+            { $pull: { documentsID: existDocument._id } },
+          );
         }
-        let image;
+        let image: string;
         if (args.input.image) {
           const imageUploaded = await uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,
           );
-          image=imageUploaded.publicUrl;
-
+          image = imageUploaded.publicUrl;
         } else if (args.input.imageUrl) {
-          image=args.input.imageUrl;
+          image = args.input.imageUrl;
         }
         const documentUpdate = {
           title: args.input.title || existDocument.title,
@@ -139,7 +139,7 @@ const documentResolver = {
           version: args.input.version || existDocument.version,
           image: image,
         };
-        const upDoc=await DocumentModel.findOneAndUpdate(
+        const upDoc = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
           { $set: documentUpdate },
           { new: true },

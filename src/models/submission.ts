@@ -38,7 +38,7 @@ const SubmissionMongSchema: Schema = new Schema({
 
   studentNick: {
     type: String,
-    required: true
+    required: true,
   },
 
   password: {
@@ -75,7 +75,7 @@ const SubmissionMongSchema: Schema = new Schema({
     type: Date,
   },
 
-  grade:{
+  grade: {
     type: Number,
   },
 
@@ -83,9 +83,9 @@ const SubmissionMongSchema: Schema = new Schema({
     type: String,
   },
 
-  gradedAt:{
+  gradedAt: {
     type: Date,
-  }
+  },
 });
 SubmissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(

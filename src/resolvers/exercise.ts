@@ -24,10 +24,14 @@ const exerciseResolver = {
         );
       }
       const user = await UserModel.findById(context.user.userID);
-      let newCode: string = Math.random().toString(36).substr(2, 6);
-      while(await ExerciseModel.findOne({code: newCode}) != null){
-        console.log("The exercise code already exists");
-        newCode  = Math.random().toString(36).substr(2, 6);
+      let newCode: string = Math.random()
+        .toString(36)
+        .substr(2, 6);
+      while ((await ExerciseModel.findOne({ code: newCode })) != null) {
+        console.log('The exercise code already exists');
+        newCode = Math.random()
+          .toString(36)
+          .substr(2, 6);
       }
       const exerciseNew = new ExerciseModel({
         id: ObjectId,
@@ -79,7 +83,6 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
-
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
@@ -98,7 +101,6 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
-
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
           { $set: args.input },

@@ -7,7 +7,7 @@ interface IDocument extends Document {
   type?: string;
   folder?: string;
   content?: string;
-  geometries?: string
+  geometries?: string;
   image: string;
   createdAt?: Date;
   updatedAt?: Date;

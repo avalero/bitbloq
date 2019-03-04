@@ -11,7 +11,7 @@ interface IUser extends Document {
   authToken?: string;
   notifications?: boolean;
   signUpSurvey?: JSON;
-  rootFolder?:string
+  rootFolder?: string;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -63,7 +63,7 @@ export const ContactSchema: Schema = new Schema({
   rootFolder: {
     type: Schema.Types.ObjectId,
     ref: 'FolderModel',
-  }
+  },
 });
 
 ContactSchema.plugin(timestamps);

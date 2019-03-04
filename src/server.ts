@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-import { IncomingMessage } from 'http';
 import * as mongoose from 'mongoose';
 import { contextController } from './controllers/context';
 import exSchema from './schemas/allSchemas';
@@ -25,10 +24,6 @@ mongoose.connect(
     console.log('Successfully connected to Mongo');
   },
 );
-
-interface IContext {
-  ctx: IncomingMessage;
-}
 
 const app = new Koa();
 

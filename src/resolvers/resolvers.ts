@@ -5,7 +5,7 @@ import submissionResolver from './submission';
 import uploadResolver from './upload';
 import userResolver from './user';
 
-const JSONType = {
+const jsonType = {
   __parseValue(value: any) {
     return value;
   },
@@ -18,7 +18,7 @@ const JSONType = {
 };
 
 export const allResolvers = [
-  { JSON: JSONType },
+  { JSON: jsonType },
   userResolver,
   folderResolver,
   documentResolver,

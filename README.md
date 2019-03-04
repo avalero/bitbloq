@@ -99,7 +99,7 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     MUTATIONS:
       createRootFolder(user: ObjectID!): Folder
-      createFolder(input: FolderIn): Folder 
+      createFolder(input: FolderIn): Folder
       updateFolder(id: ObjectID!, input: FolderIn): Folder
       deleteFolder(id: ObjectID!): Folder
 
@@ -109,7 +109,7 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       documentsID: [ObjectID] //solo en update
       foldersID: [ObjectID]   //solo en update
       parent: ObjectID
-    }      
+    }
 
 **_ Las queries y mutations de los documentos son: _**
 
