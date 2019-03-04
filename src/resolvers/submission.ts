@@ -2,7 +2,6 @@ import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
-import { isRegExp } from 'util';
 
 export const pubsub = new PubSub();
 const jsonwebtoken = require('jsonwebtoken');
@@ -63,7 +62,7 @@ const submissionResolver = {
         exercise: exFather._id,
       });
       if (existSubmission) {
-        //si existe la submission, compruebo la contraseña y la devuelvo
+        // si existe la submission, compruebo la contraseña y la devuelvo
         const valid: boolean = await bcrypt.compare(
           args.password,
           existSubmission.password,
@@ -99,7 +98,7 @@ const submissionResolver = {
           );
         }
       } else {
-        //la submission no existe, se crea una nueva
+        // la submission no existe, se crea una nueva
         const hash: string = await bcrypt.hash(args.password, saltRounds);
         const submissionNew = new SubmissionModel({
           id: ObjectId,
@@ -155,7 +154,7 @@ const submissionResolver = {
         );
       }
       if (existSubmission) {
-        //importante! no se puede actualizar el nickname
+        // importante! no se puede actualizar el nickname
         if (args.input.studentNick) {
           throw new ApolloError(
             'Error updating submission, you can not change your nickname',
@@ -282,7 +281,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      //La sumission tiene que estar acabada
+      // La sumission tiene que estar acabada
       if (!existSubmission.finished) {
         throw new ApolloError(
           'Error grading submission, submission not finished by student',

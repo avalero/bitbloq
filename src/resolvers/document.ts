@@ -83,7 +83,7 @@ const documentResolver = {
       });
       if (existDocument) {
         await FolderModel.updateOne(
-          { _id: existDocument.folder }, //modifico los documentsID de la carpeta
+          { _id: existDocument.folder }, // modifico los documentsID de la carpeta
           { $pull: { documentsID: existDocument._id } },
         );
         await UploadModel.deleteMany({ document: existDocument._id });
@@ -111,11 +111,11 @@ const documentResolver = {
       if (existDocument) {
         if (args.input.folder && args.input.folder != existDocument.folder) {
           await FolderModel.updateOne(
-            { _id: args.input.folder }, //modifico los documentsID de la carpeta
+            { _id: args.input.folder }, // modifico los documentsID de la carpeta
             { $push: { documentsID: existDocument._id } },
           );
           await FolderModel.updateOne(
-            { _id: existDocument.folder }, //modifico los documentsID de la carpeta donde estaba el documento
+            { _id: existDocument.folder }, // modifico los documentsID de la carpeta donde estaba el documento
             { $pull: { documentsID: existDocument._id } },
           );
         }

@@ -96,7 +96,7 @@ const folderResolver = {
       }
       if (existFolder) {
         if (args.input.foldersID) {
-          //si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
+          // si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
           for (const folder of args.input.foldersID) {
             const fol = await FolderModel.findOne({ _id: folder });
             await FolderModel.updateOne(
@@ -106,19 +106,19 @@ const folderResolver = {
               { new: true },
             );
             await FolderModel.updateOne(
-              //acutualizo la carpeta con el nuevo padre
+              // actualizo la carpeta con el nuevo padre
               { _id: folder },
               { parent: existFolder._id },
             );
             await FolderModel.updateOne(
               { _id: existFolder._id },
-              { $push: { foldersID: folder } }, //añado la nueva carpeta a los hijos de la carpeta
+              { $push: { foldersID: folder } }, // añado la nueva carpeta a los hijos de la carpeta
               { new: true },
             );
           }
         }
         if (args.input.documentsID) {
-          //si se pasa lista de documentos hay que modificarlos para añadir la carpeta
+          // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
           for (const document of args.input.documentsID) {
             const doc = await DocumentModel.findOne({ _id: document });
             await FolderModel.updateOne(
@@ -128,19 +128,19 @@ const folderResolver = {
               { new: true },
             );
             await DocumentModel.updateOne(
-              //actualizo el documento con la nueva carpeta
+              // actualizo el documento con la nueva carpeta
               { _id: document },
               { folder: existFolder._id },
             );
             await FolderModel.updateOne(
               { _id: existFolder._id },
-              { $push: { documentsID: document } }, //añado el nuevo document a los hijos de la carpeta
+              { $push: { documentsID: document } }, // añado el nuevo document a los hijos de la carpeta
               { new: true },
             );
           }
         }
         if (args.input.parent && args.input.parent != existFolder.parent) {
-          //si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
+          // si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
           await FolderModel.updateOne(
             { _id: args.input.parent },
             { $push: { foldersID: existFolder._id } },

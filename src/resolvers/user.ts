@@ -8,8 +8,9 @@ import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 
-import { template } from '../email/welcomeMail';
 import * as mjml2html from 'mjml';
+import { template } from '../email/welcomeMail';
+
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
