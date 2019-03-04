@@ -137,7 +137,7 @@ const documentResolver = {
           geometries: args.input.geometries || existDocument.geometries,
           description: args.input.description || existDocument.description,
           version: args.input.version || existDocument.version,
-          image: image,
+          image: image || existDocument.image,
         };
         const upDoc = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },

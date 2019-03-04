@@ -4,6 +4,7 @@ import {
   ApolloError,
 } from 'apollo-server-koa';
 import { UserModel } from '../models/user';
+import { SubmissionModel } from '../models/submission';
 const jsonwebtoken = require('jsonwebtoken');
 
 const contextController = {
@@ -31,14 +32,20 @@ const contextController = {
       } catch (e) {
         return undefined;
       }
-      if (!(await UserModel.findOne({ authToken: justToken })) && user) {
-        throw new ApolloError(
-          'Token not valid. More than one session opened',
-          'ANOTHER_OPEN_SESSION',
-        );
-      } else {
-        return user;
-      }
+      if (user){
+        // Si el token se ha resuelto y el token está guardado en las submissions
+        // o en los ususarios se devuelve la resolución, si no existe, es que hay otra sesión abierta
+        if (await UserModel.findOne({ authToken: justToken })){
+          return user;
+        } else if (await SubmissionModel.findOne({ submissionToken: justToken })) {
+          return user;
+        } else {
+          throw new ApolloError(
+            'Token not valid. More than one session opened',
+            'ANOTHER_OPEN_SESSION',
+          );
+        }
+      } 
     }
   },
   getDataInToken: async inToken => {

@@ -152,7 +152,7 @@ const folderResolver = {
         }
         if (existFolder.name == 'root' && args.input.name) {
           throw new ApolloError(
-            'You can not update your Root folder names',
+            'You can not update your Root folder name',
             'CANT_UPDATE_ROOT',
           );
         }
