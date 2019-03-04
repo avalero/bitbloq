@@ -13,6 +13,18 @@ export const DOCUMENT_QUERY = gql`
   }
 `;
 
+export const DOCUMENTS_QUERY = gql`
+  query {
+    documents {
+      id
+      type
+      title
+      createdAt
+      image
+    }
+  }
+`;
+
 export const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
     $type: String!
@@ -57,6 +69,22 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
       type
       content
       image
+    }
+  }
+`;
+
+export const DELETE_DOCUMENT_MUTATION = gql`
+  mutation DeleteDocument($id: ObjectID!) {
+    deleteDocument(id: $id) {
+      id
+    }
+  }
+`;
+
+export const DOCUMENT_UPDATED_SUBSCRIPTION = gql`
+  subscription OnDocumentUpdated {
+    documentUpdated {
+      id
     }
   }
 `;

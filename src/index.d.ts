@@ -1,2 +1,2 @@
 declare module '*.svg';
-declare module 'messages/*.json';
+declare module '*.json';
