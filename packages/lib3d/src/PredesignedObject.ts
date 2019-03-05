@@ -63,4 +63,23 @@ export default class PredesignedObject extends STLObject {
     super(parameters, operations, viewOptions, mesh);
     this.type = PredesignedObject.typeName;
   }
+
+  public clone(): PredesignedObject {
+    if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
+      const objSTL = new PredesignedObject(
+        this.parameters as ISTLParams,
+        this.operations,
+        this.viewOptions,
+        (this.mesh as THREE.Mesh).clone(),
+      );
+      return objSTL;
+    }
+
+    const obj = new PredesignedObject(
+      this.parameters as ISTLParams,
+      this.operations,
+      this.viewOptions,
+    );
+    return obj;
+  }
 }
