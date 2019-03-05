@@ -438,7 +438,7 @@ export default class Scene {
       this.anySelectedObjects = true;
     });
 
-    this.updateHistory();
+    // this.updateHistory();
     return this.toJSON();
   }
 
