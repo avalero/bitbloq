@@ -31,7 +31,7 @@ const config = {
             width: 10,
             height: 10,
             depth: 10,
-          }
+          },
         },
         {
           type: 'Sphere',
@@ -87,10 +87,10 @@ const config = {
             text: 'Hello',
             size: 10,
             thickness: 5,
-            font: 'gentilis_regular',
+            font: 'roboto_regular',
           },
         },
-      ]
+      ],
     },
   ],
 
@@ -226,7 +226,7 @@ const config = {
       name: 'PredesignedObject',
       label: 'object-type-predesigned-object',
       icon: <Icon name="stl" />,
-      parameters: () => []
+      parameters: () => [],
     },
     {
       name: 'TextObject',
@@ -256,28 +256,24 @@ const config = {
           type: 'select',
           options: [
             {
-              labelId: 'gentilis_regular',
-              value: 'gentilis_regular',
+              labelId: 'roboto_regular',
+              value: 'roboto_regular',
             },
             {
-              labelId: 'gentilis_bold',
-              value: 'gentilis_bold',
+              labelId: 'audiowide_regular',
+              value: 'audiowide_regular',
             },
             {
-              labelId: 'helvetiker_regular',
-              value: 'helvetiker_regular',
+              labelId: 'fredoka_one_regular',
+              value: 'fredoka_one_regular',
             },
             {
-              labelId: 'helvetiker_bold',
-              value: 'helvetiker_bold',
+              labelId: 'merriweather_regular',
+              value: 'merriweather_regular',
             },
             {
-              labelId: 'optimer_regular',
-              value: 'optimer_regular',
-            },
-            {
-              labelId: 'optimer_bold',
-              value: 'optimer_bold',
+              labelId: 'pressstart2p_regular',
+              value: 'pressstart2p_regular',
             },
           ],
         },

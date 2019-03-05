@@ -22,12 +22,11 @@ import {
   OperationsArray,
 } from './Interfaces';
 
-import gentilis_regular from './assets/fonts/gentilis_regular.typeface.json';
-import gentilis_bold from './assets/fonts/gentilis_bold.typeface.json';
-import helvetiker_bold from './assets/fonts/helvetiker_bold.typeface.json';
-import helvetiker_regular from './assets/fonts/helvetiker_regular.typeface.json';
-import optimer_bold from './assets/fonts/optimer_bold.typeface.json';
-import optimer_regular from './assets/fonts/optimer_regular.typeface.json';
+import audiowide_regular from './assets/fonts/audiowide_regular.json';
+import fredoka_one_regular from './assets/fonts/fredoka_one_regular.json';
+import merriweather_regular from './assets/fonts/merriweather_regular.json';
+import pressstart2p_regular from './assets/fonts/pressstart2p_regular.json';
+import roboto_regular from './assets/fonts/roboto_regular.json';
 
 export default class TextObject extends PrimitiveObject {
   public static typeName: string = 'TextObject';
@@ -99,26 +98,23 @@ export default class TextObject extends PrimitiveObject {
     let font: THREE.Font;
     try {
       switch ((this.parameters as ITextObjectParams).font) {
-        case 'gentilis_regular':
-          font = new THREE.Font(gentilis_regular);
+        case 'audiowide_regular':
+          font = new THREE.Font(audiowide_regular);
           break;
-        case 'gentilis_bold':
-          font = new THREE.Font(gentilis_bold);
+        case 'fredoka_one_regular':
+          font = new THREE.Font(fredoka_one_regular);
           break;
-        case 'helvetiker_bold':
-          font = new THREE.Font(helvetiker_bold);
+        case 'merriweather_regular':
+          font = new THREE.Font(merriweather_regular);
           break;
-        case 'helvetiker_regular':
-          font = new THREE.Font(helvetiker_regular);
+        case 'pressstart2p_regular':
+          font = new THREE.Font(pressstart2p_regular);
           break;
-        case 'optimer_bold':
-          font = new THREE.Font(optimer_bold);
-          break;
-        case 'optimer_regular':
-          font = new THREE.Font(optimer_regular);
+        case 'roboto_regular':
+          font = new THREE.Font(roboto_regular);
           break;
         default:
-          font = new THREE.Font(gentilis_regular);
+          font = new THREE.Font(roboto_regular);
       }
     } catch (e) {
       throw new Error(
