@@ -439,6 +439,7 @@ export default class Scene {
     });
 
     // this.updateHistory();
+    this.sceneUpdated = true;
     return this.toJSON();
   }
 

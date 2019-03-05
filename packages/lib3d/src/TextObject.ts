@@ -10,7 +10,6 @@
  * Last modified  : 2019-01-31 10:31:10
  */
 
-import { isEqual } from 'lodash';
 import * as THREE from 'three';
 import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
