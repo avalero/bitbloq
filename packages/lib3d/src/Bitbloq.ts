@@ -52,7 +52,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
     'Pyramid',
   ];
 
-  const compoundObjectTypes: string[] = ['Union', 'Difference', 'Cylinder'];
+  const compoundObjectTypes: string[] = ['Union', 'Difference', 'Intersection'];
 
   const stlType = 'STLObject';
 
