@@ -9,7 +9,7 @@ import Checkbox from './components/Checkbox';
 import Tooltip from './components/Tooltip';
 import NumberInput from './components/NumberInput';
 import Switch from './components/Switch';
-import Document, { HeaderButton } from './components/Document';
+import Document from './components/Document';
 import Panel from './components/Panel';
 import HorizontalRule from './components/HorizontalRule';
 import TextArea from './components/TextArea';
@@ -20,6 +20,7 @@ import FileSelectButton from './components/FileSelectButton';
 import TranslateProvider, {
   Translate,
   withTranslate,
+  useTranslate
 } from './components/TranslateProvider';
 import baseStyles from './base-styles';
 import colors from './colors';
@@ -47,6 +48,7 @@ export {
   Modal,
   Spinner,
   withTranslate,
+  useTranslate,
   baseStyles,
   colors,
 };
