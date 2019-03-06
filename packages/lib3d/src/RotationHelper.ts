@@ -36,12 +36,12 @@ export default class RotationHelper {
         Math.max(boundingBoxDims.y, boundingBoxDims.z) / 2 + separation;
       length = Math.max(boundingBoxDims.y, boundingBoxDims.z) + extraLength;
     } else if (axis === 'y') {
-      color = 0x0000ff;
+      color = 0x00ff00;
       toroidRadius =
         Math.max(boundingBoxDims.x, boundingBoxDims.z) / 2 + separation;
       length = Math.max(boundingBoxDims.x, boundingBoxDims.z) + extraLength;
     } else {
-      color = 0x00ff00;
+      color = 0x0000ff;
       toroidRadius =
         Math.max(boundingBoxDims.x, boundingBoxDims.y) / 2 + separation;
       length = Math.max(boundingBoxDims.x, boundingBoxDims.y) + extraLength;
