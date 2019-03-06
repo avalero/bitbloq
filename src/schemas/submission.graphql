@@ -19,7 +19,7 @@ type Query {
 type Mutation {
   loginSubmission(exerciseCode: String!, studentNick: String!, password: String!): loginOut
   updateSubmission(input: SubmissionIn): Submission                                           @authRequired(requires: [EPHEMERAL])
-  finishSubmission(content: String, geometries: String, studentComment: String): Submission   @authRequired(requires: [EPHEMERAL])
+  finishSubmission(content: String, cache: String, studentComment: String): Submission   @authRequired(requires: [EPHEMERAL])
   cancelSubmission: Submission                                                                @authRequired(requires: [EPHEMERAL])
   deleteSubmission(submissionID: ObjectID!): Submission                                       @authRequired(requires: [USER])
   gradeSubmission(submissionID: ObjectID, grade: Float, teacherComment: String): Submission   @authRequired(requires: [USER])
@@ -37,7 +37,7 @@ type Submission {
   studentNick: String
   password: String
   content: String
-  geometries: String
+  cache: String
   submissionToken: String
   finished: Boolean
   studentComment: String
@@ -55,7 +55,7 @@ input SubmissionIn {
   studentComment: String
   studentNick: String
   content: String
-  geometries: String
+  cache: String
   type: String
 }
 type loginOut {

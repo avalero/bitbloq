@@ -7,7 +7,7 @@ interface IDocument extends Document {
   type?: string;
   folder?: string;
   content?: string;
-  geometries?: string;
+  cache?: string;
   image: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -41,7 +41,7 @@ const DocumentMongSchema: Schema = new Schema({
     default: 'content',
   },
 
-  geometries: {
+  cache: {
     type: String,
   },
 

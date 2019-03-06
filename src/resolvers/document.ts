@@ -41,7 +41,7 @@ const documentResolver = {
           args.input.folder ||
           (await UserModel.findOne({ _id: context.user.userID })).rootFolder,
         content: args.input.content,
-        geometries: args.input.geometries,
+        cache: args.input.cache,
         description: args.input.description,
         version: args.input.version,
         image: args.input.imageUrl,
@@ -134,7 +134,7 @@ const documentResolver = {
           type: args.input.type || existDocument.type,
           folder: args.input.folder || existDocument.folder,
           content: args.input.content || existDocument.content,
-          geometries: args.input.geometries || existDocument.geometries,
+          cache: args.input.cache || existDocument.cache,
           description: args.input.description || existDocument.description,
           version: args.input.version || existDocument.version,
           image: image || existDocument.image,

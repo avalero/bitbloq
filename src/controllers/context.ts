@@ -1,7 +1,5 @@
 import {
   AuthenticationError,
-  SchemaDirectiveVisitor,
-  ApolloError,
 } from 'apollo-server-koa';
 import { UserModel } from '../models/user';
 import { SubmissionModel } from '../models/submission';
@@ -29,23 +27,24 @@ const contextController = {
       let user;
       try {
         user = await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
+        return user;
       } catch (e) {
         return undefined;
       }
-      if (user){
-        // Si el token se ha resuelto y el token está guardado en las submissions
-        // o en los ususarios se devuelve la resolución, si no existe, es que hay otra sesión abierta
-        if (await UserModel.findOne({ authToken: justToken })){
-          return user;
-        } else if (await SubmissionModel.findOne({ submissionToken: justToken })) {
-          return user;
-        } else {
-          throw new ApolloError(
-            'Token not valid. More than one session opened',
-            'ANOTHER_OPEN_SESSION',
-          );
-        }
-      } 
+      // if (user){
+      //   // Si el token se ha resuelto y el token está guardado en las submissions
+      //   // o en los ususarios se devuelve la resolución, si no existe, es que hay otra sesión abierta
+      //   if (await UserModel.findOne({ authToken: justToken })){
+      //     return user;
+      //   } else if (await SubmissionModel.findOne({ submissionToken: justToken })) {
+      //     return user;
+      //   } else {
+      //     throw new ApolloError(
+      //       'Token not valid. More than one session opened',
+      //       'ANOTHER_OPEN_SESSION',
+      //     );
+      //   }
+      // } 
     }
   },
   getDataInToken: async inToken => {

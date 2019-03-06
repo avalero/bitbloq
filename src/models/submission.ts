@@ -8,7 +8,7 @@ interface ISubmission extends Document {
   studentNick?: string;
   password?: string;
   content?: string;
-  geometries?: string;
+  cache?: string;
   finished?: boolean;
   comment?: string;
   type: string;
@@ -50,7 +50,7 @@ const SubmissionMongSchema: Schema = new Schema({
     default: 'content',
   },
 
-  geometries: {
+  cache: {
     type: String,
   },
 

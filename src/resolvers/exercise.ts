@@ -42,7 +42,7 @@ const exerciseResolver = {
         type: docFather.type,
         acceptSubmissions: args.input.acceptSubmissions,
         content: docFather.content,
-        geometries: docFather.geometries,
+        cache: docFather.cache,
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
