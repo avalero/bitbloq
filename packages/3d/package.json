@@ -1,6 +1,6 @@
 {
   "name": "@bitbloq/3d",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "One Platform to Rule Them All",
   "main": "export.js",
   "scripts": {
@@ -71,8 +71,8 @@
   "dependencies": {
     "@babel/core": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
-    "@bitbloq/lib3d": "^0.1.1",
-    "@bitbloq/ui": "^0.1.1",
+    "@bitbloq/lib3d": "^0.1.2",
+    "@bitbloq/ui": "^0.1.2",
     "@emotion/core": "^10.0.5",
     "@emotion/styled": "^10.0.5",
     "@types/lodash.clonedeep": "^4.5.4",

@@ -1,6 +1,6 @@
 {
   "name": "@bitbloq/stl2bitbloqjson",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "description": "Convert stl file to bitbloq object3D JSON file",
   "main": "index.ts",
   "scripts": {
@@ -33,7 +33,7 @@
     "json"
   ],
   "dependencies": {
-    "@bitbloq/lib3d": "^0.1.1",
+    "@bitbloq/lib3d": "^0.1.2",
     "file-type": "^10.7.0",
     "jsdom-worker": "^0.1.0",
     "lodash": "^4.17.11",

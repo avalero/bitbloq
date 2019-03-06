@@ -1,6 +1,6 @@
 {
   "name": "wasmcsg",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "WASM Constructive Solid Geometry",
   "main": "index.js",
   "directories": {
