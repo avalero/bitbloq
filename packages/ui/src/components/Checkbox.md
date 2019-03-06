@@ -1,0 +1,5 @@
+Checkbox example
+
+```js
+<Checkbox />
+```

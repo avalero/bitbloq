@@ -1,0 +1,34 @@
+{
+  "bloqTypes": [
+    {
+      "name": "Cube",
+      "type": "statement",
+      "content": [
+        {
+          "type": "label",
+          "text": "Cube"
+        },
+        {
+          "type": "input",
+          "dataField": "width"
+        }
+      ],
+      "code": {
+        "statement": "Cube(50,50,50)"
+      }
+    },
+    {
+      "name": "Translate",
+      "type": "codeblock",
+      "content": [
+        {
+          "type": "label",
+          "text": "Translate"
+        }
+      ],
+      "code": {
+        "statement": "Translate([50,0,0],{{childrenCode.statement}})"
+      }
+    }
+  ]
+}

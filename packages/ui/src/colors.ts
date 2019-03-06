@@ -1,0 +1,22 @@
+export default {
+  black: '#323843',
+  blackHover: '#5d6069',
+  blackPressed: '#1e1f21',
+  green: '#82ad3a',
+  greenHover: '#98c64a',
+  greenPressed: '#739834',
+  brandBlue: '#00c4ff',
+  brandPink: '#d255aa',
+  brandOrange: '#ff7354',
+  brandYellow: '#f9d64f',
+  gray1: '#fbfbfb',
+  gray2: '#eeeeee',
+  gray3: '#cccccc',
+  gray4: '#8c919b',
+  gray5: '#5d6069',
+  disabledBackground: '#dbdee3',
+  disabledColor: '#bdc0c5',
+  tertiary: '#ebebeb',
+  tertiaryHover: '#f6f5f5',
+  tertiaryPressed: '#dedede'
+};
