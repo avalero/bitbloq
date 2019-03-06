@@ -1,6 +1,4 @@
-import {
-  AuthenticationError,
-} from 'apollo-server-koa';
+import { AuthenticationError } from 'apollo-server-koa';
 import { UserModel } from '../models/user';
 import { SubmissionModel } from '../models/submission';
 const jsonwebtoken = require('jsonwebtoken');
@@ -44,7 +42,7 @@ const contextController = {
       //       'ANOTHER_OPEN_SESSION',
       //     );
       //   }
-      // } 
+      // }
     }
   },
   getDataInToken: async inToken => {

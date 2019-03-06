@@ -5,10 +5,8 @@ import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
 import { UserModel } from '../models/user';
-import { pubsub }  from '../server';
+import { pubsub } from '../server';
 import uploadResolver from './upload';
-
-//export const pubsub: RedisPubSub = new RedisPubSub();
 
 const DOCUMENT_UPDATED: string = 'DOCUMENT_UPDATED';
 

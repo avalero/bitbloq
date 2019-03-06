@@ -1,7 +1,7 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
-import { pubsub }  from '../server';
+import { pubsub } from '../server';
 
 const jsonwebtoken = require('jsonwebtoken');
 

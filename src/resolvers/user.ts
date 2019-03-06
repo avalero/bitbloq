@@ -10,7 +10,6 @@ import { UserModel } from '../models/user';
 import * as mjml2html from 'mjml';
 import { template } from '../email/welcomeMail';
 
-
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
 

@@ -39,13 +39,12 @@ const redisOptions = {
   retry_strategy: options => {
     // reconnect after
     return Math.max(options.attempt * 100, 3000);
-  }
+  },
 };
 export const pubsub: RedisPubSub = new RedisPubSub({
   publisher: new Redis(redisOptions),
-  subscriber: new Redis(redisOptions)
+  subscriber: new Redis(redisOptions),
 });
-
 
 const httpServer = app.listen(PORT, () =>
   console.log(`app is listening on port ${PORT}`),
