@@ -1,14 +1,15 @@
-import * as React from 'react';
+import React, { useContext } from "react";
 
 export const TranslateContext = React.createContext((id: string) => id);
 
 interface TranslateProviderProps {
   messagesFiles: any;
+  fallback?: React.ReactNode;
 }
 
 class TranslateProvider extends React.Component<TranslateProviderProps> {
   readonly state = {
-    messages: null,
+    messages: null
   };
 
   componentDidMount() {
@@ -16,18 +17,19 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
   }
 
   async getLanguageMessages() {
-    const {messagesFiles} = this.props;
+    const { messagesFiles } = this.props;
     const language = navigator.language;
-    const langCode = language.split('-')[0] || language;
+    const langCode = language.split("-")[0] || language;
 
     const langFile = messagesFiles[langCode] || messagesFiles.en;
 
     const response = await fetch(langFile);
     const messages = await response.json();
-    this.setState({messages});
+    this.setState({ messages });
   }
 
   render() {
+    const { fallback } = this.props;
     const messages = this.state.messages || {};
 
     const translateFn = (id: string) => {
@@ -38,7 +40,7 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 
     return (
       <TranslateContext.Provider value={translateFn}>
-        {this.state.messages ? this.props.children : <div />}
+        {this.state.messages ? this.props.children : fallback}
       </TranslateContext.Provider>
     );
   }
@@ -51,12 +53,16 @@ export interface WithTranslateProps {
 }
 
 export const withTranslate = <P extends object>(
-  Component: React.ComponentType<P>,
+  Component: React.ComponentType<P>
 ) =>
   class WithTranslate extends React.Component<P> {
     render() {
       return <Translate>{t => <Component t={t} {...this.props} />}</Translate>;
     }
   };
+
+export const useTranslate = () => {
+  return useContext(TranslateContext)
+};
 
 export default TranslateProvider;

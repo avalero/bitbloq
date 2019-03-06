@@ -1,0 +1,42 @@
+{
+  "name": "@bitbloq/hardware-designer",
+  "version": "0.1.1",
+  "description": "Hardware design UI",
+  "authors": [
+    {
+      "name": "David García Paredes",
+      "mail": "david.garciaparedes@bq.com",
+      "github": "https://github.com/empoalp"
+    },
+    {
+      "name": "Alda Martín",
+      "mail": "alda.martin@bq.com",
+      "github": "https://github.com/aldaMarMu"
+    },
+    {
+      "name": "Alberto Valero Gómez",
+      "mail": "alberto.valero@bq.com",
+      "github": "https://github.com/avalero"
+    }
+  ],
+  "homepage": "https://github.com/bitbloq/bitbloq#readme",
+  "license": "ISC",
+  "main": "export.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitbloq/bitbloq.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/bitbloq/bitbloq/issues"
+  }
+}
