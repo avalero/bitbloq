@@ -1,5 +1,4 @@
 import { ApolloError, AuthenticationError } from 'apollo-server-koa';
-import { ObjectID } from 'bson';
 import { contextController } from '../controllers/context';
 import { mailerController } from '../controllers/mailer';
 import { DocumentModel } from '../models/document';
@@ -36,7 +35,6 @@ const userResolver = {
       // Store the password with a hash
       const hash: string = await bcrypt.hash(args.input.password, saltRounds);
       const userNew = new UserModel({
-        id: ObjectID,
         email: args.input.email,
         password: hash,
         name: args.input.name,

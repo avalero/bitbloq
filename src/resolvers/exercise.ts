@@ -1,5 +1,4 @@
 import { ApolloError, PubSub } from 'apollo-server-koa';
-import { ObjectId } from 'bson';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
@@ -34,7 +33,6 @@ const exerciseResolver = {
           .substr(2, 6);
       }
       const exerciseNew = new ExerciseModel({
-        id: ObjectId,
         user: context.user.userID,
         document: docFather._id,
         title: args.input.title,

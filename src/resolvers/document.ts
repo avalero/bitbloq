@@ -1,14 +1,14 @@
-import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
-import { ObjectId } from 'bson';
+import { ApolloError, withFilter } from 'apollo-server-koa';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
 import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
 import { UploadModel } from '../models/upload';
 import { UserModel } from '../models/user';
+import { pubsub }  from '../server';
 import uploadResolver from './upload';
 
-export const pubsub: PubSub = new PubSub();
+//export const pubsub: RedisPubSub = new RedisPubSub();
 
 const DOCUMENT_UPDATED: string = 'DOCUMENT_UPDATED';
 
@@ -33,7 +33,6 @@ const documentResolver = {
      */
     createDocument: async (root: any, args: any, context: any) => {
       const documentNew = new DocumentModel({
-        id: ObjectId,
         user: context.user.userID,
         title: args.input.title,
         type: args.input.type,

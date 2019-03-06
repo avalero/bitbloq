@@ -27,7 +27,7 @@ type Subscription {
 }
 
 type Document {
-  id: ObjectID
+  _id: ObjectID
   user: ObjectID
   title: String!
   type: String
@@ -44,7 +44,6 @@ type Document {
 }
 
 input DocumentIn {
-  id: ObjectID
   user: ObjectID
   title: String
   type: String

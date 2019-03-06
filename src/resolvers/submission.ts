@@ -1,9 +1,8 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
-import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
+import { pubsub }  from '../server';
 
-export const pubsub = new PubSub();
 const jsonwebtoken = require('jsonwebtoken');
 
 const bcrypt = require('bcrypt');
@@ -82,7 +81,7 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-
+          console.log(existSubmission);
           pubsub.publish(SUBMISSION_UPDATED, {
             submissionUpdated: existSubmission,
           });
@@ -101,7 +100,6 @@ const submissionResolver = {
         // la submission no existe, se crea una nueva
         const hash: string = await bcrypt.hash(args.password, saltRounds);
         const submissionNew = new SubmissionModel({
-          id: ObjectId,
           exercise: exFather._id,
           studentNick: args.studentNick.toLowerCase(),
           password: hash,

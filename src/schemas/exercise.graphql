@@ -13,18 +13,18 @@ enum Role {
 
 type Query {
   exercises: [Exercise]                                   @authRequired(requires: [USER])
-  exercise(id: ObjectID!): Exercise                       @authRequired(requires: [EPHEMERAL, USER])
+  exercise(_id: ObjectID!): Exercise                       @authRequired(requires: [EPHEMERAL, USER])
   exercisesByDocument(document: ObjectID!): [Exercise]    @authRequired(requires: [USER])
 }
 type Mutation {
   createExercise(input: ExerciseIn!): Exercise                        @authRequired(requires: [USER])
-  changeSubmissionsState(id: ObjectID!, subState: Boolean!): Exercise @authRequired(requires: [USER])
-  updateExercise(id: ObjectID!, input: ExerciseIn): Exercise          @authRequired(requires: [USER])
-  deleteExercise(id: ObjectID!, code: String!): Exercise              @authRequired(requires: [USER])
+  changeSubmissionsState(_id: ObjectID!, subState: Boolean!): Exercise @authRequired(requires: [USER])
+  updateExercise(_id: ObjectID!, input: ExerciseIn): Exercise          @authRequired(requires: [USER])
+  deleteExercise(_id: ObjectID!, code: String!): Exercise              @authRequired(requires: [USER])
 }
 
 type Exercise {
-  id: ObjectID
+  _id: ObjectID
   document: ObjectID
   user: ObjectID
   title: String

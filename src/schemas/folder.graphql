@@ -13,17 +13,17 @@ enum Role {
 
 type Query {
   folders: [Folder]                                   @authRequired(requires: [USER])
-  folder(id: ObjectID!): Folder                       @authRequired(requires: [USER])
+  folder(_id: ObjectID!): Folder                       @authRequired(requires: [USER])
   rootFolder: Folder                                  @authRequired(requires: [USER])
 }
 type Mutation {
   createFolder(input: FolderIn): Folder                 @authRequired(requires: [USER])
-  updateFolder(id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
-  deleteFolder(id: ObjectID!): Folder                   @authRequired(requires: [USER])
+  updateFolder(_id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
+  deleteFolder(_id: ObjectID!): Folder                   @authRequired(requires: [USER])
 }
 
 type Folder {
-  id: ObjectID
+  _id: ObjectID
   name: String
   user: ObjectID
   documentsID: [ObjectID]

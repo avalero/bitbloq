@@ -7,7 +7,13 @@ import exSchema from './schemas/allSchemas';
 import Koa = require('koa');
 const { ApolloServer, AuthenticationError } = require('apollo-server-koa');
 
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import * as Redis from 'ioredis';
+
 const PORT = process.env.PORT;
+
+const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
+const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
 
 const mongoUrl: string = process.env.MONGO_URL;
 
@@ -26,6 +32,20 @@ mongoose.connect(
 );
 
 const app = new Koa();
+
+const redisOptions = {
+  host: REDIS_DOMAIN_NAME,
+  port: REDIS_PORT_NUMBER,
+  retry_strategy: options => {
+    // reconnect after
+    return Math.max(options.attempt * 100, 3000);
+  }
+};
+export const pubsub: RedisPubSub = new RedisPubSub({
+  publisher: new Redis(redisOptions),
+  subscriber: new Redis(redisOptions)
+});
+
 
 const httpServer = app.listen(PORT, () =>
   console.log(`app is listening on port ${PORT}`),

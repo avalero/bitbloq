@@ -1,5 +1,4 @@
 import { ApolloError } from 'apollo-server-koa';
-import { ObjectID } from 'bson';
 import { UploadModel } from '../models/upload';
 
 const { Storage } = require('@google-cloud/storage');
@@ -58,7 +57,6 @@ const uploadResolver = {
         processUpload(createReadStream, filename, resolve, reject);
       });
       const uploadNew = new UploadModel({
-        id: ObjectID,
         document: documentID,
         filename,
         mimetype,
