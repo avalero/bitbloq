@@ -22,7 +22,6 @@ import {
   convertToGroup,
 } from '../../actions/threed';
 import { getObjects, getSelectedObjects } from '../../reducers/threed/';
-import { colors } from '../../base-styles';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
 import { DropDown, Icon, Input, Tooltip, withTranslate } from '@bitbloq/ui';
