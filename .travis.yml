@@ -5,12 +5,16 @@ node_js:
 branches:
   only:
     - develop
+    - master
 cache:
   directories:
     - node_modules
     - packages/lib3d/node_modules
     - packages/3d/node_modules
     - packages/ui/node_modules
+    - packages/bloqs/node_modules
+    - packages/junior/node_modules
+    - packages/hardware-designer/node_modules
 before_install:
   - npm update
   - npm install -g lerna
