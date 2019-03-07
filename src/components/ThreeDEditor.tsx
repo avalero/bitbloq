@@ -27,6 +27,7 @@ const getMenuOptions = (baseMenuOptions, t) => [
 
 interface ThreeDEditorProps {
   t: (string) => string;
+  brandColor: string;
   content: any;
   tabIndex: number;
   onTabChange: (number) => any;
@@ -63,6 +64,7 @@ class ThreeDEditor extends React.Component<ThreeDEditorProps> {
   render() {
     const {
       content,
+      brandColor,
       tabIndex,
       onTabChange,
       getTabs,
@@ -76,11 +78,12 @@ class ThreeDEditor extends React.Component<ThreeDEditorProps> {
     } = this.props;
 
     if (getChromeVersion() < 69) {
-      return <BrowserVersionWarning version={69} color={colors.brandBlue} />;
+      return <BrowserVersionWarning version={69} color={brandColor} />;
     }
 
     return (
       <ThreeD
+        brandColor={brandColor}
         ref={this.threedRef}
         initialContent={content}
         tabIndex={tabIndex}

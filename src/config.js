@@ -1,6 +1,7 @@
 import {colors, Icon} from '@bitbloq/ui';
 
 import ThreeDEditor from './components/ThreeDEditor';
+import JuniorEditor from './components/JuniorEditor';
 
 import carIcon from './images/car.svg';
 import busIcon from './images/bus.svg';
@@ -60,11 +61,12 @@ export const documentTypes = {
     color: colors.brandPink,
     supported: false
   },
-  'events': {
-    label: 'Robótica por eventos',
-    shortLabel: 'Eventos',
+  'junior': {
+    label: 'Robótica Junior',
+    shortLabel: 'Junior',
     color: colors.brandOrange,
-    supported: false
+    supported: true,
+    editorComponent: JuniorEditor
   },
   'apps': {
     label: 'Diseño y programación de Apps',
