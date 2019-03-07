@@ -512,7 +512,7 @@ export default class Scene {
       }
     }
     // end of easter egg
-
+    
     try {
       const object = this.getObject(objJSON);
 

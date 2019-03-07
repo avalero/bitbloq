@@ -194,6 +194,7 @@ export default class RepetitionObject extends ObjectsCommon {
     try {
       this.setParameters(object.parameters);
       this.setOperations(object.operations);
+      this.setViewOptions(object.viewOptions);
       // check if there are any updates pending on Original Object before updating it
       const update =
         this.meshUpdateRequired ||
