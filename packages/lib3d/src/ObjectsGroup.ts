@@ -46,7 +46,6 @@ export default class ObjectsGroup extends ObjectsCommon {
     mesh?: THREE.Group | undefined,
   ) {
     super(viewOptions, []);
-    debugger;
     this.children = children;
     this.children.forEach(child => child.setParent(this));
     this.type = ObjectsGroup.typeName;
