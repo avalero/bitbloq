@@ -48,6 +48,14 @@ exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
     }
   ];
 
+  config.resolve = {
+    ...config.resolve,
+    alias: {
+      ...config.resolve.alias,
+      react: path.resolve('./node_modules/react')
+    }
+  };
+
   if (stage === "build-html") {
     config.module.rules.push({
       test: /3d\/src\//,

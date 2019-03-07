@@ -54,7 +54,7 @@ class EditDocument extends React.Component<EditDocumentProps, State> {
     var blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
-    saveAs(blob, `${title}.3d.bitbloq`);
+    saveAs(blob, `${title}.${type}.bitbloq`);
   };
 
   renderInfoTab() {
@@ -97,14 +97,17 @@ class EditDocument extends React.Component<EditDocumentProps, State> {
       console.warn("Error parsing document content", e);
     }
 
+    const EditorComponent = documentType.editorComponent;
+
     return (
       <>
-        <ThreeDEditor
+        <EditorComponent
+          brandColor={documentType.color}
           canEditTitle={true}
           content={content}
           tabIndex={tabIndex}
           onTabChange={tabIndex => this.setState({ tabIndex })}
-          getTabs={mainTab => [mainTab, this.renderInfoTab()]}
+          getTabs={mainTabs => [...mainTabs, this.renderInfoTab()]}
           title={title}
           onEditTitle={this.onEditTitle}
           onSaveDocument={this.onSaveDocument}
@@ -129,6 +132,9 @@ class EditDocument extends React.Component<EditDocumentProps, State> {
 }
 
 const EditDocumentWithData = props => {
+  const { type } = props;
+  const documentType = documentTypes[type];
+
   if (props.id === "new") {
     return (
       <Mutation
@@ -138,7 +144,7 @@ const EditDocumentWithData = props => {
         }
       >
         {(createDocument, { loading }) => {
-          if (loading) return <Loading />;
+          if (loading) return <Loading color={documentType.color} />;
 
           return (
             <EditDocument
@@ -147,7 +153,7 @@ const EditDocumentWithData = props => {
                 content: "[]",
                 title: "",
                 description: "",
-                type: "3d"
+                type: props.type
               }}
               updateDocument={document =>
                 createDocument({ variables: document })
@@ -161,7 +167,7 @@ const EditDocumentWithData = props => {
     return (
       <Query query={DOCUMENT_QUERY} variables={{ id: props.id }}>
         {({ loading, error, data }) => {
-          if (loading) return <Loading />;
+          if (loading) return <Loading color={documentType.color} />;
           if (error) return <p>Error :(</p>;
 
           return (
@@ -195,12 +201,15 @@ export default withTranslate(EditDocumentWithData);
 
 /* styled components */
 
-const Loading = styled(Spinner)`
+interface LoadingProps {
+  color: string;
+}
+const Loading = styled(Spinner)<LoadingProps>`
   position: absolute;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
   color: white;
-  background-color: ${colors.brandBlue};
+  background-color: ${props => props.color};
 `;
