@@ -38,13 +38,14 @@
     "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
     "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
     "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "jest --coverage",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
   "bugs": {
     "url": "https://github.com/bitbloq/bitbloq/issues"
   },
   "devDependencies": {
-    "@types/jest": "^23.3.10",
+    "@types/jest": "^23.3.14",
     "@types/uuid": "^3.4.4",
     "coveralls": "^3.0.2",
     "dtslint": "^0.4.1",
