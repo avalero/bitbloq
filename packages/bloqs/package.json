@@ -35,7 +35,11 @@
   },
   "scripts": {
     "start": "webpack-dev-server --mode development --open",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "coveralls": "echo \"not defined\"",
+    "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
+    "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
+    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "bugs": {
     "url": "https://github.com/bitbloq/bitbloq/issues"
@@ -48,6 +52,10 @@
     "babel-loader": "^8.0.5",
     "html-webpack-plugin": "^3.2.0",
     "source-map-loader": "^0.2.4",
+    "tslint": "^5.13.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3333",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.1"
