@@ -1,33 +1,17 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: './src/index.html',
   filename: './index.html',
 });
 
-const definePlugin = new webpack.DefinePlugin({
-  WITHOUT_MONACO: JSON.stringify(process.env.WITHOUT_MONACO || false),
-});
-
 const providePlugin = new webpack.ProvidePlugin({
   THREE: 'three',
 });
 
-const plugins = [htmlPlugin, definePlugin, providePlugin];
-
-if (true || process.env.WITHOUT_MONACO === 'true') {
-  plugins.push(
-    new webpack.NormalModuleReplacementPlugin(
-      /src\/components\/CodeEditor\.js/,
-      './SimpleCodeEditor.js',
-    ),
-  );
-} else {
-  plugins.push(new MonacoWebpackPlugin());
-}
+const plugins = [htmlPlugin, providePlugin];
 
 module.exports = {
   devtool: 'source-map',
