@@ -35,7 +35,11 @@
   },
   "scripts": {
     "start": "webpack-dev-server --mode development --open",
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "coveralls": "echo \"not defined\"",
+    "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
+    "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
+    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "test": "echo \"No test specified\" && exit 0"
   },
   "bugs": {
     "url": "https://github.com/empoalp/bitbloq-junior/issues"
@@ -48,5 +52,11 @@
     "@types/react": "^16.8.6",
     "react": "^16.8.3"
   },
-  "gitHead": "768eeb61c740b95d4b78ad4c92a9313986806aba"
+  "gitHead": "768eeb61c740b95d4b78ad4c92a9313986806aba",
+  "devDependencies": {
+    "tslint": "^5.13.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3333"
+  }
 }
