@@ -67,7 +67,7 @@ export const createClient = isBrowser =>
               );
             },
             new WebSocketLink({
-              uri: `ws://${window.location.host}/api/graphql`,
+              uri: `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/graphql`, 
               options: {
                 lazy: true,
                 reconnect: true,
