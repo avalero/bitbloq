@@ -34,7 +34,7 @@
     "url": "git+https://github.com/bitbloq/bitbloq.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "echo \"No test specified\" && exit 0"
   },
   "bugs": {
     "url": "https://github.com/bitbloq/bitbloq/issues"
