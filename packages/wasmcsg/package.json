@@ -13,5 +13,6 @@
     "build": "em++ lib/cpp/*.cpp -std=c++17 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS=\"['_testWasm']\" -O3 -o public/csg.js"
   },
   "author": "Alberto Valero <alberto.valero@bq.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "gitHead": "768eeb61c740b95d4b78ad4c92a9313986806aba"
 }
