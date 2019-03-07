@@ -34,10 +34,20 @@
     "url": "git+https://github.com/bitbloq/bitbloq.git"
   },
   "scripts": {
+    "coveralls": "echo \"not defined\"",
+    "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
+    "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
+    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "test": "echo \"No test specified\" && exit 0"
   },
   "bugs": {
     "url": "https://github.com/bitbloq/bitbloq/issues"
+  },
+  "devDependencies": {
+    "tslint": "^5.13.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3333"
   },
   "gitHead": "a6539daabe025ed690154a66b72d5f16634c6654"
 }
