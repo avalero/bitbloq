@@ -39,8 +39,8 @@ const AppPage = () => (
           <Route path="/app/document/:id" component={Document} />
           <Route path="/app/document/:id" component={Document} />
           <Route path="/app/document/:type/:id" component={EditDocument} />
-          <Route path="/app/document/:type/:id" component={EditExercise} />
-          <Route path="/app/document/:type/:id" component={ViewSubmission} />
+          <Route path="/app/exercise/:type/:id" component={EditExercise} />
+          <Route path="/app/submission/:type/:id" component={ViewSubmission} />
           <Route path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>
