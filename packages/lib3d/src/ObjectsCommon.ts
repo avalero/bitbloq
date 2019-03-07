@@ -191,7 +191,7 @@ export default class ObjectsCommon {
   protected mesh: THREE.Mesh | THREE.Group;
 
   constructor(
-    viewOptions: IViewOptions = ObjectsCommon.createViewOptions(),
+    viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     operations: OperationsArray = [],
   ) {
     this._pendingOperation = false;
