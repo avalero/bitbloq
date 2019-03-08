@@ -43,7 +43,7 @@
     "easygraphql-tester": "^2.1.4",
     "fs": "0.0.1-security",
     "graphql-import": "^0.7.1",
-    "graphql-redis-subscriptions": "^2.0.0",
+    "graphql-redis-subscriptions": "^2.1.0",
     "graphql-subscriptions": "^1.0.0",
     "graphql-type-json": "^0.2.1",
     "ioredis": "^4.6.2",
