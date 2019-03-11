@@ -8,18 +8,18 @@ const contextController = {
     let token1: string;
     let justToken: string;
     if (context.headers) {
-      //authorization for queries and mutations
+      // authorization for queries and mutations
       token1 = context.headers.authorization || '';
       justToken = token1.split(' ')[1];
     } else if (context.authorization) {
-      //authorization for subscriptions
+      // authorization for subscriptions
       token1 = context.authorization || '';
       justToken = token1.split(' ')[1];
     } else {
       token1 = '';
       justToken = '';
     }
-    //comprobar si el token que recibe es el que está guardado en la base de datos
+    // comprobar si el token que recibe es el que está guardado en la base de datos
     // -> sesión única simultánea
     if (justToken) {
       let user;

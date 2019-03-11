@@ -15,12 +15,12 @@ enum Role {
 
 type Query {
   documents: [Document]               @authRequired(requires: [USER])
-  document(id: ObjectID!): Document   @authRequired(requires: [USER])
+  document(_id: ObjectID!): Document   @authRequired(requires: [USER])
 }
 type Mutation {
   createDocument(input: DocumentIn!): Document                      @authRequired(requires: [USER])
-  deleteDocument(id: ObjectID!): Document                           @authRequired(requires: [USER])
-  updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
+  deleteDocument(_id: ObjectID!): Document                           @authRequired(requires: [USER])
+  updateDocument(_id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
 }
 type Subscription {
   documentUpdated: Document   @authRequired(requires: [USER])

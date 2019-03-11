@@ -15,7 +15,7 @@ const submissionResolver = {
     submissionUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
-        (payload, variables) => {
+        (payload, variables, context) => {
           return payload.submissionUpdated.exercise == variables.exercise;
         },
       ),
@@ -335,7 +335,7 @@ const submissionResolver = {
       } else if (context.user.userID) {
         // token de profesor
         const existSubmission = await SubmissionModel.findOne({
-          _id: args.id,
+          _id: args._id,
           user: context.user.userID,
         });
         if (!existSubmission) {

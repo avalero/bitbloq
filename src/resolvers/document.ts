@@ -1,4 +1,4 @@
-import { ApolloError, withFilter } from 'apollo-server-koa';
+import { ApolloError, AuthenticationError, withFilter } from 'apollo-server-koa';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
 import { FolderModel } from '../models/folder';
@@ -30,6 +30,14 @@ const documentResolver = {
      * args: document information
      */
     createDocument: async (root: any, args: any, context: any) => {
+      if (args.input.folder) {
+        if (!(await FolderModel.findOne({_id: args.input.folder}))){
+          throw new ApolloError(
+            'Folder does not exist',
+            'FOLDER_NOT_FOUND',
+          );
+        }
+      }
       const documentNew = new DocumentModel({
         user: context.user.userID,
         title: args.input.title,
@@ -75,7 +83,7 @@ const documentResolver = {
      */
     deleteDocument: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
-        _id: args.id,
+        _id: args._id,
         user: context.user.userID,
       });
       if (existDocument) {
@@ -86,7 +94,7 @@ const documentResolver = {
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
         await ExerciseModel.deleteMany({ document: existDocument._id });
-        return DocumentModel.deleteOne({ _id: args.id }); // delete all the document dependencies
+        return DocumentModel.deleteOne({ _id: args._id }); // delete all the document dependencies
       } else {
         throw new ApolloError(
           'You only can delete your documents',
@@ -101,10 +109,17 @@ const documentResolver = {
      */
     updateDocument: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
-        _id: args.id,
+        _id: args._id,
         user: context.user.userID,
       });
-
+      if (args.input.folder) {
+        if (!(await FolderModel.findOne({_id: args.input.folder}))){
+          throw new ApolloError(
+            'Folder does not exist',
+            'FOLDER_NOT_FOUND',
+          );
+        }
+      }
       if (existDocument) {
         if (args.input.folder && args.input.folder != existDocument.folder) {
           await FolderModel.updateOne(
@@ -162,7 +177,7 @@ const documentResolver = {
      */
     document: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
-        _id: args.id,
+        _id: args._id,
       });
       if (!existDocument) {
         throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');

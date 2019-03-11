@@ -56,7 +56,7 @@ const exerciseResolver = {
      */
     changeSubmissionsState: async (root: any, args: any, context: any) => {
       const existExercise = await ExerciseModel.findOne({
-        _id: args.id,
+        _id: args._id,
         user: context.user.userID,
       });
       if (!existExercise) {
@@ -77,12 +77,12 @@ const exerciseResolver = {
      */
     deleteExercise: async (root: any, args: any, context: any) => {
       const existExercise = await ExerciseModel.findOne({
-        _id: args.id,
+        _id: args._id,
         user: context.user.userID,
       });
       if (existExercise) {
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
-        return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
+        return ExerciseModel.deleteOne({ _id: args._id }); // delete all the exercise dependencies
       } else {
         return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
@@ -95,7 +95,7 @@ const exerciseResolver = {
      */
     updateExercise: async (root: any, args: any, context: any) => {
       const existExercise = await ExerciseModel.findOne({
-        _id: args.id,
+        _id: args._id,
         user: context.user.userID,
       });
       if (existExercise) {
@@ -127,7 +127,7 @@ const exerciseResolver = {
     exercise: async (root: any, args: any, context: any) => {
       if (context.user.exerciseID) {
         //  Token de alumno
-        if (context.user.exerciseID !== args.id) {
+        if (context.user.exerciseID !== args._id) {
           throw new ApolloError(
             'You only can ask for your token exercise',
             'NOT_YOUR_EXERCISE',
@@ -146,7 +146,7 @@ const exerciseResolver = {
       } else if (context.user.userID) {
         //  token de profesor
         const existExercise = await ExerciseModel.findOne({
-          _id: args.id,
+          _id: args._id,
           user: context.user.userID,
         });
         if (!existExercise) {
