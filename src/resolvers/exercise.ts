@@ -5,7 +5,7 @@ import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 
-import { logger } from '../controllers/logs';
+import { logger, loggerController } from '../controllers/logs';
 
 const exerciseResolver = {
   Mutation: {
@@ -46,7 +46,7 @@ const exerciseResolver = {
         expireDate: args.input.expireDate,
         image: docFather.image,
       });
-      logger.info("EX_create");
+      loggerController.storeInfoLog('exercise', 'create', exerciseNew.type,  exerciseNew.user, '');
       const newEx = await ExerciseModel.create(exerciseNew);
       return newEx;
     },
@@ -63,7 +63,8 @@ const exerciseResolver = {
       if (!existExercise) {
         return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
-      logger.info("EX_changeSubState");
+      loggerController.storeInfoLog('exercise', 'changeSubState', existExercise.type, existExercise.user, '');
+      
       return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
         { $set: { acceptSubmissions: args.subState } },
@@ -83,7 +84,7 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
-        logger.info("EX_delete");
+        loggerController.storeInfoLog('exercise', 'delete', existExercise.type, existExercise.user, '');
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
@@ -102,7 +103,7 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
-        logger.info("EX_update");
+        loggerController.storeInfoLog('exercise', 'update', existExercise.type, existExercise.user, '');
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
           { $set: args.input },

@@ -3,7 +3,7 @@ import { ObjectId } from 'bson';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
 
-import { logger } from '../controllers/logs';
+import { logger, loggerController } from '../controllers/logs';
 
 export const pubsub = new PubSub();
 const jsonwebtoken = require('jsonwebtoken');
@@ -84,7 +84,7 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-          logger.info("SUB_login");
+          loggerController.storeInfoLog('submission', 'login', existSubmission.type, existSubmission.user, '');
           pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
           return {
             token: token,
@@ -127,7 +127,7 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-        logger.info("SUB_login");
+        loggerController.storeInfoLog('submission', 'create', newSub.type, newSub.user, '');
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
           token: token,
@@ -170,7 +170,7 @@ const submissionResolver = {
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission,
         });
-        logger.info("SUB_update");
+        loggerController.storeInfoLog('submission', 'update', existSubmission.type, existSubmission.user, '');
         return updatedSubmission;
       }
     },
@@ -224,7 +224,7 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_UPDATED, {
         submissionUpdated: updatedSubmission,
       });
-      logger.info("SUB_finish");
+      loggerController.storeInfoLog('submission', 'finish', existSubmission.type, existSubmission.user, '');
       return updatedSubmission;
     },
 
@@ -245,7 +245,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      logger.info("SUB_finish");
+      loggerController.storeInfoLog('submission', 'cancel', existSubmission.type, existSubmission.user, '');
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -266,7 +266,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      logger.info("SUB_delete");
+      loggerController.storeInfoLog('submission', 'delete', existSubmission.type, existSubmission.user, '');
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -305,7 +305,7 @@ const submissionResolver = {
         },
         { new: true },
       );
-      logger.info("SUB_grade");
+      loggerController.storeInfoLog('submission', 'grade', existSubmission.type, existSubmission.user, '');
       return updatedSubmission;
     }
   },

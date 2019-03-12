@@ -11,7 +11,7 @@ import { UserModel } from '../models/user';
 import { template } from '../email/welcomeMail';
 import  * as mjml2html from 'mjml';
 
-import { logger } from '../controllers/logs';
+import { logger, loggerController } from '../controllers/logs';
 
 
 const bcrypt = require('bcrypt');
@@ -76,7 +76,7 @@ const userResolver = {
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true },
       );
-      logger.info("USER_signUp");
+      loggerController.storeInfoLog('user', 'signUp', 'user', contactFound._id, '');
       return 'OK';
     },
 
@@ -116,7 +116,7 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
-        logger.info("USER_login");
+        loggerController.storeInfoLog('user', 'login', 'user', contactFound._id, '');
         return token;
       } else {
         throw new ApolloError(
@@ -164,7 +164,7 @@ const userResolver = {
             },
           },
         );
-        logger.info("USER_activate");
+        loggerController.storeInfoLog('user', 'activate', 'user', contactFound._id, '');
         return token;
       } else {
         return new ApolloError(
@@ -187,6 +187,7 @@ const userResolver = {
       });
       if (contactFound._id === args.id) {
         logger.info("USER_delete");
+        loggerController.storeInfoLog('user', 'delete', 'user', contactFound._id, '');
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -210,7 +211,7 @@ const userResolver = {
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-        logger.info("USER_update");
+        loggerController.storeInfoLog('user', 'update', 'user', contactFound._id, args);
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {

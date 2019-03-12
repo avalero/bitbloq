@@ -4,6 +4,8 @@ import { FolderModel } from '../models/folder';
 import documentResolver from './document';
 import { UserModel } from '../models/user';
 
+import { logger, loggerController } from '../controllers/logs';
+
 const folderResolver = {
   Mutation: {
     /**
@@ -23,6 +25,7 @@ const folderResolver = {
         { $push: {foldersID: newFolder._id} },
         { new: true },
       )
+      loggerController.storeInfoLog('folder', 'create', 'folder', newFolder.user, '');
       return newFolder;
     },
 
@@ -64,6 +67,7 @@ const folderResolver = {
           { $pull: {foldersID: existFolder._id} },
           { new: true },
         )
+        loggerController.storeInfoLog('folder', 'delete', 'folder', existFolder.user, '');
         return await FolderModel.deleteOne({ _id: args.id });
       } else {
         return new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
@@ -137,6 +141,7 @@ const folderResolver = {
         if(existFolder.name=='root' && args.input.name){
           throw new ApolloError('You can not update your Root folder names', 'CANT_UPDATE_ROOT')
         }
+        loggerController.storeInfoLog('folder', 'update', 'folder', existFolder.user, '');
         return FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           { $set: {
