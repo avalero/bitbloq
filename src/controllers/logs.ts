@@ -4,7 +4,7 @@ const { combine, timestamp, label, printf } = format;
 
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
-    return `${timestamp} [${label}] ${level}: ${message}`;
+    return `${timestamp}, [${label}], ${level}, ${message}`;
   });
 
 const logger = createLogger({
