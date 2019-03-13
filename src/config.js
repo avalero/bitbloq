@@ -41,6 +41,10 @@ import building2STL from './assets/stl/building-2.stl';
 import building3STL from './assets/stl/building-3.stl';
 import building4STL from './assets/stl/building-4.stl';
 
+import flagIcon from './images/bloqs/flag.svg';
+import obstacleIcon from './images/bloqs/obstacle.svg';
+import noObstacleIcon from './images/bloqs/no-obstacle.svg';
+
 export const documentTypes = {
   'bloqs': {
     label: 'Robótica por bloques',
@@ -198,3 +202,49 @@ export const addShapeGroups = [
     ]
   }
 ];
+
+export const bloqTypes = [
+  {
+    category: "event",
+    name: "OnStart",
+    icon: flagIcon,
+    code: {}
+  },
+  {
+    category: "event",
+    name: "OnObjectDetected",
+    icon: obstacleIcon,
+    code: {}
+  },
+  {
+    category: "event",
+    name: "OnNoObjectDetected",
+    icon: noObstacleIcon,
+    code: {}
+  },
+  {
+    category: "action",
+    name: "MoveServo",
+    icon: obstacleIcon,
+    code: {}
+  }
+];
+
+export const bloqGroups = [
+  {
+    category: "event",
+    icon: flagIcon,
+    types: ["OnStart"]
+  },
+  {
+    category: "event",
+    icon: obstacleIcon,
+    types: ["OnObjectDetected", "OnNoObjectDetected"]
+  },
+  {
+    category: "action",
+    icon: obstacleIcon,
+    types: ["MoveServo"]
+  }
+];
+

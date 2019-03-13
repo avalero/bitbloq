@@ -4,6 +4,7 @@ import { colors, Icon, withTranslate } from "@bitbloq/ui";
 import { addShapeGroups } from "../config";
 import BrowserVersionWarning from "./BrowserVersionWarning";
 import { getChromeVersion } from "../util";
+import { EditorProps } from "../types";
 
 const getMenuOptions = (baseMenuOptions, t) => [
   {
@@ -25,23 +26,7 @@ const getMenuOptions = (baseMenuOptions, t) => [
   ...baseMenuOptions
 ];
 
-interface ThreeDEditorProps {
-  t: (string) => string;
-  brandColor: string;
-  content: any;
-  tabIndex: number;
-  onTabChange: (number) => any;
-  getTabs: (any) => any;
-  title: string;
-  onSaveDocument?: () => any;
-  onContentChange: (any) => any;
-  canEditTitle?: boolean;
-  onEditTitle?: () => any;
-  headerButtons?: BBUI.HeaderButton[];
-  onHeaderButtonClick?: BBUI.HeaderButtonClickCallback;
-}
-
-class ThreeDEditor extends React.Component<ThreeDEditorProps> {
+class ThreeDEditor extends React.Component<EditorProps> {
   threedRef = React.createRef<ThreeD>();
 
   onMenuOptionClick = option => {
@@ -49,7 +34,7 @@ class ThreeDEditor extends React.Component<ThreeDEditorProps> {
 
     switch (option.id) {
       case "download-document":
-        onSaveDocument();
+        onSaveDocument && onSaveDocument();
         return;
 
       case "download-stl":

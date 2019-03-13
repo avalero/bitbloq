@@ -1,17 +1,19 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
+import { bloqTypes, bloqGroups } from "../config";
+import { EditorProps } from "../types";
 
-interface JuniorEditorProps {
-  brandColor: string;
-  tabIndex: number;
-  onTabChange: (number) => any;
-  getTabs: (any) => any;
-  title: string;
-  onEditTitle?: () => any;
-  canEditTitle: boolean;
-}
-
-const JuniorEditor = ({ brandColor, tabIndex, onTabChange, getTabs, title, onEditTitle, canEditTitle }) => {
+const JuniorEditor: React.FunctionComponent<EditorProps> = ({
+  content,
+  onContentChange,
+  brandColor,
+  tabIndex,
+  onTabChange,
+  getTabs,
+  title,
+  onEditTitle,
+  canEditTitle
+}) => {
   return (
     <Junior
       brandColor={brandColor}
@@ -20,6 +22,10 @@ const JuniorEditor = ({ brandColor, tabIndex, onTabChange, getTabs, title, onEdi
       title={title}
       onEditTitle={onEditTitle}
       canEditTitle={canEditTitle}
+      bloqTypes={bloqTypes}
+      bloqGroups={bloqGroups}
+      initialContent={content}
+      onContentChange={onContentChange}
     >
       {getTabs}
     </Junior>
