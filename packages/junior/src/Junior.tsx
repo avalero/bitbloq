@@ -1,7 +1,13 @@
 import React, { useState } from "react";
+import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { Document, Icon, useTranslate } from "@bitbloq/ui";
-import { HorizontalBloqEditor } from "@bitbloq/bloqs";
+import {
+  HorizontalBloqEditor,
+  Bloq,
+  BloqType,
+  BloqTypeGroup
+} from "@bitbloq/bloqs";
 
 export interface JuniorProps {
   brandColor: string;
@@ -9,6 +15,10 @@ export interface JuniorProps {
   onEditTitle: () => any;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
+  bloqTypes: BloqType[];
+  bloqGroups: BloqTypeGroup[];
+  initialContent?: any;
+  onContentChange: (content: any) => any;
 }
 
 const Junior: React.FunctionComponent<JuniorProps> = ({
@@ -17,24 +27,38 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   title,
   onEditTitle,
   tabIndex,
-  onTabChange
+  onTabChange,
+  bloqTypes,
+  bloqGroups,
+  initialContent,
+  onContentChange
 }) => {
   const t = useTranslate();
+
+  const [content, setContent] = useState(initialContent);
+  const bloqs = content.bloqs || [];
 
   const mainTabs = [
     <Document.Tab
       key="hardware"
-      icon={<Icon name="threed" />}
+      icon={<Icon name="hardware" />}
       label={t("hardware")}
     >
       <h1>Hardware</h1>
     </Document.Tab>,
     <Document.Tab
       key="software"
-      icon={<Icon name="threed" />}
+      icon={<Icon name="programming" />}
       label={t("software")}
     >
-      <HorizontalBloqEditor />
+    <HorizontalBloqEditor
+      bloqs={bloqs}
+      bloqTypes={bloqTypes}
+      bloqGroups={bloqGroups}
+      onBloqsChange={(newBloqs: Bloq[][]) =>
+        setContent(update(content, {bloqs: {$set: newBloqs}}))
+      }
+    />
     </Document.Tab>
   ];
 

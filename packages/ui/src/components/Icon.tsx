@@ -18,6 +18,7 @@ import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
 import Ellipsis from "./icons/Ellipsis";
 import Group from "./icons/Group";
+import Hardware from "./icons/Hardware";
 import Info from "./icons/Info";
 import Intersection from "./icons/Intersection";
 import Minus from "./icons/Minus";
@@ -30,6 +31,7 @@ import Plus from "./icons/Plus";
 import Prism from "./icons/Prism";
 import Text from "./icons/Text";
 import People from "./icons/People";
+import Programming from "./icons/Programming";
 import Pyramid from "./icons/Pyramid";
 import Publish from "./icons/Publish";
 import Redo from "./icons/Redo";
@@ -97,6 +99,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Ellipsis />;
     case "group":
       return <Group />;
+    case "hardware":
+      return <Hardware />;
     case "info":
       return <Info />;
     case "intersection":
@@ -119,6 +123,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Plus />;
     case "prism":
       return <Prism />;
+    case "programming":
+      return <Programming />;
     case "text":
       return <Text />;
     case "pyramid":
