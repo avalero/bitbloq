@@ -1,6 +1,6 @@
 import { AuthenticationError } from 'apollo-server-koa';
-import { UserModel } from '../models/user';
 import { SubmissionModel } from '../models/submission';
+import { UserModel } from '../models/user';
 const jsonwebtoken = require('jsonwebtoken');
 
 const contextController = {
@@ -27,6 +27,7 @@ const contextController = {
         user = await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
         return user;
       } catch (e) {
+        console.log('ENTRA EN UNDEFINED')
         return undefined;
       }
       // if (user){

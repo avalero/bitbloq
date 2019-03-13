@@ -16,7 +16,10 @@ const documentResolver = {
       subscribe: withFilter(
         () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
         (payload, variables, context) => {
-          return context.user.userID == payload.documentUpdated.user;
+          console.log('********************')
+          console.log(payload)
+          console.log('********************')
+          return context.user.userID === payload.documentUpdated.user;
         },
       ),
     },
@@ -83,7 +86,7 @@ const documentResolver = {
      */
     deleteDocument: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
-        _id: args._id,
+        _id: args.id,
         user: context.user.userID,
       });
       if (existDocument) {
@@ -94,7 +97,7 @@ const documentResolver = {
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
         await ExerciseModel.deleteMany({ document: existDocument._id });
-        return DocumentModel.deleteOne({ _id: args._id }); // delete all the document dependencies
+        return DocumentModel.deleteOne({ _id: args.id }); // delete all the document dependencies
       } else {
         throw new ApolloError(
           'You only can delete your documents',
@@ -109,7 +112,7 @@ const documentResolver = {
      */
     updateDocument: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
-        _id: args._id,
+        _id: args.id,
         user: context.user.userID,
       });
       if (args.input.folder) {
@@ -141,7 +144,7 @@ const documentResolver = {
         } else if (args.input.imageUrl) {
           image = args.input.imageUrl;
         }
-        const documentUpdate = {
+        const newArgs= {
           title: args.input.title || existDocument.title,
           type: args.input.type || existDocument.type,
           folder: args.input.folder || existDocument.folder,
@@ -150,14 +153,14 @@ const documentResolver = {
           description: args.input.description || existDocument.description,
           version: args.input.version || existDocument.version,
           image: image || existDocument.image,
-        };
-        const upDoc = await DocumentModel.findOneAndUpdate(
+        };     
+        const updatedDoc = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
-          { $set: documentUpdate },
+          { $set: newArgs},
           { new: true },
         );
-        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: upDoc });
-        return upDoc;
+        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
+        return updatedDoc;
       } else {
         return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
@@ -177,7 +180,7 @@ const documentResolver = {
      */
     document: async (root: any, args: any, context: any) => {
       const existDocument = await DocumentModel.findOne({
-        _id: args._id,
+        _id: args.id,
       });
       if (!existDocument) {
         throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');

@@ -42,7 +42,7 @@ const folderResolver = {
      */
     deleteFolder: async (root: any, args: any, context: any) => {
       const existFolder = await FolderModel.findOne({
-        _id: args._id,
+        _id: args.id,
         user: context.user.userID,
       });
       if (!existFolder) {
@@ -83,7 +83,7 @@ const folderResolver = {
           { $pull: { foldersID: existFolder._id } },
           { new: true },
         );
-        return await FolderModel.deleteOne({ _id: args._id });
+        return await FolderModel.deleteOne({ _id: args.id });
       } else {
         return new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
       }
@@ -96,7 +96,7 @@ const folderResolver = {
      */
     updateFolder: async (root: any, args: any, context: any) => {
       const existFolder = await FolderModel.findOne({
-        _id: args._id,
+        _id: args.id,
         user: context.user.userID,
       });
       if (args.input.parent) {
@@ -203,7 +203,7 @@ const folderResolver = {
      */
     folder: async (root: any, args: any, context: any) => {
       const existFolder = await FolderModel.findOne({
-        _id: args._id,
+        _id: args.id,
         user: context.user.userID,
       });
       if (!existFolder) {

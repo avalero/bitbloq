@@ -188,7 +188,7 @@ const userResolver = {
         email: context.user.email,
         _id: context.user.userID,
       });
-      if (contactFound._id === args._id) {
+      if (contactFound._id === args.id) {
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -211,7 +211,7 @@ const userResolver = {
         email: context.user.email,
         _id: context.user.userID,
       });
-      if (contactFound._id === args._id) {
+      if (contactFound._id === args.id) {
         const data = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {

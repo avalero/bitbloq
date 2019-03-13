@@ -20,12 +20,12 @@ type Mutation {
   activateAccount(token: String): String
   signUpUser(input: UserIn!): String
   login(email: EmailAddress!, password: String!): String
-  deleteUser(_id: ObjectID!): User                           @authRequired(requires: [USER])
-  updateUser(_id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
+  deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
+  updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
 }
 
 type User {
-  _id: ObjectID
+  id: ObjectID
   email: EmailAddress
   password: String
   name: String

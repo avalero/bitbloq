@@ -75,8 +75,8 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       activateAccount(token: String): String
       signUpUser(input: UserIn!): String
       login(email: EmailAddress!, password: String!): String
-      deleteUser(_id: ObjectID!): User                           @authRequired(requires: [USER])
-      updateUser(_id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
+      deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
+      updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
 
     input UserIn {
       email: EmailAddress
@@ -94,13 +94,13 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     QUERIES:
       folders: [Folder]                                    @authRequired(requires: [USER])
-      folder(_id: ObjectID!): Folder                       @authRequired(requires: [USER])
+      folder(id: ObjectID!): Folder                       @authRequired(requires: [USER])
       rootFolder: Folder                                   @authRequired(requires: [USER])
 
     MUTATIONS:
       createFolder(input: FolderIn): Folder                  @authRequired(requires: [USER])
-      updateFolder(_id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
-      deleteFolder(_id: ObjectID!): Folder                   @authRequired(requires: [USER])
+      updateFolder(id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
+      deleteFolder(id: ObjectID!): Folder                   @authRequired(requires: [USER])
 
     input FolderIn {
       name: String
@@ -114,12 +114,12 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     QUERIES:
       documents: [Document]                @authRequired(requires: [USER])
-      document(_id: ObjectID!): Document   @authRequired(requires: [USER])
+      document(id: ObjectID!): Document   @authRequired(requires: [USER])
 
     MUTATIONS:
       createDocument(input: DocumentIn!): Document                       @authRequired(requires: [USER])
-      deleteDocument(_id: ObjectID!): Document                           @authRequired(requires: [USER])
-      updateDocument(_id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
+      deleteDocument(id: ObjectID!): Document                           @authRequired(requires: [USER])
+      updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
 
     SUBSCRIPTIONS:
       documentUpdated: Document   @authRequired(requires: [USER])
@@ -142,14 +142,14 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     QUERIES:
       exercises: [Exercise]                                    @authRequired(requires: [USER])
-      exercise(_id: ObjectID!): Exercise                       @authRequired(requires: [EPHEMERAL, USER])
+      exercise(id: ObjectID!): Exercise                       @authRequired(requires: [EPHEMERAL, USER])
       exercisesByDocument(document: ObjectID!): [Exercise]     @authRequired(requires: [USER])
 
     MUTATIONS:
       createExercise(input: ExerciseIn!): Exercise                         @authRequired(requires: [USER])
-      changeSubmissionsState(_id: ObjectID!, subState: Boolean!): Exercise @authRequired(requires: [USER])
-      updateExercise(_id: ObjectID!, input: ExerciseIn): Exercise          @authRequired(requires: [USER])
-      deleteExercise(_id: ObjectID!, code: String!): Exercise              @authRequired(requires: [USER])
+      changeSubmissionsState(id: ObjectID!, subState: Boolean!): Exercise @authRequired(requires: [USER])
+      updateExercise(id: ObjectID!, input: ExerciseIn): Exercise          @authRequired(requires: [USER])
+      deleteExercise(id: ObjectID!, code: String!): Exercise              @authRequired(requires: [USER])
 
     input ExerciseIn {
       document: ObjectID
@@ -164,7 +164,7 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
 
     QUERIES:
       submissions: [Submission]                                  @authRequired(requires: [USER])
-      submission(_id: ObjectID): Submission                      @authRequired(requires: [EPHEMERAL, USER])
+      submission(id: ObjectID): Submission                      @authRequired(requires: [EPHEMERAL, USER])
       submissionsByExercise(exercise: ObjectID!): [Submission]   @authRequired(requires: [USER])
 
     STUDENT MUTATIONS:
@@ -196,5 +196,5 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
     }
 
 
-La mutation createSumission devuelve un token de "login" para que el alumno realice el ejercicio, el ID de la submission creada (submission_id) y el ID del ejercio (exercise_id) al que pertenece. El token guarda el nick del alumno, el id del ejercio al que se refiere la entrega y el id de la propia entrega. Es necesario pasar el token para el resto de mutations de las entregas.
+La mutation createSumission devuelve un token de "login" para que el alumno realice el ejercicio, el ID de la submission creada (submissionid) y el ID del ejercio (exerciseid) al que pertenece. El token guarda el nick del alumno, el id del ejercio al que se refiere la entrega y el id de la propia entrega. Es necesario pasar el token para el resto de mutations de las entregas.
 Para ejecutar las queries sin embargo, hay que estar logueado como profesor. En submissionByID puedes ser alumno o profesor para pedir tu propia submission.

@@ -125,7 +125,6 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
           token: token,
@@ -335,7 +334,7 @@ const submissionResolver = {
       } else if (context.user.userID) {
         // token de profesor
         const existSubmission = await SubmissionModel.findOne({
-          _id: args._id,
+          _id: args.id,
           user: context.user.userID,
         });
         if (!existSubmission) {

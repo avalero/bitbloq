@@ -1,7 +1,7 @@
 # import Upload, ObjectID from "./scalars.graphql"
 
 type File {
-  _id: ID!
+  id: ID!
   filename: String
   mimetype: String
   publicUrl: String

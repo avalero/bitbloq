@@ -33,6 +33,7 @@ mongoose.connect(
 
 const app = new Koa();
 
+// Redis configuration
 const redisOptions = {
   host: REDIS_DOMAIN_NAME,
   port: REDIS_PORT_NUMBER,
@@ -41,9 +42,17 @@ const redisOptions = {
     return Math.max(options.attempt * 100, 3000);
   },
 };
+const allReviver = (key, value) => {
+  if (value._id) {
+    return { ...value, id: value._id };
+  }
+  return value;
+};
+// redis creation for subscriptions
 export const pubsub: RedisPubSub = new RedisPubSub({
   publisher: new Redis(redisOptions),
   subscriber: new Redis(redisOptions),
+  reviver: allReviver
 });
 
 const httpServer = app.listen(PORT, () =>

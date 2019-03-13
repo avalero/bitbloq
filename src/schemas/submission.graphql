@@ -13,7 +13,7 @@ enum Role {
 
 type Query {
   submissions: [Submission]                                 @authRequired(requires: [USER])
-  submission(_id: ObjectID): Submission                      @authRequired(requires: [EPHEMERAL, USER])
+  submission(id: ObjectID): Submission                      @authRequired(requires: [EPHEMERAL, USER])
   submissionsByExercise(exercise: ObjectID!): [Submission]  @authRequired(requires: [USER])
 }
 type Mutation {
@@ -29,7 +29,7 @@ type Subscription {
 }
 
 type Submission {
-  _id: ObjectID
+  id: ObjectID
   title: String
   exercise: ObjectID
   user: ObjectID
