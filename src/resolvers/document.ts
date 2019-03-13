@@ -14,6 +14,7 @@ const documentResolver = {
   Subscription: {
     documentUpdated: {
       subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
         () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
         (payload, variables, context) => {
           console.log('********************')
@@ -159,6 +160,7 @@ const documentResolver = {
           { $set: newArgs},
           { new: true },
         );
+        // revisar este publish
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
         return updatedDoc;
       } else {
