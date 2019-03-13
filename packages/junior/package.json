@@ -22,6 +22,7 @@
   "homepage": "https://github.com/bitbloq/bitbloq#readme",
   "license": "ISC",
   "main": "export.js",
+  "types": "src/index.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -49,6 +50,7 @@
     "@emotion/core": "^10.0.7",
     "@emotion/styled": "^10.0.7",
     "@types/react": "^16.8.6",
+    "immutability-helper": "^3.0.0",
     "react": "^16.8.3"
   },
   "devDependencies": {

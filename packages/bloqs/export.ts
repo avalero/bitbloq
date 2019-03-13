@@ -1,5 +1,5 @@
-import HorizontalBloqEditor from './src/HorizontalBloqEditor';
+import HorizontalBloqEditor from './src/horizontal/HorizontalBloqEditor';
 
 export {
   HorizontalBloqEditor
-}
+};
