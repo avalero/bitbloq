@@ -1,10 +1,25 @@
-import { ApolloError, PubSub } from 'apollo-server-koa';
+import { ApolloError, withFilter } from 'apollo-server-koa';
 import { DocumentModel } from '../models/document';
 import { FolderModel } from '../models/folder';
 import { UserModel } from '../models/user';
 import documentResolver from './document';
 
+import { pubsub } from '../server';
+const FOLDER_UPDATED: string = 'FOLDER_UPDATED';
+
 const folderResolver = {
+  Subscription: {
+    folderUpdated: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([FOLDER_UPDATED]),
+        (payload, variables, context) => {
+          return context.user.userID === payload.folderUpdated.user;
+        },
+      ),
+    },
+  },
+
   Mutation: {
     /**
      * Create folder: create a new empty folder.
@@ -31,6 +46,7 @@ const folderResolver = {
         { $push: { foldersID: newFolder._id } },
         { new: true },
       );
+      pubsub.publish(FOLDER_UPDATED, { folderUpdated: newFolder });
       return newFolder;
     },
 
@@ -115,6 +131,9 @@ const folderResolver = {
           // si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
           for (const folder of args.input.foldersID) {
             const fol = await FolderModel.findOne({ _id: folder });
+            if(!fol){
+              throw new ApolloError('Folder ID does not exist', 'FOLDER_NOT_FOUND');
+            }
             await FolderModel.updateOne(
               // quito la carpeta de la carpeta en la que estuviera
               { _id: fol.parent },
@@ -137,6 +156,9 @@ const folderResolver = {
           // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
           for (const document of args.input.documentsID) {
             const doc = await DocumentModel.findOne({ _id: document });
+            if(!doc){
+              throw new ApolloError('Document ID does not exist', 'DOCUMENT_NOT_FOUND');
+            }
             await FolderModel.updateOne(
               // quito el documento de la carpeta en la que estuviera
               { _id: doc.folder },
@@ -172,7 +194,7 @@ const folderResolver = {
             'CANT_UPDATE_ROOT',
           );
         }
-        return FolderModel.findOneAndUpdate(
+        const updatedFolder = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           {
             $set: {
@@ -182,6 +204,8 @@ const folderResolver = {
           },
           { new: true },
         );
+        pubsub.publish(FOLDER_UPDATED, { folderUpdated: updatedFolder });
+        return updatedFolder;
       } else {
         return new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
       }

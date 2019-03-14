@@ -17,9 +17,6 @@ const documentResolver = {
         // Filtra para devolver solo los documentos del usuario
         () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
         (payload, variables, context) => {
-          console.log('********************')
-          console.log(payload)
-          console.log('********************')
           return context.user.userID === payload.documentUpdated.user;
         },
       ),
@@ -144,23 +141,22 @@ const documentResolver = {
           image = imageUploaded.publicUrl;
         } else if (args.input.imageUrl) {
           image = args.input.imageUrl;
-        }
-        const newArgs= {
-          title: args.input.title || existDocument.title,
-          type: args.input.type || existDocument.type,
-          folder: args.input.folder || existDocument.folder,
-          content: args.input.content || existDocument.content,
-          cache: args.input.cache || existDocument.cache,
-          description: args.input.description || existDocument.description,
-          version: args.input.version || existDocument.version,
-          image: image || existDocument.image,
-        };     
+        }  
         const updatedDoc = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
-          { $set: newArgs},
+          { $set: {
+              title: args.input.title || existDocument.title,
+              type: args.input.type || existDocument.type,
+              folder: args.input.folder || existDocument.folder,
+              content: args.input.content || existDocument.content,
+              cache: args.input.cache || existDocument.cache,
+              description: args.input.description || existDocument.description,
+              version: args.input.version || existDocument.version,
+              image: image || existDocument.image,
+            }
+          },
           { new: true },
         );
-        // revisar este publish
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
         return updatedDoc;
       } else {

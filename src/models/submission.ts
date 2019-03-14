@@ -52,6 +52,7 @@ const SubmissionMongSchema: Schema = new Schema({
 
   cache: {
     type: String,
+    default: 'cache',
   },
 
   submissionToken: {
@@ -69,6 +70,7 @@ const SubmissionMongSchema: Schema = new Schema({
 
   studentComment: {
     type: String,
+    default: 'studentComment'
   },
 
   finishedAt: {
@@ -81,6 +83,7 @@ const SubmissionMongSchema: Schema = new Schema({
 
   teacherComment: {
     type: String,
+    default: 'teacherComment'
   },
 
   gradedAt: {
