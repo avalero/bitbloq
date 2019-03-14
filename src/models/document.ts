@@ -8,11 +8,11 @@ interface IDocument extends Document {
   folder?: string;
   content?: string;
   cache?: string;
-  image: string;
+  image?: string;
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;
-  version: string;
+  version?: string;
 }
 
 const DocumentMongSchema: Schema = new Schema({
@@ -43,18 +43,22 @@ const DocumentMongSchema: Schema = new Schema({
 
   cache: {
     type: String,
+    default: 'cache',
   },
 
   image: {
     type: String,
+    default: 'imageURL'
   },
 
   description: {
     type: String,
+    default: 'description'
   },
 
   version: {
     type: String,
+    default: 'version'
   },
 });
 
