@@ -1,3 +1,5 @@
+require('dotenv').config({ path: '.env' });
+
 module.exports = {
   siteMetadata: {
     title: `Bitbloq Beta`,
@@ -31,6 +33,12 @@ module.exports = {
     {
       resolve: `gatsby-plugin-emotion`,
       options: {},
+    },
+    {
+      resolve: 'gatsby-plugin-google-analytics',
+      options: {
+        trackingId: process.env.GA_TRACKING_ID
+      }
     },
     {
       resolve: 'gatsby-plugin-web-font-loader',
