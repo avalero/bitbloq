@@ -43,7 +43,7 @@ const redisOptions = {
   },
 };
 const allReviver = (key, value) => {
-  if (value._id) {
+  if (value && value._id) {
     return { ...value, id: value._id };
   }
   return value;
