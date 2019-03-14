@@ -55,7 +55,7 @@ export const createClient = isBrowser =>
               `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
             )
           );
-        if (networkError) console.log(`[Network error]: ${networkError}`);
+        if (networkError) console.log(`[Network error]: ${JSON.stringify(networkError)}`);
       }),
       requestLink,
       isBrowser
@@ -77,9 +77,7 @@ export const createClient = isBrowser =>
                     window.localStorage.getItem("authToken");
 
                   return {
-                    headers: {
-                      authorization: token ? `Bearer ${token}` : ""
-                    }
+                    authorization: token ? `Bearer ${token}` : ""
                   };
                 }
               },
