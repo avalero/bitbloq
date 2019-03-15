@@ -1,3 +1,5 @@
+import { IHeaderButton, HeaderButtonClickCallback } from "@bitbloq/ui";
+
 export interface EditorProps {
   content: any;
   onContentChange: (content: any) => any;
@@ -9,6 +11,6 @@ export interface EditorProps {
   onEditTitle?: () => any;
   onSaveDocument?: () => any;
   brandColor: string;
-  headerButtons?: BBUI.HeaderButton[];
-  onHeaderButtonClick?: BBUI.HeaderButtonClickCallback;
+  headerButtons?: IHeaderButton[];
+  onHeaderButtonClick?: HeaderButtonClickCallback;
 }

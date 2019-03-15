@@ -1,6 +1,6 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
-import { bloqTypes, bloqGroups } from "../config";
+import { bloqTypes, eventBloqGroups, actionBloqGroups, waitBloqGroups } from "../config";
 import { EditorProps } from "../types";
 
 const JuniorEditor: React.FunctionComponent<EditorProps> = ({
@@ -23,7 +23,9 @@ const JuniorEditor: React.FunctionComponent<EditorProps> = ({
       onEditTitle={onEditTitle}
       canEditTitle={canEditTitle}
       bloqTypes={bloqTypes}
-      bloqGroups={bloqGroups}
+      eventBloqGroups={eventBloqGroups}
+      actionBloqGroups={actionBloqGroups}
+      waitBloqGroups={waitBloqGroups}
       initialContent={content}
       onContentChange={onContentChange}
     >
