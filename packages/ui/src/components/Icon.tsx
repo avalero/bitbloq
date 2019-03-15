@@ -32,6 +32,8 @@ import Prism from "./icons/Prism";
 import Text from "./icons/Text";
 import People from "./icons/People";
 import Programming from "./icons/Programming";
+import Programming2 from "./icons/Programming2";
+import Programming3 from "./icons/Programming3";
 import Pyramid from "./icons/Pyramid";
 import Publish from "./icons/Publish";
 import Redo from "./icons/Redo";
@@ -125,6 +127,10 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Prism />;
     case "programming":
       return <Programming />;
+    case "programming2":
+      return <Programming2 />;
+    case "programming3":
+      return <Programming3 />;
     case "text":
       return <Text />;
     case "pyramid":

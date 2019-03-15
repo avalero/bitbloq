@@ -16,7 +16,9 @@ export interface JuniorProps {
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   bloqTypes: BloqType[];
-  bloqGroups: BloqTypeGroup[];
+  eventBloqGroups: BloqTypeGroup[];
+  actionBloqGroups: BloqTypeGroup[];
+  waitBloqGroups: BloqTypeGroup[];
   initialContent?: any;
   onContentChange: (content: any) => any;
 }
@@ -29,7 +31,9 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   tabIndex,
   onTabChange,
   bloqTypes,
-  bloqGroups,
+  eventBloqGroups,
+  actionBloqGroups,
+  waitBloqGroups,
   initialContent,
   onContentChange
 }) => {
@@ -54,7 +58,9 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     <HorizontalBloqEditor
       bloqs={bloqs}
       bloqTypes={bloqTypes}
-      bloqGroups={bloqGroups}
+      eventBloqGroups={eventBloqGroups}
+      waitBloqGroups={waitBloqGroups}
+      actionBloqGroups={actionBloqGroups}
       onBloqsChange={(newBloqs: Bloq[][]) =>
         setContent(update(content, {bloqs: {$set: newBloqs}}))
       }

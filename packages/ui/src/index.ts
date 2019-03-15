@@ -16,6 +16,7 @@ import TextArea from './components/TextArea';
 import Option from './components/Option';
 import Modal from './components/Modal';
 import Spinner from './components/Spinner';
+import ScrollableTabs from './components/ScrollableTabs';
 import FileSelectButton from './components/FileSelectButton';
 import TranslateProvider, {
   Translate,
@@ -47,6 +48,7 @@ export {
   Translate,
   Modal,
   Spinner,
+  ScrollableTabs,
   withTranslate,
   useTranslate,
   baseStyles,
