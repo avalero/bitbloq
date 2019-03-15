@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { colors, ScrollableTabs } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
 import { BloqTypeGroup, BloqType } from "../index.d";
 
-interface AddBloqPanelProps {
+interface BloqTabs {
+  icon: JSX.Element;
+  groups: BloqTypeGroup[];
+  label: string;
+}
+
+export interface AddBloqPanelProps {
   isOpen: boolean;
-  bloqTypeGroups: BloqTypeGroup[];
+  bloqTabs: BloqTabs[];
   bloqTypes: BloqType[];
   onTypeSelected: (type: string) => any;
   onClick?: React.MouseEventHandler;
@@ -16,7 +22,7 @@ interface AddBloqPanelProps {
 
 const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
   isOpen,
-  bloqTypeGroups,
+  bloqTabs,
   bloqTypes,
   onTypeSelected,
   onClick
@@ -35,38 +41,42 @@ const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
 
   return (
     <Wrap style={wrapStyle} onClick={onClick}>
-      <Container>
-        <GroupList>
-          {bloqTypeGroups.map((group, i) => {
-            if (group.types.length === 1) {
-              return (
-                <StyledBloq
-                  key={i}
-                  type={bloqTypes.find(t => t.name === group.types[0])!}
-                  onClick={() => onTypeSelected(group.types[0])}
-                />
-              );
-            }
+      <Tabs tabs={bloqTabs.map(tab => ({
+        icon: tab.icon,
+        content: (
+          <GroupList >
+            <GroupLabel>{tab.label}</GroupLabel>
+            {tab.groups.map((group, i) => {
+              if (group.types.length === 1) {
+                return (
+                  <StyledBloq
+                    key={i}
+                    type={bloqTypes.find(t => t.name === group.types[0])!}
+                    onClick={() => onTypeSelected(group.types[0])}
+                  />
+                );
+              }
 
-            if (group.types.length > 1) {
-              const isGroupOpen = openGroup === i;
+              if (group.types.length > 1) {
+                const isGroupOpen = openGroup === i;
 
-              return (
-                <BloqGroupHandler
-                  key={i}
-                  isOpen={isGroupOpen}
-                  group={group}
-                  bloqTypes={bloqTypes}
-                  onHandlerClick={() => setOpenGroup(isGroupOpen ? -1 : i)}
-                  onTypeClick={onTypeSelected}
-                />
-              );
-            }
+                return (
+                  <BloqGroupHandler
+                    key={i}
+                    isOpen={isGroupOpen}
+                    group={group}
+                    bloqTypes={bloqTypes}
+                    onHandlerClick={() => setOpenGroup(isGroupOpen ? -1 : i)}
+                    onTypeClick={onTypeSelected}
+                  />
+                );
+              }
 
-            return null;
-          })}
-        </GroupList>
-      </Container>
+              return null;
+            })}
+          </GroupList>
+        )}))}
+      />
     </Wrap>
   );
 };
@@ -129,7 +139,7 @@ const Wrap = styled(animated.div)`
   display: flex;
 `;
 
-const Container = styled.div`
+const Tabs = styled(ScrollableTabs)`
   min-width: 200px;
   border-left: 1px solid ${colors.gray3};
 `;
@@ -138,10 +148,19 @@ const StyledBloq = styled(HorizontalBloq)`
   margin-bottom: 20px;
 `;
 
+const GroupLabel = styled.div`
+  align-self: flex-start;
+  padding: 20px;
+  font-size: 16px;
+  font-weight: bold;
+`;
+
 const GroupList = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 140px;
+  padding-bottom: 20px;
 `;
 
 const Group = styled.div`
@@ -168,6 +187,19 @@ const GroupTypes = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+
+  &::before {
+    content: "";
+    background-color: ${colors.gray2};
+    width: 12px;
+    height: 12px;
+    display: block;
+    position: absolute;
+    transform: translate(-50%, 0) rotate(45deg);
+    top: -6px;
+    left: 50%;
+  }
 `;
 
 const CollapseIndicator = styled.div`
@@ -184,4 +216,5 @@ const CollapseIndicator = styled.div`
   border-radius: 12px;
   font-size: 18px;
   font-weight: bold;
+  z-index: 20;
 `;

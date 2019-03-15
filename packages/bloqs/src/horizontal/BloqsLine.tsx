@@ -23,9 +23,9 @@ const BloqsLine: React.FunctionComponent<BloqsLineProps> = ({
 
   return (
     <Container>
-      {bloqs.map(bloq => (
+      {bloqs.map((bloq, i)=> (
         <StyledBloq
-          key={bloq.type}
+          key={i}
           type={bloqTypes.find(t => t.name === bloq.type)!}
         />
       ))}

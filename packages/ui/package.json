@@ -53,6 +53,6 @@
   "publishConfig": {
     "access": "public"
   },
-  "types": "src/index",
+  "types": "src/index.d.ts",
   "gitHead": "a6539daabe025ed690154a66b72d5f16634c6654"
 }

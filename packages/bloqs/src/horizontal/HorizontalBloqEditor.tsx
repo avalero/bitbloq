@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import update from "immutability-helper";
+import { Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import BloqsLine from "./BloqsLine";
 import AddBloqPanel from "./AddBloqPanel";
@@ -9,23 +10,35 @@ import { Bloq, BloqType, BloqTypeGroup, BloqCategory } from "../index.d";
 interface HorizontalBloqEditorProps {
   bloqs: Bloq[][];
   bloqTypes: BloqType[];
-  bloqGroups: BloqTypeGroup[];
+  eventBloqGroups: BloqTypeGroup[];
+  waitBloqGroups: BloqTypeGroup[];
+  actionBloqGroups: BloqTypeGroup[];
   onBloqsChange: (bloqs: Bloq[][]) => any;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
   HorizontalBloqEditorProps
-> = ({ bloqs, bloqTypes, bloqGroups, onBloqsChange }) => {
+> = ({ bloqs, bloqTypes, eventBloqGroups, waitBloqGroups, actionBloqGroups, onBloqsChange }) => {
   const [addingBloqIndex, setAddingBloqIndex] = useState(-1);
+  const t = useTranslate();
 
   const addingBloq = bloqs[addingBloqIndex] || [];
-  const addingBloqCategory = addingBloq.length > 0
-      ? BloqCategory.Action
-      : BloqCategory.Event;
-  const addingBloqGroups =
-    addingBloqIndex >= 0 && addingBloqCategory
-      ? bloqGroups.filter(group => group.category === addingBloqCategory)
-      : [];
+
+  const onAddBloq = (type: string) => {
+    const newBloq: Bloq = {
+      type,
+      parameters: []
+    };
+
+    if (addingBloqIndex < bloqs.length) {
+      onBloqsChange(
+        update(bloqs, { [addingBloqIndex]: { $push: [newBloq] } })
+      );
+    } else {
+      onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
+    }
+    setAddingBloqIndex(-1);
+  };
 
   return (
     <Container onClick={() => setAddingBloqIndex(-1)}>
@@ -59,24 +72,34 @@ const HorizontalBloqEditor: React.FunctionComponent<
       </Lines>
       <AddBloqPanel
         onClick={e => e.stopPropagation()}
-        isOpen={addingBloqIndex >= 0}
-        bloqTypeGroups={addingBloqGroups}
-        bloqTypes={bloqTypes}
-        onTypeSelected={(type: string) => {
-          const newBloq: Bloq = {
-            type,
-            parameters: []
-          };
-
-          if (addingBloqIndex < bloqs.length) {
-            onBloqsChange(
-              update(bloqs, { [addingBloqIndex]: { $push: [newBloq] } })
-            );
-          } else {
-            onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
+        isOpen={addingBloqIndex >= 0 && addingBloq.length === 0}
+        bloqTabs={[
+          {
+            label: t('bloqs-sensors'),
+            icon: <Icon name="programming2" />,
+            groups: eventBloqGroups
           }
-          setAddingBloqIndex(-1);
-        }}
+        ]}
+        bloqTypes={bloqTypes}
+        onTypeSelected={onAddBloq}
+      />
+      <AddBloqPanel
+        onClick={e => e.stopPropagation()}
+        isOpen={addingBloqIndex >= 0 && addingBloq.length > 0}
+        bloqTabs={[
+          {
+            label: t('bloqs-actions'),
+            icon: <Icon name="programming" />,
+            groups: actionBloqGroups
+          },
+          {
+            label: t('bloqs-waits'),
+            icon: <Icon name="programming3" />,
+            groups: waitBloqGroups
+          }
+        ]}
+        bloqTypes={bloqTypes}
+        onTypeSelected={onAddBloq}
       />
     </Container>
   );
