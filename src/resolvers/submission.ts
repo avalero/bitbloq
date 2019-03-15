@@ -81,7 +81,6 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-          console.log(existSubmission);
           pubsub.publish(SUBMISSION_UPDATED, {
             submissionUpdated: existSubmission,
           });
