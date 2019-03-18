@@ -74,13 +74,18 @@
     "ts-jest": "^23.10.5",
     "tslint-config-prettier": "^1.18.0"
   },
+
   "scripts": {
     "build": "tsc",
     "start": "ts-node ./src/server.ts",
+    "start-inspect": "node --inspect=0.0.0.0 -r ts-node/register ./src/server.ts",
     "dev": "./node_modules/nodemon/bin/nodemon.js",
+    "dev-inspect": "nodemon --exec npm run start-inspect",
     "prod": "npm run build && npm run start",
     "test": "jest"
   },
+
+
   "keywords": [],
   "author": "",
   "license": "ISC"
