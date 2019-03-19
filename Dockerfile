@@ -11,6 +11,7 @@ RUN npm link ../../bitbloq/packages/ui
 RUN npm link ../../bitbloq/packages/3d
 RUN npm link ../../bitbloq/packages/lib3d
 RUN npm link ../../bitbloq/packages/bloqs
+RUN npm link ../../bitbloq/packages/hardware-designer
 RUN npm link ../../bitbloq/packages/junior
 
 WORKDIR /usr/src/app/bitbloq

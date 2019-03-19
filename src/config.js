@@ -216,6 +216,7 @@ export const bloqTypes = [
   {
     category: "event",
     name: "OnStart",
+    label: "bloq-on-start",
     icon: flagIcon,
     code: {}
   },
@@ -252,8 +253,18 @@ export const bloqTypes = [
   {
     category: "event",
     name: "OnButtonPressed",
+    label: "bloq-on-button-pressed",
     icon: buttonPressedIcon,
-    code: {}
+    code: {},
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "select",
+      options: {
+        source: "Components",
+        args: ["Button"]
+      }
+    }]
   },
   {
     category: "event",
@@ -324,3 +335,294 @@ export const actionBloqGroups = [
 ];
 
 export const waitBloqGroups = [];
+
+export const boards = [
+  {
+    "name": "zumjunior",
+    "code": {},
+    "image": {
+      "url": "https://bitbloq.bq.com/images/boards/1548099714577.zumjunior.svg",
+      "width": 300,
+      "height": 300
+    },
+    "ports": [
+      {
+        "name": "1",
+        "position": {
+          "x": -1,
+          "y": 0.1,
+        },
+        "connectorTypes": [
+          "zumjunior-digital",
+          "zumjunior-analog"
+        ],
+        "pins": [
+          {
+            "name": "0",
+            "value": "BQ::ZUMJunior::ports[1][0]"
+          },
+          {
+            "name": "1",
+            "value": "BQ::ZUMJunior::ports[1][1]"
+          }
+        ],
+        "placeholderPosition": {
+          "x": -1.5,
+          "y": 0.8,
+        },
+        "direction": "west"
+      },
+      {
+        "name": "2",
+        "position": {
+          "x": 0,
+          "y": 0.6,
+        },
+        "connectorTypes": [
+          "zumjunior-digital",
+          "zumjunior-analog"
+        ],
+        "pins": [
+          {
+            "name": "0",
+            "value": "BQ::ZUMJunior::ports[2][0]"
+          },
+          {
+            "name": "1",
+            "value": "BQ::ZUMJunior::ports[2][1]"
+          }
+        ],
+        "placeholderPosition": {
+          "x": -1.5,
+          "y": -0.8,
+        },
+        "direction": "west"
+      },
+      {
+        "name": "3",
+        "position": {
+          "x": 1,
+          "y": 0.6,
+        },
+        "connectorTypes": [
+          "zumjunior-digital",
+          "zumjunior-analog"
+        ],
+        "pins": [
+          {
+            "name": "0",
+            "value": "BQ::ZUMJunior::ports[3][0]"
+          },
+          {
+            "name": "1",
+            "value": "BQ::ZUMJunior::ports[3][1]"
+          }
+        ],
+        "placeholderPosition": {
+          "x": 1.5,
+          "y": -0.8,
+        },
+        "direction": "east"
+      },
+      {
+        "name": "4",
+        "position": {
+          "x": 1,
+          "y": 0.4,
+        },
+        "connectorTypes": [
+          "zumjunior-digital",
+          "zumjunior-analog"
+        ],
+        "pins": [
+          {
+            "name": "0",
+            "value": "BQ::ZUMJunior::ports[4][0]"
+          },
+          {
+            "name": "1",
+            "value": "BQ::ZUMJunior::ports[4][1]"
+          }
+        ],
+        "placeholderPosition": {
+          "x": 1.5,
+          "y": 0.8,
+        },
+        "direction": "east"
+      },
+      {
+        "name": "A",
+        "position": {
+          "x": 0.4,
+          "y": 0,
+        },
+        "connectorTypes": [
+          "zumjunior-digital",
+          "zumjunior-analog",
+          "zumjunior-i2c"
+        ],
+        "pins": [
+          {
+            "name": "0",
+            "value": "BQ::ZUMJunior::ports[A][0]"
+          },
+          {
+            "name": "1",
+            "value": "BQ::ZUMJunior::ports[A][0]"
+          },
+          {
+            "name": "i2c",
+            "value": "BQ::ZUMJunior::i2cPorts[A]"
+          }
+        ],
+        "placeholderPosition": {
+          "x": -0.8,
+          "y": 1.5,
+        },
+        "direction": "north"
+      },
+      {
+        "name": "B",
+        "position": {
+          "x": 0.6,
+          "y": 0,
+        },
+        "connectorTypes": [
+          "zumjunior-digital",
+          "zumjunior-analog",
+          "zumjunior-i2c"
+        ],
+        "pins": [
+          {
+            "name": "0",
+            "value": "BQ::ZUMJunior::ports[B][0]"
+          },
+          {
+            "name": "1",
+            "value": "BQ::ZUMJunior::ports[B][0]"
+          },
+          {
+            "name": "i2c",
+            "value": "BQ::ZUMJunior::i2cPorts[B]"
+          }
+        ],
+        "placeholderPosition": {
+          "x": 0.8,
+          "y": 1.5,
+        },
+        "direction": "north"
+      }
+    ]
+  }
+];
+
+export const components = [
+  {
+    "name": "Component",
+    "code": {
+      "definitions": [
+        "{% for connection in component.connections %}",
+        "{% for pin in getConnector(connection.connector).pins %}",
+        "const uint_8 {{component.name}}{{pin.name}} = {{getBoardPin(connection.port, pin.portPin).value}};",
+        "{% endfor %}",
+        "{% endfor %}"
+      ],
+      "setup": [
+        "{% for connection in component.connections %}",
+        "{% for pin in getConnector(connection.connector).pins %}",
+        "pinMode({{component.name}}{{pin.name}}, {{pin.mode}});",
+        "{% endfor %}",
+        "{% endfor %}"
+      ]
+    }
+  },
+  {
+    "name": "Digital",
+    "extends": "Component"
+  },
+  {
+    "name": "DigitalInput",
+    "extends": "Digital",
+    "code": {
+      "read": "digitalRead({{component.name}}{{componentClass.connectors[0].pins[0].name}})"
+    }
+  },
+  {
+    "name": "DigitalOutput",
+    "extends": "Digital",
+    "code": {
+      "write": "digitalWrite({{component.name}}{{componentClass.connectors[0].pins[0].name}}, {{value}})"
+    }
+  },
+  {
+    "name": "Button",
+    "extends": "DigitalInput"
+  },
+  {
+    "name": "Led",
+    "extends": "DigitalOutput",
+    "onValue": "HIGH",
+    "offValue": "LOW"
+  },
+  {
+    "name": "ZumjuniorButton",
+    "extends": "Button",
+    "instanceName": "button",
+    "connectors": [
+      {
+        "name": "main",
+        "type": "zumjunior-digital",
+        "position": {
+          "x": 0.28,
+          "y": 1,
+        },
+        "pins": [
+          {
+            "name": "Pin",
+            "mode": "INPUT",
+            "portPin": "0"
+          }
+        ]
+      }
+    ],
+    "image": {
+      "url": "https://bitbloq.bq.com/images/components/1548099714577.zumjunior_button.svg",
+      "width": 124,
+      "height": 124
+    }
+  },
+  {
+    "name": "ZumjuniorLed",
+    "extends": "Led",
+    "onValue": "LOW",
+    "offValue": "HIGH",
+    "instanceName": "led",
+    "connectors": [
+      {
+        "name": "main",
+        "type": "zumjunior-digital",
+        "position": {
+          "x": 0.28,
+          "y": 1,
+        },
+        "pins": [
+          {
+            "name": "WhitePin",
+            "mode": "OUTPUT",
+            "portPin": "0"
+          },
+          {
+            "name": "ColorPin",
+            "mode": "OUTPUT",
+            "portPin": "1"
+          }
+        ]
+      }
+    ],
+    "image": {
+      "url": "https://bitbloq.bq.com/images/components/1548099714577.zumjunior_double_led.svg",
+      "width": 124,
+      "height": 124
+    }
+  }
+];
