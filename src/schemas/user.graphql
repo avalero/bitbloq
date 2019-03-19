@@ -17,9 +17,11 @@ type Query {
   me: User        @authRequired(requires: [USER])
 }
 type Mutation {
-  activateAccount(token: String): String
   signUpUser(input: UserIn!): String
+  activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
+  resetPassword(email: EmailAddress!): String
+  editPassword(token: String, newPassword: String): User
   deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
   updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
 }

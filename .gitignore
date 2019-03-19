@@ -2,7 +2,7 @@ node_modules
 .env
 /src/__test__/*
 /src/__helpers__/*
-/src/email/mail.html
-/src/email/welcomeMail.mjml
+/src/email/*.html
+/src/email/*.mjml
 /src/images/*
 /logs/*

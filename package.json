@@ -57,6 +57,7 @@
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
     "promises-all": "^1.0.0",
+    "redis": "^2.8.0",
     "reflect-metadata": "^0.1.12",
     "shortid": "^2.2.14",
     "ts-node": "^7.0.1",
@@ -74,7 +75,6 @@
     "ts-jest": "^23.10.5",
     "tslint-config-prettier": "^1.18.0"
   },
-
   "scripts": {
     "build": "tsc",
     "start": "ts-node ./src/server.ts",
@@ -84,8 +84,6 @@
     "prod": "npm run build && npm run start",
     "test": "jest"
   },
-
-
   "keywords": [],
   "author": "",
   "license": "ISC"

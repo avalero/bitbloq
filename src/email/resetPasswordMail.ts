@@ -1,6 +1,6 @@
 import { compile } from 'handlebars';
 
-const welcomeTemplate = compile(`
+const resetPasswordTemplate = compile(`
 <mjml>
   <mj-head>
     <mj-attributes>
@@ -35,20 +35,17 @@ const welcomeTemplate = compile(`
     <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px">
       <mj-column width="100%">
         <mj-text color="#313741" font-size="24px">
-          ¡Bienvenido a la beta del nuevo Bitbloq!
+          ¡Hola!
         </mj-text>
         <mj-text color="#313741" font-size="14px">
-          En ella disfrutarás de las nuevas herramientas y funcionalidades de Bitbloq 3.0 antes que nadie. Recuerda que esta versión está en fase de desarrollo: en ocasiones, puede que encuentres cambios o incluso pequeños fallos. 
-        </mj-text>
-        <mj-text color="#313741" font-size="14px" >
-          Nos encantaría conocer tu opinión y experiencia usando esta nueva versión en <a href="info@bitbloq.cc">info@bitbloq.cc</a>. ¡Todas las sugerencias son bienvenidas!
-        </mj-text>
-        <mj-text color="#313741" font-size="14px">
-          Para empezar a usar la beta, confirma tu dirección de correo en este enlace:
+          Has solicitado cambiar la contraseña de tu cuenta. Para hacerlo, pulsa en el enlace correspondiente o copia y pega la URL en el navegador:
         </mj-text>
         <mj-button background-color="#ebebeb" align="center" color="#313741" font-size="14px" font-weight="bold" href="{{activationUrl}}" width="420px" height="110px" border-radius="4px">
-          {{activationUrl}}
+          {{resetPasswordUrl}}
         </mj-button>
+        <mj-text color="#313741" font-size="14px">
+          Recuerda: desde que recibas este email, el enlace estará activo sólo durante 30 minutos.
+        </mj-text>
         <mj-text color="#313741" font-size="14px" padding-bottom="0">
           Un saludo,
           <p>el equipo de Bitbloq.</p>
@@ -70,4 +67,4 @@ const welcomeTemplate = compile(`
 </mjml>
   `);
 
-export { welcomeTemplate };
+export { resetPasswordTemplate };
