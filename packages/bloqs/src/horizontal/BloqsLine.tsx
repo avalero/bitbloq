@@ -8,30 +8,34 @@ import { Bloq, BloqType, BloqCategory } from "../index.d";
 interface BloqsLineProps {
   bloqs: Bloq[];
   bloqTypes: BloqType[];
-  placeholderSelected?: boolean;
-  onPlaceholderClick: React.MouseEventHandler;
+  selectedBloq?: number;
+  onBloqClick?: (index: number, e: React.MouseEvent) => any;
 }
 
 const BloqsLine: React.FunctionComponent<BloqsLineProps> = ({
   bloqs,
   bloqTypes,
-  placeholderSelected,
-  onPlaceholderClick
+  selectedBloq,
+  onBloqClick
 }) => {
   const placeholderCategory =
     bloqs.length === 0 ? BloqCategory.Event : BloqCategory.Action;
 
   return (
     <Container>
-      {bloqs.map((bloq, i)=> (
+      {bloqs.map((bloq, i) => (
         <StyledBloq
           key={i}
           type={bloqTypes.find(t => t.name === bloq.type)!}
+          selected={selectedBloq === i}
+          onClick={(e: React.MouseEvent) => onBloqClick && onBloqClick(i, e)}
         />
       ))}
       <BloqPlaceholder
-        onClick={onPlaceholderClick}
-        selected={placeholderSelected}
+        onClick={(e: React.MouseEvent) =>
+          onBloqClick && onBloqClick(bloqs.length, e)
+        }
+        selected={selectedBloq === bloqs.length}
         category={placeholderCategory}
       />
     </Container>

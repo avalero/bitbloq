@@ -35,10 +35,9 @@
     "url": "git+https://github.com/bitbloq/bitbloq.git"
   },
   "scripts": {
-    "start": "webpack-dev-server --mode development --open",
     "coveralls": "echo \"not defined\"",
-    "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
-    "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
+    "tslint:dev": "tslint --project tsconfig.json -c ./tslint-dev.json \"**/*.ts\"",
+    "tslint:prod": "tslint --project tsconfig.json -c ./tslint-prod.json \"**/*.ts\"",
     "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "test": "echo \"No test specified\" && exit 0"
   },
@@ -53,6 +52,7 @@
     "babel-loader": "^8.0.5",
     "html-webpack-plugin": "^3.2.0",
     "source-map-loader": "^0.2.4",
+    "prettier": "^1.16.4",
     "tslint": "^5.13.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",

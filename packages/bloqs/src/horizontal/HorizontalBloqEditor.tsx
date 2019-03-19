@@ -4,6 +4,7 @@ import { Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import BloqsLine from "./BloqsLine";
 import AddBloqPanel from "./AddBloqPanel";
+import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
 import { Bloq, BloqType, BloqTypeGroup, BloqCategory } from "../index.d";
 
@@ -18,11 +19,24 @@ interface HorizontalBloqEditorProps {
 
 const HorizontalBloqEditor: React.FunctionComponent<
   HorizontalBloqEditorProps
-> = ({ bloqs, bloqTypes, eventBloqGroups, waitBloqGroups, actionBloqGroups, onBloqsChange }) => {
-  const [addingBloqIndex, setAddingBloqIndex] = useState(-1);
-  const t = useTranslate();
+> = ({
+  bloqs,
+  bloqTypes,
+  eventBloqGroups,
+  waitBloqGroups,
+  actionBloqGroups,
+  onBloqsChange
+}) => {
+  const [selectedBloqIndex, setSelectedBloq] = useState([-1, -1]);
 
-  const addingBloq = bloqs[addingBloqIndex] || [];
+  const selectedLine = bloqs[selectedBloqIndex[0]] || [];
+  const selectedBloq = selectedLine[selectedBloqIndex[1]];
+  const isEventPlaceholderSelected =
+    selectedBloqIndex[1] === 0 && selectedLine.length === 0;
+  const isActionPlaceholderSelected =
+    selectedBloqIndex[1] === selectedLine.length && selectedLine.length > 0;
+
+  const t = useTranslate();
 
   const onAddBloq = (type: string) => {
     const newBloq: Bloq = {
@@ -30,18 +44,18 @@ const HorizontalBloqEditor: React.FunctionComponent<
       parameters: []
     };
 
-    if (addingBloqIndex < bloqs.length) {
+    if (selectedBloqIndex[0] < bloqs.length) {
       onBloqsChange(
-        update(bloqs, { [addingBloqIndex]: { $push: [newBloq] } })
+        update(bloqs, { [selectedBloqIndex[0]]: { $push: [newBloq] } })
       );
     } else {
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
-    setAddingBloqIndex(-1);
+    setSelectedBloq([-1, -1]);
   };
 
   return (
-    <Container onClick={() => setAddingBloqIndex(-1)}>
+    <Container onClick={() => setSelectedBloq([-1, -1])}>
       <Lines>
         {bloqs.map((line, i) => (
           <Line key={i}>
@@ -49,10 +63,12 @@ const HorizontalBloqEditor: React.FunctionComponent<
             <BloqsLine
               bloqs={line}
               bloqTypes={bloqTypes}
-              placeholderSelected={addingBloqIndex === i}
-              onPlaceholderClick={e => {
+              selectedBloq={
+                selectedBloqIndex[0] === i ? selectedBloqIndex[1] : -1
+              }
+              onBloqClick={(j, e) => {
                 e.stopPropagation();
-                setAddingBloqIndex(i);
+                setSelectedBloq([i, j]);
               }}
             />
           </Line>
@@ -62,20 +78,22 @@ const HorizontalBloqEditor: React.FunctionComponent<
           <BloqsLine
             bloqs={[]}
             bloqTypes={bloqTypes}
-            placeholderSelected={addingBloqIndex === bloqs.length}
-            onPlaceholderClick={e => {
+            selectedBloq={
+              selectedBloqIndex[0] === bloqs.length ? selectedBloqIndex[1] : -1
+            }
+            onBloqClick={(j, e) => {
               e.stopPropagation();
-              setAddingBloqIndex(bloqs.length);
+              setSelectedBloq([bloqs.length, j]);
             }}
           />
         </Line>
       </Lines>
       <AddBloqPanel
         onClick={e => e.stopPropagation()}
-        isOpen={addingBloqIndex >= 0 && addingBloq.length === 0}
+        isOpen={isEventPlaceholderSelected}
         bloqTabs={[
           {
-            label: t('bloqs-sensors'),
+            label: t("bloqs-sensors"),
             icon: <Icon name="programming2" />,
             groups: eventBloqGroups
           }
@@ -85,21 +103,29 @@ const HorizontalBloqEditor: React.FunctionComponent<
       />
       <AddBloqPanel
         onClick={e => e.stopPropagation()}
-        isOpen={addingBloqIndex >= 0 && addingBloq.length > 0}
+        isOpen={isActionPlaceholderSelected}
         bloqTabs={[
           {
-            label: t('bloqs-actions'),
+            label: t("bloqs-actions"),
             icon: <Icon name="programming" />,
             groups: actionBloqGroups
           },
           {
-            label: t('bloqs-waits'),
+            label: t("bloqs-waits"),
             icon: <Icon name="programming3" />,
             groups: waitBloqGroups
           }
         ]}
         bloqTypes={bloqTypes}
         onTypeSelected={onAddBloq}
+      />
+      <BloqPropertiesPanel
+        isOpen={!!selectedBloq}
+        bloq={selectedBloq}
+        bloqType={
+          selectedBloq &&
+          bloqTypes.find(type => type.name === selectedBloq.type)!
+        }
       />
     </Container>
   );

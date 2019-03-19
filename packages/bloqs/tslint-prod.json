@@ -6,10 +6,6 @@
   },
 
   "linterOptions": {
-    "exclude": [
-      "node_modules/**/*",
-      "coverage/**/*",
-      "src/__tests__/**/*"
-    ]
+    "exclude": ["node_modules/**/*", "coverage/**/*", "src/__tests__/**/*"]
   }
 }

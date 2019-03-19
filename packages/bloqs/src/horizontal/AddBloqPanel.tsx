@@ -41,41 +41,43 @@ const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
 
   return (
     <Wrap style={wrapStyle} onClick={onClick}>
-      <Tabs tabs={bloqTabs.map(tab => ({
-        icon: tab.icon,
-        content: (
-          <GroupList >
-            <GroupLabel>{tab.label}</GroupLabel>
-            {tab.groups.map((group, i) => {
-              if (group.types.length === 1) {
-                return (
-                  <StyledBloq
-                    key={i}
-                    type={bloqTypes.find(t => t.name === group.types[0])!}
-                    onClick={() => onTypeSelected(group.types[0])}
-                  />
-                );
-              }
+      <Tabs
+        tabs={bloqTabs.map(tab => ({
+          icon: tab.icon,
+          content: (
+            <GroupList>
+              <GroupLabel>{tab.label}</GroupLabel>
+              {tab.groups.map((group, i) => {
+                if (group.types.length === 1) {
+                  return (
+                    <StyledBloq
+                      key={i}
+                      type={bloqTypes.find(t => t.name === group.types[0])!}
+                      onClick={() => onTypeSelected(group.types[0])}
+                    />
+                  );
+                }
 
-              if (group.types.length > 1) {
-                const isGroupOpen = openGroup === i;
+                if (group.types.length > 1) {
+                  const isGroupOpen = openGroup === i;
 
-                return (
-                  <BloqGroupHandler
-                    key={i}
-                    isOpen={isGroupOpen}
-                    group={group}
-                    bloqTypes={bloqTypes}
-                    onHandlerClick={() => setOpenGroup(isGroupOpen ? -1 : i)}
-                    onTypeClick={onTypeSelected}
-                  />
-                );
-              }
+                  return (
+                    <BloqGroupHandler
+                      key={i}
+                      isOpen={isGroupOpen}
+                      group={group}
+                      bloqTypes={bloqTypes}
+                      onHandlerClick={() => setOpenGroup(isGroupOpen ? -1 : i)}
+                      onTypeClick={onTypeSelected}
+                    />
+                  );
+                }
 
-              return null;
-            })}
-          </GroupList>
-        )}))}
+                return null;
+              })}
+            </GroupList>
+          )
+        }))}
       />
     </Wrap>
   );

@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
+import { colors, Icon } from "@bitbloq/ui";
 import EventShape from "./EventShape";
-import { colors, horizontalShapes } from "../config";
+import { bloqColors, horizontalShapes } from "../config";
 
 import { BloqType } from "../index.d";
 
@@ -9,12 +10,14 @@ interface HorizontalBloqProps {
   type: BloqType;
   className?: string;
   onClick?: React.MouseEventHandler;
+  selected?: boolean;
 }
 
 const HorizontalBloq: React.FunctionComponent<HorizontalBloqProps> = ({
   type,
   className,
-  onClick
+  onClick,
+  selected
 }) => {
   const ShapeComponent = horizontalShapes[type.category];
 
@@ -22,10 +25,14 @@ const HorizontalBloq: React.FunctionComponent<HorizontalBloqProps> = ({
     <Container className={className} onClick={onClick}>
       <SVG>
         <g transform="translate(2,2)">
-          <ShapeComponent fill={colors[type.category]} />
+          <ShapeComponent
+            fill={bloqColors[type.category]}
+            stroke={colors.brandOrange}
+            strokeWidth={selected ? 2 : 0}
+          />
         </g>
       </SVG>
-      {type.icon && <Icon src={type.icon} alt={type.name} />}
+      {type.icon && <BloqIcon src={type.icon} alt={type.name} />}
     </Container>
   );
 };
@@ -45,7 +52,7 @@ const Container = styled.div`
   height: 60px;
 `;
 
-const Icon = styled.img`
+const BloqIcon = styled.img`
   margin-left: 4px;
   width: 44px;
   height: 44px;
