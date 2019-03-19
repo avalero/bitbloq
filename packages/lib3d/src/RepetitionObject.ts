@@ -32,6 +32,7 @@ import {
   IRepetitionObjectJSON,
   IPolarRepetitionParams,
   ICartesianRepetitionParams,
+  OperationsArray,
 } from './Interfaces';
 
 /**
@@ -70,7 +71,7 @@ export default class RepetitionObject extends ObjectsCommon {
     }
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
-      const rep = new RepetitionObject(obj.parameters, object, obj.viewOptions);
+      const rep = new RepetitionObject(obj.parameters, object, obj.viewOptions, obj.operations);
       rep.id = obj.id || rep.id;
       return rep;
     } catch (e) {
@@ -92,6 +93,7 @@ export default class RepetitionObject extends ObjectsCommon {
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray = [],
     mesh?: THREE.Group | undefined,
   ) {
     const vO: IViewOptions = {
@@ -100,7 +102,7 @@ export default class RepetitionObject extends ObjectsCommon {
       ...viewOptions,
     };
 
-    super(vO, []);
+    super(vO, [...operations]);
     this.parameters = { ...params };
     this.originalObject = original;
     this.originalObject.setParent(this);
@@ -136,6 +138,7 @@ export default class RepetitionObject extends ObjectsCommon {
         this.parameters,
         this.originalObject.clone(),
         this.viewOptions,
+        this.operations,
         (this.mesh as THREE.Group).clone(),
       );
       return repObj;
@@ -144,6 +147,7 @@ export default class RepetitionObject extends ObjectsCommon {
       this.parameters,
       this.originalObject.clone(),
       this.viewOptions,
+      this.operations
     );
     return obj;
   }
@@ -163,6 +167,7 @@ export default class RepetitionObject extends ObjectsCommon {
       children: [this.originalObject.toJSON()],
     };
 
+    debugger;
     return obj;
   }
 
