@@ -166,8 +166,6 @@ export default class RepetitionObject extends ObjectsCommon {
       parameters: this.parameters,
       children: [this.originalObject.toJSON()],
     };
-
-    debugger;
     return obj;
   }
 
