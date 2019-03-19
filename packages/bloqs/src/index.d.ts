@@ -1,7 +1,7 @@
 export enum BloqCategory {
-  Event = 'event',
-  Timer = 'timer',
-  Action = 'action'
+  Event = "event",
+  Timer = "timer",
+  Action = "action"
 }
 
 export interface BloqCode {
@@ -11,11 +11,35 @@ export interface BloqCode {
   statement?: string;
 }
 
+export enum BloqParameterType {
+  Select = "select",
+  Number = "number"
+}
+
+export interface BloqParameterOption {
+  value: any;
+  label: string;
+}
+
+export interface BloqParameterOptionSource {
+  source: string;
+  args: string[];
+}
+
+export interface BloqParameterDefinition {
+  name: string;
+  label: string;
+  type: BloqParameterType;
+  options: BloqParameterOption | BloqParameterOptionSource
+}
+
 export interface BloqType {
   category: BloqCategory;
   name: string;
+  label: string;
   icon: string;
   code: BloqCode;
+  parameterDefinitions: BloqParameterDefinition[];
 }
 
 export interface Bloq {
@@ -23,7 +47,7 @@ export interface Bloq {
   parameters: any[];
 }
 
-export interface BloqTypeGroup{
+export interface BloqTypeGroup {
   category: BloqCategory;
   types: string[];
   icon: string;

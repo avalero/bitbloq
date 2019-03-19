@@ -3,6 +3,11 @@ import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { Document, Icon, useTranslate } from "@bitbloq/ui";
 import {
+  HardwareDesigner,
+  IBoard,
+  IComponent
+} from "@bitbloq/hardware-designer";
+import {
   HorizontalBloqEditor,
   Bloq,
   BloqType,
@@ -21,6 +26,8 @@ export interface JuniorProps {
   waitBloqGroups: BloqTypeGroup[];
   initialContent?: any;
   onContentChange: (content: any) => any;
+  boards: IBoard[];
+  components: IComponent[];
 }
 
 const Junior: React.FunctionComponent<JuniorProps> = ({
@@ -35,7 +42,9 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   actionBloqGroups,
   waitBloqGroups,
   initialContent,
-  onContentChange
+  onContentChange,
+  boards,
+  components
 }) => {
   const t = useTranslate();
 
@@ -48,23 +57,23 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       icon={<Icon name="hardware" />}
       label={t("hardware")}
     >
-      <h1>Hardware</h1>
+      <HardwareDesigner boards={boards} components={components} />
     </Document.Tab>,
     <Document.Tab
       key="software"
       icon={<Icon name="programming" />}
       label={t("software")}
     >
-    <HorizontalBloqEditor
-      bloqs={bloqs}
-      bloqTypes={bloqTypes}
-      eventBloqGroups={eventBloqGroups}
-      waitBloqGroups={waitBloqGroups}
-      actionBloqGroups={actionBloqGroups}
-      onBloqsChange={(newBloqs: Bloq[][]) =>
-        setContent(update(content, {bloqs: {$set: newBloqs}}))
-      }
-    />
+      <HorizontalBloqEditor
+        bloqs={bloqs}
+        bloqTypes={bloqTypes}
+        eventBloqGroups={eventBloqGroups}
+        waitBloqGroups={waitBloqGroups}
+        actionBloqGroups={actionBloqGroups}
+        onBloqsChange={(newBloqs: Bloq[][]) =>
+          setContent(update(content, { bloqs: { $set: newBloqs } }))
+        }
+      />
     </Document.Tab>
   ];
 
@@ -76,7 +85,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       tabIndex={tabIndex}
       onTabChange={onTabChange}
     >
-      {typeof children === 'function' ? children(mainTabs) : mainTabs}
+      {typeof children === "function" ? children(mainTabs) : mainTabs}
     </Document>
   );
 };
