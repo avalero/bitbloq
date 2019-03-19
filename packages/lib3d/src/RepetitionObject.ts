@@ -335,6 +335,17 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
+  private setMesh(mesh: THREE.Group): void {
+    this.mesh = mesh;
+
+    this.meshUpdateRequired = false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
+
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+  }
+
   /**
    * Performs a cartesian repetition of object (nun times), with x,y,z distances
    * It adds repeated objects to ObjectsGroup instance
@@ -367,17 +378,6 @@ export default class RepetitionObject extends ObjectsCommon {
         this.group.push(objectClone);
       }
     }
-  }
-
-  private setMesh(mesh: THREE.Group): void {
-    this.mesh = mesh;
-
-    this.meshUpdateRequired = false;
-    this.pendingOperation = false;
-    this.viewOptionsUpdateRequired = false;
-
-    this.mesh.updateMatrixWorld(true);
-    this.mesh.updateMatrix();
   }
 
   /**
@@ -420,6 +420,8 @@ export default class RepetitionObject extends ObjectsCommon {
       if (baseObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = baseObject.clone();
         const json = objectClone.toJSON();
+        // clone operations (to avoid changing referenced array)
+        json.operations = [...json.operations];
         const rotation = ObjectsCommon.createRotateOperation(0, 0, 0, false);
         rotation[axis] = (i * angle) / (num - 1);
         json.operations.push(rotation);
