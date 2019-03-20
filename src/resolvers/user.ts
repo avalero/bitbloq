@@ -11,6 +11,7 @@ import * as mjml2html from 'mjml';
 import { resetPasswordTemplate } from '../email/resetPasswordMail';
 import { welcomeTemplate } from '../email/welcomeMail';
 
+import { redisClient } from '../server';
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -203,6 +204,11 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
+        await redisClient.set(String(contactFound._id), token, (err, reply)=>{
+          if(err) {
+            throw new ApolloError('Error storing auth token in redis', 'REDIS_TOKEN_ERROR');
+          }
+        });
         return token;
       } else {
         throw new AuthenticationError('Email or password incorrect');

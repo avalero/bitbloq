@@ -38,6 +38,7 @@
     "apollo-server": "^2.2.6",
     "apollo-server-koa": "^2.4.8",
     "bcrypt": "^3.0.3",
+    "bluebird": "^3.5.3",
     "bson": "^4.0.1",
     "dotenv": "^6.2.0",
     "easygraphql-tester": "^2.1.4",

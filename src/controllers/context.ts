@@ -1,10 +1,12 @@
-import { AuthenticationError } from 'apollo-server-koa';
+import { ApolloError, AuthenticationError } from 'apollo-server-koa';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 const jsonwebtoken = require('jsonwebtoken');
 
+import { redisClient } from '../server';
+
 const contextController = {
-  getMyUser: async context => {
+  getMyUser: async (context) => {
     let token1: string;
     let justToken: string;
     if (context.headers) {
@@ -25,24 +27,21 @@ const contextController = {
       let user;
       try {
         user = await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
-        return user;
       } catch (e) {
         return undefined;
       }
-      // if (user){
-      //   // Si el token se ha resuelto y el token está guardado en las submissions
-      //   // o en los ususarios se devuelve la resolución, si no existe, es que hay otra sesión abierta
-      //   if (await UserModel.findOne({ authToken: justToken })){
-      //     return user;
-      //   } else if (await SubmissionModel.findOne({ submissionToken: justToken })) {
-      //     return user;
-      //   } else {
-      //     throw new ApolloError(
-      //       'Token not valid. More than one session opened',
-      //       'ANOTHER_OPEN_SESSION',
-      //     );
-      //   }
-      // }
+      // check if there is another open session
+      if(user){
+        const reply: string = await redisClient.getAsync(user.userID);
+        if(reply === justToken){
+          return user;
+        } else {
+          throw new ApolloError(
+            'Token not valid. More than one session opened',
+            'ANOTHER_OPEN_SESSION',
+          );            
+        }
+      }
     }
   },
   getDataInToken: async inToken => {
