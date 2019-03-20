@@ -996,9 +996,10 @@ export default class Scene {
       let result: THREE.Mesh[] = [];
       object.children.forEach(child => {
         result = [...result, ...this.toMeshArray(child)];
-        return result;
       });
+      return result;
     }
+
     throw new Error(`Unknown object type`);
   }
 }
