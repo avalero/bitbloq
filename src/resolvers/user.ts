@@ -8,7 +8,9 @@ import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
 
 import * as mjml2html from 'mjml';
-import { template } from '../email/welcomeMail';
+import { resetPasswordTemplate } from '../email/resetPasswordMail';
+import { welcomeTemplate } from '../email/welcomeMail';
+
 
 const bcrypt = require('bcrypt');
 const jsonwebtoken = require('jsonwebtoken');
@@ -58,7 +60,7 @@ const userResolver = {
           process.env.FRONTEND_URL
         }/app/activate?token=${token}`,
       };
-      const mjml = template(data);
+      const mjml = welcomeTemplate(data);
       const htmlMessage = mjml2html(mjml, {
         keepComments: false,
         beautify: true,
@@ -82,6 +84,87 @@ const userResolver = {
         { new: true },
       );
       return 'OK';
+    },
+
+    /**
+     * reset Password: send a email to the user email with a new token for edit the password.
+     * args: email
+     */
+    resetPasswordEmail: async (root: any, { email }) => {
+      const contactFound = await UserModel.findOne({ email });
+      if (!contactFound) {
+        throw new AuthenticationError('The email does not exist.');
+      }
+      const token: string = jsonwebtoken.sign(
+        {
+          resetPassUserID: contactFound._id,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '30m' },
+      );
+      console.log(token);
+      // Generate the email with the activation link and send it
+      const data = {
+        resetPasswordUrl: `${
+          process.env.FRONTEND_URL
+        }/app/reset-password?token=${token}`,
+      };
+      const mjml = resetPasswordTemplate(data);
+      const htmlMessage = mjml2html(mjml, {
+        keepComments: false,
+        beautify: true,
+        minify: true,
+      });
+      await mailerController.sendEmail(
+        contactFound.email,
+        'Bitbloq Restore Password ✔',
+        htmlMessage.html,
+      );
+      return 'OK';
+    },
+
+    /**
+     * edit Password: stores the new password passed as argument in the database
+     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
+     * args: token, new Password
+     */
+    updatePassword: async (root: any, {token, newPassword}) => {
+      if (!token) {
+        throw new ApolloError(
+          'Error with reset password token, no token in args',
+          'NOT_TOKEN_PROVIDED',
+        );
+      }
+      const dataInToken = await contextController.getDataInToken(token);
+      const contactFound = await UserModel.findOne({
+        _id: dataInToken.resetPassUserID,
+      });
+      if(!contactFound){
+        throw new ApolloError(
+          'Error with reset password token',
+          'USER_NOT_FOUND',
+        )
+      }
+      // Store the password with a hash
+      const hash: string = await bcrypt.hash(newPassword, saltRounds);
+      const authToken: string = jsonwebtoken.sign(
+        {
+          email: contactFound.email,
+          userID: contactFound._id,
+          role: 'USER',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '4h' },
+      );
+      await UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        { $set: {
+            password: hash,
+            authToken: authToken,
+          },
+        },
+      );
+      return authToken;
     },
 
     /*
@@ -120,13 +203,9 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
-
         return token;
       } else {
-        throw new ApolloError(
-          'comparing passwords valid=false',
-          'PASSWORD_ERROR',
-        );
+        throw new AuthenticationError('Email or password incorrect');
       }
     },
 
