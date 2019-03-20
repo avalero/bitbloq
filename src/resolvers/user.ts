@@ -86,7 +86,11 @@ const userResolver = {
       return 'OK';
     },
 
-    resetPassword: async (root: any, { email }) => {
+    /**
+     * reset Password: send a email to the user email with a new token for edit the password.
+     * args: email
+     */
+    resetPasswordEmail: async (root: any, { email }) => {
       const contactFound = await UserModel.findOne({ email });
       if (!contactFound) {
         throw new AuthenticationError('The email does not exist.');
@@ -116,35 +120,51 @@ const userResolver = {
         'Bitbloq Restore Password ✔',
         htmlMessage.html,
       );
-      // Update the user information in the database
-      await UserModel.findOneAndUpdate(
-        { _id: contactFound._id },
-        { $set: { signUpToken: token } },
-        { new: true },
-      );
       return 'OK';
     },
 
-    editPassword: async (root: any, args: any, context: any) => {
-      if (!args.token) {
+    /**
+     * edit Password: stores the new password passed as argument in the database
+     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
+     * args: token, new Password
+     */
+    updatePassword: async (root: any, {token, newPassword}) => {
+      if (!token) {
         throw new ApolloError(
           'Error with reset password token, no token in args',
           'NOT_TOKEN_PROVIDED',
         );
       }
-      const userInToken = await contextController.getDataInToken(args.token);
+      const dataInToken = await contextController.getDataInToken(token);
       const contactFound = await UserModel.findOne({
-        _id: userInToken.resetPassUserID,
+        _id: dataInToken.resetPassUserID,
       });
       if(!contactFound){
         throw new ApolloError(
-          'Error with reset password token, no valid user id',
+          'Error with reset password token',
           'USER_NOT_FOUND',
         )
       }
       // Store the password with a hash
-      const hash: string = await bcrypt.hash(args.newPassword, saltRounds);
-      return await UserModel.findOneAndUpdate({ _id: contactFound._id }, { $set: { password: hash } }, { new: true });
+      const hash: string = await bcrypt.hash(newPassword, saltRounds);
+      const authToken: string = jsonwebtoken.sign(
+        {
+          email: contactFound.email,
+          userID: contactFound._id,
+          role: 'USER',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '4h' },
+      );
+      await UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        { $set: {
+            password: hash,
+            authToken: authToken,
+          },
+        },
+      );
+      return authToken;
     },
 
     /*
@@ -185,10 +205,7 @@ const userResolver = {
         );
         return token;
       } else {
-        throw new ApolloError(
-          'comparing passwords valid=false',
-          'PASSWORD_ERROR',
-        );
+        throw new AuthenticationError('Email or password incorrect');
       }
     },
 

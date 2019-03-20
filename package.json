@@ -46,6 +46,7 @@
     "graphql-redis-subscriptions": "^2.1.0",
     "graphql-subscriptions": "^1.0.0",
     "graphql-type-json": "^0.2.1",
+    "handlebars": "^4.1.1",
     "ioredis": "^4.6.2",
     "jest": "^24.1.0",
     "jsonwebtoken": "^8.4.0",

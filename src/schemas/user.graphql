@@ -20,8 +20,8 @@ type Mutation {
   signUpUser(input: UserIn!): String
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
-  resetPassword(email: EmailAddress!): String
-  editPassword(token: String, newPassword: String): User
+  resetPasswordEmail(email: EmailAddress!): String
+  updatePassword(token: String, newPassword: String): String
   deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
   updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
 }

@@ -72,11 +72,13 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       me: User        @authRequired(requires: [USER])
 
     MUTATIONS:
-      activateAccount(token: String): String
       signUpUser(input: UserIn!): String
+      activateAccount(token: String): String
       login(email: EmailAddress!, password: String!): String
-      deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
-      updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
+      resetPasswordEmail(email: EmailAddress!): String
+      updatePassword(token: String, newPassword: String): String
+      deleteUser(id: ObjectID!): User                             @authRequired(requires: [USER])
+      updateUser(id: ObjectID!, input: UserIn!): User             @authRequired(requires: [USER])
 
     input UserIn {
       email: EmailAddress
