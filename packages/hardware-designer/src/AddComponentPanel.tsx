@@ -9,12 +9,14 @@ export interface IAddComponentPanelProps {
   isOpen: boolean;
   board: IBoard;
   components: IComponent[];
+  onComponentSelected: (component: IComponent) => any;
 }
 
 const AddComponentPanel: React.FunctionComponent<IAddComponentPanelProps> = ({
   isOpen,
   board,
-  components
+  components,
+  onComponentSelected
 }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 200 : 0,
@@ -25,11 +27,13 @@ const AddComponentPanel: React.FunctionComponent<IAddComponentPanelProps> = ({
   return (
     <Wrap style={wrapStyle}>
       <Content>
-        {components.map(({ image }) => (image &&
+        {components.map((component, i) => (component.image &&
           <Component
-            src={image.url}
-            width={image.width}
-            height={image.height}
+            key={i}
+            src={component.image.url}
+            width={component.image.width}
+            height={component.image.height}
+            onClick={() => onComponentSelected(component)}
           />
         ))}
       </Content>
@@ -58,4 +62,8 @@ interface IComponentProps {
   width: number;
   height: number;
 }
-const Component = styled.img<IComponentProps>``;
+const Component = styled.img<IComponentProps>`
+  cursor: pointer;
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
+`;

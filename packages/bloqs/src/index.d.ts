@@ -1,3 +1,7 @@
+import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
+
+export { HorizontalBloqEditor };
+
 export enum BloqCategory {
   Event = "event",
   Timer = "timer",
@@ -30,7 +34,7 @@ export interface BloqParameterDefinition {
   name: string;
   label: string;
   type: BloqParameterType;
-  options: BloqParameterOption | BloqParameterOptionSource
+  options: BloqParameterOption | BloqParameterOptionSource;
 }
 
 export interface BloqType {

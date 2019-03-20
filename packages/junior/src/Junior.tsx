@@ -50,6 +50,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
 
   const [content, setContent] = useState(initialContent);
   const bloqs = content.bloqs || [];
+  const hardware = content.hardware || { board: "zumjunior", components: [] };
 
   const mainTabs = [
     <Document.Tab
@@ -57,7 +58,14 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       icon={<Icon name="hardware" />}
       label={t("hardware")}
     >
-      <HardwareDesigner boards={boards} components={components} />
+      <HardwareDesigner
+        boards={boards}
+        components={components}
+        hardware={hardware}
+        onHardwareChange={newHardware =>
+          setContent(update(content, { hardware: { $set: newHardware } }))
+        }
+      />
     </Document.Tab>,
     <Document.Tab
       key="software"

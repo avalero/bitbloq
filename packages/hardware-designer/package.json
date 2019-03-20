@@ -56,6 +56,7 @@
     "@emotion/core": "^10.0.9",
     "@emotion/styled": "^10.0.9",
     "@types/react": "^16.8.8",
+    "immutability-helper": "^3.0.0",
     "react": "^16.8.4",
     "react-spring": "^8.0.16"
   }
