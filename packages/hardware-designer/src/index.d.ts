@@ -1,6 +1,10 @@
+import HardwareDesigner from './HardwareDesigner';
+
+export { HardwareDesigner };
+
 export type ConnectorType = string;
 
-export interface IHardwareImage {
+export interface IComponentImage {
   url: string;
   width: number;
   height: number;
@@ -35,7 +39,7 @@ export interface IPort {
 export interface IBoard {
   name: string;
   code: any;
-  image: IHardwareImage;
+  image: IComponentImage;
   ports: IPort[];
 }
 
@@ -60,7 +64,18 @@ export interface IConnector {
 export interface IComponent {
   name: string;
   extends: string;
-  image: IHardwareImage;
+  image: IComponentImage;
   code: any;
   connectors: IConnector[];
+}
+
+export interface IComponentInstance {
+  component: string;
+  name: string;
+  port: string;
+}
+
+export interface IHardware {
+  board: string;
+  components: IComponentInstance[];
 }
