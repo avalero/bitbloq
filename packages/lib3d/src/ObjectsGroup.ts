@@ -10,6 +10,7 @@ import {
   IObjectsGroupJSON,
   IObjectsCommonJSON,
   IViewOptions,
+  OperationsArray,
 } from './Interfaces';
 
 export default class ObjectsGroup extends ObjectsCommon {
@@ -30,7 +31,11 @@ export default class ObjectsGroup extends ObjectsCommon {
       const group: ObjectsCommon[] = object.children.map(obj =>
         scene.getObject(obj),
       );
-      const groupObj = new ObjectsGroup(group, object.viewOptions);
+      const groupObj = new ObjectsGroup(
+        group,
+        object.viewOptions,
+        object.operations,
+      );
       groupObj.id = object.id || groupObj.id;
       return groupObj;
     } catch (e) {
@@ -43,9 +48,10 @@ export default class ObjectsGroup extends ObjectsCommon {
   constructor(
     children: ObjectsCommon[] = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray = [],
     mesh?: THREE.Group | undefined,
   ) {
-    super(viewOptions, []);
+    super(viewOptions, [...operations]);
     this.children = children;
     this.children.forEach(child => child.setParent(this));
     this.type = ObjectsGroup.typeName;
@@ -153,8 +159,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
   public clone(): ObjectsGroup {
     const groupClone = this.children.map(obj2clone => obj2clone.clone());
-    const obj = new ObjectsGroup(groupClone, this.viewOptions);
-    obj.setOperations(this.operations);
+    const obj = new ObjectsGroup(groupClone, this.viewOptions, this.operations);
     return obj;
   }
 
