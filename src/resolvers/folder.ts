@@ -28,7 +28,7 @@ const folderResolver = {
     createFolder: async (root: any, args: any, context: any) => {
       const user = await UserModel.findOne({ _id: context.user.userID });
       if (args.input.parent) {
-        if (!(await FolderModel.findOne({_id: args.input.parent}))){
+        if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
           throw new ApolloError(
             'Parent folder does not exist',
             'PARENT_NOT_FOUND',
@@ -116,7 +116,7 @@ const folderResolver = {
         user: context.user.userID,
       });
       if (args.input.parent) {
-        if (!(await FolderModel.findOne({_id: args.input.parent}))){
+        if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
           throw new ApolloError(
             'Parent folder does not exist',
             'PARENT_NOT_FOUND',
@@ -131,8 +131,11 @@ const folderResolver = {
           // si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
           for (const folder of args.input.foldersID) {
             const fol = await FolderModel.findOne({ _id: folder });
-            if(!fol){
-              throw new ApolloError('Folder ID does not exist', 'FOLDER_NOT_FOUND');
+            if (!fol) {
+              throw new ApolloError(
+                'Folder ID does not exist',
+                'FOLDER_NOT_FOUND',
+              );
             }
             await FolderModel.updateOne(
               // quito la carpeta de la carpeta en la que estuviera
@@ -156,8 +159,11 @@ const folderResolver = {
           // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
           for (const document of args.input.documentsID) {
             const doc = await DocumentModel.findOne({ _id: document });
-            if(!doc){
-              throw new ApolloError('Document ID does not exist', 'DOCUMENT_NOT_FOUND');
+            if (!doc) {
+              throw new ApolloError(
+                'Document ID does not exist',
+                'DOCUMENT_NOT_FOUND',
+              );
             }
             await FolderModel.updateOne(
               // quito el documento de la carpeta en la que estuviera

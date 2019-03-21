@@ -129,7 +129,7 @@ const userResolver = {
      * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
      * args: token, new Password
      */
-    updatePassword: async (root: any, {token, newPassword}) => {
+    updatePassword: async (root: any, { token, newPassword }) => {
       if (!token) {
         throw new ApolloError(
           'Error with reset password token, no token in args',
@@ -140,11 +140,11 @@ const userResolver = {
       const contactFound = await UserModel.findOne({
         _id: dataInToken.resetPassUserID,
       });
-      if(!contactFound){
+      if (!contactFound) {
         throw new ApolloError(
           'Error with reset password token',
           'USER_NOT_FOUND',
-        )
+        );
       }
       // Store the password with a hash
       const hash: string = await bcrypt.hash(newPassword, saltRounds);
@@ -159,10 +159,23 @@ const userResolver = {
       );
       await UserModel.findOneAndUpdate(
         { _id: contactFound._id },
-        { $set: {
+        {
+          $set: {
             password: hash,
             authToken: authToken,
           },
+        },
+      );
+      await redisClient.set(
+        String('authToken-' + contactFound._id),
+        authToken,
+        (err, reply) => {
+          if (err) {
+            throw new ApolloError(
+              'Error storing auth token in redis',
+              'REDIS_TOKEN_ERROR',
+            );
+          }
         },
       );
       return authToken;
@@ -204,11 +217,18 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
-        await redisClient.set(String(contactFound._id), token, (err, reply)=>{
-          if(err) {
-            throw new ApolloError('Error storing auth token in redis', 'REDIS_TOKEN_ERROR');
-          }
-        });
+        await redisClient.set(
+          String('authToken-' + contactFound._id),
+          token,
+          (err, reply) => {
+            if (err) {
+              throw new ApolloError(
+                'Error storing auth token in redis',
+                'REDIS_TOKEN_ERROR',
+              );
+            }
+          },
+        );
         return token;
       } else {
         throw new AuthenticationError('Email or password incorrect');
@@ -251,6 +271,18 @@ const userResolver = {
               authToken: token,
               signUpToken: ' ',
             },
+          },
+        );
+        await redisClient.set(
+          String('authToken-' + contactFound._id),
+          token,
+          (err, reply) => {
+            if (err) {
+              throw new ApolloError(
+                'Error storing auth token in redis',
+                'REDIS_TOKEN_ERROR',
+              );
+            }
           },
         );
         return token;

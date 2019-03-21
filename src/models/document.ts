@@ -48,17 +48,17 @@ const DocumentMongSchema: Schema = new Schema({
 
   image: {
     type: String,
-    default: 'imageURL'
+    default: 'imageURL',
   },
 
   description: {
     type: String,
-    default: 'description'
+    default: 'description',
   },
 
   version: {
     type: String,
-    default: 'version'
+    default: 'version',
   },
 });
 

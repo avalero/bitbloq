@@ -6,7 +6,7 @@ const jsonwebtoken = require('jsonwebtoken');
 import { redisClient } from '../server';
 
 const contextController = {
-  getMyUser: async (context) => {
+  getMyUser: async context => {
     let token1: string;
     let justToken: string;
     if (context.headers) {
@@ -31,15 +31,29 @@ const contextController = {
         return undefined;
       }
       // check if there is another open session
-      if(user){
-        const reply: string = await redisClient.getAsync(user.userID);
-        if(reply === justToken){
+      if (user.userID) {
+        const reply: string = await redisClient.getAsync(
+          'authToken-' + user.userID,
+        );
+        if (reply === justToken) {
           return user;
         } else {
           throw new ApolloError(
             'Token not valid. More than one session opened',
             'ANOTHER_OPEN_SESSION',
-          );            
+          );
+        }
+      } else if (user.submissionID) {
+        const reply: string = await redisClient.getAsync(
+          'subToken-' + user.submissionID,
+        );
+        if (reply === justToken) {
+          return user;
+        } else {
+          throw new ApolloError(
+            'Token not valid. More than one session opened',
+            'ANOTHER_OPEN_SESSION',
+          );
         }
       }
     }

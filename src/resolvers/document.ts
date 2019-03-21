@@ -1,4 +1,8 @@
-import { ApolloError, AuthenticationError, withFilter } from 'apollo-server-koa';
+import {
+  ApolloError,
+  AuthenticationError,
+  withFilter,
+} from 'apollo-server-koa';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
 import { FolderModel } from '../models/folder';
@@ -32,11 +36,8 @@ const documentResolver = {
      */
     createDocument: async (root: any, args: any, context: any) => {
       if (args.input.folder) {
-        if (!(await FolderModel.findOne({_id: args.input.folder}))){
-          throw new ApolloError(
-            'Folder does not exist',
-            'FOLDER_NOT_FOUND',
-          );
+        if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
+          throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
         }
       }
       const documentNew = new DocumentModel({
@@ -114,11 +115,8 @@ const documentResolver = {
         user: context.user.userID,
       });
       if (args.input.folder) {
-        if (!(await FolderModel.findOne({_id: args.input.folder}))){
-          throw new ApolloError(
-            'Folder does not exist',
-            'FOLDER_NOT_FOUND',
-          );
+        if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
+          throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
         }
       }
       if (existDocument) {
@@ -141,10 +139,11 @@ const documentResolver = {
           image = imageUploaded.publicUrl;
         } else if (args.input.imageUrl) {
           image = args.input.imageUrl;
-        }  
+        }
         const updatedDoc = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
-          { $set: {
+          {
+            $set: {
               title: args.input.title || existDocument.title,
               type: args.input.type || existDocument.type,
               folder: args.input.folder || existDocument.folder,
@@ -153,7 +152,7 @@ const documentResolver = {
               description: args.input.description || existDocument.description,
               version: args.input.version || existDocument.version,
               image: image || existDocument.image,
-            }
+            },
           },
           { new: true },
         );

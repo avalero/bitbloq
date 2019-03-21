@@ -10,7 +10,7 @@ const { ApolloServer, AuthenticationError } = require('apollo-server-koa');
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
 const redis = require('redis');
-const bluebird= require('bluebird');
+const bluebird = require('bluebird');
 
 const PORT = process.env.PORT;
 
@@ -54,15 +54,18 @@ const allReviver = (key, value) => {
 export const pubsub: RedisPubSub = new RedisPubSub({
   publisher: new Redis(redisOptions),
   subscriber: new Redis(redisOptions),
-  reviver: allReviver
+  reviver: allReviver,
 });
 
 // Redis client for session tokens
 // to do async/await
 bluebird.promisifyAll(redis.RedisClient.prototype);
-export const redisClient = redis.createClient( REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME );
-redisClient.on('connect', ()=>{
-  console.log('Redis client connected.')
+export const redisClient = redis.createClient(
+  REDIS_PORT_NUMBER,
+  REDIS_DOMAIN_NAME,
+);
+redisClient.on('connect', () => {
+  console.log('Redis client connected.');
 });
 
 const httpServer = app.listen(PORT, () =>

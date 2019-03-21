@@ -1,7 +1,7 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { ExerciseModel } from '../models/exercise';
 import { SubmissionModel } from '../models/submission';
-import { pubsub } from '../server';
+import { pubsub, redisClient } from '../server';
 
 const jsonwebtoken = require('jsonwebtoken');
 
@@ -16,7 +16,12 @@ const submissionResolver = {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
         (payload, variables, context) => {
-          return payload.submissionUpdated.exercise == variables.exercise;
+          // Filter by exercise code if the exercise is mine
+          if (context.user.userID === payload.submissionUpdated.user) {
+            return payload.submissionUpdated.exercise === variables.exercise;
+          } else {
+            return undefined;
+          }
         },
       ),
     },
@@ -81,6 +86,18 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
+          await redisClient.set(
+            String('subToken-' + existSubmission._id),
+            token,
+            (err, reply) => {
+              if (err) {
+                throw new ApolloError(
+                  'Error storing auth token in redis',
+                  'REDIS_TOKEN_ERROR',
+                );
+              }
+            },
+          );
           pubsub.publish(SUBMISSION_UPDATED, {
             submissionUpdated: existSubmission,
           });
@@ -123,6 +140,18 @@ const submissionResolver = {
           { _id: newSub._id },
           { $set: { submissionToken: token } },
           { new: true },
+        );
+        await redisClient.set(
+          String('subToken-' + newSub._id),
+          token,
+          (err, reply) => {
+            if (err) {
+              throw new ApolloError(
+                'Error storing auth token in redis',
+                'REDIS_TOKEN_ERROR',
+              );
+            }
+          },
         );
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
