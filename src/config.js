@@ -53,6 +53,13 @@ import lightIcon from "./images/bloqs/light.svg"
 import darkIcon from "./images/bloqs/dark.svg"
 import obstacleIcon from "./images/bloqs/obstacle.svg";
 import noObstacleIcon from "./images/bloqs/no-obstacle.svg";
+import timeIcon from "./images/bloqs/time.svg";
+import time1Icon from "./images/bloqs/time-1.svg";
+import time5Icon from "./images/bloqs/time-5.svg";
+import doubleLedOnOnIcon from "./images/bloqs/double-led-on-on.svg";
+import doubleLedOffOnIcon from "./images/bloqs/double-led-off-on.svg";
+import doubleLedOnOffIcon from "./images/bloqs/double-led-on-off.svg";
+import doubleLedOffOffIcon from "./images/bloqs/double-led-off-off.svg";
 
 export const documentTypes = {
   bloqs: {
@@ -255,7 +262,6 @@ export const bloqTypes = [
     name: "OnButtonPressed",
     label: "bloq-on-button-pressed",
     icon: buttonPressedIcon,
-    code: {},
     parameterDefinitions: [{
       name: "button",
       label: "bloq-parameter-button",
@@ -264,7 +270,13 @@ export const bloqTypes = [
         source: "Components",
         args: ["Button"]
       }
-    }]
+    }],
+    code: {
+      "declarations": "void {{parameters.button.name}}_pressed();",
+      "definitions": "void {{parameters.button.name}}_pressed() {\n if({{parameters.button.name}}PinOn) return;\n{{parameters.button.name}}PinOn = true;\n{{nextCode.statement}}\n{{finallyCode}}}\n",
+      "statement": "if({{getComponentCode(parameters.button, 'read')}}) {{parameters.button.name}}_pressed();",
+      "finally": "{{parameters.button.name}}PinOn = false;\n"
+    }
   },
   {
     category: "event",
@@ -292,8 +304,47 @@ export const bloqTypes = [
   },
   {
     category: "action",
-    name: "MoveServo",
-    icon: obstacleIcon,
+    name: "DoubleLedTurnOnOn",
+    icon: doubleLedOnOnIcon,
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "select",
+      options: {
+        source: "Components",
+        args: ["Button"]
+      }
+    }],
+    code: {}
+  },
+  {
+    category: "action",
+    name: "DoubleLedTurnOffOn",
+    icon: doubleLedOffOnIcon,
+    code: {}
+  },
+  {
+    category: "action",
+    name: "DoubleLedTurnOnOff",
+    icon: doubleLedOnOffIcon,
+    code: {}
+  },
+  {
+    category: "action",
+    name: "DoubleLedTurnOffOff",
+    icon: doubleLedOffOffIcon,
+    code: {}
+  },
+  {
+    category: "wait",
+    name: "Wait1Second",
+    icon: time1Icon,
+    code: {}
+  },
+  {
+    category: "wait",
+    name: "Wait5Seconds",
+    icon: time5Icon,
     code: {}
   }
 ];
@@ -329,12 +380,23 @@ export const eventBloqGroups = [
 export const actionBloqGroups = [
   {
     category: "action",
-    icon: obstacleIcon,
-    types: ["MoveServo"]
+    icon: doubleLedOnOnIcon,
+    types: [
+      "DoubleLedTurnOnOn",
+      "DoubleLedTurnOffOn",
+      "DoubleLedTurnOnOff",
+      "DoubleLedTurnOffOff"
+    ]
   }
 ];
 
-export const waitBloqGroups = [];
+export const waitBloqGroups = [
+  {
+    category: "wait",
+    icon: timeIcon,
+    types: ["Wait1Second", "Wait5Seconds"]
+  }
+];
 
 export const boards = [
   {
@@ -592,8 +654,12 @@ export const components = [
     }
   },
   {
+    "name": "DoubleLed",
+    "extends": "Led"
+  },
+  {
     "name": "ZumjuniorLed",
-    "extends": "Led",
+    "extends": "DoubleLed",
     "onValue": "LOW",
     "offValue": "HIGH",
     "instanceName": "led",

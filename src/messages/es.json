@@ -111,5 +111,10 @@
   "param-repetitions": "Repeticiones",
   "status-position": "Posición (mm):",
   "status-rotation": "Rotación (grados):",
-  "untitled-project": "Proyecto sin título"
+  "untitled-project": "Proyecto sin título",
+  "hardware": "Hardware",
+  "software": "Software",
+  "bloqs-sensors": "Sensores",
+  "bloqs-actions": "Acciones",
+  "bloqs-waits": "Esperas"
 }
