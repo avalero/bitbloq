@@ -1,19 +1,24 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { colors, Input, Select } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
-import { Bloq, BloqType } from "../index.d";
+import {
+  IBloq,
+  IBloqType,
+  IBloqParameterDefinition,
+  BloqParameterType
+} from "../index.d";
 
-interface BloqPropertiesPanelProps {
+interface IBloqPropertiesPanelProps {
   isOpen: boolean;
-  bloqType: BloqType;
-  bloq: Bloq;
+  bloqType: IBloqType;
+  bloq: IBloq;
 }
 
 const BloqPropertiesPanel: React.FunctionComponent<
-  BloqPropertiesPanelProps
+  IBloqPropertiesPanelProps
 > = ({ isOpen, bloqType, bloq }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
@@ -34,9 +39,21 @@ const BloqPropertiesPanel: React.FunctionComponent<
           </HeaderBloq>
           <Title>{bloqType.label}</Title>
         </Header>
+        <div>
+          {bloqType.parameterDefinitions.map(param => (
+            <Parameter param={param} key={param.name} />
+          ))}
+        </div>
       </Content>
     </Wrap>
   );
+};
+
+interface IParameterProps {
+  param: IBloqParameterDefinition;
+}
+const Parameter: React.FunctionComponent<IParameterProps> = ({ param }) => {
+  return <FormGroup />;
 };
 
 export default BloqPropertiesPanel;
@@ -73,5 +90,24 @@ const Title = styled.div`
   font-weight: bold;
   font-style: italic;
   margin-left: 10px;
+  flex: 1;
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+
+  label {
+    display: block;
+    width: 120px;
+  }
+
+  input {
+    flex: 1;
+  }
+`;
+
+const StyledSelect = styled(Select)`
   flex: 1;
 `;

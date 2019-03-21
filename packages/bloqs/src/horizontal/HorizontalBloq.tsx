@@ -4,16 +4,16 @@ import { colors, Icon } from "@bitbloq/ui";
 import EventShape from "./EventShape";
 import { bloqColors, horizontalShapes } from "../config";
 
-import { BloqType } from "../index.d";
+import { IBloqType } from "../index.d";
 
-interface HorizontalBloqProps {
-  type: BloqType;
+interface IHorizontalBloqProps {
+  type: IBloqType;
   className?: string;
   onClick?: React.MouseEventHandler;
   selected?: boolean;
 }
 
-const HorizontalBloq: React.FunctionComponent<HorizontalBloqProps> = ({
+const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   type,
   className,
   onClick,

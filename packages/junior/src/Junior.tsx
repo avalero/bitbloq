@@ -1,17 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { Document, Icon, useTranslate } from "@bitbloq/ui";
 import {
+  HorizontalBloqEditor,
   HardwareDesigner,
+  bloqs2code,
+  IBloq,
+  IBloqType,
+  IBloqTypeGroup,
   IBoard,
   IComponent
-} from "@bitbloq/hardware-designer";
-import {
-  HorizontalBloqEditor,
-  Bloq,
-  BloqType,
-  BloqTypeGroup
 } from "@bitbloq/bloqs";
 
 export interface JuniorProps {
@@ -20,10 +19,10 @@ export interface JuniorProps {
   onEditTitle: () => any;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
-  bloqTypes: BloqType[];
-  eventBloqGroups: BloqTypeGroup[];
-  actionBloqGroups: BloqTypeGroup[];
-  waitBloqGroups: BloqTypeGroup[];
+  bloqTypes: IBloqType[];
+  eventBloqGroups: IBloqTypeGroup[];
+  actionBloqGroups: IBloqTypeGroup[];
+  waitBloqGroups: IBloqTypeGroup[];
   initialContent?: any;
   onContentChange: (content: any) => any;
   boards: IBoard[];
@@ -49,8 +48,26 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   const t = useTranslate();
 
   const [content, setContent] = useState(initialContent);
-  const bloqs = content.bloqs || [];
+  const program = content.program || [];
   const hardware = content.hardware || { board: "zumjunior", components: [] };
+
+  useEffect(() => {
+    console.log(
+      "Calling bloqs2code with:",
+      "Board:",
+      boards,
+      "Components:",
+      components,
+      "BloqTypes:",
+      bloqTypes,
+      "Hardware:",
+      hardware,
+      "Program:",
+      program
+    );
+    const code = bloqs2code(boards, components, bloqTypes, hardware, program);
+    console.log("CODE:", code);
+  }, [program, hardware]);
 
   const mainTabs = [
     <Document.Tab
@@ -73,13 +90,13 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       label={t("software")}
     >
       <HorizontalBloqEditor
-        bloqs={bloqs}
+        bloqs={program}
         bloqTypes={bloqTypes}
         eventBloqGroups={eventBloqGroups}
         waitBloqGroups={waitBloqGroups}
         actionBloqGroups={actionBloqGroups}
-        onBloqsChange={(newBloqs: Bloq[][]) =>
-          setContent(update(content, { bloqs: { $set: newBloqs } }))
+        onBloqsChange={(newProgram: IBloq[][]) =>
+          setContent(update(content, { program: { $set: newProgram } }))
         }
       />
     </Document.Tab>
