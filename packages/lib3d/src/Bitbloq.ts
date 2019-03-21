@@ -55,6 +55,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   const compoundObjectTypes: string[] = ['Union', 'Difference', 'Intersection'];
 
   const stlType = 'STLObject';
+  const predesignedType = 'PredesignedObject';
 
   const obj1Basics = {
     id: obj1.id,
@@ -81,7 +82,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   }
 
   // If STLObject, check if any of them is a newFile
-  if (obj1.type === stlType) {
+  if (obj1.type === stlType || obj1.type === predesignedType) {
     // TODO
     // I am not sure if this works. I am too tired
 

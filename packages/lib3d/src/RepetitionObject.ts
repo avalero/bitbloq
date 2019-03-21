@@ -32,6 +32,7 @@ import {
   IRepetitionObjectJSON,
   IPolarRepetitionParams,
   ICartesianRepetitionParams,
+  OperationsArray,
 } from './Interfaces';
 
 /**
@@ -70,7 +71,7 @@ export default class RepetitionObject extends ObjectsCommon {
     }
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
-      const rep = new RepetitionObject(obj.parameters, object, obj.viewOptions);
+      const rep = new RepetitionObject(obj.parameters, object, obj.viewOptions, obj.operations);
       rep.id = obj.id || rep.id;
       return rep;
     } catch (e) {
@@ -92,6 +93,7 @@ export default class RepetitionObject extends ObjectsCommon {
     params: ICartesianRepetitionParams | IPolarRepetitionParams,
     original: ObjectsCommon,
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
+    operations: OperationsArray = [],
     mesh?: THREE.Group | undefined,
   ) {
     const vO: IViewOptions = {
@@ -100,7 +102,7 @@ export default class RepetitionObject extends ObjectsCommon {
       ...viewOptions,
     };
 
-    super(vO, []);
+    super(vO, [...operations]);
     this.parameters = { ...params };
     this.originalObject = original;
     this.originalObject.setParent(this);
@@ -136,6 +138,7 @@ export default class RepetitionObject extends ObjectsCommon {
         this.parameters,
         this.originalObject.clone(),
         this.viewOptions,
+        this.operations,
         (this.mesh as THREE.Group).clone(),
       );
       return repObj;
@@ -144,6 +147,7 @@ export default class RepetitionObject extends ObjectsCommon {
       this.parameters,
       this.originalObject.clone(),
       this.viewOptions,
+      this.operations
     );
     return obj;
   }
@@ -162,7 +166,6 @@ export default class RepetitionObject extends ObjectsCommon {
       parameters: this.parameters,
       children: [this.originalObject.toJSON()],
     };
-
     return obj;
   }
 
@@ -335,6 +338,17 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
+  private setMesh(mesh: THREE.Group): void {
+    this.mesh = mesh;
+
+    this.meshUpdateRequired = false;
+    this.pendingOperation = false;
+    this.viewOptionsUpdateRequired = false;
+
+    this.mesh.updateMatrixWorld(true);
+    this.mesh.updateMatrix();
+  }
+
   /**
    * Performs a cartesian repetition of object (nun times), with x,y,z distances
    * It adds repeated objects to ObjectsGroup instance
@@ -367,17 +381,6 @@ export default class RepetitionObject extends ObjectsCommon {
         this.group.push(objectClone);
       }
     }
-  }
-
-  private setMesh(mesh: THREE.Group): void {
-    this.mesh = mesh;
-
-    this.meshUpdateRequired = false;
-    this.pendingOperation = false;
-    this.viewOptionsUpdateRequired = false;
-
-    this.mesh.updateMatrixWorld(true);
-    this.mesh.updateMatrix();
   }
 
   /**
@@ -420,6 +423,8 @@ export default class RepetitionObject extends ObjectsCommon {
       if (baseObject instanceof ObjectsCommon) {
         const objectClone: ObjectsCommon = baseObject.clone();
         const json = objectClone.toJSON();
+        // clone operations (to avoid changing referenced array)
+        json.operations = [...json.operations];
         const rotation = ObjectsCommon.createRotateOperation(0, 0, 0, false);
         rotation[axis] = (i * angle) / (num - 1);
         json.operations.push(rotation);

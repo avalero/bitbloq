@@ -6,12 +6,6 @@
   },
 
   "linterOptions": {
-    "exclude": [
-      "node_modules/**/*",
-      "src/threeCSG.ts",
-      "coverage/**/*",
-      "src/__tests__/**/*",
-      "src/Renderer.ts"
-    ]
+    "exclude": ["node_modules/**/*", "coverage/**/*", "src/__tests__/**/*"]
   }
 }

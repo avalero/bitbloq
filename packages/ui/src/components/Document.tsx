@@ -1,4 +1,3 @@
-/// <reference path="../index.d.ts" />
 import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
@@ -8,6 +7,7 @@ import MenuBar, {
 } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
+import { IHeaderButton, HeaderButtonClickCallback } from "../index.d";
 
 const Container = styled.div`
   display: flex;
@@ -193,13 +193,13 @@ export interface DocumentProps {
   menuOptions?: MainMenuOption[];
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
-  headerButtons?: BBUI.HeaderButton[];
+  headerButtons?: IHeaderButton[];
   title?: string;
   brandColor?: string;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
-  onHeaderButtonClick?: BBUI.HeaderButtonClickCallback;
+  onHeaderButtonClick?: HeaderButtonClickCallback;
 }
 
 interface State {
