@@ -4,23 +4,23 @@ import { colors, ScrollableTabs } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
-import { BloqTypeGroup, BloqType } from "../index.d";
+import { IBloqTypeGroup, IBloqType } from "../index.d";
 
-interface BloqTabs {
+interface IBloqTabs {
   icon: JSX.Element;
-  groups: BloqTypeGroup[];
+  groups: IBloqTypeGroup[];
   label: string;
 }
 
-export interface AddBloqPanelProps {
+export interface IAddBloqPanelProps {
   isOpen: boolean;
-  bloqTabs: BloqTabs[];
-  bloqTypes: BloqType[];
+  bloqTabs: IBloqTabs[];
+  bloqTypes: IBloqType[];
   onTypeSelected: (type: string) => any;
   onClick?: React.MouseEventHandler;
 }
 
-const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
+const AddBloqPanel: React.FunctionComponent<IAddBloqPanelProps> = ({
   isOpen,
   bloqTabs,
   bloqTypes,
@@ -83,26 +83,27 @@ const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
   );
 };
 
-interface BloqGroupHandlerProps {
-  group: BloqTypeGroup;
-  bloqTypes: BloqType[];
+interface IBloqGroupHandlerProps {
+  group: IBloqTypeGroup;
+  bloqTypes: IBloqType[];
   isOpen: boolean;
   onHandlerClick: React.MouseEventHandler;
   onTypeClick: (type: string) => any;
 }
 
-const BloqGroupHandler: React.FunctionComponent<BloqGroupHandlerProps> = ({
+const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
   group,
   bloqTypes,
   isOpen,
   onHandlerClick,
   onTypeClick
 }) => {
-  const handlerType: BloqType = {
+  const handlerType: IBloqType = {
     category: group.category,
     name: "handler",
     icon: group.icon,
-    code: {}
+    code: {},
+    parameterDefinitions: []
   };
 
   const groupTypesStyle = useSpring({

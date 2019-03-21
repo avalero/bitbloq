@@ -6,19 +6,19 @@ import BloqsLine from "./BloqsLine";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
-import { Bloq, BloqType, BloqTypeGroup, BloqCategory } from "../index.d";
+import { IBloq, IBloqType, IBloqTypeGroup, BloqCategory } from "../index.d";
 
-interface HorizontalBloqEditorProps {
-  bloqs: Bloq[][];
-  bloqTypes: BloqType[];
-  eventBloqGroups: BloqTypeGroup[];
-  waitBloqGroups: BloqTypeGroup[];
-  actionBloqGroups: BloqTypeGroup[];
-  onBloqsChange: (bloqs: Bloq[][]) => any;
+interface IHorizontalBloqEditorProps {
+  bloqs: IBloq[][];
+  bloqTypes: IBloqType[];
+  eventBloqGroups: IBloqTypeGroup[];
+  waitBloqGroups: IBloqTypeGroup[];
+  actionBloqGroups: IBloqTypeGroup[];
+  onBloqsChange: (bloqs: IBloq[][]) => any;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
-  HorizontalBloqEditorProps
+  IHorizontalBloqEditorProps
 > = ({
   bloqs,
   bloqTypes,
@@ -39,7 +39,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const t = useTranslate();
 
   const onAddBloq = (type: string) => {
-    const newBloq: Bloq = {
+    const newBloq: IBloq = {
       type,
       parameters: []
     };
@@ -49,6 +49,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
         update(bloqs, { [selectedBloqIndex[0]]: { $push: [newBloq] } })
       );
     } else {
+      console.log('BLOQS CHANGE', newBloq);
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
     setSelectedBloq([-1, -1]);

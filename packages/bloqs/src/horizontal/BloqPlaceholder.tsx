@@ -6,13 +6,13 @@ import { BloqCategory } from "../index.d";
 
 import { horizontalShapes } from "../config";
 
-interface BloqPlaceholderProps {
+interface IBloqPlaceholderProps {
   category: BloqCategory;
   onClick: React.MouseEventHandler;
   selected?: boolean;
 }
 
-const BloqPlaceholder: React.FunctionComponent<BloqPlaceholderProps> = ({
+const BloqPlaceholder: React.FunctionComponent<IBloqPlaceholderProps> = ({
   category,
   onClick,
   selected

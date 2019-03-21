@@ -6,7 +6,7 @@ import ComponentPlaceholder from "./ComponentPlaceholder";
 import AddComponentPanel from "./AddComponentPanel";
 import ComponentPropertiesPanel from "./ComponentPropertiesPanel";
 
-import { IBoard, IComponent, IHardware } from "./index.d";
+import { IBoard, IComponent, IHardware } from "../index.d";
 
 interface IHardwareDesignerProps {
   boards: IBoard[];

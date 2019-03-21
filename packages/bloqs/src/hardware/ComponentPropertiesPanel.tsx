@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 
-import { IComponent, IComponentInstance } from "./index.d";
+import { IComponent, IComponentInstance } from "../index.d";
 
 interface IComponentPropertiesPanelProps {
   isOpen: boolean;
@@ -13,12 +13,16 @@ interface IComponentPropertiesPanelProps {
 
 const ComponentPropertiesPanel: React.FunctionComponent<
   IComponentPropertiesPanelProps
-  > = ({ isOpen, components, componentInstance = {}}) => {
+> = ({ isOpen, components, componentInstance }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
     config: { tension: 600, friction: 40 }
   });
+
+  if (!componentInstance) {
+    return null;
+  }
 
   const component = components.find(
     c => c.name === componentInstance.component
