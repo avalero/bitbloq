@@ -3,9 +3,15 @@ import { contextController } from '../controllers/context';
 import { mailerController } from '../controllers/mailer';
 import { DocumentModel } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
-import { FolderModel } from '../models/folder';
+import { FolderModel, IFolder } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
-import { UserModel } from '../models/user';
+import { IUser, UserModel } from '../models/user';
+
+import {
+  IEmailData,
+  IResetPasswordToken,
+  ISignUpToken,
+} from '../models/interfaces';
 
 import * as mjml2html from 'mjml';
 import { resetPasswordTemplate } from '../email/resetPasswordMail';
@@ -28,7 +34,7 @@ const userResolver = {
      * args: email, password and user information.
      */
     signUpUser: async (root: any, args: any) => {
-      const contactFound = await UserModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: args.input.email,
       });
       if (contactFound) {
@@ -36,7 +42,7 @@ const userResolver = {
       }
       // Store the password with a hash
       const hash: string = await bcrypt.hash(args.input.password, saltRounds);
-      const userNew = new UserModel({
+      const userNew: IUser = new UserModel({
         email: args.input.email,
         password: hash,
         name: args.input.name,
@@ -46,7 +52,7 @@ const userResolver = {
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
       });
-      const newUser = await UserModel.create(userNew);
+      const newUser: IUser = await UserModel.create(userNew);
       const token: string = jsonwebtoken.sign(
         {
           signUpUserID: newUser._id,
@@ -56,13 +62,11 @@ const userResolver = {
       console.log(token);
 
       // Generate the email with the activation link and send it
-      const data = {
-        activationUrl: `${
-          process.env.FRONTEND_URL
-        }/app/activate?token=${token}`,
+      const data: IEmailData = {
+        url: `${process.env.FRONTEND_URL}/app/activate?token=${token}`,
       };
-      const mjml = welcomeTemplate(data);
-      const htmlMessage = mjml2html(mjml, {
+      const mjml: string = welcomeTemplate(data);
+      const htmlMessage: any = mjml2html(mjml, {
         keepComments: false,
         beautify: true,
         minify: true,
@@ -74,7 +78,7 @@ const userResolver = {
       );
 
       // Create user root folder for documents
-      const userFolder = await FolderModel.create({
+      const userFolder: IFolder = await FolderModel.create({
         name: 'root',
         user: newUser._id,
       });
@@ -87,107 +91,13 @@ const userResolver = {
       return 'OK';
     },
 
-    /**
-     * reset Password: send a email to the user email with a new token for edit the password.
-     * args: email
-     */
-    resetPasswordEmail: async (root: any, { email }) => {
-      const contactFound = await UserModel.findOne({ email });
-      if (!contactFound) {
-        throw new AuthenticationError('The email does not exist.');
-      }
-      const token: string = jsonwebtoken.sign(
-        {
-          resetPassUserID: contactFound._id,
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '30m' },
-      );
-      console.log(token);
-      // Generate the email with the activation link and send it
-      const data = {
-        resetPasswordUrl: `${
-          process.env.FRONTEND_URL
-        }/app/reset-password?token=${token}`,
-      };
-      const mjml = resetPasswordTemplate(data);
-      const htmlMessage = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true,
-      });
-      await mailerController.sendEmail(
-        contactFound.email,
-        'Bitbloq Restore Password ✔',
-        htmlMessage.html,
-      );
-      return 'OK';
-    },
-
-    /**
-     * edit Password: stores the new password passed as argument in the database
-     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
-     * args: token, new Password
-     */
-    updatePassword: async (root: any, { token, newPassword }) => {
-      if (!token) {
-        throw new ApolloError(
-          'Error with reset password token, no token in args',
-          'NOT_TOKEN_PROVIDED',
-        );
-      }
-      const dataInToken = await contextController.getDataInToken(token);
-      const contactFound = await UserModel.findOne({
-        _id: dataInToken.resetPassUserID,
-      });
-      if (!contactFound) {
-        throw new ApolloError(
-          'Error with reset password token',
-          'USER_NOT_FOUND',
-        );
-      }
-      // Store the password with a hash
-      const hash: string = await bcrypt.hash(newPassword, saltRounds);
-      const authToken: string = jsonwebtoken.sign(
-        {
-          email: contactFound.email,
-          userID: contactFound._id,
-          role: 'USER',
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '4h' },
-      );
-      await UserModel.findOneAndUpdate(
-        { _id: contactFound._id },
-        {
-          $set: {
-            password: hash,
-            authToken: authToken,
-          },
-        },
-      );
-      await redisClient.set(
-        String('authToken-' + contactFound._id),
-        authToken,
-        (err, reply) => {
-          if (err) {
-            throw new ApolloError(
-              'Error storing auth token in redis',
-              'REDIS_TOKEN_ERROR',
-            );
-          }
-        },
-      );
-      return authToken;
-    },
-
     /*
       Login: login with a registered user.
       It returns the authorization token with user information.
       args: email and password.
     */
     login: async (root: any, { email, password }) => {
-      const contactFound = await UserModel.findOne({ email });
+      const contactFound: IUser = await UserModel.findOne({ email });
       if (!contactFound) {
         throw new AuthenticationError('Email or password incorrect');
       }
@@ -235,7 +145,101 @@ const userResolver = {
       }
     },
 
+    /**
+     * reset Password: send a email to the user email with a new token for edit the password.
+     * args: email
+     */
+    resetPasswordEmail: async (root: any, { email }) => {
+      const contactFound: IUser = await UserModel.findOne({ email });
+      if (!contactFound) {
+        throw new AuthenticationError('The email does not exist.');
+      }
+      const token: string = jsonwebtoken.sign(
+        {
+          resetPassUserID: contactFound._id,
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '30m' },
+      );
+      console.log(token);
+      // Generate the email with the activation link and send it
+      const data: IEmailData = {
+        url: `${process.env.FRONTEND_URL}/app/reset-password?token=${token}`,
+      };
+      const mjml = resetPasswordTemplate(data);
+      const htmlMessage = mjml2html(mjml, {
+        keepComments: false,
+        beautify: true,
+        minify: true,
+      });
+      await mailerController.sendEmail(
+        contactFound.email,
+        'Bitbloq Restore Password ✔',
+        htmlMessage.html,
+      );
+      return 'OK';
+    },
+
     // Private methods:
+
+    /**
+     * edit Password: stores the new password passed as argument in the database
+     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
+     * args: token, new Password
+     */
+    updatePassword: async (root: any, { token, newPassword }) => {
+      if (!token) {
+        throw new ApolloError(
+          'Error with reset password token, no token in args',
+          'NOT_TOKEN_PROVIDED',
+        );
+      }
+      const dataInToken: IResetPasswordToken = await contextController.getDataInToken(
+        token,
+      );
+      const contactFound: IUser = await UserModel.findOne({
+        _id: dataInToken.resetPassUserID,
+      });
+      if (!contactFound) {
+        throw new ApolloError(
+          'Error with reset password token',
+          'USER_NOT_FOUND',
+        );
+      }
+      // Store the password with a hash
+      const hash: string = await bcrypt.hash(newPassword, saltRounds);
+      const authToken: string = jsonwebtoken.sign(
+        {
+          email: contactFound.email,
+          userID: contactFound._id,
+          role: 'USER',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '4h' },
+      );
+      await UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        {
+          $set: {
+            password: hash,
+            authToken: authToken,
+          },
+        },
+      );
+      await redisClient.set(
+        String('authToken-' + contactFound._id),
+        authToken,
+        (err, reply) => {
+          if (err) {
+            throw new ApolloError(
+              'Error storing auth token in redis',
+              'REDIS_TOKEN_ERROR',
+            );
+          }
+        },
+      );
+      return authToken;
+    },
 
     /*
       Activate Account: activates the new account of the user registered.
@@ -249,8 +253,10 @@ const userResolver = {
           'NOT_TOKEN_PROVIDED',
         );
       }
-      const userInToken = await contextController.getDataInToken(args.token);
-      const contactFound = await UserModel.findOne({
+      const userInToken: ISignUpToken = await contextController.getDataInToken(
+        args.token,
+      );
+      const contactFound: IUser = await UserModel.findOne({
         _id: userInToken.signUpUserID,
       });
       if (userInToken.signUpUserID && !contactFound.active) {
@@ -301,7 +307,7 @@ const userResolver = {
      * args: user ID.
      */
     deleteUser: async (root: any, args: any, context: any) => {
-      const contactFound = await UserModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
       });
@@ -324,12 +330,12 @@ const userResolver = {
       args: user ID, new user information.
     */
     updateUser: async (root: any, args: any, context: any, input: any) => {
-      const contactFound = await UserModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
       });
       if (contactFound._id === args.id) {
-        const data = args.input;
+        const data: IUser = args.input;
         return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
       } else {
         return new ApolloError('User does not exist', 'USER_NOT_FOUND');
@@ -343,7 +349,7 @@ const userResolver = {
      *  args: nothing.
      */
     me: async (root: any, args: any, context: any) => {
-      const contactFound = await UserModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
       });
@@ -363,7 +369,7 @@ const userResolver = {
   },
 
   User: {
-    documents: async user => DocumentModel.find({ user: user._id }),
+    documents: async (user: IUser) => DocumentModel.find({ user: user._id }),
   },
 };
 

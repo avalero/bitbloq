@@ -3,11 +3,11 @@ import {
   AuthenticationError,
   withFilter,
 } from 'apollo-server-koa';
-import { DocumentModel } from '../models/document';
+import { DocumentModel, IDocument } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
 import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
-import { UploadModel } from '../models/upload';
+import { UploadModel, IUpload } from '../models/upload';
 import { UserModel } from '../models/user';
 import { pubsub } from '../server';
 import uploadResolver from './upload';
@@ -40,7 +40,7 @@ const documentResolver = {
           throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
         }
       }
-      const documentNew = new DocumentModel({
+      const documentNew: IDocument = new DocumentModel({
         user: context.user.userID,
         title: args.input.title,
         type: args.input.type,
@@ -53,18 +53,18 @@ const documentResolver = {
         version: args.input.version,
         image: args.input.imageUrl,
       });
-      const newDocument = await DocumentModel.create(documentNew);
+      const newDocument: IDocument = await DocumentModel.create(documentNew);
       await FolderModel.updateOne(
         { _id: documentNew.folder },
         { $push: { documentsID: newDocument._id } },
         { new: true },
       );
       if (args.input.image) {
-        const imageUploaded = await uploadResolver.Mutation.singleUpload(
+        const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
           args.input.image,
           newDocument._id,
         );
-        const newDoc = await DocumentModel.findOneAndUpdate(
+        const newDoc: IDocument = await DocumentModel.findOneAndUpdate(
           { _id: documentNew._id },
           { $set: { image: imageUploaded.publicUrl } },
           { new: true },
@@ -84,7 +84,7 @@ const documentResolver = {
      * args: document ID
      */
     deleteDocument: async (root: any, args: any, context: any) => {
-      const existDocument = await DocumentModel.findOne({
+      const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
@@ -104,13 +104,14 @@ const documentResolver = {
         );
       }
     },
+
     /**
      * Update document: update existing document.
      * It updates the document with the new information provided.
      * args: document ID, new document information.
      */
     updateDocument: async (root: any, args: any, context: any) => {
-      const existDocument = await DocumentModel.findOne({
+      const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
@@ -132,7 +133,7 @@ const documentResolver = {
         }
         let image: string;
         if (args.input.image) {
-          const imageUploaded = await uploadResolver.Mutation.singleUpload(
+          const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,
           );
@@ -140,7 +141,7 @@ const documentResolver = {
         } else if (args.input.imageUrl) {
           image = args.input.imageUrl;
         }
-        const updatedDoc = await DocumentModel.findOneAndUpdate(
+        const updatedDoc: IDocument = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
           {
             $set: {
@@ -176,7 +177,7 @@ const documentResolver = {
      * args: document ID.
      */
     document: async (root: any, args: any, context: any) => {
-      const existDocument = await DocumentModel.findOne({
+      const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
       });
       if (!existDocument) {
@@ -193,8 +194,10 @@ const documentResolver = {
   },
 
   Document: {
-    exercises: async document => ExerciseModel.find({ document: document._id }),
-    images: async document => UploadModel.find({ document: document._id }),
+    exercises: async (document: IDocument) =>
+      ExerciseModel.find({ document: document._id }),
+    images: async (document: IDocument) =>
+      UploadModel.find({ document: document._id }),
   },
 };
 

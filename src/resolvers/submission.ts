@@ -1,6 +1,6 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
-import { ExerciseModel } from '../models/exercise';
-import { SubmissionModel } from '../models/submission';
+import { ExerciseModel, IExercise } from '../models/exercise';
+import { SubmissionModel, ISubmission } from '../models/submission';
 import { pubsub, redisClient } from '../server';
 
 const jsonwebtoken = require('jsonwebtoken');
@@ -42,7 +42,7 @@ const submissionResolver = {
           'NOT_NICKNAME_PROVIDED',
         );
       }
-      const exFather = await ExerciseModel.findOne({
+      const exFather: IExercise = await ExerciseModel.findOne({
         code: args.exerciseCode,
         acceptSubmissions: true,
       });
@@ -61,7 +61,7 @@ const submissionResolver = {
         );
       }
       // check if there is a submission with this nickname and password. If true, return it.
-      const existSubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
         studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id,
       });
@@ -115,7 +115,7 @@ const submissionResolver = {
       } else {
         // la submission no existe, se crea una nueva
         const hash: string = await bcrypt.hash(args.password, saltRounds);
-        const submissionNew = new SubmissionModel({
+        const submissionNew: ISubmission = new SubmissionModel({
           exercise: exFather._id,
           studentNick: args.studentNick.toLowerCase(),
           password: hash,
@@ -126,7 +126,7 @@ const submissionResolver = {
           title: exFather.title,
           type: exFather.type,
         });
-        const newSub = await SubmissionModel.create(submissionNew);
+        const newSub: ISubmission = await SubmissionModel.create(submissionNew);
         const token: string = jsonwebtoken.sign(
           {
             exerciseID: exFather._id,
@@ -168,7 +168,7 @@ const submissionResolver = {
      * args: submission ID, new submission information.
      */
     updateSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
       });
@@ -186,7 +186,7 @@ const submissionResolver = {
             'CANT_UPDATE_NICKNAME',
           );
         }
-        const updatedSubmission = await SubmissionModel.findOneAndUpdate(
+        const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: args.input },
           { new: true },
@@ -206,7 +206,7 @@ const submissionResolver = {
      * args: content of the submission and comment.
      */
     finishSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
       });
@@ -216,7 +216,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      const exFather = await ExerciseModel.findOne({
+      const exFather: IExercise = await ExerciseModel.findOne({
         _id: existSubmission.exercise,
       });
       // check if the exercise accepts submissions
@@ -257,7 +257,7 @@ const submissionResolver = {
      */
     // alumno cancela su propia submission
     cancelSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID,
       });
@@ -277,7 +277,7 @@ const submissionResolver = {
      */
     // el profesor borra la sumbission de un alumno
     deleteSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID,
       });
@@ -296,7 +296,7 @@ const submissionResolver = {
      * args: submissionID, grade and teacherComment
      */
     gradeSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID,
       });
@@ -314,7 +314,7 @@ const submissionResolver = {
         );
       }
 
-      const updatedSubmission = await SubmissionModel.findOneAndUpdate(
+      const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -349,7 +349,7 @@ const submissionResolver = {
     submission: async (root: any, args: any, context: any) => {
       if (context.user.submissionID) {
         // Token de alumno
-        const existSubmission = await SubmissionModel.findOne({
+        const existSubmission: ISubmission = await SubmissionModel.findOne({
           _id: context.user.submissionID,
         });
         if (!existSubmission) {
@@ -361,7 +361,7 @@ const submissionResolver = {
         return existSubmission;
       } else if (context.user.userID) {
         // token de profesor
-        const existSubmission = await SubmissionModel.findOne({
+        const existSubmission: ISubmission = await SubmissionModel.findOne({
           _id: args.id,
           user: context.user.userID,
         });
@@ -382,16 +382,15 @@ const submissionResolver = {
      */
     // user queries:
     submissionsByExercise: async (root: any, args: any, context: any) => {
-      const exFather = await ExerciseModel.findOne({
+      const exFather: IExercise = await ExerciseModel.findOne({
         _id: args.exercise,
       });
       if (!exFather) {
         throw new ApolloError('exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
-      const existSubmissions = await SubmissionModel.find({
+      return await SubmissionModel.find({
         exercise: exFather._id,
       });
-      return existSubmissions;
     },
   },
 };

@@ -1,7 +1,7 @@
 import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
-interface IUser extends Document {
+export interface IUser extends Document {
   email?: string;
   password?: string;
   name?: string;

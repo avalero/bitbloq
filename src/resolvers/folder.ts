@@ -1,7 +1,7 @@
 import { ApolloError, withFilter } from 'apollo-server-koa';
-import { DocumentModel } from '../models/document';
-import { FolderModel } from '../models/folder';
-import { UserModel } from '../models/user';
+import { DocumentModel, IDocument } from '../models/document';
+import { FolderModel, IFolder } from '../models/folder';
+import { UserModel, IUser } from '../models/user';
 import documentResolver from './document';
 
 import { pubsub } from '../server';
@@ -26,7 +26,7 @@ const folderResolver = {
      * args: folder information
      */
     createFolder: async (root: any, args: any, context: any) => {
-      const user = await UserModel.findOne({ _id: context.user.userID });
+      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
       if (args.input.parent) {
         if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
           throw new ApolloError(
@@ -35,12 +35,12 @@ const folderResolver = {
           );
         }
       }
-      const folderNew = new FolderModel({
+      const folderNew: IFolder = new FolderModel({
         name: args.input.name,
         user: context.user.userID,
         parent: args.input.parent || user.rootFolder,
       });
-      const newFolder = await FolderModel.create(folderNew);
+      const newFolder: IFolder = await FolderModel.create(folderNew);
       await FolderModel.findOneAndUpdate(
         { _id: folderNew.parent },
         { $push: { foldersID: newFolder._id } },
@@ -57,7 +57,7 @@ const folderResolver = {
      * args: folder ID
      */
     deleteFolder: async (root: any, args: any, context: any) => {
-      const existFolder = await FolderModel.findOne({
+      const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
@@ -111,7 +111,7 @@ const folderResolver = {
      * args: folder ID, new folder information.
      */
     updateFolder: async (root: any, args: any, context: any) => {
-      const existFolder = await FolderModel.findOne({
+      const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
@@ -130,7 +130,7 @@ const folderResolver = {
         if (args.input.foldersID) {
           // si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
           for (const folder of args.input.foldersID) {
-            const fol = await FolderModel.findOne({ _id: folder });
+            const fol: IFolder = await FolderModel.findOne({ _id: folder });
             if (!fol) {
               throw new ApolloError(
                 'Folder ID does not exist',
@@ -158,7 +158,9 @@ const folderResolver = {
         if (args.input.documentsID) {
           // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
           for (const document of args.input.documentsID) {
-            const doc = await DocumentModel.findOne({ _id: document });
+            const doc: IDocument = await DocumentModel.findOne({
+              _id: document,
+            });
             if (!doc) {
               throw new ApolloError(
                 'Document ID does not exist',
@@ -200,7 +202,7 @@ const folderResolver = {
             'CANT_UPDATE_ROOT',
           );
         }
-        const updatedFolder = await FolderModel.findOneAndUpdate(
+        const updatedFolder: IFolder = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           {
             $set: {
@@ -232,7 +234,7 @@ const folderResolver = {
      * args: folder ID.
      */
     folder: async (root: any, args: any, context: any) => {
-      const existFolder = await FolderModel.findOne({
+      const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
@@ -255,8 +257,9 @@ const folderResolver = {
   },
 
   Folder: {
-    documents: async folder => DocumentModel.find({ folder: folder }),
-    folders: async folder => FolderModel.find({ parent: folder }),
+    documents: async (folder: IFolder) =>
+      DocumentModel.find({ folder: folder }),
+    folders: async (folder: IFolder) => FolderModel.find({ parent: folder }),
   },
 };
 

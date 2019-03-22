@@ -41,7 +41,7 @@ const resetPasswordTemplate = compile(`
           Has solicitado cambiar la contraseña de tu cuenta. Para hacerlo, pulsa en el enlace correspondiente o copia y pega la URL en el navegador:
         </mj-text>
         <mj-button background-color="#ebebeb" align="center" color="#313741" font-size="14px" font-weight="bold" href="{{activationUrl}}" width="420px" height="110px" border-radius="4px">
-          {{resetPasswordUrl}}
+          {{url}}
         </mj-button>
         <mj-text color="#313741" font-size="14px">
           Recuerda: desde que recibas este email, el enlace estará activo sólo durante 30 minutos.

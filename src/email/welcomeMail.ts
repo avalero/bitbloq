@@ -47,7 +47,7 @@ const welcomeTemplate = compile(`
           Para empezar a usar la beta, confirma tu dirección de correo en este enlace:
         </mj-text>
         <mj-button background-color="#ebebeb" align="center" color="#313741" font-size="14px" font-weight="bold" href="{{activationUrl}}" width="420px" height="110px" border-radius="4px">
-          {{activationUrl}}
+          {{url}}
         </mj-button>
         <mj-text color="#313741" font-size="14px" padding-bottom="0">
           Un saludo,

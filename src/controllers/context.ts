@@ -1,6 +1,7 @@
 import { ApolloError, AuthenticationError } from 'apollo-server-koa';
 import { SubmissionModel } from '../models/submission';
 import { UserModel } from '../models/user';
+import { IUserInToken } from '../models/interfaces';
 const jsonwebtoken = require('jsonwebtoken');
 
 import { redisClient } from '../server';
@@ -24,7 +25,7 @@ const contextController = {
     // comprobar si el token que recibe es el que está guardado en la base de datos
     // -> sesión única simultánea
     if (justToken) {
-      let user;
+      let user: IUserInToken;
       try {
         user = await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
       } catch (e) {

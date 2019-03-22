@@ -1,7 +1,7 @@
 import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
-interface IDocument extends Document {
+export interface IDocument extends Document {
   user?: string;
   title?: string;
   type?: string;
