@@ -6,7 +6,13 @@ import BloqsLine from "./BloqsLine";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
-import { IBloq, IBloqType, IBloqTypeGroup, BloqCategory } from "../index.d";
+import {
+  IBloq,
+  IBloqType,
+  IBloqTypeGroup,
+  BloqCategory,
+  IComponentInstance
+} from "../index";
 
 interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
@@ -15,6 +21,7 @@ interface IHorizontalBloqEditorProps {
   waitBloqGroups: IBloqTypeGroup[];
   actionBloqGroups: IBloqTypeGroup[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
+  getComponents: (type: string) => IComponentInstance[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -25,7 +32,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
   eventBloqGroups,
   waitBloqGroups,
   actionBloqGroups,
-  onBloqsChange
+  onBloqsChange,
+  getComponents
 }) => {
   const [selectedBloqIndex, setSelectedBloq] = useState([-1, -1]);
 
@@ -49,15 +57,15 @@ const HorizontalBloqEditor: React.FunctionComponent<
         update(bloqs, { [selectedBloqIndex[0]]: { $push: [newBloq] } })
       );
     } else {
-      console.log('BLOQS CHANGE', newBloq);
+      console.log("BLOQS CHANGE", newBloq);
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
     setSelectedBloq([-1, -1]);
   };
 
   return (
-    <Container onClick={() => setSelectedBloq([-1, -1])}>
-      <Lines>
+    <Container>
+      <Lines onClick={() => setSelectedBloq([-1, -1])}>
         {bloqs.map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
@@ -123,6 +131,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
       <BloqPropertiesPanel
         isOpen={!!selectedBloq}
         bloq={selectedBloq}
+        getComponents={getComponents}
         bloqType={
           selectedBloq &&
           bloqTypes.find(type => type.name === selectedBloq.type)!

@@ -4,7 +4,7 @@ import { colors, ScrollableTabs } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
-import { IBloqTypeGroup, IBloqType } from "../index.d";
+import { IBloqTypeGroup, IBloqType } from "../index";
 
 interface IBloqTabs {
   icon: JSX.Element;
@@ -48,17 +48,21 @@ const AddBloqPanel: React.FunctionComponent<IAddBloqPanelProps> = ({
             <GroupList>
               <GroupLabel>{tab.label}</GroupLabel>
               {tab.groups.map((group, i) => {
-                if (group.types.length === 1) {
+                const types = group.types.filter(t =>
+                  bloqTypes.some(bt => bt.name === t)
+                );
+
+                if (types.length === 1) {
                   return (
                     <StyledBloq
                       key={i}
-                      type={bloqTypes.find(t => t.name === group.types[0])!}
-                      onClick={() => onTypeSelected(group.types[0])}
+                      type={bloqTypes.find(t => t.name === types[0])!}
+                      onClick={() => onTypeSelected(types[0])}
                     />
                   );
                 }
 
-                if (group.types.length > 1) {
+                if (types.length > 1) {
                   const isGroupOpen = openGroup === i;
 
                   return (
@@ -112,6 +116,8 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
     config: { tension: 600, friction: 40 }
   });
 
+  const types = group.types.filter(t => bloqTypes.some(bt => bt.name === t));
+
   return (
     <Group>
       <GroupHandler onClick={onHandlerClick}>
@@ -120,7 +126,7 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
       </GroupHandler>
       <GroupTypesWrap style={groupTypesStyle}>
         <GroupTypes>
-          {group.types.map(typeName => (
+          {types.map(typeName => (
             <StyledBloq
               key={typeName}
               type={bloqTypes.find(t => t.name === typeName)!}

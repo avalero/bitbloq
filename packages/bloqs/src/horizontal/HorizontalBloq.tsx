@@ -4,7 +4,7 @@ import { colors, Icon } from "@bitbloq/ui";
 import EventShape from "./EventShape";
 import { bloqColors, horizontalShapes } from "../config";
 
-import { IBloqType } from "../index.d";
+import { IBloqType } from "../index";
 
 interface IHorizontalBloqProps {
   type: IBloqType;

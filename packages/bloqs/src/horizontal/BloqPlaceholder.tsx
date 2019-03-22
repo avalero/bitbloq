@@ -2,7 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { colors, Icon } from "@bitbloq/ui";
 
-import { BloqCategory } from "../index.d";
+import { BloqCategory } from "../index";
 
 import { horizontalShapes } from "../config";
 

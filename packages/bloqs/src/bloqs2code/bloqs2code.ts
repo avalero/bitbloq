@@ -1,4 +1,4 @@
-import { IBoard, IComponent, IBloqType, IHardware, IBloq } from "../index.d";
+import { IBoard, IComponent, IBloqType, IHardware, IBloq } from "../index";
 
 const bloqs2code = (
   boards: IBoard[],

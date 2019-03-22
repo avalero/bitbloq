@@ -1,14 +1,9 @@
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
 import HardwareDesigner from "./hardware/HardwareDesigner";
 import bloqs2code from "./bloqs2code/bloqs2code";
+import { BloqCategory, BloqParameterType } from "./enums"
 
 export { HorizontalBloqEditor, HardwareDesigner, bloqs2code };
-
-export enum BloqCategory {
-  Event = "event",
-  Wait = "wait",
-  Action = "action"
-}
 
 export interface IBloqCode {
   declaration?: string;
@@ -17,9 +12,10 @@ export interface IBloqCode {
   statement?: string;
 }
 
-export enum BloqParameterType {
-  Select = "select",
-  Number = "number"
+export interface IBloqBaseParameter {
+  name: string;
+  label: string;
+  type: BloqParameterType;
 }
 
 export interface IBloqParameterOption {
@@ -27,16 +23,27 @@ export interface IBloqParameterOption {
   label: string;
 }
 
-export interface IBloqParameterOptionSource {
-  source: string;
-  args: string[];
+export interface IBloqSelectParameter
+  extends IBloqBaseParameter {
+  options: IBloqParameterOption[];
 }
 
-export interface IBloqParameterDefinition {
-  name: string;
-  label: string;
-  type: BloqParameterType;
-  options: IBloqParameterOption | IBloqParameterOptionSource;
+export interface IBloqSelectComponentParameter
+  extends IBloqBaseParameter {
+  componentType: string;
+}
+
+export type IBloqParameter =
+  | IBloqBaseParameter
+  | IBloqSelectParameter
+  | IBloqSelectComponentParameter;
+
+export function isBloqSelectParameter(parameter: IBloqParameter): parameter is IBloqSelectParameter {
+  return parameter.type === BloqParameterType.Select;
+}
+
+export function isBloqSelectComponentParameter(parameter: IBloqParameter): parameter is IBloqSelectComponentParameter {
+  return parameter.type === BloqParameterType.SelectComponent;
 }
 
 export interface IBloqType {
@@ -45,7 +52,7 @@ export interface IBloqType {
   label?: string;
   icon: string;
   code: IBloqCode;
-  parameterDefinitions: IBloqParameterDefinition[];
+  parameterDefinitions: IBloqParameter[];
 }
 
 export interface IBloq {
@@ -131,6 +138,7 @@ export interface IComponent {
   image: IComponentImage;
   code: any;
   connectors: IConnector[];
+  instanceName: string;
 }
 
 export interface IComponentInstance {

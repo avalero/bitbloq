@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 
-import { IBoard, IComponent } from "../index.d";
+import { IBoard, IComponent } from "../index";
 
 export interface IAddComponentPanelProps {
   isOpen: boolean;
