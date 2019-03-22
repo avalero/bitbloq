@@ -231,30 +231,60 @@ export const bloqTypes = [
     category: "event",
     name: "OnSwitch1On",
     icon: switch1OnIcon,
+    parameterDefinitions: [{
+      name: "switch",
+      label: "bloq-parameter-switch",
+      type: "selectComponent",
+      componentType: "DoubleSwitch"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnSwitch1Off",
     icon: switch1OffIcon,
+    parameterDefinitions: [{
+      name: "switch",
+      label: "bloq-parameter-switch",
+      type: "selectComponent",
+      componentType: "DoubleSwitch"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnSwitch2On",
     icon: switch2OnIcon,
+    parameterDefinitions: [{
+      name: "switch",
+      label: "bloq-parameter-switch",
+      type: "selectComponent",
+      componentType: "DoubleSwitch"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnSwitch2Off",
     icon: switch2OffIcon,
+    parameterDefinitions: [{
+      name: "switch",
+      label: "bloq-parameter-switch",
+      type: "selectComponent",
+      componentType: "DoubleSwitch"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnButtonReleased",
     icon: buttonReleasedIcon,
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "selectComponent",
+      componentType: "Button"
+    }],
     code: {}
   },
   {
@@ -265,11 +295,8 @@ export const bloqTypes = [
     parameterDefinitions: [{
       name: "button",
       label: "bloq-parameter-button",
-      type: "select",
-      options: {
-        source: "Components",
-        args: ["Button"]
-      }
+      type: "selectComponent",
+      componentType: "Button"
     }],
     code: {
       "declarations": "void {{parameters.button.name}}_pressed();",
@@ -282,24 +309,48 @@ export const bloqTypes = [
     category: "event",
     name: "OnLight",
     icon: lightIcon,
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "selectComponent",
+      componentType: "LightSensor"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnDark",
     icon: darkIcon,
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "selectComponent",
+      componentType: "LightSensor"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnObjectDetected",
     icon: obstacleIcon,
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "selectComponent",
+      componentType: "ProximitySensor"
+    }],
     code: {}
   },
   {
     category: "event",
     name: "OnNoObjectDetected",
     icon: noObstacleIcon,
+    parameterDefinitions: [{
+      name: "button",
+      label: "bloq-parameter-button",
+      type: "selectComponent",
+      componentType: "ProximitySensor"
+    }],
     code: {}
   },
   {
@@ -307,13 +358,10 @@ export const bloqTypes = [
     name: "DoubleLedTurnOnOn",
     icon: doubleLedOnOnIcon,
     parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "select",
-      options: {
-        source: "Components",
-        args: ["Button"]
-      }
+      name: "led",
+      label: "bloq-parameter-led",
+      type: "selectComponent",
+      componentType: "DoubleLed"
     }],
     code: {}
   },
@@ -321,18 +369,36 @@ export const bloqTypes = [
     category: "action",
     name: "DoubleLedTurnOffOn",
     icon: doubleLedOffOnIcon,
+    parameterDefinitions: [{
+      name: "led",
+      label: "bloq-parameter-led",
+      type: "selectComponent",
+      componentType: "DoubleLed"
+    }],
     code: {}
   },
   {
     category: "action",
     name: "DoubleLedTurnOnOff",
     icon: doubleLedOnOffIcon,
+    parameterDefinitions: [{
+      name: "led",
+      label: "bloq-parameter-led",
+      type: "selectComponent",
+      componentType: "DoubleLed"
+    }],
     code: {}
   },
   {
     category: "action",
     name: "DoubleLedTurnOffOff",
     icon: doubleLedOffOffIcon,
+    parameterDefinitions: [{
+      name: "led",
+      label: "bloq-parameter-led",
+      type: "selectComponent",
+      componentType: "DoubleLed"
+    }],
     code: {}
   },
   {
