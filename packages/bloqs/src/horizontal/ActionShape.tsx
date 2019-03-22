@@ -1,5 +1,5 @@
 import React from "react";
-import { IShapeProps } from "../index.d";
+import { IShapeProps } from "../index";
 
 const ActionShape: React.FunctionComponent<IShapeProps> = ({
   fill,

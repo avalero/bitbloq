@@ -3,7 +3,8 @@ import styled from "@emotion/styled";
 import HorizontalBloq from "./HorizontalBloq";
 import BloqPlaceholder from "./BloqPlaceholder";
 
-import { IBloq, IBloqType, BloqCategory } from "../index.d";
+import { IBloq, IBloqType } from "../index";
+import { BloqCategory } from "../enums";
 
 interface IBloqsLineProps {
   bloqs: IBloq[];

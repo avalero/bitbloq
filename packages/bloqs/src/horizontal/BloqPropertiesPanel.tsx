@@ -7,19 +7,25 @@ import HorizontalBloq from "./HorizontalBloq";
 import {
   IBloq,
   IBloqType,
-  IBloqParameterDefinition,
-  BloqParameterType
-} from "../index.d";
+  IBloqParameter,
+  IBloqSelectParameter,
+  IBloqSelectComponentParameter,
+  IComponentInstance,
+  BloqParameterType,
+  isBloqSelectParameter,
+  isBloqSelectComponentParameter
+} from "../index";
 
 interface IBloqPropertiesPanelProps {
   isOpen: boolean;
   bloqType: IBloqType;
   bloq: IBloq;
+  getComponents: (type: string) => IComponentInstance[];
 }
 
 const BloqPropertiesPanel: React.FunctionComponent<
   IBloqPropertiesPanelProps
-> = ({ isOpen, bloqType, bloq }) => {
+> = ({ isOpen, bloqType, bloq, getComponents }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
@@ -30,6 +36,37 @@ const BloqPropertiesPanel: React.FunctionComponent<
     return null;
   }
 
+  const renderParam = (param: IBloqParameter) => {
+    if (isBloqSelectParameter(param)) {
+      return (
+        <FormGroup key={param.name}>
+          <label>{param.label}</label>
+          <StyledSelect
+            options={param.options}
+            selectConfig={{ isSearchable: false }}
+          />
+        </FormGroup>
+      );
+    }
+    if (isBloqSelectComponentParameter(param)) {
+      const options = getComponents(param.componentType).map(c => ({ label: c.name, value: c }));
+
+      return (
+        <FormGroup key={param.name}>
+          <label>{param.label}</label>
+          <StyledSelect
+            options={options}
+            selectConfig={{ isSearchable: false }}
+          />
+        </FormGroup>
+      );
+    }
+
+    return null;
+  };
+
+  const { parameterDefinitions = [] } = bloqType;
+
   return (
     <Wrap style={wrapStyle}>
       <Content>
@@ -39,21 +76,12 @@ const BloqPropertiesPanel: React.FunctionComponent<
           </HeaderBloq>
           <Title>{bloqType.label}</Title>
         </Header>
-        <div>
-          {bloqType.parameterDefinitions.map(param => (
-            <Parameter param={param} key={param.name} />
-          ))}
-        </div>
+        <Properties>
+          {parameterDefinitions.map(renderParam)}
+        </Properties>
       </Content>
     </Wrap>
   );
-};
-
-interface IParameterProps {
-  param: IBloqParameterDefinition;
-}
-const Parameter: React.FunctionComponent<IParameterProps> = ({ param }) => {
-  return <FormGroup />;
 };
 
 export default BloqPropertiesPanel;
@@ -91,6 +119,11 @@ const Title = styled.div`
   font-style: italic;
   margin-left: 10px;
   flex: 1;
+`;
+
+const Properties = styled.div`
+  padding: 20px;
+  font-size: 13px;
 `;
 
 const FormGroup = styled.div`

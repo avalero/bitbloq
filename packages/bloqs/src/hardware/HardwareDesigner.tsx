@@ -6,7 +6,7 @@ import ComponentPlaceholder from "./ComponentPlaceholder";
 import AddComponentPanel from "./AddComponentPanel";
 import ComponentPropertiesPanel from "./ComponentPropertiesPanel";
 
-import { IBoard, IComponent, IHardware } from "../index.d";
+import { IBoard, IComponent, IPort, IHardware } from "../index";
 
 interface IHardwareDesignerProps {
   boards: IBoard[];
@@ -30,57 +30,65 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   const selectedComponent =
     selectedPort && hardware.components.find(c => c.port === selectedPort.name);
 
+  const getInstanceName = (baseName: string, count: number = 0): string => {
+    const name = `${baseName}${count || ""}`;
+    const exist = hardware.components.some(c => c.name === name);
+    return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
+  };
+
+  const renderPort = (port: IPort, i: number) => {
+    const componentInstance = hardware.components.find(
+      c => c.port === port.name
+    );
+    const top = (-port.placeholderPosition.y * height) / 2;
+    const left = (port.placeholderPosition.x * width) / 2;
+
+    if (componentInstance) {
+      const component = components.find(
+        c => c.name === componentInstance.component
+      );
+      const image = (component && component.image) || {
+        url: "",
+        width: 0,
+        height: 0
+      };
+
+      return (
+        <Component
+          key={i}
+          selected={selectedPortIndex === i}
+          top={top}
+          left={left}
+          width={image.width}
+          height={image.height}
+          src={image.url}
+          onClick={e => {
+            e.stopPropagation();
+            setSelectedPortIndex(i);
+          }}
+        />
+      );
+    }
+
+    return (
+      <ComponentPlaceholder
+        key={i}
+        selected={selectedPortIndex === i}
+        top={top}
+        left={left}
+        onClick={e => {
+          e.stopPropagation();
+          setSelectedPortIndex(i);
+        }}
+      />
+    );
+  };
+
   return (
     <Container>
       <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
         <Canvas>
-          {board.ports.map((port, i) => {
-            const componentInstance = hardware.components.find(
-              c => c.port === port.name
-            );
-            const top = (-port.placeholderPosition.y * height) / 2;
-            const left = (port.placeholderPosition.x * width) / 2;
-
-            if (componentInstance) {
-              const component = components.find(
-                c => c.name === componentInstance.component
-              );
-              const image = (component && component.image) || {
-                url: "",
-                width: 0,
-                height: 0
-              };
-
-              return (
-                <Component
-                  key={i}
-                  selected={selectedPortIndex === i}
-                  top={top}
-                  left={left}
-                  width={image.width}
-                  height={image.height}
-                  src={image.url}
-                  onClick={e => {
-                    e.stopPropagation();
-                    setSelectedPortIndex(i);
-                  }}
-                />
-              );
-            }
-
-            return (
-              <ComponentPlaceholder
-                key={i}
-                selected={selectedPortIndex === i}
-                top={top}
-                left={left}
-                onClick={e => {
-                  e.stopPropagation();
-                  setSelectedPortIndex(i);
-                }}
-              />
-            );
-          })}
+          {board.ports.map(renderPort)}
           <Board width={width} height={height} src={board.image.url} />
         </Canvas>
       </CanvasWrap>
@@ -96,7 +104,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
                 $push: [
                   {
                     component: component.name,
-                    name: "",
+                    name: getInstanceName(component.instanceName),
                     port: selectedPort.name
                   }
                 ]

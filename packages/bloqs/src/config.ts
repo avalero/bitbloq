@@ -1,4 +1,4 @@
-import { BloqCategory } from "./index.d";
+import { BloqCategory } from "./enums";
 import EventShape from "./horizontal/EventShape";
 import ActionShape from "./horizontal/ActionShape";
 import WaitShape from "./horizontal/WaitShape";
