@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 
-import { IBoard, IComponent } from "./index.d";
+import { IBoard, IComponent } from "../index";
 
 export interface IAddComponentPanelProps {
   isOpen: boolean;
@@ -27,15 +27,18 @@ const AddComponentPanel: React.FunctionComponent<IAddComponentPanelProps> = ({
   return (
     <Wrap style={wrapStyle}>
       <Content>
-        {components.map((component, i) => (component.image &&
-          <Component
-            key={i}
-            src={component.image.url}
-            width={component.image.width}
-            height={component.image.height}
-            onClick={() => onComponentSelected(component)}
-          />
-        ))}
+        {components.map(
+          (component, i) =>
+            component.image && (
+              <Component
+                key={i}
+                src={component.image.url}
+                width={component.image.width}
+                height={component.image.height}
+                onClick={() => onComponentSelected(component)}
+              />
+            )
+        )}
       </Content>
     </Wrap>
   );

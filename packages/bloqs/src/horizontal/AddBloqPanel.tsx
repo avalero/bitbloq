@@ -4,23 +4,23 @@ import { colors, ScrollableTabs } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
-import { BloqTypeGroup, BloqType } from "../index.d";
+import { IBloqTypeGroup, IBloqType } from "../index";
 
-interface BloqTabs {
+interface IBloqTabs {
   icon: JSX.Element;
-  groups: BloqTypeGroup[];
+  groups: IBloqTypeGroup[];
   label: string;
 }
 
-export interface AddBloqPanelProps {
+export interface IAddBloqPanelProps {
   isOpen: boolean;
-  bloqTabs: BloqTabs[];
-  bloqTypes: BloqType[];
+  bloqTabs: IBloqTabs[];
+  bloqTypes: IBloqType[];
   onTypeSelected: (type: string) => any;
   onClick?: React.MouseEventHandler;
 }
 
-const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
+const AddBloqPanel: React.FunctionComponent<IAddBloqPanelProps> = ({
   isOpen,
   bloqTabs,
   bloqTypes,
@@ -48,17 +48,21 @@ const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
             <GroupList>
               <GroupLabel>{tab.label}</GroupLabel>
               {tab.groups.map((group, i) => {
-                if (group.types.length === 1) {
+                const types = group.types.filter(t =>
+                  bloqTypes.some(bt => bt.name === t)
+                );
+
+                if (types.length === 1) {
                   return (
                     <StyledBloq
                       key={i}
-                      type={bloqTypes.find(t => t.name === group.types[0])!}
-                      onClick={() => onTypeSelected(group.types[0])}
+                      type={bloqTypes.find(t => t.name === types[0])!}
+                      onClick={() => onTypeSelected(types[0])}
                     />
                   );
                 }
 
-                if (group.types.length > 1) {
+                if (types.length > 1) {
                   const isGroupOpen = openGroup === i;
 
                   return (
@@ -83,26 +87,27 @@ const AddBloqPanel: React.FunctionComponent<AddBloqPanelProps> = ({
   );
 };
 
-interface BloqGroupHandlerProps {
-  group: BloqTypeGroup;
-  bloqTypes: BloqType[];
+interface IBloqGroupHandlerProps {
+  group: IBloqTypeGroup;
+  bloqTypes: IBloqType[];
   isOpen: boolean;
   onHandlerClick: React.MouseEventHandler;
   onTypeClick: (type: string) => any;
 }
 
-const BloqGroupHandler: React.FunctionComponent<BloqGroupHandlerProps> = ({
+const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
   group,
   bloqTypes,
   isOpen,
   onHandlerClick,
   onTypeClick
 }) => {
-  const handlerType: BloqType = {
+  const handlerType: IBloqType = {
     category: group.category,
     name: "handler",
     icon: group.icon,
-    code: {}
+    code: {},
+    parameterDefinitions: []
   };
 
   const groupTypesStyle = useSpring({
@@ -110,6 +115,8 @@ const BloqGroupHandler: React.FunctionComponent<BloqGroupHandlerProps> = ({
     from: { height: 0 },
     config: { tension: 600, friction: 40 }
   });
+
+  const types = group.types.filter(t => bloqTypes.some(bt => bt.name === t));
 
   return (
     <Group>
@@ -119,7 +126,7 @@ const BloqGroupHandler: React.FunctionComponent<BloqGroupHandlerProps> = ({
       </GroupHandler>
       <GroupTypesWrap style={groupTypesStyle}>
         <GroupTypes>
-          {group.types.map(typeName => (
+          {types.map(typeName => (
             <StyledBloq
               key={typeName}
               type={bloqTypes.find(t => t.name === typeName)!}

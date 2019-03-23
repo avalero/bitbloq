@@ -1,17 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { Document, Icon, useTranslate } from "@bitbloq/ui";
 import {
-  HardwareDesigner,
-  IBoard,
-  IComponent
-} from "@bitbloq/hardware-designer";
-import {
   HorizontalBloqEditor,
-  Bloq,
-  BloqType,
-  BloqTypeGroup
+  HardwareDesigner,
+  bloqs2code,
+  IBloq,
+  IBloqType,
+  IBloqTypeGroup,
+  IBoard,
+  IComponent,
+  IHardware,
+  isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
 export interface JuniorProps {
@@ -20,10 +21,10 @@ export interface JuniorProps {
   onEditTitle: () => any;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
-  bloqTypes: BloqType[];
-  eventBloqGroups: BloqTypeGroup[];
-  actionBloqGroups: BloqTypeGroup[];
-  waitBloqGroups: BloqTypeGroup[];
+  bloqTypes: IBloqType[];
+  eventBloqGroups: IBloqTypeGroup[];
+  actionBloqGroups: IBloqTypeGroup[];
+  waitBloqGroups: IBloqTypeGroup[];
   initialContent?: any;
   onContentChange: (content: any) => any;
   boards: IBoard[];
@@ -49,8 +50,61 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   const t = useTranslate();
 
   const [content, setContent] = useState(initialContent);
-  const bloqs = content.bloqs || [];
-  const hardware = content.hardware || { board: "zumjunior", components: [] };
+  const program = content.program || [];
+  const hardware: IHardware = content.hardware || {
+    board: "zumjunior",
+    components: []
+  };
+
+  useEffect(() => {
+    console.log(
+      "Calling bloqs2code with:",
+      "Board:",
+      boards,
+      "Components:",
+      components,
+      "BloqTypes:",
+      bloqTypes,
+      "Hardware:",
+      hardware,
+      "Program:",
+      program
+    );
+    const code = bloqs2code(boards, components, bloqTypes, hardware, program);
+    console.log("CODE:", code);
+  }, [program, hardware]);
+
+  const componentMapRef = useRef<{ [key: string]: IComponent }>();
+  useEffect(() => {
+    componentMapRef.current = components.reduce((map, c) => {
+      map[c.name] = c;
+      return map;
+    }, {});
+  }, [components]);
+
+  const componentMap = componentMapRef.current || {};
+
+  const getComponents = (name: string) =>
+    hardware.components.filter(c =>
+      isInstanceOf(componentMap[c.component], name, componentMap)
+    );
+
+  const availableBloqs = bloqTypes.filter(bloq => {
+    const { parameterDefinitions = [] } = bloq;
+    return parameterDefinitions.every(param => {
+      if (isBloqSelectComponentParameter(param)) {
+        return hardware.components.some(c =>
+          isInstanceOf(
+            componentMap[c.component],
+            param.componentType,
+            componentMap
+          )
+        );
+      }
+
+      return true;
+    });
+  });
 
   const mainTabs = [
     <Document.Tab
@@ -73,13 +127,14 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       label={t("software")}
     >
       <HorizontalBloqEditor
-        bloqs={bloqs}
-        bloqTypes={bloqTypes}
+        bloqs={program}
+        getComponents={getComponents}
+        bloqTypes={availableBloqs}
         eventBloqGroups={eventBloqGroups}
         waitBloqGroups={waitBloqGroups}
         actionBloqGroups={actionBloqGroups}
-        onBloqsChange={(newBloqs: Bloq[][]) =>
-          setContent(update(content, { bloqs: { $set: newBloqs } }))
+        onBloqsChange={(newProgram: IBloq[][]) =>
+          setContent(update(content, { program: { $set: newProgram } }))
         }
       />
     </Document.Tab>
@@ -96,6 +151,25 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       {typeof children === "function" ? children(mainTabs) : mainTabs}
     </Document>
   );
+};
+
+export const isInstanceOf = (
+  component: IComponent,
+  name: string,
+  componentsMap: { [key: string]: IComponent }
+): boolean => {
+  if (component.name === name) {
+    return true;
+  }
+
+  if (component.extends) {
+    const parentComponent = componentsMap[component.extends];
+    if (parentComponent) {
+      return isInstanceOf(parentComponent, name, componentsMap);
+    }
+  }
+
+  return false;
 };
 
 export default Junior;

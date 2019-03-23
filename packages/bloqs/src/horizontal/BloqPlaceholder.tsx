@@ -2,17 +2,17 @@ import React from "react";
 import styled from "@emotion/styled";
 import { colors, Icon } from "@bitbloq/ui";
 
-import { BloqCategory } from "../index.d";
+import { BloqCategory } from "../index";
 
 import { horizontalShapes } from "../config";
 
-interface BloqPlaceholderProps {
+interface IBloqPlaceholderProps {
   category: BloqCategory;
   onClick: React.MouseEventHandler;
   selected?: boolean;
 }
 
-const BloqPlaceholder: React.FunctionComponent<BloqPlaceholderProps> = ({
+const BloqPlaceholder: React.FunctionComponent<IBloqPlaceholderProps> = ({
   category,
   onClick,
   selected

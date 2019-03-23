@@ -1,7 +1,7 @@
 import React from "react";
-import { ShapeProps } from "../index.d";
+import { IShapeProps } from "../index";
 
-const SensorShape: React.FunctionComponent<ShapeProps> = ({
+const SensorShape: React.FunctionComponent<IShapeProps> = ({
   fill,
   stroke,
   strokeWidth,

@@ -3,16 +3,17 @@ import styled from "@emotion/styled";
 import HorizontalBloq from "./HorizontalBloq";
 import BloqPlaceholder from "./BloqPlaceholder";
 
-import { Bloq, BloqType, BloqCategory } from "../index.d";
+import { IBloq, IBloqType } from "../index";
+import { BloqCategory } from "../enums";
 
-interface BloqsLineProps {
-  bloqs: Bloq[];
-  bloqTypes: BloqType[];
+interface IBloqsLineProps {
+  bloqs: IBloq[];
+  bloqTypes: IBloqType[];
   selectedBloq?: number;
   onBloqClick?: (index: number, e: React.MouseEvent) => any;
 }
 
-const BloqsLine: React.FunctionComponent<BloqsLineProps> = ({
+const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   bloqs,
   bloqTypes,
   selectedBloq,

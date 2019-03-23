@@ -1,20 +1,31 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { colors, Input, Select } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
-import { Bloq, BloqType } from "../index.d";
+import {
+  IBloq,
+  IBloqType,
+  IBloqParameter,
+  IBloqSelectParameter,
+  IBloqSelectComponentParameter,
+  IComponentInstance,
+  BloqParameterType,
+  isBloqSelectParameter,
+  isBloqSelectComponentParameter
+} from "../index";
 
-interface BloqPropertiesPanelProps {
+interface IBloqPropertiesPanelProps {
   isOpen: boolean;
-  bloqType: BloqType;
-  bloq: Bloq;
+  bloqType: IBloqType;
+  bloq: IBloq;
+  getComponents: (type: string) => IComponentInstance[];
 }
 
 const BloqPropertiesPanel: React.FunctionComponent<
-  BloqPropertiesPanelProps
-> = ({ isOpen, bloqType, bloq }) => {
+  IBloqPropertiesPanelProps
+> = ({ isOpen, bloqType, bloq, getComponents }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
@@ -25,6 +36,37 @@ const BloqPropertiesPanel: React.FunctionComponent<
     return null;
   }
 
+  const renderParam = (param: IBloqParameter) => {
+    if (isBloqSelectParameter(param)) {
+      return (
+        <FormGroup key={param.name}>
+          <label>{param.label}</label>
+          <StyledSelect
+            options={param.options}
+            selectConfig={{ isSearchable: false }}
+          />
+        </FormGroup>
+      );
+    }
+    if (isBloqSelectComponentParameter(param)) {
+      const options = getComponents(param.componentType).map(c => ({ label: c.name, value: c }));
+
+      return (
+        <FormGroup key={param.name}>
+          <label>{param.label}</label>
+          <StyledSelect
+            options={options}
+            selectConfig={{ isSearchable: false }}
+          />
+        </FormGroup>
+      );
+    }
+
+    return null;
+  };
+
+  const { parameterDefinitions = [] } = bloqType;
+
   return (
     <Wrap style={wrapStyle}>
       <Content>
@@ -34,6 +76,9 @@ const BloqPropertiesPanel: React.FunctionComponent<
           </HeaderBloq>
           <Title>{bloqType.label}</Title>
         </Header>
+        <Properties>
+          {parameterDefinitions.map(renderParam)}
+        </Properties>
       </Content>
     </Wrap>
   );
@@ -73,5 +118,29 @@ const Title = styled.div`
   font-weight: bold;
   font-style: italic;
   margin-left: 10px;
+  flex: 1;
+`;
+
+const Properties = styled.div`
+  padding: 20px;
+  font-size: 13px;
+`;
+
+const FormGroup = styled.div`
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+
+  label {
+    display: block;
+    width: 120px;
+  }
+
+  input {
+    flex: 1;
+  }
+`;
+
+const StyledSelect = styled(Select)`
   flex: 1;
 `;

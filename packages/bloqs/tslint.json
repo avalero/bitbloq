@@ -24,7 +24,6 @@
       "allow-leading-underscore",
       "allow-pascal-case"
     ],
-    "interface-name": [false],
     "prefer-array-literal": [true, { "allow-type-parameters": true }],
     "ordered-imports": [false]
   }

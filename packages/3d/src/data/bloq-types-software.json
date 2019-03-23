@@ -115,6 +115,39 @@
       "code": {
         "statement": "true"
       }
+    },
+    {
+      "name": "Display7Segment",
+      "type": "action",
+      "parameterDefinitions": [
+        {
+          "name": "component",
+          "type": "select",
+          "options": {
+            "source": "Components",
+            "args": ["SevenSegments"]
+          }
+        },
+        {
+          "name": "char1",
+          "label": "bloq-parameter-char1",
+          "type": "text"
+        },
+        {
+          "name": "char2",
+          "label": "bloq-parameter-char2",
+          "type": "text"
+        }
+      ],
+      "code": {
+        "statement": "{{getComponentCode(parameters.component, 'write', { char1: parameters.char1, char2: parameters.char2 })}}"
+      }
+    },
+    {
+      "name": "On7SegmentValue",
+      "type": "event",
+      "code": {
+      }
     }
   ]
 }
