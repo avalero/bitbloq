@@ -54,8 +54,6 @@ const bloqs2code = (
   hardware: IHardware,
   program: IBloq[][]
 ) => {
-  debugger;
-
   const includes: string[] = [];
   const globals: string[] = [];
   const setup: string[] = [];
@@ -76,15 +74,13 @@ const bloqs2code = (
   // get board code
   try {
     Object.keys(arduinoCode).forEach(section => {
-      console.log(`${section}`);
       arduinoCode[section].push(...boardCodes(board, section));
     });
   } catch (e) {
-    console.error(`Generating board code ${e}`);
+    console.info(`Error generating board code ${e}`);
   }
 
   const nunjucksData = { ...arduinoCode, date: getDate() };
-  debugger;
   const code: string = nunjucks.renderString(arduinocodetemplate, nunjucksData);
 
   return code;
