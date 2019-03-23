@@ -1,7 +1,16 @@
-import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
-import HardwareDesigner from "./hardware/HardwareDesigner";
-import bloqs2code from "./bloqs2code/bloqs2code";
-import { BloqCategory, BloqParameterType } from "./enums"
+/*
+ * File: index.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
+ */
+
+import HorizontalBloqEditor from './horizontal/HorizontalBloqEditor';
+import HardwareDesigner from './hardware/HardwareDesigner';
+import bloqs2code from './bloqs2code/bloqs2code';
+import { BloqCategory, BloqParameterType } from './enums';
 
 export { HorizontalBloqEditor, HardwareDesigner, bloqs2code };
 
@@ -23,13 +32,11 @@ export interface IBloqParameterOption {
   label: string;
 }
 
-export interface IBloqSelectParameter
-  extends IBloqBaseParameter {
+export interface IBloqSelectParameter extends IBloqBaseParameter {
   options: IBloqParameterOption[];
 }
 
-export interface IBloqSelectComponentParameter
-  extends IBloqBaseParameter {
+export interface IBloqSelectComponentParameter extends IBloqBaseParameter {
   componentType: string;
 }
 
@@ -38,11 +45,15 @@ export type IBloqParameter =
   | IBloqSelectParameter
   | IBloqSelectComponentParameter;
 
-export function isBloqSelectParameter(parameter: IBloqParameter): parameter is IBloqSelectParameter {
+export function isBloqSelectParameter(
+  parameter: IBloqParameter
+): parameter is IBloqSelectParameter {
   return parameter.type === BloqParameterType.Select;
 }
 
-export function isBloqSelectComponentParameter(parameter: IBloqParameter): parameter is IBloqSelectComponentParameter {
+export function isBloqSelectComponentParameter(
+  parameter: IBloqParameter
+): parameter is IBloqSelectComponentParameter {
   return parameter.type === BloqParameterType.SelectComponent;
 }
 
@@ -92,10 +103,10 @@ export interface IPortPin {
 }
 
 export enum IPortDirection {
-  North = "north",
-  South = "south",
-  East = "east",
-  West = "west"
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west',
 }
 
 export interface IPort {
@@ -107,16 +118,24 @@ export interface IPort {
   direction: IPortDirection;
 }
 
+export interface IArduinoCode {
+  includes: string[];
+  globals: string[];
+  setup: string[];
+  loop: string[];
+  definitions: string[];
+}
+
 export interface IBoard {
   name: string;
-  code: any;
+  code: IArduinoCode;
   image: IComponentImage;
   ports: IPort[];
 }
 
 export enum ConnectorPinMode {
-  INPUT = "INPUT",
-  OUTPUT = "OUTPUT"
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
 }
 
 export interface IConnectorPin {
