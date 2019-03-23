@@ -467,7 +467,27 @@ export const waitBloqGroups = [
 export const boards = [
   {
     "name": "zumjunior",
-    "code": {},
+    "code": {
+      "includes": [
+        "<BQZUMJunior.h>",
+        "<BQZUMJuniorPorts.h>"
+      ],
+      "globals": [
+        "BQ::ZUMJunior zumJunior;"
+      ],
+
+      "setup": [
+        "zumJunior.setup();"
+      ],
+
+      "loop": [
+
+      ],
+      
+      "definitions": [
+
+      ]
+    },
     "image": {
       "url": "https://bitbloq.bq.com/images/boards/1548099714577.zumjunior.svg",
       "width": 300,
