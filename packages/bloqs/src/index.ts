@@ -119,11 +119,11 @@ export interface IPort {
 }
 
 export interface IArduinoCode {
-  includes: string[];
-  globals: string[];
-  setup: string[];
-  loop: string[];
-  definitions: string[];
+  includes?: string[];
+  globals?: string[];
+  setup?: string[];
+  loop?: string[];
+  definitions?: string[];
 }
 
 export interface IBoard {
@@ -169,4 +169,25 @@ export interface IComponentInstance {
 export interface IHardware {
   board: string;
   components: IComponentInstance[];
+}
+
+export interface IWrite {
+  code: string;
+  value: number;
+  values: any;
+}
+
+export interface IRead {
+  code: string;
+  value: number;
+  values: any;
+  returns: string;
+}
+
+export interface IComponentNew {
+  name: string;
+  extends?: string;
+  def_code: IArduinoCode;
+  write: Partial<IWrite>;
+  read: Partial<IRead>;
 }
