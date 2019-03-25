@@ -1,7 +1,9 @@
-//import * as winston from 'winston'
+// import * as winston from 'winston'
 const { createLogger, format, transports } = require('winston');
 const { combine, timestamp, label, printf } = format;
 
+// import * as elasticsearch from 'winston-elasticsearch';
+// const Elasticsearch = require('winston-elasticsearch');
 
 const myFormat = printf(({ level, message, label, timestamp }) => {
     return `${timestamp}, [${label}], ${level}, ${message}`;
@@ -16,8 +18,9 @@ const logger = createLogger({
     ),
     transports: [
         new transports.File({ filename: './logs/error.log', level: 'error' }),
-        new transports.File({ filename: './logs/info.log', level: 'info' })
-        //new winston.transports.Console()
+        new transports.File({ filename: './logs/info.log', level: 'info' }),
+        // new Elasticsearch({ level: 'info' })
+        // new winston.transports.Console()
     ]
 });
 
