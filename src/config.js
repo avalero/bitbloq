@@ -497,8 +497,8 @@ export const boards = [
       {
         "name": "1",
         "position": {
-          "x": -1,
-          "y": 0.1,
+          "x": -0.9,
+          "y": 0.15,
         },
         "connectorTypes": [
           "zumjunior-digital",
@@ -523,8 +523,8 @@ export const boards = [
       {
         "name": "2",
         "position": {
-          "x": 0,
-          "y": 0.6,
+          "x": -0.9,
+          "y": -0.15,
         },
         "connectorTypes": [
           "zumjunior-digital",
@@ -549,8 +549,8 @@ export const boards = [
       {
         "name": "3",
         "position": {
-          "x": 1,
-          "y": 0.6,
+          "x": 0.9,
+          "y": -0.15,
         },
         "connectorTypes": [
           "zumjunior-digital",
@@ -575,8 +575,8 @@ export const boards = [
       {
         "name": "4",
         "position": {
-          "x": 1,
-          "y": 0.4,
+          "x": 0.9,
+          "y": 0.15,
         },
         "connectorTypes": [
           "zumjunior-digital",
@@ -601,8 +601,8 @@ export const boards = [
       {
         "name": "A",
         "position": {
-          "x": 0.4,
-          "y": 0,
+          "x": 0.15,
+          "y": 0.9,
         },
         "connectorTypes": [
           "zumjunior-digital",
@@ -624,7 +624,7 @@ export const boards = [
           }
         ],
         "placeholderPosition": {
-          "x": -0.8,
+          "x": 0.8,
           "y": 1.5,
         },
         "direction": "north"
@@ -632,8 +632,8 @@ export const boards = [
       {
         "name": "B",
         "position": {
-          "x": 0.6,
-          "y": 0,
+          "x": -0.15,
+          "y": 0.9,
         },
         "connectorTypes": [
           "zumjunior-digital",
@@ -655,7 +655,7 @@ export const boards = [
           }
         ],
         "placeholderPosition": {
-          "x": 0.8,
+          "x": -0.8,
           "y": 1.5,
         },
         "direction": "north"
@@ -721,8 +721,8 @@ export const components = [
         "name": "main",
         "type": "zumjunior-digital",
         "position": {
-          "x": 0.28,
-          "y": 1,
+          "x": -0.4,
+          "y": -1,
         },
         "pins": [
           {
