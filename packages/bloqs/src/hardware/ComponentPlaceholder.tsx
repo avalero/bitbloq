@@ -14,18 +14,18 @@ const ComponentPlaceholder: React.FunctionComponent<
 > = ({ selected, top, left, onClick }) => {
   return (
     <Container selected={selected} top={top} left={left} onClick={onClick}>
-      <Icon name="plus" />
       <SVG>
         <circle
           cx={32}
           cy={32}
           r={30}
-          fill="none"
+          fill="white"
           stroke={selected ? colors.brandOrange : "#bbb"}
           strokeWidth={2}
           strokeDasharray="7 3"
         />
       </SVG>
+      <Icon name="plus" />
     </Container>
   );
 };
@@ -52,6 +52,10 @@ const Container = styled.div<IContainerProps>`
   left: ${props => props.left}px;
   transform: translate(-50%, -50%);
   cursor: pointer;
+
+  svg {
+    z-index: 10;
+  }
 `;
 
 const SVG = styled.svg`
@@ -60,4 +64,5 @@ const SVG = styled.svg`
   left: -2px;
   width: 64px;
   height: 64px;
+  z-index: 0;
 `;

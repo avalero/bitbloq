@@ -11,7 +11,6 @@ import {
   IBloqSelectParameter,
   IBloqSelectComponentParameter,
   IComponentInstance,
-  BloqParameterType,
   isBloqSelectParameter,
   isBloqSelectComponentParameter
 } from "../index";

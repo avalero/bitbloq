@@ -58,7 +58,12 @@ const Wrap = styled(animated.div)`
 `;
 
 const Content = styled.div`
+  display: flex;
   border-left: 1px solid ${colors.gray3};
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding-top: 20px;
 `;
 
 interface IComponentProps {
@@ -69,4 +74,5 @@ const Component = styled.img<IComponentProps>`
   cursor: pointer;
   width: ${props => props.width}px;
   height: ${props => props.height}px;
+  margin-bottom: 20px;
 `;
