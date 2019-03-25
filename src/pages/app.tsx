@@ -13,6 +13,7 @@ const Document = React.lazy(() => import("../components/Document"));
 const EditDocument = React.lazy(() => import("../components/EditDocument"));
 const EditExercise = React.lazy(() => import("../components/EditExercise"));
 const ViewSubmission = React.lazy(() => import("../components/ViewSubmission"));
+const Playground = React.lazy(() => import("../components/Playground"));
 
 import enMessages from "../messages/en.json";
 import esMessages from "../messages/es.json";
@@ -41,6 +42,7 @@ const AppPage = () => (
           <Route path="/app/document/:type/:id" component={EditDocument} />
           <Route path="/app/exercise/:type/:id" component={EditExercise} />
           <Route path="/app/submission/:type/:id" component={ViewSubmission} />
+          <Route path="/app/playground/:type" component={Playground} />
           <Route path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>
