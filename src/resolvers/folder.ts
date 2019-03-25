@@ -1,31 +1,55 @@
-import { ApolloError, PubSub } from 'apollo-server-koa';
-import { DocumentModel } from '../models/document';
-import { FolderModel } from '../models/folder';
+import { ApolloError, withFilter } from 'apollo-server-koa';
+import { DocumentModel, IDocument } from '../models/document';
+import { FolderModel, IFolder } from '../models/folder';
+import { UserModel, IUser } from '../models/user';
 import documentResolver from './document';
-import { UserModel } from '../models/user';
+
+import { pubsub } from '../server';
+const FOLDER_UPDATED: string = 'FOLDER_UPDATED';
 
 import { logger, loggerController } from '../controllers/logs';
 
 const folderResolver = {
+  Subscription: {
+    folderUpdated: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([FOLDER_UPDATED]),
+        (payload, variables, context) => {
+          return context.user.userID === payload.folderUpdated.user;
+        },
+      ),
+    },
+  },
+
   Mutation: {
     /**
      * Create folder: create a new empty folder.
      * args: folder information
      */
     createFolder: async (root: any, args: any, context: any) => {
-      const user = await UserModel.findOne({_id: context.user.userID});
-      const folderNew = new FolderModel({
+      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+      if (args.input.parent) {
+        if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
+          throw new ApolloError(
+            'Parent folder does not exist',
+            'PARENT_NOT_FOUND',
+          );
+        }
+      }
+      const folderNew: IFolder = new FolderModel({
         name: args.input.name,
         user: context.user.userID,
         parent: args.input.parent || user.rootFolder,
       });
-      const newFolder = await FolderModel.create(folderNew);
+      const newFolder: IFolder = await FolderModel.create(folderNew);
       await FolderModel.findOneAndUpdate(
         { _id: folderNew.parent },
-        { $push: {foldersID: newFolder._id} },
+        { $push: { foldersID: newFolder._id } },
         { new: true },
       )
       loggerController.storeInfoLog('folder', 'create', 'folder', newFolder.user, '');
+      pubsub.publish(FOLDER_UPDATED, { folderUpdated: newFolder });
       return newFolder;
     },
 
@@ -36,35 +60,46 @@ const folderResolver = {
      * args: folder ID
      */
     deleteFolder: async (root: any, args: any, context: any) => {
-      const existFolder = await FolderModel.findOne({
+      const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
-      if(!existFolder){
-        throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND')
+      if (!existFolder) {
+        throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
       }
-      if(existFolder.name =='root'){
-        throw new ApolloError('You can not delete your Root folder', 'CANT_DELETE_ROOT')
+      if (existFolder.name == 'root') {
+        throw new ApolloError(
+          'You can not delete your Root folder',
+          'CANT_DELETE_ROOT',
+        );
       }
       if (existFolder) {
-        if(existFolder.documentsID.length >0){
-            for(let document of existFolder.documentsID){
-                await documentResolver.Mutation.deleteDocument('',{id: document}, context);
-                await FolderModel.updateOne(
-                  { _id: existFolder.parent },
-                  { $pull: {documentsID: document} },
-                  { new: true },
-                )
-            }
+        if (existFolder.documentsID.length > 0) {
+          for (const document of existFolder.documentsID) {
+            await documentResolver.Mutation.deleteDocument(
+              '',
+              { _id: document },
+              context,
+            );
+            await FolderModel.updateOne(
+              { _id: existFolder.parent },
+              { $pull: { documentsID: document } },
+              { new: true },
+            );
+          }
         }
-        if(existFolder.foldersID.length >0){
-          for(let folder of existFolder.foldersID){
-              await folderResolver.Mutation.deleteFolder('', {id: folder}, context);
+        if (existFolder.foldersID.length > 0) {
+          for (const folder of existFolder.foldersID) {
+            await folderResolver.Mutation.deleteFolder(
+              '',
+              { _id: folder },
+              context,
+            );
           }
         }
         await FolderModel.updateOne(
           { _id: existFolder.parent },
-          { $pull: {foldersID: existFolder._id} },
+          { $pull: { foldersID: existFolder._id } },
           { new: true },
         )
         loggerController.storeInfoLog('folder', 'delete', 'folder', existFolder.user, '');
@@ -80,76 +115,110 @@ const folderResolver = {
      * args: folder ID, new folder information.
      */
     updateFolder: async (root: any, args: any, context: any) => {
-      const existFolder = await FolderModel.findOne({
+      const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID,
       });
-      if(!existFolder){
-        throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND')
+      if (args.input.parent) {
+        if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
+          throw new ApolloError(
+            'Parent folder does not exist',
+            'PARENT_NOT_FOUND',
+          );
+        }
       }
-      // if(existFolder.name =='root'){
-      //   throw new ApolloError('You can not update your Root folder', 'CANT_UPDATE_ROOT')
-      // }
+      if (!existFolder) {
+        throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
+      }
       if (existFolder) {
-        if(args.input.foldersID){ //si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
-          for(let folder of args.input.foldersID){
+        if (args.input.foldersID) {
+          // si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
+          for (const folder of args.input.foldersID) {
+            const fol: IFolder = await FolderModel.findOne({ _id: folder });
+            if (!fol) {
+              throw new ApolloError(
+                'Folder ID does not exist',
+                'FOLDER_NOT_FOUND',
+              );
+            }
             await FolderModel.updateOne(
-              {_id: folder},
-              { parent: existFolder._id}
+              // quito la carpeta de la carpeta en la que estuviera
+              { _id: fol.parent },
+              { $pull: { foldersID: folder } },
+              { new: true },
             );
             await FolderModel.updateOne(
-              { _id: existFolder.parent },
-              { $pull: {foldersID: folder} }, //borro el hijo de la carpeta padre
-              { new: true },
-            )
+              // actualizo la carpeta con el nuevo padre
+              { _id: folder },
+              { parent: existFolder._id },
+            );
             await FolderModel.updateOne(
               { _id: existFolder._id },
-              { $push: {foldersID: folder} }, //añado el nuevo folder a los hijos de la carpeta
+              { $push: { foldersID: folder } }, // añado la nueva carpeta a los hijos de la carpeta
               { new: true },
-            )
+            );
           }
         }
-        if(args.input.documentsID){ //si se pasa lista de documentos hay que modificarlos para añadir la carpeta
-          for(let document of args.input.documentsID){
+        if (args.input.documentsID) {
+          // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
+          for (const document of args.input.documentsID) {
+            const doc: IDocument = await DocumentModel.findOne({
+              _id: document,
+            });
+            if (!doc) {
+              throw new ApolloError(
+                'Document ID does not exist',
+                'DOCUMENT_NOT_FOUND',
+              );
+            }
+            await FolderModel.updateOne(
+              // quito el documento de la carpeta en la que estuviera
+              { _id: doc.folder },
+              { $pull: { documentsID: document } },
+              { new: true },
+            );
             await DocumentModel.updateOne(
-              {_id: document},
-              { folder: existFolder._id}
+              // actualizo el documento con la nueva carpeta
+              { _id: document },
+              { folder: existFolder._id },
             );
             await FolderModel.updateOne(
-              { _id: existFolder.parent },
-              { $pull: {documentsID: document} },
-              { new: true },
-            )
-            await FolderModel.updateOne(
               { _id: existFolder._id },
-              { $push: {documentsID: document} }, //añado el nuevo document a los hijos de la carpeta
+              { $push: { documentsID: document } }, // añado el nuevo document a los hijos de la carpeta
               { new: true },
-            )
+            );
           }
         }
-        if(args.input.parent){ //si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
+        if (args.input.parent && args.input.parent != existFolder.parent) {
+          // si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
           await FolderModel.updateOne(
-            {_id: args.input.parent},
-            { $push: {foldersID: existFolder._id}}
+            { _id: args.input.parent },
+            { $push: { foldersID: existFolder._id } },
           );
           await FolderModel.updateOne(
-            {_id: existFolder.parent},
-            { $pull: {foldersID: existFolder._id}}
+            { _id: existFolder.parent },
+            { $pull: { foldersID: existFolder._id } },
           );
         }
-        
-        if(existFolder.name=='root' && args.input.name){
-          throw new ApolloError('You can not update your Root folder names', 'CANT_UPDATE_ROOT')
+        if (existFolder.name == 'root' && args.input.name) {
+          throw new ApolloError(
+            'You can not update your Root folder name',
+            'CANT_UPDATE_ROOT',
+          );
         }
         loggerController.storeInfoLog('folder', 'update', 'folder', existFolder.user, '');
-        return FolderModel.findOneAndUpdate(
+        const updatedFolder: IFolder = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
-          { $set: {
-            name: args.input.name || existFolder.name,
-            parent: args.input.parent || existFolder.parent,
-          } },
+          {
+            $set: {
+              name: args.input.name || existFolder.name,
+              parent: args.input.parent || existFolder.parent,
+            },
+          },
           { new: true },
         );
+        pubsub.publish(FOLDER_UPDATED, { folderUpdated: updatedFolder });
+        return updatedFolder;
       } else {
         return new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
       }
@@ -170,17 +239,14 @@ const folderResolver = {
      * args: folder ID.
      */
     folder: async (root: any, args: any, context: any) => {
-        const existFolder = await FolderModel.findOne({
-          _id: args.id,
-          user: context.user.userID,
-        });
-        if (!existFolder) {
-          throw new ApolloError(
-            'Folder does not exist',
-            'FOLDER_NOT_FOUND',
-          );
-        }
-        return existFolder;
+      const existFolder: IFolder = await FolderModel.findOne({
+        _id: args.id,
+        user: context.user.userID,
+      });
+      if (!existFolder) {
+        throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
+      }
+      return existFolder;
     },
 
     /**
@@ -196,10 +262,9 @@ const folderResolver = {
   },
 
   Folder: {
-    documents: async folder =>
+    documents: async (folder: IFolder) =>
       DocumentModel.find({ folder: folder }),
-    folders: async folder =>
-      FolderModel.find({parent: folder}),
+    folders: async (folder: IFolder) => FolderModel.find({ parent: folder }),
   },
 };
 

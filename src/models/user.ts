@@ -1,7 +1,7 @@
 import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
-interface IUser extends Document {
+export interface IUser extends Document {
   email?: string;
   password?: string;
   name?: string;
@@ -11,7 +11,7 @@ interface IUser extends Document {
   authToken?: string;
   notifications?: boolean;
   signUpSurvey?: JSON;
-  rootFolder?:string
+  rootFolder?: string;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -63,7 +63,7 @@ export const ContactSchema: Schema = new Schema({
   rootFolder: {
     type: Schema.Types.ObjectId,
     ref: 'FolderModel',
-  }
+  },
 });
 
 ContactSchema.plugin(timestamps);

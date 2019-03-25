@@ -21,6 +21,9 @@ type Mutation {
   updateFolder(id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
   deleteFolder(id: ObjectID!): Folder                   @authRequired(requires: [USER])
 }
+type Subscription {
+  folderUpdated: Folder   @authRequired(requires: [USER])
+}
 
 type Folder {
   id: ObjectID

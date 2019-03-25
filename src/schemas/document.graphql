@@ -33,7 +33,7 @@ type Document {
   type: String
   folder: ObjectID
   content: String
-  geometries: String
+  cache: String
   description: String
   version: String
   image: String
@@ -44,13 +44,12 @@ type Document {
 }
 
 input DocumentIn {
-  id: ObjectID
   user: ObjectID
   title: String
   type: String
   folder: ObjectID
   content: String
-  geometries: String
+  cache: String
   description: String
   version: String
   image: Upload

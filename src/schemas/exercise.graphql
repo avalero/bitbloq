@@ -29,7 +29,7 @@ type Exercise {
   user: ObjectID
   title: String
   content: String
-  geometries: String
+  cache: String
   code: String
   type: String
   description: String

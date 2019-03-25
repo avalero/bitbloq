@@ -1,18 +1,18 @@
 import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
-interface IDocument extends Document {
+export interface IDocument extends Document {
   user?: string;
   title?: string;
   type?: string;
   folder?: string;
   content?: string;
-  geometries?: string
-  image: string;
+  cache?: string;
+  image?: string;
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;
-  version: string;
+  version?: string;
 }
 
 const DocumentMongSchema: Schema = new Schema({
@@ -41,20 +41,24 @@ const DocumentMongSchema: Schema = new Schema({
     default: 'content',
   },
 
-  geometries: {
+  cache: {
     type: String,
+    default: 'cache',
   },
 
   image: {
     type: String,
+    default: 'imageURL',
   },
 
   description: {
     type: String,
+    default: 'description',
   },
 
   version: {
     type: String,
+    default: 'version',
   },
 });
 

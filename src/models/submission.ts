@@ -1,14 +1,14 @@
 import { Document, Model, model, Schema } from 'mongoose';
 const timestamps = require('mongoose-timestamp');
 
-interface ISubmission extends Document {
+export interface ISubmission extends Document {
   user?: string;
   title: string;
   exercise?: string;
   studentNick?: string;
   password?: string;
   content?: string;
-  geometries?: string;
+  cache?: string;
   finished?: boolean;
   comment?: string;
   type: string;
@@ -38,7 +38,7 @@ const SubmissionMongSchema: Schema = new Schema({
 
   studentNick: {
     type: String,
-    required: true
+    required: true,
   },
 
   password: {
@@ -50,8 +50,9 @@ const SubmissionMongSchema: Schema = new Schema({
     default: 'content',
   },
 
-  geometries: {
+  cache: {
     type: String,
+    default: 'cache',
   },
 
   submissionToken: {
@@ -69,23 +70,25 @@ const SubmissionMongSchema: Schema = new Schema({
 
   studentComment: {
     type: String,
+    default: 'studentComment',
   },
 
   finishedAt: {
     type: Date,
   },
 
-  grade:{
+  grade: {
     type: Number,
   },
 
   teacherComment: {
     type: String,
+    default: 'teacherComment',
   },
 
-  gradedAt:{
+  gradedAt: {
     type: Date,
-  }
+  },
 });
 SubmissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(
