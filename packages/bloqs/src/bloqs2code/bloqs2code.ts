@@ -31,20 +31,17 @@ const getDate = (): string => {
 
 const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
   const boardName: string = hardware.board;
-  for (const board of boards) {
-    if (board.name === boardName) return board;
-  }
-
+  const board = boards.find(b => b.name === boardName);
+  if (board) return board;
+  // if not defined no board found
   throw new Error(`Board ${boardName} not defined`);
 };
 
 const boardCodes = (board: IBoard, section: string): string[] => {
-  const code: string[] = [];
   if (!board.code[section]) {
     throw new Error(`${section} not defined in ${board.name} code`);
   }
-  code.push(...board.code[section]);
-  return code;
+  return board.code[section];
 };
 
 const bloqs2code = (
