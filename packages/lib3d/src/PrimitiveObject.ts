@@ -12,18 +12,18 @@
  * Last modified  : 2019-01-31 10:37:34
  */
 
-import { isEqual } from 'lodash';
-import Object3D from './Object3D';
+import { isEqual } from "lodash";
+import Object3D from "./Object3D";
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
-import ObjectsCommon from './ObjectsCommon';
+import ObjectsCommon from "./ObjectsCommon";
 
 import {
   IPrimitiveObjectJSON,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class PrimitiveObject extends Object3D {
   protected parameters: object;
@@ -35,7 +35,7 @@ export default class PrimitiveObject extends Object3D {
   public toJSON(): IPrimitiveObjectJSON {
     const json: IPrimitiveObjectJSON = {
       ...super.toJSON(),
-      parameters: this.parameters,
+      parameters: this.parameters
     };
 
     return json;
@@ -48,15 +48,15 @@ export default class PrimitiveObject extends Object3D {
 
   public updateFromJSON(
     object: IPrimitiveObjectJSON,
-    fromParent: boolean = false,
+    fromParent: boolean = false
   ) {
     if (this.id !== object.id) {
-      throw new Error('Object id does not match with JSON id');
+      throw new Error("Object id does not match with JSON id");
     }
 
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
+      ...object.viewOptions
     };
 
     this.setParameters(object.parameters);

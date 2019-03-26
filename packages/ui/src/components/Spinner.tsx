@@ -1,7 +1,7 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import { keyframes } from '@emotion/core';
-import Icon from './Icon';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { keyframes } from "@emotion/core";
+import Icon from "./Icon";
 
 export interface SpinnerProps {
   className?: string;
@@ -37,4 +37,3 @@ const Container = styled.div`
     height: 200px;
   }
 `;
-

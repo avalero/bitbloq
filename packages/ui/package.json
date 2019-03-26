@@ -7,7 +7,9 @@
   "scripts": {
     "test": "echo \"No test specified\" && exit 0",
     "coveralls": "echo \"No test specified\" && exit 0",
-    "tslint": "echo \"No tslint specified\" && exit 0"
+    "tslint": "echo \"No tslint specified\" && exit 0",
+    "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "prettier:ts": "prettier --write \"**/*.{ts,tsx}\""
   },
   "authors": [
     {

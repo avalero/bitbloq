@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import {colors, ScrollableTabs, withTranslate} from '@bitbloq/ui';
-import config from '../../config/threed';
+import React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { colors, ScrollableTabs, withTranslate } from "@bitbloq/ui";
+import config from "../../config/threed";
 
 export interface IShape {
   type: string;
@@ -23,25 +23,26 @@ export interface IAddObjectDropDownProps {
 
 class AddObjectDropdown extends React.Component<IAddObjectDropDownProps> {
   render() {
-    const {shapeGroups, onAddObject, t} = this.props;
+    const { shapeGroups, onAddObject, t } = this.props;
 
     return (
-      <Tabs tabs={shapeGroups.map(group => ({
-        icon: group.icon,
-        content: (
-          <ShapeGroup>
-            <GroupLabel>{t(group.label)}</GroupLabel>
-            <Shapes>
-              {group.shapes.map(shape => (
-                <Shape key={shape.label} onClick={() => onAddObject(shape)}>
-                  <ShapeImage>{shape.icon}</ShapeImage>
-                  <ShapeText>{t(shape.label)}</ShapeText>
-                </Shape>
-              ))}
-            </Shapes>
-          </ShapeGroup>
-        )
-      }))}
+      <Tabs
+        tabs={shapeGroups.map(group => ({
+          icon: group.icon,
+          content: (
+            <ShapeGroup>
+              <GroupLabel>{t(group.label)}</GroupLabel>
+              <Shapes>
+                {group.shapes.map(shape => (
+                  <Shape key={shape.label} onClick={() => onAddObject(shape)}>
+                    <ShapeImage>{shape.icon}</ShapeImage>
+                    <ShapeText>{t(shape.label)}</ShapeText>
+                  </Shape>
+                ))}
+              </Shapes>
+            </ShapeGroup>
+          )
+        }))}
       />
     );
   }
@@ -91,7 +92,8 @@ const ShapeImage = styled.div`
   justify-content: center;
   align-items: center;
 
-  svg, img {
+  svg,
+  img {
     width: 56px;
     height: 56px;
   }

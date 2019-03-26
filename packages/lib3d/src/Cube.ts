@@ -13,19 +13,19 @@
  * Last modified  : 2019-01-31 10:33:27
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 
 import {
   ICubeJSON,
   ICubeParams,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube';
+  public static typeName: string = "Cube";
 
   /**
    * Creates a new Cube instance from json
@@ -33,7 +33,7 @@ export default class Cube extends PrimitiveObject {
    */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type !== Cube.typeName) {
-      throw new Error('Not Cube Object');
+      throw new Error("Not Cube Object");
     }
     let mesh: THREE.Mesh;
     let cube: Cube;
@@ -43,7 +43,7 @@ export default class Cube extends PrimitiveObject {
         object.parameters,
         object.operations,
         object.viewOptions,
-        mesh,
+        mesh
       );
     } else {
       cube = new Cube(object.parameters, object.operations, object.viewOptions);
@@ -57,11 +57,11 @@ export default class Cube extends PrimitiveObject {
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined,
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cube.typeName;
@@ -84,7 +84,7 @@ export default class Cube extends PrimitiveObject {
         this.parameters as ICubeParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        (this.mesh as THREE.Mesh).clone()
       );
       return cubeObj;
     }
@@ -92,7 +92,7 @@ export default class Cube extends PrimitiveObject {
     const cube = new Cube(
       this.parameters as ICubeParams,
       this.operations,
-      this.viewOptions,
+      this.viewOptions
     );
     return cube;
   }

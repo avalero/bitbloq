@@ -1,16 +1,16 @@
-import * as React from 'react';
-import {connect} from 'react-redux';
-import styled from '@emotion/styled';
-import {selectObject, deselectAllObjects} from '../../actions/threed';
+import * as React from "react";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { selectObject, deselectAllObjects } from "../../actions/threed";
 import {
   Scene,
   IHelperDescription,
   IObjectPosition,
   IObjectsCommonJSON,
-  Renderer,
-} from '@bitbloq/lib3d';
-import {getSelectedObjects} from '../../reducers/threed/';
-import {Icon, withTranslate} from '@bitbloq/ui';
+  Renderer
+} from "@bitbloq/lib3d";
+import { getSelectedObjects } from "../../reducers/threed/";
+import { Icon, withTranslate } from "@bitbloq/ui";
 
 const Container = styled.div`
   flex: 1;
@@ -69,7 +69,7 @@ const CameraButton = styled.div<CameraButtonProps>`
   border: 1px solid #cfcfcf;
 
   svg {
-    width: ${props => (props.wideIcon ? '18px' : '12px')};
+    width: ${props => (props.wideIcon ? "18px" : "12px")};
   }
 `;
 
@@ -102,7 +102,12 @@ class ThreeDViewer extends React.Component<
   readonly state = new ThreeDViewerState();
 
   componentDidUpdate(prevProps: ThreeDViewerProps) {
-    const {scene, sceneObjects, selectedObjects, activeOperation} = this.props;
+    const {
+      scene,
+      sceneObjects,
+      selectedObjects,
+      activeOperation
+    } = this.props;
     if (sceneObjects !== prevProps.sceneObjects) {
       this.renderer.updateScene();
     }
@@ -121,45 +126,40 @@ class ThreeDViewer extends React.Component<
   }
 
   componentDidMount() {
-    const {
-      scene,
-      selectObject,
-      deselectAllObjects,
-      t,
-    } = this.props;
+    const { scene, selectObject, deselectAllObjects, t } = this.props;
     const container = this.rendererContainerRef.current;
 
     if (container) {
       this.renderer = new Renderer(scene, container, {
         navigationBoxLabels: {
-          top: t('navigation-top'),
-          bottom: t('navigation-bottom'),
-          left: t('navigation-left'),
-          right: t('navigation-right'),
-          front: t('navigation-front'),
-          back: t('navigation-back'),
-        },
+          top: t("navigation-top"),
+          bottom: t("navigation-bottom"),
+          left: t("navigation-left"),
+          right: t("navigation-right"),
+          front: t("navigation-front"),
+          back: t("navigation-back")
+        }
       });
       this.renderer.updateScene();
     }
 
     this.renderer.onObjectClick(object => {
-      const {controlPressed, shiftPressed} = this.props;
+      const { controlPressed, shiftPressed } = this.props;
       selectObject(object, controlPressed || shiftPressed);
     });
     this.renderer.onBackgroundClick(() => {
-      if (this.props.selectedObjects.length > 0 ) {
+      if (this.props.selectedObjects.length > 0) {
         deselectAllObjects();
       }
     });
   }
 
   async updateStatusBar() {
-    const {scene, selectedObjects} = this.props;
-    this.setState({selectedPosition: undefined});
+    const { scene, selectedObjects } = this.props;
+    this.setState({ selectedPosition: undefined });
     if (selectedObjects && selectedObjects.length === 1) {
       const selectedPosition = await scene.getPositionAsync(selectedObjects[0]);
-      this.setState({selectedPosition});
+      this.setState({ selectedPosition });
     }
   }
 
@@ -178,12 +178,12 @@ class ThreeDViewer extends React.Component<
   onToggleOrthographic = () => {
     const isOrthographic = !this.state.isOrthographic;
     this.renderer.setOrtographicCamera(isOrthographic);
-    this.setState({isOrthographic});
+    this.setState({ isOrthographic });
   };
 
   render() {
-    const {selectedPosition, isOrthographic} = this.state;
-    const {t} = this.props;
+    const { selectedPosition, isOrthographic } = this.state;
+    const { t } = this.props;
 
     return (
       <Container ref={this.rendererContainerRef}>
@@ -205,7 +205,7 @@ class ThreeDViewer extends React.Component<
         <StatusBar>
           {selectedPosition && (
             <StatusBarGroup>
-              <b>{t('status-position')}</b>
+              <b>{t("status-position")}</b>
               <span>X={selectedPosition.position.x.toFixed(2)}</span>
               <span>Y={selectedPosition.position.y.toFixed(2)}</span>
               <span>Z={selectedPosition.position.z.toFixed(2)}</span>
@@ -213,7 +213,7 @@ class ThreeDViewer extends React.Component<
           )}
           {selectedPosition && (
             <StatusBarGroup>
-              <b>{t('status-rotation')}</b>
+              <b>{t("status-rotation")}</b>
               <span>X={selectedPosition.angle.x.toFixed(2)}</span>
               <span>Y={selectedPosition.angle.y.toFixed(2)}</span>
               <span>Z={selectedPosition.angle.z.toFixed(2)}</span>
@@ -231,15 +231,15 @@ const mapStateToProps = (state: any) => ({
   activeOperation: state.threed.ui.activeOperation,
   selectedObjects: getSelectedObjects(state.threed),
   controlPressed: state.ui.controlPressed,
-  shiftPressed: state.ui.shiftPressed,
+  shiftPressed: state.ui.shiftPressed
 });
 
 const mapDispatchToProps = {
   selectObject,
-  deselectAllObjects,
+  deselectAllObjects
 };
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(withTranslate(ThreeDViewer));

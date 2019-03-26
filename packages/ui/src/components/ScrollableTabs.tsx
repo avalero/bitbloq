@@ -1,7 +1,7 @@
-import React, { useRef, useState } from 'react';
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import colors from '../colors';
+import React, { useRef, useState } from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import colors from "../colors";
 
 import { ITab } from "../index.d";
 
@@ -21,9 +21,11 @@ const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
     if (!contentEl.current) return;
     const el = contentEl.current!;
     const scrollTop = el.scrollTop;
-    const visibleTab = Array.from(el.children).reduce((tab, child: HTMLDivElement, i) =>
-      child.offsetTop - scrollTop < 200 ? i : tab
-    , 0)
+    const visibleTab = Array.from(el.children).reduce(
+      (tab, child: HTMLDivElement, i) =>
+        child.offsetTop - scrollTop < 200 ? i : tab,
+      0
+    );
     setActiveTab(visibleTab);
   };
 
@@ -32,7 +34,7 @@ const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
     const scrollTop = (el.children[tab] as HTMLDivElement).offsetTop;
     el.scrollTop = scrollTop;
     setActiveTab(tab);
-  }
+  };
 
   return (
     <Container className={className}>
@@ -101,4 +103,3 @@ const Content = styled.div`
     display: none;
   }
 `;
-

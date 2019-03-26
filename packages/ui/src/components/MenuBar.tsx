@@ -1,15 +1,12 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import Icon from './Icon';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Icon from "./Icon";
 
 interface SubMenuProps {
   isTop?: boolean;
 }
-const SubMenu =
-  styled.div <
-  SubMenuProps >
-  `
+const SubMenu = styled.div<SubMenuProps>`
   position: absolute;
   display: none;
   top: 0px;
@@ -83,10 +80,7 @@ const MainOption = styled(Option)`
 interface ContainerProps {
   disabled: boolean;
 }
-const Container =
-  styled.div <
-  ContainerProps >
-  `
+const Container = styled.div<ContainerProps>`
   display: flex;
   flex: 1;
   align-items: center;
@@ -130,12 +124,12 @@ interface State {
 
 class MenuBar extends React.Component<MenuBarProps, State> {
   state = {
-    disabled: false,
+    disabled: false
   };
 
   onOptionClick(option: MenuOption) {
-    const {onOptionClick} = this.props;
-    this.setState({disabled: true});
+    const { onOptionClick } = this.props;
+    this.setState({ disabled: true });
 
     if (onOptionClick) {
       onOptionClick(option);
@@ -143,7 +137,7 @@ class MenuBar extends React.Component<MenuBarProps, State> {
   }
 
   onMouseOver = () => {
-    this.setState({disabled: false});
+    this.setState({ disabled: false });
   };
 
   renderSubMenu(options: MenuOption[], isTop?: boolean) {
@@ -171,8 +165,8 @@ class MenuBar extends React.Component<MenuBarProps, State> {
   }
 
   render() {
-    const {disabled} = this.state;
-    const {options} = this.props;
+    const { disabled } = this.state;
+    const { options } = this.props;
 
     return (
       <Container disabled={disabled} onMouseOver={this.onMouseOver}>

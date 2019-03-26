@@ -13,22 +13,22 @@
  * -----
  */
 
-import * as THREE from 'three';
-import STLObject from './STLObject';
+import * as THREE from "three";
+import STLObject from "./STLObject";
 import {
   ISTLParams,
   OperationsArray,
   IViewOptions,
-  ISTLJSON,
-} from './Interfaces';
-import ObjectsCommon from './ObjectsCommon';
+  ISTLJSON
+} from "./Interfaces";
+import ObjectsCommon from "./ObjectsCommon";
 
 export default class PredesignedObject extends STLObject {
-  public static typeName: string = 'PredesignedObject';
+  public static typeName: string = "PredesignedObject";
 
   public static newFromJSON(object: ISTLJSON): PredesignedObject {
     if (object.type !== PredesignedObject.typeName) {
-      throw new Error('Not Predesigned Object');
+      throw new Error("Not Predesigned Object");
     }
 
     let stl: PredesignedObject;
@@ -39,13 +39,13 @@ export default class PredesignedObject extends STLObject {
         object.parameters,
         object.operations,
         object.viewOptions,
-        mesh,
+        mesh
       );
     } else {
       stl = new PredesignedObject(
         object.parameters,
         object.operations,
-        object.viewOptions,
+        object.viewOptions
       );
     }
 
@@ -58,7 +58,7 @@ export default class PredesignedObject extends STLObject {
     parameters: Partial<ISTLParams>,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined,
+    mesh?: THREE.Mesh | undefined
   ) {
     super(parameters, operations, viewOptions, mesh);
     this.type = PredesignedObject.typeName;
@@ -70,7 +70,7 @@ export default class PredesignedObject extends STLObject {
         this.parameters as ISTLParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        (this.mesh as THREE.Mesh).clone()
       );
       return objSTL;
     }
@@ -78,7 +78,7 @@ export default class PredesignedObject extends STLObject {
     const obj = new PredesignedObject(
       this.parameters as ISTLParams,
       this.operations,
-      this.viewOptions,
+      this.viewOptions
     );
     return obj;
   }

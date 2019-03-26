@@ -1,20 +1,20 @@
-import 'jsdom-worker';
+import "jsdom-worker";
 interface Global {
   fetch: any;
 }
 const global: Global = { fetch: undefined };
-global.fetch = require('jest-fetch-mock');
+global.fetch = require("jest-fetch-mock");
 
-import * as THREE from 'three';
-import ObjectsCommon from '../ObjectsCommon';
-import Prism from '../Prism';
+import * as THREE from "three";
+import ObjectsCommon from "../ObjectsCommon";
+import Prism from "../Prism";
 
 import {
   IViewOptions,
   OperationsArray,
   IPrismJSON,
-  IPrismParams,
-} from '../Interfaces';
+  IPrismParams
+} from "../Interfaces";
 
 const sides = 10;
 const length = 20;
@@ -23,14 +23,14 @@ const height = 30;
 const objParams: IPrismParams = {
   sides,
   length,
-  height,
+  height
 };
 const operations: OperationsArray = [];
 const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test('Prism - Constructor', () => {
+test("Prism - Constructor", () => {
   const obj = new Prism(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -45,7 +45,7 @@ test('Prism - Constructor', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Prism - Constructor - Default Params - ViewOptions', () => {
+test("Prism - Constructor - Default Params - ViewOptions", () => {
   const obj = new Prism(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -59,7 +59,7 @@ test('Prism - Constructor - Default Params - ViewOptions', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Prism - Constructor - Default Params - Operations - ViewOptions', () => {
+test("Prism - Constructor - Default Params - Operations - ViewOptions", () => {
   const obj = new Prism(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -74,7 +74,7 @@ test('Prism - Constructor - Default Params - Operations - ViewOptions', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Prism - Constructor - Set Operations - Translation', () => {
+test("Prism - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
@@ -91,13 +91,13 @@ test('Prism - Constructor - Set Operations - Translation', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Prism - Constructor - Set Operations - Rotation', () => {
+test("Prism - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
   // tslint:disable-next-line:no-shadowed-variable
   const operations = [
-    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
   const obj = new Prism(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -110,14 +110,14 @@ test('Prism - Constructor - Set Operations - Rotation', () => {
   expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
 });
 
-test('Prism - Constructor - set Mesh', async () => {
+test("Prism - Constructor - set Mesh", async () => {
   const objAux = new Prism(objParams);
   const meshAux = await objAux.getMeshAsync();
   const obj = new Prism(
     objParams,
     operations,
     viewOptions,
-    meshAux as THREE.Mesh,
+    meshAux as THREE.Mesh
   );
 
   return obj.getMeshAsync().then(mesh => {
@@ -129,9 +129,9 @@ test('Prism - Constructor - set Mesh', async () => {
 
 /// TESTING CUBE.CLONE
 
-test('Prism - Clone - Parameters - Operations - viewOptions', async () => {
+test("Prism - Clone - Parameters - Operations - viewOptions", async () => {
   const obj = new Prism(objParams, operations, viewOptions);
-  const spy = jest.spyOn((obj as any).mesh, 'clone');
+  const spy = jest.spyOn((obj as any).mesh, "clone");
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
@@ -141,7 +141,7 @@ test('Prism - Clone - Parameters - Operations - viewOptions', async () => {
 });
 
 /// TEST NEW FROM JSON
-test('Prism - newFromJSON', () => {
+test("Prism - newFromJSON", () => {
   const obj = new Prism(objParams, operations, viewOptions);
   const json: IPrismJSON = obj.toJSON() as IPrismJSON;
   const obj2 = Prism.newFromJSON(json);
@@ -151,10 +151,10 @@ test('Prism - newFromJSON', () => {
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
 });
 
-test('Prism - newFromJSON', () => {
+test("Prism - newFromJSON", () => {
   const obj = new Prism(objParams, operations, viewOptions);
   const json: IPrismJSON = obj.toJSON() as IPrismJSON;
-  json.type = 'kkk';
+  json.type = "kkk";
   const obj2 = () => Prism.newFromJSON(json);
   expect(obj2).toThrowError();
 });

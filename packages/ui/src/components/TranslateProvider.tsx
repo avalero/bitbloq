@@ -62,7 +62,7 @@ export const withTranslate = <P extends object>(
   };
 
 export const useTranslate = () => {
-  return useContext(TranslateContext)
+  return useContext(TranslateContext);
 };
 
 export default TranslateProvider;

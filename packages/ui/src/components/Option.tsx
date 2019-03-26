@@ -1,6 +1,6 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import colors from '../colors';
+import React from "react";
+import styled from "@emotion/styled";
+import colors from "../colors";
 
 const Container = styled.div`
   display: flex;
@@ -28,7 +28,7 @@ const InnerBullet = styled.div`
 
 export default class Option extends React.Component {
   render() {
-    const {checked, children, onClick, className} = this.props;
+    const { checked, children, onClick, className } = this.props;
 
     return (
       <Container onClick={onClick} className={className}>
