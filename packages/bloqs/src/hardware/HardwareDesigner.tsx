@@ -6,7 +6,14 @@ import ComponentPlaceholder from "./ComponentPlaceholder";
 import AddComponentPanel from "./AddComponentPanel";
 import ComponentPropertiesPanel from "./ComponentPropertiesPanel";
 
-import { IBoard, IComponent, IPort, IHardware } from "../index";
+import {
+  IBoard,
+  IComponent,
+  IComponentInstance,
+  IPort,
+  IPortDirection,
+  IHardware
+} from "../index";
 
 interface IHardwareDesignerProps {
   boards: IBoard[];
@@ -27,7 +34,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   const { width, height } = board.image;
 
   const selectedPort = board.ports[selectedPortIndex];
-  const selectedComponent =
+  const selectedComponentInstance =
     selectedPort && hardware.components.find(c => c.port === selectedPort.name);
 
   const getInstanceName = (baseName: string, count: number = 0): string => {
@@ -35,6 +42,18 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     const exist = hardware.components.some(c => c.name === name);
     return exist ? getInstanceName(baseName, count ? count + 1 : 2) : name;
   };
+
+  const selectedComponent =
+    selectedComponentInstance &&
+    components.find(c => c.name === selectedComponentInstance.component)!;
+  const availablePorts = selectedComponent
+    ? board.ports.filter(
+        p =>
+          p === selectedPort ||
+          (isCompatiblePort(p, selectedComponent) &&
+          !hardware.components.some(c => c.port === p.name))
+      )
+    : [];
 
   const renderPort = (port: IPort, i: number) => {
     const componentInstance = hardware.components.find(
@@ -46,7 +65,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     if (componentInstance) {
       const component = components.find(
         c => c.name === componentInstance.component
-      );
+      )!;
       const image = (component && component.image) || {
         url: "",
         width: 0,
@@ -84,16 +103,56 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     );
   };
 
+  const connectionPath = (port: IPort) => {
+    const componentInstance = hardware.components.find(
+      c => c.port === port.name
+    );
+
+    const portX = (port.position.x * width) / 2;
+    const portY = (-port.position.y * width) / 2;
+    const placeholderX = (port.placeholderPosition.x * width) / 2;
+    const placeholderY = (-port.placeholderPosition.y * height) / 2;
+
+    if (
+      port.direction === IPortDirection.West ||
+      port.direction === IPortDirection.East
+    ) {
+      return `
+        M ${portX},${portY}
+        L ${placeholderX},${portY}
+        L ${placeholderX},${placeholderY}
+      `;
+    }
+
+    return `
+      M ${portX},${portY}
+      L ${portX},${placeholderY}
+      L ${placeholderX},${placeholderY}
+    `;
+  };
+
   return (
     <Container>
       <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
+        <ConnectionCanvas>
+          {board.ports.map((port, i) => (
+            <path
+              key={port.name}
+              d={connectionPath(port)}
+              fill="none"
+              stroke={selectedPortIndex === i ? colors.brandOrange : "#bbb"}
+              strokeWidth={2}
+              strokeDasharray="7 3"
+            />
+          ))}
+        </ConnectionCanvas>
         <Canvas>
           {board.ports.map(renderPort)}
           <Board width={width} height={height} src={board.image.url} />
         </Canvas>
       </CanvasWrap>
       <AddComponentPanel
-        isOpen={selectedPortIndex >= 0 && !selectedComponent}
+        isOpen={selectedPortIndex >= 0 && !selectedComponentInstance}
         board={board}
         components={components}
         onComponentSelected={component => {
@@ -114,11 +173,36 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
         }}
       />
       <ComponentPropertiesPanel
-        isOpen={!!selectedComponent}
+        isOpen={!!selectedComponentInstance}
         components={components}
-        componentInstance={selectedComponent!}
+        componentInstance={selectedComponentInstance!}
+        availablePorts={availablePorts}
+        onDeleteComponent={() => {
+          onHardwareChange({
+            ...hardware,
+            components: hardware.components.filter(c =>
+              c !== selectedComponentInstance
+            )
+          });
+          setSelectedPortIndex(-1);
+        }}
+        onInstanceUpdate={(newInstance: IComponentInstance) => {
+          onHardwareChange({
+            ...hardware,
+            components: hardware.components.map(c =>
+              c === selectedComponentInstance ? newInstance : c
+            )
+          });
+          setSelectedPortIndex(board.ports.findIndex(p => p.name === newInstance.port));
+        }}
       />
     </Container>
+  );
+};
+
+const isCompatiblePort = (port: IPort, component: IComponent) => {
+  return component.connectors.some(connector =>
+    port.connectorTypes.includes(connector.type)
   );
 };
 
@@ -140,6 +224,13 @@ const Canvas = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
+`;
+
+const ConnectionCanvas = styled.svg`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  overflow: visible;
 `;
 
 interface IComponentProps {
