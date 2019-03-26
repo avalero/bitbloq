@@ -30,4 +30,30 @@ const juniorbloqs = [
       },
     ],
   },
+  {
+    category: 'action',
+    name: 'blinkLED',
+    icon: 'blinkLEDIcon',
+    components: ['LED', 'ZUMJuniorLED'],
+    parameters: [
+      {
+        name: 'name',
+        label: 'bloq-name-led',
+        type: 'string',
+        value: 'miLED',
+      },
+      {
+        name: 'delay',
+        label: 'bloq-options-blink-led-delay',
+        type: 'number',
+        value: 1000,
+      },
+      {
+        name: 'times',
+        label: 'bloq-options-blink-led-times',
+        type: 'number',
+        value: 5,
+      },
+    ],
+  },
 ];
