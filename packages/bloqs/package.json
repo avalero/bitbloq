@@ -38,7 +38,8 @@
     "coveralls": "echo \"not defined\"",
     "tslint:dev": "tslint --project tsconfig.json -c ./tslint-dev.json \"**/*.ts\"",
     "tslint:prod": "tslint --project tsconfig.json -c ./tslint-prod.json \"**/*.ts\"",
-    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "prettier:ts": "prettier --write \"**/*.{ts,tsx}\"",
     "test": "echo \"No test specified\" && exit 0"
   },
   "bugs": {

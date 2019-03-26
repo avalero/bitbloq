@@ -20,4 +20,3 @@ export enum BloqParameterType {
   SelectComponent = "selectComponent",
   Number = "number"
 }
-

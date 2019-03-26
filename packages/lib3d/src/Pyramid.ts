@@ -10,23 +10,23 @@
  * Last modified  : 2019-01-31 09:52:17
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 
 import {
   OperationsArray,
   IViewOptions,
   IPyramidParams,
-  IPyramidJSON,
-} from './Interfaces';
+  IPyramidJSON
+} from "./Interfaces";
 
 export default class Pyramid extends PrimitiveObject {
-  public static typeName: string = 'Pyramid';
+  public static typeName: string = "Pyramid";
 
   public static newFromJSON(object: IPyramidJSON): Pyramid {
     if (object.type !== Pyramid.typeName) {
-      throw new Error('Not Pyramid Object');
+      throw new Error("Not Pyramid Object");
     }
     let pyramid: Pyramid;
     let mesh: THREE.Mesh;
@@ -36,13 +36,13 @@ export default class Pyramid extends PrimitiveObject {
         object.parameters,
         object.operations,
         object.viewOptions,
-        mesh,
+        mesh
       );
     } else {
       pyramid = new Pyramid(
         object.parameters,
         object.operations,
-        object.viewOptions,
+        object.viewOptions
       );
     }
     pyramid.id = object.id || pyramid.id;
@@ -54,11 +54,11 @@ export default class Pyramid extends PrimitiveObject {
     parameters: IPyramidParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined,
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Pyramid.typeName;
@@ -78,14 +78,14 @@ export default class Pyramid extends PrimitiveObject {
         this.parameters as IPyramidParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        (this.mesh as THREE.Mesh).clone()
       );
       return objPrism;
     }
     const obj = new Pyramid(
       this.parameters as IPyramidParams,
       this.operations,
-      this.viewOptions,
+      this.viewOptions
     );
     return obj;
   }
@@ -101,7 +101,7 @@ export default class Pyramid extends PrimitiveObject {
       0,
       Number(radius),
       Number(height),
-      Number(sides),
+      Number(sides)
     )
       .rotateX(Math.PI / 2)
       .rotateZ(Math.PI / 4);

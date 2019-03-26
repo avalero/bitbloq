@@ -49,7 +49,10 @@ const BloqPropertiesPanel: React.FunctionComponent<
       );
     }
     if (isBloqSelectComponentParameter(param)) {
-      const options = getComponents(param.componentType).map(c => ({ label: c.name, value: c }));
+      const options = getComponents(param.componentType).map(c => ({
+        label: c.name,
+        value: c
+      }));
 
       return (
         <FormGroup key={param.name}>
@@ -76,9 +79,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
           </HeaderBloq>
           <Title>{bloqType.label}</Title>
         </Header>
-        <Properties>
-          {parameterDefinitions.map(renderParam)}
-        </Properties>
+        <Properties>{parameterDefinitions.map(renderParam)}</Properties>
       </Content>
     </Wrap>
   );

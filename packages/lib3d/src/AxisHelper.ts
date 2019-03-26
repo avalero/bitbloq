@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 
 const WIDTH = 150;
 const HEIGHT = 150;
@@ -39,19 +39,19 @@ export default class AxisHelper {
     const cylinderGeometry: THREE.Geometry = new THREE.CylinderGeometry(
       radius,
       radius,
-      length,
+      length
     );
 
     return new THREE.Mesh(
       cylinderGeometry,
-      new THREE.MeshLambertMaterial({ color }),
+      new THREE.MeshLambertMaterial({ color })
     );
   }
 
   private async setup() {
     const rendererParams = {
       alpha: true,
-      antialias: true,
+      antialias: true
     };
 
     const renderer = new THREE.WebGLRenderer(rendererParams);

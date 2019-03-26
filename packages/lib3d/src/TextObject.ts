@@ -10,34 +10,34 @@
  * Last modified  : 2019-01-31 10:31:10
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 
 import {
   ITextObjectJSON,
   ITextObjectParams,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
-import audiowide_regular from './assets/fonts/audiowide_regular.json';
-import fredoka_one_regular from './assets/fonts/fredoka_one_regular.json';
-import merriweather_regular from './assets/fonts/merriweather_regular.json';
-import pressstart2p_regular from './assets/fonts/pressstart2p_regular.json';
-import roboto_regular from './assets/fonts/roboto_regular.json';
+import audiowide_regular from "./assets/fonts/audiowide_regular.json";
+import fredoka_one_regular from "./assets/fonts/fredoka_one_regular.json";
+import merriweather_regular from "./assets/fonts/merriweather_regular.json";
+import pressstart2p_regular from "./assets/fonts/pressstart2p_regular.json";
+import roboto_regular from "./assets/fonts/roboto_regular.json";
 
 export default class TextObject extends PrimitiveObject {
-  public static typeName: string = 'TextObject';
+  public static typeName: string = "TextObject";
 
   public static newFromJSON(object: ITextObjectJSON): TextObject {
     if (object.type !== TextObject.typeName) {
-      throw new Error('Not Text Object');
+      throw new Error("Not Text Object");
     }
     const text = new TextObject(
       object.parameters,
       object.operations,
-      object.viewOptions,
+      object.viewOptions
     );
     text.id = object.id || text.id;
 
@@ -48,17 +48,17 @@ export default class TextObject extends PrimitiveObject {
     parameters: Partial<ITextObjectParams>,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined,
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = TextObject.typeName;
     const params = {
-      font: 'gentilis_regular',
-      ...parameters,
+      font: "gentilis_regular",
+      ...parameters
     };
     this.setParameters(params);
 
@@ -76,14 +76,14 @@ export default class TextObject extends PrimitiveObject {
         this.parameters as ITextObjectParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        (this.mesh as THREE.Mesh).clone()
       );
       return objText;
     }
     const obj = new TextObject(
       this.parameters as ITextObjectParams,
       this.operations,
-      this.viewOptions,
+      this.viewOptions
     );
     return obj;
   }
@@ -92,24 +92,24 @@ export default class TextObject extends PrimitiveObject {
     let { text, thickness, size } = this.parameters as ITextObjectParams;
     thickness = Math.max(0.1, thickness);
     size = Math.max(0.1, size);
-    text = text || 'TEXT';
+    text = text || "TEXT";
 
     let font: THREE.Font;
     try {
       switch ((this.parameters as ITextObjectParams).font) {
-        case 'audiowide_regular':
+        case "audiowide_regular":
           font = new THREE.Font(audiowide_regular);
           break;
-        case 'fredoka_one_regular':
+        case "fredoka_one_regular":
           font = new THREE.Font(fredoka_one_regular);
           break;
-        case 'merriweather_regular':
+        case "merriweather_regular":
           font = new THREE.Font(merriweather_regular);
           break;
-        case 'pressstart2p_regular':
+        case "pressstart2p_regular":
           font = new THREE.Font(pressstart2p_regular);
           break;
-        case 'roboto_regular':
+        case "roboto_regular":
           font = new THREE.Font(roboto_regular);
           break;
         default:
@@ -119,7 +119,7 @@ export default class TextObject extends PrimitiveObject {
       throw new Error(
         `Cannot create font ${
           (this.parameters as ITextObjectParams).font
-        }: ${e}`,
+        }: ${e}`
       );
     }
 
@@ -129,7 +129,7 @@ export default class TextObject extends PrimitiveObject {
       const geom = new THREE.TextGeometry(text, {
         size,
         font,
-        height: thickness,
+        height: thickness
       });
 
       return geom;

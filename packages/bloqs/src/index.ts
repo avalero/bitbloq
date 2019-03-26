@@ -7,10 +7,10 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import HorizontalBloqEditor from './horizontal/HorizontalBloqEditor';
-import HardwareDesigner from './hardware/HardwareDesigner';
-import bloqs2code from './bloqs2code/bloqs2code';
-import { BloqCategory, BloqParameterType } from './enums';
+import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
+import HardwareDesigner from "./hardware/HardwareDesigner";
+import bloqs2code from "./bloqs2code/bloqs2code";
+import { BloqCategory, BloqParameterType } from "./enums";
 
 export { HorizontalBloqEditor, HardwareDesigner, bloqs2code };
 
@@ -103,10 +103,10 @@ export interface IPortPin {
 }
 
 export enum IPortDirection {
-  North = 'north',
-  South = 'south',
-  East = 'east',
-  West = 'west',
+  North = "north",
+  South = "south",
+  East = "east",
+  West = "west"
 }
 
 export interface IPort {
@@ -134,8 +134,8 @@ export interface IBoard {
 }
 
 export enum ConnectorPinMode {
-  INPUT = 'INPUT',
-  OUTPUT = 'OUTPUT',
+  INPUT = "INPUT",
+  OUTPUT = "OUTPUT"
 }
 
 export interface IConnectorPin {

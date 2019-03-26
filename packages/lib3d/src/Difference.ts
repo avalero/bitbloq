@@ -12,35 +12,35 @@
  * Last modified  : 2019-01-31 10:34:59
  */
 
-import CompoundObject, { ChildrenArray } from './CompoundObject';
-import ObjectsCommon from './ObjectsCommon';
-import Scene from './Scene';
-import * as THREE from 'three';
+import CompoundObject, { ChildrenArray } from "./CompoundObject";
+import ObjectsCommon from "./ObjectsCommon";
+import Scene from "./Scene";
+import * as THREE from "three";
 import {
   ICompoundObjectJSON,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class Difference extends CompoundObject {
-  public static typeName: string = 'Difference';
+  public static typeName: string = "Difference";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
-    scene: Scene,
+    scene: Scene
   ): Difference {
     if (object.type !== Difference.typeName) {
-      throw new Error('Not Union Object');
+      throw new Error("Not Union Object");
     }
 
     try {
       const children: ChildrenArray = object.children.map(obj =>
-        scene.getObject(obj),
+        scene.getObject(obj)
       );
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       let dif: Difference;
 
@@ -49,17 +49,17 @@ export default class Difference extends CompoundObject {
 
       if (object.geometry) {
         if (object.geometry.id !== object.id) {
-          throw new Error('geometry and object id do not match');
+          throw new Error("geometry and object id do not match");
         }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
         const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
           vertices,
-          normals,
+          normals
         );
         const mesh: THREE.Mesh = new THREE.Mesh(
           geometry,
-          new THREE.MeshLambertMaterial(),
+          new THREE.MeshLambertMaterial()
         );
         mesh.userData.vertices = vertices;
         mesh.userData.normals = normals;
@@ -69,7 +69,7 @@ export default class Difference extends CompoundObject {
           object.operations,
           viewOptions,
           mesh,
-          true,
+          true
         );
       } else {
         dif = new Difference(children, object.operations, viewOptions);
@@ -86,12 +86,12 @@ export default class Difference extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
-    applyOperations: boolean = false,
+    applyOperations: boolean = false
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
     super(children, operations, vO);
     this.type = Difference.typeName;
@@ -109,7 +109,7 @@ export default class Difference extends CompoundObject {
 
   public clone(): Difference {
     const childrenClone: ChildrenArray = this.children.map(child =>
-      child.clone(),
+      child.clone()
     );
 
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
@@ -117,14 +117,14 @@ export default class Difference extends CompoundObject {
         childrenClone,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        (this.mesh as THREE.Mesh).clone()
       );
       return diffObj;
     }
     const obj = new Difference(
       childrenClone,
       this.operations,
-      this.viewOptions,
+      this.viewOptions
     );
 
     obj.verticesArray = this.verticesArray;

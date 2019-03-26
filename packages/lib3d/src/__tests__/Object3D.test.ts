@@ -1,17 +1,17 @@
-import 'jsdom-worker';
+import "jsdom-worker";
 interface Global {
   fetch: any;
 }
 const global: Global = { fetch: undefined };
-global.fetch = require('jest-fetch-mock');
+global.fetch = require("jest-fetch-mock");
 
-import Cube from '../Cube';
-import * as THREE from 'three';
+import Cube from "../Cube";
+import * as THREE from "three";
 
-import { IGeometry } from '../Interfaces';
-import Union from '../Union';
+import { IGeometry } from "../Interfaces";
+import Union from "../Union";
 
-test('Scene - getGeometries - vertices and normals', async () => {
+test("Scene - getGeometries - vertices and normals", async () => {
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
   const mesh = (await cube.getMeshAsync()) as THREE.Mesh;
   const vertices = [10, 20, 30];

@@ -1,8 +1,8 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import Button from './Button';
-import Modal from './Modal';
-import colors from '../colors';
+import * as React from "react";
+import styled from "@emotion/styled";
+import Button from "./Button";
+import Modal from "./Modal";
+import colors from "../colors";
 
 interface DialogModalProps {
   isOpen: boolean;
@@ -14,17 +14,25 @@ interface DialogModalProps {
   onCancel: () => void;
 }
 
-const DialogModal: React.SFC<DialogModalProps> = ({ isOpen, title, text, okText, cancelText, onOk, onCancel }) => (
+const DialogModal: React.SFC<DialogModalProps> = ({
+  isOpen,
+  title,
+  text,
+  okText,
+  cancelText,
+  onOk,
+  onCancel
+}) => (
   <Modal isOpen={isOpen} showHeader={false} onClose={onCancel}>
     <Content>
       <h2>{title}</h2>
       <p>{text}</p>
-    {okText &&
-      <Button onClick={onOk}>{okText}</Button>
-    }
-    {cancelText &&
-      <Button tertiary onClick={onCancel}>{cancelText}</Button>
-    }
+      {okText && <Button onClick={onOk}>{okText}</Button>}
+      {cancelText && (
+        <Button tertiary onClick={onCancel}>
+          {cancelText}
+        </Button>
+      )}
     </Content>
   </Modal>
 );

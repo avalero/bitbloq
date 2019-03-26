@@ -39,7 +39,8 @@
     "coveralls": "jest --coverage && cat ./coverage/lcov.info | coveralls",
     "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
     "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
-    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\""
+    "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "prettier:ts": "prettier --write \"**/*.{ts,tsx}\""
   },
   "bugs": {
     "url": "git+https://github.com/bitbloq/bitbloq/issues"

@@ -12,7 +12,7 @@
  * Last modified  : 2019-01-02 18:16:45
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
 const EPSILON: number = 1e-5,
   COPLANAR: number = 0,
@@ -56,7 +56,7 @@ export default class ThreeBSP {
       this.matrix = new THREE.Matrix4();
       return this;
     } else {
-      throw new Error('ThreeBSP: Given geometry is unsupported');
+      throw new Error("ThreeBSP: Given geometry is unsupported");
     }
 
     for (i = 0, _length_i = geometry.faces.length; i < _length_i; i++) {
@@ -74,7 +74,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[0],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -88,7 +88,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[1],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -102,7 +102,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[2],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -116,7 +116,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[0],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -130,7 +130,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[1],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -144,7 +144,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[2],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -158,7 +158,7 @@ export default class ThreeBSP {
           vertex.y,
           vertex.z,
           face.vertexNormals[3],
-          uvs as THREE.Vector2,
+          uvs as THREE.Vector2
         );
         vertex.applyMatrix4(this.matrix);
         polygon.vertices.push(vertex);
@@ -252,7 +252,7 @@ export default class ThreeBSP {
 
         if (
           typeof vertice_dict[`${vertex.x},${vertex.y},${vertex.z}`] !==
-          'undefined'
+          "undefined"
         ) {
           vertex_idx_a = vertice_dict[`${vertex.x},${vertex.y},${vertex.z}`];
         } else {
@@ -267,7 +267,7 @@ export default class ThreeBSP {
         vertex.applyMatrix4(matrix);
         if (
           typeof vertice_dict[`${vertex.x},${vertex.y},${vertex.z}`] !==
-          'undefined'
+          "undefined"
         ) {
           vertex_idx_b = vertice_dict[`${vertex.x},${vertex.y},${vertex.z}`];
         } else {
@@ -282,7 +282,7 @@ export default class ThreeBSP {
         vertex.applyMatrix4(matrix);
         if (
           typeof vertice_dict[`${vertex.x},${vertex.y},${vertex.z}`] !==
-          'undefined'
+          "undefined"
         ) {
           vertex_idx_c = vertice_dict[`${vertex.x},${vertex.y},${vertex.z}`];
         } else {
@@ -298,8 +298,8 @@ export default class ThreeBSP {
           new THREE.Vector3(
             polygon.normal.x,
             polygon.normal.y,
-            polygon.normal.z,
-          ),
+            polygon.normal.z
+          )
         );
 
         geometry.faces.push(face);
@@ -327,7 +327,7 @@ class Polygon {
   constructor(
     vertices: Vertex[] = [],
     normal: any = undefined,
-    w: any = undefined,
+    w: any = undefined
   ) {
     if (!(vertices instanceof Array)) {
       vertices = [];
@@ -433,7 +433,7 @@ class Polygon {
     coplanar_front: Array<Polygon>,
     coplanar_back: Array<Polygon>,
     front: Array<Polygon>,
-    back: Array<Polygon>,
+    back: Array<Polygon>
   ) {
     const classification = this.classifySide(polygon);
 
@@ -506,7 +506,7 @@ class Vertex {
     y: number,
     z: number,
     normal: THREE.Vector3,
-    uv: THREE.Vector2,
+    uv: THREE.Vector2
   ) {
     this.x = x;
     this.y = y;
@@ -521,7 +521,7 @@ class Vertex {
       this.y,
       this.z,
       this.normal.clone(),
-      this.uv.clone(),
+      this.uv.clone()
     );
   }
 
@@ -560,7 +560,7 @@ class Vertex {
 
   public normalize() {
     const length = Math.sqrt(
-      this.x * this.x + this.y * this.y + this.z * this.z,
+      this.x * this.x + this.y * this.y + this.z * this.z
     );
 
     this.x /= length;
@@ -579,21 +579,21 @@ class Vertex {
       a
         .clone()
         .subtract(this)
-        .multiplyScalar(t),
+        .multiplyScalar(t)
     );
 
     this.normal.add(
       a.normal
         .clone()
         .sub(this.normal)
-        .multiplyScalar(t),
+        .multiplyScalar(t)
     );
 
     this.uv.add(
       a.uv
         .clone()
         .sub(this.uv)
-        .multiplyScalar(t),
+        .multiplyScalar(t)
     );
 
     return this;
@@ -646,7 +646,7 @@ class Node {
         this.polygons,
         this.polygons,
         front,
-        back,
+        back
       );
     }
 
@@ -687,7 +687,7 @@ class Node {
         this.polygons,
         this.polygons,
         front,
-        back,
+        back
       );
     }
 

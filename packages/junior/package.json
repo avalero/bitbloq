@@ -38,8 +38,9 @@
     "coveralls": "echo \"not defined\"",
     "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
     "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
-    "prettier": "prettier --write \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "echo \"No test specified\" && exit 0",
+    "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "prettier:ts": "prettier --write \"**/*.{ts,tsx}\""
   },
   "bugs": {
     "url": "https://github.com/empoalp/bitbloq-junior/issues"

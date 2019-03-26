@@ -10,13 +10,13 @@
  * Last modified  : 2019-01-18 20:00:14
  */
 
-import * as THREE from 'three';
-import ThreeBSP from './threeCSG';
+import * as THREE from "three";
+import ThreeBSP from "./threeCSG";
 
 export default Worker;
 
 // Be sure we are not withing a node execution
-if (!(typeof module !== 'undefined' && module.exports)) {
+if (!(typeof module !== "undefined" && module.exports)) {
   const ctx: Worker = self as any;
 
   // export default class CompoundWorker extends Worker {
@@ -26,7 +26,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   // }
 
   const getUnionFromGeometries = (
-    geometries: THREE.Geometry[],
+    geometries: THREE.Geometry[]
   ): THREE.Geometry => {
     let geomBSP: any = new ThreeBSP(geometries[0]);
     // Union with the rest
@@ -39,7 +39,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   };
 
   const getDifferenceFromGeometries = (
-    geometries: THREE.Geometry[],
+    geometries: THREE.Geometry[]
   ): THREE.Geometry => {
     let geomBSP: any = new ThreeBSP(geometries[0]);
     // Union with the rest
@@ -52,7 +52,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   };
 
   const getIntersectionFromGeometries = (
-    geometries: THREE.Geometry[],
+    geometries: THREE.Geometry[]
   ): THREE.Geometry => {
     let geomBSP: any = new ThreeBSP(geometries[0]);
     // Union with the rest
@@ -65,7 +65,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   };
 
   ctx.addEventListener(
-    'message',
+    "message",
     e => {
       const geometries: THREE.Geometry[] = [];
       const bufferArray = e.data.bufferArray;
@@ -83,17 +83,17 @@ if (!(typeof module !== 'undefined' && module.exports)) {
         const _vertices: ArrayLike<number> = new Float32Array(
           verticesBuffer,
           0,
-          verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
         );
         const _normals: ArrayLike<number> = new Float32Array(
           normalsBuffer,
           0,
-          normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
         );
         const _positions: ArrayLike<number> = new Float32Array(
           positionBuffer,
           0,
-          positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+          positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
         );
         const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
         matrixWorld.elements = new Float32Array(_positions);
@@ -102,15 +102,15 @@ if (!(typeof module !== 'undefined' && module.exports)) {
         }
         const buffGeometry = new THREE.BufferGeometry();
         buffGeometry.addAttribute(
-          'position',
-          new THREE.BufferAttribute(_vertices, 3),
+          "position",
+          new THREE.BufferAttribute(_vertices, 3)
         );
         buffGeometry.addAttribute(
-          'normal',
-          new THREE.BufferAttribute(_normals, 3),
+          "normal",
+          new THREE.BufferAttribute(_normals, 3)
         );
         const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
-          buffGeometry,
+          buffGeometry
         );
         objectGeometry.applyMatrix(matrixWorld);
         geometries.push(objectGeometry);
@@ -118,15 +118,15 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
-      if (e.data.type === 'Union') {
+      if (e.data.type === "Union") {
         geometry = getUnionFromGeometries(geometries);
-      } else if (e.data.type === 'Difference') {
+      } else if (e.data.type === "Difference") {
         geometry = getDifferenceFromGeometries(geometries);
-      } else if (e.data.type === 'Intersection') {
+      } else if (e.data.type === "Intersection") {
         geometry = getIntersectionFromGeometries(geometries);
       } else {
         const postMessage = {
-          status: 'error',
+          status: "error"
         };
         ctx.postMessage(postMessage);
       }
@@ -140,25 +140,25 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
       // get buffer data
       const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(
-        geometry,
+        geometry
       );
       const vertices = new Float32Array(
-        bufferGeom.getAttribute('position').array,
+        bufferGeom.getAttribute("position").array
       );
-      const normals = new Float32Array(bufferGeom.getAttribute('normal').array);
+      const normals = new Float32Array(bufferGeom.getAttribute("normal").array);
 
       const message = {
         vertices,
         normals,
-        status: 'ok',
+        status: "ok"
       };
 
       ctx.postMessage(message, [
         message.vertices.buffer,
-        message.normals.buffer,
+        message.normals.buffer
       ]);
     },
 
-    false,
+    false
   );
 }
