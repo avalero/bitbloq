@@ -40,7 +40,8 @@
     "tslint:prod": "tslint --project tsconfig.json -c ./tslint-prod.json \"**/*.ts\"",
     "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "prettier:ts": "prettier --write \"**/*.{ts,tsx}\"",
-    "test": "echo \"No test specified\" && exit 0"
+    "test": "jest --coverage",
+    "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
   "bugs": {
     "url": "https://github.com/bitbloq/bitbloq/issues"
@@ -56,6 +57,7 @@
     "html-webpack-plugin": "^3.2.0",
     "prettier": "^1.16.4",
     "source-map-loader": "^0.2.4",
+    "ts-jest": "^24.0.0",
     "tslint": "^5.13.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
