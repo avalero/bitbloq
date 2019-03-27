@@ -2,25 +2,34 @@ import React from "react";
 import styled from "@emotion/styled";
 import { colors, Icon } from "@bitbloq/ui";
 
-import { BloqCategory } from "../index";
+import { BloqCategory } from "../enums";
 
-import { horizontalShapes } from "../config";
+import { horizontalShapes, halfHorizontalShapes } from "../config";
 
 interface IBloqPlaceholderProps {
   category: BloqCategory;
   onClick: React.MouseEventHandler;
   selected?: boolean;
+  half?: boolean;
 }
 
 const BloqPlaceholder: React.FunctionComponent<IBloqPlaceholderProps> = ({
   category,
   onClick,
-  selected
+  selected,
+  half
 }) => {
-  const ShapeComponent = horizontalShapes[category];
+  const ShapeComponent = half
+    ? halfHorizontalShapes[category]
+    : horizontalShapes[category];
 
   return (
-    <Container onClick={onClick} selected={selected}>
+    <Container
+      onClick={onClick}
+      selected={selected}
+      half={half}
+      category={category}
+    >
       <Icon name="plus" />
       <SVG>
         <g transform="translate(2,2)">
@@ -40,17 +49,20 @@ export default BloqPlaceholder;
 
 /* styled components */
 
-interface ContainerProps {
+interface IContainerProps {
   selected?: boolean;
+  half?: boolean;
+  category: BloqCategory;
 }
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<IContainerProps>`
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   color: ${props => (props.selected ? colors.brandOrange : "#bbb")};
-  width: 60px;
+  width: ${props =>
+    props.half ? 34 : (props.category === BloqCategory.Event ? 66 : 60)}px;
   height: 60px;
 `;
 

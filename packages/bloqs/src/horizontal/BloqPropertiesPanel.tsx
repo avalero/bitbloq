@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { colors, Input, Select } from "@bitbloq/ui";
+import { colors, Icon, Input, Select, useTranslate } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
@@ -20,16 +20,19 @@ interface IBloqPropertiesPanelProps {
   bloqType: IBloqType;
   bloq: IBloq;
   getComponents: (type: string) => IComponentInstance[];
+  onDeleteBloq: () => any;
 }
 
 const BloqPropertiesPanel: React.FunctionComponent<
   IBloqPropertiesPanelProps
-> = ({ isOpen, bloqType, bloq, getComponents }) => {
+> = ({ isOpen, bloqType, bloq, getComponents, onDeleteBloq }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
     config: { tension: 600, friction: 40 }
   });
+
+  const t = useTranslate();
 
   if (!bloqType) {
     return null;
@@ -39,7 +42,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
     if (isBloqSelectParameter(param)) {
       return (
         <FormGroup key={param.name}>
-          <label>{param.label}</label>
+          <label>{t(param.label)}</label>
           <StyledSelect
             options={param.options}
             selectConfig={{ isSearchable: false }}
@@ -55,7 +58,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
 
       return (
         <FormGroup key={param.name}>
-          <label>{param.label}</label>
+          <label>{t(param.label)}</label>
           <StyledSelect
             options={options}
             selectConfig={{ isSearchable: false }}
@@ -76,7 +79,10 @@ const BloqPropertiesPanel: React.FunctionComponent<
           <HeaderBloq>
             <HorizontalBloq type={bloqType} />
           </HeaderBloq>
-          <Title>{bloqType.label}</Title>
+          <Title>{bloqType.label && t(bloqType.label)}</Title>
+          <DeleteButton onClick={onDeleteBloq}>
+            <Icon name="trash" />
+          </DeleteButton>
         </Header>
         <Properties>{parameterDefinitions.map(renderParam)}</Properties>
       </Content>
@@ -143,4 +149,20 @@ const FormGroup = styled.div`
 
 const StyledSelect = styled(Select)`
   flex: 1;
+`;
+
+const DeleteButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: solid 1px white;
+
+  &:hover {
+    border: solid 1px #dddddd;
+    background-color: #e8e8e8;
+  }
 `;

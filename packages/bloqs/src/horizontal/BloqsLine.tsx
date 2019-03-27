@@ -9,36 +9,55 @@ import { BloqCategory } from "../enums";
 interface IBloqsLineProps {
   bloqs: IBloq[];
   bloqTypes: IBloqType[];
-  selectedBloq?: number;
-  onBloqClick?: (index: number, e: React.MouseEvent) => any;
+  selectedBloq: number;
+  selectedPlaceholder: number;
+  onBloqClick: (index: number, e: React.MouseEvent) => any;
+  onPlaceholderClick: (index: number, e: React.MouseEvent) => any;
 }
 
 const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   bloqs,
   bloqTypes,
   selectedBloq,
-  onBloqClick
+  selectedPlaceholder,
+  onBloqClick,
+  onPlaceholderClick
 }) => {
-  const placeholderCategory =
-    bloqs.length === 0 ? BloqCategory.Event : BloqCategory.Action;
+  const startsWithEvent = () => {
+    if (!bloqs[0]) {
+      return false;
+    }
+
+    const bloqType = bloqTypes.find(t => t.name === bloqs[0].type);
+    return bloqType && bloqType.category === BloqCategory.Event;
+  };
 
   return (
     <Container>
-      {bloqs.map((bloq, i) => (
-        <StyledBloq
-          key={i}
-          type={bloqTypes.find(t => t.name === bloq.type)!}
-          selected={selectedBloq === i}
-          onClick={(e: React.MouseEvent) => onBloqClick && onBloqClick(i, e)}
+      {!startsWithEvent() && (
+        <BloqPlaceholder
+          onClick={(e: React.MouseEvent) => onPlaceholderClick(0, e)}
+          selected={selectedPlaceholder === 0}
+          category={BloqCategory.Event}
         />
+      )}
+      {bloqs.map((bloq, i) => (
+        <React.Fragment key={i}>
+          <StyledBloq
+            type={bloqTypes.find(t => t.name === bloq.type)!}
+            selected={selectedBloq === i}
+            onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
+          />
+          {(selectedBloq === i || selectedPlaceholder === i + 1 || i === bloqs.length - 1) && (
+            <BloqPlaceholder
+              onClick={(e: React.MouseEvent) => onPlaceholderClick(i + 1, e)}
+              selected={selectedPlaceholder === i + 1}
+              category={BloqCategory.Action}
+              half={i < bloqs.length - 1}
+            />
+          )}
+        </React.Fragment>
       ))}
-      <BloqPlaceholder
-        onClick={(e: React.MouseEvent) =>
-          onBloqClick && onBloqClick(bloqs.length, e)
-        }
-        selected={selectedBloq === bloqs.length}
-        category={placeholderCategory}
-      />
     </Container>
   );
 };
