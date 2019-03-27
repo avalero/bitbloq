@@ -1,5 +1,6 @@
 import { BloqCategory } from "./enums";
 import EventShape from "./horizontal/EventShape";
+import HalfActionShape from "./horizontal/HalfActionShape";
 import ActionShape from "./horizontal/ActionShape";
 import WaitShape from "./horizontal/WaitShape";
 
@@ -14,3 +15,7 @@ export const horizontalShapes = {
   [BloqCategory.Action]: ActionShape,
   [BloqCategory.Wait]: WaitShape
 };
+
+export const halfHorizontalShapes = {
+  [BloqCategory.Action]: HalfActionShape,
+}

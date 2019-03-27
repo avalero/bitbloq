@@ -6,7 +6,7 @@
     "coveralls": "lerna exec -- npm run coveralls",
     "tslint:prod": "lerna run tslint:prod",
     "tslint:dev": "lerna run tslint:dev",
-    "prettier": "leran run prettier",
+    "prettier": "lerna run prettier",
     "prettier:ts": "lerna run prettier:ts"
   },
   "devDependencies": {
