@@ -116,5 +116,14 @@
   "software": "Software",
   "bloqs-sensors": "Sensores",
   "bloqs-actions": "Acciones",
-  "bloqs-waits": "Esperas"
+  "bloqs-waits": "Esperas",
+  "bloq-parameter-button": "Botón",
+  "bloq-parameter-led": "Led",
+  "bloq-on-start": "Al empezar",
+  "bloq-on-button-pressed": "Al pulsar botón",
+  "bloq-on-button-released": "Al soltar botón",
+  "bloq-button-instance-name": "boton",
+  "bloq-led-instance-name": "led",
+  "bloq-component-name": "Nombre",
+  "bloq-component-port": "Puerto"
 }

@@ -278,6 +278,7 @@ export const bloqTypes = [
   {
     category: "event",
     name: "OnButtonReleased",
+    label: "bloq-on-button-released",
     icon: buttonReleasedIcon,
     parameterDefinitions: [{
       name: "button",
@@ -715,7 +716,7 @@ export const components = [
   {
     "name": "ZumjuniorButton",
     "extends": "Button",
-    "instanceName": "button",
+    "instanceName": "bloq-button-instance-name",
     "connectors": [
       {
         "name": "main",
@@ -748,7 +749,7 @@ export const components = [
     "extends": "DoubleLed",
     "onValue": "LOW",
     "offValue": "HIGH",
-    "instanceName": "led",
+    "instanceName": "bloq-led-instance-name",
     "connectors": [
       {
         "name": "main",
