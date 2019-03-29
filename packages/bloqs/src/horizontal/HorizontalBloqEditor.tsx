@@ -6,29 +6,26 @@ import BloqsLine from "./BloqsLine";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
-import { IBloq, IBloqType, IBloqTypeGroup, IComponentInstance } from "../index";
+import { BloqCategory } from "../enums";
+import {
+  IBloq,
+  IBloqType,
+  IBloqTypeGroup,
+  IComponentInstance,
+  isBloqSelectParameter,
+  isBloqSelectComponentParameter
+} from "../index";
 
 interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
   bloqTypes: IBloqType[];
-  eventBloqGroups: IBloqTypeGroup[];
-  waitBloqGroups: IBloqTypeGroup[];
-  actionBloqGroups: IBloqTypeGroup[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
-  getComponents: (type: string) => IComponentInstance[];
+  getComponents: (types: string[]) => IComponentInstance[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
   IHorizontalBloqEditorProps
-> = ({
-  bloqs,
-  bloqTypes,
-  eventBloqGroups,
-  waitBloqGroups,
-  actionBloqGroups,
-  onBloqsChange,
-  getComponents
-}) => {
+> = ({ bloqs, bloqTypes, onBloqsChange, getComponents }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
@@ -44,10 +41,20 @@ const HorizontalBloqEditor: React.FunctionComponent<
     setSelectedPlaceholder(-1);
   };
 
-  const onAddBloq = (type: string) => {
+  const onAddBloq = (typeName: string) => {
+    const bloqType = bloqTypes.find(type => type.name === typeName);
     const newBloq: IBloq = {
-      type,
-      parameters: []
+      type: typeName,
+      parameters: (bloqType!.parameters || []).reduce((obj, param) => {
+        if (
+          isBloqSelectParameter(param) &&
+          param.options &&
+          param.options.length > 0
+        ) {
+          obj[param.name] = param.options[0].value;
+        }
+        return obj;
+      }, {})
     };
 
     if (selectedLineIndex < bloqs.length) {
@@ -60,6 +67,14 @@ const HorizontalBloqEditor: React.FunctionComponent<
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
     deselectEverything();
+  };
+
+  const onUpdateBloq = (newBloq: IBloq) => {
+    onBloqsChange(
+      update(bloqs, {
+        [selectedLineIndex]: { [selectedBloqIndex]: { $set: newBloq } }
+      })
+    );
   };
 
   const onDeleteBloq = () => {
@@ -107,7 +122,9 @@ const HorizontalBloqEditor: React.FunctionComponent<
           {
             label: t("bloqs-sensors"),
             icon: <Icon name="programming2" />,
-            groups: eventBloqGroups
+            groups: bloqTypes
+              .filter(bt => bt.category === BloqCategory.Event)
+              .map(bt => ({ types: [bt.name] }))
           }
         ]}
         bloqTypes={bloqTypes}
@@ -120,12 +137,16 @@ const HorizontalBloqEditor: React.FunctionComponent<
           {
             label: t("bloqs-actions"),
             icon: <Icon name="programming" />,
-            groups: actionBloqGroups
+            groups: bloqTypes
+              .filter(bt => bt.category === BloqCategory.Action)
+              .map(bt => ({ types: [bt.name] }))
           },
           {
             label: t("bloqs-waits"),
             icon: <Icon name="programming3" />,
-            groups: waitBloqGroups
+            groups: bloqTypes
+              .filter(bt => bt.category === BloqCategory.Wait)
+              .map(bt => ({ types: [bt.name] }))
           }
         ]}
         bloqTypes={bloqTypes}
@@ -139,6 +160,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
           selectedBloq &&
           bloqTypes.find(type => type.name === selectedBloq.type)!
         }
+        onUpdateBloq={onUpdateBloq}
         onDeleteBloq={onDeleteBloq}
       />
     </Container>

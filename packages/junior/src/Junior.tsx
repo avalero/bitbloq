@@ -11,8 +11,7 @@ import {
   IBloqTypeGroup,
   IBoard,
   IComponent,
-  IHardware,
-  isBloqSelectComponentParameter
+  IHardware
 } from "@bitbloq/bloqs";
 
 export interface JuniorProps {
@@ -22,9 +21,6 @@ export interface JuniorProps {
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   bloqTypes: IBloqType[];
-  eventBloqGroups: IBloqTypeGroup[];
-  actionBloqGroups: IBloqTypeGroup[];
-  waitBloqGroups: IBloqTypeGroup[];
   initialContent?: any;
   onContentChange: (content: any) => any;
   boards: IBoard[];
@@ -39,9 +35,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   tabIndex,
   onTabChange,
   bloqTypes,
-  eventBloqGroups,
-  actionBloqGroups,
-  waitBloqGroups,
   initialContent,
   onContentChange,
   boards,
@@ -56,24 +49,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     components: []
   };
 
-  useEffect(() => {
-    console.log(
-      "Calling bloqs2code with:",
-      "Board:",
-      boards,
-      "Components:",
-      components,
-      "BloqTypes:",
-      bloqTypes,
-      "Hardware:",
-      hardware,
-      "Program:",
-      program
-    );
-    const code = bloqs2code(boards, components, bloqTypes, hardware, program);
-    console.log("CODE:", code);
-  }, [program, hardware]);
-
   const componentMapRef = useRef<{ [key: string]: IComponent }>();
   useEffect(() => {
     componentMapRef.current = components.reduce((map, c) => {
@@ -84,27 +59,39 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
 
   const componentMap = componentMapRef.current || {};
 
-  const getComponents = (name: string) =>
+  const getComponents = (types: string[]) =>
     hardware.components.filter(c =>
-      isInstanceOf(componentMap[c.component], name, componentMap)
+      types.some(name =>
+        isInstanceOf(componentMap[c.component], name, componentMap)
+      )
     );
 
-  const availableBloqs = bloqTypes.filter(bloq => {
-    const { parameterDefinitions = [] } = bloq;
-    return parameterDefinitions.every(param => {
-      if (isBloqSelectComponentParameter(param)) {
-        return hardware.components.some(c =>
-          isInstanceOf(
-            componentMap[c.component],
-            param.componentType,
-            componentMap
-          )
-        );
-      }
+  const availableBloqs = bloqTypes.filter(bloq =>
+    !bloq.components || bloq.components.some(bloqComponent =>
+      hardware.components.some(c =>
+        isInstanceOf(
+          componentMap[c.component],
+          bloqComponent,
+          componentMap
+        )
+      )
+    )
+  );
 
-      return true;
-    });
-  });
+  const onHeaderButtonClick = (id: string) => {
+    switch (id) {
+      case "compile":
+        const code = bloqs2code(
+          boards,
+          components,
+          bloqTypes,
+          hardware,
+          program
+        );
+        console.log("CODE:", code);
+        return;
+    }
+  };
 
   const mainTabs = [
     <Document.Tab
@@ -130,9 +117,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         bloqs={program}
         getComponents={getComponents}
         bloqTypes={availableBloqs}
-        eventBloqGroups={eventBloqGroups}
-        waitBloqGroups={waitBloqGroups}
-        actionBloqGroups={actionBloqGroups}
         onBloqsChange={(newProgram: IBloq[][]) =>
           setContent(update(content, { program: { $set: newProgram } }))
         }
@@ -147,6 +131,8 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       onEditTitle={onEditTitle}
       tabIndex={tabIndex}
       onTabChange={onTabChange}
+      onHeaderButtonClick={onHeaderButtonClick}
+      headerButtons={[{ id: "compile", icon: "tick" }]}
     >
       {typeof children === "function" ? children(mainTabs) : mainTabs}
     </Document>
