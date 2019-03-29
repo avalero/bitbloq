@@ -1,4 +1,5 @@
 import React from "react";
+import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { colors, Icon, Input, Select, useTranslate } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
@@ -19,13 +20,14 @@ interface IBloqPropertiesPanelProps {
   isOpen: boolean;
   bloqType: IBloqType;
   bloq: IBloq;
-  getComponents: (type: string) => IComponentInstance[];
+  getComponents: (types: string[]) => IComponentInstance[];
+  onUpdateBloq: (newBloq: IBloq) => any;
   onDeleteBloq: () => any;
 }
 
 const BloqPropertiesPanel: React.FunctionComponent<
   IBloqPropertiesPanelProps
-> = ({ isOpen, bloqType, bloq, getComponents, onDeleteBloq }) => {
+> = ({ isOpen, bloqType, bloq, getComponents, onDeleteBloq, onUpdateBloq }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
@@ -44,14 +46,20 @@ const BloqPropertiesPanel: React.FunctionComponent<
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
           <StyledSelect
-            options={param.options}
+            options={param.options.map(o => ({ ...o, label: t(o.label)}))}
             selectConfig={{ isSearchable: false }}
+            value={bloq.parameters[param.name]}
+            onChange={(value: any) =>
+              onUpdateBloq(
+                update(bloq, { parameters: { [param.name]: { $set: value } } })
+              )
+            }
           />
         </FormGroup>
       );
     }
     if (isBloqSelectComponentParameter(param)) {
-      const options = getComponents(param.componentType).map(c => ({
+      const options = getComponents(bloqType.components || []).map(c => ({
         label: c.name,
         value: c
       }));
@@ -70,7 +78,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
     return null;
   };
 
-  const { parameterDefinitions = [] } = bloqType;
+  const { parameters = [] } = bloqType;
 
   return (
     <Wrap style={wrapStyle}>
@@ -84,7 +92,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
             <Icon name="trash" />
           </DeleteButton>
         </Header>
-        <Properties>{parameterDefinitions.map(renderParam)}</Properties>
+        <Properties>{parameters.map(renderParam)}</Properties>
       </Content>
     </Wrap>
   );

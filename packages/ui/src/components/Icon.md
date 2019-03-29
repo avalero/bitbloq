@@ -2,6 +2,9 @@ Icons:
 
 ```js
 <div>
+  <Icon name="airplane" /><span> airplane</span>
+</div>
+<div>
   <Icon name="angle" /><span> angle</span>
 </div>
 <div>

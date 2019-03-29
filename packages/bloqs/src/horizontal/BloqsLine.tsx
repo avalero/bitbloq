@@ -47,6 +47,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
             type={bloqTypes.find(t => t.name === bloq.type)!}
             selected={selectedBloq === i}
             onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
+            bloq={bloq}
           />
           {(selectedBloq === i || selectedPlaceholder === i + 1 || i === bloqs.length - 1) && (
             <BloqPlaceholder

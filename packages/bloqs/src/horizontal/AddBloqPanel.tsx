@@ -34,9 +34,7 @@ const AddBloqPanel: React.FunctionComponent<IAddBloqPanelProps> = ({
   });
 
   const renderGroup = (group: IBloqTypeGroup, i: number) => {
-    const types = group.types.filter(t =>
-      bloqTypes.some(bt => bt.name === t)
-    );
+    const types = group.types.filter(t => bloqTypes.some(bt => bt.name === t));
 
     if (types.length === 1) {
       return (
@@ -97,7 +95,7 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
     name: "handler",
     icon: group.icon,
     code: {},
-    parameterDefinitions: []
+    parameters: []
   };
 
   const groupTypesEl = useRef<HTMLDivElement>(null);
@@ -119,7 +117,7 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
 
   return (
     <Group>
-    <GroupHandler onClick={() => setIsOpen(!isOpen)}>
+      <GroupHandler onClick={() => setIsOpen(!isOpen)}>
         <HorizontalBloq type={handlerType} />
         <CollapseIndicator>{isOpen ? "-" : "+"}</CollapseIndicator>
       </GroupHandler>
