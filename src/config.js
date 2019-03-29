@@ -49,10 +49,6 @@ import switch2OffIcon from "./images/bloqs/switch-2off.svg";
 import buttonIcon from "./images/bloqs/button.svg";
 import buttonPressedIcon from "./images/bloqs/button-pressed.svg";
 import buttonReleasedIcon from "./images/bloqs/button-released.svg";
-import lightIcon from "./images/bloqs/light.svg"
-import darkIcon from "./images/bloqs/dark.svg"
-import obstacleIcon from "./images/bloqs/obstacle.svg";
-import noObstacleIcon from "./images/bloqs/no-obstacle.svg";
 import timeIcon from "./images/bloqs/time.svg";
 import time1Icon from "./images/bloqs/time-1.svg";
 import time5Icon from "./images/bloqs/time-5.svg";
@@ -229,177 +225,134 @@ export const bloqTypes = [
   },
   {
     category: "event",
-    name: "OnSwitch1On",
-    icon: switch1OnIcon,
-    parameterDefinitions: [{
-      name: "switch",
-      label: "bloq-parameter-switch",
-      type: "selectComponent",
-      componentType: "DoubleSwitch"
-    }],
+    name: "OnSwitchOnOff",
+    components: ["DoubleSwitch"],
+    iconSwitch: {
+      "switch === 1 and switchValue": switch1OnIcon,
+      "switch === 2 and switchValue": switch2OnIcon,
+      "switch === 1 and not switchValue": switch1OffIcon,
+      "switch === 2 and not switchValue": switch2OffIcon
+    },
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: "selectComponent"
+      },
+      {
+        name: "switch",
+        label: "bloq-parameter-switch",
+        type: "select",
+        options: [
+          {
+            label: "bloq-parameter-switch-1",
+            value: 1
+          },
+          {
+            label: "bloq-parameter-switch-2",
+            value: 2
+          }
+        ]
+      },
+      {
+        name: "switchValue",
+        label: "bloq-parameter-switch-value",
+        type: "select",
+        options: [
+          {
+            label: "bloq-parameter-on",
+            value: true
+          },
+          {
+            label: "bloq-parameter-off",
+            value: false
+          }
+        ]
+      },
+    ],
     code: {}
   },
   {
     category: "event",
-    name: "OnSwitch1Off",
-    icon: switch1OffIcon,
-    parameterDefinitions: [{
-      name: "switch",
-      label: "bloq-parameter-switch",
-      type: "selectComponent",
-      componentType: "DoubleSwitch"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnSwitch2On",
-    icon: switch2OnIcon,
-    parameterDefinitions: [{
-      name: "switch",
-      label: "bloq-parameter-switch",
-      type: "selectComponent",
-      componentType: "DoubleSwitch"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnSwitch2Off",
-    icon: switch2OffIcon,
-    parameterDefinitions: [{
-      name: "switch",
-      label: "bloq-parameter-switch",
-      type: "selectComponent",
-      componentType: "DoubleSwitch"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnButtonReleased",
-    label: "bloq-on-button-released",
-    icon: buttonReleasedIcon,
-    parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "selectComponent",
-      componentType: "Button"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnButtonPressed",
+    name: "OnButtonPress",
     label: "bloq-on-button-pressed",
-    icon: buttonPressedIcon,
-    parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "selectComponent",
-      componentType: "Button"
-    }],
-    code: {
-      "declarations": "void {{parameters.button.name}}_pressed();",
-      "definitions": "void {{parameters.button.name}}_pressed() {\n if({{parameters.button.name}}PinOn) return;\n{{parameters.button.name}}PinOn = true;\n{{nextCode.statement}}\n{{finallyCode}}}\n",
-      "statement": "if({{getComponentCode(parameters.button, 'read')}}) {{parameters.button.name}}_pressed();",
-      "finally": "{{parameters.button.name}}PinOn = false;\n"
-    }
-  },
-  {
-    category: "event",
-    name: "OnLight",
-    icon: lightIcon,
-    parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "selectComponent",
-      componentType: "LightSensor"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnDark",
-    icon: darkIcon,
-    parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "selectComponent",
-      componentType: "LightSensor"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnObjectDetected",
-    icon: obstacleIcon,
-    parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "selectComponent",
-      componentType: "ProximitySensor"
-    }],
-    code: {}
-  },
-  {
-    category: "event",
-    name: "OnNoObjectDetected",
-    icon: noObstacleIcon,
-    parameterDefinitions: [{
-      name: "button",
-      label: "bloq-parameter-button",
-      type: "selectComponent",
-      componentType: "ProximitySensor"
-    }],
+    components: ["Button"],
+    iconSwitch: {
+      "action === 'pressed'": buttonPressedIcon,
+      "action === 'released'": buttonReleasedIcon
+    },
+    components: ["Component"],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-button",
+        type: "selectComponent"
+      },
+      {
+        name: "action",
+        label: "bloq-parameter-action",
+        type: "select",
+        options: [
+          {
+            label: "bloq-parameter-press",
+            value: "pressed"
+          },
+          {
+            label: "bloq-parameter-release",
+            value: "released"
+          }
+        ]
+      }
+    ],
     code: {}
   },
   {
     category: "action",
-    name: "DoubleLedTurnOnOn",
-    icon: doubleLedOnOnIcon,
-    parameterDefinitions: [{
-      name: "led",
-      label: "bloq-parameter-led",
-      type: "selectComponent",
-      componentType: "DoubleLed"
-    }],
-    code: {}
-  },
-  {
-    category: "action",
-    name: "DoubleLedTurnOffOn",
-    icon: doubleLedOffOnIcon,
-    parameterDefinitions: [{
-      name: "led",
-      label: "bloq-parameter-led",
-      type: "selectComponent",
-      componentType: "DoubleLed"
-    }],
-    code: {}
-  },
-  {
-    category: "action",
-    name: "DoubleLedTurnOnOff",
-    icon: doubleLedOnOffIcon,
-    parameterDefinitions: [{
-      name: "led",
-      label: "bloq-parameter-led",
-      type: "selectComponent",
-      componentType: "DoubleLed"
-    }],
-    code: {}
-  },
-  {
-    category: "action",
-    name: "DoubleLedTurnOffOff",
-    icon: doubleLedOffOffIcon,
-    parameterDefinitions: [{
-      name: "led",
-      label: "bloq-parameter-led",
-      type: "selectComponent",
-      componentType: "DoubleLed"
-    }],
+    name: "DoubleLedOnOff",
+    components: ["DoubleLed"],
+    iconSwitch: {
+      "led1 and led2": doubleLedOnOnIcon,
+      "not led1 and led2": doubleLedOffOnIcon,
+      "led1 and not led2": doubleLedOnOffIcon,
+      "not led1 and not led2": doubleLedOffOffIcon
+    },
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: "selectComponent"
+      },
+      {
+        name: "led1",
+        label: "bloq-parameter-led-1",
+        type: "select",
+        options: [
+          {
+            label: "bloq-parameter-on",
+            value: true
+          },
+          {
+            label: "bloq-parameter-off",
+            value: false
+          }
+        ]
+      },
+      {
+        name: "led2",
+        label: "bloq-parameter-led-2",
+        type: "select",
+        options: [
+          {
+            label: "bloq-parameter-on",
+            value: true
+          },
+          {
+            label: "bloq-parameter-off",
+            value: false
+          }
+        ]
+      }
+    ],
     code: {}
   },
   {
@@ -413,55 +366,6 @@ export const bloqTypes = [
     name: "Wait5Seconds",
     icon: time5Icon,
     code: {}
-  }
-];
-
-export const eventBloqGroups = [
-  {
-    category: "event",
-    icon: flagIcon,
-    types: ["OnStart"]
-  },
-  {
-    category: "event",
-    icon: switch1OnIcon,
-    types: ["OnSwitch1On", "OnSwitch1Off", "OnSwitch2On", "OnSwitch2Off"]
-  },
-  {
-    category: "event",
-    icon: buttonIcon,
-    types: ["OnButtonReleased", "OnButtonPressed"]
-  },
-  {
-    category: "event",
-    icon: lightIcon,
-    types: ["OnLight", "OnDark"]
-  },
-  {
-    category: "event",
-    icon: obstacleIcon,
-    types: ["OnObjectDetected", "OnNoObjectDetected"]
-  }
-];
-
-export const actionBloqGroups = [
-  {
-    category: "action",
-    icon: doubleLedOnOnIcon,
-    types: [
-      "DoubleLedTurnOnOn",
-      "DoubleLedTurnOffOn",
-      "DoubleLedTurnOnOff",
-      "DoubleLedTurnOffOff"
-    ]
-  }
-];
-
-export const waitBloqGroups = [
-  {
-    category: "wait",
-    icon: timeIcon,
-    types: ["Wait1Second", "Wait5Seconds"]
   }
 ];
 
@@ -484,7 +388,7 @@ export const boards = [
       "loop": [
 
       ],
-      
+
       "definitions": [
 
       ]
@@ -774,6 +678,42 @@ export const components = [
     ],
     "image": {
       "url": "https://bitbloq.bq.com/images/components/1548099714577.zumjunior_double_led.svg",
+      "width": 124,
+      "height": 124
+    }
+  },
+  {
+    "name": "DoubleSwitch",
+    "extends": "DigitalInput"
+  },
+  {
+    "name": "ZumjuniorSwitch",
+    "extends": "DoubleSwitch",
+    "instanceName": "bloq-switch-instance-name",
+    "connectors": [
+      {
+        "name": "main",
+        "type": "zumjunior-digital",
+        "position": {
+          "x": 0.28,
+          "y": 1,
+        },
+        "pins": [
+          {
+            "name": "Pin1",
+            "mode": "OUTPUT",
+            "portPin": "0"
+          },
+          {
+            "name": "Pin2",
+            "mode": "OUTPUT",
+            "portPin": "1"
+          }
+        ]
+      }
+    ],
+    "image": {
+      "url": "https://bitbloq.bq.com/images/components/1548099714577.zumjunior_slider.svg",
       "width": 124,
       "height": 124
     }
