@@ -21,11 +21,12 @@ interface IHorizontalBloqEditorProps {
   bloqTypes: IBloqType[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
   getComponents: (types: string[]) => IComponentInstance[];
+  getBloqPort: (bloq: IBloq) => string | undefined;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
   IHorizontalBloqEditorProps
-> = ({ bloqs, bloqTypes, onBloqsChange, getComponents }) => {
+> = ({ bloqs, bloqTypes, onBloqsChange, getComponents, getBloqPort }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
@@ -42,16 +43,22 @@ const HorizontalBloqEditor: React.FunctionComponent<
   };
 
   const onAddBloq = (typeName: string) => {
-    const bloqType = bloqTypes.find(type => type.name === typeName);
+    const bloqType = bloqTypes.find(type => type.name === typeName)!;
     const newBloq: IBloq = {
       type: typeName,
-      parameters: (bloqType!.parameters || []).reduce((obj, param) => {
+      parameters: (bloqType.parameters || []).reduce((obj, param) => {
         if (
           isBloqSelectParameter(param) &&
           param.options &&
           param.options.length > 0
         ) {
           obj[param.name] = param.options[0].value;
+        }
+        if (isBloqSelectComponentParameter(param)) {
+          const compatibleComponents =
+            getComponents(bloqType.components || []) || [];
+          const { name = "" } = compatibleComponents[0] || {};
+          obj[param.name] = name;
         }
         return obj;
       }, {})
@@ -66,7 +73,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
     } else {
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
-    deselectEverything();
+    setSelectedBloq(selectedPlaceholder);
+    setSelectedPlaceholder(-1);
   };
 
   const onUpdateBloq = (newBloq: IBloq) => {
@@ -95,6 +103,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
             <BloqsLine
               bloqs={line}
               bloqTypes={bloqTypes}
+              getBloqPort={getBloqPort}
               selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
               selectedPlaceholder={
                 selectedLineIndex === i ? selectedPlaceholder : -1

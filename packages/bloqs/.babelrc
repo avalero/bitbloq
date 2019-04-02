@@ -9,7 +9,7 @@
           "chrome": "58",
         }
       }
-    ]
+    ],
   ],
   "plugins": [
     ["emotion", {"sourceMap": true, "autoLabel": true }],

@@ -158,7 +158,6 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
         board={board}
         components={components}
         onComponentSelected={component => {
-          setSelectedPortIndex(-1);
           onHardwareChange(
             update(hardware, {
               components: {
