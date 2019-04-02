@@ -175,7 +175,7 @@ export interface IComponentInstance {
 
 export interface IHardware {
   board: string;
-  components: IComponentInstance[];
+  components?: IComponentInstance[];
 }
 
 export interface IWrite {
