@@ -7,27 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import {
-  IBoard,
-  IComponent,
-  IBloqType,
-  IHardware,
-  IBloq,
-  IArduinoCode,
-} from '../index';
-
-import nunjucks from 'nunjucks';
-import arduinocodetemplate from './arduinocodetemplate';
-
-/**
- * @returns date in dd/mm/yyyy -- HH:MM format
- */
-const getDate = (): string => {
-  const date = new Date();
-  const dateString = `${date.getDate()}/${date.getMonth() +
-    1}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
-  return dateString;
-};
+import { IBoard, IHardware, IArduinoCode } from '../index';
 
 const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
   const boardName: string = hardware.board;
@@ -39,7 +19,7 @@ const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
 
 const boardCodes = (board: IBoard, section: string): string[] => {
   if (!board.code[section]) {
-    throw new Error(`${section} not defined in ${board.name} code`);
+    console.warn(`Warning ${section} not defined in ${board.name} code`);
   }
   return board.code[section];
 };

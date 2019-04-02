@@ -57,7 +57,7 @@ export function isBloqSelectComponentParameter(
   return parameter.type === BloqParameterType.SelectComponent;
 }
 
-export interface IconSwitch {
+export interface IIconSwitch {
   [key: string]: string;
 }
 
@@ -66,7 +66,7 @@ export interface IBloqType {
   name: string;
   label?: string;
   icon?: string;
-  iconSwitch?: IconSwitch;
+  iconSwitch?: IIconSwitch;
   iconComponent?: string;
   code: IBloqCode;
   parameters: IBloqParameter[];
