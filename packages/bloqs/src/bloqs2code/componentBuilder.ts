@@ -1,5 +1,5 @@
-import { IComponent, IComponentInstance } from '../index';
-import deepmerge from 'deepmerge';
+import { IComponent, IComponentInstance } from "../index";
+import deepmerge from "deepmerge";
 
 /**
  * It gets the component definition of a given component name
@@ -32,8 +32,8 @@ export const composeComponents = (
   child: Partial<IComponent>
 ): Partial<IComponent> => {
   const merge = deepmerge(parent, child);
-  merge.name = child.name || '';
-  merge.extends = parent.extends || '';
+  merge.name = child.name || "";
+  merge.extends = parent.extends || "";
 
   return merge;
 };
@@ -49,7 +49,7 @@ export const getFullComponentDefinition = (
   comp: Partial<IComponentInstance>
 ): Partial<IComponent> => {
   if (!comp.component) {
-    throw new Error('No Component name');
+    throw new Error("No Component name");
   }
 
   try {

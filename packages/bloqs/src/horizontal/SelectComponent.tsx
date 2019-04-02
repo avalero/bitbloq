@@ -55,12 +55,12 @@ const CustomValueContainer = (props: any) => {
   const component = props.data.value;
   return (
     <Value {...props.innerProps}>
-      {component &&
+      {component && (
         <>
           <Port>{component.port}</Port>
           {component.name}
         </>
-      }
+      )}
     </Value>
   );
 };
@@ -94,4 +94,3 @@ const Port = styled.div`
   color: #000;
   margin-right: 8px;
 `;
-

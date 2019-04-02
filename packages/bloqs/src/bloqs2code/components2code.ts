@@ -1,5 +1,5 @@
-import { IComponent, IComponentInstance, IArduinoCode } from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
+import { IComponent, IComponentInstance, IArduinoCode } from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
 
 const components2code = (
   componentsDefinition: IComponent[],
