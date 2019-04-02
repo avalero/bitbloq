@@ -1,5 +1,5 @@
-import { IComponentNew } from "../index";
-import deepmerge from "deepmerge";
+import { IComponent } from '../index';
+import deepmerge from 'deepmerge';
 
 /**
  * It gets the component definition of a given component name
@@ -8,15 +8,16 @@ import deepmerge from "deepmerge";
  * @returns the component definition of a given component name
  */
 export const getComponentDefinition = (
-  componentsDef: Array<Partial<IComponentNew>>,
+  componentsDef: Array<Partial<IComponent>>,
   name: string
-): Partial<IComponentNew> => {
-  for (const component of componentsDef) {
-    if (component.name === name) {
-      return component;
-    }
-  }
+): Partial<IComponent> => {
+  // look for component with same name
+  const component: Partial<IComponent> | undefined = componentsDef.find(
+    c => c.name === name
+  );
+  if (component) return component;
 
+  // if undefined throw Error exception
   throw new Error(`Unknown component name ${name}`);
 };
 
@@ -27,12 +28,12 @@ export const getComponentDefinition = (
  * @returns merged components
  */
 export const composeComponents = (
-  parent: Partial<IComponentNew>,
-  child: Partial<IComponentNew>
-): Partial<IComponentNew> => {
+  parent: Partial<IComponent>,
+  child: Partial<IComponent>
+): Partial<IComponent> => {
   const merge = deepmerge(parent, child);
-  merge.name = child.name || "";
-  merge.extends = parent.extends;
+  merge.name = child.name || '';
+  merge.extends = parent.extends || '';
 
   return merge;
 };
@@ -44,16 +45,16 @@ export const composeComponents = (
  * @return fully composed component
  */
 export const getFullComponentDefinition = (
-  componentsDef: Array<Partial<IComponentNew>>,
-  comp: Partial<IComponentNew>
-): Partial<IComponentNew> => {
+  componentsDef: Array<Partial<IComponent>>,
+  comp: Partial<IComponent>
+): Partial<IComponent> => {
   if (!comp.name) {
-    throw new Error("No Component name");
+    throw new Error('No Component name');
   }
 
   try {
     const compDef = getComponentDefinition(componentsDef, comp.name);
-    let construct: Partial<IComponentNew> = compDef;
+    let construct: Partial<IComponent> = compDef;
 
     while (construct.extends) {
       const parent = getComponentDefinition(componentsDef, construct.extends);
