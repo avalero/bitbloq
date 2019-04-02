@@ -19,6 +19,8 @@ import nunjucks from 'nunjucks';
 
 import arduinocodetemplate from './arduinocodetemplate';
 import board2code from './board2code';
+import { getFullComponentDefinition } from './componentBuilder';
+import components2code from './components2code';
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -53,6 +55,7 @@ const bloqs2code = (
 
   try {
     board2code(boards, hardware, arduinoCode);
+    components2code(components, hardware.components, arduinoCode);
   } catch (e) {
     throw e;
   }

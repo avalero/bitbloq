@@ -1,4 +1,4 @@
-import { IComponent } from '../index';
+import { IComponent, IComponentInstance } from '../index';
 import deepmerge from 'deepmerge';
 
 /**
@@ -46,14 +46,14 @@ export const composeComponents = (
  */
 export const getFullComponentDefinition = (
   componentsDef: Array<Partial<IComponent>>,
-  comp: Partial<IComponent>
+  comp: Partial<IComponentInstance>
 ): Partial<IComponent> => {
-  if (!comp.name) {
+  if (!comp.component) {
     throw new Error('No Component name');
   }
 
   try {
-    const compDef = getComponentDefinition(componentsDef, comp.name);
+    const compDef = getComponentDefinition(componentsDef, comp.component);
     let construct: Partial<IComponent> = compDef;
 
     while (construct.extends) {
