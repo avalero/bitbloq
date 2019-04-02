@@ -59,6 +59,7 @@ import doubleLedOffOffIcon from "./images/bloqs/double-led-off-off.svg";
 
 import {boards} from "./configurations/hardware/boards";
 import {components} from "./configurations/hardware/components";
+export {boards, components};
 
 
 export const documentTypes = {
@@ -373,5 +374,5 @@ export const bloqTypes = [
   }
 ];
 
-export {boards, components};
+
 
