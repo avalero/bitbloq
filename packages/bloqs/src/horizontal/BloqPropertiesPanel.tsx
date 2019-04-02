@@ -1,6 +1,7 @@
 import React from "react";
+import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { colors, Input, Select } from "@bitbloq/ui";
+import { colors, Icon, Input, Select, useTranslate } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
@@ -19,17 +20,21 @@ interface IBloqPropertiesPanelProps {
   isOpen: boolean;
   bloqType: IBloqType;
   bloq: IBloq;
-  getComponents: (type: string) => IComponentInstance[];
+  getComponents: (types: string[]) => IComponentInstance[];
+  onUpdateBloq: (newBloq: IBloq) => any;
+  onDeleteBloq: () => any;
 }
 
 const BloqPropertiesPanel: React.FunctionComponent<
   IBloqPropertiesPanelProps
-> = ({ isOpen, bloqType, bloq, getComponents }) => {
+> = ({ isOpen, bloqType, bloq, getComponents, onDeleteBloq, onUpdateBloq }) => {
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
     config: { tension: 600, friction: 40 }
   });
+
+  const t = useTranslate();
 
   if (!bloqType) {
     return null;
@@ -39,23 +44,29 @@ const BloqPropertiesPanel: React.FunctionComponent<
     if (isBloqSelectParameter(param)) {
       return (
         <FormGroup key={param.name}>
-          <label>{param.label}</label>
+          <label>{t(param.label)}</label>
           <StyledSelect
-            options={param.options}
+            options={param.options.map(o => ({ ...o, label: t(o.label)}))}
             selectConfig={{ isSearchable: false }}
+            value={bloq.parameters[param.name]}
+            onChange={(value: any) =>
+              onUpdateBloq(
+                update(bloq, { parameters: { [param.name]: { $set: value } } })
+              )
+            }
           />
         </FormGroup>
       );
     }
     if (isBloqSelectComponentParameter(param)) {
-      const options = getComponents(param.componentType).map(c => ({
+      const options = getComponents(bloqType.components || []).map(c => ({
         label: c.name,
         value: c
       }));
 
       return (
         <FormGroup key={param.name}>
-          <label>{param.label}</label>
+          <label>{t(param.label)}</label>
           <StyledSelect
             options={options}
             selectConfig={{ isSearchable: false }}
@@ -67,7 +78,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
     return null;
   };
 
-  const { parameterDefinitions = [] } = bloqType;
+  const { parameters = [] } = bloqType;
 
   return (
     <Wrap style={wrapStyle}>
@@ -76,9 +87,12 @@ const BloqPropertiesPanel: React.FunctionComponent<
           <HeaderBloq>
             <HorizontalBloq type={bloqType} />
           </HeaderBloq>
-          <Title>{bloqType.label}</Title>
+          <Title>{bloqType.label && t(bloqType.label)}</Title>
+          <DeleteButton onClick={onDeleteBloq}>
+            <Icon name="trash" />
+          </DeleteButton>
         </Header>
-        <Properties>{parameterDefinitions.map(renderParam)}</Properties>
+        <Properties>{parameters.map(renderParam)}</Properties>
       </Content>
     </Wrap>
   );
@@ -143,4 +157,20 @@ const FormGroup = styled.div`
 
 const StyledSelect = styled(Select)`
   flex: 1;
+`;
+
+const DeleteButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  border: solid 1px white;
+
+  &:hover {
+    border: solid 1px #dddddd;
+    background-color: #e8e8e8;
+  }
 `;

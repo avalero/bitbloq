@@ -1,25 +1,38 @@
 import React from "react";
 import styled from "@emotion/styled";
+import nunjucks from "nunjucks";
 import { colors, Icon } from "@bitbloq/ui";
 import EventShape from "./EventShape";
 import { bloqColors, horizontalShapes } from "../config";
 
-import { IBloqType } from "../index";
+import { IBloqType, IBloq } from "../index";
 
 interface IHorizontalBloqProps {
   type: IBloqType;
   className?: string;
   onClick?: React.MouseEventHandler;
   selected?: boolean;
+  bloq?: IBloq;
 }
 
 const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   type,
   className,
   onClick,
-  selected
+  selected,
+  bloq
 }) => {
   const ShapeComponent = horizontalShapes[type.category];
+
+  const parameters = (bloq && bloq.parameters) || {};
+  let icon = type.icon;
+  const { iconSwitch } = type;
+  if (iconSwitch) {
+    const iconKey = Object.keys(iconSwitch).find(key =>
+      nunjucks.renderString(`{{${key}}}`, parameters) === "true"
+    );
+    icon = iconSwitch[iconKey || Object.keys(iconSwitch)[0]];
+  }
 
   return (
     <Container className={className} onClick={onClick}>
@@ -32,7 +45,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           />
         </g>
       </SVG>
-      {type.icon && <BloqIcon src={type.icon} alt={type.name} />}
+      {icon && <BloqIcon src={icon} alt={type.name} />}
     </Container>
   );
 };

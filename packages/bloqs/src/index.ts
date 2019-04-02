@@ -57,24 +57,29 @@ export function isBloqSelectComponentParameter(
   return parameter.type === BloqParameterType.SelectComponent;
 }
 
+export type IconSwitch = ({[key: string]: string});
+
 export interface IBloqType {
   category: BloqCategory;
   name: string;
   label?: string;
-  icon: string;
+  icon?: string;
+  iconSwitch?: IconSwitch;
+  iconComponent?: string;
   code: IBloqCode;
-  parameterDefinitions: IBloqParameter[];
+  parameters: IBloqParameter[];
+  components?: string[];
 }
 
 export interface IBloq {
   type: string;
-  parameters: any[];
+  parameters: ({[name: string]: string});
 }
 
 export interface IBloqTypeGroup {
-  category: BloqCategory;
   types: string[];
-  icon: string;
+  category?: BloqCategory;
+  icon?: string;
 }
 
 export interface IShapeProps {

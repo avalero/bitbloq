@@ -6,105 +6,125 @@ import BloqsLine from "./BloqsLine";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
+import { BloqCategory } from "../enums";
 import {
   IBloq,
   IBloqType,
   IBloqTypeGroup,
-  BloqCategory,
-  IComponentInstance
+  IComponentInstance,
+  isBloqSelectParameter,
+  isBloqSelectComponentParameter
 } from "../index";
 
 interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
   bloqTypes: IBloqType[];
-  eventBloqGroups: IBloqTypeGroup[];
-  waitBloqGroups: IBloqTypeGroup[];
-  actionBloqGroups: IBloqTypeGroup[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
-  getComponents: (type: string) => IComponentInstance[];
+  getComponents: (types: string[]) => IComponentInstance[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
   IHorizontalBloqEditorProps
-> = ({
-  bloqs,
-  bloqTypes,
-  eventBloqGroups,
-  waitBloqGroups,
-  actionBloqGroups,
-  onBloqsChange,
-  getComponents
-}) => {
-  const [selectedBloqIndex, setSelectedBloq] = useState([-1, -1]);
+> = ({ bloqs, bloqTypes, onBloqsChange, getComponents }) => {
+  const [selectedLineIndex, setSelectedLine] = useState(-1);
+  const [selectedBloqIndex, setSelectedBloq] = useState(-1);
+  const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
-  const selectedLine = bloqs[selectedBloqIndex[0]] || [];
-  const selectedBloq = selectedLine[selectedBloqIndex[1]];
-  const isEventPlaceholderSelected =
-    selectedBloqIndex[1] === 0 && selectedLine.length === 0;
-  const isActionPlaceholderSelected =
-    selectedBloqIndex[1] === selectedLine.length && selectedLine.length > 0;
+  const selectedLine = bloqs[selectedLineIndex] || [];
+  const selectedBloq = selectedLine[selectedBloqIndex];
 
   const t = useTranslate();
 
-  const onAddBloq = (type: string) => {
+  const deselectEverything = () => {
+    setSelectedLine(-1);
+    setSelectedBloq(-1);
+    setSelectedPlaceholder(-1);
+  };
+
+  const onAddBloq = (typeName: string) => {
+    const bloqType = bloqTypes.find(type => type.name === typeName);
     const newBloq: IBloq = {
-      type,
-      parameters: []
+      type: typeName,
+      parameters: (bloqType!.parameters || []).reduce((obj, param) => {
+        if (
+          isBloqSelectParameter(param) &&
+          param.options &&
+          param.options.length > 0
+        ) {
+          obj[param.name] = param.options[0].value;
+        }
+        return obj;
+      }, {})
     };
 
-    if (selectedBloqIndex[0] < bloqs.length) {
+    if (selectedLineIndex < bloqs.length) {
       onBloqsChange(
-        update(bloqs, { [selectedBloqIndex[0]]: { $push: [newBloq] } })
+        update(bloqs, {
+          [selectedLineIndex]: { $splice: [[selectedPlaceholder, 0, newBloq]] }
+        })
       );
     } else {
-      console.log("BLOQS CHANGE", newBloq);
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
-    setSelectedBloq([-1, -1]);
+    deselectEverything();
+  };
+
+  const onUpdateBloq = (newBloq: IBloq) => {
+    onBloqsChange(
+      update(bloqs, {
+        [selectedLineIndex]: { [selectedBloqIndex]: { $set: newBloq } }
+      })
+    );
+  };
+
+  const onDeleteBloq = () => {
+    onBloqsChange(
+      update(bloqs, {
+        [selectedLineIndex]: { $splice: [[selectedBloqIndex, 1]] }
+      })
+    );
+    deselectEverything();
   };
 
   return (
     <Container>
-      <Lines onClick={() => setSelectedBloq([-1, -1])}>
-        {bloqs.map((line, i) => (
+      <Lines onClick={deselectEverything}>
+        {[...bloqs, []].map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
             <BloqsLine
               bloqs={line}
               bloqTypes={bloqTypes}
-              selectedBloq={
-                selectedBloqIndex[0] === i ? selectedBloqIndex[1] : -1
+              selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
+              selectedPlaceholder={
+                selectedLineIndex === i ? selectedPlaceholder : -1
               }
               onBloqClick={(j, e) => {
                 e.stopPropagation();
-                setSelectedBloq([i, j]);
+                setSelectedLine(i);
+                setSelectedBloq(j);
+                setSelectedPlaceholder(-1);
+              }}
+              onPlaceholderClick={(j, e) => {
+                e.stopPropagation();
+                setSelectedLine(i);
+                setSelectedBloq(-1);
+                setSelectedPlaceholder(j);
               }}
             />
           </Line>
         ))}
-        <Line>
-          <Number>{bloqs.length + 1}</Number>
-          <BloqsLine
-            bloqs={[]}
-            bloqTypes={bloqTypes}
-            selectedBloq={
-              selectedBloqIndex[0] === bloqs.length ? selectedBloqIndex[1] : -1
-            }
-            onBloqClick={(j, e) => {
-              e.stopPropagation();
-              setSelectedBloq([bloqs.length, j]);
-            }}
-          />
-        </Line>
       </Lines>
       <AddBloqPanel
         onClick={e => e.stopPropagation()}
-        isOpen={isEventPlaceholderSelected}
+        isOpen={selectedPlaceholder === 0}
         bloqTabs={[
           {
             label: t("bloqs-sensors"),
             icon: <Icon name="programming2" />,
-            groups: eventBloqGroups
+            groups: bloqTypes
+              .filter(bt => bt.category === BloqCategory.Event)
+              .map(bt => ({ types: [bt.name] }))
           }
         ]}
         bloqTypes={bloqTypes}
@@ -112,17 +132,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
       />
       <AddBloqPanel
         onClick={e => e.stopPropagation()}
-        isOpen={isActionPlaceholderSelected}
+        isOpen={selectedPlaceholder > 0}
         bloqTabs={[
           {
             label: t("bloqs-actions"),
             icon: <Icon name="programming" />,
-            groups: actionBloqGroups
+            groups: bloqTypes
+              .filter(bt => bt.category === BloqCategory.Action)
+              .map(bt => ({ types: [bt.name] }))
           },
           {
             label: t("bloqs-waits"),
             icon: <Icon name="programming3" />,
-            groups: waitBloqGroups
+            groups: bloqTypes
+              .filter(bt => bt.category === BloqCategory.Wait)
+              .map(bt => ({ types: [bt.name] }))
           }
         ]}
         bloqTypes={bloqTypes}
@@ -136,6 +160,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
           selectedBloq &&
           bloqTypes.find(type => type.name === selectedBloq.type)!
         }
+        onUpdateBloq={onUpdateBloq}
+        onDeleteBloq={onDeleteBloq}
       />
     </Container>
   );

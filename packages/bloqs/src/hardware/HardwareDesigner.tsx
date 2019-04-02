@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { colors, useTranslate } from "@bitbloq/ui";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import AddComponentPanel from "./AddComponentPanel";
 import ComponentPropertiesPanel from "./ComponentPropertiesPanel";
@@ -30,6 +30,8 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
 }) => {
   const [selectedPortIndex, setSelectedPortIndex] = useState(-1);
 
+  const t = useTranslate();
+
   const board = boards.find(b => b.name === hardware.board)!;
   const { width, height } = board.image;
 
@@ -51,7 +53,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
         p =>
           p === selectedPort ||
           (isCompatiblePort(p, selectedComponent) &&
-          !hardware.components.some(c => c.port === p.name))
+            !hardware.components.some(c => c.port === p.name))
       )
     : [];
 
@@ -163,7 +165,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
                 $push: [
                   {
                     component: component.name,
-                    name: getInstanceName(component.instanceName),
+                    name: getInstanceName(t(component.instanceName)),
                     port: selectedPort.name
                   }
                 ]
@@ -180,8 +182,8 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
         onDeleteComponent={() => {
           onHardwareChange({
             ...hardware,
-            components: hardware.components.filter(c =>
-              c !== selectedComponentInstance
+            components: hardware.components.filter(
+              c => c !== selectedComponentInstance
             )
           });
           setSelectedPortIndex(-1);
@@ -193,7 +195,9 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
               c === selectedComponentInstance ? newInstance : c
             )
           });
-          setSelectedPortIndex(board.ports.findIndex(p => p.name === newInstance.port));
+          setSelectedPortIndex(
+            board.ports.findIndex(p => p.name === newInstance.port)
+          );
         }}
       />
     </Container>
