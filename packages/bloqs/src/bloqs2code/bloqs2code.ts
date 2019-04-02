@@ -13,12 +13,12 @@ import {
   IBloqType,
   IHardware,
   IBloq,
-  IArduinoCode
-} from "../index";
-import nunjucks from "nunjucks";
+  IArduinoCode,
+} from '../index';
+import nunjucks from 'nunjucks';
 
-import arduinocodetemplate from "./arduinocodetemplate";
-import board2code from "./board2code";
+import arduinocodetemplate from './arduinocodetemplate';
+import board2code from './board2code';
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -48,19 +48,13 @@ const bloqs2code = (
     globals,
     setup,
     loop,
-    definitions
+    definitions,
   };
 
-  // get board information
-  const board: IBoard = getBoard(boards, hardware);
-
-  // get board code
   try {
-    Object.keys(arduinoCode).forEach(section => {
-      arduinoCode[section].push(...boardCodes(board, section));
-    });
+    board2code(boards, hardware, arduinoCode);
   } catch (e) {
-    console.info(`Error generating board code ${e}`);
+    throw e;
   }
 
   const nunjucksData = { ...arduinoCode, date: getDate() };
