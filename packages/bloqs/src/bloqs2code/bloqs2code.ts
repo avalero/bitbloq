@@ -18,6 +18,7 @@ import {
 import nunjucks from "nunjucks";
 
 import arduinocodetemplate from "./arduinocodetemplate";
+import board2code from "./board2code";
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -27,21 +28,6 @@ const getDate = (): string => {
   const dateString = `${date.getDate()}/${date.getMonth() +
     1}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
   return dateString;
-};
-
-const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
-  const boardName: string = hardware.board;
-  const board = boards.find(b => b.name === boardName);
-  if (board) return board;
-  // if not defined no board found
-  throw new Error(`Board ${boardName} not defined`);
-};
-
-const boardCodes = (board: IBoard, section: string): string[] => {
-  if (!board.code[section]) {
-    throw new Error(`${section} not defined in ${board.name} code`);
-  }
-  return board.code[section];
 };
 
 const bloqs2code = (

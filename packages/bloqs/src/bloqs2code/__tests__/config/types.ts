@@ -16,7 +16,7 @@ export type ConnectorType = string;
 export interface IPort {
   name: string;
   connectorTypes: ConnectorType[];
-  pins: IPortPin[]; 
+  pins: IPortPin[];
 }
 
 export interface IBoard {

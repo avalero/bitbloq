@@ -17,5 +17,5 @@ export const horizontalShapes = {
 };
 
 export const halfHorizontalShapes = {
-  [BloqCategory.Action]: HalfActionShape,
-}
+  [BloqCategory.Action]: HalfActionShape
+};

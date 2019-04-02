@@ -46,7 +46,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
           <StyledSelect
-            options={param.options.map(o => ({ ...o, label: t(o.label)}))}
+            options={param.options.map(o => ({ ...o, label: t(o.label) }))}
             selectConfig={{ isSearchable: false }}
             value={bloq.parameters[param.name]}
             onChange={(value: any) =>
