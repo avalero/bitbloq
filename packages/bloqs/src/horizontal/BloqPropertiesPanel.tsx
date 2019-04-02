@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import { colors, Icon, Input, Select, useTranslate } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
+import SelectComponent from "./SelectComponent";
 
 import {
   IBloq,
@@ -46,7 +47,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
           <StyledSelect
-            options={param.options.map(o => ({ ...o, label: t(o.label)}))}
+            options={param.options.map(o => ({ ...o, label: t(o.label) }))}
             selectConfig={{ isSearchable: false }}
             value={bloq.parameters[param.name]}
             onChange={(value: any) =>
@@ -59,17 +60,17 @@ const BloqPropertiesPanel: React.FunctionComponent<
       );
     }
     if (isBloqSelectComponentParameter(param)) {
-      const options = getComponents(bloqType.components || []).map(c => ({
-        label: c.name,
-        value: c
-      }));
-
       return (
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
-          <StyledSelect
-            options={options}
-            selectConfig={{ isSearchable: false }}
+          <StyledSelectComponent
+            value={bloq.parameters[param.name]}
+            components={getComponents(bloqType.components || [])}
+            onChange={(value: any) =>
+              onUpdateBloq(
+                update(bloq, { parameters: { [param.name]: { $set: value } } })
+              )
+            }
           />
         </FormGroup>
       );
@@ -100,7 +101,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
 
 export default BloqPropertiesPanel;
 
-/* styled componets */
+/* styled components */
 
 const Wrap = styled(animated.div)`
   overflow: hidden;
@@ -156,6 +157,10 @@ const FormGroup = styled.div`
 `;
 
 const StyledSelect = styled(Select)`
+  flex: 1;
+`;
+
+const StyledSelectComponent = styled(SelectComponent)`
   flex: 1;
 `;
 

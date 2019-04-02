@@ -73,7 +73,7 @@ export interface IBloqType {
 
 export interface IBloq {
   type: string;
-  parameters: ({[name: string]: string});
+  parameters: ({[name: string]: any});
 }
 
 export interface IBloqTypeGroup {

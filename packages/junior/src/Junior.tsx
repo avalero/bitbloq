@@ -11,7 +11,8 @@ import {
   IBloqTypeGroup,
   IBoard,
   IComponent,
-  IHardware
+  IHardware,
+  isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
 export interface JuniorProps {
@@ -66,16 +67,35 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       )
     );
 
-  const availableBloqs = bloqTypes.filter(bloq =>
-    !bloq.components || bloq.components.some(bloqComponent =>
-      hardware.components.some(c =>
-        isInstanceOf(
-          componentMap[c.component],
-          bloqComponent,
-          componentMap
+  const getBloqPort = (bloq: IBloq): string | undefined => {
+    if (!bloq) {
+      return;
+    }
+
+    const bloqType = bloqTypes.find(type => type.name === bloq.type);
+
+    if (bloqType) {
+      const componentParameter =
+        bloqType.parameters &&
+        bloqType.parameters.find(isBloqSelectComponentParameter);
+      const componentName =
+        componentParameter && bloq.parameters[componentParameter.name];
+      const component = hardware.components.find(c => c.name === componentName);
+
+      return component && component.port;
+    }
+
+    return;
+  };
+
+  const availableBloqs = bloqTypes.filter(
+    bloq =>
+      !bloq.components ||
+      bloq.components.some(bloqComponent =>
+        hardware.components.some(c =>
+          isInstanceOf(componentMap[c.component], bloqComponent, componentMap)
         )
       )
-    )
   );
 
   const onHeaderButtonClick = (id: string) => {
@@ -116,6 +136,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       <HorizontalBloqEditor
         bloqs={program}
         getComponents={getComponents}
+        getBloqPort={getBloqPort}
         bloqTypes={availableBloqs}
         onBloqsChange={(newProgram: IBloq[][]) =>
           setContent(update(content, { program: { $set: newProgram } }))

@@ -71,6 +71,7 @@ class Select extends React.Component {
       onChange,
       onMouseDown,
       selectConfig,
+      components = {},
       className,
     } = this.props;
 
@@ -78,7 +79,7 @@ class Select extends React.Component {
       <div onMouseDown={onMouseDown} className={className}>
         <ReactSelect
           {...selectConfig}
-          components={{DropdownIndicator}}
+          components={{...components, DropdownIndicator}}
           defaultValue={options[0]}
           value={options.find(o => o.value === value)}
           options={options}
@@ -89,5 +90,7 @@ class Select extends React.Component {
     );
   }
 }
+
+Select.components = selectComponents;
 
 export default Select;
