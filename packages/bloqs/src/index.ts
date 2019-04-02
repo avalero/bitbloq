@@ -7,10 +7,10 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
-import HardwareDesigner from "./hardware/HardwareDesigner";
-import bloqs2code from "./bloqs2code/bloqs2code";
-import { BloqCategory, BloqParameterType } from "./enums";
+import HorizontalBloqEditor from './horizontal/HorizontalBloqEditor';
+import HardwareDesigner from './hardware/HardwareDesigner';
+import bloqs2code from './bloqs2code/bloqs2code';
+import { BloqCategory, BloqParameterType } from './enums';
 
 export { HorizontalBloqEditor, HardwareDesigner, bloqs2code };
 
@@ -57,14 +57,16 @@ export function isBloqSelectComponentParameter(
   return parameter.type === BloqParameterType.SelectComponent;
 }
 
-export type IconSwitch = ({[key: string]: string});
+export interface IIconSwitch {
+  [key: string]: string;
+}
 
 export interface IBloqType {
   category: BloqCategory;
   name: string;
   label?: string;
   icon?: string;
-  iconSwitch?: IconSwitch;
+  iconSwitch?: IIconSwitch;
   iconComponent?: string;
   code: IBloqCode;
   parameters: IBloqParameter[];
@@ -73,7 +75,7 @@ export interface IBloqType {
 
 export interface IBloq {
   type: string;
-  parameters: ({[name: string]: any});
+  parameters: { [name: string]: string };
 }
 
 export interface IBloqTypeGroup {
@@ -91,10 +93,17 @@ export interface IShapeProps {
 
 export type ConnectorType = string;
 
-export interface IComponentImage {
-  url: string;
-  width: number;
-  height: number;
+export interface IArduinoCode {
+  includes?: string[];
+  globals?: string[];
+  setup?: string[];
+  loop?: string[];
+  definitions?: string[];
+}
+
+export interface IPortPin {
+  name: string;
+  value: number | string;
 }
 
 export interface IConnectorPosition {
@@ -102,33 +111,26 @@ export interface IConnectorPosition {
   y: number;
 }
 
-export interface IPortPin {
-  name: string;
-  value: any;
-}
-
 export enum IPortDirection {
-  North = "north",
-  South = "south",
-  East = "east",
-  West = "west"
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west',
 }
 
 export interface IPort {
   name: string;
   position: IConnectorPosition;
-  connectorTypes: ConnectorType[];
+  connectorTypes: string[];
   pins: IPortPin[];
   placeholderPosition: IConnectorPosition;
   direction: IPortDirection;
 }
 
-export interface IArduinoCode {
-  includes?: string[];
-  globals?: string[];
-  setup?: string[];
-  loop?: string[];
-  definitions?: string[];
+export interface IComponentImage {
+  url: string;
+  width: number;
+  height: number;
 }
 
 export interface IBoard {
@@ -139,8 +141,8 @@ export interface IBoard {
 }
 
 export enum ConnectorPinMode {
-  INPUT = "INPUT",
-  OUTPUT = "OUTPUT"
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
 }
 
 export interface IConnectorPin {
@@ -173,7 +175,7 @@ export interface IComponentInstance {
 
 export interface IHardware {
   board: string;
-  components: IComponentInstance[];
+  components?: IComponentInstance[];
 }
 
 export interface IWrite {

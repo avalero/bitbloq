@@ -62,7 +62,7 @@ const Container = styled.div<IContainerProps>`
   justify-content: center;
   color: ${props => (props.selected ? colors.brandOrange : "#bbb")};
   width: ${props =>
-    props.half ? 34 : (props.category === BloqCategory.Event ? 66 : 60)}px;
+    props.half ? 34 : props.category === BloqCategory.Event ? 66 : 60}px;
   height: 60px;
 `;
 

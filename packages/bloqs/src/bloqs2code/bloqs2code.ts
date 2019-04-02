@@ -13,11 +13,12 @@ import {
   IBloqType,
   IHardware,
   IBloq,
-  IArduinoCode
-} from "../index";
-import nunjucks from "nunjucks";
+  IArduinoCode,
+} from '../index';
+import nunjucks from 'nunjucks';
 
-import arduinocodetemplate from "./arduinocodetemplate";
+import arduinocodetemplate from './arduinocodetemplate';
+import board2code from './board2code';
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -27,21 +28,6 @@ const getDate = (): string => {
   const dateString = `${date.getDate()}/${date.getMonth() +
     1}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
   return dateString;
-};
-
-const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
-  const boardName: string = hardware.board;
-  const board = boards.find(b => b.name === boardName);
-  if (board) return board;
-  // if not defined no board found
-  throw new Error(`Board ${boardName} not defined`);
-};
-
-const boardCodes = (board: IBoard, section: string): string[] => {
-  if (!board.code[section]) {
-    throw new Error(`${section} not defined in ${board.name} code`);
-  }
-  return board.code[section];
 };
 
 const bloqs2code = (
@@ -62,19 +48,13 @@ const bloqs2code = (
     globals,
     setup,
     loop,
-    definitions
+    definitions,
   };
 
-  // get board information
-  const board: IBoard = getBoard(boards, hardware);
-
-  // get board code
   try {
-    Object.keys(arduinoCode).forEach(section => {
-      arduinoCode[section].push(...boardCodes(board, section));
-    });
+    board2code(boards, hardware, arduinoCode);
   } catch (e) {
-    console.info(`Error generating board code ${e}`);
+    throw e;
   }
 
   const nunjucksData = { ...arduinoCode, date: getDate() };

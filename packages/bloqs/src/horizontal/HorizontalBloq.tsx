@@ -30,8 +30,8 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   let icon = type.icon;
   const { iconSwitch } = type;
   if (iconSwitch) {
-    const iconKey = Object.keys(iconSwitch).find(key =>
-      nunjucks.renderString(`{{${key}}}`, parameters) === "true"
+    const iconKey = Object.keys(iconSwitch).find(
+      key => nunjucks.renderString(`{{${key}}}`, parameters) === "true"
     );
     icon = iconSwitch[iconKey || Object.keys(iconSwitch)[0]];
   }
