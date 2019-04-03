@@ -156,7 +156,13 @@ const FormGroup = styled.div`
   }
 `;
 
-const StyledSelect = styled(Select)`
+interface ISelectProps {
+  options: any;
+  selectConfig: any;
+  value: any;
+  onChange: any;
+}
+const StyledSelect = styled(Select)<ISelectProps>`
   flex: 1;
 `;
 

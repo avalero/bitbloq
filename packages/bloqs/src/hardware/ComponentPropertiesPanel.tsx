@@ -59,7 +59,7 @@ const ComponentPropertiesPanel: React.FunctionComponent<
             <label>{t("bloq-component-name")}</label>
             <Input
               value={componentInstance.name}
-              onChange={e =>
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 onInstanceUpdate({ ...componentInstance, name: e.target.value })
               }
             />
@@ -129,7 +129,12 @@ const FormGroup = styled.div`
   }
 `;
 
-const StyledSelect = styled(Select)`
+interface ISelectProps {
+  options: any;
+  value: any;
+  onChange: any;
+}
+const StyledSelect = styled(Select)<ISelectProps>`
   flex: 1;
 `;
 
