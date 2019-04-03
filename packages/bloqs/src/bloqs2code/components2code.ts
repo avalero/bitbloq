@@ -7,15 +7,15 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { IComponent, IComponentInstance, IArduinoCode, IBoard } from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
-import nunjucks from 'nunjucks';
+import { IComponent, IComponentInstance, IArduinoCode, IBoard } from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
+import nunjucks from "nunjucks";
 
 const componentCodes = (
   component: Partial<IComponent>,
   section: string
 ): string[] => {
-  if (!component.code) throw new Error('Component has no code key');
+  if (!component.code) throw new Error("Component has no code key");
 
   if (!component.code[section]) {
     console.warn(`Warning ${section} not defined in ${component.name} code`);
@@ -30,10 +30,10 @@ const getPinNumber = (
   portPinName: string
 ): string => {
   const port = board.ports.find(p => p.name === portName);
-  if (!port) throw new Error('Port not found');
+  if (!port) throw new Error("Port not found");
 
   const portPin = port.pins.find(p => p.name === portPinName);
-  if (!portPin) throw new Error('Pin not found');
+  if (!portPin) throw new Error("Pin not found");
 
   return portPin.value;
 };
@@ -53,13 +53,13 @@ const components2code = (
 
     // get pins of component instance
     const pinsInfo: Array<{ pinNumber: string; pinVarName: string }> = [];
-    if (!component.connectors) throw new Error('No connector defined');
+    if (!component.connectors) throw new Error("No connector defined");
 
     component.connectors.forEach(connector => {
       connector.pins.forEach(pin => {
         pinsInfo.push({
           pinNumber: getPinNumber(board, componentInstance.port, pin.portPin),
-          pinVarName: `${componentInstance.name}${pin.name}`,
+          pinVarName: `${componentInstance.name}${pin.name}`
         });
       });
     });
