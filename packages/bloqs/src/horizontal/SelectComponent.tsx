@@ -8,7 +8,7 @@ interface ISelectComponentProps {
   value: string;
   onChange: (newValue: string) => any;
   components: IComponentInstance[];
-  className: string;
+  className?: string;
 }
 
 const SelectComponent: React.FunctionComponent<ISelectComponentProps> = ({

@@ -18,8 +18,8 @@ class DropDown extends Component<DropDownProps, State> {
     targetPosition: "bottom right"
   };
 
-  toggleRef = React.createRef();
-  attachmentRef = React.createRef();
+  toggleEl: HTMLElement | null;
+  attachmentEl: HTMLElement | null;
   state = { isOpen: false };
 
   componentDidMount() {
@@ -34,14 +34,14 @@ class DropDown extends Component<DropDownProps, State> {
     this.setState({ isOpen: false });
   }
 
-  onBodyClick = e => {
+  onBodyClick = (e: MouseEvent) => {
     const { closeOnClick } = this.props;
-    const toggle = this.toggleRef.current;
-    const attachment = this.attachmentRef.current;
+    const toggle = this.toggleEl;
+    const attachment = this.attachmentEl;
 
-    if (toggle.contains(e.target)) {
+    if (toggle && toggle.contains(e.target as HTMLElement)) {
       this.setState(state => ({ ...state, isOpen: !state.isOpen }));
-    } else if (attachment && attachment.contains(e.target)) {
+    } else if (attachment && attachment.contains(e.target as HTMLElement)) {
       if (closeOnClick) {
         this.setState({ isOpen: false });
       }
@@ -53,29 +53,29 @@ class DropDown extends Component<DropDownProps, State> {
   render() {
     const { isOpen } = this.state;
     const { attachmentPosition, targetPosition } = this.props;
-    const [element, attachment] = this.props.children;
+    const [element, attachment] = this.props.children as Function[];
 
     return (
       <TetherComponent
         attachment={attachmentPosition}
         targetAttachment={targetPosition}
         style={{ zIndex: 20 }}
-        renderTarget={ref => (
+        renderTarget={(ref: React.MutableRefObject<HTMLElement | null>) => (
           <div
             ref={el => {
               ref.current = el;
-              this.toggleRef.current = el;
+              this.toggleEl = el;
             }}
           >
             {element(isOpen)}
           </div>
         )}
-        renderElement={ref =>
+        renderElement={(ref: React.MutableRefObject<HTMLElement | null>) =>
           isOpen && (
             <div
               ref={el => {
                 ref.current = el;
-                this.attachmentRef.current = el;
+                this.attachmentEl = el;
               }}
             >
               {attachment}
