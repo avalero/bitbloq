@@ -7,13 +7,13 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import board2code from '../board2code';
+import board2code, { getBoard } from '../board2code';
 import { IHardware, IArduinoCode } from '../..';
 import { boards } from './config/boards';
 
 const hardware: IHardware = {
   board: 'zumjunior',
-  components: []
+  components: [],
 };
 
 test('board2code', () => {
@@ -37,5 +37,9 @@ test('board2code', () => {
     throw e;
   }
 
-  expect(1).toBe(1);
+  const board = getBoard(boards, hardware);
+
+  expect(arduinoCode.includes).toEqual(board.code.includes);
+  expect(arduinoCode.globals).toEqual(board.code.globals);
+  expect(arduinoCode.setup).toEqual(board.code.setup);
 });

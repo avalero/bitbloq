@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { IBoard, IHardware, IArduinoCode } from "../index";
+import { IBoard, IHardware, IArduinoCode } from '../index';
 
-const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
+export const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
   const boardName: string = hardware.board;
   const board = boards.find(b => b.name === boardName);
   if (board) return board;
