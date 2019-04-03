@@ -15,8 +15,12 @@ const components2code = (
   components: IComponentInstance[],
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
-  components.forEach(c => {
-    const component = getFullComponentDefinition(componentsDefinition, c);
+  components.forEach(componentInstance => {
+    const component = getFullComponentDefinition(
+      componentsDefinition,
+      componentInstance
+    );
+    debugger;
     // TODO
   });
 

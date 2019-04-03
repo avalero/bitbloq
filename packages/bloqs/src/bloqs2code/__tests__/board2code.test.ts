@@ -13,7 +13,7 @@ import { boards } from './config/boards';
 
 const hardware: IHardware = {
   board: 'zumjunior',
-  components: [],
+  components: []
 };
 
 test('board2code', () => {

@@ -4,6 +4,7 @@ import { colors, ScrollableTabs } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 
+import { BloqCategory } from "../enums";
 import { IBloqTypeGroup, IBloqType } from "../index";
 
 interface IBloqTabs {
@@ -91,7 +92,7 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const handlerType: IBloqType = {
-    category: group.category,
+    category: group.category || BloqCategory.Event,
     name: "handler",
     icon: group.icon,
     code: {},
