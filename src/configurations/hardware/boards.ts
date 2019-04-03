@@ -1,4 +1,4 @@
-import {IBoard} from './types';
+import {IBoard, IPortDirection} from './types';
 
 export const boards: IBoard[] = [
   {
@@ -45,7 +45,7 @@ export const boards: IBoard[] = [
           "x": -1.5,
           "y": 0.8,
         },
-        "direction": "west"
+        "direction": IPortDirection.West
       },
       {
         "name": "2",
@@ -71,7 +71,7 @@ export const boards: IBoard[] = [
           "x": -1.5,
           "y": -0.8,
         },
-        "direction": "west"
+        "direction": IPortDirection.West
       },
       {
         "name": "3",
@@ -97,7 +97,7 @@ export const boards: IBoard[] = [
           "x": 1.5,
           "y": -0.8,
         },
-        "direction": "east"
+        "direction": IPortDirection.East
       },
       {
         "name": "4",
@@ -123,7 +123,7 @@ export const boards: IBoard[] = [
           "x": 1.5,
           "y": 0.8,
         },
-        "direction": "east"
+        "direction": IPortDirection.East
       },
       {
         "name": "A",
@@ -143,7 +143,7 @@ export const boards: IBoard[] = [
           },
           {
             "name": "1",
-            "value": "BQ::ZUMJunior::ports[A][0]"
+            "value": "BQ::ZUMJunior::ports[A][1]"
           },
           {
             "name": "i2c",
@@ -154,7 +154,7 @@ export const boards: IBoard[] = [
           "x": 0.8,
           "y": 1.5,
         },
-        "direction": "north"
+        "direction": IPortDirection.North
       },
       {
         "name": "B",
@@ -174,7 +174,7 @@ export const boards: IBoard[] = [
           },
           {
             "name": "1",
-            "value": "BQ::ZUMJunior::ports[B][0]"
+            "value": "BQ::ZUMJunior::ports[B][1]"
           },
           {
             "name": "i2c",
@@ -185,7 +185,7 @@ export const boards: IBoard[] = [
           "x": -0.8,
           "y": 1.5,
         },
-        "direction": "north"
+        "direction": IPortDirection.North
       }
     ]
   }

@@ -8,7 +8,7 @@ export interface IArduinoCode {
 
 export interface IPortPin {
   name: string;
-  value: number | string;
+  value: string;
 }
 
 export type ConnectorType = string;

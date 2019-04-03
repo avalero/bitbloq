@@ -3,32 +3,30 @@ import { IComponent, ConnectorPinMode } from "./types";
 export const components: Partial<IComponent>[] = [
   {
     "name": "Component",
-    "code": {
-      "definitions": [
-        "{% for connection in component.connections %}",
-        "{% for pin in getConnector(connection.connector).pins %}",
-        "const uint_8 {{component.name}}{{pin.name}} = {{getBoardPin(connection.port, pin.portPin).value}};",
-        "{% endfor %}",
-        "{% endfor %}"
-      ],
-      "setup": [
-        "{% for connection in component.connections %}",
-        "{% for pin in getConnector(connection.connector).pins %}",
-        "pinMode({{component.name}}{{pin.name}}, {{pin.mode}});",
-        "{% endfor %}",
-        "{% endfor %}"
-      ]
-    }
   },
   {
     "name": "Digital",
-    "extends": "Component"
+    "extends": "Component",
+    "code": {
+      "globals": [
+        `{% for pin in pinsInfo %}
+        uint8_t {{pin.pinVarName}} = {{pin.pinNumber}} ;
+        {% endfor %}`
+      ]
+    },
   },
   {
     "name": "DigitalInput",
     "extends": "Digital",
     "onValue": "HIGH",
     "offValue": "LOW",
+    "code": {
+      "setup": [
+        `{% for pin in pinsInfo %}
+        pinMode({{pin.pinVarName}},INPUT);
+        {% endfor %}`
+      ]
+    },
     "actions": [
       {
         name: "read",
@@ -45,6 +43,13 @@ export const components: Partial<IComponent>[] = [
     "extends": "Digital",
     "onValue": "HIGH",
     "offValue": "LOW",
+    "code": {
+      "setup": [
+        `{% for pin in pinsInfo %}
+        pinMode({{pin.pinVarName}},OUTPUT);
+        {% endfor %}`
+      ]
+    },
     "actions": [
       {
         name: "write",
