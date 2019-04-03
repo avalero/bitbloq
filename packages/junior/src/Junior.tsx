@@ -12,6 +12,7 @@ import {
   IBoard,
   IComponent,
   IHardware,
+  BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
@@ -113,6 +114,39 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   };
 
+  const getGroupsForCategory = (category: BloqCategory) =>
+    bloqTypes
+      .filter(
+        bt =>
+          bt.category === category && (!bt.components || !bt.components.length)
+      )
+      .map(bt => ({ types: [bt.name] }))
+      .concat(
+        hardware.components
+          .map(c => c.component)
+          .filter((elem, pos, arr) => arr.indexOf(elem) === pos)
+          .map(c => ({
+            icon: componentMap[c].image.url,
+            types: bloqTypes
+              .filter(
+                bt =>
+                  bt.category === category &&
+                  (bt.components || []).some(btComponent =>
+                    isInstanceOf(componentMap[c], btComponent, componentMap)
+                  )
+              )
+              .map(bt => bt.name)
+          }))
+      );
+
+  const eventGroups: IBloqTypeGroup[] = getGroupsForCategory(
+    BloqCategory.Event
+  );
+  const actionGroups: IBloqTypeGroup[] = getGroupsForCategory(
+    BloqCategory.Action
+  );
+  const waitGroups: IBloqTypeGroup[] = getGroupsForCategory(BloqCategory.Wait);
+
   const mainTabs = [
     <Document.Tab
       key="hardware"
@@ -141,6 +175,9 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         onBloqsChange={(newProgram: IBloq[][]) =>
           setContent(update(content, { program: { $set: newProgram } }))
         }
+        eventGroups={eventGroups}
+        actionGroups={actionGroups}
+        waitGroups={waitGroups}
       />
     </Document.Tab>
   ];

@@ -22,11 +22,23 @@ interface IHorizontalBloqEditorProps {
   onBloqsChange: (bloqs: IBloq[][]) => any;
   getComponents: (types: string[]) => IComponentInstance[];
   getBloqPort: (bloq: IBloq) => string | undefined;
+  eventGroups: IBloqTypeGroup[];
+  actionGroups: IBloqTypeGroup[];
+  waitGroups: IBloqTypeGroup[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
   IHorizontalBloqEditorProps
-> = ({ bloqs, bloqTypes, onBloqsChange, getComponents, getBloqPort }) => {
+> = ({
+  bloqs,
+  bloqTypes,
+  onBloqsChange,
+  getComponents,
+  getBloqPort,
+  eventGroups,
+  actionGroups,
+  waitGroups
+}) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
@@ -131,9 +143,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
           {
             label: t("bloqs-sensors"),
             icon: <Icon name="programming2" />,
-            groups: bloqTypes
-              .filter(bt => bt.category === BloqCategory.Event)
-              .map(bt => ({ types: [bt.name] }))
+            groups: eventGroups
           }
         ]}
         bloqTypes={bloqTypes}
@@ -146,16 +156,12 @@ const HorizontalBloqEditor: React.FunctionComponent<
           {
             label: t("bloqs-actions"),
             icon: <Icon name="programming" />,
-            groups: bloqTypes
-              .filter(bt => bt.category === BloqCategory.Action)
-              .map(bt => ({ types: [bt.name] }))
+            groups: actionGroups
           },
           {
             label: t("bloqs-waits"),
             icon: <Icon name="programming3" />,
-            groups: bloqTypes
-              .filter(bt => bt.category === BloqCategory.Wait)
-              .map(bt => ({ types: [bt.name] }))
+            groups: waitGroups
           }
         ]}
         bloqTypes={bloqTypes}

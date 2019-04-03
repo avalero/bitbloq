@@ -37,7 +37,7 @@ const AddBloqPanel: React.FunctionComponent<IAddBloqPanelProps> = ({
   const renderGroup = (group: IBloqTypeGroup, i: number) => {
     const types = group.types.filter(t => bloqTypes.some(bt => bt.name === t));
 
-    if (types.length === 1) {
+    if (types.length === 1 && !group.icon) {
       return (
         <StyledBloq
           key={i}
@@ -47,7 +47,7 @@ const AddBloqPanel: React.FunctionComponent<IAddBloqPanelProps> = ({
       );
     }
 
-    if (types.length > 1) {
+    if (types.length > 0) {
       return (
         <BloqGroupHandler
           key={i}
@@ -91,14 +91,6 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handlerType: IBloqType = {
-    category: group.category || BloqCategory.Event,
-    name: "handler",
-    icon: group.icon,
-    code: {},
-    parameters: []
-  };
-
   const groupTypesEl = useRef<HTMLDivElement>(null);
   const groupsHeight = useRef<number>(0);
 
@@ -119,7 +111,7 @@ const BloqGroupHandler: React.FunctionComponent<IBloqGroupHandlerProps> = ({
   return (
     <Group>
       <GroupHandler onClick={() => setIsOpen(!isOpen)}>
-        <HorizontalBloq type={handlerType} />
+        <GroupIcon src={group.icon} />
         <CollapseIndicator>{isOpen ? "-" : "+"}</CollapseIndicator>
       </GroupHandler>
       <GroupTypesWrap style={groupTypesStyle}>
@@ -180,6 +172,12 @@ const Group = styled.div`
 
 const GroupHandler = styled.div`
   position: relative;
+`;
+
+const GroupIcon = styled.img`
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
 `;
 
 const GroupTypesWrap = styled(animated.div)`
