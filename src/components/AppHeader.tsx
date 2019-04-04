@@ -35,7 +35,7 @@ const AppHeader = () => (
           <UserContainer>
             <UserName>{data.me && data.me.name}</UserName>
             <DropDown>
-              {isOpen => (
+              {(isOpen: boolean) => (
                 <ContextButton isOpen={isOpen}>
                   <Icon name="ellipsis" />
                 </ContextButton>
