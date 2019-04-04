@@ -103,7 +103,7 @@ export interface IArduinoCode {
 
 export interface IPortPin {
   name: string;
-  value: number | string;
+  value: string;
 }
 
 export interface IConnectorPosition {
@@ -153,18 +153,28 @@ export interface IConnectorPin {
 
 export interface IConnector {
   name: string;
-  type: ConnectorType;
+  type: string;
   position: IConnectorPosition;
-  x: number;
+  pins: IConnectorPin[];
+}
+
+export interface IComponentAction {
+  name: string;
+  parameters: string[];
+  code: string;
+  returns?: string;
 }
 
 export interface IComponent {
   name: string;
-  extends: string;
-  image: IComponentImage;
-  code: any;
-  connectors: IConnector[];
   instanceName: string;
+  extends: string;
+  code: IArduinoCode;
+  actions: IComponentAction[];
+  connectors: IConnector[];
+  image: IComponentImage;
+  onValue?: string;
+  offValue?: string;
 }
 
 export interface IComponentInstance {
@@ -176,25 +186,4 @@ export interface IComponentInstance {
 export interface IHardware {
   board: string;
   components: IComponentInstance[];
-}
-
-export interface IWrite {
-  code: string;
-  value: number;
-  values: any;
-}
-
-export interface IRead {
-  code: string;
-  value: number;
-  values: any;
-  returns: string;
-}
-
-export interface IComponentNew {
-  name: string;
-  extends?: string;
-  def_code: IArduinoCode;
-  write: Partial<IWrite>;
-  read: Partial<IRead>;
 }

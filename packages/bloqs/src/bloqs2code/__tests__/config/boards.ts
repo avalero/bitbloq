@@ -124,7 +124,7 @@ export const boards: IBoard[] = [
           },
           {
             name: '1',
-            value: 'BQ::ZUMJunior::ports[A][0]',
+            value: 'BQ::ZUMJunior::ports[A][1]',
           },
           {
             name: 'i2c',
@@ -155,7 +155,7 @@ export const boards: IBoard[] = [
           },
           {
             name: '1',
-            value: 'BQ::ZUMJunior::ports[B][0]',
+            value: 'BQ::ZUMJunior::ports[B][1]',
           },
           {
             name: 'i2c',

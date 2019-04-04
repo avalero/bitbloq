@@ -1,13 +1,22 @@
-import board2code from '../board2code';
-import { IHardware, IArduinoCode } from '../..';
-import { boards } from './config/boards';
+/*
+ * File: board2code.test.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
+ */
+
+import board2code, { getBoard } from "../board2code";
+import { IHardware, IArduinoCode } from "../..";
+import { boards } from "./config/boards";
 
 const hardware: IHardware = {
-  board: 'zumjunior',
+  board: "zumjunior",
   components: []
 };
 
-test('board2code', () => {
+test("board2code", () => {
   const includes: string[] = [];
   const globals: string[] = [];
   const setup: string[] = [];
@@ -19,7 +28,7 @@ test('board2code', () => {
     globals,
     setup,
     loop,
-    definitions,
+    definitions
   };
 
   try {
@@ -28,5 +37,9 @@ test('board2code', () => {
     throw e;
   }
 
-  expect(1).toBe(1);
+  const board = getBoard(boards, hardware);
+
+  expect(arduinoCode.includes).toEqual(board.code.includes);
+  expect(arduinoCode.globals).toEqual(board.code.globals);
+  expect(arduinoCode.setup).toEqual(board.code.setup);
 });

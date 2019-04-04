@@ -13,7 +13,7 @@ interface IBloqsLineProps {
   selectedPlaceholder: number;
   onBloqClick: (index: number, e: React.MouseEvent) => any;
   onPlaceholderClick: (index: number, e: React.MouseEvent) => any;
-  getBloqPort: (bloq: IBloq) => (string | undefined);
+  getBloqPort: (bloq: IBloq) => string | undefined;
 }
 
 const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({

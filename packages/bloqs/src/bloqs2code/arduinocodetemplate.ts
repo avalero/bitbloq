@@ -25,26 +25,30 @@ const arduinocodetemplate: string = `
 // global declarations
 
 Heap heap;
-{{globals}}
+{% for global in globals %}
+{{global | safe}}
+{% endfor %}
 
 // Initialization and configuration
 void setup(){
-
-{% for code in setup %}
-  {{code | safe}}
-{% endfor %}
-
+  {% for s in setup %}
+  {{s | safe}}
+  {% endfor %}
 }
 
 // Main loop program
 void loop(){
-
-  {{loop}}
+  {% for l in loop %}
+  {{l | safe}}
+  {% endfor %}
 
 }
 
 // Global functions definition
-{{definitionsCode}}
+{% for def in definitionsCode %}
+{{def | safe}}
+{% endfor %}
+
 `;
 
 export default arduinocodetemplate;
