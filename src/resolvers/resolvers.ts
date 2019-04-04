@@ -1,6 +1,7 @@
 import documentResolver from './document';
 import exerciseResolver from './exercise';
 import folderResolver from './folder';
+import loggerResolver from './logger';
 import submissionResolver from './submission';
 import uploadResolver from './upload';
 import userResolver from './user';
@@ -23,6 +24,7 @@ export const allResolvers = [
   folderResolver,
   documentResolver,
   exerciseResolver,
+  loggerResolver,
   submissionResolver,
   uploadResolver,
 ];

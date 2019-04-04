@@ -87,7 +87,7 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-          loggerController.storeInfoLog('submission', 'login', existSubmission.type, existSubmission.user, '');
+          loggerController.storeInfoLog('API','submission', 'login', existSubmission.type, existSubmission.user, '');
           pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
           await redisClient.set(
             String('subToken-' + existSubmission._id),
@@ -144,7 +144,7 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-        loggerController.storeInfoLog('submission', 'create', newSub.type, newSub.user, '');
+        loggerController.storeInfoLog('API','submission', 'create', newSub.type, newSub.user, '');
         await redisClient.set(
           String('subToken-' + newSub._id),
           token,
@@ -198,7 +198,7 @@ const submissionResolver = {
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission,
         });
-        loggerController.storeInfoLog('submission', 'update', existSubmission.type, existSubmission.user, '');
+        loggerController.storeInfoLog('API','submission', 'update', existSubmission.type, existSubmission.user, '');
         return updatedSubmission;
       }
     },
@@ -252,7 +252,7 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_UPDATED, {
         submissionUpdated: updatedSubmission,
       });
-      loggerController.storeInfoLog('submission', 'finish', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog('API','submission', 'finish', existSubmission.type, existSubmission.user, '');
       return updatedSubmission;
     },
 
@@ -273,7 +273,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      loggerController.storeInfoLog('submission', 'cancel', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog('API','submission', 'cancel', existSubmission.type, existSubmission.user, '');
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -294,7 +294,7 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      loggerController.storeInfoLog('submission', 'delete', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog('API','submission', 'delete', existSubmission.type, existSubmission.user, '');
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -333,7 +333,7 @@ const submissionResolver = {
         },
         { new: true },
       );
-      loggerController.storeInfoLog('submission', 'grade', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog('API','submission', 'grade', existSubmission.type, existSubmission.user, '');
       return updatedSubmission;
     },
   },

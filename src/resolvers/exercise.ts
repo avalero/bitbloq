@@ -48,7 +48,7 @@ const exerciseResolver = {
         expireDate: args.input.expireDate,
         image: docFather.image,
       });
-      loggerController.storeInfoLog('exercise', 'create', exerciseNew.type,  exerciseNew.user, '');
+      loggerController.storeInfoLog('API','exercise', 'create', exerciseNew.type,  exerciseNew.user, '');
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       return newEx;
     },
@@ -65,7 +65,7 @@ const exerciseResolver = {
       if (!existExercise) {
         return new ApolloError('Exercise does not exist', 'EXERCISE_NOT_FOUND');
       }
-      loggerController.storeInfoLog('exercise', 'changeSubState', existExercise.type, existExercise.user, '');
+      loggerController.storeInfoLog('API','exercise', 'changeSubState', existExercise.type, existExercise.user, '');
       
       return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
@@ -86,7 +86,7 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
-        loggerController.storeInfoLog('exercise', 'delete', existExercise.type, existExercise.user, '');
+        loggerController.storeInfoLog('API','exercise', 'delete', existExercise.type, existExercise.user, '');
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
@@ -105,7 +105,7 @@ const exerciseResolver = {
         user: context.user.userID,
       });
       if (existExercise) {
-        loggerController.storeInfoLog('exercise', 'update', existExercise.type, existExercise.user, '');
+        loggerController.storeInfoLog('API','exercise', 'update', existExercise.type, existExercise.user, '');
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
           { $set: args.input },

@@ -48,7 +48,7 @@ const folderResolver = {
         { $push: { foldersID: newFolder._id } },
         { new: true },
       )
-      loggerController.storeInfoLog('folder', 'create', 'folder', newFolder.user, '');
+      loggerController.storeInfoLog('API','space', 'create', 'folder', newFolder.user, '');
       pubsub.publish(FOLDER_UPDATED, { folderUpdated: newFolder });
       return newFolder;
     },
@@ -102,7 +102,7 @@ const folderResolver = {
           { $pull: { foldersID: existFolder._id } },
           { new: true },
         )
-        loggerController.storeInfoLog('folder', 'delete', 'folder', existFolder.user, '');
+        loggerController.storeInfoLog('API','space', 'delete', 'folder', existFolder.user, '');
         return await FolderModel.deleteOne({ _id: args.id });
       } else {
         return new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
@@ -206,7 +206,7 @@ const folderResolver = {
             'CANT_UPDATE_ROOT',
           );
         }
-        loggerController.storeInfoLog('folder', 'update', 'folder', existFolder.user, '');
+        loggerController.storeInfoLog('API','space', 'update', 'folder', existFolder.user, '');
         const updatedFolder: IFolder = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           {
