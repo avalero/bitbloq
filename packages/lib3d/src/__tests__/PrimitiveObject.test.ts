@@ -1,24 +1,24 @@
-import 'jsdom-worker';
+import "jsdom-worker";
 interface Global {
   fetch: any;
 }
 const global: Global = { fetch: undefined };
-global.fetch = require('jest-fetch-mock');
+global.fetch = require("jest-fetch-mock");
 
-import { cloneDeep } from 'lodash';
-import * as THREE from 'three';
-import Cube from '../Cube';
-import ObjectsCommon from '../ObjectsCommon';
-import ObjectsGroup from '../ObjectsGroup';
-import RepetitionObject from '../RepetitionObject';
+import { cloneDeep } from "lodash";
+import * as THREE from "three";
+import Cube from "../Cube";
+import ObjectsCommon from "../ObjectsCommon";
+import ObjectsGroup from "../ObjectsGroup";
+import RepetitionObject from "../RepetitionObject";
 
 import {
   ICubeJSON,
   ICubeParams,
   IViewOptions,
   OperationsArray,
-  ICartesianRepetitionParams,
-} from '../Interfaces';
+  ICartesianRepetitionParams
+} from "../Interfaces";
 
 const width = 10;
 const height = 15;
@@ -27,22 +27,22 @@ const depth = 20;
 const objParams: ICubeParams = {
   width,
   height,
-  depth,
+  depth
 };
 const operations: OperationsArray = [];
 const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
-test('PrimitiveObject - toJSON', () => {
+test("PrimitiveObject - toJSON", () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const obj = new Cube(objParams, operations, viewOptions);
@@ -51,7 +51,7 @@ test('PrimitiveObject - toJSON', () => {
   expect(json).toEqual(obj.toJSON());
 
   (obj as any).operations = [
-    ObjectsCommon.createTranslateOperation(10, 20, 30),
+    ObjectsCommon.createTranslateOperation(10, 20, 30)
   ];
   json.operations = [ObjectsCommon.createTranslateOperation(10, 20, 30)];
   json.operations[0].id = obj.toJSON().operations[0].id;
@@ -60,11 +60,11 @@ test('PrimitiveObject - toJSON', () => {
 
   (obj as any).operations = [
     ObjectsCommon.createTranslateOperation(10, 20, 30),
-    ObjectsCommon.createTranslateOperation(10, 20, 30),
+    ObjectsCommon.createTranslateOperation(10, 20, 30)
   ];
   json.operations = [
     ObjectsCommon.createTranslateOperation(10, 20, 30),
-    ObjectsCommon.createTranslateOperation(10, 20, 30),
+    ObjectsCommon.createTranslateOperation(10, 20, 30)
   ];
   json.operations[0].id = obj.toJSON().operations[0].id;
   json.operations[1].id = obj.toJSON().operations[1].id;
@@ -77,42 +77,42 @@ test('PrimitiveObject - toJSON', () => {
   expect(json).toEqual(obj.toJSON());
 });
 
-test('PrimitiveObject - UpdateFromJSON', async () => {
+test("PrimitiveObject - UpdateFromJSON", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const obj = new Cube(objParams, operations, viewOptions);
-  json.id = 'kkk';
+  json.id = "kkk";
 
   const func = () => obj.updateFromJSON(json);
 
   expect(func).toThrowError();
 });
 
-test('PrimitiveObject - UpdateFromJSON', async () => {
+test("PrimitiveObject - UpdateFromJSON", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const obj = new Cube(objParams, operations, viewOptions);
-  const spy = jest.spyOn(obj, 'computeMeshAsync');
+  const spy = jest.spyOn(obj, "computeMeshAsync");
   json.id = obj.toJSON().id;
 
   expect(json).toEqual(obj.toJSON());
@@ -125,7 +125,7 @@ test('PrimitiveObject - UpdateFromJSON', async () => {
 
   json.operations = [
     ObjectsCommon.createTranslateOperation(10, 20, 30),
-    ObjectsCommon.createTranslateOperation(10, 20, 30),
+    ObjectsCommon.createTranslateOperation(10, 20, 30)
   ];
   obj.updateFromJSON(json);
 
@@ -149,32 +149,32 @@ test('PrimitiveObject - UpdateFromJSON', async () => {
   expect(spy).toBeCalledTimes(3);
 });
 
-test('PrimitiveObject - UpdateFromJSON with parents', async () => {
+test("PrimitiveObject - UpdateFromJSON with parents", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const repParamas: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     x: 10,
     y: 0,
     z: 0,
-    num: 2,
+    num: 2
   };
 
   const obj = new Cube({ ...objParams }, [...operations], { ...viewOptions });
   const obj2 = new RepetitionObject(repParamas, obj);
 
-  const spy1 = jest.spyOn(obj, 'computeMeshAsync');
-  const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
 
   json.id = obj.toJSON().id;
 
@@ -189,7 +189,7 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
 
   json.operations = [
     ObjectsCommon.createTranslateOperation(10, 20, 30),
-    ObjectsCommon.createTranslateOperation(10, 20, 30),
+    ObjectsCommon.createTranslateOperation(10, 20, 30)
   ];
   obj.updateFromJSON(json);
 
@@ -217,32 +217,32 @@ test('PrimitiveObject - UpdateFromJSON with parents', async () => {
   expect(spy2).toBeCalledTimes(3);
 });
 
-test('PrimitiveObject - UpdateFromJSON with parents - change viewOptions', async () => {
+test("PrimitiveObject - UpdateFromJSON with parents - change viewOptions", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const repParamas: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     x: 10,
     y: 0,
     z: 0,
-    num: 2,
+    num: 2
   };
 
   const obj = new Cube({ ...objParams }, [...operations], { ...viewOptions });
   const obj2 = new RepetitionObject(repParamas, obj);
 
-  const spy1 = jest.spyOn(obj, 'computeMeshAsync');
-  const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
 
   json.id = obj.toJSON().id;
 
@@ -256,35 +256,35 @@ test('PrimitiveObject - UpdateFromJSON with parents - change viewOptions', async
   expect(spy2).toBeCalledTimes(1);
 });
 
-test('PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptions', async () => {
+test("PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptions", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const obj = new Cube(objParams, operations, viewOptions);
   const obj2 = new RepetitionObject(
-    { type: 'cartesian', x: 10, y: 10, z: 10, num: 4 },
-    obj,
+    { type: "cartesian", x: 10, y: 10, z: 10, num: 4 },
+    obj
   );
 
   obj.setParent(obj2);
 
-  const spy1 = jest.spyOn(obj, 'computeMeshAsync');
-  const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
 
   json.id = obj.toJSON().id;
 
   expect(json).toEqual(obj.toJSON());
 
-  json.viewOptions = { ...json.viewOptions, color: '#aaaaaa' };
+  json.viewOptions = { ...json.viewOptions, color: "#aaaaaa" };
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
@@ -292,17 +292,17 @@ test('PrimitiveObject - UpdateFromJSON with parent Repetition - change viewOptio
   expect(spy2).toBeCalledTimes(1);
 });
 
-test('PrimitiveObject - UpdateFromJSON with parent ObjectsGroup - change viewOptions', async () => {
+test("PrimitiveObject - UpdateFromJSON with parent ObjectsGroup - change viewOptions", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const obj = new Cube(objParams, operations, viewOptions);
@@ -311,14 +311,14 @@ test('PrimitiveObject - UpdateFromJSON with parent ObjectsGroup - change viewOpt
 
   obj.setParent(obj2);
 
-  const spy1 = jest.spyOn(obj, 'computeMeshAsync');
-  const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
 
   json.id = obj.toJSON().id;
 
   expect(json).toEqual(obj.toJSON());
 
-  json.viewOptions = { ...json.viewOptions, color: '#aaaaaa' };
+  json.viewOptions = { ...json.viewOptions, color: "#aaaaaa" };
   obj.updateFromJSON(json);
 
   expect(json).toEqual(obj.toJSON());
@@ -326,34 +326,34 @@ test('PrimitiveObject - UpdateFromJSON with parent ObjectsGroup - change viewOpt
   expect(spy2).toBeCalledTimes(1);
 });
 
-test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
+test("PrimitiveObject - UpdateFromJSON with 2 level parents", async () => {
   const json: ICubeJSON = {
     parameters: {
       width,
       height,
-      depth,
+      depth
     },
     operations: [],
     viewOptions: ObjectsCommon.createViewOptions(),
-    id: '000',
-    type: Cube.typeName,
+    id: "000",
+    type: Cube.typeName
   };
 
   const repParamas: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     x: 10,
     y: 0,
     z: 0,
-    num: 2,
+    num: 2
   };
 
   const obj = new Cube({ ...objParams }, [...operations], { ...viewOptions });
   const obj2 = new RepetitionObject(repParamas, obj);
   const obj3 = new RepetitionObject(repParamas, obj2);
 
-  const spy1 = jest.spyOn(obj, 'computeMeshAsync');
-  const spy2 = jest.spyOn(obj2, 'computeMeshAsync');
-  const spy3 = jest.spyOn(obj3, 'computeMeshAsync');
+  const spy1 = jest.spyOn(obj, "computeMeshAsync");
+  const spy2 = jest.spyOn(obj2, "computeMeshAsync");
+  const spy3 = jest.spyOn(obj3, "computeMeshAsync");
 
   json.id = obj.toJSON().id;
 
@@ -368,7 +368,7 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
 
   json.operations = [
     ObjectsCommon.createTranslateOperation(10, 20, 30),
-    ObjectsCommon.createTranslateOperation(10, 20, 30),
+    ObjectsCommon.createTranslateOperation(10, 20, 30)
   ];
   obj.updateFromJSON(json);
 
@@ -399,9 +399,9 @@ test('PrimitiveObject - UpdateFromJSON with 2 level parents', async () => {
   expect(spy3).toBeCalledTimes(3);
 });
 
-test('PrimitiveObject - getMeshAsync', async () => {
+test("PrimitiveObject - getMeshAsync", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
-  const spy = jest.spyOn(obj, 'computeMeshAsync');
+  const spy = jest.spyOn(obj, "computeMeshAsync");
 
   const mesh: THREE.Mesh = (await obj.getMeshAsync()) as THREE.Mesh;
   expect((obj as any).meshPromise).toBe(null);
@@ -414,15 +414,15 @@ test('PrimitiveObject - getMeshAsync', async () => {
   expect(meshPromise).toBeInstanceOf(Promise);
 });
 
-test('PrimitiveObject - ComputeMeshAsync - meshUpdateRequired', async () => {
+test("PrimitiveObject - ComputeMeshAsync - meshUpdateRequired", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   (obj as any)._meshUpdateRequired = true;
   (obj as any)._pendingOperation = false;
   (obj as any)._viewOptionsUpdateRequired = false;
 
-  const spy1 = jest.spyOn(obj as any, 'getGeometry');
-  const spy2 = jest.spyOn(obj as any, 'applyViewOptions');
-  const spy3 = jest.spyOn(obj as any, 'applyOperationsAsync');
+  const spy1 = jest.spyOn(obj as any, "getGeometry");
+  const spy2 = jest.spyOn(obj as any, "applyViewOptions");
+  const spy3 = jest.spyOn(obj as any, "applyOperationsAsync");
 
   await obj.computeMeshAsync();
 
@@ -432,15 +432,15 @@ test('PrimitiveObject - ComputeMeshAsync - meshUpdateRequired', async () => {
   expect((obj as any)._meshUpdateRequired).toBe(false);
 });
 
-test('PrimitiveObject - ComputeMeshAsync - pengingOperation', async () => {
+test("PrimitiveObject - ComputeMeshAsync - pengingOperation", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   (obj as any)._meshUpdateRequired = false;
   (obj as any)._pendingOperation = true;
   (obj as any)._viewOptionsUpdateRequired = false;
 
-  const spy1 = jest.spyOn(obj as any, 'getGeometry');
-  const spy2 = jest.spyOn(obj as any, 'applyViewOptions');
-  const spy3 = jest.spyOn(obj as any, 'applyOperationsAsync');
+  const spy1 = jest.spyOn(obj as any, "getGeometry");
+  const spy2 = jest.spyOn(obj as any, "applyViewOptions");
+  const spy3 = jest.spyOn(obj as any, "applyOperationsAsync");
 
   await obj.computeMeshAsync();
 
@@ -450,15 +450,15 @@ test('PrimitiveObject - ComputeMeshAsync - pengingOperation', async () => {
   expect((obj as any)._pendingOperation).toBe(false);
 });
 
-test('PrimitiveObject - ComputeMeshAsync - viewOptionsUpdated', async () => {
+test("PrimitiveObject - ComputeMeshAsync - viewOptionsUpdated", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   (obj as any)._meshUpdateRequired = false;
   (obj as any)._pendingOperation = false;
   (obj as any)._viewOptionsUpdateRequired = true;
 
-  const spy1 = jest.spyOn(obj as any, 'getGeometry');
-  const spy2 = jest.spyOn(obj as any, 'applyViewOptions');
-  const spy3 = jest.spyOn(obj as any, 'applyOperationsAsync');
+  const spy1 = jest.spyOn(obj as any, "getGeometry");
+  const spy2 = jest.spyOn(obj as any, "applyViewOptions");
+  const spy3 = jest.spyOn(obj as any, "applyOperationsAsync");
 
   await obj.computeMeshAsync();
 
@@ -468,14 +468,14 @@ test('PrimitiveObject - ComputeMeshAsync - viewOptionsUpdated', async () => {
   expect((obj as any)._viewOptionsUpdateRequired).toBe(false);
 });
 
-test('PrimitiveObject - SetParameters - same parameters', async () => {
+test("PrimitiveObject - SetParameters - same parameters", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   (obj as any).setParameters(objParams);
-  const spy1 = jest.spyOn(obj as any, 'computeMeshAsync');
+  const spy1 = jest.spyOn(obj as any, "computeMeshAsync");
   expect((obj as any)._meshUpdateRequired).toBe(false);
 });
 
-test('PrimitiveObject - SetParameters - different parameters', async () => {
+test("PrimitiveObject - SetParameters - different parameters", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const paramsClone = cloneDeep(objParams);
   paramsClone.width = 2 * objParams.width;

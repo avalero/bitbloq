@@ -1,27 +1,27 @@
-import 'jsdom-worker';
+import "jsdom-worker";
 interface Global {
   fetch: any;
 }
 const global: Global = { fetch: undefined };
-global.fetch = require('jest-fetch-mock');
+global.fetch = require("jest-fetch-mock");
 
-import Scene, { ISceneJSON } from '../Scene';
-import Cube from '../Cube';
-import RepetitionObject from '../RepetitionObject';
-import ObjectsGroup from '../ObjectsGroup';
-import * as THREE from 'three';
+import Scene, { ISceneJSON } from "../Scene";
+import Cube from "../Cube";
+import RepetitionObject from "../RepetitionObject";
+import ObjectsGroup from "../ObjectsGroup";
+import * as THREE from "three";
 
 import {
   ICartesianRepetitionParams,
   IRepetitionObjectJSON,
   ICubeJSON,
-  IGeometry,
-} from '../Interfaces';
-import Union from '../Union';
+  IGeometry
+} from "../Interfaces";
+import Union from "../Union";
 
-test('Scene - Constructor', () => {
-  const spySetupScene = jest.spyOn(Scene.prototype as any, 'setupScene');
-  const spySetMaterials = jest.spyOn(Scene.prototype as any, 'setMaterials');
+test("Scene - Constructor", () => {
+  const spySetupScene = jest.spyOn(Scene.prototype as any, "setupScene");
+  const spySetMaterials = jest.spyOn(Scene.prototype as any, "setMaterials");
   const scene = new Scene();
 
   expect(spySetupScene).toBeCalledTimes(1);
@@ -38,7 +38,7 @@ test('Scene - Constructor', () => {
   expect((scene as any).transitionMaterial).toBeDefined();
 });
 
-test('Scene - Can Redo/Undo', () => {
+test("Scene - Can Redo/Undo", () => {
   const scene = new Scene();
   expect(scene.canRedo()).toEqual(false);
   expect(scene.canUndo()).toEqual(false);
@@ -59,7 +59,7 @@ test('Scene - Can Redo/Undo', () => {
   }, 1500);
 });
 
-test('Scene - Undo - 1 step', () => {
+test("Scene - Undo - 1 step", () => {
   const scene = new Scene();
   const firstJSON = scene.toJSON();
 
@@ -77,7 +77,7 @@ test('Scene - Undo - 1 step', () => {
   expect((scene as any).historyIndex).toEqual(-1);
 });
 
-test('Scene - Undo - 2 steps', () => {
+test("Scene - Undo - 2 steps", () => {
   const scene = new Scene();
   const firstJSON = scene.toJSON();
 
@@ -112,7 +112,7 @@ test('Scene - Undo - 2 steps', () => {
   }, 1500);
 });
 
-test('Scene - Redo - 1 step', () => {
+test("Scene - Redo - 1 step", () => {
   const scene = new Scene();
 
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
@@ -127,7 +127,7 @@ test('Scene - Redo - 1 step', () => {
   expect((scene as any).historyIndex).toEqual(0);
 });
 
-test('Scene - Redo - 2 steps', () => {
+test("Scene - Redo - 2 steps", () => {
   const scene = new Scene();
 
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
@@ -158,7 +158,7 @@ test('Scene - Redo - 2 steps', () => {
   }, 1500);
 });
 
-test('Secene.newFromJSON - Simple Objects', () => {
+test("Secene.newFromJSON - Simple Objects", () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
@@ -179,16 +179,16 @@ test('Secene.newFromJSON - Simple Objects', () => {
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
 
-test('Secene.newFromJSON - Compound Objects', () => {
+test("Secene.newFromJSON - Compound Objects", () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParamas: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition = new RepetitionObject(repParamas, cube2);
 
@@ -204,27 +204,27 @@ test('Secene.newFromJSON - Compound Objects', () => {
   expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
   expect(computedSceneJSON[1].type).toEqual(RepetitionObject.typeName);
   expect(
-    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type,
+    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type
   ).toEqual(Cube.typeName);
   expect((computedSceneJSON[0] as ICubeJSON).parameters.width).toEqual(10);
   expect(
     ((computedSceneJSON[1] as IRepetitionObjectJSON)
-      .parameters as ICartesianRepetitionParams).num,
+      .parameters as ICartesianRepetitionParams).num
   ).toEqual(3);
   expect((scene as any).objectCollector.length).toEqual(3);
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
 
-test('Secene.newFromJSON - Two level Compound Objects', () => {
+test("Secene.newFromJSON - Two level Compound Objects", () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
@@ -241,27 +241,27 @@ test('Secene.newFromJSON - Two level Compound Objects', () => {
   expect(computedSceneJSON[0].type).toEqual(Cube.typeName);
   expect(computedSceneJSON[1].type).toEqual(RepetitionObject.typeName);
   expect(
-    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type,
+    (computedSceneJSON[1] as IRepetitionObjectJSON).children[0].type
   ).toEqual(RepetitionObject.typeName);
   expect((computedSceneJSON[0] as ICubeJSON).parameters.width).toEqual(10);
   expect(
     ((computedSceneJSON[1] as IRepetitionObjectJSON)
-      .parameters as ICartesianRepetitionParams).num,
+      .parameters as ICartesianRepetitionParams).num
   ).toEqual(repParams.num);
   expect((scene as any).objectCollector.length).toEqual(4);
   expect((scene as any).objectsInScene.length).toEqual(2);
 });
 
-test('Scene AddNewObjectFromJSON', () => {
+test("Scene AddNewObjectFromJSON", () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
 
   const repetition1 = new RepetitionObject(repParams, cube2);
@@ -290,16 +290,16 @@ test('Scene AddNewObjectFromJSON', () => {
   expect((scene as any).objectInScene(group.toJSON())).toBe(true);
 });
 
-test('Scene - RemoveFromObjectCollector', () => {
+test("Scene - RemoveFromObjectCollector", () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
@@ -321,30 +321,30 @@ test('Scene - RemoveFromObjectCollector', () => {
 
   expect((scene as any).objectInObjectCollector(cube2.toJSON())).toBe(true);
   expect((scene as any).objectInObjectCollector(repetition1.toJSON())).toBe(
-    true,
+    true
   );
   (scene as any).removeFromObjectCollector([
     cube2.toJSON(),
-    repetition1.toJSON(),
+    repetition1.toJSON()
   ]);
   expect((scene as any).objectInObjectCollector(cube2.toJSON())).toBe(false);
   expect((scene as any).objectInObjectCollector(repetition1.toJSON())).toBe(
-    false,
+    false
   );
 });
 
-test('Scene - RemoveFromScene', () => {
+test("Scene - RemoveFromScene", () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition1 = new RepetitionObject(repParams, cube2);
   const repetition2 = new RepetitionObject(repParams, repetition1);
@@ -387,13 +387,13 @@ test('Scene - RemoveFromScene', () => {
   expect((scene as any).objectsInScene.length).toEqual(0);
 });
 
-test('Scene - getObjectsAsync', async () => {
+test("Scene - getObjectsAsync", async () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube4 = new Cube({ width: 20, height: 20, depth: 20 });
 
-  const spy = jest.spyOn(Scene.prototype, 'testPoint');
+  const spy = jest.spyOn(Scene.prototype, "testPoint");
 
   const scene: Scene = new Scene();
   scene.addNewObjectFromJSON(cube1.toJSON());
@@ -416,7 +416,7 @@ test('Scene - getObjectsAsync', async () => {
   expect(objects3.children.length).toEqual(4);
 });
 
-test('Scene - addExistingGroup', async () => {
+test("Scene - addExistingGroup", async () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
@@ -425,7 +425,7 @@ test('Scene - addExistingGroup', async () => {
   const group = new ObjectsGroup([cube1, cube2, cube3, cube4]);
   const scene: Scene = new Scene();
 
-  const spy = jest.spyOn(Scene.prototype as any, 'addExistingGroup');
+  const spy = jest.spyOn(Scene.prototype as any, "addExistingGroup");
   scene.addNewObjectFromJSON(cube1.toJSON());
   scene.addNewObjectFromJSON(cube2.toJSON());
   scene.addNewObjectFromJSON(cube3.toJSON());
@@ -439,20 +439,20 @@ test('Scene - addExistingGroup', async () => {
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(ObjectsGroup);
 });
 
-test('Scene - addExistingRepetition', async () => {
+test("Scene - addExistingRepetition", async () => {
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition = new RepetitionObject(repParams, cube);
   const scene: Scene = new Scene();
 
-  const spy = jest.spyOn(Scene.prototype as any, 'addExistingRepetition');
+  const spy = jest.spyOn(Scene.prototype as any, "addExistingRepetition");
   scene.addNewObjectFromJSON(cube.toJSON());
   scene.addNewObjectFromJSON(repetition.toJSON());
   const objects: THREE.Group = await scene.getObjectsAsync();
@@ -463,15 +463,15 @@ test('Scene - addExistingRepetition', async () => {
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(RepetitionObject);
 });
 
-test('Scene - repetitionToGroup', async () => {
+test("Scene - repetitionToGroup", async () => {
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition = new RepetitionObject(repParams, cube);
   const scene: Scene = new Scene();
@@ -486,7 +486,7 @@ test('Scene - repetitionToGroup', async () => {
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(ObjectsGroup);
 });
 
-test('Scene - unGroup', async () => {
+test("Scene - unGroup", async () => {
   const cube1 = new Cube({ width: 10, height: 10, depth: 10 });
   const cube2 = new Cube({ width: 20, height: 20, depth: 20 });
   const cube3 = new Cube({ width: 20, height: 20, depth: 20 });
@@ -506,15 +506,15 @@ test('Scene - unGroup', async () => {
   expect((scene as any).objectsInScene[0]).toBe(cube1);
 });
 
-test('Scene - undoRepetition', async () => {
+test("Scene - undoRepetition", async () => {
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
 
   const repParams: ICartesianRepetitionParams = {
-    type: 'cartesian',
+    type: "cartesian",
     num: 3,
     x: 10,
     y: 10,
-    z: 10,
+    z: 10
   };
   const repetition = new RepetitionObject(repParams, cube);
   const scene: Scene = new Scene();
@@ -530,7 +530,7 @@ test('Scene - undoRepetition', async () => {
   expect((scene as any).objectsInScene[0]).toBeInstanceOf(Cube);
 });
 
-test('Scene - getGeometries', async () => {
+test("Scene - getGeometries", async () => {
   const cube = new Cube({ width: 10, height: 10, depth: 10 });
   const mesh = (await cube.getMeshAsync()) as THREE.Mesh;
   const vertices = [10, 20, 30];

@@ -5,7 +5,12 @@
     "tslint-config-prettier"
   ],
   "linterOptions": {
-    "exclude": ["node_modules/**/*", "coverage/**/*"]
+    "exclude": [
+      "node_modules/**/*",
+      "src/threeCSG.ts",
+      "coverage/**/*",
+      "src/Renderer.ts"
+    ]
   },
   "rules": {
     "no-console": false,
@@ -13,7 +18,8 @@
     "no-debugger": false,
     "ter-arrow-parens": false,
     "import-name": false,
-    "variable-name": [true, "check-format", "allow-leading-underscore"],
+    "variable-name": [true, "check-format", "allow-leading-underscore", "allow-pascal-case"],
+    "interface-name": [false],
     "prefer-array-literal": [true, { "allow-type-parameters": true }],
     "ordered-imports": [false]
   }

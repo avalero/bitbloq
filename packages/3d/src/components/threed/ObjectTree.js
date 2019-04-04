@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { shadow } from "../../base-styles";
 import { DropDown, Icon, withTranslate } from "@bitbloq/ui";
 import {
   selectObject,

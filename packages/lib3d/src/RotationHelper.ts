@@ -13,7 +13,7 @@
  * Last modified  : 2018-12-16 19:55:16
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
 export default class RotationHelper {
   private helperMesh: THREE.Group;
@@ -30,12 +30,12 @@ export default class RotationHelper {
     const toroidArc: number = 2 * Math.PI;
     const toroidInnerRadius: number = 0.7;
 
-    if (axis === 'x') {
+    if (axis === "x") {
       color = 0xff0000;
       toroidRadius =
         Math.max(boundingBoxDims.y, boundingBoxDims.z) / 2 + separation;
       length = Math.max(boundingBoxDims.y, boundingBoxDims.z) + extraLength;
-    } else if (axis === 'y') {
+    } else if (axis === "y") {
       color = 0x00ff00;
       toroidRadius =
         Math.max(boundingBoxDims.x, boundingBoxDims.z) / 2 + separation;
@@ -55,7 +55,7 @@ export default class RotationHelper {
       toroidInnerRadius,
       6,
       toroidRadius * 2, // lets make number of segments equal to radius * factor
-      toroidArc,
+      toroidArc
     );
 
     toroidGeometry.rotateY(Math.PI / 2);
@@ -64,7 +64,7 @@ export default class RotationHelper {
       color,
       opacity: 0.5,
       transparent: true,
-      depthWrite: false,
+      depthWrite: false
     });
 
     this.helperMesh = new THREE.Group();
@@ -77,10 +77,10 @@ export default class RotationHelper {
       this.helperMesh.setRotationFromEuler(mesh.rotation);
     }
 
-    if (axis === 'y') {
+    if (axis === "y") {
       this.helperMesh.rotateZ(Math.PI / 2);
     }
-    if (axis === 'z') {
+    if (axis === "z") {
       this.helperMesh.rotateY(-Math.PI / 2);
       this.helperMesh.rotateX(Math.PI / 2);
     }

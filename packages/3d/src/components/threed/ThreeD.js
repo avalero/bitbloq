@@ -126,7 +126,7 @@ class ThreeD extends React.Component {
 
     const baseShapeGroups = config.addShapeGroups;
 
-    const mainTab = (
+    const mainTabs = [
       <Document.Tab key="3d" icon={<Icon name="threed" />} label={t('tab-3d')}>
         <Container>
           <ObjectTree
@@ -141,7 +141,7 @@ class ThreeD extends React.Component {
           <PropertiesPanel />
         </Container>
       </Document.Tab>
-    );
+    ];
 
     const baseMenuOptions = getBaseMenuOptions(this.props, t);
 
@@ -158,7 +158,7 @@ class ThreeD extends React.Component {
         }
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
-        {typeof children === 'function' ? children(mainTab) : mainTab}
+        {typeof children === 'function' ? children(mainTabs) : mainTabs}
       </Document>
     );
   }
