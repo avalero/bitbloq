@@ -133,6 +133,10 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     `;
   };
 
+  const compatibleComponents = selectedPort
+    ? components.filter(c => isCompatiblePort(selectedPort, c))
+    : [];
+
   return (
     <Container>
       <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
@@ -156,7 +160,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
       <AddComponentPanel
         isOpen={selectedPortIndex >= 0 && !selectedComponentInstance}
         board={board}
-        components={components}
+        components={compatibleComponents}
         onComponentSelected={component => {
           onHardwareChange(
             update(hardware, {
@@ -204,7 +208,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
 };
 
 const isCompatiblePort = (port: IPort, component: IComponent) => {
-  return component.connectors.some(connector =>
+  return component.connectors && component.connectors.some(connector =>
     port.connectorTypes.includes(connector.type)
   );
 };
