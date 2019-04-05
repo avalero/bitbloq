@@ -1,7 +1,7 @@
 import React from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { colors, Icon, Input, Select, useTranslate } from "@bitbloq/ui";
+import { colors, Icon, Input, NumberInput, Select, useTranslate } from "@bitbloq/ui";
 import { useSpring, animated } from "react-spring";
 import HorizontalBloq from "./HorizontalBloq";
 import SelectComponent from "./SelectComponent";
@@ -66,6 +66,36 @@ const BloqPropertiesPanel: React.FunctionComponent<
           <StyledSelectComponent
             value={bloq.parameters[param.name]}
             components={getComponents(bloqType.components || [])}
+            onChange={(value: any) =>
+              onUpdateBloq(
+                update(bloq, { parameters: { [param.name]: { $set: value } } })
+              )
+            }
+          />
+        </FormGroup>
+      );
+    }
+    if (param.type === "text") {
+      return (
+        <FormGroup key={param.name}>
+          <label>{t(param.label)}</label>
+          <Input
+            value={bloq.parameters[param.name]}
+            onChange={(value: any) =>
+              onUpdateBloq(
+                update(bloq, { parameters: { [param.name]: { $set: value } } })
+              )
+            }
+          />
+        </FormGroup>
+      );
+    }
+    if (param.type === "number") {
+      return (
+        <FormGroup key={param.name}>
+          <label>{t(param.label)}</label>
+          <NumberInput
+            value={bloq.parameters[param.name]}
             onChange={(value: any) =>
               onUpdateBloq(
                 update(bloq, { parameters: { [param.name]: { $set: value } } })

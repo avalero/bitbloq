@@ -64,6 +64,7 @@ const Content = styled.div`
   align-items: center;
   width: 100%;
   padding-top: 20px;
+  overflow-y: auto;
 `;
 
 interface IComponentProps {

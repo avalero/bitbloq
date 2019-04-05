@@ -102,6 +102,7 @@ const Title = styled.div<TitleProps>`
 const Main = styled.div`
   flex: 1;
   display: flex;
+  overflow: hidden;
 `;
 
 const MenuWrap = styled.div`

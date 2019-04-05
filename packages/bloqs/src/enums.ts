@@ -18,5 +18,6 @@ export enum BloqCategory {
 export enum BloqParameterType {
   Select = "select",
   SelectComponent = "selectComponent",
-  Number = "number"
+  Number = "number",
+  Text = "text"
 }
