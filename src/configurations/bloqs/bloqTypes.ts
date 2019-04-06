@@ -16,17 +16,18 @@ import doubleLedOffOffIcon from "../../images/bloqs/double-led-off-off.svg";
 import sevenSegmentsIcon from "../../images/bloqs/7segments.svg";
 import obstacleIcon from "../../images/bloqs/obstacle.svg";
 import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
+import { IBloqType, BloqCategory, BloqParameterType } from "./types";
 
-export const bloqTypes = [
+export const bloqTypes: Array< Partial <IBloqType> > = [
   {
-    category: "event",
+    category: BloqCategory.Event,
     name: "OnStart",
     label: "bloq-on-start",
     icon: flagIcon,
     code: {}
   },
   {
-    category: "event",
+    category: BloqCategory.Event,
     name: "OnSwitchOnOff",
     components: ["DoubleSwitch"],
     iconSwitch: {
@@ -39,12 +40,12 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-component",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
       {
         name: "switch",
         label: "bloq-parameter-switch",
-        type: "select",
+        type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-switch-1",
@@ -59,7 +60,7 @@ export const bloqTypes = [
       {
         name: "switchValue",
         label: "bloq-parameter-switch-value",
-        type: "select",
+        type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-on",
@@ -75,7 +76,7 @@ export const bloqTypes = [
     code: {}
   },
   {
-    category: "event",
+    category: BloqCategory.Event,
     name: "OnButtonPress",
     label: "bloq-on-button-pressed",
     components: ["Button"],
@@ -87,12 +88,12 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-button",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
       {
         name: "action",
         label: "bloq-parameter-action",
-        type: "select",
+        type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-press",
@@ -108,7 +109,7 @@ export const bloqTypes = [
     code: {}
   },
   {
-    category: "event",
+    category: BloqCategory.Event,
     name: "OnSevenSegmentValue",
     label: "bloq-on-seven-segment",
     icon: sevenSegmentsIcon,
@@ -117,17 +118,17 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-seven-segment",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
       {
         name: "digit1",
         label: "bloq-parameter-digit1",
-        type: "text"
+        type: BloqParameterType.Text
       }
     ]
   },
   {
-    category: "event",
+    category: BloqCategory.Event,
     name: "OnObstacle",
     label: "bloq-on-obstacle",
     icon: obstacleIcon,
@@ -136,12 +137,12 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-sensors",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
     ]
   },
   {
-    category: "event",
+    category: BloqCategory.Event,
     name: "OnNoObstacle",
     label: "bloq-on-no-obstacle",
     icon: noObstacleIcon,
@@ -150,12 +151,12 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-sensors",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
     ]
   },
   {
-    category: "action",
+    category: BloqCategory.Action,
     name: "DoubleLedOnOff",
     components: ["DoubleLed"],
     iconSwitch: {
@@ -168,12 +169,12 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-component",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
       {
         name: "led1",
         label: "bloq-parameter-led-1",
-        type: "select",
+        type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-on",
@@ -188,7 +189,7 @@ export const bloqTypes = [
       {
         name: "led2",
         label: "bloq-parameter-led-2",
-        type: "select",
+        type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-on",
@@ -204,7 +205,7 @@ export const bloqTypes = [
     code: {}
   },
   {
-    category: "action",
+    category: BloqCategory.Action,
     name: "SetSevenSegmentValue",
     label: "bloq-set-sevent-segment",
     components: ["SevenSegment"],
@@ -213,24 +214,24 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-component",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
     ]
   },
   {
-    category: "wait",
+    category: BloqCategory.Wait,
     name: "Wait1Second",
     icon: time1Icon,
     code: {}
   },
   {
-    category: "wait",
+    category: BloqCategory.Wait,
     name: "Wait5Seconds",
     icon: time5Icon,
     code: {}
   },
   {
-    category: "wait",
+    category: BloqCategory.Wait,
     name: "WaitObstacle",
     label: "bloq-wait-obstacle",
     icon: obstacleIcon,
@@ -239,12 +240,12 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-sensors",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
     ]
   },
   {
-    category: "wait",
+    category: BloqCategory.Wait,
     name: "WaitNoObstacle",
     label: "bloq-wait-no-obstacle",
     icon: noObstacleIcon,
@@ -253,7 +254,7 @@ export const bloqTypes = [
       {
         name: "component",
         label: "bloq-parameter-sensors",
-        type: "selectComponent"
+        type: BloqParameterType.SelectComponent
       },
     ]
   },
