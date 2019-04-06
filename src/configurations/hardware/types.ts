@@ -14,7 +14,7 @@ export interface IPortPin {
 export type ConnectorType = string;
 
 export interface IConnectorPosition {
-  x:number;
+  x: number;
   y: number;
 }
 
@@ -29,7 +29,7 @@ export interface IPort {
   name: string;
   position: IConnectorPosition;
   connectorTypes: string[];
-  pins: IPortPin[]; 
+  pins: IPortPin[];
   placeholderPosition: IConnectorPosition;
   direction: IPortDirection;
 }
@@ -42,14 +42,14 @@ export interface IComponentImage {
 
 export interface IBoard {
   name: string;
-  code: IArduinoCode
+  code: IArduinoCode;
   image: IComponentImage;
   ports: IPort[];
 }
 
 export enum ConnectorPinMode {
-  INPUT = 'INPUT',
-  OUTPUT = 'OUTPUT',
+  INPUT = "INPUT",
+  OUTPUT = "OUTPUT"
 }
 
 export interface IConnectorPin {
@@ -57,7 +57,6 @@ export interface IConnectorPin {
   mode: ConnectorPinMode;
   portPin: string;
 }
-
 
 export interface IConnector {
   name: string;
@@ -79,7 +78,7 @@ export interface IComponent {
   extends: string;
   code: IArduinoCode;
   actions: IComponentAction[];
-  connectors:IConnector[];
+  connectors: IConnector[];
   image: IComponentImage;
   onValue?: string;
   offValue?: string;
