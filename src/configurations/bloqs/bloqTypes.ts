@@ -158,7 +158,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Action,
     name: "DoubleLedOnOff",
-    components: ["DoubleLed"],
+    components: ["ZumjuniorDoubleLed"],
     iconSwitch: {
       "led1 and led2": doubleLedOnOnIcon,
       "not led1 and led2": doubleLedOffOnIcon,
