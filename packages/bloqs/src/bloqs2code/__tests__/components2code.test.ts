@@ -48,10 +48,10 @@ test('components2code - ZUMJuniorButton', () => {
   ]);
 });
 
-test('components2code - ZUMJuniorLed', () => {
+test('components2code - ZUMJuniorDoubleLed', () => {
   const hardware: IHardware = {
     board: 'zumjunior',
-    components: [{ component: 'ZumjuniorLed', name: 'LED', port: 'A' }],
+    components: [{ component: 'ZumjuniorDoubleLed', name: 'LED', port: 'A' }],
   };
 
   const includes: string[] = [];

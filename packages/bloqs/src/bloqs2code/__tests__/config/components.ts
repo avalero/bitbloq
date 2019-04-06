@@ -98,7 +98,7 @@ export const components: Array<Partial<IComponent>> = [
     extends: 'Led',
   },
   {
-    name: 'ZumjuniorLed',
+    name: 'ZumjuniorDoubleLed',
     extends: 'DoubleLed',
     onValue: 'LOW',
     offValue: 'HIGH',
