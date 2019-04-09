@@ -66,6 +66,7 @@ const bloqs2code = (
   const nunjucksData = { ...arduinoCode, date: getDate() };
   const code: string = nunjucks.renderString(arduinocodetemplate, nunjucksData);
 
+  console.info(code);
   return code;
 };
 
