@@ -7,7 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { IBoard, IHardware, IArduinoCode } from '../index';
+import { IBoard, IHardware, IArduinoCode } from "../index";
 
 export const getBoardDefinition = (
   boards: IBoard[],

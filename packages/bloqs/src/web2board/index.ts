@@ -30,7 +30,7 @@ export default class Web2Board {
         resolve();
       } else {
         this.ws.addEventListener("open", () => resolve());
-        this.ws.addEventListener("close", (e) => {
+        this.ws.addEventListener("close", e => {
           this.ws = null;
           const error = new Error();
           error.name = "ConnectionError";
@@ -57,7 +57,10 @@ export default class Web2Board {
     });
   }
 
-  public async sendCommand(fn: string, args: string[] = []): Promise<IWeb2BoardResponse> {
+  public async sendCommand(
+    fn: string,
+    args: string[] = []
+  ): Promise<IWeb2BoardResponse> {
     await this.waitUntilOpened();
     this.commandId += 1;
     const id = this.commandId;

@@ -1,17 +1,17 @@
-import React from 'react';
-import update from 'immutability-helper';
-import styled from '@emotion/styled';
+import React from "react";
+import update from "immutability-helper";
+import styled from "@emotion/styled";
 import {
   colors,
   Icon,
   Input,
   NumberInput,
   Select,
-  useTranslate,
-} from '@bitbloq/ui';
-import { useSpring, animated } from 'react-spring';
-import HorizontalBloq from './HorizontalBloq';
-import SelectComponent from './SelectComponent';
+  useTranslate
+} from "@bitbloq/ui";
+import { useSpring, animated } from "react-spring";
+import HorizontalBloq from "./HorizontalBloq";
+import SelectComponent from "./SelectComponent";
 
 import {
   IBloq,
@@ -21,8 +21,8 @@ import {
   IBloqSelectComponentParameter,
   IComponentInstance,
   isBloqSelectParameter,
-  isBloqSelectComponentParameter,
-} from '../index';
+  isBloqSelectComponentParameter
+} from "../index";
 
 interface IBloqPropertiesPanelProps {
   isOpen: boolean;
@@ -39,7 +39,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
   const wrapStyle = useSpring({
     width: isOpen ? 300 : 0,
     from: { width: 0 },
-    config: { tension: 600, friction: 40 },
+    config: { tension: 600, friction: 40 }
   });
 
   const t = useTranslate();
@@ -82,7 +82,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
         </FormGroup>
       );
     }
-    if (param.type === 'text') {
+    if (param.type === "text") {
       return (
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
@@ -97,7 +97,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
         </FormGroup>
       );
     }
-    if (param.type === 'number') {
+    if (param.type === "number") {
       return (
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
