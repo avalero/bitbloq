@@ -130,11 +130,19 @@
   "bloq-parameter-switch-1": "Switch 1",
   "bloq-parameter-switch-2": "Switch 2",
   "bloq-parameter-switch-value": "Value",
+  "bloq-parameter-sensors": "Component",
   "bloq-on-start": "On start",
   "bloq-on-button-pressed": "On button pressed",
   "bloq-button-instance-name": "button",
   "bloq-led-instance-name": "led",
   "bloq-switch-instance-name": "switch",
+  "bloq-seven-segment-instance-name": "sevenSegment",
+  "bloq-sensors-instance-name": "sensors",
+  "bloq-servo-instance-name": "servo",
+  "bloq-miniservo-instance-name": "miniservo",
   "bloq-component-name": "Name",
-  "bloq-component-port": "Port"
+  "bloq-component-port": "Port",
+  "bloq-on-seven-segment": "On change display",
+  "bloq-parameter-seven-segment": "Display",
+  "bloq-parameter-digit1": "Digit 1"
 }
