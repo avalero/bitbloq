@@ -45,25 +45,24 @@ export const components: Partial<IComponent>[] = [
     ]
   },
   {
-    name: "DigitalOutput",
-    extends: "Digital",
-    onValue: "HIGH",
-    offValue: "LOW",
+    name: 'DigitalOutput',
+    extends: 'Digital',
+    onValue: 'HIGH',
+    offValue: 'LOW',
     code: {
       setup: [
         `{% for pin in pinsInfo %}
         pinMode({{pin.pinVarName}},OUTPUT);
-        {% endfor %}`
-      ]
+        {% endfor %}`,
+      ],
     },
     actions: [
       {
-        name: "write",
-        parameters: ["pin", "value"],
-        code: "digitalWrite({{pin}}, {{value}})",
-        returns: "uint8_t"
-      }
-    ]
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: `digitalWrite({{pinVarName}}, {{value}})`,
+      },
+    ],
   },
   {
     name: "Button",

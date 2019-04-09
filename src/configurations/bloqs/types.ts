@@ -47,6 +47,11 @@ export type IBloqParameter =
   | IBloqSelectParameter
   | IBloqSelectComponentParameter;
 
+export interface IBloqAction {
+  name: string;
+   parameters: { [name: string]: string };
+}
+
 export interface IBloqType {
   category: BloqCategory;
   name: string;
@@ -57,6 +62,7 @@ export interface IBloqType {
   code: IBloqCode;
   parameters: IBloqParameter[];
   components?: string[];
+  actions: IBloqAction[];
 }
 
 export interface IBloq {
