@@ -18,6 +18,7 @@ import Modal from "./components/Modal";
 import Spinner from "./components/Spinner";
 import ScrollableTabs from "./components/ScrollableTabs";
 import FileSelectButton from "./components/FileSelectButton";
+import LoadingBarOverlay from "./components/LoadingBarOverlay";
 import TranslateProvider, {
   Translate,
   withTranslate,
@@ -57,6 +58,7 @@ export {
   Option,
   TranslateProvider,
   FileSelectButton,
+  LoadingBarOverlay,
   Translate,
   Modal,
   Spinner,
