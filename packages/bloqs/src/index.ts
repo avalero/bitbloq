@@ -10,9 +10,16 @@
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
 import HardwareDesigner from "./hardware/HardwareDesigner";
 import bloqs2code from "./bloqs2code/bloqs2code";
+import Web2Board from "./web2board";
 import { BloqCategory, BloqParameterType } from "./enums";
 
-export { HorizontalBloqEditor, HardwareDesigner, bloqs2code, BloqCategory };
+export {
+  HorizontalBloqEditor,
+  HardwareDesigner,
+  bloqs2code,
+  BloqCategory,
+  Web2Board
+};
 
 export interface IBloqCode {
   declaration?: string;
