@@ -16,10 +16,12 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
+  IArduinoCode,
 } from '../index';
 import { getFullComponentDefinition } from './componentBuilder';
 import { pinsForComponent } from './components2code';
 import nunjucks from 'nunjucks';
+import { BloqCategory } from '../enums';
 
 type ActionsArray = Array<{
   parameters: { [name: string]: string };
@@ -159,17 +161,63 @@ export const actions2code = (actions: ActionsArray): string[] => {
     code.push(c);
   });
 
-  console.info(code);
+  return code;
+};
+
+export const bloq2code = (
+  bloqInstance: IBloq,
+  hardware: IHardware,
+  bloqTypes: Array<Partial<IBloqType>>,
+  componentsDefinition: Array<Partial<IComponent>>
+): string[] => {
+  const bloqDefinition: Partial<IBloqType> = getBloqDefinition(
+    bloqTypes,
+    bloqInstance
+  );
+  const componentDefintion: Partial<IComponent> = getComponentForBloq(
+    bloqInstance,
+    hardware,
+    componentsDefinition
+  );
+  const actions: ActionsArray = getActions(
+    bloqInstance,
+    bloqDefinition,
+    componentDefintion
+  );
+  const code: string[] = actions2code(actions);
+
   return code;
 };
 
 const program2code = (
-  components: IComponent[],
-  bloqTypes: IBloqType[],
+  components: Array<Partial<IComponent>>,
+  bloqTypes: Array<Partial<IBloqType>>,
   hardware: IHardware,
-  program: IBloq[][]
-) => {
-  return;
+  program: IBloq[][],
+  arduinoCode: IArduinoCode
+): IArduinoCode => {
+  if (!arduinoCode.loop) arduinoCode.loop = [];
+
+  program.forEach(timeline => {
+    timeline.forEach(bloqInstance => {
+      const bloqDefinition: Partial<IBloqType> = getBloqDefinition(
+        bloqTypes,
+        bloqInstance
+      );
+      // MANAGE ACTIONS BLOQS
+      if (bloqDefinition.category === BloqCategory.Action) {
+        const code: string[] = bloq2code(
+          bloqInstance,
+          hardware,
+          bloqTypes,
+          components
+        );
+        arduinoCode.loop!.push(...code);
+      }
+    });
+  });
+
+  return arduinoCode;
 };
 
 export default program2code;

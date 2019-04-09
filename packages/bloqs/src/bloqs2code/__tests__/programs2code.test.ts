@@ -5,8 +5,9 @@ import {
   IComponent,
   ConnectorPinMode,
   IComponentInstance,
+  IArduinoCode,
 } from '../../index';
-import {
+import program2code, {
   getBloqDefinition,
   getComponentForBloq,
   getActions,
@@ -232,5 +233,51 @@ test('actions2code', () => {
   expect(code).toEqual([
     'digitalWrite(ledWhitePin, true)',
     'digitalWrite(ledColorPin, true)',
+  ]);
+});
+
+test('program2code', () => {
+  const bloqInstance1: IBloq = {
+    parameters: { component: 'led1', led1: true, led2: true },
+    type: 'DoubleLedOnOff',
+  };
+
+  const bloqInstance2: IBloq = {
+    parameters: { component: 'led2', led1: false, led2: true },
+    type: 'DoubleLedOnOff',
+  };
+
+  const hardware: IHardware = {
+    board: 'zumjunior',
+    components: [
+      { component: 'ZumjuniorDoubleLed', name: 'led1', port: '1' },
+      { component: 'ZumjuniorDoubleLed', name: 'led2', port: '2' },
+    ],
+  };
+
+  const program: IBloq[][] = [[]];
+  program.push([bloqInstance1, bloqInstance2]);
+
+  const includes: string[] = [];
+  const globals: string[] = [];
+  const setup: string[] = [];
+  const loop: string[] = [];
+  const definitions: string[] = [];
+
+  const arduinoCode: IArduinoCode = {
+    includes,
+    globals,
+    setup,
+    loop,
+    definitions,
+  };
+
+  program2code(components, bloqTypes, hardware, program, arduinoCode);
+
+  expect(arduinoCode.loop).toEqual([
+    'digitalWrite(led1WhitePin, true)',
+    'digitalWrite(led1ColorPin, true)',
+    'digitalWrite(led2WhitePin, false)',
+    'digitalWrite(led2ColorPin, true)',
   ]);
 });
