@@ -21,6 +21,7 @@ import arduinocodetemplate from './arduinocodetemplate';
 import board2code, { getBoardDefinition } from './board2code';
 import { getFullComponentDefinition } from './componentBuilder';
 import components2code from './components2code';
+import program2code from './program2code';
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -57,6 +58,7 @@ const bloqs2code = (
     board2code(boards, hardware, arduinoCode);
     const board: IBoard = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
+    program2code(components, bloqTypes, hardware, program, arduinoCode);
   } catch (e) {
     throw e;
   }
