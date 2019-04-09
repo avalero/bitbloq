@@ -7,7 +7,7 @@ import { DocumentModel, IDocument } from '../models/document';
 import { ExerciseModel } from '../models/exercise';
 import { FolderModel } from '../models/folder';
 import { SubmissionModel } from '../models/submission';
-import { UploadModel, IUpload } from '../models/upload';
+import { IUpload, UploadModel } from '../models/upload';
 import { UserModel } from '../models/user';
 
 import { logger, loggerController } from '../controllers/logs';
@@ -61,7 +61,14 @@ const documentResolver = {
         { $push: { documentsID: newDocument._id } },
         { new: true },
       );
-      loggerController.storeInfoLog('API','document', 'create', args.input.type, documentNew.user, '');
+      loggerController.storeInfoLog(
+        'API',
+        'document',
+        'create',
+        args.input.type,
+        documentNew.user,
+        '',
+      );
       if (args.input.image) {
         const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
           args.input.image,
@@ -92,7 +99,14 @@ const documentResolver = {
         user: context.user.userID,
       });
       if (existDocument) {
-        loggerController.storeInfoLog('API','document', 'delete', existDocument.type, existDocument.user, '');
+        loggerController.storeInfoLog(
+          'API',
+          'document',
+          'delete',
+          existDocument.type,
+          existDocument.user,
+          '',
+        );
         await FolderModel.updateOne(
           { _id: existDocument.folder }, // modifico los documentsID de la carpeta
           { $pull: { documentsID: existDocument._id } },
@@ -161,7 +175,14 @@ const documentResolver = {
           },
           { new: true },
         );
-        loggerController.storeInfoLog('API','document', 'update', existDocument.type,  existDocument.user, '');
+        loggerController.storeInfoLog(
+          'API',
+          'document',
+          'update',
+          existDocument.type,
+          existDocument.user,
+          '',
+        );
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
         return updatedDoc;
       } else {

@@ -1,7 +1,7 @@
 import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
 import { logger, loggerController } from '../controllers/logs';
 import { ExerciseModel, IExercise } from '../models/exercise';
-import { SubmissionModel, ISubmission } from '../models/submission';
+import { ISubmission, SubmissionModel } from '../models/submission';
 import { pubsub, redisClient } from '../server';
 
 const jsonwebtoken = require('jsonwebtoken');
@@ -87,8 +87,17 @@ const submissionResolver = {
             { $set: { submissionToken: token } },
             { new: true },
           );
-          loggerController.storeInfoLog('API','submission', 'login', existSubmission.type, existSubmission.user, '');
-          pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: existSubmission });
+          loggerController.storeInfoLog(
+            'API',
+            'submission',
+            'login',
+            existSubmission.type,
+            existSubmission.user,
+            '',
+          );
+          pubsub.publish(SUBMISSION_UPDATED, {
+            submissionUpdated: existSubmission,
+          });
           await redisClient.set(
             String('subToken-' + existSubmission._id),
             token,
@@ -144,7 +153,14 @@ const submissionResolver = {
           { $set: { submissionToken: token } },
           { new: true },
         );
-        loggerController.storeInfoLog('API','submission', 'create', newSub.type, newSub.user, '');
+        loggerController.storeInfoLog(
+          'API',
+          'submission',
+          'create',
+          newSub.type,
+          newSub.user,
+          '',
+        );
         await redisClient.set(
           String('subToken-' + newSub._id),
           token,
@@ -198,7 +214,14 @@ const submissionResolver = {
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission,
         });
-        loggerController.storeInfoLog('API','submission', 'update', existSubmission.type, existSubmission.user, '');
+        loggerController.storeInfoLog(
+          'API',
+          'submission',
+          'update',
+          existSubmission.type,
+          existSubmission.user,
+          '',
+        );
         return updatedSubmission;
       }
     },
@@ -252,7 +275,14 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_UPDATED, {
         submissionUpdated: updatedSubmission,
       });
-      loggerController.storeInfoLog('API','submission', 'finish', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog(
+        'API',
+        'submission',
+        'finish',
+        existSubmission.type,
+        existSubmission.user,
+        '',
+      );
       return updatedSubmission;
     },
 
@@ -273,7 +303,14 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      loggerController.storeInfoLog('API','submission', 'cancel', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog(
+        'API',
+        'submission',
+        'cancel',
+        existSubmission.type,
+        existSubmission.user,
+        '',
+      );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -294,7 +331,14 @@ const submissionResolver = {
           'SUBMISSION_NOT_FOUND',
         );
       }
-      loggerController.storeInfoLog('API','submission', 'delete', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog(
+        'API',
+        'submission',
+        'delete',
+        existSubmission.type,
+        existSubmission.user,
+        '',
+      );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -333,7 +377,14 @@ const submissionResolver = {
         },
         { new: true },
       );
-      loggerController.storeInfoLog('API','submission', 'grade', existSubmission.type, existSubmission.user, '');
+      loggerController.storeInfoLog(
+        'API',
+        'submission',
+        'grade',
+        existSubmission.type,
+        existSubmission.user,
+        '',
+      );
       return updatedSubmission;
     },
   },

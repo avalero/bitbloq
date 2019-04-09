@@ -13,10 +13,10 @@ enum Role {
 
 
 type Mutation {
-  storeFrontLog(input: FolderIn): String                 @authRequired(requires: [USER])
+  storeFrontLog(input: LogIn): String                 @authRequired(requires: [USER])
 }
 
-input FolderIn {
+input LogIn {
   modelType: String
   docType: String
   others: String

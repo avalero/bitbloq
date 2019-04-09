@@ -90,7 +90,14 @@ const userResolver = {
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true },
       );
-      loggerController.storeInfoLog('API','space', 'signUp', 'user', newUser._id, '');
+      loggerController.storeInfoLog(
+        'API',
+        'space',
+        'signUp',
+        'user',
+        newUser._id,
+        '',
+      );
       return 'OK';
     },
 
@@ -130,7 +137,14 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token } },
         );
-        loggerController.storeInfoLog('API','space', 'login', 'user', contactFound._id, '');
+        loggerController.storeInfoLog(
+          'API',
+          'space',
+          'login',
+          'user',
+          contactFound._id,
+          '',
+        );
         await redisClient.set(
           String('authToken-' + contactFound._id),
           token,
@@ -283,7 +297,14 @@ const userResolver = {
             },
           },
         );
-        loggerController.storeInfoLog('API','space', 'activate', 'user', contactFound._id, '');
+        loggerController.storeInfoLog(
+          'API',
+          'space',
+          'activate',
+          'user',
+          contactFound._id,
+          '',
+        );
         await redisClient.set(
           String('authToken-' + contactFound._id),
           token,
@@ -316,9 +337,16 @@ const userResolver = {
         email: context.user.email,
         _id: context.user.userID,
       });
-      if (contactFound._id === args.id) {
-        logger.info("USER_delete");
-        loggerController.storeInfoLog('API','space', 'delete', 'user', contactFound._id, '');
+      if (String(contactFound._id) === args.id) {
+        logger.info('USER_delete');
+        loggerController.storeInfoLog(
+          'API',
+          'space',
+          'delete',
+          'user',
+          contactFound._id,
+          '',
+        );
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -341,10 +369,21 @@ const userResolver = {
         email: context.user.email,
         _id: context.user.userID,
       });
-      if (contactFound._id === args.id) {
-        loggerController.storeInfoLog('API','space', 'update', 'user', contactFound._id, args);
+      if (String(contactFound._id) === args.id) {
+        loggerController.storeInfoLog(
+          'API',
+          'space',
+          'update',
+          'user',
+          contactFound._id,
+          args,
+        );
         const data: IUser = args.input;
-        return UserModel.updateOne({ _id: contactFound._id }, { $set: data });
+        return await UserModel.findOneAndUpdate(
+          { _id: contactFound._id },
+          { $set: data },
+          { new: true },
+        );
       } else {
         return new ApolloError('User does not exist', 'USER_NOT_FOUND');
       }
