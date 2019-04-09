@@ -13,8 +13,18 @@ import {
   IComponent,
   IHardware,
   IComponentInstance,
+  IBoard,
+  IBloqAction,
+  IComponentAction,
 } from '../index';
 import { getFullComponentDefinition } from './componentBuilder';
+import { pinsForComponent } from './components2code';
+import nunjucks from 'nunjucks';
+
+type ActionsArray = Array<{
+  parameters: { [name: string]: string };
+  definition: IComponentAction;
+}>;
 
 /**
  * Returns the bloq definition to which a bloq refers
@@ -68,9 +78,98 @@ export const getComponentForBloq = (
   return component;
 };
 
-const bloqCode = (
+export const getActions = (
   bloqInstance: IBloq,
   bloqDefinition: Partial<IBloqType>,
-  componentDefintion: Partial<IComponent>,
-  hardware: IHardware
-): void => {};
+  componentDefinition: Partial<IComponent>
+): ActionsArray => {
+  if (!bloqDefinition.actions) {
+    throw new Error(`${bloqDefinition.name} has no defined action`);
+  }
+
+  if (!bloqDefinition.actions) {
+    throw new Error(`${bloqDefinition.name} has no actions`);
+  }
+
+  const actionsNames: string[] = bloqDefinition.actions.map(
+    action => action.name
+  );
+
+  const actionsDefinitions: IComponentAction[] = actionsNames.map(
+    actionName => {
+      const actionDef = componentDefinition.actions!.find(
+        action => action.name === actionName
+      );
+
+      if (!actionDef) {
+        throw new Error(
+          `Action ${actionName} not defined in ${componentDefinition.name}`
+        );
+      }
+
+      return actionDef;
+    }
+  );
+
+  const actionsParameters: Array<{ [name: string]: string }> = [];
+
+  actionsDefinitions.forEach((action, index) => {
+    const obj: { [name: string]: string } = {};
+    action.parameters.forEach(parameter => {
+      const codeTemplate = bloqDefinition.actions![index].parameters[parameter];
+      const nunjucksData = bloqInstance.parameters;
+      const value: string = nunjucks.renderString(codeTemplate, nunjucksData);
+      obj[parameter] = value;
+    });
+    actionsParameters.push(obj);
+  });
+
+  const actions: Array<{
+    parameters: { [name: string]: string };
+    definition: IComponentAction;
+  }> = [];
+
+  if (actionsParameters.length !== actionsDefinitions.length) {
+    throw new Error(
+      'Unexpected different sizes of actionParameters and actionDefinitions'
+    );
+  }
+
+  actionsParameters.forEach((parameters, index) => {
+    const obj: {
+      parameters: { [name: string]: string };
+      definition: IComponentAction;
+    } = {
+      parameters: { ...parameters },
+      definition: { ...actionsDefinitions[index] },
+    };
+    actions.push(obj);
+  });
+
+  return actions;
+};
+
+export const actions2code = (actions: ActionsArray): string[] => {
+  const code: string[] = [];
+  actions.forEach(action => {
+    const nunjucksData = action.parameters;
+    const codeTemplate = action.definition.code;
+
+    const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
+    code.push(c);
+  });
+
+  console.info(code);
+  return code;
+};
+
+const program2code = (
+  components: IComponent[],
+  bloqTypes: IBloqType[],
+  hardware: IHardware,
+  program: IBloq[][]
+) => {
+  return;
+};
+
+export default program2code;

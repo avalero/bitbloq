@@ -7,16 +7,16 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import board2code, { getBoard } from "../board2code";
-import { IHardware, IArduinoCode } from "../..";
-import { boards } from "./config/boards";
+import board2code, { getBoardDefinition } from '../board2code';
+import { IHardware, IArduinoCode } from '../..';
+import { boards } from './config/boards';
 
 const hardware: IHardware = {
-  board: "zumjunior",
-  components: []
+  board: 'zumjunior',
+  components: [],
 };
 
-test("board2code", () => {
+test('board2code', () => {
   const includes: string[] = [];
   const globals: string[] = [];
   const setup: string[] = [];
@@ -28,7 +28,7 @@ test("board2code", () => {
     globals,
     setup,
     loop,
-    definitions
+    definitions,
   };
 
   try {
@@ -37,7 +37,7 @@ test("board2code", () => {
     throw e;
   }
 
-  const board = getBoard(boards, hardware);
+  const board = getBoardDefinition(boards, hardware);
 
   expect(arduinoCode.includes).toEqual(board.code.includes);
   expect(arduinoCode.globals).toEqual(board.code.globals);

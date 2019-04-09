@@ -4,11 +4,19 @@ import {
   IHardware,
   IComponent,
   ConnectorPinMode,
+  IComponentInstance,
 } from '../../index';
-import { getBloqDefinition, getComponentForBloq } from '../program2code';
+import {
+  getBloqDefinition,
+  getComponentForBloq,
+  getActions,
+  actions2code,
+} from '../program2code';
 import { bloqTypes } from './config/bloqTypes';
 import { components } from './config/components';
+
 import { BloqCategory, BloqParameterType } from '../../enums';
+import { getFullComponentDefinition } from '../componentBuilder';
 
 test('getBloqDefinition', () => {
   const bloqInstance: IBloq = {
@@ -58,6 +66,22 @@ test('getBloqDefinition', () => {
       },
     ],
     code: {},
+    actions: [
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}WhitePin',
+          value: '{{led1}}',
+        },
+      },
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}ColorPin',
+          value: '{{led2}}',
+        },
+      },
+    ],
   };
 
   const bloqDefinition: Partial<IBloqType> = getBloqDefinition(
@@ -90,9 +114,8 @@ test('componentForBloq', () => {
     actions: [
       {
         name: 'write',
-        parameters: ['pin', 'value'],
-        code: 'digitalWrite({{pin}}, {{value}})',
-        returns: 'uint8_t',
+        parameters: ['pinVarName', 'value'],
+        code: 'digitalWrite({{pinVarName}}, {{value}})',
       },
     ],
     instanceName: 'bloq-led-instance-name',
@@ -135,4 +158,79 @@ test('componentForBloq', () => {
   );
 
   expect(componentDefinition).toEqual(ZumjuniorDoubleLed);
+});
+
+test('ActionDefinition', () => {
+  const bloqInstance: IBloq = {
+    parameters: { component: 'led', led1: true, led2: true },
+    type: 'DoubleLedOnOff',
+  };
+
+  const componentInstance: IComponentInstance = {
+    component: 'ZumjuniorDoubleLed',
+    name: 'led',
+    port: '1',
+  };
+
+  const bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
+
+  const componentDefinition = getFullComponentDefinition(
+    components,
+    componentInstance
+  );
+
+  const actionsParameters = getActions(
+    bloqInstance,
+    bloqDefinition,
+    componentDefinition
+  );
+
+  const actionsP = [
+    {
+      parameters: { pinVarName: 'ledWhitePin', value: 'true' },
+      definition: {
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: 'digitalWrite({{pinVarName}}, {{value}})',
+      },
+    },
+    {
+      parameters: { pinVarName: 'ledColorPin', value: 'true' },
+      definition: {
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: 'digitalWrite({{pinVarName}}, {{value}})',
+      },
+    },
+  ];
+  // console.info(actionsParameters);
+  expect(actionsParameters).toEqual(actionsP);
+});
+
+test('actions2code', () => {
+  const actionsP = [
+    {
+      parameters: { pinVarName: 'ledWhitePin', value: 'true' },
+      definition: {
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: 'digitalWrite({{pinVarName}}, {{value}})',
+      },
+    },
+    {
+      parameters: { pinVarName: 'ledColorPin', value: 'true' },
+      definition: {
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: 'digitalWrite({{pinVarName}}, {{value}})',
+      },
+    },
+  ];
+
+  const code: string[] = actions2code(actionsP);
+
+  expect(code).toEqual([
+    'digitalWrite(ledWhitePin, true)',
+    'digitalWrite(ledColorPin, true)',
+  ]);
 });

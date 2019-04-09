@@ -7,7 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { getBoard } from '../board2code';
+import { getBoardDefinition } from '../board2code';
 import components2code from '../components2code';
 import { IHardware, IArduinoCode } from '../..';
 import { boards } from './config/boards';
@@ -34,7 +34,7 @@ test('components2code - ZUMJuniorButton', () => {
   };
 
   try {
-    const board = getBoard(boards, hardware);
+    const board = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
   } catch (e) {
     throw e;
@@ -69,7 +69,7 @@ test('components2code - ZUMJuniorDoubleLed', () => {
   };
 
   try {
-    const board = getBoard(boards, hardware);
+    const board = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
   } catch (e) {
     throw e;

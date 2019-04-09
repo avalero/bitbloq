@@ -38,6 +38,30 @@ const getPinNumber = (
   return portPin.value;
 };
 
+export const pinsForComponent = (
+  componentInstance: IComponentInstance,
+  componentDefinition: Partial<IComponent>,
+  boardDefintion: IBoard
+): Array<{ pinNumber: string; pinVarName: string }> => {
+  const pinsInfo: Array<{ pinNumber: string; pinVarName: string }> = [];
+  if (!componentDefinition.connectors) throw new Error('No connector defined');
+
+  componentDefinition.connectors.forEach(connector => {
+    connector.pins.forEach(pin => {
+      pinsInfo.push({
+        pinNumber: getPinNumber(
+          boardDefintion,
+          componentInstance.port,
+          pin.portPin
+        ),
+        pinVarName: `${componentInstance.name}${pin.name}`,
+      });
+    });
+  });
+
+  return pinsInfo;
+};
+
 const components2code = (
   componentsDefinition: Array<Partial<IComponent>>,
   components: IComponentInstance[],
@@ -46,28 +70,23 @@ const components2code = (
 ): IArduinoCode => {
   // loop over every component connected to the board
   components.forEach(componentInstance => {
-    const component = getFullComponentDefinition(
+    const componentDefinition = getFullComponentDefinition(
       componentsDefinition,
       componentInstance
     );
 
     // get pins of component instance
-    const pinsInfo: Array<{ pinNumber: string; pinVarName: string }> = [];
-    if (!component.connectors) throw new Error('No connector defined');
-
-    component.connectors.forEach(connector => {
-      connector.pins.forEach(pin => {
-        pinsInfo.push({
-          pinNumber: getPinNumber(board, componentInstance.port, pin.portPin),
-          pinVarName: `${componentInstance.name}${pin.name}`,
-        });
-      });
-    });
+    const pinsInfo: Array<{
+      pinNumber: string;
+      pinVarName: string;
+    }> = pinsForComponent(componentInstance, componentDefinition, board);
 
     // compute the code for all the sections (setup, loop, etc)
     try {
       Object.keys(arduinoCode).forEach(section => {
-        const codeTemplates: string[] = [...componentCodes(component, section)];
+        const codeTemplates: string[] = [
+          ...componentCodes(componentDefinition, section),
+        ];
         const nunjucksData = { pinsInfo };
         codeTemplates.forEach(codeTemplate => {
           const code: string = nunjucks.renderString(

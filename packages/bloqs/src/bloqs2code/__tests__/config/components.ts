@@ -31,7 +31,13 @@ export const components: Array<Partial<IComponent>> = [
       {
         name: 'read',
         parameters: ['pin'],
-        code: 'digitalRead({{pin}})',
+        code: `
+          {% set counter = 0%}
+          {% for pin in pinsInfo %}
+          {{counter}}*pinMode({{pin.pinVarName}},INPUT) +
+          {% set counter = counter + 1 %}
+          {% endfor %}
+          0;`,
         returns: 'uint8_t',
       },
     ],
@@ -51,9 +57,8 @@ export const components: Array<Partial<IComponent>> = [
     actions: [
       {
         name: 'write',
-        parameters: ['pin', 'value'],
-        code: 'digitalWrite({{pin}}, {{value}})',
-        returns: 'uint8_t',
+        parameters: ['pinVarName', 'value'],
+        code: `digitalWrite({{pinVarName}}, {{value}})`,
       },
     ],
   },

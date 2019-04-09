@@ -168,6 +168,22 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       },
     ],
     code: {},
+    actions: [
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}WhitePin',
+          value: '{{led1}}',
+        },
+      },
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}ColorPin',
+          value: '{{led2}}',
+        },
+      },
+    ],
   },
   {
     category: BloqCategory.Action,

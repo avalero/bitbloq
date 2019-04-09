@@ -18,7 +18,7 @@ import {
 import nunjucks from 'nunjucks';
 
 import arduinocodetemplate from './arduinocodetemplate';
-import board2code, { getBoard } from './board2code';
+import board2code, { getBoardDefinition } from './board2code';
 import { getFullComponentDefinition } from './componentBuilder';
 import components2code from './components2code';
 
@@ -55,7 +55,7 @@ const bloqs2code = (
 
   try {
     board2code(boards, hardware, arduinoCode);
-    const board: IBoard = getBoard(boards, hardware);
+    const board: IBoard = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
   } catch (e) {
     throw e;
