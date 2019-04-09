@@ -16,10 +16,13 @@ import {
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION
 } from "../apollo/queries";
-import ThreeDEditor from "./ThreeDEditor";
 import ExerciseInfo from "./ExerciseInfo";
+import { documentTypes } from "../config";
 
-const EditExercise = ({ id, t }) => {
+const EditExercise = ({ type, id, t }) => {
+  const documentType = documentTypes[type];
+  const EditorComponent = documentType.editorComponent;
+
   const [isSubmissionSuccessOpen, setIsSubmissionSuccessOpen] = useState(false);
   const [tabIndex, setTabIndex] = useState(1);
 
@@ -48,7 +51,8 @@ const EditExercise = ({ id, t }) => {
 
   return (
     <>
-      <ThreeDEditor
+      <EditorComponent
+        brandColor={documentType.color}
         content={content}
         tabIndex={tabIndex}
         onTabChange={setTabIndex}
