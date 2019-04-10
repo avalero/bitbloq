@@ -45,7 +45,7 @@ void loop(){
 }
 
 // Global functions definition
-{% for def in definitionsCode %}
+{% for def in definitions %}
 {{def | safe}}
 {% endfor %}
 

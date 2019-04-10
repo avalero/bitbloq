@@ -16,12 +16,15 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
-  IArduinoCode
-} from "../index";
-import { getFullComponentDefinition } from "./componentBuilder";
-import { pinsForComponent } from "./components2code";
-import nunjucks from "nunjucks";
-import { BloqCategory } from "../enums";
+  IArduinoCode,
+} from '../index';
+import { getFullComponentDefinition } from './componentBuilder';
+import { pinsForComponent } from './components2code';
+import nunjucks from 'nunjucks';
+import { BloqCategory } from '../enums';
+
+import { v1 } from 'uuid';
+const uuid = v1;
 
 type ActionsArray = Array<{
   parameters: { [name: string]: string };
@@ -133,7 +136,7 @@ export const getActions = (
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      "Unexpected different sizes of actionParameters and actionDefinitions"
+      'Unexpected different sizes of actionParameters and actionDefinitions'
     );
   }
 
@@ -143,7 +146,7 @@ export const getActions = (
       definition: IComponentAction;
     } = {
       parameters: { ...parameters },
-      definition: { ...actionsDefinitions[index] }
+      definition: { ...actionsDefinitions[index] },
     };
     actions.push(obj);
   });
@@ -196,25 +199,44 @@ const program2code = (
   program: IBloq[][],
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
-  if (!arduinoCode.loop) arduinoCode.loop = [];
+  if (!arduinoCode.definitions) arduinoCode.definitions = [];
+  if (!arduinoCode.globals) arduinoCode.globals = [];
 
   program.forEach(timeline => {
-    timeline.forEach(bloqInstance => {
-      const bloqDefinition: Partial<IBloqType> = getBloqDefinition(
+    let i = 0;
+    for (i = 0; i < timeline.length; i += 1) {
+      let bloqInstance = timeline[i];
+      let bloqDefinition: Partial<IBloqType> = getBloqDefinition(
         bloqTypes,
         bloqInstance
       );
       // MANAGE ACTIONS BLOQS
       if (bloqDefinition.category === BloqCategory.Action) {
-        const code: string[] = bloq2code(
-          bloqInstance,
-          hardware,
-          bloqTypes,
-          components
-        );
-        arduinoCode.loop!.push(...code);
+        const functionName: string = `void func_${uuid().substring(0, 8)}()`;
+        let codeDefinition: string = `${functionName}{\n`;
+        const codeDeclaration: string = `${functionName};\n`;
+        // build a function with all action bloqs
+        while (bloqDefinition.category === BloqCategory.Action) {
+          codeDefinition += `\t${bloq2code(
+            bloqInstance,
+            hardware,
+            bloqTypes,
+            components
+          )}\n`;
+          i += 1;
+          if (i >= timeline.length) break;
+
+          bloqInstance = timeline[i];
+          bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
+        }
+
+        codeDefinition += '\n}';
+        arduinoCode.definitions!.push(codeDefinition);
+        arduinoCode.globals!.push(codeDeclaration);
+
+        i -= 1; // back to the last one to avoid two increments (while and for)
       }
-    });
+    }
   });
 
   return arduinoCode;
