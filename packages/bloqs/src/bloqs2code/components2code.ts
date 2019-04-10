@@ -12,16 +12,16 @@ import {
   IComponentInstance,
   IArduinoCode,
   IBoard,
-  ConnectorPinMode,
-} from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
-import nunjucks from 'nunjucks';
+  ConnectorPinMode
+} from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
+import nunjucks from "nunjucks";
 
 const componentCodes = (
   component: Partial<IComponent>,
   section: string
 ): string[] => {
-  if (!component.code) throw new Error('Component has no code key');
+  if (!component.code) throw new Error("Component has no code key");
 
   if (!component.code[section]) {
     console.warn(`Warning ${section} not defined in ${component.name} code`);
@@ -36,10 +36,10 @@ const getPinNumber = (
   portPinName: string
 ): string => {
   const port = board.ports.find(p => p.name === portName);
-  if (!port) throw new Error('Port not found');
+  if (!port) throw new Error("Port not found");
 
   const portPin = port.pins.find(p => p.name === portPinName);
-  if (!portPin) throw new Error('Pin not found');
+  if (!portPin) throw new Error("Pin not found");
 
   return portPin.value;
 };
@@ -50,7 +50,7 @@ export const pinsForComponent = (
   boardDefintion: IBoard
 ): Array<{ pinNumber: string; pinVarName: string }> => {
   const pinsInfo: Array<{ pinNumber: string; pinVarName: string }> = [];
-  if (!componentDefinition.connectors) throw new Error('No connector defined');
+  if (!componentDefinition.connectors) throw new Error("No connector defined");
 
   componentDefinition.connectors.forEach(connector => {
     connector.pins.forEach(pin => {
@@ -60,7 +60,7 @@ export const pinsForComponent = (
           componentInstance.port,
           pin.portPin
         ),
-        pinVarName: `${componentInstance.name}${pin.name}`,
+        pinVarName: `${componentInstance.name}${pin.name}`
       });
     });
   });
@@ -90,7 +90,7 @@ const components2code = (
     try {
       Object.keys(arduinoCode).forEach(section => {
         const codeTemplates: string[] = [
-          ...componentCodes(componentDefinition, section),
+          ...componentCodes(componentDefinition, section)
         ];
         const nunjucksData = { pinsInfo };
         codeTemplates.forEach(codeTemplate => {

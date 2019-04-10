@@ -16,14 +16,14 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
-  IArduinoCode,
-} from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
-import { pinsForComponent } from './components2code';
-import nunjucks from 'nunjucks';
-import { BloqCategory } from '../enums';
+  IArduinoCode
+} from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
+import { pinsForComponent } from "./components2code";
+import nunjucks from "nunjucks";
+import { BloqCategory } from "../enums";
 
-import { v1 } from 'uuid';
+import { v1 } from "uuid";
 const uuid = v1;
 
 type ActionsArray = Array<{
@@ -136,7 +136,7 @@ export const getActions = (
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      'Unexpected different sizes of actionParameters and actionDefinitions'
+      "Unexpected different sizes of actionParameters and actionDefinitions"
     );
   }
 
@@ -146,7 +146,7 @@ export const getActions = (
       definition: IComponentAction;
     } = {
       parameters: { ...parameters },
-      definition: { ...actionsDefinitions[index] },
+      definition: { ...actionsDefinitions[index] }
     };
     actions.push(obj);
   });
@@ -230,7 +230,7 @@ const program2code = (
           bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
         }
 
-        codeDefinition += '\n}';
+        codeDefinition += "\n}";
         arduinoCode.definitions!.push(codeDefinition);
         arduinoCode.globals!.push(codeDeclaration);
 
