@@ -1,69 +1,70 @@
-const webpack = require('webpack');
-const path = require('path');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
+const webpack = require("webpack");
+const path = require("path");
+const HtmlWebPackPlugin = require("html-webpack-plugin");
 
 const htmlPlugin = new HtmlWebPackPlugin({
-  template: './src/index.html',
-  filename: './index.html',
+  template: "./src/index.html",
+  filename: "./index.html"
 });
 
 const providePlugin = new webpack.ProvidePlugin({
-  THREE: 'three',
+  THREE: "three"
 });
 
 const plugins = [htmlPlugin, providePlugin];
 
 module.exports = {
-  devtool: 'source-map',
+  devtool: "source-map",
   module: {
     rules: [
       {
         test: /\.worker\.ts$/,
-        use: { loader: 'worker-loader' },
+        use: { loader: "worker-loader" }
       },
       {
         test: /\.(js|jsx|ts|tsx)?$/,
-        use: ['source-map-loader'],
-        enforce: 'pre',
+        use: ["source-map-loader"],
+        enforce: "pre"
       },
       {
         test: /\.(js|jsx|ts|tsx)?$/,
         include: [/src/, /node_modules\/\@bitbloq\/*/],
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
-            rootMode: 'upward',
-          },
-        },
+            rootMode: "upward"
+          }
+        }
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ["style-loader", "css-loader"]
       },
       {
         test: /\.(glb|svg)$/,
-        use: ['file-loader'],
+        use: ["file-loader"]
       },
       {
-        type: 'javascript/auto',
+        type: "javascript/auto",
         test: /\.(json)$/,
         include: [/src\/assets\/messages/],
-        use: ['file-loader'],
-      },
-    ],
+        use: ["file-loader"]
+      }
+    ]
   },
   plugins,
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
     alias: {
-      'three/GLTFLoader': path.join(
+      "three/GLTFLoader": path.join(
         __dirname,
-        'node_modules/three/examples/js/loaders/GLTFLoader.js'
+        "node_modules/three/examples/js/loaders/GLTFLoader.js"
       ),
-    },
+      react: path.resolve("./node_modules/react")
+    }
   },
   devServer: {
-    historyApiFallback: true,
+    historyApiFallback: true
   },
-  node: { fs: 'empty' },
+  node: { fs: "empty" }
 };

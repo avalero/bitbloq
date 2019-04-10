@@ -1,8 +1,12 @@
 import React, { useContext } from "react";
 
-export const TranslateContext = React.createContext((id: string) => id);
+export type TranslateFn = (id: string, variables?: string[]) => string;
 
-interface TranslateProviderProps {
+export const TranslateContext = React.createContext<TranslateFn>(
+  (id: string) => id
+);
+
+export interface TranslateProviderProps {
   messagesFiles: any;
   fallback?: React.ReactNode;
 }
@@ -76,7 +80,7 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 export const Translate = TranslateContext.Consumer;
 
 export interface WithTranslateProps {
-  t: () => string;
+  t: TranslateFn;
 }
 
 export const withTranslate = <P extends object>(

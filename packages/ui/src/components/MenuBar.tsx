@@ -116,11 +116,11 @@ export interface MainMenuOption {
   children: MenuOption[];
 }
 
-export type OptionClickHandler = (option: MenuOption) => void;
+export type MenuOptionClickHandler = (option: MenuOption) => void;
 
 export interface MenuBarProps {
   options: MainMenuOption[];
-  onOptionClick?: OptionClickHandler;
+  onOptionClick?: MenuOptionClickHandler;
 }
 
 interface State {

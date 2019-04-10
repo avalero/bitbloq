@@ -287,4 +287,4 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
   }
 };
 
-export default Icon;
+export default React.memo(Icon);
