@@ -193,7 +193,13 @@ export const components: Partial<IComponent>[] = [
           x: 0.28,
           y: 1
         },
-        pins: []
+        pins: [
+          {
+            name: "i2c",
+            mode: ConnectorPinMode.I2C,
+            portPin: "i2c"
+          },
+        ]
       }
     ],
     image: {
@@ -201,14 +207,35 @@ export const components: Partial<IComponent>[] = [
       width: 124,
       height: 124
     },
+    code: {
+      includes: [
+        "<BQZUMI2C7SegmentDisplay.h>"
+      ],
+      globals: [
+        `{% for pin in pinsInfo %}
+        uint8_t i2cport{{pin.pinVarName}} = {{pin.pinNumber}};
+        BQ::ZUM::I2C7SegmentDisplay {{pin.pinVarName}}(i2cport{{pin.pinVarName}});
+        {% endfor %}`,
+      ],
+      setup: [
+        `{% for pin in pinsInfo %}
+        {{pin.pinVarName}}.setup();
+        {{pin.pinVarName}}.displayChar(' ',' ');
+        {% endfor %}`,
+      ],
+    },
     actions: [
       {
         name: 'writeNumber',
-        parameters: ['varName', 'value'],
-        code: `{{varName}}.displayInt({{value}})`,
+        parameters: ['pinVarName', 'value'],
+        code: `{{pinVarName}}.displayInt({{value}});`,
+      },
+      {
+        name: 'writeChar',
+        parameters: ['pinVarName', 'char1', 'char2'],
+        code: `{{pinVarName}}.displayChar('{{char1}}','{{char2}}');`,
       },
     ],
-
   },
   {
     name: "Servo",

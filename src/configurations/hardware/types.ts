@@ -49,7 +49,8 @@ export interface IBoard {
 
 export enum ConnectorPinMode {
   INPUT = "INPUT",
-  OUTPUT = "OUTPUT"
+  OUTPUT = "OUTPUT",
+  I2C = "I2C"
 }
 
 export interface IConnectorPin {

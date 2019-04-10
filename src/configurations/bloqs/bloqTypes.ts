@@ -224,7 +224,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     category: BloqCategory.Action,
     name: "SetSevenSegmentNumericValue",
     label: "bloq-set-seven-segment-num",
-    components: ["SevenSegment"],
+    components: ["ZumjuniorSevenSegment"],
     icon: sevenSegmentsIcon,
     parameters: [
       {
@@ -243,7 +243,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       {
         name: 'writeNumber',
         parameters: {
-          varName: '{{component}}',
+          pinVarName: '{{component}}i2c',
           value: '{{value}}',
         },
       },
