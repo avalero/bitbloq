@@ -9,7 +9,10 @@
 
 import { IBoard, IHardware, IArduinoCode } from "../index";
 
-export const getBoard = (boards: IBoard[], hardware: IHardware): IBoard => {
+export const getBoardDefinition = (
+  boards: IBoard[],
+  hardware: IHardware
+): IBoard => {
   const boardName: string = hardware.board;
   const board = boards.find(b => b.name === boardName);
   if (board) return board;
@@ -30,7 +33,7 @@ const board2code = (
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
   // get board information
-  const board: IBoard = getBoard(boards, hardware);
+  const board: IBoard = getBoardDefinition(boards, hardware);
 
   // get board code
   try {

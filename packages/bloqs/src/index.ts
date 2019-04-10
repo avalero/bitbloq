@@ -35,7 +35,7 @@ export interface IBloqBaseParameter {
 }
 
 export interface IBloqParameterOption {
-  value: any;
+  value: string | number | boolean;
   label: string;
 }
 
@@ -78,11 +78,12 @@ export interface IBloqType {
   code: IBloqCode;
   parameters: IBloqParameter[];
   components?: string[];
+  actions: IBloqAction[];
 }
 
 export interface IBloq {
   type: string;
-  parameters: { [name: string]: string };
+  parameters: { [name: string]: string | boolean | number };
 }
 
 export interface IBloqTypeGroup {
@@ -170,6 +171,11 @@ export interface IComponentAction {
   parameters: string[];
   code: string;
   returns?: string;
+}
+
+export interface IBloqAction {
+  name: string;
+  parameters: { [name: string]: string };
 }
 
 export interface IComponent {

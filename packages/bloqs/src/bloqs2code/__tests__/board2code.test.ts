@@ -7,7 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import board2code, { getBoard } from "../board2code";
+import board2code, { getBoardDefinition } from "../board2code";
 import { IHardware, IArduinoCode } from "../..";
 import { boards } from "./config/boards";
 
@@ -37,7 +37,7 @@ test("board2code", () => {
     throw e;
   }
 
-  const board = getBoard(boards, hardware);
+  const board = getBoardDefinition(boards, hardware);
 
   expect(arduinoCode.includes).toEqual(board.code.includes);
   expect(arduinoCode.globals).toEqual(board.code.globals);

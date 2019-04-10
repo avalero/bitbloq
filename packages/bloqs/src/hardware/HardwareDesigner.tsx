@@ -208,8 +208,11 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
 };
 
 const isCompatiblePort = (port: IPort, component: IComponent) => {
-  return component.connectors && component.connectors.some(connector =>
-    port.connectorTypes.includes(connector.type)
+  return (
+    component.connectors &&
+    component.connectors.some(connector =>
+      port.connectorTypes.includes(connector.type)
+    )
   );
 };
 

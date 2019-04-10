@@ -7,16 +7,16 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { getBoard } from '../board2code';
-import components2code from '../components2code';
-import { IHardware, IArduinoCode } from '../..';
-import { boards } from './config/boards';
-import { components } from './config/components';
+import { getBoardDefinition } from "../board2code";
+import components2code from "../components2code";
+import { IHardware, IArduinoCode } from "../..";
+import { boards } from "./config/boards";
+import { components } from "./config/components";
 
-test('components2code - ZUMJuniorButton', () => {
+test("components2code - ZUMJuniorButton", () => {
   const hardware: IHardware = {
-    board: 'zumjunior',
-    components: [{ component: 'ZumjuniorButton', name: 'boton', port: '1' }],
+    board: "zumjunior",
+    components: [{ component: "ZumjuniorButton", name: "boton", port: "1" }]
   };
 
   const includes: string[] = [];
@@ -30,28 +30,28 @@ test('components2code - ZUMJuniorButton', () => {
     globals,
     setup,
     loop,
-    definitions,
+    definitions
   };
 
   try {
-    const board = getBoard(boards, hardware);
+    const board = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
   } catch (e) {
     throw e;
   }
 
   expect(arduinoCode.globals).toEqual([
-    '\n        uint8_t botonPin = BQ::ZUMJunior::ports[1][0] ;\n        ',
+    "\n        uint8_t botonPin = BQ::ZUMJunior::ports[1][0] ;\n        "
   ]);
   expect(arduinoCode.setup).toEqual([
-    '\n        pinMode(botonPin,INPUT);\n        ',
+    "\n        pinMode(botonPin,INPUT);\n        "
   ]);
 });
 
-test('components2code - ZUMJuniorLed', () => {
+test("components2code - ZUMJuniorDoubleLed", () => {
   const hardware: IHardware = {
-    board: 'zumjunior',
-    components: [{ component: 'ZumjuniorLed', name: 'LED', port: 'A' }],
+    board: "zumjunior",
+    components: [{ component: "ZumjuniorDoubleLed", name: "LED", port: "A" }]
   };
 
   const includes: string[] = [];
@@ -65,20 +65,20 @@ test('components2code - ZUMJuniorLed', () => {
     globals,
     setup,
     loop,
-    definitions,
+    definitions
   };
 
   try {
-    const board = getBoard(boards, hardware);
+    const board = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
   } catch (e) {
     throw e;
   }
 
   expect(arduinoCode.globals).toEqual([
-    '\n        uint8_t LEDWhitePin = BQ::ZUMJunior::ports[A][0] ;\n        \n        uint8_t LEDColorPin = BQ::ZUMJunior::ports[A][1] ;\n        ',
+    "\n        uint8_t LEDWhitePin = BQ::ZUMJunior::ports[A][0] ;\n        \n        uint8_t LEDColorPin = BQ::ZUMJunior::ports[A][1] ;\n        "
   ]);
   expect(arduinoCode.setup).toEqual([
-    '\n        pinMode(LEDWhitePin,OUTPUT);\n        \n        pinMode(LEDColorPin,OUTPUT);\n        ',
+    "\n        pinMode(LEDWhitePin,OUTPUT);\n        \n        pinMode(LEDColorPin,OUTPUT);\n        "
   ]);
 });
