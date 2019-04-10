@@ -222,8 +222,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   },
   {
     category: BloqCategory.Action,
-    name: "SetSevenSegmentValue",
-    label: "bloq-set-sevent-segment",
+    name: "SetSevenSegmentNumericValue",
+    label: "bloq-set-seven-segment-num",
     components: ["SevenSegment"],
     icon: sevenSegmentsIcon,
     parameters: [
@@ -231,6 +231,21 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "component",
         label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Number
+      },
+    ],
+    code: {},
+    actions: [
+      {
+        name: 'writeNumber',
+        parameters: {
+          varName: '{{component}}',
+          value: '{{value}}',
+        },
       },
     ]
   },

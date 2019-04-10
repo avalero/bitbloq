@@ -200,7 +200,15 @@ export const components: Partial<IComponent>[] = [
       url: SevenSegmentImage,
       width: 124,
       height: 124
-    }
+    },
+    actions: [
+      {
+        name: 'writeNumber',
+        parameters: ['varName', 'value'],
+        code: `{{varName}}.displayInt({{value}})`,
+      },
+    ],
+
   },
   {
     name: "Servo",
