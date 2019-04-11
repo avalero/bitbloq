@@ -16,14 +16,14 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
-  IArduinoCode,
-} from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
-import { pinsForComponent } from './components2code';
-import nunjucks from 'nunjucks';
-import { BloqCategory } from '../enums';
+  IArduinoCode
+} from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
+import { pinsForComponent } from "./components2code";
+import nunjucks from "nunjucks";
+import { BloqCategory } from "../enums";
 
-import { v1 } from 'uuid';
+import { v1 } from "uuid";
 const uuid = v1;
 
 type ActionsArray = Array<{
@@ -136,7 +136,7 @@ export const getActions = (
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      'Unexpected different sizes of actionParameters and actionDefinitions'
+      "Unexpected different sizes of actionParameters and actionDefinitions"
     );
   }
 
@@ -146,7 +146,7 @@ export const getActions = (
       definition: IComponentAction;
     } = {
       parameters: { ...parameters },
-      definition: { ...actionsDefinitions[index] },
+      definition: { ...actionsDefinitions[index] }
     };
     actions.push(obj);
   });
@@ -204,7 +204,7 @@ const program2code = (
   if (!arduinoCode.loop) arduinoCode.loop = [];
 
   let functionNameIndex: number = 1;
-  let functionName: string = '';
+  let functionName: string = "";
   program.forEach(timeline => {
     let i = 0;
     for (i = 0; i < timeline.length; i += 1) {
@@ -232,7 +232,7 @@ const program2code = (
           );
 
           if (codeArray.length > 1 || codeArray.length === 0) {
-            throw new Error('Unexepcted number of actions for an event');
+            throw new Error("Unexepcted number of actions for an event");
           }
 
           const code: string = codeArray[0];
@@ -259,7 +259,7 @@ const program2code = (
               hardware,
               bloqTypes,
               componentsDefinition
-            ).join('\n\t')}\n`;
+            ).join("\n\t")}\n`;
             i += 1;
             if (i >= timeline.length) break;
 
@@ -267,7 +267,7 @@ const program2code = (
             bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
           }
 
-          actionCodeDefinition += '\n}';
+          actionCodeDefinition += "\n}";
           arduinoCode.definitions!.push(actionCodeDefinition);
           arduinoCode.globals!.push(actionCodeDeclaration);
 
