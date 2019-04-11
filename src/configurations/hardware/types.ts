@@ -83,4 +83,5 @@ export interface IComponent {
   image: IComponentImage;
   onValue?: string;
   offValue?: string;
+  values: {[name:string]:string | boolean | number};
 }

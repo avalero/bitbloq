@@ -38,8 +38,8 @@ export const components: Partial<IComponent>[] = [
     actions: [
       {
         name: "read",
-        parameters: ["pin"],
-        code: "digitalRead({{pin}})",
+        parameters: ["pinVarName"],
+        code: "digitalRead({{pinVarName}})",
         returns: "uint8_t"
       }
     ]
@@ -60,7 +60,7 @@ export const components: Partial<IComponent>[] = [
       {
         name: 'write',
         parameters: ['pinVarName', 'value'],
-        code: `digitalWrite({{pinVarName}}, {{value}})`,
+        code: `digitalWrite({{pinVarName}}, {{value}});`,
       },
     ],
   },
@@ -75,6 +75,10 @@ export const components: Partial<IComponent>[] = [
   {
     name: "ZumjuniorButton",
     extends: "Button",
+    values:{
+      pressed: true,
+      unPressed: false
+    },
     instanceName: "bloq-button-instance-name",
     connectors: [
       {

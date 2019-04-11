@@ -84,6 +84,15 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       "action === 'pressed'": buttonPressedIcon,
       "action === 'released'": buttonReleasedIcon
     },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}Pin",
+          value: "{{action}}"
+        }
+      }
+    ],
     parameters: [
       {
         name: "component",
