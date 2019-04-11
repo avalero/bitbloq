@@ -7,7 +7,13 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { IComponent, IComponentInstance, IArduinoCode, IBoard } from "../index";
+import {
+  IComponent,
+  IComponentInstance,
+  IArduinoCode,
+  IBoard,
+  ConnectorPinMode
+} from "../index";
 import { getFullComponentDefinition } from "./componentBuilder";
 import nunjucks from "nunjucks";
 
@@ -58,7 +64,6 @@ export const pinsForComponent = (
       });
     });
   });
-
   return pinsInfo;
 };
 

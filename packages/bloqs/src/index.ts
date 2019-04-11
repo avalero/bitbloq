@@ -83,7 +83,7 @@ export interface IBloqType {
 
 export interface IBloq {
   type: string;
-  parameters: { [name: string]: string | boolean | number };
+  parameters: { [name: string]: string };
 }
 
 export interface IBloqTypeGroup {
@@ -150,7 +150,8 @@ export interface IBoard {
 
 export enum ConnectorPinMode {
   INPUT = "INPUT",
-  OUTPUT = "OUTPUT"
+  OUTPUT = "OUTPUT",
+  I2C = "I2C"
 }
 
 export interface IConnectorPin {
@@ -188,6 +189,7 @@ export interface IComponent {
   image: IComponentImage;
   onValue?: string;
   offValue?: string;
+  values: { [name: string]: string | boolean | number };
 }
 
 export interface IComponentInstance {

@@ -110,36 +110,32 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     setIsLoading(true);
     setLoadingPercentage(0);
 
-    const code = bloqs2code(
-      boards,
-      components,
-      bloqTypes,
-      hardware,
-      program
-    );
+    const code = bloqs2code(boards, components, bloqTypes, hardware, program);
+    setIsLoading(false);
+    return;
 
-    try {
-      const uploadGen = web2Board.upload(code, "zumjunior");
+    // try {
+    //   const uploadGen = web2Board.upload(code, "zumjunior");
 
-      while (true) {
-        const { value: reply, done } = await uploadGen.next();
-        const fn = reply.function;
+    //   while (true) {
+    //     const { value: reply, done } = await uploadGen.next();
+    //     const fn = reply.function;
 
-        if (fn === 'is_compiling') {
-          setLoadingPercentage(33);
-        }
-        if (fn === 'is_uploading') {
-          setLoadingPercentage(66);
-        }
+    //     if (fn === 'is_compiling') {
+    //       setLoadingPercentage(33);
+    //     }
+    //     if (fn === 'is_uploading') {
+    //       setLoadingPercentage(66);
+    //     }
 
-        if (done) {
-          setIsLoading(false);
-          return;
-        }
-      }
-    } catch (e) {
-      console.log(e);
-    }
+    //     if (done) {
+    //       setIsLoading(false);
+    //       return;
+    //     }
+    //   }
+    // } catch (e) {
+    //   console.log(e);
+    // }
   };
 
   const onHeaderButtonClick = (id: string) => {
@@ -229,9 +225,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         tabIndex={tabIndex}
         onTabChange={onTabChange}
         onHeaderButtonClick={onHeaderButtonClick}
-        headerButtons={[
-          { id: "upload", icon: "hardware" }
-        ]}
+        headerButtons={[{ id: "upload", icon: "hardware" }]}
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>

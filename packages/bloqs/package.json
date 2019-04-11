@@ -53,6 +53,7 @@
     "@types/nunjucks": "^3.1.1",
     "@types/react": "^16.8.10",
     "@types/react-dom": "^16.8.3",
+    "@types/uuid": "^3.4.4",
     "babel-jest": "^24.6.0",
     "babel-loader": "^8.0.5",
     "html-webpack-plugin": "^3.2.0",
@@ -80,7 +81,8 @@
     "nunjucks": "^3.2.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-spring": "^8.0.19"
+    "react-spring": "^8.0.19",
+    "uuid": "^3.3.2"
   },
   "gitHead": "a6539daabe025ed690154a66b72d5f16634c6654"
 }

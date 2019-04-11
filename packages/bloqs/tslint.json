@@ -18,6 +18,7 @@
     "no-debugger": false,
     "ter-arrow-parens": false,
     "import-name": false,
+    "no-increment-decrement": false,
     "variable-name": [
       true,
       "check-format",

@@ -19,7 +19,6 @@ import nunjucks from "nunjucks";
 
 import arduinocodetemplate from "./arduinocodetemplate";
 import board2code, { getBoardDefinition } from "./board2code";
-import { getFullComponentDefinition } from "./componentBuilder";
 import components2code from "./components2code";
 import program2code from "./program2code";
 
@@ -60,7 +59,7 @@ const bloqs2code = (
     components2code(components, hardware.components, board, arduinoCode);
     program2code(components, bloqTypes, hardware, program, arduinoCode);
   } catch (e) {
-    throw e;
+    console.error(e);
   }
 
   const nunjucksData = { ...arduinoCode, date: getDate() };
