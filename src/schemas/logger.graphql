@@ -18,6 +18,7 @@ type Mutation {
 
 input LogIn {
   modelType: String
+  action: String
   docType: String
   others: String
 }

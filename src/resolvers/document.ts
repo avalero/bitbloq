@@ -139,7 +139,7 @@ const documentResolver = {
         }
       }
       if (existDocument) {
-        if (args.input.folder && args.input.folder != existDocument.folder) {
+        if (args.input.folder && args.input.folder !== String(existDocument.folder)) {
           await FolderModel.updateOne(
             { _id: args.input.folder }, // modifico los documentsID de la carpeta
             { $push: { documentsID: existDocument._id } },
@@ -209,7 +209,7 @@ const documentResolver = {
       if (!existDocument) {
         throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
       }
-      if (existDocument.user != context.user.userID) {
+      if (String(existDocument.user) !== context.user.userID) {
         throw new ApolloError(
           'This ID does not belong to one of your documents',
           'NOT_YOUR_DOCUMENT',

@@ -33,8 +33,6 @@ mongoose.connect(
   },
 );
 
-const app = new Koa();
-
 // Redis configuration
 const redisOptions = {
   host: REDIS_DOMAIN_NAME,
@@ -68,6 +66,7 @@ redisClient.on('connect', () => {
   console.log('Redis client connected.');
 });
 
+const app = new Koa();
 const httpServer = app.listen(PORT, () =>
   console.log(`app is listening on port ${PORT}`),
 );

@@ -376,7 +376,7 @@ const userResolver = {
           'update',
           'user',
           contactFound._id,
-          args,
+          '',
         );
         const data: IUser = args.input;
         return await UserModel.findOneAndUpdate(

@@ -25,12 +25,12 @@ const loggerController = {
       action,
       docType,
       user,
-      others,
+      others || 'XX',
     );
   },
 
   storeErrorLog: async (modelType, action, docType, user, others) => {
-    logger.error('%s %s %s %s %s', modelType, action, docType, user, others);
+    logger.error('%s %s %s %s %s', modelType, action, docType, user, others || 'XX');
   },
 };
 

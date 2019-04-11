@@ -10,10 +10,10 @@ const loggerResolver = {
       await loggerController.storeInfoLog(
         'FRONT',
         args.input.modelType,
-        'info',
+        args.input.action,
         args.input.docType,
         context.user.userID,
-        args.input.others || '',
+        args.input.others,
       );
       return 'OK';
     },
