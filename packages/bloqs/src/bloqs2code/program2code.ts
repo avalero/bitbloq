@@ -16,14 +16,14 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
-  IArduinoCode
-} from "../index";
-import { getFullComponentDefinition } from "./componentBuilder";
-import { pinsForComponent } from "./components2code";
-import nunjucks from "nunjucks";
-import { BloqCategory } from "../enums";
+  IArduinoCode,
+} from '../index';
+import { getFullComponentDefinition } from './componentBuilder';
+import { pinsForComponent } from './components2code';
+import nunjucks from 'nunjucks';
+import { BloqCategory } from '../enums';
 
-import { v1 } from "uuid";
+import { v1 } from 'uuid';
 const uuid = v1;
 
 type ActionsArray = Array<{
@@ -89,11 +89,11 @@ export const getActions = (
   componentDefinition: Partial<IComponent>
 ): ActionsArray => {
   if (!bloqDefinition.actions) {
-    throw new Error(`${bloqDefinition.name} has no defined action`);
+    throw new Error(`${bloqDefinition.name} has no actions`);
   }
 
-  if (!bloqDefinition.actions) {
-    throw new Error(`${bloqDefinition.name} has no actions`);
+  if (!componentDefinition.actions) {
+    throw new Error(`${componentDefinition.name} has no actions`);
   }
 
   const actionsNames: string[] = bloqDefinition.actions.map(
@@ -136,7 +136,7 @@ export const getActions = (
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      "Unexpected different sizes of actionParameters and actionDefinitions"
+      'Unexpected different sizes of actionParameters and actionDefinitions'
     );
   }
 
@@ -146,7 +146,7 @@ export const getActions = (
       definition: IComponentAction;
     } = {
       parameters: { ...parameters },
-      definition: { ...actionsDefinitions[index] }
+      definition: { ...actionsDefinitions[index] },
     };
     actions.push(obj);
   });
@@ -159,7 +159,7 @@ export const actions2code = (actions: ActionsArray): string[] => {
   actions.forEach(action => {
     const nunjucksData = action.parameters;
     const codeTemplate = action.definition.code;
-
+    debugger;
     const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
     code.push(c);
   });
@@ -187,13 +187,13 @@ export const bloq2code = (
     bloqDefinition,
     componentDefintion
   );
-  const code: string[] = actions2code(actions);
 
+  const code: string[] = actions2code(actions);
   return code;
 };
 
 const program2code = (
-  components: Array<Partial<IComponent>>,
+  componentsDefinition: Array<Partial<IComponent>>,
   bloqTypes: Array<Partial<IBloqType>>,
   hardware: IHardware,
   program: IBloq[][],
@@ -201,7 +201,10 @@ const program2code = (
 ): IArduinoCode => {
   if (!arduinoCode.definitions) arduinoCode.definitions = [];
   if (!arduinoCode.globals) arduinoCode.globals = [];
+  if (!arduinoCode.loop) arduinoCode.loop = [];
 
+  let functionNameIndex: number = 1;
+  let functionName: string = '';
   program.forEach(timeline => {
     let i = 0;
     for (i = 0; i < timeline.length; i += 1) {
@@ -210,31 +213,66 @@ const program2code = (
         bloqTypes,
         bloqInstance
       );
+      const componentDefintion: Partial<IComponent> = getComponentForBloq(
+        bloqInstance,
+        hardware,
+        componentsDefinition
+      );
+
+      debugger;
       // MANAGE ACTIONS BLOQS
-      if (bloqDefinition.category === BloqCategory.Action) {
-        const functionName: string = `void func_${uuid().substring(0, 8)}()`;
-        let codeDefinition: string = `${functionName}{\n`;
-        const codeDeclaration: string = `${functionName};\n`;
-        // build a function with all action bloqs
-        while (bloqDefinition.category === BloqCategory.Action) {
-          codeDefinition += `\t${bloq2code(
+
+      switch (bloqDefinition.category) {
+        case BloqCategory.Event:
+          const codeArray: string[] = bloq2code(
             bloqInstance,
             hardware,
             bloqTypes,
-            components
-          )}\n`;
-          i += 1;
-          if (i >= timeline.length) break;
+            componentsDefinition
+          );
 
-          bloqInstance = timeline[i];
-          bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
-        }
+          if (codeArray.length > 1 || codeArray.length === 0) {
+            throw new Error('Unexepcted number of actions for an event');
+          }
 
-        codeDefinition += "\n}";
-        arduinoCode.definitions!.push(codeDefinition);
-        arduinoCode.globals!.push(codeDeclaration);
+          const code: string = codeArray[0];
+          functionName = `void func_${++functionNameIndex}()`;
+          const eventLoopCode: string = `
+          if(${code} == ${
+            componentDefintion.values![bloqInstance.parameters.action]
+          }){
+            heap.insert(${functionName},millis());
+          }
+          `;
+          arduinoCode.loop!.push(eventLoopCode);
 
-        i -= 1; // back to the last one to avoid two increments (while and for)
+          debugger;
+          break;
+
+        case BloqCategory.Action:
+          let actionCodeDefinition: string = `${functionName}{\n`;
+          const actionCodeDeclaration: string = `${functionName};\n`;
+          // build a function with all action bloqs
+          while (bloqDefinition.category === BloqCategory.Action) {
+            actionCodeDefinition += `\t${bloq2code(
+              bloqInstance,
+              hardware,
+              bloqTypes,
+              componentsDefinition
+            ).join('\n\t')}\n`;
+            i += 1;
+            if (i >= timeline.length) break;
+
+            bloqInstance = timeline[i];
+            bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
+          }
+
+          actionCodeDefinition += '\n}';
+          arduinoCode.definitions!.push(actionCodeDefinition);
+          arduinoCode.globals!.push(actionCodeDeclaration);
+
+          i -= 1; // back to the last one to avoid two increments (while and for)
+          break;
       }
     }
   });
