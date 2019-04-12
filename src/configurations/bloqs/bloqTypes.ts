@@ -262,13 +262,25 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     category: BloqCategory.Wait,
     name: "Wait1Second",
     icon: time1Icon,
-    code: {}
+    code: {},
+    actions: [
+      {
+      name: "wait",
+      parameters: {code: "heap.insert({{functionName}},1000);"},
+      }
+    ]
   },
   {
     category: BloqCategory.Wait,
     name: "Wait5Seconds",
     icon: time5Icon,
-    code: {}
+    code: {},
+    actions: [
+      {
+      name: "wait",
+      parameters: {code: "heap.insert({{functionName}},5000);"},
+      }
+    ]
   },
   {
     category: BloqCategory.Wait,
