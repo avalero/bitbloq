@@ -21,6 +21,14 @@ export default class Web2Board {
     this.ws = new WebSocket(url);
   }
 
+  public isConnected(): boolean {
+    if (this.ws) {
+      return this.ws.readyState === WebSocket.OPEN;
+    }
+
+    return false;
+  }
+
   public startWeb2board() {
     console.warn('starting Web2board...');
     const tempA = document.createElement('a');
