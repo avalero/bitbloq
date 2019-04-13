@@ -106,43 +106,53 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [loadingPercentage, setLoadingPercentage] = useState(0);
 
-  const upload = async () => {
-    // setIsLoading(true);
-    // setLoadingPercentage(0);
-
+  const upload = async (timeout: number): Promise<void> => {
     const code = bloqs2code(boards, components, bloqTypes, hardware, program);
-    // setIsLoading(false);
-    return;
 
-    // try {
-    //   const uploadGen = web2Board.upload(code, "zumjunior");
+    if (web2Board.isConnected()) {
+      setIsLoading(true);
+      setLoadingPercentage(0);
+      // if not loaded in tiemout ms exit
+      setTimeout(() => {
+        if (isLoading) {
+          setIsLoading(false);
+          console.error('Uploading Timeout');
+        }
+      }, timeout);
 
-    //   while (true) {
-    //     const { value: reply, done } = await uploadGen.next();
-    //     const fn = reply.function;
+      try {
+        const uploadGen = web2Board.upload(code, 'zumjunior');
 
-    //     if (fn === 'is_compiling') {
-    //       setLoadingPercentage(33);
-    //     }
-    //     if (fn === 'is_uploading') {
-    //       setLoadingPercentage(66);
-    //     }
+        while (true) {
+          const { value: reply, done } = await uploadGen.next();
+          const fn = reply.function;
 
-    //     if (done) {
-    //       setIsLoading(false);
-    //       return;
-    //     }
-    //   }
-    // } catch (e) {
-    //   console.log(e);
-    // }
+          console.log(`fn: ${fn}, done: ${done}`);
+          if (fn === 'is_compiling') {
+            setLoadingPercentage(33);
+          }
+          if (fn === 'is_uploading') {
+            setLoadingPercentage(66);
+          }
+          if (done) {
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.log(e);
+        setIsLoading(false);
+        return;
+      }
+    } else {
+      console.error('Web2Board not connected');
+    }
   };
 
   const onHeaderButtonClick = (id: string) => {
     switch (id) {
       case 'upload':
-        return upload();
-
+        upload(10000);
       default:
         return;
     }
