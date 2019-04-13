@@ -9,7 +9,7 @@
 
 const arduinocodetemplate: string = `
 /** 
- * Bitbloq generated code. 
+ * Bitbloq generated code for Junior Bloqs. 
  * For more info please visit https://bitbloq.cc 
  * {{date}} 
 **/
@@ -41,7 +41,7 @@ void loop(){
   {% for l in loop %}
   {{l | safe}}
   {% endfor %}
-
+  heap.eventloop();
 }
 
 // Global functions definition
