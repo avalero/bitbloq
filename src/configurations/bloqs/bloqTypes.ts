@@ -218,6 +218,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       {
         name: 'write',
         parameters: {
+          redirect: true,
           pinVarName: '{{component}}WhitePin',
           value: '{{led1}}',
         },
@@ -225,6 +226,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       {
         name: 'write',
         parameters: {
+          redirect: true,
           pinVarName: '{{component}}ColorPin',
           value: '{{led2}}',
         },
@@ -254,6 +256,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       {
         name: 'writeNumber',
         parameters: {
+          redirect: false,
           pinVarName: '{{component}}i2c',
           value: '{{value}}',
         },
