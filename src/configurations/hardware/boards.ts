@@ -1,4 +1,4 @@
-import { IBoard, IPortDirection } from "./types";
+import { IBoard, IPortDirection } from "@bitbloq/bloqs";
 
 import BoardImage from "../../images/hardware/zumjunior-board.svg";
 

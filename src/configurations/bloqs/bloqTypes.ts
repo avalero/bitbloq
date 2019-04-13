@@ -16,7 +16,7 @@ import doubleLedOffOffIcon from "../../images/bloqs/double-led-off-off.svg";
 import sevenSegmentsIcon from "../../images/bloqs/7segments.svg";
 import obstacleIcon from "../../images/bloqs/obstacle.svg";
 import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
-import { IBloqType, BloqCategory, BloqParameterType } from "./types";
+import { IBloqType, BloqCategory, BloqParameterType } from "@bitbloq/bloqs";
 
 export const bloqTypes: Array< Partial <IBloqType> > = [
   {

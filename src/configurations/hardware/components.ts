@@ -1,4 +1,4 @@
-import { IComponent, ConnectorPinMode } from "./types";
+import { IComponent, ConnectorPinMode } from "@bitbloq/bloqs";
 
 import SevenSegmentImage from "../../images/hardware/zumjunior-7segment.svg";
 import ButtonImage from "../../images/hardware/zumjunior-button.svg";
