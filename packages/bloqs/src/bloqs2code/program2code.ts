@@ -26,10 +26,13 @@ import { BloqCategory } from '../enums';
 import { v1 } from 'uuid';
 const uuid = v1;
 
-type ActionsArray = Array<{
+interface IAction {
   parameters: { [name: string]: string };
   definition: IComponentAction;
-}>;
+  values: { [name: string]: string };
+}
+
+type ActionsArray = IAction[];
 
 /**
  * Returns the bloq definition to which a bloq refers
@@ -129,10 +132,7 @@ export const getActions = (
     actionsParameters.push(obj);
   });
 
-  const actions: Array<{
-    parameters: { [name: string]: string };
-    definition: IComponentAction;
-  }> = [];
+  const actions: ActionsArray = [];
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
@@ -141,12 +141,10 @@ export const getActions = (
   }
 
   actionsParameters.forEach((parameters, index) => {
-    const obj: {
-      parameters: { [name: string]: string };
-      definition: IComponentAction;
-    } = {
+    const obj: IAction = {
       parameters: { ...parameters },
       definition: { ...actionsDefinitions[index] },
+      values: { ...componentDefinition.values },
     };
     actions.push(obj);
   });
@@ -157,7 +155,11 @@ export const getActions = (
 export const actions2code = (actions: ActionsArray): string[] => {
   const code: string[] = [];
   actions.forEach(action => {
+    debugger;
     const nunjucksData = action.parameters;
+    if (action.parameters.value) {
+      nunjucksData.value = action.values[action.parameters.value];
+    }
     const codeTemplate = action.definition.code;
     const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
     code.push(c);
@@ -187,6 +189,8 @@ export const bloq2code = (
     componentDefintion
   );
 
+  debugger;
+
   const code: string[] = actions2code(actions);
   return code;
 };
@@ -198,6 +202,7 @@ const program2code = (
   program: IBloq[][],
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
+  debugger;
   if (!arduinoCode.definitions) arduinoCode.definitions = [];
   if (!arduinoCode.globals) arduinoCode.globals = [];
   if (!arduinoCode.loop) arduinoCode.loop = [];
@@ -217,8 +222,6 @@ const program2code = (
       );
 
       let componentDefintion: Partial<IComponent> = {};
-
-      // MANAGE ACTIONS BLOQS
 
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:

@@ -17,7 +17,7 @@ import {
 } from '../index';
 import nunjucks from 'nunjucks';
 
-import arduinocodetemplate from './arduinocodetemplate';
+import juniorcodetemplate from './juniorcodetemplate';
 import board2code, { getBoardDefinition } from './board2code';
 import components2code from './components2code';
 import program2code from './program2code';
@@ -63,7 +63,7 @@ const bloqs2code = (
   }
 
   const nunjucksData = { ...arduinoCode, date: getDate() };
-  const code: string = nunjucks.renderString(arduinocodetemplate, nunjucksData);
+  const code: string = nunjucks.renderString(juniorcodetemplate, nunjucksData);
 
   console.info(code);
   return code;
