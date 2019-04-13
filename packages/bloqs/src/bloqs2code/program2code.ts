@@ -141,6 +141,7 @@ export const getActions = (
   }
 
   actionsParameters.forEach((parameters, index) => {
+    debugger;
     const obj: IAction = {
       parameters: { ...parameters },
       definition: { ...actionsDefinitions[index] },
@@ -157,7 +158,9 @@ export const actions2code = (actions: ActionsArray): string[] => {
   actions.forEach(action => {
     debugger;
     const nunjucksData = action.parameters;
-    if (action.parameters.value) {
+
+    // in case the alias is a value
+    if (action.values[action.parameters.value]) {
       nunjucksData.value = action.values[action.parameters.value];
     }
     const codeTemplate = action.definition.code;
