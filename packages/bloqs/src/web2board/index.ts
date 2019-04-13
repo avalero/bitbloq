@@ -21,19 +21,9 @@ export default class Web2Board {
     this.ws = new WebSocket(url);
   }
 
-  public startWeb2board() {
-    console.log('starting Web2board...');
-    const tempA = document.createElement('a');
-    tempA.setAttribute('href', 'qssweb2board://');
-    document.body.appendChild(tempA);
-    tempA.click();
-    document.body.removeChild(tempA);
-  }
-
   public waitUntilOpened() {
     return new Promise((resolve, reject) => {
       if (!this.ws) {
-        this.startWeb2board();
         this.ws = new WebSocket(this.url);
       }
       if (this.ws.readyState === WebSocket.OPEN) {
