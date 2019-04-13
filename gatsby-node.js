@@ -50,7 +50,6 @@ exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
 
   config.resolve = {
     ...config.resolve,
-    symlinks: false,
     alias: {
       ...config.resolve.alias,
       react: path.resolve('./node_modules/react')
