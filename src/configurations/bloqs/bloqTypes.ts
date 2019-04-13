@@ -169,10 +169,10 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     name: "DoubleLedOnOff",
     components: ["ZumjuniorDoubleLed"],
     iconSwitch: {
-      "led1 and led2": doubleLedOnOnIcon,
-      "not led1 and led2": doubleLedOffOnIcon,
-      "led1 and not led2": doubleLedOnOffIcon,
-      "not led1 and not led2": doubleLedOffOffIcon
+      "led1 === 'on' and led2 === 'on'": doubleLedOnOnIcon,
+      "led1 === 'off' and led2 === 'on'": doubleLedOffOnIcon,
+      "led1 === 'on' and led2 === 'off'": doubleLedOnOffIcon,
+      "led1 === 'off' and led2 === 'off'": doubleLedOffOffIcon
     },
     parameters: [
       {
@@ -180,6 +180,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
       },
+
       {
         name: "led1",
         label: "bloq-parameter-led-1",
@@ -187,11 +188,12 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         options: [
           {
             label: "bloq-parameter-on",
-            value: true
+            value: "on"
+
           },
           {
             label: "bloq-parameter-off",
-            value: false
+            value: "off"
           }
         ]
       },
@@ -202,11 +204,11 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         options: [
           {
             label: "bloq-parameter-on",
-            value: true
+            value: "on"
           },
           {
             label: "bloq-parameter-off",
-            value: false
+            value: "off"
           }
         ]
       }
