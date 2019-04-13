@@ -7,7 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-const arduinocodetemplate: string = `
+const juniorcodetemplate: string = `
 /** 
  * Bitbloq generated code for Junior Bloqs. 
  * For more info please visit https://bitbloq.cc 
@@ -51,4 +51,4 @@ void loop(){
 
 `;
 
-export default arduinocodetemplate;
+export default juniorcodetemplate;

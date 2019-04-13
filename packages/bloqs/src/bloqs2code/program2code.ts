@@ -16,20 +16,23 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
-  IArduinoCode,
-} from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
-import { pinsForComponent } from './components2code';
-import nunjucks from 'nunjucks';
-import { BloqCategory } from '../enums';
+  IArduinoCode
+} from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
+import { pinsForComponent } from "./components2code";
+import nunjucks from "nunjucks";
+import { BloqCategory } from "../enums";
 
-import { v1 } from 'uuid';
+import { v1 } from "uuid";
 const uuid = v1;
 
-type ActionsArray = Array<{
+interface IAction {
   parameters: { [name: string]: string };
   definition: IComponentAction;
-}>;
+  values: { [name: string]: string };
+}
+
+type ActionsArray = IAction[];
 
 /**
  * Returns the bloq definition to which a bloq refers
@@ -129,24 +132,19 @@ export const getActions = (
     actionsParameters.push(obj);
   });
 
-  const actions: Array<{
-    parameters: { [name: string]: string };
-    definition: IComponentAction;
-  }> = [];
+  const actions: ActionsArray = [];
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      'Unexpected different sizes of actionParameters and actionDefinitions'
+      "Unexpected different sizes of actionParameters and actionDefinitions"
     );
   }
 
   actionsParameters.forEach((parameters, index) => {
-    const obj: {
-      parameters: { [name: string]: string };
-      definition: IComponentAction;
-    } = {
+    const obj: IAction = {
       parameters: { ...parameters },
       definition: { ...actionsDefinitions[index] },
+      values: { ...componentDefinition.values }
     };
     actions.push(obj);
   });
@@ -158,6 +156,11 @@ export const actions2code = (actions: ActionsArray): string[] => {
   const code: string[] = [];
   actions.forEach(action => {
     const nunjucksData = action.parameters;
+
+    // in case the alias is a value
+    if (action.values[action.parameters.value]) {
+      nunjucksData.value = action.values[action.parameters.value];
+    }
     const codeTemplate = action.definition.code;
     const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
     code.push(c);
@@ -204,7 +207,7 @@ const program2code = (
 
   let functionNameIndex: number = 1;
 
-  let functionName: string = '';
+  let functionName: string = "";
   let timelineFlagName: string = `${functionName}Flag`;
   program.forEach((timeline, index) => {
     timelineFlagName = `timeline${index}`;
@@ -218,17 +221,15 @@ const program2code = (
 
       let componentDefintion: Partial<IComponent> = {};
 
-      // MANAGE ACTIONS BLOQS
-
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
           if (!bloqDefinition.actions) {
-            throw new Error('Wait bloq should have actions');
+            throw new Error("Wait bloq should have actions");
           }
           if (!bloqDefinition.actions[0].name) {
-            throw new Error('Wait bloq should have actions.name');
+            throw new Error("Wait bloq should have actions.name");
           }
-          if (bloqDefinition.actions[0].name === 'wait') {
+          if (bloqDefinition.actions[0].name === "wait") {
             functionName = `func_${++functionNameIndex}`;
             const waitCodeTempalete: string =
               bloqDefinition.actions[0].parameters.code;
@@ -259,7 +260,7 @@ const program2code = (
           );
 
           if (codeArray.length > 1 || codeArray.length === 0) {
-            throw new Error('Unexepcted number of actions for an event');
+            throw new Error("Unexepcted number of actions for an event");
           }
 
           const code: string = codeArray[0];
@@ -298,7 +299,7 @@ const program2code = (
               hardware,
               bloqTypes,
               componentsDefinition
-            ).join('\n\t')}\n`;
+            ).join("\n\t")}\n`;
             i += 1;
             if (i >= timeline.length) break;
 

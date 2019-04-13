@@ -127,7 +127,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
           const { value: reply, done } = await uploadGen.next();
           const fn = reply.function;
 
-          console.log(`fn: ${fn}, done: ${done}`);
           if (fn === 'is_compiling') {
             setLoadingPercentage(33);
           }
@@ -140,12 +139,11 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
           }
         }
       } catch (e) {
-        console.log(e);
         setIsLoading(false);
         return;
       }
     } else {
-      console.error('Web2Board not connected');
+      console.warn('Web2Board not connected');
     }
   };
 
