@@ -210,6 +210,8 @@ const program2code = (
   let functionName: string = '';
   let timelineFlagName: string = `${functionName}Flag`;
   program.forEach((timeline, index) => {
+    if (timeline.length === 0) return;
+
     timelineFlagName = `timeline${index}`;
     let i = 0;
     for (i = 0; i < timeline.length; i += 1) {
@@ -249,6 +251,21 @@ const program2code = (
           break;
 
         case BloqCategory.Event:
+          functionName = `func_${++functionNameIndex}`;
+
+          // OnStart Bloq requires special treatment
+          if (bloqDefinition.name === 'OnStart') {
+            const onStartSetupCode = `heap.insert(${functionName});\n ${timelineFlagName} = true;`;
+            const onStartGlobalsCode = `bool ${timelineFlagName} = false;\n void ${functionName}();`;
+            const onStartDefinitionsCode = `void ${functionName}(){\n`;
+
+            arduinoCode.setup!.push(onStartSetupCode);
+            arduinoCode.globals!.push(onStartGlobalsCode);
+            arduinoCode.definitions!.push(onStartDefinitionsCode);
+
+            break;
+          }
+
           componentDefintion = getComponentForBloq(
             bloqInstance,
             hardware,
@@ -267,7 +284,7 @@ const program2code = (
           }
 
           const code: string = codeArray[0];
-          functionName = `func_${++functionNameIndex}`;
+
           const eventLoopCode: string = `
           if(${code} == ${
             componentDefintion.values![bloqInstance.parameters.action]
