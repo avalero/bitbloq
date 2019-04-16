@@ -13,14 +13,14 @@ import {
   IBloqType,
   IHardware,
   IBloq,
-  IArduinoCode,
-} from '../index';
-import nunjucks from 'nunjucks';
+  IArduinoCode
+} from "../index";
+import nunjucks from "nunjucks";
 
-import juniorcodetemplate from './juniorcodetemplate';
-import board2code, { getBoardDefinition } from './board2code';
-import components2code from './components2code';
-import program2code from './program2code';
+import juniorcodetemplate from "./juniorcodetemplate";
+import board2code, { getBoardDefinition } from "./board2code";
+import components2code from "./components2code";
+import program2code from "./program2code";
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -50,7 +50,7 @@ const bloqs2code = (
     globals,
     setup,
     loop,
-    definitions,
+    definitions
   };
 
   try {
