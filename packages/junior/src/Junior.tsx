@@ -109,6 +109,15 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   const upload = async (timeout: number): Promise<void> => {
     const code = bloqs2code(boards, components, bloqTypes, hardware, program);
 
+    if (!web2Board.isConnected()) {
+      try {
+        debugger;
+        await web2Board.waitUntilOpened();
+      } catch (e) {
+        console.warn(e);
+      }
+    }
+
     if (web2Board.isConnected()) {
       setIsLoading(true);
       setLoadingPercentage(0);
