@@ -205,8 +205,6 @@ const program2code = (
   if (!arduinoCode.globals) arduinoCode.globals = [];
   if (!arduinoCode.loop) arduinoCode.loop = [];
 
-  debugger;
-
   let functionNameIndex: number = 1;
 
   let functionName: string = "";
@@ -274,7 +272,6 @@ const program2code = (
             componentsDefinition
           );
 
-          debugger;
           const codeArray: string[] = bloq2code(
             bloqInstance,
             hardware,
