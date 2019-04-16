@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import update from 'immutability-helper';
-import styled from '@emotion/styled';
-import { Document, Icon, LoadingBarOverlay, useTranslate } from '@bitbloq/ui';
+import React, { useState, useEffect, useRef } from "react";
+import update from "immutability-helper";
+import styled from "@emotion/styled";
+import { Document, Icon, LoadingBarOverlay, useTranslate } from "@bitbloq/ui";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -14,8 +14,8 @@ import {
   IComponent,
   IHardware,
   BloqCategory,
-  isBloqSelectComponentParameter,
-} from '@bitbloq/bloqs';
+  isBloqSelectComponentParameter
+} from "@bitbloq/bloqs";
 
 export interface JuniorProps {
   brandColor: string;
@@ -41,18 +41,18 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   initialContent,
   onContentChange,
   boards,
-  components,
+  components
 }) => {
   const t = useTranslate();
 
   const [content, setContent] = useState(initialContent);
   const program = content.program || [];
   const hardware: IHardware = content.hardware || {
-    board: 'zumjunior',
-    components: [],
+    board: "zumjunior",
+    components: []
   };
 
-  const web2BoardRef = useRef(new Web2Board('wss://web2board.es:9867/bitbloq'));
+  const web2BoardRef = useRef(new Web2Board("wss://web2board.es:9867/bitbloq"));
   const web2Board = web2BoardRef.current;
 
   const componentMapRef = useRef<{ [key: string]: IComponent }>();
@@ -125,21 +125,21 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       setTimeout(() => {
         if (isLoading) {
           setIsLoading(false);
-          console.error('Uploading Timeout');
+          console.error("Uploading Timeout");
         }
       }, timeout);
 
       try {
-        const uploadGen = web2Board.upload(code, 'zumjunior');
+        const uploadGen = web2Board.upload(code, "zumjunior");
 
         while (true) {
           const { value: reply, done } = await uploadGen.next();
           const fn = reply.function;
 
-          if (fn === 'is_compiling') {
+          if (fn === "is_compiling") {
             setLoadingPercentage(33);
           }
-          if (fn === 'is_uploading') {
+          if (fn === "is_uploading") {
             setLoadingPercentage(66);
           }
           if (done) {
@@ -152,13 +152,13 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         return;
       }
     } else {
-      console.warn('Web2Board not connected');
+      console.warn("Web2Board not connected");
     }
   };
 
   const onHeaderButtonClick = (id: string) => {
     switch (id) {
-      case 'upload':
+      case "upload":
         upload(10000);
       default:
         return;
@@ -186,7 +186,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
                     isInstanceOf(componentMap[c], btComponent, componentMap)
                   )
               )
-              .map(bt => bt.name),
+              .map(bt => bt.name)
           }))
       );
 
@@ -202,7 +202,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     <Document.Tab
       key="hardware"
       icon={<Icon name="hardware" />}
-      label={t('hardware')}
+      label={t("hardware")}
     >
       <HardwareDesigner
         boards={boards}
@@ -216,7 +216,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     <Document.Tab
       key="software"
       icon={<Icon name="programming" />}
-      label={t('software')}
+      label={t("software")}
     >
       <HorizontalBloqEditor
         bloqs={program}
@@ -230,21 +230,21 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         actionGroups={actionGroups}
         waitGroups={waitGroups}
       />
-    </Document.Tab>,
+    </Document.Tab>
   ];
 
   return (
     <>
       <Document
         brandColor={brandColor}
-        title={title || t('untitled-project')}
+        title={title || t("untitled-project")}
         onEditTitle={onEditTitle}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
         onHeaderButtonClick={onHeaderButtonClick}
-        headerButtons={[{ id: 'upload', icon: 'hardware' }]}
+        headerButtons={[{ id: "upload", icon: "hardware" }]}
       >
-        {typeof children === 'function' ? children(mainTabs) : mainTabs}
+        {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>
       <LoadingBarOverlay isOpen={isLoading} percentage={loadingPercentage} />
     </>

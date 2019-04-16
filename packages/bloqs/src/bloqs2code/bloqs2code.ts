@@ -59,7 +59,8 @@ const bloqs2code = (
     components2code(components, hardware.components, board, arduinoCode);
     program2code(components, bloqTypes, hardware, program, arduinoCode);
   } catch (e) {
-    throw e;
+    console.warn(e);
+    // throw e;
   }
 
   const nunjucksData = { ...arduinoCode, date: getDate() };
