@@ -23,19 +23,27 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     category: BloqCategory.Event,
     name: "OnStart",
     label: "bloq-on-start",
-    icon: flagIcon,
-    code: {}
+    icon: flagIcon
   },
   {
     category: BloqCategory.Event,
     name: "OnSwitchOnOff",
-    components: ["DoubleSwitch"],
+    components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
-      "switch === 1 and switchValue": switch1OnIcon,
-      "switch === 2 and switchValue": switch2OnIcon,
-      "switch === 1 and not switchValue": switch1OffIcon,
-      "switch === 2 and not switchValue": switch2OffIcon
+      "switch === 1 and action === 'pos1'": switch1OnIcon,
+      "switch === 2 and action === 'pos1'": switch2OnIcon,
+      "switch === 1 and action === 'pos2'": switch1OffIcon,
+      "switch === 2 and action === 'pos2'": switch2OffIcon
     },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}Pin{{switch}}",
+          value: "{{action}}"
+        }
+      }
+    ],
     parameters: [
       {
         name: "component",
@@ -58,17 +66,17 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         ]
       },
       {
-        name: "switchValue",
+        name: "action",
         label: "bloq-parameter-switch-value",
         type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-on",
-            value: true
+            value: "pos1"
           },
           {
             label: "bloq-parameter-off",
-            value: false
+            value: "pos2"
           }
         ]
       }

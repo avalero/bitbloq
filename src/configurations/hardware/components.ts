@@ -108,8 +108,15 @@ export const components: Partial<IComponent>[] = [
     extends: "Led",
     instanceName: "bloq-led-instance-name",
     values:{
-      on: "HIGH",
-      off: "LOW"
+      on: "LOW",
+      off: "HIGH"
+    },
+    code: {
+      setup: [
+        `{% for pin in pinsInfo %}
+        digitalWrite({{pin.pinVarName}},HIGH);
+        {% endfor %}`,
+      ]
     },
     connectors: [
       {
@@ -140,13 +147,13 @@ export const components: Partial<IComponent>[] = [
     }
   },
   {
-    name: "DoubleSwitch",
-    extends: "DigitalInput"
-  },
-  {
-    name: "ZumjuniorSwitch",
-    extends: "DoubleSwitch",
+    name: "ZumjuniorDoubleSwitch",
+    extends: "DigitalInput",
     instanceName: "bloq-switch-instance-name",
+    values:{
+      pos1: "LOW",
+      pos2: "HIGH"
+    },
     connectors: [
       {
         name: "main",
