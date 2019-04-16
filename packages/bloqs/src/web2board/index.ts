@@ -30,8 +30,8 @@ export default class Web2Board {
   }
 
   public startWeb2board() {
-    const tempA = document.createElement('a');
-    tempA.setAttribute('href', 'qssweb2board://');
+    const tempA = document.createElement("a");
+    tempA.setAttribute("href", "qssweb2board://");
     document.body.appendChild(tempA);
     tempA.click();
     document.body.removeChild(tempA);
@@ -48,14 +48,14 @@ export default class Web2Board {
       } else if (this.ws.readyState === WebSocket.CLOSED) {
         this.ws = null;
         const error = new Error();
-        error.name = 'ConnectionError';
+        error.name = "ConnectionError";
         reject(error);
       } else {
-        this.ws.addEventListener('open', () => resolve());
-        this.ws.addEventListener('close', e => {
+        this.ws.addEventListener("open", () => resolve());
+        this.ws.addEventListener("close", e => {
           this.ws = null;
           const error = new Error();
-          error.name = 'ConnectionError';
+          error.name = "ConnectionError";
           reject(error);
         });
       }
@@ -87,13 +87,13 @@ export default class Web2Board {
         const reply = JSON.parse(event.data);
         if (reply.ID === id) {
           if (this.ws) {
-            this.ws.removeEventListener('message', onMessage);
+            this.ws.removeEventListener("message", onMessage);
           }
           resolve(reply);
         }
       };
       if (this.ws) {
-        this.ws.addEventListener('message', onMessage);
+        this.ws.addEventListener("message", onMessage);
       }
     });
   }
@@ -108,7 +108,7 @@ export default class Web2Board {
     const command = {
       args,
       ID: id,
-      function: fn,
+      function: fn
     };
     if (this.ws) {
       this.ws.send(JSON.stringify(command));
@@ -116,16 +116,16 @@ export default class Web2Board {
     return this.waitForReply(id);
   }
 
-  public getVersion = () => this.sendCommand('get_version', []);
+  public getVersion = () => this.sendCommand("get_version", []);
 
-  public setLibVersion = () => this.sendCommand('set_lib_version', ['1.6.0']);
+  public setLibVersion = () => this.sendCommand("set_lib_version", ["1.6.0"]);
 
   public compile(code: string, board: string) {
-    return this.callGenerator('compile', [code, board]);
+    return this.callGenerator("compile", [code, board]);
   }
 
   public upload(code: string, board: string) {
-    return this.callGenerator('upload', [code, board]);
+    return this.callGenerator("upload", [code, board]);
   }
 
   private async *callGenerator(fn: string, args: string[] = []) {
@@ -137,17 +137,17 @@ export default class Web2Board {
           return response;
         }
 
-        if (reply.title === 'BOARDNOTDETECTED') {
+        if (reply.title === "BOARDNOTDETECTED") {
           const error = new Error();
-          error.name = 'BoardNotDetected';
+          error.name = "BoardNotDetected";
           throw error;
-        } else if (reply.title === 'BOARDNOTKNOWN') {
+        } else if (reply.title === "BOARDNOTKNOWN") {
           const error = new Error();
-          error.name = 'BoardNotKnown';
+          error.name = "BoardNotKnown";
           throw error;
         } else if (reply.file) {
           const error = new Error(reply.error);
-          error.name = 'CompileError';
+          error.name = "CompileError";
           throw error;
         }
       }
