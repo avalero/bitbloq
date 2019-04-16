@@ -30,7 +30,6 @@ export default class Web2Board {
   }
 
   public startWeb2board() {
-    console.warn("starting Web2board...");
     const tempA = document.createElement("a");
     tempA.setAttribute("href", "qssweb2board://");
     document.body.appendChild(tempA);
@@ -38,13 +37,19 @@ export default class Web2Board {
     document.body.removeChild(tempA);
   }
 
-  public waitUntilOpened() {
+  public connect() {
     return new Promise((resolve, reject) => {
       if (!this.ws) {
         this.ws = new WebSocket(this.url);
       }
+
       if (this.ws.readyState === WebSocket.OPEN) {
         resolve();
+      } else if (this.ws.readyState === WebSocket.CLOSED) {
+        this.ws = null;
+        const error = new Error();
+        error.name = "ConnectionError";
+        reject(error);
       } else {
         this.ws.addEventListener("open", () => resolve());
         this.ws.addEventListener("close", e => {
@@ -55,6 +60,25 @@ export default class Web2Board {
         });
       }
     });
+  }
+
+  public async waitUntilOpened() {
+    let tries = 0;
+    while (tries < 10) {
+      console.info(`Connecting to Web2Board: ${tries} out of 10`);
+      try {
+        await this.connect();
+        return;
+      } catch (e) {
+        if (tries === 0) {
+          this.startWeb2board();
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        tries += 1;
+      }
+    }
+    this.ws = null;
+    throw new Error();
   }
 
   public waitForReply(id: number): Promise<IWeb2BoardResponse> {
