@@ -146,5 +146,7 @@
   "bloq-component-port": "Port",
   "bloq-on-seven-segment": "On change display",
   "bloq-parameter-seven-segment": "Display",
-  "bloq-parameter-digit1": "Digit 1"
+  "bloq-parameter-digit1": "Digit 1",
+  "bloq-inc-seven-segment-num": "Increment numeric value",
+  "bloq-dec-seven-segment-num": "Decrement numeric value"
 }

@@ -256,6 +256,16 @@ export const components: Partial<IComponent>[] = [
         code: `{{pinVarName}}.readInt()`,
         return: "uint8_t"
       },
+      {
+        name: 'incrementNumber',
+        parameters: ['pinVarName', 'value'],
+        code: `{{pinVarName}}.displayInt({{pinVarName}}.readInt()+{{value}});`
+      },
+      {
+        name: 'decrementNumber',
+        parameters: ['pinVarName','value'],
+        code: `{{pinVarName}}.displayInt({{pinVarName}}.readInt()-{{value}});`
+      },
     ],
   },
   {

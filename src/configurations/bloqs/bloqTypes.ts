@@ -278,6 +278,64 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     ]
   },
   {
+    category: BloqCategory.Action,
+    name: "IncrementSevenSegmentNumericValue",
+    label: "bloq-inc-seven-segment-num",
+    components: ["ZumjuniorSevenSegment"],
+    icon: sevenSegmentsIcon,
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Number
+      },
+    ],
+    code: {},
+    actions: [
+      {
+        name: 'incrementNumber',
+        parameters: {
+          pinVarName: '{{component}}i2c',
+          value: '{{value}}',
+        },
+      },
+    ]
+  },
+  {
+    category: BloqCategory.Action,
+    name: "DecrementSevenSegmentNumericValue",
+    label: "bloq-dec-seven-segment-num",
+    components: ["ZumjuniorSevenSegment"],
+    icon: sevenSegmentsIcon,
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Number
+      },
+    ],
+    code: {},
+    actions: [
+      {
+        name: 'decrementNumber',
+        parameters: {
+          pinVarName: '{{component}}i2c',
+          value: '{{value}}',
+        },
+      },
+    ]
+  },
+  {
     category: BloqCategory.Wait,
     name: "Wait1Second",
     icon: time1Icon,
