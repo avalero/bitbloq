@@ -29,7 +29,7 @@ const uuid = v1;
 interface IAction {
   parameters: { [name: string]: string };
   definition: IComponentAction;
-  values: { [name: string]: string };
+  valuesSym: { [name: string]: string };
 }
 
 type ActionsArray = IAction[];
@@ -144,7 +144,7 @@ export const getActions = (
     const obj: IAction = {
       parameters: { ...parameters },
       definition: { ...actionsDefinitions[index] },
-      values: { ...componentDefinition.values }
+      valuesSym: { ...componentDefinition.values }
     };
     actions.push(obj);
   });
@@ -158,8 +158,8 @@ export const actions2code = (actions: ActionsArray): string[] => {
     const nunjucksData = action.parameters;
 
     // in case the alias is a value
-    if (action.values[action.parameters.value]) {
-      nunjucksData.value = action.values[action.parameters.value];
+    if (action.valuesSym[action.parameters.value]) {
+      nunjucksData.value = action.valuesSym[action.parameters.value];
     }
     const codeTemplate = action.definition.code;
     const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
@@ -286,9 +286,9 @@ const program2code = (
           const code: string = codeArray[0];
 
           const eventLoopCode: string = `
-          if(${code} == ${
-            componentDefintion.values![bloqInstance.parameters.action]
-          }){
+          if(${code} == ${(componentDefintion.values &&
+            componentDefintion.values[bloqInstance.parameters.value]) ||
+            bloqInstance.parameters.value}){
             if(!${timelineFlagName}){ 
               heap.insert(${functionName});
               ${timelineFlagName} = true;
