@@ -111,7 +111,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
 
     if (!web2Board.isConnected()) {
       try {
-        debugger;
         await web2Board.waitUntilOpened();
       } catch (e) {
         console.warn(e);
