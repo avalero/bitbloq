@@ -30,17 +30,17 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     name: "OnSwitchOnOff",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
-      "switch === 1 and action === 'pos1'": switch1OnIcon,
-      "switch === 2 and action === 'pos1'": switch2OnIcon,
-      "switch === 1 and action === 'pos2'": switch1OffIcon,
-      "switch === 2 and action === 'pos2'": switch2OffIcon
+      "switch === 1 and value === 'pos1'": switch1OnIcon,
+      "switch === 2 and value === 'pos1'": switch2OnIcon,
+      "switch === 1 and value === 'pos2'": switch1OffIcon,
+      "switch === 2 and value === 'pos2'": switch2OffIcon
     },
     actions: [
       {
         name: "read",
         parameters:{
           pinVarName: "{{component}}Pin{{switch}}",
-          value: "{{action}}"
+          value: "{{value}}"
         }
       }
     ],
@@ -66,7 +66,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         ]
       },
       {
-        name: "action",
+        name: "value",
         label: "bloq-parameter-switch-value",
         type: BloqParameterType.Select,
         options: [
@@ -89,15 +89,15 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     label: "bloq-on-button-pressed",
     components: ["Button"],
     iconSwitch: {
-      "action === 'pressed'": buttonPressedIcon,
-      "action === 'released'": buttonReleasedIcon
+      "value === 'pressed'": buttonPressedIcon,
+      "value === 'released'": buttonReleasedIcon
     },
     actions: [
       {
         name: "read",
         parameters:{
           pinVarName: "{{component}}Pin",
-          value: "{{action}}"
+          value: "{{value}}"
         }
       }
     ],
@@ -108,7 +108,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "action",
+        name: "value",
         label: "bloq-parameter-action",
         type: BloqParameterType.Select,
         options: [
@@ -131,6 +131,15 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     label: "bloq-on-seven-segment",
     icon: sevenSegmentsIcon,
     components: ["SevenSegment"],
+    actions: [
+      {
+        name: "readNumber",
+        parameters:{
+          pinVarName: "{{component}}i2c",
+          value: "{{value}}"
+        }
+      }
+    ],
     parameters: [
       {
         name: "component",
@@ -138,7 +147,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "digit1",
+        name: "value",
         label: "bloq-parameter-digit1",
         type: BloqParameterType.Text
       }

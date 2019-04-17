@@ -244,6 +244,18 @@ export const components: Partial<IComponent>[] = [
         parameters: ['pinVarName', 'char1', 'char2'],
         code: `{{pinVarName}}.displayChar('{{char1}}','{{char2}}');`,
       },
+      {
+        name: 'readChar',
+        parameters: ['pinVarName'],
+        code: `{{pinVarName}}.readChar()`,
+        return: "string"
+      },
+      {
+        name: 'readNumber',
+        parameters: ['pinVarName'],
+        code: `{{pinVarName}}.readInt()`,
+        return: "uint8_t"
+      },
     ],
   },
   {
