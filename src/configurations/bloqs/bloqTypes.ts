@@ -97,7 +97,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "read",
         parameters:{
           pinVarName: "{{component}}Pin",
-          value: "{{value}}"
         }
       }
     ],
@@ -383,7 +382,13 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "value",
         label: "bloq-parameter-value",
         type: BloqParameterType.Hidden,
-        value: "<20",
+        value: "20",
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "<",
       }
     ]
   },
@@ -411,8 +416,60 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "value",
         label: "bloq-parameter-value",
         type: BloqParameterType.Hidden,
-        value: ">20",
+        value: "20",
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: ">",
       }
     ]
+  },
+  {
+    category: BloqCategory.Wait,
+    name: "WaitButtonPressed",
+    label: "bloq-on-button-pressed",
+    components: ["Button"],
+    iconSwitch: {
+      "value === 'pressed'": buttonPressedIcon,
+      "value === 'released'": buttonReleasedIcon
+    },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}Pin",
+        }
+      }
+    ],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-button",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-press",
+            value: "pressed"
+          },
+          {
+            label: "bloq-parameter-release",
+            value: "released"
+          }
+        ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
+      }
+    ],
   },
 ];
