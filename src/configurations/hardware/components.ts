@@ -187,12 +187,8 @@ export const components: Partial<IComponent>[] = [
     extends: "Component"
   },
   {
-    name: "SevenSegment",
-    extends: "I2C"
-  },
-  {
     name: "ZumjuniorSevenSegment",
-    extends: "SevenSegment",
+    extends: "I2C",
     instanceName: "bloq-seven-segment-instance-name",
     connectors: [
       {
@@ -315,7 +311,8 @@ export const components: Partial<IComponent>[] = [
     }
   },
   {
-    name: "ZumjuniorSensors",
+    name: "ZumjuniorMultiSensor",
+    
     extends: "I2C",
     instanceName: "bloq-sensors-instance-name",
     connectors: [
@@ -326,13 +323,49 @@ export const components: Partial<IComponent>[] = [
           x: 0.28,
           y: 1
         },
-        pins: []
+        pins: [
+          {
+            name: "i2c",
+            mode: ConnectorPinMode.I2C,
+            portPin: "i2c"
+          }
+        ]
       }
     ],
     image: {
       url: SensorsImage,
       width: 123,
       height: 124
-    }
+    },
+    code: {
+      includes: [
+        "<BQZUMI2CTempSensor.h>",
+        "<BQZUMI2CColorSensor.h>",
+        "<BQZUMI2CALPSSensor.h>"
+      ],
+      globals: [
+        `{% for pin in pinsInfo %}
+        uint8_t i2cport{{pin.pinVarName}} = {{pin.pinNumber}};
+        BQ::ZUM::I2CALPSSensor {{pin.pinVarName}}ALPS(i2cport{{pin.pinVarName}});
+        BQ::ZUM::I2CColorSensor {{pin.pinVarName}}Color(i2cport{{pin.pinVarName}});
+        BQ::ZUM::I2CTempSensor {{pin.pinVarName}}Temp(i2cport{{pin.pinVarName}});
+        {% endfor %}`,
+      ],
+      setup: [
+        `{% for pin in pinsInfo %}
+        {{pin.pinVarName}}ALPS.setup();
+        {{pin.pinVarName}}Color.setup();
+        {{pin.pinVarName}}Temp.setup();
+        {% endfor %}`,
+      ],
+    },
+    actions: [
+      {
+        name: 'readDistance',
+        parameters: ['pinVarName'],
+        code: `{{pinVarName}}ALPS.getDistance()`,
+        return: "uint8_t"
+      },
+    ],
   },
 ];
