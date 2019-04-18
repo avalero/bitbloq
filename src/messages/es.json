@@ -148,5 +148,9 @@
   "bloq-inc-seven-segment-num": "Incrementar el valor numérico",
   "bloq-dec-seven-segment-num": "Decrementar el valor numérico",
   "bloq-inc-seven-value": "¿Cuántas unidades?",
-  "bloq-controt-servo-instance-name": "servoRC"
+  "bloq-controt-servo-instance-name": "servoRC",
+  "bloq-parameter-clockwise": "Sentido horario",
+  "bloq-parameter-counterclockwise": "Sentido antihorario",
+  "bloq-parameter-stop": "Parar",
+  "bloq-parameter-rotation": "Sentido de giro"
 }

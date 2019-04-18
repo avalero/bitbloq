@@ -147,5 +147,9 @@
   "bloq-inc-seven-segment-num": "Increment numeric value",
   "bloq-dec-seven-segment-num": "Decrement numeric value",
   "bloq-inc-seven-value": "¿How many?",
-  "bloq-controt-servo-instance-name": "servoRC"
+  "bloq-controt-servo-instance-name": "servoRC",
+  "bloq-parameter-clockwise": "Clockwise",
+  "bloq-parameter-counterclockwise": "Counterclockwise",
+  "bloq-parameter-stop": "Stop",
+  "bloq-parameter-rotation": "Rotation direction"
 }
