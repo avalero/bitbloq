@@ -19,5 +19,6 @@ export enum BloqParameterType {
   Select = "select",
   SelectComponent = "selectComponent",
   Number = "number",
-  Text = "text"
+  Text = "text",
+  Hidden = "hidden"
 }

@@ -33,6 +33,7 @@ export interface IBloqBaseParameter {
   name: string;
   label: string;
   type: BloqParameterType;
+  value?: string;
 }
 
 export interface IBloqParameterOption {

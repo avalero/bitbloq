@@ -23,6 +23,7 @@ import {
   isBloqSelectParameter,
   isBloqSelectComponentParameter
 } from "../index";
+import { BloqParameterType } from "../enums";
 
 interface IBloqPropertiesPanelProps {
   isOpen: boolean;
@@ -82,7 +83,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
         </FormGroup>
       );
     }
-    if (param.type === "text") {
+    if (param.type === BloqParameterType.Text) {
       return (
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
@@ -99,7 +100,7 @@ const BloqPropertiesPanel: React.FunctionComponent<
         </FormGroup>
       );
     }
-    if (param.type === "number") {
+    if (param.type === BloqParameterType.Number) {
       return (
         <FormGroup key={param.name}>
           <label>{t(param.label)}</label>
@@ -113,6 +114,12 @@ const BloqPropertiesPanel: React.FunctionComponent<
           />
         </FormGroup>
       );
+    }
+    if (param.type === BloqParameterType.Hidden) {
+      // bloq.parameters[param.name] = param.value as string;
+      update(bloq, {
+        parameters: { [param.name]: { $set: param.value as string } }
+      });
     }
 
     return null;
