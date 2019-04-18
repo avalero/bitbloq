@@ -16,15 +16,15 @@ import {
   IBoard,
   IBloqAction,
   IComponentAction,
-  IArduinoCode
-} from "../index";
-import { getFullComponentDefinition } from "./componentBuilder";
-import { pinsForComponent } from "./components2code";
-import nunjucks from "nunjucks";
-import { BloqCategory } from "../enums";
+  IArduinoCode,
+} from '../index';
+import { getFullComponentDefinition } from './componentBuilder';
+import { pinsForComponent } from './components2code';
+import nunjucks from 'nunjucks';
+import { BloqCategory } from '../enums';
 
-import { v1 } from "uuid";
-import { cloneDeep } from "lodash";
+import { v1 } from 'uuid';
+import { cloneDeep } from 'lodash';
 const uuid = v1;
 
 interface IAction {
@@ -137,7 +137,7 @@ export const getActions = (
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      "Unexpected different sizes of actionParameters and actionDefinitions"
+      'Unexpected different sizes of actionParameters and actionDefinitions'
     );
   }
 
@@ -145,7 +145,7 @@ export const getActions = (
     const obj: IAction = {
       parameters: { ...parameters },
       definition: { ...actionsDefinitions[index] },
-      valuesSym: { ...componentDefinition.values }
+      valuesSym: { ...componentDefinition.values },
     };
     actions.push(obj);
   });
@@ -208,13 +208,13 @@ const waitTimer2Code = (
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
   if (!bloqDefinition.actions) {
-    throw new Error("Wait bloq should have actions");
+    throw new Error('Wait bloq should have actions');
   }
 
   if (!bloqDefinition.actions[0].name) {
-    throw new Error("Wait bloq should have actions.name");
+    throw new Error('Wait bloq should have actions.name');
   }
-  if (bloqDefinition.actions[0].name === "wait") {
+  if (bloqDefinition.actions[0].name === 'wait') {
     const functionName = `func_${functionNameIndex}`;
     const waitCodeTempalete: string = bloqDefinition.actions[0].parameters.code;
     const waitNunjucksParameters = { functionName };
@@ -266,7 +266,7 @@ const program2code = (
 
   let functionNameIndex: number = 1;
 
-  let functionName: string = "";
+  let functionName: string = '';
   let timelineFlagName: string = `${functionName}Flag`;
   program.forEach((timeline, index) => {
     if (timeline.length === 0) return;
@@ -285,17 +285,13 @@ const program2code = (
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
           if (!bloqDefinition.actions) {
-            throw new Error("Wait bloq should have actions");
+            throw new Error('Wait bloq should have actions');
           }
           // Wait time bloq (it has no components)
           if (!bloqDefinition.components) {
             waitTimer2Code(bloqDefinition, ++functionNameIndex, arduinoCode);
           } else {
             // wait for component event bloq
-<<<<<<< HEAD
-=======
-            debugger;
->>>>>>> 3d42e79a3025f0b3b9cea1effa749feaa7f52abd
             componentDefintion = getComponentForBloq(
               bloqInstance,
               hardware,
@@ -313,7 +309,7 @@ const program2code = (
               waitEventCodeArray.length > 1 ||
               waitEventCodeArray.length === 0
             ) {
-              throw new Error("Unexepcted number of actions for an event");
+              throw new Error('Unexepcted number of actions for an event');
             }
 
             const waitEventCode: string = waitEventCodeArray[0];
@@ -355,7 +351,7 @@ const program2code = (
           functionName = `func_${++functionNameIndex}`;
 
           // OnStart Bloq requires special treatment
-          if (bloqDefinition.name === "OnStart") {
+          if (bloqDefinition.name === 'OnStart') {
             onstart2code(functionName, timelineFlagName, arduinoCode);
             break;
           }
@@ -374,7 +370,7 @@ const program2code = (
           );
 
           if (codeArray.length > 1 || codeArray.length === 0) {
-            throw new Error("Unexepcted number of actions for an event");
+            throw new Error('Unexepcted number of actions for an event');
           }
 
           const code: string = codeArray[0];
@@ -405,7 +401,7 @@ const program2code = (
             componentsDefinition
           );
 
-          let actionCodeDefinition: string = "";
+          let actionCodeDefinition: string = '';
 
           // build a function with all action bloqs
           while (bloqDefinition.category === BloqCategory.Action) {
@@ -414,7 +410,7 @@ const program2code = (
               hardware,
               bloqTypes,
               componentsDefinition
-            ).join("\n\t")}\n`;
+            ).join('\n\t')}\n`;
             i += 1;
             if (i >= timeline.length) break;
 
