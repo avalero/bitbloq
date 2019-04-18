@@ -139,7 +139,6 @@
   "bloq-seven-segment-instance-name": "sevenSegment",
   "bloq-set-seven-segment-num": "Write Number",
   "bloq-sensors-instance-name": "sensors",
-  "bloq-servo-instance-name": "servo",
   "bloq-miniservo-instance-name": "miniservo",
   "bloq-component-name": "Name",
   "bloq-component-port": "Port",
@@ -147,5 +146,6 @@
   "bloq-parameter-seven-segment": "Display",
   "bloq-inc-seven-segment-num": "Increment numeric value",
   "bloq-dec-seven-segment-num": "Decrement numeric value",
-  "bloq-inc-seven-value": "¿How many?"
+  "bloq-inc-seven-value": "¿How many?",
+  "bloq-controt-servo-instance-name": "servoRC"
 }

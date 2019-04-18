@@ -73,6 +73,68 @@ export const components: Partial<IComponent>[] = [
     extends: "DigitalOutput"
   },
   {
+    name: "ContRotServo",
+    extends: "Component",
+    values:{
+      clockwise: "175",
+      counterclockwise: "5",
+      stop: "90"
+    },
+    actions: [
+      {
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: `{{pinVarName}}PinCRServo.write({{value}});`,
+      },
+      {
+        name: 'read',
+        parameters: ['pinVarName'],
+        code: `{{pinVarName}}PinCRServo.read()`,
+        return: "uint8_t"
+      },
+    ],
+    code: {
+      includes: [
+        "<Servo.h>"
+      ],
+      globals: [
+        `{% for pin in pinsInfo %}
+        uint8_t {{pin.pinVarName}} = {{pin.pinNumber}}; 
+        Servo {{pin.pinVarName}}CRServo;
+        {% endfor %}`
+      ],
+      setup: [
+        `{% for pin in pinsInfo %}
+        {{pin.pinVarName}}CRServo.attach({{pin.pinVarName}});
+        {{pin.pinVarName}}CRServo.write(90);
+        {% endfor %}`,
+      ],
+    },
+    instanceName: "bloq-controt-servo-instance-name",
+    connectors: [
+      {
+        name: "main",
+        type: "zumjunior-digital",
+        position: {
+          x: -0.4,
+          y: -1
+        },
+        pins: [
+          {
+            name: "Pin",
+            mode: ConnectorPinMode.INPUT,
+            portPin: "0"
+          }
+        ]
+      }
+    ],
+    image: {
+      url: ServoImage,
+      width: 124,
+      height: 124
+    }
+  },
+  {
     name: "ZumjuniorButton",
     extends: "Button",
     values:{
@@ -166,12 +228,12 @@ export const components: Partial<IComponent>[] = [
           {
             name: "Pin1",
             mode: ConnectorPinMode.INPUT,
-            portPin: "0"
+            portPin: "1"
           },
           {
-            name: "Pin2",
+            name: "Pin0",
             mode: ConnectorPinMode.INPUT,
-            portPin: "1"
+            portPin: "0"
           }
         ]
       }

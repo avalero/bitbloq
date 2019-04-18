@@ -10,6 +10,9 @@ import timeIcon from "../../images/bloqs/time.svg";
 import time1Icon from "../../images/bloqs/time-1.svg";
 import time5Icon from "../../images/bloqs/time-5.svg";
 import doubleLedOnOnIcon from "../../images/bloqs/double-led-on-on.svg";
+import rcservoclockwise from "../../images/bloqs/rcservo-clockwise.svg";
+import rcservocounterclockwise from "../../images/bloqs/rcservo-counterclockwise.svg";
+import rcservostop from "../../images/bloqs/rcservo-stop.svg";
 import doubleLedOffOnIcon from "../../images/bloqs/double-led-off-on.svg";
 import doubleLedOnOffIcon from "../../images/bloqs/double-led-on-off.svg";
 import doubleLedOffOffIcon from "../../images/bloqs/double-led-off-off.svg";
@@ -40,7 +43,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "read",
         parameters:{
           pinVarName: "{{component}}Pin{{switch}}",
-          value: "{{value}}"
         }
       }
     ],
@@ -79,6 +81,64 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
             value: "pos2"
           }
         ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
+      }
+    ],
+    code: {}
+  },
+  {
+    category: BloqCategory.Event,
+    name: "OnContRotServo",
+    components: ["ContRotServo"],
+    iconSwitch: {
+      "value === 'clockwise'": rcservoclockwise,
+      "value === 'counterclockwise'": rcservocounterclockwise,
+      "value === 'stop'": rcservostop
+    },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}"
+        }
+      }
+    ],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-rotation",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-clockwise",
+            value: "clockwise"
+
+          },
+          {
+            label: "bloq-parameter-counterclockwise",
+            value: "counterclockwise"
+          },
+          {
+            label: "bloq-parameter-stop",
+            value: "stop"
+          }
+        ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
       }
     ],
     code: {}
@@ -120,6 +180,12 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
             value: "released"
           }
         ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
       }
     ],
     code: {}
@@ -135,7 +201,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "readNumber",
         parameters:{
           pinVarName: "{{component}}i2c",
-          // value: "{{value}}"
         }
       }
     ],
@@ -149,6 +214,12 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "value",
         label: "bloq-parameter-value",
         type: BloqParameterType.Number
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
       }
     ]
   },
@@ -157,13 +228,33 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     name: "OnObstacle",
     label: "bloq-on-obstacle",
     icon: obstacleIcon,
-    components: ["ZumjuniorSensors"],
+    components: ["ZumjuniorMultiSensor"],
+    actions: [
+      {
+        name: "readDistance",
+        parameters:{
+          pinVarName: "{{component}}i2c",
+        }
+      }
+    ],
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-sensors",
         type: BloqParameterType.SelectComponent
       },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Hidden,
+        value: "20",
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "<=",
+      }
     ]
   },
   {
@@ -171,13 +262,33 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     name: "OnNoObstacle",
     label: "bloq-on-no-obstacle",
     icon: noObstacleIcon,
-    components: ["ZumjuniorSensors"],
+    components: ["ZumjuniorMultiSensor"],
+    actions: [
+      {
+        name: "readDistance",
+        parameters:{
+          pinVarName: "{{component}}i2c",
+        }
+      }
+    ],
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-sensors",
         type: BloqParameterType.SelectComponent
       },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Hidden,
+        value: "20",
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: ">",
+      }
     ]
   },
   {
@@ -245,6 +356,54 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           value: '{{led2}}',
         },
       },
+    ],
+  },
+  {
+    category: BloqCategory.Action,
+    name: "ContRotServo",
+    components: ["ContRotServo"],
+    iconSwitch: {
+      "rotation === 'clockwise'": rcservoclockwise,
+      "rotation === 'counterclockwise'": rcservocounterclockwise,
+      "rotation === 'stop'": rcservostop
+    },
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+
+      {
+        name: "rotation",
+        label: "bloq-parameter-rotation",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-clockwise",
+            value: "clockwise"
+
+          },
+          {
+            label: "bloq-parameter-counterclockwise",
+            value: "counterclockwise"
+          },
+          {
+            label: "bloq-parameter-stop",
+            value: "stop"
+          }
+        ]
+      }
+    ],
+    code: {},
+    actions: [
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}',
+          value: '{{rotation}}',
+        },
+      }
     ],
   },
   {
@@ -388,7 +547,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "<",
+        value: "<=",
       }
     ]
   },
@@ -429,7 +588,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Wait,
     name: "WaitButtonPressed",
-    label: "bloq-on-button-pressed",
+    label: "bloq-wait-button-pressed",
     components: ["Button"],
     iconSwitch: {
       "value === 'pressed'": buttonPressedIcon,
@@ -472,4 +631,101 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       }
     ],
   },
+  {
+    category: BloqCategory.Wait,
+    name: "WaitForSevenSegmentValue",
+    label: "bloq-wait-seven-segment",
+    icon: sevenSegmentsIcon,
+    components: ["ZumjuniorSevenSegment"],
+    actions: [
+      {
+        name: "readNumber",
+        parameters:{
+          pinVarName: "{{component}}i2c",
+        }
+      }
+    ],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-seven-segment",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Number
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
+      }
+    ]
+  },
+  {
+    category: BloqCategory.Wait,
+    name: "WainSwitchOnOff",
+    components: ["ZumjuniorDoubleSwitch"],
+    iconSwitch: {
+      "switch === 1 and value === 'pos1'": switch1OnIcon,
+      "switch === 2 and value === 'pos1'": switch2OnIcon,
+      "switch === 1 and value === 'pos2'": switch1OffIcon,
+      "switch === 2 and value === 'pos2'": switch2OffIcon
+    },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}Pin{{switch}}",
+          value: "{{value}}"
+        }
+      }
+    ],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "switch",
+        label: "bloq-parameter-switch",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-switch-1",
+            value: 1
+          },
+          {
+            label: "bloq-parameter-switch-2",
+            value: 2
+          }
+        ]
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-on",
+            value: "pos1"
+          },
+          {
+            label: "bloq-parameter-off",
+            value: "pos2"
+          }
+        ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
+      }
+    ],
+    code: {}
+  }
 ];

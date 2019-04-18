@@ -140,7 +140,6 @@
   "bloq-seven-segment-instance-name": "sieteSegmentos",
   "bloq-set-seven-segment-num": "Escribir Número",
   "bloq-sensors-instance-name": "sensores",
-  "bloq-servo-instance-name": "servo",
   "bloq-miniservo-instance-name": "miniservo",
   "bloq-component-name": "Nombre",
   "bloq-component-port": "Puerto",
@@ -148,5 +147,6 @@
   "bloq-parameter-seven-segment": "Display",
   "bloq-inc-seven-segment-num": "Incrementar el valor numérico",
   "bloq-dec-seven-segment-num": "Decrementar el valor numérico",
-  "bloq-inc-seven-value": "¿Cuántas unidades?"
+  "bloq-inc-seven-value": "¿Cuántas unidades?",
+  "bloq-controt-servo-instance-name": "servoRC"
 }
