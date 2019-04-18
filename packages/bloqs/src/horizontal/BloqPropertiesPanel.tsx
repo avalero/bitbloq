@@ -116,7 +116,6 @@ const BloqPropertiesPanel: React.FunctionComponent<
       );
     }
     if (param.type === BloqParameterType.Hidden) {
-      // bloq.parameters[param.name] = param.value as string;
       update(bloq, {
         parameters: { [param.name]: { $set: param.value as string } }
       });

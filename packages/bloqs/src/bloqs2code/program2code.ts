@@ -292,7 +292,6 @@ const program2code = (
             waitTimer2Code(bloqDefinition, ++functionNameIndex, arduinoCode);
           } else {
             // wait for component event bloq
-            debugger;
             componentDefintion = getComponentForBloq(
               bloqInstance,
               hardware,
