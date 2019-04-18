@@ -10,14 +10,15 @@
  */
 
 export enum BloqCategory {
-  Event = "event",
-  Wait = "wait",
-  Action = "action"
+  Event = 'event',
+  Wait = 'wait',
+  Action = 'action',
 }
 
 export enum BloqParameterType {
-  Select = "select",
-  SelectComponent = "selectComponent",
-  Number = "number",
-  Text = "text"
+  Select = 'select',
+  SelectComponent = 'selectComponent',
+  Number = 'number',
+  Text = 'text',
+  Hidden = 'hidden',
 }
