@@ -314,25 +314,24 @@ const program2code = (
 
             const waitEventCode: string = waitEventCodeArray[0];
 
-            // Add to globals functionName (previos call)
-            arduinoCode.globals!.push(`void ${functionName}();\n`);
-
             functionName = `func_${++functionNameIndex}`;
             const waitEventGlobalsCode: string = `
             void ${functionName}Wait();
             void ${functionName}();`;
 
             const waitEventDefinitionCode: string = `
-              heap.insert(${functionName}Wait());
+              heap.insert(${functionName}Wait);
             }
             
             void ${functionName}Wait(){
-              if(!(${waitEventCode} ${(componentDefintion.values &&
+              if(!(${waitEventCode} ${
+              bloqInstance.parameters.trueCondition
+            } ${(componentDefintion.values &&
               componentDefintion.values[bloqInstance.parameters.value]) ||
               bloqInstance.parameters.value})){
-                  heap.insert(${functionName}Wait());
+                  heap.insert(${functionName}Wait);
               }else{
-                heap.insert(${functionName}());
+                heap.insert(${functionName});
               }
             }
 
