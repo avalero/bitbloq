@@ -67,7 +67,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       },
       {
         name: "value",
-        label: "bloq-parameter-switch-value",
+        label: "bloq-parameter-value",
         type: BloqParameterType.Select,
         options: [
           {
@@ -148,7 +148,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       },
       {
         name: "value",
-        label: "bloq-parameter-digit1",
+        label: "bloq-parameter-value",
         type: BloqParameterType.Text
       }
     ]
@@ -291,7 +291,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       },
       {
         name: "value",
-        label: "bloq-parameter-value",
+        label: "bloq-inc-seven-value",
         type: BloqParameterType.Number
       },
     ],
@@ -320,7 +320,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       },
       {
         name: "value",
-        label: "bloq-parameter-value",
+        label: "bloq-inc-seven-value",
         type: BloqParameterType.Number
       },
     ],

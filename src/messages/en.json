@@ -129,7 +129,6 @@
   "bloq-parameter-switch": "Switch",
   "bloq-parameter-switch-1": "Switch 1",
   "bloq-parameter-switch-2": "Switch 2",
-  "bloq-parameter-switch-value": "Value",
   "bloq-parameter-value": "Value",
   "bloq-parameter-sensors": "Component",
   "bloq-on-start": "On start",
@@ -144,9 +143,9 @@
   "bloq-miniservo-instance-name": "miniservo",
   "bloq-component-name": "Name",
   "bloq-component-port": "Port",
-  "bloq-on-seven-segment": "On change display",
+  "bloq-on-seven-segment": "When display value is",
   "bloq-parameter-seven-segment": "Display",
-  "bloq-parameter-digit1": "Digit 1",
   "bloq-inc-seven-segment-num": "Increment numeric value",
-  "bloq-dec-seven-segment-num": "Decrement numeric value"
+  "bloq-dec-seven-segment-num": "Decrement numeric value",
+  "bloq-inc-seven-value": "¿How many?"
 }

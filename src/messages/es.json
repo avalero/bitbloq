@@ -130,7 +130,6 @@
   "bloq-parameter-switch": "Interruptor",
   "bloq-parameter-switch-1": "Interruptor 1",
   "bloq-parameter-switch-2": "Interruptor 2",
-  "bloq-parameter-switch-value": "Valor",
   "bloq-parameter-value": "Valor",
   "bloq-parameter-sensors": "Componente",
   "bloq-on-start": "Al empezar",
@@ -145,9 +144,9 @@
   "bloq-miniservo-instance-name": "miniservo",
   "bloq-component-name": "Nombre",
   "bloq-component-port": "Puerto",
-  "bloq-on-seven-segment": "Al cambiar display",
+  "bloq-on-seven-segment": "Cuando el display valga",
   "bloq-parameter-seven-segment": "Display",
-  "bloq-parameter-digit1": "Digito 1",
-  "bloq-inc-seven-segment-num": "Incrementar valor numérico",
-  "bloq-dec-seven-segment-num": "Decrementar valor numérico"
+  "bloq-inc-seven-segment-num": "Incrementar el valor numérico",
+  "bloq-dec-seven-segment-num": "Decrementar el valor numérico",
+  "bloq-inc-seven-value": "¿Cuántas unidades?"
 }
