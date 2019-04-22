@@ -5,6 +5,17 @@ import BoardImage from "../../images/hardware/zumjunior-board.svg";
 export const boards: IBoard[] = [
   {
     name: "zumjunior",
+    integrated: [
+      {
+        component: "DigitalRGBLed",
+        name: "integratedRGBLED",
+        pins: {
+          PinRed: "1",
+          PinGreen: "2",
+          PinBlue: "3",
+        }
+      }
+    ],
     code: {
       includes: ["<BQZUMJunior.h>", "<BQZUMJuniorPorts.h>"],
       globals: ["BQ::ZUMJunior zumJunior;"],

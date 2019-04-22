@@ -7,6 +7,8 @@ import MiniservoImage from "../../images/hardware/zumjunior-miniservo.svg";
 import SensorsImage from "../../images/hardware/zumjunior-sensors.svg";
 import ServoImage from "../../images/hardware/zumjunior-servo.svg";
 import SliderImage from "../../images/hardware/zumjunior-slider.svg";
+import BuzzerImage from "../../images/hardware/buzzer.svg";
+import RGBLedImage from "../../images/hardware/RGBled.svg";
 
 export const components: Partial<IComponent>[] = [
   {
@@ -122,7 +124,7 @@ export const components: Partial<IComponent>[] = [
         pins: [
           {
             name: "Pin",
-            mode: ConnectorPinMode.INPUT,
+            mode: ConnectorPinMode.OUTPUT,
             portPin: "0"
           }
         ]
@@ -130,6 +132,74 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: ServoImage,
+      width: 124,
+      height: 124
+    }
+  },
+  {
+    name: "DigitalRGBLed",
+    extends: "DigitalOutput",
+    values: [
+      {red: [255,0,0] }
+    ],
+    actions: [
+      {
+        name: 'write',
+        parameters: ['pinVarName', 'valueR', 'valueG', 'valueB'],
+        code: `
+        {{pinVarName}}.analogWrite({{valueR}});
+        {{pinVarName}}.analogWrite({{valueG}});
+        {{pinVarName}}.analogWrite({{valueB}});
+        `,
+      },
+    ],
+    instanceName: "bloq-digitalrgbled-instance-name",
+    connectors: [
+      {
+        name: "red",
+        type: "digital",
+        position: {
+          x: -0.4,
+          y: -1
+        },
+        pins: [
+          {
+            name: "PinRed",
+            mode: ConnectorPinMode.OUTPUT,
+          }
+        ]
+      },
+      {
+        name: "green",
+        type: "digital",
+        position: {
+          x: -0.4,
+          y: -1
+        },
+        pins: [
+          {
+            name: "PinGreen",
+            mode: ConnectorPinMode.OUTPUT,
+          }
+        ]
+      },
+      {
+        name: "blue",
+        type: "digital",
+        position: {
+          x: -0.4,
+          y: -1
+        },
+        pins: [
+          {
+            name: "PinBlue",
+            mode: ConnectorPinMode.OUTPUT,
+          }
+        ]
+      }
+    ],
+    image: {
+      url: RGBLedImage,
       width: 124,
       height: 124
     }
