@@ -7,19 +7,23 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
-import HardwareDesigner from "./hardware/HardwareDesigner";
-import bloqs2code from "./bloqs2code/bloqs2code";
-import Web2Board from "./web2board";
-import { BloqCategory, BloqParameterType } from "./enums";
+import HorizontalBloqEditor from './horizontal/HorizontalBloqEditor';
+import HardwareDesigner from './hardware/HardwareDesigner';
+import bloqs2code from './bloqs2code/bloqs2code';
+import { getBoardDefinition } from './bloqs2code/board2code';
+import { getComponentDefinition } from './bloqs2code/componentBuilder';
+import Web2Board from './web2board';
+import { BloqCategory, BloqParameterType } from './enums';
 
 export {
   HorizontalBloqEditor,
   HardwareDesigner,
   bloqs2code,
+  getBoardDefinition,
+  getComponentDefinition,
   BloqCategory,
   BloqParameterType,
-  Web2Board
+  Web2Board,
 };
 
 export interface IBloqCode {
@@ -122,10 +126,10 @@ export interface IConnectorPosition {
 }
 
 export enum IPortDirection {
-  North = "north",
-  South = "south",
-  East = "east",
-  West = "west"
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west',
 }
 
 export interface IPort {
@@ -143,17 +147,24 @@ export interface IComponentImage {
   height: number;
 }
 
+export interface IIntegratedComponent {
+  component: string;
+  name: string;
+  pins: { [name: string]: string };
+}
+
 export interface IBoard {
   name: string;
+  integrated: IIntegratedComponent[];
   code: IArduinoCode;
   image: IComponentImage;
   ports: IPort[];
 }
 
 export enum ConnectorPinMode {
-  INPUT = "INPUT",
-  OUTPUT = "OUTPUT",
-  I2C = "I2C"
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
+  I2C = 'I2C',
 }
 
 export interface IConnectorPin {
@@ -197,7 +208,8 @@ export interface IComponent {
 export interface IComponentInstance {
   component: string;
   name: string;
-  port: string;
+  port?: string;
+  integrated?: boolean;
 }
 
 export interface IHardware {
