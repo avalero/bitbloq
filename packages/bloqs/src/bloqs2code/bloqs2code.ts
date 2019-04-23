@@ -13,14 +13,14 @@ import {
   IBloqType,
   IHardware,
   IBloq,
-  IArduinoCode
-} from "../index";
-import nunjucks from "nunjucks";
+  IArduinoCode,
+} from '../index';
+import nunjucks from 'nunjucks';
 
-import juniorcodetemplate from "./juniorcodetemplate";
-import board2code, { getBoardDefinition } from "./board2code";
-import components2code from "./components2code";
-import program2code from "./program2code";
+import juniorcodetemplate from './juniorcodetemplate';
+import board2code, { getBoardDefinition } from './board2code';
+import components2code from './components2code';
+import program2code from './program2code';
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -50,7 +50,7 @@ const bloqs2code = (
     globals,
     setup,
     loop,
-    definitions
+    definitions,
   };
 
   try {
@@ -62,6 +62,11 @@ const bloqs2code = (
     console.warn(e);
     // throw e;
   }
+
+  // Remove duplicates from includes, globals and setup
+  arduinoCode.globals = Array.from(new Set(arduinoCode.globals));
+  arduinoCode.includes = Array.from(new Set(arduinoCode.includes));
+  arduinoCode.setup = Array.from(new Set(arduinoCode.setup));
 
   const nunjucksData = { ...arduinoCode, date: getDate() };
   const code: string = nunjucks.renderString(juniorcodetemplate, nunjucksData);
