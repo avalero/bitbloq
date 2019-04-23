@@ -19,13 +19,8 @@ import {
   IArduinoCode
 } from "../index";
 import { getFullComponentDefinition } from "./componentBuilder";
-import { pinsForComponent } from "./components2code";
 import nunjucks from "nunjucks";
 import { BloqCategory } from "../enums";
-
-import { v1 } from "uuid";
-import { cloneDeep } from "lodash";
-const uuid = v1;
 
 interface IAction {
   parameters: { [name: string]: string };

@@ -40,7 +40,7 @@
     "tslint:prod": "tslint --project tsconfig.json -c ./tslint-prod.json \"**/*.ts\"",
     "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "prettier:ts": "prettier --write \"**/*.{ts,tsx}\"",
-    "test": "jest --coverage",
+    "test": "echo \"not defined\"",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
   "bugs": {

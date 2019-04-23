@@ -12,7 +12,8 @@ import {
   IComponentInstance,
   IArduinoCode,
   IBoard,
-  ConnectorPinMode
+  ConnectorPinMode,
+  IIntegratedComponent
 } from "../index";
 import { getFullComponentDefinition } from "./componentBuilder";
 import nunjucks from "nunjucks";
@@ -50,20 +51,52 @@ export const pinsForComponent = (
   boardDefintion: IBoard
 ): Array<{ pinNumber: string; pinVarName: string }> => {
   const pinsInfo: Array<{ pinNumber: string; pinVarName: string }> = [];
-  if (!componentDefinition.connectors) throw new Error("No connector defined");
 
-  componentDefinition.connectors.forEach(connector => {
-    connector.pins.forEach(pin => {
-      pinsInfo.push({
-        pinNumber: getPinNumber(
-          boardDefintion,
-          componentInstance.port,
-          pin.portPin
-        ),
-        pinVarName: `${componentInstance.name}${pin.name}`
+  if (!componentDefinition.connectors) throw new Error("No connector defined");
+  // Integrated component
+  if (componentInstance.integrated) {
+    const integratedInstance:
+      | IIntegratedComponent
+      | undefined = boardDefintion.integrated.find(
+      component => component.name === componentInstance.name
+    );
+    if (!integratedInstance) {
+      throw new Error(
+        `${componentInstance.name} not found on ${boardDefintion.name}`
+      );
+    }
+
+    componentDefinition.connectors.forEach(connector => {
+      connector.pins.forEach(pin => {
+        pinsInfo.push({
+          pinVarName: `${componentInstance.name}${pin.name}`,
+          pinNumber: `${integratedInstance.pins[pin.name]}`
+        });
       });
     });
-  });
+
+    // Connected Component
+  } else {
+    if (!componentInstance.port) {
+      throw new Error(
+        `Port expected but not found on component ${componentDefinition.name}`
+      );
+    }
+
+    componentDefinition.connectors.forEach(connector => {
+      connector.pins.forEach(pin => {
+        pinsInfo.push({
+          pinNumber: getPinNumber(
+            boardDefintion,
+            componentInstance.port!,
+            pin.portPin
+          ),
+          pinVarName: `${componentInstance.name}${pin.name}`
+        });
+      });
+    });
+  }
+
   return pinsInfo;
 };
 

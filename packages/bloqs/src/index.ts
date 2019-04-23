@@ -10,6 +10,8 @@
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
 import HardwareDesigner from "./hardware/HardwareDesigner";
 import bloqs2code from "./bloqs2code/bloqs2code";
+import { getBoardDefinition } from "./bloqs2code/board2code";
+import { getComponentDefinition } from "./bloqs2code/componentBuilder";
 import Web2Board from "./web2board";
 import { BloqCategory, BloqParameterType } from "./enums";
 
@@ -17,6 +19,8 @@ export {
   HorizontalBloqEditor,
   HardwareDesigner,
   bloqs2code,
+  getBoardDefinition,
+  getComponentDefinition,
   BloqCategory,
   BloqParameterType,
   Web2Board
@@ -143,8 +147,15 @@ export interface IComponentImage {
   height: number;
 }
 
+export interface IIntegratedComponent {
+  component: string;
+  name: string;
+  pins: { [name: string]: string };
+}
+
 export interface IBoard {
   name: string;
+  integrated: IIntegratedComponent[];
   code: IArduinoCode;
   image: IComponentImage;
   ports: IPort[];
@@ -197,7 +208,8 @@ export interface IComponent {
 export interface IComponentInstance {
   component: string;
   name: string;
-  port: string;
+  port?: string;
+  integrated?: boolean;
 }
 
 export interface IHardware {
