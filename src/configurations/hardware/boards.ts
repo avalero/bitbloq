@@ -7,12 +7,19 @@ export const boards: IBoard[] = [
     name: "zumjunior",
     integrated: [
       {
-        component: "DigitalRGBLed",
-        name: "integratedRGBLED",
+        component: "DigitalRGBLED",
+        name: "zumJuniorRGBLED",
         pins: {
-          PinRed: "1",
-          PinGreen: "2",
-          PinBlue: "3",
+          PinRed: "7",
+          PinGreen: "8",
+          PinBlue: "2",
+        }
+      },
+      {
+        component: "Buzzer",
+        name: "zumJuniorBuzzer",
+        pins: {
+          Pin: "4",
         }
       }
     ],

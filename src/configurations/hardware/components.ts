@@ -12,11 +12,7 @@ import RGBLedImage from "../../images/hardware/RGBled.svg";
 
 export const components: Partial<IComponent>[] = [
   {
-    name: "Component"
-  },
-  {
-    name: "Digital",
-    extends: "Component",
+    name: "Component",
     code: {
       globals: [
         `{% for pin in pinsInfo %}
@@ -24,6 +20,10 @@ export const components: Partial<IComponent>[] = [
         {% endfor %}`
       ]
     }
+  },
+  {
+    name: "Digital",
+    extends: "Component",
   },
   {
     name: "DigitalInput",
@@ -75,23 +75,67 @@ export const components: Partial<IComponent>[] = [
     extends: "DigitalOutput"
   },
   {
-    name: "ContRotServo",
+    name: "Buzzer",
     extends: "Component",
     values:{
-      clockwise: "175",
-      counterclockwise: "5",
-      stop: "90"
+      A: "880",
+      B: "988",
+      C: "1047",
+      D: "1175",
+      E: "2319",
+      F: "1397",
+      G: "1568"
     },
     actions: [
       {
         name: 'write',
+        parameters: ['pinVarName', 'value', 'duration'],
+        code: `tone({{pinVarName}}Pin,{{value}},{{duration}}*1000);`,
+      }
+    ],
+    code: {
+      setup: [
+        `{% for pin in pinsInfo %}
+        pinMode({{pin.pinVarName}},OUTPUT);
+        {% endfor %}`,
+      ],
+    },
+    instanceName: "bloq-buzzer-instance-name",
+    connectors: [
+      {
+        name: "main",
+        type: "digital",
+        position: {
+          x: -0.4,
+          y: -1
+        },
+        pins: [
+          {
+            name: "Pin",
+            mode: ConnectorPinMode.OUTPUT,
+          }
+        ]
+      }
+    ],
+    image: {
+      url: BuzzerImage,
+      width: 124,
+      height: 124
+    }
+  },
+  {
+    name: "Servo",
+    extends: "Component",
+    actions: [
+      {
+        name: 'write',
         parameters: ['pinVarName', 'value'],
-        code: `{{pinVarName}}PinCRServo.write({{value}});`,
+        code: `{{pinVarName}}PinObj.write({{value}});`,
       },
       {
         name: 'read',
         parameters: ['pinVarName'],
-        code: `{{pinVarName}}PinCRServo.read()`,
+        code: `{{pinVarName}}PinObj.read()`,
         return: "uint8_t"
       },
     ],
@@ -101,16 +145,24 @@ export const components: Partial<IComponent>[] = [
       ],
       globals: [
         `{% for pin in pinsInfo %}
-        uint8_t {{pin.pinVarName}} = {{pin.pinNumber}}; 
-        Servo {{pin.pinVarName}}CRServo;
+        Servo {{pin.pinVarName}}Obj;
         {% endfor %}`
       ],
       setup: [
         `{% for pin in pinsInfo %}
-        {{pin.pinVarName}}CRServo.attach({{pin.pinVarName}});
-        {{pin.pinVarName}}CRServo.write(90);
+        {{pin.pinVarName}}Obj.attach({{pin.pinVarName}});
+        {{pin.pinVarName}}Obj.write(90);
         {% endfor %}`,
       ],
+    },
+  },
+  {
+    name: "ContRotServo",
+    extends: "Servo",
+    values:{
+      clockwise: "175",
+      counterclockwise: "5",
+      stop: "90"
     },
     instanceName: "bloq-controt-servo-instance-name",
     connectors: [
@@ -137,19 +189,31 @@ export const components: Partial<IComponent>[] = [
     }
   },
   {
-    name: "DigitalRGBLed",
-    extends: "DigitalOutput",
-    values: [
-      {red: [255,0,0] }
-    ],
+    name: "DigitalRGBLED",
+    extends: "Component",
+    values:{
+      red: "{0,255,255}",
+      green: "{255,0,255}",
+      blue: "{255,255,0}",
+      off: "{255,255,255}",
+    },
+    code: {
+      setup: [
+        `{% for pin in pinsInfo %}
+        pinMode({{pin.pinVarName}},OUTPUT);
+        analogWrite({{pin.pinVarName}},255);
+        {% endfor %}`,
+      ],
+    },
     actions: [
       {
         name: 'write',
-        parameters: ['pinVarName', 'valueR', 'valueG', 'valueB'],
+        parameters: ['pinVarName', 'value'],
         code: `
-        {{pinVarName}}.analogWrite({{valueR}});
-        {{pinVarName}}.analogWrite({{valueG}});
-        {{pinVarName}}.analogWrite({{valueB}});
+        uint8_t {{pinVarName}}color[3] = {{value}} ;
+        analogWrite({{pinVarName}}PinRed,{{pinVarName}}color[0]);
+        analogWrite({{pinVarName}}PinGreen,{{pinVarName}}color[1]);
+        analogWrite({{pinVarName}}PinBlue,{{pinVarName}}color[2]);
         `,
       },
     ],
@@ -350,14 +414,13 @@ export const components: Partial<IComponent>[] = [
       ],
       globals: [
         `{% for pin in pinsInfo %}
-        uint8_t i2cport{{pin.pinVarName}} = {{pin.pinNumber}};
-        BQ::ZUM::I2C7SegmentDisplay {{pin.pinVarName}}(i2cport{{pin.pinVarName}});
+        BQ::ZUM::I2C7SegmentDisplay {{pin.pinVarName}}Obj({{pin.pinVarName}});
         {% endfor %}`,
       ],
       setup: [
         `{% for pin in pinsInfo %}
-        {{pin.pinVarName}}.setup();
-        {{pin.pinVarName}}.displayChar(' ',' ');
+        {{pin.pinVarName}}Obj.setup();
+        {{pin.pinVarName}}Obj.displayChar(' ',' ');
         {% endfor %}`,
       ],
     },
@@ -365,40 +428,36 @@ export const components: Partial<IComponent>[] = [
       {
         name: 'writeNumber',
         parameters: ['pinVarName', 'value'],
-        code: `{{pinVarName}}.displayInt({{value}});`,
+        code: `{{pinVarName}}Obj.displayInt({{value}});`,
       },
       {
         name: 'writeChar',
         parameters: ['pinVarName', 'char1', 'char2'],
-        code: `{{pinVarName}}.displayChar('{{char1}}','{{char2}}');`,
+        code: `{{pinVarName}}Obj.displayChar('{{char1}}','{{char2}}');`,
       },
       {
         name: 'readChar',
         parameters: ['pinVarName'],
-        code: `{{pinVarName}}.readChar()`,
+        code: `{{pinVarName}}Obj.readChar()`,
         return: "string"
       },
       {
         name: 'readNumber',
         parameters: ['pinVarName'],
-        code: `{{pinVarName}}.readInt()`,
+        code: `{{pinVarName}}Obj.readInt()`,
         return: "uint8_t"
       },
       {
         name: 'incrementNumber',
         parameters: ['pinVarName', 'value'],
-        code: `{{pinVarName}}.displayInt({{pinVarName}}.readInt()+{{value}});`
+        code: `{{pinVarName}}Obj.displayInt({{pinVarName}}Obj.readInt()+{{value}});`
       },
       {
         name: 'decrementNumber',
         parameters: ['pinVarName','value'],
-        code: `{{pinVarName}}.displayInt({{pinVarName}}.readInt()-{{value}});`
+        code: `{{pinVarName}}Obj.displayInt({{pinVarName}}Obj.readInt()-{{value}});`
       },
     ],
-  },
-  {
-    name: "Servo",
-    extends: "DigitalOutput",
   },
   {
     name: "ZumjuniorServo",
@@ -477,10 +536,10 @@ export const components: Partial<IComponent>[] = [
       ],
       globals: [
         `{% for pin in pinsInfo %}
-        uint8_t i2cport{{pin.pinVarName}} = {{pin.pinNumber}};
-        BQ::ZUM::I2CALPSSensor {{pin.pinVarName}}ALPS(i2cport{{pin.pinVarName}});
-        BQ::ZUM::I2CColorSensor {{pin.pinVarName}}Color(i2cport{{pin.pinVarName}});
-        BQ::ZUM::I2CTempSensor {{pin.pinVarName}}Temp(i2cport{{pin.pinVarName}});
+        // uint8_t {{pin.pinVarName}} = {{pin.pinNumber}};
+        BQ::ZUM::I2CALPSSensor {{pin.pinVarName}}ALPS({{pin.pinVarName}});
+        BQ::ZUM::I2CColorSensor {{pin.pinVarName}}Color({{pin.pinVarName}});
+        BQ::ZUM::I2CTempSensor {{pin.pinVarName}}Temp({{pin.pinVarName}});
         {% endfor %}`,
       ],
       setup: [

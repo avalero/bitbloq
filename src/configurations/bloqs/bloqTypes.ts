@@ -3,6 +3,10 @@ import switch1OnIcon from "../../images/bloqs/switch-1on.svg";
 import switch1OffIcon from "../../images/bloqs/switch-1off.svg";
 import switch2OnIcon from "../../images/bloqs/switch-2on.svg";
 import switch2OffIcon from "../../images/bloqs/switch-2off.svg";
+import rgbBlack from "../../images/bloqs/rgb-black.svg";
+import rgbRed from "../../images/bloqs/rgb-red.svg";
+import rgbGreen from "../../images/bloqs/rgb-green.svg";
+import rgbBlue from "../../images/bloqs/rgb-blue.svg";
 import buttonIcon from "../../images/bloqs/button.svg";
 import buttonPressedIcon from "../../images/bloqs/button-pressed.svg";
 import buttonReleasedIcon from "../../images/bloqs/button-released.svg";
@@ -19,7 +23,9 @@ import doubleLedOffOffIcon from "../../images/bloqs/double-led-off-off.svg";
 import sevenSegmentsIcon from "../../images/bloqs/7segments.svg";
 import obstacleIcon from "../../images/bloqs/obstacle.svg";
 import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
+import buzzerIcon from "../../images/bloqs/buzzer.svg";
 import { IBloqType, BloqCategory, BloqParameterType } from "@bitbloq/bloqs";
+
 
 export const bloqTypes: Array< Partial <IBloqType> > = [
   {
@@ -31,6 +37,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Event,
     name: "OnSwitchOnOff",
+    label: "bloq-on-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
       "switch === 1 and value === 'pos1'": switch1OnIcon,
@@ -93,6 +100,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   },
   {
     category: BloqCategory.Event,
+    label: "bloq-on-cr-servo",
     name: "OnContRotServo",
     components: ["ContRotServo"],
     iconSwitch: {
@@ -294,6 +302,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Action,
     name: "DoubleLedOnOff",
+    label: "bloq-double-led",
     components: ["ZumjuniorDoubleLed"],
     iconSwitch: {
       "led1 === 'on' and led2 === 'on'": doubleLedOnOnIcon,
@@ -361,6 +370,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Action,
     name: "ContRotServo",
+    label: "bloq-cr-servo",
     components: ["ContRotServo"],
     iconSwitch: {
       "rotation === 'clockwise'": rcservoclockwise,
@@ -402,6 +412,126 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         parameters: {
           pinVarName: '{{component}}',
           value: '{{rotation}}',
+        },
+      }
+    ],
+  },
+  {
+    category: BloqCategory.Action,
+    name: "RGBLed",
+    label: "bloq-rgbled-color",
+    components: ["DigitalRGBLED"],
+    iconSwitch: {
+      "value === 'red'": rgbRed,
+      "value === 'blue'": rgbBlue,
+      "value === 'green'": rgbGreen,
+      "value === 'off'": rgbBlack
+    },
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+
+      {
+        name: "value",
+        label: "bloq-parameter-color",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "red",
+            value: "red"
+          },
+          {
+            label: "green",
+            value: "green"
+          },
+          {
+            label: "blue",
+            value: "blue"
+          },
+          {
+            label: "off",
+            value: "off"
+
+          },
+        ]
+      }
+    ],
+    code: {},
+    actions: [
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}',
+          value: '{{value}}',
+        },
+      }
+    ],
+  },
+  {
+    category: BloqCategory.Action,
+    name: "Buzzer",
+    label: "bloq-buzzer",
+    components: ["Buzzer"],
+    icon: buzzerIcon,
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-tone",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "A-tone",
+            value: "A"
+          },
+          {
+            label: "B-tone",
+            value: "B"
+          },
+          {
+            label: "C-tone",
+            value: "C"
+          },
+          {
+            label: "D-tone",
+            value: "D"
+          },
+          {
+            label: "E-tone",
+            value: "E"
+          },
+          {
+            label: "F-tone",
+            value: "F"
+          },
+          {
+            label: "G-tone",
+            value: "G"
+          },
+        ]
+        
+      },
+      {
+        name: "duration",
+        label: "bloq-parameter-duration-sec",
+        type: BloqParameterType.Number
+      },
+    ],
+    code: {},
+    actions: [
+      {
+        name: 'write',
+        parameters: {
+          pinVarName: '{{component}}',
+          value: '{{value}}',
+          duration: '{{duration}}'
         },
       }
     ],
@@ -496,6 +626,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Wait,
     name: "Wait1Second",
+    label: "bloq-wait-1-second",
     icon: time1Icon,
     code: {},
     actions: [
@@ -508,6 +639,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Wait,
     name: "Wait5Seconds",
+    "label": "bloq-wait-5-second",
     icon: time5Icon,
     code: {},
     actions: [
@@ -667,6 +799,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   {
     category: BloqCategory.Wait,
     name: "WainSwitchOnOff",
+    label: "bloq-wait-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
       "switch === 1 and value === 'pos1'": switch1OnIcon,
