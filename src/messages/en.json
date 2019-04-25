@@ -174,5 +174,6 @@
   "E-tone": "E",
   "F-tone": "F",
   "G-tone": "G",
-  "bloq-parameter-duration-sec": "Duration (sec.)"
+  "bloq-parameter-duration-sec": "Duration (sec.)",
+  "bloq-on-message": "On message"
 }

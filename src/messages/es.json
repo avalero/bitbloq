@@ -175,5 +175,6 @@
   "E-tone": "MI",
   "F-tone": "FA",
   "G-tone": "SOL",
-  "bloq-parameter-duration-sec": "Duración (seg.)"
+  "bloq-parameter-duration-sec": "Duración (seg.)",
+  "bloq-on-message": "Al recibir el mensaje"
 }
