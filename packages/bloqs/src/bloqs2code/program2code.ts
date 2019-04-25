@@ -13,8 +13,6 @@ import {
   IComponent,
   IHardware,
   IComponentInstance,
-  IBoard,
-  IBloqAction,
   IComponentAction,
   IArduinoCode,
 } from '../index';
@@ -40,14 +38,13 @@ export const getBloqDefinition = (
   bloqTypes: Array<Partial<IBloqType>>,
   bloqInstance: IBloq
 ): Partial<IBloqType> => {
-  const bloqType = bloqInstance.type;
   const bloqDefinition: Partial<IBloqType> | undefined = bloqTypes.find(
-    bloq => bloq.name === bloqType
+    bloq => bloq.name === bloqInstance.type
   );
 
   if (bloqDefinition) return bloqDefinition;
 
-  throw new Error(`Bloq Type ${bloqType} not defined`);
+  throw new Error(`Bloq Type ${bloqInstance.type} not defined`);
 };
 
 /**
@@ -110,7 +107,6 @@ export const getActions = (
           `Action ${actionName} not defined in ${componentDefinition.name}`
         );
       }
-
       return actionDef;
     }
   );
@@ -199,7 +195,7 @@ export const bloq2code = (
  */
 const waitTimer2Code = (
   bloqDefinition: Partial<IBloqType>,
-  functionNameIndex: number,
+  functionName: string,
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
   if (!bloqDefinition.actions) {
@@ -210,7 +206,6 @@ const waitTimer2Code = (
     throw new Error('Wait bloq should have actions.name');
   }
   if (bloqDefinition.actions[0].name === 'wait') {
-    const functionName = `func_${functionNameIndex}`;
     const waitCodeTempalete: string = bloqDefinition.actions[0].parameters.code;
     const waitNunjucksParameters = { functionName };
 
@@ -220,8 +215,7 @@ const waitTimer2Code = (
         `;
 
     arduinoCode.definitions!.push(waitCode);
-    const actionCodeGlobals: string = `void ${functionName}();\n`;
-    arduinoCode.globals!.push(actionCodeGlobals);
+    arduinoCode.globals!.push(`void ${functionName}();\n`);
   }
   return arduinoCode;
 };
@@ -248,6 +242,63 @@ const onstart2code = (
   return arduinoCode;
 };
 
+const waitEvent2Code = (
+  bloqInstance: IBloq,
+  hardware: IHardware,
+  componentsDefinition: Array<Partial<IComponent>>,
+  bloqTypes: Array<Partial<IBloqType>>,
+  functionName: string,
+  arduinoCode: IArduinoCode
+): IArduinoCode => {
+  // wait for component event bloq
+  const componentDefintion = getComponentForBloq(
+    bloqInstance,
+    hardware,
+    componentsDefinition
+  );
+
+  const waitEventCodeArray: string[] = bloq2code(
+    bloqInstance,
+    hardware,
+    bloqTypes,
+    componentsDefinition
+  );
+
+  if (waitEventCodeArray.length > 1 || waitEventCodeArray.length === 0) {
+    throw new Error('Unexepcted number of actions for an event');
+  }
+
+  const waitEventCode: string = waitEventCodeArray[0];
+
+  const waitEventGlobalsCode: string = `
+  void ${functionName}Wait();
+  void ${functionName}();`;
+
+  const waitEventDefinitionCode: string = `
+    heap.insert(${functionName}Wait);
+  }
+  
+  void ${functionName}Wait(){
+    if(!(${waitEventCode} ${
+    bloqInstance.parameters.trueCondition
+  } ${(componentDefintion.values &&
+    componentDefintion.values[bloqInstance.parameters.value]) ||
+    bloqInstance.parameters.value})){
+        heap.insert(${functionName}Wait);
+    }else{
+      heap.insert(${functionName});
+    }
+  }
+
+  void ${functionName}(){
+  `;
+
+  arduinoCode.globals!.push(waitEventGlobalsCode);
+  arduinoCode.definitions!.push(waitEventDefinitionCode);
+
+  return arduinoCode;
+};
+
 const program2code = (
   componentsDefinition: Array<Partial<IComponent>>,
   bloqTypes: Array<Partial<IBloqType>>,
@@ -260,14 +311,15 @@ const program2code = (
   if (!arduinoCode.loop) arduinoCode.loop = [];
   if (!arduinoCode.setup) arduinoCode.setup = [];
 
-  let functionNameIndex: number = 1;
-
+  let functionNameIndex: number = 0;
   let functionName: string = '';
-  let timelineFlagName: string = `${functionName}Flag`;
+  let timelineFlagName: string;
+
   program.forEach((timeline, index) => {
     if (timeline.length === 0) return;
 
-    timelineFlagName = `timeline${index}`;
+    timelineFlagName = `timeline${index + 1}`;
+
     let i = 0;
     for (i = 0; i < timeline.length; i += 1) {
       let bloqInstance = timeline[i];
@@ -276,7 +328,7 @@ const program2code = (
         bloqInstance
       );
 
-      // code sections (globals, includes)
+      // code sections (globals, includes, setup) - There should not be code definition o loop
       if (bloqDefinition.code) {
         if (bloqDefinition.code.globals) {
           arduinoCode.globals!.push(...bloqDefinition.code.globals);
@@ -296,64 +348,24 @@ const program2code = (
           if (!bloqDefinition.actions) {
             throw new Error('Wait bloq should have actions');
           }
+
+          functionName = `func_${++functionNameIndex}`;
+
           // Wait time bloq (it has no components)
           if (!bloqDefinition.components) {
-            waitTimer2Code(bloqDefinition, ++functionNameIndex, arduinoCode);
+            waitTimer2Code(bloqDefinition, functionName, arduinoCode);
+            break;
           } else {
-            // wait for component event bloq
-            componentDefintion = getComponentForBloq(
+            waitEvent2Code(
               bloqInstance,
               hardware,
-              componentsDefinition
-            );
-
-            const waitEventCodeArray: string[] = bloq2code(
-              bloqInstance,
-              hardware,
+              componentsDefinition,
               bloqTypes,
-              componentsDefinition
+              functionName,
+              arduinoCode
             );
-
-            if (
-              waitEventCodeArray.length > 1 ||
-              waitEventCodeArray.length === 0
-            ) {
-              throw new Error('Unexepcted number of actions for an event');
-            }
-
-            const waitEventCode: string = waitEventCodeArray[0];
-
-            functionName = `func_${++functionNameIndex}`;
-            const waitEventGlobalsCode: string = `
-            void ${functionName}Wait();
-            void ${functionName}();`;
-
-            const waitEventDefinitionCode: string = `
-              heap.insert(${functionName}Wait);
-            }
-            
-            void ${functionName}Wait(){
-              if(!(${waitEventCode} ${
-              bloqInstance.parameters.trueCondition
-            } ${(componentDefintion.values &&
-              componentDefintion.values[bloqInstance.parameters.value]) ||
-              bloqInstance.parameters.value})){
-                  heap.insert(${functionName}Wait);
-              }else{
-                heap.insert(${functionName});
-              }
-            }
-
-            void ${functionName}(){
-            `;
-
-            arduinoCode.globals!.push(waitEventGlobalsCode);
-            arduinoCode.definitions!.push(waitEventDefinitionCode);
-
             break;
           }
-
-          break;
 
         case BloqCategory.Event:
           functionName = `func_${++functionNameIndex}`;
@@ -364,48 +376,73 @@ const program2code = (
             break;
           }
 
-          componentDefintion = getComponentForBloq(
-            bloqInstance,
-            hardware,
-            componentsDefinition
-          );
-
-          const codeArray: string[] = bloq2code(
-            bloqInstance,
-            hardware,
-            bloqTypes,
-            componentsDefinition
-          );
-
-          if (codeArray.length > 1 || codeArray.length === 0) {
-            throw new Error('Unexepcted number of actions for an event');
-          }
-
-          const code: string = codeArray[0];
-
-          const eventLoopCode: string = `
-          if(${code} ${
-            bloqInstance.parameters.trueCondition
-          } ${(componentDefintion.values &&
-            componentDefintion.values[bloqInstance.parameters.value]) ||
-            bloqInstance.parameters.value}){
-            if(!${timelineFlagName}){ 
-              heap.insert(${functionName});
-              ${timelineFlagName} = true;
-            }
-          }
-          `;
-
+          let eventLoopCode: string = '';
           const eventGlobalsCode: string = `bool ${timelineFlagName} = false;`;
           const eventDefinitionCode: string = `void ${functionName}(){\n`;
+
+          // bloqs without component (like onmessage)
+          if (
+            !bloqDefinition.components ||
+            bloqDefinition.components.length === 0
+          ) {
+            if (!bloqDefinition.actions) {
+              throw new Error(`No actions for bloq ${bloqDefinition.name}`);
+            }
+            const nunjucksData = { ...bloqInstance.parameters };
+            const action = bloqDefinition.actions[0];
+            const onMsgCodeTemplate: string = `
+              if(${action.parameters.variable}){
+                if(!${timelineFlagName}){ 
+                  ${action.parameters.variable} = false;
+                  heap.insert(${functionName});
+                  ${timelineFlagName} = true;
+                }
+              }
+              `;
+            eventLoopCode = nunjucks.renderString(
+              onMsgCodeTemplate,
+              nunjucksData
+            );
+          } else {
+            componentDefintion = getComponentForBloq(
+              bloqInstance,
+              hardware,
+              componentsDefinition
+            );
+
+            const codeArray: string[] = bloq2code(
+              bloqInstance,
+              hardware,
+              bloqTypes,
+              componentsDefinition
+            );
+
+            if (codeArray.length > 1 || codeArray.length === 0) {
+              throw new Error('Unexepcted number of actions for an event');
+            }
+
+            const code: string = codeArray[0];
+
+            eventLoopCode = `
+              if(${code} ${
+              bloqInstance.parameters.trueCondition
+            } ${(componentDefintion.values &&
+              componentDefintion.values[bloqInstance.parameters.value]) ||
+              bloqInstance.parameters.value}){
+                if(!${timelineFlagName}){ 
+                  heap.insert(${functionName});
+                  ${timelineFlagName} = true;
+                }
+              }
+              `;
+          }
           arduinoCode.loop!.push(eventLoopCode);
           arduinoCode.globals!.push(eventGlobalsCode);
           arduinoCode.definitions!.push(eventDefinitionCode);
-
           break;
 
         case BloqCategory.Action:
-          let actionCodeDefinition: string = '';
+          // let actionCodeDefinition: string = '';
 
           // build a function with all action bloqs
           while (bloqDefinition.category === BloqCategory.Action) {
@@ -422,18 +459,19 @@ const program2code = (
                 const sendMsgCodeTemplate: string = `
                 \t ${action.parameters.code} \n
                 `;
-                actionCodeDefinition += nunjucks.renderString(
-                  sendMsgCodeTemplate,
-                  nunjucksData
+                arduinoCode.definitions!.push(
+                  nunjucks.renderString(sendMsgCodeTemplate, nunjucksData)
                 );
               });
             } else {
-              actionCodeDefinition += `\t${bloq2code(
-                bloqInstance,
-                hardware,
-                bloqTypes,
-                componentsDefinition
-              ).join('\n\t')}\n`;
+              arduinoCode.definitions!.push(
+                `\t${bloq2code(
+                  bloqInstance,
+                  hardware,
+                  bloqTypes,
+                  componentsDefinition
+                ).join('\n\t')}\n`
+              );
             }
             i += 1;
             if (i >= timeline.length) break;
@@ -441,8 +479,6 @@ const program2code = (
             bloqInstance = timeline[i];
             bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
           }
-
-          arduinoCode.definitions!.push(actionCodeDefinition);
 
           i -= 1; // back to the last one to avoid two increments (while and for)
           break;

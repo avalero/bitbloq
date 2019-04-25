@@ -7,8 +7,14 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { IBoard, IHardware, IArduinoCode } from "../index";
+import { IBoard, IHardware, IArduinoCode } from '../index';
 
+/**
+ * Returns full definition for the board of a hardware description
+ * @param boards List of boards
+ * @param hardware List of hardware (including board) for current program
+ * @return Board definition
+ */
 export const getBoardDefinition = (
   boards: IBoard[],
   hardware: IHardware
@@ -17,16 +23,22 @@ export const getBoardDefinition = (
   const board = boards.find(b => b.name === boardName);
   if (board) return board;
   // if not defined no board found
-  throw new Error(`Board ${boardName} not defined`);
+  throw new Error(`Board ${boardName} not found`);
 };
 
 const boardCodes = (board: IBoard, section: string): string[] => {
   if (!board.code[section]) {
-    console.warn(`Warning ${section} not defined in ${board.name} code`);
+    return [];
   }
   return board.code[section];
 };
 
+/**
+ * Adds the code to include in the arduino program related to a specific board
+ * @param boards The list of known boards
+ * @param hardware The list of hardware used by the program
+ * @param arduinoCode The arduinoCode array
+ */
 const board2code = (
   boards: IBoard[],
   hardware: IHardware,
