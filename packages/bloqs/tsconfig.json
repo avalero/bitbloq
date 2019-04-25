@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./build/dist",
     "rootDir": "src",
-    "declaration": true
+    "declaration": true,
+    "downlevelIteration": true
   },
   "exclude": [
     "node_modules",

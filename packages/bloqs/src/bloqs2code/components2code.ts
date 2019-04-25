@@ -12,35 +12,44 @@ import {
   IComponentInstance,
   IArduinoCode,
   IBoard,
-  ConnectorPinMode,
-  IIntegratedComponent
-} from "../index";
-import { getFullComponentDefinition } from "./componentBuilder";
-import nunjucks from "nunjucks";
+  IIntegratedComponent,
+} from '../index';
+import { getFullComponentDefinition } from './componentBuilder';
+import nunjucks from 'nunjucks';
 
+/**
+ * Retrieves the code that a component requires for a precise section
+ * @param component The definition of a particular component
+ * @param section The code for a precise section: globals, setup, etc.
+ */
 const componentCodes = (
   component: Partial<IComponent>,
   section: string
 ): string[] => {
-  if (!component.code) throw new Error("Component has no code key");
+  if (!component.code) throw new Error('Component has no code key');
 
   if (!component.code[section]) {
-    console.warn(`Warning ${section} not defined in ${component.name} code`);
     return [];
   }
   return component.code[section];
 };
 
+/**
+ * Returns the pin (or template for computing the pin) for a precise portName and pinName
+ * @param board The definition of the board
+ * @param portName The name of the port
+ * @param portPinName The name of the pin
+ */
 const getPinNumber = (
   board: IBoard,
   portName: string,
   portPinName: string
 ): string => {
   const port = board.ports.find(p => p.name === portName);
-  if (!port) throw new Error("Port not found");
+  if (!port) throw new Error('Port not found');
 
   const portPin = port.pins.find(p => p.name === portPinName);
-  if (!portPin) throw new Error("Pin not found");
+  if (!portPin) throw new Error('Pin not found');
 
   return portPin.value;
 };
@@ -52,8 +61,9 @@ export const pinsForComponent = (
 ): Array<{ pinNumber: string; pinVarName: string }> => {
   const pinsInfo: Array<{ pinNumber: string; pinVarName: string }> = [];
 
-  if (!componentDefinition.connectors) throw new Error("No connector defined");
-  // Integrated component
+  if (!componentDefinition.connectors) throw new Error('No connector defined');
+
+  // Pin of an Integrated component (the instance has the integrated flat set to true)
   if (componentInstance.integrated) {
     const integratedInstance:
       | IIntegratedComponent
@@ -70,7 +80,7 @@ export const pinsForComponent = (
       connector.pins.forEach(pin => {
         pinsInfo.push({
           pinVarName: `${componentInstance.name}${pin.name}`,
-          pinNumber: `${integratedInstance.pins[pin.name]}`
+          pinNumber: `${integratedInstance.pins[pin.name]}`,
         });
       });
     });
@@ -91,7 +101,7 @@ export const pinsForComponent = (
             componentInstance.port!,
             pin.portPin
           ),
-          pinVarName: `${componentInstance.name}${pin.name}`
+          pinVarName: `${componentInstance.name}${pin.name}`,
         });
       });
     });
@@ -123,7 +133,7 @@ const components2code = (
     try {
       Object.keys(arduinoCode).forEach(section => {
         const codeTemplates: string[] = [
-          ...componentCodes(componentDefinition, section)
+          ...componentCodes(componentDefinition, section),
         ];
         const nunjucksData = { pinsInfo };
         codeTemplates.forEach(codeTemplate => {
@@ -135,8 +145,10 @@ const components2code = (
         });
       });
     } catch (e) {
-      console.info(`Error generating board code ${e}`);
+      throw new Error(`Error generating component code ${e}`);
     }
+
+    return arduinoCode;
   });
 
   return arduinoCode;
