@@ -1,52 +1,52 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2019-01-31 10:32:18
+/*
+ * File: Union.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import CompoundObject, { ChildrenArray } from "./CompoundObject";
-import ObjectsCommon from "./ObjectsCommon";
-import * as THREE from "three";
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
+import * as THREE from 'three';
 
 import {
   ICompoundObjectJSON,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
-import Scene from "./Scene";
+  OperationsArray,
+} from './Interfaces';
+import Scene from './Scene';
 
 export default class Union extends CompoundObject {
-  public static typeName: string = "Union";
+  public static typeName: string = 'Union';
 
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
     if (object.type !== Union.typeName) {
-      throw new Error("Not Union Object");
+      throw new Error('Not Union Object');
     }
     try {
       const children: ChildrenArray = object.children.map(objJSON =>
         scene.getObject(objJSON)
       );
 
+      // get the color of first children
+      object.viewOptions.color = object.children[0].viewOptions.color;
+
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions
+        ...object.viewOptions,
       };
+
+      debugger;
 
       let union: Union;
 
       // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
       if (object.geometry) {
         if (object.geometry.id !== object.id) {
-          throw new Error("geometry and object id do not match");
+          throw new Error('geometry and object id do not match');
         }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
@@ -82,7 +82,7 @@ export default class Union extends CompoundObject {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions
+      ...viewOptions,
     };
     super(children, operations, vO);
     this.type = Union.typeName;

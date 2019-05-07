@@ -1,3 +1,12 @@
+/*
+ * File: Scene.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
+ */
+
 import * as THREE from 'three';
 import { isArray } from 'util';
 import BaseGrid from './BaseGrid';
