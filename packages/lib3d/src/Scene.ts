@@ -1,23 +1,23 @@
-import * as THREE from "three";
-import { isArray } from "util";
-import BaseGrid from "./BaseGrid";
-import Union from "./Union";
-import Difference from "./Difference";
-import Intersection from "./Intersection";
-import CompoundObject from "./CompoundObject";
-import ObjectsCommon from "./ObjectsCommon";
+import * as THREE from 'three';
+import { isArray } from 'util';
+import BaseGrid from './BaseGrid';
+import Union from './Union';
+import Difference from './Difference';
+import Intersection from './Intersection';
+import CompoundObject from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
 
-import ObjectsGroup from "./ObjectsGroup";
-import RepetitionObject from "./RepetitionObject";
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
 
-import { isEqual } from "lodash";
+import { isEqual } from 'lodash';
 
-import ObjectFactory from "./ObjectFactory";
-import PositionCalculator from "./PositionCalculator";
-import RotationHelper from "./RotationHelper";
-import TranslationHelper from "./TranslationHelper";
-import meshArray2STLAsync from "./STLExporter";
-import TextObject from "./TextObject";
+import ObjectFactory from './ObjectFactory';
+import PositionCalculator from './PositionCalculator';
+import RotationHelper from './RotationHelper';
+import TranslationHelper from './TranslationHelper';
+import meshArray2STLAsync from './STLExporter';
+import TextObject from './TextObject';
 
 import {
   IGeometry,
@@ -25,17 +25,17 @@ import {
   ICompoundObjectJSON,
   IObjectsCommonJSON,
   IRepetitionObjectJSON,
-  IObjectsGroupJSON
-} from "./Interfaces";
+  IObjectsGroupJSON,
+} from './Interfaces';
 
 enum HelperType {
-  Rotation = "rotation",
-  Translation = "translation"
+  Rotation = 'rotation',
+  Translation = 'translation',
 }
 enum HelperAxis {
-  X = "x",
-  Y = "y",
-  Z = "z"
+  X = 'x',
+  Y = 'y',
+  Z = 'z',
 }
 export interface IHelperDescription {
   type: HelperType;
@@ -163,7 +163,7 @@ export default class Scene {
     return this.historyIndex < this.history.length - 1;
   }
 
-  public async exportToSTLAsync(name: string = ""): Promise<void> {
+  public async exportToSTLAsync(name: string = ''): Promise<void> {
     // update objectsGroup if required
 
     if (this.sceneUpdated) {
@@ -209,7 +209,7 @@ export default class Scene {
       return sceneJSON;
     }
 
-    throw new Error("Cannot undo");
+    throw new Error('Cannot undo');
   }
 
   // Rehace la última operación y devuelve la escena después de rehacer
@@ -221,7 +221,7 @@ export default class Scene {
 
       return sceneJSON;
     }
-    throw new Error("Cannot redo");
+    throw new Error('Cannot redo');
   }
 
   /**
@@ -350,7 +350,7 @@ export default class Scene {
             Difference.typeName,
             Intersection.typeName,
             RepetitionObject.typeName,
-            ObjectsGroup.typeName
+            ObjectsGroup.typeName,
           ].includes(json.type)
         ) {
           // Add the children
@@ -368,7 +368,7 @@ export default class Scene {
             [
               Union.typeName,
               Difference.typeName,
-              Intersection.typeName
+              Intersection.typeName,
             ].includes(json.type)
           ) {
             for (const geom of this.geometries) {
@@ -376,7 +376,7 @@ export default class Scene {
                 json.geometry = {
                   id: geom.id,
                   vertices: geom.vertices,
-                  normals: geom.normals
+                  normals: geom.normals,
                 };
                 break;
               }
@@ -459,7 +459,7 @@ export default class Scene {
 
       return this.toJSON();
     }
-    throw new Error("Cannot clone unknown object");
+    throw new Error('Cannot clone unknown object');
   }
 
   /**
@@ -506,7 +506,7 @@ export default class Scene {
   ): ISceneJSON {
     // easter egg to save stl files
     if (objJSON.type.match(TextObject.typeName)) {
-      if ((objJSON as ITextObjectJSON).parameters.text.match("save")) {
+      if ((objJSON as ITextObjectJSON).parameters.text.match('save')) {
         this.exportToSTLAsync();
         return this.toJSON();
       }
@@ -609,13 +609,13 @@ export default class Scene {
     try {
       const obj = this.getObject(object);
       const mesh = await obj.getMeshAsync();
-      if (type === "rotation") {
+      if (type === 'rotation') {
         const helper = new RotationHelper(mesh, axis, relative);
         this.helpers.push(helper.mesh);
         return this.helpers;
       }
 
-      if (type === "translation") {
+      if (type === 'translation') {
         const helper = new TranslationHelper(mesh, axis, relative);
         this.helpers.push(helper.mesh);
         return this.helpers;
@@ -632,7 +632,7 @@ export default class Scene {
 
   private addExistingObject(object: ObjectsCommon): ISceneJSON {
     if (this.objectInObjectCollector(object.toJSON())) {
-      throw Error("Object already in Scene");
+      throw Error('Object already in Scene');
     } else {
       // In case the object has children, they must be removed from BitbloqScene (remain in ObjectCollector)
       if (object instanceof CompoundObject) {
@@ -814,22 +814,22 @@ export default class Scene {
   private setMaterials(): void {
     this.selectedMaterial = {
       opacity: 1,
-      transparent: false
+      transparent: false,
     };
 
     this.secondaryMaterial = {
       opacity: 0.5,
-      transparent: true
+      transparent: true,
     };
 
     this.normalMaterial = {
       opacity: 1,
-      transparent: false
+      transparent: false,
     };
 
     this.transitionMaterial = {
       opacity: 0.8,
-      transparent: true
+      transparent: true,
     };
   }
   /**
@@ -843,30 +843,30 @@ export default class Scene {
         enabled: true,
         step: 2,
         color: 0xededed,
-        lineWidth: 1
+        lineWidth: 1,
       },
       bigGrid: {
         enabled: true,
         step: 10,
         color: 0xcdcdcd,
-        lineWidth: 2
+        lineWidth: 2,
       },
       centerGrid: {
         enabled: true,
         color: 0x9a9a9a,
-        lineWidth: 2
+        lineWidth: 2,
       },
       plane: {
         enabled: false,
-        color: 0x98f5ff
-      }
+        color: 0x98f5ff,
+      },
     };
 
     this.sceneSetup = {
       base: new BaseGrid(gridConfig).getMesh(),
       ambientLight: new THREE.AmbientLight(0x666666),
       spotLight: new THREE.SpotLight(0xdddddd),
-      spotLight2: new THREE.SpotLight(0xbbbbbb)
+      spotLight2: new THREE.SpotLight(0xbbbbbb),
     };
 
     this.sceneSetup.spotLight.position.set(80, -100, 60);

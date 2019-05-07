@@ -1,7 +1,5 @@
 import { handleActions } from 'redux-actions';
-import undoable from '../../lib/undoable';
 import config from '../../config/threed';
-import uuid from 'uuid/v1';
 import * as actions from '../../actions/threed';
 import { Scene } from '@bitbloq/lib3d';
 
@@ -111,7 +109,7 @@ const scene = handleActions(
         objects: state.sceneInstance.updateObject({
           ...object,
           operations: object.operations.map(o =>
-            o.id === operation.id ? operation : o,
+            o.id === operation.id ? operation : o
           ),
         }),
       }),
@@ -208,7 +206,7 @@ const scene = handleActions(
       }),
     ],
   ]),
-  initialState,
+  initialState
 );
 
 export default scene;
