@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import Markdown from 'react-markdown';
-import { createObject, undo, redo } from '../../actions/threed';
-import { getObjects, getSelectedObjects } from '../../reducers/threed/';
-import { Icon, Tooltip, Translate } from '@bitbloq/ui';
-import config from '../../config/threed';
+import * as React from "react";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Markdown from "react-markdown";
+import { createObject, undo, redo } from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import { Icon, Tooltip, Translate } from "@bitbloq/ui";
+import config from "../../config/threed";
 
 const Container = styled.div`
   height: 50px;
@@ -60,7 +60,7 @@ export interface ToolbarProps {
 class Toolbar extends React.Component<ToolbarProps> {
   private readonly state = {
     canUndo: false,
-    canRedo: false,
+    canRedo: false
   };
 
   componentDidUpdate(prevProps) {
@@ -68,7 +68,7 @@ class Toolbar extends React.Component<ToolbarProps> {
     if (objects !== prevProps.objects) {
       this.setState({
         canUndo: scene.canUndo(),
-        canRedo: scene.canRedo(),
+        canRedo: scene.canRedo()
       });
     }
   }
@@ -80,8 +80,8 @@ class Toolbar extends React.Component<ToolbarProps> {
       ...operation.create(selectedObjects),
       operations: config.defaultOperations(advancedMode),
       viewOptions: {
-        name: label,
-      },
+        name: label
+      }
     };
 
     createObject(object);
@@ -114,15 +114,15 @@ class Toolbar extends React.Component<ToolbarProps> {
                 } else {
                   if (!topObjects) {
                     tooltipContent = (
-                      <Markdown source={t('tooltip-select-top')} />
+                      <Markdown source={t("tooltip-select-top")} />
                     );
                   } else if (minObjects > 1) {
                     tooltipContent = (
-                      <Markdown source={t('tooltip-select-multiple')} />
+                      <Markdown source={t("tooltip-select-multiple")} />
                     );
                   } else if (maxObjects === 1) {
                     tooltipContent = (
-                      <Markdown source={t('tooltip-select-one')} />
+                      <Markdown source={t("tooltip-select-one")} />
                     );
                   }
                 }
@@ -146,7 +146,7 @@ class Toolbar extends React.Component<ToolbarProps> {
               })}
             </Operations>
             <UndoRedo>
-              <Tooltip content={t('undo')}>
+              <Tooltip content={t("undo")}>
                 {tooltipProps => (
                   <Button
                     {...tooltipProps}
@@ -157,7 +157,7 @@ class Toolbar extends React.Component<ToolbarProps> {
                   </Button>
                 )}
               </Tooltip>
-              <Tooltip content={t('redo')}>
+              <Tooltip content={t("redo")}>
                 {tooltipProps => (
                   <Button
                     {...tooltipProps}
@@ -180,13 +180,13 @@ const mapStateToProps = ({ threed }) => ({
   objects: getObjects(threed),
   scene: threed.scene.sceneInstance,
   selectedObjects: getSelectedObjects(threed),
-  advancedMode: threed.ui.advancedMode,
+  advancedMode: threed.ui.advancedMode
 });
 
 const mapDispatchToProps = {
   createObject,
   undo,
-  redo,
+  redo
 };
 
 export default connect(

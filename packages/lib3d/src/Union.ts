@@ -1,15 +1,10 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-16 13:00:09
- * Last modified  : 2019-01-31 10:32:18
+/*
+ * File: Union.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
 import CompoundObject, { ChildrenArray } from "./CompoundObject";
@@ -34,6 +29,9 @@ export default class Union extends CompoundObject {
       const children: ChildrenArray = object.children.map(objJSON =>
         scene.getObject(objJSON)
       );
+
+      // get the color of first children
+      object.viewOptions.color = object.children[0].viewOptions.color;
 
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),

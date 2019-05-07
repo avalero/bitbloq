@@ -1,16 +1,10 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>,
- * @author Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-11-07 13:45:37
- * Last modified  : 2019-01-31 09:58:02
+/*
+ * File: RepetitionObject.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
 import ObjectsCommon from "./ObjectsCommon";
@@ -71,6 +65,9 @@ export default class RepetitionObject extends ObjectsCommon {
     }
     try {
       const object: ObjectsCommon = scene.getObject(obj.children[0]);
+      // get the color of first children
+      obj.viewOptions.color = obj.children[0].viewOptions.color;
+
       const rep = new RepetitionObject(
         obj.parameters,
         object,

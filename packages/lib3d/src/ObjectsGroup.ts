@@ -31,11 +31,13 @@ export default class ObjectsGroup extends ObjectsCommon {
       const group: ObjectsCommon[] = object.children.map(obj =>
         scene.getObject(obj)
       );
+
       const groupObj = new ObjectsGroup(
         group,
         object.viewOptions,
         object.operations
       );
+
       groupObj.id = object.id || groupObj.id;
       return groupObj;
     } catch (e) {
