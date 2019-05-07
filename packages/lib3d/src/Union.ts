@@ -39,8 +39,6 @@ export default class Union extends CompoundObject {
         ...object.viewOptions,
       };
 
-      debugger;
-
       let union: Union;
 
       // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
