@@ -127,6 +127,14 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       "bool ___messageC = false;",
       "bool ___messageD = false;",
       "bool ___messageE = false;"]
+      ,
+      endloop: [
+        "___messageA = false;",
+        "___messageB = false;",
+        "___messageC = false;",
+        "___messageD = false;",
+        "___messageE = false;",
+      ]
     },
     actions: [
       {
