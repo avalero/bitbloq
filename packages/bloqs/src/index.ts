@@ -7,13 +7,13 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
-import HardwareDesigner from "./hardware/HardwareDesigner";
-import bloqs2code from "./bloqs2code/bloqs2code";
-import { getBoardDefinition } from "./bloqs2code/board2code";
-import { getComponentDefinition } from "./bloqs2code/componentBuilder";
-import Web2Board from "./web2board";
-import { BloqCategory, BloqParameterType } from "./enums";
+import HorizontalBloqEditor from './horizontal/HorizontalBloqEditor';
+import HardwareDesigner from './hardware/HardwareDesigner';
+import bloqs2code from './bloqs2code/bloqs2code';
+import { getBoardDefinition } from './bloqs2code/board2code';
+import { getComponentDefinition } from './bloqs2code/componentBuilder';
+import Web2Board from './web2board';
+import { BloqCategory, BloqParameterType } from './enums';
 
 export {
   HorizontalBloqEditor,
@@ -23,14 +23,8 @@ export {
   getComponentDefinition,
   BloqCategory,
   BloqParameterType,
-  Web2Board
+  Web2Board,
 };
-
-export interface IBloqCode {
-  includes?: string[];
-  globals?: string[];
-  setup?: string[];
-}
 
 export interface IBloqBaseParameter {
   name: string;
@@ -80,7 +74,7 @@ export interface IBloqType {
   icon?: string;
   iconSwitch?: IIconSwitch;
   iconComponent?: string;
-  code: IBloqCode;
+  code: IArduinoCode;
   parameters: IBloqParameter[];
   components?: string[];
   actions: IBloqAction[];
@@ -111,6 +105,7 @@ export interface IArduinoCode {
   globals?: string[];
   setup?: string[];
   loop?: string[];
+  endloop?: string[];
   definitions?: string[];
 }
 
@@ -125,10 +120,10 @@ export interface IConnectorPosition {
 }
 
 export enum IPortDirection {
-  North = "north",
-  South = "south",
-  East = "east",
-  West = "west"
+  North = 'north',
+  South = 'south',
+  East = 'east',
+  West = 'west',
 }
 
 export interface IPort {
@@ -161,9 +156,9 @@ export interface IBoard {
 }
 
 export enum ConnectorPinMode {
-  INPUT = "INPUT",
-  OUTPUT = "OUTPUT",
-  I2C = "I2C"
+  INPUT = 'INPUT',
+  OUTPUT = 'OUTPUT',
+  I2C = 'I2C',
 }
 
 export interface IConnectorPin {

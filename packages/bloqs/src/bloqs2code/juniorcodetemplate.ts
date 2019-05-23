@@ -41,7 +41,13 @@ void loop(){
   {% for l in loop %}
   {{l | safe}}
   {% endfor %}
+  
+  {% for l in endloop %}
+  {{l | safe}}
+  {% endfor %}
+
   heap.eventloop();
+  
 }
 
 // Global functions definition
