@@ -13,17 +13,17 @@
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
 
-import demo from './demo.js';
-import demoModule from './demo.wasm';
+// import demo from './demo.js';
+// import demoModule from './demo.wasm';
 
-const module = demo({
-  locateFile(path) {
-    if (path.endsWith('.wasm')) {
-      return demoModule;
-    }
-    return path;
-  },
-});
+// const module = demo({
+//   locateFile(path) {
+//     if (path.endsWith('.wasm')) {
+//       return demoModule;
+//     }
+//     return path;
+//   },
+// });
 
 export default Worker;
 
@@ -73,16 +73,16 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   ctx.addEventListener(
     'message',
     e => {
-      // WASM START!!!
-      console.log('Hola WASM!');
+      // // WASM START!!!
+      // console.log('Hola WASM!');
 
-      module.onRuntimeInitialized = () => {
-        console.log(module._getNumber());
-      };
+      // module.onRuntimeInitialized = () => {
+      //   console.log(module._getNumber());
+      // };
 
-      console.log('Adios Wasm');
+      // console.log('Adios Wasm');
 
-      /// WASM END
+      // /// WASM END
 
       const geometries: THREE.Geometry[] = [];
       const bufferArray = e.data.bufferArray;
