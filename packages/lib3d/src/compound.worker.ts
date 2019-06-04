@@ -10,20 +10,26 @@
  * Last modified  : 2019-01-18 20:00:14
  */
 
-import * as THREE from "three";
-import ThreeBSP from "./threeCSG";
+import * as THREE from 'three';
+import ThreeBSP from './threeCSG';
 
+/* import demo from './demo.js';
+import demoModule from './demo.wasm';
+
+const module = demo({
+  locateFile(path) {
+    if (path.endsWith('.wasm')) {
+      return demoModule;
+    }
+    return path;
+  },
+});
+*/
 export default Worker;
 
 // Be sure we are not withing a node execution
-if (!(typeof module !== "undefined" && module.exports)) {
+if (!(typeof module !== 'undefined' && module.exports)) {
   const ctx: Worker = self as any;
-
-  // export default class CompoundWorker extends Worker {
-  //   constructor() {
-  //     super('http://bitbloq.bq.com');
-  //   }
-  // }
 
   const getUnionFromGeometries = (
     geometries: THREE.Geometry[]
@@ -65,8 +71,21 @@ if (!(typeof module !== "undefined" && module.exports)) {
   };
 
   ctx.addEventListener(
-    "message",
+    'message',
     e => {
+      /*  // WASM START!!!
+      console.log('Hola WASM!');
+
+      module.onRuntimeInitialized = () => {
+        console.log(module._getNumber());
+      };
+
+      console.log('Adios Wasm');
+
+      /// WASM END
+
+      */
+
       const geometries: THREE.Geometry[] = [];
       const bufferArray = e.data.bufferArray;
 
@@ -102,11 +121,11 @@ if (!(typeof module !== "undefined" && module.exports)) {
         }
         const buffGeometry = new THREE.BufferGeometry();
         buffGeometry.addAttribute(
-          "position",
+          'position',
           new THREE.BufferAttribute(_vertices, 3)
         );
         buffGeometry.addAttribute(
-          "normal",
+          'normal',
           new THREE.BufferAttribute(_normals, 3)
         );
         const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
@@ -118,15 +137,15 @@ if (!(typeof module !== "undefined" && module.exports)) {
 
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
-      if (e.data.type === "Union") {
+      if (e.data.type === 'Union') {
         geometry = getUnionFromGeometries(geometries);
-      } else if (e.data.type === "Difference") {
+      } else if (e.data.type === 'Difference') {
         geometry = getDifferenceFromGeometries(geometries);
-      } else if (e.data.type === "Intersection") {
+      } else if (e.data.type === 'Intersection') {
         geometry = getIntersectionFromGeometries(geometries);
       } else {
         const postMessage = {
-          status: "error"
+          status: 'error',
         };
         ctx.postMessage(postMessage);
       }
@@ -143,19 +162,19 @@ if (!(typeof module !== "undefined" && module.exports)) {
         geometry
       );
       const vertices = new Float32Array(
-        bufferGeom.getAttribute("position").array
+        bufferGeom.getAttribute('position').array
       );
-      const normals = new Float32Array(bufferGeom.getAttribute("normal").array);
+      const normals = new Float32Array(bufferGeom.getAttribute('normal').array);
 
       const message = {
         vertices,
         normals,
-        status: "ok"
+        status: 'ok',
       };
 
       ctx.postMessage(message, [
         message.vertices.buffer,
-        message.normals.buffer
+        message.normals.buffer,
       ]);
     },
 
