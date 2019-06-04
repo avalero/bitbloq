@@ -299,18 +299,12 @@ export default class STLObject extends PrimitiveObject {
       // unlisted filetype
       try {
         // try ascii
-        console.warn(`Unknown filetype ${filetype}, trying text stl`);
-        this.geometry = STLLoader.loadTextStl(this.arrayBufferData); // try ascii
-        // try binary
-        if (!this.geometry) {
-          console.warn(`Unknown filetype ${filetype}, trying binary stl`);
-
-          this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
-        }
+        console.warn(`Unknown filetype ${filetype}, trying binary stl`);
+        this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData); // try binar
       } catch (e) {
         console.warn(`Unable to parse STL file: ${e}`);
-        // not able to parse text, throw exception
-        throw new Error(`Cannot parse STL file ${e}`);
+        console.warn(`Unknown filetype ${filetype}, trying text stl`);
+        this.geometry = STLLoader.loadTextStl(this.arrayBufferData); // try ascii
       }
     }
 
