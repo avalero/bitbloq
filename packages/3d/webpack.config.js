@@ -19,12 +19,12 @@ module.exports = {
     rules: [
       {
         test: /\.worker\.ts$/,
-        use: { loader: 'worker-loader' }
+        use: { loader: 'worker-loader' },
       },
       {
         test: /\.(js|jsx|ts|tsx)?$/,
-        use: ["source-map-loader"],
-        enforce: "pre"
+        use: ['source-map-loader'],
+        enforce: 'pre',
       },
       {
         test: /\.(js|jsx|ts|tsx)?$/,
@@ -33,7 +33,7 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             rootMode: 'upward',
-          }
+          },
         },
       },
       {
@@ -49,7 +49,7 @@ module.exports = {
         test: /\.(json)$/,
         include: [/src\/assets\/messages/],
         use: ['file-loader'],
-      }
+      },
     ],
   },
   plugins,
@@ -58,11 +58,12 @@ module.exports = {
     alias: {
       'three/GLTFLoader': path.join(
         __dirname,
-        'node_modules/three/examples/js/loaders/GLTFLoader.js',
+        'node_modules/three/examples/js/loaders/GLTFLoader.js'
       ),
     },
   },
   devServer: {
-    historyApiFallback: true
-  }
+    historyApiFallback: true,
+  },
+  node: { fs: 'empty' },
 };

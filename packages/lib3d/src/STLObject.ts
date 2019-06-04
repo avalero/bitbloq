@@ -13,18 +13,18 @@
  * -----
  */
 
-import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
-import STLLoader from "./STLLoader";
+import * as THREE from 'three';
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
+import STLLoader from './STLLoader';
 
 import {
   IPrimitiveObjectJSON,
   ISTLJSON,
   ISTLParams,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
+  OperationsArray,
+} from './Interfaces';
 
 export default class STLObject extends PrimitiveObject {
   get meshUpdateRequired(): boolean {
@@ -39,11 +39,11 @@ export default class STLObject extends PrimitiveObject {
   set meshUpdateRequired(a: boolean) {
     this._meshUpdateRequired = a;
   }
-  public static typeName: string = "STLObject";
+  public static typeName: string = 'STLObject';
 
   public static newFromJSON(object: ISTLJSON): STLObject {
     if (object.type !== STLObject.typeName) {
-      throw new Error("Not STL Object");
+      throw new Error('Not STL Object');
     }
 
     let stl: STLObject;
@@ -81,7 +81,7 @@ export default class STLObject extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = STLObject.typeName;
@@ -89,7 +89,7 @@ export default class STLObject extends PrimitiveObject {
     const params: ISTLParams = {
       ...parameters,
       url: parameters.url,
-      blob: parameters.blob
+      blob: parameters.blob,
     };
 
     // if we have url we prioritize it wrt. blob
@@ -136,7 +136,7 @@ export default class STLObject extends PrimitiveObject {
       // No stl file defined
       if (
         (!params.url && !params.blob) ||
-        (params.blob && params.blob.filetype.match("empty"))
+        (params.blob && params.blob.filetype.match('empty'))
       ) {
         this.mesh = this.getNoFileMesh();
         this.meshUpdateRequired = false;
@@ -201,9 +201,9 @@ export default class STLObject extends PrimitiveObject {
           ...base.parameters,
           blob: {
             ...blob,
-            uint8Data: Array.from(blob.uint8Data)
-          }
-        }
+            uint8Data: Array.from(blob.uint8Data),
+          },
+        },
       };
     }
     return base;
@@ -212,7 +212,7 @@ export default class STLObject extends PrimitiveObject {
   protected setParameters(parameters: ISTLParams): void {
     if (!this.parameters) {
       this.parameters = { ...parameters };
-      this.url = parameters.url || "";
+      this.url = parameters.url || '';
       this.meshUpdateRequired = true;
       return;
     }
@@ -237,7 +237,7 @@ export default class STLObject extends PrimitiveObject {
   protected getGeometry(): THREE.Geometry {
     const params = this.parameters as ISTLParams;
 
-    if (!params.blob || params.blob.filetype.match("empty")) {
+    if (!params.blob || params.blob.filetype.match('empty')) {
       throw new Error(`No STL file loaded`);
     }
 
@@ -279,27 +279,36 @@ export default class STLObject extends PrimitiveObject {
     const filetype: string = params.blob.filetype;
 
     if (
-      filetype.match("model/x.stl-binary") ||
-      filetype.match("model/stl") ||
-      filetype.match("application/sla")
+      filetype.match('model/x.stl-binary') ||
+      filetype.match('model/stl') ||
+      filetype.match('application/sla') ||
+      filetype.match('application/octet-stream')
     ) {
       try {
         this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
       } catch (e) {
-        throw new Error("Cannot parse STL file");
+        throw new Error('Cannot parse STL file');
       }
-    } else if (filetype.match("model/x.stl-ascii")) {
+    } else if (filetype.match('model/x.stl-ascii')) {
       try {
         this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
       } catch (e) {
-        throw new Error("Cannot parse STL file");
+        throw new Error('Cannot parse STL file');
       }
     } else {
+      // unlisted filetype
       try {
-        // not able to parse binary, try text
-        this.geometry = STLLoader.loadTextStl(this.arrayBufferData);
+        // try ascii
+        console.warn(`Unknown filetype ${filetype}, trying text stl`);
+        this.geometry = STLLoader.loadTextStl(this.arrayBufferData); // try ascii
+        // try binary
+        if (!this.geometry) {
+          console.warn(`Unknown filetype ${filetype}, trying binary stl`);
+
+          this.geometry = STLLoader.loadBinaryStl(this.arrayBufferData);
+        }
       } catch (e) {
-        console.warn(`No text STL file: ${e}`);
+        console.warn(`Unable to parse STL file: ${e}`);
         // not able to parse text, throw exception
         throw new Error(`Cannot parse STL file ${e}`);
       }
@@ -319,23 +328,23 @@ export default class STLObject extends PrimitiveObject {
     const boxGeometry = new THREE.BoxGeometry(10, 10, 10).translate(0, 0, 5);
     const cubeMaterials = [
       new THREE.MeshLambertMaterial({
-        map: this.getTextureForText("STL", HALF_PI)
+        map: this.getTextureForText('STL', HALF_PI),
       }),
       new THREE.MeshLambertMaterial({
-        map: this.getTextureForText("STL", -HALF_PI)
+        map: this.getTextureForText('STL', -HALF_PI),
       }),
       new THREE.MeshLambertMaterial({
-        map: this.getTextureForText("STL", Math.PI)
+        map: this.getTextureForText('STL', Math.PI),
       }),
       new THREE.MeshLambertMaterial({
-        map: this.getTextureForText("STL")
+        map: this.getTextureForText('STL'),
       }),
       new THREE.MeshLambertMaterial({
-        map: this.getTextureForText("STL")
+        map: this.getTextureForText('STL'),
       }),
       new THREE.MeshLambertMaterial({
-        map: this.getTextureForText("STL", Math.PI)
-      })
+        map: this.getTextureForText('STL', Math.PI),
+      }),
     ];
     const cube = new THREE.Mesh(boxGeometry, cubeMaterials);
 
@@ -343,21 +352,21 @@ export default class STLObject extends PrimitiveObject {
   }
 
   private getTextureForText(text: string, rotation: number = 0): THREE.Texture {
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
 
     canvas.width = 128;
     canvas.height = 128;
 
     if (ctx) {
-      ctx.font = "20px Roboto,Arial";
-      ctx.fillStyle = "#cccccc";
+      ctx.font = '20px Roboto,Arial';
+      ctx.fillStyle = '#cccccc';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "black";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
+      ctx.fillStyle = 'black';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.fillText(
-        (text || "").toUpperCase(),
+        (text || '').toUpperCase(),
         canvas.width / 2,
         canvas.height / 2
       );
