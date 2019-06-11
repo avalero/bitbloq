@@ -13,8 +13,8 @@
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
 
-import demo from './demo.js';
-import demoModule from './demo.wasm';
+import demo from './wasmcsg.js';
+import demoModule from './wasmcsg.wasm';
 
 const module = demo({
   locateFile(path) {
@@ -74,106 +74,137 @@ if (!(typeof module !== 'undefined' && module.exports)) {
     'message',
     e => {
       // WASM START!!!
-      console.log('Hola WASM!');
-
+      console.log('received event');
       module.onRuntimeInitialized = () => {
-        console.log(module._getNumber());
-      };
+        console.log('WASM Module initialized. Start!!');
 
-      console.log('Adios Wasm');
+        // const typedArray: Float32Array = new Float32Array(arrayDataToPass);
+        // buffer = module._malloc(
+        //   typedArray.length * typedArray.BYTES_PER_ELEMENT
+        // );
+        // // tslint:disable-next-line:no-bitwise
+        // module.HEAPF32.set(typedArray, buffer >> 2);
+        // console.log('_buildCSG');
+        // module._buildCSG(buffer, arrayDataToPass.length);
 
-      // /// WASM END
+        // /// WASM END
 
-      const geometries: THREE.Geometry[] = [];
-      const bufferArray = e.data.bufferArray;
+        const geometries: THREE.Geometry[] = [];
+        const bufferArray = e.data.bufferArray;
 
-      if (!bufferArray) return;
+        if (!bufferArray) return;
 
-      let firstGeomMatrix: THREE.Matrix4 | undefined;
+        let firstGeomMatrix: THREE.Matrix4 | undefined;
 
-      // add all children to geometries array
-      for (let i = 0; i < bufferArray.length; i += 3) {
-        // recompute object form vertices and normals
-        const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
-        const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
-        const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
-        const _vertices: ArrayLike<number> = new Float32Array(
-          verticesBuffer,
-          0,
-          verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const _normals: ArrayLike<number> = new Float32Array(
-          normalsBuffer,
-          0,
-          normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const _positions: ArrayLike<number> = new Float32Array(
-          positionBuffer,
-          0,
-          positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
-        matrixWorld.elements = new Float32Array(_positions);
-        if (i === 0) {
-          firstGeomMatrix = matrixWorld.clone();
+        // add all children to geometries array
+        for (let i = 0; i < bufferArray.length; i += 3) {
+          let _verticesBuffer: any;
+          try {
+            // recompute object form vertices and normals
+            const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
+            const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
+            const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
+
+            const _vertices: ArrayLike<number> = new Float32Array(
+              verticesBuffer,
+              0,
+              verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+            );
+
+            // WASM
+            _verticesBuffer = module._malloc(
+              (_vertices.length * verticesBuffer.byteLength) /
+                Float32Array.BYTES_PER_ELEMENT
+            );
+
+            // tslint:disable-next-line:no-bitwise
+            module.HEAPF32.set(_vertices, _verticesBuffer >> 2);
+            module._addGeometry(_verticesBuffer, _vertices.length);
+
+            // END WASM
+
+            const _normals: ArrayLike<number> = new Float32Array(
+              normalsBuffer,
+              0,
+              normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+            );
+            const _positions: ArrayLike<number> = new Float32Array(
+              positionBuffer,
+              0,
+              positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+            );
+
+            const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
+            matrixWorld.elements = new Float32Array(_positions);
+            if (i === 0) {
+              firstGeomMatrix = matrixWorld.clone();
+            }
+            const buffGeometry = new THREE.BufferGeometry();
+            buffGeometry.addAttribute(
+              'position',
+              new THREE.BufferAttribute(_vertices, 3)
+            );
+            buffGeometry.addAttribute(
+              'normal',
+              new THREE.BufferAttribute(_normals, 3)
+            );
+            const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
+              buffGeometry
+            );
+            objectGeometry.applyMatrix(matrixWorld);
+            geometries.push(objectGeometry);
+          } catch (e) {
+            console.log(e);
+          } finally {
+            console.log('free buffer');
+            module._free(_verticesBuffer);
+          }
         }
-        const buffGeometry = new THREE.BufferGeometry();
-        buffGeometry.addAttribute(
-          'position',
-          new THREE.BufferAttribute(_vertices, 3)
-        );
-        buffGeometry.addAttribute(
-          'normal',
-          new THREE.BufferAttribute(_normals, 3)
-        );
-        const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
-          buffGeometry
-        );
-        objectGeometry.applyMatrix(matrixWorld);
-        geometries.push(objectGeometry);
-      }
 
-      // compute action
-      let geometry: THREE.Geometry = new THREE.Geometry();
-      if (e.data.type === 'Union') {
-        geometry = getUnionFromGeometries(geometries);
-      } else if (e.data.type === 'Difference') {
-        geometry = getDifferenceFromGeometries(geometries);
-      } else if (e.data.type === 'Intersection') {
-        geometry = getIntersectionFromGeometries(geometries);
-      } else {
-        const postMessage = {
-          status: 'error',
+        // compute action
+        let geometry: THREE.Geometry = new THREE.Geometry();
+        if (e.data.type === 'Union') {
+          geometry = getUnionFromGeometries(geometries);
+        } else if (e.data.type === 'Difference') {
+          geometry = getDifferenceFromGeometries(geometries);
+        } else if (e.data.type === 'Intersection') {
+          geometry = getIntersectionFromGeometries(geometries);
+        } else {
+          const postMessage = {
+            status: 'error',
+          };
+          ctx.postMessage(postMessage);
+        }
+
+        // move resulting geometry to origin of coordinates (center on first child on origin)
+        const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
+        if (firstGeomMatrix) {
+          invMatrix.getInverse(firstGeomMatrix);
+        }
+        geometry.applyMatrix(invMatrix);
+
+        // get buffer data
+        const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(
+          geometry
+        );
+        const vertices = new Float32Array(
+          bufferGeom.getAttribute('position').array
+        );
+        const normals = new Float32Array(
+          bufferGeom.getAttribute('normal').array
+        );
+
+        const message = {
+          vertices,
+          normals,
+          status: 'ok',
         };
-        ctx.postMessage(postMessage);
-      }
 
-      // move resulting geometry to origin of coordinates (center on first child on origin)
-      const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
-      if (firstGeomMatrix) {
-        invMatrix.getInverse(firstGeomMatrix);
-      }
-      geometry.applyMatrix(invMatrix);
-
-      // get buffer data
-      const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(
-        geometry
-      );
-      const vertices = new Float32Array(
-        bufferGeom.getAttribute('position').array
-      );
-      const normals = new Float32Array(bufferGeom.getAttribute('normal').array);
-
-      const message = {
-        vertices,
-        normals,
-        status: 'ok',
+        ctx.postMessage(message, [
+          message.vertices.buffer,
+          message.normals.buffer,
+        ]);
       };
-
-      ctx.postMessage(message, [
-        message.vertices.buffer,
-        message.normals.buffer,
-      ]);
     },
 
     false
