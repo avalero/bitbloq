@@ -25,6 +25,34 @@ const module = demo({
   },
 });
 
+const concatArrayBuffers = (...buffers: ArrayBuffer[]): ArrayLike<number> => {
+  const buffersLengths: number[] = buffers.map(
+    b => b.byteLength / Float32Array.BYTES_PER_ELEMENT
+  );
+  const totalBufferlength: number = buffersLengths.reduce((p, c) => p + c, 0);
+  const f32Array: Float32Array = new Float32Array(totalBufferlength);
+  buffersLengths.reduce((p, c, i) => {
+    f32Array.set(new Float32Array(buffers[i]), p);
+    return p + c;
+  }, 0);
+
+  return f32Array;
+};
+
+// const mergeBuffer = (
+//   buffer1: ArrayBuffer,
+//   buffer2: ArrayBuffer,
+//   buffer3: ArrayBuffer
+// ): ArrayLike<number> => {
+//   const tmp: Float32Array = new Float32Array(
+//     buffer1.byteLength + buffer2.byteLength + buffer3.byteLength
+//   );
+//   tmp.set(new Float32Array(buffer1), 0);
+//   tmp.set(new Float32Array(buffer2), buffer1.byteLength);
+//   tmp.set(new Float32Array(buffer3), buffer1.byteLength + buffer2.byteLength);
+//   return tmp;
+// };
+
 export default Worker;
 
 // Be sure we are not withing a node execution
@@ -78,17 +106,6 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       module.onRuntimeInitialized = () => {
         console.log('WASM Module initialized. Start!!');
 
-        // const typedArray: Float32Array = new Float32Array(arrayDataToPass);
-        // buffer = module._malloc(
-        //   typedArray.length * typedArray.BYTES_PER_ELEMENT
-        // );
-        // // tslint:disable-next-line:no-bitwise
-        // module.HEAPF32.set(typedArray, buffer >> 2);
-        // console.log('_buildCSG');
-        // module._buildCSG(buffer, arrayDataToPass.length);
-
-        // /// WASM END
-
         const geometries: THREE.Geometry[] = [];
         const bufferArray = e.data.bufferArray;
 
@@ -98,7 +115,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
         // add all children to geometries array
         for (let i = 0; i < bufferArray.length; i += 3) {
-          let _verticesBuffer: any;
+          let _wasmBuffer: any;
           try {
             // recompute object form vertices and normals
             const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
@@ -111,34 +128,86 @@ if (!(typeof module !== 'undefined' && module.exports)) {
               verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
             );
 
-            // WASM
-            _verticesBuffer = module._malloc(
-              (_vertices.length * verticesBuffer.byteLength) /
-                Float32Array.BYTES_PER_ELEMENT
-            );
-
-            // tslint:disable-next-line:no-bitwise
-            module.HEAPF32.set(_vertices, _verticesBuffer >> 2);
-            module._addGeometry(_verticesBuffer, _vertices.length);
-
-            // END WASM
-
             const _normals: ArrayLike<number> = new Float32Array(
               normalsBuffer,
               0,
               normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
             );
-            const _positions: ArrayLike<number> = new Float32Array(
+
+            const _position: ArrayLike<number> = new Float32Array(
               positionBuffer,
               0,
               positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
             );
 
+            ////////////////////////////////////////////////////////
+            // WASM  ///////////////////////////////////////////////
+            ////////////////////////////////////////////////////////
+
+            if (i === 0) {
+              const _wasmData: ArrayLike<number> = concatArrayBuffers(
+                verticesBuffer,
+                normalsBuffer,
+                positionBuffer
+              );
+
+              _wasmBuffer = module._malloc(
+                (_vertices.length * verticesBuffer.byteLength) /
+                  Float32Array.BYTES_PER_ELEMENT +
+                  (_normals.length * normalsBuffer.byteLength) /
+                    Float32Array.BYTES_PER_ELEMENT +
+                  (_position.length * positionBuffer.byteLength) /
+                    Float32Array.BYTES_PER_ELEMENT
+              );
+
+              // tslint:disable-next-line:no-bitwise
+              module.HEAPF32.set(_wasmData, _wasmBuffer >> 2);
+
+              module._addGeometry(
+                _wasmBuffer,
+                _vertices.length,
+                _normals.length,
+                _position.length
+              );
+              console.log('Geom to Buffer');
+              const verticesSize = module.getVerticesSize(i);
+              const normalsSize = module.getNormalsSize(i);
+
+              const verticesResult: any = module._getVerticesBuffer(i);
+              const normalsResult: any = module._getNormalsBuffer(i);
+
+              const verticesData: number[] = [];
+              const normalsData: number[] = [];
+
+              for (let v = 0; v < verticesSize; v += 1) {
+                verticesData.push(
+                  module.HEAPF32[
+                    verticesResult / Float32Array.BYTES_PER_ELEMENT + v
+                  ]
+                );
+              }
+
+              for (let v = 0; v < normalsSize; v += 1) {
+                normalsData.push(
+                  module.HEAPF32[
+                    normalsResult / Float32Array.BYTES_PER_ELEMENT + v
+                  ]
+                );
+              }
+
+              console.log('free buffer');
+              module._free(_wasmBuffer); /// WASM!!!!
+            }
+            ////////////////////////////////////////////////////////
+            // END WASM  ///////////////////////////////////////////
+            ////////////////////////////////////////////////////////
+
             const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
-            matrixWorld.elements = new Float32Array(_positions);
+            matrixWorld.elements = new Float32Array(_position);
             if (i === 0) {
               firstGeomMatrix = matrixWorld.clone();
             }
+
             const buffGeometry = new THREE.BufferGeometry();
             buffGeometry.addAttribute(
               'position',
@@ -156,8 +225,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
           } catch (e) {
             console.log(e);
           } finally {
-            console.log('free buffer');
-            module._free(_verticesBuffer);
+            console.log('Done!');
           }
         }
 
