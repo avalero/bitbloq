@@ -13,13 +13,13 @@
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
 
-import demo from './wasmcsg.js';
-import demoModule from './wasmcsg.wasm';
+import wasm from './wasmcsg.js';
+import wasmModule from './wasmcsg.wasm';
 
-const module = demo({
+const module = wasm({
   locateFile(path) {
     if (path.endsWith('.wasm')) {
-      return demoModule;
+      return wasmModule;
     }
     return path;
   },
@@ -38,20 +38,6 @@ const concatArrayBuffers = (...buffers: ArrayBuffer[]): ArrayLike<number> => {
 
   return f32Array;
 };
-
-// const mergeBuffer = (
-//   buffer1: ArrayBuffer,
-//   buffer2: ArrayBuffer,
-//   buffer3: ArrayBuffer
-// ): ArrayLike<number> => {
-//   const tmp: Float32Array = new Float32Array(
-//     buffer1.byteLength + buffer2.byteLength + buffer3.byteLength
-//   );
-//   tmp.set(new Float32Array(buffer1), 0);
-//   tmp.set(new Float32Array(buffer2), buffer1.byteLength);
-//   tmp.set(new Float32Array(buffer3), buffer1.byteLength + buffer2.byteLength);
-//   return tmp;
-// };
 
 export default Worker;
 
@@ -195,6 +181,17 @@ if (!(typeof module !== 'undefined' && module.exports)) {
                 );
               }
 
+              const wasmMessage = {
+                verticesData: new Float32Array(verticesData),
+                normalsData: new Float32Array(normalsData),
+                status: 'ok',
+              };
+
+              ctx.postMessage(wasmMessage, [
+                wasmMessage.verticesData.buffer,
+                wasmMessage.normalsData.buffer,
+              ]);
+
               console.log('free buffer');
               module._free(_wasmBuffer); /// WASM!!!!
             }
@@ -202,6 +199,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
             // END WASM  ///////////////////////////////////////////
             ////////////////////////////////////////////////////////
 
+            /*
             const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
             matrixWorld.elements = new Float32Array(_position);
             if (i === 0) {
@@ -222,6 +220,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
             );
             objectGeometry.applyMatrix(matrixWorld);
             geometries.push(objectGeometry);
+            */
           } catch (e) {
             console.log(e);
           } finally {
@@ -229,6 +228,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
           }
         }
 
+        /*
         // compute action
         let geometry: THREE.Geometry = new THREE.Geometry();
         if (e.data.type === 'Union') {
@@ -272,6 +272,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
           message.vertices.buffer,
           message.normals.buffer,
         ]);
+        */
       };
     },
 
