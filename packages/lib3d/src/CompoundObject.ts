@@ -112,56 +112,53 @@ export default class CompoundObject extends Object3D {
 
           // save vertices and normals
 
-          /*
-          const verticesBuffer: ArrayBuffer = message.vertices;
-          const normalsBuffer: ArrayBuffer = message.normals;
+          // const verticesBuffer: ArrayBuffer = message.verticesData;
+          // const normalsBuffer: ArrayBuffer = message.normalsData;
 
-          const vertices: ArrayLike<number> = new Float32Array(
-            verticesBuffer,
-            0,
-            verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-          );
+          // const vertices: ArrayLike<number> = new Float32Array(
+          //   verticesBuffer,
+          //   0,
+          //   verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+          // );
 
-          const normals: ArrayLike<number> = new Float32Array(
-            normalsBuffer,
-            0,
-            normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-          );
-          */
+          // const normals: ArrayLike<number> = new Float32Array(
+          //   normalsBuffer,
+          //   0,
+          //   normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+          // );
 
-          const vertices: Float32Array = message.verticesData;
-          const normals: Float32Array = message.normalsData;
+          // const vertices: Float32Array = message.verticesData;
+          // const normals: Float32Array = message.normalsData;
 
           // this.verticesArray = Array.from(vertices);
           // this.normalsArray = Array.from(normals);
 
           // recompute object form vertices and normals
 
-          this.fromBufferData(
-            vertices.buffer,
-            normals.buffer /*message.vertices, message.normals*/
-          ).then(mesh => {
-            this.mesh = mesh;
-            if (this.mesh instanceof THREE.Mesh) {
-              this.applyOperationsAsync().then(() => {
-                if (this.viewOptionsUpdateRequired) {
-                  this.applyViewOptions();
-                }
+          this.fromBufferData(message.verticesData, message.normalsData).then(
+            mesh => {
+              this.mesh = mesh;
+              if (this.mesh instanceof THREE.Mesh) {
+                this.applyOperationsAsync().then(() => {
+                  if (this.viewOptionsUpdateRequired) {
+                    this.applyViewOptions();
+                  }
+                  (this.worker as Worker).terminate();
+                  this.worker = null;
+                  resolve(this.mesh);
+
+                  // mesh updated and resolved
+                  this.pendingOperation = false;
+                  this.meshUpdateRequired = false;
+                  this.viewOptionsUpdateRequired = false;
+                });
+              } else {
                 (this.worker as Worker).terminate();
                 this.worker = null;
-                resolve(this.mesh);
-
-                // mesh updated and resolved
-                this.pendingOperation = false;
-                this.meshUpdateRequired = false;
-                this.viewOptionsUpdateRequired = false;
-              });
-            } else {
-              (this.worker as Worker).terminate();
-              this.worker = null;
-              reject(new Error('Mesh not computed correctly'));
+                reject(new Error('Mesh not computed correctly'));
+              }
             }
-          });
+          );
         };
         // END OF EVENT HANDLER
 
