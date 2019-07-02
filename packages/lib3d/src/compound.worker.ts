@@ -25,6 +25,12 @@ const module = wasm({
   },
 });
 
+const wasmReadyPromise: Promise<void> = new Promise((resolve, reject) => {
+  module.onRuntimeInitialized = () => {
+    resolve();
+  };
+});
+
 const concatArrayBuffers = (...buffers: ArrayBuffer[]): ArrayLike<number> => {
   const buffersLengths: number[] = buffers.map(
     b => b.byteLength / Float32Array.BYTES_PER_ELEMENT
@@ -89,7 +95,8 @@ if (!(typeof module !== 'undefined' && module.exports)) {
     e => {
       // WASM START!!!
       console.log('received event');
-      module.onRuntimeInitialized = () => {
+
+      wasmReadyPromise.then(() => {
         console.log('WASM Module initialized. Start!!');
 
         const geometries: THREE.Geometry[] = [];
@@ -273,7 +280,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
           message.normals.buffer,
         ]);
         */
-      };
+      });
     },
 
     false

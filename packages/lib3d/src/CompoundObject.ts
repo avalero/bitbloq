@@ -108,33 +108,6 @@ export default class CompoundObject extends Object3D {
 
           const message = event.data;
 
-          debugger;
-
-          // save vertices and normals
-
-          // const verticesBuffer: ArrayBuffer = message.verticesData;
-          // const normalsBuffer: ArrayBuffer = message.normalsData;
-
-          // const vertices: ArrayLike<number> = new Float32Array(
-          //   verticesBuffer,
-          //   0,
-          //   verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-          // );
-
-          // const normals: ArrayLike<number> = new Float32Array(
-          //   normalsBuffer,
-          //   0,
-          //   normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-          // );
-
-          // const vertices: Float32Array = message.verticesData;
-          // const normals: Float32Array = message.normalsData;
-
-          // this.verticesArray = Array.from(vertices);
-          // this.normalsArray = Array.from(normals);
-
-          // recompute object form vertices and normals
-
           this.fromBufferData(message.verticesData, message.normalsData).then(
             mesh => {
               this.mesh = mesh;
@@ -297,7 +270,7 @@ export default class CompoundObject extends Object3D {
   protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
       const buffGeometry = new THREE.BufferGeometry();
-      debugger;
+
       buffGeometry.addAttribute(
         'position',
         new THREE.BufferAttribute(vertices, 3)
