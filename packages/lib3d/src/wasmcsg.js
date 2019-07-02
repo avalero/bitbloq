@@ -1232,11 +1232,11 @@ function updateGlobalBufferViews() {
 
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 28128,
+    STACK_BASE = 28144,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 5271008,
-    DYNAMIC_BASE = 5271008,
-    DYNAMICTOP_PTR = 28096;
+    STACK_MAX = 5271024,
+    DYNAMIC_BASE = 5271024,
+    DYNAMICTOP_PTR = 28112;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1688,8 +1688,8 @@ Module['asm'] = function(global, env, providedBuffer) {
   ;
   // import table
   env['table'] = wasmTable = new WebAssembly.Table({
-    'initial': 878,
-    'maximum': 878,
+    'initial': 846,
+    'maximum': 846,
     'element': 'anyfunc'
   });
   // With the wasm backend __memory_base and __table_base and only needed for
@@ -1711,7 +1711,7 @@ var ASM_CONSTS = [];
 
 
 
-// STATICTOP = STATIC_BASE + 27104;
+// STATICTOP = STATIC_BASE + 27120;
 /* global initializers */  __ATINIT__.push({ func: function() { globalCtors() } });
 
 
@@ -1722,7 +1722,7 @@ var ASM_CONSTS = [];
 
 
 /* no memory initializer */
-var tempDoublePtr = 28112
+var tempDoublePtr = 28128
 assert(tempDoublePtr % 8 == 0);
 
 function copyTempFloat(ptr) { // functions, because inlining this code increases code size too much
@@ -6445,6 +6445,20 @@ asm["_addGeometry"] = function() {
   return real__addGeometry.apply(null, arguments);
 };
 
+var real__computeBSP = asm["_computeBSP"];
+asm["_computeBSP"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__computeBSP.apply(null, arguments);
+};
+
+var real__computeBufferGeomFromBSP = asm["_computeBufferGeomFromBSP"];
+asm["_computeBufferGeomFromBSP"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return real__computeBufferGeomFromBSP.apply(null, arguments);
+};
+
 var real__computeUnion = asm["_computeUnion"];
 asm["_computeUnion"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
@@ -6612,6 +6626,18 @@ var _addGeometry = Module["_addGeometry"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["_addGeometry"].apply(null, arguments)
+};
+
+var _computeBSP = Module["_computeBSP"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["_computeBSP"].apply(null, arguments)
+};
+
+var _computeBufferGeomFromBSP = Module["_computeBufferGeomFromBSP"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["_computeBufferGeomFromBSP"].apply(null, arguments)
 };
 
 var _computeUnion = Module["_computeUnion"] = function() {

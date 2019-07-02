@@ -202,41 +202,47 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
         console.log('Geom to Buffer');
         try {
-          module.computeUnion();
+          // module.computeUnion();
+          module.computeBSP(1);
+          module.computeBufferGeomFromBSP();
+          const verticesSize = module.getVerticesSize();
+          const normalsSize = module.getNormalsSize();
+
+          console.log(`Vertices size: ${verticesSize}`);
+          console.log(`Normals size: ${normalsSize}`);
+          const verticesResult: any = module._getVerticesBuffer();
+          const normalsResult: any = module._getNormalsBuffer();
+
+          const verticesData: number[] = [];
+          const normalsData: number[] = [];
+
+          for (let v = 0; v < verticesSize; v += 1) {
+            verticesData.push(
+              module.HEAPF32[
+                verticesResult / Float32Array.BYTES_PER_ELEMENT + v
+              ]
+            );
+          }
+
+          for (let v = 0; v < normalsSize; v += 1) {
+            normalsData.push(
+              module.HEAPF32[normalsResult / Float32Array.BYTES_PER_ELEMENT + v]
+            );
+          }
+          
+          const wasmMessage = {
+            verticesData: new Float32Array(verticesData),
+            normalsData: new Float32Array(normalsData),
+            status: 'ok',
+          };
+
+          ctx.postMessage(wasmMessage, [
+            wasmMessage.verticesData.buffer,
+            wasmMessage.normalsData.buffer,
+          ]);
         } catch (e) {
           console.log(e);
         }
-        const verticesSize = module.getVerticesSize();
-        const normalsSize = module.getNormalsSize();
-
-        const verticesResult: any = module._getVerticesBuffer();
-        const normalsResult: any = module._getNormalsBuffer();
-
-        const verticesData: number[] = [];
-        const normalsData: number[] = [];
-
-        for (let v = 0; v < verticesSize; v += 1) {
-          verticesData.push(
-            module.HEAPF32[verticesResult / Float32Array.BYTES_PER_ELEMENT + v]
-          );
-        }
-
-        for (let v = 0; v < normalsSize; v += 1) {
-          normalsData.push(
-            module.HEAPF32[normalsResult / Float32Array.BYTES_PER_ELEMENT + v]
-          );
-        }
-
-        const wasmMessage = {
-          verticesData: new Float32Array(verticesData),
-          normalsData: new Float32Array(normalsData),
-          status: 'ok',
-        };
-
-        ctx.postMessage(wasmMessage, [
-          wasmMessage.verticesData.buffer,
-          wasmMessage.normalsData.buffer,
-        ]);
 
         ///////////////// END WASM ///////////////////
 
