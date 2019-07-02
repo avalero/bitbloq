@@ -137,71 +137,34 @@ if (!(typeof module !== 'undefined' && module.exports)) {
             // WASM  ///////////////////////////////////////////////
             ////////////////////////////////////////////////////////
 
-            if (i === 0) {
-              const _wasmData: ArrayLike<number> = concatArrayBuffers(
-                verticesBuffer,
-                normalsBuffer,
-                positionBuffer
-              );
+            const _wasmData: ArrayLike<number> = concatArrayBuffers(
+              verticesBuffer,
+              normalsBuffer,
+              positionBuffer
+            );
 
-              _wasmBuffer = module._malloc(
-                (_vertices.length * verticesBuffer.byteLength) /
+            _wasmBuffer = module._malloc(
+              (_vertices.length * verticesBuffer.byteLength) /
+                Float32Array.BYTES_PER_ELEMENT +
+                (_normals.length * normalsBuffer.byteLength) /
                   Float32Array.BYTES_PER_ELEMENT +
-                  (_normals.length * normalsBuffer.byteLength) /
-                    Float32Array.BYTES_PER_ELEMENT +
-                  (_position.length * positionBuffer.byteLength) /
-                    Float32Array.BYTES_PER_ELEMENT
-              );
+                (_position.length * positionBuffer.byteLength) /
+                  Float32Array.BYTES_PER_ELEMENT
+            );
 
-              // tslint:disable-next-line:no-bitwise
-              module.HEAPF32.set(_wasmData, _wasmBuffer >> 2);
+            // tslint:disable-next-line:no-bitwise
+            module.HEAPF32.set(_wasmData, _wasmBuffer >> 2);
 
-              module._addGeometry(
-                _wasmBuffer,
-                _vertices.length,
-                _normals.length,
-                _position.length
-              );
-              console.log('Geom to Buffer');
-              const verticesSize = module.getVerticesSize(i);
-              const normalsSize = module.getNormalsSize(i);
+            module._addGeometry(
+              _wasmBuffer,
+              _vertices.length,
+              _normals.length,
+              _position.length
+            );
 
-              const verticesResult: any = module._getVerticesBuffer(i);
-              const normalsResult: any = module._getNormalsBuffer(i);
+            console.log('free buffer');
+            module._free(_wasmBuffer); /// WASM!!!!
 
-              const verticesData: number[] = [];
-              const normalsData: number[] = [];
-
-              for (let v = 0; v < verticesSize; v += 1) {
-                verticesData.push(
-                  module.HEAPF32[
-                    verticesResult / Float32Array.BYTES_PER_ELEMENT + v
-                  ]
-                );
-              }
-
-              for (let v = 0; v < normalsSize; v += 1) {
-                normalsData.push(
-                  module.HEAPF32[
-                    normalsResult / Float32Array.BYTES_PER_ELEMENT + v
-                  ]
-                );
-              }
-
-              const wasmMessage = {
-                verticesData: new Float32Array(verticesData),
-                normalsData: new Float32Array(normalsData),
-                status: 'ok',
-              };
-
-              ctx.postMessage(wasmMessage, [
-                wasmMessage.verticesData.buffer,
-                wasmMessage.normalsData.buffer,
-              ]);
-
-              console.log('free buffer');
-              module._free(_wasmBuffer); /// WASM!!!!
-            }
             ////////////////////////////////////////////////////////
             // END WASM  ///////////////////////////////////////////
             ////////////////////////////////////////////////////////
@@ -234,6 +197,48 @@ if (!(typeof module !== 'undefined' && module.exports)) {
             console.log('Done!');
           }
         }
+
+        ////////////////////// WASM //////////////////////
+
+        console.log('Geom to Buffer');
+        try {
+          module.computeUnion();
+        } catch (e) {
+          console.log(e);
+        }
+        const verticesSize = module.getVerticesSize();
+        const normalsSize = module.getNormalsSize();
+
+        const verticesResult: any = module._getVerticesBuffer();
+        const normalsResult: any = module._getNormalsBuffer();
+
+        const verticesData: number[] = [];
+        const normalsData: number[] = [];
+
+        for (let v = 0; v < verticesSize; v += 1) {
+          verticesData.push(
+            module.HEAPF32[verticesResult / Float32Array.BYTES_PER_ELEMENT + v]
+          );
+        }
+
+        for (let v = 0; v < normalsSize; v += 1) {
+          normalsData.push(
+            module.HEAPF32[normalsResult / Float32Array.BYTES_PER_ELEMENT + v]
+          );
+        }
+
+        const wasmMessage = {
+          verticesData: new Float32Array(verticesData),
+          normalsData: new Float32Array(normalsData),
+          status: 'ok',
+        };
+
+        ctx.postMessage(wasmMessage, [
+          wasmMessage.verticesData.buffer,
+          wasmMessage.normalsData.buffer,
+        ]);
+
+        ///////////////// END WASM ///////////////////
 
         /*
         // compute action
