@@ -134,6 +134,7 @@ export default class BSPNode {
       );
   };
 
+  // tslint:disable-next-line:member-ordering
   static verticesToTriangles(vertices: Vector3[]): Triangle[] {
     const triangles = [];
     for (let i = 2; i < vertices.length; i++) {
