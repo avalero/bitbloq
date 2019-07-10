@@ -19,6 +19,9 @@ const MINIMUM_RELATION_SCALE = 10; // should always be >2
  * Samuel Ranta-Eskola, 2001
  */
 function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
+  
+  return triangles[0];
+
   if (isConvexSet(triangles)) return triangles[0];
 
   let minimumRelation = MINIMUM_RELATION;
@@ -170,9 +173,6 @@ export default class BSPNode {
   }
 
   private addTriangles(triangles: Triangle[]) {
-    recursionLevel += 1;
-    max_recursion = (recursionLevel > max_recursion)?recursionLevel : max_recursion;
-
     const frontTriangles = [];
     const backTriangles = [];
 
@@ -252,11 +252,6 @@ export default class BSPNode {
         this.back.addTriangles(backTriangles);
       }
     }
-
-    
-    console.log(`Max Recursion: ${max_recursion}`);
-    recursionLevel-=1;
-    
   }
 
   // tslint:disable-next-line:member-ordering
