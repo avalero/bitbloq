@@ -12,6 +12,7 @@
 
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
+import * as ThreeCSG from './threecsg/index';
 
 // import demo from './demo.js';
 // import demoModule from './demo.wasm';
@@ -34,6 +35,14 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   const getUnionFromGeometries = (
     geometries: THREE.Geometry[]
   ): THREE.Geometry => {
+    const mesh0 = new THREE.Mesh(geometries[0]);
+    const mesh1 = new THREE.Mesh(geometries[1]);
+
+    const union = ThreeCSG.union(mesh0, mesh1);
+
+    return union.geometry as THREE.Geometry;
+
+    /*
     let geomBSP: any = new ThreeBSP(geometries[0]);
     // Union with the rest
     for (let i = 1; i < geometries.length; i += 1) {
@@ -41,7 +50,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       geomBSP = geomBSP.union(bspGeom);
     }
     const geom = geomBSP.toGeometry();
-    return geom;
+    return geom;*/
   };
 
   const getDifferenceFromGeometries = (
