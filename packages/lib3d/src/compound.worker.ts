@@ -98,6 +98,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
       wasmReadyPromise.then(() => {
         console.log('WASM Module initialized. Start!!');
+        module.clean();
 
         const geometries: THREE.Geometry[] = [];
         const bufferArray = e.data.bufferArray;
@@ -155,12 +156,14 @@ if (!(typeof module !== 'undefined' && module.exports)) {
             // tslint:disable-next-line:no-bitwise
             module.HEAPF32.set(_wasmData, _wasmBuffer >> 2);
 
+            console.log("Add Geometry");
             module._addGeometry(
               _wasmBuffer,
               _vertices.length,
               _normals.length,
               _position.length
             );
+            console.log("Geometry Added");
 
             console.log('free buffer');
             module._free(_wasmBuffer); /// WASM!!!!
@@ -203,8 +206,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
         console.log('Geom to Buffer');
         try {
           // module.computeUnion();
-          module.computeBSP(1);
-          module.computeBufferGeomFromBSP();
+          module.bspToBuffer(0);
           const verticesSize = module.getVerticesSize();
           const normalsSize = module.getNormalsSize();
 
@@ -229,7 +231,9 @@ if (!(typeof module !== 'undefined' && module.exports)) {
               module.HEAPF32[normalsResult / Float32Array.BYTES_PER_ELEMENT + v]
             );
           }
-          
+
+          module.clean();
+
           const wasmMessage = {
             verticesData: new Float32Array(verticesData),
             normalsData: new Float32Array(normalsData),
