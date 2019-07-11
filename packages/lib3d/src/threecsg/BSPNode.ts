@@ -158,6 +158,7 @@ export default class BSPNode {
   }
 
   public buildFrom(triangles: Triangle[], rec_level: number = 0) {
+    debugger;
     if (this.divider === undefined) {
       const bestDivider = chooseDividingTriangle(triangles);
       if (bestDivider === undefined) {
