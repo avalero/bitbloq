@@ -147,14 +147,20 @@ export default class BSPNode {
   public isInverted: boolean;
   public boundingBox: Box3;
 
-  constructor(triangles?: Triangle[], rec_level: number = 0) {
+  constructor(
+    triangles?: Triangle[],
+    rec_level: number = 0,
+    reset: boolean = false
+  ) {
     this.triangles = [];
     this.isInverted = false;
     this.boundingBox = new Box3();
 
+    if (reset) max_recursion = 0;
     if (triangles !== undefined) {
       this.buildFrom(triangles, rec_level);
     }
+    if (reset) console.log(`Max: ${max_recursion}`);
   }
 
   public buildFrom(triangles: Triangle[], rec_level: number = 0) {
@@ -327,7 +333,10 @@ export default class BSPNode {
     const frontTriangles = [];
     const backTriangles = [];
 
-    max_recursion = rec_level > max_recursion ? rec_level : max_recursion;
+    if (rec_level > max_recursion) {
+      max_recursion = rec_level;
+    }
+    // max_recursion = rec_level > max_recursion ? rec_level : max_recursion;
     for (let i = 0; i < triangles.length; i++) {
       const triangle = triangles[i];
 
@@ -372,7 +381,7 @@ export default class BSPNode {
         )
       );
       const side = this.divider!.classifySide(triangle);
-      debugger;
+
       if (side === CLASSIFY_COPLANAR) {
         this.triangles.push(triangle);
       } else if (side === CLASSIFY_FRONT) {
@@ -403,6 +412,5 @@ export default class BSPNode {
         this.back.addTriangles(backTriangles, rec_level + 1);
       }
     }
-    console.log(`Max: ${max_recursion}`);
   }
 }
