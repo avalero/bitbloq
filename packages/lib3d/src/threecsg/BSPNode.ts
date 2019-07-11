@@ -158,7 +158,6 @@ export default class BSPNode {
   }
 
   public buildFrom(triangles: Triangle[], rec_level: number = 0) {
-    debugger;
     if (this.divider === undefined) {
       const bestDivider = chooseDividingTriangle(triangles);
       if (bestDivider === undefined) {
@@ -372,9 +371,8 @@ export default class BSPNode {
           triangle.c.z
         )
       );
-
       const side = this.divider!.classifySide(triangle);
-
+      debugger;
       if (side === CLASSIFY_COPLANAR) {
         this.triangles.push(triangle);
       } else if (side === CLASSIFY_FRONT) {
