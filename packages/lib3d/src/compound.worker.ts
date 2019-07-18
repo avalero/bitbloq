@@ -64,30 +64,30 @@ if (!(typeof module !== 'undefined' && module.exports)) {
     return bspResult.toGeometry();
   };
 
-  const getDifferenceFromGeometries = (
-    geometries: THREE.Geometry[]
+  const getDifferenceFromBSP = (
+    bspNodes: ThreeCSG.BSPNode[]
   ): THREE.Geometry => {
-    let geomBSP: any = new ThreeBSP(geometries[0]);
-    // Union with the rest
-    for (let i = 1; i < geometries.length; i += 1) {
-      const bspGeom = new ThreeBSP(geometries[i]);
-      geomBSP = geomBSP.subtract(bspGeom);
+    console.log('start');
+    let bspResult: ThreeCSG.BSPNode = bspNodes[0];
+    for (let i = 1; i < bspNodes.length; i += 1) {
+      console.log(i);
+      bspResult = ThreeCSG.boolean.subtract(bspResult, bspNodes[i]);
     }
-    const geom = geomBSP.toGeometry();
-    return geom;
+
+    return bspResult.toGeometry();
   };
 
-  const getIntersectionFromGeometries = (
-    geometries: THREE.Geometry[]
+  const getIntersectionFromBSP = (
+    bspNodes: ThreeCSG.BSPNode[]
   ): THREE.Geometry => {
-    let geomBSP: any = new ThreeBSP(geometries[0]);
-    // Union with the rest
-    for (let i = 1; i < geometries.length; i += 1) {
-      const bspGeom = new ThreeBSP(geometries[i]);
-      geomBSP = geomBSP.intersect(bspGeom);
+    console.log('start');
+    let bspResult: ThreeCSG.BSPNode = bspNodes[0];
+    for (let i = 1; i < bspNodes.length; i += 1) {
+      console.log(i);
+      bspResult = ThreeCSG.boolean.intersect(bspResult, bspNodes[i]);
     }
-    const geom = geomBSP.toGeometry();
-    return geom;
+
+    return bspResult.toGeometry();
   };
 
   ctx.addEventListener(
@@ -155,12 +155,11 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
       if (e.data.type === 'Union') {
-        // geometry = getUnionFromGeometries(geometries);
         geometry = getUnionFromBSP(bspNodes);
       } else if (e.data.type === 'Difference') {
-        // geometry = getDifferenceFromGeometries(geometries);
+        geometry = getDifferenceFromBSP(bspNodes);
       } else if (e.data.type === 'Intersection') {
-        // geometry = getIntersectionFromGeometries(geometries);
+        geometry = getIntersectionFromBSP(bspNodes);
       } else {
         const postMessage = {
           status: 'error',

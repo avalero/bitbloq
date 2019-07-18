@@ -15,7 +15,7 @@ const MINIMUM_RELATION_SCALE = 10; // should always be >2
  * Samuel Ranta-Eskola, 2001
  */
 function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
-  if (isConvexSet(triangles)) return triangles[0];
+  if (true || isConvexSet(triangles)) return triangles[0];
 
   let minimumRelation = MINIMUM_RELATION;
   let bestTriangle: Triangle | undefined = undefined;
@@ -177,7 +177,7 @@ export default class BSPNode {
     // number of triangles
     arr.push(this.triangles.length);
     // the triangles
-    for (let triangle of this.triangles) {
+    for (const triangle of this.triangles) {
       arr.push(...triangle.toNumberArray());
     }
 
@@ -220,7 +220,7 @@ export default class BSPNode {
 
     for (let i = 0; i < trianglesLength; i += 1) {
       const triangle: Triangle = new Triangle();
-      let index = i * 13 + triangleOffset;
+      const index = i * 13 + triangleOffset;
       const triangleArray: number[] = arr.slice(index, index + 13);
       triangle.fromNumberArray(triangleArray);
       this.triangles.push(triangle)
