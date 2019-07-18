@@ -53,6 +53,17 @@ if (!(typeof module !== 'undefined' && module.exports)) {
     return geom;*/
   };
 
+  const getUnionFromBSP = (bspNodes: ThreeCSG.BSPNode[]): THREE.Geometry => {
+    console.log('start');
+    let bspResult: ThreeCSG.BSPNode = bspNodes[0];
+    for (let i = 1; i < bspNodes.length; i += 1) {
+      console.log(i);
+      bspResult = ThreeCSG.boolean.union(bspResult, bspNodes[i]);
+    }
+
+    return bspResult.toGeometry();
+  };
+
   const getDifferenceFromGeometries = (
     geometries: THREE.Geometry[]
   ): THREE.Geometry => {
@@ -82,74 +93,74 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   ctx.addEventListener(
     'message',
     e => {
-      // // WASM START!!!
-      // console.log('Hola WASM!');
+      // const geometries: THREE.Geometry[] = [];
+      // const bufferArray = e.data.bufferArray;
 
-      // module.onRuntimeInitialized = () => {
-      //   console.log(module._getNumber());
-      // };
+      // if (!bufferArray) return;
 
-      // console.log('Adios Wasm');
+      // let firstGeomMatrix: THREE.Matrix4 | undefined;
 
-      // /// WASM END
+      // // add all children to geometries array
+      // for (let i = 0; i < bufferArray.length; i += 3) {
+      //   // recompute object form vertices and normals
+      //   const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
+      //   const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
+      //   const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
+      //   const _vertices: ArrayLike<number> = new Float32Array(
+      //     verticesBuffer,
+      //     0,
+      //     verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+      //   );
+      //   const _normals: ArrayLike<number> = new Float32Array(
+      //     normalsBuffer,
+      //     0,
+      //     normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+      //   );
+      //   const _positions: ArrayLike<number> = new Float32Array(
+      //     positionBuffer,
+      //     0,
+      //     positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+      //   );
+      //   const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
+      //   matrixWorld.elements = new Float32Array(_positions);
+      //   if (i === 0) {
+      //     firstGeomMatrix = matrixWorld.clone();
+      //   }
+      //   const buffGeometry = new THREE.BufferGeometry();
+      //   buffGeometry.addAttribute(
+      //     'position',
+      //     new THREE.BufferAttribute(_vertices, 3)
+      //   );
+      //   buffGeometry.addAttribute(
+      //     'normal',
+      //     new THREE.BufferAttribute(_normals, 3)
+      //   );
+      //   const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
+      //     buffGeometry
+      //   );
+      //   objectGeometry.applyMatrix(matrixWorld);
+      //   geometries.push(objectGeometry);
+      // }
 
-      const geometries: THREE.Geometry[] = [];
-      const bufferArray = e.data.bufferArray;
+      const bspNodes: ThreeCSG.BSPNode[] = [];
+      const bspNodesBuffer: ArrayBuffer[] = e.data.bufferArray;
+      if (!bspNodesBuffer) return;
 
-      if (!bufferArray) return;
-
-      let firstGeomMatrix: THREE.Matrix4 | undefined;
-
-      // add all children to geometries array
-      for (let i = 0; i < bufferArray.length; i += 3) {
-        // recompute object form vertices and normals
-        const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
-        const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
-        const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
-        const _vertices: ArrayLike<number> = new Float32Array(
-          verticesBuffer,
-          0,
-          verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const _normals: ArrayLike<number> = new Float32Array(
-          normalsBuffer,
-          0,
-          normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const _positions: ArrayLike<number> = new Float32Array(
-          positionBuffer,
-          0,
-          positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
-        matrixWorld.elements = new Float32Array(_positions);
-        if (i === 0) {
-          firstGeomMatrix = matrixWorld.clone();
-        }
-        const buffGeometry = new THREE.BufferGeometry();
-        buffGeometry.addAttribute(
-          'position',
-          new THREE.BufferAttribute(_vertices, 3)
-        );
-        buffGeometry.addAttribute(
-          'normal',
-          new THREE.BufferAttribute(_normals, 3)
-        );
-        const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
-          buffGeometry
-        );
-        objectGeometry.applyMatrix(matrixWorld);
-        geometries.push(objectGeometry);
+      for (const bspNodeBuffer of bspNodesBuffer) {
+        const node = new ThreeCSG.BSPNode();
+        node.fromArrayBuffer(bspNodeBuffer);
+        bspNodes.push(node);
       }
 
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
       if (e.data.type === 'Union') {
-        geometry = getUnionFromGeometries(geometries);
+        // geometry = getUnionFromGeometries(geometries);
+        geometry = getUnionFromBSP(bspNodes);
       } else if (e.data.type === 'Difference') {
-        geometry = getDifferenceFromGeometries(geometries);
+        // geometry = getDifferenceFromGeometries(geometries);
       } else if (e.data.type === 'Intersection') {
-        geometry = getIntersectionFromGeometries(geometries);
+        // geometry = getIntersectionFromGeometries(geometries);
       } else {
         const postMessage = {
           status: 'error',
@@ -158,11 +169,11 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       }
 
       // move resulting geometry to origin of coordinates (center on first child on origin)
-      const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
-      if (firstGeomMatrix) {
-        invMatrix.getInverse(firstGeomMatrix);
-      }
-      geometry.applyMatrix(invMatrix);
+      // const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
+      // if (firstGeomMatrix) {
+      //   invMatrix.getInverse(firstGeomMatrix);
+      // }
+      // geometry.applyMatrix(invMatrix);
 
       // get buffer data
       const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(

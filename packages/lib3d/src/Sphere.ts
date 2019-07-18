@@ -1,35 +1,30 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-16 12:59:30
- * Last modified  : 2019-01-31 10:03:38
+/*
+ * File: Sphere.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from "three";
+import * as THREE from 'three';
 
-import ObjectsCommon from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 import {
   ISphereJSON,
   ISphereParams,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
+  OperationsArray,
+} from './Interfaces';
 
 export default class Sphere extends PrimitiveObject {
-  public static typeName: string = "Sphere";
+  public static typeName: string = 'Sphere';
 
   public static newFromJSON(object: ISphereJSON): Sphere {
     if (object.type !== Sphere.typeName) {
-      throw new Error("Not Sphere Object");
+      throw new Error('Not Sphere Object');
     }
 
     let sphere: Sphere;
@@ -57,11 +52,12 @@ export default class Sphere extends PrimitiveObject {
     parameters: ISphereParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
+    bspNodeBuffer?: ArrayBuffer
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Sphere.typeName;
@@ -73,6 +69,12 @@ export default class Sphere extends PrimitiveObject {
       this.computeMesh();
       this.meshPromise = null;
     }
+
+    if (bspNodeBuffer) {
+      this.bspNodeBuffer = bspNodeBuffer;
+    } else {
+      this.bspPromise = this.computeBSPAsync();
+    }
   }
 
   public clone(): Sphere {
@@ -81,7 +83,8 @@ export default class Sphere extends PrimitiveObject {
         this.parameters as ISphereParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
+        this.bspNodeBuffer.slice(0)
       );
       return objSphere;
     }

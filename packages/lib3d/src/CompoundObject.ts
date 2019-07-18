@@ -11,9 +11,9 @@
  * Created at     : 2018-11-09 09:31:03
  * Last modified  : 2019-01-31 10:33:02
  */
-import * as Bitbloq from "./Bitbloq";
-import Object3D from "./Object3D";
-import ObjectsCommon from "./ObjectsCommon";
+import * as Bitbloq from './Bitbloq';
+import Object3D from './Object3D';
+import ObjectsCommon from './ObjectsCommon';
 import {
   IMirrorOperation,
   IObjectsCommonJSON,
@@ -22,10 +22,10 @@ import {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-  ICompoundObjectJSON
-} from "./Interfaces";
-import * as THREE from "three";
-import Worker from "./compound.worker";
+  ICompoundObjectJSON,
+} from './Interfaces';
+import * as THREE from 'three';
+import Worker from './compound.worker';
 
 export type ChildrenArray = ObjectsCommon[];
 
@@ -66,6 +66,7 @@ export default class CompoundObject extends Object3D {
   }
   protected children: ChildrenArray;
   protected worker: Worker | null;
+  protected t0: number; // for perfomance measurements
 
   constructor(
     children: ChildrenArray = [],
@@ -74,7 +75,7 @@ export default class CompoundObject extends Object3D {
   ) {
     super(viewOptions, operations);
     if (children.length === 0) {
-      throw new Error("Compound Object requires at least one children");
+      throw new Error('Compound Object requires at least one children');
     }
     this.children = children;
 
@@ -88,7 +89,7 @@ export default class CompoundObject extends Object3D {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
-    // if (this.meshPromise) this.meshUpdateRequired = true;
+    this.t0 = performance.now();
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         if (this.worker) {
@@ -96,14 +97,14 @@ export default class CompoundObject extends Object3D {
           this.worker = null;
         }
 
-        this.worker = new Worker("http://bitbloq.bq.com");
+        this.worker = new Worker('http://bitbloq.cc');
         // listen to events from web worker
 
         (this.worker as Worker).onmessage = (event: any) => {
-          if (event.data.status !== "ok") {
+          if (event.data.status !== 'ok') {
             (this.worker as Worker).terminate();
             this.worker = null;
-            reject(new Error("Compound Object Error"));
+            reject(new Error('Compound Object Error'));
           }
 
           const message = event.data;
@@ -139,6 +140,7 @@ export default class CompoundObject extends Object3D {
                 }
                 (this.worker as Worker).terminate();
                 this.worker = null;
+                console.log(`Time ellapsed ${performance.now() - this.t0} ms.`);
                 resolve(this.mesh);
 
                 // mesh updated and resolved
@@ -149,7 +151,7 @@ export default class CompoundObject extends Object3D {
             } else {
               (this.worker as Worker).terminate();
               this.worker = null;
-              reject(new Error("Mesh not computed correctly"));
+              reject(new Error('Mesh not computed correctly'));
             }
           });
         };
@@ -160,7 +162,7 @@ export default class CompoundObject extends Object3D {
           const message = {
             bufferArray,
             type: this.getTypeName(),
-            numChildren: this.children.length
+            numChildren: this.children.length,
           };
           (this.worker as Worker).postMessage(message, bufferArray);
         });
@@ -193,7 +195,7 @@ export default class CompoundObject extends Object3D {
   public toJSON(): ICompoundObjectJSON {
     const json: ICompoundObjectJSON = {
       ...super.toJSON(),
-      children: this.children.map(obj => obj.toJSON())
+      children: this.children.map(obj => obj.toJSON()),
     };
     return json;
   }
@@ -203,13 +205,13 @@ export default class CompoundObject extends Object3D {
     fromParent: boolean = false
   ) {
     if (this.id !== object.id) {
-      throw new Error("Object id does not match with JSON id");
+      throw new Error('Object id does not match with JSON id');
     }
 
     // update operations and view options
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions
+      ...object.viewOptions,
     };
     this.setOperations(object.operations);
     this.setViewOptions(vO);
@@ -277,7 +279,7 @@ export default class CompoundObject extends Object3D {
       ) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error("ERROR: Unknown Operation");
+        throw Error('ERROR: Unknown Operation');
       }
     });
     this.mesh.updateMatrixWorld(true);
@@ -291,48 +293,67 @@ export default class CompoundObject extends Object3D {
     return new Promise((resolve, reject) => {
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
-        "position",
+        'position',
         new THREE.BufferAttribute(vertices, 3)
       );
       buffGeometry.addAttribute(
-        "normal",
+        'normal',
         new THREE.BufferAttribute(normals, 3)
       );
-      const mesh: THREE.Mesh = new THREE.Mesh(
-        buffGeometry,
-        new THREE.MeshLambertMaterial()
-      );
-      this.applyViewOptions(mesh);
-      resolve(mesh);
+
+      // place geometry on the first element position
+      this.children[0].getMeshAsync().then(firstMesh => {
+        buffGeometry.applyMatrix(
+          new THREE.Matrix4().getInverse(firstMesh.matrixWorld)
+        );
+        const mesh: THREE.Mesh = new THREE.Mesh(
+          buffGeometry,
+          new THREE.MeshLambertMaterial()
+        );
+        this.applyViewOptions(mesh);
+        resolve(mesh);
+      });
     });
   }
 
   protected toBufferArrayAsync(): Promise<ArrayBuffer[]> {
     return new Promise((resolve, reject) => {
       const bufferArray: ArrayBuffer[] = [];
-      Promise.all(
-        this.children.map(child => {
-          if (
-            ["Difference", "Intersection"].includes(this.getTypeName()) &&
-            (child instanceof RepetitionObject || child instanceof ObjectsGroup)
-          ) {
-            const obj = child.toUnion();
-            return obj.getMeshAsync();
-          }
-          return child.getMeshAsync();
-        })
-      ).then(meshes => {
-        meshes.forEach(mesh => {
-          if (mesh instanceof THREE.Mesh) {
-            bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
-          } else if (mesh instanceof THREE.Group) {
-            bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
-          }
-        });
-        resolve(bufferArray);
-      });
+      Promise.all(this.children.map(child => child.getBSPBufferAsync())).then(
+        bsps => {
+          bsps.forEach(bsp => bufferArray.push(bsp.slice(0)));
+          resolve(bufferArray);
+        }
+      );
     });
   }
+
+  // protected toBufferArrayAsync(): Promise<ArrayBuffer[]> {
+  //   return new Promise((resolve, reject) => {
+  //     const bufferArray: ArrayBuffer[] = [];
+  //     Promise.all(
+  //       this.children.map(child => {
+  //         if (
+  //           ["Difference", "Intersection"].includes(this.getTypeName()) &&
+  //           (child instanceof RepetitionObject || child instanceof ObjectsGroup)
+  //         ) {
+  //           const obj = child.toUnion();
+  //           return obj.getMeshAsync();
+  //         }
+  //         return child.getMeshAsync();
+  //       })
+  //     ).then(meshes => {
+  //       meshes.forEach(mesh => {
+  //         if (mesh instanceof THREE.Mesh) {
+  //           bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
+  //         } else if (mesh instanceof THREE.Group) {
+  //           bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
+  //         }
+  //       });
+  //       resolve(bufferArray);
+  //     });
+  //   });
+  // }
 
   private setChildren(children: IObjectsCommonJSON[]) {
     const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
@@ -368,5 +389,5 @@ export default class CompoundObject extends Object3D {
 }
 
 // they need to be at bottom to avoid typescript error with circular imports
-import RepetitionObject from "./RepetitionObject";
-import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from './RepetitionObject';
+import ObjectsGroup from './ObjectsGroup';

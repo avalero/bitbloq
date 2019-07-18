@@ -7,10 +7,6 @@ import Triangle, {
 import { isConvexSet } from './utils';
 import { Box3, Face3, Geometry, Matrix4, Vector3 } from 'three';
 
-const recursionLevel: number = 0;
-// tslint:disable-next-line:variable-name
-let max_recursion: number = 0;
-
 const MINIMUM_RELATION = 0.8; // 0 -> 1
 const MINIMUM_RELATION_SCALE = 10; // should always be >2
 
@@ -19,12 +15,10 @@ const MINIMUM_RELATION_SCALE = 10; // should always be >2
  * Samuel Ranta-Eskola, 2001
  */
 function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
-  return triangles[0];
-
   if (isConvexSet(triangles)) return triangles[0];
 
   let minimumRelation = MINIMUM_RELATION;
-  let bestTriangle: Triangle | undefined;
+  let bestTriangle: Triangle | undefined = undefined;
   let leastSplits = Infinity;
   let bestRelation = 0;
 
@@ -80,17 +74,23 @@ function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
 }
 
 export default class BSPNode {
-  public static interpolateVectors(a: Vector3, b: Vector3, t: number): Vector3 {
+  public divider?: Triangle;
+  public front?: BSPNode;
+  public back?: BSPNode;
+  public triangles: Triangle[];
+  public isInverted: boolean;
+  public boundingBox: Box3;
+
+  static interpolateVectors(a: Vector3, b: Vector3, t: number): Vector3 {
     return a.clone().lerp(b, t);
   }
 
-  // tslint:disable-next-line:member-ordering
-  public static splitTriangle = function splitTriangle(
+  static splitTriangle(
     triangle: Triangle,
     divider: Triangle,
     frontTriangles: Triangle[],
     backTriangles: Triangle[]
-  ) {
+  ): void {
     const vertices = [triangle.a, triangle.b, triangle.c];
     const frontVertices: Vector3[] = [];
     const backVertices: Vector3[] = [];
@@ -114,22 +114,19 @@ export default class BSPNode {
       }
     }
 
-    if (frontVertices.length >= 3) {
+    if (frontVertices.length >= 3)
       Array.prototype.push.apply(
         frontTriangles,
         BSPNode.verticesToTriangles(frontVertices)
       );
-    }
-    if (backVertices.length >= 3) {
+    if (backVertices.length >= 3)
       Array.prototype.push.apply(
         backTriangles,
         BSPNode.verticesToTriangles(backVertices)
       );
-    }
   };
 
-  // tslint:disable-next-line:member-ordering
-  public static verticesToTriangles(vertices: Vector3[]): Triangle[] {
+  static verticesToTriangles(vertices: Vector3[]): Triangle[] {
     const triangles = [];
     for (let i = 2; i < vertices.length; i++) {
       const a = vertices[0];
@@ -140,30 +137,18 @@ export default class BSPNode {
     }
     return triangles;
   }
-  public divider?: Triangle;
-  public front?: BSPNode;
-  public back?: BSPNode;
-  public triangles: Triangle[];
-  public isInverted: boolean;
-  public boundingBox: Box3;
 
-  constructor(
-    triangles?: Triangle[],
-    rec_level: number = 0,
-    reset: boolean = false
-  ) {
+  constructor(triangles?: Triangle[]) {
     this.triangles = [];
     this.isInverted = false;
     this.boundingBox = new Box3();
 
-    if (reset) max_recursion = 0;
     if (triangles !== undefined) {
-      this.buildFrom(triangles, rec_level);
+      this.buildFrom(triangles);
     }
-    if (reset) console.log(`Max: ${max_recursion}`);
   }
 
-  public buildFrom(triangles: Triangle[], rec_level: number = 0) {
+  public buildFrom(triangles: Triangle[]) {
     if (this.divider === undefined) {
       const bestDivider = chooseDividingTriangle(triangles);
       if (bestDivider === undefined) {
@@ -172,171 +157,133 @@ export default class BSPNode {
       } else {
         this.divider = bestDivider.clone();
         this.triangles = [];
-        this.addTriangles(triangles, rec_level + 1);
+        this.addTriangles(triangles);
       }
     } else {
-      this.addTriangles(triangles, rec_level + 1);
+      this.addTriangles(triangles);
     }
   }
 
-  // tslint:disable-next-line:member-ordering
-  public invert() {
-    this.isInverted = !this.isInverted;
+  public toArrayBuffer(): ArrayBuffer {
+    const arr = this.toNumberArray();
+    return Float32Array.from(arr).buffer;
+  };
 
-    if (this.divider !== undefined) this.divider.invert();
-    if (this.front !== undefined) this.front.invert();
-    if (this.back !== undefined) this.back.invert();
+  public toNumberArray(): number[] {
 
-    const temp = this.front;
-    this.front = this.back;
-    this.back = temp;
+    const arr = [];
+    // fill with triangles
 
-    for (let i = 0; i < this.triangles.length; i++) {
-      this.triangles[i].invert();
+    // number of triangles
+    arr.push(this.triangles.length);
+    // the triangles
+    for (let triangle of this.triangles) {
+      arr.push(...triangle.toNumberArray());
     }
+
+    // fill with front triangles
+    // number of front and data
+    if (!this.front) arr.push(0);
+    else {
+      const frontArr: number[] = this.front.toNumberArray();
+      arr.push(frontArr.length);
+      arr.push(...frontArr);
+    }
+
+    // fill with back triangles
+    // number of back and data
+    if (!this.back) arr.push(0);
+    else {
+      const backArr: number[] = this.back.toNumberArray();
+      arr.push(backArr.length);
+      arr.push(...backArr);
+    }
+
+    //divider
+    if (!this.divider) arr.push(0);
+    else {
+      const dividerArray = this.divider.toNumberArray();
+      arr.push(dividerArray.length)
+      arr.push(...dividerArray)
+    }
+
+    arr.push(this.isInverted ? 1 : 0);
+    arr.push(this.boundingBox.min.x, this.boundingBox.min.y, this.boundingBox.min.z);
+    arr.push(this.boundingBox.max.x, this.boundingBox.max.y, this.boundingBox.max.z);
+
+    return arr;
   }
 
-  // Remove all triangles in this BSP tree that are inside the other BSP tree
-  public clipTo(tree: BSPNode) {
-    if (
-      tree.isInverted === false &&
-      this.isInverted === false &&
-      this.boundingBox.intersectsBox(tree.boundingBox) === false
-    ) {
-      return;
+  public fromNumberArray(arr: number[]): void {
+    const trianglesLength = arr[0];
+    const triangleOffset = 1;
+
+    for (let i = 0; i < trianglesLength; i += 1) {
+      const triangle: Triangle = new Triangle();
+      let index = i * 13 + triangleOffset;
+      const triangleArray: number[] = arr.slice(index, index + 13);
+      triangle.fromNumberArray(triangleArray);
+      this.triangles.push(triangle)
     }
-    this.triangles = tree.clipTriangles(this.triangles);
-    if (this.front !== undefined) this.front.clipTo(tree);
-    if (this.back !== undefined) this.back.clipTo(tree);
-  }
 
-  // Recursively remove all triangles from `triangles` that are inside this BSP tree
-  public clipTriangles(triangles: Triangle[]): Triangle[] {
-    if (!this.divider) return triangles.slice();
-
-    let frontTriangles: Triangle[] = [];
-    let backTriangles: Triangle[] = [];
-
-    // not a leaf node / convex set
-    for (let i = 0; i < triangles.length; i++) {
-      const triangle = triangles[i];
-      const side = this.divider.classifySide(triangle);
-
-      if (side === CLASSIFY_FRONT) {
-        frontTriangles.push(triangle);
-      } else if (side === CLASSIFY_BACK) {
-        backTriangles.push(triangle);
-      } else if (side == CLASSIFY_COPLANAR) {
-        const dot = this.divider.normal.dot(triangle.normal);
-        if (dot > 0) {
-          frontTriangles.push(triangle);
-        } else {
-          backTriangles.push(triangle);
-        }
-      } else if (side === CLASSIFY_SPANNING) {
-        BSPNode.splitTriangle(
-          triangle,
-          this.divider,
-          frontTriangles,
-          backTriangles
-        );
+    let frontOffset: number = triangleOffset + trianglesLength * 13;
+    const frontLength: number = arr[frontOffset];
+    frontOffset += 1;
+    if (frontLength > 0) {
+      const frontArray: number[] = arr.slice(frontOffset, frontOffset + frontLength);
+      if (this.front) this.front.fromNumberArray(frontArray);
+      else {
+        this.front = new BSPNode();
+        this.front.fromNumberArray(frontArray);
       }
     }
 
-    if (this.front !== undefined) {
-      frontTriangles = this.front.clipTriangles(frontTriangles);
-    }
-    if (this.back !== undefined) {
-      backTriangles = this.back.clipTriangles(backTriangles);
-    } else {
-      backTriangles = [];
-    }
-
-    return frontTriangles.concat(backTriangles);
-  }
-
-  public getTriangles(): Triangle[] {
-    let triangles = this.triangles.slice();
-
-    if (this.front !== undefined) {
-      triangles = triangles.concat(this.front.getTriangles());
-    }
-    if (this.back !== undefined) {
-      triangles = triangles.concat(this.back.getTriangles());
-    }
-
-    return triangles;
-  }
-
-  public clone(transform?: Matrix4): BSPNode {
-    const clone = new BSPNode();
-
-    clone.isInverted = this.isInverted;
-
-    clone.boundingBox.min.copy(this.boundingBox.min);
-    clone.boundingBox.max.copy(this.boundingBox.max);
-
-    if (transform) {
-      clone.boundingBox.min.applyMatrix4(transform);
-      clone.boundingBox.max.applyMatrix4(transform);
-    }
-
-    if (this.divider !== undefined) {
-      clone.divider = this.divider.clone();
-      if (transform) {
-        clone.divider.a.applyMatrix4(transform);
-        clone.divider.b.applyMatrix4(transform);
-        clone.divider.c.applyMatrix4(transform);
+    let backOffset: number = frontOffset + frontLength;
+    const backLength: number = arr[backOffset];
+    backOffset += 1;
+    if (backLength > 0) {
+      const backArray: number[] = arr.slice(backOffset, backOffset + backLength);
+      if (this.back) this.back.fromNumberArray(backArray);
+      else {
+        this.back = new BSPNode();
+        this.back.fromNumberArray(backArray);
       }
     }
-    if (this.front !== undefined) clone.front = this.front.clone(transform);
-    if (this.back !== undefined) clone.back = this.back.clone(transform);
 
-    const clonedTriangles = [];
-    for (let i = 0; i < this.triangles.length; i++) {
-      const clonedTriangle = this.triangles[i].clone();
-      if (transform) {
-        clonedTriangle.a.applyMatrix4(transform);
-        clonedTriangle.b.applyMatrix4(transform);
-        clonedTriangle.c.applyMatrix4(transform);
-        clonedTriangle.computeNormal();
+    let dividerOffset: number = backOffset + backLength;
+    const dividerLength: number = arr[dividerOffset];
+    dividerOffset += 1;
+    if (dividerLength > 0) {
+      const dividerArray: number[] = arr.slice(dividerOffset, dividerOffset + dividerLength);
+      if (this.divider) this.divider.fromNumberArray(dividerArray);
+      else {
+        this.divider = new Triangle();
+        this.divider.fromNumberArray(dividerArray);
       }
-      clonedTriangles.push(clonedTriangle);
-    }
-    clone.triangles = clonedTriangles;
-
-    return clone;
-  }
-
-  public toGeometry(): Geometry {
-    const geometry = new Geometry();
-
-    const triangles = this.getTriangles();
-    for (let i = 0; i < triangles.length; i++) {
-      const triangle = triangles[i];
-      const vertexIndex = geometry.vertices.length;
-      geometry.vertices.push(triangle.a, triangle.b, triangle.c);
-
-      const face = new Face3(
-        vertexIndex,
-        vertexIndex + 1,
-        vertexIndex + 2,
-        triangle.normal
-      );
-      geometry.faces.push(face);
     }
 
-    return geometry;
+    const invertedIndex = dividerOffset + dividerLength;
+    this.isInverted = arr[invertedIndex] === 1 ? true : false;
+
+    const boundingBoxOffset = invertedIndex + 1;
+    this.boundingBox.min.set(arr[boundingBoxOffset], arr[boundingBoxOffset + 1], arr[boundingBoxOffset + 2]);
+    this.boundingBox.max.set(arr[boundingBoxOffset + 3], arr[boundingBoxOffset + 4], arr[boundingBoxOffset + 5]);
   }
 
-  private addTriangles(triangles: Triangle[], rec_level: number = 0) {
+  public fromArrayBuffer(buff: ArrayBuffer): void {
+    this.triangles = [];
+    const arr: Float32Array = new Float32Array(buff, 0,
+      buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
+
+    this.fromNumberArray(Array.from(arr));
+
+
+  }
+
+  private addTriangles(triangles: Triangle[]) {
     const frontTriangles = [];
     const backTriangles = [];
 
-    if (rec_level > max_recursion) {
-      max_recursion = rec_level;
-    }
-    // max_recursion = rec_level > max_recursion ? rec_level : max_recursion;
     for (let i = 0; i < triangles.length; i++) {
       const triangle = triangles[i];
 
@@ -380,6 +327,7 @@ export default class BSPNode {
           triangle.c.z
         )
       );
+
       const side = this.divider!.classifySide(triangle);
 
       if (side === CLASSIFY_COPLANAR) {
@@ -400,17 +348,162 @@ export default class BSPNode {
 
     if (frontTriangles.length) {
       if (this.front === undefined) {
-        this.front = new BSPNode(frontTriangles, rec_level + 1);
+        this.front = new BSPNode(frontTriangles);
       } else {
-        this.front.addTriangles(frontTriangles, rec_level + 1);
+        this.front.addTriangles(frontTriangles);
       }
     }
     if (backTriangles.length) {
       if (this.back === undefined) {
-        this.back = new BSPNode(backTriangles, rec_level + 1);
+        this.back = new BSPNode(backTriangles);
       } else {
-        this.back.addTriangles(backTriangles, rec_level + 1);
+        this.back.addTriangles(backTriangles);
       }
     }
+  }
+
+  invert() {
+    this.isInverted = !this.isInverted;
+
+    if (this.divider !== undefined) this.divider.invert();
+    if (this.front !== undefined) this.front.invert();
+    if (this.back !== undefined) this.back.invert();
+
+    const temp = this.front;
+    this.front = this.back;
+    this.back = temp;
+
+    for (let i = 0; i < this.triangles.length; i++) {
+      this.triangles[i].invert();
+    }
+  }
+
+  // Remove all triangles in this BSP tree that are inside the other BSP tree
+  clipTo(tree: BSPNode) {
+    if (
+      tree.isInverted === false &&
+      this.isInverted === false &&
+      this.boundingBox.intersectsBox(tree.boundingBox) === false
+    )
+      return;
+    this.triangles = tree.clipTriangles(this.triangles);
+    if (this.front !== undefined) this.front.clipTo(tree);
+    if (this.back !== undefined) this.back.clipTo(tree);
+  }
+
+  // Recursively remove all triangles from `triangles` that are inside this BSP tree
+  clipTriangles(triangles: Triangle[]): Triangle[] {
+    if (!this.divider) return triangles.slice();
+
+    let frontTriangles: Triangle[] = [];
+    let backTriangles: Triangle[] = [];
+
+    // not a leaf node / convex set
+    for (let i = 0; i < triangles.length; i++) {
+      const triangle = triangles[i];
+      const side = this.divider.classifySide(triangle);
+
+      if (side === CLASSIFY_FRONT) {
+        frontTriangles.push(triangle);
+      } else if (side === CLASSIFY_BACK) {
+        backTriangles.push(triangle);
+      } else if (side == CLASSIFY_COPLANAR) {
+        const dot = this.divider.normal.dot(triangle.normal);
+        if (dot > 0) {
+          frontTriangles.push(triangle);
+        } else {
+          backTriangles.push(triangle);
+        }
+      } else if (side === CLASSIFY_SPANNING) {
+        BSPNode.splitTriangle(
+          triangle,
+          this.divider,
+          frontTriangles,
+          backTriangles
+        );
+      }
+    }
+
+    if (this.front !== undefined)
+      frontTriangles = this.front.clipTriangles(frontTriangles);
+    if (this.back !== undefined) {
+      backTriangles = this.back.clipTriangles(backTriangles);
+    } else {
+      backTriangles = [];
+    }
+
+    return frontTriangles.concat(backTriangles);
+  }
+
+  getTriangles(): Triangle[] {
+    let triangles = this.triangles.slice();
+
+    if (this.front !== undefined)
+      triangles = triangles.concat(this.front.getTriangles());
+    if (this.back !== undefined)
+      triangles = triangles.concat(this.back.getTriangles());
+
+    return triangles;
+  }
+
+  clone(transform?: Matrix4): BSPNode {
+    const clone = new BSPNode();
+
+    clone.isInverted = this.isInverted;
+
+    clone.boundingBox.min.copy(this.boundingBox.min);
+    clone.boundingBox.max.copy(this.boundingBox.max);
+
+    if (transform) {
+      clone.boundingBox.min.applyMatrix4(transform);
+      clone.boundingBox.max.applyMatrix4(transform);
+    }
+
+    if (this.divider !== undefined) {
+      clone.divider = this.divider.clone();
+      if (transform) {
+        clone.divider.a.applyMatrix4(transform);
+        clone.divider.b.applyMatrix4(transform);
+        clone.divider.c.applyMatrix4(transform);
+      }
+    }
+    if (this.front !== undefined) clone.front = this.front.clone(transform);
+    if (this.back !== undefined) clone.back = this.back.clone(transform);
+
+    const clonedTriangles = [];
+    for (let i = 0; i < this.triangles.length; i++) {
+      const clonedTriangle = this.triangles[i].clone();
+      if (transform) {
+        clonedTriangle.a.applyMatrix4(transform);
+        clonedTriangle.b.applyMatrix4(transform);
+        clonedTriangle.c.applyMatrix4(transform);
+        clonedTriangle.computeNormal();
+      }
+      clonedTriangles.push(clonedTriangle);
+    }
+    clone.triangles = clonedTriangles;
+
+    return clone;
+  }
+
+  toGeometry(): Geometry {
+    const geometry = new Geometry();
+
+    const triangles = this.getTriangles();
+    for (let i = 0; i < triangles.length; i++) {
+      const triangle = triangles[i];
+      const vertexIndex = geometry.vertices.length;
+      geometry.vertices.push(triangle.a, triangle.b, triangle.c);
+
+      const face = new Face3(
+        vertexIndex,
+        vertexIndex + 1,
+        vertexIndex + 2,
+        triangle.normal
+      );
+      geometry.faces.push(face);
+    }
+
+    return geometry;
   }
 }

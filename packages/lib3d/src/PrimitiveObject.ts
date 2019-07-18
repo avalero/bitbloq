@@ -12,18 +12,24 @@
  * Last modified  : 2019-01-31 10:37:34
  */
 
-import { isEqual } from "lodash";
-import Object3D from "./Object3D";
+import { isEqual } from 'lodash';
+import Object3D from './Object3D';
 
-import * as THREE from "three";
+import * as THREE from 'three';
 
-import ObjectsCommon from "./ObjectsCommon";
+import ObjectsCommon from './ObjectsCommon';
 
 import {
   IPrimitiveObjectJSON,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
+  OperationsArray,
+} from './Interfaces';
+import {
+  BSPNode,
+  convertGeometryToTriangles,
+  cache,
+  transformBSP,
+} from './threecsg';
 
 export default class PrimitiveObject extends Object3D {
   protected parameters: object;
@@ -35,7 +41,7 @@ export default class PrimitiveObject extends Object3D {
   public toJSON(): IPrimitiveObjectJSON {
     const json: IPrimitiveObjectJSON = {
       ...super.toJSON(),
-      parameters: this.parameters
+      parameters: this.parameters,
     };
 
     return json;
@@ -51,12 +57,12 @@ export default class PrimitiveObject extends Object3D {
     fromParent: boolean = false
   ) {
     if (this.id !== object.id) {
-      throw new Error("Object id does not match with JSON id");
+      throw new Error('Object id does not match with JSON id');
     }
 
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions
+      ...object.viewOptions,
     };
 
     this.setParameters(object.parameters);
@@ -103,8 +109,20 @@ export default class PrimitiveObject extends Object3D {
         throw new Error(`Cannot compute Mesh: ${e}`);
       }
     });
-
+    this.bspPromise = this.computeBSPAsync();
     return this.meshPromise as Promise<THREE.Mesh>;
+  }
+
+  protected async computeBSPAsync(): Promise<ArrayBuffer> {
+    this.bspPromise = new Promise(async (resolve, reject) => {
+      if (this.meshPromise) await this.meshPromise;
+      const bsp = cache.getOrSetBSP((this.mesh as THREE.Mesh).geometry);
+      const bspTrans = transformBSP(bsp, this.mesh as THREE.Mesh);
+      this.bspNodeBuffer = bspTrans.toArrayBuffer();
+      resolve(this.bspNodeBuffer);
+    });
+
+    return this.bspPromise;
   }
 
   protected computeMesh(): void {
@@ -114,6 +132,7 @@ export default class PrimitiveObject extends Object3D {
       this.applyOperations();
       this.applyViewOptions();
       this.setMesh(this.mesh);
+      this.bspPromise = this.computeBSPAsync();
     } catch (e) {
       throw new Error(`Cannot compute Mesh: ${e}`);
     }
