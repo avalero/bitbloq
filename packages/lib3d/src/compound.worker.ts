@@ -54,7 +54,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   };
 
   const getUnionFromBSP = (bspNodes: ThreeCSG.BSPNode[]): THREE.Geometry => {
-    console.log('start');
+    console.log(`start ${bspNodes.length} nodes`);
     let bspResult: ThreeCSG.BSPNode = bspNodes[0];
     for (let i = 1; i < bspNodes.length; i += 1) {
       console.log(i);
@@ -67,20 +67,23 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   const getDifferenceFromBSP = (
     bspNodes: ThreeCSG.BSPNode[]
   ): THREE.Geometry => {
-    console.log('start');
-    let bspResult: ThreeCSG.BSPNode = bspNodes[0];
-    for (let i = 1; i < bspNodes.length; i += 1) {
-      console.log(i);
-      bspResult = ThreeCSG.boolean.subtract(bspResult, bspNodes[i]);
+    try {
+      console.log(`start ${bspNodes.length} nodes`);
+      let bspResult: ThreeCSG.BSPNode = bspNodes[0];
+      for (let i = 1; i < bspNodes.length; i += 1) {
+        console.log(i);
+        bspResult = ThreeCSG.boolean.subtract(bspResult, bspNodes[i]);
+      }
+      return bspResult.toGeometry();
+    } catch (e) {
+      console.log(`Error: ${e}`);
     }
-
-    return bspResult.toGeometry();
   };
 
   const getIntersectionFromBSP = (
     bspNodes: ThreeCSG.BSPNode[]
   ): THREE.Geometry => {
-    console.log('start');
+    console.log(`start ${bspNodes.length} nodes`);
     let bspResult: ThreeCSG.BSPNode = bspNodes[0];
     for (let i = 1; i < bspNodes.length; i += 1) {
       console.log(i);
