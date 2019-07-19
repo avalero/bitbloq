@@ -13,6 +13,7 @@
 import * as THREE from 'three';
 import ThreeBSP from './threeCSG';
 import * as ThreeCSG from './threecsg/index';
+import BSPNode from './threecsg/BSPNode';
 
 // import demo from './demo.js';
 // import demoModule from './demo.wasm';
@@ -32,35 +33,12 @@ export default Worker;
 if (!(typeof module !== 'undefined' && module.exports)) {
   const ctx: Worker = self as any;
 
-  const getUnionFromGeometries = (
-    geometries: THREE.Geometry[]
-  ): THREE.Geometry => {
-    const mesh0 = new THREE.Mesh(geometries[0]);
-    const mesh1 = new THREE.Mesh(geometries[1]);
-
-    const union = ThreeCSG.union(mesh0, mesh1);
-
-    return union.geometry as THREE.Geometry;
-
-    /*
-    let geomBSP: any = new ThreeBSP(geometries[0]);
-    // Union with the rest
-    for (let i = 1; i < geometries.length; i += 1) {
-      const bspGeom = new ThreeBSP(geometries[i]);
-      geomBSP = geomBSP.union(bspGeom);
-    }
-    const geom = geomBSP.toGeometry();
-    return geom;*/
-  };
-
   const getUnionFromBSP = (bspNodes: ThreeCSG.BSPNode[]): THREE.Geometry => {
+    const t0 = performance.now();
     console.log(`start ${bspNodes.length} nodes`);
-    let bspResult: ThreeCSG.BSPNode = bspNodes[0];
-    for (let i = 1; i < bspNodes.length; i += 1) {
-      console.log(i);
-      bspResult = ThreeCSG.boolean.union(bspResult, bspNodes[i]);
-    }
-
+    const bspResult: BSPNode = ThreeCSG.boolean.unionArray(bspNodes);
+    console.log('End');
+    console.log(`${performance.now() - t0} ms`);
     return bspResult.toGeometry();
   };
 
@@ -70,14 +48,16 @@ if (!(typeof module !== 'undefined' && module.exports)) {
     try {
       console.log(`start ${bspNodes.length} nodes`);
       let bspResult: ThreeCSG.BSPNode = bspNodes[0];
-      for (let i = 1; i < bspNodes.length; i += 1) {
+      let differenceBSP: ThreeCSG.BSPNode = bspNodes[1];
+      for (let i = 2; i < bspNodes.length; i += 1) {
         console.log(i);
-        bspResult = ThreeCSG.boolean.subtract(bspResult, bspNodes[i]);
+        differenceBSP = ThreeCSG.boolean.union(differenceBSP, bspNodes[i]);
       }
-      return bspResult.toGeometry();
+      bspResult = ThreeCSG.boolean.subtract(bspResult, differenceBSP);
     } catch (e) {
       console.log(`Error: ${e}`);
     }
+    return bspResult.toGeometry();
   };
 
   const getIntersectionFromBSP = (

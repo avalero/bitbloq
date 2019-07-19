@@ -1,6 +1,32 @@
 import BSPNode from './BSPNode';
 
-export function intersect(a: BSPNode, b: BSPNode) {
+/**
+ * Performs union of an array fo BSPNode
+ * @param bspArr
+ */
+
+export function unionArray(bspArr: BSPNode[]): BSPNode {
+  // If array has two BSPs just perform union
+
+  if (bspArr.length === 2) {
+    return union(bspArr[0], bspArr[1]);
+  }
+
+  // Else create a new array performing union in couples and then recurse
+  const arr: BSPNode[] = [];
+
+  for (let i = 0; i < bspArr.length - 1; i += 2) {
+    arr.push(union(bspArr[i], bspArr[i + 1]));
+  }
+
+  if (bspArr.length % 2 !== 0) {
+    arr.push(bspArr[bspArr.length - 1]);
+  }
+
+  return unionArray(arr);
+}
+
+export function intersect(a: BSPNode, b: BSPNode): BSPNode {
   const a2 = a.clone();
   const b2 = b.clone();
   a2.invert();
