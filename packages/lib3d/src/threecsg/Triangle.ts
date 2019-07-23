@@ -1,6 +1,6 @@
 import { Vector3 } from 'three';
 
-const EPSILON = 1e-6;
+const EPSILON = 1e-5;
 
 export const CLASSIFY_COPLANAR = 0;
 export const CLASSIFY_FRONT = 1;
@@ -12,8 +12,6 @@ export type SIDE_CLASSIFICATION =
   | typeof CLASSIFY_FRONT
   | typeof CLASSIFY_BACK
   | typeof CLASSIFY_SPANNING;
-
-
 
 export default class Triangle {
   public a: Vector3;
@@ -48,10 +46,18 @@ export default class Triangle {
 
   public toNumberArray(): number[] {
     const arr: number[] = [
-      this.a.x, this.a.y, this.a.z,
-      this.b.x, this.b.y, this.b.z,
-      this.c.x, this.c.y, this.c.z,
-      this.normal.x, this.normal.y, this.normal.z,
+      this.a.x,
+      this.a.y,
+      this.a.z,
+      this.b.x,
+      this.b.y,
+      this.b.z,
+      this.c.x,
+      this.c.y,
+      this.c.z,
+      this.normal.x,
+      this.normal.y,
+      this.normal.z,
       this.w,
     ];
 
@@ -59,8 +65,11 @@ export default class Triangle {
   }
 
   public fromNumberArray(arr: number[]): void {
-    if (arr.length !== 13)
-      throw new Error(`Array has incorrect size. It's ${arr.length} and should be 13`);
+    if (arr.length !== 13) {
+      throw new Error(
+        `Array has incorrect size. It's ${arr.length} and should be 13`
+      );
+    }
 
     this.a.set(arr[0], arr[1], arr[2]);
     this.b.set(arr[3], arr[4], arr[5]);
@@ -70,8 +79,11 @@ export default class Triangle {
   }
 
   public fromArrayBuffer(buff: ArrayBuffer) {
-    const arr: Float32Array = new Float32Array(buff, 0,
-      buff.byteLength / Float32Array.BYTES_PER_ELEMENT);
+    const arr: Float32Array = new Float32Array(
+      buff,
+      0,
+      buff.byteLength / Float32Array.BYTES_PER_ELEMENT
+    );
 
     this.fromNumberArray(Array.from(arr));
   }
@@ -87,7 +99,7 @@ export default class Triangle {
     this.w = this.normal.dot(this.a);
   }
 
-  classifyPoint(point: Vector3): SIDE_CLASSIFICATION {
+  public classifyPoint(point: Vector3): SIDE_CLASSIFICATION {
     const side = this.normal.dot(point) - this.w;
 
     if (Math.abs(side) < EPSILON) return CLASSIFY_COPLANAR;
@@ -95,7 +107,7 @@ export default class Triangle {
     return CLASSIFY_BACK;
   }
 
-  classifySide(triangle: Triangle): SIDE_CLASSIFICATION {
+  public classifySide(triangle: Triangle): SIDE_CLASSIFICATION {
     let side = CLASSIFY_COPLANAR;
 
     side |= this.classifyPoint(triangle.a);
@@ -105,7 +117,7 @@ export default class Triangle {
     return side as SIDE_CLASSIFICATION;
   }
 
-  invert(): void {
+  public invert(): void {
     const { a, c } = this;
     this.a = c;
     this.c = a;
@@ -113,7 +125,7 @@ export default class Triangle {
     this.w *= -1;
   }
 
-  clone(): Triangle {
+  public clone(): Triangle {
     return new Triangle(this.a, this.b, this.c);
   }
 }
