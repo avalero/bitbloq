@@ -33,44 +33,21 @@ export default Worker;
 if (!(typeof module !== 'undefined' && module.exports)) {
   const ctx: Worker = self as any;
 
-  const getUnionFromBSP = (bspNodes: ThreeCSG.BSPNode[]): THREE.Geometry => {
-    const t0 = performance.now();
-    console.log(`start ${bspNodes.length} nodes`);
-    const bspResult: BSPNode = ThreeCSG.boolean.unionArray(bspNodes);
-    console.log('End');
-    console.log(`${performance.now() - t0} ms`);
-    return bspResult.toGeometry();
-  };
-
-  const getDifferenceFromBSP = (
-    bspNodes: ThreeCSG.BSPNode[]
+  const getBooleanFromBSP = (
+    bspNodes: ThreeCSG.BSPNode[],
+    operation: (bspNodes: BSPNode[]) => BSPNode
   ): THREE.Geometry => {
     try {
+      const t0 = performance.now();
       console.log(`start ${bspNodes.length} nodes`);
-      let bspResult: ThreeCSG.BSPNode = bspNodes[0];
-      let differenceBSP: ThreeCSG.BSPNode = bspNodes[1];
-      for (let i = 2; i < bspNodes.length; i += 1) {
-        console.log(i);
-        differenceBSP = ThreeCSG.boolean.union(differenceBSP, bspNodes[i]);
-      }
-      bspResult = ThreeCSG.boolean.subtract(bspResult, differenceBSP);
+      const bspResult: BSPNode = operation(bspNodes);
+      console.log('End');
+      console.log(`${performance.now() - t0} ms`);
+      return bspResult.toGeometry();
     } catch (e) {
       console.log(`Error: ${e}`);
+      throw e;
     }
-    return bspResult.toGeometry();
-  };
-
-  const getIntersectionFromBSP = (
-    bspNodes: ThreeCSG.BSPNode[]
-  ): THREE.Geometry => {
-    console.log(`start ${bspNodes.length} nodes`);
-    let bspResult: ThreeCSG.BSPNode = bspNodes[0];
-    for (let i = 1; i < bspNodes.length; i += 1) {
-      console.log(i);
-      bspResult = ThreeCSG.boolean.intersect(bspResult, bspNodes[i]);
-    }
-
-    return bspResult.toGeometry();
   };
 
   ctx.addEventListener(
@@ -89,24 +66,20 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
       if (e.data.type === 'Union') {
-        geometry = getUnionFromBSP(bspNodes);
+        geometry = getBooleanFromBSP(bspNodes, ThreeCSG.boolean.unionArray);
       } else if (e.data.type === 'Difference') {
-        geometry = getDifferenceFromBSP(bspNodes);
+        geometry = getBooleanFromBSP(bspNodes, ThreeCSG.boolean.sutractArray);
       } else if (e.data.type === 'Intersection') {
-        geometry = getIntersectionFromBSP(bspNodes);
+        geometry = getBooleanFromBSP(
+          bspNodes,
+          ThreeCSG.boolean.intersectionArray
+        );
       } else {
         const postMessage = {
           status: 'error',
         };
         ctx.postMessage(postMessage);
       }
-
-      // move resulting geometry to origin of coordinates (center on first child on origin)
-      // const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
-      // if (firstGeomMatrix) {
-      //   invMatrix.getInverse(firstGeomMatrix);
-      // }
-      // geometry.applyMatrix(invMatrix);
 
       // get buffer data
       const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(

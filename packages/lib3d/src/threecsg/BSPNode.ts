@@ -15,7 +15,8 @@ const MINIMUM_RELATION_SCALE = 10; // should always be >2
  * Samuel Ranta-Eskola, 2001
  */
 function chooseDividingTriangle(triangles: Triangle[]): Triangle | undefined {
-  if (true || isConvexSet(triangles)) return triangles[0];
+  
+  if(isConvexSet(triangles)) return triangles[0];
 
   let minimumRelation = MINIMUM_RELATION;
   let bestTriangle: Triangle | undefined = undefined;
@@ -80,6 +81,7 @@ export default class BSPNode {
   public triangles: Triangle[];
   public isInverted: boolean;
   public boundingBox: Box3;
+  private chooseDividing:boolean;
 
   static interpolateVectors(a: Vector3, b: Vector3, t: number): Vector3 {
     return a.clone().lerp(b, t);
@@ -138,10 +140,12 @@ export default class BSPNode {
     return triangles;
   }
 
-  constructor(triangles?: Triangle[]) {
+  constructor(triangles?: Triangle[], chooseDividing:boolean = false) {
     this.triangles = [];
     this.isInverted = false;
     this.boundingBox = new Box3();
+    this.chooseDividing = chooseDividing;
+
 
     if (triangles !== undefined) {
       this.buildFrom(triangles);
@@ -150,17 +154,17 @@ export default class BSPNode {
 
   public buildFrom(triangles: Triangle[]) {
     if (this.divider === undefined) {
-      const bestDivider = chooseDividingTriangle(triangles);
+      const bestDivider = this.chooseDividing?chooseDividingTriangle(triangles):triangles[0];
       if (bestDivider === undefined) {
         this.divider = triangles[0].clone();
         this.triangles = triangles;
       } else {
         this.divider = bestDivider.clone();
         this.triangles = [];
-        this.addTriangles(triangles);
+        this.addTrianglesIterative(triangles);
       }
     } else {
-      this.addTriangles(triangles);
+      this.addTrianglesIterative(triangles);
     }
   }
 
@@ -177,7 +181,7 @@ export default class BSPNode {
     // number of triangles
     arr.push(this.triangles.length);
     // the triangles
-    for (const triangle of this.triangles) {
+    for (let triangle of this.triangles) {
       arr.push(...triangle.toNumberArray());
     }
 
@@ -220,7 +224,7 @@ export default class BSPNode {
 
     for (let i = 0; i < trianglesLength; i += 1) {
       const triangle: Triangle = new Triangle();
-      const index = i * 13 + triangleOffset;
+      let index = i * 13 + triangleOffset;
       const triangleArray: number[] = arr.slice(index, index + 13);
       triangle.fromNumberArray(triangleArray);
       this.triangles.push(triangle)
@@ -280,7 +284,57 @@ export default class BSPNode {
 
   }
 
+  private addTrianglesIterative(triangles: Triangle[]) {
+    const heap: Array<{ triangles: Triangle[]; node: BSPNode }> = [];
+    let [frontTriangles, backTriangles] = this.addTriangles(triangles);
+
+    if (backTriangles.length) {
+      if (!this.back) this.back = new BSPNode();
+      heap.push({
+        triangles: backTriangles,
+        node: this.back,
+      });
+    }
+
+    if (frontTriangles.length) {
+      if (!this.front) this.front = new BSPNode();
+      heap.push({
+        triangles: frontTriangles,
+        node: this.front,
+      });
+    }
+
+    while (heap.length > 0) {
+      const { triangles, node } = heap.pop() as {
+        triangles: Triangle[];
+        node: BSPNode;
+      };
+      [frontTriangles, backTriangles] = node.addTriangles(triangles);
+
+      if (backTriangles.length) {
+        if (!node.back) node.back = new BSPNode();
+        heap.push({
+          triangles: backTriangles,
+          node: node.back,
+        });
+      }
+
+      if (frontTriangles.length) {
+        if (!node.front) node.front = new BSPNode();
+        heap.push({
+          triangles: frontTriangles,
+          node: node.front,
+        });
+      }
+    }
+  }
+
   private addTriangles(triangles: Triangle[]) {
+    if (!this.divider) {
+      const bestTriangle = this.chooseDividing?chooseDividingTriangle(triangles):triangles[0];
+      this.divider = bestTriangle ? bestTriangle.clone() : triangles[0];
+    }
+
     const frontTriangles = [];
     const backTriangles = [];
 
@@ -346,20 +400,7 @@ export default class BSPNode {
       }
     }
 
-    if (frontTriangles.length) {
-      if (this.front === undefined) {
-        this.front = new BSPNode(frontTriangles);
-      } else {
-        this.front.addTriangles(frontTriangles);
-      }
-    }
-    if (backTriangles.length) {
-      if (this.back === undefined) {
-        this.back = new BSPNode(backTriangles);
-      } else {
-        this.back.addTriangles(backTriangles);
-      }
-    }
+    return [frontTriangles, backTriangles];
   }
 
   invert() {

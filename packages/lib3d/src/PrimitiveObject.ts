@@ -116,7 +116,11 @@ export default class PrimitiveObject extends Object3D {
   protected async computeBSPAsync(): Promise<ArrayBuffer> {
     this.bspPromise = new Promise(async (resolve, reject) => {
       if (this.meshPromise) await this.meshPromise;
-      const bsp = cache.getOrSetBSP((this.mesh as THREE.Mesh).geometry);
+      // const bsp = cache.getOrSetBSP((this.mesh as THREE.Mesh).geometry);
+      const bsp = new BSPNode(
+        convertGeometryToTriangles((this.mesh as THREE.Mesh).geometry),
+        true
+      );
       const bspTrans = transformBSP(bsp, this.mesh as THREE.Mesh);
       this.bspNodeBuffer = bspTrans.toArrayBuffer();
       resolve(this.bspNodeBuffer);
