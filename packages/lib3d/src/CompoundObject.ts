@@ -108,6 +108,7 @@ export default class CompoundObject extends Object3D {
 
           const message = event.data;
 
+          console.log("Message Received from web worker");
           this.fromBufferData(message.verticesData, message.normalsData).then(
             mesh => {
               this.mesh = mesh;

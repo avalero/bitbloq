@@ -234,15 +234,16 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
           module.clean();
 
-          const wasmMessage = {
+          const message = {
             verticesData: new Float32Array(verticesData),
             normalsData: new Float32Array(normalsData),
             status: 'ok',
           };
 
-          ctx.postMessage(wasmMessage, [
-            wasmMessage.verticesData.buffer,
-            wasmMessage.normalsData.buffer,
+          console.log("Send message back from webworker");
+          ctx.postMessage(message, [
+            message.verticesData.buffer,
+            message.normalsData.buffer,
           ]);
         } catch (e) {
           console.log(e);
