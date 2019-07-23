@@ -6,24 +6,12 @@ import BSPNode from './BSPNode';
  */
 
 export function unionArray(bspArr: BSPNode[]): BSPNode {
-  // If array has two BSPs just perform union
-
-  if (bspArr.length === 2) {
-    return union(bspArr[0], bspArr[1]);
+  let resultBSP: BSPNode = bspArr[0];
+  for (let i = 1; i < bspArr.length; i+=1) {
+    resultBSP = union(resultBSP, bspArr[i]);
   }
 
-  // Else create a new array performing union in couples and then recurse
-  const arr: BSPNode[] = [];
-
-  for (let i = 0; i < bspArr.length - 1; i += 2) {
-    arr.push(union(bspArr[i], bspArr[i + 1]));
-  }
-
-  if (bspArr.length % 2 !== 0) {
-    arr.push(bspArr[bspArr.length - 1]);
-  }
-
-  return unionArray(arr);
+  return resultBSP;
 }
 
 export function intersect(a: BSPNode, b: BSPNode): BSPNode {
@@ -40,7 +28,7 @@ export function intersect(a: BSPNode, b: BSPNode): BSPNode {
   return a2;
 }
 
-export function union(a: BSPNode, b: BSPNode) {
+export function union(a: BSPNode, b: BSPNode): BSPNode {
   const a2 = a.clone();
   const b2 = b.clone();
   a2.clipTo(b2);
@@ -52,7 +40,7 @@ export function union(a: BSPNode, b: BSPNode) {
   return a2;
 }
 
-export function subtract(a: BSPNode, b: BSPNode) {
+export function subtract(a: BSPNode, b: BSPNode): BSPNode {
   const a2 = a.clone();
   const b2 = b.clone();
   a2.invert();

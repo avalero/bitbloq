@@ -76,55 +76,6 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   ctx.addEventListener(
     'message',
     e => {
-      // const geometries: THREE.Geometry[] = [];
-      // const bufferArray = e.data.bufferArray;
-
-      // if (!bufferArray) return;
-
-      // let firstGeomMatrix: THREE.Matrix4 | undefined;
-
-      // // add all children to geometries array
-      // for (let i = 0; i < bufferArray.length; i += 3) {
-      //   // recompute object form vertices and normals
-      //   const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
-      //   const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
-      //   const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
-      //   const _vertices: ArrayLike<number> = new Float32Array(
-      //     verticesBuffer,
-      //     0,
-      //     verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-      //   );
-      //   const _normals: ArrayLike<number> = new Float32Array(
-      //     normalsBuffer,
-      //     0,
-      //     normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-      //   );
-      //   const _positions: ArrayLike<number> = new Float32Array(
-      //     positionBuffer,
-      //     0,
-      //     positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-      //   );
-      //   const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
-      //   matrixWorld.elements = new Float32Array(_positions);
-      //   if (i === 0) {
-      //     firstGeomMatrix = matrixWorld.clone();
-      //   }
-      //   const buffGeometry = new THREE.BufferGeometry();
-      //   buffGeometry.addAttribute(
-      //     'position',
-      //     new THREE.BufferAttribute(_vertices, 3)
-      //   );
-      //   buffGeometry.addAttribute(
-      //     'normal',
-      //     new THREE.BufferAttribute(_normals, 3)
-      //   );
-      //   const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
-      //     buffGeometry
-      //   );
-      //   objectGeometry.applyMatrix(matrixWorld);
-      //   geometries.push(objectGeometry);
-      // }
-
       const bspNodes: ThreeCSG.BSPNode[] = [];
       const bspNodesBuffer: ArrayBuffer[] = e.data.bufferArray;
       if (!bspNodesBuffer) return;
