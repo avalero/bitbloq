@@ -2,33 +2,27 @@
  * File: PredesignedObject.ts
  * Project: Bitbloq
  * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
  * Copyright 2018 - 2019 BQ Educacion.
- * -----
- * File Created: Tuesday, 26th February 2019
- * Last Modified:: Friday, 1st March 2019 3:49:36 pm
- * -----
- * Author: David García (david.garciaparedes@bq.com)
- * Author: Alda Martín (alda.marting@bq.com)
- * Author: Alberto Valero (alberto.valero@bq.com)
- * -----
  */
 
-import * as THREE from "three";
-import STLObject from "./STLObject";
+import * as THREE from 'three';
+import STLObject from './STLObject';
 import {
   ISTLParams,
   OperationsArray,
   IViewOptions,
-  ISTLJSON
-} from "./Interfaces";
-import ObjectsCommon from "./ObjectsCommon";
+  ISTLJSON,
+} from './Interfaces';
+import ObjectsCommon from './ObjectsCommon';
 
 export default class PredesignedObject extends STLObject {
-  public static typeName: string = "PredesignedObject";
+  public static typeName: string = 'PredesignedObject';
 
   public static newFromJSON(object: ISTLJSON): PredesignedObject {
     if (object.type !== PredesignedObject.typeName) {
-      throw new Error("Not Predesigned Object");
+      throw new Error('Not Predesigned Object');
     }
 
     let stl: PredesignedObject;
@@ -58,9 +52,10 @@ export default class PredesignedObject extends STLObject {
     parameters: Partial<ISTLParams>,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
+    bspNodeBuffer?: ArrayBuffer
   ) {
-    super(parameters, operations, viewOptions, mesh);
+    super(parameters, operations, viewOptions, mesh, bspNodeBuffer);
     this.type = PredesignedObject.typeName;
   }
 
@@ -70,7 +65,8 @@ export default class PredesignedObject extends STLObject {
         this.parameters as ISTLParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
+        this.bspNodeBuffer.slice(0)
       );
       return objSTL;
     }

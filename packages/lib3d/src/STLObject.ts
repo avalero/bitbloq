@@ -77,7 +77,8 @@ export default class STLObject extends PrimitiveObject {
     parameters: Partial<ISTLParams>,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined
+    mesh?: THREE.Mesh | undefined,
+    bspNodeBuffer?: ArrayBuffer
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
@@ -109,6 +110,12 @@ export default class STLObject extends PrimitiveObject {
         this.meshPromise = this.computeMeshAsync();
       }
     }
+
+    if (bspNodeBuffer) {
+      this.bspNodeBuffer = bspNodeBuffer;
+    } else {
+      this.bspPromise = this.computeBSPAsync();
+    }
   }
 
   public clone(): STLObject {
@@ -117,7 +124,8 @@ export default class STLObject extends PrimitiveObject {
         this.parameters as ISTLParams,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone()
+        (this.mesh as THREE.Mesh).clone(),
+        this.bspNodeBuffer.slice(0)
       );
       return objSTL;
     }
@@ -188,6 +196,7 @@ export default class STLObject extends PrimitiveObject {
       this.viewOptionsUpdateRequired = false;
     });
 
+    this.bspPromise = this.computeBSPAsync();
     return this.meshPromise as Promise<THREE.Mesh>;
   }
 
@@ -262,7 +271,9 @@ export default class STLObject extends PrimitiveObject {
 
   private computeGeometry(): THREE.Geometry {
     const params = this.parameters as ISTLParams;
-    if (!params.blob) throw new Error(`No blob to compute`);
+    if (!params.blob) {
+      throw new Error(`No blob to compute`);
+    }
 
     const uint8Data = params.blob.uint8Data;
     let data: Uint8Array = new Uint8Array([]);
