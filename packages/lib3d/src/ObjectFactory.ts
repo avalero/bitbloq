@@ -6,6 +6,7 @@ import {
   ICubeJSON,
   IRectPrismJSON,
   ICylinderJSON,
+  IConeJSON,
   IObjectsCommonJSON,
   IPrismJSON,
   IPyramidJSON,
@@ -25,6 +26,7 @@ import TextObject from './TextObject';
 import Pyramid from './Pyramid';
 import Sphere from './Sphere';
 import Union from './Union';
+import Cone from './Cone';
 
 import ObjectsGroup from './ObjectsGroup';
 import RepetitionObject from './RepetitionObject';
@@ -79,13 +81,15 @@ export default class ObjectFactory {
         }
 
         if (r1 === 0) {
-          // Cono TODO
+          delete auxCylJSON.parameters.r1;
+          return Cone.newFromJSON(obj as IConeJSON);
         }
-
         // Truncated Cone
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
       case TruncatedCone.typeName:
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
+      case Cone.typeName:
+        return Cone.newFromJSON(obj as IConeJSON);
       case Sphere.typeName:
         return Sphere.newFromJSON(obj as ISphereJSON);
       case Prism.typeName:

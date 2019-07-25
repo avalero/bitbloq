@@ -52,6 +52,16 @@ const config = {
           },
         },
         {
+          type: 'Cone',
+          label: 'object-type-cone',
+          icon: <Icon name="cylinder" />,
+          parameters: {
+            r0: 5,
+            r1: 0, // legacy, not used
+            height: 10,
+          },
+        },
+        {
           type: 'TruncatedCone',
           label: 'object-type-truncatedcone',
           icon: <Icon name="cylinder" />,
@@ -160,6 +170,31 @@ const config = {
     {
       name: 'Cylinder',
       label: 'object-type-cylinder',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-bottom-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        // {
+        //   name: 'r1',
+        //   label: 'param-top-radius',
+        //   type: 'integer',
+        //   unit: 'mm',
+        // },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Cone',
+      label: 'object-type-cone',
       icon: <Icon name="cylinder" />,
       parameters: () => [
         {

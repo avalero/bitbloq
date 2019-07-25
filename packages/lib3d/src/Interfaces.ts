@@ -132,6 +132,16 @@ export interface ITruncatedConeJSON extends IPrimitiveObjectJSON {
   parameters: ITruncatedConeParams;
 }
 
+// Cone
+export interface IConeParams {
+  r0: number;
+  height: number;
+}
+
+export interface IConeJSON extends IPrimitiveObjectJSON {
+  parameters: IConeParams;
+}
+
 // Prism
 export interface IPrismParams {
   sides: number;
