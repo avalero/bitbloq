@@ -141,7 +141,7 @@ export default class CompoundObject extends Object3D {
                 (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
-                console.log(`Ellapsed time ${performance.now() - this.t0} ms`);
+                // console.log(`Ellapsed time ${performance.now() - this.t0} ms`);
 
                 // mesh updated and resolved
                 this.pendingOperation = false;
