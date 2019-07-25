@@ -142,6 +142,16 @@ export interface IConeJSON extends IPrimitiveObjectJSON {
   parameters: IConeParams;
 }
 
+// Torus
+export interface ITorusParams {
+  r0: number;
+  r1: number;
+}
+
+export interface ITorusJSON extends IPrimitiveObjectJSON {
+  parameters: ITorusParams;
+}
+
 // Prism
 export interface IPrismParams {
   sides: number;

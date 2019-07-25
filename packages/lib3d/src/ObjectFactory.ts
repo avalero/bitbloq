@@ -13,6 +13,7 @@ import {
   ISphereJSON,
   ISTLJSON,
   ITruncatedConeJSON,
+  ITorusJSON,
 } from './Interfaces';
 import Cube from './Cube';
 import RectPrism from './RectPrism';
@@ -27,6 +28,7 @@ import Pyramid from './Pyramid';
 import Sphere from './Sphere';
 import Union from './Union';
 import Cone from './Cone';
+import Torus from './Torus';
 
 import ObjectsGroup from './ObjectsGroup';
 import RepetitionObject from './RepetitionObject';
@@ -92,6 +94,8 @@ export default class ObjectFactory {
         return Cone.newFromJSON(obj as IConeJSON);
       case Sphere.typeName:
         return Sphere.newFromJSON(obj as ISphereJSON);
+      case Torus.typeName:
+        return Torus.newFromJSON(obj as ITorusJSON);
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
       case Pyramid.typeName:
