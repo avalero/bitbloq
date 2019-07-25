@@ -87,12 +87,8 @@ export default class Cone extends PrimitiveObject {
     r0 = Math.max(0, r0);
     height = Math.max(0, height);
     // this._meshUpdateRequired = false;
-    return new THREE.CylinderGeometry(
-      Number(0),
-      Number(r0),
-      Number(height),
-      18,
-      1
-    ).rotateX(Math.PI / 2);
+    return new THREE.ConeGeometry(Number(r0), Number(height), 18).rotateX(
+      Math.PI / 2
+    );
   }
 }

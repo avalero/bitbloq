@@ -91,6 +91,11 @@ export default class Torus extends PrimitiveObject {
     r0 = Math.max(0, r0);
     r1 = Math.max(0, r1);
     // this._meshUpdateRequired = false;
-    return new THREE.TorusGeometry(Number(r0), Number(r1), 16, 16);
+    return new THREE.TorusGeometry(
+      Number(r0),
+      Number(r1),
+      Math.max(12, Math.min(Number(r1) * 5, 16)),
+      Math.max(12, Math.min(Number(r0) * 5, 16))
+    );
   }
 }

@@ -12,24 +12,24 @@
  * Last modified  : 2019-01-31 10:03:38
  */
 
-import * as THREE from "three";
+import * as THREE from 'three';
 
-import ObjectsCommon from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 import {
   ISphereJSON,
   ISphereParams,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
+  OperationsArray,
+} from './Interfaces';
 
 export default class Sphere extends PrimitiveObject {
-  public static typeName: string = "Sphere";
+  public static typeName: string = 'Sphere';
 
   public static newFromJSON(object: ISphereJSON): Sphere {
     if (object.type !== Sphere.typeName) {
-      throw new Error("Not Sphere Object");
+      throw new Error('Not Sphere Object');
     }
 
     let sphere: Sphere;
@@ -61,7 +61,7 @@ export default class Sphere extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Sphere.typeName;
