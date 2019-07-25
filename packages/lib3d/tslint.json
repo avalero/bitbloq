@@ -9,7 +9,8 @@
       "node_modules/**/*",
       "src/threeCSG.ts",
       "coverage/**/*",
-      "src/Renderer.ts"
+      "src/Renderer.ts",
+      "src/threecsg/*"
     ]
   },
   "rules": {

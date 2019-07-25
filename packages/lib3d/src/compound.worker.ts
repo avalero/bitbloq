@@ -11,19 +11,7 @@
  */
 
 import * as THREE from 'three';
-import ThreeBSP from './threeCSG';
-
-// import demo from './demo.js';
-// import demoModule from './demo.wasm';
-
-// const module = demo({
-//   locateFile(path) {
-//     if (path.endsWith('.wasm')) {
-//       return demoModule;
-//     }
-//     return path;
-//   },
-// });
+import * as ThreeCSG from './threecsg/index';
 
 export default Worker;
 
@@ -31,59 +19,25 @@ export default Worker;
 if (!(typeof module !== 'undefined' && module.exports)) {
   const ctx: Worker = self as any;
 
-  const getUnionFromGeometries = (
-    geometries: THREE.Geometry[]
+  const getBooleanFromGeometries = (
+    geometries: THREE.Geometry[],
+    operation: (a: ThreeCSG.BSPNode, b: ThreeCSG.BSPNode) => ThreeCSG.BSPNode
   ): THREE.Geometry => {
-    let geomBSP: any = new ThreeBSP(geometries[0]);
-    // Union with the rest
+    let nodeBSP: ThreeCSG.BSPNode = new ThreeCSG.BSPNode(
+      ThreeCSG.convertGeometryToTriangles(geometries[0])
+    );
     for (let i = 1; i < geometries.length; i += 1) {
-      const bspGeom = new ThreeBSP(geometries[i]);
-      geomBSP = geomBSP.union(bspGeom);
+      const bsp = new ThreeCSG.BSPNode(
+        ThreeCSG.convertGeometryToTriangles(geometries[i])
+      );
+      nodeBSP = operation(nodeBSP, bsp);
     }
-    const geom = geomBSP.toGeometry();
-    return geom;
-  };
-
-  const getDifferenceFromGeometries = (
-    geometries: THREE.Geometry[]
-  ): THREE.Geometry => {
-    let geomBSP: any = new ThreeBSP(geometries[0]);
-    // Union with the rest
-    for (let i = 1; i < geometries.length; i += 1) {
-      const bspGeom = new ThreeBSP(geometries[i]);
-      geomBSP = geomBSP.subtract(bspGeom);
-    }
-    const geom = geomBSP.toGeometry();
-    return geom;
-  };
-
-  const getIntersectionFromGeometries = (
-    geometries: THREE.Geometry[]
-  ): THREE.Geometry => {
-    let geomBSP: any = new ThreeBSP(geometries[0]);
-    // Union with the rest
-    for (let i = 1; i < geometries.length; i += 1) {
-      const bspGeom = new ThreeBSP(geometries[i]);
-      geomBSP = geomBSP.intersect(bspGeom);
-    }
-    const geom = geomBSP.toGeometry();
-    return geom;
+    return nodeBSP.toGeometry();
   };
 
   ctx.addEventListener(
     'message',
     e => {
-      // // WASM START!!!
-      // console.log('Hola WASM!');
-
-      // module.onRuntimeInitialized = () => {
-      //   console.log(module._getNumber());
-      // };
-
-      // console.log('Adios Wasm');
-
-      // /// WASM END
-
       const geometries: THREE.Geometry[] = [];
       const bufferArray = e.data.bufferArray;
 
@@ -136,11 +90,17 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
       if (e.data.type === 'Union') {
-        geometry = getUnionFromGeometries(geometries);
+        geometry = getBooleanFromGeometries(geometries, ThreeCSG.boolean.union);
       } else if (e.data.type === 'Difference') {
-        geometry = getDifferenceFromGeometries(geometries);
+        geometry = getBooleanFromGeometries(
+          geometries,
+          ThreeCSG.boolean.subtract
+        );
       } else if (e.data.type === 'Intersection') {
-        geometry = getIntersectionFromGeometries(geometries);
+        geometry = getBooleanFromGeometries(
+          geometries,
+          ThreeCSG.boolean.intersect
+        );
       } else {
         const postMessage = {
           status: 'error',
@@ -175,7 +135,6 @@ if (!(typeof module !== 'undefined' && module.exports)) {
         message.normals.buffer,
       ]);
     },
-
     false
   );
 }
