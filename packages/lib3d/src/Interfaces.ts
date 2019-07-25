@@ -91,8 +91,8 @@ export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
 
 export interface ICubeParams {
   width: number;
-  depth: number;
-  height: number;
+  depth?: number;
+  height?: number;
 }
 
 export interface ICubeJSON extends IPrimitiveObjectJSON {
@@ -113,12 +113,23 @@ export interface IRectPrismJSON extends IPrimitiveObjectJSON {
 // Cylinder
 export interface ICylinderParams {
   r0: number;
-  r1: number;
+  r1?: number;
   height: number;
 }
 
 export interface ICylinderJSON extends IPrimitiveObjectJSON {
   parameters: ICylinderParams;
+}
+
+// Truncated Cone
+export interface ITruncatedConeParams {
+  r0: number;
+  r1: number;
+  height: number;
+}
+
+export interface ITruncatedConeJSON extends IPrimitiveObjectJSON {
+  parameters: ITruncatedConeParams;
 }
 
 // Prism

@@ -29,8 +29,8 @@ const config = {
           icon: <Icon name="cube" />,
           parameters: {
             width: 10,
-            depth: 10,
-            height: 10,
+            depth: 10, // legacy, not used
+            height: 10, // legacy, not used
           },
         },
         {
@@ -47,7 +47,17 @@ const config = {
           icon: <Icon name="cylinder" />,
           parameters: {
             r0: 5,
-            r1: 5,
+            r1: 5, // legacy, not used
+            height: 10,
+          },
+        },
+        {
+          type: 'TruncatedCone',
+          label: 'object-type-truncatedcone',
+          icon: <Icon name="cylinder" />,
+          parameters: {
+            r0: 6,
+            r1: 3,
             height: 10,
           },
         },
@@ -150,6 +160,31 @@ const config = {
     {
       name: 'Cylinder',
       label: 'object-type-cylinder',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-bottom-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        // {
+        //   name: 'r1',
+        //   label: 'param-top-radius',
+        //   type: 'integer',
+        //   unit: 'mm',
+        // },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'TruncatedCone',
+      label: 'object-type-truncatedcone',
       icon: <Icon name="cylinder" />,
       parameters: () => [
         {

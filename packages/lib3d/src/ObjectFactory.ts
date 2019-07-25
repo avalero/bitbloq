@@ -11,10 +11,12 @@ import {
   IPyramidJSON,
   ISphereJSON,
   ISTLJSON,
+  ITruncatedConeJSON,
 } from './Interfaces';
 import Cube from './Cube';
 import RectPrism from './RectPrism';
 import Cylinder from './Cylinder';
+import TruncatedCone from './TruncatedCone';
 import Difference from './Difference';
 import Intersection from './Intersection';
 import ObjectsCommon from './ObjectsCommon';
@@ -44,20 +46,46 @@ export default class ObjectFactory {
         // legacy fix
         // Cubes had originally three parameters, now they have one.
         // Cube with 3 parameters is a RectPrism
-        const aux: ICubeJSON = obj as ICubeJSON;
-        const width = aux.parameters.width;
-        const depth = aux.parameters.depth || 0;
-        const height = aux.parameters.height || 0;
+        const auxCubeJSON: ICubeJSON = obj as ICubeJSON;
+        const width = auxCubeJSON.parameters.width;
+        const depth = auxCubeJSON.parameters.depth || 0;
+        const height = auxCubeJSON.parameters.height || 0;
 
         if (width === height && height === depth) {
+          delete auxCubeJSON.parameters.depth;
+          delete auxCubeJSON.parameters.height;
           return Cube.newFromJSON(obj as ICubeJSON);
         }
+
+        // It is a Rectangular Prism
         obj.type = RectPrism.typeName;
         return RectPrism.newFromJSON(obj as IRectPrismJSON);
       case RectPrism.typeName:
         return RectPrism.newFromJSON(obj as IRectPrismJSON);
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(obj as ICylinderJSON);
+        // legacy fix
+        // Cylinders had originally top radius and bottom radius now they have one.
+        // Cylinders with top and bottom radius are a RectPrism
+
+        const auxCylJSON = obj as ICylinderJSON;
+        const r0 = auxCylJSON.parameters.r0;
+        const r1 = auxCylJSON.parameters.r1 || -1;
+        const cylHeight = auxCylJSON.parameters.height;
+
+        // pure cylinder
+        if (r0 === r1) {
+          delete auxCylJSON.parameters.r1;
+          return Cylinder.newFromJSON(obj as ICylinderJSON);
+        }
+
+        if (r1 === 0) {
+          // Cono TODO
+        }
+
+        // Truncated Cone
+        return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
+      case TruncatedCone.typeName:
+        return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
       case Sphere.typeName:
         return Sphere.newFromJSON(obj as ISphereJSON);
       case Prism.typeName:
