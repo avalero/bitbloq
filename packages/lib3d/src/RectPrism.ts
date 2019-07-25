@@ -1,5 +1,5 @@
 /*
- * File: Cube.ts
+ * File: RectPrism.ts
  * Project: Bitbloq
  * License: MIT (https://opensource.org/licenses/MIT)
  * Bitbloq Repository: https://github.com/bitbloq
@@ -12,43 +12,47 @@ import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
 import {
-  ICubeJSON,
-  ICubeParams,
+  IRectPrismJSON,
+  IRectPrismParams,
   IViewOptions,
   OperationsArray,
 } from './Interfaces';
 
-export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube';
+export default class RectPrism extends PrimitiveObject {
+  public static typeName: string = 'RectPrism';
 
   /**
-   * Creates a new Cube instance from json
+   * Creates a new RectPrism instance from json
    * @param object object descriptor
    */
-  public static newFromJSON(object: ICubeJSON): Cube {
-    if (object.type !== Cube.typeName) {
-      throw new Error('Not Cube Object');
+  public static newFromJSON(object: IRectPrismJSON): RectPrism {
+    if (object.type !== RectPrism.typeName) {
+      throw new Error('Not RectPrism Object');
     }
     let mesh: THREE.Mesh;
-    let cube: Cube;
+    let rectPrism: RectPrism;
     if (object.mesh) {
       mesh = new THREE.ObjectLoader().parse(object.mesh);
-      cube = new Cube(
+      rectPrism = new RectPrism(
         object.parameters,
         object.operations,
         object.viewOptions,
         mesh
       );
     } else {
-      cube = new Cube(object.parameters, object.operations, object.viewOptions);
+      rectPrism = new RectPrism(
+        object.parameters,
+        object.operations,
+        object.viewOptions
+      );
     }
 
-    cube.id = object.id || cube.id;
-    return cube;
+    rectPrism.id = object.id || rectPrism.id;
+    return rectPrism;
   }
 
   constructor(
-    parameters: ICubeParams,
+    parameters: IRectPrismParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined
@@ -58,7 +62,7 @@ export default class Cube extends PrimitiveObject {
       ...viewOptions,
     };
     super(vO, operations);
-    this.type = Cube.typeName;
+    this.type = RectPrism.typeName;
     this.setParameters(parameters);
 
     if (mesh) {
@@ -70,30 +74,33 @@ export default class Cube extends PrimitiveObject {
   }
 
   /**
-   * Creates a cube clone (not sharing references)
+   * Creates a rectPrism clone (not sharing references)
    */
-  public clone(): Cube {
+  public clone(): RectPrism {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
-      const cubeObj = new Cube(
-        this.parameters as ICubeParams,
+      const rectPrismObj = new RectPrism(
+        this.parameters as IRectPrismParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone()
       );
-      return cubeObj;
+      return rectPrismObj;
     }
 
-    const cube = new Cube(
-      this.parameters as ICubeParams,
+    const rectPrism = new RectPrism(
+      this.parameters as IRectPrismParams,
       this.operations,
       this.viewOptions
     );
-    return cube;
+    return rectPrism;
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { width } = this.parameters as ICubeParams;
+    let { width, height, depth } = this.parameters as IRectPrismParams;
     width = Math.max(0, width);
-    return new THREE.BoxGeometry(Number(width), Number(width), Number(width));
+    height = Math.max(0, height);
+    depth = Math.max(0, depth);
+    // this._meshUpdateRequired = false;
+    return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
   }
 }

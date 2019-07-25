@@ -29,8 +29,8 @@ const config = {
           icon: <Icon name="cube" />,
           parameters: {
             width: 10,
-            height: 10,
-            depth: 10,
+            depth: 10, // legacy, not used
+            height: 10, // legacy, not used
           },
         },
         {
@@ -47,8 +47,37 @@ const config = {
           icon: <Icon name="cylinder" />,
           parameters: {
             r0: 5,
-            r1: 5,
+            r1: 5, // legacy, not used
             height: 10,
+          },
+        },
+        {
+          type: 'Cone',
+          label: 'object-type-cone',
+          icon: <Icon name="cylinder" />,
+          parameters: {
+            r0: 5,
+            r1: 0, // legacy, not used
+            height: 10,
+          },
+        },
+        {
+          type: 'TruncatedCone',
+          label: 'object-type-truncatedcone',
+          icon: <Icon name="cylinder" />,
+          parameters: {
+            r0: 6,
+            r1: 3,
+            height: 10,
+          },
+        },
+        {
+          type: 'Torus',
+          label: 'object-type-torus',
+          icon: <Icon name="cylinder" />,
+          parameters: {
+            r0: 10,
+            r1: 3,
           },
         },
         {
@@ -69,6 +98,16 @@ const config = {
             sides: 4,
             length: 10,
             height: 15,
+          },
+        },
+        {
+          type: 'RectPrism',
+          label: 'object-type-rectprism',
+          icon: <Icon name="cube" />,
+          parameters: {
+            width: 10,
+            height: 10,
+            depth: 10,
           },
         },
         {
@@ -107,20 +146,20 @@ const config = {
           unit: 'mm',
           min: 0,
         },
-        {
-          name: 'depth',
-          label: 'param-depth',
-          type: 'integer',
-          unit: 'mm',
-          min: 0,
-        },
-        {
-          name: 'height',
-          label: 'param-height',
-          type: 'integer',
-          unit: 'mm',
-          min: 0,
-        },
+        // {
+        //   name: 'depth',
+        //   label: 'param-depth',
+        //   type: 'integer',
+        //   unit: 'mm',
+        //   min: 0,
+        // },
+        // {
+        //   name: 'height',
+        //   label: 'param-height',
+        //   type: 'integer',
+        //   unit: 'mm',
+        //   min: 0,
+        // },
       ],
     },
     {
@@ -140,6 +179,75 @@ const config = {
     {
       name: 'Cylinder',
       label: 'object-type-cylinder',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-bottom-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        // {
+        //   name: 'r1',
+        //   label: 'param-top-radius',
+        //   type: 'integer',
+        //   unit: 'mm',
+        // },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Torus',
+      label: 'object-type-torus',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-tube-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Cone',
+      label: 'object-type-cone',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-bottom-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        // {
+        //   name: 'r1',
+        //   label: 'param-top-radius',
+        //   type: 'integer',
+        //   unit: 'mm',
+        // },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'TruncatedCone',
+      label: 'object-type-truncatedcone',
       icon: <Icon name="cylinder" />,
       parameters: () => [
         {
@@ -207,6 +315,34 @@ const config = {
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'RectPrism',
+      label: 'object-type-rectprism',
+      icon: <Icon name="cube" />,
+      parameters: () => [
+        {
+          name: 'width',
+          label: 'param-width',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+        {
+          name: 'depth',
+          label: 'param-depth',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
         },
       ],
     },

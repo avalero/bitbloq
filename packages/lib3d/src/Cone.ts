@@ -1,15 +1,10 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-31 10:34:20
+/*
+ * File: Cone.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
 import * as THREE from 'three';
@@ -18,41 +13,37 @@ import PrimitiveObject from './PrimitiveObject';
 import {
   IViewOptions,
   OperationsArray,
-  ICylinderJSON,
-  ICylinderParams,
+  IConeJSON,
+  IConeParams,
 } from './Interfaces';
 
-export default class Cylinder extends PrimitiveObject {
-  public static typeName: string = 'Cylinder';
+export default class Cone extends PrimitiveObject {
+  public static typeName: string = 'Cone';
 
-  public static newFromJSON(object: ICylinderJSON): Cylinder {
-    if (object.type !== Cylinder.typeName) {
-      throw new Error('Not Cylinder Object');
+  public static newFromJSON(object: IConeJSON): Cone {
+    if (object.type !== Cone.typeName) {
+      throw new Error('Not Cone Object');
     }
-    let cyl: Cylinder;
+    let cone: Cone;
     let mesh: THREE.Mesh;
     if (object.mesh) {
       mesh = new THREE.ObjectLoader().parse(object.mesh);
-      cyl = new Cylinder(
+      cone = new Cone(
         object.parameters,
         object.operations,
         object.viewOptions,
         mesh
       );
     } else {
-      cyl = new Cylinder(
-        object.parameters,
-        object.operations,
-        object.viewOptions
-      );
+      cone = new Cone(object.parameters, object.operations, object.viewOptions);
     }
 
-    cyl.id = object.id || cyl.id;
-    return cyl;
+    cone.id = object.id || cone.id;
+    return cone;
   }
 
   constructor(
-    parameters: ICylinderParams,
+    parameters: IConeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined
@@ -62,7 +53,7 @@ export default class Cylinder extends PrimitiveObject {
       ...viewOptions,
     };
     super(vO, operations);
-    this.type = Cylinder.typeName;
+    this.type = Cone.typeName;
     this.setParameters(parameters);
 
     if (mesh) {
@@ -73,18 +64,18 @@ export default class Cylinder extends PrimitiveObject {
     }
   }
 
-  public clone(): Cylinder {
+  public clone(): Cone {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
-      const objCyl = new Cylinder(
-        this.parameters as ICylinderParams,
+      const objCyl = new Cone(
+        this.parameters as IConeParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone()
       );
       return objCyl;
     }
-    const obj = new Cylinder(
-      this.parameters as ICylinderParams,
+    const obj = new Cone(
+      this.parameters as IConeParams,
       this.operations,
       this.viewOptions
     );
@@ -92,16 +83,12 @@ export default class Cylinder extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { r0, height } = this.parameters as ICylinderParams;
+    let { r0, height } = this.parameters as IConeParams;
     r0 = Math.max(0, r0);
     height = Math.max(0, height);
     // this._meshUpdateRequired = false;
-    return new THREE.CylinderGeometry(
-      Number(r0),
-      Number(r0),
-      Number(height),
-      18,
-      1
-    ).rotateX(Math.PI / 2);
+    return new THREE.ConeGeometry(Number(r0), Number(height), 18).rotateX(
+      Math.PI / 2
+    );
   }
 }

@@ -91,23 +91,65 @@ export interface IPrimitiveObjectJSON extends IObjectsCommonJSON {
 
 export interface ICubeParams {
   width: number;
-  depth: number;
-  height: number;
+  depth?: number;
+  height?: number;
 }
 
 export interface ICubeJSON extends IPrimitiveObjectJSON {
   parameters: ICubeParams;
 }
 
+// RectPrism
+export interface IRectPrismParams {
+  width: number;
+  depth: number;
+  height: number;
+}
+
+export interface IRectPrismJSON extends IPrimitiveObjectJSON {
+  parameters: IRectPrismParams;
+}
+
 // Cylinder
 export interface ICylinderParams {
   r0: number;
-  r1: number;
+  r1?: number;
   height: number;
 }
 
 export interface ICylinderJSON extends IPrimitiveObjectJSON {
   parameters: ICylinderParams;
+}
+
+// Truncated Cone
+export interface ITruncatedConeParams {
+  r0: number;
+  r1: number;
+  height: number;
+}
+
+export interface ITruncatedConeJSON extends IPrimitiveObjectJSON {
+  parameters: ITruncatedConeParams;
+}
+
+// Cone
+export interface IConeParams {
+  r0: number;
+  height: number;
+}
+
+export interface IConeJSON extends IPrimitiveObjectJSON {
+  parameters: IConeParams;
+}
+
+// Torus
+export interface ITorusParams {
+  r0: number;
+  r1: number;
+}
+
+export interface ITorusJSON extends IPrimitiveObjectJSON {
+  parameters: ITorusParams;
 }
 
 // Prism
@@ -181,14 +223,14 @@ export interface IRepetitionParams {
 }
 
 export interface ICartesianRepetitionParams extends IRepetitionParams {
-  type: "cartesian";
+  type: 'cartesian';
   x: number;
   y: number;
   z: number;
 }
 
 export interface IPolarRepetitionParams extends IRepetitionParams {
-  type: "polar";
+  type: 'polar';
   angle: number;
   axis: string;
 }
