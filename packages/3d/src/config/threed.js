@@ -29,8 +29,8 @@ const config = {
           icon: <Icon name="cube" />,
           parameters: {
             width: 10,
-            height: 10,
             depth: 10,
+            height: 10,
           },
         },
         {
@@ -72,6 +72,16 @@ const config = {
           },
         },
         {
+          type: 'RectPrism',
+          label: 'object-type-rectprism',
+          icon: <Icon name="cube" />,
+          parameters: {
+            width: 10,
+            height: 10,
+            depth: 10,
+          },
+        },
+        {
           type: 'STLObject',
           label: 'object-type-stl-object',
           icon: <Icon name="stl" />,
@@ -107,20 +117,20 @@ const config = {
           unit: 'mm',
           min: 0,
         },
-        {
-          name: 'depth',
-          label: 'param-depth',
-          type: 'integer',
-          unit: 'mm',
-          min: 0,
-        },
-        {
-          name: 'height',
-          label: 'param-height',
-          type: 'integer',
-          unit: 'mm',
-          min: 0,
-        },
+        // {
+        //   name: 'depth',
+        //   label: 'param-depth',
+        //   type: 'integer',
+        //   unit: 'mm',
+        //   min: 0,
+        // },
+        // {
+        //   name: 'height',
+        //   label: 'param-height',
+        //   type: 'integer',
+        //   unit: 'mm',
+        //   min: 0,
+        // },
       ],
     },
     {
@@ -207,6 +217,34 @@ const config = {
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'RectPrism',
+      label: 'object-type-rectprism',
+      icon: <Icon name="cube" />,
+      parameters: () => [
+        {
+          name: 'width',
+          label: 'param-width',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+        {
+          name: 'depth',
+          label: 'param-depth',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
         },
       ],
     },

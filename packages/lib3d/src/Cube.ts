@@ -13,19 +13,19 @@
  * Last modified  : 2019-01-31 10:33:27
  */
 
-import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+import * as THREE from 'three';
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 
 import {
   ICubeJSON,
   ICubeParams,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
+  OperationsArray,
+} from './Interfaces';
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = "Cube";
+  public static typeName: string = 'Cube';
 
   /**
    * Creates a new Cube instance from json
@@ -33,7 +33,7 @@ export default class Cube extends PrimitiveObject {
    */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type !== Cube.typeName) {
-      throw new Error("Not Cube Object");
+      throw new Error('Not Cube Object');
     }
     let mesh: THREE.Mesh;
     let cube: Cube;
@@ -61,7 +61,7 @@ export default class Cube extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Cube.typeName;
@@ -98,11 +98,8 @@ export default class Cube extends PrimitiveObject {
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { width, height, depth } = this.parameters as ICubeParams;
+    let { width } = this.parameters as ICubeParams;
     width = Math.max(0, width);
-    height = Math.max(0, height);
-    depth = Math.max(0, depth);
-    // this._meshUpdateRequired = false;
-    return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
+    return new THREE.BoxGeometry(Number(width), Number(width), Number(width));
   }
 }

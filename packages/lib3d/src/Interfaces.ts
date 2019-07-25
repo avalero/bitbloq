@@ -99,6 +99,17 @@ export interface ICubeJSON extends IPrimitiveObjectJSON {
   parameters: ICubeParams;
 }
 
+// RectPrism
+export interface IRectPrismParams {
+  width: number;
+  depth: number;
+  height: number;
+}
+
+export interface IRectPrismJSON extends IPrimitiveObjectJSON {
+  parameters: IRectPrismParams;
+}
+
 // Cylinder
 export interface ICylinderParams {
   r0: number;
@@ -181,14 +192,14 @@ export interface IRepetitionParams {
 }
 
 export interface ICartesianRepetitionParams extends IRepetitionParams {
-  type: "cartesian";
+  type: 'cartesian';
   x: number;
   y: number;
   z: number;
 }
 
 export interface IPolarRepetitionParams extends IRepetitionParams {
-  type: "polar";
+  type: 'polar';
   angle: number;
   axis: string;
 }

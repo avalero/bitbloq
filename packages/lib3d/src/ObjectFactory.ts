@@ -4,29 +4,31 @@ import {
   ITextObjectJSON,
   ICompoundObjectJSON,
   ICubeJSON,
+  IRectPrismJSON,
   ICylinderJSON,
   IObjectsCommonJSON,
   IPrismJSON,
   IPyramidJSON,
   ISphereJSON,
-  ISTLJSON
-} from "./Interfaces";
-import Cube from "./Cube";
-import Cylinder from "./Cylinder";
-import Difference from "./Difference";
-import Intersection from "./Intersection";
-import ObjectsCommon from "./ObjectsCommon";
-import Prism from "./Prism";
-import TextObject from "./TextObject";
-import Pyramid from "./Pyramid";
-import Sphere from "./Sphere";
-import Union from "./Union";
+  ISTLJSON,
+} from './Interfaces';
+import Cube from './Cube';
+import RectPrism from './RectPrism';
+import Cylinder from './Cylinder';
+import Difference from './Difference';
+import Intersection from './Intersection';
+import ObjectsCommon from './ObjectsCommon';
+import Prism from './Prism';
+import TextObject from './TextObject';
+import Pyramid from './Pyramid';
+import Sphere from './Sphere';
+import Union from './Union';
 
-import ObjectsGroup from "./ObjectsGroup";
-import RepetitionObject from "./RepetitionObject";
-import Scene from "./Scene";
-import STLObject from "./STLObject";
-import PredesignedObject from "./PredesignedObject";
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
+import Scene from './Scene';
+import STLObject from './STLObject';
+import PredesignedObject from './PredesignedObject';
 
 export default class ObjectFactory {
   /**
@@ -39,7 +41,21 @@ export default class ObjectFactory {
   ): ObjectsCommon {
     switch (obj.type) {
       case Cube.typeName:
-        return Cube.newFromJSON(obj as ICubeJSON);
+        // legacy fix
+        // Cubes had originally three parameters, now they have one.
+        // Cube with 3 parameters is a RectPrism
+        const aux: ICubeJSON = obj as ICubeJSON;
+        const width = aux.parameters.width;
+        const depth = aux.parameters.depth || 0;
+        const height = aux.parameters.height || 0;
+
+        if (width === height && height === depth) {
+          return Cube.newFromJSON(obj as ICubeJSON);
+        }
+        obj.type = RectPrism.typeName;
+        return RectPrism.newFromJSON(obj as IRectPrismJSON);
+      case RectPrism.typeName:
+        return RectPrism.newFromJSON(obj as IRectPrismJSON);
       case Cylinder.typeName:
         return Cylinder.newFromJSON(obj as ICylinderJSON);
       case Sphere.typeName:
@@ -69,6 +85,6 @@ export default class ObjectFactory {
         return Intersection.newFromJSON(obj as ICompoundObjectJSON, scene);
     }
 
-    throw new Error("Unknown Primitive Object Type");
+    throw new Error('Unknown Primitive Object Type');
   }
 }
