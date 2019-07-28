@@ -1,15 +1,10 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-31 10:34:20
+/*
+ * File: SemiSemiCylinder.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
 import * as THREE from 'three';
@@ -22,25 +17,25 @@ import {
   ICylinderParams,
 } from './Interfaces';
 
-export default class Cylinder extends PrimitiveObject {
-  public static typeName: string = 'Cylinder';
+export default class SemiCylinder extends PrimitiveObject {
+  public static typeName: string = 'SemiCylinder';
 
-  public static newFromJSON(object: ICylinderJSON): Cylinder {
-    if (object.type !== Cylinder.typeName) {
-      throw new Error('Not Cylinder Object');
+  public static newFromJSON(object: ICylinderJSON): SemiCylinder {
+    if (object.type !== SemiCylinder.typeName) {
+      throw new Error('Not SemiCylinder Object');
     }
-    let cyl: Cylinder;
+    let cyl: SemiCylinder;
     let mesh: THREE.Mesh;
     if (object.mesh) {
       mesh = new THREE.ObjectLoader().parse(object.mesh);
-      cyl = new Cylinder(
+      cyl = new SemiCylinder(
         object.parameters,
         object.operations,
         object.viewOptions,
         mesh
       );
     } else {
-      cyl = new Cylinder(
+      cyl = new SemiCylinder(
         object.parameters,
         object.operations,
         object.viewOptions
@@ -62,7 +57,7 @@ export default class Cylinder extends PrimitiveObject {
       ...viewOptions,
     };
     super(vO, operations);
-    this.type = Cylinder.typeName;
+    this.type = SemiCylinder.typeName;
     this.setParameters(parameters);
 
     if (mesh) {
@@ -73,9 +68,9 @@ export default class Cylinder extends PrimitiveObject {
     }
   }
 
-  public clone(): Cylinder {
+  public clone(): SemiCylinder {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
-      const objCyl = new Cylinder(
+      const objCyl = new SemiCylinder(
         this.parameters as ICylinderParams,
         this.operations,
         this.viewOptions,
@@ -83,7 +78,7 @@ export default class Cylinder extends PrimitiveObject {
       );
       return objCyl;
     }
-    const obj = new Cylinder(
+    const obj = new SemiCylinder(
       this.parameters as ICylinderParams,
       this.operations,
       this.viewOptions
@@ -93,16 +88,25 @@ export default class Cylinder extends PrimitiveObject {
 
   protected getGeometry(): THREE.Geometry {
     let { r0, height } = this.parameters as ICylinderParams;
-    r0 = Math.max(0, r0);
-    height = Math.max(0, height);
+    r0 = Number(Math.max(0, r0));
+    height = Number(Math.max(0, height));
     // this._meshUpdateRequired = false;
 
-    return new THREE.CylinderGeometry(
-      Number(r0),
-      Number(r0),
-      Number(height),
-      18,
-      1
-    ).rotateX(Math.PI / 2);
+    const semiCircleShape: THREE.Shape = new THREE.Shape();
+
+    semiCircleShape.moveTo(-r0, 0);
+    semiCircleShape.lineTo(r0, 0);
+    semiCircleShape.absarc(0, 0, r0, 0, Math.PI, false);
+
+    const semiCylGeometry: THREE.ExtrudeGeometry = new THREE.ExtrudeGeometry(
+      semiCircleShape,
+      {
+        depth: height,
+        bevelEnabled: false,
+        curveSegments: Math.max(6, Math.min(r0 * 5, 12)),
+      }
+    );
+
+    return semiCylGeometry.translate(0, 0, -height / 2).rotateX(Math.PI / 2);
   }
 }

@@ -18,6 +18,7 @@ import {
 import Cube from './Cube';
 import RectPrism from './RectPrism';
 import Cylinder from './Cylinder';
+import SemiCylinder from './SemiCylinder';
 import TruncatedCone from './TruncatedCone';
 import Difference from './Difference';
 import Intersection from './Intersection';
@@ -90,6 +91,8 @@ export default class ObjectFactory {
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
       case TruncatedCone.typeName:
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
+      case SemiCylinder.typeName:
+        return SemiCylinder.newFromJSON(obj as ICylinderJSON);
       case Cone.typeName:
         return Cone.newFromJSON(obj as IConeJSON);
       case Sphere.typeName:

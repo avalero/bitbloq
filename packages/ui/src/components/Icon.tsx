@@ -52,6 +52,10 @@ import Trash from "./icons/Trash";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
+import Torus from "./icons/Torus";
+import RectangularPrism from "./icons/RectangularPrism";
+import Cone from "./icons/Cone"
+import TruncatedCone from "./icons/TruncatedCone";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -125,6 +129,14 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Plus />;
     case "prism":
       return <Prism />;
+    case "torus":
+      return <Torus />
+    case "rectangularPrism":
+      return <RectangularPrism />
+    case "cone":
+      return <Cone />
+    case "truncatedCone":
+      return <TruncatedCone />
     case "programming":
       return <Programming />;
     case "programming2":
