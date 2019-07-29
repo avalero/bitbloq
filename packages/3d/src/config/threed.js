@@ -100,6 +100,17 @@ const config = {
           },
         },
         {
+          type: 'Star',
+          label: 'object-type-star',
+          icon: <Icon name="torus" />,
+          parameters: {
+            r0: 10,
+            r1: 3,
+            height: 4,
+            peaks: 5,
+          },
+        },
+        {
           type: 'Prism',
           label: 'object-type-prism',
           icon: <Icon name="prism" />,
@@ -249,6 +260,37 @@ const config = {
       label: 'object-type-tube',
       icon: <Icon name="cylinder" />,
       parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-outer-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Star',
+      label: 'object-type-star',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'peaks',
+          label: 'param-peaks',
+          type: 'integer',
+          unit: 'mm',
+        },
         {
           name: 'r0',
           label: 'param-outer-radius',
