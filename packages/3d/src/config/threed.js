@@ -90,6 +90,16 @@ const config = {
           },
         },
         {
+          type: 'Tube',
+          label: 'object-type-tube',
+          icon: <Icon name="torus" />,
+          parameters: {
+            r0: 5,
+            r1: 3,
+            height: 10,
+          },
+        },
+        {
           type: 'Prism',
           label: 'object-type-prism',
           icon: <Icon name="prism" />,
@@ -150,25 +160,11 @@ const config = {
       parameters: () => [
         {
           name: 'width',
-          label: 'param-width',
+          label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
           min: 0,
         },
-        // {
-        //   name: 'depth',
-        //   label: 'param-depth',
-        //   type: 'integer',
-        //   unit: 'mm',
-        //   min: 0,
-        // },
-        // {
-        //   name: 'height',
-        //   label: 'param-height',
-        //   type: 'integer',
-        //   unit: 'mm',
-        //   min: 0,
-        // },
       ],
     },
     {
@@ -192,7 +188,7 @@ const config = {
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-bottom-radius',
+          label: 'param-radius',
           type: 'integer',
           unit: 'mm',
         },
@@ -217,7 +213,7 @@ const config = {
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-bottom-radius',
+          label: 'param-radius',
           type: 'integer',
           unit: 'mm',
         },
@@ -232,17 +228,42 @@ const config = {
     {
       name: 'Torus',
       label: 'object-type-torus',
-      icon: <Icon name="cylinder" />,
+      icon: <Icon name="torus" />,
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-inner-radius',
+          label: 'param-torus-radius',
           type: 'integer',
           unit: 'mm',
         },
         {
           name: 'r1',
-          label: 'param-tube-radius',
+          label: 'param-ring-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Tube',
+      label: 'object-type-tube',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-outer-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
           type: 'integer',
           unit: 'mm',
         },
@@ -255,16 +276,10 @@ const config = {
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-bottom-radius',
+          label: 'param-radius',
           type: 'integer',
           unit: 'mm',
         },
-        // {
-        //   name: 'r1',
-        //   label: 'param-top-radius',
-        //   type: 'integer',
-        //   unit: 'mm',
-        // },
         {
           name: 'height',
           label: 'param-height',

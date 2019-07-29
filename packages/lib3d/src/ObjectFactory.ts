@@ -14,11 +14,13 @@ import {
   ISTLJSON,
   ITruncatedConeJSON,
   ITorusJSON,
+  ITubeJSON,
 } from './Interfaces';
 import Cube from './Cube';
 import RectPrism from './RectPrism';
 import Cylinder from './Cylinder';
 import SemiCylinder from './SemiCylinder';
+import Tube from './Tube';
 import TruncatedCone from './TruncatedCone';
 import Difference from './Difference';
 import Intersection from './Intersection';
@@ -101,6 +103,8 @@ export default class ObjectFactory {
         return Torus.newFromJSON(obj as ITorusJSON);
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
+      case Tube.typeName:
+        return Tube.newFromJSON(obj as ITubeJSON);
       case Pyramid.typeName:
         return Pyramid.newFromJSON(obj as IPyramidJSON);
       case STLObject.typeName:

@@ -132,6 +132,17 @@ export interface ITruncatedConeJSON extends IPrimitiveObjectJSON {
   parameters: ITruncatedConeParams;
 }
 
+// Tube
+export interface ITubeParams {
+  r0: number;
+  r1: number;
+  height: number;
+}
+
+export interface ITubeJSON extends IPrimitiveObjectJSON {
+  parameters: ITubeParams;
+}
+
 // Cone
 export interface IConeParams {
   r0: number;

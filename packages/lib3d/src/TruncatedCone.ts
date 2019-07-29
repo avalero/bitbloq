@@ -92,6 +92,7 @@ export default class TruncatedCone extends PrimitiveObject {
     r1 = Math.max(0, r1);
     height = Math.max(0, height);
     // this._meshUpdateRequired = false;
+
     return new THREE.CylinderGeometry(
       Number(r1),
       Number(r0),
