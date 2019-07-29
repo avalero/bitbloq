@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const SvgTruncatedCone = props => (
   <svg width="1em" height="1em" viewBox="0 0 64 64" {...props}>
