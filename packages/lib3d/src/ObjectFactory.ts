@@ -14,10 +14,14 @@ import {
   ISTLJSON,
   ITruncatedConeJSON,
   ITorusJSON,
+  ITubeJSON,
+  IStarJSON,
 } from './Interfaces';
 import Cube from './Cube';
 import RectPrism from './RectPrism';
 import Cylinder from './Cylinder';
+import SemiCylinder from './SemiCylinder';
+import Tube from './Tube';
 import TruncatedCone from './TruncatedCone';
 import Difference from './Difference';
 import Intersection from './Intersection';
@@ -29,6 +33,7 @@ import Sphere from './Sphere';
 import Union from './Union';
 import Cone from './Cone';
 import Torus from './Torus';
+import Star from './Star';
 
 import ObjectsGroup from './ObjectsGroup';
 import RepetitionObject from './RepetitionObject';
@@ -90,6 +95,10 @@ export default class ObjectFactory {
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
       case TruncatedCone.typeName:
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
+      case Star.typeName:
+        return Star.newFromJSON(obj as IStarJSON);
+      case SemiCylinder.typeName:
+        return SemiCylinder.newFromJSON(obj as ICylinderJSON);
       case Cone.typeName:
         return Cone.newFromJSON(obj as IConeJSON);
       case Sphere.typeName:
@@ -98,6 +107,8 @@ export default class ObjectFactory {
         return Torus.newFromJSON(obj as ITorusJSON);
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
+      case Tube.typeName:
+        return Tube.newFromJSON(obj as ITubeJSON);
       case Pyramid.typeName:
         return Pyramid.newFromJSON(obj as IPyramidJSON);
       case STLObject.typeName:

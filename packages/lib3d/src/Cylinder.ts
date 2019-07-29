@@ -96,6 +96,7 @@ export default class Cylinder extends PrimitiveObject {
     r0 = Math.max(0, r0);
     height = Math.max(0, height);
     // this._meshUpdateRequired = false;
+
     return new THREE.CylinderGeometry(
       Number(r0),
       Number(r0),

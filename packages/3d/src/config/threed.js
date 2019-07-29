@@ -52,9 +52,18 @@ const config = {
           },
         },
         {
+          type: 'SemiCylinder',
+          label: 'object-type-semicylinder',
+          icon: <Icon name="semiCylinder" />,
+          parameters: {
+            r0: 5,
+            height: 10,
+          },
+        },
+        {
           type: 'Cone',
           label: 'object-type-cone',
-          icon: <Icon name="cylinder" />,
+          icon: <Icon name="cone" />,
           parameters: {
             r0: 5,
             r1: 0, // legacy, not used
@@ -64,7 +73,7 @@ const config = {
         {
           type: 'TruncatedCone',
           label: 'object-type-truncatedcone',
-          icon: <Icon name="cylinder" />,
+          icon: <Icon name="truncatedCode" />,
           parameters: {
             r0: 6,
             r1: 3,
@@ -74,10 +83,31 @@ const config = {
         {
           type: 'Torus',
           label: 'object-type-torus',
-          icon: <Icon name="cylinder" />,
+          icon: <Icon name="torus" />,
           parameters: {
             r0: 10,
             r1: 3,
+          },
+        },
+        {
+          type: 'Tube',
+          label: 'object-type-tube',
+          icon: <Icon name="torus" />,
+          parameters: {
+            r0: 5,
+            r1: 3,
+            height: 10,
+          },
+        },
+        {
+          type: 'Star',
+          label: 'object-type-star',
+          icon: <Icon name="star" />,
+          parameters: {
+            r0: 10,
+            r1: 3,
+            height: 4,
+            peaks: 5,
           },
         },
         {
@@ -103,7 +133,7 @@ const config = {
         {
           type: 'RectPrism',
           label: 'object-type-rectprism',
-          icon: <Icon name="cube" />,
+          icon: <Icon name="rectangularPrism" />,
           parameters: {
             width: 10,
             height: 10,
@@ -141,25 +171,11 @@ const config = {
       parameters: () => [
         {
           name: 'width',
-          label: 'param-width',
+          label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
           min: 0,
         },
-        // {
-        //   name: 'depth',
-        //   label: 'param-depth',
-        //   type: 'integer',
-        //   unit: 'mm',
-        //   min: 0,
-        // },
-        // {
-        //   name: 'height',
-        //   label: 'param-height',
-        //   type: 'integer',
-        //   unit: 'mm',
-        //   min: 0,
-        // },
       ],
     },
     {
@@ -183,7 +199,7 @@ const config = {
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-bottom-radius',
+          label: 'param-radius',
           type: 'integer',
           unit: 'mm',
         },
@@ -202,19 +218,94 @@ const config = {
       ],
     },
     {
-      name: 'Torus',
-      label: 'object-type-torus',
-      icon: <Icon name="cylinder" />,
+      name: 'SemiCylinder',
+      label: 'object-type-semicylinder',
+      icon: <Icon name="semicylinder" />,
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-inner-radius',
+          label: 'param-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Torus',
+      label: 'object-type-torus',
+      icon: <Icon name="torus" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-torus-radius',
           type: 'integer',
           unit: 'mm',
         },
         {
           name: 'r1',
-          label: 'param-tube-radius',
+          label: 'param-ring-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Tube',
+      label: 'object-type-tube',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-outer-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Star',
+      label: 'object-type-star',
+      icon: <Icon name="star" />,
+      parameters: () => [
+        {
+          name: 'peaks',
+          label: 'param-peaks',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r0',
+          label: 'param-outer-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
           type: 'integer',
           unit: 'mm',
         },
@@ -227,16 +318,10 @@ const config = {
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-bottom-radius',
+          label: 'param-radius',
           type: 'integer',
           unit: 'mm',
         },
-        // {
-        //   name: 'r1',
-        //   label: 'param-top-radius',
-        //   type: 'integer',
-        //   unit: 'mm',
-        // },
         {
           name: 'height',
           label: 'param-height',
@@ -248,7 +333,7 @@ const config = {
     {
       name: 'TruncatedCone',
       label: 'object-type-truncatedcone',
-      icon: <Icon name="cylinder" />,
+      icon: <Icon name="truncatedCone" />,
       parameters: () => [
         {
           name: 'r0',

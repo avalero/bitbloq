@@ -52,6 +52,12 @@ import Trash from "./icons/Trash";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
+import Torus from "./icons/Torus";
+import RectangularPrism from "./icons/RectangularPrism";
+import Cone from "./icons/Cone"
+import TruncatedCone from "./icons/TruncatedCone";
+import Star from "./icons/Star";
+import SemiCylinder from "./icons/SemiCylinder";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -125,6 +131,16 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Plus />;
     case "prism":
       return <Prism />;
+    case "torus":
+      return <Torus />
+    case "star":
+      return <Star />
+    case "rectangularPrism":
+      return <RectangularPrism />
+    case "cone":
+      return <Cone />
+    case "truncatedCone":
+      return <TruncatedCone />
     case "programming":
       return <Programming />;
     case "programming2":
@@ -151,6 +167,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Scale />;
     case "sphere":
       return <Sphere />;
+    case "semiCylinder":
+      return <SemiCylinder />;
     case "spinner":
       return <Spinner />;
     case "stl":
