@@ -1,7 +1,7 @@
 import React from "react";
 
 const SvgRectangularPrism = props => (
-  <svg width={64} height={64} {...props}>
+  <svg width="1em" height="1em" viewBox="0 0 64 64" {...props}>
     <defs>
       <linearGradient
         id="rectangular-prism_svg__a"

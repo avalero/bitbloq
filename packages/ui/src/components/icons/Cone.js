@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 
 const SvgCone = props => (
-  <svg viewBox="0 0 24 26" width="1em" height="1em" {...props}>
+  <svg width="1em" height="1em" viewBox="0 0 64 64" {...props}>
     <defs>
       <linearGradient
         id="cone_svg__a"
@@ -18,7 +18,6 @@ const SvgCone = props => (
       fill="url(#cone_svg__a)"
       fillRule="evenodd"
       d="M32 60.054c15.464 0 28-6.503 28-14.526 0-1.782-.619-3.489-1.75-5.066C54.289 34.937 32 4 32 4S9.711 34.937 5.75 40.462C4.617 42.039 4 43.746 4 45.528c0 8.023 12.535 14.526 28 14.526"
-      transform="translate(1.818 .364)"
     />
   </svg>
 );

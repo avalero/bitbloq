@@ -54,7 +54,7 @@ const config = {
         {
           type: 'SemiCylinder',
           label: 'object-type-semicylinder',
-          icon: <Icon name="cylinder" />,
+          icon: <Icon name="semiCylinder" />,
           parameters: {
             r0: 5,
             height: 10,
@@ -73,7 +73,7 @@ const config = {
         {
           type: 'TruncatedCone',
           label: 'object-type-truncatedcone',
-          icon: <Icon name="cylinder" />,
+          icon: <Icon name="truncatedCode" />,
           parameters: {
             r0: 6,
             r1: 3,
@@ -102,7 +102,7 @@ const config = {
         {
           type: 'Star',
           label: 'object-type-star',
-          icon: <Icon name="torus" />,
+          icon: <Icon name="star" />,
           parameters: {
             r0: 10,
             r1: 3,
@@ -283,7 +283,7 @@ const config = {
     {
       name: 'Star',
       label: 'object-type-star',
-      icon: <Icon name="cylinder" />,
+      icon: <Icon name="star" />,
       parameters: () => [
         {
           name: 'peaks',

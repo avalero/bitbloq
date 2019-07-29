@@ -56,6 +56,8 @@ import Torus from "./icons/Torus";
 import RectangularPrism from "./icons/RectangularPrism";
 import Cone from "./icons/Cone"
 import TruncatedCone from "./icons/TruncatedCone";
+import Star from "./icons/Star";
+import SemiCylinder from "./icons/SemiCylinder";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -131,6 +133,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Prism />;
     case "torus":
       return <Torus />
+    case "star":
+      return <Star />
     case "rectangularPrism":
       return <RectangularPrism />
     case "cone":
@@ -163,6 +167,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Scale />;
     case "sphere":
       return <Sphere />;
+    case "semiCylinder":
+      return <SemiCylinder />;
     case "spinner":
       return <Spinner />;
     case "stl":
