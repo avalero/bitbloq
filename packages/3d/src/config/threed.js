@@ -81,6 +81,14 @@ const config = {
           },
         },
         {
+          type: 'Octahedron',
+          label: 'object-type-octahedron',
+          icon: <Icon name="octahedron" />,
+          parameters: {
+            side: 10,
+          },
+        },
+        {
           type: 'Torus',
           label: 'object-type-torus',
           icon: <Icon name="torus" />,
@@ -306,6 +314,19 @@ const config = {
         {
           name: 'height',
           label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Octahedron',
+      label: 'object-type-octahedron',
+      icon: <Icon name="octahedron" />,
+      parameters: () => [
+        {
+          name: 'side',
+          label: 'param-side',
           type: 'integer',
           unit: 'mm',
         },

@@ -1,5 +1,5 @@
 /*
- * File: Cube.ts
+ * File: Octahedron.ts
  * Project: Bitbloq
  * License: MIT (https://opensource.org/licenses/MIT)
  * Bitbloq Repository: https://github.com/bitbloq
@@ -8,47 +8,48 @@
  */
 
 import * as THREE from 'three';
+
 import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
 
 import {
-  ICubeJSON,
-  ICubeParams,
+  IOctahedronJSON,
+  IOctahedronParams,
   IViewOptions,
   OperationsArray,
 } from './Interfaces';
 
-export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube';
+export default class Octahedron extends PrimitiveObject {
+  public static typeName: string = 'Octahedron';
 
-  /**
-   * Creates a new Cube instance from json
-   * @param object object descriptor
-   */
-  public static newFromJSON(object: ICubeJSON): Cube {
-    if (object.type !== Cube.typeName) {
-      throw new Error('Not Cube Object');
+  public static newFromJSON(object: IOctahedronJSON): Octahedron {
+    if (object.type !== Octahedron.typeName) {
+      throw new Error('Not Octahedron Object');
     }
+
+    let octahedron: Octahedron;
     let mesh: THREE.Mesh;
-    let cube: Cube;
     if (object.mesh) {
       mesh = new THREE.ObjectLoader().parse(object.mesh);
-      cube = new Cube(
+      octahedron = new Octahedron(
         object.parameters,
         object.operations,
         object.viewOptions,
         mesh
       );
     } else {
-      cube = new Cube(object.parameters, object.operations, object.viewOptions);
+      octahedron = new Octahedron(
+        object.parameters,
+        object.operations,
+        object.viewOptions
+      );
     }
-
-    cube.id = object.id || cube.id;
-    return cube;
+    octahedron.id = object.id || octahedron.id;
+    return octahedron;
   }
 
   constructor(
-    parameters: ICubeParams,
+    parameters: IOctahedronParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined
@@ -58,7 +59,7 @@ export default class Cube extends PrimitiveObject {
       ...viewOptions,
     };
     super(vO, operations);
-    this.type = Cube.typeName;
+    this.type = Octahedron.typeName;
     this.setParameters(parameters);
 
     if (mesh) {
@@ -69,31 +70,29 @@ export default class Cube extends PrimitiveObject {
     }
   }
 
-  /**
-   * Creates a cube clone (not sharing references)
-   */
-  public clone(): Cube {
+  public clone(): Octahedron {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
-      const cubeObj = new Cube(
-        this.parameters as ICubeParams,
+      const objOctahedron = new Octahedron(
+        this.parameters as IOctahedronParams,
         this.operations,
         this.viewOptions,
         (this.mesh as THREE.Mesh).clone()
       );
-      return cubeObj;
+      return objOctahedron;
     }
-
-    const cube = new Cube(
-      this.parameters as ICubeParams,
+    const obj = new Octahedron(
+      this.parameters as IOctahedronParams,
       this.operations,
       this.viewOptions
     );
-    return cube;
+    return obj;
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { width } = this.parameters as ICubeParams;
-    width = Math.max(0, Number(width));
-    return new THREE.BoxGeometry(Number(width), Number(width), Number(width));
+    let { side } = this.parameters as IOctahedronParams;
+    side = Math.max(0, Number(side));
+    const radius = 0.707 * side;
+    // this._meshUpdateRequired = false;
+    return new THREE.OctahedronGeometry(radius);
   }
 }
