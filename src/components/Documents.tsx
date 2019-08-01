@@ -104,7 +104,7 @@ class Documents extends React.Component<any, DocumentsState> {
   renderHeader() {
     return (
       <Header>
-        <h1>Mis Documentos</h1>
+        <h1>Mis documentos</h1>
         <div>
           <DropDown
             attachmentPosition={"top center"}

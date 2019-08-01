@@ -57,6 +57,15 @@ class EditDocument extends React.Component<EditDocumentProps, State> {
     saveAs(blob, `${title}.${type}.bitbloq`);
   };
 
+  onContentChange = content => {
+    const { document, updateDocument } = this.props;
+    updateDocument({
+      ...document,
+      content: JSON.stringify(content),
+      image: undefined
+    });
+  };
+
   renderInfoTab() {
     const { t, document, updateDocument } = this.props;
     const { id, title, description, content, image } = document;
@@ -111,13 +120,7 @@ class EditDocument extends React.Component<EditDocumentProps, State> {
           title={title}
           onEditTitle={this.onEditTitle}
           onSaveDocument={this.onSaveDocument}
-          onContentChange={content =>
-            updateDocument({
-              ...document,
-              content: JSON.stringify(content),
-              image: undefined
-            })
-          }
+          onContentChange={this.onContentChange}
         />
         {isEditTitleVisible && (
           <EditTitleModal
