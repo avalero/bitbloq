@@ -52,6 +52,16 @@ const config = {
           },
         },
         {
+          type: 'Pyramid',
+          label: 'object-type-pyramid',
+          icon: <Icon name="pyramid" />,
+          parameters: {
+            sides: 4,
+            length: 10,
+            height: 15,
+          },
+        },
+        {
           type: 'Cone',
           label: 'object-type-cone',
           icon: <Icon name="cone" />,
@@ -70,26 +80,6 @@ const config = {
           },
         },
         {
-          type: 'Prism',
-          label: 'object-type-prism',
-          icon: <Icon name="prism" />,
-          parameters: {
-            sides: 6,
-            length: 5,
-            height: 10,
-          },
-        },
-        {
-          type: 'Pyramid',
-          label: 'object-type-pyramid',
-          icon: <Icon name="pyramid" />,
-          parameters: {
-            sides: 4,
-            length: 10,
-            height: 15,
-          },
-        },
-        {
           type: 'RectPrism',
           label: 'object-type-rectprism',
           icon: <Icon name="rectangularPrism" />,
@@ -97,6 +87,16 @@ const config = {
             width: 10,
             height: 10,
             depth: 10,
+          },
+        },
+        {
+          type: 'Prism',
+          label: 'object-type-prism',
+          icon: <Icon name="prism" />,
+          parameters: {
+            sides: 6,
+            length: 5,
+            height: 10,
           },
         },
       ],
@@ -606,19 +606,19 @@ const config = {
             },
             {
               name: 'x',
-              label: 'param-x',
+              label: 'param-x-repetition',
               type: 'integer',
               unit: 'mm',
             },
             {
               name: 'y',
-              label: 'param-y',
+              label: 'param-y-repetition',
               type: 'integer',
               unit: 'mm',
             },
             {
               name: 'z',
-              label: 'param-z',
+              label: 'param-z-repetition',
               type: 'integer',
               unit: 'mm',
             },
@@ -1002,9 +1002,9 @@ const config = {
         parameters: {
           type: 'cartesian',
           num: 2,
-          x: 10,
-          y: 10,
-          z: 10,
+          x: 20,
+          y: 0,
+          z: 0,
         },
         operations: [],
       }),
