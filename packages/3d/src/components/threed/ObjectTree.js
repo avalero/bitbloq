@@ -9,6 +9,7 @@ import {
   selectObject,
   deselectObject,
   createObject,
+  deleteObject,
   updateObject
 } from "../../actions/threed";
 import { getObjects, getSelectedObjects } from "../../reducers/threed/";
@@ -70,8 +71,18 @@ const DragHandle = styled.div`
   }
 `;
 
+const ObjectTypeIcon = styled.div`
+  svg {
+    width: 12px;
+  }
+`;
+
+const DeleteObject = styled.div`
+  display: none;
+`;
+
 const ObjectName = styled.div`
-  padding: 0px 18px 0px 8px;
+  padding: 0px 8px 0px 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -82,6 +93,15 @@ const ObjectName = styled.div`
   font-size: 13px;
   height: 30px;
   margin-bottom: -1px;
+
+  &:hover {
+    ${DeleteObject} {
+      display: block;
+    }
+    ${ObjectTypeIcon} {
+      display: none;
+    }
+  }
 
   ${props =>
     props.isParent &&
@@ -136,12 +156,6 @@ const CollapseButton = styled.div`
     `};
 `;
 
-const ObjectTypeIcon = styled.div`
-  svg {
-    width: 12px;
-  }
-`;
-
 class ObjectTree extends React.Component {
   addDropdown = React.createRef();
 
@@ -178,6 +192,10 @@ class ObjectTree extends React.Component {
     }
 
     this.props.createObject(object);
+  };
+
+  onDeleteObject = object => {
+    this.props.deleteObject(object);
   };
 
   onDragEnd(result) {
@@ -277,6 +295,9 @@ class ObjectTree extends React.Component {
               )}
               <span>{object.viewOptions.name || object.type}</span>
               {icon && <ObjectTypeIcon>{icon}</ObjectTypeIcon>}
+              <DeleteObject onClick={() => this.onDeleteObject(object)}>
+                <Icon name="trash" />
+              </DeleteObject>
             </ObjectName>
             {!isCollapsed && this.renderObjectList(children, depth + 1, object)}
           </ObjectItem>
@@ -345,7 +366,8 @@ const mapDispatchToProps = dispatch => ({
     dispatch(selectObject(object, addToSelection)),
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
-  updateObject: object => dispatch(updateObject(object))
+  updateObject: object => dispatch(updateObject(object)),
+  deleteObject: object => dispatch(deleteObject(object))
 });
 
 export default connect(

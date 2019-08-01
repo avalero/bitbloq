@@ -60,6 +60,15 @@ interface DocumentIconProps {
 const DocumentIcon = styled.div`
   width: 70px;
   background-color: ${props => props.color || "#4dc3ff"};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 46px;
+    height: 46px;
+  }
 `;
 
 interface TitleProps {
@@ -201,6 +210,7 @@ export interface DocumentProps {
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
   onHeaderButtonClick?: HeaderButtonClickCallback;
+  icon?: JSX.Element;
 }
 
 interface State {
@@ -233,7 +243,8 @@ class Document extends React.Component<DocumentProps, State> {
       headerButtons = [],
       onHeaderButtonClick,
       tabIndex,
-      onTabChange
+      onTabChange,
+      icon
     } = this.props;
     const { isHeaderCollapsed } = this.state;
 
@@ -243,7 +254,9 @@ class Document extends React.Component<DocumentProps, State> {
       <Container>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
-            <DocumentIcon color={brandColor} />
+            <DocumentIcon color={brandColor}>
+              {icon}
+            </DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
                 {title}

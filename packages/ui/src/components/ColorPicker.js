@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import chroma from 'chroma-js';
-import {TwitterPicker} from 'react-color';
+import {SwatchesPicker} from 'react-color';
 import DropDown from './DropDown';
 
 const Container = styled.div`
@@ -57,15 +57,15 @@ export default class ColorPicker extends React.Component {
 
     return (
       <Container className={className}>
-        <DropDown closeOnClick={false}>
+        <DropDown>
           {isOpen =>
             <SquareWrap isOpen={isOpen}>
               <Square color={colorHex} />
             </SquareWrap>
           }
           <PickerWrap>
-            <TwitterPicker
-              triangle={position}
+            <SwatchesPicker
+              width={288}
               color={colorHex}
               onChangeComplete={this.onColorChange}
             />
