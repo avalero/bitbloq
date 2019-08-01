@@ -206,6 +206,25 @@ export interface ISphereJSON extends IObjectsCommonJSON {
   parameters: ISphereParams;
 }
 
+// Octahedrom
+export interface IOctahedronParams {
+  side: number;
+}
+
+export interface IOctahedronJSON extends IObjectsCommonJSON {
+  parameters: IOctahedronParams;
+}
+
+// Heart
+export interface IHeartParams {
+  side: number;
+  height: number;
+}
+
+export interface IHeartJSON extends IObjectsCommonJSON {
+  parameters: IHeartParams;
+}
+
 // STL Object
 export interface ISTLParams {
   url?: string;

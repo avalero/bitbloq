@@ -96,7 +96,7 @@ export default class Star extends PrimitiveObject {
 
     const angleStep: number = Math.PI / peaks;
     let angle: number = 0;
-    debugger;
+
     for (let i = 1; i <= peaks; i += 1) {
       angle += angleStep;
       let x = r1 * Math.cos(angle);

@@ -54,6 +54,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
     'TruncatedCone',
     'SemiCylinder',
     'Torus',
+    'Octahedron',
     'RectPrism',
     'Star',
     'Heart',
