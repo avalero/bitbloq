@@ -34,7 +34,17 @@ const StyledSelect = styled(Select)`
   flex: 1;
 `;
 
-const IntegerProperty = ({ label, value, onChange, onFocus, onBlur, unit }) => (
+const IntegerProperty = ({
+  label,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  unit,
+  fineStep,
+  minValue,
+  maxValue
+}) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <NumberInput
@@ -43,6 +53,9 @@ const IntegerProperty = ({ label, value, onChange, onFocus, onBlur, unit }) => (
       onChange={value => onChange(value)}
       onFocus={onFocus}
       onBlur={onBlur}
+      fineStep={fineStep}
+      minValue={minValue}
+      maxValue={maxValue}
     />
   </FormGroup>
 );
@@ -126,6 +139,9 @@ const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
         <IntegerProperty
           label={parameter.label}
           unit={parameter.unit}
+          fineStep={parameter.fineStep}
+          minValue={parameter.minValue}
+          maxValue={parameter.maxValue}
           value={value}
           onChange={onChange}
           onFocus={onFocus}

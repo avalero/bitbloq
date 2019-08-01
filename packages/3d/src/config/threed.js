@@ -881,20 +881,28 @@ const config = {
       }),
       parameters: [
         {
-          name: 'x',
-          label: 'param-x',
-          type: 'integer',
-        },
-        {
-          name: 'y',
-          label: 'param-y',
-          type: 'integer',
-        },
-        {
-          name: 'z',
-          label: 'param-z',
-          type: 'integer',
-        },
+          type: 'proportional-group',
+          parameters: [
+            {
+              name: 'x',
+              label: 'param-x',
+              fineStep: 0.1,
+              minValue: 0.01
+            },
+            {
+              name: 'y',
+              label: 'param-y',
+              fineStep: 0.1,
+              minValue: 0.01
+            },
+            {
+              name: 'z',
+              label: 'param-z',
+              fineStep: 0.1,
+              minValue: 0.01
+            },
+          ]
+        }
       ],
     },
     {

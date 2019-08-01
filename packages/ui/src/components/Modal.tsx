@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "@emotion/styled";
 import Icon from "./Icon";
+import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
 interface ModalProps {
@@ -25,12 +26,15 @@ export default class Modal extends React.Component<ModalProps> {
       <Overlay onClick={onClose}>
         <Container onClick={e => e.stopPropagation()}>
           {showHeader && (
-            <Header>
-              <Title>{title}</Title>
-              <Close onClick={onClose}>
-                <Icon name="close" />
-              </Close>
-            </Header>
+            <>
+              <Header>
+                <Title>{title}</Title>
+                <Close onClick={onClose}>
+                  <Icon name="close" />
+                </Close>
+              </Header>
+              <HorizontalRule small />
+            </>
           )}
           <div>{children}</div>
         </Container>
@@ -64,7 +68,6 @@ const Container = styled.div`
 const Header = styled.div`
   display: flex;
   height: 60px;
-  border-bottom: 1px solid ${colors.gray2};
 `;
 
 const Title = styled.div`
@@ -74,7 +77,6 @@ const Title = styled.div`
   padding: 0px 30px;
   display: flex;
   align-items: center;
-  border-right: 1px solid ${colors.gray2};
 `;
 
 const Close = styled.div`

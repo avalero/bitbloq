@@ -20,10 +20,10 @@ class Root extends React.Component {
     });
   }
 
-  exportToSTL() {
+  exportToSTL(name, separate) {
     const state = this.store.getState();
     const scene = state.threed.scene.sceneInstance;
-    scene.exportToSTLAsync();
+    scene.exportToSTLAsync(name, separate);
   }
 
   render() {

@@ -233,6 +233,10 @@ class PropertiesPanel extends React.Component {
     }
   };
 
+  onOperationChange = (object, operation) => {
+    this.props.updateOperation(object, operation);
+  };
+
   onDragStart = () => {
     this.setState({ draggingOperations: true });
   };
@@ -431,6 +435,7 @@ class PropertiesPanel extends React.Component {
           onParameterChange={(operation, parameter, value) =>
             this.onOperationParameterChange(object, operation, parameter, value)
           }
+          onOperationChange={operation => this.onOperationChange(object, operation)}
           onParameterFocus={(operation, parameter) => {
             if (parameter.activeOperation) {
               setActiveOperation(parameter.activeOperation(object, operation));

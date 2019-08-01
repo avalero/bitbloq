@@ -56,6 +56,9 @@ Icons:
   <Icon name="intersection" /><span> intersection</span>
 </div>
 <div>
+  <Icon name="logo3d" /><span> logo3d</span>
+</div>
+<div>
   <Icon name="minus" /><span> minus</span>
 </div>
 <div>

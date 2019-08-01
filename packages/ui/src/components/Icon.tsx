@@ -13,18 +13,25 @@ import Cylinder from "./icons/Cylinder";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
 import Download from "./icons/Download";
+import DownloadDocument from "./icons/DownloadDocument";
 import Drag from "./icons/Drag";
 import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
+import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
+import ExportSTL from "./icons/ExportSTL";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
+import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Intersection from "./icons/Intersection";
 import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
+import OpenDocument from "./icons/OpenDocument";
 import Orthographic from "./icons/Orthographic";
+import PadlockClose from "./icons/PadlockClose";
+import PadlockOpen from "./icons/PadlockOpen";
 import Pencil from "./icons/Pencil";
 import Perspective from "./icons/Perspective";
 import Plus from "./icons/Plus";
@@ -60,6 +67,7 @@ import Star from "./icons/Star";
 import SemiCylinder from "./icons/SemiCylinder";
 import Octahedron from "./icons/Octahedron";
 // import Heart from "./icons/Heart";
+import Logo3D from "./icons/Logo3D";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -101,18 +109,26 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Difficulty />;
     case "download":
       return <Download />;
+    case "download-document":
+      return <DownloadDocument />;
     case "drag":
       return <Drag />;
     case "dropdown":
       return <Dropdown />;
     case "duplicate":
       return <Duplicate />;
+    case "earth":
+      return <Earth />;
     case "ellipsis":
       return <Ellipsis />;
+    case "export-stl":
+      return <ExportSTL />;
     case "group":
       return <Group />;
     case "hardware":
       return <Hardware />;
+    case "import-stl":
+      return <ImportSTL />;
     case "info":
       return <Info />;
     case "intersection":
@@ -123,8 +139,14 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Minus />;
     case "new-document":
       return <NewDocument />;
+    case "open-document":
+      return <OpenDocument />;
     case "orthographic":
       return <Orthographic />;
+    case "padlock-open":
+      return <PadlockOpen />;
+    case "padlock-close":
+      return <PadlockClose />;
     case "people":
       return <People />;
     case "pencil":
@@ -191,6 +213,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Ungroup />;
     case "union":
       return <Union />;
+    case "logo3d":
+      return <Logo3D />;
     default:
       console.warn("Icon not found");
       return null;

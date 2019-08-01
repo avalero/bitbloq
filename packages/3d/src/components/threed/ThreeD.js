@@ -29,7 +29,7 @@ const AdvanceModeWrap = styled.div`
 
   span {
     font-size: 14px;
-    margin-right: 10px;
+    margin: 0px 10px;
   }
 `;
 
@@ -119,8 +119,9 @@ class ThreeD extends React.Component {
 
     const menuRightContent = (
       <AdvanceModeWrap>
+        <span>{t('menu-basic-mode')}</span>
+        <Switch value={advancedMode} onChange={setAdvancedMode} leftRight />
         <span>{t('menu-advanced-mode')}</span>
-        <Switch value={advancedMode} onChange={setAdvancedMode} />
       </AdvanceModeWrap>
     );
 
@@ -148,6 +149,7 @@ class ThreeD extends React.Component {
     return (
       <Document
         title={title || t('untitled-project')}
+        icon={<Icon name="logo3d" />}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
         onEditTitle={onEditTitle}

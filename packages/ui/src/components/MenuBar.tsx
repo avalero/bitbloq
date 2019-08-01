@@ -77,6 +77,11 @@ const MainOption = styled(Option)`
   }
 `;
 
+const Divider = styled.div`
+  height: 1px;
+  background-color: #cfcfcf;
+`;
+
 interface ContainerProps {
   disabled: boolean;
 }
@@ -143,23 +148,29 @@ class MenuBar extends React.Component<MenuBarProps, State> {
   renderSubMenu(options: MenuOption[], isTop?: boolean) {
     return (
       <SubMenu isTop={isTop}>
-        {options.map(option => (
-          <Option key={option.id} onClick={() => this.onOptionClick(option)}>
-            {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
-            <OptionText>{option.label}</OptionText>
-            {option.children && (
-              <RightArrow>
-                <Icon name="arrow" />
-              </RightArrow>
-            )}
-            {option.children && this.renderSubMenu(option.children)}
-            {option.checked && (
-              <Tick>
-                <Icon name="tick" />
-              </Tick>
-            )}
-          </Option>
-        ))}
+        {options.map((option, i) => {
+          if (option.divider) {
+            return <Divider key={`divider-${i}`} />;
+          }
+
+          return (
+            <Option key={option.id} onClick={() => this.onOptionClick(option)}>
+              {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
+              <OptionText>{option.label}</OptionText>
+              {option.children && (
+                <RightArrow>
+                  <Icon name="arrow" />
+                </RightArrow>
+              )}
+              {option.children && this.renderSubMenu(option.children)}
+              {option.checked && (
+                <Tick>
+                  <Icon name="tick" />
+                </Tick>
+              )}
+            </Option>
+          );
+        })}
       </SubMenu>
     );
   }

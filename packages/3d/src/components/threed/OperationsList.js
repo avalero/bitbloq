@@ -74,6 +74,7 @@ export default class OperationsList extends React.Component {
     const {
       operations,
       onParameterChange,
+      onOperationChange,
       onParameterFocus,
       onParameterBlur,
       onRemoveOperation,
@@ -103,6 +104,7 @@ export default class OperationsList extends React.Component {
                 onParameterChange={(parameter, value) =>
                   onParameterChange(operation, parameter, value)
                 }
+                onOperationChange={o => onOperationChange(o)}
                 onParameterFocus={parameter =>
                   onParameterFocus(operation, parameter)
                 }
