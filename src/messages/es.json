@@ -1,5 +1,6 @@
 {
-  "basic-shapes": "Formas básicas",
+  "basic-shapes": "Figuras básicas",
+  "other-shapes": "Otras figuras",
   "city-elements": "Elementos de ciudad",
   "people": "Personas",
   "shape-car": "Coche",
@@ -57,6 +58,7 @@
   "navigation-front": "frontal",
   "navigation-back": "posterior",
   "add-object": "Añadir Objeto",
+  "object-type-octahedron": "Octaedro",
   "object-type-star": "Estrella",
   "object-type-cube": "Cubo",
   "object-type-sphere": "Esfera",

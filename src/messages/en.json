@@ -1,4 +1,6 @@
 {
+  "basic-shapes": "Basic geometries",
+  "other-shapes": "Derived geometries",
   "menu-file": "File",
   "city-elements": "City elements",
   "people": "People",
@@ -57,6 +59,7 @@
   "navigation-back": "back",
   "add-object": "Add object",
   "object-type-star": "Star",
+  "object-type-octahedron": "Octahedron",
   "object-type-cube": "Cube",
   "object-type-sphere": "Sphere",
   "object-type-cylinder": "Cylinder",
