@@ -70,6 +70,13 @@ const ValueText = styled.span`
 `;
 
 export default class NumberInput extends React.Component {
+  static defaultProps = {
+    minValue: -Infinity,
+    maxValue: Infinity,
+    fineStep: 1,
+    step: 1
+  }
+
   constructor(props) {
     super(props);
 
@@ -81,6 +88,10 @@ export default class NumberInput extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.input.current.addEventListener('wheel', this.onWheel, {passive: false});
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const {value} = this.props;
     const {focused, text} = this.state;
@@ -90,7 +101,7 @@ export default class NumberInput extends React.Component {
     }
 
     const numberValue = Number(text) || 0;
-    if (Number(value) !== numberValue) {
+    if (Number(value) !== numberValue && !focused) {
       this.setState({
         text: Number(value) ? Number(value).toString() : ''
       });
@@ -98,14 +109,15 @@ export default class NumberInput extends React.Component {
   }
 
   onChange = e => {
-    const {onChange} = this.props;
+    const {onChange, minValue, maxValue} = this.props;
 
     this.setState({
       text: e.target.value
     });
 
     if (onChange) {
-      onChange(Number(e.target.value) || 0);
+      const newValue = Math.min(Math.max(Number(e.target.value) || 0, minValue), maxValue);
+      onChange(newValue);
     }
   };
 
@@ -138,12 +150,12 @@ export default class NumberInput extends React.Component {
   }
 
   onWheel = (e) => {
-    const delta = e.nativeEvent.wheelDelta;
+    const delta = e.wheelDelta;
     e.preventDefault();
     if (delta > 0) {
-      this.increment(Math.round(delta / 240));
+      setTimeout(() => this.increment(Math.round(delta / 240)));
     } else {
-      this.decrement(Math.round((-delta) / 240));
+      setTimeout(() => this.decrement(Math.round((-delta) / 240)));
     }
   }
 
@@ -171,24 +183,26 @@ export default class NumberInput extends React.Component {
   };
 
   decrement = (count = 1) => {
-    const {value, onChange, fineStep = 1, step = 1, minValue = -Infinity} = this.props;
+    const {value, onChange, fineStep, step, minValue} = this.props;
 
     const finalStep = value <= 1 && value > 0 ? fineStep : step;
     const newValue = Math.round((Number(value) - (finalStep * count)) * 100) / 100;
 
     if (newValue >= minValue && onChange) {
       onChange(newValue)
+      this.setState({ text: newValue.toString() });
     }
   }
 
   increment = (count = 1) => {
-    const {value, onChange, fineStep = 1, step = 1, maxValue = Infinity} = this.props;
+    const {value, onChange, fineStep, step, maxValue} = this.props;
 
     const finalStep = value < 1 && value >= 0 ? fineStep : step;
     const newValue = Math.round((Number(value) + (finalStep * count)) * 100) / 100;
 
     if (newValue <= maxValue && onChange) {
       onChange(newValue)
+      this.setState({ text: newValue.toString() });
     }
   }
 
@@ -209,7 +223,6 @@ export default class NumberInput extends React.Component {
           type="number"
           onFocus={this.onFocus}
           onBlur={this.onBlur}
-          onWheel={this.onWheel}
           onKeyPress={this.onKeyPress}
           onKeyDown={this.onKeyPress}
         />

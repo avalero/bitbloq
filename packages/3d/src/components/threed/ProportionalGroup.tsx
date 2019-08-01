@@ -42,9 +42,8 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
     return (
       <Container>
         {parameters.map((parameter, i) => (
-          <>
+          <React.Fragment key={parameter.name}>
             <PropertyInput
-              key={parameter.name}
               parameter={{ ...parameter, type: "integer" }}
               value={operation[parameter.name]}
               onChange={(value: any) =>
@@ -54,7 +53,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
             {i > 0 && (
               <Line style={{ transform: `translate(0, ${(i - 1) * 46}px)` }} />
             )}
-          </>
+          </React.Fragment>
         ))}
         <LockButton onClick={() => this.setState({ isLocked: !isLocked })}>
           <Icon name={isLocked ? "padlock-close" : "padlock-open"} />
