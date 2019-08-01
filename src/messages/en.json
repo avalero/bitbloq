@@ -1,6 +1,7 @@
 {
+  "object-type-heart": "Heart",
   "basic-shapes": "Basic geometries",
-  "other-shapes": "Derived geometries",
+  "other-shapes": "Other geometries",
   "menu-file": "File",
   "city-elements": "City elements",
   "people": "People",
@@ -132,6 +133,9 @@
   "param-font": "Font",
   "param-base-object": "Base object",
   "param-repetitions": "Repetitions",
+  "param-x-repetition": "X distance",
+  "param-y-repetition": "Y distance",
+  "param-z-repetition": "Z distance",
   "status-position": "Position (mm):",
   "status-rotation": "Rotation (grads):",
   "untitled-project": "Untitled project",
