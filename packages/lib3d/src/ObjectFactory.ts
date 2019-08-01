@@ -69,6 +69,7 @@ export default class ObjectFactory {
         ) {
           delete auxCubeJSON.parameters.depth;
           delete auxCubeJSON.parameters.height;
+          obj.type = Cube.typeName;
           return Cube.newFromJSON(obj as ICubeJSON);
         }
 
@@ -89,19 +90,21 @@ export default class ObjectFactory {
         const auxCylJSON = obj as ICylinderJSON;
         const r0 = auxCylJSON.parameters.r0;
         const r1 = auxCylJSON.parameters.r1 || -1;
-        const cylHeight = auxCylJSON.parameters.height;
 
         // pure cylinder
-        if (r0 === r1) {
+        if (r0 === r1 || r1 === -1) {
           delete auxCylJSON.parameters.r1;
+          obj.type = Cylinder.typeName;
           return Cylinder.newFromJSON(obj as ICylinderJSON);
         }
 
         if (r1 === 0) {
           delete auxCylJSON.parameters.r1;
+          obj.type = Cone.typeName;
           return Cone.newFromJSON(obj as IConeJSON);
         }
         // Truncated Cone
+        obj.type = TruncatedCone.typeName;
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
       case TruncatedCone.typeName:
         return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
