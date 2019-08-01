@@ -52,21 +52,65 @@ const config = {
           },
         },
         {
-          type: 'SemiCylinder',
-          label: 'object-type-semicylinder',
-          icon: <Icon name="semiCylinder" />,
-          parameters: {
-            r0: 5,
-            height: 10,
-          },
-        },
-        {
           type: 'Cone',
           label: 'object-type-cone',
           icon: <Icon name="cone" />,
           parameters: {
             r0: 5,
             r1: 0, // legacy, not used
+            height: 10,
+          },
+        },
+        {
+          type: 'Octahedron',
+          label: 'object-type-octahedron',
+          icon: <Icon name="octahedron" />,
+          parameters: {
+            side: 10,
+          },
+        },
+        {
+          type: 'Prism',
+          label: 'object-type-prism',
+          icon: <Icon name="prism" />,
+          parameters: {
+            sides: 6,
+            length: 5,
+            height: 10,
+          },
+        },
+        {
+          type: 'Pyramid',
+          label: 'object-type-pyramid',
+          icon: <Icon name="pyramid" />,
+          parameters: {
+            sides: 4,
+            length: 10,
+            height: 15,
+          },
+        },
+        {
+          type: 'RectPrism',
+          label: 'object-type-rectprism',
+          icon: <Icon name="rectangularPrism" />,
+          parameters: {
+            width: 10,
+            height: 10,
+            depth: 10,
+          },
+        },
+      ],
+    },
+    {
+      label: 'other-shapes',
+      icon: <Icon name="basic-shapes" />,
+      shapes: [
+        {
+          type: 'SemiCylinder',
+          label: 'object-type-semicylinder',
+          icon: <Icon name="semiCylinder" />,
+          parameters: {
+            r0: 5,
             height: 10,
           },
         },
@@ -78,14 +122,6 @@ const config = {
             r0: 6,
             r1: 3,
             height: 10,
-          },
-        },
-        {
-          type: 'Octahedron',
-          label: 'object-type-octahedron',
-          icon: <Icon name="octahedron" />,
-          parameters: {
-            side: 10,
           },
         },
         {
@@ -119,33 +155,12 @@ const config = {
           },
         },
         {
-          type: 'Prism',
-          label: 'object-type-prism',
-          icon: <Icon name="prism" />,
+          type: 'Heart',
+          label: 'object-type-heart',
+          icon: <Icon name="torus" />,
           parameters: {
-            sides: 6,
-            length: 5,
-            height: 10,
-          },
-        },
-        {
-          type: 'Pyramid',
-          label: 'object-type-pyramid',
-          icon: <Icon name="pyramid" />,
-          parameters: {
-            sides: 4,
-            length: 10,
-            height: 15,
-          },
-        },
-        {
-          type: 'RectPrism',
-          label: 'object-type-rectprism',
-          icon: <Icon name="rectangularPrism" />,
-          parameters: {
-            width: 10,
-            height: 10,
-            depth: 10,
+            side: 10,
+            height: 3,
           },
         },
         {
@@ -365,6 +380,25 @@ const config = {
         {
           name: 'r1',
           label: 'param-top-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Heart',
+      label: 'object-type-heart',
+      icon: <Icon name="heart" />,
+      parameters: () => [
+        {
+          name: 'side',
+          label: 'param-depth',
           type: 'integer',
           unit: 'mm',
         },

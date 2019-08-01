@@ -17,6 +17,7 @@ import {
   ITorusJSON,
   ITubeJSON,
   IStarJSON,
+  IHeartJSON,
 } from './Interfaces';
 import Cube from './Cube';
 import RectPrism from './RectPrism';
@@ -36,7 +37,7 @@ import Cone from './Cone';
 import Torus from './Torus';
 import Star from './Star';
 import Octahedron from './Octahedron';
-
+import Heart from './Heart';
 import ObjectsGroup from './ObjectsGroup';
 import RepetitionObject from './RepetitionObject';
 import Scene from './Scene';
@@ -76,6 +77,8 @@ export default class ObjectFactory {
         return RectPrism.newFromJSON(obj as IRectPrismJSON);
       case RectPrism.typeName:
         return RectPrism.newFromJSON(obj as IRectPrismJSON);
+      case Heart.typeName:
+        return Heart.newFromJSON(obj as IHeartJSON);
       case Octahedron.typeName:
         return Octahedron.newFromJSON(obj as IOctahedronJSON);
       case Cylinder.typeName:

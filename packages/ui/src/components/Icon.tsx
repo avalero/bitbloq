@@ -54,11 +54,12 @@ import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
 import Torus from "./icons/Torus";
 import RectangularPrism from "./icons/RectangularPrism";
-import Cone from "./icons/Cone"
+import Cone from "./icons/Cone";
 import TruncatedCone from "./icons/TruncatedCone";
 import Star from "./icons/Star";
 import SemiCylinder from "./icons/SemiCylinder";
 import Octahedron from "./icons/Octahedron";
+// import Heart from "./icons/Heart";
 
 export interface IconProps {
   /** Name of the icon to display */
