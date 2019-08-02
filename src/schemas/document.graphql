@@ -3,9 +3,7 @@
 # import File from "./upload.graphql"
 # import Upload from "./scalars.graphql"
 
-directive @authRequired(
-  requires: [Role] = [ADMIN],
-) on QUERY | FIELD
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 enum Role {
   ADMIN
@@ -14,16 +12,26 @@ enum Role {
 }
 
 type Query {
-  documents: [Document]               @authRequired(requires: [USER])
-  document(id: ObjectID!): Document   @authRequired(requires: [USER])
+  documents: [Document] @authRequired(requires: [ADMIN, USER])
+  document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
+  openPublicDocument(id: ObjectID!): Document
+    @authRequired(requires: [ADMIN, USER])
 }
 type Mutation {
-  createDocument(input: DocumentIn!): Document                      @authRequired(requires: [USER])
-  deleteDocument(id: ObjectID!): Document                           @authRequired(requires: [USER])
-  updateDocument(id: ObjectID!, input: DocumentIn): Document        @authRequired(requires: [USER])
+  createDocument(input: DocumentIn!): Document
+    @authRequired(requires: [ADMIN, USER])
+  deleteDocument(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
+  updateDocument(id: ObjectID!, input: DocumentIn): Document
+    @authRequired(requires: [ADMIN, USER])
+  updateDocumentContent(id: ObjectID, content: String, cache: String): Document
+    @authRequired(requires: [ADMIN, USER])
+  publishDocument(id: ObjectID!, public: Boolean): Document
+    @authRequired(requires: [ADMIN])
+  openDocumentCopy(id: ObjectID!): Document
+    @authRequired(requires: [ADMIN, USER])
 }
 type Subscription {
-  documentUpdated: Document   @authRequired(requires: [USER])
+  documentUpdated: Document @authRequired(requires: [USER])
 }
 
 type Document {
@@ -37,6 +45,7 @@ type Document {
   description: String
   version: String
   image: String
+  public: Boolean
   createdAt: Date
   updatedAt: Date
   exercises: [Exercise]

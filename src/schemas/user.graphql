@@ -2,9 +2,7 @@
 # import Document from "./document.graphql"
 # import Folder from "./folder.graphql"
 
-directive @authRequired(
-  requires: [Role] = [ADMIN],
-) on QUERY | FIELD
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 enum Role {
   ADMIN
@@ -13,8 +11,8 @@ enum Role {
 }
 
 type Query {
-  users: [User]   @authRequired(requires: [ADMIN])
-  me: User        @authRequired(requires: [USER])
+  users: [User] @authRequired(requires: [ADMIN])
+  me: User @authRequired(requires: [ADMIN, USER])
 }
 type Mutation {
   signUpUser(input: UserIn!): String
@@ -22,14 +20,16 @@ type Mutation {
   login(email: EmailAddress!, password: String!): String
   resetPasswordEmail(email: EmailAddress!): String
   updatePassword(token: String, newPassword: String): String
-  deleteUser(id: ObjectID!): User                           @authRequired(requires: [USER])
-  updateUser(id: ObjectID!, input: UserIn!): User           @authRequired(requires: [USER])
+  deleteUser(id: ObjectID!): User @authRequired(requires: [ADMIN, USER])
+  updateUser(id: ObjectID!, input: UserIn!): User
+    @authRequired(requires: [ADMIN, USER])
 }
 
 type User {
   id: ObjectID
   email: EmailAddress
   password: String
+  admin: Boolean
   name: String
   center: String
   active: Boolean

@@ -1,9 +1,7 @@
 # import Date, ObjectID from "./scalars.graphql"
 # import Exercise from "./exercise.graphql"
 
-directive @authRequired(
-  requires: [Role] = [ADMIN],
-) on QUERY | FIELD
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 enum Role {
   ADMIN
@@ -12,20 +10,37 @@ enum Role {
 }
 
 type Query {
-  submissions: [Submission]                                 @authRequired(requires: [USER])
-  submission(id: ObjectID): Submission                      @authRequired(requires: [EPHEMERAL, USER])
-  submissionsByExercise(exercise: ObjectID!): [Submission]  @authRequired(requires: [USER])
+  submissions: [Submission] @authRequired(requires: [USER])
+  submission(id: ObjectID): Submission
+    @authRequired(requires: [EPHEMERAL, USER])
+  submissionsByExercise(exercise: ObjectID!): [Submission]
+    @authRequired(requires: [USER])
 }
 type Mutation {
-  loginSubmission(exerciseCode: String!, studentNick: String!, password: String!): loginOut
-  updateSubmission(input: SubmissionIn): Submission                                           @authRequired(requires: [EPHEMERAL])
-  finishSubmission(content: String, cache: String, studentComment: String): Submission   @authRequired(requires: [EPHEMERAL])
-  cancelSubmission: Submission                                                                @authRequired(requires: [EPHEMERAL])
-  deleteSubmission(submissionID: ObjectID!): Submission                                       @authRequired(requires: [USER])
-  gradeSubmission(submissionID: ObjectID, grade: Float, teacherComment: String): Submission   @authRequired(requires: [USER])
+  loginSubmission(
+    exerciseCode: String!
+    studentNick: String!
+    password: String!
+  ): loginOut
+  updateSubmission(input: SubmissionIn): Submission
+    @authRequired(requires: [EPHEMERAL])
+  finishSubmission(
+    content: String
+    cache: String
+    studentComment: String
+  ): Submission @authRequired(requires: [EPHEMERAL])
+  cancelSubmission: Submission @authRequired(requires: [EPHEMERAL])
+  deleteSubmission(submissionID: ObjectID!): Submission
+    @authRequired(requires: [USER])
+  gradeSubmission(
+    submissionID: ObjectID
+    grade: Float
+    teacherComment: String
+  ): Submission @authRequired(requires: [USER])
 }
 type Subscription {
-  submissionUpdated(exercise: ObjectID!): Submission   @authRequired(requires: [USER])
+  submissionUpdated(exercise: ObjectID!): Submission
+    @authRequired(requires: [USER])
 }
 
 type Submission {

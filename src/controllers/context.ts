@@ -32,7 +32,20 @@ const contextController = {
         return undefined;
       }
       // check if there is another open session
-      if (user.userID) {
+      console.log(user);
+      if (user.role === 'USER') {
+        const reply: string = await redisClient.getAsync(
+          'authToken-' + user.userID,
+        );
+        if (reply === justToken) {
+          return user;
+        } else {
+          throw new ApolloError(
+            'Token not valid. More than one session opened',
+            'ANOTHER_OPEN_SESSION',
+          );
+        }
+      } else if (user.role === 'ADMIN') {
         const reply: string = await redisClient.getAsync(
           'authToken-' + user.userID,
         );
@@ -67,6 +80,36 @@ const contextController = {
         throw new AuthenticationError('Token not value.');
       }
     }
+  },
+
+  generateLoginToken: async user => {
+    let token: string;
+    let role: string;
+    console.log(user);
+    if (user.admin) {
+      token = await jsonwebtoken.sign(
+        {
+          email: user.email,
+          userID: user._id,
+          role: 'ADMIN',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '4h' },
+      );
+      role = 'admin';
+    } else {
+      token = await jsonwebtoken.sign(
+        {
+          email: user.email,
+          userID: user._id,
+          role: 'USER',
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '4h' },
+      );
+      role = 'user';
+    }
+    return { token, role };
   },
 };
 

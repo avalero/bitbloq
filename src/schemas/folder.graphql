@@ -1,9 +1,7 @@
 # import Date, ObjectID from "./scalars.graphql"
 # import Document from "./document.graphql"
 
-directive @authRequired(
-  requires: [Role] = [ADMIN],
-) on QUERY | FIELD
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 enum Role {
   ADMIN
@@ -12,17 +10,18 @@ enum Role {
 }
 
 type Query {
-  folders: [Folder]                                   @authRequired(requires: [USER])
-  folder(id: ObjectID!): Folder                       @authRequired(requires: [USER])
-  rootFolder: Folder                                  @authRequired(requires: [USER])
+  folders: [Folder] @authRequired(requires: [ADMIN, USER])
+  folder(id: ObjectID!): Folder @authRequired(requires: [ADMIN, USER])
+  rootFolder: Folder @authRequired(requires: [ADMIN, USER])
 }
 type Mutation {
-  createFolder(input: FolderIn): Folder                 @authRequired(requires: [USER])
-  updateFolder(id: ObjectID!, input: FolderIn): Folder  @authRequired(requires: [USER])
-  deleteFolder(id: ObjectID!): Folder                   @authRequired(requires: [USER])
+  createFolder(input: FolderIn): Folder @authRequired(requires: [ADMIN, USER])
+  updateFolder(id: ObjectID!, input: FolderIn): Folder
+    @authRequired(requires: [ADMIN, USER])
+  deleteFolder(id: ObjectID!): Folder @authRequired(requires: [ADMIN, USER])
 }
 type Subscription {
-  folderUpdated: Folder   @authRequired(requires: [USER])
+  folderUpdated: Folder @authRequired(requires: [USER])
 }
 
 type Folder {
@@ -45,4 +44,3 @@ input FolderIn {
   foldersID: [ObjectID]
   parent: ObjectID
 }
-

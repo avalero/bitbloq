@@ -4,6 +4,7 @@ const timestamps = require('mongoose-timestamp');
 export interface IUser extends Document {
   email?: string;
   password?: string;
+  admin?: boolean;
   name?: string;
   center?: string;
   active?: boolean;
@@ -28,6 +29,11 @@ export const ContactSchema: Schema = new Schema({
   password: {
     type: String,
     required: true,
+  },
+
+  admin: {
+    type: Boolean,
+    default: false,
   },
 
   name: {

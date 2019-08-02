@@ -9,6 +9,7 @@ export interface IDocument extends Document {
   content?: string;
   cache?: string;
   image?: string;
+  public: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;
@@ -59,6 +60,11 @@ const DocumentMongSchema: Schema = new Schema({
   version: {
     type: String,
     default: 'version',
+  },
+
+  public: {
+    type: String,
+    default: false,
   },
 });
 

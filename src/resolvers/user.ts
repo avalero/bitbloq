@@ -123,15 +123,10 @@ const userResolver = {
         contactFound.password,
       );
       if (valid) {
-        const token: string = jsonwebtoken.sign(
-          {
-            email: contactFound.email,
-            userID: contactFound._id,
-            role: 'USER',
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: '4h' },
+        const { token, role } = await contextController.generateLoginToken(
+          contactFound,
         );
+
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
@@ -226,15 +221,11 @@ const userResolver = {
       }
       // Store the password with a hash
       const hash: string = await bcrypt.hash(newPassword, saltRounds);
-      const authToken: string = jsonwebtoken.sign(
-        {
-          email: contactFound.email,
-          userID: contactFound._id,
-          role: 'USER',
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '4h' },
-      );
+      const {
+        token: authToken,
+        role,
+      } = await contextController.generateLoginToken(contactFound);
+
       await UserModel.findOneAndUpdate(
         { _id: contactFound._id },
         {
@@ -278,14 +269,8 @@ const userResolver = {
         _id: userInToken.signUpUserID,
       });
       if (userInToken.signUpUserID && !contactFound.active) {
-        const token: string = jsonwebtoken.sign(
-          {
-            email: contactFound.email,
-            userID: contactFound._id,
-            role: 'USER',
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: '4h' },
+        const { token } = await contextController.generateLoginToken(
+          contactFound,
         );
         await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
