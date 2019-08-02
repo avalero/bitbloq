@@ -117,7 +117,7 @@ const config = {
         {
           type: 'TruncatedCone',
           label: 'object-type-truncatedcone',
-          icon: <Icon name="truncatedCode" />,
+          icon: <Icon name="truncatedcone" />,
           parameters: {
             r0: 6,
             r1: 3,
@@ -187,6 +187,31 @@ const config = {
   ],
 
   objectTypes: [
+    {
+      name: 'TruncatedCone',
+      label: 'object-type-truncatedcone',
+      icon: <Icon name="cone" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-bottom-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-top-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
     {
       name: 'Cube',
       label: 'object-type-cube',
@@ -350,36 +375,11 @@ const config = {
     {
       name: 'Cone',
       label: 'object-type-cone',
-      icon: <Icon name="cylinder" />,
+      icon: <Icon name="cone" />,
       parameters: () => [
         {
           name: 'r0',
           label: 'param-radius',
-          type: 'integer',
-          unit: 'mm',
-        },
-        {
-          name: 'height',
-          label: 'param-height',
-          type: 'integer',
-          unit: 'mm',
-        },
-      ],
-    },
-    {
-      name: 'TruncatedCone',
-      label: 'object-type-truncatedcone',
-      icon: <Icon name="truncatedcone" />,
-      parameters: () => [
-        {
-          name: 'r0',
-          label: 'param-bottom-radius',
-          type: 'integer',
-          unit: 'mm',
-        },
-        {
-          name: 'r1',
-          label: 'param-top-radius',
           type: 'integer',
           unit: 'mm',
         },
