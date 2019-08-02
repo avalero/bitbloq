@@ -170,7 +170,7 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <RectangularPrism />
     case "cone":
       return <Cone />
-    case "truncatedCone":
+    case "truncatedcone":
       return <TruncatedCone />
     case "programming":
       return <Programming />;

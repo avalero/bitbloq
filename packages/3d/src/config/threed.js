@@ -157,7 +157,7 @@ const config = {
         {
           type: 'Heart',
           label: 'object-type-heart',
-          icon: <Icon name="torus" />,
+          icon: <Icon name="heart" />,
           parameters: {
             side: 10,
             height: 3,
@@ -369,7 +369,7 @@ const config = {
     {
       name: 'TruncatedCone',
       label: 'object-type-truncatedcone',
-      icon: <Icon name="truncatedCone" />,
+      icon: <Icon name="truncatedcone" />,
       parameters: () => [
         {
           name: 'r0',
