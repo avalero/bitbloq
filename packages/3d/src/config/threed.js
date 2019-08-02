@@ -52,34 +52,6 @@ const config = {
           },
         },
         {
-          type: 'Pyramid',
-          label: 'object-type-pyramid',
-          icon: <Icon name="pyramid" />,
-          parameters: {
-            sides: 4,
-            length: 10,
-            height: 15,
-          },
-        },
-        {
-          type: 'Cone',
-          label: 'object-type-cone',
-          icon: <Icon name="cone" />,
-          parameters: {
-            r0: 5,
-            r1: 0, // legacy, not used
-            height: 10,
-          },
-        },
-        {
-          type: 'Octahedron',
-          label: 'object-type-octahedron',
-          icon: <Icon name="octahedron" />,
-          parameters: {
-            side: 10,
-          },
-        },
-        {
           type: 'RectPrism',
           label: 'object-type-rectprism',
           icon: <Icon name="rectangularPrism" />,
@@ -96,6 +68,26 @@ const config = {
           parameters: {
             sides: 6,
             length: 5,
+            height: 10,
+          },
+        },
+        {
+          type: 'Pyramid',
+          label: 'object-type-pyramid',
+          icon: <Icon name="pyramid" />,
+          parameters: {
+            sides: 4,
+            length: 10,
+            height: 15,
+          },
+        },
+        {
+          type: 'Cone',
+          label: 'object-type-cone',
+          icon: <Icon name="cone" />,
+          parameters: {
+            r0: 5,
+            r1: 0, // legacy, not used
             height: 10,
           },
         },
@@ -125,15 +117,6 @@ const config = {
           },
         },
         {
-          type: 'Torus',
-          label: 'object-type-torus',
-          icon: <Icon name="torus" />,
-          parameters: {
-            r0: 10,
-            r1: 3,
-          },
-        },
-        {
           type: 'Tube',
           label: 'object-type-tube',
           icon: <Icon name="tube" />,
@@ -143,6 +126,24 @@ const config = {
             height: 10,
           },
         },
+        {
+          type: 'Torus',
+          label: 'object-type-torus',
+          icon: <Icon name="torus" />,
+          parameters: {
+            r0: 10,
+            r1: 3,
+          },
+        },
+        {
+          type: 'Octahedron',
+          label: 'object-type-octahedron',
+          icon: <Icon name="octahedron" />,
+          parameters: {
+            side: 10,
+          },
+        },
+
         {
           type: 'Star',
           label: 'object-type-star',
@@ -163,14 +164,7 @@ const config = {
             height: 3,
           },
         },
-        {
-          type: 'STLObject',
-          label: 'object-type-stl-object',
-          icon: <Icon name="stl" />,
-          parameters: {
-            blob: null,
-          },
-        },
+
         {
           type: 'TextObject',
           label: 'object-type-text-object',
@@ -180,6 +174,14 @@ const config = {
             size: 10,
             thickness: 5,
             font: 'roboto_regular',
+          },
+        },
+        {
+          type: 'STLObject',
+          label: 'object-type-stl-object',
+          icon: <Icon name="stl" />,
+          parameters: {
+            blob: null,
           },
         },
       ],
