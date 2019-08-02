@@ -136,7 +136,7 @@ const config = {
         {
           type: 'Tube',
           label: 'object-type-tube',
-          icon: <Icon name="torus" />,
+          icon: <Icon name="tube" />,
           parameters: {
             r0: 5,
             r1: 3,
@@ -887,22 +887,22 @@ const config = {
               name: 'x',
               label: 'param-x',
               fineStep: 0.1,
-              minValue: 0.01
+              minValue: 0.01,
             },
             {
               name: 'y',
               label: 'param-y',
               fineStep: 0.1,
-              minValue: 0.01
+              minValue: 0.01,
             },
             {
               name: 'z',
               label: 'param-z',
               fineStep: 0.1,
-              minValue: 0.01
+              minValue: 0.01,
             },
-          ]
-        }
+          ],
+        },
       ],
     },
     {
