@@ -339,7 +339,7 @@ const config = {
           name: 'peaks',
           label: 'param-peaks',
           type: 'integer',
-          unit: 'mm',
+          unit: ' ',
         },
         {
           name: 'r0',
