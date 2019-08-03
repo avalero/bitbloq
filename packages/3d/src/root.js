@@ -23,7 +23,8 @@ class Root extends React.Component {
   exportToSTL(name, separate) {
     const state = this.store.getState();
     const scene = state.threed.scene.sceneInstance;
-    scene.exportToSTLAsync(name, separate);
+    const nameToPass = name === '' ? 'scene' : name;
+    scene.exportToSTLAsync(nameToPass, separate);
   }
 
   render() {
