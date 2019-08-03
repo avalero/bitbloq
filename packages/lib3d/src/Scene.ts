@@ -173,9 +173,11 @@ export default class Scene {
     return this.historyIndex < this.history.length - 1;
   }
 
-  public async exportToSTLAsync(name: string = ''): Promise<void> {
-    // update objectsGroup if required
-
+  public async exportToSTLAsync(
+    name: string = 'scene',
+    separateSTL: boolean = true
+  ): Promise<void> {
+    // update secene objectsGroup if required
     if (this.sceneUpdated) {
       this.objectsGroup = new THREE.Group();
 
@@ -191,13 +193,24 @@ export default class Scene {
       });
     }
 
-    // create array of meshes
-    let meshArray: THREE.Mesh[] = [];
-    this.objectsGroup.children.forEach(child => {
-      meshArray = [...meshArray, ...this.toMeshArray(child)];
-    });
-
-    meshArray2STLAsync(meshArray, name);
+    // all meshes into a single STL
+    if (!separateSTL) {
+      const objects: ObjectsCommon[] = this.objectsInScene.map(object =>
+        object.clone()
+      );
+      const union = new Union(objects);
+      const mesh: THREE.Mesh = (await union.getMeshAsync()) as THREE.Mesh;
+      mesh.userData = { viewOptions: { name } };
+      meshArray2STLAsync([mesh], name);
+    } else {
+      // each mesh will be a single stl
+      // create array of meshes
+      let meshArray: THREE.Mesh[] = [];
+      this.objectsGroup.children.forEach(child => {
+        meshArray = [...meshArray, ...this.toMeshArray(child)];
+      });
+      meshArray2STLAsync(meshArray, name);
+    }
 
     return;
   }
