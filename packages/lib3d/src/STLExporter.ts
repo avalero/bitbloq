@@ -32,8 +32,7 @@ export default async function meshArray2STLAsync(
   const stlData: any = [];
   const stlNames: string[] = [];
 
-  let i: number = 0;
-  meshes.forEach(threeObj => {
+  meshes.forEach((threeObj, i) => {
     let object: {
       geometry: THREE.Geometry;
       matrixWorld: THREE.Matrix4;
@@ -43,7 +42,6 @@ export default async function meshArray2STLAsync(
     if (threeObj instanceof THREE.Mesh) {
       const mesh = threeObj;
       const objName: string = mesh.userData.viewOptions.name || `object${i}`;
-      i += 1;
       stlNames.push(objName);
       let geometry: THREE.Geometry | THREE.BufferGeometry = mesh.geometry;
 
