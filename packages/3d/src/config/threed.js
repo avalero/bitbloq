@@ -176,14 +176,14 @@ const config = {
             font: 'roboto_regular',
           },
         },
-        {
-          type: 'STLObject',
-          label: 'object-type-stl-object',
-          icon: <Icon name="stl" />,
-          parameters: {
-            blob: null,
-          },
-        },
+        // {
+        //   type: 'STLObject',
+        //   label: 'object-type-stl-object',
+        //   icon: <Icon name="stl" />,
+        //   parameters: {
+        //     blob: null,
+        //   },
+        // },
       ],
     },
   ],
