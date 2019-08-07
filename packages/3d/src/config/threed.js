@@ -368,7 +368,7 @@ const config = {
       parameters: () => [
         {
           name: 'side',
-          label: 'param-side',
+          label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
         },

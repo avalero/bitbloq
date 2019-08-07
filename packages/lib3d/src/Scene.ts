@@ -527,15 +527,7 @@ export default class Scene {
     objJSON: IObjectsCommonJSON,
     updateHistory: boolean = true
   ): ISceneJSON {
-    // easter egg to save stl files
-    if (objJSON.type.match(TextObject.typeName)) {
-      if ((objJSON as ITextObjectJSON).parameters.text.match('save')) {
-        this.exportToSTLAsync();
-        return this.toJSON();
-      }
-    }
-    // end of easter egg
-
+    
     try {
       const object = this.getObject(objJSON);
 
