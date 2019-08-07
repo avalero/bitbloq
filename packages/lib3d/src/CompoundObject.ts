@@ -250,8 +250,13 @@ export default class CompoundObject extends Object3D {
 
     let obj: ObjectsCommon = this.children[0];
 
-    while (obj instanceof RepetitionObject) {
-      obj = (obj as RepetitionObject).getOriginal();
+    while (obj instanceof RepetitionObject || obj instanceof ObjectsGroup) {
+      if (obj instanceof RepetitionObject) {
+        obj = (obj as RepetitionObject).getOriginal();
+      }
+      if (obj instanceof ObjectsGroup) {
+        obj = (obj as ObjectsGroup).getChildren()[0];
+      }
     }
 
     // apply this operations to resulting mesh
