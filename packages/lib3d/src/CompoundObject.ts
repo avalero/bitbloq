@@ -89,7 +89,6 @@ export default class CompoundObject extends Object3D {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh> {
-    this.t0 = performance.now();
     this.meshPromise = new Promise(async (resolve, reject) => {
       if (this.meshUpdateRequired) {
         if (this.worker) {
@@ -249,7 +248,15 @@ export default class CompoundObject extends Object3D {
   public async applyOperationsAsync(): Promise<void> {
     // if there are children, mesh is centered at first child position/rotation
 
-    const chMesh = await this.children[0].getMeshAsync();
+    let obj: ObjectsCommon = this.children[0];
+
+    while (obj instanceof RepetitionObject) {
+      obj = (obj as RepetitionObject).getOriginal();
+    }
+
+    // apply this operations to resulting mesh
+    // chMesh = await this.children[0].getMeshAsync() as THREE.Mesh;
+    const chMesh = await obj.getMeshAsync();
     this.mesh.position.x = chMesh.position.x;
     this.mesh.position.y = chMesh.position.y;
     this.mesh.position.z = chMesh.position.z;

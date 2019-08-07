@@ -94,7 +94,6 @@ export default class TranslationHelper {
         this.helperMesh.rotateX(Math.PI / 2);
       }
     } else if (mesh instanceof THREE.Group) {
-      // debugger;
       const groups: THREE.Group[] = mesh.children.map(m => {
         const transHelper: TranslationHelper = new TranslationHelper(
           m,

@@ -95,7 +95,6 @@ export default class RotationHelper {
         this.helperMesh.rotateX(Math.PI / 2);
       }
     } else if (mesh instanceof THREE.Group) {
-      // debugger;
       const groups: THREE.Group[] = mesh.children.map(m => {
         const rotHelper: RotationHelper = new RotationHelper(m, axis, relative);
         return rotHelper.mesh;
