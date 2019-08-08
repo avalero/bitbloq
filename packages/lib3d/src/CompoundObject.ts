@@ -339,7 +339,6 @@ export default class CompoundObject extends Object3D {
         })
       ).then(meshes => {
         meshes.forEach(mesh => {
-          debugger;
           if (mesh instanceof THREE.Mesh) {
             bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
           } else if (mesh instanceof THREE.Group) {

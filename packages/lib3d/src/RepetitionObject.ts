@@ -123,7 +123,6 @@ export default class RepetitionObject extends ObjectsCommon {
   public async getUnionMeshAsync(): Promise<THREE.Mesh> {
     await this.computeMeshAsync();
     const obj: Union = this.toUnion();
-    debugger;
     return obj.computeMeshAsync();
   }
 
