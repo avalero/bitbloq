@@ -108,18 +108,18 @@ export default class ObjectsGroup extends ObjectsCommon {
     return obj.computeMeshAsync();
   }
 
-  public toUnion(inheritedOperatoins?: OperationsArray): Union {
-    const unionChildren: Object3D[] = [];
-    this.children.forEach(child => {
-      if (child instanceof Object3D) {
-        unionChildren.push(child);
-      } else if (child instanceof RepetitionObject) {
-        unionChildren.push(child.toUnion());
-      } else if (child instanceof ObjectsGroup) {
-        unionChildren.push(child.toUnion());
-      }
-    });
-    return new Union(unionChildren, inheritedOperatoins);
+  public toUnion(): Union {
+    const unionChildren: ObjectsCommon[] = this.unGroup();
+    // this.children.forEach(child => {
+    //   if (child instanceof Object3D) {
+    //     unionChildren.push(child);
+    //   } else if (child instanceof RepetitionObject) {
+    //     unionChildren.push(child.toUnion());
+    //   } else if (child instanceof ObjectsGroup) {
+    //     unionChildren.push(child.toUnion());
+    //   }
+    // });
+    return new Union(unionChildren);
   }
   public async computeMeshAsync(): Promise<THREE.Group> {
     // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
