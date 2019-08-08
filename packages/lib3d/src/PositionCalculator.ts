@@ -1,6 +1,6 @@
-import ObjectsCommon from "./ObjectsCommon";
-import { IObjectPosition } from "./Scene";
-import { OperationsArray } from "./Interfaces";
+import ObjectsCommon from './ObjectsCommon';
+import { IObjectPosition } from './Scene';
+import { OperationsArray } from './Interfaces';
 
 export default class PositionCalculator {
   private operations: OperationsArray;
@@ -31,18 +31,18 @@ export default class PositionCalculator {
       position: {
         x: mesh.position.x,
         y: mesh.position.y,
-        z: mesh.position.z
+        z: mesh.position.z,
       },
       angle: {
         x: (mesh.rotation.x * 180) / Math.PI,
         y: (mesh.rotation.y * 180) / Math.PI,
-        z: (mesh.rotation.z * 180) / Math.PI
+        z: (mesh.rotation.z * 180) / Math.PI,
       },
       scale: {
         x: mesh.scale.x,
         y: mesh.scale.y,
-        z: mesh.scale.z
-      }
+        z: mesh.scale.z,
+      },
     };
   }
 
@@ -51,4 +51,4 @@ export default class PositionCalculator {
   }
 }
 
-import DummyObject from "./DummyObject";
+import DummyObject from './DummyObject';

@@ -212,6 +212,7 @@ export default class CompoundObject extends Object3D {
       ...ObjectsCommon.createViewOptions(),
       ...object.viewOptions,
     };
+
     this.setOperations(object.operations);
     this.setViewOptions(vO);
     const update =
@@ -327,16 +328,18 @@ export default class CompoundObject extends Object3D {
       Promise.all(
         this.children.map(child => {
           if (
-            ['Difference', 'Intersection'].includes(this.getTypeName()) &&
+            ['Difference', 'Intersection', 'Union'].includes(
+              this.getTypeName()
+            ) &&
             (child instanceof RepetitionObject || child instanceof ObjectsGroup)
           ) {
-            const obj = child.toUnion();
-            return obj.getMeshAsync();
+            return child.getUnionMeshAsync();
           }
           return child.getMeshAsync();
         })
       ).then(meshes => {
         meshes.forEach(mesh => {
+          debugger;
           if (mesh instanceof THREE.Mesh) {
             bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
           } else if (mesh instanceof THREE.Group) {

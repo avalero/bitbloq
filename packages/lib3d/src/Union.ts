@@ -17,7 +17,6 @@ import {
   OperationsArray,
 } from './Interfaces';
 import Scene from './Scene';
-import RepetitionObject from './RepetitionObject';
 
 export default class Union extends CompoundObject {
   public static typeName: string = 'Union';

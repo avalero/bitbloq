@@ -2,17 +2,12 @@
  * File: Bitbloq.ts
  * Project: Bitbloq
  * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
  * Copyright 2018 - 2019 BQ Educacion.
- * -----
- * File Created: Monday, 25th February 2019
- * Last Modified:: Monday, 25th February 2019 7:04:57 pm
- * -----
- * Author: David García (david.garciaparedes@bq.com)
- * Author: Alda Martín (alda.marting@bq.com)
- * Author: Alberto Valero (alberto.valero@bq.com)
- * -----
  */
 
+import * as THREE from 'three';
 import { isEqual } from 'lodash';
 import {
   IRepetitionObjectJSON,
@@ -158,14 +153,19 @@ export function compareObjectsJSONArray(
   return equalChildren; // true
 }
 
-// import Cube from './Cube';
-// import Cylinder from './Cylinder';
-// import Sphere from './Sphere';
-// import Prism from './Prism';
-// import TextObject from './TextObject';
-// import Pyramid from './Pyramid';
-// import STLObject from './STLObject';
-// import Union from './Union';
-// import Difference from './Difference';
-// import RepetitionObject from './RepetitionObject';
-// import ObjectsGroup from './ObjectsGroup';
+export function setMeshMaterial(
+  mesh: THREE.Mesh | THREE.Group,
+  material: object
+): THREE.Mesh | THREE.Group {
+  if (mesh instanceof THREE.Mesh) {
+    if (mesh.material instanceof THREE.MeshLambertMaterial) {
+      mesh.material.setValues(material);
+    }
+  } else if (mesh instanceof THREE.Group) {
+    mesh.children.forEach(child =>
+      setMeshMaterial(child as THREE.Mesh | THREE.Group, material)
+    );
+  }
+
+  return mesh;
+}

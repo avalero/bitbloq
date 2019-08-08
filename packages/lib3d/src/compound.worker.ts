@@ -92,6 +92,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
         const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
         matrixWorld.elements = new Float32Array(_positions);
         if (i === 0) {
+          debugger;
           firstGeomMatrix = matrixWorld.clone();
         }
         const buffGeometry = new THREE.BufferGeometry();
