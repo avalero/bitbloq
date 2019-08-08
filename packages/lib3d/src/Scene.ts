@@ -37,6 +37,7 @@ import {
   IObjectsGroupJSON,
 } from './Interfaces';
 import { pathToFileURL } from 'url';
+import { setMeshMaterial } from './Bitbloq';
 
 enum HelperType {
   Rotation = 'rotation',
@@ -327,12 +328,11 @@ export default class Scene {
     if (this.objectsInTransition.length > 0) {
       const group: THREE.Group = new THREE.Group();
       this.objectsInTransition.forEach(async object => {
+        object.setMaterial(this.secondaryMaterial);
         const mesh = (await object.getMeshAsync()).clone();
+        setMeshMaterial(mesh, this.secondaryMaterial);
+        const pos = await this.getPositionAsync(object.toJSON());
         if (mesh instanceof THREE.Mesh) {
-          const pos = await this.getPositionAsync(object.toJSON());
-          if (mesh.material instanceof THREE.MeshLambertMaterial) {
-            mesh.material.setValues(this.secondaryMaterial);
-          }
           mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
           mesh.setRotationFromEuler(
             new THREE.Euler(
@@ -349,6 +349,7 @@ export default class Scene {
           group.add(mesh);
         }
       });
+
       return group;
     }
     return undefined;
@@ -527,7 +528,6 @@ export default class Scene {
     objJSON: IObjectsCommonJSON,
     updateHistory: boolean = true
   ): ISceneJSON {
-    
     try {
       const object = this.getObject(objJSON);
 
@@ -541,9 +541,7 @@ export default class Scene {
       this.objectsInTransition = [];
       const parent = object.getParent();
       if (parent instanceof CompoundObject) {
-        parent.getChildren().forEach(transitionObject => {
-          this.objectsInTransition.push(transitionObject);
-        });
+        this.objectsInTransition = [...parent.getChildren()];
       }
       if (updateHistory) {
         this.updateHistory();

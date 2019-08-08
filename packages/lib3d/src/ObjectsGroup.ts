@@ -1,20 +1,20 @@
-import * as THREE from "three";
-import Object3D from "./Object3D";
-import ObjectsCommon from "./ObjectsCommon";
-import Scene from "./Scene";
+import * as THREE from 'three';
+import Object3D from './Object3D';
+import ObjectsCommon from './ObjectsCommon';
+import Scene from './Scene';
 
-import Union from "./Union";
-import RepetitionObject from "./RepetitionObject";
+import Union from './Union';
+import RepetitionObject from './RepetitionObject';
 
 import {
   IObjectsGroupJSON,
   IObjectsCommonJSON,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
+  OperationsArray,
+} from './Interfaces';
 
 export default class ObjectsGroup extends ObjectsCommon {
-  public static typeName: string = "ObjectsGroup";
+  public static typeName: string = 'ObjectsGroup';
 
   /**
    *
@@ -102,7 +102,13 @@ export default class ObjectsGroup extends ObjectsCommon {
     this.children.push(object);
   }
 
-  public toUnion(): Union {
+  public async getUnionMeshAsync(): Promise<THREE.Mesh> {
+    await this.computeMeshAsync();
+    const obj: Union = this.toUnion();
+    return obj.computeMeshAsync();
+  }
+
+  public toUnion(inheritedOperatoins?: OperationsArray): Union {
     const unionChildren: Object3D[] = [];
     this.children.forEach(child => {
       if (child instanceof Object3D) {
@@ -113,12 +119,12 @@ export default class ObjectsGroup extends ObjectsCommon {
         unionChildren.push(child.toUnion());
       }
     });
-    return new Union(unionChildren);
+    return new Union(unionChildren, inheritedOperatoins);
   }
   public async computeMeshAsync(): Promise<THREE.Group> {
     // Operations must be applied to the single objects, but they are not transferred whilst they are grouped.
     if (this.children.length === 0) {
-      throw new Error("No item in group");
+      throw new Error('No item in group');
     }
     this.meshPromise = new Promise(async (resolve, reject) => {
       try {
@@ -168,7 +174,7 @@ export default class ObjectsGroup extends ObjectsCommon {
   public toJSON(): IObjectsGroupJSON {
     const obj: IObjectsGroupJSON = {
       ...super.toJSON(),
-      children: this.children.map(obj2JSON => obj2JSON.toJSON())
+      children: this.children.map(obj2JSON => obj2JSON.toJSON()),
     };
 
     return obj;
@@ -202,7 +208,7 @@ export default class ObjectsGroup extends ObjectsCommon {
 
       const vO = {
         ...ObjectsCommon.createViewOptions(),
-        ...object.viewOptions
+        ...object.viewOptions,
       };
       this.setOperations(object.operations);
       this.setViewOptions(vO);

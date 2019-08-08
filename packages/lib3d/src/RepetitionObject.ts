@@ -120,6 +120,12 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
+  public async getUnionMeshAsync(): Promise<THREE.Mesh> {
+    await this.computeMeshAsync();
+    const obj: Union = this.toUnion();
+    return obj.computeMeshAsync();
+  }
+
   public toUnion(): Union {
     const group = this.getGroup();
     return group.toUnion();
@@ -159,7 +165,35 @@ export default class RepetitionObject extends ObjectsCommon {
    * applying all the operations to children
    */
   public getGroup(): ObjectsGroup {
-    return new ObjectsGroup(this.group);
+    const globalOperations = [...this.operations];
+
+    this.group.forEach(obj => {
+      const objectOperations = obj
+        .getOperations()
+        .slice(0)
+        .reverse()
+        .map(operation => {
+          if (
+            operation.type === Object3D.createTranslateOperation().type ||
+            operation.type === Object3D.createRotateOperation().type
+          ) {
+            const op: ITranslateOperation | IRotateOperation = {
+              ...(operation as ITranslateOperation | IRotateOperation),
+            };
+            op.relative = !op.relative;
+            return op;
+          }
+          return { ...operation };
+        });
+
+      // first set globalOperations
+      obj.setOperations(globalOperations);
+
+      // then set object operations in reverse order
+      obj.addOperations(objectOperations);
+    });
+
+    return new ObjectsGroup(this.group, this.viewOptions);
   }
 
   public toJSON(): IRepetitionObjectJSON {
