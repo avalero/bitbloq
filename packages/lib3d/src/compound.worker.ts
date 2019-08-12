@@ -126,6 +126,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       }
 
       // move resulting geometry to origin of coordinates (center on first child on origin)
+      // debugger;
       const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
       if (firstGeomMatrix) {
         invMatrix.getInverse(firstGeomMatrix);

@@ -15,6 +15,7 @@ const uuid = v1;
 
 import * as THREE from 'three';
 import { setMeshMaterial } from './Bitbloq';
+import { Quaternion } from 'three';
 
 export default class ObjectsCommon {
   set meshUpdateRequired(a: boolean) {
@@ -64,6 +65,8 @@ export default class ObjectsCommon {
     const normalsBuffer: ArrayBuffer = new Float32Array(
       bufferGeom.getAttribute('normal').array
     ).buffer;
+    mesh.updateMatrix();
+
     const positionBuffer: ArrayBuffer = Float32Array.from(
       mesh.matrixWorld.elements
     ).buffer;
@@ -98,11 +101,23 @@ export default class ObjectsCommon {
 
   public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
+    group.updateWorldMatrix(false, true);
+
+    const gTranslation = group.position;
+    const gRotation = group.rotation;
+
     group.children.forEach(child => {
-      if (child instanceof THREE.Mesh) {
-        bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
-      } else if (child instanceof THREE.Group) {
-        bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
+      const clone = child.clone();
+
+      debugger;
+      clone.matrix.multiplyMatrices(group.matrix, clone.matrix);
+      clone.parent = null;
+      clone.matrixWorld.fromArray(clone.matrix.toArray());
+
+      if (clone instanceof THREE.Mesh) {
+        bufferArray.push(...ObjectsCommon.meshToBufferArray(clone));
+      } else if (clone instanceof THREE.Group) {
+        bufferArray.push(...ObjectsCommon.groupToBufferArray(clone));
       }
     });
     return bufferArray;
@@ -242,7 +257,6 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
-
   public addOperations(operations: OperationsArray = []): void {
     this.setOperations([...this.operations, ...operations]);
   }
@@ -291,7 +305,8 @@ export default class ObjectsCommon {
 
   public updateFromJSON(
     object: IObjectsCommonJSON,
-    fromParent: boolean = false
+    fromParent: boolean = false,
+    forceUpdate: boolean = false
   ): void {
     throw new Error('updateFromJSON() Implemented in children');
   }

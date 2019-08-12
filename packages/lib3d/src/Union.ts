@@ -7,6 +7,7 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
+import { cloneDeep } from 'lodash';
 import CompoundObject, { ChildrenArray } from './CompoundObject';
 import ObjectsCommon from './ObjectsCommon';
 import * as THREE from 'three';
@@ -107,8 +108,8 @@ export default class Union extends CompoundObject {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const unionObj = new Union(
         childrenClone,
-        this.operations,
-        this.viewOptions,
+        cloneDeep(this.operations),
+        cloneDeep(this.viewOptions),
         this.mesh.clone() as THREE.Mesh
       );
       unionObj.verticesArray = this.verticesArray;
@@ -117,7 +118,11 @@ export default class Union extends CompoundObject {
       return unionObj;
     }
 
-    const obj = new Union(childrenClone, this.operations, this.viewOptions);
+    const obj = new Union(
+      childrenClone,
+      cloneDeep(this.operations),
+      cloneDeep(this.viewOptions)
+    );
     return obj;
   }
 }

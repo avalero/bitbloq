@@ -9,7 +9,7 @@
 
 import ObjectsCommon from './ObjectsCommon';
 
-import { isEqual } from 'lodash';
+import { isEqual, cloneDeep } from 'lodash';
 import * as THREE from 'three';
 import Object3D from './Object3D';
 import ObjectsGroup from './ObjectsGroup';
@@ -28,6 +28,7 @@ import {
   ICartesianRepetitionParams,
   OperationsArray,
 } from './Interfaces';
+import CompoundObject from './CompoundObject';
 
 /**
  * RepetitionObject Class
@@ -104,7 +105,7 @@ export default class RepetitionObject extends ObjectsCommon {
       ...viewOptions,
     };
 
-    super(vO, [...operations]);
+    super(vO, operations);
     this.parameters = { ...params };
     this.originalObject = original;
     this.originalObject.setParent(this);
@@ -120,16 +121,30 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-  public async getUnionMeshAsync(): Promise<THREE.Mesh> {
-    await this.computeMeshAsync();
-    const obj: Union = this.toUnion();
-    return obj.computeMeshAsync();
-  }
+  // public async computeUnionMeshAsync(): Promise<THREE.Mesh> {
+  //   await this.originalObject.computeMeshAsync();
 
-  public toUnion(): Union {
-    const group = this.getGroup();
-    return group.toUnion();
-  }
+  //   const obj: RepetitionObject = new RepetitionObject(
+  //     cloneDeep(this.parameters),
+  //     this.originalObject.clone(),
+  //     cloneDeep(this.viewOptions),
+  //     cloneDeep(this.operations)
+  //   );
+  //   await obj.computeMeshAsync();
+  //   const uni: Union = obj.toUnion();
+
+  //   // const uni = this.toUnion();
+  //   return uni.getMeshAsync() as Promise<THREE.Mesh>;
+  // }
+  // public async getUnionMeshAsync(): Promise<THREE.Mesh> {
+  //   await this.computeMeshAsync();
+  //   return this.computeUnionMeshAsync();
+  // }
+
+  // public toUnion(): Union {
+  //   const group = this.getGroup();
+  //   return group.toUnion();
+  // }
 
   public setParameters(
     parameters: ICartesianRepetitionParams | IPolarRepetitionParams
@@ -143,19 +158,21 @@ export default class RepetitionObject extends ObjectsCommon {
   public clone(): RepetitionObject {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const repObj = new RepetitionObject(
-        this.parameters,
+        cloneDeep(this.parameters),
         this.originalObject.clone(),
-        this.viewOptions,
-        this.operations,
-        (this.mesh as THREE.Group).clone()
+        cloneDeep(this.viewOptions),
+        cloneDeep(this.operations),
+        (this.mesh as THREE.Group).clone(),
       );
+
+      repObj.group = this.group.map(objgroup => objgroup.clone());
       return repObj;
     }
     const obj = new RepetitionObject(
-      this.parameters,
+      cloneDeep(this.parameters),
       this.originalObject.clone(),
-      this.viewOptions,
-      this.operations
+      cloneDeep(this.viewOptions),
+      cloneDeep(this.operations)
     );
     return obj;
   }
@@ -165,7 +182,8 @@ export default class RepetitionObject extends ObjectsCommon {
    * applying all the operations to children
    */
   public getGroup(): ObjectsGroup {
-    const globalOperations = [...this.operations];
+    // debugger;
+    const globalOperations = cloneDeep(this.operations);
 
     this.group.forEach(obj => {
       const objectOperations = obj
@@ -216,8 +234,10 @@ export default class RepetitionObject extends ObjectsCommon {
    */
   public updateFromJSON(
     object: IRepetitionObjectJSON,
-    fromParent: boolean = false
+    fromParent: boolean = false,
+    forceUpdate: boolean = false
   ) {
+    // debugger;
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }
@@ -236,17 +256,20 @@ export default class RepetitionObject extends ObjectsCommon {
       this.setViewOptions(object.viewOptions);
       // check if there are any updates pending on Original Object before updating it
       const update =
+        forceUpdate ||
         this.meshUpdateRequired ||
         this.pendingOperation ||
         this.viewOptionsUpdateRequired;
+
       this.meshUpdateRequired = update;
 
       this.originalObject.updateFromJSON(object.children[0], true);
 
       // if it has a parent, update through parent
       const parentObject: ObjectsCommon | undefined = this.getParent();
+
       if (parentObject && !fromParent) {
-        parentObject.updateFromJSON(parentObject.toJSON());
+        parentObject.updateFromJSON(parentObject.toJSON(), false, true);
       } else {
         if (
           update ||
@@ -270,7 +293,8 @@ export default class RepetitionObject extends ObjectsCommon {
         this.originalObject.viewOptionsUpdateRequired
       ) {
         await this.computeRepetitonAsync();
-      }
+
+              }
 
       const meshes = await Promise.all(
         this.group.map(obj => obj.getMeshAsync())
@@ -281,6 +305,8 @@ export default class RepetitionObject extends ObjectsCommon {
       });
 
       await this.applyOperationsAsync();
+
+
 
       if (this.mesh instanceof THREE.Group) {
         resolve(this.mesh);

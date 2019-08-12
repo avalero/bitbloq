@@ -105,20 +105,11 @@ export default class ObjectsGroup extends ObjectsCommon {
   public async getUnionMeshAsync(): Promise<THREE.Mesh> {
     await this.computeMeshAsync();
     const obj: Union = this.toUnion();
-    return obj.computeMeshAsync();
+    return obj.getMeshAsync() as Promise<THREE.Mesh>;
   }
 
   public toUnion(): Union {
     const unionChildren: ObjectsCommon[] = this.unGroup();
-    // this.children.forEach(child => {
-    //   if (child instanceof Object3D) {
-    //     unionChildren.push(child);
-    //   } else if (child instanceof RepetitionObject) {
-    //     unionChildren.push(child.toUnion());
-    //   } else if (child instanceof ObjectsGroup) {
-    //     unionChildren.push(child.toUnion());
-    //   }
-    // });
     return new Union(unionChildren);
   }
   public async computeMeshAsync(): Promise<THREE.Group> {

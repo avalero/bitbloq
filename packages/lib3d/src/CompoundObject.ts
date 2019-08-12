@@ -140,7 +140,7 @@ export default class CompoundObject extends Object3D {
                 (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
-                // console.log(`Ellapsed time ${performance.now() - this.t0} ms`);
+                
 
                 // mesh updated and resolved
                 this.pendingOperation = false;
@@ -201,7 +201,8 @@ export default class CompoundObject extends Object3D {
 
   public updateFromJSON(
     object: ICompoundObjectJSON,
-    fromParent: boolean = false
+    fromParent: boolean = false,
+    forceUpdate: boolean = false
   ) {
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
@@ -219,7 +220,9 @@ export default class CompoundObject extends Object3D {
       this.meshUpdateRequired ||
       this.pendingOperation ||
       this.viewOptionsUpdateRequired;
-    this.setChildren(object.children);
+
+    // debugger;
+    this.setChildren(object.children, forceUpdate);
 
     try {
       if (
@@ -234,9 +237,9 @@ export default class CompoundObject extends Object3D {
           parentObj.updateFromJSON(parentObj.toJSON());
         } else {
           // if anything has changed, recompute children and then recompute mesh
-          this.children.forEach(child => {
-            child.updateFromJSON(child.toJSON(), true);
-          });
+          // this.children.forEach(child => {
+          //   child.updateFromJSON(child.toJSON(), true);
+          // });
 
           this.meshPromise = this.computeMeshAsync();
         }
@@ -249,16 +252,17 @@ export default class CompoundObject extends Object3D {
   public async applyOperationsAsync(): Promise<void> {
     // if there are children, mesh is centered at first child position/rotation
 
-    let obj: ObjectsCommon = this.children[0];
+    // debugger;
+    const obj: ObjectsCommon = this.children[0];
 
-    while (obj instanceof RepetitionObject || obj instanceof ObjectsGroup) {
-      if (obj instanceof RepetitionObject) {
-        obj = (obj as RepetitionObject).getOriginal();
-      }
-      if (obj instanceof ObjectsGroup) {
-        obj = (obj as ObjectsGroup).getChildren()[0];
-      }
-    }
+    // while (obj instanceof RepetitionObject || obj instanceof ObjectsGroup) {
+    //   if (obj instanceof RepetitionObject) {
+    //     obj = (obj as RepetitionObject).getOriginal();
+    //   }
+    //   if (obj instanceof ObjectsGroup) {
+    //     obj = (obj as ObjectsGroup).getChildren()[0];
+    //   }
+    // }
 
     // apply this operations to resulting mesh
     // chMesh = await this.children[0].getMeshAsync() as THREE.Mesh;
@@ -328,33 +332,44 @@ export default class CompoundObject extends Object3D {
       Promise.all(
         this.children.map(child => {
           if (
-            ['Difference', 'Intersection', 'Union'].includes(
-              this.getTypeName()
-            ) &&
-            (child instanceof RepetitionObject || child instanceof ObjectsGroup)
+            child instanceof RepetitionObject
+            // ||
+            // child instanceof ObjectsGroup
           ) {
-            return child.getUnionMeshAsync();
+            return child.getMeshAsync();
           }
+          // else
           return child.getMeshAsync();
         })
       ).then(meshes => {
         meshes.forEach(mesh => {
+          // debugger;
           if (mesh instanceof THREE.Mesh) {
             bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
           } else if (mesh instanceof THREE.Group) {
             bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
           }
         });
+
         resolve(bufferArray);
       });
     });
   }
 
-  private setChildren(children: IObjectsCommonJSON[]) {
+  private setChildren(
+    children: IObjectsCommonJSON[],
+    forceUpdate: boolean = false
+  ) {
+    // debugger;
     const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
 
     // children are the same do not update anything.
-    if (Bitbloq.compareObjectsJSONArray(currentChildren, children)) return;
+    if (
+      !forceUpdate &&
+      Bitbloq.compareObjectsJSONArray(currentChildren, children)
+    ) {
+      return;
+    }
 
     // if children are not the same
     this.meshUpdateRequired = true;

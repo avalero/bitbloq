@@ -17,6 +17,8 @@ import {
   IConeParams,
 } from './Interfaces';
 
+import { cloneDeep } from 'lodash';
+
 export default class Cone extends PrimitiveObject {
   public static typeName: string = 'Cone';
 
@@ -67,17 +69,17 @@ export default class Cone extends PrimitiveObject {
   public clone(): Cone {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const objCyl = new Cone(
-        this.parameters as IConeParams,
-        this.operations,
-        this.viewOptions,
+        cloneDeep(this.parameters as IConeParams),
+        cloneDeep(this.operations),
+        cloneDeep(this.viewOptions),
         (this.mesh as THREE.Mesh).clone()
       );
       return objCyl;
     }
     const obj = new Cone(
-      this.parameters as IConeParams,
-      this.operations,
-      this.viewOptions
+      cloneDeep(this.parameters as IConeParams),
+      cloneDeep(this.operations),
+      cloneDeep(this.viewOptions)
     );
     return obj;
   }
