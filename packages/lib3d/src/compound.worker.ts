@@ -68,8 +68,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       if (!bufferArray) return;
 
       let firstGeomMatrix: THREE.Matrix4 | undefined;
-      let firstSubGeomMatrix: THREE.Matrix4 | undefined;
-      debugger;
+
       // add all children to geometries array
       for (let i = 0, first = true; i < bufferArray.length; ) {
         // recompute object form vertices and normals
@@ -125,11 +124,6 @@ if (!(typeof module !== 'undefined' && module.exports)) {
           if (first) {
             firstGeomMatrix = matrixWorld.clone();
             first = false;
-            // firstGeomMatrix = matrix.clone();
-          }
-
-          if (j === 0) {
-            firstSubGeomMatrix = matrixWorld.clone();
             // firstGeomMatrix = matrix.clone();
           }
 

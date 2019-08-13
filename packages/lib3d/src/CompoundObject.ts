@@ -342,7 +342,6 @@ export default class CompoundObject extends Object3D {
                 mesh,
                 numMeshes
               );
-              debugger;
               bufferArray.push(Float32Array.from([numMeshes.num]).buffer);
               bufferArray.push(...auxBufferArray);
             }
