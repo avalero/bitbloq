@@ -140,7 +140,6 @@ export default class CompoundObject extends Object3D {
                 (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
-                // console.log(`Ellapsed time ${performance.now() - this.t0} ms`);
 
                 // mesh updated and resolved
                 this.pendingOperation = false;
@@ -201,7 +200,8 @@ export default class CompoundObject extends Object3D {
 
   public updateFromJSON(
     object: ICompoundObjectJSON,
-    fromParent: boolean = false
+    fromParent: boolean = false,
+    forceUpdate: boolean = false
   ) {
     if (this.id !== object.id) {
       throw new Error('Object id does not match with JSON id');
@@ -219,7 +219,8 @@ export default class CompoundObject extends Object3D {
       this.meshUpdateRequired ||
       this.pendingOperation ||
       this.viewOptionsUpdateRequired;
-    this.setChildren(object.children);
+
+    this.setChildren(object.children, forceUpdate);
 
     try {
       if (
@@ -234,9 +235,12 @@ export default class CompoundObject extends Object3D {
           parentObj.updateFromJSON(parentObj.toJSON());
         } else {
           // if anything has changed, recompute children and then recompute mesh
-          this.children.forEach(child => {
-            child.updateFromJSON(child.toJSON(), true);
-          });
+
+          // this has been commented because children are already updated in setChildren() above
+
+          // this.children.forEach(child => {
+          //   child.updateFromJSON(child.toJSON(), true);
+          // });
 
           this.meshPromise = this.computeMeshAsync();
         }
@@ -249,33 +253,32 @@ export default class CompoundObject extends Object3D {
   public async applyOperationsAsync(): Promise<void> {
     // if there are children, mesh is centered at first child position/rotation
 
-    let obj: ObjectsCommon = this.children[0];
+    const obj: ObjectsCommon = this.children[0];
 
-    while (obj instanceof RepetitionObject || obj instanceof ObjectsGroup) {
-      if (obj instanceof RepetitionObject) {
-        obj = (obj as RepetitionObject).getOriginal();
-      }
-      if (obj instanceof ObjectsGroup) {
-        obj = (obj as ObjectsGroup).getChildren()[0];
-      }
+    const child = await obj.getMeshAsync();
+    const position = child.position.clone();
+    const quaternion = child.quaternion.clone();
+    const scale = child.scale.clone();
+
+    if (obj instanceof RepetitionObject) {
+      const originalMesh = await obj.getOriginal().getMeshAsync();
+      const matrix = child.matrix.clone().multiply(originalMesh.matrix);
+      matrix.decompose(position, quaternion, scale);
     }
 
-    // apply this operations to resulting mesh
-    // chMesh = await this.children[0].getMeshAsync() as THREE.Mesh;
-    const chMesh = await obj.getMeshAsync();
-    this.mesh.position.x = chMesh.position.x;
-    this.mesh.position.y = chMesh.position.y;
-    this.mesh.position.z = chMesh.position.z;
+    this.mesh.position.x = position.x;
+    this.mesh.position.y = position.y;
+    this.mesh.position.z = position.z;
     this.mesh.quaternion.set(
-      chMesh.quaternion.x,
-      chMesh.quaternion.y,
-      chMesh.quaternion.z,
-      chMesh.quaternion.w
+      quaternion.x,
+      quaternion.y,
+      quaternion.z,
+      quaternion.w
     );
 
-    this.mesh.scale.x = chMesh.scale.x;
-    this.mesh.scale.y = chMesh.scale.y;
-    this.mesh.scale.z = chMesh.scale.z;
+    this.mesh.scale.x = scale.x;
+    this.mesh.scale.y = scale.y;
+    this.mesh.scale.z = scale.z;
 
     this.operations.forEach(operation => {
       // Translate operation
@@ -325,36 +328,44 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<ArrayBuffer[]> {
     return new Promise((resolve, reject) => {
       const bufferArray: ArrayBuffer[] = [];
-      Promise.all(
-        this.children.map(child => {
-          if (
-            ['Difference', 'Intersection', 'Union'].includes(
-              this.getTypeName()
-            ) &&
-            (child instanceof RepetitionObject || child instanceof ObjectsGroup)
-          ) {
-            return child.getUnionMeshAsync();
-          }
-          return child.getMeshAsync();
-        })
-      ).then(meshes => {
-        meshes.forEach(mesh => {
-          if (mesh instanceof THREE.Mesh) {
-            bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
-          } else if (mesh instanceof THREE.Group) {
-            bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
-          }
-        });
-        resolve(bufferArray);
-      });
+      Promise.all(this.children.map(child => child.computeMeshAsync())).then(
+        meshes => {
+          meshes.forEach(mesh => {
+            if (mesh instanceof THREE.Mesh) {
+              // 1 mesh added
+              bufferArray.push(Float32Array.from([1]).buffer);
+              bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
+            } else if (mesh instanceof THREE.Group) {
+              // number of meshes added will be set inside function
+              const numMeshes: { num: number } = { num: 0 };
+              const auxBufferArray = ObjectsCommon.groupToBufferArray(
+                mesh,
+                numMeshes
+              );
+              bufferArray.push(Float32Array.from([numMeshes.num]).buffer);
+              bufferArray.push(...auxBufferArray);
+            }
+          });
+
+          resolve(bufferArray);
+        }
+      );
     });
   }
 
-  private setChildren(children: IObjectsCommonJSON[]) {
+  private setChildren(
+    children: IObjectsCommonJSON[],
+    forceUpdate: boolean = false
+  ) {
     const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
 
     // children are the same do not update anything.
-    if (Bitbloq.compareObjectsJSONArray(currentChildren, children)) return;
+    if (
+      !forceUpdate &&
+      Bitbloq.compareObjectsJSONArray(currentChildren, children)
+    ) {
+      return;
+    }
 
     // if children are not the same
     this.meshUpdateRequired = true;

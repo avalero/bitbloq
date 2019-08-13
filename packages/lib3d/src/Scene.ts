@@ -201,7 +201,7 @@ export default class Scene {
       );
       const union = new Union(objects);
       const mesh: THREE.Mesh = (await union.getMeshAsync()) as THREE.Mesh;
-      mesh.userData = { viewOptions: { name } };
+      mesh.userData = { ...mesh.userData, viewOptions: { name } };
       meshArray2STLAsync([mesh], name);
     } else {
       // each mesh will be a single stl
@@ -311,7 +311,7 @@ export default class Scene {
           }
         }
 
-        mesh.userData = object.toJSON();
+        mesh.userData = {...mesh.userData, ...object.toJSON()};
         return mesh;
       })
     );

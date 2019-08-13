@@ -10,6 +10,7 @@
 import * as THREE from 'three';
 import ObjectsCommon from './ObjectsCommon';
 import PrimitiveObject from './PrimitiveObject';
+import { cloneDeep } from 'lodash';
 
 import {
   ICubeJSON,
@@ -75,18 +76,18 @@ export default class Cube extends PrimitiveObject {
   public clone(): Cube {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const cubeObj = new Cube(
-        this.parameters as ICubeParams,
-        this.operations,
-        this.viewOptions,
+        cloneDeep(this.parameters as ICubeParams),
+        cloneDeep(this.operations),
+        cloneDeep(this.viewOptions),
         (this.mesh as THREE.Mesh).clone()
       );
       return cubeObj;
     }
 
     const cube = new Cube(
-      this.parameters as ICubeParams,
-      this.operations,
-      this.viewOptions
+      cloneDeep(this.parameters as ICubeParams),
+      cloneDeep(this.operations),
+      cloneDeep(this.viewOptions)
     );
     return cube;
   }

@@ -15,6 +15,7 @@ const uuid = v1;
 
 import * as THREE from 'three';
 import { setMeshMaterial } from './Bitbloq';
+import { Quaternion } from 'three';
 
 export default class ObjectsCommon {
   set meshUpdateRequired(a: boolean) {
@@ -64,12 +65,20 @@ export default class ObjectsCommon {
     const normalsBuffer: ArrayBuffer = new Float32Array(
       bufferGeom.getAttribute('normal').array
     ).buffer;
+    mesh.updateMatrix();
+
     const positionBuffer: ArrayBuffer = Float32Array.from(
       mesh.matrixWorld.elements
     ).buffer;
+
+    const localPositionBuffer: ArrayBuffer = Float32Array.from(
+      mesh.matrix.elements
+    ).buffer;
+
     bufferArray.push(verticesBuffer);
     bufferArray.push(normalsBuffer);
     bufferArray.push(positionBuffer);
+    bufferArray.push(localPositionBuffer);
 
     return bufferArray;
   }
@@ -96,15 +105,37 @@ export default class ObjectsCommon {
     return objectGeometry;
   }
 
-  public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
+  public static groupToBufferArray(
+    group: THREE.Group,
+    numMeshes: { num: number }
+  ): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
+    
+    group.updateWorldMatrix(false, true);
     group.children.forEach(child => {
+      const clone = child.clone();
+      clone.matrix = child.matrix.clone();
+      clone.matrixWorld = child.matrixWorld.clone();
+
       if (child instanceof THREE.Mesh) {
-        bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
+        numMeshes.num += 1;
+
+        if (child.userData.repetitionObject) {
+          clone.matrix.multiply(
+            new THREE.Matrix4().getInverse(
+              child.userData.originalObject.mesh.matrix
+            )
+          );
+
+          clone.matrix.decompose(clone.position, clone.quaternion, clone.scale);
+        }
+
+        bufferArray.push(...ObjectsCommon.meshToBufferArray(clone as THREE.Mesh));
       } else if (child instanceof THREE.Group) {
-        bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
+        bufferArray.push(...ObjectsCommon.groupToBufferArray(child, numMeshes));
       }
     });
+
     return bufferArray;
   }
 
@@ -242,7 +273,6 @@ export default class ObjectsCommon {
     return this.operations;
   }
 
-
   public addOperations(operations: OperationsArray = []): void {
     this.setOperations([...this.operations, ...operations]);
   }
@@ -291,7 +321,8 @@ export default class ObjectsCommon {
 
   public updateFromJSON(
     object: IObjectsCommonJSON,
-    fromParent: boolean = false
+    fromParent: boolean = false,
+    forceUpdate: boolean = false
   ): void {
     throw new Error('updateFromJSON() Implemented in children');
   }
