@@ -70,9 +70,15 @@ export default class ObjectsCommon {
     const positionBuffer: ArrayBuffer = Float32Array.from(
       mesh.matrixWorld.elements
     ).buffer;
+
+    const localPositionBuffer: ArrayBuffer = Float32Array.from(
+      mesh.matrix.elements
+    ).buffer;
+
     bufferArray.push(verticesBuffer);
     bufferArray.push(normalsBuffer);
     bufferArray.push(positionBuffer);
+    bufferArray.push(localPositionBuffer);
 
     return bufferArray;
   }
@@ -103,23 +109,25 @@ export default class ObjectsCommon {
     const bufferArray: ArrayBuffer[] = [];
     group.updateWorldMatrix(false, true);
 
-    const gTranslation = group.position;
-    const gRotation = group.rotation;
-
     group.children.forEach(child => {
-      const clone = child.clone();
+      if (child instanceof THREE.Mesh) {
+        // debugger;
+        if (child.userData.repetitionObject) {
+          child.matrix.multiply(
+            new THREE.Matrix4().getInverse(
+              child.userData.originalObject.mesh.matrix
+            )
+          );
 
-      debugger;
-      clone.matrix.multiplyMatrices(group.matrix, clone.matrix);
-      clone.parent = null;
-      clone.matrixWorld.fromArray(clone.matrix.toArray());
+          child.matrix.decompose(child.position, child.quaternion, child.scale);
+        }
 
-      if (clone instanceof THREE.Mesh) {
-        bufferArray.push(...ObjectsCommon.meshToBufferArray(clone));
-      } else if (clone instanceof THREE.Group) {
-        bufferArray.push(...ObjectsCommon.groupToBufferArray(clone));
+        bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
+      } else if (child instanceof THREE.Group) {
+        bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
       }
     });
+
     return bufferArray;
   }
 

@@ -162,7 +162,7 @@ export default class RepetitionObject extends ObjectsCommon {
         this.originalObject.clone(),
         cloneDeep(this.viewOptions),
         cloneDeep(this.operations),
-        (this.mesh as THREE.Group).clone(),
+        (this.mesh as THREE.Group).clone()
       );
 
       repObj.group = this.group.map(objgroup => objgroup.clone());
@@ -293,8 +293,7 @@ export default class RepetitionObject extends ObjectsCommon {
         this.originalObject.viewOptionsUpdateRequired
       ) {
         await this.computeRepetitonAsync();
-
-              }
+      }
 
       const meshes = await Promise.all(
         this.group.map(obj => obj.getMeshAsync())
@@ -302,11 +301,14 @@ export default class RepetitionObject extends ObjectsCommon {
       this.mesh.children.length = 0;
       meshes.forEach(mesh => {
         this.mesh.add(mesh);
+        mesh.userData = {
+          ...mesh.userData,
+          repetitionObject: true,
+          originalObject: this.originalObject,
+        };
       });
 
       await this.applyOperationsAsync();
-
-
 
       if (this.mesh instanceof THREE.Group) {
         resolve(this.mesh);

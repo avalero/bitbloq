@@ -140,7 +140,6 @@ export default class CompoundObject extends Object3D {
                 (this.worker as Worker).terminate();
                 this.worker = null;
                 resolve(this.mesh);
-                
 
                 // mesh updated and resolved
                 this.pendingOperation = false;
@@ -255,31 +254,31 @@ export default class CompoundObject extends Object3D {
     // debugger;
     const obj: ObjectsCommon = this.children[0];
 
-    // while (obj instanceof RepetitionObject || obj instanceof ObjectsGroup) {
-    //   if (obj instanceof RepetitionObject) {
-    //     obj = (obj as RepetitionObject).getOriginal();
-    //   }
-    //   if (obj instanceof ObjectsGroup) {
-    //     obj = (obj as ObjectsGroup).getChildren()[0];
-    //   }
-    // }
+    debugger;
+    const child = await obj.getMeshAsync();
+    const position = child.position.clone();
+    const quaternion = child.quaternion.clone();
+    const scale = child.scale.clone();
 
-    // apply this operations to resulting mesh
-    // chMesh = await this.children[0].getMeshAsync() as THREE.Mesh;
-    const chMesh = await obj.getMeshAsync();
-    this.mesh.position.x = chMesh.position.x;
-    this.mesh.position.y = chMesh.position.y;
-    this.mesh.position.z = chMesh.position.z;
+    if (obj instanceof RepetitionObject) {
+      const originalMesh = await obj.getOriginal().getMeshAsync();
+      const matrix = child.matrix.clone().multiply(originalMesh.matrix);
+      matrix.decompose(position, quaternion, scale);
+    }
+
+    this.mesh.position.x = position.x;
+    this.mesh.position.y = position.y;
+    this.mesh.position.z = position.z;
     this.mesh.quaternion.set(
-      chMesh.quaternion.x,
-      chMesh.quaternion.y,
-      chMesh.quaternion.z,
-      chMesh.quaternion.w
+      quaternion.x,
+      quaternion.y,
+      quaternion.z,
+      quaternion.w
     );
 
-    this.mesh.scale.x = chMesh.scale.x;
-    this.mesh.scale.y = chMesh.scale.y;
-    this.mesh.scale.z = chMesh.scale.z;
+    this.mesh.scale.x = scale.x;
+    this.mesh.scale.y = scale.y;
+    this.mesh.scale.z = scale.z;
 
     this.operations.forEach(operation => {
       // Translate operation
@@ -329,30 +328,19 @@ export default class CompoundObject extends Object3D {
   protected toBufferArrayAsync(): Promise<ArrayBuffer[]> {
     return new Promise((resolve, reject) => {
       const bufferArray: ArrayBuffer[] = [];
-      Promise.all(
-        this.children.map(child => {
-          if (
-            child instanceof RepetitionObject
-            // ||
-            // child instanceof ObjectsGroup
-          ) {
-            return child.getMeshAsync();
-          }
-          // else
-          return child.getMeshAsync();
-        })
-      ).then(meshes => {
-        meshes.forEach(mesh => {
-          // debugger;
-          if (mesh instanceof THREE.Mesh) {
-            bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
-          } else if (mesh instanceof THREE.Group) {
-            bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
-          }
-        });
+      Promise.all(this.children.map(child => child.computeMeshAsync())).then(
+        meshes => {
+          meshes.forEach(mesh => {
+            if (mesh instanceof THREE.Mesh) {
+              bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
+            } else if (mesh instanceof THREE.Group) {
+              bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
+            }
+          });
 
-        resolve(bufferArray);
-      });
+          resolve(bufferArray);
+        }
+      );
     });
   }
 
