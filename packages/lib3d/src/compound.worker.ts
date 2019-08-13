@@ -62,67 +62,101 @@ if (!(typeof module !== 'undefined' && module.exports)) {
     'message',
     e => {
       const geometries: THREE.Geometry[] = [];
+
       const bufferArray = e.data.bufferArray;
 
       if (!bufferArray) return;
 
-      // debugger;
       let firstGeomMatrix: THREE.Matrix4 | undefined;
-
+      let firstSubGeomMatrix: THREE.Matrix4 | undefined;
+      debugger;
       // add all children to geometries array
-      for (let i = 0; i < bufferArray.length; i += 4) {
+      for (let i = 0, first = true; i < bufferArray.length; ) {
         // recompute object form vertices and normals
-        const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
-        const normalsBuffer: ArrayBuffer = e.data.bufferArray[i + 1];
-        const positionBuffer: ArrayBuffer = e.data.bufferArray[i + 2];
-        const localPositionBuffer: ArrayBuffer = e.data.bufferArray[i + 3];
-        const _vertices: ArrayLike<number> = new Float32Array(
-          verticesBuffer,
-          0,
-          verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const _normals: ArrayLike<number> = new Float32Array(
-          normalsBuffer,
-          0,
-          normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
-        const _positions: ArrayLike<number> = new Float32Array(
-          positionBuffer,
-          0,
-          positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
+        const numMeshesBuffer: ArrayBuffer = e.data.bufferArray[i];
+        i += 1;
 
-        const _localPositions: ArrayLike<number> = new Float32Array(
-          localPositionBuffer,
+        const _numMeshes: number = new Float32Array(
+          numMeshesBuffer,
           0,
-          localPositionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
-        );
+          numMeshesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+        )[0];
 
-        const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
-        matrixWorld.elements = new Float32Array(_positions);
+        const subGeometries: THREE.Geometry[] = [];
 
-        const matrix: THREE.Matrix4 = new THREE.Matrix4();
-        matrix.elements = new Float32Array(_localPositions);
+        for (let j = 0; j < _numMeshes; j += 1) {
+          const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
+          i += 1;
+          const normalsBuffer: ArrayBuffer = e.data.bufferArray[i];
+          i += 1;
+          const positionBuffer: ArrayBuffer = e.data.bufferArray[i];
+          i += 1;
+          const localPositionBuffer: ArrayBuffer = e.data.bufferArray[i];
+          i += 1;
 
-        if (i === 0) {
-          firstGeomMatrix = matrixWorld.clone();
-          // firstGeomMatrix = matrix.clone();
+          const _vertices: ArrayLike<number> = new Float32Array(
+            verticesBuffer,
+            0,
+            verticesBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+          );
+          const _normals: ArrayLike<number> = new Float32Array(
+            normalsBuffer,
+            0,
+            normalsBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+          );
+          const _positions: ArrayLike<number> = new Float32Array(
+            positionBuffer,
+            0,
+            positionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+          );
+
+          const _localPositions: ArrayLike<number> = new Float32Array(
+            localPositionBuffer,
+            0,
+            localPositionBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT
+          );
+
+          const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
+          matrixWorld.elements = new Float32Array(_positions);
+
+          const matrix: THREE.Matrix4 = new THREE.Matrix4();
+          matrix.elements = new Float32Array(_localPositions);
+
+          if (first) {
+            firstGeomMatrix = matrixWorld.clone();
+            first = false;
+            // firstGeomMatrix = matrix.clone();
+          }
+
+          if (j === 0) {
+            firstSubGeomMatrix = matrixWorld.clone();
+            // firstGeomMatrix = matrix.clone();
+          }
+
+          const buffGeometry = new THREE.BufferGeometry();
+          buffGeometry.addAttribute(
+            'position',
+            new THREE.BufferAttribute(_vertices, 3)
+          );
+          buffGeometry.addAttribute(
+            'normal',
+            new THREE.BufferAttribute(_normals, 3)
+          );
+          const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
+            buffGeometry
+          );
+          objectGeometry.applyMatrix(matrixWorld);
+          subGeometries.push(objectGeometry);
         }
 
-        const buffGeometry = new THREE.BufferGeometry();
-        buffGeometry.addAttribute(
-          'position',
-          new THREE.BufferAttribute(_vertices, 3)
-        );
-        buffGeometry.addAttribute(
-          'normal',
-          new THREE.BufferAttribute(_normals, 3)
-        );
-        const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
-          buffGeometry
-        );
-        objectGeometry.applyMatrix(matrixWorld);
-        geometries.push(objectGeometry);
+        if (subGeometries.length === 1) {
+          geometries.push(subGeometries[0]);
+        } else {
+          /// Make Union of Subgeometries
+          let subGeometry: THREE.Geometry = new THREE.Geometry();
+          subGeometry = getUnionFromGeometries(subGeometries);
+          geometries.push(subGeometry);
+        }
       }
 
       // compute action
@@ -141,7 +175,6 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       }
 
       // move resulting geometry to origin of coordinates (center on first child on origin)
-      // debugger;
       const invMatrix: THREE.Matrix4 = new THREE.Matrix4();
       if (firstGeomMatrix) {
         invMatrix.getInverse(firstGeomMatrix);

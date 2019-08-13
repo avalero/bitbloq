@@ -105,13 +105,16 @@ export default class ObjectsCommon {
     return objectGeometry;
   }
 
-  public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
+  public static groupToBufferArray(
+    group: THREE.Group,
+    numMeshes: { num: number }
+  ): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
     group.updateWorldMatrix(false, true);
-
     group.children.forEach(child => {
       if (child instanceof THREE.Mesh) {
-        // debugger;
+        numMeshes.num += 1;
+
         if (child.userData.repetitionObject) {
           child.matrix.multiply(
             new THREE.Matrix4().getInverse(
@@ -124,7 +127,7 @@ export default class ObjectsCommon {
 
         bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
       } else if (child instanceof THREE.Group) {
-        bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
+        bufferArray.push(...ObjectsCommon.groupToBufferArray(child, numMeshes));
       }
     });
 

@@ -220,7 +220,6 @@ export default class CompoundObject extends Object3D {
       this.pendingOperation ||
       this.viewOptionsUpdateRequired;
 
-    // debugger;
     this.setChildren(object.children, forceUpdate);
 
     try {
@@ -236,6 +235,9 @@ export default class CompoundObject extends Object3D {
           parentObj.updateFromJSON(parentObj.toJSON());
         } else {
           // if anything has changed, recompute children and then recompute mesh
+
+          // this has been commented because children are already updated in setChildren() above
+
           // this.children.forEach(child => {
           //   child.updateFromJSON(child.toJSON(), true);
           // });
@@ -251,10 +253,8 @@ export default class CompoundObject extends Object3D {
   public async applyOperationsAsync(): Promise<void> {
     // if there are children, mesh is centered at first child position/rotation
 
-    // debugger;
     const obj: ObjectsCommon = this.children[0];
 
-    debugger;
     const child = await obj.getMeshAsync();
     const position = child.position.clone();
     const quaternion = child.quaternion.clone();
@@ -332,9 +332,19 @@ export default class CompoundObject extends Object3D {
         meshes => {
           meshes.forEach(mesh => {
             if (mesh instanceof THREE.Mesh) {
+              // 1 mesh added
+              bufferArray.push(Float32Array.from([1]).buffer);
               bufferArray.push(...ObjectsCommon.meshToBufferArray(mesh));
             } else if (mesh instanceof THREE.Group) {
-              bufferArray.push(...ObjectsCommon.groupToBufferArray(mesh));
+              // number of meshes added will be set inside function
+              const numMeshes: { num: number } = { num: 0 };
+              const auxBufferArray = ObjectsCommon.groupToBufferArray(
+                mesh,
+                numMeshes
+              );
+              debugger;
+              bufferArray.push(Float32Array.from([numMeshes.num]).buffer);
+              bufferArray.push(...auxBufferArray);
             }
           });
 
@@ -348,7 +358,6 @@ export default class CompoundObject extends Object3D {
     children: IObjectsCommonJSON[],
     forceUpdate: boolean = false
   ) {
-    // debugger;
     const currentChildren: IObjectsCommonJSON[] = this.toJSON().children;
 
     // children are the same do not update anything.

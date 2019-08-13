@@ -182,7 +182,6 @@ export default class RepetitionObject extends ObjectsCommon {
    * applying all the operations to children
    */
   public getGroup(): ObjectsGroup {
-    // debugger;
     const globalOperations = cloneDeep(this.operations);
 
     this.group.forEach(obj => {
@@ -237,7 +236,6 @@ export default class RepetitionObject extends ObjectsCommon {
     fromParent: boolean = false,
     forceUpdate: boolean = false
   ) {
-    // debugger;
     if (object.id !== this.id) {
       throw new Error(`ids do not match ${object.id}, ${this.id}`);
     }
