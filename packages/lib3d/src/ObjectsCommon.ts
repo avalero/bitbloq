@@ -110,22 +110,27 @@ export default class ObjectsCommon {
     numMeshes: { num: number }
   ): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
+    
     group.updateWorldMatrix(false, true);
     group.children.forEach(child => {
+      const clone = child.clone();
+      clone.matrix = child.matrix.clone();
+      clone.matrixWorld = child.matrixWorld.clone();
+
       if (child instanceof THREE.Mesh) {
         numMeshes.num += 1;
 
         if (child.userData.repetitionObject) {
-          child.matrix.multiply(
+          clone.matrix.multiply(
             new THREE.Matrix4().getInverse(
               child.userData.originalObject.mesh.matrix
             )
           );
 
-          child.matrix.decompose(child.position, child.quaternion, child.scale);
+          clone.matrix.decompose(clone.position, clone.quaternion, clone.scale);
         }
 
-        bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
+        bufferArray.push(...ObjectsCommon.meshToBufferArray(clone as THREE.Mesh));
       } else if (child instanceof THREE.Group) {
         bufferArray.push(...ObjectsCommon.groupToBufferArray(child, numMeshes));
       }
