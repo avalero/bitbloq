@@ -1,16 +1,12 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-11-09 09:31:03
- * Last modified  : 2019-01-31 10:33:02
+/*
+ * File: CompoundObject.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
+
 import * as Bitbloq from "./Bitbloq";
 import Object3D from "./Object3D";
 import ObjectsCommon from "./ObjectsCommon";
@@ -264,7 +260,7 @@ export default class CompoundObject extends Object3D {
       const originalMesh = await obj.getOriginal().getMeshAsync();
       const matrix = child.matrix.clone().multiply(originalMesh.matrix);
       matrix.decompose(position, quaternion, scale);
-    }else if(obj instanceof ObjectsGroup){
+    } else if (obj instanceof ObjectsGroup) {
       const firstMesh = (await obj.getMeshAsync()).children[0];
       const matrix = firstMesh.matrix;
       matrix.decompose(position, quaternion, scale);
