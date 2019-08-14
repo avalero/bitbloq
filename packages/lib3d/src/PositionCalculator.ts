@@ -92,6 +92,30 @@ export default class PositionCalculator {
     return op;
   }
 
+  private compoundBottomUpOperations(obj: CompoundObject): OperationsArray {
+    let children0Operations: OperationsArray = [];
+
+    // let's go down to the bottom non compound object
+    let children0: ObjectsCommon | CompoundObject = obj;
+    while (children0 instanceof CompoundObject) {
+      children0 = children0.getChildren()[0];
+    }
+    // this children0 is the bottom non Compound
+    children0Operations = cloneDeep(children0.getOperations());
+
+    // let's go up through all the parents
+    let childrenParent = children0.getParent();
+    while (childrenParent) {
+      children0Operations = [
+        ...children0Operations,
+        ...cloneDeep(childrenParent.getOperations()),
+      ];
+      childrenParent = childrenParent.getParent();
+    }
+
+    return children0Operations;
+  }
+
   private rebuildOperations(): OperationsArray {
     const parent = this.object.getParent();
     const obj = this.object;
@@ -105,9 +129,14 @@ export default class PositionCalculator {
         }
         // If it is not the reference object (it's not the first)
         // TO CHECK
-        const inverseOperations = cloneDeep(
-          parent.getChildren()[0].getOperations() as OperationsArray
-        ).map(op => this.inverseOperation(op));
+
+        const inverseOperations = this.compoundBottomUpOperations(parent).map(
+          op => this.inverseOperation(op)
+        );
+
+        // cloneDeep(
+        // parent.getChildren()[0].getOperations() as OperationsArray
+        // ).map(op => this.inverseOperation(op));
 
         return [
           ...new PositionCalculator(parent).getOperations(),
@@ -125,10 +154,11 @@ export default class PositionCalculator {
 
     // It has no parent
     if (obj instanceof CompoundObject) {
-      return [
-        ...cloneDeep(obj.getChildren()[0].getOperations()),
-        ...cloneDeep(obj.getOperations()),
-      ];
+      // When first order object is a CompoundObject we have to go all
+      // the way down into the object tree and build the operations
+      // from bottom up.
+
+      return this.compoundBottomUpOperations(obj);
     }
 
     return cloneDeep(obj.getOperations());
