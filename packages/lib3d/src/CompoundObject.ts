@@ -264,6 +264,10 @@ export default class CompoundObject extends Object3D {
       const originalMesh = await obj.getOriginal().getMeshAsync();
       const matrix = child.matrix.clone().multiply(originalMesh.matrix);
       matrix.decompose(position, quaternion, scale);
+    }else if(obj instanceof ObjectsGroup){
+      const firstMesh = (await obj.getMeshAsync()).children[0];
+      const matrix = firstMesh.matrix;
+      matrix.decompose(position, quaternion, scale);
     }
 
     this.mesh.position.x = position.x;
