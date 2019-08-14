@@ -111,6 +111,7 @@ export default class ObjectsCommon {
     const bufferArray: ArrayBuffer[] = [];
 
     group.updateWorldMatrix(false, true);
+
     group.children.forEach(child => {
       const clone = child.clone();
       clone.matrix = child.matrix.clone();
