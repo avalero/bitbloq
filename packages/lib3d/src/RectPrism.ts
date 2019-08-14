@@ -7,19 +7,19 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 
 import {
   IRectPrismJSON,
   IRectPrismParams,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class RectPrism extends PrimitiveObject {
-  public static typeName: string = 'RectPrism';
+  public static typeName: string = "RectPrism";
 
   /**
    * Creates a new RectPrism instance from json
@@ -27,7 +27,7 @@ export default class RectPrism extends PrimitiveObject {
    */
   public static newFromJSON(object: IRectPrismJSON): RectPrism {
     if (object.type !== RectPrism.typeName) {
-      throw new Error('Not RectPrism Object');
+      throw new Error("Not RectPrism Object");
     }
     let mesh: THREE.Mesh;
     let rectPrism: RectPrism;
@@ -59,7 +59,7 @@ export default class RectPrism extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = RectPrism.typeName;

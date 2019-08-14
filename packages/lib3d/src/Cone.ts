@@ -7,24 +7,24 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 import {
   IViewOptions,
   OperationsArray,
   IConeJSON,
-  IConeParams,
-} from './Interfaces';
+  IConeParams
+} from "./Interfaces";
 
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from "lodash";
 
 export default class Cone extends PrimitiveObject {
-  public static typeName: string = 'Cone';
+  public static typeName: string = "Cone";
 
   public static newFromJSON(object: IConeJSON): Cone {
     if (object.type !== Cone.typeName) {
-      throw new Error('Not Cone Object');
+      throw new Error("Not Cone Object");
     }
     let cone: Cone;
     let mesh: THREE.Mesh;
@@ -52,7 +52,7 @@ export default class Cone extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cone.typeName;

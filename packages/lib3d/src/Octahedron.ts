@@ -7,24 +7,24 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
+import * as THREE from "three";
 
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 
 import {
   IOctahedronJSON,
   IOctahedronParams,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class Octahedron extends PrimitiveObject {
-  public static typeName: string = 'Octahedron';
+  public static typeName: string = "Octahedron";
 
   public static newFromJSON(object: IOctahedronJSON): Octahedron {
     if (object.type !== Octahedron.typeName) {
-      throw new Error('Not Octahedron Object');
+      throw new Error("Not Octahedron Object");
     }
 
     let octahedron: Octahedron;
@@ -56,7 +56,7 @@ export default class Octahedron extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Octahedron.typeName;

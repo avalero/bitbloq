@@ -7,8 +7,8 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import { isEqual } from 'lodash';
+import * as THREE from "three";
+import { isEqual } from "lodash";
 import {
   IRepetitionObjectJSON,
   IObjectsGroupJSON,
@@ -21,8 +21,8 @@ import {
   IPyramidJSON,
   ISphereJSON,
   ISTLJSON,
-  IPrimitiveObjectJSON,
-} from './Interfaces';
+  IPrimitiveObjectJSON
+} from "./Interfaces";
 
 type objJSON =
   | IRepetitionObjectJSON
@@ -39,38 +39,38 @@ type objJSON =
 
 export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   const primitiveTypes: string[] = [
-    'Cube',
-    'Cylinder',
-    'Sphere',
-    'Prism',
-    'TextObject',
-    'Pyramid',
-    'Cone',
-    'TruncatedCone',
-    'SemiCylinder',
-    'Torus',
-    'Octahedron',
-    'RectPrism',
-    'Star',
-    'Heart',
-    'Tube',
+    "Cube",
+    "Cylinder",
+    "Sphere",
+    "Prism",
+    "TextObject",
+    "Pyramid",
+    "Cone",
+    "TruncatedCone",
+    "SemiCylinder",
+    "Torus",
+    "Octahedron",
+    "RectPrism",
+    "Star",
+    "Heart",
+    "Tube"
   ];
 
-  const compoundObjectTypes: string[] = ['Union', 'Difference', 'Intersection'];
+  const compoundObjectTypes: string[] = ["Union", "Difference", "Intersection"];
 
-  const stlType = 'STLObject';
-  const predesignedType = 'PredesignedObject';
+  const stlType = "STLObject";
+  const predesignedType = "PredesignedObject";
 
   const obj1Basics = {
     id: obj1.id,
     operations: obj1.operations,
-    type: obj1.type,
+    type: obj1.type
   };
 
   const obj2Basics = {
     id: obj2.id,
     operations: obj2.operations,
-    type: obj2.type,
+    type: obj2.type
   };
 
   // check common parameters
@@ -113,7 +113,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   }
 
   // RepetitionObject
-  if (obj1.type === 'RepetitionObject') {
+  if (obj1.type === "RepetitionObject") {
     const obj1Rep = obj1 as IRepetitionObjectJSON;
     const obj2Rep = obj2 as IRepetitionObjectJSON;
 
@@ -126,7 +126,7 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
 
   // Group
 
-  if (obj1.type === 'ObjectsGroup') {
+  if (obj1.type === "ObjectsGroup") {
     const obj1Group: IObjectsGroupJSON = obj1 as IObjectsGroupJSON;
     const obj2Group: IObjectsGroupJSON = obj2 as IObjectsGroupJSON;
 

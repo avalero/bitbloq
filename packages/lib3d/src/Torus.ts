@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 import {
   IViewOptions,
   OperationsArray,
   ITorusJSON,
-  ITorusParams,
-} from './Interfaces';
+  ITorusParams
+} from "./Interfaces";
 
 export default class Torus extends PrimitiveObject {
-  public static typeName: string = 'Torus';
+  public static typeName: string = "Torus";
 
   public static newFromJSON(object: ITorusJSON): Torus {
     if (object.type !== Torus.typeName) {
-      throw new Error('Not Torus Object');
+      throw new Error("Not Torus Object");
     }
     let torus: Torus;
     let mesh: THREE.Mesh;
@@ -54,7 +54,7 @@ export default class Torus extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Torus.typeName;

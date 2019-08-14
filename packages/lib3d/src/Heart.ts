@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 import {
   IViewOptions,
   OperationsArray,
   IHeartJSON,
-  IHeartParams,
-} from './Interfaces';
+  IHeartParams
+} from "./Interfaces";
 
 export default class Heart extends PrimitiveObject {
-  public static typeName: string = 'Heart';
+  public static typeName: string = "Heart";
 
   public static newFromJSON(object: IHeartJSON): Heart {
     if (object.type !== Heart.typeName) {
-      throw new Error('Not Heart Object');
+      throw new Error("Not Heart Object");
     }
     let heart: Heart;
     let mesh: THREE.Mesh;
@@ -54,7 +54,7 @@ export default class Heart extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Heart.typeName;
@@ -150,7 +150,7 @@ export default class Heart extends PrimitiveObject {
       heartShape,
       {
         depth: height,
-        bevelEnabled: false,
+        bevelEnabled: false
       }
     );
 

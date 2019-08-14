@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 import {
   IViewOptions,
   OperationsArray,
   IStarJSON,
-  IStarParams,
-} from './Interfaces';
+  IStarParams
+} from "./Interfaces";
 
 export default class Star extends PrimitiveObject {
-  public static typeName: string = 'Star';
+  public static typeName: string = "Star";
 
   public static newFromJSON(object: IStarJSON): Star {
     if (object.type !== Star.typeName) {
-      throw new Error('Not Star Object');
+      throw new Error("Not Star Object");
     }
     let star: Star;
     let mesh: THREE.Mesh;
@@ -50,7 +50,7 @@ export default class Star extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Star.typeName;
@@ -114,7 +114,7 @@ export default class Star extends PrimitiveObject {
       starShape,
       {
         depth: height,
-        bevelEnabled: false,
+        bevelEnabled: false
       }
     );
 
