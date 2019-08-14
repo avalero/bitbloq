@@ -14,6 +14,7 @@ import {
   ITranslateOperation,
   IRotateOperation,
   Operation,
+  IScaleOperation,
 } from './Interfaces';
 import { cloneDeep } from 'lodash';
 
@@ -77,6 +78,16 @@ export default class PositionCalculator {
       operation.x = -operation.x;
       operation.y = -operation.y;
       operation.z = -operation.z;
+    } else if (op.type === ObjectsCommon.createRotateOperation().type) {
+      const operation = op as IRotateOperation;
+      operation.x = -operation.x;
+      operation.y = -operation.y;
+      operation.z = -operation.z;
+    } else if (op.type === ObjectsCommon.createScaleOperation().type) {
+      const operation = op as IScaleOperation;
+      operation.x = operation.x !== 0 ? 1.0 / operation.x : 1;
+      operation.y = operation.y !== 0 ? 1.0 / operation.y : 1;
+      operation.z = operation.z !== 0 ? 1.0 / operation.z : 1;
     }
     return op;
   }
@@ -101,6 +112,9 @@ export default class PositionCalculator {
         return [
           ...new PositionCalculator(parent).getOperations(),
           ...inverseOperations.map(op => this.toggleRelativity(op)),
+          ...cloneDeep(obj.getOperations()).map(op =>
+            this.toggleRelativity(op)
+          ),
         ];
       }
 
