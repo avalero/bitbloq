@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 import {
   IViewOptions,
   OperationsArray,
   ITruncatedConeJSON,
-  ITruncatedConeParams,
-} from './Interfaces';
+  ITruncatedConeParams
+} from "./Interfaces";
 
 export default class TruncatedCone extends PrimitiveObject {
-  public static typeName: string = 'TruncatedCone';
+  public static typeName: string = "TruncatedCone";
 
   public static newFromJSON(object: ITruncatedConeJSON): TruncatedCone {
     if (object.type !== TruncatedCone.typeName) {
-      throw new Error('Not TruncatedCone Object');
+      throw new Error("Not TruncatedCone Object");
     }
     let truncCone: TruncatedCone;
     let mesh: THREE.Mesh;
@@ -54,7 +54,7 @@ export default class TruncatedCone extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = TruncatedCone.typeName;

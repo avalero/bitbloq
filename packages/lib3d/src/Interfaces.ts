@@ -265,14 +265,14 @@ export interface IRepetitionParams {
 }
 
 export interface ICartesianRepetitionParams extends IRepetitionParams {
-  type: 'cartesian';
+  type: "cartesian";
   x: number;
   y: number;
   z: number;
 }
 
 export interface IPolarRepetitionParams extends IRepetitionParams {
-  type: 'polar';
+  type: "polar";
   angle: number;
   axis: string;
 }

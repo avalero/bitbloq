@@ -12,22 +12,22 @@
  * Last modified  : 2019-01-31 10:34:20
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
 import {
   IViewOptions,
   OperationsArray,
   ICylinderJSON,
-  ICylinderParams,
-} from './Interfaces';
+  ICylinderParams
+} from "./Interfaces";
 
 export default class Cylinder extends PrimitiveObject {
-  public static typeName: string = 'Cylinder';
+  public static typeName: string = "Cylinder";
 
   public static newFromJSON(object: ICylinderJSON): Cylinder {
     if (object.type !== Cylinder.typeName) {
-      throw new Error('Not Cylinder Object');
+      throw new Error("Not Cylinder Object");
     }
     let cyl: Cylinder;
     let mesh: THREE.Mesh;
@@ -59,7 +59,7 @@ export default class Cylinder extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cylinder.typeName;

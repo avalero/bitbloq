@@ -19,13 +19,13 @@
  * @author Mugen87 / https://github.com/Mugen87
  */
 
-import JSZip from 'jszip';
-import * as THREE from 'three';
-import { saveAs } from 'file-saver';
+import JSZip from "jszip";
+import * as THREE from "three";
+import { saveAs } from "file-saver";
 
 export default async function meshArray2STLAsync(
   meshes: THREE.Mesh[],
-  name: string = ''
+  name: string = ""
 ): Promise<void> {
   const vector = new THREE.Vector3();
   const normalMatrixWorld = new THREE.Matrix3();
@@ -52,7 +52,7 @@ export default async function meshArray2STLAsync(
       triangles = geometry.faces.length;
       object = {
         geometry,
-        matrixWorld: mesh.matrixWorld,
+        matrixWorld: mesh.matrixWorld
       };
 
       let offset = 80; // skip header
@@ -106,11 +106,11 @@ export default async function meshArray2STLAsync(
   const zip = new JSZip();
 
   stlData.forEach((data: any, i: number) => {
-    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const blob = new Blob([data], { type: "application/octet-stream" });
     zip.file(`${stlNames[i]}.stl`, blob);
     // saveAs(blob, `${stlNames[i]}.stl`);
   });
 
-  const content = await zip.generateAsync({ type: 'blob' });
+  const content = await zip.generateAsync({ type: "blob" });
   saveAs(content, `${name}.zip`);
 }
