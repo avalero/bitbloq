@@ -24,8 +24,7 @@ export default class PositionCalculator {
 
   constructor(object: ObjectsCommon) {
     this.object = object;
-    this.operations = [];
-    if (object instanceof CompoundObject) this.object = object.getChildren()[0];
+    this.operations = this.rebuildOperations();
   }
 
   public async getPositionAsync(): Promise<IObjectPosition> {
@@ -68,58 +67,60 @@ export default class PositionCalculator {
     return operation;
   }
 
-  private async applyOperationsAsync(): Promise<void> {
-    let parents: ObjectsCommon[] = [];
-    let obj: ObjectsCommon | undefined = this.object;
+  private getOperations(): OperationsArray {
+    return this.operations;
+  }
 
-    while (obj) {
-      parents = [obj, ...parents];
-      obj = obj.getParent();
+  private inverseOperation(op: Operation) {
+    if (op.type === ObjectsCommon.createTranslateOperation().type) {
+      const operation = op as ITranslateOperation;
+      operation.x = -operation.x;
+      operation.y = -operation.y;
+      operation.z = -operation.z;
     }
+    return op;
+  }
+
+  private rebuildOperations(): OperationsArray {
+    const parent = this.object.getParent();
+    const obj = this.object;
 
     debugger;
-
-    this.operations = cloneDeep(parents[0].getOperations());
-
-    for (let i = 1; i < parents.length; i += 1) {
-      const parent = parents[i].getParent();
-      const child = parents[i];
-      if (parent instanceof Union) {
-        if (parent.getChildren()[0].getID() === child.getID()) {
-          // this child is the first object of an Union
-          // prepend operations without any change
-          this.operations = [
-            ...cloneDeep(child.getOperations()),
-            ...this.operations,
-          ];
-        } else {
-          // append operation toggling relativity
-          this.operations.push(
-            ...cloneDeep(child.getOperations()).map(op =>
-              this.toggleRelativity(op)
-            )
-          );
+    if (parent) {
+      if (parent instanceof CompoundObject) {
+        // If it is the first object of the Compound, its referencie system is the master
+        if (parent.getChildren()[0].getID() === obj.getID()) {
+          return [...new PositionCalculator(parent).getOperations()];
         }
+        // If it is not the reference object (it's not the first)
+        // TO CHECK
+        const inverseOperations = cloneDeep(
+          parent.getChildren()[0].getOperations() as OperationsArray
+        ).map(op => this.inverseOperation(op));
+
+        return [
+          ...new PositionCalculator(parent).getOperations(),
+          ...inverseOperations.map(op => this.toggleRelativity(op)),
+        ];
       }
+
+      // It's not CompoundObject (but has a parent)
+      // TODO
+      return [];
     }
 
-    // this.operations = [
-    //   ...cloneDeep(parents[0].getOperations()).map(op =>
-    //     this.toggleRelativity(op)
-    //   ),
-    // ];
+    // It has no parent
+    if (obj instanceof CompoundObject) {
+      return [
+        ...cloneDeep(obj.getChildren()[0].getOperations()),
+        ...cloneDeep(obj.getOperations()),
+      ];
+    }
 
-    // for (let i = 1; i < parents.length; i += 1) {
-    //   this.operations.push(
-    //     ...cloneDeep(parents[i].getOperations()).map(op =>
-    //       this.toggleRelativity(op, {
-    //         translation: false,
-    //         rotation: true,
-    //       })
-    //     )
-    //   );
-    // }
+    return cloneDeep(obj.getOperations());
+  }
 
+  private async applyOperationsAsync(): Promise<void> {
     const dummyObj = new DummyObject();
     dummyObj.setOperations(this.operations);
 
