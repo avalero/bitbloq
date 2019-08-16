@@ -77,8 +77,6 @@ export default class PositionCalculator {
       obj = obj.getParent();
     }
 
-    debugger;
-
     this.operations = cloneDeep(parents[0].getOperations());
 
     for (let i = 1; i < parents.length; i += 1) {
