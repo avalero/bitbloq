@@ -92,7 +92,7 @@ export default class PositionCalculator {
     return op;
   }
 
-  private compoundBottomUpOperations(obj: CompoundObject): OperationsArray {
+  private compoundBottomUpOperations(obj: ObjectsCommon): OperationsArray {
     let children0Operations: OperationsArray = [];
 
     // let's go down to the bottom non compound object
@@ -116,6 +116,16 @@ export default class PositionCalculator {
     return children0Operations;
   }
 
+  private getModifiedRotationOperations(
+    operations: OperationsArray,
+    modifier: (op: OperationsArray) => OperationsArray = op => op
+  ): OperationsArray {
+    const result = operations.filter(
+      op => op.type === ObjectsCommon.createRotateOperation().type
+    );
+    return modifier(result);
+  }
+
   private rebuildOperations(): OperationsArray {
     const parent = this.object.getParent();
     const obj = this.object;
@@ -130,20 +140,15 @@ export default class PositionCalculator {
         // If it is not the reference object (it's not the first)
         // TO CHECK
 
-        const inverseOperations = this.compoundBottomUpOperations(parent).map(
-          op => this.inverseOperation(op)
-        );
-
-        // cloneDeep(
-        // parent.getChildren()[0].getOperations() as OperationsArray
-        // ).map(op => this.inverseOperation(op));
+        const inverseOperations = cloneDeep(
+          parent.getChildren()[0].getOperations() as OperationsArray
+        ).map(op => this.inverseOperation(op));
 
         return [
           ...new PositionCalculator(parent).getOperations(),
+          // .map(op => this.toggleRelativity(op)),
           ...inverseOperations.map(op => this.toggleRelativity(op)),
-          ...cloneDeep(obj.getOperations()).map(op =>
-            this.toggleRelativity(op)
-          ),
+          ...cloneDeep(obj.getOperations()), // .map(op => this.toggleRelativity(op)),
         ];
       }
 
