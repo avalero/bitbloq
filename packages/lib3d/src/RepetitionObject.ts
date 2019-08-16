@@ -464,17 +464,20 @@ export default class RepetitionObject extends ObjectsCommon {
       await this.originalObject.computeMeshAsync();
     }
 
+    const baseMesh = await this.originalObject.getMeshAsync();
+    const basePosition = baseMesh.position;
+
     const baseObject = this.originalObject.clone();
 
-    const positionCalculator = new PositionCalculator(baseObject);
-    const basePosition = await positionCalculator.getPositionAsync();
+    // const positionCalculator = new PositionCalculator(baseObject);
+    // const basePosition = await positionCalculator.getPositionAsync();
 
     const baseJSON = baseObject.toJSON();
     baseJSON.operations.push(
       ObjectsCommon.createTranslateOperation(
-        -basePosition.position.x,
-        -basePosition.position.y,
-        -basePosition.position.z,
+        -basePosition.x,
+        -basePosition.y,
+        -basePosition.z,
         false
       )
     );
@@ -492,9 +495,9 @@ export default class RepetitionObject extends ObjectsCommon {
         json.operations.push(rotation);
         json.operations.push(
           ObjectsCommon.createTranslateOperation(
-            basePosition.position.x,
-            basePosition.position.y,
-            basePosition.position.z,
+            basePosition.x,
+            basePosition.y,
+            basePosition.z,
             true
           )
         );

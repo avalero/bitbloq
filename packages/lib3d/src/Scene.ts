@@ -621,16 +621,17 @@ export default class Scene {
     const { type, object, axis, relative } = helperDescription;
     try {
       const obj = this.getObject(object);
-      const mesh = await obj.getMeshAsync();
       if (type === "rotation") {
-        const helper = new RotationHelper(mesh, axis, relative);
-        this.helpers.push(helper.mesh);
+        const helper = new RotationHelper(obj, axis, relative);
+        const helperMesh = await helper.getHelperMeshAsync();
+        this.helpers.push(helperMesh);
         return this.helpers;
       }
 
       if (type === "translation") {
-        const helper = new TranslationHelper(mesh, axis, relative);
-        this.helpers.push(helper.mesh);
+        const helper = new TranslationHelper(obj, axis, relative);
+        const helperMesh = await helper.getHelperMeshAsync();
+        this.helpers.push(helperMesh);
         return this.helpers;
       }
       throw new Error(`Unknown helper type: ${type}`);

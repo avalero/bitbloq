@@ -14,11 +14,24 @@
  */
 
 import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PositionCalculator from "./PositionCalculator";
 
 export default class TranslationHelper {
   private helperMesh: THREE.Group;
+  private obj: ObjectsCommon;
+  private axis: string;
+  private relative: boolean;
 
-  constructor(mesh: THREE.Object3D, axis: string, relative: boolean) {
+  constructor(obj: ObjectsCommon, axis: string, relative: boolean) {
+    this.obj = obj;
+    this.axis = axis;
+    this.relative = relative;
+  }
+
+  public async getHelperMeshAsync(): Promise<THREE.Group> {
+    const mesh = await this.obj.getMeshAsync();
+
     if (
       mesh instanceof THREE.Mesh ||
       (mesh.userData &&
@@ -35,12 +48,12 @@ export default class TranslationHelper {
       let offset: number;
       let offsetArrow: number;
 
-      if (axis === "x") {
+      if (this.axis === "x") {
         color = 0xff0000;
         offset = boundingBoxDims.x / 2 + separation + length / 2;
         offsetArrow =
           boundingBoxDims.x / 2 + separation + arrowLength / 2 + length;
-      } else if (axis === "y") {
+      } else if (this.axis === "y") {
         color = 0x00ff00;
         offset = boundingBoxDims.y / 2 + separation + length / 2;
         offsetArrow =
@@ -80,42 +93,46 @@ export default class TranslationHelper {
       this.helperMesh.add(new THREE.Mesh(cylinderGeometry, material));
       this.helperMesh.add(new THREE.Mesh(arrowGeometry, material));
 
-      this.helperMesh.position.copy(mesh.position);
+      const position = (await new PositionCalculator(
+        this.obj
+      ).getPositionAsync()).position;
+      this.helperMesh.position.set(position.x, position.y, position.z);
 
-      if (relative) {
+      if (this.relative) {
         this.helperMesh.setRotationFromEuler(mesh.rotation);
       }
 
-      if (axis === "y") {
+      if (this.axis === "y") {
         this.helperMesh.rotateZ(Math.PI / 2);
       }
-      if (axis === "z") {
+      if (this.axis === "z") {
         this.helperMesh.rotateY(-Math.PI / 2);
         this.helperMesh.rotateX(Math.PI / 2);
       }
-    } else if (mesh instanceof THREE.Group) {
-      const groups: THREE.Group[] = mesh.children.map(m => {
-        const transHelper: TranslationHelper = new TranslationHelper(
-          m,
-          axis,
-          relative
-        );
-        return transHelper.mesh;
-      });
-
-      this.helperMesh = new THREE.Group();
-
-      this.helperMesh.children = groups.flatMap(group =>
-        group.children.map(child => {
-          child.position.copy(group.position);
-          child.setRotationFromEuler(group.rotation);
-          return child;
-        })
-      );
     }
-  }
 
-  get mesh(): THREE.Group {
+    // TODO
+
+    //  else if (mesh instanceof THREE.Group) {
+    //   const groups: THREE.Group[] = mesh.children.map(m => {
+    //     const transHelper: TranslationHelper = new TranslationHelper(
+    //       this.obj,
+    //       this.axis,
+    //       this.relative
+    //     );
+    //     return transHelper.getHelperMeshAsync();
+    //   });
+
+    //   this.helperMesh = new THREE.Group();
+
+    //   this.helperMesh.children = groups.flatMap(group =>
+    //     group.children.map(child => {
+    //       child.position.copy(group.position);
+    //       child.setRotationFromEuler(group.rotation);
+    //       return child;
+    //     })
+    //   );
+    // }
     return this.helperMesh;
   }
 }
