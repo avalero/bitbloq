@@ -72,7 +72,7 @@ export default class PositionCalculator {
     return this.operations;
   }
 
-  private inverseOperation(op: Operation) {
+  private invert(op: Operation) {
     if (op.type === ObjectsCommon.createTranslateOperation().type) {
       const operation = op as ITranslateOperation;
       operation.x = -operation.x;
@@ -116,14 +116,14 @@ export default class PositionCalculator {
     return children0Operations;
   }
 
-  private getModifiedRotationOperations(
+  private getRotationOperations(
     operations: OperationsArray,
-    modifier: (op: OperationsArray) => OperationsArray = op => op
+    modifier: (op: Operation) => Operation = op => op
   ): OperationsArray {
     const result = operations.filter(
       op => op.type === ObjectsCommon.createRotateOperation().type
     );
-    return modifier(result);
+    return result.map(op => modifier(op));
   }
 
   private rebuildOperations(): OperationsArray {
@@ -140,15 +140,23 @@ export default class PositionCalculator {
         // If it is not the reference object (it's not the first)
         // TO CHECK
 
-        const inverseOperations = cloneDeep(
-          parent.getChildren()[0].getOperations() as OperationsArray
-        ).map(op => this.inverseOperation(op));
+        const uno = new PositionCalculator(parent).getOperations();
+        const dos = cloneDeep(parent.getChildren()[0].getOperations()).map(op =>
+          this.invert(op)
+        );
+        const tres = cloneDeep(obj.getOperations()).map(op =>
+          this.toggleRelativity(op)
+        );
 
+        debugger;
         return [
           ...new PositionCalculator(parent).getOperations(),
-          // .map(op => this.toggleRelativity(op)),
-          ...inverseOperations.map(op => this.toggleRelativity(op)),
-          ...cloneDeep(obj.getOperations()), // .map(op => this.toggleRelativity(op)),
+          ...cloneDeep(parent.getChildren()[0].getOperations()).map(op =>
+            this.invert(op)
+          ),
+          ...cloneDeep(obj.getOperations()).map(op =>
+            this.toggleRelativity(op)
+          ),
         ];
       }
 
