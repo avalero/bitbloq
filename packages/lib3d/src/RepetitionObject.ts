@@ -13,7 +13,6 @@ import { isEqual, cloneDeep } from "lodash";
 import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsGroup from "./ObjectsGroup";
-import PositionCalculator from "./PositionCalculator";
 import Scene from "./Scene";
 import Union from "./Union";
 

@@ -13,9 +13,9 @@
  * Last modified  : 2018-12-16 19:55:28
  */
 
-import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import PositionCalculator from "./PositionCalculator";
+import * as THREE from 'three';
+import ObjectsCommon from './ObjectsCommon';
+import PositionCalculator from './PositionCalculator';
 
 export default class TranslationHelper {
   private helperMesh: THREE.Group;
@@ -36,7 +36,7 @@ export default class TranslationHelper {
       mesh instanceof THREE.Mesh ||
       (mesh.userData &&
         mesh.userData.type &&
-        mesh.userData.type === "RepetitionObject")
+        mesh.userData.type === 'RepetitionObject')
     ) {
       const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
       new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
@@ -48,12 +48,12 @@ export default class TranslationHelper {
       let offset: number;
       let offsetArrow: number;
 
-      if (this.axis === "x") {
+      if (this.axis === 'x') {
         color = 0xff0000;
         offset = boundingBoxDims.x / 2 + separation + length / 2;
         offsetArrow =
           boundingBoxDims.x / 2 + separation + arrowLength / 2 + length;
-      } else if (this.axis === "y") {
+      } else if (this.axis === 'y') {
         color = 0x00ff00;
         offset = boundingBoxDims.y / 2 + separation + length / 2;
         offsetArrow =
@@ -86,7 +86,7 @@ export default class TranslationHelper {
         color,
         opacity: 0.5,
         transparent: true,
-        depthWrite: false
+        depthWrite: false,
       });
 
       this.helperMesh = new THREE.Group();
@@ -102,10 +102,10 @@ export default class TranslationHelper {
         this.helperMesh.setRotationFromEuler(mesh.rotation);
       }
 
-      if (this.axis === "y") {
+      if (this.axis === 'y') {
         this.helperMesh.rotateZ(Math.PI / 2);
       }
-      if (this.axis === "z") {
+      if (this.axis === 'z') {
         this.helperMesh.rotateY(-Math.PI / 2);
         this.helperMesh.rotateX(Math.PI / 2);
       }

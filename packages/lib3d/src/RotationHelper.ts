@@ -13,9 +13,9 @@
  * Last modified  : 2018-12-16 19:55:16
  */
 
-import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import PositionCalculator from "./PositionCalculator";
+import * as THREE from 'three';
+import ObjectsCommon from './ObjectsCommon';
+import PositionCalculator from './PositionCalculator';
 
 export default class RotationHelper {
   private helperMesh: THREE.Group;
@@ -35,7 +35,7 @@ export default class RotationHelper {
       mesh instanceof THREE.Mesh ||
       (mesh.userData &&
         mesh.userData.type &&
-        mesh.userData.type === "RepetitionObject")
+        mesh.userData.type === 'RepetitionObject')
     ) {
       const boundingBoxDims: THREE.Vector3 = new THREE.Vector3();
       new THREE.Box3().setFromObject(mesh).getSize(boundingBoxDims);
@@ -48,12 +48,12 @@ export default class RotationHelper {
       const toroidArc: number = 2 * Math.PI;
       const toroidInnerRadius: number = 0.7;
 
-      if (this.axis === "x") {
+      if (this.axis === 'x') {
         color = 0xff0000;
         toroidRadius =
           Math.max(boundingBoxDims.y, boundingBoxDims.z) / 2 + separation;
         length = Math.max(boundingBoxDims.y, boundingBoxDims.z) + extraLength;
-      } else if (this.axis === "y") {
+      } else if (this.axis === 'y') {
         color = 0x00ff00;
         toroidRadius =
           Math.max(boundingBoxDims.x, boundingBoxDims.z) / 2 + separation;
@@ -86,7 +86,7 @@ export default class RotationHelper {
         color,
         opacity: 0.5,
         transparent: true,
-        depthWrite: false
+        depthWrite: false,
       });
 
       this.helperMesh = new THREE.Group();
@@ -102,10 +102,10 @@ export default class RotationHelper {
         this.helperMesh.setRotationFromEuler(mesh.rotation);
       }
 
-      if (this.axis === "y") {
+      if (this.axis === 'y') {
         this.helperMesh.rotateZ(Math.PI / 2);
       }
-      if (this.axis === "z") {
+      if (this.axis === 'z') {
         this.helperMesh.rotateY(-Math.PI / 2);
         this.helperMesh.rotateX(Math.PI / 2);
       }

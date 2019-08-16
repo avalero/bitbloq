@@ -7,208 +7,92 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from "./ObjectsCommon";
-import { IObjectPosition } from "./Scene";
-import {
-  OperationsArray,
-  ITranslateOperation,
-  IRotateOperation,
-<<<<<<< HEAD
-  Operation,
-  IScaleOperation,
-} from './Interfaces';
-import { cloneDeep } from 'lodash';
-=======
-  Operation
-} from "./Interfaces";
-import { cloneDeep } from "lodash";
->>>>>>> 18f56c6b20eacf90706ef44e51c5892972d10659
+import ObjectsCommon from './ObjectsCommon';
+import { IObjectPosition } from './Scene';
+import * as THREE from 'three';
 
 export default class PositionCalculator {
-  private operations: OperationsArray;
   private object: ObjectsCommon;
   private position: IObjectPosition;
+  private matrix: THREE.Matrix4;
 
   constructor(object: ObjectsCommon) {
     this.object = object;
-    this.operations = this.rebuildOperations();
   }
 
   public async getPositionAsync(): Promise<IObjectPosition> {
-    await this.applyOperationsAsync();
+    await this.computeMatrixAsync();
+
+    const pos: THREE.Vector3 = new THREE.Vector3();
+    const quaternion: THREE.Quaternion = new THREE.Quaternion();
+    const scale: THREE.Vector3 = new THREE.Vector3();
+
+    this.matrix.decompose(pos, quaternion, scale);
+    const euler: THREE.Euler = new THREE.Euler().setFromQuaternion(quaternion);
+
+    this.position = {
+      position: { x: pos.x, y: pos.y, z: pos.z },
+      angle: {
+        x: (euler.x * 180) / Math.PI,
+        y: (euler.y * 180) / Math.PI,
+        z: (euler.z * 180) / Math.PI,
+      },
+      scale: { x: scale.x, y: scale.y, z: scale.z },
+    };
+
     return this.position;
   }
 
-  private toggleRelativity(
-    operation: Operation,
-    config: { translation: boolean; rotation: boolean } = {
-      translation: true,
-      rotation: true
-    }
-  ) {
-    if (config.translation) {
-      if (operation.type === ObjectsCommon.createTranslateOperation().type) {
-        (operation as ITranslateOperation).relative = !(operation as ITranslateOperation)
-          .relative;
-      }
-    }
-
-    if (config.rotation) {
-      if (operation.type === ObjectsCommon.createRotateOperation().type) {
-        (operation as IRotateOperation).relative = !(operation as IRotateOperation)
-          .relative;
-      }
-    }
-
-    return operation;
+  public getMatrix(): THREE.Matrix4 {
+    return this.matrix;
   }
 
-  private setRelativity(operation: Operation, value: boolean) {
-    if (
-      operation.type === ObjectsCommon.createRotateOperation().type ||
-      operation.type === ObjectsCommon.createTranslateOperation().type
-    ) {
-      (operation as (ITranslateOperation | IRotateOperation)).relative = value;
-    }
-
-    return operation;
-  }
-
-  private getOperations(): OperationsArray {
-    return this.operations;
-  }
-
-  private invert(op: Operation) {
-    if (op.type === ObjectsCommon.createTranslateOperation().type) {
-      const operation = op as ITranslateOperation;
-      operation.x = -operation.x;
-      operation.y = -operation.y;
-      operation.z = -operation.z;
-    } else if (op.type === ObjectsCommon.createRotateOperation().type) {
-      const operation = op as IRotateOperation;
-      operation.x = -operation.x;
-      operation.y = -operation.y;
-      operation.z = -operation.z;
-    } else if (op.type === ObjectsCommon.createScaleOperation().type) {
-      const operation = op as IScaleOperation;
-      operation.x = operation.x !== 0 ? 1.0 / operation.x : 1;
-      operation.y = operation.y !== 0 ? 1.0 / operation.y : 1;
-      operation.z = operation.z !== 0 ? 1.0 / operation.z : 1;
-    }
-    return op;
-  }
-
-  private compoundBottomUpOperations(obj: ObjectsCommon): OperationsArray {
-    let children0Operations: OperationsArray = [];
-
-    // let's go down to the bottom non compound object
-    let children0: ObjectsCommon | CompoundObject = obj;
-    while (children0 instanceof CompoundObject) {
-      children0 = children0.getChildren()[0];
-    }
-    // this children0 is the bottom non Compound
-    children0Operations = cloneDeep(children0.getOperations());
-
-    // let's go up through all the parents
-    let childrenParent = children0.getParent();
-    while (childrenParent) {
-      children0Operations = [
-        ...children0Operations,
-        ...cloneDeep(childrenParent.getOperations()),
-      ];
-      childrenParent = childrenParent.getParent();
-    }
-
-    return children0Operations;
-  }
-
-  private getRotationOperations(
-    operations: OperationsArray,
-    modifier: (op: Operation) => Operation = op => op
-  ): OperationsArray {
-    const result = operations.filter(
-      op => op.type === ObjectsCommon.createRotateOperation().type
-    );
-    return result.map(op => modifier(op));
-  }
-
-  private rebuildOperations(): OperationsArray {
-    const parent = this.object.getParent();
+  private async computeMatrixAsync(): Promise<THREE.Matrix4> {
     const obj = this.object;
+    const parent = obj.getParent();
 
-    debugger;
-    if (parent) {
+    const mesh = await obj.getMeshAsync();
+    const myMatrix = mesh.matrix.clone();
+    if (!parent) {
+      if (mesh instanceof THREE.Mesh) {
+        this.matrix = myMatrix;
+        return this.matrix;
+      }
+    } else {
       if (parent instanceof CompoundObject) {
-        // If it is the first object of the Compound, its referencie system is the master
-        if (parent.getChildren()[0].getID() === obj.getID()) {
-          return [...new PositionCalculator(parent).getOperations()];
+        const parentPosCalculator = new PositionCalculator(parent);
+        const parentMatrix = await parentPosCalculator.computeMatrixAsync();
+
+        // if obj is the 1st children, its position is its parent position
+        if (obj.getID() === parent.getChildren()[0].getID()) {
+          this.matrix = parentMatrix;
+          return this.matrix;
         }
-        // If it is not the reference object (it's not the first)
-        // TO CHECK
 
-        const uno = new PositionCalculator(parent).getOperations();
-        const dos = cloneDeep(parent.getChildren()[0].getOperations()).map(op =>
-          this.invert(op)
-        );
-        const tres = cloneDeep(obj.getOperations()).map(op =>
-          this.toggleRelativity(op)
-        );
+        // object is not the primary object
 
-        debugger;
-        return [
-          ...new PositionCalculator(parent).getOperations(),
-          ...cloneDeep(parent.getChildren()[0].getOperations()).map(op =>
-            this.invert(op)
-          ),
-          ...cloneDeep(obj.getOperations()).map(op =>
-            this.toggleRelativity(op)
-          ),
-        ];
+        // get matrix of primary child
+        // const primusPosCalculator = new PositionCalculator(
+        //   parent.getChildren()[0]
+        // );
+        const primusMesh = await parent.getChildren()[0].getMeshAsync();
+        const primusMatrix = primusMesh.matrix;
+
+        // remove the primus matrix operations to my matrix
+        myMatrix.premultiply(new THREE.Matrix4().getInverse(primusMatrix));
+
+        // compose parent position with my position
+        this.matrix = parentPosCalculator.matrix.multiply(myMatrix);
+
+        return this.matrix;
       }
-
-      // It's not CompoundObject (but has a parent)
-      // TODO
-      return [];
     }
 
-    // It has no parent
-    if (obj instanceof CompoundObject) {
-      // When first order object is a CompoundObject we have to go all
-      // the way down into the object tree and build the operations
-      // from bottom up.
-
-      return this.compoundBottomUpOperations(obj);
-    }
-
-    return cloneDeep(obj.getOperations());
-  }
-
-  private async applyOperationsAsync(): Promise<void> {
-    const dummyObj = new DummyObject();
-    dummyObj.setOperations(this.operations);
-
-    await dummyObj.computeMeshAsync();
-    const mesh = await dummyObj.getMeshAsync();
-    this.position = {
-      position: {
-        x: mesh.position.x,
-        y: mesh.position.y,
-        z: mesh.position.z
-      },
-      angle: {
-        x: (mesh.rotation.x * 180) / Math.PI,
-        y: (mesh.rotation.y * 180) / Math.PI,
-        z: (mesh.rotation.z * 180) / Math.PI
-      },
-      scale: {
-        x: mesh.scale.x,
-        y: mesh.scale.y,
-        z: mesh.scale.z
-      }
-    };
+    this.matrix = new THREE.Matrix4();
+    return this.matrix;
   }
 }
 
-import DummyObject from "./DummyObject";
-import Union from "./Union";
-import CompoundObject from "./CompoundObject";
+import DummyObject from './DummyObject';
+import Union from './Union';
+import CompoundObject from './CompoundObject';
