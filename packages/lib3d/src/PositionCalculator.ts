@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from './ObjectsCommon';
-import { IObjectPosition } from './Scene';
-import * as THREE from 'three';
+import ObjectsCommon from "./ObjectsCommon";
+import { IObjectPosition } from "./Scene";
+import * as THREE from "three";
 
 export default class PositionCalculator {
   private object: ObjectsCommon;
@@ -35,9 +35,9 @@ export default class PositionCalculator {
       angle: {
         x: (euler.x * 180) / Math.PI,
         y: (euler.y * 180) / Math.PI,
-        z: (euler.z * 180) / Math.PI,
+        z: (euler.z * 180) / Math.PI
       },
-      scale: { x: scale.x, y: scale.y, z: scale.z },
+      scale: { x: scale.x, y: scale.y, z: scale.z }
     };
 
     return this.position;
@@ -48,8 +48,6 @@ export default class PositionCalculator {
   }
 
   private async computeMatrixAsync(): Promise<THREE.Matrix4> {
-    debugger;
-
     const obj = this.object;
     const parent = obj.getParent();
 
@@ -59,14 +57,22 @@ export default class PositionCalculator {
       return this.matrix;
     }
 
-    // If object has a parent, get
+    // If object has a parent, get mesh (prior to computing), else, get computed mesh
     let mesh = parent ? await obj.getMeshAsync() : (obj as any).mesh;
+
     if (!mesh) {
       mesh = await obj.getMeshAsync();
     }
 
     (mesh as THREE.Mesh).updateMatrix();
-    const myMatrix = (mesh as THREE.Mesh).matrix.clone();
+    let myMatrix = (mesh as THREE.Mesh).matrix.clone();
+
+    // if obj is Repetition Object we must compose with originalObject matrix
+    if (obj instanceof RepetitionObject) {
+      const oriMatrix = (await obj.getMeshAsync()).children[0].matrix.clone();
+      myMatrix = myMatrix.multiply(oriMatrix);
+      this.matrix = myMatrix;
+    }
 
     if (!parent) {
       // Simple Mesh
@@ -75,20 +81,11 @@ export default class PositionCalculator {
         return this.matrix;
       }
 
-      // Repetion Object
-      // TODO
-      if (obj instanceof RepetitionObject) {
-        this.matrix = new THREE.Matrix4();
-        return this.matrix;
-      }
-
-      // ObjectsGroup
-      this.matrix = new THREE.Matrix4();
-      return this.matrix;
+      if (obj instanceof RepetitionObject) return this.matrix;
     }
 
     // It has a parent
-    const parentPosCalculator = new PositionCalculator(parent);
+    const parentPosCalculator = new PositionCalculator(parent as ObjectsCommon);
     const parentMatrix = await parentPosCalculator.computeMatrixAsync();
 
     if (parent instanceof CompoundObject) {
@@ -103,8 +100,16 @@ export default class PositionCalculator {
       let primusObject = parent.getChildren()[0];
 
       // if primusObject is ObjectGroup, jump to its first child (as ObjectsGroups do not have position)
-      while (primusObject instanceof ObjectsGroup) {
-        primusObject = primusObject.getChildren()[0].userData.objectClone;
+      while (
+        primusObject instanceof ObjectsGroup ||
+        primusObject instanceof RepetitionObject
+      ) {
+        if (primusObject instanceof ObjectsGroup) {
+          primusObject = primusObject.getChildren()[0].userData.objectClone;
+        }
+        if (primusObject instanceof RepetitionObject) {
+          primusObject = primusObject.getOriginal().userData.objectClone;
+        }
       }
 
       const primusMesh = (primusObject as any).mesh;
@@ -121,14 +126,12 @@ export default class PositionCalculator {
     }
 
     if (parent instanceof RepetitionObject) {
-      // TODO
-      this.matrix = new THREE.Matrix4();
+      this.matrix = parentMatrix;
       return this.matrix;
     }
 
     // When object is part of a group, each mesh acts as individual object adding parent operations
     if (parent instanceof ObjectsGroup) {
-      debugger;
       // children of ObjectsGroups are clones with al their operations on them
       const clone = obj.userData.objectClone;
       const cloneMatrix = (await clone.getMeshAsync()).matrix;
@@ -136,12 +139,11 @@ export default class PositionCalculator {
       return this.matrix;
     }
 
-    // TODO
-    this.matrix = new THREE.Matrix4();
+    if (!this.matrix) this.matrix = new THREE.Matrix4();
     return this.matrix;
   }
 }
 
-import CompoundObject from './CompoundObject';
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
+import CompoundObject from "./CompoundObject";
+import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from "./RepetitionObject";
