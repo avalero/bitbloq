@@ -51,7 +51,10 @@ export default class PositionCalculator {
     const obj = this.object;
     const parent = obj.getParent();
 
-    const mesh = await obj.getMeshAsync();
+    // If object has a parent, get
+    let mesh = parent ? await obj.getMeshAsync() : (obj as any).mesh;
+    if (!mesh) mesh = await obj.getMeshAsync();
+
     const myMatrix = mesh.matrix.clone();
     if (!parent) {
       if (mesh instanceof THREE.Mesh) {
@@ -71,11 +74,8 @@ export default class PositionCalculator {
 
         // object is not the primary object
 
-        // get matrix of primary child
-        // const primusPosCalculator = new PositionCalculator(
-        //   parent.getChildren()[0]
-        // );
-        const primusMesh = await parent.getChildren()[0].getMeshAsync();
+        // primusMesh is not being recomputed just ask for mesh
+        const primusMesh = (parent.getChildren()[0] as any).mesh;
         const primusMatrix = primusMesh.matrix;
 
         // remove the primus matrix operations to my matrix
