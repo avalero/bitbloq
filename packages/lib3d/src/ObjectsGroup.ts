@@ -4,8 +4,6 @@ import ObjectsCommon from "./ObjectsCommon";
 import Scene from "./Scene";
 
 import Union from "./Union";
-import RepetitionObject from "./RepetitionObject";
-
 import {
   IObjectsGroupJSON,
   IObjectsCommonJSON,
@@ -124,6 +122,7 @@ export default class ObjectsGroup extends ObjectsCommon {
         const promises: Array<Promise<THREE.Object3D>> = this.children.map(
           object3D => {
             const objectClone = object3D.clone();
+            object3D.userData = { ...object3D.userData, objectClone };
             const json = objectClone.toJSON();
             json.operations = json.operations.concat(this.operations);
             objectClone.updateFromJSON(json, true);

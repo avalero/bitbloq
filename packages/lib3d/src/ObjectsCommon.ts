@@ -213,6 +213,7 @@ export default class ObjectsCommon {
     };
   }
   public meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
+  public userData: { [key: string]: any };
 
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;

@@ -13,9 +13,7 @@ import { isEqual, cloneDeep } from "lodash";
 import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsGroup from "./ObjectsGroup";
-import PositionCalculator from "./PositionCalculator";
 import Scene from "./Scene";
-import Union from "./Union";
 
 import {
   IMirrorOperation,
@@ -292,6 +290,11 @@ export default class RepetitionObject extends ObjectsCommon {
       ) {
         await this.computeRepetitonAsync();
       }
+
+      this.originalObject.userData = {
+        ...this.originalObject.userData,
+        objectClone: this.group[0]
+      };
 
       const meshes = await Promise.all(
         this.group.map(obj => obj.getMeshAsync())
