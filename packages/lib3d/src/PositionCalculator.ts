@@ -7,15 +7,15 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from './ObjectsCommon';
-import { IObjectPosition } from './Scene';
+import ObjectsCommon from "./ObjectsCommon";
+import { IObjectPosition } from "./Scene";
 import {
   OperationsArray,
   ITranslateOperation,
   IRotateOperation,
-  Operation,
-} from './Interfaces';
-import { cloneDeep } from 'lodash';
+  Operation
+} from "./Interfaces";
+import { cloneDeep } from "lodash";
 
 export default class PositionCalculator {
   private operations: OperationsArray;
@@ -37,7 +37,7 @@ export default class PositionCalculator {
     operation: Operation,
     config: { translation: boolean; rotation: boolean } = {
       translation: true,
-      rotation: true,
+      rotation: true
     }
   ) {
     if (config.translation) {
@@ -88,7 +88,7 @@ export default class PositionCalculator {
           // prepend operations without any change
           this.operations = [
             ...cloneDeep(child.getOperations()),
-            ...this.operations,
+            ...this.operations
           ];
         } else {
           // append operation toggling relativity
@@ -127,22 +127,22 @@ export default class PositionCalculator {
       position: {
         x: mesh.position.x,
         y: mesh.position.y,
-        z: mesh.position.z,
+        z: mesh.position.z
       },
       angle: {
         x: (mesh.rotation.x * 180) / Math.PI,
         y: (mesh.rotation.y * 180) / Math.PI,
-        z: (mesh.rotation.z * 180) / Math.PI,
+        z: (mesh.rotation.z * 180) / Math.PI
       },
       scale: {
         x: mesh.scale.x,
         y: mesh.scale.y,
-        z: mesh.scale.z,
-      },
+        z: mesh.scale.z
+      }
     };
   }
 }
 
-import DummyObject from './DummyObject';
-import Union from './Union';
-import CompoundObject from './CompoundObject';
+import DummyObject from "./DummyObject";
+import Union from "./Union";
+import CompoundObject from "./CompoundObject";
