@@ -48,51 +48,100 @@ export default class PositionCalculator {
   }
 
   private async computeMatrixAsync(): Promise<THREE.Matrix4> {
+    debugger;
+
     const obj = this.object;
     const parent = obj.getParent();
 
+    // ObjectGroups are always at 0,0,0 (they do not have coordinates as a system)
+    if (obj instanceof ObjectsGroup) {
+      this.matrix = new THREE.Matrix4();
+      return this.matrix;
+    }
+
     // If object has a parent, get
     let mesh = parent ? await obj.getMeshAsync() : (obj as any).mesh;
-    if (!mesh) mesh = await obj.getMeshAsync();
+    if (!mesh) {
+      mesh = await obj.getMeshAsync();
+    }
 
-    const myMatrix = mesh.matrix.clone();
+    (mesh as THREE.Mesh).updateMatrix();
+    const myMatrix = (mesh as THREE.Mesh).matrix.clone();
+
     if (!parent) {
+      // Simple Mesh
       if (mesh instanceof THREE.Mesh) {
         this.matrix = myMatrix;
         return this.matrix;
       }
-    } else {
-      if (parent instanceof CompoundObject) {
-        const parentPosCalculator = new PositionCalculator(parent);
-        const parentMatrix = await parentPosCalculator.computeMatrixAsync();
 
-        // if obj is the 1st children, its position is its parent position
-        if (obj.getID() === parent.getChildren()[0].getID()) {
-          this.matrix = parentMatrix;
-          return this.matrix;
-        }
-
-        // object is not the primary object
-
-        // primusMesh is not being recomputed just ask for mesh
-        const primusMesh = (parent.getChildren()[0] as any).mesh;
-        const primusMatrix = primusMesh.matrix;
-
-        // remove the primus matrix operations to my matrix
-        myMatrix.premultiply(new THREE.Matrix4().getInverse(primusMatrix));
-
-        // compose parent position with my position
-        this.matrix = parentPosCalculator.matrix.multiply(myMatrix);
-
+      // Repetion Object
+      // TODO
+      if (obj instanceof RepetitionObject) {
+        this.matrix = new THREE.Matrix4();
         return this.matrix;
       }
+
+      // ObjectsGroup
+      this.matrix = new THREE.Matrix4();
+      return this.matrix;
     }
 
+    // It has a parent
+    const parentPosCalculator = new PositionCalculator(parent);
+    const parentMatrix = await parentPosCalculator.computeMatrixAsync();
+
+    if (parent instanceof CompoundObject) {
+      // if obj is the 1st children, its position is its parent position
+      if (obj.getID() === parent.getChildren()[0].getID()) {
+        this.matrix = parentMatrix;
+        return this.matrix;
+      }
+
+      // object is not the primary object
+      // primusMesh is not being recomputed just ask for mesh
+      let primusObject = parent.getChildren()[0];
+
+      // if primusObject is ObjectGroup, jump to its first child (as ObjectsGroups do not have position)
+      while (primusObject instanceof ObjectsGroup) {
+        primusObject = primusObject.getChildren()[0].userData.objectClone;
+      }
+
+      const primusMesh = (primusObject as any).mesh;
+
+      const primusMatrix = primusMesh.matrix;
+
+      // remove the primus matrix operations to my matrix
+      myMatrix.premultiply(new THREE.Matrix4().getInverse(primusMatrix));
+
+      // compose parent position with my position
+      this.matrix = parentPosCalculator.matrix.multiply(myMatrix);
+
+      return this.matrix;
+    }
+
+    if (parent instanceof RepetitionObject) {
+      // TODO
+      this.matrix = new THREE.Matrix4();
+      return this.matrix;
+    }
+
+    // When object is part of a group, each mesh acts as individual object adding parent operations
+    if (parent instanceof ObjectsGroup) {
+      debugger;
+      // children of ObjectsGroups are clones with al their operations on them
+      const clone = obj.userData.objectClone;
+      const cloneMatrix = (await clone.getMeshAsync()).matrix;
+      this.matrix = cloneMatrix.multiply(parentMatrix);
+      return this.matrix;
+    }
+
+    // TODO
     this.matrix = new THREE.Matrix4();
     return this.matrix;
   }
 }
 
-import DummyObject from './DummyObject';
-import Union from './Union';
 import CompoundObject from './CompoundObject';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
