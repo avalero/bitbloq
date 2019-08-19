@@ -45,7 +45,7 @@ export default class TranslationHelper {
       this.helperMesh = await new TranslationHelper(
         parent,
         this.axis,
-        this.relative
+        true
       ).getHelperMeshAsync();
       return this.helperMesh;
     }
