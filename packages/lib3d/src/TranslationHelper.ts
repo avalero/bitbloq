@@ -115,6 +115,7 @@ export default class TranslationHelper {
           );
         }
       }
+      
       if (this.relative) {
         this.helperMesh.setRotationFromEuler(
           new THREE.Euler(
