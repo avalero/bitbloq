@@ -18,6 +18,8 @@ import ObjectsCommon from './ObjectsCommon';
 import PositionCalculator from './PositionCalculator';
 import RepetitionObject from './RepetitionObject';
 import CompoundObject from './CompoundObject';
+import { ITranslateOperation } from './Interfaces';
+import { Matrix3 } from 'three';
 
 export default class TranslationHelper {
   private helperMesh: THREE.Group;
@@ -116,9 +118,10 @@ export default class TranslationHelper {
 
           if (parent instanceof CompoundObject) {
             const children0 = parent.getChildren()[0];
-            const matrixChildren0 = await new PositionCalculator(
-              children0
-            ).computeMatrixAsync();
+            const children0Mesh = await children0.getMeshAsync();
+
+            (children0Mesh as THREE.Mesh).updateMatrix();
+            const children0Matrix = (children0Mesh as THREE.Mesh).matrix.clone();
 
             if (children0.getID() === this.obj.getID()) {
               // this.helperMesh.setRotationFromEuler(
@@ -134,7 +137,7 @@ export default class TranslationHelper {
               const scale: THREE.Vector3 = new THREE.Vector3();
 
               matrixParent
-                .multiply(new THREE.Matrix4().getInverse(matrixChildren0))
+                .multiply(new THREE.Matrix4().getInverse(children0Matrix))
                 .decompose(position, angleQuat, scale);
               this.helperMesh.setRotationFromQuaternion(angleQuat);
             }
