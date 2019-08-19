@@ -16,6 +16,8 @@
 import * as THREE from 'three';
 import ObjectsCommon from './ObjectsCommon';
 import PositionCalculator from './PositionCalculator';
+import RepetitionObject from './RepetitionObject';
+import CompoundObject from './CompoundObject';
 
 export default class TranslationHelper {
   private helperMesh: THREE.Group;
@@ -93,35 +95,59 @@ export default class TranslationHelper {
       this.helperMesh.add(new THREE.Mesh(cylinderGeometry, material));
       this.helperMesh.add(new THREE.Mesh(arrowGeometry, material));
 
-      const position = await new PositionCalculator(
+      const positionCalculator = await new PositionCalculator(
         this.obj
       ).getPositionAsync();
 
       this.helperMesh.position.set(
-        position.position.x,
-        position.position.y,
-        position.position.z
+        positionCalculator.position.x,
+        positionCalculator.position.y,
+        positionCalculator.position.z
       );
 
+      // abslute translation
+      debugger;
       if (!this.relative) {
         const parent = this.obj.getParent();
         if (parent) {
-          this.helperMesh.setRotationFromEuler(
-            new THREE.Euler(
-              position.angle.x,
-              position.angle.y,
-              position.angle.z
-            )
-          );
+          const matrixParent: THREE.Matrix4 = await new PositionCalculator(
+            parent
+          ).computeMatrixAsync();
+
+          if (parent instanceof CompoundObject) {
+            const children0 = parent.getChildren()[0];
+            const matrixChildren0 = await new PositionCalculator(
+              children0
+            ).computeMatrixAsync();
+
+            if (children0.getID() === this.obj.getID()) {
+              // this.helperMesh.setRotationFromEuler(
+              //   new THREE.Euler(
+              //     (Math.PI * angle.x) / 180.0,
+              //     (Math.PI * angle.y) / 180.0,
+              //     (Math.PI * angle.z) / 180.0
+              //   )
+              // );
+            } else {
+              const position: THREE.Vector3 = new THREE.Vector3();
+              const angleQuat: THREE.Quaternion = new THREE.Quaternion();
+              const scale: THREE.Vector3 = new THREE.Vector3();
+
+              matrixParent
+                .multiply(new THREE.Matrix4().getInverse(matrixChildren0))
+                .decompose(position, angleQuat, scale);
+              this.helperMesh.setRotationFromQuaternion(angleQuat);
+            }
+          }
         }
       }
-      
+
       if (this.relative) {
         this.helperMesh.setRotationFromEuler(
           new THREE.Euler(
-            (Math.PI * position.angle.x) / 180.0,
-            (Math.PI * position.angle.y) / 180.0,
-            (Math.PI * position.angle.z) / 180.0
+            (Math.PI * positionCalculator.angle.x) / 180.0,
+            (Math.PI * positionCalculator.angle.y) / 180.0,
+            (Math.PI * positionCalculator.angle.z) / 180.0
           )
         );
       }
