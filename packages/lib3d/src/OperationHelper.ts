@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PositionCalculator from './PositionCalculator';
-import RepetitionObject from './RepetitionObject';
-import CompoundObject from './CompoundObject';
-import ObjectsGroup from './ObjectsGroup';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PositionCalculator from "./PositionCalculator";
+import RepetitionObject from "./RepetitionObject";
+import CompoundObject from "./CompoundObject";
+import ObjectsGroup from "./ObjectsGroup";
 
 enum HelperType {
-  Rotation = 'rotation',
-  Translation = 'translation',
+  Rotation = "rotation",
+  Translation = "translation"
 }
 
 enum HelperAxis {
-  X = 'x',
-  Y = 'y',
-  Z = 'z',
+  X = "x",
+  Y = "y",
+  Z = "z"
 }
 
 export default class OperationHelper {
@@ -206,7 +206,7 @@ export default class OperationHelper {
       color,
       opacity: 0.5,
       transparent: true,
-      depthWrite: false,
+      depthWrite: false
     });
 
     this.helperMesh = new THREE.Group();
@@ -265,7 +265,7 @@ export default class OperationHelper {
       color,
       opacity: 0.5,
       transparent: true,
-      depthWrite: false,
+      depthWrite: false
     });
 
     this.helperMesh.add(new THREE.Mesh(cylinderGeometry, material));

@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from './ObjectsCommon';
-import { IObjectPosition } from './Scene';
-import * as THREE from 'three';
+import ObjectsCommon from "./ObjectsCommon";
+import { IObjectPosition } from "./Scene";
+import * as THREE from "three";
 
 export default class PositionCalculator {
   private object: ObjectsCommon;
@@ -35,9 +35,9 @@ export default class PositionCalculator {
       angle: {
         x: (euler.x * 180) / Math.PI,
         y: (euler.y * 180) / Math.PI,
-        z: (euler.z * 180) / Math.PI,
+        z: (euler.z * 180) / Math.PI
       },
-      scale: { x: scale.x, y: scale.y, z: scale.z },
+      scale: { x: scale.x, y: scale.y, z: scale.z }
     };
 
     return this.position;
@@ -144,6 +144,6 @@ export default class PositionCalculator {
   }
 }
 
-import CompoundObject from './CompoundObject';
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
+import CompoundObject from "./CompoundObject";
+import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from "./RepetitionObject";
