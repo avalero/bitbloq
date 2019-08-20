@@ -10,6 +10,10 @@
 import * as THREE from "three";
 import { isEqual } from "lodash";
 import {
+  ITranslateOperation,
+  IRotateOperation,
+  IScaleOperation,
+  IMirrorOperation,
   IRepetitionObjectJSON,
   IObjectsGroupJSON,
   ITextObjectJSON,
@@ -21,8 +25,12 @@ import {
   IPyramidJSON,
   ISphereJSON,
   ISTLJSON,
-  IPrimitiveObjectJSON
+  IPrimitiveObjectJSON,
+  OperationsArray
 } from "./Interfaces";
+
+import Object3D from "./Object3D";
+import ObjectsCommon from "./ObjectsCommon";
 
 type objJSON =
   | IRepetitionObjectJSON
@@ -168,4 +176,113 @@ export function setMeshMaterial(
   }
 
   return mesh;
+}
+
+export class MeshOperations {
+  public static applyMirrorOperation(
+    mesh: THREE.Object3D,
+    operation: IMirrorOperation
+  ): THREE.Object3D {
+    if (operation.plane === "xy") {
+      MeshOperations.applyScaleOperation(
+        mesh,
+        Object3D.createScaleOperation(1, 1, -1)
+      );
+    } else if (operation.plane === "yz") {
+      MeshOperations.applyScaleOperation(
+        mesh,
+        Object3D.createScaleOperation(-1, 1, 1)
+      );
+    } else if (operation.plane === "zx") {
+      MeshOperations.applyScaleOperation(
+        mesh,
+        Object3D.createScaleOperation(1, -1, 1)
+      );
+    }
+    return mesh;
+  }
+
+  public static applyTranslateOperation(
+    mesh: THREE.Object3D,
+    operation: ITranslateOperation
+  ): THREE.Object3D {
+    if (operation.relative) {
+      mesh.translateX(operation.x);
+      mesh.translateY(operation.y);
+      mesh.translateZ(operation.z);
+    } else {
+      // absolute x,y,z axis.
+      mesh.position.x += Number(operation.x);
+      mesh.position.y += Number(operation.y);
+      mesh.position.z += Number(operation.z);
+    }
+    return mesh;
+  }
+
+  public static applyRotateOperation(
+    mesh: THREE.Object3D,
+    operation: IRotateOperation
+  ): THREE.Object3D {
+    const x = THREE.Math.degToRad(Number(operation.x));
+    const y = THREE.Math.degToRad(Number(operation.y));
+    const z = THREE.Math.degToRad(Number(operation.z));
+    if (operation.relative) {
+      mesh.rotateX(x);
+      mesh.rotateY(y);
+      mesh.rotateZ(z);
+    } else {
+      mesh.rotateOnWorldAxis(new THREE.Vector3(1, 0, 0), x);
+      mesh.rotateOnWorldAxis(new THREE.Vector3(0, 1, 0), y);
+      mesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), z);
+    }
+    return mesh;
+  }
+
+  public static applyScaleOperation(
+    mesh: THREE.Object3D,
+    operation: IScaleOperation
+  ): THREE.Object3D {
+    mesh.scale.set(
+      mesh.scale.x * Number(operation.x),
+      mesh.scale.y * Number(operation.y),
+      mesh.scale.z * Number(operation.z)
+    );
+    return mesh;
+  }
+
+  public static applyOperations(
+    mesh: THREE.Object3D,
+    operations: OperationsArray
+  ): THREE.Object3D {
+    operations.forEach(operation => {
+      // Translate operation
+      if (operation.type === ObjectsCommon.createTranslateOperation().type) {
+        MeshOperations.applyTranslateOperation(
+          mesh,
+          operation as ITranslateOperation
+        );
+      } else if (
+        operation.type === ObjectsCommon.createRotateOperation().type
+      ) {
+        MeshOperations.applyRotateOperation(
+          mesh,
+          operation as IRotateOperation
+        );
+      } else if (operation.type === ObjectsCommon.createScaleOperation().type) {
+        MeshOperations.applyScaleOperation(mesh, operation as IScaleOperation);
+      } else if (
+        operation.type === ObjectsCommon.createMirrorOperation().type
+      ) {
+        MeshOperations.applyMirrorOperation(
+          mesh,
+          operation as IMirrorOperation
+        );
+      } else {
+        throw Error("ERROR: Unknown Operation");
+      }
+    });
+    mesh.updateMatrixWorld(true);
+    mesh.updateMatrix();
+    return mesh;
+  }
 }
