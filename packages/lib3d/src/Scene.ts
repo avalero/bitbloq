@@ -325,8 +325,13 @@ export default class Scene {
     if (this.objectsInTransition.length > 0) {
       const group: THREE.Group = new THREE.Group();
       this.objectsInTransition.forEach(async object => {
+        const parent = object.getParent();
         object.setMaterial(this.secondaryMaterial);
-        const mesh = (await object.getMeshAsync()).clone();
+        const mesh: THREE.Mesh =
+          parent instanceof CompoundObject &&
+          parent.getChildren()[0].getID() === object.getID()
+            ? (object as any).mesh.clone()
+            : (await object.getMeshAsync()).clone();
         setMeshMaterial(mesh, this.secondaryMaterial);
         const pos = await this.getPositionAsync(object.toJSON());
         if (mesh instanceof THREE.Mesh) {
@@ -538,7 +543,12 @@ export default class Scene {
       this.objectsInTransition = [];
       const parent = object.getParent();
       if (parent instanceof CompoundObject) {
-        this.objectsInTransition = [...parent.getChildren()];
+        if(parent.getChildren()[0].getID() === object.getID()){
+          // TODO
+          this.objectsInTransition.push(object);
+        }else{
+          this.objectsInTransition.push(object);
+        }
       }
       if (updateHistory) {
         this.updateHistory();
