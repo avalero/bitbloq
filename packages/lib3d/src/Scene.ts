@@ -23,14 +23,11 @@ import { isEqual } from "lodash";
 
 import ObjectFactory from "./ObjectFactory";
 import PositionCalculator from "./PositionCalculator";
-import RotationHelper from "./RotationHelper";
-import TranslationHelper from "./TranslationHelper";
 import meshArray2STLAsync from "./STLExporter";
-import TextObject from "./TextObject";
+import OperationHelper from "./OperationHelper";
 
 import {
   IGeometry,
-  ITextObjectJSON,
   ICompoundObjectJSON,
   IObjectsCommonJSON,
   IRepetitionObjectJSON,
@@ -621,20 +618,10 @@ export default class Scene {
     const { type, object, axis, relative } = helperDescription;
     try {
       const obj = this.getObject(object);
-      if (type === "rotation") {
-        const helper = new RotationHelper(obj, axis, relative);
-        const helperMesh = await helper.getHelperMeshAsync();
-        this.helpers.push(helperMesh);
-        return this.helpers;
-      }
-
-      if (type === "translation") {
-        const helper = new TranslationHelper(obj, axis, relative);
-        const helperMesh = await helper.getHelperMeshAsync();
-        this.helpers.push(helperMesh);
-        return this.helpers;
-      }
-      throw new Error(`Unknown helper type: ${type}`);
+      const helper = new OperationHelper(obj, type, axis, relative);
+      const helperMesh = await helper.getHelperMeshAsync();
+      this.helpers.push(helperMesh);
+      return this.helpers;
     } catch (e) {
       throw new Error(`Unable to make helper: ${e}`);
     }

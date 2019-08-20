@@ -47,7 +47,7 @@ export default class PositionCalculator {
     return this.matrix;
   }
 
-  private async computeMatrixAsync(): Promise<THREE.Matrix4> {
+  public async computeMatrixAsync(): Promise<THREE.Matrix4> {
     const obj = this.object;
     const parent = obj.getParent();
 
