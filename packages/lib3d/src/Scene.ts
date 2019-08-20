@@ -31,10 +31,11 @@ import {
   ICompoundObjectJSON,
   IObjectsCommonJSON,
   IRepetitionObjectJSON,
-  IObjectsGroupJSON
+  IObjectsGroupJSON,
+  OperationsArray
 } from "./Interfaces";
 import { pathToFileURL } from "url";
-import { setMeshMaterial } from "./Bitbloq";
+import { setMeshMaterial, MeshOperations } from "./Bitbloq";
 
 enum HelperType {
   Rotation = "rotation",
@@ -327,28 +328,58 @@ export default class Scene {
       this.objectsInTransition.forEach(async object => {
         const parent = object.getParent();
         object.setMaterial(this.secondaryMaterial);
-        const mesh: THREE.Mesh =
+        if (
+          parent instanceof CompoundObject &&
+          parent.getChildren()[0].getID() !== object.getID()
+        ) {
+          const mesh:
+            | THREE.Mesh
+            | THREE.Group = (await object.getMeshAsync()).clone();
+
+          setMeshMaterial(mesh, this.secondaryMaterial);
+
+          const pos = await this.getPositionAsync(object.toJSON());
+          if (mesh instanceof THREE.Mesh) {
+            mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
+            mesh.setRotationFromEuler(
+              new THREE.Euler(
+                (pos.angle.x * Math.PI) / 180,
+                (pos.angle.y * Math.PI) / 180,
+                (pos.angle.z * Math.PI) / 180
+              )
+            );
+            mesh.scale.set(
+              pos.scale.x * 1.01,
+              pos.scale.y * 1.01,
+              pos.scale.z * 1.01
+            );
+            group.add(mesh);
+          }
+        } else if (
           parent instanceof CompoundObject &&
           parent.getChildren()[0].getID() === object.getID()
-            ? (object as any).mesh.clone()
-            : (await object.getMeshAsync()).clone();
-        setMeshMaterial(mesh, this.secondaryMaterial);
-        const pos = await this.getPositionAsync(object.toJSON());
-        if (mesh instanceof THREE.Mesh) {
-          mesh.position.set(pos.position.x, pos.position.y, pos.position.z);
-          mesh.setRotationFromEuler(
-            new THREE.Euler(
-              (pos.angle.x * Math.PI) / 180,
-              (pos.angle.y * Math.PI) / 180,
-              (pos.angle.z * Math.PI) / 180
-            )
-          );
-          mesh.scale.set(
-            pos.scale.x * 1.01,
-            pos.scale.y * 1.01,
-            pos.scale.z * 1.01
-          );
-          group.add(mesh);
+        ) {
+          const childMesh: THREE.Mesh = (object as any).mesh.clone();
+          childMesh.position.set(0, 0, 0);
+          childMesh.rotation.set(0, 0, 0);
+          childMesh.scale.set(1, 1, 1);
+          let aux: ObjectsCommon | undefined = object;
+
+          // go to the bottom of the objects tree
+          while (aux instanceof CompoundObject) {
+            aux = aux.getChildren()[0];
+          }
+          let operations: OperationsArray = [];
+          // rebuild operations from the bottom to the top
+          while (aux) {
+            operations = [...aux.getOperations(), ...operations];
+            aux = aux.getParent();
+          }
+          // apply operations to mesh
+          MeshOperations.applyOperations(childMesh, operations);
+
+          setMeshMaterial(childMesh, this.secondaryMaterial);
+          group.add(childMesh);
         }
       });
 
@@ -543,13 +574,24 @@ export default class Scene {
       this.objectsInTransition = [];
       const parent = object.getParent();
       if (parent instanceof CompoundObject) {
-        if(parent.getChildren()[0].getID() === object.getID()){
-          // TODO
-          this.objectsInTransition.push(object);
-        }else{
-          this.objectsInTransition.push(object);
+        let aux: ObjectsCommon | undefined = parent;
+
+        // We are going to check if all the tree up is CompoundObject.
+        // If any parent on the tree-up is not Compound, we do not make Ghost
+        while (aux instanceof CompoundObject) {
+          aux = aux.getParent();
+        }
+
+        // this means we are on the top of the tree and its CompoundObject
+        if (!aux) {
+          if (parent.getChildren()[0].getID() === object.getID()) {
+            this.objectsInTransition.push(object);
+          } else {
+            this.objectsInTransition.push(object);
+          }
         }
       }
+
       if (updateHistory) {
         this.updateHistory();
       }
