@@ -702,6 +702,7 @@ const config = {
             type: 'translation',
             axis: 'x',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -714,6 +715,7 @@ const config = {
             type: 'translation',
             axis: 'y',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -726,6 +728,7 @@ const config = {
             type: 'translation',
             axis: 'z',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
       ],
@@ -751,6 +754,7 @@ const config = {
             type: 'rotation',
             axis: 'x',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -764,6 +768,7 @@ const config = {
             type: 'rotation',
             axis: 'y',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -777,6 +782,7 @@ const config = {
             type: 'rotation',
             axis: 'z',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -843,11 +849,12 @@ const config = {
           type: 'integer',
           unit: '°',
           advancedMode: true,
-          activeOperation: (object, { x, y, z, relative, axis = 'x' }) => ({
+          activeOperation: (object, { x, y, z, relative, id, axis = 'x' }) => ({
             object,
             type: 'rotation',
             axis: (x && 'x') || (y && 'y') || (z && 'z') || axis,
             relative: relative,
+            id: id,
           }),
           getValue: operation => {
             const { x, y, z } = operation;
