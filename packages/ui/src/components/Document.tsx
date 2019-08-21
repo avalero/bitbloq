@@ -254,9 +254,7 @@ class Document extends React.Component<DocumentProps, State> {
       <Container>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
-            <DocumentIcon color={brandColor}>
-              {icon}
-            </DocumentIcon>
+            <DocumentIcon color={brandColor}>{icon}</DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
                 {title}

@@ -51,6 +51,7 @@ export interface IHelperDescription {
   object: IObjectsCommonJSON;
   axis: HelperAxis;
   relative: boolean;
+  id: string;
 }
 
 export interface IObjectPosition {
@@ -667,10 +668,10 @@ export default class Scene {
       return this.helpers;
     }
 
-    const { type, object, axis, relative } = helperDescription;
+    const { type, object, axis, relative, id } = helperDescription;
     try {
       const obj = this.getObject(object);
-      const helper = new OperationHelper(obj, type, axis, relative);
+      const helper = new OperationHelper(obj, type, axis, relative, id);
       const helperMesh = await helper.getHelperMeshAsync();
       this.helpers.push(helperMesh);
       return this.helpers;

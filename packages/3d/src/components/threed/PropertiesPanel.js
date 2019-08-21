@@ -253,7 +253,7 @@ class PropertiesPanel extends React.Component {
       object,
       operation,
       source.index,
-      destination.index,
+      destination.index
     );
   };
 
@@ -435,7 +435,9 @@ class PropertiesPanel extends React.Component {
           onParameterChange={(operation, parameter, value) =>
             this.onOperationParameterChange(object, operation, parameter, value)
           }
-          onOperationChange={operation => this.onOperationChange(object, operation)}
+          onOperationChange={operation =>
+            this.onOperationChange(object, operation)
+          }
           onParameterFocus={(operation, parameter) => {
             if (parameter.activeOperation) {
               setActiveOperation(parameter.activeOperation(object, operation));
@@ -500,12 +502,12 @@ const mapDispatchToProps = dispatch => ({
     dispatch(removeOperation(object, operation)),
   reorderOperation: (object, operation, from, to) =>
     dispatch(reorderOperation(object, operation, from, to)),
-  setActiveOperation: ({ object, type, axis, relative }) =>
-    dispatch(setActiveOperation(object, type, axis, relative)),
+  setActiveOperation: ({ object, type, axis, relative, id }) =>
+    dispatch(setActiveOperation(object, type, axis, relative, id)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(withTranslate(PropertiesPanel));

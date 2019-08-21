@@ -13,6 +13,8 @@ import PositionCalculator from "./PositionCalculator";
 import RepetitionObject from "./RepetitionObject";
 import CompoundObject from "./CompoundObject";
 import ObjectsGroup from "./ObjectsGroup";
+import { OperationsArray } from "./Interfaces";
+import DummyObject from "./DummyObject";
 
 enum HelperType {
   Rotation = "rotation",
@@ -31,17 +33,20 @@ export default class OperationHelper {
   private axis: HelperAxis;
   private relative: boolean;
   private type: HelperType;
+  private operationID: string;
 
   constructor(
     obj: ObjectsCommon,
     type: HelperType,
     axis: HelperAxis,
-    relative: boolean
+    relative: boolean,
+    operationID: string
   ) {
     this.type = type;
     this.obj = obj;
     this.axis = axis;
     this.relative = relative;
+    this.operationID = operationID;
     this.helperMesh = new THREE.Group();
   }
 
@@ -58,8 +63,15 @@ export default class OperationHelper {
         parent,
         this.type,
         this.axis,
-        true
+        true,
+        this.operationID
       ).getHelperMeshAsync();
+
+      // this.helperMesh = await this.removeOperationsAsync(
+      //   this.helperMesh,
+      //   this.operationID,
+      //   this.obj.getOperations()
+      // );
       return this.helperMesh;
     }
 
@@ -68,8 +80,15 @@ export default class OperationHelper {
         this.obj.userData.objectClone,
         this.type,
         this.axis,
-        this.relative
+        this.relative,
+        this.operationID
       ).getHelperMeshAsync();
+
+      // this.helperMesh = await this.removeOperationsAsync(
+      //   this.helperMesh,
+      //   this.operationID,
+      //   this.obj.getOperations()
+      // );
       return this.helperMesh;
     }
 
@@ -137,7 +156,59 @@ export default class OperationHelper {
       this.helperMesh.rotateX(Math.PI / 2);
     }
 
+    if (this.relative) {
+      this.helperMesh = await this.removeOperationsAsync(
+        this.helperMesh,
+        this.operationID,
+        this.obj.getOperations()
+      );
+    }
+
     return this.helperMesh;
+  }
+
+  private async removeOperationsAsync(
+    mesh: THREE.Group,
+    operationID: string,
+    operations: OperationsArray
+  ): Promise<THREE.Group> {
+    const afterOperations: OperationsArray = [];
+    let found: boolean = false;
+
+    // add operations that will be applied after operationID to afterOperations Array
+    operations.forEach(op => {
+      if (found) afterOperations.push(op);
+      if (!found && op.id === operationID) {
+        found = true;
+      }
+    });
+
+    if (afterOperations.length === 0) return mesh;
+
+    const dummyObj = new DummyObject();
+    dummyObj.setOperations(afterOperations);
+    await dummyObj.computeMeshAsync();
+    const dummyMesh = await dummyObj.getMeshAsync();
+    dummyMesh.updateMatrix();
+    const afterMatrix: THREE.Matrix4 = dummyMesh.matrix.clone();
+    const inverseAfterMatrix: THREE.Matrix4 = new THREE.Matrix4().getInverse(
+      afterMatrix
+    );
+
+    mesh.updateMatrix();
+    let meshMatrix = mesh.matrix.clone();
+    meshMatrix = meshMatrix.premultiply(inverseAfterMatrix);
+    const position = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3();
+
+    meshMatrix.decompose(position, quaternion, scale);
+
+    // mesh.position.set(position.x, position.y, position.z);
+    mesh.setRotationFromQuaternion(quaternion);
+    mesh.scale.set(scale.x, scale.y, scale.z);
+
+    return mesh;
   }
 
   private async getHelperMeshObjectsGroupAsync(): Promise<THREE.Group> {
@@ -150,7 +221,8 @@ export default class OperationHelper {
           child.userData.objectClone,
           this.type,
           this.axis,
-          this.relative
+          this.relative,
+          this.operationID
         );
         return helper.getHelperMeshAsync();
       })

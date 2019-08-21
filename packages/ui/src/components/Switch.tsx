@@ -8,7 +8,7 @@ interface ContainerProps {
 }
 const Container = styled.div<ContainerProps>`
   position: relative;
-  width: ${props => props.leftRight ? "48px" : "56px"};
+  width: ${props => (props.leftRight ? "48px" : "56px")};
   height: 26px;
   border-radius: 14px;
   border: 1px solid #cfcfcf;
@@ -78,7 +78,11 @@ export interface SwitchProps {
   leftRight?: boolean;
 }
 
-export const Switch: React.SFC<SwitchProps> = ({ value, onChange, leftRight }) => (
+export const Switch: React.SFC<SwitchProps> = ({
+  value,
+  onChange,
+  leftRight
+}) => (
   <Container onClick={() => onChange(!value)} leftRight={leftRight}>
     <DisabledIcon visible={!value && !leftRight}>
       <Icon name="close" />

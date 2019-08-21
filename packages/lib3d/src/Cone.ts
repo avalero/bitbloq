@@ -74,6 +74,7 @@ export default class Cone extends PrimitiveObject {
         cloneDeep(this.viewOptions),
         (this.mesh as THREE.Mesh).clone()
       );
+
       return objCyl;
     }
     const obj = new Cone(
