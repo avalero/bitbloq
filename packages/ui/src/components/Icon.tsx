@@ -68,7 +68,7 @@ import SemiCylinder from "./icons/SemiCylinder";
 import Octahedron from "./icons/Octahedron";
 import Heart from "./icons/Heart";
 import Logo3D from "./icons/Logo3D";
-import HollowCylinder from "./icons/HollowCylinder"
+import HollowCylinder from "./icons/HollowCylinder";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -83,7 +83,7 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
     case "airplane":
       return <Airplane />;
     case "octahedron":
-      return <Octahedron />
+      return <Octahedron />;
     case "angle":
       return <Angle />;
     case "angle-double":
@@ -91,7 +91,7 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
     case "heart":
       return <Heart />;
     case "tube":
-     return <HollowCylinder />;
+      return <HollowCylinder />;
     case "arrow":
       return <Arrow />;
     case "basic-shapes":
@@ -163,15 +163,15 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
     case "prism":
       return <Prism />;
     case "torus":
-      return <Torus />
+      return <Torus />;
     case "star":
-      return <Star />
+      return <Star />;
     case "rectangularPrism":
-      return <RectangularPrism />
+      return <RectangularPrism />;
     case "cone":
-      return <Cone />
+      return <Cone />;
     case "truncatedcone":
-      return <TruncatedCone />
+      return <TruncatedCone />;
     case "programming":
       return <Programming />;
     case "programming2":
