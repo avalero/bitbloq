@@ -40,8 +40,21 @@ exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
       test: /\.(json)$/,
       include: [/src\/messages/],
       use: ['file-loader'],
+    },
+
+    {
+      test: /\.(stl)$/,
+      use: ['file-loader'],
     }
   ];
+
+  config.resolve = {
+    ...config.resolve,
+    alias: {
+      ...config.resolve.alias,
+      react: path.resolve('./node_modules/react')
+    }
+  };
 
   if (stage === "build-html") {
     config.module.rules.push({

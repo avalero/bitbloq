@@ -1,20 +1,23 @@
-import * as React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { navigate } from "gatsby";
 import { Global } from "@emotion/core";
 import SEO from "../components/SEO";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
+import { Formik, Form, Field } from "formik";
 import {
   baseStyles,
   colors,
   Input,
   Panel,
   Button,
+  DialogModal,
   HorizontalRule,
   Checkbox
 } from "@bitbloq/ui";
 import Survey, { Question, QuestionType } from "../components/Survey";
+import { isValidEmail } from "../util";
 import logoBetaImage from "../images/logo-beta.svg";
 
 const SIGNUP_MUTATION = gql`
@@ -85,86 +88,37 @@ interface UserField {
   type: string;
 }
 
-const userFields: UserField[] = [
-  {
-    label: "Nombre",
-    field: "name",
-    placeholder: "Pepe Pérez",
-    type: "text"
-  },
-  {
-    label: "Correo electrónico",
-    field: "email",
-    placeholder: "pepe@perez.com",
-    type: "email"
-  },
-  {
-    label: "Contraseña",
-    field: "password",
-    type: "password"
-  },
-  {
-    label: "Repetir contraseña",
-    field: "repeatPassword",
-    type: "password"
-  }
-];
-
 enum SignupStep {
   Survey,
   UserData
 }
 
-interface UserData {
-  name: string;
-  email: string;
-  password: string;
-  repeatPassword: string;
-}
-
 class SignupPageState {
   readonly currentStep: SignupStep = SignupStep.Survey;
   readonly surveyValues: object = {};
-  readonly userData: UserData = {
-    name: "",
-    email: "",
-    password: "",
-    repeatPassword: ""
-  };
-  readonly receiveNews: boolean = false;
-  readonly legalAge: boolean = false;
-  readonly acceptTerms: boolean = false;
 }
 
 class SignupPage extends React.Component<any, SignupPageState> {
   readonly state = new SignupPageState();
 
-  wrapRef = React.createRef();
+  wrapRef = React.createRef<HTMLDivElement>();
+  formRef = React.createRef<Formik>();
 
   componentDidUpdate(prevProps, prevState: SignupPageState) {
     const { currentStep } = this.state;
+    const { signupError } = this.props;
     if (currentStep !== prevState.currentStep && this.wrapRef.current) {
       this.wrapRef.current.scrollIntoView();
     }
-  }
-
-  onCreateAccount = () => {
-    const { userData, surveyValues } = this.state;
-  };
-
-  canCreateAccount() {
-    const { userData, receiveNews, legalAge, acceptTerms } = this.state;
-    const { name, email, password, repeatPassword } = userData;
-
-    if (!name || !email || !password || !legalAge || !acceptTerms) {
-      return false;
+    const form = this.formRef.current;
+    if (form && signupError !== prevProps.signupError) {
+      if (signupError) {
+        form.setErrors({
+          email: 'Ya hay un usuario registrado con este correo electrónico'
+        });
+        console.log('Signup ERROR');
+      }
     }
-
-    if (password !== repeatPassword) {
-      return false;
-    }
-
-    return true;
   }
 
   renderSurveyStep() {
@@ -175,9 +129,11 @@ class SignupPage extends React.Component<any, SignupPageState> {
         <StepCount>Paso 1 de 2</StepCount>
         <StepTitle>Encuesta previa</StepTitle>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed aliquet
-          massa id quam lobortis lobortis. Nullam aliquam lorem vitae dignissim
-          maximus. Donec accumsan gravida lacinia.
+          Bienvenido a la beta del nuevo Bitbloq. Para poder crear una cuenta de
+          usuario necesitamos que rellenes la siguiente información que nos
+          ayudará a conocer mejor tus necesidades. Por motivos técnicos la
+          cuenta de usuario que crees y su contenido se eliminará tras finalizar
+          la beta.
         </p>
         <Survey
           questions={questions}
@@ -190,6 +146,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
           </Button>
           <Button
             tertiary
+            default
             onClick={() => this.setState({ currentStep: SignupStep.UserData })}
           >
             Siguiente
@@ -200,86 +157,133 @@ class SignupPage extends React.Component<any, SignupPageState> {
   }
 
   renderUserDataStep() {
-    const {
-      userData,
-      receiveNews,
-      legalAge,
-      acceptTerms,
-      surveyValues
-    } = this.state;
+    const { signUp, isSigningUp } = this.props;
+    const { surveyValues } = this.state;
 
     return (
       <StepContent>
         <StepCount>Paso 2 de 2</StepCount>
         <StepTitle>Datos de usuario</StepTitle>
-        {userFields.map(field => (
-          <FormGroup key={field.field}>
-            <label>{field.label}</label>
-            <Input
-              type={field.type}
-              placeholder={field.placeholder}
-              value={userData[field.field]}
-              onChange={e =>
-                this.setState({
-                  userData: { ...userData, [field.field]: e.target.value }
-                })
-              }
-            />
-          </FormGroup>
-        ))}
-        <CheckOption
-          onClick={() => this.setState({ receiveNews: !receiveNews })}
-        >
-          <Checkbox checked={receiveNews} />
-          <span>
-            Acepto recibir noticias y novedades en mi correo electrónico.
-          </span>
-        </CheckOption>
-        <CheckOption onClick={() => this.setState({ legalAge: !legalAge })}>
-          <Checkbox checked={legalAge} />
-          <span>Soy mayor de edad.</span>
-        </CheckOption>
-        <CheckOption
-          onClick={() => this.setState({ acceptTerms: !acceptTerms })}
-        >
-          <Checkbox checked={acceptTerms} />
-          <span>
-            He leido y acepto la <a href="#">política de privacidad.</a>
-          </span>
-        </CheckOption>
-        <Buttons>
-          <Button
-            tertiary
-            onClick={() => this.setState({ currentStep: SignupStep.Survey })}
-          >
-            Volver
-          </Button>
-          <Mutation
-            mutation={SIGNUP_MUTATION}
-            onCompleted={() => navigate("/")}
-          >
-            {(signUp, { loading }) => (
-              <Button
-                onClick={() =>
-                  signUp({
-                    variables: {
-                      user: {
-                        email: userData.email,
-                        name: userData.name,
-                        password: userData.password,
-                        notifications: receiveNews,
-                        signUpSurvey: surveyValues
-                      }
-                    }
-                  })
+        <Formik
+          ref={this.formRef}
+          initialValues={{
+            name: "",
+            email: "",
+            password: "",
+            repeatPassword: "",
+            receiveNews: false,
+            legalAge: false,
+            acceptTerms: false
+          }}
+          validate={values => {
+            const errors: any = {};
+            if (!values.name) {
+              errors.name = "Debes introducir un nombre";
+            }
+            if (!values.email) {
+              errors.email = "Debes introducir un correo electronico";
+            } else if (!isValidEmail(values.email)) {
+              errors.email = "La dirección de correo electrónico no es válida";
+            }
+            if (!values.password) {
+              errors.password = "Debes introducir una contraseña";
+            }
+            if (values.password !== values.repeatPassword) {
+              errors.repeatPassword = "Las dos contraseñas no coinciden";
+            }
+            if (!values.legalAge) {
+              errors.legalAge = "Debes ser mayor de edad para crear una cuenta";
+            }
+            if (!values.acceptTerms) {
+              errors.acceptTerms =
+                "Debes leer y aceptar las condiciones generales para crear una cuenta.";
+            }
+            return errors;
+          }}
+          onSubmit={values => {
+            signUp({
+              variables: {
+                user: {
+                  email: values.email,
+                  name: values.name,
+                  password: values.password,
+                  notifications: values.receiveNews,
+                  signUpSurvey: surveyValues
                 }
-                disabled={!this.canCreateAccount() || loading}
-              >
-                Crear cuenta
-              </Button>
-            )}
-          </Mutation>
-        </Buttons>
+              }
+            });
+          }}
+        >
+          {({ isSubmitting }) => (
+            <Form>
+              <FormGroup>
+                <label>Nombre</label>
+                <Field
+                  name="name"
+                  component={FormInput}
+                  type="text"
+                  placeholder="Pepe Pérez"
+                />
+              </FormGroup>
+              <FormGroup>
+                <label>Correo electrónico</label>
+                <Field
+                  name="email"
+                  component={FormInput}
+                  type="email"
+                  placeholder="pepe@perez.com"
+                />
+              </FormGroup>
+              <FormGroup>
+                <label>Contraseña</label>
+                <Field name="password" component={FormInput} type="password" />
+              </FormGroup>
+              <FormGroup>
+                <label>Repetir contraseña</label>
+                <Field
+                  name="repeatPassword"
+                  component={FormInput}
+                  type="password"
+                />
+              </FormGroup>
+              <Field
+                name="receiveNews"
+                component={FormCheckbox}
+                label="Acepto recibir noticias y novedades en mi correo electrónico."
+              />
+              <Field
+                name="legalAge"
+                component={FormCheckbox}
+                label="Soy mayor de edad."
+              />
+              <Field
+                name="acceptTerms"
+                component={FormCheckbox}
+                label={
+                  <>
+                    He leido y acepto la{" "}
+                    <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
+                      política de privacidad.
+                    </a>
+                  </>
+                }
+              />
+              <Buttons>
+                <Button
+                  tertiary
+                  onClick={() =>
+                    this.setState({ currentStep: SignupStep.Survey })
+                  }
+                >
+                  Volver
+                </Button>
+                <Button type="submit" disabled={isSigningUp}>
+                  Crear cuenta
+                </Button>
+              </Buttons>
+            </Form>
+          )}
+        </Formik>
       </StepContent>
     );
   }
@@ -307,7 +311,71 @@ class SignupPage extends React.Component<any, SignupPageState> {
   }
 }
 
-export default SignupPage;
+const SignupPageWithMutation = props => {
+  const [accountCreated, setAccountCreated] = useState(false);
+
+  if (accountCreated) {
+    return (
+      <Wrap>
+        <DialogModal
+          isOpen={true}
+          title="Cuenta creada"
+          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta."
+          cancelText="Volver a la web"
+          onCancel={() => navigate("/")}
+        />
+      </Wrap>
+    );
+  }
+
+  return (
+    <Mutation mutation={SIGNUP_MUTATION} onCompleted={() => setAccountCreated(true)}>
+      {(signUp, { loading, error }) => (
+        <SignupPage
+          {...props}
+          signUp={signUp}
+          isSigningUp={loading}
+          signupError={error}
+        />
+      )}
+    </Mutation>
+  )
+};
+
+export default SignupPageWithMutation;
+
+const FormInput = ({ field, form: { touched, errors }, ...props }) => {
+  const showError = touched[field.name] && errors[field.name];
+  return (
+    <div>
+      <Input {...field} {...props} error={showError} />
+      {showError && <ErrorMessage>{errors[field.name]}</ErrorMessage>}
+    </div>
+  );
+};
+
+const FormCheckbox = ({
+  field,
+  form: { touched, errors, setFieldValue },
+  label,
+  ...props
+}) => {
+  const showError = touched[field.name] && errors[field.name];
+  return (
+    <div>
+      <CheckOption onClick={() => setFieldValue(field.name, !field.value)}>
+        <Checkbox
+          {...field}
+          {...props}
+          checked={field.value}
+          error={showError}
+        />
+        <span>{label}</span>
+      </CheckOption>
+      {showError && <ErrorMessage>{errors[field.name]}</ErrorMessage>}
+    </div>
+  );
+};
 
 /* Styled components */
 
@@ -401,4 +469,12 @@ const CheckOption = styled.div`
     font-weight: bold;
     text-decoration: none;
   }
+`;
+
+const ErrorMessage = styled.div`
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  font-style: italic;
+  color: #d82b32;
 `;

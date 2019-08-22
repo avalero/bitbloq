@@ -45,7 +45,7 @@ const httpLink = createUploadLink({
   fetch
 });
 
-export const client = isBrowser =>
+export const createClient = isBrowser =>
   new ApolloClient({
     link: ApolloLink.from([
       onError(({ graphQLErrors, networkError }) => {
@@ -55,7 +55,7 @@ export const client = isBrowser =>
               `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
             )
           );
-        if (networkError) console.log(`[Network error]: ${networkError}`);
+        if (networkError) console.log(`[Network error]: ${JSON.stringify(networkError)}`);
       }),
       requestLink,
       isBrowser
@@ -67,7 +67,7 @@ export const client = isBrowser =>
               );
             },
             new WebSocketLink({
-              uri: `ws://${window.location.host}/api/graphql`,
+              uri: `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/graphql`, 
               options: {
                 lazy: true,
                 reconnect: true,
@@ -77,9 +77,7 @@ export const client = isBrowser =>
                     window.localStorage.getItem("authToken");
 
                   return {
-                    headers: {
-                      authorization: token ? `Bearer ${token}` : ""
-                    }
+                    authorization: token ? `Bearer ${token}` : ""
                   };
                 }
               },

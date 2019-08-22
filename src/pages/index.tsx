@@ -32,6 +32,7 @@ class IndexPageState {
   readonly password: string = "";
   readonly studentNick: string = "";
   readonly exerciseCode: string = "";
+  readonly studentPassword: string = "";
 }
 
 const ME_QUERY = gql`
@@ -48,9 +49,17 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-const CREATE_SUBMISSION_MUTATION = gql`
-  mutation CreateSubmission($studentNick: String!, $exerciseCode: String!) {
-    createSubmission(studentNick: $studentNick, exerciseCode: $exerciseCode) {
+const LOGIN_SUBMISSION_MUTATION = gql`
+  mutation LoginSubmission(
+    $studentNick: String!
+    $exerciseCode: String!
+    $password: String!
+  ) {
+    loginSubmission(
+      studentNick: $studentNick
+      exerciseCode: $exerciseCode
+      password: $password
+    ) {
       token
       exerciseID
       type
@@ -58,17 +67,32 @@ const CREATE_SUBMISSION_MUTATION = gql`
   }
 `;
 
+const getErrorText = ({ graphQLErrors: errors }) => {
+  const error = errors && errors[0];
+  if (error) {
+    const code = error.extensions && error.extensions.code;
+    switch (code) {
+      case "INVALID_EXERCISE_CODE":
+        return "El ejercicio no existe o ya no admite más alumnos";
+      case "PASSWORD_ERROR":
+        return "La contraseña es incorrecta";
+      default:
+        return "Error";
+    }
+  }
+};
+
 class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   readonly state = new IndexPageState();
 
   onTeacherLogin = ({ login: token }) => {
-    window.sessionStorage.setItem('authToken', '');
-    window.localStorage.setItem('authToken', token);
-    navigate('/app');
+    window.sessionStorage.setItem("authToken", "");
+    window.localStorage.setItem("authToken", token);
+    navigate("/app");
   };
 
-  onStudentLogin = ({ createSubmission: { token, exerciseID, type }}) => {
-    window.sessionStorage.setItem('authToken', token);
+  onStudentLogin = ({ loginSubmission: { token, exerciseID, type } }) => {
+    window.sessionStorage.setItem("authToken", token);
     navigate(`/app/exercise/${type}/${exerciseID}/`);
   };
 
@@ -99,29 +123,31 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
         <Mutation mutation={LOGIN_MUTATION} onCompleted={this.onTeacherLogin}>
           {(login, { loading, error }) => (
             <LoginForm>
-              <Input
-                error={!loading && error}
-                value={email}
-                onChange={e => this.setState({ email: e.target.value })}
-                placeholder="Correo electrónico"
-                type="email"
-              />
-              <Input
-                error={!loading && error}
-                value={password}
-                onChange={e => this.setState({ password: e.target.value })}
-                placeholder="Contraseña"
-                type="password"
-              />
-              {(!loading && error) &&
-                <ErrorMessage>Email o contraseña incorrectos</ErrorMessage>
-              }
-              <LoginButton
-                disabled={loading}
-                onClick={() => login({ variables: { email, password } })}
-              >
-                Entrar
-              </LoginButton>
+              <div>
+                <Input
+                  error={!loading && error}
+                  value={email}
+                  onChange={e => this.setState({ email: e.target.value })}
+                  placeholder="Correo electrónico"
+                  type="email"
+                />
+                <Input
+                  error={!loading && error}
+                  value={password}
+                  onChange={e => this.setState({ password: e.target.value })}
+                  placeholder="Contraseña"
+                  type="password"
+                />
+                {!loading && error && (
+                  <ErrorMessage>Email o contraseña incorrectos</ErrorMessage>
+                )}
+                <LoginButton
+                  disabled={loading}
+                  onClick={() => login({ variables: { email, password } })}
+                >
+                  Entrar
+                </LoginButton>
+              </div>
             </LoginForm>
           )}
         </Mutation>
@@ -130,7 +156,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
   }
 
   renderStudentTab() {
-    const { studentNick, exerciseCode } = this.state;
+    const { studentNick, exerciseCode, studentPassword } = this.state;
 
     return (
       <TabContent key={TabType.Student}>
@@ -139,47 +165,68 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
             <img src={studentStep1Image} />
             <p>
               1. Para poder trabajar con el nuevo Bitbloq, debes pedirle a tu
-              profesor un código de ejercicio.
+              profesor o profesora un código de ejercicio. Podrás entrar en el
+              ejercicio mientras tu profesor lo mantenga abierto.
             </p>
           </Step>
           <Step>
             <img src={studentStep2Image} />
             <p>
-              2. Inserta el código en el formulario de la derecha y escribe el
-              nombre de usuario que quieras usar.
+              2. Inserta el código de ejercicio en el formulario de la derecha y escribe el
+              nombre de acceso que quieras usar y una contraseña (opcional).
+              Recuérdalos para continuar el ejercicio otro día.
             </p>
           </Step>
         </TabInfo>
         <DashedLine />
         <Mutation
-          mutation={CREATE_SUBMISSION_MUTATION}
+          mutation={LOGIN_SUBMISSION_MUTATION}
           onCompleted={this.onStudentLogin}
         >
-          {(createSubmission, { loading, error }) => (
+          {(loginSubmission, { loading, error }) => (
             <LoginForm>
-              <Input
-                error={!loading && error}
-                value={studentNick}
-                onChange={e => this.setState({ studentNick: e.target.value })}
-                placeholder="Nombre de usuario"
-              />
-              <CodeInput
-                error={!loading && error}
-                value={exerciseCode}
-                onChange={e => this.setState({ exerciseCode: e.target.value })}
-                placeholder="Código de ejercicio"
-              />
-              {(!loading && error) &&
-                <ErrorMessage>Error</ErrorMessage>
-              }
-              <LoginButton
-                disabled={loading}
-                onClick={() =>
-                  createSubmission({ variables: { studentNick, exerciseCode } })
-                }
-              >
-                Entrar
-              </LoginButton>
+              <div>
+                <CodeInput
+                  error={!loading && error}
+                  value={exerciseCode}
+                  onChange={e =>
+                    this.setState({ exerciseCode: e.target.value })
+                  }
+                  placeholder="Código de ejercicio"
+                />
+                <Input
+                  error={!loading && error}
+                  value={studentNick}
+                  onChange={e => this.setState({ studentNick: e.target.value })}
+                  placeholder="Nombre de acceso"
+                />
+                <Input
+                  error={!loading && error}
+                  value={studentPassword}
+                  onChange={e =>
+                    this.setState({ studentPassword: e.target.value })
+                  }
+                  placeholder="Contraseña (opcional)"
+                  type="password"
+                />
+                {!loading && error && (
+                  <ErrorMessage>{getErrorText(error)}</ErrorMessage>
+                )}
+                <LoginButton
+                  disabled={loading}
+                  onClick={() =>
+                    loginSubmission({
+                      variables: {
+                        studentNick,
+                        exerciseCode,
+                        password: studentPassword
+                      }
+                    })
+                  }
+                >
+                  Entrar
+                </LoginButton>
+              </div>
             </LoginForm>
           )}
         </Mutation>
@@ -231,7 +278,7 @@ class IndexPage extends React.Component<IndexPageProps, IndexPageState> {
         <Query query={ME_QUERY} fetchPolicy="network-only">
           {({ loading, error, data }) => {
             if (!loading && !error && data) {
-              navigate('/app');
+              navigate("/app");
             }
             return null;
           }}
@@ -300,6 +347,7 @@ const Rule = styled(HorizontalRule)`
 const LoginPanel = styled(Panel)`
   display: flex;
   align-self: stretch;
+  min-height: 285px;
 `;
 
 const Tabs = styled.div`
@@ -346,6 +394,7 @@ const Tab = styled.div<TabProps>`
       background-color: white;
       border-color: ${colors.gray3} white ${colors.gray3} ${colors.gray3};
       color: ${colors.black};
+      margin-rigth: 0px;
     `}
 `;
 
@@ -359,6 +408,7 @@ const TabInfo = styled.div`
   display: flex;
   padding: 30px;
   justify-content: space-around;
+  align-items: center;
 `;
 
 const Step = styled.div`
@@ -395,13 +445,16 @@ const DashedLine = styled.div`
 `;
 
 const CodeInput = styled(Input)`
-  font-family: 'Roboto Mono';
+  font-family: "Roboto Mono";
 `;
 
 const LoginForm = styled.form`
   box-sizing: border-box;
   width: 360px;
   padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   ${Input}, ${CodeInput} {
     margin-bottom: 20px;

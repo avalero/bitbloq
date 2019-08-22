@@ -17,57 +17,12 @@ import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { sortByCreatedAt, sortByTitle } from "../util";
-
-const DOCUMENTS_QUERY = gql`
-  query {
-    documents {
-      id
-      type
-      title
-      createdAt
-      image
-    }
-  }
-`;
-
-const CREATE_DOCUMENT_MUTATION = gql`
-  mutation CreateDocument(
-    $type: String!
-    $title: String!
-    $description: String
-    $content: String
-    $image: String
-  ) {
-    createDocument(
-      input: {
-        type: $type
-        title: $title
-        description: $description
-        content: $content
-        imageUrl: $image
-      }
-    ) {
-      id
-      type
-    }
-  }
-`;
-
-const DELETE_DOCUMENT_MUTATION = gql`
-  mutation DeleteDocument($id: ObjectID!) {
-    deleteDocument(id: $id) {
-      id
-    }
-  }
-`;
-
-const DOCUMENT_UPDATED_SUBSCRIPTION = gql`
-  subscription OnDocumentUpdated {
-    documentUpdated {
-      id
-    }
-  }
-`;
+import {
+  DOCUMENTS_QUERY,
+  CREATE_DOCUMENT_MUTATION,
+  DELETE_DOCUMENT_MUTATION,
+  DOCUMENT_UPDATED_SUBSCRIPTION
+} from "../apollo/queries";
 
 enum OrderType {
   Creation = "creation",
@@ -149,7 +104,7 @@ class Documents extends React.Component<any, DocumentsState> {
   renderHeader() {
     return (
       <Header>
-        <h1>Mis Documentos</h1>
+        <h1>Mis documentos</h1>
         <div>
           <DropDown
             attachmentPosition={"top center"}
@@ -272,7 +227,7 @@ class Documents extends React.Component<any, DocumentsState> {
           }}
         </Query>
         <DialogModal
-          isOpen={deleteDocumentId}
+          isOpen={!!deleteDocumentId}
           title="Eliminar"
           text="¿Seguro que quieres eliminar este documento?"
           okText="Aceptar"
@@ -364,11 +319,11 @@ const ViewOptions = styled.div`
   flex: 1;
 `;
 
-const OrderSelect = styled(Select)`
+const OrderSelect: Select = styled(Select)`
   width: 200px;
 `;
 
-const SearchInput = styled(Input)`
+const SearchInput: Input = styled(Input)`
   width: 210px;
   flex: inherit;
 `;
