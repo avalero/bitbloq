@@ -15,7 +15,7 @@ type Query {
   documents: [Document] @authRequired(requires: [ADMIN, USER])
   document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
   openPublicDocument(id: ObjectID!): Document
-    # @authRequired(requires: [ADMIN, USER])
+  # @authRequired(requires: [ADMIN, USER])
 }
 type Mutation {
   createDocument(input: DocumentIn!): Document
