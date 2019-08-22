@@ -176,14 +176,6 @@ const config = {
             font: 'roboto_regular',
           },
         },
-        {
-          type: 'STLObject',
-          label: 'object-type-stl-object',
-          icon: <Icon name="stl" />,
-          parameters: {
-            blob: null,
-          },
-        },
       ],
     },
   ],
@@ -492,13 +484,7 @@ const config = {
       name: 'STLObject',
       label: 'object-type-stl-object',
       icon: <Icon name="stl" />,
-      parameters: () => [
-        {
-          name: 'blob',
-          label: 'param-file',
-          type: 'file',
-        },
-      ],
+      parameters: () => []
     },
     {
       name: 'PredesignedObject',
