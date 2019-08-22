@@ -1,11 +1,15 @@
 import * as React from "react";
 import { ThreeD } from "@bitbloq/3d";
-import { colors, Icon, withTranslate } from "@bitbloq/ui";
+import { STLLoader } from "@bitbloq/lib3d";
+import { Mutation } from "react-apollo";
+import { colors, Icon, withTranslate, DialogModal } from "@bitbloq/ui";
 import { addShapeGroups } from "../config";
 import BrowserVersionWarning from "./BrowserVersionWarning";
 import ExportSTLModal from "./ExportSTLModal";
 import { getChromeVersion } from "../util";
 import { EditorProps } from "../types";
+import { maxSTLFileSize } from "../config";
+import { UPLOAD_STL_MUTATION } from "../apollo/queries";
 
 const getMenuOptions = (baseMenuOptions, t) => [
   {
@@ -76,15 +80,21 @@ const getMenuOptions = (baseMenuOptions, t) => [
 
 class ThreeDEditor extends React.Component<EditorProps> {
   threedRef = React.createRef<ThreeD>();
+  openSTLInput = React.createRef<HTMLInputElement>();
 
   readonly state = {
-    showExportModal: false
+    showExportModal: false,
+    showSTLError: ""
   };
 
   onMenuOptionClick = option => {
     const { onSaveDocument } = this.props;
 
     switch (option.id) {
+      case "import-stl":
+        this.openSTLInput.current && this.openSTLInput.current.click();
+        return;
+
       case "download-document":
         onSaveDocument && onSaveDocument();
         return;
@@ -96,6 +106,60 @@ class ThreeDEditor extends React.Component<EditorProps> {
       default:
         return;
     }
+  };
+
+  onSTLFileSelected = (file: File, uploadSTL) => {
+    const { isPlayground } = this.props;
+
+    if (file.size > maxSTLFileSize) {
+      this.setState({
+        showSTLError:
+          "El STL pesa más de 5MB, intenta reducir su tamaño he impórtalo de nuevo."
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const uint8Data = new Uint8Array(reader.result as ArrayBuffer);
+
+      let isBinarySTL = false;
+      try {
+        STLLoader.loadBinaryStl(uint8Data.buffer);
+        isBinarySTL = true;
+      } catch (e) {}
+
+      let isTextSTL = false;
+      if (!isBinarySTL) {
+        try {
+          STLLoader.loadTextStl(uint8Data.buffer);
+          isTextSTL = true;
+        } catch (e) {}
+      }
+
+      if (!isBinarySTL && !isTextSTL) {
+        this.setState({ showSTLError: "El formato del archivo no es válido" });
+        return;
+      }
+
+      if (isPlayground) {
+        this.threedRef.current.createObject(
+          "STLObject",
+          { blob: { uint8Data, filetype: file.type, newfile: true } },
+          file.name
+        );
+      } else {
+        uploadSTL({ variables: { file } }).then(({ data }) => {
+          this.threedRef.current.createObject(
+            "STLObject",
+            { url: data.uploadSTLFile.publicUrl },
+            data.uploadSTLFile.filename
+          );
+        });
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   };
 
   render() {
@@ -113,7 +177,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
       onHeaderButtonClick,
       t
     } = this.props;
-    const { showExportModal } = this.state;
+    const { showExportModal, showSTLError } = this.state;
 
     if (getChromeVersion() < 69) {
       return <BrowserVersionWarning version={69} color={brandColor} />;
@@ -139,7 +203,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
         >
           {getTabs}
         </ThreeD>
-        {showExportModal &&
+        {showExportModal && (
           <ExportSTLModal
             onCancel={() => this.setState({ showExportModal: false })}
             onSave={(name, separate) => {
@@ -147,7 +211,27 @@ class ThreeDEditor extends React.Component<EditorProps> {
               this.threedRef.current.exportToSTL(name, separate);
             }}
           />
-        }
+        )}
+        <Mutation mutation={UPLOAD_STL_MUTATION}>
+          {uploadSTL => (
+            <input
+              ref={this.openSTLInput}
+              type="file"
+              accept="model/stl, model/x.stl-binary, model/x.stl-ascii"
+              onChange={e =>
+                this.onSTLFileSelected(e.target.files[0], uploadSTL)
+              }
+              style={{ display: "none" }}
+            />
+          )}
+        </Mutation>
+        <DialogModal
+          isOpen={!!showSTLError}
+          title="Aviso"
+          text={showSTLError}
+          okText="Aceptar"
+          onOk={() => this.setState({ showSTLError: "" })}
+        />
       </>
     );
   }

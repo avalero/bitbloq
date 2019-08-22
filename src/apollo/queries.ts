@@ -131,3 +131,15 @@ export const FINISH_SUBMISSION_MUTATION = gql`
     }
   }
 `;
+
+export const UPLOAD_STL_MUTATION = gql`
+  mutation uploadSTLFile($file: Upload!, $documentId: ObjectID) {
+    uploadSTLFile(file: $file, documentID: $documentId) {
+      id
+      filename
+      mimetype
+      publicUrl
+      document
+    }
+  }
+`;
