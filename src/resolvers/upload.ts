@@ -65,6 +65,40 @@ const uploadResolver = {
       });
       return UploadModel.create(uploadNew);
     },
+    uploadSTLFile: async (root: any, args: any, context: any) => {
+      const { createReadStream, filename, mimetype, encoding } = await args.file;
+      if (!createReadStream || !filename || !mimetype || !encoding) {
+        throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
+      }
+      await new Promise((resolve, reject) => {
+        processUpload(createReadStream, filename, resolve, reject);
+      });
+      const uploadNew = new UploadModel({
+        document: args.documentID,
+        filename,
+        mimetype,
+        encoding,
+        publicUrl,
+      });
+      return UploadModel.create(uploadNew);
+    },    
+    uploadImageFile: async (root: any, args: any, context: any) => {
+      const { createReadStream, filename, mimetype, encoding } = await args.file;
+      if (!createReadStream || !filename || !mimetype || !encoding) {
+        throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
+      }
+      await new Promise((resolve, reject) => {
+        processUpload(createReadStream, filename, resolve, reject);
+      });
+      const uploadNew = new UploadModel({
+        document: args.documentID,
+        filename,
+        mimetype,
+        encoding,
+        publicUrl,
+      });
+      return UploadModel.create(uploadNew);
+    },    
   },
 };
 

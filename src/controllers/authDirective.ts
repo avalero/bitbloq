@@ -36,7 +36,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
           return resolve.apply(this, args);
         }
         const context = args[2];
-        console.log(context);
+        //console.log(context);
         if (!context.user || typeof context.user == 'undefined') {
           throw new AuthenticationError('You need to be logged in');
         } else {

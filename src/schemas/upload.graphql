@@ -14,4 +14,6 @@ type Query {
 
 type Mutation {
   singleUpload(file: Upload!, documentID: ObjectID): File
+  uploadSTLFile(file: Upload!, documentID: ObjectID): File @authRequired(requires: [ADMIN, USER])
+  uploadImageFile(file: Upload!, documentID: ObjectID): File @authRequired(requires: [ADMIN, USER])
 }

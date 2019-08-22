@@ -32,7 +32,7 @@ const contextController = {
         return undefined;
       }
       // check if there is another open session
-      console.log(user);
+      //console.log(user);
       if (user.role === 'USER') {
         const reply: string = await redisClient.getAsync(
           'authToken-' + user.userID,
