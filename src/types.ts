@@ -13,4 +13,5 @@ export interface EditorProps {
   brandColor: string;
   headerButtons?: IHeaderButton[];
   onHeaderButtonClick?: HeaderButtonClickCallback;
+  isPlayground?: boolean;
 }
