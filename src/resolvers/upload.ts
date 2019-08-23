@@ -16,10 +16,8 @@ const processUpload = async (
   resolve,
   reject,
 ) => {
-  //const gcsName: string = Date.now() + filename;
-  console.log(`${userID}/${encodeURIComponent(filename)}`);
-  const gcsName: string = `${userID}/${encodeURIComponent(filename)}`;
-  console.log(gcsName);
+  const uniqueName: string = Date.now() + filename;
+  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
   const file = bucket.file(gcsName);
 
   const opts = {
@@ -40,7 +38,6 @@ const processUpload = async (
 
       file.makePublic().then(() => {
         publicUrl = getPublicUrl(gcsName);
-        console.log(publicUrl);
         resolve('OK');
       });
     });

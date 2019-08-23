@@ -85,7 +85,7 @@ const contextController = {
   generateLoginToken: async user => {
     let token: string;
     let role: string;
-    console.log(user);
+    //console.log(user);
     if (user.admin) {
       token = await jsonwebtoken.sign(
         {
