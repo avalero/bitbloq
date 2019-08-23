@@ -55,7 +55,7 @@
   "menu-change-language": "Change language",
   "menu-delete-document": "Delete document",
   "tab-3d": "3D",
-  "tab-project-info": "Project info",
+  "tab-project-info": "Document information",
   "tooltip-select-multiple": "Select multiple objects pressing *“Control + clic”* in each of them to be able to use this tool",
   "tooltip-select-top": "Select top level objects to be able to use this tool",
   "tooltip-select-one": "Select only one object to be able to use this tool",
