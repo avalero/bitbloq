@@ -16,29 +16,29 @@ const getMenuOptions = (baseMenuOptions, t) => [
     id: "file",
     label: t("menu-file"),
     children: [
-      {
-        id: "new-document",
-        label: t("menu-new-document"),
-        icon: <Icon name="new-document" />
-      },
-      {
-        id: "open-document",
-        label: t("menu-open-document"),
-        icon: <Icon name="open-document" />
-      },
-      {
-        id: "change-name",
-        label: t("menu-change-name"),
-        icon: <Icon name="pencil" />
-      },
-      {
-        id: "duplicate-document",
-        label: t("menu-duplicate-document"),
-        icon: <Icon name="duplicate" />
-      },
-      {
-        divider: true
-      },
+      // {
+      //   id: "new-document",
+      //   label: t("menu-new-document"),
+      //   icon: <Icon name="new-document" />
+      // },
+      // {
+      //   id: "open-document",
+      //   label: t("menu-open-document"),
+      //   icon: <Icon name="open-document" />
+      // },
+      // {
+      //   id: "change-name",
+      //   label: t("menu-change-name"),
+      //   icon: <Icon name="pencil" />
+      // },
+      // {
+      //   id: "duplicate-document",
+      //   label: t("menu-duplicate-document"),
+      //   icon: <Icon name="duplicate" />
+      // },
+      // {
+      //   divider: true
+      // },
       {
         id: "import-stl",
         label: t("menu-import-stl"),
@@ -60,19 +60,19 @@ const getMenuOptions = (baseMenuOptions, t) => [
       {
         divider: true
       },
-      {
-        id: "change-language",
-        label: t("menu-change-language"),
-        icon: <Icon name="earth" />
-      },
-      {
-        divider: true
-      },
-      {
-        id: "delete-document",
-        label: t("menu-delete-document"),
-        icon: <Icon name="trash" />
-      }
+      // {
+      //   id: "change-language",
+      //   label: t("menu-change-language"),
+      //   icon: <Icon name="earth" />
+      // },
+      // {
+      //   divider: true
+      // },
+      // {
+      //   id: "delete-document",
+      //   label: t("menu-delete-document"),
+      //   icon: <Icon name="trash" />
+      // }
     ]
   },
   ...baseMenuOptions
