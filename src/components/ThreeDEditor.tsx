@@ -92,6 +92,12 @@ class ThreeDEditor extends React.Component<EditorProps> {
 
     switch (option.id) {
       case "import-stl":
+        // is user is not logged (PlayGround)
+        const { isPlayground } = this.props;
+        if (isPlayground) {
+          this.setState({ showSTLError: "Debes estar registrado para poder importar archivos STL." });
+          return;
+        }
         this.openSTLInput.current && this.openSTLInput.current.click();
         return;
 
@@ -109,12 +115,12 @@ class ThreeDEditor extends React.Component<EditorProps> {
   };
 
   onSTLFileSelected = (file: File, uploadSTL) => {
-    const { isPlayground } = this.props;
+    // const { isPlayground } = this.props;
 
     if (file.size > maxSTLFileSize) {
       this.setState({
         showSTLError:
-          "El STL pesa más de 5MB, intenta reducir su tamaño he impórtalo de nuevo."
+          "El archivo STL ocupa más de 5MB, intenta reducir su tamaño e impórtalo de nuevo."
       });
       return;
     }
@@ -142,13 +148,14 @@ class ThreeDEditor extends React.Component<EditorProps> {
         return;
       }
 
-      if (isPlayground) {
-        this.threedRef.current.createObject(
-          "STLObject",
-          { blob: { uint8Data, filetype: file.type, newfile: true } },
-          file.name
-        );
-      } else {
+      // if (isPlayground) {
+      //   this.threedRef.current.createObject(
+      //     "STLObject",
+      //     { blob: { uint8Data, filetype: file.type, newfile: true } },
+      //     file.name
+      //   );
+      // } else {
+
         uploadSTL({ variables: { file } }).then(({ data }) => {
           this.threedRef.current.createObject(
             "STLObject",
@@ -156,7 +163,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
             data.uploadSTLFile.filename
           );
         });
-      }
+      // }
     };
 
     reader.readAsArrayBuffer(file);
