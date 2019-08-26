@@ -1,4 +1,4 @@
-import { logger, loggerController } from '../controllers/logs';
+import { logger, loggerController } from "../controllers/logs";
 
 const loggerResolver = {
   Mutation: {
@@ -8,16 +8,16 @@ const loggerResolver = {
      */
     storeFrontLog: async (root: any, args: any, context: any) => {
       await loggerController.storeInfoLog(
-        'FRONT',
+        "FRONT",
         args.input.modelType,
         args.input.action,
         args.input.docType,
         context.user.userID,
-        args.input.others,
+        args.input.others
       );
-      return 'OK';
-    },
-  },
+      return "OK";
+    }
+  }
 };
 
 export default loggerResolver;

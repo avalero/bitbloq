@@ -1,15 +1,15 @@
-import { ApolloError, PubSub, withFilter } from 'apollo-server-koa';
-import { logger, loggerController } from '../controllers/logs';
-import { ExerciseModel, IExercise } from '../models/exercise';
-import { ISubmission, SubmissionModel } from '../models/submission';
-import { pubsub, redisClient } from '../server';
+import { ApolloError, withFilter } from "apollo-server-koa";
+import { logger, loggerController } from "../controllers/logs";
+import { ExerciseModel, IExercise } from "../models/exercise";
+import { ISubmission, SubmissionModel } from "../models/submission";
+import { pubsub, redisClient } from "../server";
 
-const jsonwebtoken = require('jsonwebtoken');
+const jsonwebtoken = require("jsonwebtoken");
 
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const saltRounds = 7;
 
-const SUBMISSION_UPDATED: string = 'SUBMISSION_UPDATED';
+const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
 
 const submissionResolver = {
   Subscription: {
@@ -18,14 +18,20 @@ const submissionResolver = {
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
         (payload, variables, context) => {
           // Filter by exercise code if the exercise is mine
-          if (context.user.userID === payload.submissionUpdated.user) {
-            return payload.submissionUpdated.exercise === variables.exercise;
+          if (
+            String(context.user.userID) ===
+            String(payload.submissionUpdated.user)
+          ) {
+            return (
+              String(payload.submissionUpdated.exercise) ===
+              String(variables.exercise)
+            );
           } else {
             return undefined;
           }
-        },
-      ),
-    },
+        }
+      )
+    }
   },
   Mutation: {
     /**
@@ -39,89 +45,91 @@ const submissionResolver = {
     loginSubmission: async (root: any, args: any, context: any) => {
       if (!args.studentNick) {
         throw new ApolloError(
-          'Error creating submission, you must introduce a nickname',
-          'NOT_NICKNAME_PROVIDED',
+          "Error creating submission, you must introduce a nickname",
+          "NOT_NICKNAME_PROVIDED"
         );
       }
       const exFather: IExercise = await ExerciseModel.findOne({
         code: args.exerciseCode,
-        acceptSubmissions: true,
+        acceptSubmissions: true
       });
       if (!exFather) {
         throw new ApolloError(
-          'Error creating submission, check your exercise code',
-          'INVALID_EXERCISE_CODE',
+          "Error creating submission, check your exercise code",
+          "INVALID_EXERCISE_CODE"
         );
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
       if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
         throw new ApolloError(
-          'This exercise does not accept submissions now',
-          'NOT_ACCEPT_SUBMISSIONS',
+          "This exercise does not accept submissions now",
+          "NOT_ACCEPT_SUBMISSIONS"
         );
       }
       // check if there is a submission with this nickname and password. If true, return it.
       const existSubmission: ISubmission = await SubmissionModel.findOne({
         studentNick: args.studentNick.toLowerCase(),
-        exercise: exFather._id,
+        exercise: exFather._id
       });
       if (existSubmission) {
         // si existe la submission, compruebo la contraseña y la devuelvo
         const valid: boolean = await bcrypt.compare(
           args.password,
-          existSubmission.password,
+          existSubmission.password
         );
         if (valid) {
           const token: string = jsonwebtoken.sign(
             {
               exerciseID: exFather._id,
               submissionID: existSubmission._id,
-              role: 'EPHEMERAL',
+              role: "EPHEMERAL"
             },
             process.env.JWT_SECRET,
-            { expiresIn: '3h' },
+            { expiresIn: "3h" }
           );
           await SubmissionModel.findOneAndUpdate(
             { _id: existSubmission._id },
             { $set: { submissionToken: token } },
-            { new: true },
+            { new: true }
           );
           loggerController.storeInfoLog(
-            'API',
-            'submission',
-            'login',
+            "API",
+            "submission",
+            "login",
             existSubmission.type,
             existSubmission.user,
-            '',
+            ""
           );
           pubsub.publish(SUBMISSION_UPDATED, {
-            submissionUpdated: existSubmission,
+            submissionUpdated: existSubmission
           });
-          await redisClient.set(
-            String('subToken-' + existSubmission._id),
-            token,
-            (err, reply) => {
-              if (err) {
-                throw new ApolloError(
-                  'Error storing auth token in redis',
-                  'REDIS_TOKEN_ERROR',
-                );
+          if (process.env.USE_REDIS === "true") {
+            await redisClient.set(
+              String("subToken-" + existSubmission._id),
+              token,
+              (err, reply) => {
+                if (err) {
+                  throw new ApolloError(
+                    "Error storing auth token in redis",
+                    "REDIS_TOKEN_ERROR"
+                  );
+                }
               }
-            },
-          );
+            );
+          }
           pubsub.publish(SUBMISSION_UPDATED, {
-            submissionUpdated: existSubmission,
+            submissionUpdated: existSubmission
           });
           return {
             token: token,
             exerciseID: exFather._id,
-            type: existSubmission.type,
+            type: existSubmission.type
           };
         } else {
           throw new ApolloError(
-            'comparing passwords valid=false',
-            'PASSWORD_ERROR',
+            "comparing passwords valid=false",
+            "PASSWORD_ERROR"
           );
         }
       } else {
@@ -136,48 +144,50 @@ const submissionResolver = {
           user: exFather.user,
           document: exFather.document,
           title: exFather.title,
-          type: exFather.type,
+          type: exFather.type
         });
         const newSub: ISubmission = await SubmissionModel.create(submissionNew);
         const token: string = jsonwebtoken.sign(
           {
             exerciseID: exFather._id,
             submissionID: newSub._id,
-            role: 'EPHEMERAL',
+            role: "EPHEMERAL"
           },
           process.env.JWT_SECRET,
-          { expiresIn: '3h' },
+          { expiresIn: "3h" }
         );
         await SubmissionModel.findOneAndUpdate(
           { _id: newSub._id },
           { $set: { submissionToken: token } },
-          { new: true },
+          { new: true }
         );
         loggerController.storeInfoLog(
-          'API',
-          'submission',
-          'create',
+          "API",
+          "submission",
+          "create",
           newSub.type,
           newSub.user,
-          '',
+          ""
         );
-        await redisClient.set(
-          String('subToken-' + newSub._id),
-          token,
-          (err, reply) => {
-            if (err) {
-              throw new ApolloError(
-                'Error storing auth token in redis',
-                'REDIS_TOKEN_ERROR',
-              );
+        if (process.env.USE_REDIS === "true") {
+          await redisClient.set(
+            String("subToken-" + newSub._id),
+            token,
+            (err, reply) => {
+              if (err) {
+                throw new ApolloError(
+                  "Error storing auth token in redis",
+                  "REDIS_TOKEN_ERROR"
+                );
+              }
             }
-          },
-        );
+          );
+        }
         pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
         return {
           token: token,
           exerciseID: exFather._id,
-          type: newSub.type,
+          type: newSub.type
         };
       }
     },
@@ -190,37 +200,37 @@ const submissionResolver = {
     updateSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
-        exercise: context.user.exerciseID,
+        exercise: context.user.exerciseID
       });
       if (!existSubmission) {
         throw new ApolloError(
-          'Error updating submission, it should part of one of your exercises',
-          'SUBMISSION_NOT_FOUND',
+          "Error updating submission, it should part of one of your exercises",
+          "SUBMISSION_NOT_FOUND"
         );
       }
       if (existSubmission) {
         // importante! no se puede actualizar el nickname
         if (args.input.studentNick) {
           throw new ApolloError(
-            'Error updating submission, you can not change your nickname',
-            'CANT_UPDATE_NICKNAME',
+            "Error updating submission, you can not change your nickname",
+            "CANT_UPDATE_NICKNAME"
           );
         }
         const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: args.input },
-          { new: true },
+          { new: true }
         );
         pubsub.publish(SUBMISSION_UPDATED, {
-          submissionUpdated: updatedSubmission,
+          submissionUpdated: updatedSubmission
         });
         loggerController.storeInfoLog(
-          'API',
-          'submission',
-          'update',
+          "API",
+          "submission",
+          "update",
           existSubmission.type,
           existSubmission.user,
-          '',
+          ""
         );
         return updatedSubmission;
       }
@@ -236,28 +246,28 @@ const submissionResolver = {
     finishSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
-        exercise: context.user.exerciseID,
+        exercise: context.user.exerciseID
       });
       if (!existSubmission) {
         throw new ApolloError(
-          'Error finishing submission, it does not exist',
-          'SUBMISSION_NOT_FOUND',
+          "Error finishing submission, it does not exist",
+          "SUBMISSION_NOT_FOUND"
         );
       }
       const exFather: IExercise = await ExerciseModel.findOne({
-        _id: existSubmission.exercise,
+        _id: existSubmission.exercise
       });
       // check if the exercise accepts submissions
       if (!exFather.acceptSubmissions) {
         throw new ApolloError(
-          'This exercise does not accept submissions now',
-          'NOT_ACCEPT_SUBMISSIONS',
+          "This exercise does not accept submissions now",
+          "NOT_ACCEPT_SUBMISSIONS"
         );
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
       if (timeNow > exFather.expireDate) {
-        throw new ApolloError('Your submission is late', 'SUBMISSION_LATE');
+        throw new ApolloError("Your submission is late", "SUBMISSION_LATE");
       }
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
@@ -267,21 +277,21 @@ const submissionResolver = {
             content: args.content,
             cache: args.cache,
             studentComment: args.studentComment,
-            finishedAt: Date.now(),
-          },
+            finishedAt: Date.now()
+          }
         },
-        { new: true },
+        { new: true }
       );
       pubsub.publish(SUBMISSION_UPDATED, {
-        submissionUpdated: updatedSubmission,
+        submissionUpdated: updatedSubmission
       });
       loggerController.storeInfoLog(
-        'API',
-        'submission',
-        'finish',
+        "API",
+        "submission",
+        "finish",
         existSubmission.type,
         existSubmission.user,
-        '',
+        ""
       );
       return updatedSubmission;
     },
@@ -295,21 +305,21 @@ const submissionResolver = {
     cancelSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: context.user.submissionID,
-        exercise: context.user.exerciseID,
+        exercise: context.user.exerciseID
       });
       if (!existSubmission) {
         throw new ApolloError(
-          'Error canceling submission, it should part of one of your exercises',
-          'SUBMISSION_NOT_FOUND',
+          "Error canceling submission, it should part of one of your exercises",
+          "SUBMISSION_NOT_FOUND"
         );
       }
       loggerController.storeInfoLog(
-        'API',
-        'submission',
-        'cancel',
+        "API",
+        "submission",
+        "cancel",
         existSubmission.type,
         existSubmission.user,
-        '',
+        ""
       );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
@@ -323,21 +333,21 @@ const submissionResolver = {
     deleteSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: args.submissionID,
-        user: context.user.userID,
+        user: context.user.userID
       });
       if (!existSubmission) {
         throw new ApolloError(
-          'Error deleting submission, not found',
-          'SUBMISSION_NOT_FOUND',
+          "Error deleting submission, not found",
+          "SUBMISSION_NOT_FOUND"
         );
       }
       loggerController.storeInfoLog(
-        'API',
-        'submission',
-        'delete',
+        "API",
+        "submission",
+        "delete",
         existSubmission.type,
         existSubmission.user,
-        '',
+        ""
       );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
@@ -350,19 +360,19 @@ const submissionResolver = {
     gradeSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
         _id: args.submissionID,
-        user: context.user.userID,
+        user: context.user.userID
       });
       if (!existSubmission) {
         throw new ApolloError(
-          'Error grading submission, not found',
-          'SUBMISSION_NOT_FOUND',
+          "Error grading submission, not found",
+          "SUBMISSION_NOT_FOUND"
         );
       }
       // La sumission tiene que estar acabada
       if (!existSubmission.finished) {
         throw new ApolloError(
-          'Error grading submission, submission not finished by student',
-          'SUBMISSION_NOT_FINISHED',
+          "Error grading submission, submission not finished by student",
+          "SUBMISSION_NOT_FINISHED"
         );
       }
 
@@ -372,21 +382,21 @@ const submissionResolver = {
           $set: {
             grade: args.grade,
             teacherComment: args.teacherComment,
-            gradedAt: Date.now(),
-          },
+            gradedAt: Date.now()
+          }
         },
-        { new: true },
+        { new: true }
       );
       loggerController.storeInfoLog(
-        'API',
-        'submission',
-        'grade',
+        "API",
+        "submission",
+        "grade",
         existSubmission.type,
         existSubmission.user,
-        '',
+        ""
       );
       return updatedSubmission;
-    },
+    }
   },
 
   Query: {
@@ -410,12 +420,12 @@ const submissionResolver = {
       if (context.user.submissionID) {
         // Token de alumno
         const existSubmission: ISubmission = await SubmissionModel.findOne({
-          _id: context.user.submissionID,
+          _id: context.user.submissionID
         });
         if (!existSubmission) {
           throw new ApolloError(
-            'Submission does not exist',
-            'SUBMISSION_NOT_FOUND',
+            "Submission does not exist",
+            "SUBMISSION_NOT_FOUND"
           );
         }
         return existSubmission;
@@ -423,12 +433,12 @@ const submissionResolver = {
         // token de profesor
         const existSubmission: ISubmission = await SubmissionModel.findOne({
           _id: args.id,
-          user: context.user.userID,
+          user: context.user.userID
         });
         if (!existSubmission) {
           throw new ApolloError(
-            'Submission does not exist',
-            'SUBMISSION_NOT_FOUND',
+            "Submission does not exist",
+            "SUBMISSION_NOT_FOUND"
           );
         }
         return existSubmission;
@@ -443,16 +453,16 @@ const submissionResolver = {
     // user queries:
     submissionsByExercise: async (root: any, args: any, context: any) => {
       const exFather: IExercise = await ExerciseModel.findOne({
-        _id: args.exercise,
+        _id: args.exercise
       });
       if (!exFather) {
-        throw new ApolloError('exercise does not exist', 'EXERCISE_NOT_FOUND');
+        throw new ApolloError("exercise does not exist", "EXERCISE_NOT_FOUND");
       }
       return await SubmissionModel.find({
-        exercise: exFather._id,
+        exercise: exFather._id
       });
-    },
-  },
+    }
+  }
 };
 
 export default submissionResolver;

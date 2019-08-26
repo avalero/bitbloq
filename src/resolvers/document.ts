@@ -1,20 +1,20 @@
 import {
   ApolloError,
   AuthenticationError,
-  withFilter,
-} from 'apollo-server-koa';
-import { DocumentModel, IDocument } from '../models/document';
-import { ExerciseModel } from '../models/exercise';
-import { FolderModel } from '../models/folder';
-import { SubmissionModel } from '../models/submission';
-import { IUpload, UploadModel } from '../models/upload';
-import { UserModel } from '../models/user';
+  withFilter
+} from "apollo-server-koa";
+import { DocumentModel, IDocument } from "../models/document";
+import { ExerciseModel } from "../models/exercise";
+import { FolderModel } from "../models/folder";
+import { SubmissionModel } from "../models/submission";
+import { IUpload, UploadModel } from "../models/upload";
+import { UserModel } from "../models/user";
 
-import { logger, loggerController } from '../controllers/logs';
-import { pubsub } from '../server';
-import uploadResolver from './upload';
+import { logger, loggerController } from "../controllers/logs";
+import { pubsub } from "../server";
+import uploadResolver from "./upload";
 
-const DOCUMENT_UPDATED: string = 'DOCUMENT_UPDATED';
+const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
 const documentResolver = {
   Subscription: {
@@ -23,10 +23,12 @@ const documentResolver = {
         // Filtra para devolver solo los documentos del usuario
         () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
         (payload, variables, context) => {
-          return context.user.userID === payload.documentUpdated.user;
-        },
-      ),
-    },
+          return (
+            String(context.user.userID) === String(payload.documentUpdated.user)
+          );
+        }
+      )
+    }
   },
 
   Mutation: {
@@ -39,7 +41,7 @@ const documentResolver = {
     createDocument: async (root: any, args: any, context: any) => {
       if (args.input.folder) {
         if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
-          throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
+          throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
         }
       }
       const documentNew: IDocument = new DocumentModel({
@@ -53,32 +55,32 @@ const documentResolver = {
         cache: args.input.cache,
         description: args.input.description,
         version: args.input.version,
-        image: args.input.imageUrl,
+        image: args.input.imageUrl
       });
       const newDocument: IDocument = await DocumentModel.create(documentNew);
       await FolderModel.updateOne(
         { _id: documentNew.folder },
         { $push: { documentsID: newDocument._id } },
-        { new: true },
+        { new: true }
       );
       loggerController.storeInfoLog(
-        'API',
-        'document',
-        'create',
+        "API",
+        "document",
+        "create",
         args.input.type,
         documentNew.user,
-        '',
+        ""
       );
       if (args.input.image) {
         const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
           args.input.image,
           newDocument._id,
-          context.user.userID,
+          context.user.userID
         );
         const newDoc: IDocument = await DocumentModel.findOneAndUpdate(
           { _id: documentNew._id },
           { $set: { image: imageUploaded.publicUrl } },
-          { new: true },
+          { new: true }
         );
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
         return newDoc;
@@ -97,20 +99,20 @@ const documentResolver = {
     deleteDocument: async (root: any, args: any, context: any) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
-        user: context.user.userID,
+        user: context.user.userID
       });
       if (existDocument) {
         loggerController.storeInfoLog(
-          'API',
-          'document',
-          'delete',
+          "API",
+          "document",
+          "delete",
           existDocument.type,
           existDocument.user,
-          '',
+          ""
         );
         await FolderModel.updateOne(
           { _id: existDocument.folder }, // modifico los documentsID de la carpeta
-          { $pull: { documentsID: existDocument._id } },
+          { $pull: { documentsID: existDocument._id } }
         );
         await UploadModel.deleteMany({ document: existDocument._id });
         await SubmissionModel.deleteMany({ document: existDocument._id });
@@ -118,8 +120,8 @@ const documentResolver = {
         return DocumentModel.deleteOne({ _id: args.id }); // delete all the document dependencies
       } else {
         throw new ApolloError(
-          'You only can delete your documents',
-          'DOCUMENT_NOT_FOUND',
+          "You only can delete your documents",
+          "DOCUMENT_NOT_FOUND"
         );
       }
     },
@@ -132,7 +134,7 @@ const documentResolver = {
     updateDocumentContent: async (root: any, args: any, context: any) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
-        user: context.user.userID,
+        user: context.user.userID
       });
       if (existDocument) {
         const updatedDoc: IDocument = await DocumentModel.findOneAndUpdate(
@@ -140,15 +142,15 @@ const documentResolver = {
           {
             $set: {
               content: args.content || existDocument.content,
-              cache: args.cache || existDocument.cache,
-            },
+              cache: args.cache || existDocument.cache
+            }
           },
-          { new: true },
+          { new: true }
         );
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
         return updatedDoc;
       } else {
-        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
     },
 
@@ -160,11 +162,11 @@ const documentResolver = {
     updateDocument: async (root: any, args: any, context: any) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
-        user: context.user.userID,
+        user: context.user.userID
       });
       if (args.input.folder) {
         if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
-          throw new ApolloError('Folder does not exist', 'FOLDER_NOT_FOUND');
+          throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
         }
       }
       if (existDocument) {
@@ -174,11 +176,11 @@ const documentResolver = {
         ) {
           await FolderModel.updateOne(
             { _id: args.input.folder }, // modifico los documentsID de la carpeta
-            { $push: { documentsID: existDocument._id } },
+            { $push: { documentsID: existDocument._id } }
           );
           await FolderModel.updateOne(
             { _id: existDocument.folder }, // modifico los documentsID de la carpeta donde estaba el documento
-            { $pull: { documentsID: existDocument._id } },
+            { $pull: { documentsID: existDocument._id } }
           );
         }
         let image: string;
@@ -186,7 +188,7 @@ const documentResolver = {
           const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,
-            context.user.userID,
+            context.user.userID
           );
           image = imageUploaded.publicUrl;
         } else if (args.input.imageUrl) {
@@ -194,7 +196,7 @@ const documentResolver = {
         }
         if (args.input.content || args.input.cache) {
           console.log(
-            'You should use Update document Content Mutation, USE_UPDATECONTENT_MUTATION',
+            "You should use Update document Content Mutation, USE_UPDATECONTENT_MUTATION"
           );
         }
         const updatedDoc: IDocument = await DocumentModel.findOneAndUpdate(
@@ -208,23 +210,23 @@ const documentResolver = {
               cache: args.input.cache || existDocument.cache,
               description: args.input.description || existDocument.description,
               version: args.input.version || existDocument.version,
-              image: image || existDocument.image,
-            },
+              image: image || existDocument.image
+            }
           },
-          { new: true },
+          { new: true }
         );
         loggerController.storeInfoLog(
-          'API',
-          'document',
-          'update',
+          "API",
+          "document",
+          "update",
           existDocument.type,
           existDocument.user,
-          '',
+          ""
         );
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
         return updatedDoc;
       } else {
-        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
     },
 
@@ -236,12 +238,12 @@ const documentResolver = {
     publishDocument: async (root: any, args: any, context: any) => {
       const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
       if (!docFound) {
-        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
       return await DocumentModel.findOneAndUpdate(
         { _id: docFound._id },
         { $set: { public: args.public } },
-        { new: true },
+        { new: true }
       );
     },
 
@@ -253,10 +255,10 @@ const documentResolver = {
     openDocumentCopy: async (root: any, args: any, context: any) => {
       const docFound: IDocument = await DocumentModel.findOne({
         _id: args.id,
-        public: true,
+        public: true
       });
       if (!docFound) {
-        return new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
       const docCopy: IDocument = new DocumentModel({
         user: context.user.userID,
@@ -268,17 +270,17 @@ const documentResolver = {
         cache: docFound.cache,
         description: docFound.description,
         version: docFound.version,
-        image: docFound.image,
+        image: docFound.image
       });
       const newDoc: IDocument = await DocumentModel.create(docCopy);
       await FolderModel.updateOne(
         { _id: newDoc.folder },
         { $push: { documentsID: newDoc._id } },
-        { new: true },
+        { new: true }
       );
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
       return newDoc;
-    },
+    }
   },
   Query: {
     /**
@@ -294,15 +296,15 @@ const documentResolver = {
      */
     document: async (root: any, args: any, context: any) => {
       const existDocument: IDocument = await DocumentModel.findOne({
-        _id: args.id,
+        _id: args.id
       });
       if (!existDocument) {
-        throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
       if (String(existDocument.user) !== context.user.userID) {
         throw new ApolloError(
-          'This ID does not belong to one of your documents',
-          'NOT_YOUR_DOCUMENT',
+          "This ID does not belong to one of your documents",
+          "NOT_YOUR_DOCUMENT"
         );
       }
       return existDocument;
@@ -315,21 +317,21 @@ const documentResolver = {
     openPublicDocument: async (root: any, args: any, context: any) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
-        public: true,
+        public: true
       });
       if (!existDocument) {
-        throw new ApolloError('Document does not exist', 'DOCUMENT_NOT_FOUND');
+        throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
       return existDocument;
-    },
+    }
   },
 
   Document: {
     exercises: async (document: IDocument) =>
       ExerciseModel.find({ document: document._id }),
     images: async (document: IDocument) =>
-      UploadModel.find({ document: document._id }),
-  },
+      UploadModel.find({ document: document._id })
+  }
 };
 
 export default documentResolver;

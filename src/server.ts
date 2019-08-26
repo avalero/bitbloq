@@ -6,16 +6,18 @@ import exSchema from './schemas/allSchemas';
 
 import Koa = require('koa');
 const { ApolloServer, AuthenticationError } = require('apollo-server-koa');
+import  { PubSub } from 'apollo-server';
 
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as Redis from 'ioredis';
 const redis = require('redis');
 const bluebird = require('bluebird');
 
-const PORT = process.env.PORT;
-
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
+const USE_REDIS= process.env.USE_REDIS;
+
+const PORT = process.env.PORT;
 
 const mongoUrl: string = process.env.MONGO_URL;
 
@@ -33,42 +35,50 @@ mongoose.connect(
   },
 );
 
-// Redis configuration
-const redisOptions = {
-  host: REDIS_DOMAIN_NAME,
-  port: REDIS_PORT_NUMBER,
-  retry_strategy: options => {
-    // reconnect after
-    return Math.max(options.attempt * 100, 3000);
-  },
-};
-const allReviver = (key, value) => {
-  if (value && value._id) {
-    return { ...value, id: value._id };
-  }
-  return value;
-};
-// redis creation for subscriptions
-export const pubsub: RedisPubSub = new RedisPubSub({
-  publisher: new Redis(redisOptions),
-  subscriber: new Redis(redisOptions),
-  reviver: allReviver,
-});
+let pubsub, redisClient;
+if(USE_REDIS ==='true'){
+  //Redis configuration
+  const redisOptions = {
+    host: REDIS_DOMAIN_NAME,
+    port: REDIS_PORT_NUMBER,
+    retry_strategy: options => {
+      // reconnect after
+      return Math.max(options.attempt * 100, 3000);
+    },
+  };
+  const allReviver = (key, value) => {
+    if (value && value._id) {
+      return { ...value, id: value._id };
+    }
+    return value;
+  };
+  // redis creation for subscriptions
+  pubsub = new RedisPubSub({
+    publisher: new Redis(redisOptions),
+    subscriber: new Redis(redisOptions),
+    reviver: allReviver,
+  });
 
-// Redis client for session tokens
-// to do async/await
-bluebird.promisifyAll(redis.RedisClient.prototype);
-export const redisClient = redis.createClient(
-  REDIS_PORT_NUMBER,
-  REDIS_DOMAIN_NAME,
-);
-redisClient.on('connect', () => {
-  console.log('Redis client connected.');
-});
+  // Redis client for session tokens
+  // to do async/await
+  bluebird.promisifyAll(redis.RedisClient.prototype);
+  redisClient = redis.createClient(
+    REDIS_PORT_NUMBER,
+    REDIS_DOMAIN_NAME,
+  );
+  redisClient.on('connect', () => {
+    console.log('Redis client connected.');
+  });
+} else {
+  pubsub = new PubSub();
+}
+
 
 const app = new Koa();
 const httpServer = app.listen(PORT, () =>
-  console.log(`app is listening on port ${PORT}`),
+  console.log(`🚀 Server ready at http://localhost:${PORT}`),
+  //console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`),
+  //console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
 );
 
 const server = new ApolloServer({
@@ -91,6 +101,7 @@ const server = new ApolloServer({
       if (connectionParams.authorization) {
         const justToken = connectionParams.authorization.split(' ')[1];
         const user = await contextController.getDataInToken(justToken);
+        console.log(user)
         return { user }; //  add the user to the ctx
       }
       throw new AuthenticationError('You need to be logged in');
@@ -98,5 +109,6 @@ const server = new ApolloServer({
   },
 });
 
+export {pubsub, redisClient};
 server.applyMiddleware({ app });
 server.installSubscriptionHandlers(httpServer);

@@ -1,5 +1,5 @@
-import { AuthenticationError, SchemaDirectiveVisitor } from 'apollo-server-koa';
-const { defaultFieldResolver } = require('graphql');
+import { AuthenticationError, SchemaDirectiveVisitor } from "apollo-server-koa";
+const { defaultFieldResolver } = require("graphql");
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
   public visitObject(type) {
@@ -37,34 +37,34 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         }
         const context = args[2];
         //console.log(context);
-        if (!context.user || typeof context.user == 'undefined') {
-          throw new AuthenticationError('You need to be logged in');
+        if (!context.user || typeof context.user == "undefined") {
+          throw new AuthenticationError("You need to be logged in");
         } else {
           let passed: boolean = false;
           for (let roleReq of requiredRole) {
-            if (roleReq === 'USER' && context.user.role === 'USER') {
+            if (roleReq === "USER" && context.user.role === "USER") {
               if (!context.user.userID) {
                 throw new AuthenticationError(
-                  'You need to be logged in as User 1',
+                  "You need to be logged in as User 1"
                 );
               }
               passed = true;
               return resolve.apply(this, args);
-            } else if (roleReq === 'ADMIN' && context.user.role === 'ADMIN') {
+            } else if (roleReq === "ADMIN" && context.user.role === "ADMIN") {
               if (!context.user.userID) {
                 throw new AuthenticationError(
-                  'You need to be logged in as Admin',
+                  "You need to be logged in as Admin"
                 );
               }
               passed = true;
               return resolve.apply(this, args);
             } else if (
-              roleReq === 'EPHEMERAL' &&
-              context.user.role === 'EPHEMERAL'
+              roleReq === "EPHEMERAL" &&
+              context.user.role === "EPHEMERAL"
             ) {
               if (!context.user.exerciseID) {
                 throw new AuthenticationError(
-                  'You need to login with exercise code 1',
+                  "You need to login with exercise code 1"
                 );
               }
               passed = true;
@@ -72,7 +72,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
             }
           }
           if (!passed) {
-            throw new AuthenticationError('You need to be logged in. Role');
+            throw new AuthenticationError("You need to be logged in. Role");
           }
         }
       };

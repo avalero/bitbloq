@@ -1,5 +1,5 @@
-import { Document, Model, model, Schema } from 'mongoose';
-const timestamps = require('mongoose-timestamp');
+import { Document, Model, model, Schema } from "mongoose";
+const timestamps = require("mongoose-timestamp");
 
 export interface ISubmission extends Document {
   user?: string;
@@ -18,80 +18,85 @@ export interface ISubmission extends Document {
 const SubmissionMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'UserModel',
+    ref: "UserModel"
   },
 
   title: {
     type: String,
-    default: 'New Submission',
+    default: "New Submission"
   },
 
   exercise: {
     type: Schema.Types.ObjectId,
-    ref: 'ExerciseModel',
+    ref: "ExerciseModel"
   },
 
   document: {
     type: Schema.Types.ObjectId,
-    ref: 'DocumentModel',
+    ref: "DocumentModel"
+  },
+
+  teacherID: {
+    type: Schema.Types.ObjectId,
+    ref: "UserModel"
   },
 
   studentNick: {
     type: String,
-    required: true,
+    required: true
   },
 
   password: {
-    type: String,
+    type: String
   },
 
   content: {
     type: String,
-    default: 'content',
+    default: "content"
   },
 
   cache: {
     type: String,
-    default: 'cache',
+    default: "cache"
   },
 
   submissionToken: {
-    type: String,
+    type: String
   },
 
   finished: {
     type: Boolean,
-    default: false,
+    default: false
   },
 
   type: {
-    type: String,
+    type: String
   },
 
   studentComment: {
     type: String,
-    default: 'studentComment',
+    default: "studentComment"
   },
 
   finishedAt: {
-    type: Date,
+    type: Date
   },
 
   grade: {
-    type: Number,
+    type: Number
   },
 
   teacherComment: {
     type: String,
-    default: 'teacherComment',
+    default: "teacherComment"
   },
 
   gradedAt: {
-    type: Date,
-  },
+    type: Date
+  }
 });
 SubmissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(
-  'SubmissionModel',
-  SubmissionMongSchema,
+  "SubmissionModel",
+  SubmissionMongSchema
 );

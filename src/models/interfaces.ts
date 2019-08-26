@@ -1,4 +1,4 @@
-import { ObjectID } from 'bson';
+import { ObjectID } from "bson";
 
 // User in token user interface
 export interface IUserInToken {
