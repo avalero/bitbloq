@@ -1,7 +1,7 @@
-import { ApolloError } from 'apollo-server-koa';
-import { UploadModel } from '../models/upload';
+import { ApolloError } from "apollo-server-koa";
+import { UploadModel } from "../models/upload";
 
-const { Storage } = require('@google-cloud/storage');
+const { Storage } = require("@google-cloud/storage");
 
 const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
@@ -14,7 +14,7 @@ const processUpload = async (
   filename,
   userID,
   resolve,
-  reject,
+  reject
 ) => {
   const uniqueName: string = Date.now() + filename;
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
@@ -22,23 +22,23 @@ const processUpload = async (
 
   const opts = {
     metadata: {
-      cacheControl: 'private, max-age=0, no-transform',
-    },
+      cacheControl: "private, max-age=0, no-transform"
+    }
   };
   const fileStream = createReadStream();
   const gStream = file.createWriteStream(opts);
   gStream
-    .on('error', err => {
-      reject(new ApolloError('Error uploading file', 'UPLOAD_ERROR'));
+    .on("error", err => {
+      reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
     })
-    .on('finish', async err => {
+    .on("finish", async err => {
       if (err) {
-        throw new ApolloError('Error uploading file', 'UPLOAD_ERROR');
+        throw new ApolloError("Error uploading file", "UPLOAD_ERROR");
       }
 
       file.makePublic().then(() => {
         publicUrl = getPublicUrl(gcsName);
-        resolve('OK');
+        resolve("OK");
       });
     });
 
@@ -52,13 +52,13 @@ function getPublicUrl(filename) {
 
 const uploadResolver = {
   Query: {
-    uploads: () => UploadModel.find({}),
+    uploads: () => UploadModel.find({})
   },
   Mutation: {
     singleUpload: async (file, documentID, userID) => {
       const { createReadStream, filename, mimetype, encoding } = await file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
-        throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
       await new Promise((resolve, reject) => {
         processUpload(createReadStream, filename, userID, resolve, reject);
@@ -69,7 +69,7 @@ const uploadResolver = {
         mimetype,
         encoding,
         publicUrl,
-        user: userID,
+        user: userID
       });
       return UploadModel.create(uploadNew);
     },
@@ -78,10 +78,10 @@ const uploadResolver = {
         createReadStream,
         filename,
         mimetype,
-        encoding,
+        encoding
       } = await args.file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
-        throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
       await new Promise((resolve, reject) => {
         processUpload(
@@ -89,7 +89,7 @@ const uploadResolver = {
           filename,
           context.user.userID,
           resolve,
-          reject,
+          reject
         );
       });
       const uploadNew = new UploadModel({
@@ -98,7 +98,7 @@ const uploadResolver = {
         mimetype,
         encoding,
         publicUrl,
-        user: context.user.userID,
+        user: context.user.userID
       });
       return UploadModel.create(uploadNew);
     },
@@ -107,10 +107,10 @@ const uploadResolver = {
         createReadStream,
         filename,
         mimetype,
-        encoding,
+        encoding
       } = await args.file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
-        throw new ApolloError('Upload error, check file type.', 'UPLOAD_ERROR');
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
       await new Promise((resolve, reject) => {
         processUpload(
@@ -118,7 +118,7 @@ const uploadResolver = {
           filename,
           args.user.userID,
           resolve,
-          reject,
+          reject
         );
       });
       const uploadNew = new UploadModel({
@@ -127,11 +127,11 @@ const uploadResolver = {
         mimetype,
         encoding,
         publicUrl,
-        user: context.user.userID,
+        user: context.user.userID
       });
       return UploadModel.create(uploadNew);
-    },
-  },
+    }
+  }
 };
 
 export default uploadResolver;

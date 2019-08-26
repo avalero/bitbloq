@@ -1,5 +1,5 @@
-import { Document, Model, model, Schema } from 'mongoose';
-const timestamps = require('mongoose-timestamp');
+import { Document, Model, model, Schema } from "mongoose";
+const timestamps = require("mongoose-timestamp");
 
 export interface IDocument extends Document {
   user?: string;
@@ -19,57 +19,57 @@ export interface IDocument extends Document {
 const DocumentMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'UserModel',
+    ref: "UserModel"
   },
 
   title: {
     type: String,
-    default: 'New document',
+    default: "New document"
   },
 
   type: {
     type: String,
-    required: true,
+    required: true
   },
 
   folder: {
     type: Schema.Types.ObjectId,
-    ref: 'FolderModel',
+    ref: "FolderModel"
   },
 
   content: {
     type: String,
-    default: 'content',
+    default: "content"
   },
 
   cache: {
     type: String,
-    default: 'cache',
+    default: "cache"
   },
 
   image: {
     type: String,
-    default: 'imageURL',
+    default: "imageURL"
   },
 
   description: {
     type: String,
-    default: 'description',
+    default: "description"
   },
 
   version: {
     type: String,
-    default: 'version',
+    default: "version"
   },
 
   public: {
     type: String,
-    default: false,
-  },
+    default: false
+  }
 });
 
 DocumentMongSchema.plugin(timestamps);
 export const DocumentModel: Model<IDocument> = model<IDocument>(
-  'DocumentModel',
-  DocumentMongSchema,
+  "DocumentModel",
+  DocumentMongSchema
 );

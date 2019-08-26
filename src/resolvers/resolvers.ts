@@ -1,10 +1,10 @@
-import documentResolver from './document';
-import exerciseResolver from './exercise';
-import folderResolver from './folder';
-import loggerResolver from './logger';
-import submissionResolver from './submission';
-import uploadResolver from './upload';
-import userResolver from './user';
+import documentResolver from "./document";
+import exerciseResolver from "./exercise";
+import folderResolver from "./folder";
+import loggerResolver from "./logger";
+import submissionResolver from "./submission";
+import uploadResolver from "./upload";
+import userResolver from "./user";
 
 const jsonType = {
   __parseValue(value: any) {
@@ -15,7 +15,7 @@ const jsonType = {
   },
   __serialize(value: any) {
     return value;
-  },
+  }
 };
 
 export const allResolvers = [
@@ -26,5 +26,5 @@ export const allResolvers = [
   exerciseResolver,
   loggerResolver,
   submissionResolver,
-  uploadResolver,
+  uploadResolver
 ];
