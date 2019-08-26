@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+import * as THREE from 'three';
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 import {
   IViewOptions,
   OperationsArray,
   ITubeJSON,
-  ITubeParams
-} from "./Interfaces";
+  ITubeParams,
+} from './Interfaces';
 
 export default class Tube extends PrimitiveObject {
-  public static typeName: string = "Tube";
+  public static typeName: string = 'Tube';
 
   public static newFromJSON(object: ITubeJSON): Tube {
     if (object.type !== Tube.typeName) {
-      throw new Error("Not Tube Object");
+      throw new Error('Not Tube Object');
     }
     let tube: Tube;
     let mesh: THREE.Mesh;
@@ -50,7 +50,7 @@ export default class Tube extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = Tube.typeName;
@@ -108,7 +108,7 @@ export default class Tube extends PrimitiveObject {
       {
         depth: height,
         bevelEnabled: false,
-        curveSegments: Math.max(6, Math.min(r0 * 5, 12))
+        curveSegments: Math.max(6, Math.min(r0 * 5, 12)),
       }
     );
 

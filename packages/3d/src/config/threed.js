@@ -484,7 +484,7 @@ const config = {
       name: 'STLObject',
       label: 'object-type-stl-object',
       icon: <Icon name="stl" />,
-      parameters: () => []
+      parameters: () => [],
     },
     {
       name: 'PredesignedObject',
