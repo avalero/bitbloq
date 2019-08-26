@@ -7,22 +7,22 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from "three";
-import ObjectsCommon from "./ObjectsCommon";
-import PrimitiveObject from "./PrimitiveObject";
+import * as THREE from 'three';
+import ObjectsCommon from './ObjectsCommon';
+import PrimitiveObject from './PrimitiveObject';
 import {
   IViewOptions,
   OperationsArray,
   ICylinderJSON,
-  ICylinderParams
-} from "./Interfaces";
+  ICylinderParams,
+} from './Interfaces';
 
 export default class SemiCylinder extends PrimitiveObject {
-  public static typeName: string = "SemiCylinder";
+  public static typeName: string = 'SemiCylinder';
 
   public static newFromJSON(object: ICylinderJSON): SemiCylinder {
     if (object.type !== SemiCylinder.typeName) {
-      throw new Error("Not SemiCylinder Object");
+      throw new Error('Not SemiCylinder Object');
     }
     let cyl: SemiCylinder;
     let mesh: THREE.Mesh;
@@ -54,7 +54,7 @@ export default class SemiCylinder extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions
+      ...viewOptions,
     };
     super(vO, operations);
     this.type = SemiCylinder.typeName;
@@ -103,10 +103,10 @@ export default class SemiCylinder extends PrimitiveObject {
       {
         depth: height,
         bevelEnabled: false,
-        curveSegments: Math.max(6, Math.min(r0 * 5, 12))
+        curveSegments: Math.max(6, Math.min(r0 * 5, 12)),
       }
     );
 
-    return semiCylGeometry.translate(0, 0, -height / 2).rotateX(Math.PI / 2);
+    return semiCylGeometry.translate(0, 0, -height / 2);
   }
 }
