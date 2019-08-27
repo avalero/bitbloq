@@ -10,13 +10,13 @@
  * Last modified  : 2019-01-18 20:00:14
  */
 
-import * as THREE from "three";
-import ThreeBSP from "./threeCSG";
+import * as THREE from 'three';
+import ThreeBSP from './threeCSG';
 
 export default Worker;
 
 // Be sure we are not withing a node execution
-if (!(typeof module !== "undefined" && module.exports)) {
+if (!(typeof module !== 'undefined' && module.exports)) {
   const ctx: Worker = self as any;
 
   const getUnionFromGeometries = (
@@ -59,12 +59,10 @@ if (!(typeof module !== "undefined" && module.exports)) {
   };
 
   ctx.addEventListener(
-    "message",
+    'message',
     e => {
       const geometries: THREE.Geometry[] = [];
-
       const bufferArray = e.data.bufferArray;
-
       if (!bufferArray) return;
 
       let firstGeomMatrix: THREE.Matrix4 | undefined;
@@ -129,17 +127,35 @@ if (!(typeof module !== "undefined" && module.exports)) {
 
           const buffGeometry = new THREE.BufferGeometry();
           buffGeometry.addAttribute(
-            "position",
+            'position',
             new THREE.BufferAttribute(_vertices, 3)
           );
           buffGeometry.addAttribute(
-            "normal",
+            'normal',
             new THREE.BufferAttribute(_normals, 3)
           );
           const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
             buffGeometry
           );
+
           objectGeometry.applyMatrix(matrixWorld);
+
+          // if geometry is flipped then scale in the axis is negative.
+          // in that case faces vertices need to be reordered and normals recomputed
+          const ps = new THREE.Vector3();
+          const qs = new THREE.Quaternion();
+          const ss = new THREE.Vector3();
+          matrixWorld.decompose(ps, qs, ss);
+          if (ss.x * ss.y * ss.z < 0) {
+            objectGeometry.faces.forEach(face => {
+              const aux = face.a;
+              face.a = face.c;
+              face.c = aux;
+            });
+            objectGeometry.verticesNeedUpdate = true;
+            objectGeometry.normalsNeedUpdate = true;
+            (objectGeometry as THREE.Geometry).computeFaceNormals();
+          }
           subGeometries.push(objectGeometry);
         }
 
@@ -155,15 +171,15 @@ if (!(typeof module !== "undefined" && module.exports)) {
 
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
-      if (e.data.type === "Union") {
+      if (e.data.type === 'Union') {
         geometry = getUnionFromGeometries(geometries);
-      } else if (e.data.type === "Difference") {
+      } else if (e.data.type === 'Difference') {
         geometry = getDifferenceFromGeometries(geometries);
-      } else if (e.data.type === "Intersection") {
+      } else if (e.data.type === 'Intersection') {
         geometry = getIntersectionFromGeometries(geometries);
       } else {
         const postMessage = {
-          status: "error"
+          status: 'error',
         };
         ctx.postMessage(postMessage);
       }
@@ -175,24 +191,41 @@ if (!(typeof module !== "undefined" && module.exports)) {
       }
       geometry.applyMatrix(invMatrix);
 
+      // if geometry is flipped then scale in the axis is negative.
+      // in that case faces vertices need to be reordered and normals recomputed
+      const p = new THREE.Vector3();
+      const q = new THREE.Quaternion();
+      const s = new THREE.Vector3();
+      invMatrix.decompose(p, q, s);
+      if (s.x * s.y * s.z < 0) {
+        geometry.faces.forEach(face => {
+          const aux = face.a;
+          face.a = face.c;
+          face.c = aux;
+        });
+        geometry.verticesNeedUpdate = true;
+        geometry.normalsNeedUpdate = true;
+        (geometry as THREE.Geometry).computeFaceNormals();
+      }
+
       // get buffer data
       const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(
         geometry
       );
       const vertices = new Float32Array(
-        bufferGeom.getAttribute("position").array
+        bufferGeom.getAttribute('position').array
       );
-      const normals = new Float32Array(bufferGeom.getAttribute("normal").array);
+      const normals = new Float32Array(bufferGeom.getAttribute('normal').array);
 
       const message = {
         vertices,
         normals,
-        status: "ok"
+        status: 'ok',
       };
 
       ctx.postMessage(message, [
         message.vertices.buffer,
-        message.normals.buffer
+        message.normals.buffer,
       ]);
     },
 
