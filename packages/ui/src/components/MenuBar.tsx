@@ -1,15 +1,12 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import Icon from './Icon';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Icon from "./Icon";
 
 interface SubMenuProps {
   isTop?: boolean;
 }
-const SubMenu =
-  styled.div <
-  SubMenuProps >
-  `
+const SubMenu = styled.div<SubMenuProps>`
   position: absolute;
   display: none;
   top: 0px;
@@ -80,13 +77,15 @@ const MainOption = styled(Option)`
   }
 `;
 
+const Divider = styled.div`
+  height: 1px;
+  background-color: #cfcfcf;
+`;
+
 interface ContainerProps {
   disabled: boolean;
 }
-const Container =
-  styled.div <
-  ContainerProps >
-  `
+const Container = styled.div<ContainerProps>`
   display: flex;
   flex: 1;
   align-items: center;
@@ -130,12 +129,12 @@ interface State {
 
 class MenuBar extends React.Component<MenuBarProps, State> {
   state = {
-    disabled: false,
+    disabled: false
   };
 
   onOptionClick(option: MenuOption) {
-    const {onOptionClick} = this.props;
-    this.setState({disabled: true});
+    const { onOptionClick } = this.props;
+    this.setState({ disabled: true });
 
     if (onOptionClick) {
       onOptionClick(option);
@@ -143,36 +142,42 @@ class MenuBar extends React.Component<MenuBarProps, State> {
   }
 
   onMouseOver = () => {
-    this.setState({disabled: false});
+    this.setState({ disabled: false });
   };
 
   renderSubMenu(options: MenuOption[], isTop?: boolean) {
     return (
       <SubMenu isTop={isTop}>
-        {options.map(option => (
-          <Option key={option.id} onClick={() => this.onOptionClick(option)}>
-            {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
-            <OptionText>{option.label}</OptionText>
-            {option.children && (
-              <RightArrow>
-                <Icon name="arrow" />
-              </RightArrow>
-            )}
-            {option.children && this.renderSubMenu(option.children)}
-            {option.checked && (
-              <Tick>
-                <Icon name="tick" />
-              </Tick>
-            )}
-          </Option>
-        ))}
+        {options.map((option, i) => {
+          if (option.divider) {
+            return <Divider key={`divider-${i}`} />;
+          }
+
+          return (
+            <Option key={option.id} onClick={() => this.onOptionClick(option)}>
+              {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
+              <OptionText>{option.label}</OptionText>
+              {option.children && (
+                <RightArrow>
+                  <Icon name="arrow" />
+                </RightArrow>
+              )}
+              {option.children && this.renderSubMenu(option.children)}
+              {option.checked && (
+                <Tick>
+                  <Icon name="tick" />
+                </Tick>
+              )}
+            </Option>
+          );
+        })}
       </SubMenu>
     );
   }
 
   render() {
-    const {disabled} = this.state;
-    const {options} = this.props;
+    const { disabled } = this.state;
+    const { options } = this.props;
 
     return (
       <Container disabled={disabled} onMouseOver={this.onMouseOver}>

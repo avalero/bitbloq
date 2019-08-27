@@ -3,3 +3,4 @@ dist
 .eslintrc.js
 coverage
 packages/**/*.tgz
+.vscode/

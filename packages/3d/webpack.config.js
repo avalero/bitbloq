@@ -1,33 +1,17 @@
 const webpack = require('webpack');
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 const htmlPlugin = new HtmlWebPackPlugin({
   template: './src/index.html',
   filename: './index.html',
 });
 
-const definePlugin = new webpack.DefinePlugin({
-  WITHOUT_MONACO: JSON.stringify(process.env.WITHOUT_MONACO || false),
-});
-
 const providePlugin = new webpack.ProvidePlugin({
   THREE: 'three',
 });
 
-const plugins = [htmlPlugin, definePlugin, providePlugin];
-
-if (true || process.env.WITHOUT_MONACO === 'true') {
-  plugins.push(
-    new webpack.NormalModuleReplacementPlugin(
-      /src\/components\/CodeEditor\.js/,
-      './SimpleCodeEditor.js',
-    ),
-  );
-} else {
-  plugins.push(new MonacoWebpackPlugin());
-}
+const plugins = [htmlPlugin, providePlugin];
 
 module.exports = {
   devtool: 'source-map',
@@ -35,12 +19,12 @@ module.exports = {
     rules: [
       {
         test: /\.worker\.ts$/,
-        use: { loader: 'worker-loader' }
+        use: { loader: 'worker-loader' },
       },
       {
         test: /\.(js|jsx|ts|tsx)?$/,
-        use: ["source-map-loader"],
-        enforce: "pre"
+        use: ['source-map-loader'],
+        enforce: 'pre',
       },
       {
         test: /\.(js|jsx|ts|tsx)?$/,
@@ -49,7 +33,7 @@ module.exports = {
           loader: 'babel-loader',
           options: {
             rootMode: 'upward',
-          }
+          },
         },
       },
       {
@@ -65,7 +49,7 @@ module.exports = {
         test: /\.(json)$/,
         include: [/src\/assets\/messages/],
         use: ['file-loader'],
-      }
+      },
     ],
   },
   plugins,
@@ -74,11 +58,12 @@ module.exports = {
     alias: {
       'three/GLTFLoader': path.join(
         __dirname,
-        'node_modules/three/examples/js/loaders/GLTFLoader.js',
+        'node_modules/three/examples/js/loaders/GLTFLoader.js'
       ),
     },
   },
   devServer: {
-    historyApiFallback: true
-  }
+    historyApiFallback: true,
+  },
+  node: { fs: 'empty' },
 };

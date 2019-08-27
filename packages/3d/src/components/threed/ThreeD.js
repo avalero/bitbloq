@@ -29,7 +29,7 @@ const AdvanceModeWrap = styled.div`
 
   span {
     font-size: 14px;
-    margin-right: 10px;
+    margin: 0px 10px;
   }
 `;
 
@@ -119,14 +119,15 @@ class ThreeD extends React.Component {
 
     const menuRightContent = (
       <AdvanceModeWrap>
+        <span>{t('menu-basic-mode')}</span>
+        <Switch value={advancedMode} onChange={setAdvancedMode} leftRight />
         <span>{t('menu-advanced-mode')}</span>
-        <Switch value={advancedMode} onChange={setAdvancedMode} />
       </AdvanceModeWrap>
     );
 
     const baseShapeGroups = config.addShapeGroups;
 
-    const mainTab = (
+    const mainTabs = [
       <Document.Tab key="3d" icon={<Icon name="threed" />} label={t('tab-3d')}>
         <Container>
           <ObjectTree
@@ -141,13 +142,14 @@ class ThreeD extends React.Component {
           <PropertiesPanel />
         </Container>
       </Document.Tab>
-    );
+    ];
 
     const baseMenuOptions = getBaseMenuOptions(this.props, t);
 
     return (
       <Document
         title={title || t('untitled-project')}
+        icon={<Icon name="logo3d" />}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
         onEditTitle={onEditTitle}
@@ -158,7 +160,7 @@ class ThreeD extends React.Component {
         }
         onMenuOptionClick={this.onMenuOptionClick}
         menuRightContent={menuRightContent}>
-        {typeof children === 'function' ? children(mainTab) : mainTab}
+        {typeof children === 'function' ? children(mainTabs) : mainTabs}
       </Document>
     );
   }

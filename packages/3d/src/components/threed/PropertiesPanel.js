@@ -22,7 +22,6 @@ import {
   convertToGroup,
 } from '../../actions/threed';
 import { getObjects, getSelectedObjects } from '../../reducers/threed/';
-import { colors } from '../../base-styles';
 import PropertyInput from './PropertyInput';
 import OperationsList from './OperationsList';
 import { DropDown, Icon, Input, Tooltip, withTranslate } from '@bitbloq/ui';
@@ -234,6 +233,10 @@ class PropertiesPanel extends React.Component {
     }
   };
 
+  onOperationChange = (object, operation) => {
+    this.props.updateOperation(object, operation);
+  };
+
   onDragStart = () => {
     this.setState({ draggingOperations: true });
   };
@@ -250,7 +253,7 @@ class PropertiesPanel extends React.Component {
       object,
       operation,
       source.index,
-      destination.index,
+      destination.index
     );
   };
 
@@ -432,6 +435,9 @@ class PropertiesPanel extends React.Component {
           onParameterChange={(operation, parameter, value) =>
             this.onOperationParameterChange(object, operation, parameter, value)
           }
+          onOperationChange={operation =>
+            this.onOperationChange(object, operation)
+          }
           onParameterFocus={(operation, parameter) => {
             if (parameter.activeOperation) {
               setActiveOperation(parameter.activeOperation(object, operation));
@@ -496,12 +502,12 @@ const mapDispatchToProps = dispatch => ({
     dispatch(removeOperation(object, operation)),
   reorderOperation: (object, operation, from, to) =>
     dispatch(reorderOperation(object, operation, from, to)),
-  setActiveOperation: ({ object, type, axis, relative }) =>
-    dispatch(setActiveOperation(object, type, axis, relative)),
+  setActiveOperation: ({ object, type, axis, relative, id }) =>
+    dispatch(setActiveOperation(object, type, axis, relative, id)),
   unsetActiveOperation: () => dispatch(unsetActiveOperation()),
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(withTranslate(PropertiesPanel));

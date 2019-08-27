@@ -29,8 +29,8 @@ const config = {
           icon: <Icon name="cube" />,
           parameters: {
             width: 10,
-            height: 10,
-            depth: 10,
+            depth: 10, // legacy, not used
+            height: 10, // legacy, not used
           },
         },
         {
@@ -47,8 +47,18 @@ const config = {
           icon: <Icon name="cylinder" />,
           parameters: {
             r0: 5,
-            r1: 5,
+            r1: 5, // legacy, not used
             height: 10,
+          },
+        },
+        {
+          type: 'RectPrism',
+          label: 'object-type-rectprism',
+          icon: <Icon name="rectangularPrism" />,
+          parameters: {
+            width: 10,
+            height: 10,
+            depth: 10,
           },
         },
         {
@@ -72,13 +82,89 @@ const config = {
           },
         },
         {
-          type: 'STLObject',
-          label: 'object-type-stl-object',
-          icon: <Icon name="stl" />,
+          type: 'Cone',
+          label: 'object-type-cone',
+          icon: <Icon name="cone" />,
           parameters: {
-            blob: null,
+            r0: 5,
+            r1: 0, // legacy, not used
+            height: 10,
           },
         },
+      ],
+    },
+    {
+      label: 'other-shapes',
+      icon: <Icon name="basic-shapes" />,
+      shapes: [
+        {
+          type: 'SemiCylinder',
+          label: 'object-type-semicylinder',
+          icon: <Icon name="semiCylinder" />,
+          parameters: {
+            r0: 5,
+            height: 10,
+          },
+        },
+        {
+          type: 'TruncatedCone',
+          label: 'object-type-truncatedcone',
+          icon: <Icon name="truncatedcone" />,
+          parameters: {
+            r0: 6,
+            r1: 3,
+            height: 10,
+          },
+        },
+        {
+          type: 'Tube',
+          label: 'object-type-tube',
+          icon: <Icon name="tube" />,
+          parameters: {
+            r0: 5,
+            r1: 3,
+            height: 10,
+          },
+        },
+        {
+          type: 'Torus',
+          label: 'object-type-torus',
+          icon: <Icon name="torus" />,
+          parameters: {
+            r0: 10,
+            r1: 3,
+          },
+        },
+        {
+          type: 'Octahedron',
+          label: 'object-type-octahedron',
+          icon: <Icon name="octahedron" />,
+          parameters: {
+            side: 10,
+          },
+        },
+
+        {
+          type: 'Star',
+          label: 'object-type-star',
+          icon: <Icon name="star" />,
+          parameters: {
+            r0: 10,
+            r1: 3,
+            height: 4,
+            peaks: 5,
+          },
+        },
+        {
+          type: 'Heart',
+          label: 'object-type-heart',
+          icon: <Icon name="heart" />,
+          parameters: {
+            side: 10,
+            height: 3,
+          },
+        },
+
         {
           type: 'TextObject',
           label: 'object-type-text-object',
@@ -96,27 +182,38 @@ const config = {
 
   objectTypes: [
     {
-      name: 'Cube',
-      label: 'object-type-cube',
-      icon: <Icon name="cube" />,
+      name: 'TruncatedCone',
+      label: 'object-type-truncatedcone',
+      icon: <Icon name="cone" />,
       parameters: () => [
         {
-          name: 'width',
-          label: 'param-width',
+          name: 'r0',
+          label: 'param-bottom-radius',
           type: 'integer',
           unit: 'mm',
-          min: 0,
+        },
+        {
+          name: 'r1',
+          label: 'param-top-radius',
+          type: 'integer',
+          unit: 'mm',
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
-          min: 0,
         },
+      ],
+    },
+    {
+      name: 'Cube',
+      label: 'object-type-cube',
+      icon: <Icon name="cube" />,
+      parameters: () => [
         {
-          name: 'depth',
-          label: 'param-depth',
+          name: 'width',
+          label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
           min: 0,
@@ -144,13 +241,158 @@ const config = {
       parameters: () => [
         {
           name: 'r0',
-          label: 'param-bottom-radius',
+          label: 'param-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        // {
+        //   name: 'r1',
+        //   label: 'param-top-radius',
+        //   type: 'integer',
+        //   unit: 'mm',
+        // },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'SemiCylinder',
+      label: 'object-type-semicylinder',
+      icon: <Icon name="semicylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Torus',
+      label: 'object-type-torus',
+      icon: <Icon name="torus" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-torus-radius',
           type: 'integer',
           unit: 'mm',
         },
         {
           name: 'r1',
-          label: 'param-top-radius',
+          label: 'param-ring-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Tube',
+      label: 'object-type-tube',
+      icon: <Icon name="cylinder" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-outer-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Star',
+      label: 'object-type-star',
+      icon: <Icon name="star" />,
+      parameters: () => [
+        {
+          name: 'peaks',
+          label: 'param-peaks',
+          type: 'integer',
+          unit: ' ',
+        },
+        {
+          name: 'r0',
+          label: 'param-outer-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'r1',
+          label: 'param-inner-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Octahedron',
+      label: 'object-type-octahedron',
+      icon: <Icon name="octahedron" />,
+      parameters: () => [
+        {
+          name: 'side',
+          label: 'param-side-length',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Cone',
+      label: 'object-type-cone',
+      icon: <Icon name="cone" />,
+      parameters: () => [
+        {
+          name: 'r0',
+          label: 'param-radius',
+          type: 'integer',
+          unit: 'mm',
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+        },
+      ],
+    },
+    {
+      name: 'Heart',
+      label: 'object-type-heart',
+      icon: <Icon name="heart" />,
+      parameters: () => [
+        {
+          name: 'side',
+          label: 'param-depth',
           type: 'integer',
           unit: 'mm',
         },
@@ -211,16 +453,38 @@ const config = {
       ],
     },
     {
+      name: 'RectPrism',
+      label: 'object-type-rectprism',
+      icon: <Icon name="cube" />,
+      parameters: () => [
+        {
+          name: 'width',
+          label: 'param-width',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+        {
+          name: 'depth',
+          label: 'param-depth',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+        {
+          name: 'height',
+          label: 'param-height',
+          type: 'integer',
+          unit: 'mm',
+          min: 0,
+        },
+      ],
+    },
+    {
       name: 'STLObject',
       label: 'object-type-stl-object',
       icon: <Icon name="stl" />,
-      parameters: () => [
-        {
-          name: 'blob',
-          label: 'param-file',
-          type: 'file',
-        },
-      ],
+      parameters: () => [],
     },
     {
       name: 'PredesignedObject',
@@ -330,19 +594,19 @@ const config = {
             },
             {
               name: 'x',
-              label: 'param-x',
+              label: 'param-x-repetition',
               type: 'integer',
               unit: 'mm',
             },
             {
               name: 'y',
-              label: 'param-y',
+              label: 'param-y-repetition',
               type: 'integer',
               unit: 'mm',
             },
             {
               name: 'z',
-              label: 'param-z',
+              label: 'param-z-repetition',
               type: 'integer',
               unit: 'mm',
             },
@@ -424,6 +688,7 @@ const config = {
             type: 'translation',
             axis: 'x',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -436,6 +701,7 @@ const config = {
             type: 'translation',
             axis: 'y',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -448,6 +714,7 @@ const config = {
             type: 'translation',
             axis: 'z',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
       ],
@@ -473,6 +740,7 @@ const config = {
             type: 'rotation',
             axis: 'x',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -486,6 +754,7 @@ const config = {
             type: 'rotation',
             axis: 'y',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -499,6 +768,7 @@ const config = {
             type: 'rotation',
             axis: 'z',
             relative: operation.relative,
+            id: operation.id,
           }),
         },
         {
@@ -565,11 +835,12 @@ const config = {
           type: 'integer',
           unit: '°',
           advancedMode: true,
-          activeOperation: (object, { x, y, z, relative, axis = 'x' }) => ({
+          activeOperation: (object, { x, y, z, relative, id, axis = 'x' }) => ({
             object,
             type: 'rotation',
             axis: (x && 'x') || (y && 'y') || (z && 'z') || axis,
             relative: relative,
+            id: id,
           }),
           getValue: operation => {
             const { x, y, z } = operation;
@@ -605,19 +876,27 @@ const config = {
       }),
       parameters: [
         {
-          name: 'x',
-          label: 'param-x',
-          type: 'integer',
-        },
-        {
-          name: 'y',
-          label: 'param-y',
-          type: 'integer',
-        },
-        {
-          name: 'z',
-          label: 'param-z',
-          type: 'integer',
+          type: 'proportional-group',
+          parameters: [
+            {
+              name: 'x',
+              label: 'param-x',
+              fineStep: 0.1,
+              minValue: 0.01,
+            },
+            {
+              name: 'y',
+              label: 'param-y',
+              fineStep: 0.1,
+              minValue: 0.01,
+            },
+            {
+              name: 'z',
+              label: 'param-z',
+              fineStep: 0.1,
+              minValue: 0.01,
+            },
+          ],
         },
       ],
     },
@@ -726,9 +1005,9 @@ const config = {
         parameters: {
           type: 'cartesian',
           num: 2,
-          x: 10,
-          y: 10,
-          z: 10,
+          x: 20,
+          y: 0,
+          z: 0,
         },
         operations: [],
       }),

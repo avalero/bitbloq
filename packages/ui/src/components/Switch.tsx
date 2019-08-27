@@ -1,11 +1,14 @@
-import * as React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import Icon from './Icon';
+import * as React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Icon from "./Icon";
 
-const Container = styled.div`
+interface ContainerProps {
+  leftRight?: boolean;
+}
+const Container = styled.div<ContainerProps>`
   position: relative;
-  width: 56px;
+  width: ${props => (props.leftRight ? "48px" : "56px")};
   height: 26px;
   border-radius: 14px;
   border: 1px solid #cfcfcf;
@@ -14,6 +17,7 @@ const Container = styled.div`
 
 interface ToggleProps {
   active: boolean;
+  leftRight?: boolean;
 }
 const Toggle = styled.div<ToggleProps>`
   width: 22px;
@@ -25,9 +29,17 @@ const Toggle = styled.div<ToggleProps>`
 
   ${props =>
     props.active &&
+    !props.leftRight &&
     css`
       transform: translate(32px, 2px);
       background-color: #82ad3a;
+    `};
+
+  ${props =>
+    props.active &&
+    props.leftRight &&
+    css`
+      transform: translate(24px, 2px);
     `};
 `;
 
@@ -63,15 +75,20 @@ const ActiveIcon = styled(SwitchIcon)`
 export interface SwitchProps {
   value: boolean;
   onChange: (newValue: boolean) => void;
+  leftRight?: boolean;
 }
 
-export const Switch: React.SFC<SwitchProps> = ({ value, onChange }) => (
-  <Container onClick={() => onChange(!value)}>
-    <DisabledIcon visible={!value}>
+export const Switch: React.SFC<SwitchProps> = ({
+  value,
+  onChange,
+  leftRight
+}) => (
+  <Container onClick={() => onChange(!value)} leftRight={leftRight}>
+    <DisabledIcon visible={!value && !leftRight}>
       <Icon name="close" />
     </DisabledIcon>
-    <Toggle active={value} />
-    <ActiveIcon visible={value}>
+    <Toggle active={value} leftRight={leftRight} />
+    <ActiveIcon visible={value && !leftRight}>
       <Icon name="tick" />
     </ActiveIcon>
   </Container>

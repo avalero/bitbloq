@@ -1,0 +1,64 @@
+{
+  "name": "@bitbloq/junior",
+  "version": "0.1.3",
+  "description": "Junior Bitbloq Editor",
+  "authors": [
+    {
+      "name": "David García Paredes",
+      "mail": "david.garciaparedes@bq.com",
+      "github": "https://github.com/empoalp"
+    },
+    {
+      "name": "Alda Martín",
+      "mail": "alda.martin@bq.com",
+      "github": "https://github.com/aldaMarMu"
+    },
+    {
+      "name": "Alberto Valero Gómez",
+      "mail": "alberto.valero@bq.com",
+      "github": "https://github.com/avalero"
+    }
+  ],
+  "homepage": "https://github.com/bitbloq/bitbloq#readme",
+  "license": "ISC",
+  "main": "export.js",
+  "types": "src/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitbloq/bitbloq.git"
+  },
+  "scripts": {
+    "coveralls": "echo \"not defined\"",
+    "tslint:dev": "tslint -c ./tslint-dev.json \"**/*.ts\"",
+    "tslint:prod": "tslint -c ./tslint-prod.json \"**/*.ts\"",
+    "test": "echo \"No test specified\" && exit 0",
+    "prettier": "prettier \"**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "prettier:ts": "prettier --write \"**/*.{ts,tsx}\""
+  },
+  "bugs": {
+    "url": "https://github.com/empoalp/bitbloq-junior/issues"
+  },
+  "dependencies": {
+    "@bitbloq/bloqs": "^0.1.3",
+    "@bitbloq/hardware-designer": "^0.1.3",
+    "@bitbloq/ui": "^0.1.3",
+    "@emotion/core": "^10.0.7",
+    "@emotion/styled": "^10.0.7",
+    "@types/react": "^16.8.6",
+    "immutability-helper": "^3.0.0",
+    "react": "^16.8.3"
+  },
+  "devDependencies": {
+    "tslint": "^5.13.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3333"
+  },
+  "gitHead": "a6539daabe025ed690154a66b72d5f16634c6654"
+}

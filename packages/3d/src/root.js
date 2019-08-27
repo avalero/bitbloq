@@ -1,7 +1,10 @@
 import React from 'react';
+import uuid from "uuid/v1";
 import { Provider } from 'react-redux';
 import App from './components/App';
 import createStore from './store';
+import { createObject } from "./actions/threed";
+import config from './config/threed';
 
 class Root extends React.Component {
   constructor(props) {
@@ -20,10 +23,26 @@ class Root extends React.Component {
     });
   }
 
-  exportToSTL() {
+  createObject(type, parameters, name) {
+    const { advancedMode } = this.store.getState().threed.ui;
+    const object = {
+      id: uuid(),
+      type,
+      parameters,
+      operations: config.defaultOperations(advancedMode),
+      viewOptions: {
+        name
+      }
+    };
+
+    this.store.dispatch(createObject(object));
+  };
+
+  exportToSTL(name, separate) {
     const state = this.store.getState();
     const scene = state.threed.scene.sceneInstance;
-    scene.exportToSTLAsync();
+    const nameToPass = name === '' ? 'scene' : name;
+    scene.exportToSTLAsync(nameToPass, separate);
   }
 
   render() {

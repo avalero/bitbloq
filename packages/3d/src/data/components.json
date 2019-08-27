@@ -103,6 +103,46 @@
         "width": 124,
         "height": 124
       }
+    },
+    {
+      "name": "I2C",
+      "extends": "Component",
+      "code": {
+        "definitions": [
+          "{{componentClass.I2CType}} {{component.name}}({{component.name}}{{componentClass.connectors[0].pins[0].name}});"
+        ],
+        "setup": [
+          "{{component.name}}.setup();"
+        ]
+      }
+    },
+    {
+      "name": "SevenSegments",
+      "extends": "I2C"
+    },
+    {
+      "name": "ZumjuniorSevenSegments",
+      "extends": "SevenSegments",
+      "I2CType": "BQ::ZUM::I2C7SegmentDisplay",
+      "connectors": [
+        {
+          "name": "main",
+          "type": "zumjunior-i2c",
+          "pins": [
+            {
+              "name": "Pin",
+              "mode": "INPUT",
+              "portPin": "i2c"
+            }
+          ]
+        }
+      ],
+      "code": {
+        "setup": [
+          "{{component.name}}.displayChar(' ', ' ');"
+        ],
+        "write": "{{component.name}}.displayChar({{char1}}, {{char2}});"
+      }
     }
   ]
 }

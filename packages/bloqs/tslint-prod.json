@@ -1,0 +1,11 @@
+{
+  "extends": ["./tslint.json"],
+  "rules": {
+    "no-console": [true, "log", "error"],
+    "no-debugger": true
+  },
+
+  "linterOptions": {
+    "exclude": ["node_modules/**/*", "coverage/**/*", "src/__tests__/**/*"]
+  }
+}

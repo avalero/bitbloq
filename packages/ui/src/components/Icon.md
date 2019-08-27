@@ -2,6 +2,9 @@ Icons:
 
 ```js
 <div>
+  <Icon name="airplane" /><span> airplane</span>
+</div>
+<div>
   <Icon name="angle" /><span> angle</span>
 </div>
 <div>
@@ -51,6 +54,9 @@ Icons:
 </div>
 <div>
   <Icon name="intersection" /><span> intersection</span>
+</div>
+<div>
+  <Icon name="logo3d" /><span> logo3d</span>
 </div>
 <div>
   <Icon name="minus" /><span> minus</span>

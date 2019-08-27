@@ -17,7 +17,7 @@ class FileSelectButton extends React.Component<
   };
 
   render() {
-    const { onFileSelected, ...restProps } = this.props;
+    const { onFileSelected, type, ...restProps } = this.props;
     return (
       <>
         <Button {...restProps} onClick={this.onClick} />

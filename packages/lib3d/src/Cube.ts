@@ -1,31 +1,26 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>,
- * @author Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-02 19:16:51
- * Last modified  : 2019-01-31 10:33:27
+/*
+ * File: Cube.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
+import { cloneDeep } from "lodash";
 
 import {
   ICubeJSON,
   ICubeParams,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube';
+  public static typeName: string = "Cube";
 
   /**
    * Creates a new Cube instance from json
@@ -33,7 +28,7 @@ export default class Cube extends PrimitiveObject {
    */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type !== Cube.typeName) {
-      throw new Error('Not Cube Object');
+      throw new Error("Not Cube Object");
     }
     let mesh: THREE.Mesh;
     let cube: Cube;
@@ -43,7 +38,7 @@ export default class Cube extends PrimitiveObject {
         object.parameters,
         object.operations,
         object.viewOptions,
-        mesh,
+        mesh
       );
     } else {
       cube = new Cube(object.parameters, object.operations, object.viewOptions);
@@ -57,11 +52,11 @@ export default class Cube extends PrimitiveObject {
     parameters: ICubeParams,
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    mesh?: THREE.Mesh | undefined,
+    mesh?: THREE.Mesh | undefined
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cube.typeName;
@@ -81,28 +76,31 @@ export default class Cube extends PrimitiveObject {
   public clone(): Cube {
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const cubeObj = new Cube(
-        this.parameters as ICubeParams,
-        this.operations,
-        this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        cloneDeep(this.parameters as ICubeParams),
+        cloneDeep(this.operations),
+        cloneDeep(this.viewOptions),
+        (this.mesh as THREE.Mesh).clone()
       );
       return cubeObj;
     }
 
     const cube = new Cube(
-      this.parameters as ICubeParams,
-      this.operations,
-      this.viewOptions,
+      cloneDeep(this.parameters as ICubeParams),
+      cloneDeep(this.operations),
+      cloneDeep(this.viewOptions)
     );
     return cube;
   }
 
   protected getGeometry(): THREE.Geometry {
-    let { width, height, depth } = this.parameters as ICubeParams;
-    width = Math.max(0, width);
-    height = Math.max(0, height);
-    depth = Math.max(0, depth);
-    // this._meshUpdateRequired = false;
-    return new THREE.BoxGeometry(Number(width), Number(depth), Number(height));
+    let { width } = this.parameters as ICubeParams;
+    width = Math.max(0, Number(width));
+    const geom = new THREE.BoxGeometry(
+      Number(width),
+      Number(width),
+      Number(width)
+    );
+
+    return geom;
   }
 }

@@ -1,20 +1,20 @@
-import 'jsdom-worker';
+import "jsdom-worker";
 interface Global {
   fetch: any;
 }
 const global: Global = { fetch: undefined };
-global.fetch = require('jest-fetch-mock');
+global.fetch = require("jest-fetch-mock");
 
-import * as THREE from 'three';
-import ObjectsCommon from '../ObjectsCommon';
-import Pyramid from '../Pyramid';
+import * as THREE from "three";
+import ObjectsCommon from "../ObjectsCommon";
+import Pyramid from "../Pyramid";
 
 import {
   IViewOptions,
   OperationsArray,
   IPyramidJSON,
-  IPyramidParams,
-} from '../Interfaces';
+  IPyramidParams
+} from "../Interfaces";
 
 const sides = 10;
 const length = 20;
@@ -23,14 +23,14 @@ const height = 30;
 const objParams: IPyramidParams = {
   sides,
   length,
-  height,
+  height
 };
 const operations: OperationsArray = [];
 const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test('Pyramid - Constructor', () => {
+test("Pyramid - Constructor", () => {
   const obj = new Pyramid(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -44,7 +44,7 @@ test('Pyramid - Constructor', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Pyramid - Constructor - Default Params - ViewOptions', () => {
+test("Pyramid - Constructor - Default Params - ViewOptions", () => {
   const obj = new Pyramid(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -58,7 +58,7 @@ test('Pyramid - Constructor - Default Params - ViewOptions', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Pyramid - Constructor - Default Params - Operations - ViewOptions', () => {
+test("Pyramid - Constructor - Default Params - Operations - ViewOptions", () => {
   const obj = new Pyramid(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -73,7 +73,7 @@ test('Pyramid - Constructor - Default Params - Operations - ViewOptions', () => 
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Pyramid - Constructor - Set Operations - Translation', () => {
+test("Pyramid - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
@@ -92,13 +92,13 @@ test('Pyramid - Constructor - Set Operations - Translation', () => {
   });
 });
 
-test('Pyramid - Constructor - Set Operations - Rotation', () => {
+test("Pyramid - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
   // tslint:disable-next-line:no-shadowed-variable
   const operations = [
-    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
   const obj = new Pyramid(objParams, operations);
   obj.computeMeshAsync();
@@ -113,14 +113,14 @@ test('Pyramid - Constructor - Set Operations - Rotation', () => {
   });
 });
 
-test('Pyramid - Constructor - set Mesh', async () => {
+test("Pyramid - Constructor - set Mesh", async () => {
   const objAux = new Pyramid(objParams);
   const meshAux = await objAux.getMeshAsync();
   const obj = new Pyramid(
     objParams,
     operations,
     viewOptions,
-    meshAux as THREE.Mesh,
+    meshAux as THREE.Mesh
   );
 
   return obj.getMeshAsync().then(mesh => {
@@ -132,9 +132,9 @@ test('Pyramid - Constructor - set Mesh', async () => {
 
 /// TESTING CUBE.CLONE
 
-test('Pyramid - Clone - Parameters - Operations - viewOptions', async () => {
+test("Pyramid - Clone - Parameters - Operations - viewOptions", async () => {
   const obj = new Pyramid(objParams, operations, viewOptions);
-  const spy = jest.spyOn((obj as any).mesh, 'clone');
+  const spy = jest.spyOn((obj as any).mesh, "clone");
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
@@ -144,7 +144,7 @@ test('Pyramid - Clone - Parameters - Operations - viewOptions', async () => {
 });
 
 /// TEST NEW FROM JSON
-test('Pyramid - newFromJSON', () => {
+test("Pyramid - newFromJSON", () => {
   const obj = new Pyramid(objParams, operations, viewOptions);
   const json: IPyramidJSON = obj.toJSON() as IPyramidJSON;
   const obj2 = Pyramid.newFromJSON(json);
@@ -154,10 +154,10 @@ test('Pyramid - newFromJSON', () => {
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
 });
 
-test('Pyramid - newFromJSON', () => {
+test("Pyramid - newFromJSON", () => {
   const obj = new Pyramid(objParams, operations, viewOptions);
   const json: IPyramidJSON = obj.toJSON() as IPyramidJSON;
-  json.type = 'kkk';
+  json.type = "kkk";
   const obj2 = () => Pyramid.newFromJSON(json);
   expect(obj2).toThrowError();
 });

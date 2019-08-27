@@ -1,12 +1,12 @@
-import * as React from 'react';
-import {connect} from 'react-redux';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import Markdown from 'react-markdown';
-import {createObject, undo, redo} from '../../actions/threed';
-import {getObjects, getSelectedObjects} from '../../reducers/threed/';
-import {Icon, Tooltip, Translate} from '@bitbloq/ui';
-import config from '../../config/threed';
+import * as React from "react";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Markdown from "react-markdown";
+import { createObject, undo, redo } from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import { Icon, Tooltip, Translate } from "@bitbloq/ui";
+import config from "../../config/threed";
 
 const Container = styled.div`
   height: 50px;
@@ -19,10 +19,7 @@ interface ButtonProps {
   disabled?: boolean;
 }
 
-const Button =
-  styled.div <
-  ButtonProps >
-  `
+const Button = styled.div<ButtonProps>`
   background-color: #ebebeb;
   width: 60px;
   border-width: 0px 1px;
@@ -63,7 +60,7 @@ export interface ToolbarProps {
 class Toolbar extends React.Component<ToolbarProps> {
   private readonly state = {
     canUndo: false,
-    canRedo: false,
+    canRedo: false
   };
 
   componentDidUpdate(prevProps) {
@@ -76,25 +73,22 @@ class Toolbar extends React.Component<ToolbarProps> {
     }
   }
 
-  onComposeObjects(operation) {
-    const {createObject, selectedObjects, advancedMode} = this.props;
+  onComposeObjects(operation: any, label: string) {
+    const { createObject, selectedObjects, advancedMode } = this.props;
 
     const object = {
       ...operation.create(selectedObjects),
       operations: config.defaultOperations(advancedMode),
+      viewOptions: {
+        name: label
+      }
     };
 
     createObject(object);
   }
 
   render() {
-    const {
-      objects,
-      selectedObjects,
-      advancedMode,
-      undo,
-      redo,
-    } = this.props;
+    const { objects, selectedObjects, advancedMode, undo, redo } = this.props;
     const { canUndo, canRedo } = this.state;
 
     return (
@@ -105,9 +99,11 @@ class Toolbar extends React.Component<ToolbarProps> {
               {config.compositionOperations.map(operation => {
                 if (operation.advancedMode && !advancedMode) return;
 
-                const {minObjects = 0, maxObjects = Infinity} = operation;
+                const { minObjects = 0, maxObjects = Infinity } = operation;
                 const numObjects = selectedObjects.length;
-                const topObjects = selectedObjects.every(o => objects.includes(o));
+                const topObjects = selectedObjects.every(o =>
+                  objects.includes(o)
+                );
                 const canApply =
                   topObjects &&
                   (numObjects >= minObjects && numObjects <= maxObjects);
@@ -117,11 +113,17 @@ class Toolbar extends React.Component<ToolbarProps> {
                   tooltipContent = t(operation.label);
                 } else {
                   if (!topObjects) {
-                    tooltipContent = <Markdown source={t('tooltip-select-top')} />;
+                    tooltipContent = (
+                      <Markdown source={t("tooltip-select-top")} />
+                    );
                   } else if (minObjects > 1) {
-                    tooltipContent = <Markdown source={t('tooltip-select-multiple')} />;
+                    tooltipContent = (
+                      <Markdown source={t("tooltip-select-multiple")} />
+                    );
                   } else if (maxObjects === 1) {
-                    tooltipContent = <Markdown source={t('tooltip-select-one')} />;
+                    tooltipContent = (
+                      <Markdown source={t("tooltip-select-one")} />
+                    );
                   }
                 }
 
@@ -132,8 +134,10 @@ class Toolbar extends React.Component<ToolbarProps> {
                         {...tooltipProps}
                         disabled={!canApply}
                         onClick={() =>
-                          canApply && this.onComposeObjects(operation)
-                        }>
+                          canApply &&
+                          this.onComposeObjects(operation, t(operation.label))
+                        }
+                      >
                         {operation.icon}
                       </Button>
                     )}
@@ -142,22 +146,24 @@ class Toolbar extends React.Component<ToolbarProps> {
               })}
             </Operations>
             <UndoRedo>
-              <Tooltip content={t('undo')}>
+              <Tooltip content={t("undo")}>
                 {tooltipProps => (
                   <Button
                     {...tooltipProps}
                     disabled={!canUndo}
-                    onClick={() => canUndo && undo()}>
+                    onClick={() => canUndo && undo()}
+                  >
                     <Icon name="undo" />
                   </Button>
                 )}
               </Tooltip>
-              <Tooltip content={t('redo')}>
+              <Tooltip content={t("redo")}>
                 {tooltipProps => (
                   <Button
                     {...tooltipProps}
                     disabled={!canRedo}
-                    onClick={() => canRedo && redo()}>
+                    onClick={() => canRedo && redo()}
+                  >
                     <Icon name="redo" />
                   </Button>
                 )}
@@ -170,17 +176,20 @@ class Toolbar extends React.Component<ToolbarProps> {
   }
 }
 
-const mapStateToProps = ({threed}) => ({
+const mapStateToProps = ({ threed }) => ({
   objects: getObjects(threed),
   scene: threed.scene.sceneInstance,
   selectedObjects: getSelectedObjects(threed),
-  advancedMode: threed.ui.advancedMode,
+  advancedMode: threed.ui.advancedMode
 });
 
 const mapDispatchToProps = {
   createObject,
   undo,
-  redo,
+  redo
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Toolbar);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Toolbar);

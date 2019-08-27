@@ -1,32 +1,48 @@
 import {
   IRepetitionObjectJSON,
   IObjectsGroupJSON,
+  IOctahedronJSON,
   ITextObjectJSON,
   ICompoundObjectJSON,
   ICubeJSON,
+  IRectPrismJSON,
   ICylinderJSON,
+  IConeJSON,
   IObjectsCommonJSON,
   IPrismJSON,
   IPyramidJSON,
   ISphereJSON,
   ISTLJSON,
-} from './Interfaces';
-import Cube from './Cube';
-import Cylinder from './Cylinder';
-import Difference from './Difference';
-import Intersection from './Intersection';
-import ObjectsCommon from './ObjectsCommon';
-import Prism from './Prism';
-import TextObject from './TextObject';
-import Pyramid from './Pyramid';
-import Sphere from './Sphere';
-import Union from './Union';
-
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
-import Scene from './Scene';
-import STLObject from './STLObject';
-import PredesignedObject from './PredesignedObject';
+  ITruncatedConeJSON,
+  ITorusJSON,
+  ITubeJSON,
+  IStarJSON,
+  IHeartJSON
+} from "./Interfaces";
+import Cube from "./Cube";
+import RectPrism from "./RectPrism";
+import Cylinder from "./Cylinder";
+import SemiCylinder from "./SemiCylinder";
+import Tube from "./Tube";
+import TruncatedCone from "./TruncatedCone";
+import Difference from "./Difference";
+import Intersection from "./Intersection";
+import ObjectsCommon from "./ObjectsCommon";
+import Prism from "./Prism";
+import TextObject from "./TextObject";
+import Pyramid from "./Pyramid";
+import Sphere from "./Sphere";
+import Union from "./Union";
+import Cone from "./Cone";
+import Torus from "./Torus";
+import Star from "./Star";
+import Octahedron from "./Octahedron";
+import Heart from "./Heart";
+import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from "./RepetitionObject";
+import Scene from "./Scene";
+import STLObject from "./STLObject";
+import PredesignedObject from "./PredesignedObject";
 
 export default class ObjectFactory {
   /**
@@ -35,17 +51,77 @@ export default class ObjectFactory {
    */
   public static newFromJSON(
     obj: IObjectsCommonJSON,
-    scene: Scene,
+    scene: Scene
   ): ObjectsCommon {
     switch (obj.type) {
       case Cube.typeName:
-        return Cube.newFromJSON(obj as ICubeJSON);
+        // legacy fix
+        // Cubes had originally three parameters, now they have one.
+        // Cube with 3 parameters is a RectPrism
+        const auxCubeJSON: ICubeJSON = obj as ICubeJSON;
+        const width = auxCubeJSON.parameters.width;
+        const depth = auxCubeJSON.parameters.depth || 0;
+        const height = auxCubeJSON.parameters.height || 0;
+
+        if (
+          (width === height && height === depth) ||
+          (height === 0 && depth === 0)
+        ) {
+          delete auxCubeJSON.parameters.depth;
+          delete auxCubeJSON.parameters.height;
+          obj.type = Cube.typeName;
+          return Cube.newFromJSON(obj as ICubeJSON);
+        }
+
+        // It is a Rectangular Prism
+        obj.type = RectPrism.typeName;
+        return RectPrism.newFromJSON(obj as IRectPrismJSON);
+      case RectPrism.typeName:
+        return RectPrism.newFromJSON(obj as IRectPrismJSON);
+      case Heart.typeName:
+        return Heart.newFromJSON(obj as IHeartJSON);
+      case Octahedron.typeName:
+        return Octahedron.newFromJSON(obj as IOctahedronJSON);
       case Cylinder.typeName:
-        return Cylinder.newFromJSON(obj as ICylinderJSON);
+        // legacy fix
+        // Cylinders had originally top radius and bottom radius now they have one.
+        // Cylinders with top and bottom radius are a RectPrism
+
+        const auxCylJSON = obj as ICylinderJSON;
+        const r0 = auxCylJSON.parameters.r0;
+        const r1 = auxCylJSON.parameters.r1 || -1;
+
+        // pure cylinder
+        if (r0 === r1 || r1 === -1) {
+          delete auxCylJSON.parameters.r1;
+          obj.type = Cylinder.typeName;
+          return Cylinder.newFromJSON(obj as ICylinderJSON);
+        }
+
+        if (r1 === 0) {
+          delete auxCylJSON.parameters.r1;
+          obj.type = Cone.typeName;
+          return Cone.newFromJSON(obj as IConeJSON);
+        }
+        // Truncated Cone
+        obj.type = TruncatedCone.typeName;
+        return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
+      case TruncatedCone.typeName:
+        return TruncatedCone.newFromJSON(obj as ITruncatedConeJSON);
+      case Star.typeName:
+        return Star.newFromJSON(obj as IStarJSON);
+      case SemiCylinder.typeName:
+        return SemiCylinder.newFromJSON(obj as ICylinderJSON);
+      case Cone.typeName:
+        return Cone.newFromJSON(obj as IConeJSON);
       case Sphere.typeName:
         return Sphere.newFromJSON(obj as ISphereJSON);
+      case Torus.typeName:
+        return Torus.newFromJSON(obj as ITorusJSON);
       case Prism.typeName:
         return Prism.newFromJSON(obj as IPrismJSON);
+      case Tube.typeName:
+        return Tube.newFromJSON(obj as ITubeJSON);
       case Pyramid.typeName:
         return Pyramid.newFromJSON(obj as IPyramidJSON);
       case STLObject.typeName:
@@ -59,7 +135,7 @@ export default class ObjectFactory {
       case RepetitionObject.typeName:
         return RepetitionObject.newFromJSON(
           obj as IRepetitionObjectJSON,
-          scene,
+          scene
         );
       case Union.typeName:
         return Union.newFromJSON(obj as ICompoundObjectJSON, scene);
@@ -69,6 +145,6 @@ export default class ObjectFactory {
         return Intersection.newFromJSON(obj as ICompoundObjectJSON, scene);
     }
 
-    throw new Error('Unknown Primitive Object Type');
+    throw new Error("Unknown Primitive Object Type");
   }
 }

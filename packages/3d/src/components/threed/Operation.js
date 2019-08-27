@@ -2,6 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled';
 import {css} from '@emotion/core';
 import {Draggable} from 'react-beautiful-dnd';
+import ProportionalGroup from './ProportionalGroup';
 import PropertyInput from './PropertyInput';
 import config from '../../config/threed';
 import {Icon, withTranslate} from '@bitbloq/ui';
@@ -122,6 +123,7 @@ class Operation extends React.Component {
       onParameterChange,
       onParameterFocus,
       onParameterBlur,
+      onOperationChange,
       isOpen,
       onOpen,
       onRemove,
@@ -178,6 +180,16 @@ class Operation extends React.Component {
                       (parameter.basicMode && advancedMode)
                     ) {
                       return;
+                    }
+
+                    if (parameter.type === "proportional-group") {
+                      return (
+                        <ProportionalGroup
+                          parameters={parameter.parameters}
+                          operation={operation}
+                          onOperationChange={onOperationChange}
+                        />
+                      )
                     }
 
                     const value = parameter.getValue

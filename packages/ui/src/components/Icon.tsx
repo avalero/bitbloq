@@ -13,23 +13,34 @@ import Cylinder from "./icons/Cylinder";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
 import Download from "./icons/Download";
+import DownloadDocument from "./icons/DownloadDocument";
 import Drag from "./icons/Drag";
 import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
+import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
+import ExportSTL from "./icons/ExportSTL";
 import Group from "./icons/Group";
+import Hardware from "./icons/Hardware";
+import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Intersection from "./icons/Intersection";
 import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
+import OpenDocument from "./icons/OpenDocument";
 import Orthographic from "./icons/Orthographic";
+import PadlockClose from "./icons/PadlockClose";
+import PadlockOpen from "./icons/PadlockOpen";
 import Pencil from "./icons/Pencil";
 import Perspective from "./icons/Perspective";
 import Plus from "./icons/Plus";
 import Prism from "./icons/Prism";
 import Text from "./icons/Text";
 import People from "./icons/People";
+import Programming from "./icons/Programming";
+import Programming2 from "./icons/Programming2";
+import Programming3 from "./icons/Programming3";
 import Pyramid from "./icons/Pyramid";
 import Publish from "./icons/Publish";
 import Redo from "./icons/Redo";
@@ -48,6 +59,16 @@ import Trash from "./icons/Trash";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
+import Torus from "./icons/Torus";
+import RectangularPrism from "./icons/RectangularPrism";
+import Cone from "./icons/Cone";
+import TruncatedCone from "./icons/TruncatedCone";
+import Star from "./icons/Star";
+import SemiCylinder from "./icons/SemiCylinder";
+import Octahedron from "./icons/Octahedron";
+import Heart from "./icons/Heart";
+import Logo3D from "./icons/Logo3D";
+import HollowCylinder from "./icons/HollowCylinder";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -61,10 +82,16 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
   switch (name) {
     case "airplane":
       return <Airplane />;
+    case "octahedron":
+      return <Octahedron />;
     case "angle":
       return <Angle />;
     case "angle-double":
       return <AngleDouble />;
+    case "heart":
+      return <Heart />;
+    case "tube":
+      return <HollowCylinder />;
     case "arrow":
       return <Arrow />;
     case "basic-shapes":
@@ -87,16 +114,26 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Difficulty />;
     case "download":
       return <Download />;
+    case "download-document":
+      return <DownloadDocument />;
     case "drag":
       return <Drag />;
     case "dropdown":
       return <Dropdown />;
     case "duplicate":
       return <Duplicate />;
+    case "earth":
+      return <Earth />;
     case "ellipsis":
       return <Ellipsis />;
+    case "export-stl":
+      return <ExportSTL />;
     case "group":
       return <Group />;
+    case "hardware":
+      return <Hardware />;
+    case "import-stl":
+      return <ImportSTL />;
     case "info":
       return <Info />;
     case "intersection":
@@ -107,8 +144,14 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Minus />;
     case "new-document":
       return <NewDocument />;
+    case "open-document":
+      return <OpenDocument />;
     case "orthographic":
       return <Orthographic />;
+    case "padlock-open":
+      return <PadlockOpen />;
+    case "padlock-close":
+      return <PadlockClose />;
     case "people":
       return <People />;
     case "pencil":
@@ -119,6 +162,22 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Plus />;
     case "prism":
       return <Prism />;
+    case "torus":
+      return <Torus />;
+    case "star":
+      return <Star />;
+    case "rectangularPrism":
+      return <RectangularPrism />;
+    case "cone":
+      return <Cone />;
+    case "truncatedcone":
+      return <TruncatedCone />;
+    case "programming":
+      return <Programming />;
+    case "programming2":
+      return <Programming2 />;
+    case "programming3":
+      return <Programming3 />;
     case "text":
       return <Text />;
     case "pyramid":
@@ -139,6 +198,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Scale />;
     case "sphere":
       return <Sphere />;
+    case "semiCylinder":
+      return <SemiCylinder />;
     case "spinner":
       return <Spinner />;
     case "stl":
@@ -157,6 +218,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Ungroup />;
     case "union":
       return <Union />;
+    case "logo3d":
+      return <Logo3D />;
     default:
       console.warn("Icon not found");
       return null;

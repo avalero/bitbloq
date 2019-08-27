@@ -1,20 +1,20 @@
-import 'jsdom-worker';
+import "jsdom-worker";
 interface Global {
   fetch: any;
 }
 const global: Global = { fetch: undefined };
-global.fetch = require('jest-fetch-mock');
+global.fetch = require("jest-fetch-mock");
 
-import * as THREE from 'three';
-import Cube from '../Cube';
-import ObjectsCommon from '../ObjectsCommon';
+import * as THREE from "three";
+import Cube from "../Cube";
+import ObjectsCommon from "../ObjectsCommon";
 import {
   ICubeJSON,
   ICubeParams,
   ITranslateOperation,
   IViewOptions,
-  OperationsArray,
-} from '../Interfaces';
+  OperationsArray
+} from "../Interfaces";
 
 const width = 10;
 const height = 15;
@@ -23,20 +23,20 @@ const depth = 20;
 const objParams: ICubeParams = {
   width,
   height,
-  depth,
+  depth
 };
 const operations: OperationsArray = [];
 const viewOptions: IViewOptions = ObjectsCommon.createViewOptions();
 
 /// CONSTRUCTOR TESTS
 
-test('Cube - Constructor - Default Params', () => {
+test("Cube - Constructor - Default Params", () => {
   const obj = new Cube(objParams);
   expect((obj as any).operations).toEqual([]);
   expect((obj as any).viewOptions).toEqual(ObjectsCommon.createViewOptions());
 });
 
-test('Cube - Constructor', () => {
+test("Cube - Constructor", () => {
   const obj = new Cube(objParams, operations, viewOptions);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -51,7 +51,7 @@ test('Cube - Constructor', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Cube - Constructor - Default Params - ViewOptions', () => {
+test("Cube - Constructor - Default Params - ViewOptions", () => {
   const obj = new Cube(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -66,7 +66,7 @@ test('Cube - Constructor - Default Params - ViewOptions', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
+test("Cube - Constructor - Default Params - Operations - ViewOptions", () => {
   const obj = new Cube(objParams, operations);
   expect((obj as any).parameters).toEqual(objParams);
   expect((obj as any).operations).toEqual(operations);
@@ -81,13 +81,13 @@ test('Cube - Constructor - Default Params - Operations - ViewOptions', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Cube - Constructor - Set Operations - Translation', () => {
+test("Cube - Constructor - Set Operations - Translation", () => {
   const x = 10;
   const y = 20;
   const z = 30;
   // tslint:disable-next-line:no-shadowed-variable
   const operations: ITranslateOperation[] = [
-    ObjectsCommon.createTranslateOperation(x, y, z),
+    ObjectsCommon.createTranslateOperation(x, y, z)
   ];
   const obj = new Cube(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -100,13 +100,13 @@ test('Cube - Constructor - Set Operations - Translation', () => {
   expect(mesh.rotation.z).toBeCloseTo(0);
 });
 
-test('Cube - Constructor - Set Operations - Rotation', () => {
+test("Cube - Constructor - Set Operations - Rotation", () => {
   const xangle = 45;
   const yangle = 35;
   const zangle = 15;
   // tslint:disable-next-line:no-shadowed-variable
   const operations = [
-    ObjectsCommon.createRotateOperation(xangle, yangle, zangle),
+    ObjectsCommon.createRotateOperation(xangle, yangle, zangle)
   ];
   const obj = new Cube(objParams, operations);
   expect((obj as any).operations).toEqual(operations);
@@ -119,14 +119,14 @@ test('Cube - Constructor - Set Operations - Rotation', () => {
   expect(mesh.rotation.z).toBeCloseTo((Math.PI * zangle) / 180);
 });
 
-test('Cube - Constructor - set Mesh', async () => {
+test("Cube - Constructor - set Mesh", async () => {
   const objAux = new Cube(objParams);
   const meshAux = await objAux.getMeshAsync();
   const obj = new Cube(
     objParams,
     operations,
     viewOptions,
-    meshAux as THREE.Mesh,
+    meshAux as THREE.Mesh
   );
   return obj.getMeshAsync().then(mesh => {
     expect(mesh).toBe(meshAux);
@@ -136,9 +136,9 @@ test('Cube - Constructor - set Mesh', async () => {
 /// END TESTING CONSTRUCTOR
 
 /// TESTING CUBE.CLONE
-test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
+test("Cube - Clone - Parameters - Operations - viewOptions", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
-  const spy = jest.spyOn((obj as any).mesh, 'clone');
+  const spy = jest.spyOn((obj as any).mesh, "clone");
   const obj2 = obj.clone();
   expect((obj as any).parameters).toEqual((obj2 as any).parameters);
   expect((obj as any).operations).toEqual((obj2 as any).operations);
@@ -150,7 +150,7 @@ test('Cube - Clone - Parameters - Operations - viewOptions', async () => {
 /// END CLONE
 
 /// TEST NEW FROM JSON
-test('Cube - newFromJSON', async () => {
+test("Cube - newFromJSON", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const json: ICubeJSON = obj.toJSON() as ICubeJSON;
   const obj2 = Cube.newFromJSON(json);
@@ -159,15 +159,15 @@ test('Cube - newFromJSON', async () => {
   expect((obj as any).viewOptions).toEqual((obj2 as any).viewOptions);
 });
 
-test('Cube - newFromJSON - invalid type', () => {
+test("Cube - newFromJSON - invalid type", () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const json: ICubeJSON = obj.toJSON() as ICubeJSON;
-  json.type = 'kkk';
+  json.type = "kkk";
   const obj2 = () => Cube.newFromJSON(json);
   expect(obj2).toThrowError();
 });
 
-test('Cube - newFromJSON - with mesh', async () => {
+test("Cube - newFromJSON - with mesh", async () => {
   const obj = new Cube(objParams, operations, viewOptions);
   const json: ICubeJSON = obj.toJSON() as ICubeJSON;
   expect(json.mesh).toBeUndefined();

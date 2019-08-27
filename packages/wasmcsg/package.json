@@ -1,6 +1,6 @@
 {
   "name": "wasmcsg",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "WASM Constructive Solid Geometry",
   "main": "index.js",
   "directories": {
@@ -13,5 +13,6 @@
     "build": "em++ lib/cpp/*.cpp -std=c++17 -s WASM=1 -s SIDE_MODULE=1 -s EXPORTED_FUNCTIONS=\"['_testWasm']\" -O3 -o public/csg.js"
   },
   "author": "Alberto Valero <alberto.valero@bq.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "gitHead": "a6539daabe025ed690154a66b72d5f16634c6654"
 }

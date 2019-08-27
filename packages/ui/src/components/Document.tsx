@@ -1,4 +1,3 @@
-/// <reference path="../index.d.ts" />
 import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
@@ -8,6 +7,7 @@ import MenuBar, {
 } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
+import { IHeaderButton, HeaderButtonClickCallback } from "../index.d";
 
 const Container = styled.div`
   display: flex;
@@ -54,9 +54,21 @@ const HeaderButton = styled.div`
   }
 `;
 
+interface DocumentIconProps {
+  color: string;
+}
 const DocumentIcon = styled.div`
   width: 70px;
-  background-color: #4dc3ff;
+  background-color: ${props => props.color || "#4dc3ff"};
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 46px;
+    height: 46px;
+  }
 `;
 
 interface TitleProps {
@@ -99,6 +111,7 @@ const Title = styled.div<TitleProps>`
 const Main = styled.div`
   flex: 1;
   display: flex;
+  overflow: hidden;
 `;
 
 const MenuWrap = styled.div`
@@ -190,12 +203,14 @@ export interface DocumentProps {
   menuOptions?: MainMenuOption[];
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
-  headerButtons?: BBUI.HeaderButton[];
+  headerButtons?: IHeaderButton[];
   title?: string;
+  brandColor?: string;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
-  onHeaderButtonClick: BBUI.HeaderButtonClickCallback;
+  onHeaderButtonClick?: HeaderButtonClickCallback;
+  icon?: JSX.Element;
 }
 
 interface State {
@@ -224,10 +239,12 @@ class Document extends React.Component<DocumentProps, State> {
       onMenuOptionClick,
       title,
       onEditTitle,
+      brandColor,
       headerButtons = [],
       onHeaderButtonClick,
       tabIndex,
-      onTabChange
+      onTabChange,
+      icon
     } = this.props;
     const { isHeaderCollapsed } = this.state;
 
@@ -237,7 +254,7 @@ class Document extends React.Component<DocumentProps, State> {
       <Container>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
-            <DocumentIcon />
+            <DocumentIcon color={brandColor}>{icon}</DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
                 {title}
@@ -247,7 +264,9 @@ class Document extends React.Component<DocumentProps, State> {
             {headerButtons.map(button => (
               <HeaderButton
                 key={button.id}
-                onClick={() => onHeaderButtonClick(button.id)}
+                onClick={() =>
+                  onHeaderButtonClick && onHeaderButtonClick(button.id)
+                }
               >
                 <Icon name={button.icon} />
               </HeaderButton>
@@ -286,9 +305,7 @@ class Document extends React.Component<DocumentProps, State> {
           {React.Children.map(
             children,
             (tab: React.ReactElement<TabProps>, i) => (
-              <Content active={i === tabIndex}>
-                {tab.props.children}
-              </Content>
+              <Content active={i === tabIndex}>{tab.props.children}</Content>
             )
           )}
         </Main>

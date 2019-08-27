@@ -1,63 +1,62 @@
-/**
- * Copyright (c) 2018 Bitbloq (BQ)
- *
- * License: MIT
- *
- * long description for the file
- *
- * @summary short description for the file
- * @author David García <https://github.com/empoalp>, Alberto Valero <https://github.com/avalero>
- *
- * Created at     : 2018-10-16 12:59:53
- * Last modified  : 2019-01-31 10:35:43
+/*
+ * File: Intersection.ts
+ * Project: Bitbloq
+ * License: MIT (https://opensource.org/licenses/MIT)
+ * Bitbloq Repository: https://github.com/bitbloq
+ * Bitbloq Team: https://github.com/orgs/Bitbloq/people
+ * Copyright 2018 - 2019 BQ Educacion.
  */
 
 import {
   ICompoundObjectJSON,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
-import * as THREE from 'three';
-import CompoundObject, { ChildrenArray } from './CompoundObject';
-import ObjectsCommon from './ObjectsCommon';
-import Scene from './Scene';
+  OperationsArray
+} from "./Interfaces";
+import * as THREE from "three";
+import CompoundObject, { ChildrenArray } from "./CompoundObject";
+import ObjectsCommon from "./ObjectsCommon";
+import Scene from "./Scene";
 
 export default class Intersection extends CompoundObject {
-  public static typeName: string = 'Intersection';
+  public static typeName: string = "Intersection";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
-    scene: Scene,
+    scene: Scene
   ): Intersection {
     if (object.type !== Intersection.typeName) {
-      throw new Error('Not Union Object');
+      throw new Error("Not Union Object");
     }
 
     try {
       const children: ChildrenArray = object.children.map(obj =>
-        scene.getObject(obj),
+        scene.getObject(obj)
       );
+
+      // get the color of first children
+      object.viewOptions.color = object.children[0].viewOptions.color;
+
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       let intersect: Intersection;
 
       // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
       if (object.geometry) {
         if (object.geometry.id !== object.id) {
-          throw new Error('geometry and object id do not match');
+          throw new Error("geometry and object id do not match");
         }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
         const geometry: THREE.Geometry = ObjectsCommon.geometryFromVerticesNormals(
           vertices,
-          normals,
+          normals
         );
         const mesh: THREE.Mesh = new THREE.Mesh(
           geometry,
-          new THREE.MeshLambertMaterial(),
+          new THREE.MeshLambertMaterial()
         );
 
         mesh.userData.vertices = vertices;
@@ -68,7 +67,7 @@ export default class Intersection extends CompoundObject {
           object.operations,
           viewOptions,
           mesh,
-          true,
+          true
         );
       } else {
         intersect = new Intersection(children, object.operations, viewOptions);
@@ -85,12 +84,12 @@ export default class Intersection extends CompoundObject {
     operations: OperationsArray = [],
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
     mesh?: THREE.Mesh | undefined,
-    applyOperations: boolean = false,
+    applyOperations: boolean = false
   ) {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
     super(children, operations, vO);
     this.type = Intersection.typeName;
@@ -110,14 +109,14 @@ export default class Intersection extends CompoundObject {
 
   public clone(): Intersection {
     const childrenClone: ChildrenArray = this.children.map(child =>
-      child.clone(),
+      child.clone()
     );
     if (this.mesh && !(this.meshUpdateRequired || this.pendingOperation)) {
       const intObj = new Intersection(
         childrenClone,
         this.operations,
         this.viewOptions,
-        (this.mesh as THREE.Mesh).clone(),
+        (this.mesh as THREE.Mesh).clone()
       );
 
       intObj.verticesArray = this.verticesArray;
@@ -128,7 +127,7 @@ export default class Intersection extends CompoundObject {
     const obj = new Intersection(
       childrenClone,
       this.operations,
-      this.viewOptions,
+      this.viewOptions
     );
     return obj;
   }

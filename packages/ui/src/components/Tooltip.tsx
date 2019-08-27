@@ -1,7 +1,7 @@
-import * as React from 'react';
-import TetherComponent from 'react-tether';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
+import * as React from "react";
+import TetherComponent from "react-tether";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
 
 interface ContainerProps {
   position: string;
@@ -18,7 +18,8 @@ const Container = styled.div<ContainerProps>`
   line-height: normal;
   max-width: 220px;
 
-  i, em {
+  i,
+  em {
     color: #4dc3ff;
   }
 
@@ -65,6 +66,7 @@ const targetPosition = {
 };
 
 export interface TooltipChildrenProps {
+  ref?: React.RefObject<HTMLDivElement>;
   onMouseOver?: (ev: React.MouseEvent) => void;
   onMouseOut?: (ev: React.MouseEvent) => void;
 }
@@ -104,9 +106,22 @@ class Tooltip extends React.Component<TooltipProps, State> {
         attachment={attachmentPostion[position]}
         targetAttachment={targetPosition[position]}
         style={{ zIndex: 20 }}
-        renderTarget={ref => children({ ref, onMouseOver, onMouseOut })}
-        renderElement={ref => isVisible &&
-          <Container ref={ref} position={position}>{content}</Container>
+        renderTarget={ref =>
+          children({
+            ref: ref as React.RefObject<HTMLDivElement>,
+            onMouseOver,
+            onMouseOut
+          })
+        }
+        renderElement={ref =>
+          isVisible && (
+            <Container
+              ref={ref as React.RefObject<HTMLDivElement>}
+              position={position}
+            >
+              {content}
+            </Container>
+          )
         }
       />
     );

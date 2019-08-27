@@ -1,4 +1,4 @@
-import { isEqual } from 'lodash';
+import { isEqual } from "lodash";
 
 import {
   IObjectsCommonJSON,
@@ -7,13 +7,14 @@ import {
   IScaleOperation,
   IMirrorOperation,
   OperationsArray,
-  IViewOptions,
-} from './Interfaces';
+  IViewOptions
+} from "./Interfaces";
 
-import { v1 } from 'uuid';
+import { v1 } from "uuid";
 const uuid = v1;
 
-import * as THREE from 'three';
+import * as THREE from "three";
+import { setMeshMaterial } from "./Bitbloq";
 
 export default class ObjectsCommon {
   set meshUpdateRequired(a: boolean) {
@@ -54,72 +55,105 @@ export default class ObjectsCommon {
       bufferGeom = geom as THREE.BufferGeometry;
     } else {
       bufferGeom = new THREE.BufferGeometry().fromGeometry(
-        geom as THREE.Geometry,
+        geom as THREE.Geometry
       );
     }
     const verticesBuffer: ArrayBuffer = new Float32Array(
-      bufferGeom.getAttribute('position').array,
+      bufferGeom.getAttribute("position").array
     ).buffer;
     const normalsBuffer: ArrayBuffer = new Float32Array(
-      bufferGeom.getAttribute('normal').array,
+      bufferGeom.getAttribute("normal").array
     ).buffer;
+    mesh.updateMatrix();
+
     const positionBuffer: ArrayBuffer = Float32Array.from(
-      mesh.matrixWorld.elements,
+      mesh.matrixWorld.elements
     ).buffer;
+
+    const localPositionBuffer: ArrayBuffer = Float32Array.from(
+      mesh.matrix.elements
+    ).buffer;
+
     bufferArray.push(verticesBuffer);
     bufferArray.push(normalsBuffer);
     bufferArray.push(positionBuffer);
+    bufferArray.push(localPositionBuffer);
 
     return bufferArray;
   }
 
   public static geometryFromVerticesNormals(
     vertices: number[],
-    normals: number[],
+    normals: number[]
   ): THREE.Geometry {
     const _vertices: ArrayLike<number> = new Float32Array(vertices);
     const _normals: ArrayLike<number> = new Float32Array(normals);
 
     const buffGeometry = new THREE.BufferGeometry();
     buffGeometry.addAttribute(
-      'position',
-      new THREE.BufferAttribute(_vertices, 3),
+      "position",
+      new THREE.BufferAttribute(_vertices, 3)
     );
 
-    buffGeometry.addAttribute('normal', new THREE.BufferAttribute(_normals, 3));
+    buffGeometry.addAttribute("normal", new THREE.BufferAttribute(_normals, 3));
 
     const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
-      buffGeometry,
+      buffGeometry
     );
 
     return objectGeometry;
   }
 
-  public static groupToBufferArray(group: THREE.Group): ArrayBuffer[] {
+  public static groupToBufferArray(
+    group: THREE.Group,
+    numMeshes: { num: number }
+  ): ArrayBuffer[] {
     const bufferArray: ArrayBuffer[] = [];
+
+    group.updateWorldMatrix(false, true);
+
     group.children.forEach(child => {
+      const clone = child.clone();
+      clone.matrix = child.matrix.clone();
+      clone.matrixWorld = child.matrixWorld.clone();
+
       if (child instanceof THREE.Mesh) {
-        bufferArray.push(...ObjectsCommon.meshToBufferArray(child));
+        numMeshes.num += 1;
+
+        if (child.userData.repetitionObject) {
+          clone.matrix.multiply(
+            new THREE.Matrix4().getInverse(
+              child.userData.originalObject.mesh.matrix
+            )
+          );
+
+          clone.matrix.decompose(clone.position, clone.quaternion, clone.scale);
+        }
+
+        bufferArray.push(
+          ...ObjectsCommon.meshToBufferArray(clone as THREE.Mesh)
+        );
       } else if (child instanceof THREE.Group) {
-        bufferArray.push(...ObjectsCommon.groupToBufferArray(child));
+        bufferArray.push(...ObjectsCommon.groupToBufferArray(child, numMeshes));
       }
     });
+
     return bufferArray;
   }
 
   public static createViewOptions(
-    color: string = '#ffffff',
+    color: string = "#ffffff",
     visible: boolean = true,
     selected: boolean = false,
-    name: string = '',
-    opacity: number = 100,
+    name: string = "",
+    opacity: number = 100
   ): IViewOptions {
     return {
       color,
       visible,
       selected,
       name,
-      opacity,
+      opacity
     };
   }
 
@@ -127,25 +161,25 @@ export default class ObjectsCommon {
     x: number = 0,
     y: number = 0,
     z: number = 0,
-    relative: boolean = true,
+    relative: boolean = true
   ): ITranslateOperation {
     return {
       x,
       y,
       z,
       relative,
-      type: 'translation',
-      id: uuid(),
+      type: "translation",
+      id: uuid()
     };
   }
 
   public static createMirrorOperation(
-    plane: string = 'yz', // xy, yz, zx
+    plane: string = "yz" // xy, yz, zx
   ): IMirrorOperation {
     return {
       plane,
-      type: 'mirror',
-      id: uuid(),
+      type: "mirror",
+      id: uuid()
     };
   }
 
@@ -153,32 +187,33 @@ export default class ObjectsCommon {
     x: number = 0,
     y: number = 0,
     z: number = 0,
-    relative: boolean = true,
+    relative: boolean = true
   ): IRotateOperation {
     return {
       x,
       y,
       z,
       relative,
-      type: 'rotation',
-      id: uuid(),
+      type: "rotation",
+      id: uuid()
     };
   }
 
   public static createScaleOperation(
     x: number = 1,
     y: number = 1,
-    z: number = 1,
+    z: number = 1
   ): IScaleOperation {
     return {
       x,
       y,
       z,
-      type: 'scale',
-      id: uuid(),
+      type: "scale",
+      id: uuid()
     };
   }
   public meshPromise: Promise<THREE.Mesh | THREE.Group> | null;
+  public userData: { [key: string]: any };
 
   protected operations: OperationsArray;
   protected _pendingOperation: boolean;
@@ -192,15 +227,19 @@ export default class ObjectsCommon {
 
   constructor(
     viewOptions: Partial<IViewOptions> = ObjectsCommon.createViewOptions(),
-    operations: OperationsArray = [],
+    operations: OperationsArray = []
   ) {
     this._pendingOperation = false;
     this._meshUpdateRequired = false;
     this.setOperations(operations);
     this.setViewOptions(viewOptions);
     // each new object must have a new ID
-    if (this.id !== '') this.id = uuid();
+    if (this.id !== "") this.id = uuid();
     this.parent = undefined;
+  }
+
+  public setMaterial(material: object) {
+    setMeshMaterial(this.mesh, material);
   }
 
   public async getMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
@@ -214,7 +253,7 @@ export default class ObjectsCommon {
   }
 
   public async computeMeshAsync(): Promise<THREE.Mesh | THREE.Group> {
-    throw new Error('Object3D.computeMeshAsync() implemented on children');
+    throw new Error("Object3D.computeMeshAsync() implemented on children");
   }
 
   public setParent(object: ObjectsCommon): void {
@@ -254,7 +293,7 @@ export default class ObjectsCommon {
       this.viewOptions = {
         ...ObjectsCommon.createViewOptions(),
         ...this.viewOptions,
-        ...params,
+        ...params
       };
       this._viewOptionsUpdateRequired = true;
     }
@@ -265,7 +304,7 @@ export default class ObjectsCommon {
   }
 
   public clone(): ObjectsCommon {
-    throw new Error('ObjectsCommon.clone() Implemented in children');
+    throw new Error("ObjectsCommon.clone() Implemented in children");
   }
 
   public getTypeName(): string {
@@ -277,7 +316,7 @@ export default class ObjectsCommon {
       id: this.id,
       type: this.type,
       viewOptions: this.viewOptions,
-      operations: this.operations,
+      operations: this.operations
     };
 
     return json;
@@ -286,11 +325,12 @@ export default class ObjectsCommon {
   public updateFromJSON(
     object: IObjectsCommonJSON,
     fromParent: boolean = false,
+    forceUpdate: boolean = false
   ): void {
-    throw new Error('updateFromJSON() Implemented in children');
+    throw new Error("updateFromJSON() Implemented in children");
   }
 
-  protected setOperations(operations: OperationsArray = []): void {
+  public setOperations(operations: OperationsArray = []): void {
     if (!this.operations || this.operations.length === 0) {
       this.operations = [...operations];
       if (operations.length > 0) {
@@ -312,28 +352,28 @@ export default class ObjectsCommon {
     x: number,
     y: number,
     z: number,
-    relative: boolean = false,
+    relative: boolean = false
   ): void {
     this.addOperations([
-      ObjectsCommon.createTranslateOperation(x, y, z, relative),
+      ObjectsCommon.createTranslateOperation(x, y, z, relative)
     ]);
   }
 
   protected rotateX(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation(angle, 0, 0, relative),
+      ObjectsCommon.createRotateOperation(angle, 0, 0, relative)
     ]);
   }
 
   protected rotateY(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation(0, angle, 0, relative),
+      ObjectsCommon.createRotateOperation(0, angle, 0, relative)
     ]);
   }
 
   protected rotateZ(angle: number, relative: boolean = false): void {
     this.addOperations([
-      ObjectsCommon.createRotateOperation(0, 0, angle, relative),
+      ObjectsCommon.createRotateOperation(0, 0, angle, relative)
     ]);
   }
 }
