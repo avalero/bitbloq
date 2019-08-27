@@ -62,9 +62,7 @@ if (!(typeof module !== "undefined" && module.exports)) {
     "message",
     e => {
       const geometries: THREE.Geometry[] = [];
-
       const bufferArray = e.data.bufferArray;
-
       if (!bufferArray) return;
 
       let firstGeomMatrix: THREE.Matrix4 | undefined;
@@ -139,7 +137,25 @@ if (!(typeof module !== "undefined" && module.exports)) {
           const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
             buffGeometry
           );
+
           objectGeometry.applyMatrix(matrixWorld);
+
+          // if geometry is flipped then scale in the axis is negative.
+          // in that case faces vertices need to be reordered and normals recomputed
+          const ps = new THREE.Vector3();
+          const qs = new THREE.Quaternion();
+          const ss = new THREE.Vector3();
+          matrixWorld.decompose(ps, qs, ss);
+          if (ss.x * ss.y * ss.z < 0) {
+            objectGeometry.faces.forEach(face => {
+              const aux = face.a;
+              face.a = face.c;
+              face.c = aux;
+            });
+            objectGeometry.verticesNeedUpdate = true;
+            objectGeometry.normalsNeedUpdate = true;
+            (objectGeometry as THREE.Geometry).computeFaceNormals();
+          }
           subGeometries.push(objectGeometry);
         }
 
@@ -174,6 +190,23 @@ if (!(typeof module !== "undefined" && module.exports)) {
         invMatrix.getInverse(firstGeomMatrix);
       }
       geometry.applyMatrix(invMatrix);
+
+      // if geometry is flipped then scale in the axis is negative.
+      // in that case faces vertices need to be reordered and normals recomputed
+      const p = new THREE.Vector3();
+      const q = new THREE.Quaternion();
+      const s = new THREE.Vector3();
+      invMatrix.decompose(p, q, s);
+      if (s.x * s.y * s.z < 0) {
+        geometry.faces.forEach(face => {
+          const aux = face.a;
+          face.a = face.c;
+          face.c = aux;
+        });
+        geometry.verticesNeedUpdate = true;
+        geometry.normalsNeedUpdate = true;
+        (geometry as THREE.Geometry).computeFaceNormals();
+      }
 
       // get buffer data
       const bufferGeom: THREE.BufferGeometry = new THREE.BufferGeometry().fromGeometry(

@@ -101,6 +101,7 @@ export default class Renderer {
 
     // set objects
     const newObjectsGroup = await this.scene.getObjectsAsync();
+
     this.threeScene.remove(this.objectsGroup);
     if (this.objectInTransition) {
       this.threeScene.remove(this.objectInTransition);

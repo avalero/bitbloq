@@ -95,6 +95,12 @@ export default class Cube extends PrimitiveObject {
   protected getGeometry(): THREE.Geometry {
     let { width } = this.parameters as ICubeParams;
     width = Math.max(0, Number(width));
-    return new THREE.BoxGeometry(Number(width), Number(width), Number(width));
+    const geom = new THREE.BoxGeometry(
+      Number(width),
+      Number(width),
+      Number(width)
+    );
+
+    return geom;
   }
 }
