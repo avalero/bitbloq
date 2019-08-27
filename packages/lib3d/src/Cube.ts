@@ -7,20 +7,20 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
-import PrimitiveObject from './PrimitiveObject';
-import { cloneDeep } from 'lodash';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
+import PrimitiveObject from "./PrimitiveObject";
+import { cloneDeep } from "lodash";
 
 import {
   ICubeJSON,
   ICubeParams,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class Cube extends PrimitiveObject {
-  public static typeName: string = 'Cube';
+  public static typeName: string = "Cube";
 
   /**
    * Creates a new Cube instance from json
@@ -28,7 +28,7 @@ export default class Cube extends PrimitiveObject {
    */
   public static newFromJSON(object: ICubeJSON): Cube {
     if (object.type !== Cube.typeName) {
-      throw new Error('Not Cube Object');
+      throw new Error("Not Cube Object");
     }
     let mesh: THREE.Mesh;
     let cube: Cube;
@@ -56,7 +56,7 @@ export default class Cube extends PrimitiveObject {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
     this.type = Cube.typeName;

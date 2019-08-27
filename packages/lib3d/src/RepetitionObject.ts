@@ -7,13 +7,13 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from './ObjectsCommon';
+import ObjectsCommon from "./ObjectsCommon";
 
-import { isEqual, cloneDeep } from 'lodash';
-import * as THREE from 'three';
-import Object3D from './Object3D';
-import ObjectsGroup from './ObjectsGroup';
-import Scene from './Scene';
+import { isEqual, cloneDeep } from "lodash";
+import * as THREE from "three";
+import Object3D from "./Object3D";
+import ObjectsGroup from "./ObjectsGroup";
+import Scene from "./Scene";
 
 import {
   IMirrorOperation,
@@ -24,9 +24,9 @@ import {
   IRepetitionObjectJSON,
   IPolarRepetitionParams,
   ICartesianRepetitionParams,
-  OperationsArray,
-} from './Interfaces';
-import CompoundObject from './CompoundObject';
+  OperationsArray
+} from "./Interfaces";
+import CompoundObject from "./CompoundObject";
 
 /**
  * RepetitionObject Class
@@ -49,7 +49,7 @@ export default class RepetitionObject extends ObjectsCommon {
     this._pendingOperation = a;
   }
 
-  public static typeName: string = 'RepetitionObject';
+  public static typeName: string = "RepetitionObject";
 
   /**
    *
@@ -100,7 +100,7 @@ export default class RepetitionObject extends ObjectsCommon {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...original.toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
 
     super(vO, operations);
@@ -193,7 +193,7 @@ export default class RepetitionObject extends ObjectsCommon {
             operation.type === Object3D.createRotateOperation().type
           ) {
             const op: ITranslateOperation | IRotateOperation = {
-              ...(operation as ITranslateOperation | IRotateOperation),
+              ...(operation as ITranslateOperation | IRotateOperation)
             };
             op.relative = !op.relative;
             return op;
@@ -215,7 +215,7 @@ export default class RepetitionObject extends ObjectsCommon {
     const obj = {
       ...super.toJSON(),
       parameters: this.parameters,
-      children: [this.originalObject.toJSON()],
+      children: [this.originalObject.toJSON()]
     };
     return obj;
   }
@@ -304,7 +304,7 @@ export default class RepetitionObject extends ObjectsCommon {
 
       this.originalObject.userData = {
         ...this.originalObject.userData,
-        objectClone: this.group[0],
+        objectClone: this.group[0]
       };
 
       const meshes = await Promise.all(
@@ -316,7 +316,7 @@ export default class RepetitionObject extends ObjectsCommon {
         mesh.userData = {
           ...mesh.userData,
           repetitionObject: true,
-          originalObject: this.originalObject,
+          originalObject: this.originalObject
         };
       });
 
@@ -325,7 +325,7 @@ export default class RepetitionObject extends ObjectsCommon {
       if (this.mesh instanceof THREE.Group) {
         resolve(this.mesh);
       } else {
-        reject(new Error('Unexpected Error computing RepetitionObject'));
+        reject(new Error("Unexpected Error computing RepetitionObject"));
       }
     });
 
@@ -351,7 +351,7 @@ export default class RepetitionObject extends ObjectsCommon {
       } else if (operation.type === Object3D.createMirrorOperation().type) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation');
+        throw Error("ERROR: Unknown Operation");
       }
     });
 
@@ -363,11 +363,11 @@ export default class RepetitionObject extends ObjectsCommon {
   }
 
   protected applyMirrorOperation(operation: IMirrorOperation): void {
-    if (operation.plane === 'xy') {
+    if (operation.plane === "xy") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
-    } else if (operation.plane === 'yz') {
+    } else if (operation.plane === "yz") {
       this.applyScaleOperation(Object3D.createScaleOperation(-1, 1, 1));
-    } else if (operation.plane === 'zx') {
+    } else if (operation.plane === "zx") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, -1, 1));
     }
   }
@@ -434,8 +434,8 @@ export default class RepetitionObject extends ObjectsCommon {
     this.mesh.children.length = 0;
     this.group.length = 0;
 
-    if (this.parameters.type !== 'cartesian') {
-      throw new Error('No cartesian operation');
+    if (this.parameters.type !== "cartesian") {
+      throw new Error("No cartesian operation");
     }
 
     const { x, y, z, type, num } = this.parameters;
@@ -468,8 +468,8 @@ export default class RepetitionObject extends ObjectsCommon {
     this.mesh.children.length = 0;
     this.group.length = 0;
 
-    if (this.parameters.type !== 'polar') {
-      throw new Error('No polar operation');
+    if (this.parameters.type !== "polar") {
+      throw new Error("No polar operation");
     }
 
     const { axis, angle, type, num } = this.parameters;
@@ -525,12 +525,12 @@ export default class RepetitionObject extends ObjectsCommon {
   private async computeRepetitonAsync(): Promise<void> {
     this.mesh.children.length = 0;
     this.group.length = 0;
-    if (this.parameters.type.toLowerCase() === 'cartesian') {
+    if (this.parameters.type.toLowerCase() === "cartesian") {
       await this.cartesianRepetitionAsync();
-    } else if (this.parameters.type.toLowerCase() === 'polar') {
+    } else if (this.parameters.type.toLowerCase() === "polar") {
       await this.polarRepetitionAsync();
     } else {
-      throw new Error('Unknown Repetition Command');
+      throw new Error("Unknown Repetition Command");
     }
 
     this.meshUpdateRequired = false;

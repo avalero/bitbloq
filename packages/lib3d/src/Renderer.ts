@@ -1,9 +1,9 @@
-import * as THREE from 'three';
-import NavigationBox, { IBoxLabels } from './NavigationBox';
-import AxisHelper from './AxisHelper';
-import OrbitCamera from './OrbitCamera';
-import Scene, { IHelperDescription } from './Scene';
-import { IObjectsCommonJSON } from './Interfaces';
+import * as THREE from "three";
+import NavigationBox, { IBoxLabels } from "./NavigationBox";
+import AxisHelper from "./AxisHelper";
+import OrbitCamera from "./OrbitCamera";
+import Scene, { IHelperDescription } from "./Scene";
+import { IObjectsCommonJSON } from "./Interfaces";
 
 type ObjectClickHandler = (object: IObjectsCommonJSON) => void;
 type BackgroundClickHandler = () => void;
@@ -44,7 +44,7 @@ export default class Renderer {
     antialias: true,
     clearColor: 0xfafafa,
     sortObjects: false,
-    navigationBoxLabels: NavigationBox.defaultOptions.boxLabels,
+    navigationBoxLabels: NavigationBox.defaultOptions.boxLabels
   };
 
   private options: IRendererOptions;
@@ -76,7 +76,7 @@ export default class Renderer {
 
     this.options = {
       ...Renderer.defaultOptions,
-      ...options,
+      ...options
     };
 
     this.objectClickHandlers = [];
@@ -101,7 +101,7 @@ export default class Renderer {
 
     // set objects
     const newObjectsGroup = await this.scene.getObjectsAsync();
-    debugger;
+
     this.threeScene.remove(this.objectsGroup);
     if (this.objectInTransition) {
       this.threeScene.remove(this.objectInTransition);
@@ -198,7 +198,7 @@ export default class Renderer {
   }
 
   public getCanvasImage(): string {
-    const strMime: string = 'image/jpeg';
+    const strMime: string = "image/jpeg";
     const imgData: string = this.threeRenderer.domElement.toDataURL(strMime);
     return imgData;
   }
@@ -207,7 +207,7 @@ export default class Renderer {
     const rendererParams = {
       antialias: this.options.antialias,
       sortObjects: this.options.sortObjects,
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: true
     };
 
     const threeRenderer = new THREE.WebGLRenderer(rendererParams);
@@ -234,17 +234,17 @@ export default class Renderer {
       this.threeRenderer.domElement
     );
 
-    this.container.addEventListener('mousedown', this.handleMouseDown);
-    this.container.addEventListener('mousemove', this.handleMouseMove);
-    this.container.addEventListener('mouseup', this.handleMouseUp);
+    this.container.addEventListener("mousedown", this.handleMouseDown);
+    this.container.addEventListener("mousemove", this.handleMouseMove);
+    this.container.addEventListener("mouseup", this.handleMouseUp);
 
-    this.container.style.position = 'relative';
+    this.container.style.position = "relative";
 
-    const rendererContainer = document.createElement('div');
+    const rendererContainer = document.createElement("div");
     rendererContainer.style.cssText = rendererContainerStyles;
     this.container.appendChild(rendererContainer);
 
-    const navBoxContainer = document.createElement('div');
+    const navBoxContainer = document.createElement("div");
     navBoxContainer.style.cssText = navBoxContainerStyles;
     this.container.appendChild(navBoxContainer);
 
@@ -252,11 +252,11 @@ export default class Renderer {
       boxLabels: this.options.navigationBoxLabels,
       onChangeCameraAngle: (theta, phi) => {
         this.cameraControls.rotateTo(theta, phi, true);
-      },
+      }
     });
     this.updateNavigationBox();
 
-    const axisHelperContainer = document.createElement('div');
+    const axisHelperContainer = document.createElement("div");
     axisHelperContainer.style.cssText = axisHelperContainerStyles;
     this.container.appendChild(axisHelperContainer);
 

@@ -12,8 +12,8 @@
  * Last modified  : 2019-01-31 10:36:23
  */
 
-import * as THREE from 'three';
-import ObjectsCommon from './ObjectsCommon';
+import * as THREE from "three";
+import ObjectsCommon from "./ObjectsCommon";
 
 import {
   IMirrorOperation,
@@ -23,15 +23,15 @@ import {
   IViewOptions,
   OperationsArray,
   IObjectsCommonJSON,
-  IGeometry,
-} from './Interfaces';
+  IGeometry
+} from "./Interfaces";
 
 export default class Object3D extends ObjectsCommon {
   public static getVerticesFromGeom(
     geometry: THREE.Geometry
   ): ArrayLike<number> {
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
-    const attribute = bufferGeometry.getAttribute('position');
+    const attribute = bufferGeometry.getAttribute("position");
 
     return attribute.array;
   }
@@ -40,7 +40,7 @@ export default class Object3D extends ObjectsCommon {
     geometry: THREE.Geometry
   ): ArrayLike<number> {
     const bufferGeometry = new THREE.BufferGeometry().fromGeometry(geometry);
-    const attribute = bufferGeometry.getAttribute('normal');
+    const attribute = bufferGeometry.getAttribute("normal");
 
     return attribute.array;
   }
@@ -51,8 +51,8 @@ export default class Object3D extends ObjectsCommon {
     material: THREE.MeshLambertMaterial
   ): THREE.Mesh {
     const geometry = new THREE.BufferGeometry();
-    geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
+    geometry.addAttribute("position", new THREE.BufferAttribute(vertices, 3));
+    geometry.addAttribute("normal", new THREE.BufferAttribute(normals, 3));
     const mesh: THREE.Mesh = new THREE.Mesh(geometry, material);
 
     return mesh;
@@ -67,7 +67,7 @@ export default class Object3D extends ObjectsCommon {
   ) {
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...viewOptions,
+      ...viewOptions
     };
     super(vO, operations);
   }
@@ -91,7 +91,7 @@ export default class Object3D extends ObjectsCommon {
       } else if (operation.type === Object3D.createMirrorOperation().type) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation');
+        throw Error("ERROR: Unknown Operation");
       }
     });
 
@@ -104,14 +104,14 @@ export default class Object3D extends ObjectsCommon {
   }
 
   public clone(): any {
-    throw new Error('Object3D.clone() Implemented in children');
+    throw new Error("Object3D.clone() Implemented in children");
   }
 
   public getGeometryData(): IGeometry {
     return {
       id: this.id,
       vertices: this.verticesArray,
-      normals: this.normalsArray,
+      normals: this.normalsArray
     };
   }
 
@@ -134,7 +134,7 @@ export default class Object3D extends ObjectsCommon {
       } else if (operation.type === Object3D.createMirrorOperation().type) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation');
+        throw Error("ERROR: Unknown Operation");
       }
     });
 
@@ -147,28 +147,28 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected getGeometry(): THREE.Geometry {
-    throw new Error('ERROR. Pure Virtual Function implemented in children');
+    throw new Error("ERROR. Pure Virtual Function implemented in children");
   }
 
   protected getBufferGeometry(): THREE.BufferGeometry {
-    throw new Error('ERROR. Pure Virtual Function implemented in children');
+    throw new Error("ERROR. Pure Virtual Function implemented in children");
   }
 
   protected applyViewOptions(mesh?: THREE.Mesh): void {
     if (!this.mesh && !mesh) {
-      throw new Error('ApplyViewOptions - Mesh not defined');
+      throw new Error("ApplyViewOptions - Mesh not defined");
     }
 
     let matParams: THREE.MeshLambertMaterialParameters = {
       color: this.viewOptions.color,
-      transparent: false,
+      transparent: false
     };
 
     if (this.viewOptions.opacity < 1) {
       matParams = {
         ...matParams,
         opacity: this.viewOptions.opacity,
-        transparent: true,
+        transparent: true
       };
     }
     const material: THREE.MeshLambertMaterial = new THREE.MeshLambertMaterial(
@@ -184,11 +184,11 @@ export default class Object3D extends ObjectsCommon {
   }
 
   protected applyMirrorOperation(operation: IMirrorOperation): void {
-    if (operation.plane === 'xy') {
+    if (operation.plane === "xy") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, 1, -1));
-    } else if (operation.plane === 'yz') {
+    } else if (operation.plane === "yz") {
       this.applyScaleOperation(Object3D.createScaleOperation(-1, 1, 1));
-    } else if (operation.plane === 'zx') {
+    } else if (operation.plane === "zx") {
       this.applyScaleOperation(Object3D.createScaleOperation(1, -1, 1));
     }
   }
