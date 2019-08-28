@@ -143,7 +143,7 @@ export default class Renderer {
   }
 
   public setOrtographicCamera(isOrtographic: boolean): void {
-    debugger;
+    // debugger;
     let cameraPosition: THREE.Vector3;
     let cameraLookAt: THREE.Vector3;
     if (this.camera) {
