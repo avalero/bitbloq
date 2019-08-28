@@ -100,9 +100,8 @@ const server = new ApolloServer({
     onConnect: async (connectionParams, webSocket) => {
       if (connectionParams.authorization) {
         const justToken = connectionParams.authorization.split(' ')[1];
-        const user = await contextController.getDataInToken(justToken);
-        console.log(user)
-        return { user }; //  add the user to the ctx
+          const user = await contextController.getDataInToken(justToken);
+          return { user }; //  add the user to the ctx
       }
       throw new AuthenticationError('You need to be logged in');
     },

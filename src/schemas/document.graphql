@@ -9,13 +9,13 @@ enum Role {
   ADMIN
   USER
   EPHEMERAL
+  BASIC
 }
 
 type Query {
   documents: [Document] @authRequired(requires: [ADMIN, USER])
   document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
-  openPublicDocument(id: ObjectID!): Document
-  # @authRequired(requires: [ADMIN, USER])
+  openPublicDocument(id: ObjectID!): Document @authRequired(requires: [BASIC])
 }
 type Mutation {
   createDocument(input: DocumentIn!): Document

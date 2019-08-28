@@ -58,6 +58,10 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
               }
               passed = true;
               return resolve.apply(this, args);
+            } else if (roleReq === "BASIC" && context.user.role === "BASIC") {
+              //console.log(context)
+              passed = true;
+              return resolve.apply(this, args);
             } else if (
               roleReq === "EPHEMERAL" &&
               context.user.role === "EPHEMERAL"
