@@ -8,6 +8,7 @@ interface DialogModalProps {
   isOpen: boolean;
   title?: string;
   text?: string;
+  content?: JSX.Element;
   okText?: string;
   cancelText?: string;
   onOk: () => void;
@@ -18,6 +19,7 @@ const DialogModal: React.SFC<DialogModalProps> = ({
   isOpen,
   title,
   text,
+  content,
   okText,
   cancelText,
   onOk,
@@ -26,7 +28,8 @@ const DialogModal: React.SFC<DialogModalProps> = ({
   <Modal isOpen={isOpen} showHeader={false} onClose={onCancel}>
     <Content>
       <h2>{title}</h2>
-      <p>{text}</p>
+      {text && <p>{text}</p>}
+      {content}
       {okText && <Button onClick={onOk}>{okText}</Button>}
       {cancelText && (
         <Button tertiary onClick={onCancel}>
@@ -67,7 +70,7 @@ const Content = styled.div`
     font-weight: bold;
   }
 
-  ${Button} {
+  & > ${Button} {
     width: 100%;
     text-align: center;
     margin-bottom: 10px;

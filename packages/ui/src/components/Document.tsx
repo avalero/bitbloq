@@ -71,6 +71,16 @@ const DocumentIcon = styled.div`
   }
 `;
 
+const EditTitleIcon = styled.div`
+  display: none;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    margin-left: 12px;
+  }
+`;
+
 interface TitleProps {
   canEdit: boolean;
 }
@@ -86,12 +96,6 @@ const Title = styled.div<TitleProps>`
   span {
     display: flex;
     align-items: center;
-    svg {
-      display: none;
-      width: 14px;
-      height: 14px;
-      margin-left: 12px;
-    }
   }
 
   ${props =>
@@ -100,7 +104,7 @@ const Title = styled.div<TitleProps>`
       span {
         cursor: pointer;
         &:hover {
-          svg {
+          ${EditTitleIcon} {
             display: block;
           }
         }
@@ -204,13 +208,15 @@ export interface DocumentProps {
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
   headerButtons?: IHeaderButton[];
-  title?: string;
+  title?: JSX.Element | string;
   brandColor?: string;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
   onHeaderButtonClick?: HeaderButtonClickCallback;
   icon?: JSX.Element;
+  preMenuContent?: JSX.Element;
+  postMenuContent?: JSX.Element;
 }
 
 interface State {
@@ -244,7 +250,9 @@ class Document extends React.Component<DocumentProps, State> {
       onHeaderButtonClick,
       tabIndex,
       onTabChange,
-      icon
+      icon,
+      preMenuContent,
+      postMenuContent
     } = this.props;
     const { isHeaderCollapsed } = this.state;
 
@@ -258,7 +266,9 @@ class Document extends React.Component<DocumentProps, State> {
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
                 {title}
-                <Icon name="pencil" />
+                <EditTitleIcon>
+                  <Icon name="pencil" />
+                </EditTitleIcon>
               </span>
             </Title>
             {headerButtons.map(button => (
@@ -273,6 +283,7 @@ class Document extends React.Component<DocumentProps, State> {
             ))}
           </Header>
         </HeaderWrap>
+        {preMenuContent}
         <MenuWrap>
           <MenuBar options={menuOptions} onOptionClick={onMenuOptionClick} />
           {menuRightContent}
@@ -283,6 +294,7 @@ class Document extends React.Component<DocumentProps, State> {
             <Icon name="angle-double" />
           </CollapseButton>
         </MenuWrap>
+        {postMenuContent}
         <Main>
           <Tabs>
             {React.Children.map(
