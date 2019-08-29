@@ -1,5 +1,16 @@
 import gql from "graphql-tag";
 
+export const ME_QUERY = gql`
+  query Me {
+    me {
+      id
+      email
+      name
+      admin
+    }
+  }
+`;
+
 export const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
     document(id: $id) {
@@ -9,6 +20,21 @@ export const DOCUMENT_QUERY = gql`
       description
       content
       image
+      public
+    }
+  }
+`;
+
+export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
+  query OpenPublicDocument($id: ObjectID!) {
+    openPublicDocument(id: $id) {
+      id
+      type
+      title
+      description
+      content
+      image
+      public
     }
   }
 `;
@@ -140,6 +166,14 @@ export const UPLOAD_STL_MUTATION = gql`
       mimetype
       publicUrl
       document
+    }
+  }
+`;
+
+export const PUBLISH_DOCUMENT_MUTATION = gql`
+  mutation publishDocument($id: ObjectID!, $public: Boolean) {
+    publishDocument(id: $id, public: $public) {
+      id
     }
   }
 `;

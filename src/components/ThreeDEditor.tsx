@@ -11,7 +11,7 @@ import { EditorProps } from "../types";
 import { maxSTLFileSize } from "../config";
 import { UPLOAD_STL_MUTATION } from "../apollo/queries";
 
-const getMenuOptions = (baseMenuOptions, t) => [
+const getMenuOptions = (baseMenuOptions, t, props) => [
   {
     id: "file",
     label: t("menu-file"),
@@ -182,6 +182,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
       canEditTitle,
       headerButtons,
       onHeaderButtonClick,
+      preMenuContent,
       t
     } = this.props;
     const { showExportModal, showSTLError } = this.state;
@@ -201,12 +202,13 @@ class ThreeDEditor extends React.Component<EditorProps> {
           title={title}
           canEditTitle={canEditTitle}
           onEditTitle={onEditTitle}
-          menuOptions={base => getMenuOptions(base, t)}
+          menuOptions={base => getMenuOptions(base, t, this.props)}
           addShapeGroups={base => [...base, ...addShapeGroups]}
           onMenuOptionClick={this.onMenuOptionClick}
           onContentChange={onContentChange}
           headerButtons={headerButtons}
           onHeaderButtonClick={onHeaderButtonClick}
+          preMenuContent={preMenuContent}
         >
           {getTabs}
         </ThreeD>

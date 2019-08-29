@@ -63,14 +63,14 @@ export const SEO: React.SFC<SEOProps> = ({
             },
           ]
             .concat(
-              keywords.length > 0
+              keywords && keywords.length > 0
                 ? {
                     name: `keywords`,
                     content: keywords.join(`, `),
                   }
                 : [],
             )
-            .concat(meta)}
+            .concat(meta || [])}
         />
       );
     }}

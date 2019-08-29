@@ -10,6 +10,7 @@ import { documentTypes } from "../config";
 const Activate = React.lazy(() => import("../components/Activate"));
 const Documents = React.lazy(() => import("../components/Documents"));
 const Document = React.lazy(() => import("../components/Document"));
+const PublicDocument = React.lazy(() => import("../components/PublicDocument"));
 const EditDocument = React.lazy(() => import("../components/EditDocument"));
 const EditExercise = React.lazy(() => import("../components/EditExercise"));
 const ViewSubmission = React.lazy(() => import("../components/ViewSubmission"));
@@ -40,6 +41,7 @@ const AppPage = () => (
           <Route path="/app/document/:id" component={Document} />
           <Route path="/app/document/:id" component={Document} />
           <Route path="/app/document/:type/:id" component={EditDocument} />
+          <Route path="/app/public-document/:type/:id" component={PublicDocument} />
           <Route path="/app/exercise/:type/:id" component={EditExercise} />
           <Route path="/app/submission/:type/:id" component={ViewSubmission} />
           <Route path="/app/playground/:type" component={Playground} />

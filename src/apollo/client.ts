@@ -12,9 +12,19 @@ const request = async operation => {
     window.sessionStorage.getItem("authToken") ||
     window.localStorage.getItem("authToken");
 
+  const context = operation.getContext();
+
+  let authHeader;
+  if (context.email && context.password) {
+    const basicAuth = btoa(`${context.email}:${context.password}`);
+    authHeader = `Basic ${basicAuth}`;
+  } else {
+    authHeader = `Bearer ${token}`;
+  }
+
   operation.setContext({
     headers: {
-      Authorization: `Bearer ${token}`
+      Authorization: authHeader
     }
   });
 };
@@ -55,7 +65,8 @@ export const createClient = isBrowser =>
               `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
             )
           );
-        if (networkError) console.log(`[Network error]: ${JSON.stringify(networkError)}`);
+        if (networkError)
+          console.log(`[Network error]: ${JSON.stringify(networkError)}`);
       }),
       requestLink,
       isBrowser
@@ -67,7 +78,9 @@ export const createClient = isBrowser =>
               );
             },
             new WebSocketLink({
-              uri: `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/graphql`, 
+              uri: `${window.location.protocol === "https:" ? "wss" : "ws"}://${
+                window.location.host
+              }/api/graphql`,
               options: {
                 lazy: true,
                 reconnect: true,
@@ -80,7 +93,7 @@ export const createClient = isBrowser =>
                     authorization: token ? `Bearer ${token}` : ""
                   };
                 }
-              },
+              }
             }),
             httpLink
           )

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useQuery, useMutation } from "react-apollo-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import {
@@ -29,8 +29,8 @@ const EditExercise = ({ type, id, t }) => {
   const { data, loading, error } = useQuery(STUDENT_SUBMISSION_QUERY, {
     variables: { exerciseId: id }
   });
-  const updateSubmission = useMutation(UPDATE_SUBMISSION_MUTATION);
-  const finishSubmission = useMutation(FINISH_SUBMISSION_MUTATION);
+  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
+  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
   const currentContent = useRef([]);
 

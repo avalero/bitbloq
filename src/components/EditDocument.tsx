@@ -1,49 +1,83 @@
-import * as React from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import saveAs from "file-saver";
-import { Query, Mutation } from "react-apollo";
-import debounce from "lodash.debounce";
-import { colors, Document, Icon, Spinner, withTranslate } from "@bitbloq/ui";
-import ThreeDEditor from "./ThreeDEditor";
+import { saveAs } from "file-saver";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+import { Document, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import { navigate } from "gatsby";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
+import PublishBar from "./PublishBar";
 import {
   DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
-  UPDATE_DOCUMENT_MUTATION
+  UPDATE_DOCUMENT_MUTATION,
+  PUBLISH_DOCUMENT_MUTATION,
+  ME_QUERY
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 
-class State {
-  readonly isEditTitleVisible: boolean = false;
-  readonly tabIndex: number = 0;
-}
+import debounce from "lodash.debounce";
 
 interface EditDocumentProps {
   type: string;
-  t: (key: string) => string;
-  updateDocument: (any) => any;
   document: any;
+  update: (document: any) => any;
+  publish?: (isPublic: boolean) => any;
 }
+const EditDocument: FC<EditDocumentProps> = ({
+  type,
+  document,
+  update,
+  publish
+}) => {
+  const t = useTranslate();
 
-class EditDocument extends React.Component<EditDocumentProps, State> {
-  readonly state = new State();
+  const { data: { me = { admin: false } } = {} } = useQuery(ME_QUERY);
 
-  onEditTitle = () => {
-    const { document } = this.props;
-    this.setState({ isEditTitleVisible: true });
+  const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
+  const [tabIndex, setTabIndex] = useState(0);
+
+  const { title, description, image, public: isPublic } = document;
+
+  const location = window.location;
+  const publicUrl = `${location.protocol}//${
+    location.host
+  }/app/public-document/${type}/${document.id}`;
+
+  const documentType = documentTypes[type];
+  const EditorComponent = documentType.editorComponent;
+
+  let content: any[] = [];
+  try {
+    content = JSON.parse(document.content);
+  } catch (e) {
+    console.warn("Error parsing document content", e);
+  }
+
+  const onEditTitle = () => {
+    setIsEditTitleVisible(true);
   };
 
-  onSaveTitle = title => {
-    const { updateDocument, document } = this.props;
-    updateDocument({ ...document, title, image: undefined });
-    this.setState({ isEditTitleVisible: false });
+  const onSaveTitle = (title: string) => {
+    update({ ...document, title, image: undefined });
+    setIsEditTitleVisible(false);
   };
 
-  onSaveDocument = () => {
-    const { document } = this.props;
-    const { type, title, description, content, image } = document;
+  const onContentChange = (content: any[]) => {
+    update({
+      ...document,
+      content: JSON.stringify(content),
+      image: undefined
+    });
+  };
+
+  const onTogglePublic = () => {
+    if (publish) {
+      publish(!document.public);
+    }
+  };
+
+  const onSaveDocument = () => {
     const documentJSON = {
       type,
       title,
@@ -57,150 +91,140 @@ class EditDocument extends React.Component<EditDocumentProps, State> {
     saveAs(blob, `${title}.${type}.bitbloq`);
   };
 
-  onContentChange = content => {
-    const { document, updateDocument } = this.props;
-    updateDocument({
-      ...document,
-      content: JSON.stringify(content),
-      image: undefined
-    });
+  const InfoTab = (
+    <Document.Tab
+      key="info"
+      icon={<Icon name="info" />}
+      label={t("tab-project-info")}
+    >
+      <DocumentInfoForm
+        title={title}
+        description={description}
+        image={image}
+        onChange={async ({ title, description, image }) => {
+          const newDocument = { ...document, title, description, image };
+          if (!image || typeof image === "string") {
+            delete newDocument.image;
+          }
+          update(newDocument);
+        }}
+      />
+    </Document.Tab>
+  );
+
+  return (
+    <>
+      <EditorComponent
+        brandColor={documentType.color}
+        canEditTitle={true}
+        content={content}
+        tabIndex={tabIndex}
+        onTabChange={(tabIndex: number) => setTabIndex(tabIndex)}
+        getTabs={(mainTabs: any[]) => [...mainTabs, InfoTab]}
+        title={title}
+        onEditTitle={onEditTitle}
+        onSaveDocument={onSaveDocument}
+        onContentChange={debounce(
+          (content: any[]) => onContentChange(content),
+          1000
+        )}
+        preMenuContent={me.admin &&
+          <PublishBar
+            isPublic={isPublic}
+            onToggle={onTogglePublic}
+            url={isPublic ? publicUrl : ""}
+          />
+        }
+      />
+      {isEditTitleVisible && (
+        <EditTitleModal
+          title={title}
+          onCancel={() => setIsEditTitleVisible(false)}
+          onSave={onSaveTitle}
+        />
+      )}
+    </>
+  );
+};
+
+interface EditExistingDocumentProps {
+  id: string;
+  type: string;
+}
+const EditExistingDocument: FC<EditExistingDocumentProps> = ({ id, type }) => {
+  const { loading, error, data, refetch } = useQuery(DOCUMENT_QUERY, {
+    variables: { id }
+  });
+  const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
+  const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
+
+  const update = async (document: any) => {
+    await updateDocument({ variables: document });
+    refetch();
   };
 
-  renderInfoTab() {
-    const { t, document, updateDocument } = this.props;
-    const { id, title, description, content, image } = document;
+  const publish = async (isPublic: boolean) => {
+    await publishDocument({ variables: { id, public: isPublic } });
+    refetch();
+  };
 
-    return (
-      <Document.Tab
-        key="info"
-        icon={<Icon name="info" />}
-        label={t("tab-project-info")}
-      >
-        <DocumentInfoForm
-          title={title}
-          description={description}
-          image={image}
-          onChange={({ title, description, image }) => {
-            const newDocument = { ...document, title, description, image };
-            if (!image || typeof image === 'string') {
-              delete newDocument.image;
-            }
-            updateDocument(newDocument);
-          }}
-        />
-      </Document.Tab>
-    );
-  }
-
-  render() {
-    const { isEditTitleVisible, tabIndex } = this.state;
-    const { document, updateDocument, type } = this.props;
-
-    const documentType = documentTypes[type];
-
-    const { id, title } = document;
-    let content = [];
-    try {
-      content = JSON.parse(document.content);
-    } catch (e) {
-      console.warn("Error parsing document content", e);
-    }
-
-    const EditorComponent = documentType.editorComponent;
-
-    return (
-      <>
-        <EditorComponent
-          brandColor={documentType.color}
-          canEditTitle={true}
-          content={content}
-          tabIndex={tabIndex}
-          onTabChange={tabIndex => this.setState({ tabIndex })}
-          getTabs={mainTabs => [...mainTabs, this.renderInfoTab()]}
-          title={title}
-          onEditTitle={this.onEditTitle}
-          onSaveDocument={this.onSaveDocument}
-          onContentChange={this.onContentChange}
-        />
-        {isEditTitleVisible && (
-          <EditTitleModal
-            title={title}
-            onCancel={() => this.setState({ isEditTitleVisible: false })}
-            onSave={this.onSaveTitle}
-          />
-        )}
-      </>
-    );
-  }
-}
-
-const EditDocumentWithData = props => {
-  const { type } = props;
   const documentType = documentTypes[type];
 
-  if (props.id === "new") {
-    return (
-      <Mutation
-        mutation={CREATE_DOCUMENT_MUTATION}
-        onCompleted={({ createDocument: { id, type } }) =>
-          navigate(`/app/document/${type}/${id}`)
-        }
-      >
-        {(createDocument, { loading }) => {
-          if (loading) return <Loading color={documentType.color} />;
+  if (loading) return <Loading color={documentType.color} />;
+  if (error) return <p>Error :(</p>;
 
-          return (
-            <EditDocument
-              {...props}
-              document={{
-                content: "[]",
-                title: "",
-                description: "",
-                type: props.type
-              }}
-              updateDocument={document =>
-                createDocument({ variables: document })
-              }
-            />
-          );
-        }}
-      </Mutation>
-    );
+  const { document = {} } = data;
+
+  return (
+    <EditDocument
+      type={type}
+      document={document}
+      update={update}
+      publish={publish}
+    />
+  );
+};
+
+interface EditNewDocumentProps {
+  type: string;
+}
+const EditNewDocument: FC<EditNewDocumentProps> = ({ type }) => {
+  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
+
+  const document = {
+    content: "[]",
+    title: "",
+    description: "",
+    public: false,
+    image: "",
+    type
+  };
+
+  const update = async (document: any) => {
+    const {
+      data: {
+        createDocument: { id: newId }
+      }
+    } = await createDocument({ variables: document });
+    navigate(`/app/document/${type}/${newId}`);
+  };
+
+  return <EditDocument type={type} document={document} update={update} />;
+};
+
+interface EditDocumentPageProps {
+  id: string;
+  type: string;
+}
+const EditDocumentPage: FC<EditDocumentPageProps> = ({ id, type }) => {
+  if (id === "new") {
+    return <EditNewDocument type={type} />;
   } else {
-    return (
-      <Query query={DOCUMENT_QUERY} variables={{ id: props.id }}>
-        {({ loading, error, data }) => {
-          if (loading) return <Loading color={documentType.color} />;
-          if (error) return <p>Error :(</p>;
-
-          return (
-            <Mutation mutation={UPDATE_DOCUMENT_MUTATION}>
-              {mutate => (
-                <EditDocument
-                  {...props}
-                  document={data.document}
-                  updateDocument={debounce(document => {
-                    mutate({
-                      variables: document,
-                      refetchQueries: [
-                        {
-                          query: DOCUMENT_QUERY,
-                          variables: { id: props.id }
-                        }
-                      ]
-                    });
-                  }, 1000)}
-                />
-              )}
-            </Mutation>
-          );
-        }}
-      </Query>
-    );
+    return <EditExistingDocument id={id} type={type} />;
   }
 };
 
-export default withTranslate(EditDocumentWithData);
+export default EditDocumentPage;
 
 /* styled components */
 

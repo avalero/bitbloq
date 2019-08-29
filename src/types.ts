@@ -14,4 +14,11 @@ export interface EditorProps {
   headerButtons?: IHeaderButton[];
   onHeaderButtonClick?: HeaderButtonClickCallback;
   isPlayground?: boolean;
+  preMenuContent?: JSX.Element;
+}
+
+export interface Document {
+  title: string;
+  description: string;
+  image: string;
 }
