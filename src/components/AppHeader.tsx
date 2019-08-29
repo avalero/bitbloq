@@ -1,60 +1,51 @@
-import * as React from 'react';
+import * as React from "react";
 import { navigate } from "gatsby";
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import {colors, DropDown, Icon} from '@bitbloq/ui';
-import { Query } from "react-apollo";
-import logoBetaImage from '../images/logo-horizontal.svg';
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { colors, DropDown, Icon } from "@bitbloq/ui";
+import { useQuery, useApolloClient } from "@apollo/react-hooks";
+import { ME_QUERY } from "../apollo/queries";
+
+import logoBetaImage from "../images/logo-horizontal.svg";
 import gql from "graphql-tag";
 
-const ME_QUERY = gql`
-  query Me {
-    me {
-      name
-    }
+const AppHeader = () => {
+  const { data, loading, error } = useQuery(ME_QUERY);
+  const client = useApolloClient();
+
+  const logout = () => {
+    localStorage.setItem("authToken", "");
+    client.resetStore();
+    navigate("/");
+  };
+
+  if (error) {
+    logout();
   }
-`;
 
-const AppHeader = () => (
-  <Container>
-    <Logo src={logoBetaImage} alt="Bitbloq" />
-    <Query
-      query={ME_QUERY}
-      fetchPolicy="network-only"
-    >
-      {({ loading, error, data }) => {
-        if (loading) return null;
-
-        if (error) {
-          localStorage.setItem('authToken', '');
-          navigate('/');
-          return null;
-        }
-
-        return (
-          <UserContainer>
-            <UserName>{data.me && data.me.name}</UserName>
-            <DropDown>
-              {(isOpen: boolean) => (
-                <ContextButton isOpen={isOpen}>
-                  <Icon name="ellipsis" />
-                </ContextButton>
-              )}
-              <ContextMenu>
-                <ContextMenuOption onClick={() => {
-                  localStorage.setItem('authToken', '');
-                  navigate('/');
-                }}>
-                  Cerrar sesión
-                </ContextMenuOption>
-              </ContextMenu>
-            </DropDown>
-          </UserContainer>
-        );
-      }}
-    </Query>
-  </Container>
-);
+  return (
+    <Container>
+      <Logo src={logoBetaImage} alt="Bitbloq" />
+      {!loading && (
+        <UserContainer>
+          <UserName>{data.me && data.me.name}</UserName>
+          <DropDown>
+            {(isOpen: boolean) => (
+              <ContextButton isOpen={isOpen}>
+                <Icon name="ellipsis" />
+              </ContextButton>
+            )}
+            <ContextMenu>
+              <ContextMenuOption onClick={() => logout()}>
+                Cerrar sesión
+              </ContextMenuOption>
+            </ContextMenu>
+          </DropDown>
+        </UserContainer>
+      )}
+    </Container>
+  );
+};
 
 export default AppHeader;
 
