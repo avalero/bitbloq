@@ -10,6 +10,7 @@ export interface IDocument extends Document {
   cache?: string;
   image?: string;
   public: boolean;
+  example: boolean;
   createdAt?: Date;
   updatedAt?: Date;
   description?: string;
@@ -63,7 +64,12 @@ const DocumentMongSchema: Schema = new Schema({
   },
 
   public: {
-    type: String,
+    type: Boolean,
+    default: false
+  },
+
+  example: {
+    type: Boolean,
     default: false
   }
 });

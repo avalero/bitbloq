@@ -25,7 +25,7 @@ type Mutation {
     @authRequired(requires: [ADMIN, USER])
   updateDocumentContent(id: ObjectID, content: String, cache: String): Document
     @authRequired(requires: [ADMIN, USER])
-  publishDocument(id: ObjectID!, public: Boolean): Document
+  publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
     @authRequired(requires: [ADMIN])
   openDocumentCopy(id: ObjectID!): Document
     @authRequired(requires: [ADMIN, USER])
@@ -46,6 +46,7 @@ type Document {
   version: String
   image: String
   public: Boolean
+  example: Boolean
   createdAt: Date
   updatedAt: Date
   exercises: [Exercise]
