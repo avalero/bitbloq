@@ -1,4 +1,5 @@
 import * as React from "react";
+import AddDocument from "./icons/AddDocument";
 import Airplane from "./icons/Airplane";
 import Angle from "./icons/Angle";
 import AngleDouble from "./icons/AngleDouble";
@@ -45,6 +46,7 @@ import Pyramid from "./icons/Pyramid";
 import Publish from "./icons/Publish";
 import Redo from "./icons/Redo";
 import Reflection from "./icons/Reflection";
+import Reload from "./icons/Reload";
 import Repeat from "./icons/Repeat";
 import RepeatPolar from "./icons/RepeatPolar";
 import Rotation from "./icons/Rotation";
@@ -59,6 +61,7 @@ import Trash from "./icons/Trash";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
+import ViewDocument from "./icons/ViewDocument";
 import Torus from "./icons/Torus";
 import RectangularPrism from "./icons/RectangularPrism";
 import Cone from "./icons/Cone";
@@ -80,6 +83,8 @@ export interface IconProps {
  */
 const Icon: React.SFC<IconProps> = ({ name }) => {
   switch (name) {
+    case "add-document":
+      return <AddDocument />;
     case "airplane":
       return <Airplane />;
     case "octahedron":
@@ -188,6 +193,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Redo />;
     case "reflection":
       return <Reflection />;
+    case "reload":
+      return <Reload />;
     case "repeat":
       return <Repeat />;
     case "repeat-polar":
@@ -218,6 +225,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Ungroup />;
     case "union":
       return <Union />;
+    case "view-document":
+      return <ViewDocument />;
     case "logo3d":
       return <Logo3D />;
     default:
