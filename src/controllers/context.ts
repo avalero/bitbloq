@@ -92,7 +92,7 @@ const contextController = {
         const userBas: IUserInToken = {
           email: contactFound.email,
           userID: contactFound._id,
-          role: "BASIC",
+          role: "USER",
           submissionID: null
         };
         return userBas;

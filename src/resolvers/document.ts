@@ -255,40 +255,6 @@ const documentResolver = {
       }
     },
 
-    /**
-     * open Document copy: when a user wants to edit an example document has to make a copy in his account.
-     * The example document has to be public.
-     * args: document ID
-     */
-    openDocumentCopy: async (root: any, args: any, context: any) => {
-      const docFound: IDocument = await DocumentModel.findOne({
-        _id: args.id,
-        public: true
-      });
-      if (!docFound) {
-        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
-      }
-      const docCopy: IDocument = new DocumentModel({
-        user: context.user.userID,
-        title: docFound.title,
-        type: docFound.type,
-        folder: (await UserModel.findOne({ _id: context.user.userID }))
-          .rootFolder,
-        content: docFound.content,
-        cache: docFound.cache,
-        description: docFound.description,
-        version: docFound.version,
-        image: docFound.image
-      });
-      const newDoc: IDocument = await DocumentModel.create(docCopy);
-      await FolderModel.updateOne(
-        { _id: newDoc.folder },
-        { $push: { documentsID: newDoc._id } },
-        { new: true }
-      );
-      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
-      return newDoc;
-    }
   },
   Query: {
     /**
