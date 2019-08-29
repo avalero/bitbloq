@@ -115,6 +115,8 @@ class ThreeD extends React.Component {
       menuOptions,
       addShapeGroups,
       t,
+      preMenuContent,
+      postMenuContent
     } = this.props;
 
     const menuRightContent = (
@@ -159,7 +161,10 @@ class ThreeD extends React.Component {
           menuOptions ? menuOptions(baseMenuOptions) : baseMenuOptions
         }
         onMenuOptionClick={this.onMenuOptionClick}
-        menuRightContent={menuRightContent}>
+        menuRightContent={menuRightContent}
+        preMenuContent={preMenuContent}
+        postMenuContent={postMenuContent}
+      >
         {typeof children === 'function' ? children(mainTabs) : mainTabs}
       </Document>
     );

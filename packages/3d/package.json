@@ -57,6 +57,7 @@
     "jest": "^23.6.0",
     "jest-cli": "^23.6.0",
     "jest-fetch-mock": "^2.0.0",
+    "prettier": "^1.18.2",
     "prettier-tslint": "^0.4.1",
     "source-map-loader": "^0.2.4",
     "style-loader": "^0.21.0",
