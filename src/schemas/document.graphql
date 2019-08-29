@@ -9,13 +9,13 @@ enum Role {
   ADMIN
   USER
   EPHEMERAL
+  BASIC
 }
 
 type Query {
   documents: [Document] @authRequired(requires: [ADMIN, USER])
   document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
-  openPublicDocument(id: ObjectID!): Document
-  # @authRequired(requires: [ADMIN, USER])
+  openPublicDocument(id: ObjectID!): Document @authRequired(requires: [BASIC])
 }
 type Mutation {
   createDocument(input: DocumentIn!): Document
@@ -25,8 +25,10 @@ type Mutation {
     @authRequired(requires: [ADMIN, USER])
   updateDocumentContent(id: ObjectID, content: String, cache: String): Document
     @authRequired(requires: [ADMIN, USER])
-  publishDocument(id: ObjectID!, public: Boolean): Document   @authRequired(requires: [ADMIN])
-  openDocumentCopy(id: ObjectID!): Document   @authRequired(requires: [ADMIN, USER])
+  publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
+    @authRequired(requires: [ADMIN])
+  openDocumentCopy(id: ObjectID!): Document
+    @authRequired(requires: [ADMIN, USER])
 }
 type Subscription {
   documentUpdated: Document @authRequired(requires: [USER])
@@ -44,6 +46,7 @@ type Document {
   version: String
   image: String
   public: Boolean
+  example: Boolean
   createdAt: Date
   updatedAt: Date
   exercises: [Exercise]
