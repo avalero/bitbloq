@@ -13,7 +13,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({ type }) => {
   const EditorComponent = documentType.editorComponent;
 
   const onSaveDocument = () => {
-    const title = "escena";
+    const title = "playground";
     const documentJSON = {
       type,
       title,
@@ -29,7 +29,6 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({ type }) => {
     contentRef.current = content;
   };
 
-
   return (
     <EditorComponent
       content={contentRef.current}
@@ -39,6 +38,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({ type }) => {
       tabIndex={tabIndex}
       onTabChange={setTabIndex}
       onSaveDocument={onSaveDocument}
+      isPlayground
     />
   );
 };

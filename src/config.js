@@ -45,3 +45,4 @@ export const documentTypes = {
   }
 };
 
+export const maxSTLFileSize = 5242880;
