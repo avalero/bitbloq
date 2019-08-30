@@ -1,7 +1,7 @@
 {
-  "name": "bitbloq-space",
+  "name": "@bitbloq/frontend",
   "private": true,
-  "description": "Bitbloq Space",
+  "description": "Bitbloq Frontend",
   "version": "0.1.0",
   "authors": [
     {

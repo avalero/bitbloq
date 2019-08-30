@@ -4,3 +4,5 @@ dist
 coverage
 packages/**/*.tgz
 .vscode/
+.env
+/data

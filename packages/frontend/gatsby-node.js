@@ -29,7 +29,7 @@ exports.onCreateWebpackConfig = ({ actions, loaders, getConfig, stage }) => {
 
     {
       ...loaders.js(),
-      test: /\.jsx?$/,
+      test: /\.(jsx?|tsx?)$/,
       exclude: modulePath =>
         /node_modules/.test(modulePath) &&
         !/node_modules\/\@bitbloq\/*/.test(modulePath),

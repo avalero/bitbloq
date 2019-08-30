@@ -1,0 +1,12 @@
+FROM node:current as node
+
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app/
+
+COPY . ./
+
+RUN npx lerna bootstrap
+
+WORKDIR /usr/src/app/packages/frontend
+
+CMD npm run develop
