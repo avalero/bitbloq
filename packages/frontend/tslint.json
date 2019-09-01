@@ -1,0 +1,34 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-react",
+    "tslint-config-airbnb",
+    "tslint-config-prettier"
+  ],
+  "linterOptions": {
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts",
+      "src/lib/object3dts/threeCSG.ts",
+      "src/**/*.tsx",
+      "src/**/*.js*",
+      "coverage/**/*"
+    ]
+  },
+  "rules": {
+    "no-console": false,
+    "object-literal-sort-keys": false,
+    "no-debugger": false,
+    "ter-arrow-parens": false,
+    "import-name": false,
+    "variable-name": [true, "check-format", "allow-leading-underscore"],
+    "prefer-array-literal": [true, { "allow-type-parameters": true }],
+    "ordered-imports": [false]
+  },
+  "jsRules": {
+    //Disable for javascript
+    "no-console": false,
+    "object-literal-sort-keys": false,
+    "no-debugger": false
+  }
+}
