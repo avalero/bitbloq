@@ -1,5 +1,5 @@
-import * as THREE from "three";
-import { SphericalCoordsXYZ } from "./SphericalCoordsXYZ";
+import * as THREE from 'three';
+import { SphericalCoordsXYZ } from './SphericalCoordsXYZ';
 
 const EPSILON: number = 0.001;
 const STATE = {
@@ -9,7 +9,7 @@ const STATE = {
   PAN: 2,
   TOUCH_ROTATE: 3,
   TOUCH_DOLLY: 4,
-  TOUCH_PAN: 5
+  TOUCH_PAN: 5,
 };
 
 export default class OrbitCamera {
@@ -55,14 +55,14 @@ export default class OrbitCamera {
         near: this.camera.near,
         far: this.camera.far,
         left: this.camera.left,
-        right: this.camera.right
+        right: this.camera.right,
       };
     } else {
       this.ortho = {
         near: 0.1,
         far: 10000,
         left: -200,
-        right: 200
+        right: 200,
       };
     }
 
@@ -215,10 +215,10 @@ export default class OrbitCamera {
         savedDampingFactor = scope.dampingFactor;
         scope.dampingFactor = scope.draggingDampingFactor;
 
-        document.addEventListener("mousemove", dragging, { passive: false });
-        document.addEventListener("touchmove", dragging, { passive: false });
-        document.addEventListener("mouseup", endDragging);
-        document.addEventListener("touchend", endDragging);
+        document.addEventListener('mousemove', dragging, { passive: false });
+        document.addEventListener('touchmove', dragging, { passive: false });
+        document.addEventListener('mouseup', endDragging);
+        document.addEventListener('touchend', endDragging);
       };
 
       const dragging = (event: any) => {
@@ -295,10 +295,10 @@ export default class OrbitCamera {
         scope.dampingFactor = savedDampingFactor;
         state = STATE.NONE;
 
-        document.removeEventListener("mousemove", dragging);
-        document.removeEventListener("touchmove", dragging);
-        document.removeEventListener("mouseup", endDragging);
-        document.removeEventListener("touchend", endDragging);
+        document.removeEventListener('mousemove', dragging);
+        document.removeEventListener('touchmove', dragging);
+        document.removeEventListener('mouseup', endDragging);
+        document.removeEventListener('touchend', endDragging);
       };
 
       const dollyIn = () => {
@@ -329,20 +329,20 @@ export default class OrbitCamera {
         }
       };
 
-      this.domElement.addEventListener("mousedown", onMouseDown);
-      this.domElement.addEventListener("touchstart", onTouchStart);
-      this.domElement.addEventListener("wheel", onMouseWheel);
-      this.domElement.addEventListener("contextmenu", onContextMenu);
+      this.domElement.addEventListener('mousedown', onMouseDown);
+      this.domElement.addEventListener('touchstart', onTouchStart);
+      this.domElement.addEventListener('wheel', onMouseWheel);
+      this.domElement.addEventListener('contextmenu', onContextMenu);
 
       this.dispose = () => {
-        scope.domElement.removeEventListener("mousedown", onMouseDown);
-        scope.domElement.removeEventListener("touchstart", onTouchStart);
-        scope.domElement.removeEventListener("wheel", onMouseWheel);
-        scope.domElement.removeEventListener("contextmenu", onContextMenu);
-        document.removeEventListener("mousemove", dragging);
-        document.removeEventListener("touchmove", dragging);
-        document.removeEventListener("mouseup", endDragging);
-        document.removeEventListener("touchend", endDragging);
+        scope.domElement.removeEventListener('mousedown', onMouseDown);
+        scope.domElement.removeEventListener('touchstart', onTouchStart);
+        scope.domElement.removeEventListener('wheel', onMouseWheel);
+        scope.domElement.removeEventListener('contextmenu', onContextMenu);
+        document.removeEventListener('mousemove', dragging);
+        document.removeEventListener('touchmove', dragging);
+        document.removeEventListener('mouseup', endDragging);
+        document.removeEventListener('touchend', endDragging);
       };
     }
   }
@@ -377,8 +377,18 @@ export default class OrbitCamera {
 
   public center() {
     // this.reset(true);
+
+    debugger;
+
     this.rotateTo(-1.5707963267948966, 1.0808390005411683, true);
-    this.dollyTo(170, true);
+    if (this.camera instanceof THREE.PerspectiveCamera) this.dollyTo(170, true);
+
+    if (this.camera instanceof THREE.OrthographicCamera) {
+      this.ortho.left = -200;
+      this.ortho.right = 200;
+      this.ortho.near = 0.1;
+      this.ortho.far = 100000;
+    }
   }
 
   public zoomIn() {
@@ -486,7 +496,7 @@ export default class OrbitCamera {
       position: this.camera.position.toArray(),
 
       target0: this._target0.toArray(),
-      position0: this._position0.toArray()
+      position0: this._position0.toArray(),
     };
   }
 
