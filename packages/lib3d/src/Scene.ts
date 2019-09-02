@@ -642,9 +642,12 @@ export default class Scene {
         z: (mesh.rotation.z * 180.0) / Math.PI
       };
 
-      if(Math.abs(angle.x - Math.trunc(angle.x)) < (0.01)) angle.x = Math.trunc(angle.x);
-      if(Math.abs(angle.y - Math.trunc(angle.y)) < (0.01)) angle.y = Math.trunc(angle.y);
-      if(Math.abs(angle.z - Math.trunc(angle.z)) < (0.01)) angle.z = Math.trunc(angle.z);
+      if (Math.abs(angle.x - Math.trunc(angle.x)) < 0.01)
+        angle.x = Math.trunc(angle.x);
+      if (Math.abs(angle.y - Math.trunc(angle.y)) < 0.01)
+        angle.y = Math.trunc(angle.y);
+      if (Math.abs(angle.z - Math.trunc(angle.z)) < 0.01)
+        angle.z = Math.trunc(angle.z);
 
       const scale = {
         x: mesh.scale.x,
