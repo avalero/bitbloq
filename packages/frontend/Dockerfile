@@ -5,7 +5,7 @@ WORKDIR /usr/src/app/
 
 COPY . ./
 
-RUN npx lerna bootstrap --ci
+RUN npx lerna bootstrap
 
 WORKDIR /usr/src/app/packages/frontend
 RUN npm run build
