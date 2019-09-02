@@ -200,7 +200,10 @@ export default class Scene {
       );
       const union = new Union(objects);
       const mesh: THREE.Mesh = (await union.getMeshAsync()) as THREE.Mesh;
-      mesh.userData = { ...mesh.userData, viewOptions: { name } };
+      mesh.userData = {
+        ...mesh.userData,
+        viewOptions: { name }
+      };
       meshArray2STLAsync([mesh], name);
     } else {
       // each mesh will be a single stl
@@ -310,7 +313,10 @@ export default class Scene {
           }
         }
 
-        mesh.userData = { ...mesh.userData, ...object.toJSON() };
+        mesh.userData = {
+          ...mesh.userData,
+          ...object.toJSON()
+        };
         return mesh;
       })
     );
@@ -487,7 +493,9 @@ export default class Scene {
       if (parent) {
         // mark as selected the parents
         while (parent) {
-          parent.setViewOptions({ selected: true });
+          parent.setViewOptions({
+            selected: true
+          });
           parent = parent.getParent();
         }
       } else {
@@ -612,6 +620,39 @@ export default class Scene {
     try {
       const obj = this.getObject(json);
       return new PositionCalculator(obj).getPositionAsync();
+    } catch (e) {
+      throw new Error(`Cannot find object: ${e}`);
+    }
+  }
+
+  public async getLocalPositionAsync(
+    json: IObjectsCommonJSON
+  ): Promise<IObjectPosition> {
+    try {
+      const obj = this.getObject(json);
+      const mesh = await obj.getMeshAsync();
+      const position = {
+        x: mesh.position.x,
+        y: mesh.position.y,
+        z: mesh.position.z
+      };
+      const angle = {
+        x: (mesh.rotation.x * 180.0) / Math.PI,
+        y: (mesh.rotation.y * 180.0) / Math.PI,
+        z: (mesh.rotation.z * 180.0) / Math.PI
+      };
+
+      if(Math.abs(angle.x - Math.trunc(angle.x)) < (0.01)) angle.x = Math.trunc(angle.x);
+      if(Math.abs(angle.y - Math.trunc(angle.y)) < (0.01)) angle.y = Math.trunc(angle.y);
+      if(Math.abs(angle.z - Math.trunc(angle.z)) < (0.01)) angle.z = Math.trunc(angle.z);
+
+      const scale = {
+        x: mesh.scale.x,
+        y: mesh.scale.x,
+        z: mesh.scale.x
+      };
+
+      return { position, angle, scale };
     } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
     }
