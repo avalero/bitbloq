@@ -80,7 +80,7 @@ const EditDocument: FC<EditDocumentProps> = ({
   const onSaveDocument = () => {
     const documentJSON = {
       type,
-      title: title || `document ${type}`,
+      title: title || `document${type}`,
       description: description || `bitbloq ${type} document`,
       content: JSON.stringify(content),
       image
