@@ -1,0 +1,21 @@
+# import Upload, ObjectID from "./scalars.graphql"
+
+type File {
+  id: ID!
+  filename: String
+  mimetype: String
+  publicUrl: String
+  document: ObjectID
+}
+
+type Query {
+  uploads: [File]
+}
+
+type Mutation {
+  singleUpload(file: Upload!, documentID: ObjectID): File
+  uploadSTLFile(file: Upload!, documentID: ObjectID): File
+    @authRequired(requires: [ADMIN, USER])
+  uploadImageFile(file: Upload!, documentID: ObjectID): File
+    @authRequired(requires: [ADMIN, USER])
+}

@@ -1,0 +1,22 @@
+# import Date, ObjectID from "./scalars.graphql"
+# import Document from "./document.graphql"
+
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
+
+enum Role {
+  ADMIN
+  USER
+  EPHEMERAL
+  BASIC
+}
+
+type Mutation {
+  storeFrontLog(input: LogIn): String @authRequired(requires: [USER])
+}
+
+input LogIn {
+  modelType: String
+  action: String
+  docType: String
+  others: String
+}

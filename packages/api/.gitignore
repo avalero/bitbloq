@@ -1,0 +1,8 @@
+node_modules
+.env
+/src/__test__/*
+/src/__helpers__/*
+/src/email/*.html
+/src/email/*.mjml
+/src/images/*
+/logs/*

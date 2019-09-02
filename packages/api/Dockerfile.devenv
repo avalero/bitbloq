@@ -1,0 +1,12 @@
+FROM node:current as node
+
+RUN mkdir -p /usr/src/app
+RUN mkdir -p /usr/src/app/src
+WORKDIR /usr/src/app
+
+COPY .env package.json package-lock.json tsconfig.json docker-entrypoint.sh ./
+COPY src ./src
+
+RUN npm install --yes
+
+CMD npm run dev-inspect

@@ -1,0 +1,65 @@
+# import Date, ObjectID, Role from "./scalars.graphql"
+# import Exercise from "./exercise.graphql"
+# import File from "./upload.graphql"
+# import Upload from "./scalars.graphql"
+
+directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
+
+enum Role {
+  ADMIN
+  USER
+  EPHEMERAL
+  BASIC
+}
+
+type Query {
+  documents: [Document] @authRequired(requires: [ADMIN, USER])
+  document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
+  openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
+}
+type Mutation {
+  createDocument(input: DocumentIn!): Document
+    @authRequired(requires: [ADMIN, USER])
+  deleteDocument(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
+  updateDocument(id: ObjectID!, input: DocumentIn): Document
+    @authRequired(requires: [ADMIN, USER])
+  updateDocumentContent(id: ObjectID, content: String, cache: String): Document
+    @authRequired(requires: [ADMIN, USER])
+  publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
+    @authRequired(requires: [ADMIN])
+}
+type Subscription {
+  documentUpdated: Document @authRequired(requires: [USER])
+}
+
+type Document {
+  id: ObjectID
+  user: ObjectID
+  title: String!
+  type: String
+  folder: ObjectID
+  content: String
+  cache: String
+  description: String
+  version: String
+  image: String
+  public: Boolean
+  example: Boolean
+  createdAt: Date
+  updatedAt: Date
+  exercises: [Exercise]
+  images: [File]
+}
+
+input DocumentIn {
+  user: ObjectID
+  title: String
+  type: String
+  folder: ObjectID
+  content: String
+  cache: String
+  description: String
+  version: String
+  image: Upload
+  imageUrl: String
+}

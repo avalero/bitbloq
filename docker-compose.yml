@@ -1,0 +1,79 @@
+version: '3.2'
+
+services:
+
+  nginx:
+    image: nginx:stable
+    volumes:
+      - './development-nginx.conf:/etc/nginx/conf.d/default.conf'
+    depends_on:
+      - frontend
+      - api
+    ports:
+      - 8000:80
+
+  frontend:
+    build:
+      context: ./
+      dockerfile: ./packages/frontend/Dockerfile.devenv
+    volumes:
+      - type: bind
+        source: ./packages/3d/src
+        target: /usr/src/app/packages/3d/src
+      - type: bind
+        source: ./packages/lib3d/src
+        target: /usr/src/app/packages/lib3d/src
+      - type: bind
+        source: ./packages/bloqs/src
+        target: /usr/src/app/packages/bloqs/src
+      - type: bind
+        source: ./packages/frontend/src
+        target: /usr/src/app/packages/frontend/src
+      - type: bind
+        source: ./packages/junior/src
+        target: /usr/src/app/packages/junior/src
+      - type: bind
+        source: ./packages/ui/src
+        target: /usr/src/app/packages/ui/src
+
+  api:
+    build:
+      context: ./packages/api
+      dockerfile: ./Dockerfile.devenv
+    environment:
+      - MONGO_URL=mongodb://mongodb/bitbloq_space
+      - JWT_SECRET=supersecretpassword
+      - PORT=8000
+      - GOOGLE_APPLICATION_CREDENTIALS=/google-application-credentials.json
+      - REDIS_DOMAIN_NAME=redis
+      - REDIS_PORT_NUMBER=6379
+      - USE_REDIS=false
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - type: bind
+        source: ./packages/api/src
+        target: /usr/src/app/src
+      - type: bind
+        source: "${GOOGLE_APPLICATION_CREDENTIALS}"
+        target: /google-application-credentials.json
+    ports:
+      - 8002:8000
+      - 9229:9229
+
+  redis:
+    image: redis:latest
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./data/db:/data/db
+    ports:
+      - 8001:27017
+    command: mongod --smallfiles --logpath=/dev/null
+
+

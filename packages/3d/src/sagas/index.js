@@ -57,7 +57,7 @@ function* uploadCode() {
     yield put(hideNotification('uploading'));
     if (e instanceof ConnectionError) {
       yield put(
-        showNotification('w2b_error', 'Could not connect to Web2Board', 5000),
+        showNotification('w2b_error', 'Could not connect to Web2Board', 5000)
       );
     }
     if (e instanceof BoardNotDetectedError) {
@@ -97,8 +97,8 @@ function* watchCreateObject() {
 
 function* convertToBasicOperations(object, scene) {
   const { position, angle, scale } = yield call(
-    [scene, scene.getPositionAsync],
-    object,
+    [scene, scene.getLocalPositionAsync],
+    object
   );
 
   yield put(
@@ -109,7 +109,7 @@ function* convertToBasicOperations(object, scene) {
         Object3D.createRotateOperation(angle.x, angle.y, angle.z),
         Object3D.createScaleOperation(scale.x, scale.y, scale.z),
       ],
-    }),
+    })
   );
 }
 
@@ -144,7 +144,7 @@ function* convertToAdvancedOperations(object, scene) {
     updateObject({
       ...object,
       operations,
-    }),
+    })
   );
 }
 
@@ -178,7 +178,7 @@ function* rootSaga() {
     yield takeEvery('THREED_CREATE_OBJECT', watchCreateObject);
     yield takeEvery('THREED_SET_ADVANCED_MODE', watchSetAdvancedMode);
   } catch (e) {
-    console.log(e)
+    console.log(e);
   }
 }
 
