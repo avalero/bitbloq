@@ -4,6 +4,7 @@ import NoSSR from "react-no-ssr";
 import { Router } from "@reach/router";
 import { Global } from "@emotion/core";
 import { TranslateProvider, Spinner, colors, baseStyles } from "@bitbloq/ui";
+import { UserDataProvider } from "../lib/useUserData";
 import SEO from "../components/SEO";
 import { documentTypes } from "../config";
 
@@ -35,19 +36,21 @@ const AppPage = () => (
     <SEO title="App" />
     <Global styles={baseStyles} />
     <NoSSR>
-      <TranslateProvider messagesFiles={messagesFiles}>
-        <Router>
-          <Route path="app" component={Documents} />
-          <Route path="/app/document/:id" component={Document} />
-          <Route path="/app/document/:id" component={Document} />
-          <Route path="/app/document/:type/:id" component={EditDocument} />
-          <Route path="/app/public-document/:type/:id" component={PublicDocument} />
-          <Route path="/app/exercise/:type/:id" component={EditExercise} />
-          <Route path="/app/submission/:type/:id" component={ViewSubmission} />
-          <Route path="/app/playground/:type" component={Playground} />
-          <Route path="/app/activate" component={Activate} />
-        </Router>
-      </TranslateProvider>
+      <UserDataProvider>
+        <TranslateProvider messagesFiles={messagesFiles}>
+          <Router>
+            <Route path="app" component={Documents} />
+            <Route path="/app/document/:id" component={Document} />
+            <Route path="/app/document/:id" component={Document} />
+            <Route path="/app/document/:type/:id" component={EditDocument} />
+            <Route path="/app/public-document/:type/:id" component={PublicDocument} />
+            <Route path="/app/exercise/:type/:id" component={EditExercise} />
+            <Route path="/app/submission/:type/:id" component={ViewSubmission} />
+            <Route path="/app/playground/:type" component={Playground} />
+            <Route path="/app/activate" component={Activate} />
+          </Router>
+        </TranslateProvider>
+      </UserDataProvider>
     </NoSSR>
   </>
 );
