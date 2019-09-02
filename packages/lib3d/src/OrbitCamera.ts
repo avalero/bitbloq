@@ -376,10 +376,6 @@ export default class OrbitCamera {
   }
 
   public center() {
-    // this.reset(true);
-
-    debugger;
-
     this.rotateTo(-1.5707963267948966, 1.0808390005411683, true);
     if (this.camera instanceof THREE.PerspectiveCamera) this.dollyTo(170, true);
 
