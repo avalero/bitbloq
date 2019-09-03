@@ -7,25 +7,25 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import CompoundObject, { ChildrenArray } from './CompoundObject';
-import ObjectsCommon from './ObjectsCommon';
-import Scene from './Scene';
-import * as THREE from 'three';
+import CompoundObject, { ChildrenArray } from "./CompoundObject";
+import ObjectsCommon from "./ObjectsCommon";
+import Scene from "./Scene";
+import * as THREE from "three";
 import {
   ICompoundObjectJSON,
   IViewOptions,
-  OperationsArray,
-} from './Interfaces';
+  OperationsArray
+} from "./Interfaces";
 
 export default class Difference extends CompoundObject {
-  public static typeName: string = 'Difference';
+  public static typeName: string = "Difference";
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
     scene: Scene
   ): Difference {
     if (object.type !== Difference.typeName) {
-      throw new Error('Not Union Object');
+      throw new Error("Not Union Object");
     }
 
     try {
@@ -40,7 +40,7 @@ export default class Difference extends CompoundObject {
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions,
+        ...object.viewOptions
       };
       let dif: Difference;
 
@@ -49,7 +49,7 @@ export default class Difference extends CompoundObject {
 
       if (object.geometry) {
         if (object.geometry.id !== object.id) {
-          throw new Error('geometry and object id do not match');
+          throw new Error("geometry and object id do not match");
         }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
@@ -91,7 +91,7 @@ export default class Difference extends CompoundObject {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions,
+      ...viewOptions
     };
     super(children, operations, vO);
     this.type = Difference.typeName;
