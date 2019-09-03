@@ -132,7 +132,7 @@ class Documents extends React.Component<any, DocumentsState> {
                     <NewDocumentLabel>
                       {documentTypes[type].label}
                       {!documentTypes[type].supported && (
-                        <ComingSoon>Proximamente</ComingSoon>
+                        <ComingSoon>Próximamente</ComingSoon>
                       )}
                     </NewDocumentLabel>
                   </NewDocumentOption>

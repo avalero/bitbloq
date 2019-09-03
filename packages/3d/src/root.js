@@ -1,9 +1,9 @@
 import React from 'react';
-import uuid from "uuid/v1";
+import uuid from 'uuid/v1';
 import { Provider } from 'react-redux';
 import App from './components/App';
 import createStore from './store';
-import { createObject } from "./actions/threed";
+import { createObject } from './actions/threed';
 import config from './config/threed';
 
 class Root extends React.Component {
@@ -31,12 +31,13 @@ class Root extends React.Component {
       parameters,
       operations: config.defaultOperations(advancedMode),
       viewOptions: {
-        name
-      }
+        name,
+        color: config.colors[Math.floor(Math.random() * config.colors.length)],
+      },
     };
 
     this.store.dispatch(createObject(object));
-  };
+  }
 
   exportToSTL(name, separate) {
     const state = this.store.getState();

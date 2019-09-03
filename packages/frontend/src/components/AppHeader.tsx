@@ -1,48 +1,34 @@
 import * as React from "react";
-import { navigate } from "gatsby";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { colors, DropDown, Icon } from "@bitbloq/ui";
-import { useQuery, useApolloClient } from "@apollo/react-hooks";
-import { ME_QUERY } from "../apollo/queries";
+import useUserData from "../lib/useUserData";
+import useLogout from "../lib/useLogout";
 
 import logoBetaImage from "../images/logo-horizontal.svg";
-import gql from "graphql-tag";
 
 const AppHeader = () => {
-  const { data, loading, error } = useQuery(ME_QUERY);
-  const client = useApolloClient();
-
-  const logout = () => {
-    localStorage.setItem("authToken", "");
-    client.resetStore();
-    navigate("/");
-  };
-
-  if (error) {
-    logout();
-  }
+  const userData = useUserData();
+  const logout = useLogout();
 
   return (
     <Container>
       <Logo src={logoBetaImage} alt="Bitbloq" />
-      {!loading && (
-        <UserContainer>
-          <UserName>{data.me && data.me.name}</UserName>
-          <DropDown>
-            {(isOpen: boolean) => (
-              <ContextButton isOpen={isOpen}>
-                <Icon name="ellipsis" />
-              </ContextButton>
-            )}
-            <ContextMenu>
-              <ContextMenuOption onClick={() => logout()}>
-                Cerrar sesión
-              </ContextMenuOption>
-            </ContextMenu>
-          </DropDown>
-        </UserContainer>
-      )}
+      <UserContainer>
+        <UserName>{userData.name}</UserName>
+        <DropDown>
+          {(isOpen: boolean) => (
+            <ContextButton isOpen={isOpen}>
+              <Icon name="ellipsis" />
+            </ContextButton>
+          )}
+          <ContextMenu>
+            <ContextMenuOption onClick={() => logout()}>
+              Cerrar sesión
+            </ContextMenuOption>
+          </ContextMenu>
+        </DropDown>
+      </UserContainer>
     </Container>
   );
 };

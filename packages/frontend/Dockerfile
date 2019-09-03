@@ -5,7 +5,9 @@ WORKDIR /usr/src/app/
 
 COPY . ./
 
-RUN npx lerna bootstrap
+ENV NODE_ENV=production
+
+RUN npx lerna bootstrap --ignore api
 
 WORKDIR /usr/src/app/packages/frontend
 RUN npm run build

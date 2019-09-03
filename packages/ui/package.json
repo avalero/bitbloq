@@ -37,9 +37,9 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.1.0",
     "@types/react": "^16.8.3",
+    "@types/tether": "^1.4.4",
     "babel-loader": "^8.0.4",
     "react-docgen-typescript": "^1.12.3",
-    "react-dom": "^16.6.3",
     "react-styleguidist": "^8.0.6",
     "typescript": "^3.2.2",
     "webpack": "^4.27.1"
@@ -47,12 +47,13 @@
   "dependencies": {
     "@emotion/core": "^10.0.5",
     "@emotion/styled": "^10.0.5",
-    "@types/tether": "^1.4.4",
     "chroma-js": "^2.0.2",
     "react": "^16.8.3",
+    "react-dom": "^16.9.0",
     "react-color": "^2.14.1",
     "react-select": "^2.1.2",
-    "react-tether": "^2.0.0"
+    "react-tether": "^2.0.0",
+    "uuid": "^3.3.3"
   },
   "publishConfig": {
     "access": "public"

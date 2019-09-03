@@ -5,16 +5,26 @@ node_js:
 branches:
   only:
     - develop
-    - master
 cache:
   directories:
     - node_modules
+    - packages/frontend/node_modules
     - packages/lib3d/node_modules
+    - packages/api/node_modules
     - packages/3d/node_modules
     - packages/ui/node_modules
     - packages/bloqs/node_modules
     - packages/junior/node_modules
-    - packages/hardware-designer/node_modules
+    - $HOME/google-cloud-sdk
+
+services:
+  -docker
+
+env:
+  global:
+  # Do not prompt for user input when using any SDK methods.
+  - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+
 before_install:
   - npm update
   - npm install -g lerna
@@ -25,7 +35,10 @@ install:
 script:
   - npm run tslint:prod
   - npm run test
+
+# Deploy web version to Google Kubernetes Engine
 after_success:
-  - npm run coveralls
+- if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then ./deploy-web.sh; fi
+
 notifications:
     slack: bitbloq-developers:pFZJaDJIDsKSGqn4O0vJonrS

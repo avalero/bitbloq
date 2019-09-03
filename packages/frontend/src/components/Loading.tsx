@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Spinner } from "@bitbloq/ui";
 
 export interface LoadingProps {
-  color: string;
+  color?: string;
 }
 const Loading: FC<LoadingProps> = styled(Spinner)`
   position: absolute;

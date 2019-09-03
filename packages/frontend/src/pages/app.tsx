@@ -4,6 +4,7 @@ import NoSSR from "react-no-ssr";
 import { Router } from "@reach/router";
 import { Global } from "@emotion/core";
 import { TranslateProvider, Spinner, colors, baseStyles } from "@bitbloq/ui";
+import { UserDataProvider } from "../lib/useUserData";
 import SEO from "../components/SEO";
 import { documentTypes } from "../config";
 
@@ -24,9 +25,19 @@ const messagesFiles = {
   es: esMessages
 };
 
-const Route = ({ component: Component, type = "", ...rest }) => (
+const Route = ({
+  component: Component,
+  type = "",
+  authenticated = false,
+  ...rest
+}) => (
   <Suspense fallback={<Loading type={type} />}>
-    <Component {...rest} type={type} />
+    {authenticated && (
+      <UserDataProvider>
+        <Component {...rest} type={type} />
+      </UserDataProvider>
+    )}
+    {!authenticated && <Component {...rest} type={type} />}
   </Suspense>
 );
 
@@ -37,13 +48,20 @@ const AppPage = () => (
     <NoSSR>
       <TranslateProvider messagesFiles={messagesFiles}>
         <Router>
-          <Route path="app" component={Documents} />
-          <Route path="/app/document/:id" component={Document} />
-          <Route path="/app/document/:id" component={Document} />
-          <Route path="/app/document/:type/:id" component={EditDocument} />
-          <Route path="/app/public-document/:type/:id" component={PublicDocument} />
-          <Route path="/app/exercise/:type/:id" component={EditExercise} />
-          <Route path="/app/submission/:type/:id" component={ViewSubmission} />
+          <Route path="app" component={Documents} authenticated />
+          <Route path="/app/document/:id" component={Document} authenticated />
+          <Route path="/app/document/:id" component={Document} authenticated />
+          <Route path="/app/document/:type/:id" component={EditDocument} authenticated />
+          <Route
+            path="/app/public-document/:type/:id"
+            component={PublicDocument}
+          />
+          <Route path="/app/exercise/:type/:id" component={EditExercise} authenticated />
+          <Route
+            path="/app/submission/:type/:id"
+            component={ViewSubmission}
+            authenticated
+          />
           <Route path="/app/playground/:type" component={Playground} />
           <Route path="/app/activate" component={Activate} />
         </Router>

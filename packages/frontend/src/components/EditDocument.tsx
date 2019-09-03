@@ -80,15 +80,17 @@ const EditDocument: FC<EditDocumentProps> = ({
   const onSaveDocument = () => {
     const documentJSON = {
       type,
-      title,
-      description,
-      content,
+      title: title || `document${type}`,
+      description: description || `bitbloq ${type} document`,
+      content: JSON.stringify(content),
       image
     };
+
     var blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
-    saveAs(blob, `${title}.${type}.bitbloq`);
+
+    saveAs(blob, `${documentJSON.title}.${type}.bitbloq`);
   };
 
   const InfoTab = (
