@@ -6,12 +6,12 @@ import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
 import {
-  ME_QUERY,
   DOCUMENTS_QUERY,
   OPEN_PUBLIC_DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
+import useUserData from "../lib/useUserData";
 
 interface PublicDocumentProps {
   id: string;
@@ -34,7 +34,8 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
   const { data, loading, error } = useQuery(OPEN_PUBLIC_DOCUMENT_QUERY, {
     variables: { id }
   });
-  const { data: { me = {} } = {} } = useQuery(ME_QUERY);
+
+  const userData = useUserData();
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
 
@@ -81,7 +82,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         content: JSON.stringify(content)
       },
       context: email && password ? { email, password } : {},
-      refetchQueries: [{ query: DOCUMENTS_QUERY }]
+      refetchQueries: userData ? [{ query: DOCUMENTS_QUERY }] : []
     });
     setIsSaveCopyVisible(false);
   };
@@ -134,7 +135,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
       />
       {isSaveCopyVisible && (
         <SaveCopyModal
-          user={me}
+          user={userData}
           onSave={saveCopy}
           onCancel={() => setIsSaveCopyVisible(false)}
         />
