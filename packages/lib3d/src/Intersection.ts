@@ -10,22 +10,22 @@
 import {
   ICompoundObjectJSON,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
-import * as THREE from "three";
-import CompoundObject, { ChildrenArray } from "./CompoundObject";
-import ObjectsCommon from "./ObjectsCommon";
-import Scene from "./Scene";
+  OperationsArray,
+} from './Interfaces';
+import * as THREE from 'three';
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
+import Scene from './Scene';
 
 export default class Intersection extends CompoundObject {
-  public static typeName: string = "Intersection";
+  public static typeName: string = 'Intersection';
 
   public static newFromJSON(
     object: ICompoundObjectJSON,
     scene: Scene
   ): Intersection {
     if (object.type !== Intersection.typeName) {
-      throw new Error("Not Union Object");
+      throw new Error('Not Union Object');
     }
 
     try {
@@ -33,20 +33,21 @@ export default class Intersection extends CompoundObject {
         scene.getObject(obj)
       );
 
-      // get the color of first children
-      object.viewOptions.color = object.children[0].viewOptions.color;
+      // get the color of first children if no color is set
+      object.viewOptions.color =
+        object.viewOptions.color || object.children[0].viewOptions.color;
 
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions
+        ...object.viewOptions,
       };
       let intersect: Intersection;
 
       // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
       if (object.geometry) {
         if (object.geometry.id !== object.id) {
-          throw new Error("geometry and object id do not match");
+          throw new Error('geometry and object id do not match');
         }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
@@ -89,7 +90,7 @@ export default class Intersection extends CompoundObject {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions
+      ...viewOptions,
     };
     super(children, operations, vO);
     this.type = Intersection.typeName;

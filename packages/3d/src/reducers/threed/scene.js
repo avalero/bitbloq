@@ -1,5 +1,4 @@
 import { handleActions } from 'redux-actions';
-import config from '../../config/threed';
 import * as actions from '../../actions/threed';
 import { Scene } from '@bitbloq/lib3d';
 
@@ -49,8 +48,6 @@ const scene = handleActions(
           ...payload,
           viewOptions: {
             ...viewOptions,
-            color:
-              config.colors[Math.floor(Math.random() * config.colors.length)],
             name: createObjectName(viewOptions.name || payload.type, objects),
           },
         };

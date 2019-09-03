@@ -7,37 +7,38 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import { cloneDeep } from "lodash";
-import CompoundObject, { ChildrenArray } from "./CompoundObject";
-import ObjectsCommon from "./ObjectsCommon";
-import * as THREE from "three";
+import { cloneDeep } from 'lodash';
+import CompoundObject, { ChildrenArray } from './CompoundObject';
+import ObjectsCommon from './ObjectsCommon';
+import * as THREE from 'three';
 
 import {
   ICompoundObjectJSON,
   IViewOptions,
-  OperationsArray
-} from "./Interfaces";
-import Scene from "./Scene";
+  OperationsArray,
+} from './Interfaces';
+import Scene from './Scene';
 
 export default class Union extends CompoundObject {
-  public static typeName: string = "Union";
+  public static typeName: string = 'Union';
 
   public static newFromJSON(object: ICompoundObjectJSON, scene: Scene): Union {
     if (object.type !== Union.typeName) {
-      throw new Error("Not Union Object");
+      throw new Error('Not Union Object');
     }
     try {
       const children: ChildrenArray = object.children.map(objJSON =>
         scene.getObject(objJSON)
       );
 
-      // get the color of first children
-      object.viewOptions.color = object.children[0].viewOptions.color;
+      // get the color of first children if no color is set
+      object.viewOptions.color =
+        object.viewOptions.color || object.children[0].viewOptions.color;
 
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
         ...object.children[0].viewOptions,
-        ...object.viewOptions
+        ...object.viewOptions,
       };
 
       let union: Union;
@@ -45,7 +46,7 @@ export default class Union extends CompoundObject {
       // if geometry is in JSON, construct mesh from JSON (to avoid recomputing)
       if (object.geometry) {
         if (object.geometry.id !== object.id) {
-          throw new Error("geometry and object id do not match");
+          throw new Error('geometry and object id do not match');
         }
         const vertices: number[] = object.geometry.vertices;
         const normals: number[] = object.geometry.normals;
@@ -81,7 +82,7 @@ export default class Union extends CompoundObject {
     const vO: IViewOptions = {
       ...ObjectsCommon.createViewOptions(),
       ...children[0].toJSON().viewOptions,
-      ...viewOptions
+      ...viewOptions,
     };
     super(children, operations, vO);
     this.type = Union.typeName;
