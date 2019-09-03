@@ -31,8 +31,9 @@ export default class Union extends CompoundObject {
         scene.getObject(objJSON)
       );
 
-      // get the color of first children
-      object.viewOptions.color = object.children[0].viewOptions.color;
+      // get the color of first children if no color is set
+      object.viewOptions.color =
+        object.viewOptions.color || object.children[0].viewOptions.color;
 
       const viewOptions: Partial<IViewOptions> = {
         ...ObjectsCommon.createViewOptions(),
