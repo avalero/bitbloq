@@ -44,7 +44,7 @@ function* watchCreateObject() {
 
 function* convertToBasicOperations(object, scene) {
   const { position, angle, scale } = yield call(
-    [scene, scene.getLocalPositionAsync],
+    [scene, scene.getLocalPosition],
     object
   );
 

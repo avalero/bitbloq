@@ -20,7 +20,7 @@ export default class PositionCalculator {
     this.object = object;
   }
 
-  public async getLocalPositionAsync(): Promise<IObjectPosition> {
+  public getLocalPosition(): IObjectPosition {
     try {
       const obj = this.object;
       const mesh: THREE.Mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
