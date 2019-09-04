@@ -56,7 +56,7 @@ const AppPage = () => (
             path="/app/public-document/:type/:id"
             component={PublicDocument}
           />
-          <Route path="/app/exercise/:type/:id" component={EditExercise} authenticated />
+          <Route path="/app/exercise/:type/:id" component={EditExercise} />
           <Route
             path="/app/submission/:type/:id"
             component={ViewSubmission}
