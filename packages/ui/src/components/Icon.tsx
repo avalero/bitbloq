@@ -1,6 +1,7 @@
 import * as React from "react";
 import AddDocument from "./icons/AddDocument";
 import Airplane from "./icons/Airplane";
+import AirplaneDocument from "./icons/AirplaneDocument";
 import Angle from "./icons/Angle";
 import AngleDouble from "./icons/AngleDouble";
 import Arrow from "./icons/Arrow";
@@ -71,6 +72,10 @@ import SemiCylinder from "./icons/SemiCylinder";
 import Octahedron from "./icons/Octahedron";
 import Heart from "./icons/Heart";
 import Logo3D from "./icons/Logo3D";
+import LogoBloqs from "./icons/LogoBloqs";
+import LogoJunior from "./icons/LogoJunior";
+import LogoApps from "./icons/LogoApps";
+import LogoCode from "./icons/LogoCode";
 import HollowCylinder from "./icons/HollowCylinder";
 
 export interface IconProps {
@@ -87,6 +92,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <AddDocument />;
     case "airplane":
       return <Airplane />;
+    case "airplane-document":
+      return <AirplaneDocument />;
     case "octahedron":
       return <Octahedron />;
     case "angle":
@@ -227,8 +234,16 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <Union />;
     case "view-document":
       return <ViewDocument />;
-    case "logo3d":
+    case "logo-3d":
       return <Logo3D />;
+    case "logo-bloqs":
+      return <LogoBloqs />;
+    case "logo-junior":
+      return <LogoJunior />;
+    case "logo-code":
+      return <LogoCode />;
+    case "logo-apps":
+      return <LogoApps />;
     default:
       console.warn("Icon not found");
       return null;

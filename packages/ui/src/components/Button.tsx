@@ -6,6 +6,10 @@ interface ButtonProps {
   small?: boolean;
   secondary?: boolean;
   tertiary?: boolean;
+  blue?: boolean;
+  orange?: boolean;
+  pink?: boolean;
+  yellow?: boolean;
 }
 const Button = styled.button<ButtonProps>`
   border-radius: 4px;
@@ -15,19 +19,9 @@ const Button = styled.button<ButtonProps>`
   align-items: center;
   justify-content: center;
   padding: 0px 24px;
-  color: white;
   font-size: 14px;
   font-weight: bold;
-  background-color: ${colors.green};
   cursor: pointer;
-
-  &:hover {
-    background-color: ${colors.greenHover};
-  }
-
-  &:active {
-    background-color: ${colors.greenPressed};
-  }
 
   &:focus {
     outline: none;
@@ -39,30 +33,50 @@ const Button = styled.button<ButtonProps>`
       height: 30px;
     `}
 
-  ${props =>
-    props.secondary &&
-    css`
-      background-color: ${colors.black};
-      &:hover {
-        background-color: ${colors.blackHover};
-      }
-      &:active {
-        background-color: ${colors.blackPressed};
-      }
-    `}
+  ${props => {
+    let color = "white";
+    let bgColor = colors.green;
+    let hoverColor = colors.greenHover;
+    let pressedColor = colors.greenPressed;
 
-  ${props =>
-    props.tertiary &&
-    css`
-      color: ${colors.black};
-      background-color: ${colors.tertiary};
+    if (props.orange) {
+      bgColor = colors.brandOrange;
+      hoverColor = colors.brandOrangeHover;
+      pressedColor = colors.brandOrangePressed;
+    } else if (props.blue) {
+      bgColor = colors.brandBlue;
+      hoverColor = colors.brandBlueHover;
+      pressedColor = colors.brandBluePressed;
+    } else if (props.pink) {
+      bgColor = colors.brandPink;
+      hoverColor = colors.brandPinkHover;
+      pressedColor = colors.brandPinkPressed;
+    } else if (props.yellow) {
+      bgColor = colors.brandYellow;
+      hoverColor = colors.brandYellowHover;
+      pressedColor = colors.brandYellowPressed;
+    } else if (props.secondary) {
+      bgColor = colors.black;
+      hoverColor = colors.blackHover;
+      pressedColor = colors.blackPressed;
+    } else if (props.tertiary) {
+      color = colors.black;
+      bgColor = colors.tertiary;
+      hoverColor = colors.tertiaryHover;
+      pressedColor = colors.tertiaryPressed;
+    }
+
+    return css`
+      color: ${color};
+      background-color: ${bgColor};
       &:hover {
-        background-color: ${colors.tertiaryHover};
+        background-color: ${hoverColor};
       }
       &:active {
-        background-color: ${colors.tertiaryPressed};
+        background-color: ${pressedColor};
       }
-    `}
+    `;
+  }}
 
   &[disabled] {
     color: ${colors.disabledColor};
