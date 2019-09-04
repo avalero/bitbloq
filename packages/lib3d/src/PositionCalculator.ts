@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from "./ObjectsCommon";
-import { IObjectPosition } from "./Scene";
-import * as THREE from "three";
+import ObjectsCommon from './ObjectsCommon';
+import { IObjectPosition } from './Scene';
+import * as THREE from 'three';
 
 export default class PositionCalculator {
   private object: ObjectsCommon;
@@ -18,6 +18,44 @@ export default class PositionCalculator {
 
   constructor(object: ObjectsCommon) {
     this.object = object;
+  }
+
+  public async getLocalPositionAsync(): Promise<IObjectPosition> {
+    try {
+      const obj = this.object;
+      const mesh: THREE.Mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+      MeshOperations.applyOperations(mesh, obj.getOperations());
+
+      const position = {
+        x: mesh!.position.x,
+        y: mesh!.position.y,
+        z: mesh!.position.z,
+      };
+      const angle = {
+        x: (mesh!.rotation.x * 180.0) / Math.PI,
+        y: (mesh!.rotation.y * 180.0) / Math.PI,
+        z: (mesh!.rotation.z * 180.0) / Math.PI,
+      };
+
+      if (Math.abs(angle.x - Math.trunc(angle.x)) < 0.01) {
+        angle.x = Math.trunc(angle.x);
+      }
+      if (Math.abs(angle.y - Math.trunc(angle.y)) < 0.01) {
+        angle.y = Math.trunc(angle.y);
+      }
+      if (Math.abs(angle.z - Math.trunc(angle.z)) < 0.01) {
+        angle.z = Math.trunc(angle.z);
+      }
+
+      const scale = {
+        x: mesh!.scale.x,
+        y: mesh!.scale.x,
+        z: mesh!.scale.x,
+      };
+      return { position, angle, scale };
+    } catch (e) {
+      throw new Error(`Cannot find object: ${e}`);
+    }
   }
 
   public async getPositionAsync(): Promise<IObjectPosition> {
@@ -35,9 +73,13 @@ export default class PositionCalculator {
       angle: {
         x: (euler.x * 180) / Math.PI,
         y: (euler.y * 180) / Math.PI,
-        z: (euler.z * 180) / Math.PI
+        z: (euler.z * 180) / Math.PI,
       },
-      scale: { x: scale.x, y: scale.y, z: scale.z }
+      scale: {
+        x: scale.x,
+        y: scale.y,
+        z: scale.z,
+      },
     };
 
     return this.position;
@@ -81,7 +123,9 @@ export default class PositionCalculator {
         return this.matrix;
       }
 
-      if (obj instanceof RepetitionObject) return this.matrix;
+      if (obj instanceof RepetitionObject) {
+        return this.matrix;
+      }
     }
 
     // It has a parent
@@ -139,11 +183,15 @@ export default class PositionCalculator {
       return this.matrix;
     }
 
-    if (!this.matrix) this.matrix = new THREE.Matrix4();
+    if (!this.matrix) {
+      this.matrix = new THREE.Matrix4();
+    }
     return this.matrix;
   }
 }
 
-import CompoundObject from "./CompoundObject";
-import ObjectsGroup from "./ObjectsGroup";
-import RepetitionObject from "./RepetitionObject";
+import CompoundObject from './CompoundObject';
+import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from './RepetitionObject';
+import PrimitiveObject from './PrimitiveObject';
+import { MeshOperations } from './Bitbloq';
