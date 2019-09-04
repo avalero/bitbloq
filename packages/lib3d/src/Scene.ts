@@ -761,8 +761,8 @@ export default class Scene {
         );
       }
 
-      // Remove from Scenen and Object Collector Repetiton Object
-      this.removeFromObjectCollector(json);
+      // Remove from Scene Repetiton Object
+      // this.removeFromObjectCollector(json);
       this.removeFromScene(json);
 
       return this.toJSON();
@@ -789,7 +789,7 @@ export default class Scene {
         throw new Error(`Object ${json.id} not present in Scene`);
       }
 
-      this.removeFromObjectCollector(json);
+      // this.removeFromObjectCollector(json);
       this.removeFromScene(json);
 
       json.children.forEach(childJSON => {
@@ -828,7 +828,7 @@ export default class Scene {
       });
 
       // remove ObjectsGroups from Scene and ObjectCollector
-      return this.removeObject(json);
+      return this.removeFromScene(json);
     } catch (e) {
       throw new Error(`Cannog ungroup. Unknown group ${e}`);
     }
