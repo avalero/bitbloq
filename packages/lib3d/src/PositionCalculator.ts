@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import ObjectsCommon from './ObjectsCommon';
-import { IObjectPosition } from './Scene';
-import * as THREE from 'three';
+import ObjectsCommon from "./ObjectsCommon";
+import { IObjectPosition } from "./Scene";
+import * as THREE from "three";
 
 export default class PositionCalculator {
   private object: ObjectsCommon;
@@ -29,12 +29,12 @@ export default class PositionCalculator {
       const position = {
         x: mesh!.position.x,
         y: mesh!.position.y,
-        z: mesh!.position.z,
+        z: mesh!.position.z
       };
       const angle = {
         x: (mesh!.rotation.x * 180.0) / Math.PI,
         y: (mesh!.rotation.y * 180.0) / Math.PI,
-        z: (mesh!.rotation.z * 180.0) / Math.PI,
+        z: (mesh!.rotation.z * 180.0) / Math.PI
       };
 
       if (Math.abs(angle.x - Math.trunc(angle.x)) < 0.01) {
@@ -50,7 +50,7 @@ export default class PositionCalculator {
       const scale = {
         x: mesh!.scale.x,
         y: mesh!.scale.x,
-        z: mesh!.scale.x,
+        z: mesh!.scale.x
       };
       return { position, angle, scale };
     } catch (e) {
@@ -73,13 +73,13 @@ export default class PositionCalculator {
       angle: {
         x: (euler.x * 180) / Math.PI,
         y: (euler.y * 180) / Math.PI,
-        z: (euler.z * 180) / Math.PI,
+        z: (euler.z * 180) / Math.PI
       },
       scale: {
         x: scale.x,
         y: scale.y,
-        z: scale.z,
-      },
+        z: scale.z
+      }
     };
 
     return this.position;
@@ -190,8 +190,8 @@ export default class PositionCalculator {
   }
 }
 
-import CompoundObject from './CompoundObject';
-import ObjectsGroup from './ObjectsGroup';
-import RepetitionObject from './RepetitionObject';
-import PrimitiveObject from './PrimitiveObject';
-import { MeshOperations } from './Bitbloq';
+import CompoundObject from "./CompoundObject";
+import ObjectsGroup from "./ObjectsGroup";
+import RepetitionObject from "./RepetitionObject";
+import PrimitiveObject from "./PrimitiveObject";
+import { MeshOperations } from "./Bitbloq";
