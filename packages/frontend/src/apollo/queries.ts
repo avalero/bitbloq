@@ -178,13 +178,13 @@ export const PUBLISH_DOCUMENT_MUTATION = gql`
   }
 `;
 
-const LOGIN_MUTATION = gql`
+export const LOGIN_MUTATION = gql`
   mutation Login($email: EmailAddress!, $password: String!) {
     login(email: $email, password: $password)
   }
 `;
 
-const LOGIN_SUBMISSION_MUTATION = gql`
+export const LOGIN_SUBMISSION_MUTATION = gql`
   mutation LoginSubmission(
     $studentNick: String!
     $exerciseCode: String!
