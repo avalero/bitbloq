@@ -15,6 +15,7 @@ type Query {
   exercise(id: ObjectID!): Exercise @authRequired(requires: [EPHEMERAL, USER])
   exercisesByDocument(document: ObjectID!): [Exercise]
     @authRequired(requires: [USER])
+  exerciseByCode(code: String!): Exercise
 }
 type Mutation {
   createExercise(input: ExerciseIn!): Exercise @authRequired(requires: [USER])
