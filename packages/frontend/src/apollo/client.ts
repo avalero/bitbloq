@@ -59,13 +59,18 @@ const httpLink = createUploadLink({
 export const createClient = isBrowser =>
   new ApolloClient({
     link: ApolloLink.from([
-      onError(({ graphQLErrors, networkError }) => {
+      onError(({ graphQLErrors, networkError, operation }) => {
+        const context = operation.getContext();
         if (graphQLErrors) {
-          const isAuthError = graphQLErrors.some(({ extensions }) =>
-            extensions && extensions.code === "UNAUTHENTICATED"
+          const isAuthError = graphQLErrors.some(
+            ({ path, extensions }) =>
+              extensions &&
+              extensions.code === "UNAUTHENTICATED" &&
+              !(path && path.includes("login"))
           );
 
-          if (isAuthError) {
+          console.log("CONTEXT", context);
+          if (isAuthError && !context.disableAuthRedirect) {
             localStorage.setItem("authToken", "");
             navigate("/");
           }

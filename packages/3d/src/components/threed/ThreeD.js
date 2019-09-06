@@ -151,7 +151,7 @@ class ThreeD extends React.Component {
     return (
       <Document
         title={title || t('untitled-project')}
-        icon={<Icon name="logo3d" />}
+        icon={<Icon name="logo-3d" />}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
         onEditTitle={onEditTitle}
