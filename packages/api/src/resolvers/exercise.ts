@@ -195,11 +195,11 @@ const exerciseResolver = {
     },
 
     /**
-     * exerciseWithCode: returns the information of the exercise code provided in the arguments.
+     * exerciseByCode: returns the information of the exercise code provided in the arguments.
      * It can be asked by anyone. It is the step previous to login in the exercise as student.
      * args: exercise code.
      */
-    exerciseWithCode: async (root: any, args: any, context: any) => {
+    exerciseByCode: async (root: any, args: any, context: any) => {
         const existExercise: IExercise = await ExerciseModel.findOne({
           code: args.code,
         });
