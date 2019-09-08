@@ -18,7 +18,7 @@ export const documentTypes = {
     buttonType: 'orange',
     supported: false,
     icon: 'logo-junior',
-    level: 'Medio',
+    level: 'Principiante',
     landingText:
       'Da tus primeros pasos en la robótica con una programación por bloques sencilla e intuitiva.',
     editorComponent: JuniorEditor,
@@ -29,7 +29,7 @@ export const documentTypes = {
     color: colors.green,
     supported: false,
     icon: 'logo-bloqs',
-    level: 'Principiante',
+    level: 'Medio',
     landingText:
       'Programa tus inventos por bloques y aprende los conceptos básicos de la programación.',
   },
