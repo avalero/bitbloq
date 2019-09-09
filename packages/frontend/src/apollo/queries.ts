@@ -128,6 +128,15 @@ export const EXERCISE_QUERY = gql`
   }
 `;
 
+export const EXERCISE_BY_CODE_QUERY = gql`
+  query ExerciseByCode($code: String!) {
+    exerciseByCode(code: $code) {
+      id
+      type
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission($exerciseId: ObjectID!) {
     exercise(id: $exerciseId) {
@@ -201,4 +210,3 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
     }
   }
 `;
-

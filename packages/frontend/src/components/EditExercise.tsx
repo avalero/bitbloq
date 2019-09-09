@@ -12,6 +12,7 @@ import {
   withTranslate
 } from "@bitbloq/ui";
 import {
+  EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION
@@ -26,8 +27,8 @@ const EditExercise = ({ type, id, t }) => {
   const [isSubmissionSuccessOpen, setIsSubmissionSuccessOpen] = useState(false);
   const [tabIndex, setTabIndex] = useState(1);
 
-  const { data, loading, error } = useQuery(STUDENT_SUBMISSION_QUERY, {
-    variables: { exerciseId: id }
+  const { data, loading, error } = useQuery(EXERCISE_QUERY, {
+    variables: { id }
   });
   const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
@@ -37,12 +38,12 @@ const EditExercise = ({ type, id, t }) => {
   if (loading) return <Loading />;
   if (error) return <p>Error :)</p>;
 
-  const { exercise, submission } = data;
+  const { exercise } = data;
   const { title } = exercise;
 
   let content = [];
   try {
-    content = JSON.parse(submission.content);
+    content = JSON.parse(exercise.content);
   } catch (e) {
     console.warn("Error parsing document content", e);
   }

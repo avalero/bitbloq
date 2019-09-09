@@ -11,8 +11,8 @@ import {
   DropDown,
   HorizontalRule
 } from "@bitbloq/ui";
-import { useQuery } from "@apollo/react-hooks";
-import { ME_QUERY } from "../apollo/queries";
+import { useApolloClient, useQuery } from "@apollo/react-hooks";
+import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 import SEO from "../components/SEO";
 import NewDocumentDropDown from "../components/NewDocumentDropDown";
 import logoBetaImage from "../images/logo-beta.svg";
@@ -26,8 +26,11 @@ const IndexPage: FC = () => {
   const { data } = useQuery(ME_QUERY, {
     context: { disableAuthRedirect: true }
   });
+  const client = useApolloClient();
 
   const [exerciseCode, setExerciseCode] = useState("");
+  const [loadingExercise, setLoadingExercise] = useState(false);
+  const [exerciseError, setExerciseError] = useState(false);
 
   if (data && data.me) {
     navigate("/app");
@@ -39,9 +42,21 @@ const IndexPage: FC = () => {
 
   const onOpenDocument = () => {};
 
-  const onOpenExercise = () => {
+  const onOpenExercise = async () => {
     if (exerciseCode) {
-      console.log(exerciseCode);
+      try {
+        setLoadingExercise(true);
+        const {
+          data: { exerciseByCode: exercise }
+        } = await client.query({
+          query: EXERCISE_BY_CODE_QUERY,
+          variables: { code: exerciseCode }
+        });
+        navigate(`/app/exercise/${exercise.type}/${exercise.id}`);
+      } catch (e) {
+        setLoadingExercise(false);
+        setExerciseError(true);
+      }
     }
   };
 
@@ -64,9 +79,15 @@ const IndexPage: FC = () => {
                   type="text"
                   placeholder="Código del ejercicio"
                   value={exerciseCode}
+                  error={exerciseError}
                   onChange={e => setExerciseCode(e.target.value)}
                 />
-                <Button onClick={() => onOpenExercise()}>Ir a ejercicio</Button>
+                <Button
+                  onClick={() => onOpenExercise()}
+                  disabled={loadingExercise}
+                >
+                  Ir a ejercicio
+                </Button>
               </ExerciseForm>
             </ExerciseDropDown>
           </DropDown>
@@ -162,9 +183,15 @@ const IndexPage: FC = () => {
                     type="text"
                     placeholder="Código del ejercicio"
                     value={exerciseCode}
+                    error={exerciseError}
                     onChange={e => setExerciseCode(e.target.value)}
                   />
-                  <Button onClick={() => onOpenExercise()}>Empezar</Button>
+                  <Button
+                    onClick={() => onOpenExercise()}
+                    disabled={loadingExercise}
+                  >
+                    Empezar
+                  </Button>
                 </ExerciseForm>
               </OpenExercisePanelContent>
             </OpenExercisePanel>
@@ -187,11 +214,11 @@ const IndexPage: FC = () => {
           </FooterContainer>
         </MainFooter>
         <LegalLinks>
-          <Link to="#">Condiciones generales</Link>
+          <a href="#">Condiciones generales</a>
           {" | "}
-          <Link to="#">Política de privacidad</Link>
+          <a href="#">Política de privacidad</a>
           {" | "}
-          <Link to="#">Política de cookies</Link>
+          <a href="#">Política de cookies</a>
         </LegalLinks>
       </Footer>
     </>

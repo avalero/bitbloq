@@ -264,7 +264,7 @@ const Container = styled.div`
 
 const Content = styled.div`
   flex: 1;
-  padding: 0px 60px;
+  padding: 0px 50px;
 `;
 
 const Header = styled.div`
@@ -284,7 +284,7 @@ const Loading = styled(Spinner)`
 `;
 
 const Rule = styled(HorizontalRule)`
-  margin: 0px -20px;
+  margin: 0px -10px;
 `;
 
 const DocumentListHeader = styled.div`
