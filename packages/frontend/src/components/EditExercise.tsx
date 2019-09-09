@@ -96,7 +96,7 @@ const EditExercise = ({ type, id, t }) => {
         onClose={() => setIsSubmissionSuccessOpen(false)}
       >
         <ModalContent>
-          <p>Ejercicio entregado con exito</p>
+          <p>Ejercicio entregado con éxito</p>
           <ModalButtons>
             <ModalButton onClick={() => setIsSubmissionSuccessOpen(false)}>
               Aceptar
