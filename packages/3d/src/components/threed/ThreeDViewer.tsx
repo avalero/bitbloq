@@ -12,6 +12,8 @@ import {
 import { getSelectedObjects } from "../../reducers/threed/";
 import { Icon, withTranslate } from "@bitbloq/ui";
 
+const SLOW_TIMEOUT_MS = 3000;
+
 const Container = styled.div`
   flex: 1;
   position: relative;
@@ -73,6 +75,46 @@ const CameraButton = styled.div<CameraButtonProps>`
   }
 `;
 
+const SlowProgressContainer = styled.div`
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SlowProgressPanel = styled.div`
+  width: 200px;
+  box-sizing: content-box;
+  border-radius: 4px;
+  background-color: #373b44;
+  padding: 15px 20px;
+
+  p {
+    color: white;
+    text-align: center;
+    font-size: 12px;
+  }
+`;
+
+const SlowProgressBarContainer = styled.div`
+  background-color: #f1f1f1;
+  border-radius: 4px;
+  height: 8px;
+  margin-bottom: 6px;
+`;
+
+const SlowProgressBar = styled.div`
+  background-color: #59b52e;
+  border-radius: 4px;
+  height: 8px;
+`;
+
 export interface ThreeDViewerProps {
   scene: Scene;
   sceneObjects: IObjectsCommonJSON[];
@@ -87,6 +129,8 @@ export interface ThreeDViewerProps {
 class ThreeDViewerState {
   readonly selectedPosition?: IObjectPosition | null = null;
   readonly isOrthographic: boolean = false;
+  readonly showSlowProgress: boolean = false;
+  readonly slowProgressPercentage: number = 0;
 }
 
 class ThreeDViewer extends React.Component<
@@ -95,6 +139,7 @@ class ThreeDViewer extends React.Component<
 > {
   private scene: Scene;
   private renderer: Renderer;
+  private slowInterval: number;
   private rendererContainerRef: React.RefObject<
     HTMLElement
   > = React.createRef();
@@ -109,13 +154,13 @@ class ThreeDViewer extends React.Component<
       activeOperation
     } = this.props;
     if (sceneObjects !== prevProps.sceneObjects) {
-      this.renderer.updateScene();
+      this.updateScene();
     }
     if (selectedObjects !== prevProps.selectedObjects) {
       this.updateStatusBar();
       if (scene) {
         scene.selectedObjects(selectedObjects);
-        this.renderer.updateScene();
+        this.updateScene();
       }
     }
     if (scene !== prevProps.scene) {
@@ -140,7 +185,7 @@ class ThreeDViewer extends React.Component<
           back: t("navigation-back")
         }
       });
-      this.renderer.updateScene();
+      this.updateScene();
     }
 
     this.renderer.onObjectClick(object => {
@@ -163,6 +208,36 @@ class ThreeDViewer extends React.Component<
     }
   }
 
+  async updateScene() {
+    if (this.slowInterval) {
+      clearInterval(this.slowInterval);
+      this.slowInterval = 0;
+      this.setState({
+        slowProgressPercentage: 0
+      });
+    }
+
+    let percentage = 10;
+    this.slowInterval = setInterval(() => {
+      this.setState({
+        showSlowProgress: true,
+        slowProgressPercentage: percentage
+      });
+      document.activeElement.blur();
+      percentage += (100 - percentage) / 10;
+    }, SLOW_TIMEOUT_MS);
+
+    try {
+      await this.renderer.updateScene();
+    } catch (e) {}
+
+    clearInterval(this.slowInterval);
+
+    this.setState({
+      showSlowProgress: false
+    });
+  }
+
   onCenter = () => {
     this.renderer.center();
   };
@@ -182,7 +257,12 @@ class ThreeDViewer extends React.Component<
   };
 
   render() {
-    const { selectedPosition, isOrthographic } = this.state;
+    const {
+      selectedPosition,
+      isOrthographic,
+      showSlowProgress,
+      slowProgressPercentage
+    } = this.state;
     const { t } = this.props;
 
     return (
@@ -220,6 +300,18 @@ class ThreeDViewer extends React.Component<
             </StatusBarGroup>
           )}
         </StatusBar>
+        {showSlowProgress && (
+          <SlowProgressContainer>
+            <SlowProgressPanel>
+              <SlowProgressBarContainer>
+                <SlowProgressBar
+                  style={{ width: `${slowProgressPercentage}%` }}
+                />
+              </SlowProgressBarContainer>
+              <p>{parseInt(slowProgressPercentage)}%</p>
+            </SlowProgressPanel>
+          </SlowProgressContainer>
+        )}
       </Container>
     );
   }
