@@ -225,7 +225,7 @@ class Document extends React.Component<any, DocumentState> {
                 tertiary
                 onClick={() => this.setState({ isCreateExerciseOpen: false })}
               >
-                Cancel
+                Cancelar
               </ModalButton>
             </ModalButtons>
           </form>
