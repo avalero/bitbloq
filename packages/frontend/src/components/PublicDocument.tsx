@@ -75,6 +75,17 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     setContent(content);
   };
 
+  const onSaveDocument = () => {
+    const documentJSON = {
+      ...document,
+      content: JSON.stringify(content)
+    };
+    var blob = new Blob([JSON.stringify(documentJSON)], {
+      type: "text/json;charset=utf-8"
+    });
+    saveAs(blob, `${document.title}.bitbloq`);
+  };
+
   const saveCopy = (email: string, password: string) => {
     createDocument({
       variables: {
@@ -95,6 +106,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         content={initialContent}
         tabIndex={tabIndex}
         onTabChange={setTabIndex}
+        onSaveDocument={onSaveDocument}
         onContentChange={onContentChange}
         title={
           <>

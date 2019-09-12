@@ -50,7 +50,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     var blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
-    saveAs(blob, `${title}.${currentType}.bitbloq`);
+    saveAs(blob, `${title}.bitbloq`);
   };
 
   const onContentChange = (content: any) => {
