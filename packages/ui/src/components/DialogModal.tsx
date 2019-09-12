@@ -25,7 +25,7 @@ const DialogModal: React.SFC<DialogModalProps> = ({
   onOk,
   onCancel
 }) => (
-  <Modal isOpen={isOpen} showHeader={false} onClose={onCancel}>
+  <Modal isOpen={isOpen} showHeader={false}>
     <Content>
       <h2>{title}</h2>
       {text && <p>{text}</p>}

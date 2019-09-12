@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useRef } from "react";
 import styled from "@emotion/styled";
 import { navigate, Link } from "gatsby";
 import { Global, css } from "@emotion/core";
@@ -32,15 +32,42 @@ const IndexPage: FC = () => {
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   if (data && data.me) {
     navigate("/app");
   }
 
   const onNewDocument = (type: string) => {
-    navigate(`/app/playground/${type}`);
+    window.open(`/app/playground/${type}`);
   };
 
-  const onOpenDocument = () => {};
+  const onOpenDocument = () => {
+    if (fileInputRef.current !== null) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const onFileSelected = (file: File) => {
+    if (file) {
+      window.open(`/app/open-document`);
+      const reader = new FileReader();
+      reader.onload = e => {
+        const document = JSON.parse(reader.result as string);
+        const channel = new BroadcastChannel('bitbloq-landing');
+        channel.onmessage = (e) => {
+          if (e.data.command === "open-document-ready") {
+            channel.postMessage({ command: "open-document", document });
+            channel.close()
+          }
+        };
+      };
+      reader.readAsText(file);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
 
   const onOpenExercise = async () => {
     if (exerciseCode) {
@@ -52,7 +79,8 @@ const IndexPage: FC = () => {
           query: EXERCISE_BY_CODE_QUERY,
           variables: { code: exerciseCode }
         });
-        navigate(`/app/exercise/${exercise.type}/${exercise.id}`);
+        setLoadingExercise(false);
+        window.open(`/app/exercise/${exercise.type}/${exercise.id}`);
       } catch (e) {
         setLoadingExercise(false);
         setExerciseError(true);
@@ -71,7 +99,12 @@ const IndexPage: FC = () => {
             targetPosition={"bottom center"}
             closeOnClick={false}
           >
-            {(isOpen: boolean) => <Button tertiary>Ir al ejercicio</Button>}
+            {(isOpen: boolean) => (
+              <HeaderButton tertiary>
+                <Icon name="airplane-document" />
+                Ir al ejercicio
+              </HeaderButton>
+            )}
             <ExerciseDropDown>
               <ExerciseForm>
                 <label>Código del ejercicio</label>
@@ -82,12 +115,12 @@ const IndexPage: FC = () => {
                   error={exerciseError}
                   onChange={e => setExerciseCode(e.target.value)}
                 />
-                <Button
+                <HeaderButton
                   onClick={() => onOpenExercise()}
                   disabled={loadingExercise}
                 >
                   Ir a ejercicio
-                </Button>
+                </HeaderButton>
               </ExerciseForm>
             </ExerciseDropDown>
           </DropDown>
@@ -95,17 +128,22 @@ const IndexPage: FC = () => {
             attachmentPosition={"top center"}
             targetPosition={"bottom center"}
           >
-            {(isOpen: boolean) => <Button tertiary>Nuevo documento</Button>}
+            {(isOpen: boolean) => (
+              <HeaderButton tertiary>
+                <Icon name="new-document" />
+                Nuevo documento
+              </HeaderButton>
+            )}
 
             <NewDocumentDropDown
               onNewDocument={onNewDocument}
               onOpenDocument={onOpenDocument}
             />
           </DropDown>
-          <Button onClick={() => navigate("/login")}>Entrar</Button>
-          <Button secondary onClick={() => navigate("/signup")}>
+          <HeaderButton onClick={() => navigate("/login")}>Entrar</HeaderButton>
+          <HeaderButton secondary onClick={() => navigate("/signup")}>
             Crear una cuenta
-          </Button>
+          </HeaderButton>
         </Header>
         <Hero>
           <h1>
@@ -148,6 +186,20 @@ const IndexPage: FC = () => {
                   {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
                 </Tool>
               ))}
+            <OpenDocumentPanel>
+              <OpenDocumentIcon color="white">
+                <Icon name="open-document" />
+              </OpenDocumentIcon>
+              <h3>Abrir documento desde archivo</h3>
+              <p>
+                Abre cualquier documento de tipo .bitbloq que hayas guardado en
+                tu ordenador.
+              </p>
+              <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
+                <Icon name="open-document" />
+                Abrir documento
+              </OpenDocumentButton>
+            </OpenDocumentPanel>
           </ToolsList>
         </Container>
       </Tools>
@@ -221,6 +273,12 @@ const IndexPage: FC = () => {
           <a href="#">Política de cookies</a>
         </LegalLinks>
       </Footer>
+      <input
+        ref={fileInputRef}
+        type="file"
+        onChange={e => onFileSelected(e.target.files[0])}
+        style={{ display: "none" }}
+      />
     </>
   );
 };
@@ -242,6 +300,15 @@ const Header = styled.div`
   justify-content: flex-end;
   button {
     margin-left: 10px;
+  }
+`;
+
+const HeaderButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
   }
 `;
 
@@ -275,6 +342,7 @@ const ExerciseForm = styled.div`
 
   input {
     margin-bottom: 30px;
+    font-family: Roboto Mono;
   }
 
   button {
@@ -319,7 +387,7 @@ const Tools = styled.div`
     align-items: center;
     font-size: 30px;
     font-weight: 300;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 
     svg {
       height: 36px;
@@ -338,8 +406,8 @@ const ToolsList = styled.div`
 const Tool = styled.div`
   width: 33%;
   box-sizing: border-box;
-  padding: 0px 5px;
-  margin-bottom: 60px;
+  padding: 20px;
+  margin-bottom: 20px;
 
   h3 {
     font-size: 16px;
@@ -352,6 +420,12 @@ const Tool = styled.div`
     line-height: 1.57;
     margin-bottom: 20px;
   }
+`;
+
+const OpenDocumentPanel = styled(Tool)`
+  border-radius: 10px;
+  background-color: #f1f1f1;
+  align-self: flex-start;
 `;
 
 interface ToolIconProps {
@@ -370,6 +444,21 @@ const ToolIcon = styled.div<ToolIconProps>`
 
   svg {
     width: 40px;
+  }
+`;
+
+const OpenDocumentIcon = styled(ToolIcon)`
+  color: inherit;
+  svg {
+    width: 32px;
+  }
+`;
+
+const OpenDocumentButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 16px;
+    margin-right: 6px;
   }
 `;
 

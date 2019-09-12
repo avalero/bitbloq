@@ -121,6 +121,8 @@ export const EXERCISE_QUERY = gql`
       id
       type
       title
+      code
+      teacherName
       content
       description
       image
@@ -133,19 +135,15 @@ export const EXERCISE_BY_CODE_QUERY = gql`
     exerciseByCode(code: $code) {
       id
       type
+      teacherName
     }
   }
 `;
 
 export const STUDENT_SUBMISSION_QUERY = gql`
-  query Submission($exerciseId: ObjectID!) {
-    exercise(id: $exerciseId) {
-      type
-      title
-      description
-      image
-    }
+  query Submission {
     submission {
+      id
       content
     }
   }
