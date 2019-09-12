@@ -90,7 +90,7 @@ const EditDocument: FC<EditDocumentProps> = ({
       type: "text/json;charset=utf-8"
     });
 
-    saveAs(blob, `${documentJSON.title}.${type}.bitbloq`);
+    saveAs(blob, `${documentJSON.title}.bitbloq`);
   };
 
   const InfoTab = (
