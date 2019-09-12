@@ -6,6 +6,7 @@ interface ButtonProps {
   small?: boolean;
   secondary?: boolean;
   tertiary?: boolean;
+  quaternary?: boolean;
   blue?: boolean;
   orange?: boolean;
   pink?: boolean;
@@ -13,7 +14,13 @@ interface ButtonProps {
 }
 const Button = styled.button<ButtonProps>`
   border-radius: 4px;
-  border: none;
+  border: ${props => {
+    if (props.quaternary) {
+      return "solid 1px #dddddd";
+    } else {
+      return "none";
+    }
+  }};
   height: 40px;
   display: flex;
   align-items: center;
@@ -64,6 +71,11 @@ const Button = styled.button<ButtonProps>`
       bgColor = colors.tertiary;
       hoverColor = colors.tertiaryHover;
       pressedColor = colors.tertiaryPressed;
+    } else if (props.quaternary) {
+      color = colors.black;
+      bgColor = "white";
+      hoverColor = "#ebebeb";
+      pressedColor = "#dedede";
     }
 
     return css`

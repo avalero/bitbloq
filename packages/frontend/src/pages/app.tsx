@@ -63,6 +63,7 @@ const AppPage = () => (
             authenticated
           />
           <Route path="/app/playground/:type" component={Playground} />
+          <Route path="/app/open-document" component={Playground} openDocument />
           <Route path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>

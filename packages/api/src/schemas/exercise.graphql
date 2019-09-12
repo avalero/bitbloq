@@ -12,7 +12,7 @@ enum Role {
 
 type Query {
   exercises: [Exercise] @authRequired(requires: [USER])
-  exercise(id: ObjectID!): Exercise @authRequired(requires: [EPHEMERAL, USER])
+  exercise(id: ObjectID!): Exercise
   exercisesByDocument(document: ObjectID!): [Exercise]
     @authRequired(requires: [USER])
   exerciseByCode(code: String!): Exercise

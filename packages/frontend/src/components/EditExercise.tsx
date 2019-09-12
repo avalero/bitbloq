@@ -1,5 +1,6 @@
-import React, { useState, useRef } from "react";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import React, { useState, useRef, useEffect } from "react";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import debounce from "lodash.debounce";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import {
@@ -12,11 +13,13 @@ import {
   withTranslate
 } from "@bitbloq/ui";
 import {
+  EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
+import ExerciseLoginModal from "./ExerciseLoginModal";
 import { documentTypes } from "../config";
 
 const EditExercise = ({ type, id, t }) => {
@@ -26,43 +29,71 @@ const EditExercise = ({ type, id, t }) => {
   const [isSubmissionSuccessOpen, setIsSubmissionSuccessOpen] = useState(false);
   const [tabIndex, setTabIndex] = useState(1);
 
-  const { data, loading, error } = useQuery(STUDENT_SUBMISSION_QUERY, {
-    variables: { exerciseId: id }
+  const [loginVisible, setLoginVisible] = useState(true);
+
+  const { data, loading, error } = useQuery(EXERCISE_QUERY, {
+    variables: { id }
   });
   const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
+  const [submissionContent, setSubmissionContent] = useState([]);
+  const [submissionId, setSubmissionId] = useState("");
   const currentContent = useRef([]);
+
+  const client = useApolloClient();
+
+  useEffect(() => {
+    if (!loginVisible) {
+      loadSubmission();
+    }
+  }, [loginVisible]);
 
   if (loading) return <Loading />;
   if (error) return <p>Error :)</p>;
 
-  const { exercise, submission } = data;
-  const { title } = exercise;
+  const loadSubmission = async () => {
+    const { data } = await client.query({
+      query: STUDENT_SUBMISSION_QUERY
+    });
+    try {
+      const content = JSON.parse(data.submission.content);
+      setSubmissionContent(content);
+      setSubmissionId(data.submission.id);
+      currentContent.current = content;
+    } catch (e) {
+      console.warn("Error parsing submission content", e);
+    }
+  };
 
-  let content = [];
-  try {
-    content = JSON.parse(submission.content);
-  } catch (e) {
-    console.warn("Error parsing document content", e);
-  }
-
-  currentContent.current = content;
+  const { exercise } = data;
+  const { title, teacherName } = exercise;
 
   return (
     <>
       <EditorComponent
         brandColor={documentType.color}
-        content={content}
+        key={submissionId}
+        content={submissionContent}
         tabIndex={tabIndex}
         onTabChange={setTabIndex}
-        title={title}
-        onContentChange={content => {
+        title={
+          <Title>
+            <TitleIcon>
+              <Icon name="airplane-document" />
+            </TitleIcon>
+            <div>
+              <TitleText>{title}</TitleText>
+              <TeacherName>{teacherName}</TeacherName>
+            </div>
+          </Title>
+        }
+        onContentChange={debounce((content: any[]) => {
           updateSubmission({
             variables: { content: JSON.stringify(content || []) }
           });
           currentContent.current = content;
-        }}
+        }, 1000)}
         getTabs={mainTab => [
           mainTab,
           <Document.Tab
@@ -104,6 +135,12 @@ const EditExercise = ({ type, id, t }) => {
           </ModalButtons>
         </ModalContent>
       </Modal>
+      {loginVisible && (
+        <ExerciseLoginModal
+          code={exercise.code}
+          onSuccess={() => setLoginVisible(false)}
+        />
+      )}
     </>
   );
 };
@@ -120,6 +157,29 @@ const Loading = styled(Spinner)`
   height: 100%;
   color: white;
   background-color: ${colors.brandBlue};
+`;
+
+const Title = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const TitleIcon = styled.div`
+  margin-right: 10px;
+  svg {
+    width: 28px;
+  }
+`;
+
+const TitleText = styled.div`
+  font-style: normal;
+  margin-bottom: 6px;
+`;
+
+const TeacherName = styled.div`
+  font-style: italic;
+  font-size: 14px;
+  font-weight: normal;
 `;
 
 const ModalContent = styled.div`

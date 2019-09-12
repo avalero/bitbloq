@@ -2,7 +2,10 @@ import styled from '@emotion/styled';
 import { css } from '@emotion/core';
 import colors from '../colors';
 
-const Input = styled.input`
+export interface InputProps {
+  error?: boolean;
+}
+const Input = styled.input<InputProps>`
   border: 1px solid #cfcfcf;
   box-sizing: border-box;
   border-radius: 4px;

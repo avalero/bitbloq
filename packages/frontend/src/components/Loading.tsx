@@ -1,6 +1,6 @@
 import { FC } from "react";
 import styled from "@emotion/styled";
-import { Spinner } from "@bitbloq/ui";
+import { colors, Spinner } from "@bitbloq/ui";
 
 export interface LoadingProps {
   color?: string;
@@ -11,7 +11,7 @@ const Loading: FC<LoadingProps> = styled(Spinner)`
   left: 0px;
   width: 100%;
   height: 100%;
-  color: white;
+  color: ${props => props.color ? "white" : colors.black};
   background-color: ${props => props.color};
 `;
 

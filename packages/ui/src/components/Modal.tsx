@@ -29,9 +29,11 @@ export default class Modal extends React.Component<ModalProps> {
             <>
               <Header>
                 <Title>{title}</Title>
-                <Close onClick={onClose}>
-                  <Icon name="close" />
-                </Close>
+                {onClose &&
+                  <Close onClick={onClose}>
+                    <Icon name="close" />
+                  </Close>
+                }
               </Header>
               <HorizontalRule small />
             </>

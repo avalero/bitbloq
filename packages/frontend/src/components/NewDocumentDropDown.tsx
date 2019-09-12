@@ -35,9 +35,9 @@ const NewDocumentDropDown: FC<NewDocumentDropDownProps> = ({
         ))}
       </NewDocumentOptions>
       <OpenDocumentButton onClick={() => onOpenDocument()}>
-            <NewDocumentOptionIcon>
-        <Icon name="open-document" />
-    </NewDocumentOptionIcon>
+        <NewDocumentOptionIcon>
+          <Icon name="open-document" />
+        </NewDocumentOptionIcon>
         Abrir documento
       </OpenDocumentButton>
     </DropDownContainer>
@@ -152,5 +152,9 @@ const OpenDocumentButton = styled.div`
     svg {
       width: 20px;
     }
+  }
+
+  &:hover {
+    background-color: ${colors.gray3};
   }
 `;

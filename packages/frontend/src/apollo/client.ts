@@ -69,7 +69,6 @@ export const createClient = isBrowser =>
               !(path && path.includes("login"))
           );
 
-          console.log("CONTEXT", context);
           if (isAuthError && !context.disableAuthRedirect) {
             localStorage.setItem("authToken", "");
             navigate("/");

@@ -5,7 +5,7 @@ import { colors, DropDown, Icon } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 
-import logoBetaImage from "../images/logo-horizontal.svg";
+import logoBetaImage from "../images/logo-beta.svg";
 
 const AppHeader = () => {
   const userData = useUserData();
@@ -41,14 +41,14 @@ const Container = styled.div`
   background-color: white;
   display: flex;
   min-height: 60px;
-  padding: 0px 20px;
+  padding: 0px 50px;
   align-items: center;
   border-bottom: 1px solid ${colors.gray3};
   justify-content: space-between;
 `;
 
 const Logo = styled.img`
-  height: 20px;
+  height: 30px;
 `;
 
 const UserContainer = styled.div`
