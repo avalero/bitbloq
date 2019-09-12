@@ -29,7 +29,7 @@ type Mutation {
     @authRequired(requires: [ADMIN])
 }
 type Subscription {
-  documentUpdated: Document @authRequired(requires: [USER])
+  documentUpdated: Document @authRequired(requires: [ADMIN, USER])
 }
 
 type Document {
