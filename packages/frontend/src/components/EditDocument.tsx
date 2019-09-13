@@ -22,7 +22,7 @@ interface EditDocumentProps {
   type: string;
   document: any;
   update: (document: any) => any;
-  publish?: (isPublic: boolean) => any;
+  publish?: (isPublic: boolean, isExample: boolean) => any;
 }
 const EditDocument: FC<EditDocumentProps> = ({
   type,
@@ -37,12 +37,16 @@ const EditDocument: FC<EditDocumentProps> = ({
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
 
-  const { title, description, image, public: isPublic } = document;
+  const {
+    title,
+    description,
+    image,
+    public: isPublic,
+    example: isExample
+  } = document;
 
   const location = window.location;
-  const publicUrl = `${location.protocol}//${
-    location.host
-  }/app/public-document/${type}/${document.id}`;
+  const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${document.id}`;
 
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
@@ -71,9 +75,9 @@ const EditDocument: FC<EditDocumentProps> = ({
     });
   };
 
-  const onTogglePublic = () => {
+  const onChangePublic = (isPublic: boolean, isExample: boolean) => {
     if (publish) {
-      publish(!document.public);
+      publish(isPublic, isExample);
     }
   };
 
@@ -130,12 +134,15 @@ const EditDocument: FC<EditDocumentProps> = ({
           (content: any[]) => onContentChange(content),
           1000
         )}
-        preMenuContent={me.admin &&
-          <PublishBar
-            isPublic={isPublic}
-            onToggle={onTogglePublic}
-            url={isPublic ? publicUrl : ""}
-          />
+        preMenuContent={
+          me.admin && (
+            <PublishBar
+              isPublic={isPublic}
+              isExample={isExample}
+              onChange={onChangePublic}
+              url={isPublic ? publicUrl : ""}
+            />
+          )
         }
       />
       {isEditTitleVisible && (
@@ -165,8 +172,10 @@ const EditExistingDocument: FC<EditExistingDocumentProps> = ({ id, type }) => {
     refetch();
   };
 
-  const publish = async (isPublic: boolean) => {
-    await publishDocument({ variables: { id, public: isPublic } });
+  const publish = async (isPublic: boolean, isExample: boolean) => {
+    await publishDocument({
+      variables: { id, public: isPublic, example: isExample }
+    });
     refetch();
   };
 
