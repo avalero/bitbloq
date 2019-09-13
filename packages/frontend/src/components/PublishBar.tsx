@@ -1,26 +1,40 @@
 import React, { FC } from "react";
-import { Switch } from "@bitbloq/ui";
+import { Checkbox, Switch } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 
 interface PublishBarProps {
   isPublic: boolean;
-  onToggle: () => any;
+  isExample: boolean;
+  onChange: (isPublic: boolean, isExample: boolean) => any;
   error?: string;
   url?: string;
 }
 
-const PublishBar: FC<PublishBarProps> = ({ isPublic, onToggle, url, error }) => {
+const PublishBar: FC<PublishBarProps> = ({
+  isPublic,
+  isExample,
+  onChange,
+  url,
+  error
+}) => {
   return (
     <Container>
       <SwitchWrap>
         <span>Privado</span>
-        <Switch value={isPublic} onChange={onToggle} />
+        <Switch
+          value={isPublic}
+          onChange={() => onChange(!isPublic, isExample)}
+        />
         <span>Público</span>
       </SwitchWrap>
       <UrlBar>
         <UrlLabel>URL para compartir:</UrlLabel>
-    <Url value={error || url || "-"} disabled hasError={!!error} />
+        <Url value={error || url || "-"} disabled hasError={!!error} />
       </UrlBar>
+      <SampleCheckbox onClick={() => onChange(isPublic, !isExample)}>
+        <Checkbox checked={isExample} />
+        <span>Ejemplo</span>
+      </SampleCheckbox>
     </Container>
   );
 };
@@ -78,5 +92,17 @@ const Url = styled.input<UrlProps>`
   display: flex;
   align-items: center;
   padding: 0px 20px 0px 10px;
-  color: ${props => props.hasError ? "#d82b32" : "inherit"};
+  color: ${props => (props.hasError ? "#d82b32" : "inherit")};
+`;
+
+const SampleCheckbox = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  cursor: pointer;
+
+  span {
+    margin-left: 10px;
+    font-size: 14px;
+  }
 `;

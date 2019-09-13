@@ -21,6 +21,7 @@ export const DOCUMENT_QUERY = gql`
       content
       image
       public
+      example
     }
   }
 `;
@@ -178,8 +179,12 @@ export const UPLOAD_STL_MUTATION = gql`
 `;
 
 export const PUBLISH_DOCUMENT_MUTATION = gql`
-  mutation publishDocument($id: ObjectID!, $public: Boolean) {
-    publishDocument(id: $id, public: $public) {
+  mutation publishDocument(
+    $id: ObjectID!
+    $public: Boolean
+    $example: Boolean
+  ) {
+    publishDocument(id: $id, public: $public, example: $example) {
       id
     }
   }
