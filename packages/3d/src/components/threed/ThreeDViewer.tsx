@@ -199,6 +199,11 @@ class ThreeDViewer extends React.Component<
     });
   }
 
+  componentWillUnmount() {
+    clearInterval(this.slowInterval);
+    this.renderer.destroy();
+  }
+
   async updateStatusBar() {
     const { scene, selectedObjects } = this.props;
     this.setState({ selectedPosition: undefined });
