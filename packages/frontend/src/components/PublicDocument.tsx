@@ -26,6 +26,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
   const [isSaveCopyVisible, setIsSaveCopyVisible] = useState(false);
   const [isRestartModalVisible, setIsRestartModalVisible] = useState(false);
   const [initialContent, setInitialContent] = useState([]);
+  const [contentLoaded, setContentLoaded] = useState(false);
   const [content, setContent] = useState([]);
   const [restartCount, setRestartCount] = useState(0);
 
@@ -44,6 +45,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
   const restart = () => {
     setRestartCount(restartCount + 1);
     setContent(initialContent);
+    setIsRestartModalVisible(false);
   };
 
   useEffect(() => {
@@ -53,13 +55,14 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         setInitialContent(c);
         restart();
         setContent(c);
+        setContentLoaded(true);
       } catch (e) {
         console.warn("Error parsing document content", e);
       }
     }
   }, [document]);
 
-  if (loading || !initialContent.length)
+  if (loading || !contentLoaded)
     return <Loading color={documentType.color} />;
   if (error) return <p>Error :)</p>;
 
