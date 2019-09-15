@@ -87,6 +87,7 @@ export default class Renderer {
   }
 
   public async updateScene(): Promise<void> {
+    try{
     // objects in transition
     const newObjectInTranstion:
       | THREE.Group
@@ -110,6 +111,9 @@ export default class Renderer {
 
     this.threeScene.add(newObjectsGroup);
     this.objectsGroup = newObjectsGroup;
+  }catch(e){
+    console.log(e);
+  }
   }
 
   public setScene(scene: Scene) {
