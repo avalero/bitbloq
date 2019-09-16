@@ -1,17 +1,12 @@
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/react-hooks";
 import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
-import {
-  DOCUMENTS_QUERY,
-  OPEN_PUBLIC_DOCUMENT_QUERY,
-  CREATE_DOCUMENT_MUTATION
-} from "../apollo/queries";
+import {OPEN_PUBLIC_DOCUMENT_QUERY} from "../apollo/queries";
 import { documentTypes } from "../config";
-import useUserData from "../lib/useUserData";
 
 interface PublicDocumentProps {
   id: string;
@@ -35,10 +30,6 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
   const { data, loading, error } = useQuery(OPEN_PUBLIC_DOCUMENT_QUERY, {
     variables: { id }
   });
-
-  const userData = useUserData();
-
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
 
   const { openPublicDocument: document = {} } = data || {};
 
@@ -89,18 +80,6 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     saveAs(blob, `${document.title}.bitbloq`);
   };
 
-  const saveCopy = (email: string, password: string) => {
-    createDocument({
-      variables: {
-        ...document,
-        content: JSON.stringify(content)
-      },
-      context: email && password ? { email, password } : {},
-      refetchQueries: userData ? [{ query: DOCUMENTS_QUERY }] : []
-    });
-    setIsSaveCopyVisible(false);
-  };
-
   return (
     <>
       <EditorComponent
@@ -148,13 +127,13 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         }}
         isPlayground
       />
-      {isSaveCopyVisible && (
+      {isSaveCopyVisible &&
         <SaveCopyModal
-          user={userData}
-          onSave={saveCopy}
-          onCancel={() => setIsSaveCopyVisible(false)}
+          onClose={() => setIsSaveCopyVisible(false)}
+          document={document}
+          content={content}
         />
-      )}
+      }
       <DialogModal
         isOpen={isRestartModalVisible}
         title="Aviso"

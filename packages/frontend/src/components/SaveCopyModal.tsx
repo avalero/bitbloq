@@ -1,24 +1,70 @@
 import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal, DialogModal, Option } from "@bitbloq/ui";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+import {
+  DOCUMENTS_QUERY,
+  CREATE_DOCUMENT_MUTATION
+} from "../apollo/queries";
+import useUserData from "../lib/useUserData";
 
 interface SaveCopyModalProps {
-  user?: any;
-  onSave: (email?: string, password?: string) => any;
-  onCancel: () => any;
+  onClose: () => any;
+  document: any;
+  content: any;
 }
 
-const SaveCopyModal: FC<SaveCopyModalProps> = ({ user, onSave, onCancel }) => {
+const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) => {
+
+  const userData = useUserData();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showAccountDialog, setShowAccountDialog] = useState(!!user);
+  const [showAccountDialog, setShowAccountDialog] = useState(!!userData);
+  const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [loginError, setLoginError] = useState(false);
   const emailInput = useRef<HTMLInputElement>(null);
+
+  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
 
   useEffect(() => {
     if (emailInput.current) {
       emailInput.current.focus();
     }
   }, []);
+
+  const onSave = async () => {
+    try {
+      setLoginError(false);
+      await createDocument({
+        variables: {
+          ...document,
+          content: JSON.stringify(content)
+        },
+        context: {
+          disableAuthRedirect: true,
+          email,
+          password
+        },
+        refetchQueries: userData ? [{ query: DOCUMENTS_QUERY }] : []
+      });
+      setShowSaveSuccess(true);
+    } catch (e) {
+      setLoginError(true);
+    }
+  };
+
+  if (showSaveSuccess) {
+    return (
+      <DialogModal
+        isOpen={true}
+        title="Copia añadida correctamente"
+        text="Se ha añadido una copia de este ejemplo a tus documentos."
+        okText="Aceptar"
+        onOk={onClose}
+      />
+    );
+  }
 
   if (showAccountDialog) {
     return (
@@ -36,7 +82,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ user, onSave, onCancel }) => {
           </OtherAccountDialog>
         }
         cancelText="Cancelar"
-        onCancel={() => onCancel()}
+        onCancel={onClose}
       />
     );
   }
@@ -45,7 +91,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ user, onSave, onCancel }) => {
     <Modal
       isOpen
       title="Añadir una copia del ejemplo a mis documentos"
-      onClose={onCancel}
+      onClose={onClose}
     >
       <Content>
         <p>
@@ -58,6 +104,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ user, onSave, onCancel }) => {
             <Input
               value={email}
               ref={emailInput}
+              error={loginError}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEmail(e.target.value)
               }
@@ -69,6 +116,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ user, onSave, onCancel }) => {
             <Input
               value={password}
               type="password"
+              error={loginError}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setPassword(e.target.value)
               }
@@ -76,8 +124,11 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ user, onSave, onCancel }) => {
             />
           </FormGroup>
         </LoginForm>
+        {loginError &&
+          <Error>El Correo electrónico o la contraseña no son correctos</Error>
+        }
         <Buttons>
-          <Button onClick={() => onSave(email, password)}>Añadir copia</Button>
+          <Button onClick={() => onSave()}>Añadir copia</Button>
         </Buttons>
       </Content>
     </Modal>
@@ -95,7 +146,7 @@ const Content = styled.div`
 
 const LoginForm = styled.div`
   display: flex;
-  margin: 40px -10px;
+  margin: 40px -10px 0px -10px;
 `;
 
 const FormGroup = styled.div`
@@ -107,9 +158,17 @@ const FormGroup = styled.div`
   }
 `;
 
+const Error = styled.div`
+  font-size: 12px;
+  font-style: italic;
+  color: #d82b32;
+  margin-top: 10px;
+`;
+
 const Buttons = styled.div`
   display: flex;
   justify-content: flex-end;
+  margin-top: 40px;
 `;
 
 const OtherAccountDialog = styled.div`

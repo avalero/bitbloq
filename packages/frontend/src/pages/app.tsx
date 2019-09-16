@@ -32,12 +32,9 @@ const Route = ({
   ...rest
 }) => (
   <Suspense fallback={<Loading type={type} />}>
-    {authenticated && (
-      <UserDataProvider>
-        <Component {...rest} type={type} />
-      </UserDataProvider>
-    )}
-    {!authenticated && <Component {...rest} type={type} />}
+    <UserDataProvider authRequired={authenticated}>
+      <Component {...rest} type={type} />
+    </UserDataProvider>
   </Suspense>
 );
 
@@ -51,7 +48,11 @@ const AppPage = () => (
           <Route path="app" component={Documents} authenticated />
           <Route path="/app/document/:id" component={Document} authenticated />
           <Route path="/app/document/:id" component={Document} authenticated />
-          <Route path="/app/document/:type/:id" component={EditDocument} authenticated />
+          <Route
+            path="/app/document/:type/:id"
+            component={EditDocument}
+            authenticated
+          />
           <Route
             path="/app/public-document/:type/:id"
             component={PublicDocument}
@@ -63,7 +64,11 @@ const AppPage = () => (
             authenticated
           />
           <Route path="/app/playground/:type" component={Playground} />
-          <Route path="/app/open-document" component={Playground} openDocument />
+          <Route
+            path="/app/open-document"
+            component={Playground}
+            openDocument
+          />
           <Route path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>

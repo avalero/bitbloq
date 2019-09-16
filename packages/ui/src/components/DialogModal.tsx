@@ -12,7 +12,7 @@ interface DialogModalProps {
   okText?: string;
   cancelText?: string;
   onOk: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
 }
 
 const DialogModal: React.SFC<DialogModalProps> = ({

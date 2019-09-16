@@ -157,5 +157,5 @@ const Error = styled.div`
   font-size: 12px;
   font-style: italic;
   color: #d82b32;
-  margin-top: 8px;
+  margin-top: 10px;
 `;
