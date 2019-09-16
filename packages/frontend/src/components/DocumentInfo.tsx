@@ -5,11 +5,11 @@ import { colors, Button } from "@bitbloq/ui";
 import { Document } from "../types";
 
 interface DocumentInfoProps {
-  document: Document
+  document: Document;
   onGotoDocument: () => any;
 }
 
-const DocumentInfo: FC<DocumentInfoProps> = ({document, onGotoDocument}) => {
+const DocumentInfo: FC<DocumentInfoProps> = ({ document, onGotoDocument }) => {
   const { title, description, image } = document;
 
   return (
@@ -22,7 +22,7 @@ const DocumentInfo: FC<DocumentInfoProps> = ({document, onGotoDocument}) => {
       </Left>
       <Right>
         <Description>
-            <p>{description}</p>
+          <p>{description}</p>
         </Description>
         <GotoDocument>
           <Button onClick={onGotoDocument}>Ir al ejemplo</Button>
@@ -91,6 +91,9 @@ const Right = styled.div`
 const Description = styled.div`
   padding: 30px;
   flex: 1;
+  p {
+    line-height: 1.57;
+  }
 `;
 
 const GotoDocument = styled.div`

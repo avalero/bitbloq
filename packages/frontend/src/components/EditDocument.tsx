@@ -80,6 +80,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   };
 
   const publish = async (isPublic: boolean, isExample: boolean) => {
+    setDocument({ ...document, public: isPublic, example: isExample });
     await publishDocument({
       variables: { id, public: isPublic, example: isExample }
     });
