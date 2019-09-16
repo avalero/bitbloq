@@ -21,6 +21,13 @@ const PORT = process.env.PORT;
 
 const mongoUrl: string = process.env.MONGO_URL;
 
+function killApi() {
+  console.log(`api killed`);
+  process.exit(-1);
+}
+
+setTimeout(killApi, 60000);
+
 mongoose.set('debug', true);
 mongoose.set('useFindAndModify', false); // ojo con esto al desplegar
 mongoose.connect(
