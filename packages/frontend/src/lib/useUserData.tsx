@@ -4,7 +4,7 @@ import { ME_QUERY } from "../apollo/queries";
 import useLogout from "./useLogout";
 import Loading from "../components/Loading";
 
-const UserDataContext = createContext(null);
+const UserDataContext = createContext<any>(null);
 
 export interface UserDataProviderProps {
   authRequired?: boolean;
