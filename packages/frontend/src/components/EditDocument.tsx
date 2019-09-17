@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
@@ -35,7 +35,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   const [loading, setLoading] = useState(true);
   const [document, setDocument] = useState({
     content: "[]",
-    title: "Documento sín título",
+    title: "",
     description: "",
     public: false,
     example: false,
@@ -64,6 +64,11 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
 
+  const debouncedUpdate = useRef(debounce(async (document: any) => {
+    await updateDocument({ variables: { ...document, id } });
+    refetch();
+  }, 1000));
+
   const update = async (document: any) => {
     setDocument(document);
     if (isNew) {
@@ -74,8 +79,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       } = await createDocument({ variables: document });
       navigate(`/app/document/${type}/${newId}`, { replace: true });
     } else {
-      await updateDocument({ variables: { ...document, id } });
-      refetch();
+      debouncedUpdate.current(document);
     }
   };
 
@@ -152,16 +156,16 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       label={t("tab-project-info")}
     >
       <DocumentInfoForm
-        title={title || ""}
-        description={description || ""}
+        title={title}
+        description={description}
         image={image}
-        onChange={debounce(async ({ title, description, image }) => {
+        onChange={({ title, description, image }) => {
           const newDocument = { ...document, title, description, image };
           if (!image || typeof image === "string") {
             delete newDocument.image;
           }
           update(newDocument);
-        }, 1000)}
+        }}
       />
     </Document.Tab>
   );
@@ -175,13 +179,12 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         tabIndex={tabIndex}
         onTabChange={(tabIndex: number) => setTabIndex(tabIndex)}
         getTabs={(mainTabs: any[]) => [...mainTabs, InfoTab]}
-        title={title}
+        title={title || "Documento sin título"}
         onEditTitle={onEditTitle}
         onSaveDocument={onSaveDocument}
-        onContentChange={debounce(
-          (content: any[]) => onContentChange(content),
-          1000
-        )}
+        onContentChange={
+          (content: any[]) => onContentChange(content)
+        }
         preMenuContent={
           isAdmin && (
             <PublishBar

@@ -201,6 +201,7 @@ class Document extends React.Component<any, DocumentState> {
               <Mutation mutation={CREATE_EXERCISE_MUTATION}>
                 {createExercise => (
                   <ModalButton
+                    disabled={!newExerciseTitle}
                     onClick={() => {
                       createExercise({
                         variables: {

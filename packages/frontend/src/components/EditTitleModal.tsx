@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 
@@ -8,69 +8,55 @@ interface EditTitleModalProps {
   onCancel: () => any;
 }
 
-class State {
-  readonly title: string = "";
+const EditTitleModal: FC<EditTitleModalProps> = (props) => {
+  const { onSave, onCancel } = props;
+  const [title, setTitle] = useState(props.title);
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
-  constructor(title) {
-    this.title = title;
-  }
-}
+  useEffect(() => {
+    if (titleInputRef.current) {
+      titleInputRef.current.focus();
+    }
+  });
 
-class EditTitleModal extends React.Component<EditTitleModalProps> {
-  readonly state: State;
-  private titleInput = React.createRef<HTMLInputElement>();
-
-  constructor(props) {
-    super(props);
-
-    this.state = new State(props.title);
-  }
-
-  componentDidMount() {
-    this.titleInput.current.focus();
-  }
-
-  render() {
-    const { title } = this.state;
-    const { onCancel, onSave } = this.props;
-
-    return (
-      <Modal
-        isOpen={true}
-        title="Cambiar el nombre del proyecto"
-        onClose={onCancel}
-      >
-        <Content>
-          <form
-            onSubmit={e => {
-              e.preventDefault();
-              onSave(title);
-            }}
-          >
-            <p>Introduce un nuevo nombre para el proyecto</p>
-            <Input
-              value={title}
-              ref={this.titleInput}
-              onChange={e => this.setState({ title: e.target.value })}
-            />
-            <Buttons>
-              <Button onClick={() => onSave(title)}>Guardar</Button>
-              <Button
-                tertiary
-                onClick={e => {
-                  e.preventDefault();
-                  onCancel();
-                }}
-              >
-                Cancelar
-              </Button>
-            </Buttons>
-          </form>
-        </Content>
-      </Modal>
-    );
-  }
-}
+  return (
+    <Modal
+      isOpen={true}
+      title="Cambiar el nombre del proyecto"
+      onClose={onCancel}
+    >
+      <Content>
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+            onSave(title);
+          }}
+        >
+          <p>Introduce un nuevo nombre para el proyecto</p>
+          <Input
+            value={title}
+            ref={titleInputRef}
+            onChange={e => setTitle(e.target.value)}
+          />
+          <Buttons>
+            <Button onClick={() => onSave(title)} disabled={!title}>
+              Guardar
+            </Button>
+            <Button
+              tertiary
+              onClick={e => {
+                e.preventDefault();
+                onCancel();
+              }}
+            >
+              Cancelar
+            </Button>
+          </Buttons>
+        </form>
+      </Content>
+    </Modal>
+  );
+};
 
 export default EditTitleModal;
 
