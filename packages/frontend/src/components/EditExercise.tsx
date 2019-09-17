@@ -6,6 +6,7 @@ import { css } from "@emotion/core";
 import {
   colors,
   Button,
+  DialogModal,
   Document,
   Spinner,
   Modal,
@@ -20,6 +21,7 @@ import {
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
+import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
 
 const EditExercise = ({ type, id, t }) => {
@@ -30,6 +32,12 @@ const EditExercise = ({ type, id, t }) => {
   const [tabIndex, setTabIndex] = useState(1);
 
   const [loginVisible, setLoginVisible] = useState(true);
+  const [teamName, setTeamName] = useState("");
+
+  const [isSaveCopyVisible, setIsSaveCopyVisible] = useState(false);
+  const [isRestartModalVisible, setIsRestartModalVisible] = useState(false);
+  const [restartCount, setRestartCount] = useState(0);
+  const [initialContent, setInitialContent] = useState([]);
 
   const { data, loading, error } = useQuery(EXERCISE_QUERY, {
     variables: { id }
@@ -38,7 +46,6 @@ const EditExercise = ({ type, id, t }) => {
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
   const [submissionContent, setSubmissionContent] = useState([]);
-  const [submissionId, setSubmissionId] = useState("");
   const currentContent = useRef([]);
 
   const client = useApolloClient();
@@ -48,6 +55,17 @@ const EditExercise = ({ type, id, t }) => {
       loadSubmission();
     }
   }, [loginVisible]);
+
+  useEffect(() => {
+    if (data && data.exercise && data.exercise.content) {
+      try {
+        const content = JSON.parse(data.exercise.content);
+        setInitialContent(content);
+      } catch (e) {
+        console.warn("Error parsing submission content", e);
+      }
+    }
+  }, [data.exercise]);
 
   if (loading) return <Loading />;
   if (error) return <p>Error :)</p>;
@@ -59,11 +77,34 @@ const EditExercise = ({ type, id, t }) => {
     try {
       const content = JSON.parse(data.submission.content);
       setSubmissionContent(content);
-      setSubmissionId(data.submission.id);
+      setRestartCount(restartCount + 1);
       currentContent.current = content;
     } catch (e) {
       console.warn("Error parsing submission content", e);
     }
+  };
+
+  const restart = () => {
+    setRestartCount(restartCount + 1);
+    setSubmissionContent(initialContent);
+    setIsRestartModalVisible(false);
+  };
+
+  const onSaveCopyClick = () => {
+    setIsSaveCopyVisible(true);
+  };
+
+  const onRestartClick = () => {
+    setIsRestartModalVisible(true);
+  };
+
+  const onSubmitClick = async () => {
+    await finishSubmission({
+      variables: {
+        content: JSON.stringify(currentContent.current || [])
+      }
+    });
+    setIsSubmissionSuccessOpen(true);
   };
 
   const { exercise } = data;
@@ -73,7 +114,7 @@ const EditExercise = ({ type, id, t }) => {
     <>
       <EditorComponent
         brandColor={documentType.color}
-        key={submissionId}
+        key={restartCount}
         content={submissionContent}
         tabIndex={tabIndex}
         onTabChange={setTabIndex}
@@ -84,7 +125,7 @@ const EditExercise = ({ type, id, t }) => {
             </TitleIcon>
             <div>
               <TitleText>{title}</TitleText>
-              <TeacherName>{teacherName}</TeacherName>
+              <TeacherName>Profesor: {teacherName}</TeacherName>
             </div>
           </Title>
         }
@@ -107,19 +148,25 @@ const EditExercise = ({ type, id, t }) => {
             />
           </Document.Tab>
         ]}
-        headerButtons={[{ id: "submit", icon: "airplane" }]}
-        onHeaderButtonClick={async buttonId => {
+        headerButtons={[
+          { id: "save-copy", icon: "add-document" },
+          { id: "restart", icon: "reload" },
+          { id: "submit", icon: "airplane" }
+        ]}
+        onHeaderButtonClick={(buttonId: string) => {
           switch (buttonId) {
+            case "save-copy":
+              onSaveCopyClick();
+              return;
+            case "restart":
+              onRestartClick();
+              return;
             case "submit":
-              await finishSubmission({
-                variables: {
-                  content: JSON.stringify(currentContent.current || [])
-                }
-              });
-              setIsSubmissionSuccessOpen(true);
+              onSubmitClick();
               return;
           }
         }}
+        headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
       />
       <Modal
         isOpen={isSubmissionSuccessOpen}
@@ -138,9 +185,28 @@ const EditExercise = ({ type, id, t }) => {
       {loginVisible && (
         <ExerciseLoginModal
           code={exercise.code}
-          onSuccess={() => setLoginVisible(false)}
+          onSuccess={teamName => {
+            setTeamName(teamName);
+            setLoginVisible(false);
+          }}
         />
       )}
+      {isSaveCopyVisible &&
+        <SaveCopyModal
+          onClose={() => setIsSaveCopyVisible(false)}
+          document={exercise}
+          content={currentContent.current}
+        />
+      }
+      <DialogModal
+        isOpen={isRestartModalVisible}
+        title="Aviso"
+        text="¿Seguro que quieres reiniciar el ejercicio? Si lo haces perderás todo lo que hayas hecho y el ejercicio volverá a su estado original."
+        okText="Aceptar"
+        cancelText="Cancelar"
+        onOk={() => restart()}
+        onCancel={() => setIsRestartModalVisible(false)}
+      />
     </>
   );
 };
@@ -180,6 +246,14 @@ const TeacherName = styled.div`
   font-style: italic;
   font-size: 14px;
   font-weight: normal;
+`;
+
+const TeamName = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0px 20px;
+  border-left: solid 1px #cfcfcf;
+  background-color: #ebebeb;
 `;
 
 const ModalContent = styled.div`

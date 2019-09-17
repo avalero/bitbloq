@@ -181,6 +181,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
       onContentChange,
       canEditTitle,
       headerButtons,
+      headerRightContent,
       onHeaderButtonClick,
       preMenuContent,
       t
@@ -207,6 +208,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
           onMenuOptionClick={this.onMenuOptionClick}
           onContentChange={onContentChange}
           headerButtons={headerButtons}
+          headerRightContent={headerRightContent}
           onHeaderButtonClick={onHeaderButtonClick}
           preMenuContent={preMenuContent}
         >

@@ -80,6 +80,8 @@ const IndexPage: FC = () => {
           variables: { code: exerciseCode }
         });
         setLoadingExercise(false);
+        setExerciseError(false);
+        setExerciseCode("");
         window.open(`/app/exercise/${exercise.type}/${exercise.id}`);
       } catch (e) {
         setLoadingExercise(false);
@@ -115,6 +117,9 @@ const IndexPage: FC = () => {
                   error={exerciseError}
                   onChange={e => setExerciseCode(e.target.value)}
                 />
+                {exerciseError &&
+                  <Error>El código no es válido</Error>
+                }
                 <HeaderButton
                   onClick={() => onOpenExercise()}
                   disabled={loadingExercise}
@@ -238,6 +243,9 @@ const IndexPage: FC = () => {
                     error={exerciseError}
                     onChange={e => setExerciseCode(e.target.value)}
                   />
+                  {exerciseError &&
+                    <Error>El código no es válido</Error>
+                  }
                   <Button
                     onClick={() => onOpenExercise()}
                     disabled={loadingExercise}
@@ -341,11 +349,11 @@ const ExerciseForm = styled.div`
   }
 
   input {
-    margin-bottom: 30px;
     font-family: Roboto Mono;
   }
 
   button {
+    margin-top: 30px;
     width: 100%;
   }
 `;
@@ -609,4 +617,11 @@ const LegalLinks = styled.div`
     font-weight: bold;
     text-decoration: none;
   }
+`;
+
+const Error = styled.div`
+  font-size: 12px;
+  font-style: italic;
+  color: #d82b32;
+  margin-top: 10px;
 `;

@@ -109,6 +109,7 @@ class ThreeD extends React.Component {
       title,
       onEditTitle,
       headerButtons,
+      headerRightContent,
       onHeaderButtonClick,
       tabIndex = 0,
       onTabChange,
@@ -156,6 +157,7 @@ class ThreeD extends React.Component {
         onTabChange={onTabChange}
         onEditTitle={onEditTitle}
         headerButtons={headerButtons}
+        headerRightContent={headerRightContent}
         onHeaderButtonClick={onHeaderButtonClick}
         menuOptions={
           menuOptions ? menuOptions(baseMenuOptions) : baseMenuOptions
