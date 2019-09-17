@@ -15,8 +15,8 @@ class Root extends React.Component {
       const state = this.store.getState();
       const content = state.threed.scene.objects;
       if (this.currentContent && content !== this.currentContent) {
-        if (props.onContentChange) {
-          props.onContentChange(content);
+        if (this.props.onContentChange) {
+          this.props.onContentChange(content);
         }
       }
       this.currentContent = content;
