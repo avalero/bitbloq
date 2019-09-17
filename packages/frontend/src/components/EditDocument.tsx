@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useState, useEffect, useCallback } from "react";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
@@ -64,10 +64,13 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
 
-  const debouncedUpdate = useRef(debounce(async (document: any) => {
-    await updateDocument({ variables: { ...document, id } });
-    refetch();
-  }, 1000));
+  const debouncedUpdate = useCallback(
+    debounce(async (document: any) => {
+      await updateDocument({ variables: { ...document, id } });
+      refetch();
+    }, 1000),
+    [id]
+  );
 
   const update = async (document: any) => {
     setDocument(document);
@@ -79,7 +82,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       } = await createDocument({ variables: document });
       navigate(`/app/document/${type}/${newId}`, { replace: true });
     } else {
-      debouncedUpdate.current(document);
+      debouncedUpdate(document);
     }
   };
 
@@ -182,9 +185,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         title={title || "Documento sin título"}
         onEditTitle={onEditTitle}
         onSaveDocument={onSaveDocument}
-        onContentChange={
-          (content: any[]) => onContentChange(content)
-        }
+        onContentChange={(content: any[]) => onContentChange(content)}
         preMenuContent={
           isAdmin && (
             <PublishBar
