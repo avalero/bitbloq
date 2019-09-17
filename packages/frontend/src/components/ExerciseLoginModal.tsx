@@ -2,7 +2,10 @@ import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Modal, Input, DialogModal } from "@bitbloq/ui";
 import { useMutation } from "@apollo/react-hooks";
-import { LOGIN_SUBMISSION_MUTATION } from "../apollo/queries";
+import {
+  START_SUBMISSION_MUTATION,
+  LOGIN_SUBMISSION_MUTATION
+} from "../apollo/queries";
 
 enum Steps {
   StartOrContinue,
@@ -12,7 +15,7 @@ enum Steps {
 
 interface ExerciseLoginModalProps {
   code: string;
-  onSuccess: () => any;
+  onSuccess: (teamName: string) => any;
 }
 
 const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
@@ -25,6 +28,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
   const [teamNameError, setTeamNameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  const [start] = useMutation(START_SUBMISSION_MUTATION);
   const [login] = useMutation(LOGIN_SUBMISSION_MUTATION, {
     context: {
       disableAuthRedirect: true
@@ -42,6 +46,27 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
       setTeamNameError("Debes escribir un nombre de equipo");
     } else {
       try {
+        const { data } = await start({
+          variables: {
+            studentNick: teamName,
+            exerciseCode: code,
+            password
+          }
+        });
+        const { token } = data.startSubmission;
+        window.sessionStorage.setItem("authToken", token);
+        onSuccess(teamName);
+      } catch (e) {
+        setTeamNameError("Ya existe un equipo con ese nombre");
+      }
+    }
+  };
+
+  const onContinueClick = async () => {
+    if (!teamName) {
+      setTeamNameError("Debes escribir un nombre de equipo");
+    } else {
+      try {
         const { data } = await login({
           variables: {
             studentNick: teamName,
@@ -51,10 +76,15 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
         });
         const { token } = data.loginSubmission;
         window.sessionStorage.setItem("authToken", token);
-        onSuccess();
+        onSuccess(teamName);
       } catch (e) {
-        if (step === Steps.Start) {
-          setTeamNameError("Ya existe un equipo con ese nombre");
+        const submissionNotFound = (e.graphQLErrors || []).some(
+          ({ path, extensions }) =>
+            extensions && extensions.code === "SUBMISSION_NOT_FOUND"
+        );
+
+        if (submissionNotFound) {
+          setTeamNameError("No existe un equipo con ese nombre");
         } else {
           setPasswordError("La contraseña no es correcta");
         }
@@ -84,7 +114,12 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
     );
   } else {
     return (
-      <Modal isOpen={true} title={step === Steps.Start ? "Empezar una entrega" : "Continuar una entrega"}>
+      <Modal
+        isOpen={true}
+        title={
+          step === Steps.Start ? "Empezar una entrega" : "Continuar una entrega"
+        }
+      >
         <ModalContent>
           <LoginForm>
             <FormGroup>
@@ -111,14 +146,20 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
               />
             </FormGroup>
           </LoginForm>
-          {(teamNameError || passwordError) &&
+          {(teamNameError || passwordError) && (
             <Error>{teamNameError || passwordError}</Error>
-          }
+          )}
           <Buttons>
             <Button tertiary onClick={() => gotoStep(Steps.StartOrContinue)}>
               Atrás
             </Button>
-            <Button onClick={() => onStartClick()}>Empezar</Button>
+            <Button
+              onClick={() =>
+                step === Steps.Start ? onStartClick() : onContinueClick()
+              }
+            >
+              Empezar
+            </Button>
           </Buttons>
         </ModalContent>
       </Modal>

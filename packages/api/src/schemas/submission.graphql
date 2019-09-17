@@ -18,6 +18,11 @@ type Query {
     @authRequired(requires: [USER])
 }
 type Mutation {
+  startSubmission(
+    exerciseCode: String!
+    studentNick: String!
+    password: String!
+  ): loginOut
   loginSubmission(
     exerciseCode: String!
     studentNick: String!

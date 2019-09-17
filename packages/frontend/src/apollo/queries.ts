@@ -196,6 +196,24 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const START_SUBMISSION_MUTATION = gql`
+  mutation StartSubmission(
+    $studentNick: String!
+    $exerciseCode: String!
+    $password: String!
+  ) {
+    startSubmission(
+      studentNick: $studentNick
+      exerciseCode: $exerciseCode
+      password: $password
+    ) {
+      token
+      exerciseID
+      type
+    }
+  }
+`;
+
 export const LOGIN_SUBMISSION_MUTATION = gql`
   mutation LoginSubmission(
     $studentNick: String!
