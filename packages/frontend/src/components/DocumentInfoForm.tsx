@@ -30,8 +30,8 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
               <Input
                 value={title || (titleFocused ? "" : "Documento sin título")}
                 placeholder="Nombre del documento"
-    onFocus={() => setTitleFocused(true)}
-    onBlur={() => setTitleFocused(false)}
+                onFocus={() => setTitleFocused(true)}
+                onBlur={() => setTitleFocused(false)}
                 onChange={e => {
                   onChange({ title: e.target.value, description });
                 }}
@@ -49,7 +49,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
                 onChange={e => {
                   onChange({ title, description: e.target.value });
                 }}
-    rows={3}
+                rows={3}
               />
             </FormInput>
           </FormRow>
