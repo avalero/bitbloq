@@ -90,7 +90,7 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Header>
         <Link to="/app">Mis documentos &gt;</Link>
-        {document.title}
+        {document.title || "Documento sin título"}
       </Header>
     );
   }
@@ -101,7 +101,7 @@ class Document extends React.Component<any, DocumentState> {
         <DocumentImage src={document.image} />
         <div>
           <DocumentTypeTag document={document} />
-          <DocumentTitle>{document.title}</DocumentTitle>
+          <DocumentTitle>{document.title || "Documento sin título"}</DocumentTitle>
           <DocumentDescription>{document.description}</DocumentDescription>
           <Buttons>
             <Button

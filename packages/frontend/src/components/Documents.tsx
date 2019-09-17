@@ -183,7 +183,7 @@ class Documents extends React.Component<any, DocumentsState> {
                         <DocumentImage src={document.image} />
                         <DocumentInfo>
                           <DocumentTypeTag small document={document} />
-                          <DocumentTitle>{document.title}</DocumentTitle>
+                          <DocumentTitle>{document.title || "Documento sin título"}</DocumentTitle>
                         </DocumentInfo>
                         <DeleteDocument
                           onClick={e => this.onDocumentDeleteClick(e, document)}
