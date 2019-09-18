@@ -317,7 +317,12 @@ export default class NavigationBox {
     x: number,
     y: number
   ): THREE.Mesh | undefined => {
-    const { left, top, width, height } = this.container!.getBoundingClientRect();
+    const {
+      left,
+      top,
+      width,
+      height
+    } = this.container!.getBoundingClientRect();
     const mousePosition = new THREE.Vector2();
     mousePosition.x = ((x - left) / width) * 2 - 1;
     mousePosition.y = -((y - top) / height) * 2 + 1;

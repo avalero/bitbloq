@@ -10,13 +10,13 @@
  * Last modified  : 2019-01-18 20:00:14
  */
 
-import * as THREE from 'three';
-import ThreeBSP from './threeCSG';
+import * as THREE from "three";
+import ThreeBSP from "./threeCSG";
 
 export default Worker;
 
 // Be sure we are not withing a node execution
-if (!(typeof module !== 'undefined' && module.exports)) {
+if (!(typeof module !== "undefined" && module.exports)) {
   const ctx: Worker = self as any;
 
   const getUnionFromGeometries = (
@@ -59,7 +59,7 @@ if (!(typeof module !== 'undefined' && module.exports)) {
   };
 
   ctx.addEventListener(
-    'message',
+    "message",
     e => {
       const geometries: THREE.Geometry[] = [];
       const bufferArray = e.data.bufferArray;
@@ -127,11 +127,11 @@ if (!(typeof module !== 'undefined' && module.exports)) {
 
           const buffGeometry = new THREE.BufferGeometry();
           buffGeometry.addAttribute(
-            'position',
+            "position",
             new THREE.BufferAttribute(_vertices, 3)
           );
           buffGeometry.addAttribute(
-            'normal',
+            "normal",
             new THREE.BufferAttribute(_normals, 3)
           );
           const objectGeometry: THREE.Geometry = new THREE.Geometry().fromBufferGeometry(
@@ -172,15 +172,15 @@ if (!(typeof module !== 'undefined' && module.exports)) {
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
       try {
-        if (e.data.type === 'Union') {
+        if (e.data.type === "Union") {
           geometry = getUnionFromGeometries(geometries);
-        } else if (e.data.type === 'Difference') {
+        } else if (e.data.type === "Difference") {
           geometry = getDifferenceFromGeometries(geometries);
-        } else if (e.data.type === 'Intersection') {
+        } else if (e.data.type === "Intersection") {
           geometry = getIntersectionFromGeometries(geometries);
         } else {
           const postMessage = {
-            status: 'error',
+            status: "error"
           };
           ctx.postMessage(postMessage);
         }
@@ -189,45 +189,45 @@ if (!(typeof module !== 'undefined' && module.exports)) {
           new THREE.BoxGeometry(1, 1, 1)
         );
         const _vertices = new Float32Array(
-          buffGeom.getAttribute('position').array
+          buffGeom.getAttribute("position").array
         );
         const _normals = new Float32Array(
-          buffGeom.getAttribute('normal').array
+          buffGeom.getAttribute("normal").array
         );
 
         const _message = {
           vertices: _vertices,
           normals: _normals,
-          status: 'invisible',
+          status: "invisible"
         };
 
         ctx.postMessage(_message, [
           _message.vertices.buffer,
-          _message.normals.buffer,
+          _message.normals.buffer
         ]);
       }
 
       if (geometry.vertices.length === 0) {
-        console.info('Empty Geometry');
+        console.info("Empty Geometry");
         const buffGeom = new THREE.BufferGeometry().fromGeometry(
           new THREE.BoxGeometry(1, 1, 1)
         );
         const _vertices = new Float32Array(
-          buffGeom.getAttribute('position').array
+          buffGeom.getAttribute("position").array
         );
         const _normals = new Float32Array(
-          buffGeom.getAttribute('normal').array
+          buffGeom.getAttribute("normal").array
         );
 
         const _message = {
           vertices: _vertices,
           normals: _normals,
-          status: 'invisible',
+          status: "invisible"
         };
 
         ctx.postMessage(_message, [
           _message.vertices.buffer,
-          _message.normals.buffer,
+          _message.normals.buffer
         ]);
       }
 
@@ -260,19 +260,19 @@ if (!(typeof module !== 'undefined' && module.exports)) {
         geometry
       );
       const vertices = new Float32Array(
-        bufferGeom.getAttribute('position').array
+        bufferGeom.getAttribute("position").array
       );
-      const normals = new Float32Array(bufferGeom.getAttribute('normal').array);
+      const normals = new Float32Array(bufferGeom.getAttribute("normal").array);
 
       const message = {
         vertices,
         normals,
-        status: 'ok',
+        status: "ok"
       };
 
       ctx.postMessage(message, [
         message.vertices.buffer,
-        message.normals.buffer,
+        message.normals.buffer
       ]);
     },
 
