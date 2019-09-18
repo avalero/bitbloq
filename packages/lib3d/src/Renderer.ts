@@ -87,33 +87,33 @@ export default class Renderer {
   }
 
   public async updateScene(): Promise<void> {
-    try{
-    // objects in transition
-    const newObjectInTranstion:
-      | THREE.Group
-      | undefined = await this.scene.getObjectInTransitionAsync();
-    if (newObjectInTranstion) {
+    try {
+      // objects in transition
+      const newObjectInTranstion:
+        | THREE.Group
+        | undefined = await this.scene.getObjectInTransitionAsync();
+      if (newObjectInTranstion) {
+        if (this.objectInTransition) {
+          this.threeScene.remove(this.objectInTransition);
+        }
+        this.objectInTransition = newObjectInTranstion;
+        this.threeScene.add(this.objectInTransition);
+      }
+
+      // set objects
+      const newObjectsGroup = await this.scene.getObjectsAsync();
+
+      this.threeScene.remove(this.objectsGroup);
       if (this.objectInTransition) {
         this.threeScene.remove(this.objectInTransition);
+        (this.objectInTransition as any) = undefined;
       }
-      this.objectInTransition = newObjectInTranstion;
-      this.threeScene.add(this.objectInTransition);
+
+      this.threeScene.add(newObjectsGroup);
+      this.objectsGroup = newObjectsGroup;
+    } catch (e) {
+      console.log(e);
     }
-
-    // set objects
-    const newObjectsGroup = await this.scene.getObjectsAsync();
-
-    this.threeScene.remove(this.objectsGroup);
-    if (this.objectInTransition) {
-      this.threeScene.remove(this.objectInTransition);
-      (this.objectInTransition as any) = undefined;
-    }
-
-    this.threeScene.add(newObjectsGroup);
-    this.objectsGroup = newObjectsGroup;
-  }catch(e){
-    console.log(e);
-  }
   }
 
   public setScene(scene: Scene) {

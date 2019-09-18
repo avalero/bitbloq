@@ -224,7 +224,6 @@ export default class Scene {
 
   // Deshace la última operación y devuelve la escena después de deshacer
   public undo(): ISceneJSON {
-    debugger;
     if (this.canUndo()) {
       this.historyIndex -= 1;
       // there was only one operation, so, clear de scene
@@ -646,7 +645,6 @@ export default class Scene {
    * UPDATES HISTORY
    */
   public undoObject(json: IObjectsCommonJSON): ISceneJSON {
-    debugger;
     switch (json.type) {
       case RepetitionObject.typeName:
         this.undoRepetition(json as IRepetitionObjectJSON);
