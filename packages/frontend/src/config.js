@@ -57,14 +57,14 @@ export const documentTypes = {
     editorComponent: ThreeDEditor,
   },
   apps: {
-    label: 'Apps para móviles',
-    shortLabel: 'Apps móviles',
+    label: 'Apps',
+    shortLabel: 'Apps',
     color: colors.brandYellow,
     buttonType: 'yellow',
     icon: 'logo-apps',
     level: 'Avanzado',
     landingText:
-      'Empieza a diseñar y programar tus propias apps para Android® e iOS®.',
+      'Empieza a diseñar y programar tus propias apps para Android®, iOS® o PC.',
     supported: false,
   },
 };
