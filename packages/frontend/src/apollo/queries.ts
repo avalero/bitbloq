@@ -41,7 +41,7 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
 `;
 
 export const DOCUMENTS_QUERY = gql`
-  query {
+  query Documents {
     documents {
       id
       type
@@ -193,6 +193,12 @@ export const PUBLISH_DOCUMENT_MUTATION = gql`
 export const LOGIN_MUTATION = gql`
   mutation Login($email: EmailAddress!, $password: String!) {
     login(email: $email, password: $password)
+  }
+`;
+
+export const RENEW_TOKEN_MUTATION = gql`
+  mutation RenewToken {
+    renewToken
   }
 `;
 

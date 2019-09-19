@@ -15,7 +15,7 @@ const AppHeader = () => {
     <Container>
       <Logo src={logoBetaImage} alt="Bitbloq" />
       <UserContainer>
-        <UserName>{userData.name}</UserName>
+        <UserName>{userData && userData.name}</UserName>
         <DropDown>
           {(isOpen: boolean) => (
             <ContextButton isOpen={isOpen}>

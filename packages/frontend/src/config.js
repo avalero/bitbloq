@@ -69,4 +69,26 @@ export const documentTypes = {
   },
 };
 
+const defaultFlags = {
+  RENEW_TOKEN_SECONDS: 60,
+  TOKEN_DURATION_MINUTES: 60,
+  TOKEN_WARNING_SECONDS: 300,
+  SHOW_GRAPHQL_LOGS: false
+};
+
+let savedFlags = {};
+if (typeof window !== `undefined`) {
+  const savedFlagsString = window.localStorage.getItem("flags");
+  if (savedFlagsString) {
+    try {
+      savedFlags = JSON.parse(savedFlagsString);
+    } catch (e) {}
+  }
+}
+
+export const flags = {
+  ...defaultFlags,
+  ...savedFlags
+};
+
 export const maxSTLFileSize = 5242880;

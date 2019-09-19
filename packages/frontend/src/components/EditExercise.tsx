@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
+import { navigate } from "gatsby";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
-import debounce from "lodash.debounce";
+import debounce from "lodash/debounce";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import {
@@ -23,6 +24,8 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
+import { useSessionEvent, setToken } from "../lib/session";
+import SessionWarningModal from "./SessionWarningModal";
 
 const EditExercise = ({ type, id, t }) => {
   const documentType = documentTypes[type];
@@ -42,13 +45,31 @@ const EditExercise = ({ type, id, t }) => {
   const { data, loading, error } = useQuery(EXERCISE_QUERY, {
     variables: { id }
   });
-  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
-  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
+  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION, {
+    context: { tempSession: "exercise-team" }
+  });
+  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION, {
+    context: { tempSession: "exercise-team" }
+  });
 
   const [submissionContent, setSubmissionContent] = useState([]);
   const currentContent = useRef([]);
 
   const client = useApolloClient();
+
+  useEffect(() => {
+    setToken("", "exercise-team");
+  }, []);
+
+  useSessionEvent(
+    "expired",
+    () => {
+      setToken("", "exercise-team");
+      client.resetStore();
+      navigate("/");
+    },
+    "exercise-team"
+  );
 
   useEffect(() => {
     if (!loginVisible) {
@@ -72,7 +93,8 @@ const EditExercise = ({ type, id, t }) => {
 
   const loadSubmission = async () => {
     const { data } = await client.query({
-      query: STUDENT_SUBMISSION_QUERY
+      query: STUDENT_SUBMISSION_QUERY,
+      context: { tempSession: "exercise-team" }
     });
     try {
       const content = JSON.parse(data.submission.content);
@@ -191,13 +213,13 @@ const EditExercise = ({ type, id, t }) => {
           }}
         />
       )}
-      {isSaveCopyVisible &&
+      {isSaveCopyVisible && (
         <SaveCopyModal
           onClose={() => setIsSaveCopyVisible(false)}
           document={exercise}
           content={currentContent.current}
         />
-      }
+      )}
       <DialogModal
         isOpen={isRestartModalVisible}
         title="Aviso"
@@ -207,6 +229,7 @@ const EditExercise = ({ type, id, t }) => {
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />
+      <SessionWarningModal tempSession="exercise-team" />
     </>
   );
 };

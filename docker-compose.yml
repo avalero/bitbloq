@@ -47,7 +47,7 @@ services:
       - GOOGLE_APPLICATION_CREDENTIALS=/google-application-credentials.json
       - REDIS_DOMAIN_NAME=redis
       - REDIS_PORT_NUMBER=6379
-      - USE_REDIS=false
+      - USE_REDIS=true
     depends_on:
       - mongodb
       - redis

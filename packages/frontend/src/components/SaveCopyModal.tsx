@@ -42,7 +42,6 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) =
           content: JSON.stringify(content)
         },
         context: {
-          disableAuthRedirect: true,
           email,
           password
         },
