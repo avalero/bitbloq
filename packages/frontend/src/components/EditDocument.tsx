@@ -17,7 +17,7 @@ import {
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 
-import debounce from "lodash.debounce";
+import debounce from "lodash/debounce";
 
 interface EditDocumentProps {
   id: string;

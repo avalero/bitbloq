@@ -10,10 +10,17 @@ import {
   setAdvancedMode,
 } from '../../actions/threed';
 
+let advancedMode;
+if (typeof window !== `undefined`) {
+  advancedMode = JSON.parse(window.sessionStorage.getItem('advancedMode'));
+} else {
+  advancedMode = false;
+}
+
 const initialState = {
   selectedIds: [],
   activeOperation: null,
-  advancedMode: JSON.parse(sessionStorage.getItem('advancedMode')) || false,
+  advancedMode
 };
 
 const ui = handleActions(

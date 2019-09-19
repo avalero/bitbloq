@@ -5,6 +5,7 @@ import { navigate, Link } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
 import AccessLayout from "../components/AccessLayout";
 import { LOGIN_MUTATION } from "../apollo/queries";
+import { setToken } from "../lib/session";
 
 const LoginPage: FC = () => {
   const [email, setEmail] = useState("");
@@ -27,8 +28,7 @@ const LoginPage: FC = () => {
   };
 
   const onLoginSuccess = (token: string) => {
-    window.sessionStorage.setItem("authToken", "");
-    window.localStorage.setItem("authToken", token);
+    setToken(token);
     navigate("/app");
   };
 

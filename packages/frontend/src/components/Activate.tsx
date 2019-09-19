@@ -4,6 +4,7 @@ import { navigate } from "gatsby";
 import { Mutation } from "react-apollo";
 import { Spinner } from '@bitbloq/ui';
 import gql from "graphql-tag";
+import { setToken } from "../lib/session";
 
 const ACTIVATE_ACCOUNT_MUTATION = gql`
   mutation ActivateAccount($token: String!) {
@@ -30,7 +31,7 @@ export default () =>
   <Mutation
     mutation={ACTIVATE_ACCOUNT_MUTATION}
     onCompleted={({ activateAccount: token }) => {
-      window.localStorage.setItem("authToken", token);
+      setToken(token);
       navigate("/app");
     }}
   >

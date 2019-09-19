@@ -6,7 +6,11 @@ import { Global } from "@emotion/core";
 import { TranslateProvider, Spinner, colors, baseStyles } from "@bitbloq/ui";
 import { UserDataProvider } from "../lib/useUserData";
 import SEO from "../components/SEO";
+import SessionWarningModal from "../components/SessionWarningModal";
+import FlagsModal from "../components/FlagsModal";
 import { documentTypes } from "../config";
+import { useSessionEvent, setToken } from "../lib/session";
+import useLogout from "../lib/useLogout";
 
 const Activate = React.lazy(() => import("../components/Activate"));
 const Documents = React.lazy(() => import("../components/Documents"));
@@ -28,15 +32,35 @@ const messagesFiles = {
 const Route = ({
   component: Component,
   type = "",
-  authenticated = false,
+  requiresSession = false,
   ...rest
-}) => (
-  <Suspense fallback={<Loading type={type} />}>
-    <UserDataProvider authRequired={authenticated}>
-      <Component {...rest} type={type} />
-    </UserDataProvider>
-  </Suspense>
-);
+}) => {
+  const logout = useLogout();
+
+  useSessionEvent("error", () => {
+    if (requiresSession) {
+      logout();
+    }
+  });
+
+  useSessionEvent("expired", () => {
+    setToken("");
+    if (requiresSession) {
+      logout();
+    }
+  });
+
+  return (
+    <Suspense fallback={<Loading type={type} />}>
+      <UserDataProvider>
+        <Component {...rest} type={type} />
+      </UserDataProvider>
+      {requiresSession &&
+        <SessionWarningModal />
+      }
+    </Suspense>
+  );
+};
 
 const AppPage = () => (
   <>
@@ -45,13 +69,12 @@ const AppPage = () => (
     <NoSSR>
       <TranslateProvider messagesFiles={messagesFiles}>
         <Router>
-          <Route path="app" component={Documents} authenticated />
-          <Route path="/app/document/:id" component={Document} authenticated />
-          <Route path="/app/document/:id" component={Document} authenticated />
+          <Route path="app" component={Documents} requiresSession />
+          <Route path="/app/document/:id" component={Document} requiresSession />
           <Route
             path="/app/document/:type/:id"
             component={EditDocument}
-            authenticated
+            requiresSession
           />
           <Route
             path="/app/public-document/:type/:id"
@@ -61,7 +84,7 @@ const AppPage = () => (
           <Route
             path="/app/submission/:type/:id"
             component={ViewSubmission}
-            authenticated
+            requiresSession
           />
           <Route path="/app/playground/:type" component={Playground} />
           <Route
@@ -72,6 +95,7 @@ const AppPage = () => (
           <Route path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>
+      <FlagsModal />
     </NoSSR>
   </>
 );

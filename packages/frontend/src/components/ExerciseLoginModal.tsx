@@ -6,6 +6,7 @@ import {
   START_SUBMISSION_MUTATION,
   LOGIN_SUBMISSION_MUTATION
 } from "../apollo/queries";
+import { setToken } from "../lib/session";
 
 enum Steps {
   StartOrContinue,
@@ -29,11 +30,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
   const [passwordError, setPasswordError] = useState("");
 
   const [start] = useMutation(START_SUBMISSION_MUTATION);
-  const [login] = useMutation(LOGIN_SUBMISSION_MUTATION, {
-    context: {
-      disableAuthRedirect: true
-    }
-  });
+  const [login] = useMutation(LOGIN_SUBMISSION_MUTATION);
 
   const gotoStep = (step: Steps) => {
     setTeamName("");
@@ -54,7 +51,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
           }
         });
         const { token } = data.startSubmission;
-        window.sessionStorage.setItem("authToken", token);
+        setToken(token, "exercise-team");
         onSuccess(teamName);
       } catch (e) {
         setTeamNameError("Ya existe un equipo con ese nombre");
@@ -75,7 +72,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
           }
         });
         const { token } = data.loginSubmission;
-        window.sessionStorage.setItem("authToken", token);
+        setToken(token, "exercise-team");
         onSuccess(teamName);
       } catch (e) {
         const submissionNotFound = (e.graphQLErrors || []).some(

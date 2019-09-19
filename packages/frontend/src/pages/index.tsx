@@ -23,9 +23,7 @@ import studentStep2Image from "../images/student-step-2.svg";
 import heroImage from "../images/home_beta-decoration.svg";
 
 const IndexPage: FC = () => {
-  const { data } = useQuery(ME_QUERY, {
-    context: { disableAuthRedirect: true }
-  });
+  const { data } = useQuery(ME_QUERY);
   const client = useApolloClient();
 
   const [exerciseCode, setExerciseCode] = useState("");
