@@ -122,7 +122,7 @@ const IndexPage: FC = () => {
                   onClick={() => onOpenExercise()}
                   disabled={loadingExercise}
                 >
-                  Ir a ejercicio
+                  Ir al ejercicio
                 </HeaderButton>
               </ExerciseForm>
             </ExerciseDropDown>
