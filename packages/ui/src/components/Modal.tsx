@@ -1,70 +1,90 @@
-import * as React from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import Icon from "./Icon";
 import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
-interface ModalProps {
+export interface ModalProps {
   isOpen: boolean;
   title?: string;
   showHeader: boolean;
-  onClose: () => void;
+  onClose?: () => void;
+  transparentOverlay?: boolean;
 }
 
-export default class Modal extends React.Component<ModalProps> {
-  static defaultProps: Partial<ModalProps> = {
-    isOpen: false,
-    showHeader: true
-  };
-
-  render() {
-    const { isOpen, title, onClose, children, showHeader } = this.props;
-
-    if (!isOpen) return false;
-
-    return (
-      <Overlay onClick={onClose}>
-        <Container onClick={e => e.stopPropagation()}>
-          {showHeader && (
-            <>
-              <Header>
-                <Title>{title}</Title>
-                {onClose && (
-                  <Close onClick={onClose}>
-                    <Icon name="close" />
-                  </Close>
-                )}
-              </Header>
-              <HorizontalRule small />
-            </>
-          )}
-          <div>{children}</div>
-        </Container>
-      </Overlay>
-    );
+const Modal: FC<ModalProps> = ({
+  isOpen,
+  title,
+  showHeader,
+  onClose,
+  transparentOverlay,
+  children
+}) => {
+  if (!isOpen) {
+    return null;
   }
-}
+
+  return (
+    <Overlay onClick={onClose} transparent={transparentOverlay}>
+      <Container
+        onClick={e => e.stopPropagation()}
+        withShadow={transparentOverlay}
+      >
+        {showHeader && (
+          <>
+            <Header>
+              <Title>{title}</Title>
+              {onClose && (
+                <Close onClick={onClose}>
+                  <Icon name="close" />
+                </Close>
+              )}
+            </Header>
+            <HorizontalRule small />
+          </>
+        )}
+        <div>{children}</div>
+      </Container>
+    </Overlay>
+  );
+};
+
+Modal.defaultProps = {
+  isOpen: false,
+  showHeader: true
+};
+
+export default Modal;
 
 /* styled components */
 
-const Overlay = styled.div`
+interface OverlayProps {
+  transparent?: boolean;
+}
+const Overlay = styled.div<OverlayProps>`
   position: fixed;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
   z-index: 20;
-  background: rgba(0, 0, 0, 0.4);
+  background: ${props =>
+    props.transparent ? "transparent" : "rgba(0, 0, 0, 0.4)"};
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-const Container = styled.div`
+interface ContainerProps {
+  withShadow?: boolean;
+}
+const Container = styled.div<ContainerProps>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
   background-color: white;
+  box-shadow: ${props =>
+    props.withShadow ? "0 10px 40px 0 rgba(0, 0, 0, 0.1)" : "none"};
 `;
 
 const Header = styled.div`

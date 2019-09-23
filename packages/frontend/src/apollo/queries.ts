@@ -202,6 +202,18 @@ export const RENEW_TOKEN_MUTATION = gql`
   }
 `;
 
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($email: EmailAddress!) {
+    resetPasswordEmail(email: $email)
+  }
+`;
+
+export const UPDATE_PASSWORD_MUTATION = gql`
+  mutation UpdatePassword($token: String, $newPassword: String) {
+    updatePassword(token: $token, newPassword: $newPassword)
+  }
+`;
+
 export const START_SUBMISSION_MUTATION = gql`
   mutation StartSubmission(
     $studentNick: String!

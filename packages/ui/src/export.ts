@@ -3,7 +3,7 @@ import Icon from "./components/Icon";
 import Input from "./components/Input";
 import Select from "./components/Select";
 import ColorPicker from "./components/ColorPicker";
-import DialogModal from "./components/DialogModal";
+import DialogModal, { DialogModalProps } from "./components/DialogModal";
 import DropDown from "./components/DropDown";
 import Checkbox from "./components/Checkbox";
 import Tooltip from "./components/Tooltip";
@@ -34,6 +34,7 @@ export {
   Select,
   ColorPicker,
   DialogModal,
+  DialogModalProps,
   DropDown,
   Checkbox,
   Tooltip,
