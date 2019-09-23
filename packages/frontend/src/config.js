@@ -53,7 +53,7 @@ export const documentTypes = {
     icon: 'logo-3d',
     level: 'Medio',
     landingText:
-      'Descubre las tres dimensiones, aprende geometría y convierte tus ideas en diseños 3D.',
+      'Descubre las tres dimensiones, aprende geometría y convierte tus ideas en diseños.',
     editorComponent: ThreeDEditor,
   },
   apps: {
@@ -73,12 +73,12 @@ const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
   TOKEN_DURATION_MINUTES: 60,
   TOKEN_WARNING_SECONDS: 300,
-  SHOW_GRAPHQL_LOGS: false
+  SHOW_GRAPHQL_LOGS: false,
 };
 
 let savedFlags = {};
 if (typeof window !== `undefined`) {
-  const savedFlagsString = window.localStorage.getItem("flags");
+  const savedFlagsString = window.localStorage.getItem('flags');
   if (savedFlagsString) {
     try {
       savedFlags = JSON.parse(savedFlagsString);
@@ -88,7 +88,7 @@ if (typeof window !== `undefined`) {
 
 export const flags = {
   ...defaultFlags,
-  ...savedFlags
+  ...savedFlags,
 };
 
 export const maxSTLFileSize = 5242880;
