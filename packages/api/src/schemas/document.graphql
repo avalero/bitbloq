@@ -5,13 +5,6 @@
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
-enum Role {
-  ADMIN
-  USER
-  EPHEMERAL
-  BASIC
-}
-
 type Query {
   documents: [Document] @authRequired(requires: [ADMIN, USER])
   document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])

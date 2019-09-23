@@ -3,3 +3,13 @@ scalar JSON
 scalar ObjectID
 scalar EmailAddress
 scalar Upload
+
+
+enum Role {
+  USER
+  ADMIN
+  TEACHER
+  TEACHERPRO
+  STUDENT
+  FAMILY
+}

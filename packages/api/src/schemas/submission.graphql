@@ -1,14 +1,7 @@
-# import Date, ObjectID from "./scalars.graphql"
+# import Date, ObjectID, Role from "./scalars.graphql"
 # import Exercise from "./exercise.graphql"
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
-
-enum Role {
-  ADMIN
-  USER
-  EPHEMERAL
-  BASIC
-}
 
 type Query {
   submissions: [Submission] @authRequired(requires: [USER])
