@@ -94,7 +94,7 @@ const submissionResolver = {
         {
           exerciseID: exFather._id,
           submissionID: newSub._id,
-          role: "EPHEMERAL"
+          role: "stu-"
         },
         process.env.JWT_SECRET,
         { expiresIn: "3h" }
@@ -186,7 +186,7 @@ const submissionResolver = {
           {
             exerciseID: exFather._id,
             submissionID: existSubmission._id,
-            role: "EPHEMERAL"
+            role: "stu-"
           },
           process.env.JWT_SECRET,
           { expiresIn: "3h" }

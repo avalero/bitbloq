@@ -121,16 +121,30 @@ const contextController = {
   },
 
   generateLoginToken: async user => {
-    const token = await jsonwebtoken.sign(
+    let token: string, role: string;
+    let rolePerm :string = "usr-";
+    if(user.admin){
+      rolePerm = rolePerm.concat("admin-");
+    }
+    if(user.teacher){
+      rolePerm = rolePerm.concat("tchr-");
+    }
+    if(user.teacherPro){
+      rolePerm = rolePerm.concat("tchrPro-");
+    }
+    if(user.family){
+      rolePerm = rolePerm.concat("fam-");
+    }
+    token = await jsonwebtoken.sign(
       {
         email: user.email,
         userID: user._id,
-        role: user.admin ? "ADMIN" : "USER"
+        role: rolePerm
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
-    const role = user.admin ? "admin" : "user";
+    role = rolePerm;
     return { token, role };
   },
 

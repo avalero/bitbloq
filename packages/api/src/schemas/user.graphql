@@ -6,7 +6,7 @@ directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 type Query {
   users: [User] @authRequired(requires: [ADMIN])
-  me: User @authRequired(requires: [ADMIN, USER])
+  me: User @authRequired(requires: [USER])
 }
 type Mutation {
   signUpUser(input: UserIn!): String
@@ -15,9 +15,9 @@ type Mutation {
   renewToken: String
   resetPasswordEmail(email: EmailAddress!): String
   updatePassword(token: String, newPassword: String): String
-  deleteUser(id: ObjectID!): User @authRequired(requires: [ADMIN, USER])
+  deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
   updateUser(id: ObjectID!, input: UserIn!): User
-    @authRequired(requires: [ADMIN, USER])
+    @authRequired(requires: [USER])
 }
 
 type User {

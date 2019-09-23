@@ -140,6 +140,7 @@ const userResolver = {
           contactFound._id,
           ""
         );
+        console.log({token, role})
         await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
