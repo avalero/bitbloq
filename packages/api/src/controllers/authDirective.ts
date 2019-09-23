@@ -42,25 +42,20 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         } else {
           let passed: boolean = false;
           for (let roleReq of requiredRole) {
-            if (roleReq === "USER" && context.user.role === "usr-") {
-              if (!context.user.userID) {
-                throw new AuthenticationError(
-                  "You need to be logged in as User 1"
-                );
-              }
+            if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (roleReq === "ADMIN" && context.user.role === "admin-") {
-              if (!context.user.userID) {
-                throw new AuthenticationError(
-                  "You need to be logged in as Admin"
-                );
-              }
+            }
+            if (
+              roleReq === "ADMIN" &&
+              context.user.role.indexOf("admin-") > -1
+            ) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (
+            }
+            if (
               roleReq === "STUDENT" &&
-              context.user.role === "stu-"
+              context.user.role.indexOf("stu-") > -1
             ) {
               if (!context.user.exerciseID) {
                 throw new AuthenticationError(
@@ -69,21 +64,24 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
               }
               passed = true;
               return resolve.apply(this, args);
-            } else if (
+            }
+            if (
               roleReq === "TEACHER" &&
-              context.user.role === "tchr-"
+              context.user.role.indexOf("tchr-") > -1
             ) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (
+            }
+            if (
               roleReq === "TEACHER_PRO" &&
-              context.user.role === "tchrPro-"
+              context.user.role.indexOf("tchrPro-") > -1
             ) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (
+            }
+            if (
               roleReq === "FAMILY" &&
-              context.user.role === "fam-"
+              context.user.role.indexOf("fam-") > -1
             ) {
               passed = true;
               return resolve.apply(this, args);

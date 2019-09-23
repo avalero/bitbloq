@@ -164,10 +164,7 @@ const exerciseResolver = {
         _id: args.id
       });
       if (!existExercise) {
-        throw new ApolloError(
-          "Exercise does not exist",
-          "EXERCISE_NOT_FOUND"
-        );
+        throw new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
       return existExercise;
     },
@@ -178,17 +175,14 @@ const exerciseResolver = {
      * args: exercise code.
      */
     exerciseByCode: async (root: any, args: any, context: any) => {
-        const existExercise: IExercise = await ExerciseModel.findOne({
-          code: args.code,
-        });
-        if (!existExercise) {
-          throw new ApolloError(
-            "Exercise does not exist",
-            "EXERCISE_NOT_FOUND"
-          );
-        }
-        return existExercise;
-    },    
+      const existExercise: IExercise = await ExerciseModel.findOne({
+        code: args.code
+      });
+      if (!existExercise) {
+        throw new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
+      }
+      return existExercise;
+    },
 
     /**
      * Exercises by document: returns all the exercises that depends on the document father ID passed in the arguments.

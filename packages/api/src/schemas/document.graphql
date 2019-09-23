@@ -11,8 +11,7 @@ type Query {
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
 }
 type Mutation {
-  createDocument(input: DocumentIn!): Document
-    @authRequired(requires: [USER])
+  createDocument(input: DocumentIn!): Document @authRequired(requires: [USER])
   deleteDocument(id: ObjectID!): Document @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
     @authRequired(requires: [USER])

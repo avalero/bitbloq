@@ -140,7 +140,7 @@ const userResolver = {
           contactFound._id,
           ""
         );
-        console.log({token, role})
+        console.log({ token, role });
         await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
@@ -152,12 +152,15 @@ const userResolver = {
      * renewToken: returns a new token for a logged user
      */
     renewToken: async (root: any, args: any, context: any) => {
+      console.log("renew token, api");
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
       }
 
-      const { data, token } = await contextController.generateNewToken(oldToken);
+      const { data, token } = await contextController.generateNewToken(
+        oldToken
+      );
       if (data.userID) {
         await storeTokenInRedis(`authToken-${data.userID}`, token);
       } else if (data.submissionID) {
@@ -394,20 +397,15 @@ const userResolver = {
 
 const storeTokenInRedis = (id: string, token: string) => {
   if (process.env.USE_REDIS === "true") {
-    return redisClient.set(
-      String(id),
-      token,
-      (err, reply) => {
-        if (err) {
-          throw new ApolloError(
-            "Error storing auth token in redis",
-            "REDIS_TOKEN_ERROR"
-          );
-        }
+    return redisClient.set(String(id), token, (err, reply) => {
+      if (err) {
+        throw new ApolloError(
+          "Error storing auth token in redis",
+          "REDIS_TOKEN_ERROR"
+        );
       }
-    );
+    });
   }
-}
-
+};
 
 export default userResolver;

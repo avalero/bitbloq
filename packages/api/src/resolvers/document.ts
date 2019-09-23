@@ -253,8 +253,7 @@ const documentResolver = {
           { new: true }
         );
       }
-    },
-
+    }
   },
   Query: {
     /**

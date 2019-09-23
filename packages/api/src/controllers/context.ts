@@ -55,22 +55,28 @@ const contextController = {
           return undefined;
         }
         // check if there is another open session
-        if (user.role === "USER") {
-          if (process.env.USE_REDIS === "true") {
-            return checkOtherSessionOpen(user, justToken);
-          }
-          return user;
-        } else if (user.role === "ADMIN") {
-          if (process.env.USE_REDIS === "true") {
-            return checkOtherSessionOpen(user, justToken);
-          }
-          return user;
-        } else if (user.submissionID) {
+        if (user.role.indexOf("usr-") > -1) {
           if (process.env.USE_REDIS === "true") {
             return checkOtherSessionOpen(user, justToken);
           }
           return user;
         }
+        //  else if (user.role.indexOf("tchr-")>-1) {
+        //   if (process.env.USE_REDIS === "true") {
+        //     return checkOtherSessionOpen(user, justToken);
+        //   }
+        //   return user;
+        // } else if (user.role.indexOf("admin-")>-1) {
+        //   if (process.env.USE_REDIS === "true") {
+        //     return checkOtherSessionOpen(user, justToken);
+        //   }
+        //   return user;
+        // } else if (user.submissionID) {
+        //   if (process.env.USE_REDIS === "true") {
+        //     return checkOtherSessionOpen(user, justToken);
+        //   }
+        //   return user;
+        // }
       }
     } else if (type === "Basic") {
       const data = await contextController.getDataInBasicAuth(justToken);
@@ -92,7 +98,7 @@ const contextController = {
         const userBas: IUserInToken = {
           email: contactFound.email,
           userID: contactFound._id,
-          role: "USER",
+          role: "usr-",
           submissionID: null
         };
         return userBas;
@@ -122,17 +128,17 @@ const contextController = {
 
   generateLoginToken: async user => {
     let token: string, role: string;
-    let rolePerm :string = "usr-";
-    if(user.admin){
+    let rolePerm: string = "usr-";
+    if (user.admin) {
       rolePerm = rolePerm.concat("admin-");
     }
-    if(user.teacher){
+    if (user.teacher) {
       rolePerm = rolePerm.concat("tchr-");
     }
-    if(user.teacherPro){
+    if (user.teacherPro) {
       rolePerm = rolePerm.concat("tchrPro-");
     }
-    if(user.family){
+    if (user.family) {
       rolePerm = rolePerm.concat("fam-");
     }
     token = await jsonwebtoken.sign(
@@ -151,7 +157,9 @@ const contextController = {
   generateNewToken: async oldToken => {
     const data = await contextController.getDataInToken(oldToken);
     delete data.exp;
-    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, {
+      expiresIn: "1h"
+    });
     return { data, token };
   }
 };
