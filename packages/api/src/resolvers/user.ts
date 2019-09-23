@@ -184,7 +184,7 @@ const userResolver = {
       console.log(token);
       // Generate the email with the activation link and send it
       const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/reset-password?token=${token}`
+        url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
       };
       const mjml = resetPasswordTemplate(data);
       const htmlMessage = mjml2html(mjml, {

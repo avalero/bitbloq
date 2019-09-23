@@ -68,7 +68,7 @@ const LoginPage: FC = () => {
         <Button secondary onClick={() => navigate("/signup")}>
           Crear una cuenta
         </Button>
-        <Link to="/recover-password">No recuerdo mi contraseña</Link>
+        <Link to="/forgot-password">No recuerdo mi contraseña</Link>
       </LoginPanel>
     </AccessLayout>
   );
@@ -77,8 +77,6 @@ const LoginPage: FC = () => {
 export default LoginPage;
 
 const LoginPanel = styled.div`
-  font-size: 14px;
-
   button {
     width: 100%;
     margin-bottom: 10px;
@@ -92,6 +90,7 @@ const LoginPanel = styled.div`
     text-align: center;
     display: block;
     text-decoration: none;
+    margin-top: 4px;
   }
 `;
 

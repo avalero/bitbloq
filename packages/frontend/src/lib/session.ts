@@ -18,7 +18,19 @@ const getSession = (tempSession?: string): Session | null => {
     ? window.sessionStorage.getItem(`session-${tempSession}`)
     : window.localStorage.getItem("session");
 
-  return sessionString ? JSON.parse(sessionString) : null;
+  if (!sessionString) {
+    return null;
+  }
+
+  const session = JSON.parse(sessionString);
+
+  if (Date.now() - session.time > TOKEN_DURATION_MINUTES * 60000) {
+    triggerEvent({ event: "expired", tempSession })
+    setSession({ token: "", time: 0 });
+    return null;
+  } else {
+    return session;
+  }
 };
 
 const setSession = (session?: Session, tempSession?: string) => {
@@ -92,9 +104,7 @@ setInterval(() => {
     if (session && session.token) {
       const elapsedSeconds = Math.floor((Date.now() - session.time) / 1000);
       const remainingSeconds = TOKEN_DURATION_MINUTES * 60 - elapsedSeconds;
-      if (remainingSeconds <= 0) {
-        listener.callback({ event: "expired" });
-      } else if (remainingSeconds < TOKEN_WARNING_SECONDS) {
+      if (remainingSeconds < TOKEN_WARNING_SECONDS) {
         listener.callback({ event: "expiration-warning", remainingSeconds });
       }
     }
