@@ -61,6 +61,12 @@ const contextController = {
           }
           return user;
         }
+        if (user.role.indexOf("stu-") > -1) {
+          if (process.env.USE_REDIS === "true") {
+            return checkOtherSessionOpen(user, justToken);
+          }
+          return user;
+        }
         //  else if (user.role.indexOf("tchr-")>-1) {
         //   if (process.env.USE_REDIS === "true") {
         //     return checkOtherSessionOpen(user, justToken);
