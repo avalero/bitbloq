@@ -228,7 +228,7 @@ const IndexPage: FC = () => {
               </OpenExerciseSteps>
             </OpenExerciseInfo>
             <OpenExercisePanel>
-              <OpenExercisePanelTitle>Ir a ejercicio</OpenExercisePanelTitle>
+              <OpenExercisePanelTitle>Ir al ejercicio</OpenExercisePanelTitle>
               <HorizontalRule small />
               <OpenExercisePanelContent>
                 <ExerciseForm>

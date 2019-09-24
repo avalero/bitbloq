@@ -58,6 +58,7 @@ export default class OperationHelper {
     }
 
     const parent = this.obj.getParent();
+
     if (parent instanceof RepetitionObject) {
       this.helperMesh = await new OperationHelper(
         parent,
@@ -67,11 +68,7 @@ export default class OperationHelper {
         this.operationID
       ).getHelperMeshAsync();
 
-      // this.helperMesh = await this.removeOperationsAsync(
-      //   this.helperMesh,
-      //   this.operationID,
-      //   this.obj.getOperations()
-      // );
+      
       return this.helperMesh;
     }
 
@@ -84,11 +81,7 @@ export default class OperationHelper {
         this.operationID
       ).getHelperMeshAsync();
 
-      // this.helperMesh = await this.removeOperationsAsync(
-      //   this.helperMesh,
-      //   this.operationID,
-      //   this.obj.getOperations()
-      // );
+      
       return this.helperMesh;
     }
 
