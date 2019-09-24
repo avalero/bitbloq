@@ -61,8 +61,7 @@ const ForgotPasswordPage: FC = ({ location }) => {
       size={AccessLayoutSize.MEDIUM}
     >
       <Text>
-        Escribe tu correo electrónico y te enviaremos un email con un enlace
-        para que puedas crear una nueva contraseña.
+        Ahora ya puedes escribir una nueva contraseña
       </Text>
       <FormGroup>
         <label>Nueva contraseña</label>
