@@ -45,7 +45,7 @@ const ForgotPasswordPage: FC = ({ location }) => {
         title="Contraseña cambiada"
         modalTitle="Contraseña cambiada"
         text={
-          "Tu contraseña se ha cambiado con exito, a partir de ahora " + 
+          "Tu contraseña se ha cambiado con éxito, a partir de ahora " + 
           "ya no podrás entrar con la anterior contraseña."
         }
         cancelText="Volver al inicio"
