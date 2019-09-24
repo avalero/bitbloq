@@ -52,6 +52,17 @@ export const DOCUMENTS_QUERY = gql`
   }
 `;
 
+export const EXAMPLES_QUERY = gql`
+  query Examples {
+    examples {
+      id
+      type
+      title
+      image
+    }
+  }
+`;
+
 export const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
     $type: String!

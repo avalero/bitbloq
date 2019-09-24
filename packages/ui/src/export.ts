@@ -34,7 +34,6 @@ export {
   Select,
   ColorPicker,
   DialogModal,
-  DialogModalProps,
   DropDown,
   Checkbox,
   Tooltip,
@@ -57,3 +56,5 @@ export {
   baseStyles,
   colors
 };
+
+export type DialogModalProps = DialogModalProps;

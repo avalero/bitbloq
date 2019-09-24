@@ -297,7 +297,15 @@ const documentResolver = {
         throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
       return existDocument;
-    }
+    },
+
+    /**
+     * Documents: returns all the documents of the user logged.
+     * args: nothing.
+     */
+    examples: async (root: any, args: any, context: any) => {
+      return DocumentModel.find({ example: true });
+    },
   },
 
   Document: {

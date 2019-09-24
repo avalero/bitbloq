@@ -24,7 +24,7 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { useSessionEvent, setToken } from "../lib/session";
+import { useSessionEvent, watchSession, setToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 
 const EditExercise = ({ type, id, t }) => {
@@ -59,6 +59,7 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     setToken("", "exercise-team");
+    watchSession("exercise-team");
   }, []);
 
   useSessionEvent(
