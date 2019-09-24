@@ -25,7 +25,7 @@ const getSession = (tempSession?: string): Session | null => {
   const session = JSON.parse(sessionString);
 
   if (Date.now() - session.time > TOKEN_DURATION_MINUTES * 60000) {
-    triggerEvent({ event: "expired", tempSession })
+    triggerEvent({ event: "expired", tempSession });
     setSession({ token: "", time: 0 });
     return null;
   } else {
@@ -68,9 +68,12 @@ interface SessionEvent {
 
 export type SessionCallback = (event: SessionEvent) => any;
 
-const channel = new BroadcastChannel('bitbloq-session');
+const channel =
+  typeof BroadcastChannel !== "undefined"
+    ? new BroadcastChannel("bitbloq-session")
+    : null;
 const triggerEvent = (event: SessionEvent) => {
-  channel.postMessage(event);
+  channel && channel.postMessage(event);
 };
 
 export const onSessionError = (error: any, tempSession?: string) => {
@@ -96,8 +99,8 @@ export const useSessionEvent = (
   tempSession?: string
 ) => {
   useEffect(() => {
-    const channel = new BroadcastChannel('bitbloq-session');
-    channel.onmessage = (e) => {
+    const channel = new BroadcastChannel("bitbloq-session");
+    channel.onmessage = e => {
       const event = e.data as SessionEvent;
       if (eventName === event.event) {
         callback(event);
