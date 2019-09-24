@@ -1,4 +1,4 @@
-# import Upload, ObjectID from "./scalars.graphql"
+# import Upload, Number, ObjectID from "./scalars.graphql"
 
 type File {
   id: ID!
@@ -6,6 +6,8 @@ type File {
   mimetype: String
   publicUrl: String
   document: ObjectID
+  size: Number
+  storageName: String
 }
 
 type Query {
