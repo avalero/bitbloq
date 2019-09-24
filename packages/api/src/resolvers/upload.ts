@@ -54,14 +54,18 @@ const uploadResolver = {
   Query: {
     uploads: () => UploadModel.find({}),
     getUserFiles: async (root: any, args: any, context: any) => {
+      //console.log(bucket)
       const [files] = await bucket.getFiles({
-        prefix: `/${bucketName}/${context.user.userID}`
+        prefix: `${context.user.userID}`
       });
       console.log("Files:");
-      files.forEach(file => {
-        console.log(file.name);
+      files.forEach(async file => {
+        await file.getMetadata().then(result => {
+          console.log(file.name);
+          console.log(result[0].size);
+        });
       });
-      return await UploadModel.find({ userID: context.user.userID });
+      return await UploadModel.find({ user: context.user.userID });
     }
   },
   Mutation: {
@@ -140,6 +144,17 @@ const uploadResolver = {
         user: context.user.userID
       });
       return UploadModel.create(uploadNew);
+    },
+    deleteUserFile: async (root: any, args: any, context: any) => {
+      if (args.filename) {
+        await bucket.file(`${context.user.userID}/${args.filename}`).delete();
+        return await UploadModel.deleteOne({
+          publicUrl: {
+            $regex: `${context.user.userID}/${args.filename}`,
+            $options: "i"
+          }
+        });
+      }
     }
   }
 };

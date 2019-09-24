@@ -19,4 +19,5 @@ type Mutation {
     @authRequired(requires: [USER])
   uploadImageFile(file: Upload!, documentID: ObjectID): File
     @authRequired(requires: [USER])
+  deleteUserFile(filename: String!): File @authRequired(requires: [USER])
 }
