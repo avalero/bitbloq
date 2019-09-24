@@ -128,7 +128,7 @@ const contextController = {
         role: user.admin ? "ADMIN" : "USER"
       },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1.1h" }
     );
     const role = user.admin ? "admin" : "user";
     return { token, role };
@@ -137,7 +137,7 @@ const contextController = {
   generateNewToken: async oldToken => {
     const data = await contextController.getDataInToken(oldToken);
     delete data.exp;
-    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, { expiresIn: "1.1h" });
     return { data, token };
   }
 };

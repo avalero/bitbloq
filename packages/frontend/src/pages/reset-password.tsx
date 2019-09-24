@@ -45,7 +45,7 @@ const ForgotPasswordPage: FC = ({ location }) => {
         title="Contraseña cambiada"
         modalTitle="Contraseña cambiada"
         text={
-          "Tu contraseña se ha cambiado con exito, a partir de ahora " + 
+          "Tu contraseña se ha cambiado con éxito, a partir de ahora " + 
           "ya no podrás entrar con la anterior contraseña."
         }
         cancelText="Volver al inicio"
@@ -61,8 +61,7 @@ const ForgotPasswordPage: FC = ({ location }) => {
       size={AccessLayoutSize.MEDIUM}
     >
       <Text>
-        Escribe tu correo electrónico y te enviaremos un email con un enlace
-        para que puedas crear una nueva contraseña.
+        Ahora ya puedes escribir una nueva contraseña
       </Text>
       <FormGroup>
         <label>Nueva contraseña</label>

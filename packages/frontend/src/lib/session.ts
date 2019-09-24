@@ -68,48 +68,27 @@ interface SessionEvent {
 
 export type SessionCallback = (event: SessionEvent) => any;
 
-interface SessionListener {
-  callback: SessionCallback;
-  tempSession?: string;
-}
-
-let listeners: SessionListener[] = [];
-
+const channel = new BroadcastChannel('bitbloq-session');
 const triggerEvent = (event: SessionEvent) => {
-  listeners.forEach(listener => {
-    if (listener.tempSession === event.tempSession) {
-      listener.callback(event);
-    }
-  });
+  channel.postMessage(event);
 };
 
 export const onSessionError = (error: any, tempSession?: string) => {
   triggerEvent({ event: "error", tempSession, error });
 };
 
-export const addSessionListener = (
-  callback: SessionCallback,
-  tempSession?: string
-) => {
-  listeners.push({ callback, tempSession });
-};
-
-export const removeSessionListener = (callback: SessionCallback) => {
-  listeners = listeners.filter(listener => listener.callback !== callback);
-};
-
-setInterval(() => {
-  listeners.forEach(listener => {
-    const session = getSession(listener.tempSession);
+export const watchSession = (tempSession?: string) => {
+  setInterval(() => {
+    const session = getSession(tempSession);
     if (session && session.token) {
       const elapsedSeconds = Math.floor((Date.now() - session.time) / 1000);
       const remainingSeconds = TOKEN_DURATION_MINUTES * 60 - elapsedSeconds;
       if (remainingSeconds < TOKEN_WARNING_SECONDS) {
-        listener.callback({ event: "expiration-warning", remainingSeconds });
+        triggerEvent({ event: "expiration-warning", remainingSeconds });
       }
     }
-  });
-}, CHECK_TOKEN_MS);
+  }, CHECK_TOKEN_MS);
+};
 
 export const useSessionEvent = (
   eventName: string,
@@ -117,16 +96,16 @@ export const useSessionEvent = (
   tempSession?: string
 ) => {
   useEffect(() => {
-    const handler: SessionCallback = event => {
-      if (event.event === eventName) {
+    const channel = new BroadcastChannel('bitbloq-session');
+    channel.onmessage = (e) => {
+      const event = e.data as SessionEvent;
+      if (eventName === event.event) {
         callback(event);
       }
     };
 
-    addSessionListener(handler, tempSession);
-
     return () => {
-      removeSessionListener(handler);
+      channel.close();
     };
   }, []);
 };

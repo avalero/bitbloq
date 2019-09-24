@@ -77,7 +77,7 @@ import LogoJunior from "./icons/LogoJunior";
 import LogoApps from "./icons/LogoApps";
 import LogoCode from "./icons/LogoCode";
 import HollowCylinder from "./icons/HollowCylinder";
-import Chtulhito from "./icons/Chtulhito";
+import Cthulhito from "./icons/Cthulhito";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -245,8 +245,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <LogoCode />;
     case "logo-apps":
       return <LogoApps />;
-    case "chtulhito":
-      return <Chtulhito />;
+    case "cthulhito":
+      return <Cthulhito />;
     default:
       console.warn("Icon not found");
       return null;

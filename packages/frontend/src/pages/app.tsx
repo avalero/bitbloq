@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import styled from "@emotion/styled";
 import NoSSR from "react-no-ssr";
 import { Router } from "@reach/router";
@@ -9,7 +9,7 @@ import SEO from "../components/SEO";
 import SessionWarningModal from "../components/SessionWarningModal";
 import FlagsModal from "../components/FlagsModal";
 import { documentTypes } from "../config";
-import { useSessionEvent, setToken } from "../lib/session";
+import { useSessionEvent, watchSession, setToken } from "../lib/session";
 import useLogout from "../lib/useLogout";
 
 const Activate = React.lazy(() => import("../components/Activate"));
@@ -36,6 +36,12 @@ const Route = ({
   ...rest
 }) => {
   const logout = useLogout();
+
+  useEffect(() => {
+    if (requiresSession) {
+      watchSession();
+    }
+  }, []);
 
   useSessionEvent("error", () => {
     if (requiresSession) {

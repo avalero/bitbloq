@@ -72,11 +72,11 @@ const FlagsModal: FC = () => {
   return (
     <Modal isOpen={isOpen} showHeader={false}>
       <Header>
-        <Icon name="chtulhito" />
+        <Icon name="cthulhito" />
       </Header>
       <HorizontalRule small />
       <Content>
-        <h2>Usa el poder de Chtulhito con sabiduría</h2>
+        <h2>Usa el poder de Cthulhito con sabiduría</h2>
         {flagFields.map(field => (
           <FormGroup key={field.key}>
             <label>{field.label}</label>
