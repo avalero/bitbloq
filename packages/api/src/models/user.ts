@@ -36,6 +36,21 @@ export const ContactSchema: Schema = new Schema({
     default: false
   },
 
+  teacher: {
+    type: Boolean,
+    default: false
+  },
+
+  teacherPro: {
+    type: Boolean,
+    default: false
+  },
+
+  family: {
+    type: Boolean,
+    default: false
+  },
+
   name: {
     type: String
   },

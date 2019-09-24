@@ -25,6 +25,9 @@ type User {
   email: EmailAddress
   password: String
   admin: Boolean
+  teacher: Boolean
+  teacherPro: Boolean
+  family: Boolean
   name: String
   center: String
   active: Boolean

@@ -52,7 +52,17 @@ function getPublicUrl(filename) {
 
 const uploadResolver = {
   Query: {
-    uploads: () => UploadModel.find({})
+    uploads: () => UploadModel.find({}),
+    getUserFiles: async (root: any, args: any, context: any) => {
+      const [files] = await bucket.getFiles({
+        prefix: `/${bucketName}/${context.user.userID}`
+      });
+      console.log("Files:");
+      files.forEach(file => {
+        console.log(file.name);
+      });
+      return await UploadModel.find({ userID: context.user.userID });
+    }
   },
   Mutation: {
     singleUpload: async (file, documentID, userID) => {

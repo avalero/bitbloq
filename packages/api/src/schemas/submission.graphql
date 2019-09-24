@@ -4,10 +4,11 @@
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 type Query {
-  submissions: [Submission] @authRequired(requires: [USER])
-  submission(id: ObjectID): Submission @authRequired(requires: [STUDENT, USER])
+  submissions: [Submission] @authRequired(requires: [TEACHER])
+  submission(id: ObjectID): Submission
+    @authRequired(requires: [STUDENT, TEACHER])
   submissionsByExercise(exercise: ObjectID!): [Submission]
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
 }
 type Mutation {
   startSubmission(
@@ -29,16 +30,16 @@ type Mutation {
   ): Submission @authRequired(requires: [STUDENT])
   cancelSubmission: Submission @authRequired(requires: [STUDENT])
   deleteSubmission(submissionID: ObjectID!): Submission
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
   gradeSubmission(
     submissionID: ObjectID
     grade: Float
     teacherComment: String
-  ): Submission @authRequired(requires: [USER])
+  ): Submission @authRequired(requires: [TEACHER])
 }
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
 }
 
 type Submission {
