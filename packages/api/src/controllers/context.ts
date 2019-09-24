@@ -133,7 +133,6 @@ const contextController = {
   },
 
   generateLoginToken: async user => {
-    console.log(user);
     let token: string, role: string;
     let rolePerm: string = "usr-";
     if (user.admin) {
