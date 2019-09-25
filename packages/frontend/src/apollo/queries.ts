@@ -213,6 +213,12 @@ export const RENEW_TOKEN_MUTATION = gql`
   }
 `;
 
+export const CHECK_RESET_PASSWORD_TOKEN_MUTATION = gql`
+  mutation CheckResetPasswordToken($token: String) {
+    checkResetPasswordToken(token: $token)
+  }
+`;
+
 export const RESET_PASSWORD_MUTATION = gql`
   mutation ResetPassword($email: EmailAddress!) {
     resetPasswordEmail(email: $email)
