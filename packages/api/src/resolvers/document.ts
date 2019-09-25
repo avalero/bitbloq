@@ -240,6 +240,13 @@ const documentResolver = {
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
+      if (args.example && !args.public) {
+        return new ApolloError(
+          "Example documents must be also public",
+          "EXAMPLE_DOCUMENT_MUST_BE_PUBLIC"
+        );
+      }
+
       if (args.public) {
         return await DocumentModel.findOneAndUpdate(
           { _id: docFound._id },
