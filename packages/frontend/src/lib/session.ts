@@ -55,7 +55,8 @@ export const setToken = (token: string, tempSession?: string) => {
 export const shouldRenewToken = (tempSession?: string): boolean => {
   const session = getSession(tempSession);
   return session
-    ? Date.now() - session.time > RENEW_TOKEN_SECONDS * 1000
+    ? Date.now() - session.time > RENEW_TOKEN_SECONDS * 1000 &&
+        Date.now() - session.time < TOKEN_DURATION_MINUTES * 60000
     : false;
 };
 

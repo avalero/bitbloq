@@ -30,6 +30,7 @@ const request = async (operation, client) => {
     let token = getToken(context.tempSession);
     if (
       token &&
+      operation.operationName !== "Login" &&
       operation.operationName !== "RenewToken" &&
       shouldRenewToken(context.tempSession)
     ) {
