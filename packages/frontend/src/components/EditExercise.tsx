@@ -26,6 +26,7 @@ import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
 import { useSessionEvent, watchSession, setToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
 const EditExercise = ({ type, id, t }) => {
   const documentType = documentTypes[type];
@@ -94,7 +95,9 @@ const EditExercise = ({ type, id, t }) => {
   }, [exercise]);
 
   if (loading) return <Loading />;
-  if (error) return <p>Error :)</p>;
+  if (error) return (
+    <GraphQLErrorMessage apolloError={error} />
+  );
 
   const loadSubmission = async () => {
     const { data } = await client.query({

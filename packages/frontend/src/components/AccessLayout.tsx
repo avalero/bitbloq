@@ -11,7 +11,7 @@ export enum AccessLayoutSize {
   BIG
 }
 
-interface AccessLayoutProps {
+export interface AccessLayoutProps {
   title: string;
   panelTitle: string;
   size?: AccessLayoutSize;
