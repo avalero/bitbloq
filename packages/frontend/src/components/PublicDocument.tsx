@@ -5,7 +5,8 @@ import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
-import {OPEN_PUBLIC_DOCUMENT_QUERY} from "../apollo/queries";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import { OPEN_PUBLIC_DOCUMENT_QUERY } from "../apollo/queries";
 import { documentTypes } from "../config";
 
 interface PublicDocumentProps {
@@ -53,9 +54,8 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     }
   }, [document]);
 
-  if (loading || !contentLoaded)
-    return <Loading color={documentType.color} />;
-  if (error) return <p>Error :)</p>;
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (loading || !contentLoaded) return <Loading color={documentType.color} />;
 
   const onSaveCopyClick = () => {
     setIsSaveCopyVisible(true);
@@ -127,13 +127,13 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         }}
         isPlayground
       />
-      {isSaveCopyVisible &&
+      {isSaveCopyVisible && (
         <SaveCopyModal
           onClose={() => setIsSaveCopyVisible(false)}
           document={document}
           content={content}
         />
-      }
+      )}
       <DialogModal
         isOpen={isRestartModalVisible}
         title="Aviso"

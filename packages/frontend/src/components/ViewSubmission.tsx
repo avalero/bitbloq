@@ -1,8 +1,9 @@
-import * as React from 'react';
+import * as React from "react";
 import styled from "@emotion/styled";
-import { Query } from 'react-apollo';
+import { Query } from "react-apollo";
 import { ThreeD } from "@bitbloq/3d";
 import { colors, Spinner } from "@bitbloq/ui";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import gql from "graphql-tag";
 
 const SUBMISSION_QUERY = gql`
@@ -22,8 +23,8 @@ class ThreeDSubmission extends React.Component {
     return (
       <Query query={SUBMISSION_QUERY} variables={{ id }}>
         {({ loading, error, data }) => {
+          if (error) return <GraphQLErrorMessage apolloError={error} />;
           if (loading) return <Loading />;
-          if (error) return <p>Error :(</p>;
 
           const { submission } = data;
           const { title, studentNick } = submission;

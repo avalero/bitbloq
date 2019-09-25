@@ -276,6 +276,12 @@ const documentResolver = {
      * args: document ID.
      */
     document: async (root: any, args: any, context: any) => {
+      if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new ApolloError(
+          "Invalid or missing id",
+          "DOCUMENT_NOT_FOUND"
+        );
+      }
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id
       });

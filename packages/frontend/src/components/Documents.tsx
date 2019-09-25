@@ -17,6 +17,7 @@ import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import DocumentCard from "./DocumentCard";
 import NewDocumentDropDown from "./NewDocumentDropDown";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt, sortByTitle } from "../util";
 import {
   DOCUMENTS_QUERY,
@@ -136,8 +137,8 @@ class Documents extends React.Component<any, DocumentsState> {
         <AppHeader />
         <Query query={DOCUMENTS_QUERY}>
           {({ loading, error, data, refetch }) => {
+            if (error) return <GraphQLErrorMessage apolloError={error} />;
             if (loading) return <Loading />;
-            if (error) return <p>Error :(</p>;
 
             return (
               <Content>
