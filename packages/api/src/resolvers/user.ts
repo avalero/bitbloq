@@ -195,7 +195,7 @@ const userResolver = {
       });
       await mailerController.sendEmail(
         contactFound.email,
-        "Bitbloq Restore Password ✔",
+        "Cambiar contraseña Bitbloq",
         htmlMessage.html
       );
       return "OK";
