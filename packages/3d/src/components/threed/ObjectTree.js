@@ -296,9 +296,11 @@ class ObjectTree extends React.Component {
               )}
               <span>{object.viewOptions.name || object.type}</span>
               {icon && <ObjectTypeIcon>{icon}</ObjectTypeIcon>}
-              <DeleteObject onClick={() => this.onDeleteObject(object)}>
-                <Icon name="trash" />
-              </DeleteObject>
+              {isTop &&
+                <DeleteObject onClick={() => this.onDeleteObject(object)}>
+                  <Icon name="trash" />
+                </DeleteObject>
+              }
             </ObjectName>
             {!isCollapsed && this.renderObjectList(children, depth + 1, object)}
           </ObjectItem>

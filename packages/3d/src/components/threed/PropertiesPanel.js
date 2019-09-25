@@ -381,7 +381,7 @@ class PropertiesPanel extends React.Component {
                   <Icon name="group" /> {t('menu-convert-to-group')}
                 </ContextMenuOption>
               )}
-              {canUndo && (
+              {canUndo && isTopObject && (
                 <ContextMenuOption onClick={this.onUndoClick}>
                   <Icon name="undo" /> {t(undoLabel)}
                 </ContextMenuOption>
