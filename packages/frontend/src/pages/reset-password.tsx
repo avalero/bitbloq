@@ -1,23 +1,47 @@
 import React, { FC, useState, useEffect } from "react";
 import queryString from "query-string";
 import styled from "@emotion/styled";
-import { useMutation } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import { navigate } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
-import { UPDATE_PASSWORD_MUTATION } from "../apollo/queries";
+import { ME_QUERY, CHECK_RESET_PASSWORD_TOKEN_MUTATION, UPDATE_PASSWORD_MUTATION } from "../apollo/queries";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
 import ModalLayout from "../components/ModalLayout";
 
-const ForgotPasswordPage: FC = ({ location }) => {
+export interface ForgotPasswordPageProps {
+  location: any;
+}
+
+const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [repeatError, setRepeatError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [invalidToken, setInvalidToken] = useState(false);
 
+  const [checkToken] = useMutation(CHECK_RESET_PASSWORD_TOKEN_MUTATION);
   const [updatePassword, { loading }] = useMutation(UPDATE_PASSWORD_MUTATION);
 
   const { token } = queryString.parse(location.search);
+
+  const { data } = useQuery(ME_QUERY);
+  if (data && data.me) {
+    navigate("/app");
+  }
+
+  const checkTokenValidity = async () => {
+    try {
+      await checkToken({ variables: { token }});
+    } catch (e) {
+      setInvalidToken(true);
+    }
+  };
+
+  useEffect(() => {
+    checkTokenValidity();
+  }, []);
+
 
   const onSaveClick = async () => {
     if (!password) {
@@ -38,6 +62,24 @@ const ForgotPasswordPage: FC = ({ location }) => {
       setSuccess(true);
     } catch (e) {}
   };
+
+  if (invalidToken) {
+    return (
+      <ModalLayout
+        title="Bitbloq | Enlace inválido"
+        modalTitle="Enlace inválido"
+        text={
+          "El enlace para recuperar la contraseña no es válido " +
+          "o ha caducado. Si todavía quieres cambiar la contraseña " +
+          "debes volver a solicitar el cambio."
+        }
+        okText="Volver a solicitar cambio de contraseña"
+        onOk={() => navigate("/forgot-password")}
+        cancelText="Volver al inicio"
+        onCancel={() => navigate("/")}
+      />
+    );
+  }
 
   if (success) {
     return (
