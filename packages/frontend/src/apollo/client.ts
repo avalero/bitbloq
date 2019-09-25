@@ -78,7 +78,9 @@ export const createClient = isBrowser => {
         if (graphQLErrors) {
           const authError = graphQLErrors.find(
             ({ path, extensions }) =>
-              extensions && extensions.code === "UNAUTHENTICATED"
+              extensions &&
+              (extensions.code === "UNAUTHENTICATED" ||
+                extensions.code === "ANOTHER_OPEN_SESSION")
           );
 
           if (authError) {
