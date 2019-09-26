@@ -17,6 +17,7 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt } from "../util";
+import { DOCUMENT_UPDATED_SUBSCRIPTION } from "../apollo/queries";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -251,12 +252,24 @@ class Document extends React.Component<any, DocumentState> {
             const { document } = data;
 
             return (
-              <Content>
-                {this.renderHeader(document)}
-                <Rule />
-                {this.renderDocumentInfo(document)}
-                {this.renderExercises(document.exercises, refetch)}
-              </Content>
+              <>
+                <Content>
+                  {this.renderHeader(document)}
+                  <Rule />
+                  {this.renderDocumentInfo(document)}
+                  {this.renderExercises(document.exercises, refetch)}
+                </Content>
+                <Subscription
+                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                  shouldResubscribe={true}
+                  onSubscriptionData={({ subscriptionData }) => {
+                    const { data } = subscriptionData;
+                    if (data && data.documentUpdated && data.documentUpdated.id === id) {
+                      refetch();
+                    }
+                  }}
+                />
+              </>
             );
           }}
         </Query>
