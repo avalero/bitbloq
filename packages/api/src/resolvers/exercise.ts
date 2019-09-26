@@ -161,19 +161,13 @@ const exerciseResolver = {
      */
     exercise: async (root: any, args: any, context: any) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
-        throw new ApolloError(
-          "Invalid or missing id",
-          "EXERCISE_NOT_FOUND"
-        );
+        throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
       const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id
       });
       if (!existExercise) {
-        throw new ApolloError(
-          "Exercise does not exist",
-          "EXERCISE_NOT_FOUND"
-        );
+        throw new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
       return existExercise;
     },
@@ -184,17 +178,14 @@ const exerciseResolver = {
      * args: exercise code.
      */
     exerciseByCode: async (root: any, args: any, context: any) => {
-        const existExercise: IExercise = await ExerciseModel.findOne({
-          code: args.code,
-        });
-        if (!existExercise) {
-          throw new ApolloError(
-            "Exercise does not exist",
-            "EXERCISE_NOT_FOUND"
-          );
-        }
-        return existExercise;
-    },    
+      const existExercise: IExercise = await ExerciseModel.findOne({
+        code: args.code
+      });
+      if (!existExercise) {
+        throw new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
+      }
+      return existExercise;
+    },
 
     /**
      * Exercises by document: returns all the exercises that depends on the document father ID passed in the arguments.

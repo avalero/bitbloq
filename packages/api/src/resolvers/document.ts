@@ -12,7 +12,7 @@ import { UserModel } from "../models/user";
 
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
-import uploadResolver from "./upload";
+import uploadResolver, { uploadImage } from "./upload";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -72,7 +72,8 @@ const documentResolver = {
         ""
       );
       if (args.input.image) {
-        const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
+        const imageUploaded: IUpload = await uploadImage(
+          //uploadResolver.Mutation.singleUpload(
           args.input.image,
           newDocument._id,
           context.user.userID
@@ -185,7 +186,8 @@ const documentResolver = {
         }
         let image: string;
         if (args.input.image) {
-          const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
+          const imageUploaded: IUpload = await uploadImage(
+            //uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,
             context.user.userID
@@ -260,8 +262,7 @@ const documentResolver = {
           { new: true }
         );
       }
-    },
-
+    }
   },
   Query: {
     /**
@@ -277,10 +278,7 @@ const documentResolver = {
      */
     document: async (root: any, args: any, context: any) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
-        throw new ApolloError(
-          "Invalid or missing id",
-          "DOCUMENT_NOT_FOUND"
-        );
+        throw new ApolloError("Invalid or missing id", "DOCUMENT_NOT_FOUND");
       }
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id
@@ -318,7 +316,7 @@ const documentResolver = {
      */
     examples: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ example: true });
-    },
+    }
   },
 
   Document: {
