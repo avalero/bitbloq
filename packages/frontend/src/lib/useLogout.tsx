@@ -7,7 +7,7 @@ const useLogout = () => {
   return () => {
     setToken("");
     client.resetStore();
-    navigate("/");
+    window.location.assign("/");
   };
 };
 

@@ -240,6 +240,13 @@ const documentResolver = {
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
+      if (args.example && !args.public) {
+        return new ApolloError(
+          "Example documents must be also public",
+          "EXAMPLE_DOCUMENT_MUST_BE_PUBLIC"
+        );
+      }
+
       if (args.public) {
         return await DocumentModel.findOneAndUpdate(
           { _id: docFound._id },
@@ -269,6 +276,12 @@ const documentResolver = {
      * args: document ID.
      */
     document: async (root: any, args: any, context: any) => {
+      if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new ApolloError(
+          "Invalid or missing id",
+          "DOCUMENT_NOT_FOUND"
+        );
+      }
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id
       });
@@ -297,7 +310,15 @@ const documentResolver = {
         throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
       return existDocument;
-    }
+    },
+
+    /**
+     * Documents: returns all the documents of the user logged.
+     * args: nothing.
+     */
+    examples: async (root: any, args: any, context: any) => {
+      return DocumentModel.find({ example: true });
+    },
   },
 
   Document: {

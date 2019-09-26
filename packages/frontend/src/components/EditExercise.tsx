@@ -24,8 +24,9 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { useSessionEvent, setToken } from "../lib/session";
+import { useSessionEvent, watchSession, setToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
 const EditExercise = ({ type, id, t }) => {
   const documentType = documentTypes[type];
@@ -57,16 +58,21 @@ const EditExercise = ({ type, id, t }) => {
 
   const client = useApolloClient();
 
+  const exercise = data && data.exercise;
+
   useEffect(() => {
     setToken("", "exercise-team");
+    watchSession("exercise-team");
   }, []);
 
   useSessionEvent(
     "expired",
     () => {
-      setToken("", "exercise-team");
-      client.resetStore();
-      navigate("/");
+      if (!loginVisible) {
+        setToken("", "exercise-team");
+        client.resetStore();
+        navigate("/");
+      }
     },
     "exercise-team"
   );
@@ -78,7 +84,7 @@ const EditExercise = ({ type, id, t }) => {
   }, [loginVisible]);
 
   useEffect(() => {
-    if (data && data.exercise && data.exercise.content) {
+    if (exercise && exercise.content) {
       try {
         const content = JSON.parse(data.exercise.content);
         setInitialContent(content);
@@ -86,10 +92,12 @@ const EditExercise = ({ type, id, t }) => {
         console.warn("Error parsing submission content", e);
       }
     }
-  }, [data.exercise]);
+  }, [exercise]);
 
   if (loading) return <Loading />;
-  if (error) return <p>Error :)</p>;
+  if (error) return (
+    <GraphQLErrorMessage apolloError={error} />
+  );
 
   const loadSubmission = async () => {
     const { data } = await client.query({
@@ -109,6 +117,10 @@ const EditExercise = ({ type, id, t }) => {
   const restart = () => {
     setRestartCount(restartCount + 1);
     setSubmissionContent(initialContent);
+    updateSubmission({
+      variables: { content: JSON.stringify(initialContent || []) }
+    });
+    currentContent.current = initialContent;
     setIsRestartModalVisible(false);
   };
 
@@ -129,7 +141,6 @@ const EditExercise = ({ type, id, t }) => {
     setIsSubmissionSuccessOpen(true);
   };
 
-  const { exercise } = data;
   const { title, teacherName } = exercise;
 
   return (

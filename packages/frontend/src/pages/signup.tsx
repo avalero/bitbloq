@@ -316,15 +316,19 @@ const SignupPageWithMutation = props => {
 
   if (accountCreated) {
     return (
-      <Wrap>
-        <DialogModal
-          isOpen={true}
-          title="Cuenta creada"
-          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta."
-          cancelText="Volver a la web"
-          onCancel={() => navigate("/")}
-        />
-      </Wrap>
+      <>
+        <SEO title="Signup" keywords={[`bitbloq`]} />
+        <Global styles={baseStyles} />
+        <Wrap>
+          <DialogModal
+            isOpen={true}
+            title="Cuenta creada"
+            text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta."
+            cancelText="Volver a la web"
+            onCancel={() => navigate("/")}
+          />
+        </Wrap>
+      </>
     );
   }
 

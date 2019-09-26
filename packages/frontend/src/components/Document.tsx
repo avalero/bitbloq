@@ -15,6 +15,7 @@ import gql from "graphql-tag";
 import AppHeader from "./AppHeader";
 import DocumentTypeTag from "./DocumentTypeTag";
 import ExercisePanel from "./ExercisePanel";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt } from "../util";
 
 const DOCUMENT_QUERY = gql`
@@ -101,7 +102,9 @@ class Document extends React.Component<any, DocumentState> {
         <DocumentImage src={document.image} />
         <div>
           <DocumentTypeTag document={document} />
-          <DocumentTitle>{document.title || "Documento sin título"}</DocumentTitle>
+          <DocumentTitle>
+            {document.title || "Documento sin título"}
+          </DocumentTitle>
           <DocumentDescription>{document.description}</DocumentDescription>
           <Buttons>
             <Button
@@ -162,7 +165,7 @@ class Document extends React.Component<any, DocumentState> {
         />
       </React.Fragment>
     );
-  }
+  };
 
   renderExercises(exercises, refetch) {
     return (
@@ -171,8 +174,7 @@ class Document extends React.Component<any, DocumentState> {
         {exercises
           .slice()
           .sort(sortByCreatedAt)
-          .map(exercise => this.renderExercise(exercise, refetch))
-        }
+          .map(exercise => this.renderExercise(exercise, refetch))}
       </Exercises>
     );
   }
@@ -243,8 +245,8 @@ class Document extends React.Component<any, DocumentState> {
         <AppHeader />
         <Query query={DOCUMENT_QUERY} variables={{ id }}>
           {({ loading, error, data, refetch }) => {
+            if (error) return <GraphQLErrorMessage apolloError={error} />;
             if (loading) return <Loading />;
-            if (error) return <p>Error :(</p>;
 
             const { document } = data;
 

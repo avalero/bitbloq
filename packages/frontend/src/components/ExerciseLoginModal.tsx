@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Button, Modal, Input, DialogModal } from "@bitbloq/ui";
 import { useMutation } from "@apollo/react-hooks";
@@ -31,6 +31,11 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
 
   const [start] = useMutation(START_SUBMISSION_MUTATION);
   const [login] = useMutation(LOGIN_SUBMISSION_MUTATION);
+
+  useEffect(() => {
+    setTeamNameError("");
+    setPasswordError("");
+  }, [step]);
 
   const gotoStep = (step: Steps) => {
     setTeamName("");
