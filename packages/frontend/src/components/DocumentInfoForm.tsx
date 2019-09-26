@@ -1,6 +1,12 @@
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { colors, FileSelectButton, Input, TextArea } from "@bitbloq/ui";
+import {
+  colors,
+  FileSelectButton,
+  Input,
+  TextArea,
+  DialogModal
+} from "@bitbloq/ui";
 
 export interface DocumentInfoFormProps {
   title?: string;
@@ -9,13 +15,26 @@ export interface DocumentInfoFormProps {
   onChange: (data: any) => void;
 }
 
+const maxImageSize = 2097152;
+
 const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   title,
   description,
   image,
   onChange
 }) => {
+  const [imageError, setImageError] = useState("");
   const [titleFocused, setTitleFocused] = useState(false);
+
+  const onFileSelected = (file: File) => {
+    if (file.type.indexOf("image/") !== 0) {
+      setImageError("El formato de la imagen no es válido");
+    } else if (file.size > maxImageSize) {
+      setImageError("El tamaño de la imagen es demasiado grande");
+    } else {
+      onChange({ title, description, image: file });
+    }
+  };
 
   return (
     <Container>
@@ -57,16 +76,15 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
             <FormLabel>
               <label>Imagen del documento</label>
               <FormSubLabel>
-                Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1Mb.
+                Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 2Mb.
               </FormSubLabel>
             </FormLabel>
             <FormInput>
               <Image src={image} />
               <ImageButton
+                accept="image/*"
                 tertiary
-                onFileSelected={image =>
-                  onChange({ title, description, image })
-                }
+                onFileSelected={onFileSelected}
               >
                 Seleccionar imagen
               </ImageButton>
@@ -74,6 +92,13 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
           </FormRow>
         </Form>
       </Panel>
+      <DialogModal
+        title="Aviso"
+        isOpen={!!imageError}
+        text={imageError}
+        okText="Aceptar"
+        onOk={() => setImageError("")}
+      />
     </Container>
   );
 };
