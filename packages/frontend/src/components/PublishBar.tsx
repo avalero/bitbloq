@@ -23,7 +23,7 @@ const PublishBar: FC<PublishBarProps> = ({
         <span>Privado</span>
         <Switch
           value={isPublic}
-          onChange={() => onChange(!isPublic, isExample)}
+          onChange={() => onChange(!isPublic, !isPublic && isExample)}
         />
         <span>Público</span>
       </SwitchWrap>
@@ -31,7 +31,9 @@ const PublishBar: FC<PublishBarProps> = ({
         <UrlLabel>URL para compartir:</UrlLabel>
         <Url value={error || url || "-"} disabled hasError={!!error} />
       </UrlBar>
-      <SampleCheckbox onClick={() => onChange(isPublic, !isExample)}>
+      <SampleCheckbox
+        onClick={() => isPublic && onChange(isPublic, isPublic && !isExample)}
+      >
         <Checkbox checked={isExample} />
         <span>Ejemplo</span>
       </SampleCheckbox>

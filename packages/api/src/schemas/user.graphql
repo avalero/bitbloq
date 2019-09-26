@@ -14,6 +14,7 @@ type Mutation {
   login(email: EmailAddress!, password: String!): String
   renewToken: String
   resetPasswordEmail(email: EmailAddress!): String
+  checkResetPasswordToken(token: String): Boolean
   updatePassword(token: String, newPassword: String): String
   deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
   updateUser(id: ObjectID!, input: UserIn!): User

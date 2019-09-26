@@ -52,6 +52,17 @@ export const DOCUMENTS_QUERY = gql`
   }
 `;
 
+export const EXAMPLES_QUERY = gql`
+  query Examples {
+    examples {
+      id
+      type
+      title
+      image
+    }
+  }
+`;
+
 export const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
     $type: String!
@@ -199,6 +210,24 @@ export const LOGIN_MUTATION = gql`
 export const RENEW_TOKEN_MUTATION = gql`
   mutation RenewToken {
     renewToken
+  }
+`;
+
+export const CHECK_RESET_PASSWORD_TOKEN_MUTATION = gql`
+  mutation CheckResetPasswordToken($token: String) {
+    checkResetPasswordToken(token: $token)
+  }
+`;
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($email: EmailAddress!) {
+    resetPasswordEmail(email: $email)
+  }
+`;
+
+export const UPDATE_PASSWORD_MUTATION = gql`
+  mutation UpdatePassword($token: String, $newPassword: String) {
+    updatePassword(token: $token, newPassword: $newPassword)
   }
 `;
 

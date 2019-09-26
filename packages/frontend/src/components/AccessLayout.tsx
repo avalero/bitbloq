@@ -11,7 +11,7 @@ export enum AccessLayoutSize {
   BIG
 }
 
-interface AccessLayoutProps {
+export interface AccessLayoutProps {
   title: string;
   panelTitle: string;
   size?: AccessLayoutSize;
@@ -105,4 +105,5 @@ const Title = styled.div`
 
 const PanelContent = styled.div`
   padding: 40px;
+  font-size: 14px;
 `;

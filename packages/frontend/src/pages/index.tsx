@@ -15,6 +15,7 @@ import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 import SEO from "../components/SEO";
 import NewDocumentDropDown from "../components/NewDocumentDropDown";
+import LandingExamples from "../components/LandingExamples";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
 import bqLogo from "../images/bq-logo.svg";
@@ -52,11 +53,11 @@ const IndexPage: FC = () => {
       const reader = new FileReader();
       reader.onload = e => {
         const document = JSON.parse(reader.result as string);
-        const channel = new BroadcastChannel('bitbloq-landing');
-        channel.onmessage = (e) => {
+        const channel = new BroadcastChannel("bitbloq-landing");
+        channel.onmessage = e => {
           if (e.data.command === "open-document-ready") {
             channel.postMessage({ command: "open-document", document });
-            channel.close()
+            channel.close();
           }
         };
       };
@@ -115,9 +116,7 @@ const IndexPage: FC = () => {
                   error={exerciseError}
                   onChange={e => setExerciseCode(e.target.value)}
                 />
-                {exerciseError &&
-                  <Error>El código no es válido</Error>
-                }
+                {exerciseError && <Error>El código no es válido</Error>}
                 <HeaderButton
                   onClick={() => onOpenExercise()}
                   disabled={loadingExercise}
@@ -229,7 +228,7 @@ const IndexPage: FC = () => {
               </OpenExerciseSteps>
             </OpenExerciseInfo>
             <OpenExercisePanel>
-              <OpenExercisePanelTitle>Ir a ejercicio</OpenExercisePanelTitle>
+              <OpenExercisePanelTitle>Ir al ejercicio</OpenExercisePanelTitle>
               <HorizontalRule small />
               <OpenExercisePanelContent>
                 <ExerciseForm>
@@ -241,9 +240,7 @@ const IndexPage: FC = () => {
                     error={exerciseError}
                     onChange={e => setExerciseCode(e.target.value)}
                   />
-                  {exerciseError &&
-                    <Error>El código no es válido</Error>
-                  }
+                  {exerciseError && <Error>El código no es válido</Error>}
                   <Button
                     onClick={() => onOpenExercise()}
                     disabled={loadingExercise}
@@ -256,6 +253,7 @@ const IndexPage: FC = () => {
           </OpenExerciseWrap>
         </Container>
       </OpenExercise>
+      <LandingExamples />
       <Footer>
         <MainFooter>
           <FooterContainer>
@@ -501,7 +499,9 @@ const ComingSoon = styled.div`
   text-transform: uppercase;
 `;
 
-const OpenExercise = styled.div``;
+const OpenExercise = styled.div`
+  border-bottom: 1px solid #e0e0e0;
+`;
 
 const OpenExerciseWrap = styled.div`
   width: 83.33%;

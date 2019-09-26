@@ -30,6 +30,7 @@ const request = async (operation, client) => {
     let token = getToken(context.tempSession);
     if (
       token &&
+      operation.operationName !== "Login" &&
       operation.operationName !== "RenewToken" &&
       shouldRenewToken(context.tempSession)
     ) {
@@ -77,7 +78,9 @@ export const createClient = isBrowser => {
         if (graphQLErrors) {
           const authError = graphQLErrors.find(
             ({ path, extensions }) =>
-              extensions && extensions.code === "UNAUTHENTICATED"
+              extensions &&
+              (extensions.code === "UNAUTHENTICATED" ||
+                extensions.code === "ANOTHER_OPEN_SESSION")
           );
 
           if (authError) {

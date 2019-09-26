@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import NoSSR from "react-no-ssr";
 import { Router } from "@reach/router";
@@ -8,8 +8,9 @@ import { UserDataProvider } from "../lib/useUserData";
 import SEO from "../components/SEO";
 import SessionWarningModal from "../components/SessionWarningModal";
 import FlagsModal from "../components/FlagsModal";
+import ErrorLayout from "../components/ErrorLayout";
 import { documentTypes } from "../config";
-import { useSessionEvent, setToken } from "../lib/session";
+import { useSessionEvent, watchSession, setToken } from "../lib/session";
 import useLogout from "../lib/useLogout";
 
 const Activate = React.lazy(() => import("../components/Activate"));
@@ -35,11 +36,23 @@ const Route = ({
   requiresSession = false,
   ...rest
 }) => {
+  const [anotherSession, setAnotherSession] = useState(false);
   const logout = useLogout();
 
-  useSessionEvent("error", () => {
+  useEffect(() => {
     if (requiresSession) {
-      logout();
+      watchSession();
+    }
+  }, []);
+
+  useSessionEvent("error", ({ error }) => {
+    const code = error && error.extensions && error.extensions.code;
+    if (requiresSession) {
+      if (code === "ANOTHER_OPEN_SESSION") {
+        setAnotherSession(true);
+      } else {
+        logout();
+      }
     }
   });
 
@@ -50,7 +63,14 @@ const Route = ({
     }
   });
 
-  
+  if (anotherSession) {
+    return (
+      <ErrorLayout
+        title="Has iniciado sesión en otro dispositivo"
+        text="Solo se puede tener una sesión abierta al mismo tiempo"
+      />
+    );
+  }
 
   return (
     <Suspense fallback={<Loading type={type} />}>

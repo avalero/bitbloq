@@ -23,6 +23,12 @@ const SessionWarningModal: FC<SessionWarningModalProps> = ({ tempSession }) => {
     tempSession
   );
 
+  useSessionEvent(
+    "new-token",
+    () => setIsOpen(false),
+    tempSession
+  );
+
   const onContinue = async () => {
     const { data } = await renewToken();
     setToken(data.renewToken, tempSession);
