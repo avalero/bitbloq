@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import NoSSR from "react-no-ssr";
 import { Router } from "@reach/router";
@@ -6,7 +6,12 @@ import { Global } from "@emotion/core";
 import { TranslateProvider, Spinner, colors, baseStyles } from "@bitbloq/ui";
 import { UserDataProvider } from "../lib/useUserData";
 import SEO from "../components/SEO";
+import SessionWarningModal from "../components/SessionWarningModal";
+import FlagsModal from "../components/FlagsModal";
+import ErrorLayout from "../components/ErrorLayout";
 import { documentTypes } from "../config";
+import { useSessionEvent, watchSession, setToken } from "../lib/session";
+import useLogout from "../lib/useLogout";
 
 const Activate = React.lazy(() => import("../components/Activate"));
 const Documents = React.lazy(() => import("../components/Documents"));
@@ -28,18 +33,56 @@ const messagesFiles = {
 const Route = ({
   component: Component,
   type = "",
-  authenticated = false,
+  requiresSession = false,
   ...rest
-}) => (
-  <Suspense fallback={<Loading type={type} />}>
-    {authenticated && (
+}) => {
+  const [anotherSession, setAnotherSession] = useState(false);
+  const logout = useLogout();
+
+  useEffect(() => {
+    if (requiresSession) {
+      watchSession();
+    }
+  }, []);
+
+  useSessionEvent("error", ({ error }) => {
+    const code = error && error.extensions && error.extensions.code;
+    if (requiresSession) {
+      if (code === "ANOTHER_OPEN_SESSION") {
+        setAnotherSession(true);
+      } else {
+        logout();
+      }
+    }
+  });
+
+  useSessionEvent("expired", () => {
+    setToken("");
+    if (requiresSession) {
+      logout();
+    }
+  });
+
+  if (anotherSession) {
+    return (
+      <ErrorLayout
+        title="Has iniciado sesión en otro dispositivo"
+        text="Solo se puede tener una sesión abierta al mismo tiempo"
+      />
+    );
+  }
+
+  return (
+    <Suspense fallback={<Loading type={type} />}>
       <UserDataProvider>
         <Component {...rest} type={type} />
       </UserDataProvider>
-    )}
-    {!authenticated && <Component {...rest} type={type} />}
-  </Suspense>
-);
+      {requiresSession &&
+        <SessionWarningModal />
+      }
+    </Suspense>
+  );
+};
 
 const AppPage = () => (
   <>
@@ -48,10 +91,13 @@ const AppPage = () => (
     <NoSSR>
       <TranslateProvider messagesFiles={messagesFiles}>
         <Router>
-          <Route path="app" component={Documents} authenticated />
-          <Route path="/app/document/:id" component={Document} authenticated />
-          <Route path="/app/document/:id" component={Document} authenticated />
-          <Route path="/app/document/:type/:id" component={EditDocument} authenticated />
+          <Route path="app" component={Documents} requiresSession />
+          <Route path="/app/document/:id" component={Document} requiresSession />
+          <Route
+            path="/app/document/:type/:id"
+            component={EditDocument}
+            requiresSession
+          />
           <Route
             path="/app/public-document/:type/:id"
             component={PublicDocument}
@@ -60,12 +106,18 @@ const AppPage = () => (
           <Route
             path="/app/submission/:type/:id"
             component={ViewSubmission}
-            authenticated
+            requiresSession
           />
           <Route path="/app/playground/:type" component={Playground} />
+          <Route
+            path="/app/open-document"
+            component={Playground}
+            openDocument
+          />
           <Route path="/app/activate" component={Activate} />
         </Router>
       </TranslateProvider>
+      <FlagsModal />
     </NoSSR>
   </>
 );

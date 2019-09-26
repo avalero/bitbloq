@@ -70,18 +70,17 @@ class DropDown extends Component<DropDownProps, State> {
             {element(isOpen)}
           </div>
         )}
-        renderElement={(ref: React.MutableRefObject<HTMLElement | null>) =>
-          isOpen && (
-            <div
-              ref={el => {
-                ref.current = el;
-                this.attachmentEl = el;
-              }}
-            >
-              {attachment}
-            </div>
-          )
-        }
+        renderElement={(ref: React.MutableRefObject<HTMLElement | null>) => (
+          <div
+            style={{ display: isOpen ? "block" : "none" }}
+            ref={el => {
+              ref.current = el;
+              this.attachmentEl = el;
+            }}
+          >
+            {attachment}
+          </div>
+        )}
       />
     );
   }

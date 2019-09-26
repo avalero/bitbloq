@@ -95,7 +95,7 @@ const server = new ApolloServer({
       return connection.context;
     } else {
       const user = await contextController.getMyUser(ctx);
-      return { user }; //  add the user to the ctx
+      return { user, headers: ctx.headers }; //  add the user to the ctx
     }
   },
   schema: exSchema,

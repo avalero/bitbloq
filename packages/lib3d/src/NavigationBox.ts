@@ -198,7 +198,7 @@ export default class NavigationBox {
     }
   };
 
-  private container: HTMLElement;
+  private container?: HTMLElement;
   private options: INavigationBoxOptions;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
@@ -238,6 +238,12 @@ export default class NavigationBox {
     this.renderer.render(this.scene, this.camera);
   }
 
+  public destroy() {
+    this.renderer.dispose();
+    this.renderer.forceContextLoss();
+    this.container = undefined;
+  }
+
   private async setup() {
     const rendererParams = {
       alpha: true,
@@ -246,12 +252,12 @@ export default class NavigationBox {
 
     const renderer = new THREE.WebGLRenderer(rendererParams);
     renderer.setSize(WIDTH, HEIGHT);
-    this.container.appendChild(renderer.domElement);
+    this.container!.appendChild(renderer.domElement);
     this.renderer = renderer;
 
-    this.container.addEventListener("mousemove", this.onMouseMove);
-    this.container.addEventListener("click", this.onClick);
-    this.containerRect = this.container.getBoundingClientRect();
+    this.container!.addEventListener("mousemove", this.onMouseMove);
+    this.container!.addEventListener("click", this.onClick);
+    this.containerRect = this.container!.getBoundingClientRect();
 
     this.scene = new THREE.Scene();
     this.scene.add(new THREE.AmbientLight(0x888888));
@@ -311,7 +317,12 @@ export default class NavigationBox {
     x: number,
     y: number
   ): THREE.Mesh | undefined => {
-    const { left, top, width, height } = this.container.getBoundingClientRect();
+    const {
+      left,
+      top,
+      width,
+      height
+    } = this.container!.getBoundingClientRect();
     const mousePosition = new THREE.Vector2();
     mousePosition.x = ((x - left) / width) * 2 - 1;
     mousePosition.y = -((y - top) / height) * 2 + 1;

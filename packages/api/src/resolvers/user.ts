@@ -140,24 +140,29 @@ const userResolver = {
           contactFound._id,
           ""
         );
-        if (process.env.USE_REDIS === "true") {
-          await redisClient.set(
-            String("authToken-" + contactFound._id),
-            token,
-            (err, reply) => {
-              if (err) {
-                throw new ApolloError(
-                  "Error storing auth token in redis",
-                  "REDIS_TOKEN_ERROR"
-                );
-              }
-            }
-          );
-        }
+        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
         throw new AuthenticationError("Email or password incorrect");
       }
+    },
+
+    /*
+     * renewToken: returns a new token for a logged user
+     */
+    renewToken: async (root: any, args: any, context: any) => {
+      let oldToken = "";
+      if (context.headers && context.headers.authorization) {
+        oldToken = context.headers.authorization.split(" ")[1];
+      }
+
+      const { data, token } = await contextController.generateNewToken(oldToken);
+      if (data.userID) {
+        await storeTokenInRedis(`authToken-${data.userID}`, token);
+      } else if (data.submissionID) {
+        await storeTokenInRedis(`subToken-${data.submissionID}`, token);
+      }
+      return token;
     },
 
     /**
@@ -176,10 +181,11 @@ const userResolver = {
         process.env.JWT_SECRET,
         { expiresIn: "30m" }
       );
-      console.log(token);
+      await storeTokenInRedis(`resetPasswordToken-${contactFound._id}`, token);
+
       // Generate the email with the activation link and send it
       const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/reset-password?token=${token}`
+        url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
       };
       const mjml = resetPasswordTemplate(data);
       const htmlMessage = mjml2html(mjml, {
@@ -189,13 +195,16 @@ const userResolver = {
       });
       await mailerController.sendEmail(
         contactFound.email,
-        "Bitbloq Restore Password ✔",
+        "Cambiar contraseña Bitbloq",
         htmlMessage.html
       );
       return "OK";
     },
 
-    // Private methods:
+    checkResetPasswordToken: async (root: any, { token }) => {
+      await getResetPasswordData(token);
+      return true;
+    },
 
     /**
      * edit Password: stores the new password passed as argument in the database
@@ -203,18 +212,12 @@ const userResolver = {
      * args: token, new Password
      */
     updatePassword: async (root: any, { token, newPassword }) => {
-      if (!token) {
-        throw new ApolloError(
-          "Error with reset password token, no token in args",
-          "NOT_TOKEN_PROVIDED"
-        );
-      }
-      const dataInToken: IResetPasswordToken = await contextController.getDataInToken(
-        token
-      );
+      const dataInToken = await getResetPasswordData(token);
+
       const contactFound: IUser = await UserModel.findOne({
         _id: dataInToken.resetPassUserID
       });
+
       if (!contactFound) {
         throw new ApolloError(
           "Error with reset password token",
@@ -237,20 +240,12 @@ const userResolver = {
           }
         }
       );
+
       if (process.env.USE_REDIS === "true") {
-        await redisClient.set(
-          String("authToken-" + contactFound._id),
-          authToken,
-          (err, reply) => {
-            if (err) {
-              throw new ApolloError(
-                "Error storing auth token in redis",
-                "REDIS_TOKEN_ERROR"
-              );
-            }
-          }
-        );
+        redisClient.del(`resetPasswordToken-${contactFound._id}`);
       }
+
+      await storeTokenInRedis(`authToken-${contactFound._id}`, authToken);
       return authToken;
     },
 
@@ -294,20 +289,8 @@ const userResolver = {
           contactFound._id,
           ""
         );
-        if (process.env.USE_REDIS === "true") {
-          await redisClient.set(
-            String("authToken-" + contactFound._id),
-            token,
-            (err, reply) => {
-              if (err) {
-                throw new ApolloError(
-                  "Error storing auth token in redis",
-                  "REDIS_TOKEN_ERROR"
-                );
-              }
-            }
-          );
-        }
+
+        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
         return new ApolloError(
@@ -410,5 +393,56 @@ const userResolver = {
     documents: async (user: IUser) => DocumentModel.find({ user: user._id })
   }
 };
+
+const storeTokenInRedis = (id: string, token: string) => {
+  if (process.env.USE_REDIS === "true") {
+    return redisClient.set(
+      String(id),
+      token,
+      (err, reply) => {
+        if (err) {
+          throw new ApolloError(
+            "Error storing auth token in redis",
+            "REDIS_TOKEN_ERROR"
+          );
+        }
+      }
+    );
+  }
+}
+
+const getResetPasswordData = async (token: string) => {
+  if (!token) {
+    throw new ApolloError(
+      "Error with reset password token, no token in args",
+      "INVALID_TOKEN"
+    );
+  }
+  let dataInToken: IResetPasswordToken;
+
+  try {
+    dataInToken = await contextController.getDataInToken(token);
+  } catch (e) {
+    throw new ApolloError(
+      "The provided token is not valid or has expired",
+      "INVALID_TOKEN"
+    );
+  }
+
+  if (process.env.USE_REDIS === "true") {
+    const storedToken = await redisClient.getAsync(
+      `resetPasswordToken-${dataInToken.resetPassUserID}`
+    );
+    if (storedToken !== token) {
+      throw new ApolloError(
+        "The provided token is not the latest one",
+        "INVALID_TOKEN"
+      );
+    }
+  }
+
+  return dataInToken;
+}
+
 
 export default userResolver;

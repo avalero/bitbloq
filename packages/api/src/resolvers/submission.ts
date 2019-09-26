@@ -35,11 +35,108 @@ const submissionResolver = {
   },
   Mutation: {
     /**
-     * Login submission: register a new student than joins the exercise.
+     * Start submission: register a new student than joins the exercise.
      * It stores the new student information in the database and
      * returns a login token with the exercise and submission ID.
-     * If a submission with the nick and password provided exists, the mutation
-     * returns it. If not, it create a new empty submission.     *
+     * args: exercise code and student nickname and password.
+     */
+    startSubmission: async (root: any, args: any, context: any) => {
+      if (!args.studentNick) {
+        throw new ApolloError(
+          "Error creating submission, you must introduce a nickname",
+          "NOT_NICKNAME_PROVIDED"
+        );
+      }
+      const exFather: IExercise = await ExerciseModel.findOne({
+        code: args.exerciseCode,
+        acceptSubmissions: true
+      });
+      if (!exFather) {
+        throw new ApolloError(
+          "Error creating submission, check your exercise code",
+          "INVALID_EXERCISE_CODE"
+        );
+      }
+      // check if the submission is in time
+      const timeNow: Date = new Date();
+      if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
+        throw new ApolloError(
+          "This exercise does not accept submissions now",
+          "NOT_ACCEPT_SUBMISSIONS"
+        );
+      }
+      // check if there is a submission with this nickname and password. If true, return error.
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
+        studentNick: args.studentNick.toLowerCase(),
+        exercise: exFather._id
+      });
+      if (existSubmission) {
+        throw new ApolloError(
+          "There is already a submission for that studentNick",
+          "SUBMISSION_EXISTS"
+        );
+      }
+
+      const hash: string = await bcrypt.hash(args.password, saltRounds);
+      const submissionNew: ISubmission = new SubmissionModel({
+        exercise: exFather._id,
+        studentNick: args.studentNick.toLowerCase(),
+        password: hash,
+        content: exFather.content,
+        cache: exFather.cache,
+        user: exFather.user,
+        document: exFather.document,
+        title: exFather.title,
+        type: exFather.type
+      });
+      const newSub: ISubmission = await SubmissionModel.create(submissionNew);
+      const token: string = jsonwebtoken.sign(
+        {
+          exerciseID: exFather._id,
+          submissionID: newSub._id,
+          role: "EPHEMERAL"
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "3h" }
+      );
+      await SubmissionModel.findOneAndUpdate(
+        { _id: newSub._id },
+        { $set: { submissionToken: token } },
+        { new: true }
+      );
+      loggerController.storeInfoLog(
+        "API",
+        "submission",
+        "create",
+        newSub.type,
+        newSub.user,
+        ""
+      );
+      if (process.env.USE_REDIS === "true") {
+        await redisClient.set(
+          String("subToken-" + newSub._id),
+          token,
+          (err, reply) => {
+            if (err) {
+              throw new ApolloError(
+                "Error storing auth token in redis",
+                "REDIS_TOKEN_ERROR"
+              );
+            }
+          }
+        );
+      }
+      pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
+      return {
+        token: token,
+        exerciseID: exFather._id,
+        type: newSub.type
+      };
+    },
+
+    /**
+     * Login submission: If a submission with the nick and password provided exists,
+     * the mutation returns it. If not, returns an error.
      * args: exercise code and student nickname and password.
      */
     loginSubmission: async (root: any, args: any, context: any) => {
@@ -72,106 +169,47 @@ const submissionResolver = {
         studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id
       });
-      if (existSubmission) {
-        // si existe la submission, compruebo la contraseña y la devuelvo
-        const valid: boolean = await bcrypt.compare(
-          args.password,
-          existSubmission.password
+      if (!existSubmission) {
+        throw new ApolloError(
+          "Can't found submission for that studentNick",
+          "SUBMISSION_NOT_FOUND"
         );
-        if (valid) {
-          const token: string = jsonwebtoken.sign(
-            {
-              exerciseID: exFather._id,
-              submissionID: existSubmission._id,
-              role: "EPHEMERAL"
-            },
-            process.env.JWT_SECRET,
-            { expiresIn: "3h" }
-          );
-          await SubmissionModel.findOneAndUpdate(
-            { _id: existSubmission._id },
-            { $set: { submissionToken: token } },
-            { new: true }
-          );
-          loggerController.storeInfoLog(
-            "API",
-            "submission",
-            "login",
-            existSubmission.type,
-            existSubmission.user,
-            ""
-          );
-          pubsub.publish(SUBMISSION_UPDATED, {
-            submissionUpdated: existSubmission
-          });
-          if (process.env.USE_REDIS === "true") {
-            await redisClient.set(
-              String("subToken-" + existSubmission._id),
-              token,
-              (err, reply) => {
-                if (err) {
-                  throw new ApolloError(
-                    "Error storing auth token in redis",
-                    "REDIS_TOKEN_ERROR"
-                  );
-                }
-              }
-            );
-          }
-          pubsub.publish(SUBMISSION_UPDATED, {
-            submissionUpdated: existSubmission
-          });
-          return {
-            token: token,
-            exerciseID: exFather._id,
-            type: existSubmission.type
-          };
-        } else {
-          throw new ApolloError(
-            "comparing passwords valid=false",
-            "PASSWORD_ERROR"
-          );
-        }
-      } else {
-        // la submission no existe, se crea una nueva
-        const hash: string = await bcrypt.hash(args.password, saltRounds);
-        const submissionNew: ISubmission = new SubmissionModel({
-          exercise: exFather._id,
-          studentNick: args.studentNick.toLowerCase(),
-          password: hash,
-          content: exFather.content,
-          cache: exFather.cache,
-          user: exFather.user,
-          document: exFather.document,
-          title: exFather.title,
-          type: exFather.type
-        });
-        const newSub: ISubmission = await SubmissionModel.create(submissionNew);
+      }
+
+      // si existe la submission, compruebo la contraseña y la devuelvo
+      const valid: boolean = await bcrypt.compare(
+        args.password,
+        existSubmission.password
+      );
+      if (valid) {
         const token: string = jsonwebtoken.sign(
           {
             exerciseID: exFather._id,
-            submissionID: newSub._id,
+            submissionID: existSubmission._id,
             role: "EPHEMERAL"
           },
           process.env.JWT_SECRET,
           { expiresIn: "3h" }
         );
         await SubmissionModel.findOneAndUpdate(
-          { _id: newSub._id },
+          { _id: existSubmission._id },
           { $set: { submissionToken: token } },
           { new: true }
         );
         loggerController.storeInfoLog(
           "API",
           "submission",
-          "create",
-          newSub.type,
-          newSub.user,
+          "login",
+          existSubmission.type,
+          existSubmission.user,
           ""
         );
+        pubsub.publish(SUBMISSION_UPDATED, {
+          submissionUpdated: existSubmission
+        });
         if (process.env.USE_REDIS === "true") {
           await redisClient.set(
-            String("subToken-" + newSub._id),
+            String("subToken-" + existSubmission._id),
             token,
             (err, reply) => {
               if (err) {
@@ -183,12 +221,19 @@ const submissionResolver = {
             }
           );
         }
-        pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
+        pubsub.publish(SUBMISSION_UPDATED, {
+          submissionUpdated: existSubmission
+        });
         return {
           token: token,
           exerciseID: exFather._id,
-          type: newSub.type
+          type: existSubmission.type
         };
+      } else {
+        throw new ApolloError(
+          "comparing passwords valid=false",
+          "PASSWORD_ERROR"
+        );
       }
     },
 

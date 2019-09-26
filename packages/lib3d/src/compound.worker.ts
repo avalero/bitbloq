@@ -171,17 +171,64 @@ if (!(typeof module !== "undefined" && module.exports)) {
 
       // compute action
       let geometry: THREE.Geometry = new THREE.Geometry();
-      if (e.data.type === "Union") {
-        geometry = getUnionFromGeometries(geometries);
-      } else if (e.data.type === "Difference") {
-        geometry = getDifferenceFromGeometries(geometries);
-      } else if (e.data.type === "Intersection") {
-        geometry = getIntersectionFromGeometries(geometries);
-      } else {
-        const postMessage = {
-          status: "error"
+      try {
+        if (e.data.type === "Union") {
+          geometry = getUnionFromGeometries(geometries);
+        } else if (e.data.type === "Difference") {
+          geometry = getDifferenceFromGeometries(geometries);
+        } else if (e.data.type === "Intersection") {
+          geometry = getIntersectionFromGeometries(geometries);
+        } else {
+          const postMessage = {
+            status: "error"
+          };
+          ctx.postMessage(postMessage);
+        }
+      } catch (e) {
+        const buffGeom = new THREE.BufferGeometry().fromGeometry(
+          new THREE.BoxGeometry(1, 1, 1)
+        );
+        const _vertices = new Float32Array(
+          buffGeom.getAttribute("position").array
+        );
+        const _normals = new Float32Array(
+          buffGeom.getAttribute("normal").array
+        );
+
+        const _message = {
+          vertices: _vertices,
+          normals: _normals,
+          status: "invisible"
         };
-        ctx.postMessage(postMessage);
+
+        ctx.postMessage(_message, [
+          _message.vertices.buffer,
+          _message.normals.buffer
+        ]);
+      }
+
+      if (geometry.vertices.length === 0) {
+        console.info("Empty Geometry");
+        const buffGeom = new THREE.BufferGeometry().fromGeometry(
+          new THREE.BoxGeometry(1, 1, 1)
+        );
+        const _vertices = new Float32Array(
+          buffGeom.getAttribute("position").array
+        );
+        const _normals = new Float32Array(
+          buffGeom.getAttribute("normal").array
+        );
+
+        const _message = {
+          vertices: _vertices,
+          normals: _normals,
+          status: "invisible"
+        };
+
+        ctx.postMessage(_message, [
+          _message.vertices.buffer,
+          _message.normals.buffer
+        ]);
       }
 
       // move resulting geometry to origin of coordinates (center on first child on origin)

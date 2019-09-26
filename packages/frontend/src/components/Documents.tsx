@@ -15,8 +15,9 @@ import { Query, Mutation, Subscription } from "react-apollo";
 import gql from "graphql-tag";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
+import DocumentCard from "./DocumentCard";
 import NewDocumentDropDown from "./NewDocumentDropDown";
-import DocumentTypeTag from "./DocumentTypeTag";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt, sortByTitle } from "../util";
 import {
   DOCUMENTS_QUERY,
@@ -136,8 +137,8 @@ class Documents extends React.Component<any, DocumentsState> {
         <AppHeader />
         <Query query={DOCUMENTS_QUERY}>
           {({ loading, error, data, refetch }) => {
+            if (error) return <GraphQLErrorMessage apolloError={error} />;
             if (loading) return <Loading />;
-            if (error) return <p>Error :(</p>;
 
             return (
               <Content>
@@ -175,22 +176,18 @@ class Documents extends React.Component<any, DocumentsState> {
                             .toLowerCase()
                             .indexOf(searchText.toLowerCase()) >= 0)
                     )
-                    .map(document => (
-                      <DocumentCard
+                    .map((document: any) => (
+                      <StyledDocumentCard
                         key={document.id}
+                        document={document}
                         onClick={() => this.onDocumentClick(document)}
                       >
-                        <DocumentImage src={document.image} />
-                        <DocumentInfo>
-                          <DocumentTypeTag small document={document} />
-                          <DocumentTitle>{document.title}</DocumentTitle>
-                        </DocumentInfo>
                         <DeleteDocument
                           onClick={e => this.onDocumentDeleteClick(e, document)}
                         >
                           <Icon name="trash" />
                         </DeleteDocument>
-                      </DocumentCard>
+                      </StyledDocumentCard>
                     ))}
                 </DocumentList>
                 <Subscription
@@ -264,7 +261,7 @@ const Container = styled.div`
 
 const Content = styled.div`
   flex: 1;
-  padding: 0px 60px;
+  padding: 0px 50px;
 `;
 
 const Header = styled.div`
@@ -284,7 +281,7 @@ const Loading = styled(Spinner)`
 `;
 
 const Rule = styled(HorizontalRule)`
-  margin: 0px -20px;
+  margin: 0px -10px;
 `;
 
 const DocumentListHeader = styled.div`
@@ -308,7 +305,7 @@ const SearchInput: Input = styled(Input)`
 
 const DocumentList = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   grid-auto-rows: 1fr;
   grid-column-gap: 40px;
   grid-row-gap: 40px;
@@ -317,7 +314,7 @@ const DocumentList = styled.div`
   &::before {
     content: "";
     width: 0px;
-    padding-bottom: 100%;
+    padding-bottom: 85.7%;
     grid-row: 1 / 1;
     grid-column: 1 / 1;
   }
@@ -347,61 +344,12 @@ const DeleteDocument = styled.div`
   }
 `;
 
-const DocumentCard = styled.div`
-  display: flex;
-  flex-direction: column;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  cursor: pointer;
-  background-color: white;
-  overflow: hidden;
-  position: relative;
-
+const StyledDocumentCard = styled(DocumentCard)`
   &:hover {
-    border-color: ${colors.gray4};
     ${DeleteDocument} {
       display: flex;
     }
   }
-`;
-
-interface DocumentImageProps {
-  src: string;
-}
-const DocumentImage = styled.div<DocumentImageProps>`
-  flex: 1;
-  background-color: ${colors.gray2};
-  background-image: url(${props => props.src});
-  background-size: cover;
-  background-position: center;
-`;
-
-const DocumentInfo = styled.div`
-  height: 80px;
-  padding: 14px;
-  font-weight: 500;
-  box-sizing: border-box;
-`;
-
-interface DocumentTypeProps {
-  color: string;
-}
-const DocumentType = styled.div<DocumentTypeProps>`
-  border-width: 2px;
-  border-style: solid;
-  border-color: ${props => props.color};
-  color: ${props => props.color};
-  height: 24px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0px 10px;
-  font-size: 12px;
-  box-sizing: border-box;
-`;
-
-const DocumentTitle = styled.div`
-  margin-top: 10px;
-  font-size: 16px;
 `;
 
 interface NewDocumentButtonProps {

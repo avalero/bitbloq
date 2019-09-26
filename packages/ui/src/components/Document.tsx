@@ -207,6 +207,7 @@ export interface DocumentProps {
   menuOptions?: MainMenuOption[];
   onMenuOptionClick?: MenuOptionClickHandler;
   menuRightContent?: React.ReactChild;
+  headerRightContent?: React.ReactChildren;
   headerButtons?: IHeaderButton[];
   title?: JSX.Element | string;
   brandColor?: string;
@@ -242,6 +243,7 @@ class Document extends React.Component<DocumentProps, State> {
       children,
       menuOptions = [],
       menuRightContent,
+      headerRightContent,
       onMenuOptionClick,
       title,
       onEditTitle,
@@ -271,6 +273,7 @@ class Document extends React.Component<DocumentProps, State> {
                 </EditTitleIcon>
               </span>
             </Title>
+            {headerRightContent}
             {headerButtons.map(button => (
               <HeaderButton
                 key={button.id}

@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useRef } from "react";
 import styled from "@emotion/styled";
 import { navigate, Link } from "gatsby";
 import { Global, css } from "@emotion/core";
@@ -11,10 +11,11 @@ import {
   DropDown,
   HorizontalRule
 } from "@bitbloq/ui";
-import { useQuery } from "@apollo/react-hooks";
-import { ME_QUERY } from "../apollo/queries";
+import { useApolloClient, useQuery } from "@apollo/react-hooks";
+import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 import SEO from "../components/SEO";
 import NewDocumentDropDown from "../components/NewDocumentDropDown";
+import LandingExamples from "../components/LandingExamples";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
 import bqLogo from "../images/bq-logo.svg";
@@ -23,25 +24,68 @@ import studentStep2Image from "../images/student-step-2.svg";
 import heroImage from "../images/home_beta-decoration.svg";
 
 const IndexPage: FC = () => {
-  const { data } = useQuery(ME_QUERY, {
-    context: { disableAuthRedirect: true }
-  });
+  const { data } = useQuery(ME_QUERY);
+  const client = useApolloClient();
 
   const [exerciseCode, setExerciseCode] = useState("");
+  const [loadingExercise, setLoadingExercise] = useState(false);
+  const [exerciseError, setExerciseError] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (data && data.me) {
     navigate("/app");
   }
 
   const onNewDocument = (type: string) => {
-    navigate(`/app/playground/${type}`);
+    window.open(`/app/playground/${type}`);
   };
 
-  const onOpenDocument = () => {};
+  const onOpenDocument = () => {
+    if (fileInputRef.current !== null) {
+      fileInputRef.current.click();
+    }
+  };
 
-  const onOpenExercise = () => {
+  const onFileSelected = (file: File) => {
+    if (file) {
+      window.open(`/app/open-document`);
+      const reader = new FileReader();
+      reader.onload = e => {
+        const document = JSON.parse(reader.result as string);
+        const channel = new BroadcastChannel("bitbloq-landing");
+        channel.onmessage = e => {
+          if (e.data.command === "open-document-ready") {
+            channel.postMessage({ command: "open-document", document });
+            channel.close();
+          }
+        };
+      };
+      reader.readAsText(file);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const onOpenExercise = async () => {
     if (exerciseCode) {
-      console.log(exerciseCode);
+      try {
+        setLoadingExercise(true);
+        const {
+          data: { exerciseByCode: exercise }
+        } = await client.query({
+          query: EXERCISE_BY_CODE_QUERY,
+          variables: { code: exerciseCode }
+        });
+        setLoadingExercise(false);
+        setExerciseError(false);
+        setExerciseCode("");
+        window.open(`/app/exercise/${exercise.type}/${exercise.id}`);
+      } catch (e) {
+        setLoadingExercise(false);
+        setExerciseError(true);
+      }
     }
   };
 
@@ -56,7 +100,12 @@ const IndexPage: FC = () => {
             targetPosition={"bottom center"}
             closeOnClick={false}
           >
-            {(isOpen: boolean) => <Button tertiary>Ir al ejercicio</Button>}
+            {(isOpen: boolean) => (
+              <HeaderButton tertiary>
+                <Icon name="airplane-document" />
+                Ir al ejercicio
+              </HeaderButton>
+            )}
             <ExerciseDropDown>
               <ExerciseForm>
                 <label>Código del ejercicio</label>
@@ -64,9 +113,16 @@ const IndexPage: FC = () => {
                   type="text"
                   placeholder="Código del ejercicio"
                   value={exerciseCode}
+                  error={exerciseError}
                   onChange={e => setExerciseCode(e.target.value)}
                 />
-                <Button onClick={() => onOpenExercise()}>Ir a ejercicio</Button>
+                {exerciseError && <Error>El código no es válido</Error>}
+                <HeaderButton
+                  onClick={() => onOpenExercise()}
+                  disabled={loadingExercise}
+                >
+                  Ir al ejercicio
+                </HeaderButton>
               </ExerciseForm>
             </ExerciseDropDown>
           </DropDown>
@@ -74,17 +130,22 @@ const IndexPage: FC = () => {
             attachmentPosition={"top center"}
             targetPosition={"bottom center"}
           >
-            {(isOpen: boolean) => <Button tertiary>Nuevo documento</Button>}
+            {(isOpen: boolean) => (
+              <HeaderButton tertiary>
+                <Icon name="new-document" />
+                Nuevo documento
+              </HeaderButton>
+            )}
 
             <NewDocumentDropDown
               onNewDocument={onNewDocument}
               onOpenDocument={onOpenDocument}
             />
           </DropDown>
-          <Button onClick={() => navigate("/login")}>Entrar</Button>
-          <Button secondary onClick={() => navigate("/signup")}>
+          <HeaderButton onClick={() => navigate("/login")}>Entrar</HeaderButton>
+          <HeaderButton secondary onClick={() => navigate("/signup")}>
             Crear una cuenta
-          </Button>
+          </HeaderButton>
         </Header>
         <Hero>
           <h1>
@@ -127,6 +188,20 @@ const IndexPage: FC = () => {
                   {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
                 </Tool>
               ))}
+            <OpenDocumentPanel>
+              <OpenDocumentIcon color="white">
+                <Icon name="open-document" />
+              </OpenDocumentIcon>
+              <h3>Abrir documento desde archivo</h3>
+              <p>
+                Abre cualquier documento de tipo .bitbloq que hayas guardado en
+                tu ordenador.
+              </p>
+              <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
+                <Icon name="open-document" />
+                Abrir documento
+              </OpenDocumentButton>
+            </OpenDocumentPanel>
           </ToolsList>
         </Container>
       </Tools>
@@ -153,7 +228,7 @@ const IndexPage: FC = () => {
               </OpenExerciseSteps>
             </OpenExerciseInfo>
             <OpenExercisePanel>
-              <OpenExercisePanelTitle>Ir a ejercicio</OpenExercisePanelTitle>
+              <OpenExercisePanelTitle>Ir al ejercicio</OpenExercisePanelTitle>
               <HorizontalRule small />
               <OpenExercisePanelContent>
                 <ExerciseForm>
@@ -162,15 +237,23 @@ const IndexPage: FC = () => {
                     type="text"
                     placeholder="Código del ejercicio"
                     value={exerciseCode}
+                    error={exerciseError}
                     onChange={e => setExerciseCode(e.target.value)}
                   />
-                  <Button onClick={() => onOpenExercise()}>Empezar</Button>
+                  {exerciseError && <Error>El código no es válido</Error>}
+                  <Button
+                    onClick={() => onOpenExercise()}
+                    disabled={loadingExercise}
+                  >
+                    Empezar
+                  </Button>
                 </ExerciseForm>
               </OpenExercisePanelContent>
             </OpenExercisePanel>
           </OpenExerciseWrap>
         </Container>
       </OpenExercise>
+      <LandingExamples />
       <Footer>
         <MainFooter>
           <FooterContainer>
@@ -187,13 +270,19 @@ const IndexPage: FC = () => {
           </FooterContainer>
         </MainFooter>
         <LegalLinks>
-          <Link to="#">Condiciones generales</Link>
+          <a href="#">Condiciones generales</a>
           {" | "}
-          <Link to="#">Política de privacidad</Link>
+          <a href="#">Política de privacidad</a>
           {" | "}
-          <Link to="#">Política de cookies</Link>
+          <a href="#">Política de cookies</a>
         </LegalLinks>
       </Footer>
+      <input
+        ref={fileInputRef}
+        type="file"
+        onChange={e => onFileSelected(e.target.files[0])}
+        style={{ display: "none" }}
+      />
     </>
   );
 };
@@ -215,6 +304,15 @@ const Header = styled.div`
   justify-content: flex-end;
   button {
     margin-left: 10px;
+  }
+`;
+
+const HeaderButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
   }
 `;
 
@@ -247,10 +345,11 @@ const ExerciseForm = styled.div`
   }
 
   input {
-    margin-bottom: 30px;
+    font-family: Roboto Mono;
   }
 
   button {
+    margin-top: 30px;
     width: 100%;
   }
 `;
@@ -292,7 +391,7 @@ const Tools = styled.div`
     align-items: center;
     font-size: 30px;
     font-weight: 300;
-    margin-bottom: 40px;
+    margin-bottom: 20px;
 
     svg {
       height: 36px;
@@ -311,8 +410,8 @@ const ToolsList = styled.div`
 const Tool = styled.div`
   width: 33%;
   box-sizing: border-box;
-  padding: 0px 5px;
-  margin-bottom: 60px;
+  padding: 20px;
+  margin-bottom: 20px;
 
   h3 {
     font-size: 16px;
@@ -325,6 +424,12 @@ const Tool = styled.div`
     line-height: 1.57;
     margin-bottom: 20px;
   }
+`;
+
+const OpenDocumentPanel = styled(Tool)`
+  border-radius: 10px;
+  background-color: #f1f1f1;
+  align-self: flex-start;
 `;
 
 interface ToolIconProps {
@@ -343,6 +448,21 @@ const ToolIcon = styled.div<ToolIconProps>`
 
   svg {
     width: 40px;
+  }
+`;
+
+const OpenDocumentIcon = styled(ToolIcon)`
+  color: inherit;
+  svg {
+    width: 32px;
+  }
+`;
+
+const OpenDocumentButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 16px;
+    margin-right: 6px;
   }
 `;
 
@@ -379,7 +499,9 @@ const ComingSoon = styled.div`
   text-transform: uppercase;
 `;
 
-const OpenExercise = styled.div``;
+const OpenExercise = styled.div`
+  border-bottom: 1px solid #e0e0e0;
+`;
 
 const OpenExerciseWrap = styled.div`
   width: 83.33%;
@@ -493,4 +615,11 @@ const LegalLinks = styled.div`
     font-weight: bold;
     text-decoration: none;
   }
+`;
+
+const Error = styled.div`
+  font-size: 12px;
+  font-style: italic;
+  color: #d82b32;
+  margin-top: 10px;
 `;

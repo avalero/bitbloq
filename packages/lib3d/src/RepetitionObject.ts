@@ -49,6 +49,17 @@ export default class RepetitionObject extends ObjectsCommon {
     this._pendingOperation = a;
   }
 
+  get viewOptionsUpdateRequired(): boolean {
+    return (
+      this._viewOptionsUpdateRequired ||
+      this.originalObject.viewOptionsUpdateRequired
+    );
+  }
+
+  set viewOptionsUpdateRequired(a: boolean) {
+    this._viewOptionsUpdateRequired = a;
+  }
+
   public static typeName: string = "RepetitionObject";
 
   /**

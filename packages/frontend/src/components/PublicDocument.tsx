@@ -1,17 +1,13 @@
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/react-hooks";
 import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
-import {
-  DOCUMENTS_QUERY,
-  OPEN_PUBLIC_DOCUMENT_QUERY,
-  CREATE_DOCUMENT_MUTATION
-} from "../apollo/queries";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import { OPEN_PUBLIC_DOCUMENT_QUERY } from "../apollo/queries";
 import { documentTypes } from "../config";
-import useUserData from "../lib/useUserData";
 
 interface PublicDocumentProps {
   id: string;
@@ -26,6 +22,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
   const [isSaveCopyVisible, setIsSaveCopyVisible] = useState(false);
   const [isRestartModalVisible, setIsRestartModalVisible] = useState(false);
   const [initialContent, setInitialContent] = useState([]);
+  const [contentLoaded, setContentLoaded] = useState(false);
   const [content, setContent] = useState([]);
   const [restartCount, setRestartCount] = useState(0);
 
@@ -35,15 +32,12 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     variables: { id }
   });
 
-  const userData = useUserData();
-
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
-
   const { openPublicDocument: document = {} } = data || {};
 
   const restart = () => {
     setRestartCount(restartCount + 1);
     setContent(initialContent);
+    setIsRestartModalVisible(false);
   };
 
   useEffect(() => {
@@ -53,15 +47,15 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         setInitialContent(c);
         restart();
         setContent(c);
+        setContentLoaded(true);
       } catch (e) {
         console.warn("Error parsing document content", e);
       }
     }
   }, [document]);
 
-  if (loading || !initialContent.length)
-    return <Loading color={documentType.color} />;
-  if (error) return <p>Error :)</p>;
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (loading || !contentLoaded) return <Loading color={documentType.color} />;
 
   const onSaveCopyClick = () => {
     setIsSaveCopyVisible(true);
@@ -75,16 +69,15 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     setContent(content);
   };
 
-  const saveCopy = (email: string, password: string) => {
-    createDocument({
-      variables: {
-        ...document,
-        content: JSON.stringify(content)
-      },
-      context: email && password ? { email, password } : {},
-      refetchQueries: userData ? [{ query: DOCUMENTS_QUERY }] : []
+  const onSaveDocument = () => {
+    const documentJSON = {
+      ...document,
+      content: JSON.stringify(content)
+    };
+    var blob = new Blob([JSON.stringify(documentJSON)], {
+      type: "text/json;charset=utf-8"
     });
-    setIsSaveCopyVisible(false);
+    saveAs(blob, `${document.title}.bitbloq`);
   };
 
   return (
@@ -95,6 +88,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
         content={initialContent}
         tabIndex={tabIndex}
         onTabChange={setTabIndex}
+        onSaveDocument={onSaveDocument}
         onContentChange={onContentChange}
         title={
           <>
@@ -135,9 +129,9 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
       />
       {isSaveCopyVisible && (
         <SaveCopyModal
-          user={userData}
-          onSave={saveCopy}
-          onCancel={() => setIsSaveCopyVisible(false)}
+          onClose={() => setIsSaveCopyVisible(false)}
+          document={document}
+          content={content}
         />
       )}
       <DialogModal

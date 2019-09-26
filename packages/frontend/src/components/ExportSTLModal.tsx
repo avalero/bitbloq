@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal, Option } from "@bitbloq/ui";
 

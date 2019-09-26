@@ -44,11 +44,11 @@ const resetPasswordTemplate = compile(`
           {{url}}
         </mj-button>
         <mj-text color="#313741" font-size="14px">
-          Recuerda: desde que recibas este email, el enlace estará activo sólo durante 30 minutos.
+          Recuerda: desde que recibas este email, el enlace estará activo solo durante 30 minutos.
         </mj-text>
         <mj-text color="#313741" font-size="14px" padding-bottom="0">
           Un saludo,
-          <p>el equipo de Bitbloq.</p>
+          <p>El equipo de Bitbloq.</p>
         </mj-text>
       </mj-column>
     </mj-section>

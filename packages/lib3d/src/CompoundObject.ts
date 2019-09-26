@@ -96,14 +96,18 @@ export default class CompoundObject extends Object3D {
         // listen to events from web worker
 
         (this.worker as Worker).onmessage = (event: any) => {
-          if (event.data.status !== "ok") {
+          if (event.data.status === "error") {
             (this.worker as Worker).terminate();
             this.worker = null;
             reject(new Error("Compound Object Error"));
+          } else if (event.data.status === "invisible") {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+            mesh.visible = false;
+            this.mesh = mesh;
+            resolve(this.mesh);
           }
 
           const message = event.data;
-
           // save vertices and normals
 
           const verticesBuffer: ArrayBuffer = message.vertices;
@@ -128,6 +132,7 @@ export default class CompoundObject extends Object3D {
 
           this.fromBufferData(message.vertices, message.normals).then(mesh => {
             this.mesh = mesh;
+
             if (this.mesh instanceof THREE.Mesh) {
               this.applyOperationsAsync().then(() => {
                 if (this.viewOptionsUpdateRequired) {

@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled from "@emotion/styled";
+import { Icon } from "@bitbloq/ui";
 import { documentTypes } from "../config";
 
 interface DocumentTypeTagProps {
@@ -7,14 +8,19 @@ interface DocumentTypeTagProps {
   small?: boolean;
 }
 
-const DocumentTypeTag: React.SFC<DocumentTypeTagProps> = ({ document, small }) => (
-  <Container
-    color={documentTypes[document.type] && documentTypes[document.type].color}
-    small={small}
-  >
-    {documentTypes[document.type] && documentTypes[document.type].shortLabel}
-  </Container>
-);
+const DocumentTypeTag: React.SFC<DocumentTypeTagProps> = ({
+  document,
+  small
+}) => {
+  const documentType = documentTypes[document.type] || {};
+
+  return (
+    <Container color={documentType.color} small={small}>
+      <Icon name={documentType.icon} />
+      {documentType.shortLabel}
+    </Container>
+  );
+};
 
 export default DocumentTypeTag;
 
@@ -23,14 +29,20 @@ interface ContainerProps {
   small?: boolean;
 }
 const Container = styled.div<ContainerProps>`
-  border-width: 2px;
-  border-style: solid;
-  border-color: ${props => props.color};
-  color: ${props => props.color};
-  height: ${props => (props.small ? "24px" : "30px")};
+  background-color: ${props => props.color};
+  color: white;
   display: inline-flex;
   align-items: center;
-  padding: 0px 10px;
-  font-size: ${props => (props.small ? "12px" : "14px")};
+  padding: 0px 5px;
   box-sizing: border-box;
+  font-weight: 500;
+  border-radius: 1px;
+  height: ${props => (props.small ? "24px" : "30px")};
+  font-size: ${props => (props.small ? "12px" : "14px")};
+
+  svg {
+    width: ${props => (props.small ? "16px" : "19px")};
+    height: ${props => (props.small ? "16px" : "19px")};
+    margin-right: 6px;
+  }
 `;

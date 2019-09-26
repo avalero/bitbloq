@@ -16,6 +16,7 @@ type Query {
   documents: [Document] @authRequired(requires: [ADMIN, USER])
   document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
+  examples: [Document]
 }
 type Mutation {
   createDocument(input: DocumentIn!): Document
@@ -29,7 +30,7 @@ type Mutation {
     @authRequired(requires: [ADMIN])
 }
 type Subscription {
-  documentUpdated: Document @authRequired(requires: [USER])
+  documentUpdated: Document @authRequired(requires: [ADMIN, USER])
 }
 
 type Document {

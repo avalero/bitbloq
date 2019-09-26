@@ -121,33 +121,25 @@ const contextController = {
   },
 
   generateLoginToken: async user => {
-    let token: string;
-    let role: string;
-    //console.log(user);
-    if (user.admin) {
-      token = await jsonwebtoken.sign(
-        {
-          email: user.email,
-          userID: user._id,
-          role: "ADMIN"
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "4h" }
-      );
-      role = "admin";
-    } else {
-      token = await jsonwebtoken.sign(
-        {
-          email: user.email,
-          userID: user._id,
-          role: "USER"
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "4h" }
-      );
-      role = "user";
-    }
+    const token = await jsonwebtoken.sign(
+      {
+        email: user.email,
+        userID: user._id,
+        role: user.admin ? "ADMIN" : "USER"
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1.1h" }
+    );
+    const role = user.admin ? "admin" : "user";
     return { token, role };
+  },
+
+  generateNewToken: async oldToken => {
+    const data = await contextController.getDataInToken(oldToken);
+    checkOtherSessionOpen(data, oldToken);
+    delete data.exp;
+    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, { expiresIn: "1.1h" });
+    return { data, token };
   }
 };
 

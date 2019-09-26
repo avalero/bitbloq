@@ -160,38 +160,22 @@ const exerciseResolver = {
      * args: exercise ID.
      */
     exercise: async (root: any, args: any, context: any) => {
-      if (context.user.exerciseID) {
-        //  Token de alumno
-        if (context.user.exerciseID !== args.id) {
-          throw new ApolloError(
-            "You only can ask for your token exercise",
-            "NOT_YOUR_EXERCISE"
-          );
-        }
-        const existExercise: IExercise = await ExerciseModel.findOne({
-          _id: context.user.exerciseID
-        });
-        if (!existExercise) {
-          throw new ApolloError(
-            "Exercise does not exist",
-            "EXERCISE_NOT_FOUND"
-          );
-        }
-        return existExercise;
-      } else if (context.user.userID) {
-        //  token de profesor
-        const existExercise: IExercise = await ExerciseModel.findOne({
-          _id: args.id,
-          user: context.user.userID
-        });
-        if (!existExercise) {
-          throw new ApolloError(
-            "Exercise does not exist",
-            "EXERCISE_NOT_FOUND"
-          );
-        }
-        return existExercise;
+      if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new ApolloError(
+          "Invalid or missing id",
+          "EXERCISE_NOT_FOUND"
+        );
       }
+      const existExercise: IExercise = await ExerciseModel.findOne({
+        _id: args.id
+      });
+      if (!existExercise) {
+        throw new ApolloError(
+          "Exercise does not exist",
+          "EXERCISE_NOT_FOUND"
+        );
+      }
+      return existExercise;
     },
 
     /**

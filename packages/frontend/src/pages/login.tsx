@@ -5,6 +5,7 @@ import { navigate, Link } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
 import AccessLayout from "../components/AccessLayout";
 import { LOGIN_MUTATION } from "../apollo/queries";
+import { setToken } from "../lib/session";
 
 const LoginPage: FC = () => {
   const [email, setEmail] = useState("");
@@ -27,8 +28,7 @@ const LoginPage: FC = () => {
   };
 
   const onLoginSuccess = (token: string) => {
-    window.sessionStorage.setItem("authToken", "");
-    window.localStorage.setItem("authToken", token);
+    setToken(token);
     navigate("/app");
   };
 
@@ -68,7 +68,7 @@ const LoginPage: FC = () => {
         <Button secondary onClick={() => navigate("/signup")}>
           Crear una cuenta
         </Button>
-        <Link to="/recover-password">No recuerdo mi contraseña</Link>
+        <Link to="/forgot-password">No recuerdo mi contraseña</Link>
       </LoginPanel>
     </AccessLayout>
   );
@@ -77,8 +77,6 @@ const LoginPage: FC = () => {
 export default LoginPage;
 
 const LoginPanel = styled.div`
-  font-size: 14px;
-
   button {
     width: 100%;
     margin-bottom: 10px;
@@ -92,6 +90,7 @@ const LoginPanel = styled.div`
     text-align: center;
     display: block;
     text-decoration: none;
+    margin-top: 4px;
   }
 `;
 
