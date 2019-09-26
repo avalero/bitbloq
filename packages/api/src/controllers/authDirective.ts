@@ -54,6 +54,13 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
               return resolve.apply(this, args);
             }
             if (
+              roleReq === "PUBLISHER" &&
+              context.user.role.indexOf("pub-") > -1
+            ) {
+              passed = true;
+              return resolve.apply(this, args);
+            }            
+            if (
               roleReq === "STUDENT" &&
               context.user.role.indexOf("stu-") > -1
             ) {

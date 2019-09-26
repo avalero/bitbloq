@@ -25,6 +25,7 @@ type User {
   email: EmailAddress
   password: String
   admin: Boolean
+  publisher: Boolean
   teacher: Boolean
   teacherPro: Boolean
   family: Boolean

@@ -5,6 +5,10 @@ export interface IUser extends Document {
   email?: string;
   password?: string;
   admin?: boolean;
+  publisher?: boolean;
+  teacher?: boolean;
+  teacherPro?: boolean;
+  family?: boolean;
   name?: string;
   center?: string;
   active?: boolean;
@@ -35,6 +39,11 @@ export const ContactSchema: Schema = new Schema({
     type: Boolean,
     default: false
   },
+
+  publisher: {
+    type: Boolean,
+    default: false
+  },  
 
   teacher: {
     type: Boolean,

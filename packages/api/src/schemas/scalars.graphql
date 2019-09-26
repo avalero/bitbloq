@@ -8,6 +8,7 @@ scalar Number
 enum Role {
   USER
   ADMIN
+  PUBLISHER
   TEACHER
   TEACHERPRO
   STUDENT

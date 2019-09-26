@@ -67,22 +67,6 @@ const contextController = {
           }
           return user;
         }
-        //  else if (user.role.indexOf("tchr-")>-1) {
-        //   if (process.env.USE_REDIS === "true") {
-        //     return checkOtherSessionOpen(user, justToken);
-        //   }
-        //   return user;
-        // } else if (user.role.indexOf("admin-")>-1) {
-        //   if (process.env.USE_REDIS === "true") {
-        //     return checkOtherSessionOpen(user, justToken);
-        //   }
-        //   return user;
-        // } else if (user.submissionID) {
-        //   if (process.env.USE_REDIS === "true") {
-        //     return checkOtherSessionOpen(user, justToken);
-        //   }
-        //   return user;
-        // }
       }
     } else if (type === "Basic") {
       const data = await contextController.getDataInBasicAuth(justToken);
@@ -138,6 +122,9 @@ const contextController = {
     if (user.admin) {
       rolePerm = rolePerm.concat("admin-");
     }
+    if (user.publisher) {
+      rolePerm = rolePerm.concat("pub-");
+    }    
     if (user.teacher) {
       rolePerm = rolePerm.concat("tchr-");
     }
