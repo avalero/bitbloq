@@ -1,5 +1,6 @@
 import { ApolloError } from "apollo-server-koa";
 import { UploadModel } from "../models/upload";
+import { urlencoded } from "express";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
@@ -10,6 +11,28 @@ const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
 let publicUrl: string, fileSize: number;
 
+const normalize = (function() {
+  var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
+    to = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
+    mapping = {};
+
+  for (var i = 0, j = from.length; i < j; i++)
+    mapping[from.charAt(i)] = to.charAt(i);
+
+  return function(str) {
+    var ret = [];
+    for (var i = 0, j = str.length; i < j; i++) {
+      var c = str.charAt(i);
+      if (mapping.hasOwnProperty(str.charAt(i))) ret.push(mapping[c]);
+      else ret.push(c);
+    }
+    return ret
+      .join("")
+      .replace(/[^-A-Za-z0-9]+/g, "-")
+      .toLowerCase();
+  };
+})();
+
 const processUpload = async (
   createReadStream,
   filename,
@@ -17,7 +40,7 @@ const processUpload = async (
   resolve,
   reject
 ) => {
-  const uniqueName: string = Date.now() + filename;
+  const uniqueName: string = Date.now() + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
   const file = bucket.file(gcsName);
 
@@ -62,7 +85,6 @@ function getFilesizeInBytes(filename) {
 }
 
 export async function uploadImage(image, documentID, userID) {
-  console.log(await image, image);
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
     throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
