@@ -111,7 +111,10 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
           </>
         }
         cancelText="Salir del ejercicio"
-        onCancel={() => window.close()}
+        onCancel={() => {
+          window.close();
+          window.location.assign("/");
+        }}
       />
     );
   } else {
