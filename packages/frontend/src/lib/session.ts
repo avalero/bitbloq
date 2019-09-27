@@ -25,8 +25,10 @@ const getSession = (tempSession?: string): Session | null => {
   const session = JSON.parse(sessionString);
 
   if (Date.now() - session.time > TOKEN_DURATION_MINUTES * 60000) {
-    triggerEvent({ event: "expired", tempSession });
-    setSession({ token: "", time: 0 });
+    if (session.token) {
+      triggerEvent({ event: "expired", tempSession });
+      setSession({ token: "", time: 0 });
+    }
     return null;
   } else {
     return session;

@@ -57,9 +57,8 @@ const Route = ({
   });
 
   useSessionEvent("expired", () => {
-    setToken("");
     if (requiresSession) {
-      logout();
+      logout(false);
     }
   });
 
@@ -68,6 +67,7 @@ const Route = ({
       <ErrorLayout
         title="Has iniciado sesión en otro dispositivo"
         text="Solo se puede tener una sesión abierta al mismo tiempo"
+        onOk={() => logout(false)}
       />
     );
   }
