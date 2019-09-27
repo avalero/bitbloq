@@ -12,17 +12,17 @@ const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 let publicUrl: string, fileSize: number;
 
 const normalize = (function() {
-  var from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
+  let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
     to = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
     mapping = {};
 
-  for (var i = 0, j = from.length; i < j; i++)
+  for (let i = 0, j = from.length; i < j; i++)
     mapping[from.charAt(i)] = to.charAt(i);
 
   return function(str) {
-    var ret = [];
-    for (var i = 0, j = str.length; i < j; i++) {
-      var c = str.charAt(i);
+    let ret = [];
+    for (let i = 0, j = str.length; i < j; i++) {
+      let c = str.charAt(i);
       if (mapping.hasOwnProperty(str.charAt(i))) ret.push(mapping[c]);
       else ret.push(c);
     }
@@ -145,6 +145,12 @@ const uploadResolver = {
       } = await args.file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
+      }
+      if (mimetype !== "model/stl") {
+        throw new ApolloError(
+          "Upload error, check file format. It must be an STL",
+          "UPLOAD_FORMAT_ERROR"
+        );
       }
       await new Promise((resolve, reject) => {
         processUpload(
