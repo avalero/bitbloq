@@ -8,9 +8,17 @@ export interface ErrorLayoutProps {
   title?: string;
   code?: string;
   text?: string;
+  okText?: string;
+  onOk?: () => any;
 }
 
-const ErrorLayout: FC<ErrorLayoutProps> = ({ title, code, text }) => {
+const ErrorLayout: FC<ErrorLayoutProps> = ({
+  title,
+  code,
+  text,
+  okText,
+  onOk
+}) => {
   return (
     <Wrap>
       <Container>
@@ -19,11 +27,18 @@ const ErrorLayout: FC<ErrorLayoutProps> = ({ title, code, text }) => {
           {code && <Code>{code}</Code>}
           {title && <Title>{title}</Title>}
           {text && <Text>{text}</Text>}
-    <Button tertiary onClick={() => navigate("/")}>Volver al inicio</Button>
+          <Button tertiary onClick={onOk}>
+            {okText}
+          </Button>
         </MainPanel>
       </Container>
     </Wrap>
   );
+};
+
+ErrorLayout.defaultProps = {
+  okText: "Volver al inicio",
+  onOk: () => navigate("/")
 };
 
 export default ErrorLayout;
