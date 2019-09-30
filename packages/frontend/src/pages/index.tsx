@@ -9,7 +9,8 @@ import {
   Button,
   Icon,
   DropDown,
-  HorizontalRule
+  HorizontalRule,
+  Spinner
 } from "@bitbloq/ui";
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
@@ -24,7 +25,7 @@ import studentStep2Image from "../images/student-step-2.svg";
 import heroImage from "../images/home_beta-decoration.svg";
 
 const IndexPage: FC = () => {
-  const { data } = useQuery(ME_QUERY);
+  const { data, loading } = useQuery(ME_QUERY);
   const client = useApolloClient();
 
   const [exerciseCode, setExerciseCode] = useState("");
@@ -33,8 +34,13 @@ const IndexPage: FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  if (loading) {
+    return <Loading />;
+  }
+
   if (data && data.me) {
     navigate("/app");
+    return <Loading />;
   }
 
   const onNewDocument = (type: string) => {
@@ -289,7 +295,20 @@ const IndexPage: FC = () => {
 
 export default IndexPage;
 
-/* Styled components */
+/* styled components */
+
+interface LoadingProps {
+  type?: string;
+}
+const Loading = styled(Spinner)<LoadingProps>`
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-color: ${(props: LoadingProps) =>
+    (props.type && documentTypes[props.type].color) || colors.gray1};
+  color: ${(props: LoadingProps) => (props.type ? "white" : "inherit")};
+  display: flex;
+`;
 
 const Container = styled.div`
   max-width: 1280px;
