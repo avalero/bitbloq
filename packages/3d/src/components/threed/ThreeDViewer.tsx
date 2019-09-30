@@ -10,7 +10,7 @@ import {
   Renderer
 } from "@bitbloq/lib3d";
 import { getSelectedObjects } from "../../reducers/threed/";
-import { Icon, withTranslate } from "@bitbloq/ui";
+import { Icon, Tooltip, TooltipProps, withTranslate } from "@bitbloq/ui";
 
 const SLOW_TIMEOUT_MS = 3000;
 
@@ -273,19 +273,46 @@ class ThreeDViewer extends React.Component<
     return (
       <Container ref={this.rendererContainerRef}>
         <CameraButtons>
-          <CameraButton onClick={this.onCenter}>
-            <Icon name="center" />
-          </CameraButton>
-          <CameraButton onClick={this.onZoomIn}>
-            <Icon name="plus" />
-          </CameraButton>
-          <CameraButton onClick={this.onZoomOut}>
-            <Icon name="minus" />
-          </CameraButton>
-          <CameraButton onClick={this.onToggleOrthographic} wideIcon>
-            {isOrthographic && <Icon name="perspective" />}
-            {!isOrthographic && <Icon name="orthographic" />}
-          </CameraButton>
+          <Tooltip position="right" content={t("tooltip-center-view")}>
+            {(tooltipProps: TooltipProps) => (
+              <CameraButton {...tooltipProps} onClick={this.onCenter}>
+                <Icon name="center" />
+              </CameraButton>
+            )}
+          </Tooltip>
+          <Tooltip position="right" content={t("tooltip-zoom-plus")}>
+            {(tooltipProps: TooltipProps) => (
+              <CameraButton {...tooltipProps} onClick={this.onZoomIn}>
+                <Icon name="plus" />
+              </CameraButton>
+            )}
+          </Tooltip>
+          <Tooltip position="right" content={t("tooltip-zoom-minus")}>
+            {(tooltipProps: TooltipProps) => (
+              <CameraButton {...tooltipProps} onClick={this.onZoomOut}>
+                <Icon name="minus" />
+              </CameraButton>
+            )}
+          </Tooltip>
+          <Tooltip
+            position="right"
+            content={
+              isOrthographic
+                ? t("tooltip-perspective-view")
+                : t("tooltip-orthogonal-view")
+            }
+          >
+            {(tooltipProps: TooltipProps) => (
+              <CameraButton
+                {...tooltipProps}
+                onClick={this.onToggleOrthographic}
+                wideIcon
+              >
+                {isOrthographic && <Icon name="perspective" />}
+                {!isOrthographic && <Icon name="orthographic" />}
+              </CameraButton>
+            )}
+          </Tooltip>
         </CameraButtons>
         <StatusBar>
           {selectedPosition && (
