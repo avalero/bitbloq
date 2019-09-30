@@ -34,7 +34,7 @@ const LoginPage: FC = () => {
 
   return (
     <AccessLayout title="Bitbloq - Login" panelTitle="Entrar">
-      <LoginPanel>
+      <LoginPanel onSubmit={(event: Event) => event.preventDefault()}>
         <FormGroup>
           <label>Correo electrónico</label>
           <Input
@@ -62,7 +62,7 @@ const LoginPage: FC = () => {
             Correo electrónico o contraseña no válidos
           </ErrorMessage>
         )}
-        <Button onClick={() => onLoginClick()} disabled={loggingIn}>
+        <Button type="submit" onClick={() => onLoginClick()} disabled={loggingIn}>
           Entrar
         </Button>
         <Button secondary onClick={() => navigate("/signup")}>
@@ -76,7 +76,7 @@ const LoginPage: FC = () => {
 
 export default LoginPage;
 
-const LoginPanel = styled.div`
+const LoginPanel = styled.form`
   button {
     width: 100%;
     margin-bottom: 10px;
