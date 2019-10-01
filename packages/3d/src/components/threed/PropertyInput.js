@@ -1,15 +1,15 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
+import React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
 import {
   Checkbox,
   ColorPicker,
   NumberInput,
   Input,
   Select,
-  Translate,
-} from '@bitbloq/ui';
-import { STLLoader } from '@bitbloq/lib3d';
+  Translate
+} from "@bitbloq/ui";
+import { STLLoader } from "@bitbloq/lib3d";
 
 const FormGroup = styled.div`
   margin-bottom: 10px;
@@ -43,11 +43,13 @@ const IntegerProperty = ({
   unit,
   fineStep,
   minValue,
-  maxValue
+  maxValue,
+  tooltipProps
 }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
     <NumberInput
+      tooltipProps={tooltipProps}
       value={value}
       unit={unit}
       onChange={value => onChange(value)}
@@ -60,16 +62,21 @@ const IntegerProperty = ({
   </FormGroup>
 );
 
-const StringProperty = ({ label, value, onChange }) => (
+const StringProperty = ({ label, value, onChange, tooltipProps }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
-    <Input value={value} onChange={e => onChange(e.target.value)} />
+    <Input
+      {...tooltipProps}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+    />
   </FormGroup>
 );
 
-const FileProperty = ({ onChange }) => (
+const FileProperty = ({ onChange, tooltipProps }) => (
   <FormGroup>
     <input
+      {...tooltipProps}
       type="file"
       onChange={e => {
         const file = e.target.files[0];
@@ -95,16 +102,18 @@ const SelectProperty = ({
   onChange,
   onFocus,
   onBlur,
+  tooltipProps
 }) => (
   <Translate>
     {t => (
       <FormGroup>
         <label>{t(label)}</label>
         <StyledSelect
+          {...tooltipProps}
           value={value}
           options={options.map(o => ({
             ...o,
-            label: o.labelId ? t(o.labelId) : o.label,
+            label: o.labelId ? t(o.labelId) : o.label
           }))}
           selectConfig={{ isSearchable: false }}
           onChange={onChange}
@@ -116,27 +125,35 @@ const SelectProperty = ({
   </Translate>
 );
 
-const BooleanProperty = ({ label, value, onChange }) => (
+const BooleanProperty = ({ label, value, onChange, tooltipProps }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
-    <Checkbox checked={value} onChange={onChange} />
+    <Checkbox tooltipProps={tooltipProps} checked={value} onChange={onChange} />
   </FormGroup>
 );
 
-const ColorProperty = ({ label, value, onChange }) => (
+const ColorProperty = ({ label, value, onChange, tooltipProps }) => (
   <FormGroup>
     <Translate>{t => <label>{t(label)}</label>}</Translate>
-    <ColorPickerWrap>
+    <ColorPickerWrap {...tooltipProps}>
       <ColorPicker color={value} onChange={onChange} position="top-right" />
     </ColorPickerWrap>
   </FormGroup>
 );
 
-const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
+const PropertyInput = ({
+  parameter,
+  value,
+  onChange,
+  onFocus,
+  onBlur,
+  tooltipProps
+}) => {
   switch (parameter.type) {
-    case 'integer':
+    case "integer":
       return (
         <IntegerProperty
+          tooltipProps={tooltipProps}
           label={parameter.label}
           unit={parameter.unit}
           fineStep={parameter.fineStep}
@@ -148,17 +165,19 @@ const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
           onBlur={onBlur}
         />
       );
-    case 'string':
+    case "string":
       return (
         <StringProperty
+          tooltipProps={tooltipProps}
           label={parameter.label}
           value={value}
           onChange={onChange}
         />
       );
-    case 'select':
+    case "select":
       return (
         <SelectProperty
+          tooltipProps={tooltipProps}
           label={parameter.label}
           value={value}
           onChange={onChange}
@@ -167,25 +186,28 @@ const PropertyInput = ({ parameter, value, onChange, onFocus, onBlur }) => {
           options={parameter.options}
         />
       );
-    case 'boolean':
+    case "boolean":
       return (
         <BooleanProperty
+          tooltipProps={tooltipProps}
           label={parameter.label}
           value={value}
           onChange={onChange}
         />
       );
-    case 'color':
+    case "color":
       return (
         <ColorProperty
+          tooltipProps={tooltipProps}
           label={parameter.label}
           value={value}
           onChange={onChange}
         />
       );
-    case 'file':
+    case "file":
       return (
         <FileProperty
+          tooltipProps={tooltipProps}
           label={parameter.label}
           value={value}
           onChange={onChange}
