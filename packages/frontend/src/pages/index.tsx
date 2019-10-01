@@ -263,12 +263,12 @@ const IndexPage: FC = () => {
       <Footer>
         <MainFooter>
           <FooterContainer>
-            <FooterLeft>
+            {/* <FooterLeft>
               <h2>Contacto</h2>
               <p>Bq Educación</p>
               <p>900 00 00 00</p>
               <p>soporte.bitbloq@bq.com</p>
-            </FooterLeft>
+            </FooterLeft> */}
             <FooterRight>
               <p>Bitbloq es un proyecto de:</p>
               <img src={bqLogo} alt="BQ" />
@@ -598,10 +598,10 @@ const MainFooter = styled.div`
 const FooterContainer = styled(Container)`
   display: flex;
   padding: 40px 50px;
+  justify-content: flex-end;
 `;
 
 const FooterLeft = styled.div`
-  flex: 1;
   h2 {
     font-size: 16px;
     font-weight: bold;
@@ -612,11 +612,13 @@ const FooterLeft = styled.div`
   }
 `;
 
-const FooterRight = styled.div`
-  display: flex;
+const FooterRight = styled.div`  
+display: flex;
+width:480.56px;
   align-items: center;
   p {
     margin-right: 20px;
+    white-space: nowrap;
   }
 `;
 
