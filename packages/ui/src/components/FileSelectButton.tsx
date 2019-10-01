@@ -17,7 +17,7 @@ class FileSelectButton extends React.Component<
   };
 
   render() {
-    const { onFileSelected, type, ...restProps } = this.props;
+    const { onFileSelected, accept, ...restProps } = this.props;
     return (
       <>
         <Button {...restProps} onClick={this.onClick} />
@@ -25,6 +25,7 @@ class FileSelectButton extends React.Component<
           type="file"
           style={{ display: "none" }}
           ref={this.input}
+          accept={accept}
           onChange={(e: React.FormEvent<HTMLInputElement>) => {
             const files = (e.target as HTMLInputElement).files;
             if (files && files[0]) {

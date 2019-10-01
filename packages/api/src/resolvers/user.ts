@@ -408,7 +408,7 @@ const storeTokenInRedis = (id: string, token: string) => {
       }
     });
   }
-}
+};
 
 const getResetPasswordData = async (token: string) => {
   if (!token) {
@@ -441,7 +441,6 @@ const getResetPasswordData = async (token: string) => {
   }
 
   return dataInToken;
-}
-
+};
 
 export default userResolver;

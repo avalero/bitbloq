@@ -4,8 +4,10 @@ import { setToken } from "./session";
 
 const useLogout = () => {
   const client = useApolloClient();
-  return () => {
-    setToken("");
+  return (resetToken: boolean = true) => {
+    if (resetToken) {
+      setToken("");
+    }
     client.resetStore();
     window.location.assign("/");
   };

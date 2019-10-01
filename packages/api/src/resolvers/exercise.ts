@@ -161,10 +161,7 @@ const exerciseResolver = {
      */
     exercise: async (root: any, args: any, context: any) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
-        throw new ApolloError(
-          "Invalid or missing id",
-          "EXERCISE_NOT_FOUND"
-        );
+        throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
       const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id

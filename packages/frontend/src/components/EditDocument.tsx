@@ -39,9 +39,9 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     description: "",
     public: false,
     example: false,
-    image: "",
     type
   });
+  const [image, setImage] = useState("");
 
   const { loading: loadingDocument, error, data, refetch } = useQuery(
     DOCUMENT_QUERY,
@@ -56,6 +56,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       setLoading(false);
     } else if (!loadingDocument) {
       setDocument(data.document);
+      setImage(data.document && data.document.image);
       setLoading(false);
     }
   }, [loadingDocument]);
@@ -71,6 +72,10 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     }, 1000),
     [id]
   );
+
+  useEffect(() => {
+    setImage(data && data.document && data.document.image);
+  }, [data]);
 
   const update = async (document: any) => {
     setDocument(document);
@@ -100,7 +105,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
 
   if (loading) return <Loading color={documentType.color} />;
 
-  const { title, description, image, public: isPublic, example: isExample } =
+  const { title, description, public: isPublic, example: isExample } =
     document || {};
 
   const location = window.location;

@@ -151,7 +151,9 @@ const contextController = {
     const data = await contextController.getDataInToken(oldToken);
     checkOtherSessionOpen(data, oldToken);
     delete data.exp;
-    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, { expiresIn: "1.1h" });
+    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, {
+      expiresIn: "1.1h"
+    });
     return { data, token };
   }
 };
