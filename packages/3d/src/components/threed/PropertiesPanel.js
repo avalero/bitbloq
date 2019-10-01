@@ -1,9 +1,9 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import { Spring } from 'react-spring';
-import { DragDropContext } from 'react-beautiful-dnd';
+import React from "react";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { Spring } from "react-spring";
+import { DragDropContext } from "react-beautiful-dnd";
 import {
   updateObject,
   updateObjectParameter,
@@ -19,13 +19,13 @@ import {
   setActiveOperation,
   unsetActiveOperation,
   ungroup,
-  convertToGroup,
-} from '../../actions/threed';
-import { getObjects, getSelectedObjects } from '../../reducers/threed/';
-import PropertyInput from './PropertyInput';
-import OperationsList from './OperationsList';
-import { DropDown, Icon, Input, Tooltip, withTranslate } from '@bitbloq/ui';
-import config from '../../config/threed';
+  convertToGroup
+} from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import PropertyInput from "./PropertyInput";
+import OperationsList from "./OperationsList";
+import { DropDown, Icon, Input, Tooltip, withTranslate } from "@bitbloq/ui";
+import config from "../../config/threed";
 
 const Wrap = styled.div`
   display: flex;
@@ -193,6 +193,7 @@ class PropertiesPanel extends React.Component {
     draggingOperations: false,
     contextMenuOpen: false,
     editingName: false,
+    errors: new Map()
   };
 
   nameInputRef = React.createRef();
@@ -204,16 +205,16 @@ class PropertiesPanel extends React.Component {
   }
 
   onObjectNameChange = (object, name) => {
-    this.props.updateObjectViewOption(object, 'name', name);
+    this.props.updateObjectViewOption(object, "name", name);
   };
 
   onObjectParameterChange = (object, parameter, value) => {
-    if (parameter.name === 'baseObject') {
+    if (parameter.name === "baseObject") {
       const newChildren = object.children.filter(c => c !== value);
       newChildren.unshift(value);
       this.props.updateObject({
         ...object,
-        children: newChildren,
+        children: newChildren
       });
     } else if (parameter.isViewOption) {
       this.props.updateObjectViewOption(object, parameter.name, value);
@@ -228,7 +229,7 @@ class PropertiesPanel extends React.Component {
     } else {
       this.props.updateOperation(object, {
         ...operation,
-        [parameter.name]: value,
+        [parameter.name]: value
       });
     }
   };
@@ -302,7 +303,7 @@ class PropertiesPanel extends React.Component {
       setActiveOperation,
       unsetActiveOperation,
       advancedMode,
-      isTopObject,
+      isTopObject
     } = this.props;
     const { color } = object.viewOptions;
 
@@ -316,22 +317,22 @@ class PropertiesPanel extends React.Component {
 
     if (typeConfig.showBaseObject) {
       parameters.push({
-        name: 'baseObject',
-        label: 'param-base-object',
-        type: 'select',
+        name: "baseObject",
+        label: "param-base-object",
+        type: "select",
         options: object.children.map(child => ({
           label: child.viewOptions.name,
-          value: child,
-        })),
+          value: child
+        }))
       });
     }
 
     if (!typeConfig.withoutColor) {
       parameters.push({
-        name: 'color',
-        label: 'param-color',
-        type: 'color',
-        isViewOption: true,
+        name: "color",
+        label: "param-color",
+        type: "color",
+        isViewOption: true
       });
     }
 
@@ -365,20 +366,20 @@ class PropertiesPanel extends React.Component {
             <ContextMenu>
               {isTopObject && (
                 <ContextMenuOption onClick={this.onDuplicateClick}>
-                  <Icon name="duplicate" /> {t('menu-duplicate')}
+                  <Icon name="duplicate" /> {t("menu-duplicate")}
                 </ContextMenuOption>
               )}
               <ContextMenuOption onClick={this.onRenameClick}>
-                <Icon name="pencil" /> {t('menu-rename')}
+                <Icon name="pencil" /> {t("menu-rename")}
               </ContextMenuOption>
               {canUngroup && (
                 <ContextMenuOption onClick={this.onUngroupClick}>
-                  <Icon name="ungroup" /> {t('menu-ungroup')}
+                  <Icon name="ungroup" /> {t("menu-ungroup")}
                 </ContextMenuOption>
               )}
               {canConverToGroup && (
                 <ContextMenuOption onClick={this.onConvertToGroupClick}>
-                  <Icon name="group" /> {t('menu-convert-to-group')}
+                  <Icon name="group" /> {t("menu-convert-to-group")}
                 </ContextMenuOption>
               )}
               {canUndo && isTopObject && (
@@ -388,7 +389,7 @@ class PropertiesPanel extends React.Component {
               )}
               {isTopObject && (
                 <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
-                  <Icon name="trash" /> {t('menu-delete')}
+                  <Icon name="trash" /> {t("menu-delete")}
                 </ContextMenuOption>
               )}
             </ContextMenu>
@@ -396,20 +397,87 @@ class PropertiesPanel extends React.Component {
         </Header>
         <ObjectProperties>
           <ParametersPanel>
-            {parameters.map(parameter => (
-              <PropertyInput
-                key={parameter.name}
-                parameter={parameter}
-                value={
-                  parameter.isViewOption
-                    ? object.viewOptions && object.viewOptions[parameter.name]
-                    : object.parameters && object.parameters[parameter.name]
-                }
-                onChange={value =>
-                  this.onObjectParameterChange(object, parameter, value)
-                }
-              />
-            ))}
+            {parameters.map(parameter =>
+              this.state.errors.has(`${object.id}-${parameter.name}`) &&
+              this.state.errors.get(`${object.id}-${parameter.name}`) ? (
+                <Tooltip
+                  key={parameter.name}
+                  position="left"
+                  content={t(parameter.errorMessage, [parameter.errorValue])}
+                  isVisible={true}
+                >
+                  {tooltipProps => (
+                    <PropertyInput
+                      tooltipProps={tooltipProps}
+                      parameter={parameter}
+                      value={
+                        parameter.isViewOption
+                          ? object.viewOptions &&
+                            object.viewOptions[parameter.name]
+                          : object.parameters &&
+                            object.parameters[parameter.name]
+                      }
+                      onChange={value => {
+                        const prevValue = parameter.isViewOption
+                          ? object.viewOptions &&
+                            object.viewOptions[parameter.name]
+                          : object.parameters &&
+                            object.parameters[parameter.name];
+                        if (!parameter.validate || parameter.validate(value)) {
+                          let errors = this.state.errors;
+                          errors.set(`${object.id}-${parameter.name}`, false);
+                          this.setState({ errors });
+                          this.onObjectParameterChange(
+                            object,
+                            parameter,
+                            value
+                          );
+                        } else {
+                          let errors = this.state.errors;
+                          errors.set(`${object.id}-${parameter.name}`, true);
+                          this.setState({ errors });
+                          this.onObjectParameterChange(
+                            object,
+                            parameter,
+                            prevValue
+                          );
+                        }
+                      }}
+                    />
+                  )}
+                </Tooltip>
+              ) : (
+                <PropertyInput
+                  key={parameter.name}
+                  parameter={parameter}
+                  value={
+                    parameter.isViewOption
+                      ? object.viewOptions && object.viewOptions[parameter.name]
+                      : object.parameters && object.parameters[parameter.name]
+                  }
+                  onChange={value => {
+                    const prevValue = parameter.isViewOption
+                      ? object.viewOptions && object.viewOptions[parameter.name]
+                      : object.parameters && object.parameters[parameter.name];
+                    if (!parameter.validate || parameter.validate(value)) {
+                      let errors = this.state.errors;
+                      errors.set(`${object.id}-${parameter.name}`, false);
+                      this.setState({ errors });
+                      this.onObjectParameterChange(object, parameter, value);
+                    } else {
+                      let errors = this.state.errors;
+                      errors.set(`${object.id}-${parameter.name}`, true);
+                      this.setState({ errors });
+                      this.onObjectParameterChange(
+                        object,
+                        parameter,
+                        prevValue
+                      );
+                    }
+                  }}
+                />
+              )
+            )}
           </ParametersPanel>
           {advancedMode && (
             <ObjectButtons>
@@ -478,7 +546,7 @@ const mapStateToProps = ({ threed }) => {
   return {
     object,
     advancedMode: threed.ui.advancedMode,
-    isTopObject: topObjects.includes(object),
+    isTopObject: topObjects.includes(object)
   };
 };
 
@@ -504,7 +572,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(reorderOperation(object, operation, from, to)),
   setActiveOperation: ({ object, type, axis, relative, id }) =>
     dispatch(setActiveOperation(object, type, axis, relative, id)),
-  unsetActiveOperation: () => dispatch(unsetActiveOperation()),
+  unsetActiveOperation: () => dispatch(unsetActiveOperation())
 });
 
 export default connect(
