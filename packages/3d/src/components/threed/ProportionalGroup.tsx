@@ -80,7 +80,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                         this.setState({ errors });
                       }}
                       onChange={(value: any, text: string) => {
-                        this.onParameterChange(parameter, value);
+                        const oldValue = operation[parameter.name];
                         let errors: Map<string, boolean> = this.state.errors;
                         if (
                           text &&
@@ -92,6 +92,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                               errors.set(param.name, false);
                             });
                           }
+                          this.onParameterChange(parameter, value);
                         } else if (
                           !text &&
                           (!parameter.validate || parameter.validate(+value))
@@ -102,6 +103,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                               errors.set(param.name, false);
                             });
                           }
+                          this.onParameterChange(parameter, value);
                         } else {
                           errors.set(parameter.name, true);
                           if (this.state.isLocked) {
@@ -109,6 +111,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                               errors.set(param.name, true);
                             });
                           }
+                          this.onParameterChange(parameter, oldValue);
                         }
                         this.setState({ errors });
                       }}
@@ -138,7 +141,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                     this.setState({ errors });
                   }}
                   onChange={(value: any, text: string) => {
-                    this.onParameterChange(parameter, value);
+                    const oldValue = operation[parameter.name];
                     let errors: Map<string, boolean> = this.state.errors;
                     if (
                       text &&
@@ -150,6 +153,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                           errors.set(param.name, false);
                         });
                       }
+                      this.onParameterChange(parameter, value);
                     } else if (
                       !text &&
                       (!parameter.validate || parameter.validate(+value))
@@ -160,6 +164,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                           errors.set(param.name, false);
                         });
                       }
+                      this.onParameterChange(parameter, value);
                     } else {
                       errors.set(parameter.name, true);
                       if (this.state.isLocked) {
@@ -167,6 +172,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                           errors.set(param.name, true);
                         });
                       }
+                      this.onParameterChange(parameter, oldValue);
                     }
                     this.setState({ errors });
                   }}
