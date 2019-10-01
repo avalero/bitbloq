@@ -114,17 +114,18 @@ export default class NumberInput extends React.Component {
 
   onChange = e => {
     const { onChange, minValue, maxValue } = this.props;
+    const value = e.target.value;
 
     this.setState({
-      text: e.target.value
+      text: value
     });
 
     if (onChange) {
       const newValue = Math.min(
-        Math.max(Number(e.target.value) || 0, minValue),
+        Math.max(Number(value) || 0, minValue),
         maxValue
       );
-      onChange(newValue);
+      onChange(newValue, value);
     }
   };
 

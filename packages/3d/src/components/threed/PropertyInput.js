@@ -52,7 +52,7 @@ const IntegerProperty = ({
       tooltipProps={tooltipProps}
       value={value}
       unit={unit}
-      onChange={value => onChange(value)}
+      onChange={(value, text) => onChange(value, text)}
       onFocus={onFocus}
       onBlur={onBlur}
       fineStep={fineStep}

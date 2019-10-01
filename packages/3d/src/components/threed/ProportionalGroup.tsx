@@ -1,6 +1,12 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { Button, Icon } from "@bitbloq/ui";
+import {
+  Button,
+  Icon,
+  Tooltip,
+  TooltipProps,
+  withTranslate
+} from "@bitbloq/ui";
 import PropertyInput from "./PropertyInput";
 
 export interface IProportionalGroupProps {
@@ -11,7 +17,8 @@ export interface IProportionalGroupProps {
 
 class ProportionalGroup extends React.Component<IProportionalGroupProps> {
   state = {
-    isLocked: true
+    isLocked: true,
+    errors: new Map<string, boolean>()
   };
 
   onParameterChange = (parameter: object, value: any) => {
@@ -34,7 +41,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
   };
 
   render() {
-    const { parameters, operation } = this.props;
+    const { parameters, operation, t, tooltipProps } = this.props;
     const { isLocked } = this.state;
 
     const count = parameters.length;
@@ -43,15 +50,107 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
       <Container>
         {parameters.map((parameter, i) => (
           <React.Fragment key={parameter.name}>
-            <PropertyInput
-              parameter={{ ...parameter, type: "integer" }}
-              value={operation[parameter.name]}
-              onChange={(value: any) =>
-                this.onParameterChange(parameter, value)
-              }
-            />
-            {i > 0 && (
-              <Line style={{ transform: `translate(0, ${(i - 1) * 46}px)` }} />
+            {this.state.errors.has(parameter.name) &&
+            this.state.errors.get(parameter.name) ? (
+              <Tooltip
+                position="left"
+                content={t(parameter.errorMessage, [parameter.errorValue])}
+                isVisible={true}
+              >
+                {(tooltipProps: TooltipProps) => (
+                  <>
+                    <PropertyInput
+                      tooltipProps={tooltipProps}
+                      parameter={{ ...parameter, type: "integer" }}
+                      value={operation[parameter.name]}
+                      onChange={(value: any, text: string) => {
+                        this.onParameterChange(parameter, value);
+                        let errors: Map<string, boolean> = this.state.errors;
+                        if (
+                          text &&
+                          (!parameter.validate || parameter.validate(+text))
+                        ) {
+                          errors.set(parameter.name, false);
+                          if (this.state.isLocked) {
+                            parameters.forEach(param => {
+                              errors.set(param.name, false);
+                            });
+                          }
+                        } else if (
+                          !text &&
+                          (!parameter.validate || parameter.validate(+value))
+                        ) {
+                          errors.set(parameter.name, false);
+                          if (this.state.isLocked) {
+                            parameters.forEach(param => {
+                              errors.set(param.name, false);
+                            });
+                          }
+                        } else {
+                          errors.set(parameter.name, true);
+                          if (this.state.isLocked) {
+                            parameters.forEach(param => {
+                              errors.set(param.name, true);
+                            });
+                          }
+                        }
+                        this.setState({ errors });
+                      }}
+                    />
+                    {i > 0 && (
+                      <Line
+                        style={{ transform: `translate(0, ${(i - 1) * 46}px)` }}
+                      />
+                    )}
+                  </>
+                )}
+              </Tooltip>
+            ) : (
+              <>
+                <PropertyInput
+                  tooltipProps={tooltipProps}
+                  parameter={{ ...parameter, type: "integer" }}
+                  value={operation[parameter.name]}
+                  onChange={(value: any, text: string) => {
+                    this.onParameterChange(parameter, value);
+                    let errors: Map<string, boolean> = this.state.errors;
+                    if (
+                      text &&
+                      (!parameter.validate || parameter.validate(+text))
+                    ) {
+                      errors.set(parameter.name, false);
+                      if (this.state.isLocked) {
+                        parameters.forEach(param => {
+                          errors.set(param.name, false);
+                        });
+                      }
+                    } else if (
+                      !text &&
+                      (!parameter.validate || parameter.validate(+value))
+                    ) {
+                      errors.set(parameter.name, false);
+                      if (this.state.isLocked) {
+                        parameters.forEach(param => {
+                          errors.set(param.name, false);
+                        });
+                      }
+                    } else {
+                      errors.set(parameter.name, true);
+                      if (this.state.isLocked) {
+                        parameters.forEach(param => {
+                          errors.set(param.name, true);
+                        });
+                      }
+                    }
+                    this.setState({ errors });
+                  }}
+                />
+                {i > 0 && (
+                  <Line
+                    style={{ transform: `translate(0, ${(i - 1) * 46}px)` }}
+                  />
+                )}
+              </>
             )}
           </React.Fragment>
         ))}
@@ -63,7 +162,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
   }
 }
 
-export default ProportionalGroup;
+export default withTranslate(ProportionalGroup);
 
 const Container = styled.div`
   position: relative;
