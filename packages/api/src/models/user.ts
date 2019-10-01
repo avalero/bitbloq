@@ -16,7 +16,8 @@ export interface IUser extends Document {
   authToken?: string;
   notifications?: boolean;
   signUpSurvey?: JSON;
-  rootFolder?: string;
+  rootFolder?: Date;
+  lastLogin?: string;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -84,6 +85,10 @@ export const ContactSchema: Schema = new Schema({
 
   notifications: {
     type: Boolean
+  },
+
+  lastLogin: {
+    type: Date
   },
 
   signUpSurvey: {

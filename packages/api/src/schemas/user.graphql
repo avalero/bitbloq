@@ -38,6 +38,7 @@ type User {
   notifications: Boolean
   createdAt: Date
   updatedAt: Date
+  lastLogin: Date
   signUpSurvey: JSON
   rootFolder: ObjectID
   documents: [Document]
