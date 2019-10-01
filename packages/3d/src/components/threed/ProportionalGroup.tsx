@@ -9,6 +9,7 @@ import {
 } from "@bitbloq/ui";
 import PropertyInput from "./PropertyInput";
 import warningIcon from "../../assets/images/warning.svg";
+import errorSound from "../../assets/sounds/error.mp3";
 
 export interface IProportionalGroupProps {
   parameters: object[];
@@ -65,6 +66,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
               >
                 {(tooltipProps: TooltipProps) => (
                   <>
+                    <audio src={errorSound} autoPlay />
                     <PropertyInput
                       tooltipProps={tooltipProps}
                       parameter={{ ...parameter, type: "integer" }}

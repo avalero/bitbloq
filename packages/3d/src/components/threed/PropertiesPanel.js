@@ -27,6 +27,7 @@ import OperationsList from "./OperationsList";
 import { DropDown, Icon, Input, Tooltip, withTranslate } from "@bitbloq/ui";
 import config from "../../config/threed";
 import warningIcon from "../../assets/images/warning.svg";
+import errorSound from "../../assets/sounds/error.mp3";
 
 const Wrap = styled.div`
   display: flex;
@@ -427,48 +428,54 @@ class PropertiesPanel extends React.Component {
                   isVisible={true}
                 >
                   {tooltipProps => (
-                    <PropertyInput
-                      tooltipProps={tooltipProps}
-                      parameter={parameter}
-                      value={
-                        parameter.isViewOption
-                          ? object.viewOptions &&
-                            object.viewOptions[parameter.name]
-                          : object.parameters &&
-                            object.parameters[parameter.name]
-                      }
-                      onBlur={() => {
-                        let errors = this.state.errors;
-                        errors.set(`${object.id}-${parameter.name}`, false);
-                        this.setState({ errors });
-                      }}
-                      onChange={value => {
-                        const prevValue = parameter.isViewOption
-                          ? object.viewOptions &&
-                            object.viewOptions[parameter.name]
-                          : object.parameters &&
-                            object.parameters[parameter.name];
-                        if (!parameter.validate || parameter.validate(value)) {
+                    <>
+                      <audio src={errorSound} autoPlay />
+                      <PropertyInput
+                        tooltipProps={tooltipProps}
+                        parameter={parameter}
+                        value={
+                          parameter.isViewOption
+                            ? object.viewOptions &&
+                              object.viewOptions[parameter.name]
+                            : object.parameters &&
+                              object.parameters[parameter.name]
+                        }
+                        onBlur={() => {
                           let errors = this.state.errors;
                           errors.set(`${object.id}-${parameter.name}`, false);
                           this.setState({ errors });
-                          this.onObjectParameterChange(
-                            object,
-                            parameter,
-                            value
-                          );
-                        } else {
-                          let errors = this.state.errors;
-                          errors.set(`${object.id}-${parameter.name}`, true);
-                          this.setState({ errors });
-                          this.onObjectParameterChange(
-                            object,
-                            parameter,
-                            prevValue
-                          );
-                        }
-                      }}
-                    />
+                        }}
+                        onChange={value => {
+                          const prevValue = parameter.isViewOption
+                            ? object.viewOptions &&
+                              object.viewOptions[parameter.name]
+                            : object.parameters &&
+                              object.parameters[parameter.name];
+                          if (
+                            !parameter.validate ||
+                            parameter.validate(value)
+                          ) {
+                            let errors = this.state.errors;
+                            errors.set(`${object.id}-${parameter.name}`, false);
+                            this.setState({ errors });
+                            this.onObjectParameterChange(
+                              object,
+                              parameter,
+                              value
+                            );
+                          } else {
+                            let errors = this.state.errors;
+                            errors.set(`${object.id}-${parameter.name}`, true);
+                            this.setState({ errors });
+                            this.onObjectParameterChange(
+                              object,
+                              parameter,
+                              prevValue
+                            );
+                          }
+                        }}
+                      />
+                    </>
                   )}
                 </Tooltip>
               ) : (
