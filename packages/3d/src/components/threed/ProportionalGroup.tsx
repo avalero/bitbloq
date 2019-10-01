@@ -8,6 +8,7 @@ import {
   withTranslate
 } from "@bitbloq/ui";
 import PropertyInput from "./PropertyInput";
+import warningIcon from "../../assets/images/warning.svg";
 
 export interface IProportionalGroupProps {
   parameters: object[];
@@ -54,7 +55,12 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
             this.state.errors.get(parameter.name) ? (
               <Tooltip
                 position="left"
-                content={t(parameter.errorMessage, [parameter.errorValue])}
+                content={
+                  <TooltipText>
+                    <img src={warningIcon} />
+                    {t(parameter.errorMessage, [parameter.errorValue])}
+                  </TooltipText>
+                }
                 isVisible={true}
               >
                 {(tooltipProps: TooltipProps) => (
@@ -63,6 +69,16 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                       tooltipProps={tooltipProps}
                       parameter={{ ...parameter, type: "integer" }}
                       value={operation[parameter.name]}
+                      onBlur={() => {
+                        let errors: Map<string, boolean> = this.state.errors;
+                        errors.set(parameter.name, false);
+                        if (this.state.isLocked) {
+                          parameters.forEach(param => {
+                            errors.set(param.name, false);
+                          });
+                        }
+                        this.setState({ errors });
+                      }}
                       onChange={(value: any, text: string) => {
                         this.onParameterChange(parameter, value);
                         let errors: Map<string, boolean> = this.state.errors;
@@ -111,6 +127,16 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                   tooltipProps={tooltipProps}
                   parameter={{ ...parameter, type: "integer" }}
                   value={operation[parameter.name]}
+                  onBlur={() => {
+                    let errors: Map<string, boolean> = this.state.errors;
+                    errors.set(parameter.name, false);
+                    if (this.state.isLocked) {
+                      parameters.forEach(param => {
+                        errors.set(param.name, false);
+                      });
+                    }
+                    this.setState({ errors });
+                  }}
                   onChange={(value: any, text: string) => {
                     this.onParameterChange(parameter, value);
                     let errors: Map<string, boolean> = this.state.errors;
@@ -200,4 +226,18 @@ const Line = styled.div`
   border-style: solid none solid solid;
   border-color: #d8d8d8;
   border-width: 1px;
+`;
+
+const TooltipText = styled.div`
+  align-items: center;
+  color: #fff;
+  display: flex;
+  font-family: Helvetica;
+  font-size: 12px;
+  justify-content: space-between;
+  padding: 0;
+
+  img {
+    margin-right: 5px;
+  }
 `;

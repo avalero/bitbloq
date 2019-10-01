@@ -26,6 +26,7 @@ import PropertyInput from "./PropertyInput";
 import OperationsList from "./OperationsList";
 import { DropDown, Icon, Input, Tooltip, withTranslate } from "@bitbloq/ui";
 import config from "../../config/threed";
+import warningIcon from "../../assets/images/warning.svg";
 
 const Wrap = styled.div`
   display: flex;
@@ -186,6 +187,20 @@ const ContextMenuOption = styled.div`
     css`
       color: #d82b32;
     `};
+`;
+
+const TooltipText = styled.div`
+  align-items: center;
+  color: #fff;
+  display: flex;
+  font-family: Helvetica;
+  font-size: 12px;
+  justify-content: space-between;
+  padding: 0;
+
+  img {
+    margin-right: 5px;
+  }
 `;
 
 class PropertiesPanel extends React.Component {
@@ -403,7 +418,12 @@ class PropertiesPanel extends React.Component {
                 <Tooltip
                   key={parameter.name}
                   position="left"
-                  content={t(parameter.errorMessage, [parameter.errorValue])}
+                  content={
+                    <TooltipText>
+                      <img src={warningIcon} />
+                      {t(parameter.errorMessage, [parameter.errorValue])}
+                    </TooltipText>
+                  }
                   isVisible={true}
                 >
                   {tooltipProps => (
@@ -417,6 +437,11 @@ class PropertiesPanel extends React.Component {
                           : object.parameters &&
                             object.parameters[parameter.name]
                       }
+                      onBlur={() => {
+                        let errors = this.state.errors;
+                        errors.set(`${object.id}-${parameter.name}`, false);
+                        this.setState({ errors });
+                      }}
                       onChange={value => {
                         const prevValue = parameter.isViewOption
                           ? object.viewOptions &&
@@ -455,6 +480,11 @@ class PropertiesPanel extends React.Component {
                       ? object.viewOptions && object.viewOptions[parameter.name]
                       : object.parameters && object.parameters[parameter.name]
                   }
+                  onBlur={() => {
+                    let errors = this.state.errors;
+                    errors.set(`${object.id}-${parameter.name}`, false);
+                    this.setState({ errors });
+                  }}
                   onChange={value => {
                     const prevValue = parameter.isViewOption
                       ? object.viewOptions && object.viewOptions[parameter.name]
