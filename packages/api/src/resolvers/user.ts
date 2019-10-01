@@ -52,7 +52,8 @@ const userResolver = {
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
-        signUpSurvey: args.input.signUpSurvey
+        signUpSurvey: args.input.signUpSurvey,
+        lastLogin: new Date(),
       });
       const newUser: IUser = await UserModel.create(userNew);
       const token: string = jsonwebtoken.sign(
@@ -130,7 +131,7 @@ const userResolver = {
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
-          { $set: { authToken: token } }
+          { $set: { authToken: token, lastLogin: new Date() } }
         );
         loggerController.storeInfoLog(
           "API",
@@ -151,6 +152,7 @@ const userResolver = {
      * renewToken: returns a new token for a logged user
      */
     renewToken: async (root: any, args: any, context: any) => {
+      console.log("renew token, api");
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];

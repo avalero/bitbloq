@@ -1,30 +1,24 @@
-# import Date, ObjectID from "./scalars.graphql"
+# import Date, ObjectID, Role from "./scalars.graphql"
 # import Submission from "./submission.graphql"
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
-enum Role {
-  ADMIN
-  USER
-  EPHEMERAL
-  BASIC
-}
-
 type Query {
-  exercises: [Exercise] @authRequired(requires: [USER])
+  exercises: [Exercise] @authRequired(requires: [TEACHER])
   exercise(id: ObjectID!): Exercise
   exercisesByDocument(document: ObjectID!): [Exercise]
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
   exerciseByCode(code: String!): Exercise
 }
 type Mutation {
-  createExercise(input: ExerciseIn!): Exercise @authRequired(requires: [USER])
+  createExercise(input: ExerciseIn!): Exercise
+    @authRequired(requires: [TEACHER])
   changeSubmissionsState(id: ObjectID!, subState: Boolean!): Exercise
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
   updateExercise(id: ObjectID!, input: ExerciseIn): Exercise
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
   deleteExercise(id: ObjectID!, code: String!): Exercise
-    @authRequired(requires: [USER])
+    @authRequired(requires: [TEACHER])
 }
 
 type Exercise {
