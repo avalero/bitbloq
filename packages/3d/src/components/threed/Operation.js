@@ -1,15 +1,15 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import {Draggable} from 'react-beautiful-dnd';
-import ProportionalGroup from './ProportionalGroup';
-import PropertyInput from './PropertyInput';
-import config from '../../config/threed';
-import {Icon, withTranslate} from '@bitbloq/ui';
+import React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { Draggable } from "react-beautiful-dnd";
+import ProportionalGroup from "./ProportionalGroup";
+import PropertyInput from "./PropertyInput";
+import config from "../../config/threed";
+import { Icon, Tooltip, withTranslate } from "@bitbloq/ui";
 
 const objectOperationsMap = {};
 config.objectOperations.forEach(
-  operation => (objectOperationsMap[operation.name] = operation),
+  operation => (objectOperationsMap[operation.name] = operation)
 );
 
 const Wrap = styled.div`
@@ -93,7 +93,7 @@ const Header = styled.div`
     `}
 
   &:hover ${HeaderButtons} {
-    display: ${props => (props.advancedMode ? 'block' : 'none')};
+    display: ${props => (props.advancedMode ? "block" : "none")};
   }
 `;
 
@@ -108,9 +108,8 @@ const Content = styled.div`
 `;
 
 class Operation extends React.Component {
-
   onTitleClick = e => {
-    const {onOpen, isOpen} = this.props;
+    const { onOpen, isOpen } = this.props;
     if (onOpen) {
       onOpen(!isOpen);
     }
@@ -131,7 +130,7 @@ class Operation extends React.Component {
       t
     } = this.props;
 
-    const {label, basicLabel, parameters, color} = objectOperationsMap[
+    const { label, basicLabel, parameters, color } = objectOperationsMap[
       operation.type
     ];
 
@@ -149,7 +148,8 @@ class Operation extends React.Component {
             {...provided.draggableProps}
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
-            color={color}>
+            color={color}
+          >
             <Container>
               <Header isOpen={isOpen} advancedMode={advancedMode}>
                 <Handler
@@ -157,9 +157,10 @@ class Operation extends React.Component {
                   onMouseDown={e => {
                     e.persist();
                     onOpen(false, () =>
-                      provided.dragHandleProps.onMouseDown(e),
+                      provided.dragHandleProps.onMouseDown(e)
                     );
-                  }}>
+                  }}
+                >
                   <Icon name="drag" />
                 </Handler>
                 <HeaderContent onClick={this.onTitleClick}>
@@ -185,11 +186,12 @@ class Operation extends React.Component {
                     if (parameter.type === "proportional-group") {
                       return (
                         <ProportionalGroup
+                          key={parameter}
                           parameters={parameter.parameters}
                           operation={operation}
                           onOperationChange={onOperationChange}
                         />
-                      )
+                      );
                     }
 
                     const value = parameter.getValue
