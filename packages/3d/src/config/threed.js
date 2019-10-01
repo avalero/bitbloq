@@ -191,18 +191,36 @@ const config = {
           label: 'param-bottom-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'r1',
           label: 'param-top-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -328,12 +346,24 @@ const config = {
           label: 'param-torus-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'r1',
           label: 'param-ring-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -347,18 +377,36 @@ const config = {
           label: 'param-outer-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'r1',
           label: 'param-inner-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -372,24 +420,48 @@ const config = {
           label: 'param-peaks',
           type: 'integer',
           unit: ' ',
+          min: 3,
+          validate(value) {
+            return +value >= this.min;
+          },
+          errorMessage: 'tooltip-error-peaks',
+          errorValue: '3'
         },
         {
           name: 'r0',
           label: 'param-outer-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'r1',
           label: 'param-inner-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -403,6 +475,12 @@ const config = {
           label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -416,12 +494,24 @@ const config = {
           label: 'param-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -435,12 +525,24 @@ const config = {
           label: 'param-depth',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -539,6 +641,12 @@ const config = {
           type: 'integer',
           unit: 'mm',
           min: 0,
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'depth',
@@ -546,6 +654,12 @@ const config = {
           type: 'integer',
           unit: 'mm',
           min: 0,
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
@@ -553,6 +667,12 @@ const config = {
           type: 'integer',
           unit: 'mm',
           min: 0,
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },

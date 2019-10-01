@@ -66,6 +66,7 @@
   "tooltip-error-length": "Debe tener al menos %v%mm",
   "tooltip-error-sides": "Debe tener al menos %v% lados",
   "tooltip-error-number": "Debe ser al menos %v%",
+  "tooltip-error-peaks": "Debe tener al menos %v% puntas",
   "undo": "Deshacer",
   "redo": "Rehacer",
   "navigation-top": "superior",
