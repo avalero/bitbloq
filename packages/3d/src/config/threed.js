@@ -217,6 +217,11 @@ const config = {
           type: 'integer',
           unit: 'mm',
           min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -231,6 +236,11 @@ const config = {
           type: 'integer',
           unit: 'mm',
           min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -244,18 +254,36 @@ const config = {
           label: 'param-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         // {
         //   name: 'r1',
         //   label: 'param-top-radius',
         //   type: 'integer',
         //   unit: 'mm',
+        //   min: 0,
+        //   validate(value) {
+        //       return +value > this.min;
+        //   },
+        //   errorMessage: 'tooltip-error-length',
+        //   errorValue: '0,01'
         // },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -269,12 +297,24 @@ const config = {
           label: 'param-radius',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -413,18 +453,36 @@ const config = {
           name: 'sides',
           label: 'param-number-of-sides',
           type: 'integer',
+          min: 3,
+          validate(value) {
+            return +value >= this.min;
+          },
+          errorMessage: 'tooltip-error-sides',
+          errorValue: '3'
         },
         {
           name: 'length',
           label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -437,18 +495,36 @@ const config = {
           name: 'sides',
           label: 'param-number-of-sides',
           type: 'integer',
+          min: 4,
+          validate(value) {
+            return +value >= this.min;
+          },
+          errorMessage: 'tooltip-error-sides',
+          errorValue: '4'
         },
         {
           name: 'length',
           label: 'param-side-length',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'height',
           label: 'param-height',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
       ],
     },
@@ -507,12 +583,24 @@ const config = {
           label: 'param-size',
           type: 'integer',
           unit: '',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'thickness',
           label: 'param-thickness',
           type: 'integer',
           unit: 'mm',
+          min: 0,
+          validate(value) {
+            return +value > this.min;
+          },
+          errorMessage: 'tooltip-error-length',
+          errorValue: '0,01'
         },
         {
           name: 'font',
@@ -591,6 +679,12 @@ const config = {
               name: 'num',
               label: 'param-repetitions',
               type: 'integer',
+              min: 2,
+              validate(value) {
+                return value >= this.min;
+              },
+              errorMessage: 'tooltip-error-number',
+              errorValue: 2
             },
             {
               name: 'x',
@@ -618,6 +712,12 @@ const config = {
               name: 'num',
               label: 'param-repetitions',
               type: 'integer',
+              min: 2,
+              validate(value) {
+                return value >= this.min;
+              },
+              errorMessage: 'tooltip-error-number',
+              errorValue: 2
             },
             {
               name: 'axis',
@@ -883,18 +983,33 @@ const config = {
               label: 'param-x',
               fineStep: 0.1,
               minValue: 0.01,
+              validate(value) {
+                return +value >= this.minValue;
+              },
+              errorMessage: 'tooltip-error-number',
+              errorValue: 0.01
             },
             {
               name: 'y',
               label: 'param-y',
               fineStep: 0.1,
               minValue: 0.01,
+              validate(value) {
+                return +value >= this.minValue;
+              },
+              errorMessage: 'tooltip-error-number',
+              errorValue: 0.01
             },
             {
               name: 'z',
               label: 'param-z',
               fineStep: 0.1,
               minValue: 0.01,
+              validate(value) {
+                return +value >= this.minValue;
+              },
+              errorMessage: 'tooltip-error-number',
+              errorValue: 0.01
             },
           ],
         },
