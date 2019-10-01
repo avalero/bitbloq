@@ -248,20 +248,11 @@ const documentResolver = {
           "EXAMPLE_DOCUMENT_MUST_BE_PUBLIC"
         );
       }
-
-      if (args.public) {
-        return await DocumentModel.findOneAndUpdate(
-          { _id: docFound._id },
-          { $set: { public: args.public, example: args.example } },
-          { new: true }
-        );
-      } else {
-        return await DocumentModel.findOneAndUpdate(
-          { _id: docFound._id },
-          { $set: { public: args.public } },
-          { new: true }
-        );
-      }
+      return await DocumentModel.findOneAndUpdate(
+        { _id: docFound._id },
+        { $set: { public: args.public, example: args.example } },
+        { new: true }
+      );
     }
   },
   Query: {
