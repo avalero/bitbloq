@@ -161,7 +161,7 @@ const uploadResolver = {
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR")
       }
-      if (mimetype !== "model/stl") {
+      if (String(mimetype).indexOf("stl")===-1 ){
         throw new ApolloError(
           "Upload error, check file format. It must be an STL",
           "UPLOAD_FORMAT_ERROR"
