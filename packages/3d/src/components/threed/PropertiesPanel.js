@@ -215,9 +215,16 @@ class PropertiesPanel extends React.Component {
   nameInputRef = React.createRef();
 
   componentDidUpdate(prevProps, prevState) {
+    document.addEventListener("keydown", this.onRemoveErrors);
+    document.addEventListener("click", this.onRemoveErrors);
     if (this.state.editingName && !prevState.editingName) {
       this.nameInputRef.current.focus();
     }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.onRemoveErrors);
+    document.removeEventListener("click", this.onRemoveErrors);
   }
 
   onObjectNameChange = (object, name) => {
@@ -301,6 +308,12 @@ class PropertiesPanel extends React.Component {
   onUndoClick = () => {
     const { object, undoComposition } = this.props;
     undoComposition(object);
+  };
+
+  onRemoveErrors = () => {
+    if (Array.from(this.state.errors).length > 0) {
+      this.setState({ errors: new Map() });
+    }
   };
 
   onAddOperation(object, operation) {
@@ -425,7 +438,6 @@ class PropertiesPanel extends React.Component {
                       {t(parameter.errorMessage, [parameter.errorValue])}
                     </TooltipText>
                   }
-                  isVisible={true}
                 >
                   {tooltipProps => (
                     <>
