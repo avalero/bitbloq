@@ -23,6 +23,24 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
     errors: new Map<string, boolean>()
   };
 
+  componentDidUpdate() {
+    if (Array.from(this.state.errors).length > 0) {
+      document.addEventListener("keydown", this.onRemoveErrors);
+      document.addEventListener("click", this.onRemoveErrors);
+    }
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.onRemoveErrors);
+    document.removeEventListener("click", this.onRemoveErrors);
+  }
+
+  onRemoveErrors = () => {
+    if (Array.from(this.state.errors).length > 0) {
+      this.setState({ errors: new Map<string, boolean>() });
+    }
+  };
+
   onParameterChange = (parameter: object, value: any) => {
     const { parameters, operation } = this.props;
     const oldValue = operation[parameter.name];
@@ -62,7 +80,6 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                     {t(parameter.errorMessage, [parameter.errorValue])}
                   </TooltipText>
                 }
-                isVisible={true}
               >
                 {(tooltipProps: TooltipProps) => (
                   <>
