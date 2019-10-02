@@ -27,7 +27,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   const t = useTranslate();
 
   const user = useUserData();
-  const isAdmin = user && user.admin;
+  const isPublisher = user && user.publisher;
   const isNew = id === "new";
 
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
@@ -205,7 +205,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         onSaveDocument={onSaveDocument}
         onContentChange={(content: any[]) => onContentChange(content)}
         preMenuContent={
-          isAdmin && (
+          isPublisher && (
             <PublishBar
               isPublic={isPublic}
               isExample={isExample}

@@ -42,35 +42,54 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         } else {
           let passed: boolean = false;
           for (let roleReq of requiredRole) {
-            if (roleReq === "USER" && context.user.role === "USER") {
-              if (!context.user.userID) {
-                throw new AuthenticationError(
-                  "You need to be logged in as User 1"
-                );
-              }
+            if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (roleReq === "ADMIN" && context.user.role === "ADMIN") {
-              if (!context.user.userID) {
-                throw new AuthenticationError(
-                  "You need to be logged in as Admin"
-                );
-              }
+            }
+            if (
+              roleReq === "ADMIN" &&
+              context.user.role.indexOf("admin-") > -1
+            ) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (roleReq === "BASIC" && context.user.role === "BASIC") {
-              //console.log(context)
+            }
+            if (
+              roleReq === "PUBLISHER" &&
+              context.user.role.indexOf("pub-") > -1
+            ) {
               passed = true;
               return resolve.apply(this, args);
-            } else if (
-              roleReq === "EPHEMERAL" &&
-              context.user.role === "EPHEMERAL"
+            }            
+            if (
+              roleReq === "STUDENT" &&
+              context.user.role.indexOf("stu-") > -1
             ) {
               if (!context.user.exerciseID) {
                 throw new AuthenticationError(
                   "You need to login with exercise code 1"
                 );
               }
+              passed = true;
+              return resolve.apply(this, args);
+            }
+            if (
+              roleReq === "TEACHER" &&
+              context.user.role.indexOf("tchr-") > -1
+            ) {
+              passed = true;
+              return resolve.apply(this, args);
+            }
+            if (
+              roleReq === "TEACHER_PRO" &&
+              context.user.role.indexOf("tchrPro-") > -1
+            ) {
+              passed = true;
+              return resolve.apply(this, args);
+            }
+            if (
+              roleReq === "FAMILY" &&
+              context.user.role.indexOf("fam-") > -1
+            ) {
               passed = true;
               return resolve.apply(this, args);
             }
