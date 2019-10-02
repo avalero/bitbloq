@@ -113,7 +113,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                           }
                           this.onParameterChange(parameter, value);
                         } else if (
-                          !text &&
+                          text === undefined &&
                           (!parameter.validate || parameter.validate(+value))
                         ) {
                           errors.set(parameter.name, false);
@@ -174,7 +174,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                       }
                       this.onParameterChange(parameter, value);
                     } else if (
-                      !text &&
+                      text === undefined &&
                       (!parameter.validate || parameter.validate(+value))
                     ) {
                       errors.set(parameter.name, false);
