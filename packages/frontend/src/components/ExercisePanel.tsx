@@ -7,8 +7,9 @@ import { colors, Button, Icon, Switch } from "@bitbloq/ui";
 
 export interface ExercisePanelProps {
   exercise: any;
-  onCancelSubmission: (any) => void;
-  onCheckSubmission: (any) => void;
+  onCancelSubmission: (value: any) => void;
+  onCheckSubmission: (value: any) => void;
+  onAcceptedSubmissions: (value: boolean) => void;
 }
 
 class ExercisePanelState {
@@ -22,7 +23,12 @@ class ExercisePanel extends React.Component<
   readonly state = new ExercisePanelState();
 
   render() {
-    const { exercise, onCancelSubmission, onCheckSubmission } = this.props;
+    const {
+      exercise,
+      onCancelSubmission,
+      onCheckSubmission,
+      onAcceptedSubmissions
+    } = this.props;
     const { isOpen } = this.state;
 
     return (
@@ -44,7 +50,10 @@ class ExercisePanel extends React.Component<
             </HeaderRow>
             <HeaderRow>
               <span>Admite más entregas:</span>
-              <Switch value={true} onChange={() => {}} />
+              <Switch
+                value={exercise.acceptSubmissions}
+                onChange={onAcceptedSubmissions}
+              />
             </HeaderRow>
           </HeaderRight>
         </Header>
