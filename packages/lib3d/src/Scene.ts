@@ -475,11 +475,26 @@ export default class Scene {
     }
   }
 
+  public updateObjectsOrder(orderedObjects: string[]): ISceneJSON {
+    this.objectsInScene = [];
+    orderedObjects.forEach(id => {
+      const foundObj = this.objectCollector.find(obj => obj.getID() === id);
+      if (foundObj) {
+        this.objectsInScene.push(foundObj);
+      } else {
+        console.error("Object not found. This SHOULD NOT HAPPEN");
+      }
+    });
+
+    return this.toJSON();
+  }
+
   /**
    *
    * @param jsonArray Objects to mark as selected
    */
   public selectedObjects(jsonArray: IObjectsCommonJSON[]): ISceneJSON {
+    debugger;
     // Deselect all objects
     this.anySelectedObjects = false;
     this.objectCollector.forEach(obj => {
