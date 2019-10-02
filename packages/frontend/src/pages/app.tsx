@@ -77,9 +77,7 @@ const Route = ({
       <UserDataProvider>
         <Component {...rest} type={type} />
       </UserDataProvider>
-      {requiresSession &&
-        <SessionWarningModal />
-      }
+      {requiresSession && <SessionWarningModal />}
     </Suspense>
   );
 };
@@ -92,7 +90,11 @@ const AppPage = () => (
       <TranslateProvider messagesFiles={messagesFiles}>
         <Router>
           <Route path="app" component={Documents} requiresSession />
-          <Route path="/app/document/:id" component={Document} requiresSession />
+          <Route
+            path="/app/document/:id"
+            component={Document}
+            requiresSession
+          />
           <Route
             path="/app/document/:type/:id"
             component={EditDocument}
@@ -133,8 +135,8 @@ const Loading = styled(Spinner)<LoadingProps>`
   position: absolute;
   height: 100%;
   width: 100%;
-  background-color: ${props =>
+  background-color: ${(props: LoadingProps) =>
     (props.type && documentTypes[props.type].color) || colors.gray1};
-  color: ${props => (props.type ? "white" : "inherit")};
+  color: ${(props: LoadingProps) => (props.type ? "white" : "inherit")};
   display: flex;
 `;

@@ -111,8 +111,13 @@ export default class PositionCalculator {
 
     // if obj is Repetition Object we must compose with originalObject matrix
     if (obj instanceof RepetitionObject) {
-      const oriMatrix = (await obj.getMeshAsync()).children[0].matrix.clone();
-      myMatrix = myMatrix.multiply(oriMatrix);
+      let groupMesh: THREE.Object3D = await obj.getMeshAsync();
+      while (groupMesh instanceof THREE.Group) {
+        const wOriMatrix = groupMesh.children[0].matrix.clone();
+        myMatrix = myMatrix.multiply(wOriMatrix);
+        groupMesh = groupMesh.children[0];
+      }
+
       this.matrix = myMatrix;
     }
 
