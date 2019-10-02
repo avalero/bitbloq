@@ -1,13 +1,13 @@
-import React from 'react';
-import {connect} from 'react-redux';
-import {setAdvancedMode, newScene} from '../../actions/threed';
-import styled from '@emotion/styled';
-import ObjectTree from './ObjectTree';
-import ThreeDViewer from './ThreeDViewer.tsx';
-import Toolbar from './Toolbar';
-import PropertiesPanel from './PropertiesPanel';
-import config from '../../config/threed';
-import {Document, Icon, Switch, withTranslate} from '@bitbloq/ui';
+import React from "react";
+import { connect } from "react-redux";
+import { setAdvancedMode, newScene } from "../../actions/threed";
+import styled from "@emotion/styled";
+import ObjectTree from "./ObjectTree";
+import ThreeDViewer from "./ThreeDViewer.tsx";
+import Toolbar from "./Toolbar";
+import PropertiesPanel from "./PropertiesPanel";
+import config from "../../config/threed";
+import { Document, Icon, Switch, withTranslate } from "@bitbloq/ui";
 
 const Container = styled.div`
   flex: 1;
@@ -33,50 +33,52 @@ const AdvanceModeWrap = styled.div`
   }
 `;
 
-const getBaseMenuOptions = ({advancedMode}, t) => [
+const getBaseMenuOptions = ({ advancedMode }, t) => [
   {
-    id: 'view',
-    label: t('menu-view'),
+    id: "view",
+    label: t("menu-view"),
     children: [
       {
-        id: 'mode',
-        label: t('menu-mode'),
+        id: "mode",
+        label: t("menu-mode"),
         icon: <Icon name="difficulty" />,
         children: [
           {
-            id: 'basic-mode',
-            label: t('menu-basic'),
-            checked: !advancedMode,
+            id: "basic-mode",
+            label: t("menu-basic"),
+            checked: !advancedMode
           },
           {
-            id: 'advanced-mode',
-            label: t('menu-advanced'),
-            checked: advancedMode,
-          },
-        ],
+            id: "advanced-mode",
+            label: t("menu-advanced"),
+            checked: advancedMode
+          }
+        ]
       },
       {
-        id: 'change-theme',
-        label: t('menu-change-theme'),
+        id: "change-theme",
+        label: t("menu-change-theme"),
         icon: <Icon name="brush" />,
         children: [
           {
-            id: 'color-theme',
-            label: t('menu-color'),
+            id: "color-theme",
+            label: t("menu-color")
           },
           {
-            id: 'gray-theme',
-            label: t('menu-gray'),
-          },
-        ],
-      },
-    ],
-  },
+            id: "gray-theme",
+            label: t("menu-gray")
+          }
+        ]
+      }
+    ]
+  }
 ];
 
 class ThreeD extends React.Component {
   componentDidMount() {
-    const {initialContent, newScene} = this.props;
+    const { initialContent, newScene } = this.props;
+
+    this.props.setAdvancedMode(this.props.documentAdvancedMode);
 
     if (initialContent) {
       newScene(initialContent);
@@ -84,14 +86,14 @@ class ThreeD extends React.Component {
   }
 
   onMenuOptionClick = option => {
-    const {setAdvancedMode, onMenuOptionClick} = this.props;
+    const { setAdvancedMode, onMenuOptionClick } = this.props;
 
     switch (option.id) {
-      case 'basic-mode':
+      case "basic-mode":
         setAdvancedMode(false);
         return;
 
-      case 'advanced-mode':
+      case "advanced-mode":
         setAdvancedMode(true);
         return;
 
@@ -117,21 +119,31 @@ class ThreeD extends React.Component {
       addShapeGroups,
       t,
       preMenuContent,
-      postMenuContent
+      postMenuContent,
+      changeAdvancedMode,
+      documentAdvancedMode
     } = this.props;
 
     const menuRightContent = (
       <AdvanceModeWrap>
-        <span>{t('menu-basic-mode')}</span>
-        <Switch value={advancedMode} onChange={setAdvancedMode} leftRight />
-        <span>{t('menu-advanced-mode')}</span>
+        <span>{t("menu-basic-mode")}</span>
+        <Switch
+          value={advancedMode}
+          onChange={(value) => {
+            setAdvancedMode(value);
+            if (changeAdvancedMode)
+              changeAdvancedMode(value);
+          }}
+          leftRight
+        />
+        <span>{t("menu-advanced-mode")}</span>
       </AdvanceModeWrap>
     );
 
     const baseShapeGroups = config.addShapeGroups;
 
     const mainTabs = [
-      <Document.Tab key="3d" icon={<Icon name="threed" />} label={t('tab-3d')}>
+      <Document.Tab key="3d" icon={<Icon name="threed" />} label={t("tab-3d")}>
         <Container>
           <ObjectTree
             shapeGroups={
@@ -151,7 +163,7 @@ class ThreeD extends React.Component {
 
     return (
       <Document
-        title={title || t('untitled-project')}
+        title={title || t("untitled-project")}
         icon={<Icon name="logo-3d" />}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
@@ -167,22 +179,22 @@ class ThreeD extends React.Component {
         preMenuContent={preMenuContent}
         postMenuContent={postMenuContent}
       >
-        {typeof children === 'function' ? children(mainTabs) : mainTabs}
+        {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  advancedMode: state.threed.ui.advancedMode,
+  advancedMode: state.threed.ui.advancedMode
 });
 
 const mapDispatchToProps = dispatch => ({
   setAdvancedMode: active => dispatch(setAdvancedMode(active)),
-  newScene: json => dispatch(newScene(json)),
+  newScene: json => dispatch(newScene(json))
 });
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(withTranslate(ThreeD));

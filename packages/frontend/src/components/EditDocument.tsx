@@ -105,8 +105,10 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
 
   if (loading) return <Loading color={documentType.color} />;
 
-  const { title, description, public: isPublic, example: isExample } =
+  const { title, description, public: isPublic, example: isExample, advancedMode } =
     document || {};
+
+  window.sessionStorage.setItem('advancedMode', `${advancedMode}`);
 
   const location = window.location;
   const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${id}`;
@@ -133,6 +135,14 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     update({
       ...document,
       content: JSON.stringify(content),
+      image: undefined
+    });
+  };
+
+  const onSetAdvancedMode = (advancedMode: boolean) => {
+    update({
+      ...document,
+      advancedMode,
       image: undefined
     });
   };
@@ -203,6 +213,8 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
             />
           )
         }
+        changeAdvancedMode={onSetAdvancedMode}
+        documentAdvancedMode={advancedMode}
       />
       {isEditTitleVisible && (
         <EditTitleModal

@@ -22,6 +22,7 @@ export const DOCUMENT_QUERY = gql`
       image
       public
       example
+      advancedMode
     }
   }
 `;
@@ -93,6 +94,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
     $content: String
     $description: String
     $image: Upload
+    $advancedMode: Boolean
   ) {
     updateDocument(
       id: $id
@@ -101,6 +103,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         content: $content
         description: $description
         image: $image
+        advancedMode: $advancedMode
       }
     ) {
       id
