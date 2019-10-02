@@ -48,8 +48,7 @@ const submissionResolver = {
         );
       }
       const exFather: IExercise = await ExerciseModel.findOne({
-        code: args.exerciseCode,
-        acceptSubmissions: true
+        code: args.exerciseCode
       });
       if (!exFather) {
         throw new ApolloError(
@@ -147,8 +146,7 @@ const submissionResolver = {
         );
       }
       const exFather: IExercise = await ExerciseModel.findOne({
-        code: args.exerciseCode,
-        acceptSubmissions: true
+        code: args.exerciseCode
       });
       if (!exFather) {
         throw new ApolloError(
