@@ -24,8 +24,12 @@ type Mutation {
   deleteDocument(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
     @authRequired(requires: [ADMIN, USER])
-  updateDocumentContent(id: ObjectID, content: String, cache: String): Document
-    @authRequired(requires: [ADMIN, USER])
+  updateDocumentContent(
+    id: ObjectID
+    content: String
+    cache: String
+    advancedMode: Boolean
+  ): Document @authRequired(requires: [ADMIN, USER])
   publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
     @authRequired(requires: [ADMIN])
 }
@@ -40,6 +44,7 @@ type Document {
   type: String
   folder: ObjectID
   content: String
+  advancedMode: Boolean
   cache: String
   description: String
   version: String
@@ -58,6 +63,7 @@ input DocumentIn {
   type: String
   folder: ObjectID
   content: String
+  advancedMode: Boolean
   cache: String
   description: String
   version: String
