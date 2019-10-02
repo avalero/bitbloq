@@ -44,7 +44,7 @@ class ExercisePanel extends React.Component<
             </HeaderRow>
             <HeaderRow>
               <span>Admite más entregas:</span>
-              <Switch value={true} onChange={() => {}} />
+              <Switch value={exercise.acceptSubmissions} onChange={() => {}} />
             </HeaderRow>
           </HeaderRight>
         </Header>
