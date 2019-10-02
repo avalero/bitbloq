@@ -145,7 +145,10 @@ const documentResolver = {
             $set: {
               content: args.content || existDocument.content,
               cache: args.cache || existDocument.cache,
-              advancedMode: args.advancedMode || existDocument.advancedMode
+              advancedMode:
+                args.advancedMode !== undefined
+                  ? args.advancedMode
+                  : existDocument.advancedMode
             }
           },
           { new: true }
@@ -212,7 +215,9 @@ const documentResolver = {
               folder: args.input.folder || existDocument.folder,
               content: args.input.content || existDocument.content,
               advancedMode:
-                args.input.advancedMode || existDocument.advancedMode,
+                args.input.advancedMode !== undefined
+                  ? args.input.advancedMode
+                  : existDocument.advancedMode,
               cache: args.input.cache || existDocument.cache,
               description: args.input.description || existDocument.description,
               version: args.input.version || existDocument.version,

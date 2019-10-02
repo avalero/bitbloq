@@ -16,14 +16,16 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   const [currentType, setCurrentType] = useState(type);
   const [loading, setLoading] = useState(openDocument);
   const contentRef = useRef([]);
+  const advancedModeRef = useRef();
 
   useEffect(() => {
-    const channel = new BroadcastChannel('bitbloq-landing');
+    const channel = new BroadcastChannel("bitbloq-landing");
     channel.postMessage({ command: "open-document-ready" });
-    channel.onmessage = (e) => {
+    channel.onmessage = e => {
       const { document, command } = e.data;
       if (command === "open-document") {
         contentRef.current = JSON.parse(document.content);
+        advancedModeRef.current = JSON.parse(document.advancedMode);
         setCurrentType(document.type);
         setLoading(false);
         channel.close();
@@ -32,9 +34,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   }, []);
 
   if (loading) {
-    return (
-      <Loading />
-    );
+    return <Loading />;
   }
 
   const documentType = documentTypes[currentType || "3d"];
@@ -45,7 +45,8 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     const documentJSON = {
       currentType,
       title,
-      content: JSON.stringify(contentRef.current)
+      content: JSON.stringify(contentRef.current),
+      advancedMode: advancedModeRef.current
     };
     var blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
@@ -66,6 +67,8 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
       tabIndex={tabIndex}
       onTabChange={setTabIndex}
       onSaveDocument={onSaveDocument}
+      changeAdvancedMode={(value: boolean) => (advancedModeRef.current = value)}
+      documentAdvancedMode={advancedModeRef.current}
       isPlayground
     />
   );
