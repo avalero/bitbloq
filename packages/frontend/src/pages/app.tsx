@@ -50,6 +50,7 @@ const Route = ({
     if (requiresSession) {
       if (code === "ANOTHER_OPEN_SESSION") {
         setAnotherSession(true);
+        setToken("");
       } else {
         logout();
       }
