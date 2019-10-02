@@ -159,6 +159,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       title: title || `document${type}`,
       description: description || `bitbloq ${type} document`,
       content: JSON.stringify(content),
+      advancedMode: document.advancedMode,
       image
     };
 

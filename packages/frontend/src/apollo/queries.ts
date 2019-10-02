@@ -71,6 +71,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $description: String
     $content: String
     $image: String
+    $advancedMode: Boolean
   ) {
     createDocument(
       input: {
@@ -79,6 +80,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         description: $description
         content: $content
         imageUrl: $image
+        advancedMode: $advancedMode
       }
     ) {
       id
