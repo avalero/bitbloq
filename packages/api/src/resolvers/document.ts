@@ -52,6 +52,7 @@ const documentResolver = {
           args.input.folder ||
           (await UserModel.findOne({ _id: context.user.userID })).rootFolder,
         content: args.input.content,
+        advancedMode: args.input.advancedMode,
         cache: args.input.cache,
         description: args.input.description,
         version: args.input.version,
@@ -143,7 +144,8 @@ const documentResolver = {
           {
             $set: {
               content: args.content || existDocument.content,
-              cache: args.cache || existDocument.cache
+              cache: args.cache || existDocument.cache,
+              advancedMode: args.advancedMode || existDocument.advancedMode
             }
           },
           { new: true }
@@ -209,6 +211,8 @@ const documentResolver = {
               type: args.input.type || existDocument.type,
               folder: args.input.folder || existDocument.folder,
               content: args.input.content || existDocument.content,
+              advancedMode:
+                args.input.advancedMode || existDocument.advancedMode,
               cache: args.input.cache || existDocument.cache,
               description: args.input.description || existDocument.description,
               version: args.input.version || existDocument.version,
