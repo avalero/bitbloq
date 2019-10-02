@@ -3,11 +3,12 @@ scalar JSON
 scalar ObjectID
 scalar EmailAddress
 scalar Upload
-
+scalar Number
 
 enum Role {
   USER
   ADMIN
+  PUBLISHER
   TEACHER
   TEACHERPRO
   STUDENT

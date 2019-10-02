@@ -55,17 +55,13 @@ const contextController = {
           return undefined;
         }
         // check if there is another open session
-        if (user.role === "USER") {
+        if (user.role.indexOf("usr-") > -1) {
           if (process.env.USE_REDIS === "true") {
             return checkOtherSessionOpen(user, justToken);
           }
           return user;
-        } else if (user.role === "ADMIN") {
-          if (process.env.USE_REDIS === "true") {
-            return checkOtherSessionOpen(user, justToken);
-          }
-          return user;
-        } else if (user.submissionID) {
+        }
+        if (user.role.indexOf("stu-") > -1) {
           if (process.env.USE_REDIS === "true") {
             return checkOtherSessionOpen(user, justToken);
           }
@@ -92,7 +88,7 @@ const contextController = {
         const userBas: IUserInToken = {
           email: contactFound.email,
           userID: contactFound._id,
-          role: "USER",
+          role: "usr-",
           submissionID: null
         };
         return userBas;
@@ -121,16 +117,33 @@ const contextController = {
   },
 
   generateLoginToken: async user => {
-    const token = await jsonwebtoken.sign(
+    let token: string, role: string;
+    let rolePerm: string = "usr-";
+    if (user.admin) {
+      rolePerm = rolePerm.concat("admin-");
+    }
+    if (user.publisher) {
+      rolePerm = rolePerm.concat("pub-");
+    }    
+    if (user.teacher) {
+      rolePerm = rolePerm.concat("tchr-");
+    }
+    if (user.teacherPro) {
+      rolePerm = rolePerm.concat("tchrPro-");
+    }
+    if (user.family) {
+      rolePerm = rolePerm.concat("fam-");
+    }
+    token = await jsonwebtoken.sign(
       {
         email: user.email,
         userID: user._id,
-        role: user.admin ? "ADMIN" : "USER"
+        role: rolePerm
       },
       process.env.JWT_SECRET,
       { expiresIn: "1.1h" }
     );
-    const role = user.admin ? "admin" : "user";
+    role = rolePerm;
     return { token, role };
   },
 
@@ -138,7 +151,9 @@ const contextController = {
     const data = await contextController.getDataInToken(oldToken);
     checkOtherSessionOpen(data, oldToken);
     delete data.exp;
-    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, { expiresIn: "1.1h" });
+    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, {
+      expiresIn: "1.1h"
+    });
     return { data, token };
   }
 };

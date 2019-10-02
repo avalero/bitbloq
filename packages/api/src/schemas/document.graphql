@@ -6,24 +6,27 @@
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 type Query {
-  documents: [Document] @authRequired(requires: [ADMIN, USER])
-  document(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
+  documents: [Document] @authRequired(requires: [USER])
+  document(id: ObjectID!): Document @authRequired(requires: [USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
   examples: [Document]
 }
 type Mutation {
-  createDocument(input: DocumentIn!): Document
-    @authRequired(requires: [ADMIN, USER])
-  deleteDocument(id: ObjectID!): Document @authRequired(requires: [ADMIN, USER])
+  createDocument(input: DocumentIn!): Document @authRequired(requires: [USER])
+  deleteDocument(id: ObjectID!): Document @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
-    @authRequired(requires: [ADMIN, USER])
-  updateDocumentContent(id: ObjectID, content: String, cache: String): Document
-    @authRequired(requires: [ADMIN, USER])
+    @authRequired(requires: [USER])
+  updateDocumentContent(
+    id: ObjectID
+    content: String
+    cache: String
+    advancedMode: Boolean
+  ): Document @authRequired(requires: [USER])
   publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
-    @authRequired(requires: [ADMIN])
+    @authRequired(requires: [PUBLISHER])
 }
 type Subscription {
-  documentUpdated: Document @authRequired(requires: [ADMIN, USER])
+  documentUpdated: Document @authRequired(requires: [USER])
 }
 
 type Document {
@@ -33,6 +36,7 @@ type Document {
   type: String
   folder: ObjectID
   content: String
+  advancedMode: Boolean
   cache: String
   description: String
   version: String
@@ -51,6 +55,7 @@ input DocumentIn {
   type: String
   folder: ObjectID
   content: String
+  advancedMode: Boolean
   cache: String
   description: String
   version: String

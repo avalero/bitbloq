@@ -4,7 +4,7 @@
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
 type Mutation {
-  storeFrontLog(input: LogIn): String @authRequired(requires: [USER])
+  storeFrontLog(input: LogIn): String @authRequired(requires: [USER, STUDENT])
 }
 
 input LogIn {

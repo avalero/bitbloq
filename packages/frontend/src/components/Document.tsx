@@ -17,6 +17,7 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt } from "../util";
+import { DOCUMENT_UPDATED_SUBSCRIPTION } from "../apollo/queries";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -55,6 +56,14 @@ const CREATE_EXERCISE_MUTATION = gql`
 const DELETE_SUBMISSION_MUTATION = gql`
   mutation DeleteSubmission($id: ObjectID!) {
     deleteSubmission(submissionID: $id) {
+      id
+    }
+  }
+`;
+
+const CHANGE_SUBMISSIONS_STATE_MUTATION = gql`
+  mutation ChangeSubmissionsState($id: ObjectID!, $subState: Boolean!) {
+    changeSubmissionsState(id: $id, subState: $subState) {
       id
     }
   }
@@ -139,20 +148,32 @@ class Document extends React.Component<any, DocumentState> {
       <React.Fragment key={exercise.id}>
         <Mutation mutation={DELETE_SUBMISSION_MUTATION}>
           {deleteSubmission => (
-            <ExercisePanel
-              exercise={exercise}
-              onCancelSubmission={submission =>
-                deleteSubmission({
-                  variables: { id: submission.id },
-                  refetchQueries: [
-                    { query: DOCUMENT_QUERY, variables: { id: documentId } }
-                  ]
-                })
-              }
-              onCheckSubmission={({ type, id }) =>
-                window.open(`/app/submission/${type}/${id}`)
-              }
-            />
+            <Mutation mutation={CHANGE_SUBMISSIONS_STATE_MUTATION}>
+              {changeSubmissionsState => (
+                <ExercisePanel
+                  exercise={exercise}
+                  onCancelSubmission={submission =>
+                    deleteSubmission({
+                      variables: { id: submission.id },
+                      refetchQueries: [
+                        { query: DOCUMENT_QUERY, variables: { id: documentId } }
+                      ]
+                    })
+                  }
+                  onCheckSubmission={({ type, id }) =>
+                    window.open(`/app/submission/${type}/${id}`)
+                  }
+                  onAcceptedSubmissions={(value: boolean) => {
+                    changeSubmissionsState({
+                      variables: { id: exercise.id, subState: value },
+                      refetchQueries: [
+                        { query: DOCUMENT_QUERY, variables: { id: documentId } }
+                      ]
+                    });
+                  }}
+                />
+              )}
+            </Mutation>
           )}
         </Mutation>
         <Subscription
@@ -251,12 +272,28 @@ class Document extends React.Component<any, DocumentState> {
             const { document } = data;
 
             return (
-              <Content>
-                {this.renderHeader(document)}
-                <Rule />
-                {this.renderDocumentInfo(document)}
-                {this.renderExercises(document.exercises, refetch)}
-              </Content>
+              <>
+                <Content>
+                  {this.renderHeader(document)}
+                  <Rule />
+                  {this.renderDocumentInfo(document)}
+                  {this.renderExercises(document.exercises, refetch)}
+                </Content>
+                <Subscription
+                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                  shouldResubscribe={true}
+                  onSubscriptionData={({ subscriptionData }) => {
+                    const { data } = subscriptionData;
+                    if (
+                      data &&
+                      data.documentUpdated &&
+                      data.documentUpdated.id === id
+                    ) {
+                      refetch();
+                    }
+                  }}
+                />
+              </>
             );
           }}
         </Query>

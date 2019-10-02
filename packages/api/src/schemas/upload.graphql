@@ -1,4 +1,4 @@
-# import Upload, ObjectID from "./scalars.graphql"
+# import Upload, Number, ObjectID from "./scalars.graphql"
 
 type File {
   id: ID!
@@ -6,16 +6,20 @@ type File {
   mimetype: String
   publicUrl: String
   document: ObjectID
+  size: Number
+  storageName: String
 }
 
 type Query {
-  uploads: [File]
+  uploads: [File] @authRequired(requires: [ADMIN])
+  getUserFiles: [File] @authRequired(requires: [USER])
 }
 
 type Mutation {
   singleUpload(file: Upload!, documentID: ObjectID): File
   uploadSTLFile(file: Upload!, documentID: ObjectID): File
-    @authRequired(requires: [ADMIN, USER])
+    @authRequired(requires: [USER])
   uploadImageFile(file: Upload!, documentID: ObjectID): File
-    @authRequired(requires: [ADMIN, USER])
+    @authRequired(requires: [USER])
+  deleteUserFile(filename: String!): File @authRequired(requires: [USER])
 }

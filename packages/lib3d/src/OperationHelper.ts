@@ -68,7 +68,6 @@ export default class OperationHelper {
         this.operationID
       ).getHelperMeshAsync();
 
-      
       return this.helperMesh;
     }
 
@@ -81,7 +80,6 @@ export default class OperationHelper {
         this.operationID
       ).getHelperMeshAsync();
 
-      
       return this.helperMesh;
     }
 

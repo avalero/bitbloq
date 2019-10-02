@@ -52,7 +52,8 @@ const userResolver = {
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
-        signUpSurvey: args.input.signUpSurvey
+        signUpSurvey: args.input.signUpSurvey,
+        lastLogin: new Date(),
       });
       const newUser: IUser = await UserModel.create(userNew);
       const token: string = jsonwebtoken.sign(
@@ -130,7 +131,7 @@ const userResolver = {
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
-          { $set: { authToken: token } }
+          { $set: { authToken: token, lastLogin: new Date() } }
         );
         loggerController.storeInfoLog(
           "API",
@@ -151,12 +152,15 @@ const userResolver = {
      * renewToken: returns a new token for a logged user
      */
     renewToken: async (root: any, args: any, context: any) => {
+      console.log("renew token, api");
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
       }
 
-      const { data, token } = await contextController.generateNewToken(oldToken);
+      const { data, token } = await contextController.generateNewToken(
+        oldToken
+      );
       if (data.userID) {
         await storeTokenInRedis(`authToken-${data.userID}`, token);
       } else if (data.submissionID) {
@@ -396,20 +400,16 @@ const userResolver = {
 
 const storeTokenInRedis = (id: string, token: string) => {
   if (process.env.USE_REDIS === "true") {
-    return redisClient.set(
-      String(id),
-      token,
-      (err, reply) => {
-        if (err) {
-          throw new ApolloError(
-            "Error storing auth token in redis",
-            "REDIS_TOKEN_ERROR"
-          );
-        }
+    return redisClient.set(String(id), token, (err, reply) => {
+      if (err) {
+        throw new ApolloError(
+          "Error storing auth token in redis",
+          "REDIS_TOKEN_ERROR"
+        );
       }
-    );
+    });
   }
-}
+};
 
 const getResetPasswordData = async (token: string) => {
   if (!token) {
@@ -442,7 +442,6 @@ const getResetPasswordData = async (token: string) => {
   }
 
   return dataInToken;
-}
-
+};
 
 export default userResolver;

@@ -7,6 +7,8 @@ export const ME_QUERY = gql`
       email
       name
       admin
+      publisher
+      teacher
     }
   }
 `;
@@ -22,6 +24,7 @@ export const DOCUMENT_QUERY = gql`
       image
       public
       example
+      advancedMode
     }
   }
 `;
@@ -70,6 +73,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $description: String
     $content: String
     $image: String
+    $advancedMode: Boolean
   ) {
     createDocument(
       input: {
@@ -78,6 +82,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         description: $description
         content: $content
         imageUrl: $image
+        advancedMode: $advancedMode
       }
     ) {
       id
@@ -93,6 +98,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
     $content: String
     $description: String
     $image: Upload
+    $advancedMode: Boolean
   ) {
     updateDocument(
       id: $id
@@ -101,6 +107,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         content: $content
         description: $description
         image: $image
+        advancedMode: $advancedMode
       }
     ) {
       id

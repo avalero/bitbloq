@@ -12,7 +12,7 @@ import { UserModel } from "../models/user";
 
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
-import uploadResolver from "./upload";
+import uploadResolver, { uploadImage } from "./upload";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -52,6 +52,7 @@ const documentResolver = {
           args.input.folder ||
           (await UserModel.findOne({ _id: context.user.userID })).rootFolder,
         content: args.input.content,
+        advancedMode: args.input.advancedMode,
         cache: args.input.cache,
         description: args.input.description,
         version: args.input.version,
@@ -72,7 +73,8 @@ const documentResolver = {
         ""
       );
       if (args.input.image) {
-        const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
+        const imageUploaded: IUpload = await uploadImage(
+          //uploadResolver.Mutation.singleUpload(
           args.input.image,
           newDocument._id,
           context.user.userID
@@ -142,7 +144,11 @@ const documentResolver = {
           {
             $set: {
               content: args.content || existDocument.content,
-              cache: args.cache || existDocument.cache
+              cache: args.cache || existDocument.cache,
+              advancedMode:
+                args.advancedMode !== undefined
+                  ? args.advancedMode
+                  : existDocument.advancedMode
             }
           },
           { new: true }
@@ -185,7 +191,8 @@ const documentResolver = {
         }
         let image: string;
         if (args.input.image) {
-          const imageUploaded: IUpload = await uploadResolver.Mutation.singleUpload(
+          const imageUploaded: IUpload = await uploadImage(
+            //uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,
             context.user.userID
@@ -207,6 +214,10 @@ const documentResolver = {
               type: args.input.type || existDocument.type,
               folder: args.input.folder || existDocument.folder,
               content: args.input.content || existDocument.content,
+              advancedMode:
+                args.input.advancedMode !== undefined
+                  ? args.input.advancedMode
+                  : existDocument.advancedMode,
               cache: args.input.cache || existDocument.cache,
               description: args.input.description || existDocument.description,
               version: args.input.version || existDocument.version,
@@ -246,22 +257,12 @@ const documentResolver = {
           "EXAMPLE_DOCUMENT_MUST_BE_PUBLIC"
         );
       }
-
-      if (args.public) {
-        return await DocumentModel.findOneAndUpdate(
-          { _id: docFound._id },
-          { $set: { public: args.public, example: args.example } },
-          { new: true }
-        );
-      } else {
-        return await DocumentModel.findOneAndUpdate(
-          { _id: docFound._id },
-          { $set: { public: args.public } },
-          { new: true }
-        );
-      }
-    },
-
+      return await DocumentModel.findOneAndUpdate(
+        { _id: docFound._id },
+        { $set: { public: args.public, example: args.example } },
+        { new: true }
+      );
+    }
   },
   Query: {
     /**
@@ -277,10 +278,7 @@ const documentResolver = {
      */
     document: async (root: any, args: any, context: any) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
-        throw new ApolloError(
-          "Invalid or missing id",
-          "DOCUMENT_NOT_FOUND"
-        );
+        throw new ApolloError("Invalid or missing id", "DOCUMENT_NOT_FOUND");
       }
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id
@@ -318,7 +316,7 @@ const documentResolver = {
      */
     examples: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ example: true });
-    },
+    }
   },
 
   Document: {

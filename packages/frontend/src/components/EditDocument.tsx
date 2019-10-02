@@ -27,7 +27,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   const t = useTranslate();
 
   const user = useUserData();
-  const isAdmin = user && user.admin;
+  const isPublisher = user && user.publisher;
   const isNew = id === "new";
 
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
@@ -39,9 +39,9 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     description: "",
     public: false,
     example: false,
-    image: "",
     type
   });
+  const [image, setImage] = useState("");
 
   const { loading: loadingDocument, error, data, refetch } = useQuery(
     DOCUMENT_QUERY,
@@ -56,6 +56,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       setLoading(false);
     } else if (!loadingDocument) {
       setDocument(data.document);
+      setImage(data.document && data.document.image);
       setLoading(false);
     }
   }, [loadingDocument]);
@@ -71,6 +72,10 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     }, 1000),
     [id]
   );
+
+  useEffect(() => {
+    setImage(data && data.document && data.document.image);
+  }, [data]);
 
   const update = async (document: any) => {
     setDocument(document);
@@ -100,8 +105,10 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
 
   if (loading) return <Loading color={documentType.color} />;
 
-  const { title, description, image, public: isPublic, example: isExample } =
+  const { title, description, public: isPublic, example: isExample, advancedMode } =
     document || {};
+
+  window.sessionStorage.setItem('advancedMode', `${advancedMode}`);
 
   const location = window.location;
   const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${id}`;
@@ -132,6 +139,14 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     });
   };
 
+  const onSetAdvancedMode = (advancedMode: boolean) => {
+    update({
+      ...document,
+      advancedMode,
+      image: undefined
+    });
+  };
+
   const onChangePublic = (isPublic: boolean, isExample: boolean) => {
     if (publish) {
       publish(isPublic, isExample);
@@ -144,6 +159,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       title: title || `document${type}`,
       description: description || `bitbloq ${type} document`,
       content: JSON.stringify(content),
+      advancedMode: document.advancedMode,
       image
     };
 
@@ -189,7 +205,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         onSaveDocument={onSaveDocument}
         onContentChange={(content: any[]) => onContentChange(content)}
         preMenuContent={
-          isAdmin && (
+          isPublisher && (
             <PublishBar
               isPublic={isPublic}
               isExample={isExample}
@@ -198,6 +214,8 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
             />
           )
         }
+        changeAdvancedMode={onSetAdvancedMode}
+        documentAdvancedMode={advancedMode}
       />
       {isEditTitleVisible && (
         <EditTitleModal

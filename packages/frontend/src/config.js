@@ -16,18 +16,17 @@ export const documentTypes = {
     shortLabel: 'Junior',
     color: colors.brandOrange,
     buttonType: 'orange',
-    supported: false,
+    supported: process.env.GATSBY_ENABLED_TOOLS.includes('junior'),
     icon: 'logo-junior',
     level: 'Principiante',
-    landingText:
-      'Da tus primeros pasos en la robótica con una programación por bloques sencilla e intuitiva.',
+    landingText: `Da tus primeros pasos en la robótica con una programación por bloques sencilla e intuitiva.`,
     editorComponent: JuniorEditor,
   },
   bloqs: {
     label: 'Robótica',
     shortLabel: 'Robótica',
     color: colors.green,
-    supported: false,
+    supported: process.env.GATSBY_ENABLED_TOOLS.includes('bloqs'),
     icon: 'logo-bloqs',
     level: 'Medio',
     landingText:
@@ -42,14 +41,14 @@ export const documentTypes = {
     level: 'Avanzado',
     landingText:
       'Da el salto al código con Arduino®. Crea tus primeros programas y da vida a tus robots.',
-    supported: false,
+    supported: process.env.GATSBY_ENABLED_TOOLS.includes('code'),
   },
   '3d': {
     label: 'Diseño 3D',
     shortLabel: 'Diseño 3D',
     color: colors.brandBlue,
     buttonType: 'blue',
-    supported: true,
+    supported: process.env.GATSBY_ENABLED_TOOLS.includes('3d'),
     icon: 'logo-3d',
     level: 'Medio',
     landingText:
@@ -65,7 +64,7 @@ export const documentTypes = {
     level: 'Avanzado',
     landingText:
       'Empieza a diseñar y programar tus propias apps para Android®, iOS® o PC.',
-    supported: false,
+    supported: process.env.GATSBY_ENABLED_TOOLS.includes('apps'),
   },
 };
 
