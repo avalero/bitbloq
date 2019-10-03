@@ -2,6 +2,11 @@ import React, { useState, useRef, useEffect } from "react";
 import { saveAs } from "file-saver";
 import Loading from "./Loading";
 import { documentTypes } from "../config";
+import { Button, useTranslate } from "@bitbloq/ui";
+import styled from "@emotion/styled";
+import { SessionEvent, useSessionEvent } from "../lib/session";
+import { useQuery } from "@apollo/react-hooks";
+import { ME_QUERY } from "../apollo/queries";
 
 interface PlaygroundProps {
   type?: string;
@@ -15,8 +20,17 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   const [tabIndex, setTabIndex] = useState(0);
   const [currentType, setCurrentType] = useState(type);
   const [loading, setLoading] = useState(openDocument);
+  const [userLogged, setUserLogged] = useState(false);
   const contentRef = useRef([]);
   const advancedModeRef = useRef();
+
+  const { data, loading: loadingQuery } = useQuery(ME_QUERY);
+
+  const t = useTranslate();
+
+  useEffect(() => {
+    setUserLogged(data && data.me);
+  }, [loadingQuery]);
 
   useEffect(() => {
     const channel = new BroadcastChannel("bitbloq-landing");
@@ -32,6 +46,11 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
       }
     };
   }, []);
+
+  useSessionEvent("new-token", (event: SessionEvent) => {
+    const token: string = event.data;
+    setUserLogged(!!token);
+  });
 
   if (loading) {
     return <Loading />;
@@ -58,6 +77,14 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     contentRef.current = content;
   };
 
+  const headerRightContent: Element = userLogged ? (
+    <></>
+  ) : (
+    <HeaderRightContent>
+      <EnterButton>{t("playground-enter-button")}</EnterButton>
+    </HeaderRightContent>
+  );
+
   return (
     <EditorComponent
       content={contentRef.current}
@@ -69,9 +96,23 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
       onSaveDocument={onSaveDocument}
       changeAdvancedMode={(value: boolean) => (advancedModeRef.current = value)}
       documentAdvancedMode={advancedModeRef.current}
+      headerRightContent={headerRightContent}
       isPlayground
     />
   );
 };
 
 export default Playground;
+
+const EnterButton = styled(Button)`
+  font-family: Roboto;
+  font-weight: bold;
+  line-height: 1.57;
+  padding: 0 20px;
+`;
+
+const HeaderRightContent = styled.div`
+  position: absolute;
+  right: 20px;
+  top: 15px;
+`;

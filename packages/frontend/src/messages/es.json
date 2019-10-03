@@ -212,5 +212,6 @@
   "F-tone": "FA",
   "G-tone": "SOL",
   "bloq-parameter-duration-sec": "Duración (seg.)",
-  "bloq-on-message": "Al recibir el mensaje"
+  "bloq-on-message": "Al recibir el mensaje",
+  "playground-enter-button": "Entra con tu cuenta"
 }
