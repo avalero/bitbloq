@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import {
   colors,
@@ -24,7 +24,6 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
-  const [titleFocused, setTitleFocused] = useState(false);
 
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
@@ -47,10 +46,8 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
             </FormLabel>
             <FormInput>
               <Input
-                value={title || (titleFocused ? "" : "Documento sin título")}
+                value={title}
                 placeholder="Nombre del documento"
-                onFocus={() => setTitleFocused(true)}
-                onBlur={() => setTitleFocused(false)}
                 onChange={e => {
                   onChange({ title: e.target.value, description });
                 }}

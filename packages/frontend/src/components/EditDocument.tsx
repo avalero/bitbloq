@@ -84,7 +84,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         data: {
           createDocument: { id: newId }
         }
-      } = await createDocument({ variables: document });
+      } = await createDocument({ variables: { ...document, title: document.title || "Documento sin título"} });
       navigate(`/app/document/${type}/${newId}`, { replace: true });
     } else {
       debouncedUpdate(document);
@@ -200,7 +200,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         tabIndex={tabIndex}
         onTabChange={(tabIndex: number) => setTabIndex(tabIndex)}
         getTabs={(mainTabs: any[]) => [...mainTabs, InfoTab]}
-        title={title || "Documento sin título"}
+        title={title}
         onEditTitle={onEditTitle}
         onSaveDocument={onSaveDocument}
         onContentChange={(content: any[]) => onContentChange(content)}

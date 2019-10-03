@@ -1,7 +1,6 @@
 import React, { FC, useState, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 
-//import * as React from "react";
 import styled from "@emotion/styled";
 import {
   colors,
@@ -14,14 +13,19 @@ import {
   HorizontalRule
 } from "@bitbloq/ui";
 import { navigate } from "gatsby";
-import { Query, Mutation, Subscription } from "react-apollo";
+import { Subscription } from "react-apollo";
 import gql from "graphql-tag";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import DocumentCard from "./DocumentCard";
 import NewDocumentDropDown from "./NewDocumentDropDown";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { sortByCreatedAt, sortByTitle } from "../util";
+import {
+  sortByCreatedAt,
+  sortByTitleAZ,
+  sortByTitleZA,
+  sortByUpdatedAt
+} from "../util";
 import {
   DOCUMENTS_QUERY,
   CREATE_DOCUMENT_MUTATION,
@@ -31,29 +35,38 @@ import {
 
 enum OrderType {
   Creation = "creation",
-  Name = "name"
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
 }
 
 const orderOptions = [
   {
-    label: "Orden: Más recientes",
+    label: "Orden: Creación",
     value: OrderType.Creation
   },
   {
-    label: "Orden: Nombre",
-    value: OrderType.Name
+    label: "Orden: Modificación",
+    value: OrderType.Modification
+  },
+  {
+    label: "Orden: Nombre A-Z",
+    value: OrderType.NameAZ
+  },
+  {
+    label: "Orden: Nombre Z-A",
+    value: OrderType.NameZA
   }
 ];
 
 const orderFunctions = {
   [OrderType.Creation]: sortByCreatedAt,
-  [OrderType.Name]: sortByTitle
+  [OrderType.Modification]: sortByUpdatedAt,
+  [OrderType.NameAZ]: sortByTitleAZ,
+  [OrderType.NameZA]: sortByTitleZA
 };
 
 const Documents: FC = () => {
-  //class Documents extends React.Component<any, DocumentsState> {
-  //readonly state = new DocumentsState();
-
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [deleteDocumentId, setDeleteDocumentId] = useState("");
@@ -99,10 +112,11 @@ const Documents: FC = () => {
     const reader = new FileReader();
     reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
-      createDocument({
+      const { data } = await createDocument({
         variables: { ...document },
         refetchQueries: [{ query: DOCUMENTS_QUERY }]
       });
+      onDocumentCreated(data);
     };
 
     reader.readAsText(file);
@@ -124,7 +138,12 @@ const Documents: FC = () => {
   const orderFunction = orderFunctions[order];
 
   if (error) return <GraphQLErrorMessage apolloError={error} />;
-  if (loading) return (<Container><Loading /></Container>);
+  if (loading)
+    return (
+      <Container>
+        <Loading />
+      </Container>
+    );
 
   return (
     <Container>
