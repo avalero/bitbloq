@@ -308,7 +308,8 @@ const DocumentListHeader = styled.div`
 `;
 
 const ViewOptions = styled.div`
-  flex: 1;
+  /* flex: 1; */
+  margin-right: 10px;
 `;
 
 const OrderSelect: Select = styled(Select)`
