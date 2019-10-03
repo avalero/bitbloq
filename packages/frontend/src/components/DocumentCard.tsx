@@ -20,7 +20,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
       <Image src={document.image} />
       <Info>
         <DocumentTypeTag small document={document} />
-        <Title>{document.title || "Documento sin título"}</Title>
+        <Title>{document.title}</Title>
       </Info>
       {children}
     </Container>

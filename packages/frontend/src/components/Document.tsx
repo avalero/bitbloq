@@ -100,7 +100,7 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Header>
         <Link to="/app">Mis documentos &gt;</Link>
-        {document.title || "Documento sin título"}
+        {document.title}
       </Header>
     );
   }
@@ -112,7 +112,7 @@ class Document extends React.Component<any, DocumentState> {
         <div>
           <DocumentTypeTag document={document} />
           <DocumentTitle>
-            {document.title || "Documento sin título"}
+            {document.title}
           </DocumentTitle>
           <DocumentDescription>{document.description}</DocumentDescription>
           <Buttons>
