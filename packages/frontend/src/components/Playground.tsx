@@ -21,15 +21,17 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   const [currentType, setCurrentType] = useState(type);
   const [loading, setLoading] = useState(openDocument);
   const [userLogged, setUserLogged] = useState(false);
+  const [userName, setUserName] = useState("");
   const contentRef = useRef([]);
   const advancedModeRef = useRef();
 
-  const { data, loading: loadingQuery } = useQuery(ME_QUERY);
+  const { data, loading: loadingQuery, refetch } = useQuery(ME_QUERY);
 
   const t = useTranslate();
 
   useEffect(() => {
     setUserLogged(data && data.me);
+    setUserName(data && data.me && data.me.name);
   }, [loadingQuery]);
 
   useEffect(() => {
@@ -50,6 +52,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   useSessionEvent("new-token", (event: SessionEvent) => {
     const token: string = event.data;
     setUserLogged(!!token);
+    refetch();
   });
 
   if (loading) {
@@ -78,7 +81,12 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   };
 
   const headerRightContent: Element = userLogged ? (
-    <></>
+    <HeaderRightContent>
+      <UserInfo>
+        <UserName>{userName}</UserName>
+        <UserImg />
+      </UserInfo>
+    </HeaderRightContent>
   ) : (
     <HeaderRightContent>
       <EnterButton>{t("playground-enter-button")}</EnterButton>
@@ -112,7 +120,44 @@ const EnterButton = styled(Button)`
 `;
 
 const HeaderRightContent = styled.div`
+  align-items: center;
+  display: flex;
+  height: 70px;
   position: absolute;
   right: 20px;
-  top: 15px;
+  top: 0;
+`;
+
+interface UserImgProps {
+  img?: string;
+}
+
+const UserImg = styled.div<UserImgProps>`
+  background: url(${(props: UserImgProps) => props.img}) center/40px 40px,
+    #3b3e45;
+  border-radius: 100%;
+  height: 40px;
+  width: 40px;
+`;
+
+const UserInfo = styled.div`
+  align-items: center;
+  display: flex;
+  border-left: solid 1px #cfcfcf;
+  height: 100%;
+  padding-left: 19px;
+`;
+
+const UserName = styled.p`
+  align-items: center;
+  color: #3b3e45;
+  display: flex;
+  font-family: Roboto;
+  font-size: 14px;
+  height: 16px;
+  margin-right: 10px;
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
