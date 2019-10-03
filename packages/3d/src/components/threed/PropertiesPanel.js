@@ -76,6 +76,14 @@ const ObjectName = styled.div`
   font-size: 13px;
   cursor: pointer;
 
+  p {
+    max-width: 175px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 1px;
+    white-space: nowrap;
+  }
+
   svg {
     display: none;
     margin-left: 10px;
@@ -383,7 +391,7 @@ class PropertiesPanel extends React.Component {
           )}
           {!editingName && (
             <ObjectName onClick={() => this.setState({ editingName: true })}>
-              {object.viewOptions.name} <Icon name="pencil" />
+              <p>{object.viewOptions.name}</p> <Icon name="pencil" />
             </ObjectName>
           )}
           <DropDown>
