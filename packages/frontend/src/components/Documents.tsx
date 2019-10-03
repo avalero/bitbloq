@@ -1,8 +1,9 @@
 import React, { FC, useState, useEffect, useCallback } from "react";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 
 import styled from "@emotion/styled";
 import {
+  Button,
   colors,
   Icon,
   DialogModal,
@@ -30,8 +31,12 @@ import {
   DOCUMENTS_QUERY,
   CREATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
-  DOCUMENT_UPDATED_SUBSCRIPTION
+  DOCUMENT_UPDATED_SUBSCRIPTION,
+  EXERCISE_BY_CODE_QUERY,
+  ME_QUERY
 } from "../apollo/queries";
+
+import NewExerciseButton from "./NewExerciseButton";
 
 enum OrderType {
   Creation = "creation",
@@ -67,6 +72,9 @@ const orderFunctions = {
 };
 
 const Documents: FC = () => {
+  const { data, loading: loadingMe } = useQuery(ME_QUERY);
+  const client = useApolloClient();
+
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [deleteDocumentId, setDeleteDocumentId] = useState("");
@@ -76,6 +84,13 @@ const Documents: FC = () => {
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const { data: dataDocs, loading, error, refetch } = useQuery(DOCUMENTS_QUERY);
+
+  const [exerciseCode, setExerciseCode] = useState("");
+  const [loadingExercise, setLoadingExercise] = useState(false);
+  const [exerciseError, setExerciseError] = useState(false);
+  const { data: dataEx, loading: loadEx, error: errorEx } = useQuery(
+    EXERCISE_BY_CODE_QUERY
+  );
 
   const onDocumentClick = ({ id, type }) => {
     navigate(`/app/document/${id}`);
@@ -106,6 +121,28 @@ const Documents: FC = () => {
     await deleteDocument({ variables: { id: deleteDocumentId } });
     setDeleteDocumentId(null);
     refetch();
+  };
+
+  const onOpenExercise = async exerciseCode => {
+    console.log(exerciseCode);
+    if (exerciseCode) {
+      try {
+        setLoadingExercise(true);
+        const {
+          data: { exerciseByCode: exercise }
+        } = await client.query({
+          query: EXERCISE_BY_CODE_QUERY,
+          variables: { code: exerciseCode }
+        });
+        setLoadingExercise(false);
+        setExerciseError(false);
+        setExerciseCode("");
+        window.open(`/app/exercise/${exercise.type}/${exercise.id}`);
+      } catch (e) {
+        setLoadingExercise(false);
+        setExerciseError(true);
+      }
+    }
   };
 
   const onFileSelected = file => {
@@ -151,23 +188,6 @@ const Documents: FC = () => {
       <Content>
         <Header>
           <h1>Mis documentos</h1>
-          <div>
-            <DropDown
-              attachmentPosition={"top center"}
-              targetPosition={"bottom center"}
-            >
-              {(isOpen: boolean) => (
-                <NewDocumentButton isOpen={isOpen}>
-                  <Icon name="new-document" />
-                  Nuevo documento
-                </NewDocumentButton>
-              )}
-              <NewDocumentDropDown
-                onNewDocument={onNewDocument}
-                onOpenDocument={onOpenDocumentClick}
-              />
-            </DropDown>
-          </div>
         </Header>
         <Rule />
         {dataDocs.documents.length > 0 && (
@@ -184,8 +204,35 @@ const Documents: FC = () => {
               onChange={e => setSearchText(e.target.value)}
               placeholder="Buscar..."
             />
+            <HeaderButtons>
+              <NewFolderButton tertiary>
+                {" "}
+                <Icon name="airplane-document" /> Nueva carpeta{" "}
+              </NewFolderButton>
+              <NewExerciseButton
+                onOpenExercise={onOpenExercise}
+                exerciseError={exerciseError}
+                loadingExercise={loadingExercise}
+              />
+              <DropDown
+                attachmentPosition={"top center"}
+                targetPosition={"bottom center"}
+              >
+                {(isOpen: boolean) => (
+                  <NewDocumentButton tertiary isOpen={isOpen}>
+                    <Icon name="new-document" />
+                    Nuevo documento
+                  </NewDocumentButton>
+                )}
+                <NewDocumentDropDown
+                  onNewDocument={onNewDocument}
+                  onOpenDocument={onOpenDocumentClick}
+                />
+              </DropDown>
+            </HeaderButtons>
           </DocumentListHeader>
         )}
+
         {dataDocs.documents.length > 0 ? (
           searchText ? (
             filterDocuments(dataDocs.documents).length > 0 ? (
@@ -307,6 +354,21 @@ const DocumentListHeader = styled.div`
   align-items: center;
 `;
 
+const HeaderButtons = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: flex-end;
+`;
+
+const HeaderButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+  }
+`;
+
 const ViewOptions = styled.div`
   /* flex: 1; */
   margin-right: 10px;
@@ -373,17 +435,17 @@ const StyledDocumentCard = styled(DocumentCard)`
 interface NewDocumentButtonProps {
   isOpen: boolean;
 }
-const NewDocumentButton = styled.div<NewDocumentButtonProps>`
-  border: 1px solid ${colors.gray3};
+const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
+  /* border: 1px solid ${colors.gray3}; */
   border-radius: 4px;
   font-size: 14px;
-  font-weight: 500;
+  /* font-weight: 500; */
   padding: 0px 20px;
   display: flex;
   align-items: center;
   height: 40px;
   cursor: pointer;
-  background-color: ${props => (props.isOpen ? colors.gray2 : "white")};
+  /* background-color: ${props => (props.isOpen ? colors.gray2 : "white")}; */
 
   &:hover {
     background-color: ${colors.gray2};
@@ -430,5 +492,14 @@ const NoDocuments = styled.div`
     letter-spacing: normal;
     text-align: center;
     color: #474749;
+  }
+`;
+
+const NewFolderButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
   }
 `;
