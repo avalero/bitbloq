@@ -1,4 +1,7 @@
-import * as React from "react";
+import React, { FC, useState, useEffect, useCallback } from "react";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+
+//import * as React from "react";
 import styled from "@emotion/styled";
 import {
   colors,
@@ -47,52 +50,54 @@ const orderFunctions = {
   [OrderType.Name]: sortByTitle
 };
 
-class DocumentsState {
-  readonly order: string = OrderType.Creation;
-  readonly searchText: string = "";
-  readonly deleteDocumentId: string | null = "";
-}
+const Documents: FC = () => {
+  //class Documents extends React.Component<any, DocumentsState> {
+  //readonly state = new DocumentsState();
 
-class Documents extends React.Component<any, DocumentsState> {
-  readonly state = new DocumentsState();
+  const [order, setOrder] = useState(OrderType.Creation);
+  const [searchText, setSearchText] = useState("");
+  const [deleteDocumentId, setDeleteDocumentId] = useState("");
 
-  private openFile = React.createRef<HTMLInputElement>();
+  let openFile = React.createRef<HTMLInputElement>();
 
-  onDocumentClick = ({ id, type }) => {
+  const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
+  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
+  const { data: dataDocs, loading, error, refetch } = useQuery(DOCUMENTS_QUERY);
+
+  const onDocumentClick = ({ id, type }) => {
     navigate(`/app/document/${id}`);
   };
 
-  onNewDocument(type) {
+  const onNewDocument = type => {
     window.open(`/app/document/${type}/new`);
-  }
+  };
 
-  onDocumentCreated = ({ createDocument: { id, type } }) => {
+  const onDocumentCreated = ({ createDocument: { id, type } }) => {
     navigate(`/app/document/${type}/${id}`);
   };
 
-  onOrderChange = order => {
-    this.setState({ order });
+  const onOrderChange = order => {
+    setOrder(order);
   };
 
-  onOpenDocumentClick = () => {
-    this.openFile.current.click();
+  const onOpenDocumentClick = () => {
+    openFile.current.click();
   };
 
-  onDocumentDeleteClick = (e, document) => {
+  const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
-    this.setState({ deleteDocumentId: document.id });
+    setDeleteDocumentId(document.id);
   };
 
-  onDeleteDocument = () => {
-    const { deleteDocumentId } = this.state;
-    const { deleteDocument } = this.props;
-    deleteDocument(deleteDocumentId);
-    this.setState({ deleteDocumentId: null });
+  const onDeleteDocument = async () => {
+    await deleteDocument({ variables: { id: deleteDocumentId } });
+    setDeleteDocumentId(null);
+    refetch();
   };
 
-  onFileSelected = (file, createDocument) => {
+  const onFileSelected = file => {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
       createDocument({
         variables: { ...document },
@@ -103,148 +108,141 @@ class Documents extends React.Component<any, DocumentsState> {
     reader.readAsText(file);
   };
 
-  renderHeader() {
-    return (
-      <Header>
-        <h1>Mis documentos</h1>
-        <div>
-          <DropDown
-            attachmentPosition={"top center"}
-            targetPosition={"bottom center"}
-          >
-            {(isOpen: boolean) => (
-              <NewDocumentButton isOpen={isOpen}>
-                <Icon name="new-document" />
-                Nuevo documento
-              </NewDocumentButton>
-            )}
-            <NewDocumentDropDown
-              onNewDocument={this.onNewDocument}
-              onOpenDocument={this.onOpenDocumentClick}
+  const filterDocuments = documents => {
+    return documents
+      .slice()
+      .sort(orderFunction)
+      .filter(d => documentTypes[d.type] && documentTypes[d.type].supported)
+      .filter(
+        d =>
+          !searchText ||
+          (d.title &&
+            d.title.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
+      );
+  };
+
+  const orderFunction = orderFunctions[order];
+
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (loading) return (<Container><Loading /></Container>);
+
+  return (
+    <Container>
+      <AppHeader />
+      <Content>
+        <Header>
+          <h1>Mis documentos</h1>
+          <div>
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+            >
+              {(isOpen: boolean) => (
+                <NewDocumentButton isOpen={isOpen}>
+                  <Icon name="new-document" />
+                  Nuevo documento
+                </NewDocumentButton>
+              )}
+              <NewDocumentDropDown
+                onNewDocument={onNewDocument}
+                onOpenDocument={onOpenDocumentClick}
+              />
+            </DropDown>
+          </div>
+        </Header>
+        <Rule />
+        {dataDocs.documents.length > 0 && (
+          <DocumentListHeader>
+            <ViewOptions>
+              <OrderSelect
+                options={orderOptions}
+                onChange={onOrderChange}
+                selectConfig={{ isSearchable: false }}
+              />
+            </ViewOptions>
+            <SearchInput
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              placeholder="Buscar..."
             />
-          </DropDown>
-        </div>
-      </Header>
-    );
-  }
-
-  render() {
-    const { order, searchText, deleteDocumentId } = this.state;
-    const orderFunction = orderFunctions[order];
-
-    return (
-      <Container>
-        <AppHeader />
-        <Query query={DOCUMENTS_QUERY}>
-          {({ loading, error, data, refetch }) => {
-            if (error) return <GraphQLErrorMessage apolloError={error} />;
-            if (loading) return <Loading />;
-
-            return (
-              <Content>
-                {this.renderHeader()}
-                <Rule />
-                <DocumentListHeader>
-                  <ViewOptions>
-                    <OrderSelect
-                      options={orderOptions}
-                      onChange={this.onOrderChange}
-                      selectConfig={{ isSearchable: false }}
-                    />
-                  </ViewOptions>
-                  <SearchInput
-                    value={searchText}
-                    onChange={e =>
-                      this.setState({ searchText: e.target.value })
-                    }
-                    placeholder="Buscar..."
-                  />
-                </DocumentListHeader>
-                <DocumentList>
-                  {data.documents
-                    .slice()
-                    .sort(orderFunction)
-                    .filter(
-                      d =>
-                        documentTypes[d.type] && documentTypes[d.type].supported
-                    )
-                    .filter(
-                      d =>
-                        !searchText ||
-                        (d.title &&
-                          d.title
-                            .toLowerCase()
-                            .indexOf(searchText.toLowerCase()) >= 0)
-                    )
-                    .map((document: any) => (
-                      <StyledDocumentCard
-                        key={document.id}
-                        document={document}
-                        onClick={() => this.onDocumentClick(document)}
-                      >
-                        <DeleteDocument
-                          onClick={e => this.onDocumentDeleteClick(e, document)}
-                        >
-                          <Icon name="trash" />
-                        </DeleteDocument>
-                      </StyledDocumentCard>
-                    ))}
-                </DocumentList>
-                <Subscription
-                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-                  shouldResubscribe={true}
-                  onSubscriptionData={() => {
-                    refetch();
-                  }}
-                />
-              </Content>
-            );
+          </DocumentListHeader>
+        )}
+        {dataDocs.documents.length > 0 ? (
+          searchText ? (
+            filterDocuments(dataDocs.documents).length > 0 ? (
+              <DocumentList>
+                {filterDocuments(dataDocs.documents).map((document: any) => (
+                  <StyledDocumentCard
+                    key={document.id}
+                    document={document}
+                    onClick={() => onDocumentClick(document)}
+                  >
+                    <DeleteDocument
+                      onClick={e => onDocumentDeleteClick(e, document)}
+                    >
+                      <Icon name="trash" />
+                    </DeleteDocument>
+                  </StyledDocumentCard>
+                ))}
+              </DocumentList>
+            ) : (
+              <NoDocuments>
+                <h1>No hay resultados para tu búsqueda</h1>
+              </NoDocuments>
+            )
+          ) : (
+            <DocumentList>
+              {filterDocuments(dataDocs.documents).map((document: any) => (
+                <StyledDocumentCard
+                  key={document.id}
+                  document={document}
+                  onClick={() => onDocumentClick(document)}
+                >
+                  <DeleteDocument
+                    onClick={e => onDocumentDeleteClick(e, document)}
+                  >
+                    <Icon name="trash" />
+                  </DeleteDocument>
+                </StyledDocumentCard>
+              ))}
+            </DocumentList>
+          )
+        ) : (
+          <NoDocuments>
+            <h1>No tienes ningún documento</h1>
+            <p>
+              Puedes crear un documento nuevo o subir uno desde tu ordenador.
+            </p>
+          </NoDocuments>
+        )}
+        <Subscription
+          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={() => {
+            refetch();
           }}
-        </Query>
-        <DialogModal
-          isOpen={!!deleteDocumentId}
-          title="Eliminar"
-          text="¿Seguro que quieres eliminar este documento?"
-          okText="Aceptar"
-          cancelText="Cancelar"
-          onOk={this.onDeleteDocument}
-          onCancel={() => this.setState({ deleteDocumentId: null })}
         />
-        <Mutation
-          mutation={CREATE_DOCUMENT_MUTATION}
-          onCompleted={this.onDocumentCreated}
-        >
-          {createDocument => (
-            <input
-              ref={this.openFile}
-              type="file"
-              onChange={e =>
-                this.onFileSelected(e.target.files[0], createDocument)
-              }
-              style={{ display: "none" }}
-            />
-          )}
-        </Mutation>
-      </Container>
-    );
-  }
-}
-
-const DocumentsWithDelete = props => (
-  <Mutation mutation={DELETE_DOCUMENT_MUTATION}>
-    {mutate => (
-      <Documents
-        {...props}
-        deleteDocument={id =>
-          mutate({
-            variables: { id },
-            refetchQueries: [{ query: DOCUMENTS_QUERY }]
-          })
-        }
+      </Content>
+      <DialogModal
+        isOpen={!!deleteDocumentId}
+        title="Eliminar"
+        text="¿Seguro que quieres eliminar este documento?"
+        okText="Aceptar"
+        cancelText="Cancelar"
+        onOk={onDeleteDocument}
+        onCancel={() => setDeleteDocumentId(null)}
       />
-    )}
-  </Mutation>
-);
+      <input
+        ref={openFile}
+        type="file"
+        onChange={e => onFileSelected(e.target.files[0])}
+        style={{ display: "none" }}
+      />
+    </Container>
+  );
+};
+
+const DocumentsWithDelete = props => <Documents {...props} />;
 
 export default DocumentsWithDelete;
 
@@ -374,5 +372,43 @@ const NewDocumentButton = styled.div<NewDocumentButtonProps>`
   svg {
     height: 20px;
     margin-right: 8px;
+  }
+`;
+
+const NoDocuments = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 60px;
+  margin-top: 100px;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    width: 1179px;
+    height: 28px;
+    font-family: Roboto;
+    font-size: 24px;
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #373b44;
+    margin-bottom: 20px;
+  }
+
+  p {
+    width: 1179px;
+    height: 22px;
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.57;
+    letter-spacing: normal;
+    text-align: center;
+    color: #474749;
   }
 `;
