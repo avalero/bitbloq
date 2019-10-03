@@ -94,6 +94,12 @@ const ObjectName = styled.div`
   height: 30px;
   margin-bottom: -1px;
 
+  span.object-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &:hover {
     ${DeleteObject} {
       display: block;
@@ -294,7 +300,9 @@ class ObjectTree extends React.Component {
                   <Icon name="angle" />
                 </CollapseButton>
               )}
-              <span>{object.viewOptions.name || object.type}</span>
+              <span className="object-name">
+                {object.viewOptions.name || object.type}
+              </span>
               {icon && <ObjectTypeIcon>{icon}</ObjectTypeIcon>}
               {isTop && (
                 <DeleteObject onClick={() => this.onDeleteObject(object)}>
