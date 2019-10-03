@@ -78,6 +78,7 @@ import LogoApps from "./icons/LogoApps";
 import LogoCode from "./icons/LogoCode";
 import HollowCylinder from "./icons/HollowCylinder";
 import Cthulhito from "./icons/Cthulhito";
+import NewFolder from "./icons/NewFolder";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -247,6 +248,8 @@ const Icon: React.SFC<IconProps> = ({ name }) => {
       return <LogoApps />;
     case "cthulhito":
       return <Cthulhito />;
+    case "new-folder":
+      return <NewFolder />;      
     default:
       console.warn("Icon not found");
       return null;

@@ -124,7 +124,6 @@ const Documents: FC = () => {
   };
 
   const onOpenExercise = async exerciseCode => {
-    console.log(exerciseCode);
     if (exerciseCode) {
       try {
         setLoadingExercise(true);
@@ -207,7 +206,7 @@ const Documents: FC = () => {
             <HeaderButtons>
               <NewFolderButton tertiary>
                 {" "}
-                <Icon name="airplane-document" /> Nueva carpeta{" "}
+                <Icon name="new-folder" /> Nueva carpeta{" "}
               </NewFolderButton>
               <NewExerciseButton
                 onOpenExercise={onOpenExercise}
@@ -227,6 +226,7 @@ const Documents: FC = () => {
                 <NewDocumentDropDown
                   onNewDocument={onNewDocument}
                   onOpenDocument={onOpenDocumentClick}
+                  arrowOffset={10}
                 />
               </DropDown>
             </HeaderButtons>
