@@ -1,20 +1,20 @@
-import React from 'react';
-import uuid from 'uuid/v1';
-import { connect } from 'react-redux';
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { DropDown, Icon, withTranslate } from '@bitbloq/ui';
+import React from "react";
+import uuid from "uuid/v1";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DropDown, Icon, withTranslate } from "@bitbloq/ui";
 import {
   selectObject,
   deselectObject,
   createObject,
   deleteObject,
-  updateObject,
-} from '../../actions/threed';
-import { getObjects, getSelectedObjects } from '../../reducers/threed/';
-import config from '../../config/threed';
-import AddObjectDropdown from './AddObjectDropdown';
+  updateObject
+} from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import config from "../../config/threed";
+import AddObjectDropdown from "./AddObjectDropdown";
 
 const Container = styled.div`
   width: 180px;
@@ -36,7 +36,7 @@ const AddButton = styled.div`
   border-bottom: 1px solid #cfcfcf;
   z-index: 2;
   box-shadow: ${props =>
-    props.isOpen ? '0 3px 7px 0 rgba(0, 0, 0, 0.5);' : 'none'};
+    props.isOpen ? "0 3px 7px 0 rgba(0, 0, 0, 0.5);" : "none"};
 `;
 
 const Tree = styled.div`
@@ -160,7 +160,7 @@ class ObjectTree extends React.Component {
   addDropdown = React.createRef();
 
   state = {
-    collapsedItems: [],
+    collapsedItems: []
   };
 
   onCollapseClick = (e, object) => {
@@ -169,7 +169,7 @@ class ObjectTree extends React.Component {
       ...state,
       collapsedItems: collapsedItems.includes(object.id)
         ? collapsedItems.filter(id => id !== object.id)
-        : [...collapsedItems, object.id],
+        : [...collapsedItems, object.id]
     }));
   };
 
@@ -183,8 +183,8 @@ class ObjectTree extends React.Component {
       operations: config.defaultOperations(advancedMode),
       viewOptions: {
         name: t(typeConfig.label),
-        color: config.colors[Math.floor(Math.random() * config.colors.length)],
-      },
+        color: config.colors[Math.floor(Math.random() * config.colors.length)]
+      }
     };
 
     const addDropdown = this.addDropdown.current;
@@ -216,7 +216,7 @@ class ObjectTree extends React.Component {
     newChildren.splice(destination.index, 0, child);
     this.props.updateObject({
       ...parent,
-      children: newChildren,
+      children: newChildren
     });
   }
 
@@ -227,7 +227,7 @@ class ObjectTree extends React.Component {
       selectObject,
       deselectObject,
       controlPressed,
-      shiftPressed,
+      shiftPressed
     } = this.props;
     const { collapsedItems } = this.state;
 
@@ -296,11 +296,11 @@ class ObjectTree extends React.Component {
               )}
               <span>{object.viewOptions.name || object.type}</span>
               {icon && <ObjectTypeIcon>{icon}</ObjectTypeIcon>}
-              {isTop &&
+              {isTop && (
                 <DeleteObject onClick={() => this.onDeleteObject(object)}>
                   <Icon name="trash" />
                 </DeleteObject>
-              }
+              )}
             </ObjectName>
             {!isCollapsed && this.renderObjectList(children, depth + 1, object)}
           </ObjectItem>
@@ -311,7 +311,7 @@ class ObjectTree extends React.Component {
 
   renderObjectList(objects, depth = 0, parent) {
     if (objects && objects.length) {
-      const parentId = parent ? parent.id : 'root';
+      const parentId = parent ? parent.id : "root";
       return (
         <Droppable droppableId={parentId} type={parentId}>
           {provided => (
@@ -341,7 +341,7 @@ class ObjectTree extends React.Component {
           >
             {isOpen => (
               <AddButton isOpen={isOpen}>
-                <div>+ {t('add-object')}</div>
+                <div>+ {t("add-object")}</div>
               </AddButton>
             )}
             <AddObjectDropdown
@@ -361,7 +361,7 @@ const mapStateToProps = ({ ui, threed }) => ({
   selectedObjects: getSelectedObjects(threed),
   controlPressed: ui.controlPressed,
   shiftPressed: ui.shiftPressed,
-  advancedMode: threed.ui.advancedMode,
+  advancedMode: threed.ui.advancedMode
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -370,7 +370,7 @@ const mapDispatchToProps = dispatch => ({
   deselectObject: object => dispatch(deselectObject(object)),
   createObject: object => dispatch(createObject(object)),
   updateObject: object => dispatch(updateObject(object)),
-  deleteObject: object => dispatch(deleteObject(object)),
+  deleteObject: object => dispatch(deleteObject(object))
 });
 
 export default connect(
