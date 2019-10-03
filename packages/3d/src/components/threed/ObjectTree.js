@@ -166,7 +166,28 @@ class ObjectTree extends React.Component {
   addDropdown = React.createRef();
 
   state = {
-    collapsedItems: []
+    collapsedItems: [],
+    objectsLoaded: false
+  };
+
+  componentDidUpdate() {
+    if (!this.state.objectsLoaded) {
+      this.setState({
+        collapsedItems: this.getChildrenIds(this.props.objects),
+        objectsLoaded: true
+      });
+    }
+  }
+
+  getChildrenIds = objects => {
+    let ids = [];
+    objects.forEach(object => {
+      if (object.children && object.children.length > 0) {
+        ids = [...ids, ...this.getChildrenIds(object.children)];
+      }
+      ids = [...ids, object.id];
+    });
+    return ids;
   };
 
   onCollapseClick = (e, object) => {
