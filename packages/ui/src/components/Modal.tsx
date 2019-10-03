@@ -10,6 +10,7 @@ export interface ModalProps {
   showHeader: boolean;
   onClose?: () => void;
   transparentOverlay?: boolean;
+  className?: string;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -18,14 +19,19 @@ const Modal: FC<ModalProps> = ({
   showHeader,
   onClose,
   transparentOverlay,
-  children
+  children,
+  className
 }) => {
   if (!isOpen) {
     return null;
   }
 
   return (
-    <Overlay onMouseDown={onClose} transparent={transparentOverlay}>
+    <Overlay
+      className={className}
+      onMouseDown={onClose}
+      transparent={transparentOverlay}
+    >
       <Container
         onMouseDown={(e: Event) => e.stopPropagation()}
         withShadow={transparentOverlay}

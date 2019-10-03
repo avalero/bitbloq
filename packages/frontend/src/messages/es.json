@@ -213,5 +213,7 @@
   "G-tone": "SOL",
   "bloq-parameter-duration-sec": "Duración (seg.)",
   "bloq-on-message": "Al recibir el mensaje",
-  "playground-enter-button": "Entra con tu cuenta"
+  "playground-enter-button": "Entra con tu cuenta",
+  "general-enter-button": "Entrar",
+  "general-cancel-button": "Cancelar"
 }

@@ -1,30 +1,39 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { navigate, Link } from "gatsby";
+import { Link } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
 
 interface LoginPanelProps {
+  className: string;
   email: string;
   logingError: boolean;
   logingIn: boolean;
   password: string;
   onLoginClick(): void;
+  secondaryButtonCallback(): void;
+  secondaryButtonText: string;
   setEmail(email: string): void;
   setPassword(password: string): void;
 }
 
 const LoginPanel: FC<LoginPanelProps> = (props: LoginPanelProps) => {
   const {
+    className,
     email,
     logingError,
     logingIn,
     password,
     onLoginClick,
+    secondaryButtonCallback,
+    secondaryButtonText,
     setEmail,
     setPassword
   } = props;
   return (
-    <Panel onSubmit={(event: Event) => event.preventDefault()}>
+    <Panel
+      className={className}
+      onSubmit={(event: Event) => event.preventDefault()}
+    >
       <FormGroup>
         <label>Correo electrónico</label>
         <Input
@@ -50,13 +59,24 @@ const LoginPanel: FC<LoginPanelProps> = (props: LoginPanelProps) => {
       {logingError && (
         <ErrorMessage>Correo electrónico o contraseña no válidos</ErrorMessage>
       )}
-      <Button type="submit" onClick={() => onLoginClick()} disabled={logingIn}>
+      <Button
+        className="btn submit-btn"
+        type="submit"
+        onClick={() => onLoginClick()}
+        disabled={logingIn}
+      >
         Entrar
       </Button>
-      <Button secondary onClick={() => navigate("/signup")}>
-        Crear una cuenta
+      <Button
+        className="btn cancel-btn"
+        secondary
+        onClick={secondaryButtonCallback}
+      >
+        {secondaryButtonText}
       </Button>
-      <Link to="/forgot-password">No recuerdo mi contraseña</Link>
+      <Link className="forgot-password-link" to="/forgot-password">
+        No recuerdo mi contraseña
+      </Link>
     </Panel>
   );
 };
@@ -79,6 +99,8 @@ const FormGroup = styled.div`
 `;
 
 const Panel = styled.form`
+  font-family: Roboto;
+
   a {
     color: #00ade5;
     display: block;

@@ -39,6 +39,8 @@ const LoginPage: FC = () => {
         logingIn={loggingIn}
         password={password}
         onLoginClick={onLoginClick}
+        secondaryButtonCallback={() => navigate("/signup")}
+        secondaryButtonText="Crear una cuenta"
         setEmail={setEmail}
         setPassword={setPassword}
       />
