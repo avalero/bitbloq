@@ -5,6 +5,8 @@ export default {
   green: "#82ad3a",
   greenHover: "#98c64a",
   greenPressed: "#739834",
+  red: "#d82b32",
+  redPressed: "#a22026",
   brandBlue: "#00c4ff",
   brandBlueHover: "#00c4ff",
   brandBluePressed: "#00b0e6",

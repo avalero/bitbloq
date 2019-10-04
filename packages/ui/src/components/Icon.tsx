@@ -7,6 +7,7 @@ import AngleDouble from "./icons/AngleDouble";
 import Arrow from "./icons/Arrow";
 import ArrowLeft from "./icons/ArrowLeft";
 import BasicShapes from "./icons/BasicShapes";
+import Brain from "./icons/Brain";
 import Brush from "./icons/Brush";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
@@ -22,12 +23,14 @@ import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
 import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
+import Equal from "./icons/Equal";
 import ExportSTL from "./icons/ExportSTL";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Intersection from "./icons/Intersection";
+import Loop from "./icons/Loop";
 import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
@@ -58,8 +61,10 @@ import Spinner from "./icons/Spinner";
 import STL from "./icons/STL";
 import ThreeD from "./icons/ThreeD";
 import Tick from "./icons/Tick";
+import Times from "./icons/Times";
 import Translation from "./icons/Translation";
 import Trash from "./icons/Trash";
+import Triangle from "./icons/Triangle";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
@@ -104,6 +109,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Angle className={className} />;
     case "angle-double":
       return <AngleDouble className={className} />;
+    case "brain":
+      return <Brain className={className} />;
     case "heart":
       return <Heart className={className} />;
     case "tube":
@@ -144,6 +151,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Earth className={className} />;
     case "ellipsis":
       return <Ellipsis className={className} />;
+    case "equal":
+      return <Equal className={className} />;
     case "export-stl":
       return <ExportSTL className={className} />;
     case "group":
@@ -158,6 +167,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Intersection className={className} />;
     case "center":
       return <Center className={className} />;
+    case "loop":
+      return <Loop className={className} />;
     case "minus":
       return <Minus className={className} />;
     case "new-document":
@@ -228,10 +239,14 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <ThreeD className={className} />;
     case "tick":
       return <Tick className={className} />;
+    case "times":
+      return <Times className={className} />;
     case "translation":
       return <Translation className={className} />;
     case "trash":
       return <Trash className={className} />;
+    case "triangle":
+      return <Triangle className={className} />;
     case "undo":
       return <Undo className={className} />;
     case "ungroup":
@@ -251,9 +266,9 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
     case "logo-apps":
       return <LogoApps className={className} />;
     case "cthulhito":
-      return <Cthulhito />;
+      return <Cthulhito className={className} />;
     case "new-folder":
-      return <NewFolder />;      
+      return <NewFolder className={className} />;
     default:
       console.warn("Icon not found");
       return null;

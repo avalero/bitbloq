@@ -8,7 +8,7 @@ import { horizontalShapes, halfHorizontalShapes } from "../config";
 
 interface IBloqPlaceholderProps {
   category: BloqCategory;
-  onClick: React.MouseEventHandler;
+  onClick?: React.MouseEventHandler;
   selected?: boolean;
   half?: boolean;
 }
@@ -61,8 +61,7 @@ const Container = styled.div<IContainerProps>`
   align-items: center;
   justify-content: center;
   color: ${props => (props.selected ? colors.brandOrange : "#bbb")};
-  width: ${props =>
-    props.half ? 34 : props.category === BloqCategory.Event ? 66 : 60}px;
+  width: ${props => (props.half ? 34 : 60)}px;
   height: 60px;
 `;
 

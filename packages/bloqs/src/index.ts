@@ -31,6 +31,7 @@ export interface IBloqBaseParameter {
   label: string;
   type: BloqParameterType;
   value?: string;
+  defaultValue?: string | number | boolean;
 }
 
 export interface IBloqParameterOption {
@@ -75,14 +76,15 @@ export interface IBloqType {
   iconSwitch?: IIconSwitch;
   iconComponent?: string;
   code: IArduinoCode;
-  parameters: IBloqParameter[];
+  parameters?: IBloqParameter[];
   components?: string[];
+  configurationComponent?: string;
   actions: IBloqAction[];
 }
 
 export interface IBloq {
   type: string;
-  parameters: { [name: string]: string };
+  parameters: { [name: string]: string | number | boolean};
 }
 
 export interface IBloqTypeGroup {
