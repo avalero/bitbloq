@@ -212,5 +212,8 @@
   "F-tone": "F",
   "G-tone": "G",
   "bloq-parameter-duration-sec": "Duration (sec.)",
-  "bloq-on-message": "On message"
+  "bloq-on-message": "On message",
+  "playground-enter-button": "Enter with your count",
+  "general-enter-button": "Enter",
+  "general-cancel-button": "Cancel"
 }

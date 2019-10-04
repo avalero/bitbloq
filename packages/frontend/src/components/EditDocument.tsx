@@ -8,6 +8,8 @@ import useUserData from "../lib/useUserData";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal, { ModalType } from "./EditTitleModal";
 import PublishBar from "./PublishBar";
+import HeaderRightContent from "./HeaderRightContent";
+import UserInfo from "./UserInfo";
 import {
   DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
@@ -201,6 +203,12 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     </Document.Tab>
   );
 
+  const headerRightContent: Element = (
+    <HeaderRightContent>
+      <UserInfo name={user.name} />
+    </HeaderRightContent>
+  );
+
   return (
     <>
       <EditorComponent
@@ -226,6 +234,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         }
         changeAdvancedMode={onSetAdvancedMode}
         documentAdvancedMode={advancedMode}
+        headerRightContent={headerRightContent}
       />
       {isEditTitleVisible && (
         <EditTitleModal
@@ -253,5 +262,5 @@ const Loading = styled(Spinner)<LoadingProps>`
   width: 100%;
   height: 100%;
   color: white;
-  background-color: ${props => props.color};
+  background-color: ${(props: LoadingProps) => props.color};
 `;

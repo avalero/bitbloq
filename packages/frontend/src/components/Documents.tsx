@@ -122,7 +122,8 @@ const Documents: FC = () => {
   };
 
   const onDocumentClick = ({ id, type }) => {
-    navigate(`/app/document/${id}`);
+    window.open(`/app/document/${id}`)
+    //navigate(`/app/document/${id}`);
   };
 
   const onNewDocument = type => {
