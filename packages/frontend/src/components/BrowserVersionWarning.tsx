@@ -16,7 +16,7 @@ const BrowserVersionWarning: React.SFC<BrowserVersionWarningProps> = ({
       <h2>Aviso</h2>
       <p>
         Hemos detectado que el navegador que estas utilizando no es compatible
-        con la herramienta de diseño 3D del nuevo Bitbloq. Para hacer un uso
+        con Bitbloq. Para hacer un uso
         optimo de la herramienta, asegúrate de utilizar{" "}
         <b>Google Chrome con la versión {version} o superior</b>. Puedes
         descargarlo haciendo clic en{" "}
