@@ -36,10 +36,6 @@ const IndexPage: FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (getChromeVersion() < 69) {
-    return <BrowserVersionWarning version={69} />;
-  }
-
   if (loading) {
     return <Loading />;
   }
@@ -47,6 +43,10 @@ const IndexPage: FC = () => {
   if (data && data.me) {
     navigate("/app");
     return <Loading />;
+  }
+
+  if (getChromeVersion() < 69) {
+    return <BrowserVersionWarning version={69} />;
   }
 
   const onNewDocument = (type: string) => {
