@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { navigate } from "gatsby";
 import { saveAs } from "file-saver";
 import Loading from "./Loading";
 import { documentTypes } from "../config";
@@ -6,7 +7,11 @@ import { Button, Modal, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { SessionEvent, setToken, useSessionEvent } from "../lib/session";
 import { Response, useQuery, useMutation } from "@apollo/react-hooks";
-import { ME_QUERY, LOGIN_MUTATION } from "../apollo/queries";
+import {
+  CREATE_DOCUMENT_MUTATION,
+  ME_QUERY,
+  LOGIN_MUTATION
+} from "../apollo/queries";
 import LoginPanel from "./LoginPanel";
 import HeaderRightContent from "./HeaderRightContent";
 import UserInfo from "./UserInfo";
@@ -32,9 +37,10 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
   const contentRef = useRef([]);
-  const advancedModeRef = useRef();
+  const advancedModeRef = useRef(false);
 
   const { data, loading: loadingQuery, refetch } = useQuery(ME_QUERY);
+  const [createDocumentMutation] = useMutation(CREATE_DOCUMENT_MUTATION);
 
   const t = useTranslate();
 
@@ -68,6 +74,22 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     return <Loading />;
   }
 
+  const createDocument = async () => {
+    const title: string = "playground";
+    const document = {
+      type: currentType,
+      title,
+      content: JSON.stringify(contentRef.current),
+      advancedMode: advancedModeRef.current
+    };
+    const {
+      data: {
+        createDocument: { id: newId }
+      }
+    } = await createDocumentMutation({ variables: document });
+    navigate(`/app/document/${type}/${newId}`, { replace: true });
+  };
+
   const onLoginClick = async () => {
     try {
       setLoggingIn(true);
@@ -86,6 +108,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     setPassword("");
     setToken(token);
     setLoginModal(false);
+    createDocument();
   };
 
   const documentType = documentTypes[currentType || "3d"];

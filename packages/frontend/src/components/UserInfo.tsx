@@ -9,7 +9,7 @@ interface UserInfoProps {
 const UserInfo: FC<UserInfoProps> = (props: UserInfoProps) => {
   return (
     <Info>
-      <UserName>{props.name}</UserName>
+      <UserName href="/app">{props.name}</UserName>
       <UserImg img={props.img} />
     </Info>
   );
@@ -37,9 +37,9 @@ const UserImg = styled.div<UserImgProps>`
   width: 40px;
 `;
 
-const UserName = styled.p`
+const UserName = styled.a`
   align-items: center;
-  color: #3b3e45;
+  color: #3b3e45 !important;
   display: flex;
   font-family: Roboto;
   font-size: 14px;
@@ -47,6 +47,7 @@ const UserName = styled.p`
   margin-right: 10px;
   max-width: 210px;
   overflow: hidden;
+  text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
