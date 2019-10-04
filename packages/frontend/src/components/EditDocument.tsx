@@ -6,7 +6,7 @@ import { Document, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import { navigate } from "gatsby";
 import useUserData from "../lib/useUserData";
 import DocumentInfoForm from "./DocumentInfoForm";
-import EditTitleModal from "./EditTitleModal";
+import EditTitleModal, { ModalType } from "./EditTitleModal";
 import PublishBar from "./PublishBar";
 import {
   DOCUMENT_QUERY,
@@ -84,7 +84,12 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         data: {
           createDocument: { id: newId }
         }
-      } = await createDocument({ variables: { ...document, title: document.title || "Documento sin título"} });
+      } = await createDocument({
+        variables: {
+          ...document,
+          title: document.title || "Documento sin título"
+        }
+      });
       navigate(`/app/document/${type}/${newId}`, { replace: true });
     } else {
       debouncedUpdate(document);
@@ -105,10 +110,15 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
 
   if (loading) return <Loading color={documentType.color} />;
 
-  const { title, description, public: isPublic, example: isExample, advancedMode } =
-    document || {};
+  const {
+    title,
+    description,
+    public: isPublic,
+    example: isExample,
+    advancedMode
+  } = document || {};
 
-  window.sessionStorage.setItem('advancedMode', `${advancedMode}`);
+  window.sessionStorage.setItem("advancedMode", `${advancedMode}`);
 
   const location = window.location;
   const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${id}`;
@@ -222,6 +232,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
           title={title}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
+          modalType={ModalType.documentEdit}
         />
       )}
     </>

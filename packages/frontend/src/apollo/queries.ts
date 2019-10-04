@@ -55,6 +55,35 @@ export const DOCUMENTS_QUERY = gql`
   }
 `;
 
+export const FOLDERS_QUERY = gql`
+  query Folders {
+    folders {
+      id
+      name
+    }
+  }
+`;
+
+export const ROOT_FOLDER_QUERY = gql`
+  query RootFolder {
+    rootFolder {
+      id
+      name
+      documents {
+        id
+        type
+        title
+        createdAt
+        image
+      }
+      folders {
+        id
+        name
+      }
+    }
+  }
+`;
+
 export const EXAMPLES_QUERY = gql`
   query Examples {
     examples {
@@ -87,6 +116,22 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     ) {
       id
       type
+    }
+  }
+`;
+
+export const CREATE_FOLDER_MUTATION = gql`
+  mutation createFolder($input: FolderIn) {
+    createFolder(input: $input) {
+      id
+    }
+  }
+`;
+
+export const DELETE_FOLDER_MUTATION = gql`
+  mutation deleteFolder($id: ObjectID!) {
+    deleteFolder(id: $id) {
+      id
     }
   }
 `;
