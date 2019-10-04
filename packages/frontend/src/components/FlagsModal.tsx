@@ -34,6 +34,9 @@ const flagFields = [
 ];
 
 const konamiCode = "38384040373937396665";
+const commit = process.env.GATSBY_COMMIT;
+const commitDate = process.env.GATSBY_COMMIT_DATE;
+const buildDate = process.env.GATSBY_BUILD_DATE; 
 
 const FlagsModal: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -93,11 +96,19 @@ const FlagsModal: FC = () => {
               />
             )}
           </FormGroup>
-        ))}
+        ))
+        }
         <Buttons>
           <Button onClick={() => setIsOpen(false)} tertiary>Cerrar</Button>
           <Button onClick={onSaveClick}>Guardar y recargar</Button>
         </Buttons>
+        
+        <VersionInfo>
+        <b>Last commit:</b> {commit}<br/> 
+        <b>Commit Date:</b> {commitDate}<br/>
+        <b>Build date:</b> {buildDate}<br/>
+        </VersionInfo>
+
       </Content>
     </Modal>
   );
@@ -143,4 +154,14 @@ const Buttons = styled.div`
   margin-top: 40px;
   display: flex;
   justify-content: space-between;
+`;
+
+const VersionInfo = styled.p`
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 20px;
+  b {
+    display: inline-block;
+    width: 80px;
+  }
 `;
