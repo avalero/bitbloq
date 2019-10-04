@@ -10,7 +10,7 @@ import {
   Icon,
   DropDown,
   HorizontalRule,
-  Spinner
+  Spinner, 
 } from "@bitbloq/ui";
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
@@ -36,6 +36,10 @@ const IndexPage: FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // if (getChromeVersion() < 69) {
+  //   return <BrowserVersionWarning version={69} />
+  // }
+
   if (loading) {
     return <Loading />;
   }
@@ -43,10 +47,6 @@ const IndexPage: FC = () => {
   if (data && data.me) {
     navigate("/app");
     return <Loading />;
-  }
-
-  if (getChromeVersion() < 69) {
-    return <BrowserVersionWarning version={69} />;
   }
 
   const onNewDocument = (type: string) => {
