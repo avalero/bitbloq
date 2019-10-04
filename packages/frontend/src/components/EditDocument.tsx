@@ -86,7 +86,12 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         data: {
           createDocument: { id: newId }
         }
-      } = await createDocument({ variables: { ...document, title: document.title || "Documento sin título"} });
+      } = await createDocument({
+        variables: {
+          ...document,
+          title: document.title || "Documento sin título"
+        }
+      });
       navigate(`/app/document/${type}/${newId}`, { replace: true });
     } else {
       debouncedUpdate(document);
@@ -236,6 +241,10 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
           title={title}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
+          modalTitle="Cambiar nombre del documento"
+          modalText="Nombre del documento"
+          placeholder="Documento sin título"
+          saveButton="Cambiar"
         />
       )}
     </>

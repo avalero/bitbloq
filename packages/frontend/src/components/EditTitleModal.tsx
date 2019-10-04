@@ -3,13 +3,24 @@ import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 
 interface EditTitleModalProps {
-  title: string;
+  docTitle: string;
   onSave: (title: string) => any;
   onCancel: () => any;
+  modalTitle: string;
+  modalText: string;
+  placeholder: string;
+  saveButton: string;
 }
 
-const EditTitleModal: FC<EditTitleModalProps> = (props) => {
-  const { onSave, onCancel } = props;
+const EditTitleModal: FC<EditTitleModalProps> = props => {
+  const {
+    onSave,
+    onCancel,
+    modalTitle,
+    modalText,
+    placeholder,
+    saveButton
+  } = props;
   const [title, setTitle] = useState(props.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -20,11 +31,7 @@ const EditTitleModal: FC<EditTitleModalProps> = (props) => {
   });
 
   return (
-    <Modal
-      isOpen={true}
-      title="Cambiar el nombre del proyecto"
-      onClose={onCancel}
-    >
+    <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
       <Content>
         <form
           onSubmit={e => {
@@ -32,16 +39,13 @@ const EditTitleModal: FC<EditTitleModalProps> = (props) => {
             onSave(title);
           }}
         >
-          <p>Introduce un nuevo nombre para el proyecto</p>
+          <p>{modalText}</p>
           <Input
-            value={title}
             ref={titleInputRef}
+            placeholder={title || placeholder}
             onChange={e => setTitle(e.target.value)}
           />
           <Buttons>
-            <Button onClick={() => onSave(title)} disabled={!title}>
-              Guardar
-            </Button>
             <Button
               tertiary
               onClick={e => {
@@ -51,6 +55,7 @@ const EditTitleModal: FC<EditTitleModalProps> = (props) => {
             >
               Cancelar
             </Button>
+            <Button disabled={!title}>{saveButton}</Button>
           </Buttons>
         </form>
       </Content>
@@ -76,10 +81,9 @@ const Content = styled.div`
 const Buttons = styled.div`
   display: flex;
   margin-top: 50px;
-
+  justify-content: space-between;
   ${Button} {
-    height: 50px;
-    width: 170px;
-    margin-right: 20px;
+    height: 40px;
+    border-radius: 4px;
   }
 `;
