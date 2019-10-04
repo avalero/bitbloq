@@ -78,7 +78,8 @@ const Documents: FC = () => {
   const { data: dataDocs, loading, error, refetch } = useQuery(DOCUMENTS_QUERY);
 
   const onDocumentClick = ({ id, type }) => {
-    navigate(`/app/document/${id}`);
+    window.open(`/app/document/${id}`)
+    //navigate(`/app/document/${id}`);
   };
 
   const onNewDocument = type => {
