@@ -37,6 +37,7 @@ const konamiCode = "38384040373937396665";
 const commit = process.env.GATSBY_COMMIT;
 const commitDate = process.env.GATSBY_COMMIT_DATE;
 const buildDate = process.env.GATSBY_BUILD_DATE; 
+const branch = process.env.GATSBY_BRANCH;
 
 const FlagsModal: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -104,7 +105,7 @@ const FlagsModal: FC = () => {
         </Buttons>
         
         <VersionInfo>
-        <b>Last commit:</b> {commit}<br/> 
+        <b>Last commit:</b> {commit}@{branch}<br/> 
         <b>Commit Date:</b> {commitDate} GMT<br/>
         <b>Build date:</b> {buildDate} GMT<br/>
         </VersionInfo>
