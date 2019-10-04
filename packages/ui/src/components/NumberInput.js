@@ -223,7 +223,7 @@ export default class NumberInput extends React.Component {
     return (
       <Container {...tooltipProps} focused={focused}>
         <DecrementButton onMouseDown={this.onDecrementClick}>
-          <Icon name="arrow" />
+          <Icon name="triangle" />
         </DecrementButton>
         <StyledInput
           {...this.props}
@@ -242,7 +242,7 @@ export default class NumberInput extends React.Component {
           </ValueText>
         )}
         <IncrementButton onMouseDown={this.onIncrementClick}>
-          <Icon name="arrow" />
+          <Icon name="triangle" />
         </IncrementButton>
       </Container>
     );
