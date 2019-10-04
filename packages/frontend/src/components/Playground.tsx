@@ -67,7 +67,9 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   useSessionEvent("new-token", (event: SessionEvent) => {
     const token: string = event.data;
     setUserLogged(!!token);
-    refetch().then((result: Response) => setUserName(result.data.me.name));
+    refetch().then(
+      (result: Response) => (setUserName(result.data.me.name), createDocument())
+    );
   });
 
   if (loading) {
