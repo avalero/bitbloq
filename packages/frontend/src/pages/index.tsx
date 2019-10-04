@@ -15,10 +15,12 @@ import {
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 import SEO from "../components/SEO";
+import BrowserVersionWarning from "../components/BrowserVersionWarning";
 import NewDocumentDropDown from "../components/NewDocumentDropDown";
 import LandingExamples from "../components/LandingExamples";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
+import { getChromeVersion } from "../util";
 import bqLogo from "../images/bq-logo.svg";
 import studentStep1Image from "../images/student-step-1.svg";
 import studentStep2Image from "../images/student-step-2.svg";
@@ -33,6 +35,10 @@ const IndexPage: FC = () => {
   const [exerciseError, setExerciseError] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  if (getChromeVersion() < 69) {
+    return <BrowserVersionWarning version={69} />;
+  }
 
   if (loading) {
     return <Loading />;

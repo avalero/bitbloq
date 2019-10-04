@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { navigate } from "gatsby";
 import { Global } from "@emotion/core";
+import BrowserVersionWarning from "../components/BrowserVersionWarning";
 import SEO from "../components/SEO";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
@@ -17,7 +18,7 @@ import {
   Checkbox
 } from "@bitbloq/ui";
 import Survey, { Question, QuestionType } from "../components/Survey";
-import { isValidEmail } from "../util";
+import { getChromeVersion, isValidEmail } from "../util";
 import logoBetaImage from "../images/logo-beta.svg";
 
 const SIGNUP_MUTATION = gql`
@@ -313,6 +314,10 @@ class SignupPage extends React.Component<any, SignupPageState> {
 
 const SignupPageWithMutation = props => {
   const [accountCreated, setAccountCreated] = useState(false);
+
+  if (getChromeVersion() < 69) {
+    return <BrowserVersionWarning version={69} />;
+  }
 
   if (accountCreated) {
     return (
