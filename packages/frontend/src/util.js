@@ -51,10 +51,14 @@ export const sortByTitleZA = (a, b) => {
 };
 
 export const getChromeVersion = () => {
-  const pieces = navigator.userAgent.match(
-    /Chrom(?:e|ium)\/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/
-  );
-  return pieces && pieces[1] ? parseInt(pieces[1]) : 0;
+  if (typeof navigator !== `undefined`) {
+    const pieces = navigator.userAgent.match(
+      /Chrom(?:e|ium)\/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/
+    );
+    return pieces && pieces[1] ? parseInt(pieces[1]) : 0;
+  } else {
+    return 0;
+  }
 };
 
 export const isValidEmail = email =>
