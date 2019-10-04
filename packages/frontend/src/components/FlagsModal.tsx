@@ -103,7 +103,7 @@ const FlagsModal: FC = () => {
           <Button onClick={() => setIsOpen(false)} tertiary>Cerrar</Button>
           <Button onClick={onSaveClick}>Guardar y recargar</Button>
         </Buttons>
-        
+        <HorizontalRule small />
         <VersionInfo>
         <b>Last commit:</b> {commit}@{branch}<br/> 
         <b>Commit Date:</b> {commitDate} GMT<br/>
