@@ -112,6 +112,7 @@ const Documents: FC = () => {
   );
 
   const onCreateFolder = async folderName => {
+    console.log("pasa create");
     await createFolder({
       variables: {
         input: { name: folderName }
@@ -122,7 +123,7 @@ const Documents: FC = () => {
   };
 
   const onDocumentClick = ({ id, type }) => {
-    window.open(`/app/document/${id}`)
+    window.open(`/app/document/${id}`);
     //navigate(`/app/document/${id}`);
   };
 

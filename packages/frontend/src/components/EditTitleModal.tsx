@@ -87,9 +87,7 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button onClick={() => onSave(title)} disabled={!title}>
-              {modalTexts.saveButton}
-            </Button>
+            <Button disabled={!title}>{modalTexts.saveButton}</Button>
           </Buttons>
         </form>
       </Content>
