@@ -112,7 +112,6 @@ const Documents: FC = () => {
   );
 
   const onCreateFolder = async folderName => {
-    console.log("pasa create");
     await createFolder({
       variables: {
         input: { name: folderName }
