@@ -105,8 +105,8 @@ const FlagsModal: FC = () => {
         
         <VersionInfo>
         <b>Last commit:</b> {commit}<br/> 
-        <b>Commit Date:</b> {commitDate}<br/>
-        <b>Build date:</b> {buildDate}<br/>
+        <b>Commit Date:</b> {commitDate} GMT<br/>
+        <b>Build date:</b> {buildDate} GMT<br/>
         </VersionInfo>
 
       </Content>
