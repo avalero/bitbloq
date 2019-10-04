@@ -43,7 +43,8 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   initialContent,
   onContentChange,
   boards,
-  components
+  components,
+  backCallback
 }) => {
   const t = useTranslate();
 
@@ -226,6 +227,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       key="hardware"
       icon={<Icon name="hardware" />}
       label={t("hardware")}
+      backCallback={backCallback}
     >
       <HardwareDesigner
         boards={boards}
@@ -240,6 +242,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       key="software"
       icon={<Icon name="programming" />}
       label={t("software")}
+      backCallback={backCallback}
     >
       <HorizontalBloqEditor
         bloqs={program}
@@ -266,6 +269,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         onTabChange={onTabChange}
         onHeaderButtonClick={onHeaderButtonClick}
         headerButtons={[{ id: "upload", icon: "hardware" }]}
+        backCallback={backCallback}
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>

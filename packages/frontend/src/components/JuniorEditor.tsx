@@ -1,5 +1,6 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
+import { navigate } from "gatsby";
 import {
   bloqTypes,
   boards,
@@ -31,6 +32,7 @@ const JuniorEditor: React.FunctionComponent<EditorProps> = ({
       onContentChange={onContentChange}
       boards={boards}
       components={components}
+      backCallback={() => navigate("/")}
     >
       {getTabs}
     </Junior>

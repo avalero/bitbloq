@@ -2,6 +2,7 @@ import * as React from "react";
 import { ThreeD } from "@bitbloq/3d";
 import { STLLoader } from "@bitbloq/lib3d";
 import { Mutation } from "react-apollo";
+import { navigate } from "gatsby";
 import { colors, Icon, withTranslate, DialogModal } from "@bitbloq/ui";
 import { addShapeGroups } from "../config";
 import BrowserVersionWarning from "./BrowserVersionWarning";
@@ -59,7 +60,7 @@ const getMenuOptions = (baseMenuOptions, t, props) => [
       },
       {
         divider: true
-      },
+      }
       // {
       //   id: "change-language",
       //   label: t("menu-change-language"),
@@ -95,7 +96,10 @@ class ThreeDEditor extends React.Component<EditorProps> {
         // is user is not logged (PlayGround)
         const { isPlayground } = this.props;
         if (isPlayground) {
-          this.setState({ showSTLError: "Debes estar registrado para poder importar archivos STL." });
+          this.setState({
+            showSTLError:
+              "Debes estar registrado para poder importar archivos STL."
+          });
           return;
         }
         this.openSTLInput.current && this.openSTLInput.current.click();
@@ -156,13 +160,13 @@ class ThreeDEditor extends React.Component<EditorProps> {
       //   );
       // } else {
 
-        uploadSTL({ variables: { file } }).then(({ data }) => {
-          this.threedRef.current.createObject(
-            "STLObject",
-            { url: data.uploadSTLFile.publicUrl },
-            data.uploadSTLFile.filename
-          );
-        });
+      uploadSTL({ variables: { file } }).then(({ data }) => {
+        this.threedRef.current.createObject(
+          "STLObject",
+          { url: data.uploadSTLFile.publicUrl },
+          data.uploadSTLFile.filename
+        );
+      });
       // }
     };
 
@@ -215,6 +219,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
           preMenuContent={preMenuContent}
           changeAdvancedMode={changeAdvancedMode}
           documentAdvancedMode={documentAdvancedMode}
+          backCallback={() => navigate("/")}
         >
           {getTabs}
         </ThreeD>
