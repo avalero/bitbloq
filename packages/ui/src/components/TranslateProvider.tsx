@@ -32,8 +32,16 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
     const { fallback } = this.props;
     const messages = this.state.messages || {};
 
-    const translateFn = (id: string) => {
-      if (messages[id]) return messages[id];
+    const translateFn = (id: string, variables?: string[]) => {
+      let translation: string = messages[id];
+      if (translation) {
+        if (variables) {
+          variables.forEach((variable: string) => {
+            translation = translation.replace("%v%", variable);
+          });
+        }
+        return translation;
+      }
       console.warn(`Missing translation for ${id}`);
       return id;
     };

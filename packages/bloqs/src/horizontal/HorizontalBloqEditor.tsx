@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import update from "immutability-helper";
-import { Icon, useTranslate } from "@bitbloq/ui";
+import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import BloqsLine from "./BloqsLine";
+import BloqConfigPanel from "./BloqConfigPanel";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
@@ -12,6 +13,7 @@ import {
   IBloqType,
   IBloqTypeGroup,
   IComponentInstance,
+  BloqParameterType,
   isBloqSelectParameter,
   isBloqSelectComponentParameter
 } from "../index";
@@ -20,11 +22,9 @@ interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
   bloqTypes: IBloqType[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
+  onUpload: () => any;
   getComponents: (types: string[]) => IComponentInstance[];
   getBloqPort: (bloq: IBloq) => string | undefined;
-  eventGroups: IBloqTypeGroup[];
-  actionGroups: IBloqTypeGroup[];
-  waitGroups: IBloqTypeGroup[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -33,11 +33,9 @@ const HorizontalBloqEditor: React.FunctionComponent<
   bloqs,
   bloqTypes,
   onBloqsChange,
+  onUpload,
   getComponents,
-  getBloqPort,
-  eventGroups,
-  actionGroups,
-  waitGroups
+  getBloqPort
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
@@ -54,23 +52,35 @@ const HorizontalBloqEditor: React.FunctionComponent<
     setSelectedPlaceholder(-1);
   };
 
-  const onAddBloq = (typeName: string) => {
-    const bloqType = bloqTypes.find(type => type.name === typeName)!;
+  const onAddBloq = (bloqType: IBloqType) => {
     const newBloq: IBloq = {
-      type: typeName,
+      type: bloqType.name,
       parameters: (bloqType.parameters || []).reduce((obj, param) => {
-        if (
-          isBloqSelectParameter(param) &&
-          param.options &&
-          param.options.length > 0
-        ) {
-          obj[param.name] = param.options[0].value;
-        }
-        if (isBloqSelectComponentParameter(param)) {
-          const compatibleComponents =
-            getComponents(bloqType.components || []) || [];
-          const { name = "" } = compatibleComponents[0] || {};
-          obj[param.name] = name;
+        if (param.defaultValue) {
+          obj[param.name] = param.defaultValue;
+        } else {
+          if (
+            isBloqSelectParameter(param) &&
+            param.options &&
+            param.options.length > 0
+          ) {
+            obj[param.name] = param.options[0].value;
+          }
+          if (isBloqSelectComponentParameter(param)) {
+            const compatibleComponents =
+              getComponents(bloqType.components || []) || [];
+            const { name = "" } = compatibleComponents[0] || {};
+            obj[param.name] = name;
+          }
+          if (param.type === BloqParameterType.Number) {
+            obj[param.name] = 0;
+          }
+          if (param.type === BloqParameterType.Text) {
+            obj[param.name] = "";
+          }
+          if (param.type === BloqParameterType.Boolean) {
+            obj[param.name] = false;
+          }
         }
         return obj;
       }, {})
@@ -108,7 +118,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
 
   return (
     <Container>
-      <Lines onClick={deselectEverything}>
+      <Lines selectedLine={selectedLineIndex} onClick={deselectEverything}>
         {[...bloqs, []].map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
@@ -136,47 +146,31 @@ const HorizontalBloqEditor: React.FunctionComponent<
           </Line>
         ))}
       </Lines>
-      <AddBloqPanel
-        onClick={e => e.stopPropagation()}
-        isOpen={selectedPlaceholder === 0}
-        bloqTabs={[
-          {
-            label: t("bloqs-sensors"),
-            icon: <Icon name="programming2" />,
-            groups: eventGroups
-          }
-        ]}
+      <Toolbar>
+        <ToolbarLeft>
+          <JuniorButton secondary disabled>
+            <Icon name="undo" />
+          </JuniorButton>
+          <JuniorButton secondary disabled>
+            <Icon name="redo" />
+          </JuniorButton>
+        </ToolbarLeft>
+        <UploadButton onClick={onUpload}>
+          <Icon name="brain" />
+        </UploadButton>
+      </Toolbar>
+      <BloqConfigPanel
+        isOpen={selectedPlaceholder >= 0 || selectedBloqIndex >= 0}
         bloqTypes={bloqTypes}
-        onTypeSelected={onAddBloq}
-      />
-      <AddBloqPanel
-        onClick={e => e.stopPropagation()}
-        isOpen={selectedPlaceholder > 0}
-        bloqTabs={[
-          {
-            label: t("bloqs-actions"),
-            icon: <Icon name="programming" />,
-            groups: actionGroups
-          },
-          {
-            label: t("bloqs-waits"),
-            icon: <Icon name="programming3" />,
-            groups: waitGroups
-          }
-        ]}
-        bloqTypes={bloqTypes}
-        onTypeSelected={onAddBloq}
-      />
-      <BloqPropertiesPanel
-        isOpen={!!selectedBloq}
-        bloq={selectedBloq}
-        getComponents={getComponents}
-        bloqType={
-          selectedBloq &&
-          bloqTypes.find(type => type.name === selectedBloq.type)!
-        }
+        onSelectBloqType={onAddBloq}
+        selectedPlaceholder={selectedPlaceholder}
+        selectedBloq={selectedBloq}
+        selectedBloqIndex={selectedBloqIndex}
+        getBloqPort={getBloqPort}
         onUpdateBloq={onUpdateBloq}
         onDeleteBloq={onDeleteBloq}
+        onClose={() => deselectEverything()}
+        getComponents={getComponents}
       />
     </Container>
   );
@@ -189,11 +183,21 @@ export default HorizontalBloqEditor;
 const Container = styled.div`
   flex: 1;
   display: flex;
+  flex-direction: column;
+  position: relative;
 `;
 
-const Lines = styled.div`
+interface ILinesProps {
+  selectedLine: number;
+}
+const Lines = styled.div<ILinesProps>`
+  padding: 10px;
+  box-sizing: border-box;
   flex: 1;
-  padding: 40px;
+  transform: translate(
+    0,
+    ${props => (props.selectedLine > 0 ? props.selectedLine * -100 : 0)}px
+  );
 `;
 
 const Line = styled.div`
@@ -214,4 +218,34 @@ const Number = styled.div`
   justify-content: center;
   align-items: center;
   margin-right: 12px;
+`;
+
+const Toolbar = styled.div`
+  height: 72px;
+  border-top: 1px solid #cfcfcf;
+  padding: 10px;
+  display: flex;
+  box-sizing: border-box;
+`;
+
+const ToolbarLeft = styled.div`
+  flex: 1;
+  display: flex;
+  margin: 0px -5px;
+
+  button {
+    margin: 0px 5px;
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+`;
+
+const UploadButton = styled(JuniorButton)`
+  padding: 0px 34px;
+  svg {
+    width: 32px;
+    height: 32px;
+  }
 `;

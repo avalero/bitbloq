@@ -11,15 +11,41 @@ export const sortByCreatedAt = (a, b) => {
   return 0;
 };
 
-export const sortByTitle = (a, b) => {
-  const aTitle = a && a.title;
-  const bTitle = b && b.title;
+export const sortByUpdatedAt = (a, b) => {
+  const aUpdatedAt = a && a.updatedAt;
+  const bUpdatedAt = b && b.updatedAt;
+
+  if (aUpdatedAt < bUpdatedAt) {
+    return 1;
+  }
+  if (aUpdatedAt > bUpdatedAt) {
+    return -1;
+  }
+  return 0;
+};
+
+export const sortByTitleAZ = (a, b) => {
+  const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
+  const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
 
   if (aTitle < bTitle) {
     return -1;
   }
-  if (bTitle > bTitle) {
+  if (aTitle > bTitle) {
     return 1;
+  }
+  return 0;
+};
+
+export const sortByTitleZA = (a, b) => {
+  const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
+  const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
+
+  if (aTitle < bTitle) {
+    return 1;
+  }
+  if (aTitle > bTitle) {
+    return -1;
   }
   return 0;
 };

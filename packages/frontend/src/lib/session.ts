@@ -51,7 +51,7 @@ export const getToken = (tempSession?: string): string | null => {
 
 export const setToken = (token: string, tempSession?: string) => {
   setSession({ token, time: token ? Date.now() : 0 }, tempSession);
-  triggerEvent({ event: "new-token", tempSession });
+  triggerEvent({ event: "new-token", tempSession, data: token });
 };
 
 export const shouldRenewToken = (tempSession?: string): boolean => {
@@ -62,11 +62,12 @@ export const shouldRenewToken = (tempSession?: string): boolean => {
     : false;
 };
 
-interface SessionEvent {
+export interface SessionEvent {
   event: string;
   tempSession?: string;
   error?: any;
   remainingSeconds?: number;
+  data?: any;
 }
 
 export type SessionCallback = (event: SessionEvent) => any;

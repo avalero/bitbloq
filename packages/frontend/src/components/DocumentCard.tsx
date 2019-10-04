@@ -20,7 +20,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
       <Image src={document.image} />
       <Info>
         <DocumentTypeTag small document={document} />
-        <Title>{document.title || "Documento sin título"}</Title>
+        <Title>{document.title}</Title>
       </Info>
       {children}
     </Container>
@@ -66,4 +66,7 @@ const Info = styled.div`
 const Title = styled.div`
   margin-top: 10px;
   font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `;

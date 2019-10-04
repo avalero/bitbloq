@@ -43,7 +43,8 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   initialContent,
   onContentChange,
   boards,
-  components
+  components,
+  backCallback
 }) => {
   const t = useTranslate();
 
@@ -64,8 +65,10 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   }
 
-  const web2BoardRef = useRef(new Web2Board("wss://web2board.es:9867/bitbloq"));
-  const web2Board = web2BoardRef.current;
+  const web2BoardRef = useRef<Web2Board>();
+  useEffect(() => {
+    web2BoardRef.current = new Web2Board("wss://web2board.es:9867/bitbloq");
+  }, []);
 
   const componentMapRef = useRef<{ [key: string]: IComponent }>();
   useEffect(() => {
@@ -78,8 +81,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   if (!board.integrated) {
     board.integrated = [];
   }
-
-  // REVIEW DAVID GARCÍA
 
   // If componentMap is not set, add at least integrated componentes definition
   const componentMap = componentMapRef.current || {
@@ -131,6 +132,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   const [loadingPercentage, setLoadingPercentage] = useState(0);
 
   const upload = async (timeout: number): Promise<void> => {
+    const web2Board = web2BoardRef.current;
     const code = bloqs2code(boards, components, bloqTypes, hardware, program);
 
     if (!web2Board.isConnected()) {
@@ -179,53 +181,12 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   };
 
-  const onHeaderButtonClick = (id: string) => {
-    switch (id) {
-      case "upload":
-        upload(10000);
-      default:
-        return;
-    }
-  };
-
-  const getGroupsForCategory = (category: BloqCategory) =>
-    bloqTypes
-      .filter(
-        bt =>
-          bt.category === category && (!bt.components || !bt.components.length)
-      )
-      .map(bt => ({ types: [bt.name] }))
-      .concat(
-        hardware.components
-          .map(c => c.component)
-          .filter((elem, pos, arr) => arr.indexOf(elem) === pos)
-          .map(c => ({
-            icon: componentMap[c].image.url,
-            types: bloqTypes
-              .filter(
-                bt =>
-                  bt.category === category &&
-                  (bt.components || []).some(btComponent =>
-                    isInstanceOf(componentMap[c], btComponent, componentMap)
-                  )
-              )
-              .map(bt => bt.name)
-          }))
-      );
-
-  const eventGroups: IBloqTypeGroup[] = getGroupsForCategory(
-    BloqCategory.Event
-  );
-  const actionGroups: IBloqTypeGroup[] = getGroupsForCategory(
-    BloqCategory.Action
-  );
-  const waitGroups: IBloqTypeGroup[] = getGroupsForCategory(BloqCategory.Wait);
-
   const mainTabs = [
     <Document.Tab
       key="hardware"
       icon={<Icon name="hardware" />}
       label={t("hardware")}
+      backCallback={backCallback}
     >
       <HardwareDesigner
         boards={boards}
@@ -240,6 +201,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       key="software"
       icon={<Icon name="programming" />}
       label={t("software")}
+      backCallback={backCallback}
     >
       <HorizontalBloqEditor
         bloqs={program}
@@ -249,9 +211,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         onBloqsChange={(newProgram: IBloq[][]) =>
           setContent(update(content, { program: { $set: newProgram } }))
         }
-        eventGroups={eventGroups}
-        actionGroups={actionGroups}
-        waitGroups={waitGroups}
+        onUpload={() => upload(10000)}
       />
     </Document.Tab>
   ];
@@ -259,13 +219,13 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   return (
     <>
       <Document
+        icon={<Icon name="logo-junior" />}
         brandColor={brandColor}
         title={title || t("untitled-project")}
         onEditTitle={onEditTitle}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
-        onHeaderButtonClick={onHeaderButtonClick}
-        headerButtons={[{ id: "upload", icon: "hardware" }]}
+        backCallback={backCallback}
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>

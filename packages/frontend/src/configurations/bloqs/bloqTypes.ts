@@ -1,4 +1,6 @@
 import flagIcon from "../../images/bloqs/flag.svg";
+import flagLoopIcon from "../../images/bloqs/flag-loop.svg";
+import flagTimesIcon from "../../images/bloqs/flag-times.svg";
 import switch1OnIcon from "../../images/bloqs/switch-1on.svg";
 import switch1OffIcon from "../../images/bloqs/switch-1off.svg";
 import switch2OnIcon from "../../images/bloqs/switch-2on.svg";
@@ -7,19 +9,25 @@ import rgbBlack from "../../images/bloqs/rgb-black.svg";
 import rgbRed from "../../images/bloqs/rgb-red.svg";
 import rgbGreen from "../../images/bloqs/rgb-green.svg";
 import rgbBlue from "../../images/bloqs/rgb-blue.svg";
+import viewColorBlack from "../../images/bloqs/view-color-black.svg";
+import viewColorWhite from "../../images/bloqs/view-color-white.svg";
+import viewColorBlue from "../../images/bloqs/view-color-blue.svg";
+import viewColorGreen from "../../images/bloqs/view-color-green.svg";
+import viewColorRed from "../../images/bloqs/view-color-red.svg";
+import notViewColorBlack from "../../images/bloqs/not-view-color-black.svg";
+import notViewColorWhite from "../../images/bloqs/not-view-color-white.svg";
+import notViewColorBlue from "../../images/bloqs/not-view-color-blue.svg";
+import notViewColorGreen from "../../images/bloqs/not-view-color-green.svg";
+import notViewColorRed from "../../images/bloqs/not-view-color-red.svg";
 import buttonIcon from "../../images/bloqs/button.svg";
 import buttonPressedIcon from "../../images/bloqs/button-pressed.svg";
 import buttonReleasedIcon from "../../images/bloqs/button-released.svg";
 import timeIcon from "../../images/bloqs/time.svg";
 import time1Icon from "../../images/bloqs/time-1.svg";
 import time5Icon from "../../images/bloqs/time-5.svg";
-import doubleLedOnOnIcon from "../../images/bloqs/double-led-on-on.svg";
 import rcservoclockwise from "../../images/bloqs/rcservo-clockwise.svg";
 import rcservocounterclockwise from "../../images/bloqs/rcservo-counterclockwise.svg";
 import rcservostop from "../../images/bloqs/rcservo-stop.svg";
-import doubleLedOffOnIcon from "../../images/bloqs/double-led-off-on.svg";
-import doubleLedOnOffIcon from "../../images/bloqs/double-led-on-off.svg";
-import doubleLedOffOffIcon from "../../images/bloqs/double-led-off-off.svg";
 import sevenSegmentsIcon from "../../images/bloqs/7segments.svg";
 import obstacleIcon from "../../images/bloqs/obstacle.svg";
 import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
@@ -34,6 +42,14 @@ import onBIcon from "../../images/bloqs/on-message-b.svg";
 import onCIcon from "../../images/bloqs/on-message-c.svg";
 import onDIcon from "../../images/bloqs/on-message-d.svg";
 import onEIcon from "../../images/bloqs/on-message-e.svg";
+import lightIcon from "../../images/bloqs/light.svg";
+import darkIcon from "../../images/bloqs/dark.svg";
+import temperatureHotIcon from "../../images/bloqs/temperature-hot.svg";
+import temperatureColdIcon from "../../images/bloqs/temperature-cold.svg";
+import led1OnIcon from "../../images/bloqs/led1-on.svg";
+import led1OffIcon from "../../images/bloqs/led1-off.svg";
+import led2OnIcon from "../../images/bloqs/led2-on.svg";
+import led2OffIcon from "../../images/bloqs/led2-off.svg";
 
 import { IBloqType, BloqCategory, BloqParameterType } from "@bitbloq/bloqs";
 
@@ -43,27 +59,54 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     category: BloqCategory.Event,
     name: "OnStart",
     label: "bloq-on-start",
-    icon: flagIcon
+    icon: flagIcon,
+    iconSwitch: {
+      "type === 'loop'": flagLoopIcon,
+      "type === 'times'": flagTimesIcon,
+      "true": flagIcon
+    },
+    configurationComponent: "StartConfiguration",
+    parameters: [
+      {
+        name: "type",
+        label: "bloq-parameter-start-type",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-start-loop",
+            value: "loop"
+          },
+          {
+            label: "bloq-parameter-start-times",
+            value: "times"
+          }
+        ]
+      },
+      {
+        name: "times",
+        label: "bloq-parameter-start-times",
+        type: BloqParameterType.Number
+      }
+    ]
   },
   {
     category: BloqCategory.Event,
-    name: "OnSwitchOnOff",
+    name: "OnSwitch1OnOff",
     label: "bloq-on-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
-      "switch === 1 and value === 'pos1'": switch1OnIcon,
-      "switch === 2 and value === 'pos1'": switch2OnIcon,
-      "switch === 1 and value === 'pos2'": switch1OffIcon,
-      "switch === 2 and value === 'pos2'": switch2OffIcon
+      "value === 'pos2'": switch1OffIcon,
+      "value === 'pos1'": switch1OnIcon
     },
     actions: [
       {
         name: "read",
         parameters:{
-          pinVarName: "{{component}}Pin{{switch}}",
+          pinVarName: "{{component}}Pin1",
         }
       }
     ],
+    configurationComponent: "SwitchConfiguration",
     parameters: [
       {
         name: "component",
@@ -71,19 +114,52 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "switch",
-        label: "bloq-parameter-switch",
+        name: "value",
+        label: "bloq-parameter-value",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-switch-1",
-            value: 1
+            label: "bloq-parameter-off",
+            value: "pos2"
           },
           {
-            label: "bloq-parameter-switch-2",
-            value: 2
+            label: "bloq-parameter-on",
+            value: "pos1"
           }
         ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
+      }
+    ],
+    code: {}
+  },
+  {
+    category: BloqCategory.Event,
+    name: "OnSwitch2OnOff",
+    label: "bloq-on-switch",
+    components: ["ZumjuniorDoubleSwitch"],
+    iconSwitch: {
+      "value === 'pos2'": switch2OffIcon,
+      "value === 'pos1'": switch2OnIcon
+    },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}Pin2",
+        }
+      }
+    ],
+    configurationComponent: "SwitchConfiguration",
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
       },
       {
         name: "value",
@@ -91,12 +167,12 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-on",
-            value: "pos1"
-          },
-          {
             label: "bloq-parameter-off",
             value: "pos2"
+          },
+          {
+            label: "bloq-parameter-on",
+            value: "pos1"
           }
         ]
       },
@@ -143,6 +219,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         variable: "___{{value}}"},
       }
     ],
+    configurationComponent: "ReceiveMessageConfiguration",
     parameters: [
       {
         name: "value",
@@ -243,6 +320,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         }
       }
     ],
+    configurationComponent: "ButtonConfiguration",
     parameters: [
       {
         name: "component",
@@ -287,6 +365,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         }
       }
     ],
+    configurationComponent: "GetNumberConfiguration",
     parameters: [
       {
         name: "component",
@@ -310,7 +389,10 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     category: BloqCategory.Event,
     name: "OnObstacle",
     label: "bloq-on-obstacle",
-    icon: obstacleIcon,
+    iconSwitch: {
+      "detect === 'true'": obstacleIcon,
+      "detect === 'false'": noObstacleIcon
+    },
     components: ["ZumjuniorMultiSensor"],
     actions: [
       {
@@ -320,11 +402,27 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         }
       }
     ],
+    configurationComponent: "ObstacleConfiguration",
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-sensors",
         type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-detect",
+            value: "true"
+          },
+          {
+            label: "bloq-parameter-not-detect",
+            value: "false"
+          }
+        ]
       },
       {
         name: "value",
@@ -342,49 +440,148 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   },
   {
     category: BloqCategory.Event,
-    name: "OnNoObstacle",
-    label: "bloq-on-no-obstacle",
-    icon: noObstacleIcon,
+    name: "OnDetectColor",
+    label: "bloq-on-detect-color",
+    iconSwitch: {
+      "detect === 'true' and color === 'black'": viewColorBlack,
+      "detect === 'true' and color === 'white'": viewColorWhite,
+      "detect === 'true' and color === 'blue'": viewColorBlue,
+      "detect === 'true' and color === 'green'": viewColorGreen,
+      "detect === 'true' and color === 'red'": viewColorRed,
+      "detect === 'false' and color === 'black'": notViewColorBlack,
+      "detect === 'false' and color === 'white'": notViewColorWhite,
+      "detect === 'false' and color === 'blue'": notViewColorBlue,
+      "detect === 'false' and color === 'green'": notViewColorGreen,
+      "detect === 'false' and color === 'red'": notViewColorRed
+    },
+    configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readDistance",
-        parameters:{
-          pinVarName: "{{component}}i2c",
-        }
-      }
-    ],
     parameters: [
       {
         name: "component",
-        label: "bloq-parameter-sensors",
+        label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "value",
-        label: "bloq-parameter-value",
-        type: BloqParameterType.Hidden,
-        value: "20",
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-detect",
+            value: "true"
+          },
+          {
+            label: "bloq-parameter-not-detect",
+            value: "false"
+          }
+        ]
       },
       {
-        name: "trueCondition",
-        label: "bloq-parameter-action",
-        type: BloqParameterType.Hidden,
-        value: ">",
+        name: "color",
+        label: "bloq-parameter-color",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-black",
+            value: "black"
+          },
+          {
+            label: "bloq-parameter-white",
+            value: "white"
+          },
+          {
+            label: "bloq-parameter-red",
+            value: "red"
+          },
+          {
+            label: "bloq-parameter-green",
+            value: "green"
+          },
+          {
+            label: "bloq-parameter-blue",
+            value: "blue"
+          },
+        ]
+      }
+    ]
+  },
+  {
+    category: BloqCategory.Event,
+    name: "OnDetectLight",
+    label: "bloq-on-detect-light",
+    iconSwitch: {
+      "detect === 'light'": lightIcon,
+      "detect === 'dark'": darkIcon
+    },
+    configurationComponent: "DetectLightConfiguration",
+    components: ["ZumjuniorMultiSensor"],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-light",
+            value: "light"
+          },
+          {
+            label: "bloq-parameter-dark",
+            value: "dark"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: BloqCategory.Event,
+    name: "OnDetectTemperature",
+    label: "bloq-on-detect-temperature",
+    iconSwitch: {
+      "detect === 'hot'": temperatureHotIcon,
+      "detect === 'cold'": temperatureColdIcon
+    },
+    configurationComponent: "TemperatureConfiguration",
+    components: ["ZumjuniorMultiSensor"],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-hot",
+            value: "hot"
+          },
+          {
+            label: "bloq-parameter-cold",
+            value: "cold"
+          }
+        ]
       }
     ]
   },
   {
     category: BloqCategory.Action,
-    name: "DoubleLedOnOff",
-    label: "bloq-double-led",
+    name: "SetLed1OnOff",
+    label: "bloq-led1",
     components: ["ZumjuniorDoubleLed"],
     iconSwitch: {
-      "led1 === 'on' and led2 === 'on'": doubleLedOnOnIcon,
-      "led1 === 'off' and led2 === 'on'": doubleLedOffOnIcon,
-      "led1 === 'on' and led2 === 'off'": doubleLedOnOffIcon,
-      "led1 === 'off' and led2 === 'off'": doubleLedOffOffIcon
+      "value === 'on'": led1OnIcon,
+      "value === 'off'": led1OffIcon
     },
+    configurationComponent: "TurnOnConfiguration",
     parameters: [
       {
         name: "component",
@@ -393,29 +590,14 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       },
 
       {
-        name: "led1",
-        label: "bloq-parameter-led-1",
+        name: "value",
+        label: "bloq-parameter-value",
         type: BloqParameterType.Select,
         options: [
           {
             label: "bloq-parameter-on",
             value: "on"
 
-          },
-          {
-            label: "bloq-parameter-off",
-            value: "off"
-          }
-        ]
-      },
-      {
-        name: "led2",
-        label: "bloq-parameter-led-2",
-        type: BloqParameterType.Select,
-        options: [
-          {
-            label: "bloq-parameter-on",
-            value: "on"
           },
           {
             label: "bloq-parameter-off",
@@ -430,14 +612,52 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: 'write',
         parameters: {
           pinVarName: '{{component}}WhitePin',
-          value: '{{led1}}',
+          value: '{{value}}',
         },
       },
+    ],
+  },
+  {
+    category: BloqCategory.Action,
+    name: "SetLed2OnOff",
+    label: "bloq-led2",
+    components: ["ZumjuniorDoubleLed"],
+    iconSwitch: {
+      "value === 'on'": led2OnIcon,
+      "value === 'off'": led2OffIcon
+    },
+    configurationComponent: "TurnOnConfiguration",
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-on",
+            value: "on"
+
+          },
+          {
+            label: "bloq-parameter-off",
+            value: "off"
+          }
+        ]
+      }
+    ],
+    code: {},
+    actions: [
       {
         name: 'write',
         parameters: {
           pinVarName: '{{component}}ColorPin',
-          value: '{{led2}}',
+          value: '{{value}}',
         },
       },
     ],
@@ -591,7 +811,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
             value: "G"
           },
         ]
-        
       },
       {
         name: "duration",
@@ -617,6 +836,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     label: "bloq-set-seven-segment-num",
     components: ["ZumjuniorSevenSegment"],
     icon: sevenSegmentsIcon,
+    configurationComponent: "SetNumberConfiguration",
     parameters: [
       {
         name: "component",
@@ -628,6 +848,25 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         label: "bloq-parameter-value",
         type: BloqParameterType.Number
       },
+      {
+        name: "operation",
+        label: "bloq-message-operation",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-set",
+            value: "set"
+          },
+          {
+            label: "bloq-parameter-increment",
+            value: "increment"
+          },
+          {
+            label: "bloq-parameter-decrement",
+            value: "decrement"
+          }
+        ]
+      },
     ],
     code: {},
     actions: [
@@ -638,28 +877,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           value: '{{value}}',
         },
       },
-    ]
-  },
-  {
-    category: BloqCategory.Action,
-    name: "IncrementSevenSegmentNumericValue",
-    label: "bloq-inc-seven-segment-num",
-    components: ["ZumjuniorSevenSegment"],
-    icon: sevenSegmentsIcon,
-    parameters: [
-      {
-        name: "component",
-        label: "bloq-parameter-component",
-        type: BloqParameterType.SelectComponent
-      },
-      {
-        name: "value",
-        label: "bloq-inc-seven-value",
-        type: BloqParameterType.Number
-      },
-    ],
-    code: {},
-    actions: [
       {
         name: 'incrementNumber',
         parameters: {
@@ -667,28 +884,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           value: '{{value}}',
         },
       },
-    ]
-  },
-  {
-    category: BloqCategory.Action,
-    name: "DecrementSevenSegmentNumericValue",
-    label: "bloq-dec-seven-segment-num",
-    components: ["ZumjuniorSevenSegment"],
-    icon: sevenSegmentsIcon,
-    parameters: [
-      {
-        name: "component",
-        label: "bloq-parameter-component",
-        type: BloqParameterType.SelectComponent
-      },
-      {
-        name: "value",
-        label: "bloq-inc-seven-value",
-        type: BloqParameterType.Number
-      },
-    ],
-    code: {},
-    actions: [
       {
         name: 'decrementNumber',
         parameters: {
@@ -696,7 +891,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           value: '{{value}}',
         },
       },
-    ],
+    ]
   },
   {
     category: BloqCategory.Action,
@@ -723,6 +918,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         code: "___{{value}} = true;"},
       }
     ],
+    configurationComponent: "SendMessageConfiguration",
     parameters: [
       {
         name: "value",
@@ -785,7 +981,10 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     category: BloqCategory.Wait,
     name: "WaitObstacle",
     label: "bloq-wait-obstacle",
-    icon: obstacleIcon,
+    iconSwitch: {
+      "detect === 'true'": obstacleIcon,
+      "detect === 'false'": noObstacleIcon
+    },
     components: ["ZumjuniorMultiSensor"],
     actions: [
       {
@@ -795,11 +994,27 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         }
       }
     ],
+    configurationComponent: "ObstacleConfiguration",
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-sensors",
         type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-detect",
+            value: "true"
+          },
+          {
+            label: "bloq-parameter-not-detect",
+            value: "false"
+          }
+        ]
       },
       {
         name: "value",
@@ -817,35 +1032,135 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   },
   {
     category: BloqCategory.Wait,
-    name: "WaitNoObstacle",
-    label: "bloq-wait-no-obstacle",
-    icon: noObstacleIcon,
+    name: "WaitDetectColor",
+    label: "bloq-wait-detect-color",
+    iconSwitch: {
+      "detect === 'true' and color === 'black'": viewColorBlack,
+      "detect === 'true' and color === 'white'": viewColorWhite,
+      "detect === 'true' and color === 'blue'": viewColorBlue,
+      "detect === 'true' and color === 'green'": viewColorGreen,
+      "detect === 'true' and color === 'red'": viewColorRed,
+      "detect === 'false' and color === 'black'": notViewColorBlack,
+      "detect === 'false' and color === 'white'": notViewColorWhite,
+      "detect === 'false' and color === 'blue'": notViewColorBlue,
+      "detect === 'false' and color === 'green'": notViewColorGreen,
+      "detect === 'false' and color === 'red'": notViewColorRed
+    },
+    configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readDistance",
-        parameters:{
-          pinVarName: "{{component}}i2c",
-        }
-      }
-    ],
     parameters: [
       {
         name: "component",
-        label: "bloq-parameter-sensors",
+        label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "value",
-        label: "bloq-parameter-value",
-        type: BloqParameterType.Hidden,
-        value: "20",
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-detect",
+            value: "true"
+          },
+          {
+            label: "bloq-parameter-not-detect",
+            value: "false"
+          }
+        ]
       },
       {
-        name: "trueCondition",
-        label: "bloq-parameter-action",
-        type: BloqParameterType.Hidden,
-        value: ">",
+        name: "color",
+        label: "bloq-parameter-color",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-black",
+            value: "black"
+          },
+          {
+            label: "bloq-parameter-white",
+            value: "white"
+          },
+          {
+            label: "bloq-parameter-red",
+            value: "red"
+          },
+          {
+            label: "bloq-parameter-green",
+            value: "green"
+          },
+          {
+            label: "bloq-parameter-blue",
+            value: "blue"
+          },
+        ]
+      }
+    ]
+  },
+  {
+    category: BloqCategory.Wait,
+    name: "WaitDetectLight",
+    label: "bloq-wait-detect-light",
+    iconSwitch: {
+      "detect === 'light'": lightIcon,
+      "detect === 'dark'": darkIcon
+    },
+    configurationComponent: "DetectLightConfiguration",
+    components: ["ZumjuniorMultiSensor"],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-light",
+            value: "light"
+          },
+          {
+            label: "bloq-parameter-dark",
+            value: "dark"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    category: BloqCategory.Wait,
+    name: "WaitDetectTemperature",
+    label: "bloq-wait-detect-temperature",
+    iconSwitch: {
+      "detect === 'hot'": temperatureHotIcon,
+      "detect === 'cold'": temperatureColdIcon
+    },
+    configurationComponent: "TemperatureConfiguration",
+    components: ["ZumjuniorMultiSensor"],
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "detect",
+        label: "bloq-parameter-detect",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-hot",
+            value: "hot"
+          },
+          {
+            label: "bloq-parameter-cold",
+            value: "cold"
+          }
+        ]
       }
     ]
   },
@@ -866,6 +1181,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         }
       }
     ],
+    configurationComponent: "ButtonConfiguration",
     parameters: [
       {
         name: "component",
@@ -909,6 +1225,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         }
       }
     ],
+    configurationComponent: "GetNumberConfiguration",
     parameters: [
       {
         name: "component",
@@ -930,24 +1247,23 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
   },
   {
     category: BloqCategory.Wait,
-    name: "WainSwitchOnOff",
+    name: "WainSwitch1OnOff",
     label: "bloq-wait-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
-      "switch === 1 and value === 'pos1'": switch1OnIcon,
-      "switch === 2 and value === 'pos1'": switch2OnIcon,
-      "switch === 1 and value === 'pos2'": switch1OffIcon,
-      "switch === 2 and value === 'pos2'": switch2OffIcon
+      "value === 'pos2'": switch1OffIcon,
+      "value === 'pos1'": switch1OnIcon
     },
     actions: [
       {
         name: "read",
         parameters:{
-          pinVarName: "{{component}}Pin{{switch}}",
+          pinVarName: "{{component}}Pin1",
           value: "{{value}}"
         }
       }
     ],
+    configurationComponent: "SwitchConfiguration",
     parameters: [
       {
         name: "component",
@@ -955,32 +1271,17 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "switch",
-        label: "bloq-parameter-switch",
-        type: BloqParameterType.Select,
-        options: [
-          {
-            label: "bloq-parameter-switch-1",
-            value: 1
-          },
-          {
-            label: "bloq-parameter-switch-2",
-            value: 2
-          }
-        ]
-      },
-      {
         name: "value",
         label: "bloq-parameter-value",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-on",
-            value: "pos1"
-          },
-          {
             label: "bloq-parameter-off",
             value: "pos2"
+          },
+          {
+            label: "bloq-parameter-on",
+            value: "pos1"
           }
         ]
       },
@@ -992,5 +1293,119 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       }
     ],
     code: {}
-  }
+  },
+  {
+    category: BloqCategory.Wait,
+    name: "WainSwitch2OnOff",
+    label: "bloq-wait-switch",
+    components: ["ZumjuniorDoubleSwitch"],
+    iconSwitch: {
+      "value === 'pos2'": switch2OffIcon,
+      "value === 'pos1'": switch2OnIcon
+    },
+    actions: [
+      {
+        name: "read",
+        parameters:{
+          pinVarName: "{{component}}Pin2",
+          value: "{{value}}"
+        }
+      }
+    ],
+    configurationComponent: "SwitchConfiguration",
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-off",
+            value: "pos2"
+          },
+          {
+            label: "bloq-parameter-on",
+            value: "pos1"
+          }
+        ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: "==",
+      }
+    ],
+    code: {}
+  },
+  {
+    category: BloqCategory.Wait,
+    name: "WaitMessage",
+    label: "bloq-wait-message",
+    iconSwitch: {
+      "value === 'messageA'": onAIcon,
+      "value === 'messageB'": onBIcon,
+      "value === 'messageC'": onCIcon,
+      "value === 'messageD'": onDIcon,
+      "value === 'messageE'": onEIcon,
+    },
+    code: {
+      globals: [
+      "bool ___messageA = false;",
+      "bool ___messageB = false;",
+      "bool ___messageC = false;",
+      "bool ___messageD = false;",
+      "bool ___messageE = false;"]
+      ,
+      endloop: [
+        "___messageA = false;",
+        "___messageB = false;",
+        "___messageC = false;",
+        "___messageD = false;",
+        "___messageE = false;",
+      ]
+    },
+    actions: [
+      {
+      name: "onMessage",
+      parameters: {
+        variable: "___{{value}}"},
+      }
+    ],
+    configurationComponent: "ReceiveMessageConfiguration",
+    parameters: [
+      {
+        name: "value",
+        label: "bloq-message-value",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "A",
+            value: "messageA"
+          },
+          {
+            label: "B",
+            value: "messageB"
+          },
+          {
+            label: "C",
+            value: "messageC"
+          },
+          {
+            label: "D",
+            value: "messageD"
+          },
+          {
+            label: "E",
+            value: "messageE"
+          },
+        ]
+      },
+    ],
+  },
 ];

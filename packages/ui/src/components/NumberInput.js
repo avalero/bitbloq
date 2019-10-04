@@ -1,8 +1,8 @@
-import React from 'react';
-import styled from '@emotion/styled';
-import {css} from '@emotion/core';
-import Icon from './Icon';
-import Input from './Input';
+import React from "react";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import Icon from "./Icon";
+import Input from "./Input";
 
 const Container = styled.div`
   position: relative;
@@ -11,9 +11,11 @@ const Container = styled.div`
   border: 1px solid #cfcfcf;
   border-radius: 4px;
 
-  ${props => props.focused && css`
-    border: 1px solid #5d6069;
-  `}
+  ${props =>
+    props.focused &&
+    css`
+      border: 1px solid #5d6069;
+    `}
 `;
 
 const Button = styled.div`
@@ -21,7 +23,7 @@ const Button = styled.div`
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center; 
+  justify-content: center;
 `;
 
 const DecrementButton = styled(Button)`
@@ -75,7 +77,7 @@ export default class NumberInput extends React.Component {
     maxValue: Infinity,
     fineStep: 1,
     step: 1
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -84,17 +86,19 @@ export default class NumberInput extends React.Component {
 
     this.state = {
       focused: false,
-      text: Number(props.value) ? Number(props.value).toString() : ''
+      text: Number(props.value) ? Number(props.value).toString() : ""
     };
   }
 
   componentDidMount() {
-    this.input.current.addEventListener('wheel', this.onWheel, {passive: false});
+    this.input.current.addEventListener("wheel", this.onWheel, {
+      passive: false
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const {value} = this.props;
-    const {focused, text} = this.state;
+    const { value } = this.props;
+    const { focused, text } = this.state;
     const input = this.input.current;
     if (input && focused && !prevState.focused) {
       input.select();
@@ -103,26 +107,30 @@ export default class NumberInput extends React.Component {
     const numberValue = Number(text) || 0;
     if (Number(value) !== numberValue && !focused) {
       this.setState({
-        text: Number(value) ? Number(value).toString() : ''
+        text: Number(value) ? Number(value).toString() : ""
       });
     }
   }
 
   onChange = e => {
-    const {onChange, minValue, maxValue} = this.props;
+    const { onChange, minValue, maxValue } = this.props;
+    const value = e.target.value;
 
     this.setState({
-      text: e.target.value
+      text: value
     });
 
     if (onChange) {
-      const newValue = Math.min(Math.max(Number(e.target.value) || 0, minValue), maxValue);
-      onChange(newValue);
+      const newValue = Math.min(
+        Math.max(Number(value) || 0, minValue),
+        maxValue
+      );
+      onChange(newValue, value);
     }
   };
 
-  onFocus = (e) => {
-    const {onFocus} = this.props;
+  onFocus = e => {
+    const { onFocus } = this.props;
 
     this.setState({ focused: true });
 
@@ -131,35 +139,35 @@ export default class NumberInput extends React.Component {
     }
   };
 
-  onBlur = (e) => {
-    const {onBlur, value, onChange, minValue, maxValue} = this.props;
+  onBlur = e => {
+    const { onBlur, value, onChange, minValue, maxValue } = this.props;
     this.setState({
       focused: false,
-      text: Number(value) ? Number(value).toString() : ''
+      text: Number(value) ? Number(value).toString() : ""
     });
 
     if (onBlur) {
       onBlur(e);
       if (Number(value) < minValue && onChange) {
-        onChange(minValue)
+        onChange(minValue);
       }
       if (Number(value) > maxValue && onChange) {
-        onChange(maxValue)
+        onChange(maxValue);
       }
     }
-  }
+  };
 
-  onWheel = (e) => {
+  onWheel = e => {
     const delta = e.wheelDelta;
     e.preventDefault();
     if (delta > 0) {
       setTimeout(() => this.increment(Math.round(delta / 240)));
     } else {
-      setTimeout(() => this.decrement(Math.round((-delta) / 240)));
+      setTimeout(() => this.decrement(Math.round(-delta / 240)));
     }
-  }
+  };
 
-  onKeyPress = (e) => {
+  onKeyPress = e => {
     if (e.key === "ArrowUp") {
       e.preventDefault();
       this.increment();
@@ -168,57 +176,59 @@ export default class NumberInput extends React.Component {
       e.preventDefault();
       this.decrement();
     }
-  }
+  };
 
-  onIncrementClick = (e) => {
+  onIncrementClick = e => {
     e.preventDefault();
     this.increment();
     this.input.current.focus();
   };
 
-  onDecrementClick = (e) => {
+  onDecrementClick = e => {
     e.preventDefault();
     this.decrement();
     this.input.current.focus();
   };
 
   decrement = (count = 1) => {
-    const {value, onChange, fineStep, step, minValue} = this.props;
+    const { value, onChange, fineStep, step, minValue } = this.props;
 
     const finalStep = value <= 1 && value > 0 ? fineStep : step;
-    const newValue = Math.round((Number(value) - (finalStep * count)) * 100) / 100;
+    const newValue =
+      Math.round((Number(value) - finalStep * count) * 100) / 100;
 
     if (newValue >= minValue && onChange) {
-      onChange(newValue)
+      onChange(newValue);
       this.setState({ text: newValue.toString() });
     }
-  }
+  };
 
   increment = (count = 1) => {
-    const {value, onChange, fineStep, step, maxValue} = this.props;
+    const { value, onChange, fineStep, step, maxValue } = this.props;
 
     const finalStep = value < 1 && value >= 0 ? fineStep : step;
-    const newValue = Math.round((Number(value) + (finalStep * count)) * 100) / 100;
+    const newValue =
+      Math.round((Number(value) + finalStep * count) * 100) / 100;
 
     if (newValue <= maxValue && onChange) {
-      onChange(newValue)
+      onChange(newValue);
       this.setState({ text: newValue.toString() });
     }
-  }
+  };
 
   render() {
-    const {focused, text} = this.state;
-    const {value, unit} = this.props;
+    const { focused, text } = this.state;
+    const { value, unit, tooltipProps } = this.props;
 
     return (
-      <Container focused={focused}>
+      <Container {...tooltipProps} focused={focused}>
         <DecrementButton onMouseDown={this.onDecrementClick}>
-          <Icon name="arrow" />
+          <Icon name="triangle" />
         </DecrementButton>
         <StyledInput
           {...this.props}
           ref={this.input}
-          value={focused ? text : ''}
+          value={focused ? text : ""}
           onChange={this.onChange}
           type="number"
           onFocus={this.onFocus}
@@ -226,11 +236,13 @@ export default class NumberInput extends React.Component {
           onKeyPress={this.onKeyPress}
           onKeyDown={this.onKeyPress}
         />
-        {!focused &&
-          <ValueText>{value} {unit}</ValueText>
-        }
+        {!focused && (
+          <ValueText>
+            {value} {unit}
+          </ValueText>
+        )}
         <IncrementButton onMouseDown={this.onIncrementClick}>
-          <Icon name="arrow" />
+          <Icon name="triangle" />
         </IncrementButton>
       </Container>
     );

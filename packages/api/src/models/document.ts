@@ -26,7 +26,7 @@ const DocumentMongSchema: Schema = new Schema({
 
   title: {
     type: String,
-    default: "New document"
+    default: ""
   },
 
   type: {

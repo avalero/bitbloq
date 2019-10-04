@@ -63,6 +63,10 @@
   "tooltip-zoom-minus": "Zoom -",
   "tooltip-orthogonal-view": "Vista ortogonal",
   "tooltip-perspective-view": "Vista en perspectiva",
+  "tooltip-error-length": "Debe tener al menos %v%mm",
+  "tooltip-error-sides": "Debe tener al menos %v% lados",
+  "tooltip-error-number": "Debe ser al menos %v%",
+  "tooltip-error-peaks": "Debe tener al menos %v% puntas",
   "undo": "Deshacer",
   "redo": "Rehacer",
   "navigation-top": "superior",
@@ -208,5 +212,8 @@
   "F-tone": "FA",
   "G-tone": "SOL",
   "bloq-parameter-duration-sec": "Duración (seg.)",
-  "bloq-on-message": "Al recibir el mensaje"
+  "bloq-on-message": "Al recibir el mensaje",
+  "playground-enter-button": "Entra con tu cuenta",
+  "general-enter-button": "Entrar",
+  "general-cancel-button": "Cancelar"
 }

@@ -64,6 +64,10 @@
   "tooltip-zoom-minus": "Zoom -",
   "tooltip-orthogonal-view": "Orthogonal view",
   "tooltip-perspective-view": "Perspective view",
+  "tooltip-error-length": "Must have at least %v%mm",
+  "tooltip-error-sides": "Must have at least %v% sides",
+  "tooltip-error-number": "It must be at least %v%",
+  "tooltip-error-peaks": "Must have at least %v% peaks",
   "undo": "Undo",
   "redo": "Redo",
   "navigation-top": "top",
@@ -208,5 +212,8 @@
   "F-tone": "F",
   "G-tone": "G",
   "bloq-parameter-duration-sec": "Duration (sec.)",
-  "bloq-on-message": "On message"
+  "bloq-on-message": "On message",
+  "playground-enter-button": "Enter with your count",
+  "general-enter-button": "Enter",
+  "general-cancel-button": "Cancel"
 }

@@ -10,6 +10,7 @@ export interface ModalProps {
   showHeader: boolean;
   onClose?: () => void;
   transparentOverlay?: boolean;
+  className?: string;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -18,16 +19,21 @@ const Modal: FC<ModalProps> = ({
   showHeader,
   onClose,
   transparentOverlay,
-  children
+  children,
+  className
 }) => {
   if (!isOpen) {
     return null;
   }
 
   return (
-    <Overlay onClick={onClose} transparent={transparentOverlay}>
+    <Overlay
+      className={className}
+      onMouseDown={onClose}
+      transparent={transparentOverlay}
+    >
       <Container
-        onClick={e => e.stopPropagation()}
+        onMouseDown={(e: Event) => e.stopPropagation()}
         withShadow={transparentOverlay}
       >
         {showHeader && (
@@ -68,7 +74,7 @@ const Overlay = styled.div<OverlayProps>`
   width: 100%;
   height: 100%;
   z-index: 20;
-  background: ${props =>
+  background: ${(props: OverlayProps) =>
     props.transparent ? "transparent" : "rgba(0, 0, 0, 0.4)"};
   display: flex;
   justify-content: center;
@@ -83,7 +89,7 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   border-radius: 4px;
   background-color: white;
-  box-shadow: ${props =>
+  box-shadow: ${(props: ContainerProps) =>
     props.withShadow ? "0 10px 40px 0 rgba(0, 0, 0, 0.1)" : "none"};
 `;
 

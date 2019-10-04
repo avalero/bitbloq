@@ -5,7 +5,9 @@ import AirplaneDocument from "./icons/AirplaneDocument";
 import Angle from "./icons/Angle";
 import AngleDouble from "./icons/AngleDouble";
 import Arrow from "./icons/Arrow";
+import ArrowLeft from "./icons/ArrowLeft";
 import BasicShapes from "./icons/BasicShapes";
+import Brain from "./icons/Brain";
 import Brush from "./icons/Brush";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
@@ -21,12 +23,14 @@ import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
 import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
+import Equal from "./icons/Equal";
 import ExportSTL from "./icons/ExportSTL";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Intersection from "./icons/Intersection";
+import Loop from "./icons/Loop";
 import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
@@ -57,8 +61,10 @@ import Spinner from "./icons/Spinner";
 import STL from "./icons/STL";
 import ThreeD from "./icons/ThreeD";
 import Tick from "./icons/Tick";
+import Times from "./icons/Times";
 import Translation from "./icons/Translation";
 import Trash from "./icons/Trash";
+import Triangle from "./icons/Triangle";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
@@ -78,175 +84,191 @@ import LogoApps from "./icons/LogoApps";
 import LogoCode from "./icons/LogoCode";
 import HollowCylinder from "./icons/HollowCylinder";
 import Cthulhito from "./icons/Cthulhito";
+import NewFolder from "./icons/NewFolder";
 
 export interface IconProps {
   /** Name of the icon to display */
   name: string;
+  className?: string;
 }
 
 /**
  * Icon component that renders an svg from a catalog of icons
  */
-const Icon: React.SFC<IconProps> = ({ name }) => {
+const Icon: React.SFC<IconProps> = ({ name, className }) => {
   switch (name) {
     case "add-document":
-      return <AddDocument />;
+      return <AddDocument className={className} />;
     case "airplane":
-      return <Airplane />;
+      return <Airplane className={className} />;
     case "airplane-document":
-      return <AirplaneDocument />;
+      return <AirplaneDocument className={className} />;
     case "octahedron":
-      return <Octahedron />;
+      return <Octahedron className={className} />;
     case "angle":
-      return <Angle />;
+      return <Angle className={className} />;
     case "angle-double":
-      return <AngleDouble />;
+      return <AngleDouble className={className} />;
+    case "brain":
+      return <Brain className={className} />;
     case "heart":
-      return <Heart />;
+      return <Heart className={className} />;
     case "tube":
-      return <HollowCylinder />;
+      return <HollowCylinder className={className} />;
     case "arrow":
-      return <Arrow />;
+      return <Arrow className={className} />;
+    case "arrow-left":
+      return <ArrowLeft className={className} />;
     case "basic-shapes":
-      return <BasicShapes />;
+      return <BasicShapes className={className} />;
     case "brush":
-      return <Brush />;
+      return <Brush className={className} />;
     case "city-elements":
-      return <CityElements />;
+      return <CityElements className={className} />;
     case "close":
-      return <Close />;
+      return <Close className={className} />;
     case "cube":
-      return <Cube />;
+      return <Cube className={className} />;
     case "curve-angle":
-      return <CurveAngle />;
+      return <CurveAngle className={className} />;
     case "cylinder":
-      return <Cylinder />;
+      return <Cylinder className={className} />;
     case "difference":
-      return <Difference />;
+      return <Difference className={className} />;
     case "difficulty":
-      return <Difficulty />;
+      return <Difficulty className={className} />;
     case "download":
-      return <Download />;
+      return <Download className={className} />;
     case "download-document":
-      return <DownloadDocument />;
+      return <DownloadDocument className={className} />;
     case "drag":
-      return <Drag />;
+      return <Drag className={className} />;
     case "dropdown":
-      return <Dropdown />;
+      return <Dropdown className={className} />;
     case "duplicate":
-      return <Duplicate />;
+      return <Duplicate className={className} />;
     case "earth":
-      return <Earth />;
+      return <Earth className={className} />;
     case "ellipsis":
-      return <Ellipsis />;
+      return <Ellipsis className={className} />;
+    case "equal":
+      return <Equal className={className} />;
     case "export-stl":
-      return <ExportSTL />;
+      return <ExportSTL className={className} />;
     case "group":
-      return <Group />;
+      return <Group className={className} />;
     case "hardware":
-      return <Hardware />;
+      return <Hardware className={className} />;
     case "import-stl":
-      return <ImportSTL />;
+      return <ImportSTL className={className} />;
     case "info":
-      return <Info />;
+      return <Info className={className} />;
     case "intersection":
-      return <Intersection />;
+      return <Intersection className={className} />;
     case "center":
-      return <Center />;
+      return <Center className={className} />;
+    case "loop":
+      return <Loop className={className} />;
     case "minus":
-      return <Minus />;
+      return <Minus className={className} />;
     case "new-document":
-      return <NewDocument />;
+      return <NewDocument className={className} />;
     case "open-document":
-      return <OpenDocument />;
+      return <OpenDocument className={className} />;
     case "orthographic":
-      return <Orthographic />;
+      return <Orthographic className={className} />;
     case "padlock-open":
-      return <PadlockOpen />;
+      return <PadlockOpen className={className} />;
     case "padlock-close":
-      return <PadlockClose />;
+      return <PadlockClose className={className} />;
     case "people":
-      return <People />;
+      return <People className={className} />;
     case "pencil":
-      return <Pencil />;
+      return <Pencil className={className} />;
     case "perspective":
-      return <Perspective />;
+      return <Perspective className={className} />;
     case "plus":
-      return <Plus />;
+      return <Plus className={className} />;
     case "prism":
-      return <Prism />;
+      return <Prism className={className} />;
     case "torus":
-      return <Torus />;
+      return <Torus className={className} />;
     case "star":
-      return <Star />;
+      return <Star className={className} />;
     case "rectangularPrism":
-      return <RectangularPrism />;
+      return <RectangularPrism className={className} />;
     case "cone":
-      return <Cone />;
+      return <Cone className={className} />;
     case "truncatedcone":
-      return <TruncatedCone />;
+      return <TruncatedCone className={className} />;
     case "programming":
-      return <Programming />;
+      return <Programming className={className} />;
     case "programming2":
-      return <Programming2 />;
+      return <Programming2 className={className} />;
     case "programming3":
-      return <Programming3 />;
+      return <Programming3 className={className} />;
     case "text":
-      return <Text />;
+      return <Text className={className} />;
     case "pyramid":
-      return <Pyramid />;
+      return <Pyramid className={className} />;
     case "publish":
-      return <Publish />;
+      return <Publish className={className} />;
     case "redo":
-      return <Redo />;
+      return <Redo className={className} />;
     case "reflection":
-      return <Reflection />;
+      return <Reflection className={className} />;
     case "reload":
-      return <Reload />;
+      return <Reload className={className} />;
     case "repeat":
-      return <Repeat />;
+      return <Repeat className={className} />;
     case "repeat-polar":
-      return <RepeatPolar />;
+      return <RepeatPolar className={className} />;
     case "rotation":
-      return <Rotation />;
+      return <Rotation className={className} />;
     case "scale":
-      return <Scale />;
+      return <Scale className={className} />;
     case "sphere":
-      return <Sphere />;
+      return <Sphere className={className} />;
     case "semiCylinder":
-      return <SemiCylinder />;
+      return <SemiCylinder className={className} />;
     case "spinner":
-      return <Spinner />;
+      return <Spinner className={className} />;
     case "stl":
-      return <STL />;
+      return <STL className={className} />;
     case "threed":
-      return <ThreeD />;
+      return <ThreeD className={className} />;
     case "tick":
-      return <Tick />;
+      return <Tick className={className} />;
+    case "times":
+      return <Times className={className} />;
     case "translation":
-      return <Translation />;
+      return <Translation className={className} />;
     case "trash":
-      return <Trash />;
+      return <Trash className={className} />;
+    case "triangle":
+      return <Triangle className={className} />;
     case "undo":
-      return <Undo />;
+      return <Undo className={className} />;
     case "ungroup":
-      return <Ungroup />;
+      return <Ungroup className={className} />;
     case "union":
-      return <Union />;
+      return <Union className={className} />;
     case "view-document":
-      return <ViewDocument />;
+      return <ViewDocument className={className} />;
     case "logo-3d":
-      return <Logo3D />;
+      return <Logo3D className={className} />;
     case "logo-bloqs":
-      return <LogoBloqs />;
+      return <LogoBloqs className={className} />;
     case "logo-junior":
-      return <LogoJunior />;
+      return <LogoJunior className={className} />;
     case "logo-code":
-      return <LogoCode />;
+      return <LogoCode className={className} />;
     case "logo-apps":
-      return <LogoApps />;
+      return <LogoApps className={className} />;
     case "cthulhito":
-      return <Cthulhito />;
+      return <Cthulhito className={className} />;
+    case "new-folder":
+      return <NewFolder className={className} />;
     default:
       console.warn("Icon not found");
       return null;

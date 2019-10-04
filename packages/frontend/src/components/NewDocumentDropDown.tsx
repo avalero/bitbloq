@@ -6,14 +6,18 @@ import { documentTypes } from "../config";
 export interface NewDocumentDropDownProps {
   onNewDocument: (type: string) => any;
   onOpenDocument: () => any;
+  arrowOffset?: number;
+  className?: string;
 }
 
 const NewDocumentDropDown: FC<NewDocumentDropDownProps> = ({
   onNewDocument,
-  onOpenDocument
+  onOpenDocument,
+  arrowOffset = 0,
+  className
 }) => {
   return (
-    <DropDownContainer>
+    <DropDownContainer arrowOffset={arrowOffset} className={className}>
       <NewDocumentOptions>
         {Object.keys(documentTypes).map(type => (
           <NewDocumentOption
@@ -46,12 +50,14 @@ const NewDocumentDropDown: FC<NewDocumentDropDownProps> = ({
 
 export default NewDocumentDropDown;
 
-const DropDownContainer = styled.div`
-  margin-top: 8px;
+const DropDownContainer = styled.div<{ arrowOffset }>`
+  margin-top: 12px;
+  margin-right: ${props => (props.arrowOffset ? 50 : 0)}px;
   background-color: white;
   border-radius: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
   padding: 10px;
+  width: 280px;
 
   &::before {
     content: "";
@@ -60,9 +66,9 @@ const DropDownContainer = styled.div`
     height: 20px;
     display: block;
     position: absolute;
-    transform: translate(-50%, 0) rotate(45deg);
+    transform: translate(${props => -50 - props.arrowOffset}%, 0) rotate(45deg);
     top: -10px;
-    left: 50%;
+    left: ${props => 50 + props.arrowOffset}%;
   }
 `;
 

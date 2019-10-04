@@ -1,6 +1,9 @@
-import * as React from "react";
+import React, { FC, useState } from "react";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+
 import styled from "@emotion/styled";
 import {
+  Button,
   colors,
   Icon,
   DialogModal,
@@ -11,240 +14,403 @@ import {
   HorizontalRule
 } from "@bitbloq/ui";
 import { navigate } from "gatsby";
-import { Query, Mutation, Subscription } from "react-apollo";
-import gql from "graphql-tag";
+import { Subscription } from "react-apollo";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import DocumentCard from "./DocumentCard";
 import NewDocumentDropDown from "./NewDocumentDropDown";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { sortByCreatedAt, sortByTitle } from "../util";
 import {
-  DOCUMENTS_QUERY,
+  sortByCreatedAt,
+  sortByTitleAZ,
+  sortByTitleZA,
+  sortByUpdatedAt
+} from "../util";
+import {
   CREATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
-  DOCUMENT_UPDATED_SUBSCRIPTION
+  DOCUMENT_UPDATED_SUBSCRIPTION,
+  EXERCISE_BY_CODE_QUERY,
+  ME_QUERY,
+  CREATE_FOLDER_MUTATION,
+  ROOT_FOLDER_QUERY,
+  DELETE_FOLDER_MUTATION
 } from "../apollo/queries";
+
+import NewExerciseButton from "./NewExerciseButton";
+import EditTitleModal from "./EditTitleModal";
+import FolderCard from "./FolderCard";
 
 enum OrderType {
   Creation = "creation",
-  Name = "name"
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
 }
 
 const orderOptions = [
   {
-    label: "Orden: Más recientes",
+    label: "Orden: Creación",
     value: OrderType.Creation
   },
   {
-    label: "Orden: Nombre",
-    value: OrderType.Name
+    label: "Orden: Modificación",
+    value: OrderType.Modification
+  },
+  {
+    label: "Orden: Nombre A-Z",
+    value: OrderType.NameAZ
+  },
+  {
+    label: "Orden: Nombre Z-A",
+    value: OrderType.NameZA
   }
 ];
 
 const orderFunctions = {
   [OrderType.Creation]: sortByCreatedAt,
-  [OrderType.Name]: sortByTitle
+  [OrderType.Modification]: sortByUpdatedAt,
+  [OrderType.NameAZ]: sortByTitleAZ,
+  [OrderType.NameZA]: sortByTitleZA
 };
 
-class DocumentsState {
-  readonly order: string = OrderType.Creation;
-  readonly searchText: string = "";
-  readonly deleteDocumentId: string | null = "";
-}
+const Documents: FC = () => {
+  const client = useApolloClient();
 
-class Documents extends React.Component<any, DocumentsState> {
-  readonly state = new DocumentsState();
+  const [order, setOrder] = useState(OrderType.Creation);
+  const [searchText, setSearchText] = useState("");
+  const [deleteDocumentId, setDeleteDocumentId] = useState("");
+  const [deleteFolderId, setDeleteFolderId] = useState("");
+  const [folderTitleModal, setFolderTitleModal] = useState(false);
 
-  private openFile = React.createRef<HTMLInputElement>();
+  let openFile = React.createRef<HTMLInputElement>();
 
-  onDocumentClick = ({ id, type }) => {
-    navigate(`/app/document/${id}`);
+  const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
+  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
+
+  const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
+  const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
+
+  const {
+    data: dataPage,
+    loading: loadingPage,
+    error: errorPage,
+    refetch: refetchPage
+  } = useQuery(ROOT_FOLDER_QUERY);
+
+  const [exerciseCode, setExerciseCode] = useState("");
+  const [loadingExercise, setLoadingExercise] = useState(false);
+  const [exerciseError, setExerciseError] = useState(false);
+  const { data: dataEx, loading: loadEx, error: errorEx } = useQuery(
+    EXERCISE_BY_CODE_QUERY
+  );
+
+  const onCreateFolder = async folderName => {
+    await createFolder({
+      variables: {
+        input: { name: folderName }
+      },
+      refetchQueries: [{ query: ROOT_FOLDER_QUERY }]
+    });
+    setFolderTitleModal(false);
   };
 
-  onNewDocument(type) {
-    window.open(`/app/document/${type}/new`);
-  }
+  const onDocumentClick = ({ id, type }) => {
+    window.open(`/app/document/${id}`);
+  };
 
-  onDocumentCreated = ({ createDocument: { id, type } }) => {
+  const onNewDocument = type => {
+    window.open(`/app/document/${type}/new`);
+  };
+
+  const onDocumentCreated = ({ createDocument: { id, type } }) => {
     navigate(`/app/document/${type}/${id}`);
   };
 
-  onOrderChange = order => {
-    this.setState({ order });
+  const onOrderChange = order => {
+    setOrder(order);
   };
 
-  onOpenDocumentClick = () => {
-    this.openFile.current.click();
+  const onOpenDocumentClick = () => {
+    openFile.current.click();
   };
 
-  onDocumentDeleteClick = (e, document) => {
+  const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
-    this.setState({ deleteDocumentId: document.id });
+    setDeleteDocumentId(document.id);
   };
 
-  onDeleteDocument = () => {
-    const { deleteDocumentId } = this.state;
-    const { deleteDocument } = this.props;
-    deleteDocument(deleteDocumentId);
-    this.setState({ deleteDocumentId: null });
+  const onDeleteDocument = async () => {
+    await deleteDocument({ variables: { id: deleteDocumentId } });
+    setDeleteDocumentId(null);
+    refetchPage();
   };
 
-  onFileSelected = (file, createDocument) => {
+  const onFolderDeleteClick = (e, folder) => {
+    e.stopPropagation();
+    setDeleteFolderId(folder.id);
+  };
+
+  const onDeleteFolder = async () => {
+    await deleteFolder({ variables: { id: deleteFolderId } });
+    setDeleteFolderId(null);
+    refetchPage();
+  };
+
+  const onOpenExercise = async exerciseCode => {
+    if (exerciseCode) {
+      try {
+        setLoadingExercise(true);
+        const {
+          data: { exerciseByCode: exercise }
+        } = await client.query({
+          query: EXERCISE_BY_CODE_QUERY,
+          variables: { code: exerciseCode }
+        });
+        setLoadingExercise(false);
+        setExerciseError(false);
+        setExerciseCode("");
+        window.open(`/app/exercise/${exercise.type}/${exercise.id}`);
+      } catch (e) {
+        setLoadingExercise(false);
+        setExerciseError(true);
+      }
+    }
+  };
+
+  const onFileSelected = file => {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
-      createDocument({
+      const { data } = await createDocument({
         variables: { ...document },
-        refetchQueries: [{ query: DOCUMENTS_QUERY }]
+        refetchQueries: [{ query: ROOT_FOLDER_QUERY }]
       });
+      onDocumentCreated(data);
     };
 
     reader.readAsText(file);
   };
 
-  renderHeader() {
-    return (
-      <Header>
-        <h1>Mis documentos</h1>
-        <div>
-          <DropDown
-            attachmentPosition={"top center"}
-            targetPosition={"bottom center"}
-          >
-            {(isOpen: boolean) => (
-              <NewDocumentButton isOpen={isOpen}>
-                <Icon name="new-document" />
-                Nuevo documento
-              </NewDocumentButton>
-            )}
-            <NewDocumentDropDown
-              onNewDocument={this.onNewDocument}
-              onOpenDocument={this.onOpenDocumentClick}
-            />
-          </DropDown>
-        </div>
-      </Header>
-    );
-  }
+  const filterDocuments = documents => {
+    return documents
+      .slice()
+      .sort(orderFunction)
+      .filter(d => documentTypes[d.type] && documentTypes[d.type].supported)
+      .filter(
+        d =>
+          !searchText ||
+          (d.title &&
+            d.title.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
+      );
+  };
 
-  render() {
-    const { order, searchText, deleteDocumentId } = this.state;
-    const orderFunction = orderFunctions[order];
+  const filterFolders = folders => {
+    return folders
+      .slice()
+      .sort(orderFunction)
+      .filter(
+        d =>
+          !searchText ||
+          (d.name &&
+            d.name.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
+      );
+  };
 
+  const orderFunction = orderFunctions[order];
+
+  if (errorPage) return <GraphQLErrorMessage apolloError={errorPage} />;
+  if (loadingPage)
     return (
       <Container>
-        <AppHeader />
-        <Query query={DOCUMENTS_QUERY}>
-          {({ loading, error, data, refetch }) => {
-            if (error) return <GraphQLErrorMessage apolloError={error} />;
-            if (loading) return <Loading />;
-
-            return (
-              <Content>
-                {this.renderHeader()}
-                <Rule />
-                <DocumentListHeader>
-                  <ViewOptions>
-                    <OrderSelect
-                      options={orderOptions}
-                      onChange={this.onOrderChange}
-                      selectConfig={{ isSearchable: false }}
-                    />
-                  </ViewOptions>
-                  <SearchInput
-                    value={searchText}
-                    onChange={e =>
-                      this.setState({ searchText: e.target.value })
-                    }
-                    placeholder="Buscar..."
-                  />
-                </DocumentListHeader>
-                <DocumentList>
-                  {data.documents
-                    .slice()
-                    .sort(orderFunction)
-                    .filter(
-                      d =>
-                        documentTypes[d.type] && documentTypes[d.type].supported
-                    )
-                    .filter(
-                      d =>
-                        !searchText ||
-                        (d.title &&
-                          d.title
-                            .toLowerCase()
-                            .indexOf(searchText.toLowerCase()) >= 0)
-                    )
-                    .map((document: any) => (
-                      <StyledDocumentCard
-                        key={document.id}
-                        document={document}
-                        onClick={() => this.onDocumentClick(document)}
-                      >
-                        <DeleteDocument
-                          onClick={e => this.onDocumentDeleteClick(e, document)}
-                        >
-                          <Icon name="trash" />
-                        </DeleteDocument>
-                      </StyledDocumentCard>
-                    ))}
-                </DocumentList>
-                <Subscription
-                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-                  shouldResubscribe={true}
-                  onSubscriptionData={() => {
-                    refetch();
-                  }}
-                />
-              </Content>
-            );
-          }}
-        </Query>
-        <DialogModal
-          isOpen={!!deleteDocumentId}
-          title="Eliminar"
-          text="¿Seguro que quieres eliminar este documento?"
-          okText="Aceptar"
-          cancelText="Cancelar"
-          onOk={this.onDeleteDocument}
-          onCancel={() => this.setState({ deleteDocumentId: null })}
-        />
-        <Mutation
-          mutation={CREATE_DOCUMENT_MUTATION}
-          onCompleted={this.onDocumentCreated}
-        >
-          {createDocument => (
-            <input
-              ref={this.openFile}
-              type="file"
-              onChange={e =>
-                this.onFileSelected(e.target.files[0], createDocument)
-              }
-              style={{ display: "none" }}
-            />
-          )}
-        </Mutation>
+        <Loading />
       </Container>
     );
-  }
-}
 
-const DocumentsWithDelete = props => (
-  <Mutation mutation={DELETE_DOCUMENT_MUTATION}>
-    {mutate => (
-      <Documents
-        {...props}
-        deleteDocument={id =>
-          mutate({
-            variables: { id },
-            refetchQueries: [{ query: DOCUMENTS_QUERY }]
-          })
-        }
+  const { documents, folders } = dataPage.rootFolder;
+
+  return (
+    <Container>
+      <AppHeader />
+      <Content>
+        <Header>
+          <h1>Mis documentos</h1>
+        </Header>
+        <Rule />
+        {(documents || folders) && (
+          <DocumentListHeader>
+            {(documents.length > 0 || folders.length > 0) && (
+              <>
+                <ViewOptions>
+                  <OrderSelect
+                    options={orderOptions}
+                    onChange={onOrderChange}
+                    selectConfig={{ isSearchable: false }}
+                  />
+                </ViewOptions>
+                <SearchInput
+                  value={searchText}
+                  onChange={e => setSearchText(e.target.value)}
+                  placeholder="Buscar..."
+                />
+              </>
+            )}
+            <HeaderButtons>
+              <NewFolderButton
+                tertiary
+                onClick={() => {
+                  setFolderTitleModal(true);
+                }}
+              >
+                <Icon name="new-folder" /> Nueva carpeta
+              </NewFolderButton>
+              <NewExerciseButton
+                onOpenExercise={onOpenExercise}
+                exerciseError={exerciseError}
+                loadingExercise={loadingExercise}
+              />
+              <DropDown
+                attachmentPosition={"top center"}
+                targetPosition={"bottom center"}
+              >
+                {(isOpen: boolean) => (
+                  <NewDocumentButton tertiary isOpen={isOpen}>
+                    <Icon name="new-document" />
+                    Nuevo documento
+                  </NewDocumentButton>
+                )}
+                <NewDocumentDropDown
+                  onNewDocument={onNewDocument}
+                  onOpenDocument={onOpenDocumentClick}
+                  arrowOffset={10}
+                />
+              </DropDown>
+            </HeaderButtons>
+          </DocumentListHeader>
+        )}
+
+        {(documents || folders) &&
+        (documents.length > 0 || folders.length > 0) ? (
+          searchText ? (
+            filterDocuments(documents).length > 0 ||
+            filterFolders(folders).length > 0 ? (
+              <DocumentList>
+                {filterDocuments(documents).map((document: any) => (
+                  <StyledDocumentCard
+                    key={document.id}
+                    document={document}
+                    onClick={() => onDocumentClick(document)}
+                  >
+                    <DeleteDocument
+                      onClick={e => onDocumentDeleteClick(e, document)}
+                    >
+                      <Icon name="trash" />
+                    </DeleteDocument>
+                  </StyledDocumentCard>
+                ))}
+                {filterFolders(folders).map((folder: any) => (
+                  <StyledFolderCard
+                    key={folder.id}
+                    folder={folder}
+                    onClick={() => onDocumentClick(folder)}
+                  >
+                    <DeleteDocument
+                      onClick={e => onFolderDeleteClick(e, folder)}
+                    >
+                      <Icon name="trash" />
+                    </DeleteDocument>
+                  </StyledFolderCard>
+                ))}
+              </DocumentList>
+            ) : (
+              <NoDocuments>
+                <h1>No hay resultados para tu búsqueda</h1>
+              </NoDocuments>
+            )
+          ) : (
+            <DocumentList>
+              {filterDocuments(documents).map((document: any) => (
+                <StyledDocumentCard
+                  key={document.id}
+                  document={document}
+                  onClick={() => onDocumentClick(document)}
+                >
+                  <DeleteDocument
+                    onClick={e => onDocumentDeleteClick(e, document)}
+                  >
+                    <Icon name="trash" />
+                  </DeleteDocument>
+                </StyledDocumentCard>
+              ))}
+              {filterFolders(folders).map((folder: any) => (
+                <StyledFolderCard
+                  key={folder.id}
+                  folder={folder}
+                  onClick={() => onDocumentClick(folder)}
+                >
+                  <DeleteDocument onClick={e => onFolderDeleteClick(e, folder)}>
+                    <Icon name="trash" />
+                  </DeleteDocument>
+                </StyledFolderCard>
+              ))}
+            </DocumentList>
+          )
+        ) : (
+          <NoDocuments>
+            <h1>No tienes ningún documento</h1>
+            <p>
+              Puedes crear un documento nuevo o subir uno desde tu ordenador.
+            </p>
+          </NoDocuments>
+        )}
+        <Subscription
+          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={() => {
+            refetchPage();
+          }}
+        />
+      </Content>
+      <DialogModal
+        isOpen={!!deleteDocumentId}
+        title="Eliminar"
+        text="¿Seguro que quieres eliminar este documento?"
+        okText="Aceptar"
+        cancelText="Cancelar"
+        onOk={onDeleteDocument}
+        onCancel={() => setDeleteDocumentId(null)}
       />
-    )}
-  </Mutation>
-);
+      <DialogModal
+        isOpen={!!deleteFolderId}
+        title="Eliminar"
+        text="¿Seguro que quieres eliminar esta carpeta?"
+        okText="Aceptar"
+        cancelText="Cancelar"
+        onOk={onDeleteFolder}
+        onCancel={() => setDeleteFolderId(null)}
+      />
+      <input
+        ref={openFile}
+        type="file"
+        onChange={e => onFileSelected(e.target.files[0])}
+        style={{ display: "none" }}
+      />
+      {folderTitleModal && (
+        <EditTitleModal
+          title={"Carpeta sin título"}
+          onCancel={() => setFolderTitleModal(false)}
+          onSave={onCreateFolder}
+          modalTitle="Crear carpeta"
+          modalText="Nombre de la carpeta"
+          placeholder="Carpeta sin título"
+          saveButton="Crear"
+        />
+      )}
+    </Container>
+  );
+};
+
+const DocumentsWithDelete = props => <Documents {...props} />;
 
 export default DocumentsWithDelete;
 
@@ -290,8 +456,24 @@ const DocumentListHeader = styled.div`
   align-items: center;
 `;
 
-const ViewOptions = styled.div`
+const HeaderButtons = styled.div`
+  display: flex;
   flex: 1;
+  justify-content: flex-end;
+`;
+
+const HeaderButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+  }
+`;
+
+const ViewOptions = styled.div`
+  /* flex: 1; */
+  margin-right: 10px;
 `;
 
 const OrderSelect: Select = styled(Select)`
@@ -352,20 +534,25 @@ const StyledDocumentCard = styled(DocumentCard)`
   }
 `;
 
+const StyledFolderCard = styled(FolderCard)`
+  &:hover {
+    ${DeleteDocument} {
+      display: flex;
+    }
+  }
+`;
+
 interface NewDocumentButtonProps {
   isOpen: boolean;
 }
-const NewDocumentButton = styled.div<NewDocumentButtonProps>`
-  border: 1px solid ${colors.gray3};
+const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
   border-radius: 4px;
   font-size: 14px;
-  font-weight: 500;
   padding: 0px 20px;
   display: flex;
   align-items: center;
   height: 40px;
   cursor: pointer;
-  background-color: ${props => (props.isOpen ? colors.gray2 : "white")};
 
   &:hover {
     background-color: ${colors.gray2};
@@ -374,5 +561,52 @@ const NewDocumentButton = styled.div<NewDocumentButtonProps>`
   svg {
     height: 20px;
     margin-right: 8px;
+  }
+`;
+
+const NoDocuments = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 60px;
+  margin-top: 100px;
+  justify-content: center;
+  align-items: center;
+
+  h1 {
+    width: 1179px;
+    height: 28px;
+    font-family: Roboto;
+    font-size: 24px;
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    text-align: center;
+    color: #373b44;
+    margin-bottom: 20px;
+  }
+
+  p {
+    width: 1179px;
+    height: 22px;
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: normal;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.57;
+    letter-spacing: normal;
+    text-align: center;
+    color: #474749;
+  }
+`;
+
+const NewFolderButton = styled(Button)`
+  padding: 0px 20px;
+  svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
   }
 `;
