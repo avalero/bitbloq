@@ -8,6 +8,8 @@ import { SessionEvent, setToken, useSessionEvent } from "../lib/session";
 import { Response, useQuery, useMutation } from "@apollo/react-hooks";
 import { ME_QUERY, LOGIN_MUTATION } from "../apollo/queries";
 import LoginPanel from "./LoginPanel";
+import HeaderRightContent from "./HeaderRightContent";
+import UserInfo from "./UserInfo";
 
 interface PlaygroundProps {
   type?: string;
@@ -116,10 +118,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
 
   const headerRightContent: Element = userLogged ? (
     <HeaderRightContent>
-      <UserInfo>
-        <UserName>{userName}</UserName>
-        <UserImg />
-      </UserInfo>
+      <UserInfo name={userName} />
     </HeaderRightContent>
   ) : (
     <HeaderRightContent>
@@ -176,15 +175,6 @@ const EnterButton = styled(Button)`
   padding: 0 20px;
 `;
 
-const HeaderRightContent = styled.div`
-  align-items: center;
-  display: flex;
-  height: 70px;
-  position: absolute;
-  right: 20px;
-  top: 0;
-`;
-
 const MyLoginPanel = styled(LoginPanel)`
   .btn {
     font-family: Roboto;
@@ -226,38 +216,4 @@ const MyModal = styled(Modal)`
     display: flex;
     justify-content: center;
   }
-`;
-
-interface UserImgProps {
-  img?: string;
-}
-
-const UserImg = styled.div<UserImgProps>`
-  background: url(${(props: UserImgProps) => props.img}) center/40px 40px,
-    #3b3e45;
-  border-radius: 100%;
-  height: 40px;
-  width: 40px;
-`;
-
-const UserInfo = styled.div`
-  align-items: center;
-  display: flex;
-  border-left: solid 1px #cfcfcf;
-  height: 100%;
-  padding-left: 19px;
-`;
-
-const UserName = styled.p`
-  align-items: center;
-  color: #3b3e45;
-  display: flex;
-  font-family: Roboto;
-  font-size: 14px;
-  height: 16px;
-  margin-right: 10px;
-  max-width: 210px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 `;
