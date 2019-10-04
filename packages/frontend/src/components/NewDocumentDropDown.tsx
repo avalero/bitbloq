@@ -68,9 +68,7 @@ const DropDownContainer = styled.div<{ arrowOffset }>`
     position: absolute;
     transform: translate(${props => -50 - props.arrowOffset}%, 0) rotate(45deg);
     top: -10px;
-
     left: ${props => 50 + props.arrowOffset}%;
-    /* left: 150px; */
   }
 `;
 

@@ -2,55 +2,25 @@ import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 
-export enum ModalType {
-  folderCreation = "folderCreation",
-  folderEdit = "folderEdit",
-  documentCreate = "documentCreate",
-  documentEdit = "documentEdit",
-  exerciseCreate = "exerciseCreate",
-  exerciseEdit = "exerciseEdit"
-}
-
-const modalTypeText = [
-  {
-    title: "Crear carpeta",
-    text: "Nombre de la carpeta",
-    placeholder: "Carpeta sin título",
-    saveButton: "Crear",
-    value: ModalType.folderCreation
-  },
-  {
-    title: "Cambiar nombre de la carpeta",
-    text: "Nombre de la carpeta",
-    placeholder: "Carpeta sin título",
-    saveButton: "Cambiar",
-    value: ModalType.folderEdit
-  },
-  {
-    title: "Crear ejercicio",
-    text: "Nombre del ejercicio",
-    placeholder: "Ejercicio sin título",
-    saveButton: "Crear",
-    value: ModalType.exerciseCreate
-  },
-  {
-    title: "Cambiar nombre del ejercicio",
-    text: "Nombre de la ejercicio",
-    placeholder: "Ejercicio sin título",
-    saveButton: "cambiar",
-    value: ModalType.exerciseEdit
-  }
-];
-
 interface EditTitleModalProps {
-  title: string;
+  docTitle: string;
   onSave: (title: string) => any;
   onCancel: () => any;
-  modalType: string;
+  modalTitle: string;
+  modalText: string;
+  placeholder: string;
+  saveButton: string;
 }
 
 const EditTitleModal: FC<EditTitleModalProps> = props => {
-  const { onSave, onCancel } = props;
+  const {
+    onSave,
+    onCancel,
+    modalTitle,
+    modalText,
+    placeholder,
+    saveButton
+  } = props;
   const [title, setTitle] = useState(props.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
@@ -60,10 +30,8 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
     }
   });
 
-  const modalTexts = modalTypeText.find(op => (op.value = props.modalType));
-
   return (
-    <Modal isOpen={true} title={modalTexts.title} onClose={onCancel}>
+    <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
       <Content>
         <form
           onSubmit={e => {
@@ -71,10 +39,10 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
             onSave(title);
           }}
         >
-          <p>{modalTexts.text}</p>
+          <p>{modalText}</p>
           <Input
             ref={titleInputRef}
-            placeholder={title || modalTexts.placeholder}
+            placeholder={title || placeholder}
             onChange={e => setTitle(e.target.value)}
           />
           <Buttons>
@@ -87,7 +55,7 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button disabled={!title}>{modalTexts.saveButton}</Button>
+            <Button disabled={!title}>{saveButton}</Button>
           </Buttons>
         </form>
       </Content>
@@ -116,7 +84,6 @@ const Buttons = styled.div`
   justify-content: space-between;
   ${Button} {
     height: 40px;
-    /* width: 75px; */
     border-radius: 4px;
   }
 `;

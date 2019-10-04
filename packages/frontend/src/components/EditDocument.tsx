@@ -6,7 +6,7 @@ import { Document, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import { navigate } from "gatsby";
 import useUserData from "../lib/useUserData";
 import DocumentInfoForm from "./DocumentInfoForm";
-import EditTitleModal, { ModalType } from "./EditTitleModal";
+import EditTitleModal from "./EditTitleModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
 import UserInfo from "./UserInfo";
@@ -241,7 +241,10 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
           title={title}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
-          modalType={ModalType.documentEdit}
+          modalTitle="Cambiar nombre del documento"
+          modalText="Nombre del documento"
+          placeholder="Documento sin título"
+          saveButton="Cambiar"
         />
       )}
     </>

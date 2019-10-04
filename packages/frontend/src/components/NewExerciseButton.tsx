@@ -1,60 +1,57 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 
-import {
-    Button,
-    Input,
-    Icon,
-    DropDown,
-  } from "@bitbloq/ui";
+import { Button, Input, Icon, DropDown } from "@bitbloq/ui";
 
-  export interface NewExerciseDropDownProps {
-    onOpenExercise: (exerciseCode: string) => any;
-    exerciseError: boolean;
-    loadingExercise: boolean;
-  }
-  
-
-const NewExerciseButton: FC<NewExerciseDropDownProps> = ({onOpenExercise, exerciseError, loadingExercise})=>{
-    const [exerciseCode, setExerciseCode] = useState("");
-
-return (
-<DropDown
-    attachmentPosition={"top center"}
-    targetPosition={"bottom center"}
-    closeOnClick={false}
-  >
-    {(isOpen: boolean) => (
-      <HeaderButton tertiary>
-        <Icon name="airplane-document" />
-        Ir al ejercicio
-      </HeaderButton>
-    )}
-    <ExerciseDropDown>
-      <ExerciseForm>
-        <label>Código del ejercicio</label>
-        <Input
-          type="text"
-          placeholder="Código del ejercicio"
-          value={exerciseCode}
-          error={exerciseError}
-          onChange={e => setExerciseCode(e.target.value)}
-        />
-        {exerciseError && <Error>El código no es válido</Error>}
-        <HeaderButton
-          onClick={() => onOpenExercise(exerciseCode)}
-          disabled={loadingExercise}
-        >
-          Ir al ejercicio
-        </HeaderButton>
-      </ExerciseForm>
-    </ExerciseDropDown>
-  </DropDown>)
+export interface NewExerciseDropDownProps {
+  onOpenExercise: (exerciseCode: string) => any;
+  exerciseError: boolean;
+  loadingExercise: boolean;
 }
 
-export default NewExerciseButton;
+const NewExerciseButton: FC<NewExerciseDropDownProps> = ({
+  onOpenExercise,
+  exerciseError,
+  loadingExercise
+}) => {
+  const [exerciseCode, setExerciseCode] = useState("");
 
+  return (
+    <DropDown
+      attachmentPosition={"top center"}
+      targetPosition={"bottom center"}
+      closeOnClick={false}
+    >
+      {(isOpen: boolean) => (
+        <HeaderButton tertiary>
+          <Icon name="airplane-document" />
+          Ir al ejercicio
+        </HeaderButton>
+      )}
+      <ExerciseDropDown>
+        <ExerciseForm>
+          <label>Código del ejercicio</label>
+          <Input
+            type="text"
+            placeholder="Código del ejercicio"
+            value={exerciseCode}
+            error={exerciseError}
+            onChange={e => setExerciseCode(e.target.value)}
+          />
+          {exerciseError && <Error>El código no es válido</Error>}
+          <HeaderButton
+            onClick={() => onOpenExercise(exerciseCode)}
+            disabled={loadingExercise}
+          >
+            Ir al ejercicio
+          </HeaderButton>
+        </ExerciseForm>
+      </ExerciseDropDown>
+    </DropDown>
+  );
+};
+
+export default NewExerciseButton;
 
 /** styled components */
 
@@ -105,7 +102,6 @@ const ExerciseForm = styled.div`
     width: 100%;
   }
 `;
-
 
 const Error = styled.div`
   font-size: 12px;

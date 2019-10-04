@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useCallback } from "react";
+import React, { FC, useState } from "react";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 
 import styled from "@emotion/styled";
@@ -15,7 +15,6 @@ import {
 } from "@bitbloq/ui";
 import { navigate } from "gatsby";
 import { Subscription } from "react-apollo";
-import gql from "graphql-tag";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import DocumentCard from "./DocumentCard";
@@ -28,20 +27,18 @@ import {
   sortByUpdatedAt
 } from "../util";
 import {
-  DOCUMENTS_QUERY,
   CREATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   ME_QUERY,
   CREATE_FOLDER_MUTATION,
-  FOLDERS_QUERY,
   ROOT_FOLDER_QUERY,
   DELETE_FOLDER_MUTATION
 } from "../apollo/queries";
 
 import NewExerciseButton from "./NewExerciseButton";
-import EditTitleModal, { ModalType } from "./EditTitleModal";
+import EditTitleModal from "./EditTitleModal";
 import FolderCard from "./FolderCard";
 
 enum OrderType {
@@ -78,24 +75,22 @@ const orderFunctions = {
 };
 
 const Documents: FC = () => {
-  const { data, loading: loadingMe } = useQuery(ME_QUERY);
   const client = useApolloClient();
 
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [deleteDocumentId, setDeleteDocumentId] = useState("");
   const [deleteFolderId, setDeleteFolderId] = useState("");
+  const [folderTitleModal, setFolderTitleModal] = useState(false);
+  const [folderName, setFolderName] = useState("Carpeta sin título");
 
   let openFile = React.createRef<HTMLInputElement>();
 
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
-  //const { data: dataDocs, loading, error, refetch } = useQuery(DOCUMENTS_QUERY);
 
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
-  const [folderTitleModal, setFolderTitleModal] = useState(false);
-  const [folderName, setFolderName] = useState("Carpeta sin título");
 
   const {
     data: dataPage,
@@ -123,7 +118,6 @@ const Documents: FC = () => {
 
   const onDocumentClick = ({ id, type }) => {
     window.open(`/app/document/${id}`);
-    //navigate(`/app/document/${id}`);
   };
 
   const onNewDocument = type => {
@@ -213,18 +207,15 @@ const Documents: FC = () => {
   };
 
   const filterFolders = folders => {
-    return (
-      folders
-        .slice()
-        .sort(orderFunction)
-        // .filter(d => documentTypes[d.type] && documentTypes[d.type].supported)
-        .filter(
-          d =>
-            !searchText ||
-            (d.name &&
-              d.name.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
-        )
-    );
+    return folders
+      .slice()
+      .sort(orderFunction)
+      .filter(
+        d =>
+          !searchText ||
+          (d.name &&
+            d.name.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
+      );
   };
 
   const orderFunction = orderFunctions[order];
@@ -237,6 +228,8 @@ const Documents: FC = () => {
       </Container>
     );
 
+  const { documents, folders } = dataPage.rootFolder;
+
   return (
     <Container>
       <AppHeader />
@@ -245,103 +238,65 @@ const Documents: FC = () => {
           <h1>Mis documentos</h1>
         </Header>
         <Rule />
-        {dataPage.rootFolder &&
-          dataPage.rootFolder.documents &&
-          dataPage.rootFolder.documents.length > 0 && (
-            <DocumentListHeader>
-              <ViewOptions>
-                <OrderSelect
-                  options={orderOptions}
-                  onChange={onOrderChange}
-                  selectConfig={{ isSearchable: false }}
-                />
-              </ViewOptions>
-              <SearchInput
-                value={searchText}
-                onChange={e => setSearchText(e.target.value)}
-                placeholder="Buscar..."
-              />
-              <HeaderButtons>
-                <NewFolderButton
-                  tertiary
-                  onClick={() => {
-                    setFolderTitleModal(true);
-                  }}
-                >
-                  {" "}
-                  <Icon name="new-folder" /> Nueva carpeta{" "}
-                </NewFolderButton>
-                <NewExerciseButton
-                  onOpenExercise={onOpenExercise}
-                  exerciseError={exerciseError}
-                  loadingExercise={loadingExercise}
-                />
-                <DropDown
-                  attachmentPosition={"top center"}
-                  targetPosition={"bottom center"}
-                >
-                  {(isOpen: boolean) => (
-                    <NewDocumentButton tertiary isOpen={isOpen}>
-                      <Icon name="new-document" />
-                      Nuevo documento
-                    </NewDocumentButton>
-                  )}
-                  <NewDocumentDropDown
-                    onNewDocument={onNewDocument}
-                    onOpenDocument={onOpenDocumentClick}
-                    arrowOffset={10}
+        {(documents || folders) && (
+          <DocumentListHeader>
+            {(documents.length > 0 || folders.length > 0) && (
+              <>
+                <ViewOptions>
+                  <OrderSelect
+                    options={orderOptions}
+                    onChange={onOrderChange}
+                    selectConfig={{ isSearchable: false }}
                   />
-                </DropDown>
-              </HeaderButtons>
-            </DocumentListHeader>
-          )}
+                </ViewOptions>
+                <SearchInput
+                  value={searchText}
+                  onChange={e => setSearchText(e.target.value)}
+                  placeholder="Buscar..."
+                />
+              </>
+            )}
+            <HeaderButtons>
+              <NewFolderButton
+                tertiary
+                onClick={() => {
+                  setFolderTitleModal(true);
+                }}
+              >
+                <Icon name="new-folder" /> Nueva carpeta
+              </NewFolderButton>
+              <NewExerciseButton
+                onOpenExercise={onOpenExercise}
+                exerciseError={exerciseError}
+                loadingExercise={loadingExercise}
+              />
+              <DropDown
+                attachmentPosition={"top center"}
+                targetPosition={"bottom center"}
+              >
+                {(isOpen: boolean) => (
+                  <NewDocumentButton tertiary isOpen={isOpen}>
+                    <Icon name="new-document" />
+                    Nuevo documento
+                  </NewDocumentButton>
+                )}
+                <NewDocumentDropDown
+                  onNewDocument={onNewDocument}
+                  onOpenDocument={onOpenDocumentClick}
+                  arrowOffset={10}
+                />
+              </DropDown>
+            </HeaderButtons>
+          </DocumentListHeader>
+        )}
 
-        {dataPage &&
-        dataPage.rootFolder.documents &&
-        dataPage.rootFolder.documents.length > 0 ? (
+        {(documents || folders) &&
+        (documents.length > 0 || folders.length > 0) ? (
           searchText ? (
-            filterDocuments(dataPage.rootFolder.documents).length > 0 ? (
+            filterDocuments(documents).length > 0 ||
+            filterFolders(folders).length > 0 ? (
               <DocumentList>
-                {filterDocuments(dataPage.rootFolder.documents).map(
-                  (document: any) => (
-                    <StyledDocumentCard
-                      key={document.id}
-                      document={document}
-                      onClick={() => onDocumentClick(document)}
-                    >
-                      <DeleteDocument
-                        onClick={e => onDocumentDeleteClick(e, document)}
-                      >
-                        <Icon name="trash" />
-                      </DeleteDocument>
-                    </StyledDocumentCard>
-                  )
-                )}
-                {filterFolders(dataPage.rootFolder.folders).map(
-                  (folder: any) => (
-                    <StyledFolderCard
-                      key={folder.id}
-                      folder={folder}
-                      onClick={() => onDocumentClick(folder)}
-                    >
-                      <DeleteDocument
-                        onClick={e => onFolderDeleteClick(e, folder)}
-                      >
-                        <Icon name="trash" />
-                      </DeleteDocument>
-                    </StyledFolderCard>
-                  )
-                )}
-              </DocumentList>
-            ) : (
-              <NoDocuments>
-                <h1>No hay resultados para tu búsqueda</h1>
-              </NoDocuments>
-            )
-          ) : (
-            <DocumentList>
-              {filterDocuments(dataPage.rootFolder.documents).map(
-                (document: any) => (
+                {filterDocuments(documents).map((document: any) => (
                   <StyledDocumentCard
                     key={document.id}
                     document={document}
@@ -353,9 +308,42 @@ const Documents: FC = () => {
                       <Icon name="trash" />
                     </DeleteDocument>
                   </StyledDocumentCard>
-                )
-              )}
-              {filterFolders(dataPage.rootFolder.folders).map((folder: any) => (
+                ))}
+                {filterFolders(folders).map((folder: any) => (
+                  <StyledFolderCard
+                    key={folder.id}
+                    folder={folder}
+                    onClick={() => onDocumentClick(folder)}
+                  >
+                    <DeleteDocument
+                      onClick={e => onFolderDeleteClick(e, folder)}
+                    >
+                      <Icon name="trash" />
+                    </DeleteDocument>
+                  </StyledFolderCard>
+                ))}
+              </DocumentList>
+            ) : (
+              <NoDocuments>
+                <h1>No hay resultados para tu búsqueda</h1>
+              </NoDocuments>
+            )
+          ) : (
+            <DocumentList>
+              {filterDocuments(documents).map((document: any) => (
+                <StyledDocumentCard
+                  key={document.id}
+                  document={document}
+                  onClick={() => onDocumentClick(document)}
+                >
+                  <DeleteDocument
+                    onClick={e => onDocumentDeleteClick(e, document)}
+                  >
+                    <Icon name="trash" />
+                  </DeleteDocument>
+                </StyledDocumentCard>
+              ))}
+              {filterFolders(folders).map((folder: any) => (
                 <StyledFolderCard
                   key={folder.id}
                   folder={folder}
@@ -380,7 +368,7 @@ const Documents: FC = () => {
           subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
           shouldResubscribe={true}
           onSubscriptionData={() => {
-            refetch();
+            refetchPage();
           }}
         />
       </Content>
@@ -413,7 +401,10 @@ const Documents: FC = () => {
           title={folderName}
           onCancel={() => setFolderTitleModal(false)}
           onSave={onCreateFolder}
-          modalType={ModalType.folderCreation}
+          modalTitle="Crear carpeta"
+          modalText="Nombre de la carpeta"
+          placeholder="Carpeta sin título"
+          saveButton="Crear"
         />
       )}
     </Container>
@@ -556,16 +547,13 @@ interface NewDocumentButtonProps {
   isOpen: boolean;
 }
 const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
-  /* border: 1px solid ${colors.gray3}; */
   border-radius: 4px;
   font-size: 14px;
-  /* font-weight: 500; */
   padding: 0px 20px;
   display: flex;
   align-items: center;
   height: 40px;
   cursor: pointer;
-  /* background-color: ${props => (props.isOpen ? colors.gray2 : "white")}; */
 
   &:hover {
     background-color: ${colors.gray2};

@@ -66,4 +66,7 @@ const Info = styled.div`
 const Title = styled.div`
   margin-top: 10px;
   font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 `;

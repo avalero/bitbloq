@@ -1,7 +1,6 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
-import DocumentTypeTag from "./DocumentTypeTag";
 import folderImg from "../images/folder.svg";
 
 export interface FolderCardProps {
@@ -59,13 +58,15 @@ const Image = styled.div<ImageProps>`
 `;
 
 const Info = styled.div`
-  height: 80px;
   padding: 14px;
   font-weight: 500;
   box-sizing: border-box;
+  align-items: center;
+  display: flex;
 `;
 
 const Title = styled.div`
-  margin-top: 10px;
   font-size: 16px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
