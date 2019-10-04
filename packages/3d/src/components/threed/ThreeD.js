@@ -121,7 +121,8 @@ class ThreeD extends React.Component {
       preMenuContent,
       postMenuContent,
       changeAdvancedMode,
-      documentAdvancedMode
+      documentAdvancedMode,
+      backCallback
     } = this.props;
 
     const menuRightContent = (
@@ -129,10 +130,9 @@ class ThreeD extends React.Component {
         <span>{t("menu-basic-mode")}</span>
         <Switch
           value={advancedMode}
-          onChange={(value) => {
+          onChange={value => {
             setAdvancedMode(value);
-            if (changeAdvancedMode)
-              changeAdvancedMode(value);
+            if (changeAdvancedMode) changeAdvancedMode(value);
           }}
           leftRight
         />
@@ -143,7 +143,12 @@ class ThreeD extends React.Component {
     const baseShapeGroups = config.addShapeGroups;
 
     const mainTabs = [
-      <Document.Tab key="3d" icon={<Icon name="threed" />} label={t("tab-3d")}>
+      <Document.Tab
+        backCallback={backCallback}
+        key="3d"
+        icon={<Icon name="threed" />}
+        label={t("tab-3d")}
+      >
         <Container>
           <ObjectTree
             shapeGroups={
@@ -178,6 +183,7 @@ class ThreeD extends React.Component {
         menuRightContent={menuRightContent}
         preMenuContent={preMenuContent}
         postMenuContent={postMenuContent}
+        backCallback={backCallback}
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>
