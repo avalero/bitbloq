@@ -618,9 +618,9 @@ const FooterLeft = styled.div`
   }
 `;
 
-const FooterRight = styled.div`  
+const FooterRight = styled.div`
   display: flex;
-  width:480.56px;
+  width: 480.56px;
   align-items: center;
   p {
     margin-right: 20px;

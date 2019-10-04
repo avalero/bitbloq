@@ -115,9 +115,9 @@ class SignupPage extends React.Component<any, SignupPageState> {
     if (form && signupError !== prevProps.signupError) {
       if (signupError) {
         form.setErrors({
-          email: 'Ya hay un usuario registrado con este correo electrónico'
+          email: "Ya hay un usuario registrado con este correo electrónico"
         });
-        console.log('Signup ERROR');
+        console.log("Signup ERROR");
       }
     }
   }
@@ -338,7 +338,10 @@ const SignupPageWithMutation = props => {
   }
 
   return (
-    <Mutation mutation={SIGNUP_MUTATION} onCompleted={() => setAccountCreated(true)}>
+    <Mutation
+      mutation={SIGNUP_MUTATION}
+      onCompleted={() => setAccountCreated(true)}
+    >
       {(signUp, { loading, error }) => (
         <SignupPage
           {...props}
@@ -348,7 +351,7 @@ const SignupPageWithMutation = props => {
         />
       )}
     </Mutation>
-  )
+  );
 };
 
 export default SignupPageWithMutation;
