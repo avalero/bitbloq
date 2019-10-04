@@ -82,7 +82,6 @@ const Documents: FC = () => {
   const [deleteDocumentId, setDeleteDocumentId] = useState("");
   const [deleteFolderId, setDeleteFolderId] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
-  const [folderName, setFolderName] = useState("Carpeta sin título");
 
   let openFile = React.createRef<HTMLInputElement>();
 
@@ -398,7 +397,7 @@ const Documents: FC = () => {
       />
       {folderTitleModal && (
         <EditTitleModal
-          title={folderName}
+          title={"Carpeta sin título"}
           onCancel={() => setFolderTitleModal(false)}
           onSave={onCreateFolder}
           modalTitle="Crear carpeta"
