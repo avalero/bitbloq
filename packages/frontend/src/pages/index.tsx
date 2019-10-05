@@ -36,13 +36,15 @@ const IndexPage: FC = () => {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // if (getChromeVersion() < 69) {
-  //   return <BrowserVersionWarning version={69} />
-  // }
-
+  
   if (loading) {
     return <Loading />;
   }
+
+  if (getChromeVersion() < 69) {
+    return <BrowserVersionWarning version={69} />
+  }
+
 
   if (data && data.me) {
     navigate("/app");
