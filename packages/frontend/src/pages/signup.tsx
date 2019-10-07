@@ -299,7 +299,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
           <Container>
             <Logo src={logoBetaImage} alt="Bitbloq Beta" />
             <SignupPanel>
-              <PanelHeader>Crear cuenta de profesor</PanelHeader>
+              <PanelHeader>Crear cuenta</PanelHeader>
               <HorizontalRule small />
               {currentStep === SignupStep.Survey && this.renderSurveyStep()}
               {currentStep === SignupStep.UserData && this.renderUserDataStep()}
