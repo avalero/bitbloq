@@ -7,7 +7,8 @@ import {
   Icon,
   Input,
   Spinner,
-  Modal
+  Modal,
+  useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { Link, navigate } from "gatsby";
@@ -17,6 +18,7 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt } from "../util";
+import { UserDataContext } from "../lib/useUserData";
 import { DOCUMENT_UPDATED_SUBSCRIPTION } from "../apollo/queries";
 
 const DOCUMENT_QUERY = gql`
@@ -96,6 +98,10 @@ class Document extends React.Component<any, DocumentState> {
     }
   }
 
+  t(message) {
+    return useTranslate()(message);
+  }
+
   renderHeader(document) {
     return (
       <Header>
@@ -107,6 +113,23 @@ class Document extends React.Component<any, DocumentState> {
 
   renderDocumentInfo(document) {
     return (
+      <DocumentInfo>
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="document" />
+            {this.t("document-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              window.open(`/app/document/${document.type}/${document.id}`)
+            }
+          >
+            {this.t("document-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+      </DocumentInfo>
+    );
+    /*return (
       <DocumentInfo>
         <DocumentImage src={document.image} />
         <div>
@@ -138,7 +161,7 @@ class Document extends React.Component<any, DocumentState> {
           </Buttons>
         </div>
       </DocumentInfo>
-    );
+    );*/
   }
 
   renderExercise = (exercise, refetch) => {
@@ -262,43 +285,47 @@ class Document extends React.Component<any, DocumentState> {
     const { id } = this.props;
 
     return (
-      <Container>
-        <AppHeader />
-        <Query query={DOCUMENT_QUERY} variables={{ id }}>
-          {({ loading, error, data, refetch }) => {
-            if (error) return <GraphQLErrorMessage apolloError={error} />;
-            if (loading) return <Loading />;
+      <UserDataContext.Consumer>
+        {user => (
+          <Container>
+            <AppHeader />
+            <Query query={DOCUMENT_QUERY} variables={{ id }}>
+              {({ loading, error, data, refetch }) => {
+                if (error) return <GraphQLErrorMessage apolloError={error} />;
+                if (loading) return <Loading />;
 
-            const { document } = data;
+                const { document } = data;
 
-            return (
-              <>
-                <Content>
-                  {this.renderHeader(document)}
-                  <Rule />
-                  {this.renderDocumentInfo(document)}
-                  {this.renderExercises(document.exercises, refetch)}
-                </Content>
-                <Subscription
-                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-                  shouldResubscribe={true}
-                  onSubscriptionData={({ subscriptionData }) => {
-                    const { data } = subscriptionData;
-                    if (
-                      data &&
-                      data.documentUpdated &&
-                      data.documentUpdated.id === id
-                    ) {
-                      refetch();
-                    }
-                  }}
-                />
-              </>
-            );
-          }}
-        </Query>
-        {this.renderCreateExerciseModal(document)}
-      </Container>
+                return (
+                  <>
+                    <Content>
+                      {this.renderHeader(document)}
+                      <Rule />
+                      {user.teacher ? this.renderDocumentInfo(document) : this.renderDocumentInfo(document)}
+                      {this.renderExercises(document.exercises, refetch)}
+                    </Content>
+                    <Subscription
+                      subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                      shouldResubscribe={true}
+                      onSubscriptionData={({ subscriptionData }) => {
+                        const { data } = subscriptionData;
+                        if (
+                          data &&
+                          data.documentUpdated &&
+                          data.documentUpdated.id === id
+                        ) {
+                          refetch();
+                        }
+                      }}
+                    />
+                  </>
+                );
+              }}
+            </Query>
+            {this.renderCreateExerciseModal(document)}
+          </Container>
+        )}
+      </UserDataContext.Consumer>
     );
   }
 }
@@ -349,9 +376,42 @@ const Rule = styled(HorizontalRule)`
   margin: 0px -10px;
 `;
 
-const DocumentInfo = styled.div`
-  margin-top: 40px;
+const DocumentHeader = styled.div`
   display: flex;
+  flex-flow: column wrap;
+  height: 40px;
+  justify-content: center;
+  padding: 10px 20px;
+  width: calc(100% - 40px);
+
+  svg {
+    margin-right: 10px;
+  }
+`;
+
+const DocumentHeaderButton = styled(Button)`
+  align-self: flex-end;
+  font-family: Roboto;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 12px 20px;
+`;
+
+const DocumentHeaderText = styled.div`
+  align-items: center;
+  display: flex;
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: 500;
+`;
+
+const DocumentInfo = styled.div`
+  background-color: #fff;
+  border: solid 1px #c0c3c9;
+  border-radius: 4px;
+  display: flex;
+  flex-flow: column nowrap;
+  margin-top: 23px;
 `;
 
 interface DocumentImageProps {
