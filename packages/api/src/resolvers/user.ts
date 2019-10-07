@@ -54,6 +54,7 @@ const userResolver = {
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
         lastLogin: new Date(),
+        teacher: true,
       });
       const newUser: IUser = await UserModel.create(userNew);
       const token: string = jsonwebtoken.sign(

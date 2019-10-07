@@ -17,7 +17,7 @@ const SvgMoveDocument = props => (
             <path fill="currentColor" fillRule="evenodd" stroke="#CCC" d="M54 243h272a4 4 0 0 1 4 4v156H50V247a4 4 0 0 1 4-4z" />
             <rect width="280" height="240" x="50" y="243" stroke="#373B44" rx="4" />
             <g transform="translate(137 297)">
-                <use fill="#000" filter="url(#a)" xlink: href="#b"/>
+                <use fill="#000" filter="url(#a)" href="#b"/>
             <rect width="180" height="144" x="-.5" y="-.5" fill="#FFF" stroke="#CFCFCF" rx="4" />
             </g>
             <path fill="currentColor" fillRule="evenodd" d="M137 369h179v35H137z" />
