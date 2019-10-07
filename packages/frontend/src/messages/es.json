@@ -53,6 +53,8 @@
   "menu-export-stl": "Exportar la escena en formato STL",
   "menu-change-language": "Cambiar idioma",
   "menu-delete-document": "Eliminar documento",
+  "document-header-info": "Documento",
+  "document-header-button": "Editar documento",
   "tab-3d": "3D",
   "tab-project-info": "Información del documento",
   "tooltip-select-multiple": "Selecciona varios objetos pulsando *“Control + clic”* en cada uno de ellos para utilizar esta herramienta",
