@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/react-hooks";
 import { ME_QUERY } from "../apollo/queries";
 import Loading from "../components/Loading";
 
-const UserDataContext = createContext<any>(null);
+export const UserDataContext = createContext<any>(null);
 
 export const UserDataProvider: FC = ({ children }) => {
   const { data, loading } = useQuery(ME_QUERY);
