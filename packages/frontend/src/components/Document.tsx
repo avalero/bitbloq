@@ -127,6 +127,18 @@ class Document extends React.Component<any, DocumentState> {
             {this.t("document-header-button")}
           </DocumentHeaderButton>
         </DocumentHeader>
+        <DocumentBody>
+          <DocumentImage src={document.image} />
+          <DocumentBodyInfo>
+            <DocumentTypeTag document={document} />
+            <DocumentTitle>
+              {document.title || this.t("document-body-title")}
+            </DocumentTitle>
+            <DocumentDescription>
+              {document.description || this.t("document-body-description")}
+            </DocumentDescription>
+          </DocumentBodyInfo>
+        </DocumentBody>
       </DocumentInfo>
     );
     /*return (
@@ -301,8 +313,12 @@ class Document extends React.Component<any, DocumentState> {
                     <Content>
                       {this.renderHeader(document)}
                       <Rule />
-                      {user.teacher ? this.renderDocumentInfo(document) : this.renderDocumentInfo(document)}
-                      {this.renderExercises(document.exercises, refetch)}
+                      {user.teacher
+                        ? this.renderDocumentInfo(document)
+                        : this.renderDocumentInfo(document)}
+                      {user.teacher
+                        ? this.renderExercises(document.exercises, refetch)
+                        : ""}
                     </Content>
                     <Subscription
                       subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
@@ -376,7 +392,20 @@ const Rule = styled(HorizontalRule)`
   margin: 0px -10px;
 `;
 
+const DocumentBody = styled.div`
+  display: flex;
+  padding: 40px 20px;
+  width: calc(100% - 40px);
+`;
+
+const DocumentBodyInfo = styled.div`
+  color: #474749;
+  flex-grow: 0;
+  width: calc(100% - 375px);
+`;
+
 const DocumentHeader = styled.div`
+  border-bottom: solid 1px #c0c3c9;
   display: flex;
   flex-flow: column wrap;
   height: 40px;
@@ -412,26 +441,33 @@ const DocumentInfo = styled.div`
   display: flex;
   flex-flow: column nowrap;
   margin-top: 23px;
+  width: 100%;
 `;
 
 interface DocumentImageProps {
   src: string;
 }
 const DocumentImage = styled.div<DocumentImageProps>`
-  width: 300px;
-  height: 240px;
+  width: 360px;
+  height: 215px;
   background-color: ${colors.gray2};
   border-radius: 4px;
-  margin-right: 40px;
-  background-image: url(${props => props.src});
+  margin-right: 20px;
+  background-image: url(${(props: DocumentImageProps) => props.src});
   background-size: cover;
   background-position: center;
+  flex-shrink: 0;
 `;
 
 const DocumentTitle = styled.div`
+  font-family: Roboto;
   font-size: 20px;
   font-weight: 500;
-  margin: 24px 0px;
+  margin: 20px 0px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 `;
 
 const DocumentDescription = styled.div`
