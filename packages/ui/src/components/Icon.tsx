@@ -35,6 +35,7 @@ import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
 import OpenDocument from "./icons/OpenDocument";
+import MoveDocument from "./icons/OpenDocument";
 import Orthographic from "./icons/Orthographic";
 import PadlockClose from "./icons/PadlockClose";
 import PadlockOpen from "./icons/PadlockOpen";
@@ -175,6 +176,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <NewDocument className={className} />;
     case "open-document":
       return <OpenDocument className={className} />;
+    case "move-document":
+      return <MoveDocument className={className} />;      
     case "orthographic":
       return <Orthographic className={className} />;
     case "padlock-open":

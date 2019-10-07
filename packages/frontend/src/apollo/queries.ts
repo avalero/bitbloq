@@ -4,6 +4,7 @@ export const ME_QUERY = gql`
   query Me {
     me {
       id
+      rootFolder
       email
       name
       admin
@@ -84,6 +85,26 @@ export const ROOT_FOLDER_QUERY = gql`
   }
 `;
 
+export const FOLDER_QUERY = gql`
+  query folder($id: ObjectID!) {
+    folder(id: $id) {
+      id
+      name
+      documents {
+        id
+        type
+        title
+        createdAt
+        image
+      }
+      folders {
+        id
+        name
+      }
+    }
+  }
+`;
+
 export const EXAMPLES_QUERY = gql`
   query Examples {
     examples {
@@ -123,6 +144,14 @@ export const CREATE_DOCUMENT_MUTATION = gql`
 export const CREATE_FOLDER_MUTATION = gql`
   mutation createFolder($input: FolderIn) {
     createFolder(input: $input) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_FOLDER_MUTATION = gql`
+  mutation updateFolder($id:ObjectID!,$input: FolderIn) {
+    updateFolder(id: $id,input: $input) {
       id
     }
   }
