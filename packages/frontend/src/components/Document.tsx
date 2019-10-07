@@ -8,7 +8,7 @@ import {
   Input,
   Spinner,
   Modal,
-  useTranslate
+  Translate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { Link, navigate } from "gatsby";
@@ -98,10 +98,6 @@ class Document extends React.Component<any, DocumentState> {
     }
   }
 
-  t(message) {
-    return useTranslate()(message);
-  }
-
   renderHeader(document) {
     return (
       <Header>
@@ -113,67 +109,38 @@ class Document extends React.Component<any, DocumentState> {
 
   renderDocumentInfo(document) {
     return (
-      <DocumentInfo>
-        <DocumentHeader>
-          <DocumentHeaderText>
-            <Icon name="document" />
-            {this.t("document-header-info")}
-          </DocumentHeaderText>
-          <DocumentHeaderButton
-            onClick={() =>
-              window.open(`/app/document/${document.type}/${document.id}`)
-            }
-          >
-            {this.t("document-header-button")}
-          </DocumentHeaderButton>
-        </DocumentHeader>
-        <DocumentBody>
-          <DocumentImage src={document.image} />
-          <DocumentBodyInfo>
-            <DocumentTypeTag document={document} />
-            <DocumentTitle>
-              {document.title || this.t("document-body-title")}
-            </DocumentTitle>
-            <DocumentDescription>
-              {document.description || this.t("document-body-description")}
-            </DocumentDescription>
-          </DocumentBodyInfo>
-        </DocumentBody>
-      </DocumentInfo>
+      <Translate>
+        {t => (
+          <DocumentInfo>
+            <DocumentHeader>
+              <DocumentHeaderText>
+                <Icon name="document" />
+                {t("document-header-info")}
+              </DocumentHeaderText>
+              <DocumentHeaderButton
+                onClick={() =>
+                  window.open(`/app/document/${document.type}/${document.id}`)
+                }
+              >
+                {t("document-header-button")}
+              </DocumentHeaderButton>
+            </DocumentHeader>
+            <DocumentBody>
+              <DocumentImage src={document.image} />
+              <DocumentBodyInfo>
+                <DocumentTypeTag document={document} />
+                <DocumentTitle>
+                  {document.title || t("document-body-title")}
+                </DocumentTitle>
+                <DocumentDescription>
+                  {document.description || t("document-body-description")}
+                </DocumentDescription>
+              </DocumentBodyInfo>
+            </DocumentBody>
+          </DocumentInfo>
+        )}
+      </Translate>
     );
-    /*return (
-      <DocumentInfo>
-        <DocumentImage src={document.image} />
-        <div>
-          <DocumentTypeTag document={document} />
-          <DocumentTitle>
-            {document.title}
-          </DocumentTitle>
-          <DocumentDescription>{document.description}</DocumentDescription>
-          <Buttons>
-            <Button
-              tertiary
-              onClick={() =>
-                window.open(`/app/document/${document.type}/${document.id}`)
-              }
-            >
-              Editar documento
-            </Button>
-            <Button
-              onClick={() =>
-                this.setState({
-                  isCreateExerciseOpen: true,
-                  newExerciseTitle: ""
-                })
-              }
-            >
-              <Icon name="plus" />
-              Crear ejercicio
-            </Button>
-          </Buttons>
-        </div>
-      </DocumentInfo>
-    );*/
   }
 
   renderExercise = (exercise, refetch) => {
