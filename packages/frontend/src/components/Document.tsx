@@ -249,10 +249,12 @@ class Document extends React.Component<any, DocumentState> {
               </DocumentHeaderButton>
             </DocumentHeader>
             {exercises && exercises.length > 0 ? (
-              exercises
-                .slice()
-                .sort(sortByCreatedAt)
-                .map(exercise => this.renderExercise(exercise, refetch))
+              <ExercisesPanel>
+                {exercises
+                  .slice()
+                  .sort(sortByCreatedAt)
+                  .map(exercise => this.renderExercise(exercise, refetch))}
+              </ExercisesPanel>
             ) : (
               <EmptyExercises>
                 <h2>{t("exercises-empty-title")}</h2>
@@ -469,6 +471,10 @@ const DocumentBody = styled.div`
     flex-flow: column nowrap;
     padding: 20px;
   }
+`;
+
+const ExercisesPanel = styled.div`
+  padding: 23px 20px;
 `;
 
 const DocumentBodyInfo = styled.div`
