@@ -110,7 +110,6 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     setPassword("");
     setToken(token);
     setLoginModal(false);
-    createDocument();
   };
 
   const documentType = documentTypes[currentType || "3d"];
@@ -141,7 +140,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     setPassword("");
   };
 
-  const headerRightContent: Element = userLogged ? (
+  const headerRightContent: JSX.Element = userLogged ? (
     <HeaderRightContent>
       <UserInfo name={userName} />
     </HeaderRightContent>
