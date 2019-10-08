@@ -37,6 +37,7 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
       content
       image
       public
+      advancedMode
     }
   }
 `;

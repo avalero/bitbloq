@@ -2,6 +2,7 @@ import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useQuery } from "@apollo/react-hooks";
 import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
+import { navigate } from "gatsby";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
@@ -56,6 +57,8 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
 
   if (error) return <GraphQLErrorMessage apolloError={error} />;
   if (loading || !contentLoaded) return <Loading color={documentType.color} />;
+
+  window.sessionStorage.setItem("advancedMode", `${document.advancedMode}`);
 
   const onSaveCopyClick = () => {
     setIsSaveCopyVisible(true);
@@ -125,6 +128,8 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
               break;
           }
         }}
+        backCallback={() => navigate("/")}
+        documentAdvancedMode={document.advancedMode}
         isPlayground
       />
       {isSaveCopyVisible && (
