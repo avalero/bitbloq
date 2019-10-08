@@ -56,7 +56,11 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
       const { document, command } = e.data;
       if (command === "open-document") {
         contentRef.current = JSON.parse(document.content);
-        advancedModeRef.current = JSON.parse(document.advancedMode);
+        const advancedModeCookie = window.sessionStorage.getItem("advancedMode");
+          advancedModeRef.current =
+            advancedModeCookie && advancedModeCookie !== "undefined"
+              ? JSON.parse(advancedModeCookie)
+              : false;
         setCurrentType(document.type);
         setLoading(false);
         channel.close();
