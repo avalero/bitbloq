@@ -185,6 +185,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
         }
         documentAdvancedMode={advancedModeRef.current}
         headerRightContent={headerRightContent}
+        backCallback={() => navigate("/")}
         isPlayground
       />
     </>
