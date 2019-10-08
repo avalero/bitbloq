@@ -2,51 +2,38 @@ import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { Icon, colors } from "@bitbloq/ui";
 
+export interface Option {
+  disabled?: boolean;
+  iconName?: string;
+  label: string;
+  onClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void;
+  red?: boolean;
+}
+
 export interface DocumentCardMenuProps {
-  document?: any;
-  folder?: any;
   className?: string;
-  onRename?: (e: React.MouseEvent) => any;
-  onCopy?: (e: React.MouseEvent) => any;
-  onMove?: (e: React.MouseEvent) => any;
-  onDelete?: (e: React.MouseEvent) => any;
+  options?: Option[];
 }
 
 const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
-  document,
-  folder,
   className,
-  onRename,
-  onCopy,
-  onMove,
-  onDelete
+  options
 }) => {
   return (
     <DocumentMenu className={className}>
-      <DocumentMenuOption onClick={onRename}>
-        <p>
-          <MenuIcon name="pencil" />
-          Cambiar nombre
-        </p>
-      </DocumentMenuOption>
-      <DocumentMenuOption onClick={onCopy}>
-        <p>
-          <MenuIcon name="duplicate" />
-          Crear una copia
-        </p>
-      </DocumentMenuOption>
-      <DocumentMenuOption next={true} onClick={onMove}>
-        <p>
-          <MenuIcon name="move-document" />
-          Mover a
-        </p>
-      </DocumentMenuOption>
-      <DocumentMenuOption delete={true} onClick={onDelete}>
-        <p>
-          <MenuIcon name="trash" />
-          Eliminar {(folder && "carpeta") || (document && "documento")}
-        </p>
-      </DocumentMenuOption>
+      {options &&
+        options.map((option: Option) => (
+          <DocumentMenuOption
+            onClick={option.onClick}
+            disabled={option.disabled}
+            red={option.red}
+          >
+            <p>
+              {option.iconName && <MenuIcon name={option.iconName} />}
+              {option.label}
+            </p>
+          </DocumentMenuOption>
+        ))}
     </DocumentMenu>
   );
 };
@@ -62,7 +49,7 @@ const DocumentMenu = styled.div`
   right: 14px;
   top: 54px;
   width: 179px;
-  height: 143px;
+  height: auto;
   border-radius: 4px;
   box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
   border: solid 1px #cfcfcf;
@@ -74,7 +61,11 @@ const DocumentMenu = styled.div`
   }
 `;
 
-const DocumentMenuOption = styled.div<{ delete?: boolean; next?: boolean }>`
+interface DocumentMenuOptionProps {
+  disabled?: boolean;
+  red?: boolean;
+}
+const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
   width: 179px;
   height: 35px;
   display: flex;
@@ -82,11 +73,12 @@ const DocumentMenuOption = styled.div<{ delete?: boolean; next?: boolean }>`
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
 
-  opacity: ${props => (props.next ? 0.5 : 1)};
+  opacity: ${(props: DocumentMenuOptionProps) => (props.disabled ? 0.5 : 1)};
 
   p {
     margin-left: 13px;
-    color: ${props => (props.delete ? colors.red : "#3b3e45")};
+    color: ${(props: DocumentMenuOptionProps) =>
+      props.red ? colors.red : "#3b3e45"};
     font-size: 14px;
     display: flex;
     align-items: center;
