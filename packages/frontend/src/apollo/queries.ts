@@ -97,6 +97,10 @@ export const FOLDER_QUERY = gql`
         title
         createdAt
         image
+        exercises{
+          title
+          code
+        }
       }
       folders {
         id

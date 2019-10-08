@@ -33,7 +33,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
   className,
   onFolderClick
 }) => {
-  const [deleteDocumentId, setDeleteDocumentId] = useState("");
+  const [deleteDocumentId, setDeleteDocumentId] = useState({
+    id: null,
+    exercises: null
+  });
   const [deleteFolderId, setDeleteFolderId] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [editDocTitleModal, setEditDocTitleModal] = useState({
@@ -45,6 +48,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
     name: null
   });
   const [menuOpenId, setMenuOpenId] = useState("");
+  const [docWithEx, setDocWithEx] = useState(false);
 
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
@@ -72,12 +76,22 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
-    setDeleteDocumentId(document.id);
+    setDeleteDocumentId({ id: document.id, exercises: document.exercises });
+  };
+
+  const confirmDelete = () => {
+    if (deleteDocumentId.exercises.length > 0) {
+      setDocWithEx(true);
+      return;
+    } else {
+      onDeleteDocument();
+      return;
+    }
   };
 
   const onDeleteDocument = async () => {
     await deleteDocument({
-      variables: { id: deleteDocumentId },
+      variables: { id: deleteDocumentId.id },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -87,7 +101,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
         }
       ]
     });
-    setDeleteDocumentId(null);
+    setDeleteDocumentId({ id: null, exercises: null });
+    setDocWithEx(false);
   };
 
   const onFolderRenameClick = (e, folder) => {
@@ -97,12 +112,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
-    console.log(folder)
+    console.log(folder.id);
     setDeleteFolderId(folder.id);
   };
 
-  const onDeleteFolder = async () => {
-    console.log(deleteFolderId)
+  const onDeleteFolder = async (e, folder) => {
+    console.log(deleteFolderId);
     await deleteFolder({
       variables: { id: deleteFolderId },
       refetchQueries: [
@@ -202,27 +217,24 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 <Icon name="ellipsis" />
               </DocumentMenuButton>
               {menuOpenId === folder.id && (
-                console.log(folder),
                 <DocumentCardMenu
                   folder
                   onDelete={e => onFolderDeleteClick(e, folder)}
                   onRename={e => onFolderRenameClick(e, folder)}
-                  onCopy={e => {
-                    onDuplicateFolder(e, folder);
-                  }}
+                  onCopy={e => onDuplicateFolder(e, folder)}
                 />
               )}
             </StyledFolderCard>
           ))}
       </DocumentList>
       <DialogModal
-        isOpen={!!deleteDocumentId}
+        isOpen={!!deleteDocumentId.id}
         title="Eliminar"
         text="¿Seguro que quieres eliminar este documento?"
         okText="Aceptar"
         cancelText="Cancelar"
-        onOk={onDeleteDocument}
-        onCancel={() => setDeleteDocumentId(null)}
+        onOk={confirmDelete}
+        onCancel={() => setDeleteDocumentId({ id: null, exercises: null })}
       />
       <DialogModal
         isOpen={!!deleteFolderId}
@@ -232,6 +244,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteFolder}
         onCancel={() => setDeleteFolderId(null)}
+      />
+      <DialogModal
+        isOpen={!!docWithEx}
+        title="Aviso"
+        text="Has creado ejercicios a partir de este documento, si lo eliminas, eliminarás también estos ejercicios y sus entregas. ¿Seguro que quieres hacerlo?"
+        okText="Aceptar"
+        cancelText="Cancelar"
+        onOk={onDeleteDocument}
+        onCancel={() => {
+          setDeleteDocumentId({ id: null, exercises: null });
+          setDocWithEx(false);
+        }}
       />
 
       {editDocTitleModal.id && (
