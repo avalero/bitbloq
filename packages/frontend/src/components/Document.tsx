@@ -228,13 +228,34 @@ class Document extends React.Component<any, DocumentState> {
 
   renderExercises(exercises, refetch) {
     return (
-      <Exercises>
-        {exercises && exercises.length > 0 && <h2>Ejercicios creados</h2>}
-        {exercises
-          .slice()
-          .sort(sortByCreatedAt)
-          .map(exercise => this.renderExercise(exercise, refetch))}
-      </Exercises>
+      <Translate>
+        {t => (
+          <Exercises>
+            <DocumentHeader>
+              <DocumentHeaderText>
+                <Icon name="airplane-document" className="exercise" />
+                {t("exercises-header-info")}
+              </DocumentHeaderText>
+              <DocumentHeaderButton
+                onClick={() =>
+                  this.setState({
+                    isCreateExerciseOpen: true,
+                    newExerciseTitle: ""
+                  })
+                }
+              >
+                <Icon name="plus" />
+                {t("exercises-header-button")}
+              </DocumentHeaderButton>
+            </DocumentHeader>
+            {exercises && exercises.length > 0 && <h2>Ejercicios creados</h2>}
+            {exercises
+              .slice()
+              .sort(sortByCreatedAt)
+              .map(exercise => this.renderExercise(exercise, refetch))}
+          </Exercises>
+        )}
+      </Translate>
     );
   }
 
@@ -316,12 +337,14 @@ class Document extends React.Component<any, DocumentState> {
                     <Content>
                       {this.renderHeader(document)}
                       <Rule />
-                      {user.teacher
-                        ? this.renderDocumentTeacherInfo(document)
-                        : this.renderDocumentInfo(document)}
-                      {user.teacher
-                        ? this.renderExercises(document.exercises, refetch)
-                        : ""}
+                      <DocumentData>
+                        {user.teacher
+                          ? this.renderDocumentTeacherInfo(document)
+                          : this.renderDocumentInfo(document)}
+                        {user.teacher
+                          ? this.renderExercises(document.exercises, refetch)
+                          : ""}
+                      </DocumentData>
                     </Content>
                     <Subscription
                       subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
@@ -445,18 +468,30 @@ const DocumentHeaderText = styled.div`
   font-family: Roboto;
   font-size: 20px;
   font-weight: 500;
+
+  svg.exercise {
+    height: 24px;
+    width: 24px;
+  }
 `;
 
-const DocumentInfo = styled.div`
+const DocumentData = styled.div`
   background-color: #fff;
   border: solid 1px #c0c3c9;
   border-radius: 4px;
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   margin-top: 23px;
+  width: 100%;
+`;
+
+const DocumentInfo = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
   width: 100%;
 
   &.teacher {
+    border-right: solid 1px #c0c3c9;
     width: 34%;
   }
 `;
@@ -514,12 +549,7 @@ const DocumentButton = styled.div`
 `;
 
 const Exercises = styled.div`
-  margin-top: 50px;
-  h2 {
-    font-size: 16px;
-    font-weight: normal;
-    margin-bottom: 16px;
-  }
+  width: 66%;
 `;
 
 const ModalContent = styled.div`

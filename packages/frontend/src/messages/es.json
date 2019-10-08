@@ -55,6 +55,8 @@
   "menu-delete-document": "Eliminar documento",
   "document-header-info": "Documento",
   "document-header-button": "Editar documento",
+  "exercises-header-info": "Ejercicios",
+  "exercises-header-button": "Crear ejercicio",
   "document-body-title": "Documento sin título",
   "document-body-description": "Sin descripción",
   "tab-3d": "3D",
