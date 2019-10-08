@@ -248,11 +248,28 @@ class Document extends React.Component<any, DocumentState> {
                 {t("exercises-header-button")}
               </DocumentHeaderButton>
             </DocumentHeader>
-            {exercises && exercises.length > 0 && <h2>Ejercicios creados</h2>}
-            {exercises
-              .slice()
-              .sort(sortByCreatedAt)
-              .map(exercise => this.renderExercise(exercise, refetch))}
+            {exercises && exercises.length > 0 ? (
+              exercises
+                .slice()
+                .sort(sortByCreatedAt)
+                .map(exercise => this.renderExercise(exercise, refetch))
+            ) : (
+              <EmptyExercises>
+                <h2>{t("exercises-empty-title")}</h2>
+                <p>{t("exercises-empty-description")}</p>
+                <MyButton
+                  onClick={() =>
+                    this.setState({
+                      isCreateExerciseOpen: true,
+                      newExerciseTitle: ""
+                    })
+                  }
+                >
+                  <Icon name="plus" />
+                  {t("exercises-header-button")}
+                </MyButton>
+              </EmptyExercises>
+            )}
           </Exercises>
         )}
       </Translate>
@@ -418,6 +435,31 @@ const Rule = styled(HorizontalRule)`
   margin: 0px -10px;
 `;
 
+const EmptyExercises = styled.div`
+  align-items: center;
+  color: #474749;
+  display: flex;
+  flex-flow: column nowrap;
+  font-family: Roboto;
+  height: calc(100% - 60px); /* 60px like header height*/
+  justify-content: center;
+  padding: 0 60px;
+  text-align: center;
+
+  h2 {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.38;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.57;
+    margin-bottom: 20px;
+  }
+`;
+
 const DocumentBody = styled.div`
   display: flex;
   padding: 40px 20px;
@@ -444,7 +486,7 @@ const DocumentHeader = styled.div`
   border-bottom: solid 1px #c0c3c9;
   display: flex;
   flex-flow: column wrap;
-  height: 40px;
+  height: 39px;
   justify-content: center;
   padding: 10px 20px;
   width: calc(100% - 40px);
@@ -454,12 +496,19 @@ const DocumentHeader = styled.div`
   }
 `;
 
-const DocumentHeaderButton = styled(Button)`
-  align-self: flex-end;
+const MyButton = styled(Button)`
   font-family: Roboto;
   font-size: 14px;
   font-weight: bold;
   padding: 12px 20px;
+
+  svg {
+    margin-right: 6px;
+  }
+`;
+
+const DocumentHeaderButton = styled(MyButton)`
+  align-self: flex-end;
 `;
 
 const DocumentHeaderText = styled.div`
