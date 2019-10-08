@@ -19,7 +19,10 @@ interface ActivateProps {
 class Activate extends React.Component<ActivateProps> {
   componentDidMount() {
     const token = location.search.split("?token=")[1];
-    this.props.activateAccount({ variables: { token } });
+    this.props.activateAccount({ variables: { token } }).then(() => {
+      setToken(token);
+      navigate("/app");
+    });
   }
 
   render() {
@@ -30,10 +33,7 @@ class Activate extends React.Component<ActivateProps> {
 export default () =>
   <Mutation
     mutation={ACTIVATE_ACCOUNT_MUTATION}
-    onCompleted={({ activateAccount: token }) => {
-      setToken(token);
-      navigate("/app");
-    }}
+    
   >
     {mutate => <Activate activateAccount={mutate} />}
   </Mutation>;

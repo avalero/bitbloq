@@ -52,6 +52,7 @@
     "gatsby-source-filesystem": "^2.1.18",
     "gatsby-transformer-sharp": "^2.2.12",
     "graphql-tag": "^2.10.1",
+    "html2canvas": "^1.0.0-rc.5",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.15",
     "prop-types": "^15.6.2",

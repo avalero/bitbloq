@@ -1,6 +1,7 @@
 import React, { FC, useState, useEffect, useCallback } from "react";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
+import html2canvas from "html2canvas";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { Document, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import { navigate } from "gatsby";
@@ -41,7 +42,8 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     description: "",
     public: false,
     example: false,
-    type
+    type,
+    advancedMode: false
   });
   const [image, setImage] = useState("");
 
@@ -68,7 +70,16 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
 
   const debouncedUpdate = useCallback(
-    debounce(async (document: any) => {
+    debounce(async (document: any, image: string) => {
+      if (!document.image && (!image || image.match(/blob$/))) {
+        const picture: HTMLElement | null = (window.document.querySelector("canvas") || window.document.querySelector("[class*=Canvas]"));
+        if (picture) {
+          const canvas: HTMLCanvasElement = await html2canvas(picture);
+          const imgData: string = canvas.toDataURL("image/jpeg");
+          const file: Blob = dataURItoBlob(imgData);
+          document.image = file;
+        }
+      }
       await updateDocument({ variables: { ...document, id } });
       refetch();
     }, 1000),
@@ -78,6 +89,26 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
   useEffect(() => {
     setImage(data && data.document && data.document.image);
   }, [data]);
+
+  const dataURItoBlob = (dataURI: string): Blob => {
+    // convert base64/URLEncoded data component to raw binary data held in a string
+    let byteString;
+    if (dataURI.split(',')[0].indexOf('base64') >= 0)
+        byteString = atob(dataURI.split(',')[1]);
+    else
+        byteString = unescape(dataURI.split(',')[1]);
+
+    // separate out the mime component
+    let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+    // write the bytes of the string to a typed array
+    let ia = new Uint8Array(byteString.length);
+    for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+    }
+
+    return new Blob([ia], {type:mimeString});
+  }
 
   const update = async (document: any) => {
     setDocument(document);
@@ -94,7 +125,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       });
       navigate(`/app/document/${type}/${newId}`, { replace: true });
     } else {
-      debouncedUpdate(document);
+      debouncedUpdate(document, image);
     }
   };
 
@@ -203,7 +234,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
     </Document.Tab>
   );
 
-  const headerRightContent: Element = (
+  const headerRightContent: JSX.Element = (
     <HeaderRightContent>
       <UserInfo name={user.name} />
     </HeaderRightContent>
@@ -235,6 +266,7 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
         changeAdvancedMode={onSetAdvancedMode}
         documentAdvancedMode={advancedMode}
         headerRightContent={headerRightContent}
+        backCallback={() => navigate("/")}
       />
       {isEditTitleVisible && (
         <EditTitleModal

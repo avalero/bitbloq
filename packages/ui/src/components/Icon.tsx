@@ -17,6 +17,7 @@ import Cylinder from "./icons/Cylinder";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
 import Download from "./icons/Download";
+import Document from "./icons/Document";
 import DownloadDocument from "./icons/DownloadDocument";
 import Drag from "./icons/Drag";
 import Dropdown from "./icons/Dropdown";
@@ -139,6 +140,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Difference className={className} />;
     case "difficulty":
       return <Difficulty className={className} />;
+    case "document":
+      return <Document className={className} />;
     case "download":
       return <Download className={className} />;
     case "download-document":

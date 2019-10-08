@@ -4,7 +4,7 @@ import { Link } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
 
 interface LoginPanelProps {
-  className: string;
+  className?: string;
   email: string;
   logingError: boolean;
   logingIn: boolean;

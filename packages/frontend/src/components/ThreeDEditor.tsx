@@ -190,7 +190,8 @@ class ThreeDEditor extends React.Component<EditorProps> {
       preMenuContent,
       t,
       changeAdvancedMode,
-      documentAdvancedMode
+      documentAdvancedMode,
+      backCallback
     } = this.props;
     const { showExportModal, showSTLError } = this.state;
 
@@ -219,7 +220,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
           preMenuContent={preMenuContent}
           changeAdvancedMode={changeAdvancedMode}
           documentAdvancedMode={documentAdvancedMode}
-          backCallback={() => navigate("/")}
+          backCallback={backCallback}
         >
           {getTabs}
         </ThreeD>
