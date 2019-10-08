@@ -143,6 +143,42 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
+  renderDocumentTeacherInfo(document) {
+    return (
+      <Translate>
+        {t => (
+          <DocumentInfo className="teacher">
+            <DocumentHeader>
+              <DocumentHeaderText>
+                <Icon name="document" />
+                {t("document-header-info")}
+              </DocumentHeaderText>
+              <DocumentHeaderButton
+                onClick={() =>
+                  window.open(`/app/document/${document.type}/${document.id}`)
+                }
+              >
+                {t("document-header-button")}
+              </DocumentHeaderButton>
+            </DocumentHeader>
+            <DocumentBody className="teacher">
+              <DocumentImage src={document.image} className="teacher" />
+              <DocumentBodyInfo className="teacher">
+                <DocumentTypeTag document={document} />
+                <DocumentTitle>
+                  {document.title || t("document-body-title")}
+                </DocumentTitle>
+                <DocumentDescription>
+                  {document.description || t("document-body-description")}
+                </DocumentDescription>
+              </DocumentBodyInfo>
+            </DocumentBody>
+          </DocumentInfo>
+        )}
+      </Translate>
+    );
+  }
+
   renderExercise = (exercise, refetch) => {
     const { id: documentId } = this.props;
 
@@ -281,7 +317,7 @@ class Document extends React.Component<any, DocumentState> {
                       {this.renderHeader(document)}
                       <Rule />
                       {user.teacher
-                        ? this.renderDocumentInfo(document)
+                        ? this.renderDocumentTeacherInfo(document)
                         : this.renderDocumentInfo(document)}
                       {user.teacher
                         ? this.renderExercises(document.exercises, refetch)
@@ -363,12 +399,22 @@ const DocumentBody = styled.div`
   display: flex;
   padding: 40px 20px;
   width: calc(100% - 40px);
+
+  &.teacher {
+    flex-flow: column nowrap;
+    padding: 20px;
+  }
 `;
 
 const DocumentBodyInfo = styled.div`
   color: #474749;
   flex-grow: 0;
   width: calc(100% - 375px);
+
+  &.teacher {
+    margin-top: 20px;
+    width: 100%;
+  }
 `;
 
 const DocumentHeader = styled.div`
@@ -409,6 +455,10 @@ const DocumentInfo = styled.div`
   flex-flow: column nowrap;
   margin-top: 23px;
   width: 100%;
+
+  &.teacher {
+    width: 34%;
+  }
 `;
 
 interface DocumentImageProps {
@@ -424,6 +474,11 @@ const DocumentImage = styled.div<DocumentImageProps>`
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
+
+  &.teacher {
+    margin: 0;
+    width: 100%;
+  }
 `;
 
 const DocumentTitle = styled.div`
@@ -439,7 +494,6 @@ const DocumentTitle = styled.div`
 
 const DocumentDescription = styled.div`
   font-size: 16px;
-  margin-bottom: 25px;
 `;
 
 const Buttons = styled.div`
