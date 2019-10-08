@@ -12,7 +12,11 @@ import {
 
 let advancedMode;
 if (typeof window !== `undefined`) {
-  advancedMode = JSON.parse(window.sessionStorage.getItem('advancedMode'));
+  const advancedModeCookie = window.sessionStorage.getItem('advancedMode');
+  advancedMode =
+    advancedModeCookie && advancedModeCookie !== 'undefined'
+      ? JSON.parse(advancedModeCookie)
+      : false;
 } else {
   advancedMode = false;
 }
