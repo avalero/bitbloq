@@ -69,7 +69,7 @@ const folderResolver = {
      * args: folder ID
      */
     deleteFolder: async (root: any, args: any, context: any) => {
-      console.log(args.id)
+      console.log(args.id);
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -88,7 +88,7 @@ const folderResolver = {
           for (const document of existFolder.documentsID) {
             await documentResolver.Mutation.deleteDocument(
               "",
-              { _id: document },
+              { id: document },
               context
             );
             await FolderModel.updateOne(
@@ -102,7 +102,7 @@ const folderResolver = {
           for (const folder of existFolder.foldersID) {
             await folderResolver.Mutation.deleteFolder(
               "",
-              { _id: folder },
+              { id: folder },
               context
             );
           }
@@ -270,7 +270,8 @@ const folderResolver = {
       const docsOriginalChildren: IDocument[] = await DocumentModel.find({
         folder: existFolder._id
       });
-      let folderChildren: string[] =[], docsChildren: string[]=[];
+      let folderChildren: string[] = [],
+        docsChildren: string[] = [];
       if (folderOriginalChildren.length > 0) {
         for (let item of folderOriginalChildren) {
           const newItem = await FolderModel.create({
@@ -278,20 +279,28 @@ const folderResolver = {
             parent: newFolder._id,
             user: context.user.userID
           });
-          console.log(folderChildren, item, newItem)
           folderChildren.push(newItem._id);
         }
       }
       if (docsOriginalChildren.length > 0) {
         for (let item of docsOriginalChildren) {
           const newItem = await DocumentModel.create({
-            ...item,
+            user: context.user.userID,
+            title: item.title,
+            type: item.type,
+            content: item.content,
+            advancedMode: item.advancedMode,
+            cache: item.cache,
+            description: item.description,
+            version: item.version,
+            image: item.image,
             folder: newFolder._id
           });
+          console.log(item, newItem);
           docsChildren.push(newItem._id);
         }
       }
-      console.log({folderChildren, docsChildren});
+      console.log({ folderChildren, docsChildren });
       const updatedFolder: IFolder = await FolderModel.updateOne(
         { _id: newFolder._id },
         {

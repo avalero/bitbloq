@@ -96,7 +96,11 @@ export const FOLDER_QUERY = gql`
         type
         title
         createdAt
+        updatedAt
         image
+        description
+        advancedMode
+        content
         exercises{
           title
           code
@@ -105,6 +109,8 @@ export const FOLDER_QUERY = gql`
       folders {
         id
         name
+        createdAt
+        updatedAt        
       }
     }
   }
@@ -129,6 +135,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $content: String
     $image: String
     $advancedMode: Boolean
+    $folder: ObjectID
   ) {
     createDocument(
       input: {
@@ -138,6 +145,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         content: $content
         imageUrl: $image
         advancedMode: $advancedMode
+        folder: $folder
       }
     ) {
       id

@@ -159,7 +159,7 @@ const Documents: FC = () => {
     reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
       const { data } = await createDocument({
-        variables: { ...document },
+        variables: { ...document, folder: currentLocation },
         refetchQueries: [
           {
             query: FOLDER_QUERY,

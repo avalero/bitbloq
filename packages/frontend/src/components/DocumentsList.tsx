@@ -17,7 +17,8 @@ import {
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
   CREATE_FOLDER_MUTATION,
-  DUPLICATE_FOLDER_MUTATION
+  DUPLICATE_FOLDER_MUTATION,
+  CREATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
 
 export interface DocumentListProps {
@@ -52,6 +53,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
 
+  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [duplicateFolder] = useMutation(DUPLICATE_FOLDER_MUTATION);
@@ -184,6 +186,25 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
+  const onDuplicateDocument = async (e, document) => {
+    e.stopPropagation();
+    await createDocument({
+      variables: {
+        ...document,
+        folder: currentLocation
+      },
+      refetchQueries: [
+        {
+          query: FOLDER_QUERY,
+          variables: {
+            id: currentLocation
+          }
+        }
+      ]
+    });
+    setMenuOpenId(null);
+  };
+
   return (
     <>
       <DocumentList className={className}>
@@ -205,6 +226,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   document
                   onDelete={e => onDocumentDeleteClick(e, document)}
                   onRename={e => onDocumentRenameClick(e, document)}
+                  onCopy={e => onDuplicateDocument(e, document)}
                 />
               )}
             </StyledDocumentCard>
