@@ -8,6 +8,8 @@ import EditTitleModal from "./EditTitleModal";
 import FolderCard from "./FolderCard";
 import DocumentCardMenu from "./DocumentCardMenu";
 
+import { css } from "@emotion/core";
+
 import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
@@ -193,6 +195,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
               onClick={() => onDocumentClick(document)}
             >
               <DocumentMenuButton
+                isOpen={menuOpenId === document.id}
                 onClick={e => onDocumentMenuClick(e, document)}
               >
                 <Icon name="ellipsis" />
@@ -213,7 +216,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
               folder={folder}
               onClick={e => onFolderClick(e, folder)}
             >
-              <DocumentMenuButton onClick={e => onDocumentMenuClick(e, folder)}>
+              <DocumentMenuButton
+                isOpen={menuOpenId === folder.id}
+                onClick={e => onDocumentMenuClick(e, folder)}
+              >
                 <Icon name="ellipsis" />
               </DocumentMenuButton>
               {menuOpenId === folder.id && (
@@ -329,8 +335,9 @@ const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
   ${props =>
     props.isOpen &&
     css`
+      display: flex;
       border: solid 1px #dddddd;
-      background-color: #e8e8e8;
+      background-color: "red";
     `} svg {
     transform: rotate(90deg);
   }

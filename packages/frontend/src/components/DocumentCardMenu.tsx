@@ -56,15 +56,22 @@ export default DocumentCardMenu;
 /**styled components */
 
 const DocumentMenu = styled.div`
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 14px;
+  top: 54px;
   width: 179px;
   height: 143px;
   border-radius: 4px;
   box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
   border: solid 1px #cfcfcf;
   background-color: white;
-  position: absolute;
-  margin-left: 50px;
-  margin-top: 53px;
+  justify-content: flex-end;
+  align-items: flex-end;
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const DocumentMenuOption = styled.div<{ delete?: boolean }>`
