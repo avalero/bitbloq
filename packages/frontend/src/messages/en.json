@@ -60,6 +60,9 @@
   "exercises-header-button": "Create exercise",
   "exercises-empty-title": "No exercises",
   "exercises-empty-description": "Aún no has creado ningún ejercicio a partir de este documento. Para hacer lo sólo tienes que hacer clic en \"crear ejercicio\" y después compartir con tus alumnos el código para que puedan acceder a este.",
+  "exercises-modal-title": "Create exercise",
+  "exercises-modal-text": "Exercises's name",
+  "exercises-modal-placeholder": "Untitled exercise",
   "document-body-title": "Document without title",
   "document-body-description": "Without description",
   "tab-3d": "3D",
@@ -223,5 +226,6 @@
   "bloq-on-message": "On message",
   "playground-enter-button": "Enter with your count",
   "general-enter-button": "Enter",
+  "general-create-button": "Create",
   "general-cancel-button": "Cancel"
 }

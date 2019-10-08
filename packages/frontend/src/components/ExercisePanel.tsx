@@ -38,6 +38,20 @@ class ExercisePanel extends React.Component<
             <Toggle isOpen={isOpen}>
               <Icon name="angle" />
             </Toggle>
+          </HeaderLeft>
+          <HeaderCenter>
+            <Title>{exercise.title}</Title>
+            <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
+          </HeaderCenter>
+          <HeaderRight>
+            <Icon name="ellipsis" />
+          </HeaderRight>
+        </Header>
+        {/*<Header>
+          <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
+            <Toggle isOpen={isOpen}>
+              <Icon name="angle" />
+            </Toggle>
             <div>
               <Title>{exercise.title}</Title>
               <Date>{dayjs(exercise.createdAt).format("DD/MM/YY hh:mm")}</Date>
@@ -108,7 +122,7 @@ class ExercisePanel extends React.Component<
               )}
             </Content>
           )}
-        </Spring>
+        </Spring>*/}
       </Container>
     );
   }
@@ -119,20 +133,36 @@ export default ExercisePanel;
 /* styled components */
 
 const Container = styled.div`
-  border: 1px solid;
+  border: 1px solid #c0c3c9;
   border-radius: 4px;
-  margin-bottom: 40px;
+  height: 38px;
+  margin-bottom: 20px;
+  width: 100%;
 `;
 
 const Header = styled.div`
   display: flex;
-  padding: 16px 20px;
+  height: 100%;
+  width: 100%;
+`;
+
+const HeaderCenter = styled.div`
+  align-items: center;
+  display: flex;
+  flex: 1 1 100%;
+  justify-content: space-between;
+  padding: 10px;
+  width: calc(100% - 120px); /* 40px padding & 80px other headers*/
 `;
 
 const HeaderLeft = styled.div`
-  flex: 1;
-  display: flex;
+  align-items: center;
+  border-right: 1px solid #c0c3c9;
   cursor: pointer;
+  display: flex;
+  flex: 1 0 39px;
+  justify-content: center;
+  max-width: 39px;
 `;
 
 interface ToggleProps {
@@ -142,10 +172,9 @@ const Toggle = styled.div<ToggleProps>`
   svg {
     transform: rotate(-90deg);
     width: 16px;
-    margin-right: 12px;
   }
 
-  ${props =>
+  ${(props: ToggleProps) =>
     props.isOpen &&
     css`
       svg {
@@ -155,19 +184,35 @@ const Toggle = styled.div<ToggleProps>`
 `;
 
 const HeaderRight = styled.div`
+  align-items: center;
+  border-left: 1px solid #c0c3c9;
+  cursor: pointer;
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
+  flex: 1 0 39px;
+  justify-content: center;
+  max-width: 39px;
+
+  svg {
+    transform: rotate(90deg);
+  }
 `;
 
 const Title = styled.div`
-  font-size: 20px;
-  margin-bottom: 10px;
+  color: #474749;
+  font-size: 14px;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(100% - 100px); /* 100px Date */
 `;
 
 const Date = styled.div`
+  color: #777;
   font-size: 14px;
-  color: ${colors.gray4};
+  font-size: 14px;
+  min-width: 100px;
+  text-align: right;
 `;
 
 const HeaderRow = styled.div`

@@ -233,11 +233,38 @@ const DocumentListComp: FC<DocumentListProps> = ({
               </DocumentMenuButton>
               {menuOpenId === document.id && (
                 <DocumentCardMenu
-                  document
-                  onDelete={e => onDocumentDeleteClick(e, document)}
-                  onRename={e => onDocumentRenameClick(e, document)}
-                  onCopy={e => onDuplicateDocument(e, document)}
-                  onMove={e => onMoveDocument(e, document)}
+                  options={[
+                    {
+                      iconName: "pencil",
+                      label: "Cambiar nombre",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onDocumentRenameClick(e, document);
+                      }
+                    },
+                    {
+                      iconName: "duplicate",
+                      label: "Crear una copia",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onDuplicateDocument(e, document);
+                      }
+                    },
+                    {
+                      disabled: true,
+                      iconName: "move-document",
+                      label: "Mover a",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onMoveDocument(e, document);
+                      }
+                    },
+                    {
+                      iconName: "trash",
+                      label: "Eliminar documento",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onDocumentDeleteClick(e, document);
+                      },
+                      red: true
+                    }
+                  ]}
                 />
               )}
             </StyledDocumentCard>
@@ -257,11 +284,38 @@ const DocumentListComp: FC<DocumentListProps> = ({
               </DocumentMenuButton>
               {menuOpenId === folder.id && (
                 <DocumentCardMenu
-                  folder
-                  onDelete={e => onFolderDeleteClick(e, folder)}
-                  onRename={e => onFolderRenameClick(e, folder)}
-                  onCopy={e => onDuplicateFolder(e, folder)}
-                  onMove={e => onMoveFolder(e, folder)}
+                  options={[
+                    {
+                      iconName: "pencil",
+                      label: "Cambiar nombre",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onFolderRenameClick(e, folder);
+                      }
+                    },
+                    {
+                      iconName: "duplicate",
+                      label: "Crear una copia",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onDuplicateFolder(e, folder);
+                      }
+                    },
+                    {
+                      disabled: true,
+                      iconName: "move-document",
+                      label: "Mover a",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onMoveFolder(e, folder);
+                      }
+                    },
+                    {
+                      iconName: "trash",
+                      label: "Eliminar carpeta",
+                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        onFolderDeleteClick(e, folder);
+                      },
+                      red: true
+                    }
+                  ]}
                 />
               )}
             </StyledFolderCard>

@@ -249,10 +249,12 @@ class Document extends React.Component<any, DocumentState> {
               </DocumentHeaderButton>
             </DocumentHeader>
             {exercises && exercises.length > 0 ? (
-              exercises
-                .slice()
-                .sort(sortByCreatedAt)
-                .map(exercise => this.renderExercise(exercise, refetch))
+              <ExercisesPanel>
+                {exercises
+                  .slice()
+                  .sort(sortByCreatedAt)
+                  .map(exercise => this.renderExercise(exercise, refetch))}
+              </ExercisesPanel>
             ) : (
               <EmptyExercises>
                 <h2>{t("exercises-empty-title")}</h2>
@@ -281,56 +283,62 @@ class Document extends React.Component<any, DocumentState> {
     const { isCreateExerciseOpen, newExerciseTitle } = this.state;
 
     return (
-      <Modal
-        isOpen={isCreateExerciseOpen}
-        title="Crear ejercicio"
-        onClose={() => this.setState({ isCreateExerciseOpen: false })}
-      >
-        <ModalContent>
-          <p>Introduce un nombre para el nuevo ejercicio</p>
-          <form>
-            <Input
-              value={newExerciseTitle}
-              ref={this.newExerciseTitleInput}
-              onChange={e =>
-                this.setState({ newExerciseTitle: e.target.value })
-              }
-            />
-            <ModalButtons>
-              <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-                {createExercise => (
+      <Translate>
+        {t => (
+          <Modal
+            isOpen={isCreateExerciseOpen}
+            title={t("exercises-modal-title")}
+            onClose={() => this.setState({ isCreateExerciseOpen: false })}
+          >
+            <ModalContent>
+              <p>{t("exercises-modal-text")}</p>
+              <form>
+                <Input
+                  value={newExerciseTitle}
+                  ref={this.newExerciseTitleInput}
+                  onChange={e =>
+                    this.setState({ newExerciseTitle: e.target.value })
+                  }
+                  placeholder={t("exercises-modal-placeholder")}
+                />
+                <ModalButtons>
                   <ModalButton
-                    disabled={!newExerciseTitle}
-                    onClick={() => {
-                      createExercise({
-                        variables: {
-                          documentId,
-                          title: newExerciseTitle
-                        },
-                        refetchQueries: [
-                          {
-                            query: DOCUMENT_QUERY,
-                            variables: { id: documentId }
-                          }
-                        ]
-                      });
-                      this.setState({ isCreateExerciseOpen: false });
-                    }}
+                    tertiary
+                    onClick={() =>
+                      this.setState({ isCreateExerciseOpen: false })
+                    }
                   >
-                    Crear
+                    {t("general-cancel-button")}
                   </ModalButton>
-                )}
-              </Mutation>
-              <ModalButton
-                tertiary
-                onClick={() => this.setState({ isCreateExerciseOpen: false })}
-              >
-                Cancelar
-              </ModalButton>
-            </ModalButtons>
-          </form>
-        </ModalContent>
-      </Modal>
+                  <Mutation mutation={CREATE_EXERCISE_MUTATION}>
+                    {createExercise => (
+                      <ModalButton
+                        onClick={() => {
+                          createExercise({
+                            variables: {
+                              documentId,
+                              title: newExerciseTitle || "Ejercicio sin título"
+                            },
+                            refetchQueries: [
+                              {
+                                query: DOCUMENT_QUERY,
+                                variables: { id: documentId }
+                              }
+                            ]
+                          });
+                          this.setState({ isCreateExerciseOpen: false });
+                        }}
+                      >
+                        {t("general-create-button")}
+                      </ModalButton>
+                    )}
+                  </Mutation>
+                </ModalButtons>
+              </form>
+            </ModalContent>
+          </Modal>
+        )}
+      </Translate>
     );
   }
 
@@ -469,6 +477,10 @@ const DocumentBody = styled.div`
     flex-flow: column nowrap;
     padding: 20px;
   }
+`;
+
+const ExercisesPanel = styled.div`
+  padding: 23px 20px;
 `;
 
 const DocumentBodyInfo = styled.div`
@@ -614,11 +626,11 @@ const ModalContent = styled.div`
 
 const ModalButtons = styled.div`
   display: flex;
+  justify-content: space-between;
   margin-top: 50px;
 `;
 
 const ModalButton = styled(Button)`
-  height: 50px;
-  width: 170px;
-  margin-right: 20px;
+  height: 40px;
+  padding: 0 20px;
 `;

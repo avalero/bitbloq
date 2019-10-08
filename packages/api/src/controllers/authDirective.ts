@@ -1,4 +1,4 @@
-import { ApolloError, SchemaDirectiveVisitor } from "apollo-server-koa";
+import { AuthenticationError, SchemaDirectiveVisitor } from "apollo-server-koa";
 const { defaultFieldResolver } = require("graphql");
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
@@ -38,7 +38,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         const context = args[2];
         //console.log(context);
         if (!context.user || typeof context.user == "undefined") {
-          throw new ApolloError("You need to be logged in", "NOT_YOUR_DOCUMENT");
+          throw new AuthenticationError("You need to be logged in");
         } else {
           let passed: boolean = false;
           for (let roleReq of requiredRole) {
@@ -65,9 +65,8 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
               context.user.role.indexOf("stu-") > -1
             ) {
               if (!context.user.exerciseID) {
-                throw new ApolloError(
-                  "You need to login with exercise code 1",
-                  "NOT_YOUR_DOCUMENT"
+                throw new AuthenticationError(
+                  "You need to login with exercise code 1"
                 );
               }
               passed = true;
@@ -96,7 +95,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
             }
           }
           if (!passed) {
-            throw new ApolloError("You need to be logged in. Role", "NOT_YOUR_DOCUMENT");
+            throw new AuthenticationError("You need to be logged in. Role");
           }
         }
       };
