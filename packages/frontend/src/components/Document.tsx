@@ -143,6 +143,42 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
+  renderDocumentTeacherInfo(document) {
+    return (
+      <Translate>
+        {t => (
+          <DocumentInfo className="teacher">
+            <DocumentHeader>
+              <DocumentHeaderText>
+                <Icon name="document" />
+                {t("document-header-info")}
+              </DocumentHeaderText>
+              <DocumentHeaderButton
+                onClick={() =>
+                  window.open(`/app/document/${document.type}/${document.id}`)
+                }
+              >
+                {t("document-header-button")}
+              </DocumentHeaderButton>
+            </DocumentHeader>
+            <DocumentBody className="teacher">
+              <DocumentImage src={document.image} className="teacher" />
+              <DocumentBodyInfo className="teacher">
+                <DocumentTypeTag document={document} />
+                <DocumentTitle>
+                  {document.title || t("document-body-title")}
+                </DocumentTitle>
+                <DocumentDescription>
+                  {document.description || t("document-body-description")}
+                </DocumentDescription>
+              </DocumentBodyInfo>
+            </DocumentBody>
+          </DocumentInfo>
+        )}
+      </Translate>
+    );
+  }
+
   renderExercise = (exercise, refetch) => {
     const { id: documentId } = this.props;
 
@@ -192,13 +228,51 @@ class Document extends React.Component<any, DocumentState> {
 
   renderExercises(exercises, refetch) {
     return (
-      <Exercises>
-        {exercises && exercises.length > 0 && <h2>Ejercicios creados</h2>}
-        {exercises
-          .slice()
-          .sort(sortByCreatedAt)
-          .map(exercise => this.renderExercise(exercise, refetch))}
-      </Exercises>
+      <Translate>
+        {t => (
+          <Exercises>
+            <DocumentHeader>
+              <DocumentHeaderText>
+                <Icon name="airplane-document" className="exercise" />
+                {t("exercises-header-info")}
+              </DocumentHeaderText>
+              <DocumentHeaderButton
+                onClick={() =>
+                  this.setState({
+                    isCreateExerciseOpen: true,
+                    newExerciseTitle: ""
+                  })
+                }
+              >
+                <Icon name="plus" />
+                {t("exercises-header-button")}
+              </DocumentHeaderButton>
+            </DocumentHeader>
+            {exercises && exercises.length > 0 ? (
+              exercises
+                .slice()
+                .sort(sortByCreatedAt)
+                .map(exercise => this.renderExercise(exercise, refetch))
+            ) : (
+              <EmptyExercises>
+                <h2>{t("exercises-empty-title")}</h2>
+                <p>{t("exercises-empty-description")}</p>
+                <MyButton
+                  onClick={() =>
+                    this.setState({
+                      isCreateExerciseOpen: true,
+                      newExerciseTitle: ""
+                    })
+                  }
+                >
+                  <Icon name="plus" />
+                  {t("exercises-header-button")}
+                </MyButton>
+              </EmptyExercises>
+            )}
+          </Exercises>
+        )}
+      </Translate>
     );
   }
 
@@ -280,12 +354,14 @@ class Document extends React.Component<any, DocumentState> {
                     <Content>
                       {this.renderHeader(document)}
                       <Rule />
-                      {user.teacher
-                        ? this.renderDocumentInfo(document)
-                        : this.renderDocumentInfo(document)}
-                      {user.teacher
-                        ? this.renderExercises(document.exercises, refetch)
-                        : ""}
+                      <DocumentData>
+                        {user.teacher
+                          ? this.renderDocumentTeacherInfo(document)
+                          : this.renderDocumentInfo(document)}
+                        {user.teacher
+                          ? this.renderExercises(document.exercises, refetch)
+                          : ""}
+                      </DocumentData>
                     </Content>
                     <Subscription
                       subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
@@ -359,23 +435,58 @@ const Rule = styled(HorizontalRule)`
   margin: 0px -10px;
 `;
 
+const EmptyExercises = styled.div`
+  align-items: center;
+  color: #474749;
+  display: flex;
+  flex-flow: column nowrap;
+  font-family: Roboto;
+  height: calc(100% - 60px); /* 60px like header height*/
+  justify-content: center;
+  padding: 0 60px;
+  text-align: center;
+
+  h2 {
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 1.38;
+    margin-bottom: 10px;
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.57;
+    margin-bottom: 20px;
+  }
+`;
+
 const DocumentBody = styled.div`
   display: flex;
   padding: 40px 20px;
   width: calc(100% - 40px);
+
+  &.teacher {
+    flex-flow: column nowrap;
+    padding: 20px;
+  }
 `;
 
 const DocumentBodyInfo = styled.div`
   color: #474749;
   flex-grow: 0;
   width: calc(100% - 375px);
+
+  &.teacher {
+    margin-top: 20px;
+    width: 100%;
+  }
 `;
 
 const DocumentHeader = styled.div`
   border-bottom: solid 1px #c0c3c9;
   display: flex;
   flex-flow: column wrap;
-  height: 40px;
+  height: 39px;
   justify-content: center;
   padding: 10px 20px;
   width: calc(100% - 40px);
@@ -385,12 +496,19 @@ const DocumentHeader = styled.div`
   }
 `;
 
-const DocumentHeaderButton = styled(Button)`
-  align-self: flex-end;
+const MyButton = styled(Button)`
   font-family: Roboto;
   font-size: 14px;
   font-weight: bold;
   padding: 12px 20px;
+
+  svg {
+    margin-right: 6px;
+  }
+`;
+
+const DocumentHeaderButton = styled(MyButton)`
+  align-self: flex-end;
 `;
 
 const DocumentHeaderText = styled.div`
@@ -399,16 +517,32 @@ const DocumentHeaderText = styled.div`
   font-family: Roboto;
   font-size: 20px;
   font-weight: 500;
+
+  svg.exercise {
+    height: 24px;
+    width: 24px;
+  }
 `;
 
-const DocumentInfo = styled.div`
+const DocumentData = styled.div`
   background-color: #fff;
   border: solid 1px #c0c3c9;
   border-radius: 4px;
   display: flex;
-  flex-flow: column nowrap;
+  flex-flow: row nowrap;
   margin-top: 23px;
   width: 100%;
+`;
+
+const DocumentInfo = styled.div`
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
+
+  &.teacher {
+    border-right: solid 1px #c0c3c9;
+    width: 34%;
+  }
 `;
 
 interface DocumentImageProps {
@@ -424,6 +558,11 @@ const DocumentImage = styled.div<DocumentImageProps>`
   background-size: cover;
   background-position: center;
   flex-shrink: 0;
+
+  &.teacher {
+    margin: 0;
+    width: 100%;
+  }
 `;
 
 const DocumentTitle = styled.div`
@@ -439,7 +578,6 @@ const DocumentTitle = styled.div`
 
 const DocumentDescription = styled.div`
   font-size: 16px;
-  margin-bottom: 25px;
 `;
 
 const Buttons = styled.div`
@@ -460,12 +598,7 @@ const DocumentButton = styled.div`
 `;
 
 const Exercises = styled.div`
-  margin-top: 50px;
-  h2 {
-    font-size: 16px;
-    font-weight: normal;
-    margin-bottom: 16px;
-  }
+  width: 66%;
 `;
 
 const ModalContent = styled.div`
