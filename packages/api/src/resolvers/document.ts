@@ -99,7 +99,6 @@ const documentResolver = {
      * args: document ID
      */
     deleteDocument: async (root: any, args: any, context: any) => {
-      console.log({ args, context });
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID

@@ -69,7 +69,6 @@ const folderResolver = {
      * args: folder ID
      */
     deleteFolder: async (root: any, args: any, context: any) => {
-      console.log(args.id);
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -296,11 +295,9 @@ const folderResolver = {
             image: item.image,
             folder: newFolder._id
           });
-          console.log(item, newItem);
           docsChildren.push(newItem._id);
         }
       }
-      console.log({ folderChildren, docsChildren });
       const updatedFolder: IFolder = await FolderModel.updateOne(
         { _id: newFolder._id },
         {

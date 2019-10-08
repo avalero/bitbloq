@@ -116,12 +116,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
-    console.log(folder.id);
     setDeleteFolderId(folder.id);
   };
 
   const onDeleteFolder = async (e, folder) => {
-    console.log(deleteFolderId);
     await deleteFolder({
       variables: { id: deleteFolderId },
       refetchQueries: [
