@@ -75,14 +75,14 @@ const Route = ({
 
   return (
     <Suspense fallback={<Loading type={type} />}>
-      {rest.path === "/app/activate" ? (
+      {!requiresSession ? (
         <Component {...rest} type={type} />
       ) : (
         <>
           <UserDataProvider>
             <Component {...rest} type={type} />
           </UserDataProvider>
-          {requiresSession && <SessionWarningModal />}
+          <SessionWarningModal />
         </>
       )}
     </Suspense>
