@@ -185,7 +185,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     <Document.Tab
       key="hardware"
       icon={<Icon name="hardware" />}
-      label={t("hardware")}
+      label={t("junior.hardware")}
       backCallback={backCallback}
     >
       <HardwareDesigner
@@ -200,11 +200,12 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     <Document.Tab
       key="software"
       icon={<Icon name="programming" />}
-      label={t("software")}
+      label={t("junior.software")}
       backCallback={backCallback}
     >
       <HorizontalBloqEditor
         bloqs={program}
+        components={components}
         getComponents={getComponents}
         getBloqPort={getBloqPort}
         bloqTypes={availableBloqs}
@@ -212,6 +213,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
           setContent(update(content, { program: { $set: newProgram } }))
         }
         onUpload={() => upload(10000)}
+        board={board}
       />
     </Document.Tab>
   ];
