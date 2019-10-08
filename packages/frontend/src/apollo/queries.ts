@@ -157,6 +157,14 @@ export const UPDATE_FOLDER_MUTATION = gql`
   }
 `;
 
+export const DUPLICATE_FOLDER_MUTATION = gql`
+  mutation duplicateFolder($id:ObjectID!) {
+    duplicateFolder(id: $id) {
+      id
+    }
+  }
+`;
+
 export const DELETE_FOLDER_MUTATION = gql`
   mutation deleteFolder($id: ObjectID!) {
     deleteFolder(id: $id) {

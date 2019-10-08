@@ -13,7 +13,9 @@ import {
   DELETE_DOCUMENT_MUTATION,
   FOLDER_QUERY,
   UPDATE_FOLDER_MUTATION,
-  DELETE_FOLDER_MUTATION
+  DELETE_FOLDER_MUTATION,
+  CREATE_FOLDER_MUTATION,
+  DUPLICATE_FOLDER_MUTATION
 } from "../apollo/queries";
 
 export interface DocumentListProps {
@@ -46,6 +48,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
+  const [duplicateFolder] = useMutation(DUPLICATE_FOLDER_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
 
@@ -94,10 +97,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
+    console.log(folder)
     setDeleteFolderId(folder.id);
   };
 
   const onDeleteFolder = async () => {
+    console.log(deleteFolderId)
     await deleteFolder({
       variables: { id: deleteFolderId },
       refetchQueries: [
@@ -144,6 +149,24 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
+  const onDuplicateFolder = async (e, folder) => {
+    e.stopPropagation();
+    await duplicateFolder({
+      variables: {
+        id: folder.id
+      },
+      refetchQueries: [
+        {
+          query: FOLDER_QUERY,
+          variables: {
+            id: currentLocation
+          }
+        }
+      ]
+    });
+    setMenuOpenId(null);
+  };
+
   return (
     <>
       <DocumentList className={className}>
@@ -179,10 +202,14 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 <Icon name="ellipsis" />
               </DocumentMenuButton>
               {menuOpenId === folder.id && (
+                console.log(folder),
                 <DocumentCardMenu
                   folder
                   onDelete={e => onFolderDeleteClick(e, folder)}
                   onRename={e => onFolderRenameClick(e, folder)}
+                  onCopy={e => {
+                    onDuplicateFolder(e, folder);
+                  }}
                 />
               )}
             </StyledFolderCard>

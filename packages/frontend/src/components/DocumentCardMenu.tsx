@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { Icon } from "@bitbloq/ui";
+import { Icon, colors } from "@bitbloq/ui";
 
 export interface DocumentCardMenuProps {
   document?: any;
@@ -24,20 +24,28 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
   return (
     <DocumentMenu className={className}>
       <DocumentMenuOption onClick={onRename}>
-        <MenuIcon name="pencil" />
-        Cambiar nombre
+        <p>
+          <MenuIcon name="pencil" />
+          Cambiar nombre
+        </p>
       </DocumentMenuOption>
       <DocumentMenuOption onClick={onCopy}>
-        <MenuIcon name="duplicate" />
-        Crear una copia
+        <p>
+          <MenuIcon name="duplicate" />
+          Crear una copia
+        </p>
       </DocumentMenuOption>
       <DocumentMenuOption onClick={onMove}>
-        <MenuIcon name="move-document" />
-        Mover a
+        <p>
+          <MenuIcon name="move-document" />
+          Mover a
+        </p>
       </DocumentMenuOption>
       <DocumentMenuOption delete={true} onClick={onDelete}>
-        <MenuIcon name="trash" />
-        Eliminar {(folder && "carpeta") || (document && "documento")}
+        <p>
+          <MenuIcon name="trash" />
+          Eliminar {(folder && "carpeta") || (document && "documento")}
+        </p>
       </DocumentMenuOption>
     </DocumentMenu>
   );
@@ -65,11 +73,15 @@ const DocumentMenuOption = styled.div<{ delete?: boolean }>`
   display: flex;
   align-items: center;
   border-bottom: 1px solid #ebebeb;
-  font-size: 14px;
   cursor: pointer;
-  padding: 0px 20px;
 
-  color: ${props => (props.delete ? "red" : "black")};
+  p {
+    margin-left: 13px;
+    color: ${props => (props.delete ? colors.red : "#3b3e45")};
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+  }
 
   &:hover {
     background-color: #ebebeb;

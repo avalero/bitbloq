@@ -35,7 +35,7 @@ import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
 import OpenDocument from "./icons/OpenDocument";
-import MoveDocument from "./icons/OpenDocument";
+import MoveDocument from "./icons/MoveDocument";
 import Orthographic from "./icons/Orthographic";
 import PadlockClose from "./icons/PadlockClose";
 import PadlockOpen from "./icons/PadlockOpen";

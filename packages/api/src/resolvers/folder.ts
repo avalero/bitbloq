@@ -69,6 +69,7 @@ const folderResolver = {
      * args: folder ID
      */
     deleteFolder: async (root: any, args: any, context: any) => {
+      console.log(args.id)
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -245,6 +246,63 @@ const folderResolver = {
       } else {
         return new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
       }
+    },
+
+    /**
+     * duplicate folder
+     */
+    duplicateFolder: async (root: any, args: any, context: any) => {
+      const existFolder: IFolder = await FolderModel.findOne({
+        _id: args.id,
+        user: context.user.userID
+      });
+      if (!existFolder) {
+        throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
+      }
+      const newFolder: IFolder = await FolderModel.create({
+        name: existFolder.name,
+        parent: existFolder.parent,
+        user: context.user.userID
+      });
+      const folderOriginalChildren: IFolder[] = await FolderModel.find({
+        parent: existFolder._id
+      });
+      const docsOriginalChildren: IDocument[] = await DocumentModel.find({
+        folder: existFolder._id
+      });
+      let folderChildren: string[] =[], docsChildren: string[]=[];
+      if (folderOriginalChildren.length > 0) {
+        for (let item of folderOriginalChildren) {
+          const newItem = await FolderModel.create({
+            name: item.name,
+            parent: newFolder._id,
+            user: context.user.userID
+          });
+          console.log(folderChildren, item, newItem)
+          folderChildren.push(newItem._id);
+        }
+      }
+      if (docsOriginalChildren.length > 0) {
+        for (let item of docsOriginalChildren) {
+          const newItem = await DocumentModel.create({
+            ...item,
+            folder: newFolder._id
+          });
+          docsChildren.push(newItem._id);
+        }
+      }
+      console.log({folderChildren, docsChildren});
+      const updatedFolder: IFolder = await FolderModel.updateOne(
+        { _id: newFolder._id },
+        {
+          foldersID: folderChildren,
+          documentsID: docsChildren
+        },
+        { new: true }
+      );
+
+      pubsub.publish(FOLDER_UPDATED, { folderUpdated: updatedFolder });
+      return updatedFolder;
     }
   },
 
