@@ -203,6 +203,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
+  //TODO:
+  const onMoveDocument = async (e, document) => {
+    e.stopPropagation();
+    setMenuOpenId(null);
+    return null;
+  };
+  const onMoveFolder = async (e, folder) => {
+    e.stopPropagation();
+    setMenuOpenId(null);
+    return null;
+  };
+
   return (
     <>
       <DocumentList className={className}>
@@ -225,6 +237,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   onDelete={e => onDocumentDeleteClick(e, document)}
                   onRename={e => onDocumentRenameClick(e, document)}
                   onCopy={e => onDuplicateDocument(e, document)}
+                  onMove={e => onMoveDocument(e, document)}
                 />
               )}
             </StyledDocumentCard>
@@ -248,6 +261,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   onDelete={e => onFolderDeleteClick(e, folder)}
                   onRename={e => onFolderRenameClick(e, folder)}
                   onCopy={e => onDuplicateFolder(e, folder)}
+                  onMove={e => onMoveFolder(e, folder)}
                 />
               )}
             </StyledFolderCard>

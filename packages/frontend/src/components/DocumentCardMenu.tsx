@@ -35,7 +35,7 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
           Crear una copia
         </p>
       </DocumentMenuOption>
-      <DocumentMenuOption onClick={onMove}>
+      <DocumentMenuOption next={true} onClick={onMove}>
         <p>
           <MenuIcon name="move-document" />
           Mover a
@@ -74,13 +74,15 @@ const DocumentMenu = styled.div`
   }
 `;
 
-const DocumentMenuOption = styled.div<{ delete?: boolean }>`
+const DocumentMenuOption = styled.div<{ delete?: boolean; next?: boolean }>`
   width: 179px;
   height: 35px;
   display: flex;
   align-items: center;
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
+
+  opacity: ${props => (props.next ? 0.5 : 1)};
 
   p {
     margin-left: 13px;
