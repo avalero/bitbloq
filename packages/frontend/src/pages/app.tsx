@@ -52,7 +52,7 @@ const Route = ({
         setAnotherSession(true);
         setToken("");
       } else {
-        logout();
+        //logout();
       }
     }
   });
