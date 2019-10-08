@@ -41,7 +41,7 @@ class ExercisePanel extends React.Component<
           </HeaderLeft>
           <HeaderCenter>
             <Title>{exercise.title}</Title>
-            <Date>{dayjs(exercise.createdAt).format("DD/MM/YY hh:mm")}</Date>
+            <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
           </HeaderCenter>
           <HeaderRight>
             <Icon name="ellipsis" />

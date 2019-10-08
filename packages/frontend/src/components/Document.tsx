@@ -284,7 +284,7 @@ class Document extends React.Component<any, DocumentState> {
 
     return (
       <Translate>
-        { t =>
+        {t => (
           <Modal
             isOpen={isCreateExerciseOpen}
             title={t("exercises-modal-title")}
@@ -304,19 +304,20 @@ class Document extends React.Component<any, DocumentState> {
                 <ModalButtons>
                   <ModalButton
                     tertiary
-                    onClick={() => this.setState({ isCreateExerciseOpen: false })}
+                    onClick={() =>
+                      this.setState({ isCreateExerciseOpen: false })
+                    }
                   >
                     {t("general-cancel-button")}
                   </ModalButton>
                   <Mutation mutation={CREATE_EXERCISE_MUTATION}>
                     {createExercise => (
                       <ModalButton
-                        disabled={!newExerciseTitle}
                         onClick={() => {
                           createExercise({
                             variables: {
                               documentId,
-                              title: newExerciseTitle
+                              title: newExerciseTitle || "Ejercicio sin título"
                             },
                             refetchQueries: [
                               {
@@ -336,7 +337,7 @@ class Document extends React.Component<any, DocumentState> {
               </form>
             </ModalContent>
           </Modal>
-        }
+        )}
       </Translate>
     );
   }
