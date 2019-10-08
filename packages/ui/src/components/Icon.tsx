@@ -36,6 +36,7 @@ import Minus from "./icons/Minus";
 import Center from "./icons/Center";
 import NewDocument from "./icons/NewDocument";
 import OpenDocument from "./icons/OpenDocument";
+import MoveDocument from "./icons/MoveDocument";
 import Orthographic from "./icons/Orthographic";
 import PadlockClose from "./icons/PadlockClose";
 import PadlockOpen from "./icons/PadlockOpen";
@@ -86,6 +87,7 @@ import LogoCode from "./icons/LogoCode";
 import HollowCylinder from "./icons/HollowCylinder";
 import Cthulhito from "./icons/Cthulhito";
 import NewFolder from "./icons/NewFolder";
+import Folder from "./icons/Folder";
 
 export interface IconProps {
   /** Name of the icon to display */
@@ -178,6 +180,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <NewDocument className={className} />;
     case "open-document":
       return <OpenDocument className={className} />;
+    case "move-document":
+      return <MoveDocument className={className} />;      
     case "orthographic":
       return <Orthographic className={className} />;
     case "padlock-open":
@@ -272,6 +276,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Cthulhito className={className} />;
     case "new-folder":
       return <NewFolder className={className} />;
+    case "folder-icon":
+      return <Folder className={className} />;      
     default:
       console.warn("Icon not found");
       return null;
