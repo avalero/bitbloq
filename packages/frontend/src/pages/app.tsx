@@ -103,7 +103,7 @@ const AppPage = () => (
             requiresSession
           />
           <Route
-            path="/app/document/:type/:id"
+            path="/app/document/:folder/:type/:id"
             component={EditDocument}
             requiresSession
           />

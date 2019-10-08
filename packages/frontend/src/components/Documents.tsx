@@ -119,11 +119,11 @@ const Documents: FC = () => {
   };
 
   const onNewDocument = type => {
-    window.open(`/app/document/${type}/new`);
+    window.open(`/app/document/${currentLocation}/${type}/new`);
   };
 
   const onDocumentCreated = ({ createDocument: { id, type } }) => {
-    navigate(`/app/document/${type}/${id}`);
+    navigate(`/app/document/${currentLocation}/${type}/${id}`);
   };
 
   const onOrderChange = order => {
