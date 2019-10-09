@@ -98,6 +98,11 @@ const AppPage = () => (
         <Router>
           <Route path="app" component={Documents} requiresSession />
           <Route
+            path="/app/folder/:id/"
+            component={Documents}
+            requiresSession
+          />      
+          <Route
             path="/app/document/:id"
             component={Document}
             requiresSession
@@ -106,7 +111,7 @@ const AppPage = () => (
             path="/app/document/:folder/:type/:id"
             component={EditDocument}
             requiresSession
-          />
+          />    
           <Route
             path="/app/public-document/:type/:id"
             component={PublicDocument}

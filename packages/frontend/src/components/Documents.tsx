@@ -70,7 +70,7 @@ const orderFunctions = {
   [OrderType.NameZA]: sortByTitleZA
 };
 
-const Documents: FC = () => {
+const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
 
@@ -78,11 +78,11 @@ const Documents: FC = () => {
   const [searchText, setSearchText] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(
-    userData ? userData.rootFolder : ""
+    id ? id : userData ? userData.rootFolder : null
   );
   const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
     {
-      route: userData ? userData.rootFolder : "",
+      route: userData ? "/" : "",
       text: userData ? "Mis documentos" : "",
       type: ""
     }
@@ -108,10 +108,11 @@ const Documents: FC = () => {
 
   const onFolderClick = async (e, folder) => {
     setCurrentLocation(folder.id);
-    setBreadcrumbsLinks([
-      ...breadcrumbLinks,
-      { route: folder.id, text: folder.name, type: "folder" }
-    ]);
+    // setBreadcrumbsLinks([
+    //   ...breadcrumbLinks,
+    //   { route: `app/folder/${folder.id}`, text: folder.name, type: "folder" }
+    // ]);
+    navigate(`/app/folder/${folder.id}`);
   };
 
   const onDocumentClick = ({ id, type, title }) => {
@@ -231,9 +232,15 @@ const Documents: FC = () => {
       </Container>
     );
 
-  const { documents, folders } = dataPage.folder;
+  const { documents, folders, parentsPath } = dataPage.folder;
 
-  console.log({ folders }, folders.parentsPath);
+  let breadParents = [];
+  for (let item of parentsPath) {
+    breadParents = [
+      ...breadParents,
+      ...[{ route: `/app/folder/${item.id}`, text: item.name, type: "folder" }]
+    ];
+  }
 
   return (
     <Container>
@@ -243,7 +250,7 @@ const Documents: FC = () => {
           {currentLocation === userData.rootFolder ? (
             <h1>Mis documentos</h1>
           ) : (
-            <Breadcrumbs links={breadcrumbLinks} />
+            <Breadcrumbs links={breadParents} />
           )}
         </Header>
         <Rule />

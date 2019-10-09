@@ -91,6 +91,10 @@ export const FOLDER_QUERY = gql`
     folder(id: $id) {
       id
       name
+      parentsPath {
+        id
+        name
+      }
       documents {
         id
         type
@@ -111,10 +115,6 @@ export const FOLDER_QUERY = gql`
         name
         createdAt
         updatedAt
-        # parentsPath{
-        #   id
-        #   name
-        # }
       }
     }
   }

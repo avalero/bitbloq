@@ -13,7 +13,6 @@ export interface BreadcrumbsProps {
 }
 
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links }) => {
-  console.log(links);
   return (
     <Wrap>
       <Column>
@@ -21,17 +20,22 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links }) => {
           <Links>
             {links &&
               links.map((link, i) => {
-                console.log(link);
                 if (i < links.length - 1) {
                   return (
                     <li key={i}>
-                      <Link href={link.route ? "/app" : ""}>
-                        {link.type === "folder" ? (
-                          <IconLink name="folder-icon" />
-                        ) : link.text === "Mis documentos" ? null : (
-                          <IconLink name="document" />
+                      <Link href={link.route ? link.route : ""}>
+                        {link.text === "root" ? (
+                          "Mis documentos"
+                        ) : link.type === "folder" ? (
+                          <>
+                            <IconLink name="folder-icon" /> {link.text}
+                          </>
+                        ) : (
+                          <>
+                            <IconLink name="document" />
+                            {link.text}
+                          </>
                         )}
-                        {link.text}
                       </Link>
                       <Separator name="angle" />
                     </li>
@@ -59,7 +63,6 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links }) => {
 export default Breadcrumbs;
 
 const Wrap = styled.div`
-  border-bottom: 1px solid gray;
   height: 40px;
   width: 100%;
   display: flex;
