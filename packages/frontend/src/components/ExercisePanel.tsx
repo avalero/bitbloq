@@ -92,7 +92,15 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                 />
               </div>
             </ExerciseInfo>
-            <ExerciseSubmissions></ExerciseSubmissions>
+            <ExerciseSubmissions>
+              {exercise.submissions && exercise.submissions.length > 0 ? (
+                <></>
+              ) : (
+                <NoSubmissions>
+                  {t("exercise-details-nosubmissions")}
+                </NoSubmissions>
+              )}
+            </ExerciseSubmissions>
           </ExerciseDetails>
           {/*<Header>
             <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
@@ -213,6 +221,20 @@ const SubmissionsSwitch = styled(Switch)`
 `;
 
 const ExerciseSubmissions = styled.div``;
+
+const NoSubmissions = styled.div`
+  align-items: center;
+  border-top: 1px solid #c0c3c9;
+  color: #323843;
+  display: flex;
+  font-size: 14px;
+  font-style: italic;
+  height: 21px;
+  justify-content: center;
+  line-height: 1.57;
+  padding: 30px 20px;
+  text-align: center;
+`;
 
 const ExerciseMenu = styled(DocumentCardMenu)`
   right: 0;
