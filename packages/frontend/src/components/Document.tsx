@@ -121,75 +121,67 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderDocumentInfo(document) {
+  renderDocumentInfo(document, t) {
     return (
-      <Translate>
-        {t => (
-          <DocumentInfo>
-            <DocumentHeader>
-              <DocumentHeaderText>
-                <Icon name="document" />
-                {t("document-header-info")}
-              </DocumentHeaderText>
-              <DocumentHeaderButton
-                onClick={() =>
-                  window.open(`/app/document/${document.type}/${document.id}`)
-                }
-              >
-                {t("document-header-button")}
-              </DocumentHeaderButton>
-            </DocumentHeader>
-            <DocumentBody>
-              <DocumentImage src={document.image} />
-              <DocumentBodyInfo>
-                <DocumentTypeTag document={document} />
-                <DocumentTitle>
-                  {document.title || t("document-body-title")}
-                </DocumentTitle>
-                <DocumentDescription>
-                  {document.description || t("document-body-description")}
-                </DocumentDescription>
-              </DocumentBodyInfo>
-            </DocumentBody>
-          </DocumentInfo>
-        )}
-      </Translate>
+      <DocumentInfo>
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="document" />
+            {t("document-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              window.open(`/app/document/${document.type}/${document.id}`)
+            }
+          >
+            {t("document-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+        <DocumentBody>
+          <DocumentImage src={document.image} />
+          <DocumentBodyInfo>
+            <DocumentTypeTag document={document} />
+            <DocumentTitle>
+              {document.title || t("document-body-title")}
+            </DocumentTitle>
+            <DocumentDescription>
+              {document.description || t("document-body-description")}
+            </DocumentDescription>
+          </DocumentBodyInfo>
+        </DocumentBody>
+      </DocumentInfo>
     );
   }
 
-  renderDocumentTeacherInfo(document) {
+  renderDocumentTeacherInfo(document, t) {
     return (
-      <Translate>
-        {t => (
-          <DocumentInfo className="teacher">
-            <DocumentHeader>
-              <DocumentHeaderText>
-                <Icon name="document" />
-                {t("document-header-info")}
-              </DocumentHeaderText>
-              <DocumentHeaderButton
-                onClick={() =>
-                  window.open(`/app/document/${document.type}/${document.id}`)
-                }
-              >
-                {t("document-header-button")}
-              </DocumentHeaderButton>
-            </DocumentHeader>
-            <DocumentBody className="teacher">
-              <DocumentImage src={document.image} className="teacher" />
-              <DocumentBodyInfo className="teacher">
-                <DocumentTypeTag document={document} />
-                <DocumentTitle>
-                  {document.title || t("document-body-title")}
-                </DocumentTitle>
-                <DocumentDescription>
-                  {document.description || t("document-body-description")}
-                </DocumentDescription>
-              </DocumentBodyInfo>
-            </DocumentBody>
-          </DocumentInfo>
-        )}
-      </Translate>
+      <DocumentInfo className="teacher">
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="document" />
+            {t("document-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              window.open(`/app/document/${document.type}/${document.id}`)
+            }
+          >
+            {t("document-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+        <DocumentBody className="teacher">
+          <DocumentImage src={document.image} className="teacher" />
+          <DocumentBodyInfo className="teacher">
+            <DocumentTypeTag document={document} />
+            <DocumentTitle>
+              {document.title || t("document-body-title")}
+            </DocumentTitle>
+            <DocumentDescription>
+              {document.description || t("document-body-description")}
+            </DocumentDescription>
+          </DocumentBodyInfo>
+        </DocumentBody>
+      </DocumentInfo>
     );
   }
 
@@ -254,55 +246,51 @@ class Document extends React.Component<any, DocumentState> {
     );
   };
 
-  renderExercises(exercises, refetch) {
+  renderExercises(exercises, refetch, t) {
     return (
-      <Translate>
-        {t => (
-          <Exercises>
-            <DocumentHeader>
-              <DocumentHeaderText>
-                <Icon name="airplane-document" className="exercise" />
-                {t("exercises-header-info")}
-              </DocumentHeaderText>
-              <DocumentHeaderButton
-                onClick={() =>
-                  this.setState({
-                    isCreateExerciseOpen: true,
-                    newExerciseTitle: ""
-                  })
-                }
-              >
-                <Icon name="plus" />
-                {t("exercises-header-button")}
-              </DocumentHeaderButton>
-            </DocumentHeader>
-            {exercises && exercises.length > 0 ? (
-              <ExercisesPanel>
-                {exercises
-                  .slice()
-                  .sort(sortByCreatedAt)
-                  .map(exercise => this.renderExercise(exercise, refetch))}
-              </ExercisesPanel>
-            ) : (
-              <EmptyExercises>
-                <h2>{t("exercises-empty-title")}</h2>
-                <p>{t("exercises-empty-description")}</p>
-                <MyButton
-                  onClick={() =>
-                    this.setState({
-                      isCreateExerciseOpen: true,
-                      newExerciseTitle: ""
-                    })
-                  }
-                >
-                  <Icon name="plus" />
-                  {t("exercises-header-button")}
-                </MyButton>
-              </EmptyExercises>
-            )}
-          </Exercises>
+      <Exercises>
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="airplane-document" className="exercise" />
+            {t("exercises-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              this.setState({
+                isCreateExerciseOpen: true,
+                newExerciseTitle: ""
+              })
+            }
+          >
+            <Icon name="plus" />
+            {t("exercises-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+        {exercises && exercises.length > 0 ? (
+          <ExercisesPanel>
+            {exercises
+              .slice()
+              .sort(sortByCreatedAt)
+              .map(exercise => this.renderExercise(exercise, refetch))}
+          </ExercisesPanel>
+        ) : (
+          <EmptyExercises>
+            <h2>{t("exercises-empty-title")}</h2>
+            <p>{t("exercises-empty-description")}</p>
+            <MyButton
+              onClick={() =>
+                this.setState({
+                  isCreateExerciseOpen: true,
+                  newExerciseTitle: ""
+                })
+              }
+            >
+              <Icon name="plus" />
+              {t("exercises-header-button")}
+            </MyButton>
+          </EmptyExercises>
         )}
-      </Translate>
+      </Exercises>
     );
   }
 
@@ -361,57 +349,53 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderCreateExerciseModal(document) {
+  renderCreateExerciseModal(document, t) {
     const { id: documentId } = this.props;
     const { errorName, isCreateExerciseOpen, newExerciseTitle } = this.state;
 
     return (
-      <Translate>
-        {t => (
-          <Modal
-            isOpen={isCreateExerciseOpen}
-            title={t("exercises-modal-title")}
-            onClose={() =>
-              this.setState({ isCreateExerciseOpen: false, errorName: false })
-            }
-          >
-            {this.renderNameModal(
-              <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-                {createExercise => (
-                  <ModalButton
-                    disabled={errorName}
-                    onClick={() => {
-                      createExercise({
-                        variables: {
-                          documentId,
-                          title: newExerciseTitle || "Ejercicio sin título"
-                        },
-                        refetchQueries: [
-                          {
-                            query: DOCUMENT_QUERY,
-                            variables: { id: documentId }
-                          }
-                        ]
-                      });
-                      this.setState({
-                        isCreateExerciseOpen: false,
-                        errorName: false
-                      });
-                    }}
-                  >
-                    {t("general-create-button")}
-                  </ModalButton>
-                )}
-              </Mutation>,
-              t
+      <Modal
+        isOpen={isCreateExerciseOpen}
+        title={t("exercises-modal-title")}
+        onClose={() =>
+          this.setState({ isCreateExerciseOpen: false, errorName: false })
+        }
+      >
+        {this.renderNameModal(
+          <Mutation mutation={CREATE_EXERCISE_MUTATION}>
+            {createExercise => (
+              <ModalButton
+                disabled={errorName}
+                onClick={() => {
+                  createExercise({
+                    variables: {
+                      documentId,
+                      title: newExerciseTitle || "Ejercicio sin título"
+                    },
+                    refetchQueries: [
+                      {
+                        query: DOCUMENT_QUERY,
+                        variables: { id: documentId }
+                      }
+                    ]
+                  });
+                  this.setState({
+                    isCreateExerciseOpen: false,
+                    errorName: false
+                  });
+                }}
+              >
+                {t("general-create-button")}
+              </ModalButton>
             )}
-          </Modal>
+          </Mutation>,
+          t
         )}
-      </Translate>
+      </Modal>
     );
   }
 
-  renderUpdateExerciseModal() {
+  renderUpdateExerciseModal(t) {
     const { id: documentId } = this.props;
     const {
       errorName,
@@ -421,50 +405,46 @@ class Document extends React.Component<any, DocumentState> {
     } = this.state;
 
     return (
-      <Translate>
-        {t => (
-          <Modal
-            isOpen={isUpdateExerciseOpen}
-            title={t("exercises-modal-update")}
-            onClose={() =>
-              this.setState({ isUpdateExerciseOpen: false, errorName: false })
-            }
-          >
-            {this.renderNameModal(
-              <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
-                {updateExercise => (
-                  <ModalButton
-                    disabled={errorName}
-                    onClick={() => {
-                      updateExercise({
-                        variables: {
-                          id: exerciseId,
-                          input: {
-                            title: newExerciseTitle || "Ejercicio sin título"
-                          }
-                        },
-                        refetchQueries: [
-                          {
-                            query: DOCUMENT_QUERY,
-                            variables: { id: documentId }
-                          }
-                        ]
-                      });
-                      this.setState({
-                        isUpdateExerciseOpen: false,
-                        errorName: false
-                      });
-                    }}
-                  >
-                    {t("general-change-button")}
-                  </ModalButton>
-                )}
-              </Mutation>,
-              t
+      <Modal
+        isOpen={isUpdateExerciseOpen}
+        title={t("exercises-modal-update")}
+        onClose={() =>
+          this.setState({ isUpdateExerciseOpen: false, errorName: false })
+        }
+      >
+        {this.renderNameModal(
+          <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
+            {updateExercise => (
+              <ModalButton
+                disabled={errorName}
+                onClick={() => {
+                  updateExercise({
+                    variables: {
+                      id: exerciseId,
+                      input: {
+                        title: newExerciseTitle || "Ejercicio sin título"
+                      }
+                    },
+                    refetchQueries: [
+                      {
+                        query: DOCUMENT_QUERY,
+                        variables: { id: documentId }
+                      }
+                    ]
+                  });
+                  this.setState({
+                    isUpdateExerciseOpen: false,
+                    errorName: false
+                  });
+                }}
+              >
+                {t("general-change-button")}
+              </ModalButton>
             )}
-          </Modal>
+          </Mutation>,
+          t
         )}
-      </Translate>
+      </Modal>
     );
   }
 
@@ -494,12 +474,13 @@ class Document extends React.Component<any, DocumentState> {
                           <Rule />
                           <DocumentData>
                             {user.teacher
-                              ? this.renderDocumentTeacherInfo(document)
-                              : this.renderDocumentInfo(document)}
+                              ? this.renderDocumentTeacherInfo(document, t)
+                              : this.renderDocumentInfo(document, t)}
                             {user.teacher
                               ? this.renderExercises(
                                   document.exercises,
-                                  refetch
+                                  refetch,
+                                  t
                                 )
                               : ""}
                           </DocumentData>
@@ -522,8 +503,8 @@ class Document extends React.Component<any, DocumentState> {
                     );
                   }}
                 </Query>
-                {this.renderCreateExerciseModal(document)}
-                {this.renderUpdateExerciseModal()}
+                {this.renderCreateExerciseModal(document, t)}
+                {this.renderUpdateExerciseModal(t)}
                 <DialogModal
                   isOpen={isRemoveExerciseOpen !== 0}
                   title={t("exercises-modal-remove")}
