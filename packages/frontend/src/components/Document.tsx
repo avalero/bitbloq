@@ -86,10 +86,10 @@ const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
 class DocumentState {
   readonly isCreateExerciseOpen: boolean = false;
   readonly isUpdateExerciseOpen: boolean = false;
-  readonly isRemoveExerciseOpen: boolean = true;
+  readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
   readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
-  readonly updateExerciseId: string = "";
+  readonly exerciseId: string = "";
 }
 
 class Document extends React.Component<any, DocumentState> {
@@ -227,7 +227,14 @@ class Document extends React.Component<any, DocumentState> {
                     this.setState({
                       isUpdateExerciseOpen: true,
                       newExerciseTitle: currentName,
-                      updateExerciseId: exercise.id
+                      exerciseId: exercise.id
+                    });
+                  }}
+                  onRemove={() => {
+                    this.setState({
+                      isRemoveExerciseOpen:
+                        exercise.submissions.length > 0 ? 2 : 1,
+                      exerciseId: exercise.id
                     });
                   }}
                 />
@@ -410,7 +417,7 @@ class Document extends React.Component<any, DocumentState> {
       errorName,
       isUpdateExerciseOpen,
       newExerciseTitle,
-      updateExerciseId
+      exerciseId
     } = this.state;
 
     return (
@@ -431,7 +438,7 @@ class Document extends React.Component<any, DocumentState> {
                     onClick={() => {
                       updateExercise({
                         variables: {
-                          id: updateExerciseId,
+                          id: exerciseId,
                           input: {
                             title: newExerciseTitle || "Ejercicio sin título"
                           }
@@ -468,59 +475,71 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <UserDataContext.Consumer>
         {user => (
-          <Container>
-            <AppHeader />
-            <Query query={DOCUMENT_QUERY} variables={{ id }}>
-              {({ loading, error, data, refetch }) => {
-                if (error) return <GraphQLErrorMessage apolloError={error} />;
-                if (loading) return <Loading />;
+          <Translate>
+            {t => (
+              <Container>
+                <AppHeader />
+                <Query query={DOCUMENT_QUERY} variables={{ id }}>
+                  {({ loading, error, data, refetch }) => {
+                    if (error)
+                      return <GraphQLErrorMessage apolloError={error} />;
+                    if (loading) return <Loading />;
 
-                const { document } = data;
+                    const { document } = data;
 
-                return (
-                  <>
-                    <Content>
-                      {this.renderHeader(document)}
-                      <Rule />
-                      <DocumentData>
-                        {user.teacher
-                          ? this.renderDocumentTeacherInfo(document)
-                          : this.renderDocumentInfo(document)}
-                        {user.teacher
-                          ? this.renderExercises(document.exercises, refetch)
-                          : ""}
-                      </DocumentData>
-                    </Content>
-                    <Subscription
-                      subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-                      shouldResubscribe={true}
-                      onSubscriptionData={({ subscriptionData }) => {
-                        const { data } = subscriptionData;
-                        if (
-                          data &&
-                          data.documentUpdated &&
-                          data.documentUpdated.id === id
-                        ) {
-                          refetch();
-                        }
-                      }}
-                    />
-                  </>
-                );
-              }}
-            </Query>
-            {this.renderCreateExerciseModal(document)}
-            {this.renderUpdateExerciseModal()}
-            <DialogModal
-              isOpen={isRemoveExerciseOpen}
-              title="Eliminar"
-              text="¿Seguro que quieres eliminar este documento?"
-              okText="Aceptar"
-              cancelText="Cancelar"
-              onOk={() => {}}
-              onCancel={() => {}}
-            />
-          </Container>
+                    return (
+                      <>
+                        <Content>
+                          {this.renderHeader(document)}
+                          <Rule />
+                          <DocumentData>
+                            {user.teacher
+                              ? this.renderDocumentTeacherInfo(document)
+                              : this.renderDocumentInfo(document)}
+                            {user.teacher
+                              ? this.renderExercises(
+                                  document.exercises,
+                                  refetch
+                                )
+                              : ""}
+                          </DocumentData>
+                        </Content>
+                        <Subscription
+                          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                          shouldResubscribe={true}
+                          onSubscriptionData={({ subscriptionData }) => {
+                            const { data } = subscriptionData;
+                            if (
+                              data &&
+                              data.documentUpdated &&
+                              data.documentUpdated.id === id
+                            ) {
+                              refetch();
+                            }
+                          }}
+                        />
+                      </>
+                    );
+                  }}
+                </Query>
+                {this.renderCreateExerciseModal(document)}
+                {this.renderUpdateExerciseModal()}
+                <DialogModal
+                  isOpen={isRemoveExerciseOpen !== 0}
+                  title={t("exercises-modal-remove")}
+                  text={
+                    isRemoveExerciseOpen === 1
+                      ? t("exercises-remove-nosubmission")
+                      : t("exercises-remove-submission")
+                  }
+                  okText={t("general-accept-button")}
+                  cancelText={t("general-cancel-button")}
+                  onOk={() => {}}
+                  onCancel={() => this.setState({ isRemoveExerciseOpen: 0 })}
+                />
+              </Container>
+            )}
+          </Translate>
         )}
       </UserDataContext.Consumer>
     );

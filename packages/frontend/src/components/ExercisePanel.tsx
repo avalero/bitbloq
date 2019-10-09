@@ -12,6 +12,7 @@ export interface ExercisePanelProps {
   onCheckSubmission: (value: any) => void;
   onAcceptedSubmissions: (value: boolean) => void;
   onChangeName: (value: string) => void;
+  onRemove: () => void;
 }
 
 class ExercisePanelState {
@@ -25,7 +26,8 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
     onCancelSubmission,
     onCheckSubmission,
     onAcceptedSubmissions,
-    onChangeName
+    onChangeName,
+    onRemove
   } = props;
 
   const [isOpen, setOpen] = useState(false);
@@ -67,8 +69,9 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                 {
                   iconName: "trash",
                   label: t("menu-delete-exercise"),
-                  onClick(e) {
-                    console.log(e);
+                  onClick() {
+                    setMenuOpen(false);
+                    onRemove();
                   },
                   red: true
                 }

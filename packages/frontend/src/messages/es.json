@@ -64,6 +64,9 @@
   "exercises-modal-update": "Cambiar nombre del ejercicio",
   "exercises-modal-text": "Nombre del ejercicio",
   "exercises-modal-placeholder": "Ejercicio sin título",
+  "exercises-modal-remove": "Eliminar",
+  "exercises-remove-submission": "¿Seguro que quieres eliminar este ejercicio? Si lo haces eliminarás todas las entregas que contiene.",
+  "exercises-remove-nosubmission": "¿Seguro que quieres eliminar este ejercicio?",
   "document-body-title": "Documento sin título",
   "document-body-description": "Sin descripción",
   "tab-3d": "3D",
@@ -230,5 +233,6 @@
   "general-enter-button": "Entrar",
   "general-create-button": "Crear",
   "general-change-button": "Cambiar",
-  "general-cancel-button": "Cancelar"
+  "general-cancel-button": "Cancelar",
+  "general-accept-button": "Aceptar"
 }
