@@ -46,6 +46,7 @@ const DOCUMENT_QUERY = gql`
           finished
           finishedAt
           type
+          grade
         }
       }
     }

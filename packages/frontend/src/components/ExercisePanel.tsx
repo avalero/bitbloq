@@ -37,8 +37,8 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
     <Translate>
       {t => (
         <Container>
-          <Header>
-            <HeaderLeft onClick={() => setOpen(!isOpen)}>
+          <Header onClick={() => setOpen(!isOpen)}>
+            <HeaderLeft>
               <Toggle isOpen={isOpen}>
                 <Icon name="angle" />
               </Toggle>
@@ -48,7 +48,8 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
             </HeaderCenter>
             <HeaderRight
-              onClick={() => {
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
                 setMenuOpen(!menuOpen);
               }}
             >
@@ -78,106 +79,89 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               ]}
             />
           )}
-          <ExerciseDetails>
-            <ExerciseInfo>
-              <div className="code">
-                <CodeBox>{exercise.code}</CodeBox>
-                {t("exercise-details-code")}
-              </div>
-              <div className="accept-submissions">
-                {t("exercise-details-submissions")}
-                <SubmissionsSwitch
-                  value={exercise.acceptSubmissions}
-                  onChange={onAcceptedSubmissions}
-                />
-              </div>
-            </ExerciseInfo>
-            <ExerciseSubmissions>
-              {exercise.submissions && exercise.submissions.length > 0 ? (
-                <></>
-              ) : (
-                <NoSubmissions>
-                  {t("exercise-details-nosubmissions")}
-                </NoSubmissions>
-              )}
-            </ExerciseSubmissions>
-          </ExerciseDetails>
-          {/*<Header>
-            <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
-              <Toggle isOpen={isOpen}>
-                <Icon name="angle" />
-              </Toggle>
-              <div>
-                <Title>{exercise.title}</Title>
-                <Date>{dayjs(exercise.createdAt).format("DD/MM/YY hh:mm")}</Date>
-              </div>
-            </HeaderLeft>
-            <HeaderRight>
-              <HeaderRow>
-                <span>Código para compartir:</span>
-                <CodeBox>{exercise.code}</CodeBox>
-              </HeaderRow>
-              <HeaderRow>
-                <span>Admite más entregas:</span>
-                <Switch
-                  value={exercise.acceptSubmissions}
-                  onChange={onAcceptedSubmissions}
-                />
-              </HeaderRow>
-            </HeaderRight>
-          </Header>
           <Spring to={{ height: isOpen ? "auto" : 0 }}>
             {({ height }) => (
-              <Content style={{ height }}>
-                {exercise.submissions && exercise.submissions.length > 0 && (
-                  <Table key="table" style={{ height }}>
-                    <thead>
-                      <tr>
-                        <th>Alumnos</th>
-                        <th>Fecha de entrega</th>
-                        <th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {exercise.submissions.map(submission => (
-                        <tr key={submission.id}>
-                          <td>
-                            <StudentCell>
-                              <StudentNick>{submission.studentNick}</StudentNick>
-                              <Button
-                                tertiary
-                                small
-                                onClick={() => onCancelSubmission(submission)}
-                              >
-                                Expulsar
-                              </Button>
-                            </StudentCell>
-                          </td>
-                          <td>
-                            {submission.finished &&
-                              dayjs(submission.finishedAt).format(
-                                "DD/MM/YY hh:mm"
-                              )}
-                          </td>
-                          <td>
-                            {submission.finished && (
-                              <Button
-                                tertiary
-                                small
-                                onClick={() => onCheckSubmission(submission)}
-                              >
-                                Comprobar
-                              </Button>
-                            )}
-                          </td>
+              <ExerciseDetails style={{ height }}>
+                <ExerciseInfo>
+                  <div className="code">
+                    <CodeBox>{exercise.code}</CodeBox>
+                    {t("exercise-details-code")}
+                  </div>
+                  <div className="accept-submissions">
+                    {t("exercise-details-submissions")}
+                    <SubmissionsSwitch
+                      value={exercise.acceptSubmissions}
+                      onChange={onAcceptedSubmissions}
+                    />
+                  </div>
+                </ExerciseInfo>
+                <ExerciseSubmissions>
+                  {exercise.submissions && exercise.submissions.length > 0 ? (
+                    <Table key="table">
+                      <thead>
+                        <tr>
+                          <th>Equipo</th>
+                          <th>Fecha de entrega</th>
+                          <th>Calificación</th>
+                          <th />
                         </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                )}
-              </Content>
+                      </thead>
+                      <tbody>
+                        {exercise.submissions.map(submission => (
+                          <tr key={submission.id}>
+                            <td>
+                              <StudentCell>
+                                <Online />
+                                <StudentNick>
+                                  {submission.studentNick}
+                                </StudentNick>
+                              </StudentCell>
+                            </td>
+                            <td>
+                              {submission.finished ? (
+                                dayjs(submission.finishedAt).format(
+                                  "DD/MM/YY HH:mm"
+                                )
+                              ) : (
+                                <span
+                                  style={{
+                                    fontStyle: "italic",
+                                    color: "#474749"
+                                  }}
+                                >
+                                  sin entregar
+                                </span>
+                              )}
+                            </td>
+                            <td>
+                              {submission.grade ||
+                                (submission.finished ? "-" : "")}
+                            </td>
+                            <td></td>
+                            {/*<td>
+                              {submission.finished && (
+                                <Button
+                                  tertiary
+                                  small
+                                  onClick={() => onCheckSubmission(submission)}
+                                >
+                                  Comprobar
+                                </Button>
+                              )}
+                            </td>*/}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <NoSubmissions>
+                      {t("exercise-details-nosubmissions")}
+                    </NoSubmissions>
+                  )}
+                </ExerciseSubmissions>
+              </ExerciseDetails>
             )}
-          </Spring>*/}
+          </Spring>
         </Container>
       )}
     </Translate>
@@ -196,7 +180,9 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const ExerciseDetails = styled.div``;
+const ExerciseDetails = styled.div`
+  overflow: hidden;
+`;
 
 const ExerciseInfo = styled.div`
   align-items: center;
@@ -356,54 +342,70 @@ const Content = styled.div`
   overflow: hidden;
 `;
 
+const Online = styled.div`
+  background-color: #82ad3a;
+  border-radius: 100%;
+  height: 12px;
+  margin-right: 6px;
+  width: 12px;
+`;
+
 const Table = styled.table`
   width: 100%;
 
   thead {
-    background-color: ${colors.gray2};
+    width: 100%;
 
     tr {
-      border-style: solid;
-      border-width: 1px 0px;
+      border-top: 1px solid #c0c3c9;
+      height: 40px;
+      width: 100%;
     }
 
     th {
-      text-align: left;
-      height: 30px;
-      padding: 0px 20px;
-      vertical-align: middle;
+      color: #474749;
+      font-family: Roboto;
       font-size: 12px;
       font-weight: bold;
+      height: 26px;
+      padding: 7px 20px;
+      text-align: left;
+      vertical-align: bottom;
     }
   }
 
   tbody {
+    width: 100%;
+
     tr {
-      border-bottom: 1px solid ${colors.gray3};
-      &:last-child {
-        border-bottom: none;
-      }
+      border-top: 1px solid #c0c3c9;
+      width: 100%;
     }
 
     td {
-      padding: 0px 20px;
+      color: #373b44;
+      font-family: Roboto;
+      font-size: 14px;
+      height: 14px;
+      padding: 12px 20px;
+      vertical-align: center;
       &:first-of-type {
+        max-width: 0;
         width: 60%;
-        border-right: 1px solid ${colors.gray3};
-      }
-      &:nth-of-type(2) {
-        width: 40%;
       }
     }
   }
 `;
 
 const StudentCell = styled.div`
-  display: flex;
   align-items: center;
-  height: 48px;
+  display: flex;
+  width: 100%;
 `;
 
 const StudentNick = styled.div`
-  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 `;
