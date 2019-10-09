@@ -28,12 +28,12 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links }) => {
                           "Mis documentos"
                         ) : link.type === "folder" ? (
                           <>
-                            <IconLink name="folder-icon" /> {link.text}
+                            <IconLink name="folder-icon" /> <p>{link.text}</p>
                           </>
                         ) : (
                           <>
                             <IconLink name="document" />
-                            {link.text}
+                            <p>{link.text}</p>
                           </>
                         )}
                       </Link>
@@ -66,7 +66,7 @@ const Wrap = styled.div`
   height: 40px;
   width: 100%;
   display: flex;
-  align-items: center;
+  align-items: left;
 `;
 
 const Links = styled.ol`
@@ -75,7 +75,6 @@ const Links = styled.ol`
   font-size: 16px;
 
   li {
-    display: flex;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -95,6 +94,7 @@ const Links = styled.ol`
     align-items: center;
     justify-content: center;
     flex-direction: row;
+    width: auto;
   }
 `;
 
@@ -111,6 +111,13 @@ const Link = styled.a`
   align-items: center;
   justify-content: center;
   flex-direction: row;
+
+  p {
+    max-width: 210px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
 const BackImage = styled.img`
