@@ -12,6 +12,8 @@ import {
   IBloq,
   IBloqType,
   IBloqTypeGroup,
+  IBoard,
+  IComponent,
   IComponentInstance,
   BloqParameterType,
   isBloqSelectParameter,
@@ -25,6 +27,8 @@ interface IHorizontalBloqEditorProps {
   onUpload: () => any;
   getComponents: (types: string[]) => IComponentInstance[];
   getBloqPort: (bloq: IBloq) => string | undefined;
+  board: IBoard;
+  components: IComponent[];
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -35,11 +39,16 @@ const HorizontalBloqEditor: React.FunctionComponent<
   onBloqsChange,
   onUpload,
   getComponents,
-  getBloqPort
+  getBloqPort,
+  board,
+  components
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
+
+  const [undoPast, setUndoPast] = useState<IBloq[][][]>([]);
+  const [undoFuture, setUndoFuture] = useState<IBloq[][][]>([]);
 
   const selectedLine = bloqs[selectedLineIndex] || [];
   const selectedBloq = selectedLine[selectedBloqIndex];
@@ -95,6 +104,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
     } else {
       onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
     }
+    setUndoPast([...undoPast, bloqs]);
+    setUndoFuture([]);
     setSelectedBloq(selectedPlaceholder);
     setSelectedPlaceholder(-1);
   };
@@ -113,7 +124,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
         [selectedLineIndex]: { $splice: [[selectedBloqIndex, 1]] }
       })
     );
+    setUndoPast([...undoPast, bloqs]);
+    setUndoFuture([]);
     deselectEverything();
+  };
+
+  const onUndo = () => {
+    onBloqsChange(undoPast[undoPast.length - 1]);
+    setUndoPast(undoPast.slice(0, undoPast.length - 1));
+    setUndoFuture([bloqs, ...undoFuture]);
+  };
+
+  const onRedo = () => {
+    onBloqsChange(undoFuture[0]);
+    setUndoPast([...undoPast, bloqs]);
+    setUndoFuture(undoFuture.slice(1));
   };
 
   return (
@@ -148,10 +173,18 @@ const HorizontalBloqEditor: React.FunctionComponent<
       </Lines>
       <Toolbar>
         <ToolbarLeft>
-          <JuniorButton secondary disabled>
+          <JuniorButton
+            secondary
+            disabled={undoPast.length === 0}
+            onClick={onUndo}
+          >
             <Icon name="undo" />
           </JuniorButton>
-          <JuniorButton secondary disabled>
+          <JuniorButton
+            secondary
+            disabled={undoFuture.length === 0}
+            onClick={onRedo}
+          >
             <Icon name="redo" />
           </JuniorButton>
         </ToolbarLeft>
@@ -171,6 +204,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
         onDeleteBloq={onDeleteBloq}
         onClose={() => deselectEverything()}
         getComponents={getComponents}
+        board={board}
+        components={components}
       />
     </Container>
   );

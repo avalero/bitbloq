@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import Icon from "../Icon";
+import colors from "../../colors";
 
 export interface INumberInputProps {
   value: number;
@@ -97,6 +98,7 @@ const Button = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${colors.black};
 
   box-shadow: 0 14px 0 0 #ddd;
   transform: translate(0, -14px);

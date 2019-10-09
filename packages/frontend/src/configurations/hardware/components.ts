@@ -159,12 +159,17 @@ export const components: Partial<IComponent>[] = [
   {
     name: "ContRotServo",
     extends: "Servo",
+    instanceName: "bloq-controt-servo-instance-name"
+  },
+  {
+    name: "ZumjuniorServo",
+    label: "hardware.component.cont-rot-servo",
+    extends: "ContRotServo",
     values:{
       clockwise: "175",
       counterclockwise: "5",
       stop: "90"
     },
-    instanceName: "bloq-controt-servo-instance-name",
     connectors: [
       {
         name: "main",
@@ -270,6 +275,7 @@ export const components: Partial<IComponent>[] = [
   },
   {
     name: "ZumjuniorButton",
+    label: "hardware.component.button",
     extends: "Button",
     values:{
       pressed: "HIGH",
@@ -301,6 +307,7 @@ export const components: Partial<IComponent>[] = [
   },
   {
     name: "ZumjuniorDoubleLed",
+    label: "hardware.component.double-led",
     extends: "Led",
     instanceName: "bloq-led-instance-name",
     values:{
@@ -344,6 +351,7 @@ export const components: Partial<IComponent>[] = [
   },
   {
     name: "ZumjuniorDoubleSwitch",
+    label: "hardware.component.double-switch",
     extends: "DigitalInput",
     instanceName: "bloq-switch-instance-name",
     values:{
@@ -384,6 +392,7 @@ export const components: Partial<IComponent>[] = [
   },
   {
     name: "ZumjuniorSevenSegment",
+    label: "hardware.component.seven-segment",
     extends: "I2C",
     instanceName: "bloq-seven-segment-instance-name",
     connectors: [
@@ -460,28 +469,8 @@ export const components: Partial<IComponent>[] = [
     ],
   },
   {
-    name: "ZumjuniorServo",
-    extends: "Servo",
-    instanceName: "bloq-servo-instance-name",
-    connectors: [
-      {
-        name: "main",
-        type: "zumjunior-digital",
-        position: {
-          x: 0.28,
-          y: 1
-        },
-        pins: []
-      }
-    ],
-    image: {
-      url: ServoImage,
-      width: 120,
-      height: 132
-    }
-  },
-  {
     name: "ZumjuniorMiniservo",
+    label: "hardware.component.miniservo",
     extends: "Servo",
     instanceName: "bloq-miniservo-instance-name",
     connectors: [
@@ -503,7 +492,7 @@ export const components: Partial<IComponent>[] = [
   },
   {
     name: "ZumjuniorMultiSensor",
-    
+    label: "hardware.component.multisensor",
     extends: "I2C",
     instanceName: "bloq-sensors-instance-name",
     connectors: [
