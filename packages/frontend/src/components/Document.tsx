@@ -19,7 +19,10 @@ import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt } from "../util";
 import { UserDataContext } from "../lib/useUserData";
-import { DOCUMENT_UPDATED_SUBSCRIPTION } from "../apollo/queries";
+import {
+  DOCUMENT_UPDATED_SUBSCRIPTION,
+  EXERCISE_UPDATE_MUTATION
+} from "../apollo/queries";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -83,6 +86,7 @@ class DocumentState {
   readonly isCreateExerciseOpen: boolean = false;
   readonly isUpdateExerciseOpen: boolean = false;
   readonly newExerciseTitle: string = "";
+  readonly updateExerciseId: string = "";
 }
 
 class Document extends React.Component<any, DocumentState> {
@@ -219,7 +223,8 @@ class Document extends React.Component<any, DocumentState> {
                   onChangeName={(currentName: string) => {
                     this.setState({
                       isUpdateExerciseOpen: true,
-                      newExerciseTitle: currentName
+                      newExerciseTitle: currentName,
+                      updateExerciseId: exercise.id
                     });
                   }}
                 />
@@ -370,7 +375,11 @@ class Document extends React.Component<any, DocumentState> {
 
   renderUpdateExerciseModal() {
     const { id: documentId } = this.props;
-    const { isUpdateExerciseOpen, newExerciseTitle } = this.state;
+    const {
+      isUpdateExerciseOpen,
+      newExerciseTitle,
+      updateExerciseId
+    } = this.state;
 
     return (
       <Translate>
@@ -381,14 +390,16 @@ class Document extends React.Component<any, DocumentState> {
             onClose={() => this.setState({ isUpdateExerciseOpen: false })}
           >
             {this.renderNameModal(
-              <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-                {createExercise => (
+              <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
+                {updateExercise => (
                   <ModalButton
                     onClick={() => {
-                      createExercise({
+                      updateExercise({
                         variables: {
-                          documentId,
-                          title: newExerciseTitle || "Ejercicio sin título"
+                          id: updateExerciseId,
+                          input: {
+                            title: newExerciseTitle || "Ejercicio sin título"
+                          }
                         },
                         refetchQueries: [
                           {

@@ -19,9 +19,7 @@ class ExercisePanelState {
   readonly menuOpen: boolean = false;
 }
 
-const ExercisePanel: FC<ExercisePanelProps> = (
-  props: ExercisePanelProps
-) => {
+const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
   const {
     exercise,
     onCancelSubmission,
@@ -62,6 +60,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (
                   iconName: "pencil",
                   label: t("menu-change-name"),
                   onClick() {
+                    setMenuOpen(false);
                     onChangeName(exercise.title);
                   }
                 },

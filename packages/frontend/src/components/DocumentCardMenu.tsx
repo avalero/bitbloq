@@ -22,8 +22,9 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
   return (
     <DocumentMenu className={className}>
       {options &&
-        options.map((option: Option) => (
+        options.map((option: Option, index: number) => (
           <DocumentMenuOption
+            key={index}
             onClick={option.onClick}
             disabled={option.disabled}
             red={option.red}
