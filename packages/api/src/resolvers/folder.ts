@@ -8,16 +8,7 @@ import { pubsub } from "../server";
 const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
 import { logger, loggerController } from "../controllers/logs";
-
-const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
-  if (folder.name === "root") {
-    return [folder, ...path];
-  } else {
-    const parentFolder = await FolderModel.findOne({ _id: folder.parent });
-    const result = await getParentsPath(parentFolder, [folder]);
-    return [...result, ...path];
-  }
-};
+import { getParentsPath } from "../utils";
 
 const duplicateFolderChildren = async (folder, userID) => {
   if (folder.name === "root") {

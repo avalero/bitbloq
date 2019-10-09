@@ -13,18 +13,9 @@ import { UserModel } from "../models/user";
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
 import uploadResolver, { uploadImage } from "./upload";
+import { getParentsPath } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
-
-const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
-  if (folder.name === "root") {
-    return [folder, ...path];
-  } else {
-    const parentFolder = await FolderModel.findOne({ _id: folder.parent });
-    const result = await getParentsPath(parentFolder, [folder]);
-    return [...result, ...path];
-  }
-};
 
 const documentResolver = {
   Subscription: {
