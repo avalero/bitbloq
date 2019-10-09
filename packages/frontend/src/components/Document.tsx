@@ -81,6 +81,7 @@ const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
 
 class DocumentState {
   readonly isCreateExerciseOpen: boolean = false;
+  readonly isUpdateExerciseOpen: boolean = false;
   readonly newExerciseTitle: string = "";
 }
 
@@ -88,9 +89,15 @@ class Document extends React.Component<any, DocumentState> {
   readonly state = new DocumentState();
   newExerciseTitleInput = React.createRef<HTMLInputElement>();
 
-  componentDidUpdate(prevProps, prevState) {
-    const { isCreateExerciseOpen } = this.state;
+  componentDidUpdate(prevProps: any, prevState: DocumentState) {
+    const { isCreateExerciseOpen, isUpdateExerciseOpen } = this.state;
     if (isCreateExerciseOpen && !prevState.isCreateExerciseOpen) {
+      const input = this.newExerciseTitleInput.current;
+      if (input) {
+        input.focus();
+      }
+    }
+    if (isUpdateExerciseOpen && !prevState.isUpdateExerciseOpen) {
       const input = this.newExerciseTitleInput.current;
       if (input) {
         input.focus();
@@ -209,6 +216,12 @@ class Document extends React.Component<any, DocumentState> {
                       ]
                     });
                   }}
+                  onChangeName={(currentName: string) => {
+                    this.setState({
+                      isUpdateExerciseOpen: true,
+                      newExerciseTitle: currentName
+                    });
+                  }}
                 />
               )}
             </Mutation>
@@ -278,6 +291,39 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
+  renderNameModal(submitButton, t) {
+    const { id: documentId } = this.props;
+    const { newExerciseTitle } = this.state;
+
+    return (
+      <ModalContent>
+        <p>{t("exercises-modal-text")}</p>
+        <form>
+          <Input
+            value={newExerciseTitle}
+            ref={this.newExerciseTitleInput}
+            onChange={e => this.setState({ newExerciseTitle: e.target.value })}
+            placeholder={t("exercises-modal-placeholder")}
+          />
+          <ModalButtons>
+            <ModalButton
+              tertiary
+              onClick={() =>
+                this.setState({
+                  isCreateExerciseOpen: false,
+                  isUpdateExerciseOpen: false
+                })
+              }
+            >
+              {t("general-cancel-button")}
+            </ModalButton>
+            {submitButton}
+          </ModalButtons>
+        </form>
+      </ModalContent>
+    );
+  }
+
   renderCreateExerciseModal(document) {
     const { id: documentId } = this.props;
     const { isCreateExerciseOpen, newExerciseTitle } = this.state;
@@ -290,52 +336,76 @@ class Document extends React.Component<any, DocumentState> {
             title={t("exercises-modal-title")}
             onClose={() => this.setState({ isCreateExerciseOpen: false })}
           >
-            <ModalContent>
-              <p>{t("exercises-modal-text")}</p>
-              <form>
-                <Input
-                  value={newExerciseTitle}
-                  ref={this.newExerciseTitleInput}
-                  onChange={e =>
-                    this.setState({ newExerciseTitle: e.target.value })
-                  }
-                  placeholder={t("exercises-modal-placeholder")}
-                />
-                <ModalButtons>
+            {this.renderNameModal(
+              <Mutation mutation={CREATE_EXERCISE_MUTATION}>
+                {createExercise => (
                   <ModalButton
-                    tertiary
-                    onClick={() =>
-                      this.setState({ isCreateExerciseOpen: false })
-                    }
+                    onClick={() => {
+                      createExercise({
+                        variables: {
+                          documentId,
+                          title: newExerciseTitle || "Ejercicio sin título"
+                        },
+                        refetchQueries: [
+                          {
+                            query: DOCUMENT_QUERY,
+                            variables: { id: documentId }
+                          }
+                        ]
+                      });
+                      this.setState({ isCreateExerciseOpen: false });
+                    }}
                   >
-                    {t("general-cancel-button")}
+                    {t("general-create-button")}
                   </ModalButton>
-                  <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-                    {createExercise => (
-                      <ModalButton
-                        onClick={() => {
-                          createExercise({
-                            variables: {
-                              documentId,
-                              title: newExerciseTitle || "Ejercicio sin título"
-                            },
-                            refetchQueries: [
-                              {
-                                query: DOCUMENT_QUERY,
-                                variables: { id: documentId }
-                              }
-                            ]
-                          });
-                          this.setState({ isCreateExerciseOpen: false });
-                        }}
-                      >
-                        {t("general-create-button")}
-                      </ModalButton>
-                    )}
-                  </Mutation>
-                </ModalButtons>
-              </form>
-            </ModalContent>
+                )}
+              </Mutation>,
+              t
+            )}
+          </Modal>
+        )}
+      </Translate>
+    );
+  }
+
+  renderUpdateExerciseModal() {
+    const { id: documentId } = this.props;
+    const { isUpdateExerciseOpen, newExerciseTitle } = this.state;
+
+    return (
+      <Translate>
+        {t => (
+          <Modal
+            isOpen={isUpdateExerciseOpen}
+            title={t("exercises-modal-update")}
+            onClose={() => this.setState({ isUpdateExerciseOpen: false })}
+          >
+            {this.renderNameModal(
+              <Mutation mutation={CREATE_EXERCISE_MUTATION}>
+                {createExercise => (
+                  <ModalButton
+                    onClick={() => {
+                      createExercise({
+                        variables: {
+                          documentId,
+                          title: newExerciseTitle || "Ejercicio sin título"
+                        },
+                        refetchQueries: [
+                          {
+                            query: DOCUMENT_QUERY,
+                            variables: { id: documentId }
+                          }
+                        ]
+                      });
+                      this.setState({ isUpdateExerciseOpen: false });
+                    }}
+                  >
+                    {t("general-change-button")}
+                  </ModalButton>
+                )}
+              </Mutation>,
+              t
+            )}
           </Modal>
         )}
       </Translate>
@@ -390,6 +460,7 @@ class Document extends React.Component<any, DocumentState> {
               }}
             </Query>
             {this.renderCreateExerciseModal(document)}
+            {this.renderUpdateExerciseModal()}
           </Container>
         )}
       </UserDataContext.Consumer>

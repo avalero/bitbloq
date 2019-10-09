@@ -53,6 +53,7 @@
   "menu-export-stl": "Exportar la escena en formato STL",
   "menu-change-language": "Cambiar idioma",
   "menu-delete-document": "Eliminar documento",
+  "menu-delete-exercise": "Eliminar ejercicio",
   "document-header-info": "Documento",
   "document-header-button": "Editar documento",
   "exercises-header-info": "Ejercicios",
@@ -60,6 +61,7 @@
   "exercises-empty-title": "No hay ejercicios",
   "exercises-empty-description": "Aún no has creado ningún ejercicio a partir de este documento. Para hacer lo sólo tienes que hacer clic en \"crear ejercicio\" y después compartir con tus alumnos el código para que puedan acceder a este.",
   "exercises-modal-title": "Crear ejercicio",
+  "exercises-modal-update": "Cambiar nombre del ejercicio",
   "exercises-modal-text": "Nombre del ejercicio",
   "exercises-modal-placeholder": "Ejercicio sin título",
   "document-body-title": "Documento sin título",
@@ -227,5 +229,6 @@
   "playground-enter-button": "Entra con tu cuenta",
   "general-enter-button": "Entrar",
   "general-create-button": "Crear",
+  "general-change-button": "Cambiar",
   "general-cancel-button": "Cancelar"
 }
