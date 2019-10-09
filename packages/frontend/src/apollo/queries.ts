@@ -26,6 +26,9 @@ export const DOCUMENT_QUERY = gql`
       public
       example
       advancedMode
+      parentsPath {
+        id
+      }
     }
   }
 `;

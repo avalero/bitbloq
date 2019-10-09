@@ -1,5 +1,6 @@
 # import Date, ObjectID, Role from "./scalars.graphql"
 # import Exercise from "./exercise.graphql"
+# import Folder from "./folder.graphql"
 # import File from "./upload.graphql"
 # import Upload from "./scalars.graphql"
 
@@ -47,6 +48,7 @@ type Document {
   updatedAt: Date
   exercises: [Exercise]
   images: [File]
+  parentsPath: [Folder]
 }
 
 input DocumentIn {

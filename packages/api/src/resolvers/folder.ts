@@ -10,7 +10,6 @@ const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 import { logger, loggerController } from "../controllers/logs";
 
 const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
-  console.log(folder, path);
   if (folder.name === "root") {
     return [folder, ...path];
   } else {
