@@ -85,6 +85,7 @@ const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
 class DocumentState {
   readonly isCreateExerciseOpen: boolean = false;
   readonly isUpdateExerciseOpen: boolean = false;
+  readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
   readonly updateExerciseId: string = "";
 }
@@ -298,7 +299,20 @@ class Document extends React.Component<any, DocumentState> {
 
   renderNameModal(submitButton, t) {
     const { id: documentId } = this.props;
-    const { newExerciseTitle } = this.state;
+    const { newExerciseTitle, errorName } = this.state;
+
+    const validate = (value: string): boolean => {
+      if (
+        !value ||
+        (value.length <= 64 &&
+          value.match(/^[\w\s]+$/) &&
+          !value.match(/^\s+$/))
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    };
 
     return (
       <ModalContent>
@@ -307,7 +321,15 @@ class Document extends React.Component<any, DocumentState> {
           <Input
             value={newExerciseTitle}
             ref={this.newExerciseTitleInput}
-            onChange={e => this.setState({ newExerciseTitle: e.target.value })}
+            onChange={e => {
+              const value: string = e.target.value;
+              if (validate(value)) {
+                this.setState({ newExerciseTitle: value, errorName: false });
+              } else {
+                this.setState({ newExerciseTitle: value, errorName: true });
+              }
+            }}
+            error={errorName}
             placeholder={t("exercises-modal-placeholder")}
           />
           <ModalButtons>
@@ -316,7 +338,8 @@ class Document extends React.Component<any, DocumentState> {
               onClick={() =>
                 this.setState({
                   isCreateExerciseOpen: false,
-                  isUpdateExerciseOpen: false
+                  isUpdateExerciseOpen: false,
+                  errorName: false
                 })
               }
             >
@@ -331,7 +354,7 @@ class Document extends React.Component<any, DocumentState> {
 
   renderCreateExerciseModal(document) {
     const { id: documentId } = this.props;
-    const { isCreateExerciseOpen, newExerciseTitle } = this.state;
+    const { errorName, isCreateExerciseOpen, newExerciseTitle } = this.state;
 
     return (
       <Translate>
@@ -339,12 +362,15 @@ class Document extends React.Component<any, DocumentState> {
           <Modal
             isOpen={isCreateExerciseOpen}
             title={t("exercises-modal-title")}
-            onClose={() => this.setState({ isCreateExerciseOpen: false })}
+            onClose={() =>
+              this.setState({ isCreateExerciseOpen: false, errorName: false })
+            }
           >
             {this.renderNameModal(
               <Mutation mutation={CREATE_EXERCISE_MUTATION}>
                 {createExercise => (
                   <ModalButton
+                    disabled={errorName}
                     onClick={() => {
                       createExercise({
                         variables: {
@@ -358,7 +384,10 @@ class Document extends React.Component<any, DocumentState> {
                           }
                         ]
                       });
-                      this.setState({ isCreateExerciseOpen: false });
+                      this.setState({
+                        isCreateExerciseOpen: false,
+                        errorName: false
+                      });
                     }}
                   >
                     {t("general-create-button")}
@@ -376,6 +405,7 @@ class Document extends React.Component<any, DocumentState> {
   renderUpdateExerciseModal() {
     const { id: documentId } = this.props;
     const {
+      errorName,
       isUpdateExerciseOpen,
       newExerciseTitle,
       updateExerciseId
@@ -387,12 +417,15 @@ class Document extends React.Component<any, DocumentState> {
           <Modal
             isOpen={isUpdateExerciseOpen}
             title={t("exercises-modal-update")}
-            onClose={() => this.setState({ isUpdateExerciseOpen: false })}
+            onClose={() =>
+              this.setState({ isUpdateExerciseOpen: false, errorName: false })
+            }
           >
             {this.renderNameModal(
               <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
                 {updateExercise => (
                   <ModalButton
+                    disabled={errorName}
                     onClick={() => {
                       updateExercise({
                         variables: {
@@ -408,7 +441,10 @@ class Document extends React.Component<any, DocumentState> {
                           }
                         ]
                       });
-                      this.setState({ isUpdateExerciseOpen: false });
+                      this.setState({
+                        isUpdateExerciseOpen: false,
+                        errorName: false
+                      });
                     }}
                   >
                     {t("general-change-button")}
