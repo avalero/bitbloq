@@ -5,7 +5,7 @@ import {
 } from "apollo-server-koa";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
-import { FolderModel } from "../models/folder";
+import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
 import { UserModel } from "../models/user";
@@ -13,6 +13,7 @@ import { UserModel } from "../models/user";
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
 import uploadResolver, { uploadImage } from "./upload";
+import { getParentsPath } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -323,7 +324,12 @@ const documentResolver = {
     exercises: async (document: IDocument) =>
       ExerciseModel.find({ document: document._id }),
     images: async (document: IDocument) =>
-      UploadModel.find({ document: document._id })
+      UploadModel.find({ document: document._id }),
+    parentsPath: async (document: IDocument) => {
+      const parent = await FolderModel.findOne({ _id: document.folder });
+      const result = await getParentsPath(parent);
+      return result;
+    }
   }
 };
 

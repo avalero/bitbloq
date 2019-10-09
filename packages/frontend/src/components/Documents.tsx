@@ -35,6 +35,8 @@ import NewExerciseButton from "./NewExerciseButton";
 import EditTitleModal from "./EditTitleModal";
 import DocumentListComp from "./DocumentsList";
 
+import Breadcrumbs from "./Breadcrumbs";
+
 enum OrderType {
   Creation = "creation",
   Modification = "modification",
@@ -68,7 +70,7 @@ const orderFunctions = {
   [OrderType.NameZA]: sortByTitleZA
 };
 
-const Documents: FC = () => {
+const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
 
@@ -76,8 +78,15 @@ const Documents: FC = () => {
   const [searchText, setSearchText] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentLocation, setCurrentLocation] = useState(
-    userData ? userData.rootFolder : ""
+    id ? id : userData ? userData.rootFolder : null
   );
+  const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
+    {
+      route: userData ? "/" : "",
+      text: userData ? "Mis documentos" : "",
+      type: ""
+    }
+  ]);
 
   let openFile = React.createRef<HTMLInputElement>();
 
@@ -99,6 +108,19 @@ const Documents: FC = () => {
 
   const onFolderClick = async (e, folder) => {
     setCurrentLocation(folder.id);
+    // setBreadcrumbsLinks([
+    //   ...breadcrumbLinks,
+    //   { route: `app/folder/${folder.id}`, text: folder.name, type: "folder" }
+    // ]);
+    navigate(`/app/folder/${folder.id}`);
+  };
+
+  const onDocumentClick = ({ id, type, title }) => {
+    setBreadcrumbsLinks([
+      ...breadcrumbLinks,
+      { route: id, text: title, type: "document" }
+    ]);
+    window.open(`/app/document/${id}`);
   };
 
   const onCreateFolder = async folderName => {
@@ -210,7 +232,15 @@ const Documents: FC = () => {
       </Container>
     );
 
-  const { documents, folders } = dataPage.folder;
+  const { documents, folders, parentsPath } = dataPage.folder;
+
+  let breadParents = [];
+  for (let item of parentsPath) {
+    breadParents = [
+      ...breadParents,
+      ...[{ route: `/app/folder/${item.id}`, text: item.name, type: "folder" }]
+    ];
+  }
 
   return (
     <Container>
@@ -220,13 +250,7 @@ const Documents: FC = () => {
           {currentLocation === userData.rootFolder ? (
             <h1>Mis documentos</h1>
           ) : (
-            <h1>
-              <a onClick={() => setCurrentLocation(userData.rootFolder)}>
-                Mis documentos
-              </a>{" "}
-              > <Icon name="folder-icon" />
-              {dataPage.folder.name}
-            </h1>
+            <Breadcrumbs links={breadParents} />
           )}
         </Header>
         <Rule />
@@ -292,6 +316,7 @@ const Documents: FC = () => {
                 folders={filterFolders(folders)}
                 currentLocation={currentLocation}
                 onFolderClick={onFolderClick}
+                onDocumentClick={onDocumentClick}
               />
             ) : (
               <NoDocuments>
@@ -304,6 +329,7 @@ const Documents: FC = () => {
               folders={filterFolders(folders)}
               currentLocation={currentLocation}
               onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
             />
           )
         ) : (

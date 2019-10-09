@@ -30,6 +30,7 @@ type Folder {
   updatedAt: Date
   documents: [Document]
   folders: [Folder]
+  parentsPath: [Folder]
 }
 
 input FolderIn {

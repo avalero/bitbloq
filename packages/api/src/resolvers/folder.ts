@@ -8,6 +8,7 @@ import { pubsub } from "../server";
 const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
 import { logger, loggerController } from "../controllers/logs";
+import { getParentsPath } from "../utils";
 
 const duplicateFolderChildren = async (folder, userID) => {
   if (folder.name === "root") {
@@ -67,7 +68,6 @@ const duplicateFolderChildren = async (folder, userID) => {
     //     duplicateFolderChildren(item, userID);
     //   }
     // }
-    console.log("\n duplica carpeta api \n");
     return;
   }
 };
@@ -368,8 +368,12 @@ const folderResolver = {
 
   Folder: {
     documents: async (folder: IFolder) =>
-      DocumentModel.find({ folder: folder }),
-    folders: async (folder: IFolder) => FolderModel.find({ parent: folder })
+      DocumentModel.find({ folder: folder.id }),
+    folders: async (folder: IFolder) => FolderModel.find({ parent: folder.id }),
+    parentsPath: async (folder: IFolder) => {
+      const result = await getParentsPath(folder);
+      return result;
+    }
   }
 };
 
