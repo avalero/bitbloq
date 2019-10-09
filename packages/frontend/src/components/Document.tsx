@@ -3,6 +3,7 @@ import { Query, Mutation, Subscription } from "react-apollo";
 import {
   colors,
   Button,
+  DialogModal,
   HorizontalRule,
   Icon,
   Input,
@@ -85,6 +86,7 @@ const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
 class DocumentState {
   readonly isCreateExerciseOpen: boolean = false;
   readonly isUpdateExerciseOpen: boolean = false;
+  readonly isRemoveExerciseOpen: boolean = true;
   readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
   readonly updateExerciseId: string = "";
@@ -461,6 +463,7 @@ class Document extends React.Component<any, DocumentState> {
 
   render() {
     const { id } = this.props;
+    const { isRemoveExerciseOpen } = this.state;
 
     return (
       <UserDataContext.Consumer>
@@ -508,6 +511,15 @@ class Document extends React.Component<any, DocumentState> {
             </Query>
             {this.renderCreateExerciseModal(document)}
             {this.renderUpdateExerciseModal()}
+            <DialogModal
+              isOpen={isRemoveExerciseOpen}
+              title="Eliminar"
+              text="¿Seguro que quieres eliminar este documento?"
+              okText="Aceptar"
+              cancelText="Cancelar"
+              onOk={() => {}}
+              onCancel={() => {}}
+            />
           </Container>
         )}
       </UserDataContext.Consumer>
