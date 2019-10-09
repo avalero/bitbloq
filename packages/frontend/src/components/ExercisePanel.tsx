@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { FC, useState } from "react";
 import dayjs from "dayjs";
 import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
@@ -19,149 +19,144 @@ class ExercisePanelState {
   readonly menuOpen: boolean = false;
 }
 
-class ExercisePanel extends React.Component<
-  ExercisePanelProps,
-  ExercisePanelState
-> {
-  readonly state = new ExercisePanelState();
+const ExercisePanel: FC<ExercisePanelProps> = (
+  props: ExercisePanelProps
+) => {
+  const {
+    exercise,
+    onCancelSubmission,
+    onCheckSubmission,
+    onAcceptedSubmissions,
+    onChangeName
+  } = props;
 
-  render() {
-    const {
-      exercise,
-      onCancelSubmission,
-      onCheckSubmission,
-      onAcceptedSubmissions,
-      onChangeName
-    } = this.props;
-    const { isOpen, menuOpen } = this.state;
+  const [isOpen, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-    return (
-      <Translate>
-        {t => (
-          <Container>
-            <Header>
-              <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
-                <Toggle isOpen={isOpen}>
-                  <Icon name="angle" />
-                </Toggle>
-              </HeaderLeft>
-              <HeaderCenter>
-                <Title>{exercise.title}</Title>
-                <Date>
-                  {dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}
-                </Date>
-              </HeaderCenter>
-              <HeaderRight
-                onClick={() => {
-                  this.setState({ menuOpen: !menuOpen });
-                }}
-              >
-                <Icon name="ellipsis" />
-              </HeaderRight>
-            </Header>
-            {menuOpen && (
-              <ExerciseMenu
-                options={[
-                  {
-                    iconName: "pencil",
-                    label: t("menu-change-name"),
-                    onClick() {
-                      onChangeName(exercise.title);
-                    }
-                  },
-                  {
-                    iconName: "trash",
-                    label: t("menu-delete-exercise"),
-                    onClick(e) {
-                      console.log(e);
-                    },
-                    red: true
+  return (
+    <Translate>
+      {t => (
+        <Container>
+          <Header>
+            <HeaderLeft onClick={() => setOpen(!isOpen)}>
+              <Toggle isOpen={isOpen}>
+                <Icon name="angle" />
+              </Toggle>
+            </HeaderLeft>
+            <HeaderCenter>
+              <Title>{exercise.title}</Title>
+              <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
+            </HeaderCenter>
+            <HeaderRight
+              onClick={() => {
+                setMenuOpen(!menuOpen);
+              }}
+            >
+              <Icon name="ellipsis" />
+            </HeaderRight>
+          </Header>
+          {menuOpen && (
+            <ExerciseMenu
+              options={[
+                {
+                  iconName: "pencil",
+                  label: t("menu-change-name"),
+                  onClick() {
+                    onChangeName(exercise.title);
                   }
-                ]}
-              />
-            )}
-            {/*<Header>
-              <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
-                <Toggle isOpen={isOpen}>
-                  <Icon name="angle" />
-                </Toggle>
-                <div>
-                  <Title>{exercise.title}</Title>
-                  <Date>{dayjs(exercise.createdAt).format("DD/MM/YY hh:mm")}</Date>
-                </div>
-              </HeaderLeft>
-              <HeaderRight>
-                <HeaderRow>
-                  <span>Código para compartir:</span>
-                  <CodeBox>{exercise.code}</CodeBox>
-                </HeaderRow>
-                <HeaderRow>
-                  <span>Admite más entregas:</span>
-                  <Switch
-                    value={exercise.acceptSubmissions}
-                    onChange={onAcceptedSubmissions}
-                  />
-                </HeaderRow>
-              </HeaderRight>
-            </Header>
-            <Spring to={{ height: isOpen ? "auto" : 0 }}>
-              {({ height }) => (
-                <Content style={{ height }}>
-                  {exercise.submissions && exercise.submissions.length > 0 && (
-                    <Table key="table" style={{ height }}>
-                      <thead>
-                        <tr>
-                          <th>Alumnos</th>
-                          <th>Fecha de entrega</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {exercise.submissions.map(submission => (
-                          <tr key={submission.id}>
-                            <td>
-                              <StudentCell>
-                                <StudentNick>{submission.studentNick}</StudentNick>
-                                <Button
-                                  tertiary
-                                  small
-                                  onClick={() => onCancelSubmission(submission)}
-                                >
-                                  Expulsar
-                                </Button>
-                              </StudentCell>
-                            </td>
-                            <td>
-                              {submission.finished &&
-                                dayjs(submission.finishedAt).format(
-                                  "DD/MM/YY hh:mm"
-                                )}
-                            </td>
-                            <td>
-                              {submission.finished && (
-                                <Button
-                                  tertiary
-                                  small
-                                  onClick={() => onCheckSubmission(submission)}
-                                >
-                                  Comprobar
-                                </Button>
+                },
+                {
+                  iconName: "trash",
+                  label: t("menu-delete-exercise"),
+                  onClick(e) {
+                    console.log(e);
+                  },
+                  red: true
+                }
+              ]}
+            />
+          )}
+          {/*<Header>
+            <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
+              <Toggle isOpen={isOpen}>
+                <Icon name="angle" />
+              </Toggle>
+              <div>
+                <Title>{exercise.title}</Title>
+                <Date>{dayjs(exercise.createdAt).format("DD/MM/YY hh:mm")}</Date>
+              </div>
+            </HeaderLeft>
+            <HeaderRight>
+              <HeaderRow>
+                <span>Código para compartir:</span>
+                <CodeBox>{exercise.code}</CodeBox>
+              </HeaderRow>
+              <HeaderRow>
+                <span>Admite más entregas:</span>
+                <Switch
+                  value={exercise.acceptSubmissions}
+                  onChange={onAcceptedSubmissions}
+                />
+              </HeaderRow>
+            </HeaderRight>
+          </Header>
+          <Spring to={{ height: isOpen ? "auto" : 0 }}>
+            {({ height }) => (
+              <Content style={{ height }}>
+                {exercise.submissions && exercise.submissions.length > 0 && (
+                  <Table key="table" style={{ height }}>
+                    <thead>
+                      <tr>
+                        <th>Alumnos</th>
+                        <th>Fecha de entrega</th>
+                        <th />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {exercise.submissions.map(submission => (
+                        <tr key={submission.id}>
+                          <td>
+                            <StudentCell>
+                              <StudentNick>{submission.studentNick}</StudentNick>
+                              <Button
+                                tertiary
+                                small
+                                onClick={() => onCancelSubmission(submission)}
+                              >
+                                Expulsar
+                              </Button>
+                            </StudentCell>
+                          </td>
+                          <td>
+                            {submission.finished &&
+                              dayjs(submission.finishedAt).format(
+                                "DD/MM/YY hh:mm"
                               )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </Table>
-                  )}
-                </Content>
-              )}
-            </Spring>*/}
-          </Container>
-        )}
-      </Translate>
-    );
-  }
-}
+                          </td>
+                          <td>
+                            {submission.finished && (
+                              <Button
+                                tertiary
+                                small
+                                onClick={() => onCheckSubmission(submission)}
+                              >
+                                Comprobar
+                              </Button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                )}
+              </Content>
+            )}
+          </Spring>*/}
+        </Container>
+      )}
+    </Translate>
+  );
+};
 
 export default ExercisePanel;
 
