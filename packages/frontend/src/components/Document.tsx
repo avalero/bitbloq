@@ -15,7 +15,9 @@ import gql from "graphql-tag";
 import AppHeader from "./AppHeader";
 import DocumentTypeTag from "./DocumentTypeTag";
 import ExercisePanel from "./ExercisePanel";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { sortByCreatedAt } from "../util";
+import { DOCUMENT_UPDATED_SUBSCRIPTION } from "../apollo/queries";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -90,7 +92,7 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Header>
         <Link to="/app">Mis documentos &gt;</Link>
-        {document.title}
+        {document.title || "Documento sin título"}
       </Header>
     );
   }
@@ -101,7 +103,9 @@ class Document extends React.Component<any, DocumentState> {
         <DocumentImage src={document.image} />
         <div>
           <DocumentTypeTag document={document} />
-          <DocumentTitle>{document.title}</DocumentTitle>
+          <DocumentTitle>
+            {document.title || "Documento sin título"}
+          </DocumentTitle>
           <DocumentDescription>{document.description}</DocumentDescription>
           <Buttons>
             <Button
@@ -162,7 +166,7 @@ class Document extends React.Component<any, DocumentState> {
         />
       </React.Fragment>
     );
-  }
+  };
 
   renderExercises(exercises, refetch) {
     return (
@@ -171,8 +175,7 @@ class Document extends React.Component<any, DocumentState> {
         {exercises
           .slice()
           .sort(sortByCreatedAt)
-          .map(exercise => this.renderExercise(exercise, refetch))
-        }
+          .map(exercise => this.renderExercise(exercise, refetch))}
       </Exercises>
     );
   }
@@ -201,6 +204,7 @@ class Document extends React.Component<any, DocumentState> {
               <Mutation mutation={CREATE_EXERCISE_MUTATION}>
                 {createExercise => (
                   <ModalButton
+                    disabled={!newExerciseTitle}
                     onClick={() => {
                       createExercise({
                         variables: {
@@ -225,7 +229,7 @@ class Document extends React.Component<any, DocumentState> {
                 tertiary
                 onClick={() => this.setState({ isCreateExerciseOpen: false })}
               >
-                Cancel
+                Cancelar
               </ModalButton>
             </ModalButtons>
           </form>
@@ -242,18 +246,30 @@ class Document extends React.Component<any, DocumentState> {
         <AppHeader />
         <Query query={DOCUMENT_QUERY} variables={{ id }}>
           {({ loading, error, data, refetch }) => {
+            if (error) return <GraphQLErrorMessage apolloError={error} />;
             if (loading) return <Loading />;
-            if (error) return <p>Error :(</p>;
 
             const { document } = data;
 
             return (
-              <Content>
-                {this.renderHeader(document)}
-                <Rule />
-                {this.renderDocumentInfo(document)}
-                {this.renderExercises(document.exercises, refetch)}
-              </Content>
+              <>
+                <Content>
+                  {this.renderHeader(document)}
+                  <Rule />
+                  {this.renderDocumentInfo(document)}
+                  {this.renderExercises(document.exercises, refetch)}
+                </Content>
+                <Subscription
+                  subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                  shouldResubscribe={true}
+                  onSubscriptionData={({ subscriptionData }) => {
+                    const { data } = subscriptionData;
+                    if (data && data.documentUpdated && data.documentUpdated.id === id) {
+                      refetch();
+                    }
+                  }}
+                />
+              </>
             );
           }}
         </Query>
@@ -284,7 +300,7 @@ const Container = styled.div`
 
 const Content = styled.div`
   flex: 1;
-  padding: 0px 60px;
+  padding: 0px 50px;
 `;
 
 const Header = styled.div`
@@ -306,7 +322,7 @@ const Loading = styled(Spinner)`
 `;
 
 const Rule = styled(HorizontalRule)`
-  margin: 0px -20px;
+  margin: 0px -10px;
 `;
 
 const DocumentInfo = styled.div`

@@ -1,8 +1,11 @@
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import colors from '../colors';
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import colors from "../colors";
 
-const Input = styled.input`
+export interface InputProps {
+  error?: boolean;
+}
+const Input = styled.input<InputProps>`
   border: 1px solid #cfcfcf;
   box-sizing: border-box;
   border-radius: 4px;
@@ -28,16 +31,18 @@ const Input = styled.input`
     cursor: not-allowed;
   }
 
-  ${props => props.error && css`
-    box-shadow: 0 0 2px 2px rgba(255, 51, 51, 0.7);
-    background-color: #ffd6d6;
-    border: 1px solid white;
-    color: #d82b32;
-
-    &::placeholder {
+  ${props =>
+    props.error &&
+    css`
+      box-shadow: 0 0 2px 2px rgba(255, 51, 51, 0.7);
+      background-color: #ffd6d6;
+      border: 1px solid white;
       color: #d82b32;
-    }
-  `}
+
+      &::placeholder {
+        color: #d82b32;
+      }
+    `}
 `;
 
 /** @component */

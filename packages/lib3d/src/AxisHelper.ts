@@ -6,7 +6,7 @@ const HEIGHT = 150;
 type ChangeCameraAngleHandler = (theta: number, phi: number) => void;
 
 export default class AxisHelper {
-  private container: HTMLElement;
+  private container?: HTMLElement;
   private renderer: THREE.WebGLRenderer;
   private scene: THREE.Scene;
   private camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
@@ -35,6 +35,12 @@ export default class AxisHelper {
     this.renderer.render(this.scene, this.camera);
   }
 
+  public destroy() {
+    this.renderer.dispose();
+    this.renderer.forceContextLoss();
+    this.container = undefined;
+  }
+
   private makeAxis(length: number, radius: number, color: number): THREE.Mesh {
     const cylinderGeometry: THREE.Geometry = new THREE.CylinderGeometry(
       radius,
@@ -56,10 +62,10 @@ export default class AxisHelper {
 
     const renderer = new THREE.WebGLRenderer(rendererParams);
     renderer.setSize(WIDTH, HEIGHT);
-    this.container.appendChild(renderer.domElement);
+    this.container!.appendChild(renderer.domElement);
     this.renderer = renderer;
 
-    this.containerRect = this.container.getBoundingClientRect();
+    this.containerRect = this.container!.getBoundingClientRect();
 
     this.scene = new THREE.Scene();
     this.scene.add(new THREE.AmbientLight(0x888888));

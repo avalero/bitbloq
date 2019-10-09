@@ -1,26 +1,21 @@
 import React, { FC, createContext, useContext } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { ME_QUERY } from "../apollo/queries";
-import useLogout from "./useLogout";
 import Loading from "../components/Loading";
 
-const UserDataContext = createContext(null);
+const UserDataContext = createContext<any>(null);
 
 export const UserDataProvider: FC = ({ children }) => {
-  const { data, loading, error } = useQuery(ME_QUERY);
-  const logout = useLogout();
+  const { data, loading } = useQuery(ME_QUERY);
 
   if (loading) {
     return <Loading />;
   }
 
-  if (error) {
-    logout();
-    return null;
-  }
-
   return (
-    <UserDataContext.Provider value={data && data.me}>{children}</UserDataContext.Provider>
+    <UserDataContext.Provider value={data && data.me}>
+      {children}
+    </UserDataContext.Provider>
   );
 };
 

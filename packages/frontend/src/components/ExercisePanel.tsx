@@ -1,6 +1,6 @@
 import * as React from "react";
 import dayjs from "dayjs";
-import { Spring } from "react-spring";
+import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { colors, Button, Icon, Switch } from "@bitbloq/ui";

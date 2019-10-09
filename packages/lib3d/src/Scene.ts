@@ -34,7 +34,6 @@ import {
   IObjectsGroupJSON,
   OperationsArray
 } from "./Interfaces";
-import { pathToFileURL } from "url";
 import { setMeshMaterial, MeshOperations } from "./Bitbloq";
 
 enum HelperType {
@@ -96,6 +95,10 @@ export default class Scene {
     } catch (e) {
       throw new Error(`Error creating Scene. ${e}`);
     }
+
+    // set clear history
+    scene.history = [json];
+    scene.historyIndex = 0;
 
     return scene;
   }
@@ -537,7 +540,7 @@ export default class Scene {
   public removeObject(obj: IObjectsCommonJSON): ISceneJSON {
     try {
       this.removeFromScene(obj);
-      this.removeFromObjectCollector(obj);
+      // this.removeFromObjectCollector(obj);
     } catch (e) {
       throw new Error(`Cannot Remove Object from Scene: ${e}`);
     }
@@ -625,37 +628,11 @@ export default class Scene {
     }
   }
 
-  public async getLocalPositionAsync(
-    json: IObjectsCommonJSON
-  ): Promise<IObjectPosition> {
+  public getLocalPosition(json: IObjectsCommonJSON): IObjectPosition {
     try {
       const obj = this.getObject(json);
-      const mesh = await obj.getMeshAsync();
-      const position = {
-        x: mesh.position.x,
-        y: mesh.position.y,
-        z: mesh.position.z
-      };
-      const angle = {
-        x: (mesh.rotation.x * 180.0) / Math.PI,
-        y: (mesh.rotation.y * 180.0) / Math.PI,
-        z: (mesh.rotation.z * 180.0) / Math.PI
-      };
-
-      if (Math.abs(angle.x - Math.trunc(angle.x)) < 0.01)
-        angle.x = Math.trunc(angle.x);
-      if (Math.abs(angle.y - Math.trunc(angle.y)) < 0.01)
-        angle.y = Math.trunc(angle.y);
-      if (Math.abs(angle.z - Math.trunc(angle.z)) < 0.01)
-        angle.z = Math.trunc(angle.z);
-
-      const scale = {
-        x: mesh.scale.x,
-        y: mesh.scale.x,
-        z: mesh.scale.x
-      };
-
-      return { position, angle, scale };
+      const position = new PositionCalculator(obj);
+      return position.getLocalPosition();
     } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
     }
@@ -687,12 +664,6 @@ export default class Scene {
     return this.toJSON();
   }
 
-  /**
-   * It removes Object from Scene and ObjectCollector.
-   * It transform the Object to a ObjectsGroup and add it to the Scene and ObjectCollector.
-   * @param json Object descriptor. It only pays attention to id
-   * UPDATES HISTORY
-   */
   public convertToGroup(json: IObjectsCommonJSON): ISceneJSON {
     if (json.type === RepetitionObject.typeName) {
       this.repetitionToGroup(json as IRepetitionObjectJSON);
@@ -787,8 +758,8 @@ export default class Scene {
         );
       }
 
-      // Remove from Scenen and Object Collector Repetiton Object
-      this.removeFromObjectCollector(json);
+      // Remove from Scene Repetiton Object
+      // this.removeFromObjectCollector(json);
       this.removeFromScene(json);
 
       return this.toJSON();
@@ -815,7 +786,7 @@ export default class Scene {
         throw new Error(`Object ${json.id} not present in Scene`);
       }
 
-      this.removeFromObjectCollector(json);
+      // this.removeFromObjectCollector(json);
       this.removeFromScene(json);
 
       json.children.forEach(childJSON => {
@@ -854,7 +825,7 @@ export default class Scene {
       });
 
       // remove ObjectsGroups from Scene and ObjectCollector
-      return this.removeObject(json);
+      return this.removeFromScene(json);
     } catch (e) {
       throw new Error(`Cannog ungroup. Unknown group ${e}`);
     }

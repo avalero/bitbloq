@@ -1,111 +1,107 @@
-import * as React from "react";
+import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { colors, FileSelectButton, Input, TextArea } from "@bitbloq/ui";
+import {
+  colors,
+  FileSelectButton,
+  Input,
+  TextArea,
+  DialogModal
+} from "@bitbloq/ui";
 
 export interface DocumentInfoFormProps {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   image: string;
-  onChange: (any) => void;
+  onChange: (data: any) => void;
 }
 
-class State {
-  readonly title: string;
-  readonly description: string;
+const maxImageSize = 2097152;
 
-  constructor(title, description) {
-    this.title = title;
-    this.description = description;
-  }
-}
+const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
+  title,
+  description,
+  image,
+  onChange
+}) => {
+  const [imageError, setImageError] = useState("");
+  const [titleFocused, setTitleFocused] = useState(false);
 
-class DocumentInfoForm extends React.Component<DocumentInfoFormProps, State> {
-  readonly state: State;
-
-  constructor(props) {
-    super(props);
-
-    this.state = new State(props.title || '', props.description || '');
-  }
-
-  componentDidUpdate(prevProps) {
-    const { title, description } = this.props;
-    if (title !== prevProps.title || description !== prevProps.description) {
-      this.setState({
-        title,
-        description
-      });
+  const onFileSelected = (file: File) => {
+    if (file.type.indexOf("image/") !== 0) {
+      setImageError("El formato de la imagen no es válido");
+    } else if (file.size > maxImageSize) {
+      setImageError("El tamaño de la imagen es demasiado grande");
+    } else {
+      onChange({ title, description, image: file });
     }
-  }
+  };
 
-  render() {
-    const { onChange, image } = this.props;
-    const { title, description } = this.state;
-    return (
-      <Container>
-        <Panel>
-          <Header>Información del documento</Header>
-          <Form>
-            <FormRow>
-              <FormLabel>
-                <label>Nombre del documento</label>
-              </FormLabel>
-              <FormInput>
-                <Input
-                  value={title}
-                  placeholder="Nombre del documento"
-                  onChange={e => {
-                    this.setState({
-                      title: e.target.value
-                    });
-                    onChange({ title: e.target.value, description });
-                  }}
-                />
-              </FormInput>
-            </FormRow>
-            <FormRow>
-              <FormLabel>
-                <label>Descripción del documento</label>
-              </FormLabel>
-              <FormInput>
-                <TextArea
-                  value={description}
-                  placeholder="Descripción del documento"
-                  onChange={e => {
-                    this.setState({
-                      description: e.target.value
-                    });
-                    onChange({ title, description: e.target.value });
-                  }}
-                  rows="3"
-                />
-              </FormInput>
-            </FormRow>
-            <FormRow>
-              <FormLabel>
-                <label>Imagen del documento</label>
-                <FormSubLabel>
-                  Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1Mb.
-                </FormSubLabel>
-              </FormLabel>
-              <FormInput>
-                <Image src={image} />
-                <ImageButton
-                  tertiary
-                  onFileSelected={image =>
-                    onChange({ title, description, image })
-                  }
-                >
-                  Seleccionar imagen
-                </ImageButton>
-              </FormInput>
-            </FormRow>
-          </Form>
-        </Panel>
-      </Container>
-    );
-  }
-}
+  return (
+    <Container>
+      <Panel>
+        <Header>Información del documento</Header>
+        <Form>
+          <FormRow>
+            <FormLabel>
+              <label>Nombre del documento</label>
+            </FormLabel>
+            <FormInput>
+              <Input
+                value={title || (titleFocused ? "" : "Documento sin título")}
+                placeholder="Nombre del documento"
+                onFocus={() => setTitleFocused(true)}
+                onBlur={() => setTitleFocused(false)}
+                onChange={e => {
+                  onChange({ title: e.target.value, description });
+                }}
+              />
+            </FormInput>
+          </FormRow>
+          <FormRow>
+            <FormLabel>
+              <label>Descripción del documento</label>
+            </FormLabel>
+            <FormInput>
+              <TextArea
+                value={description}
+                placeholder="Descripción del documento"
+                onChange={e => {
+                  onChange({ title, description: e.target.value });
+                }}
+                rows={3}
+              />
+            </FormInput>
+          </FormRow>
+          <FormRow>
+            <FormLabel>
+              <label>Imagen del documento</label>
+              <FormSubLabel>
+                Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 2Mb.
+              </FormSubLabel>
+            </FormLabel>
+            <FormInput>
+              <Image src={image} />
+              <ImageButton
+                accept="image/*"
+                tertiary
+                onFileSelected={onFileSelected}
+              >
+                Seleccionar imagen
+              </ImageButton>
+            </FormInput>
+          </FormRow>
+        </Form>
+      </Panel>
+      <DialogModal
+        title="Aviso"
+        isOpen={!!imageError}
+        text={imageError}
+        okText="Aceptar"
+        onOk={() => setImageError("")}
+      />
+    </Container>
+  );
+};
 
 export default DocumentInfoForm;
 

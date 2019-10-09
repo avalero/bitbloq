@@ -181,9 +181,12 @@ class ThreeDEditor extends React.Component<EditorProps> {
       onContentChange,
       canEditTitle,
       headerButtons,
+      headerRightContent,
       onHeaderButtonClick,
       preMenuContent,
-      t
+      t,
+      changeAdvancedMode,
+      documentAdvancedMode
     } = this.props;
     const { showExportModal, showSTLError } = this.state;
 
@@ -207,8 +210,11 @@ class ThreeDEditor extends React.Component<EditorProps> {
           onMenuOptionClick={this.onMenuOptionClick}
           onContentChange={onContentChange}
           headerButtons={headerButtons}
+          headerRightContent={headerRightContent}
           onHeaderButtonClick={onHeaderButtonClick}
           preMenuContent={preMenuContent}
+          changeAdvancedMode={changeAdvancedMode}
+          documentAdvancedMode={documentAdvancedMode}
         >
           {getTabs}
         </ThreeD>

@@ -1,8 +1,12 @@
-import styled from '@emotion/styled';
-import colors from '../colors';
+import styled from "@emotion/styled";
+import colors from "../colors";
 
-const HorizontalRule = styled.div`
-  height: ${props => props.small ? '1px' : '2px'};
+export interface HorizontanRuleProps {
+  small?: boolean;
+}
+
+const HorizontalRule = styled.div<HorizontanRuleProps>`
+  height: ${props => (props.small ? "1px" : "2px")};
   background-color: #e0e0e0;
   background-image: linear-gradient(
     to right,
@@ -15,9 +19,8 @@ const HorizontalRule = styled.div`
     ${colors.brandOrange} 80%,
     ${colors.brandYellow} 80%
   );
-  background-size:
-    ${props => props.small ? '200px' : '500px'}
-    ${props => props.small ? '1px' : '2px'};
+  background-size: ${props => (props.small ? "200px" : "500px")}
+    ${props => (props.small ? "1px" : "2px")};
   background-repeat: no-repeat;
 `;
 

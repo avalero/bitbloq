@@ -21,6 +21,8 @@ export const DOCUMENT_QUERY = gql`
       content
       image
       public
+      example
+      advancedMode
     }
   }
 `;
@@ -35,17 +37,29 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
       content
       image
       public
+      advancedMode
     }
   }
 `;
 
 export const DOCUMENTS_QUERY = gql`
-  query {
+  query Documents {
     documents {
       id
       type
       title
       createdAt
+      image
+    }
+  }
+`;
+
+export const EXAMPLES_QUERY = gql`
+  query Examples {
+    examples {
+      id
+      type
+      title
       image
     }
   }
@@ -58,6 +72,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $description: String
     $content: String
     $image: String
+    $advancedMode: Boolean
   ) {
     createDocument(
       input: {
@@ -66,6 +81,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         description: $description
         content: $content
         imageUrl: $image
+        advancedMode: $advancedMode
       }
     ) {
       id
@@ -81,6 +97,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
     $content: String
     $description: String
     $image: Upload
+    $advancedMode: Boolean
   ) {
     updateDocument(
       id: $id
@@ -89,6 +106,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         content: $content
         description: $description
         image: $image
+        advancedMode: $advancedMode
       }
     ) {
       id
@@ -121,6 +139,8 @@ export const EXERCISE_QUERY = gql`
       id
       type
       title
+      code
+      teacherName
       content
       description
       image
@@ -128,15 +148,20 @@ export const EXERCISE_QUERY = gql`
   }
 `;
 
-export const STUDENT_SUBMISSION_QUERY = gql`
-  query Submission($exerciseId: ObjectID!) {
-    exercise(id: $exerciseId) {
+export const EXERCISE_BY_CODE_QUERY = gql`
+  query ExerciseByCode($code: String!) {
+    exerciseByCode(code: $code) {
+      id
       type
-      title
-      description
-      image
+      teacherName
     }
+  }
+`;
+
+export const STUDENT_SUBMISSION_QUERY = gql`
+  query Submission {
     submission {
+      id
       content
     }
   }
@@ -171,9 +196,79 @@ export const UPLOAD_STL_MUTATION = gql`
 `;
 
 export const PUBLISH_DOCUMENT_MUTATION = gql`
-  mutation publishDocument($id: ObjectID!, $public: Boolean) {
-    publishDocument(id: $id, public: $public) {
+  mutation publishDocument(
+    $id: ObjectID!
+    $public: Boolean
+    $example: Boolean
+  ) {
+    publishDocument(id: $id, public: $public, example: $example) {
       id
+    }
+  }
+`;
+
+export const LOGIN_MUTATION = gql`
+  mutation Login($email: EmailAddress!, $password: String!) {
+    login(email: $email, password: $password)
+  }
+`;
+
+export const RENEW_TOKEN_MUTATION = gql`
+  mutation RenewToken {
+    renewToken
+  }
+`;
+
+export const CHECK_RESET_PASSWORD_TOKEN_MUTATION = gql`
+  mutation CheckResetPasswordToken($token: String) {
+    checkResetPasswordToken(token: $token)
+  }
+`;
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($email: EmailAddress!) {
+    resetPasswordEmail(email: $email)
+  }
+`;
+
+export const UPDATE_PASSWORD_MUTATION = gql`
+  mutation UpdatePassword($token: String, $newPassword: String) {
+    updatePassword(token: $token, newPassword: $newPassword)
+  }
+`;
+
+export const START_SUBMISSION_MUTATION = gql`
+  mutation StartSubmission(
+    $studentNick: String!
+    $exerciseCode: String!
+    $password: String!
+  ) {
+    startSubmission(
+      studentNick: $studentNick
+      exerciseCode: $exerciseCode
+      password: $password
+    ) {
+      token
+      exerciseID
+      type
+    }
+  }
+`;
+
+export const LOGIN_SUBMISSION_MUTATION = gql`
+  mutation LoginSubmission(
+    $studentNick: String!
+    $exerciseCode: String!
+    $password: String!
+  ) {
+    loginSubmission(
+      studentNick: $studentNick
+      exerciseCode: $exerciseCode
+      password: $password
+    ) {
+      token
+      exerciseID
+      type
     }
   }
 `;

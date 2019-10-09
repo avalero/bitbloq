@@ -44,7 +44,7 @@ function* watchCreateObject() {
 
 function* convertToBasicOperations(object, scene) {
   const { position, angle, scale } = yield call(
-    [scene, scene.getLocalPositionAsync],
+    [scene, scene.getLocalPosition],
     object
   );
 
@@ -96,7 +96,9 @@ function* convertToAdvancedOperations(object, scene) {
 }
 
 function* watchSetAdvancedMode({ payload: isAdvanced }) {
-  sessionStorage.setItem('advancedMode', JSON.stringify(isAdvanced));
+  if (typeof window !== `undefined`) {
+    window.sessionStorage.setItem('advancedMode', JSON.stringify(isAdvanced));
+  }
 
   const scene = yield select(state => state.threed.scene.sceneInstance);
   const objects = yield select(state => state.threed.scene.objects);

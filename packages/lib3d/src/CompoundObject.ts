@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
-import * as Bitbloq from './Bitbloq';
-import Object3D from './Object3D';
-import ObjectsCommon from './ObjectsCommon';
+import * as Bitbloq from "./Bitbloq";
+import Object3D from "./Object3D";
+import ObjectsCommon from "./ObjectsCommon";
 import {
   IMirrorOperation,
   IObjectsCommonJSON,
@@ -18,10 +18,10 @@ import {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-  ICompoundObjectJSON,
-} from './Interfaces';
-import * as THREE from 'three';
-import Worker from './compound.worker';
+  ICompoundObjectJSON
+} from "./Interfaces";
+import * as THREE from "three";
+import Worker from "./compound.worker";
 
 export type ChildrenArray = ObjectsCommon[];
 
@@ -71,7 +71,7 @@ export default class CompoundObject extends Object3D {
   ) {
     super(viewOptions, operations);
     if (children.length === 0) {
-      throw new Error('Compound Object requires at least one children');
+      throw new Error("Compound Object requires at least one children");
     }
     this.children = children;
 
@@ -92,15 +92,15 @@ export default class CompoundObject extends Object3D {
           this.worker = null;
         }
 
-        this.worker = new Worker('http://bitbloq.bq.com');
+        this.worker = new Worker("http://bitbloq.bq.com");
         // listen to events from web worker
 
         (this.worker as Worker).onmessage = (event: any) => {
-          if (event.data.status === 'error') {
+          if (event.data.status === "error") {
             (this.worker as Worker).terminate();
             this.worker = null;
-            reject(new Error('Compound Object Error'));
-          } else if (event.data.status === 'invisible') {
+            reject(new Error("Compound Object Error"));
+          } else if (event.data.status === "invisible") {
             const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
             mesh.visible = false;
             this.mesh = mesh;
@@ -150,7 +150,7 @@ export default class CompoundObject extends Object3D {
             } else {
               (this.worker as Worker).terminate();
               this.worker = null;
-              reject(new Error('Mesh not computed correctly'));
+              reject(new Error("Mesh not computed correctly"));
             }
           });
         };
@@ -161,7 +161,7 @@ export default class CompoundObject extends Object3D {
           const message = {
             bufferArray,
             type: this.getTypeName(),
-            numChildren: this.children.length,
+            numChildren: this.children.length
           };
           (this.worker as Worker).postMessage(message, bufferArray);
         });
@@ -194,7 +194,7 @@ export default class CompoundObject extends Object3D {
   public toJSON(): ICompoundObjectJSON {
     const json: ICompoundObjectJSON = {
       ...super.toJSON(),
-      children: this.children.map(obj => obj.toJSON()),
+      children: this.children.map(obj => obj.toJSON())
     };
     return json;
   }
@@ -205,13 +205,13 @@ export default class CompoundObject extends Object3D {
     forceUpdate: boolean = false
   ) {
     if (this.id !== object.id) {
-      throw new Error('Object id does not match with JSON id');
+      throw new Error("Object id does not match with JSON id");
     }
 
     // update operations and view options
     const vO = {
       ...ObjectsCommon.createViewOptions(),
-      ...object.viewOptions,
+      ...object.viewOptions
     };
 
     this.setOperations(object.operations);
@@ -300,7 +300,7 @@ export default class CompoundObject extends Object3D {
       ) {
         this.applyMirrorOperation(operation as IMirrorOperation);
       } else {
-        throw Error('ERROR: Unknown Operation');
+        throw Error("ERROR: Unknown Operation");
       }
     });
     this.mesh.updateMatrixWorld(true);
@@ -314,11 +314,11 @@ export default class CompoundObject extends Object3D {
     return new Promise((resolve, reject) => {
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
-        'position',
+        "position",
         new THREE.BufferAttribute(vertices, 3)
       );
       buffGeometry.addAttribute(
-        'normal',
+        "normal",
         new THREE.BufferAttribute(normals, 3)
       );
       const mesh: THREE.Mesh = new THREE.Mesh(
@@ -400,5 +400,5 @@ export default class CompoundObject extends Object3D {
 }
 
 // they need to be at bottom to avoid typescript error with circular imports
-import RepetitionObject from './RepetitionObject';
-import ObjectsGroup from './ObjectsGroup';
+import RepetitionObject from "./RepetitionObject";
+import ObjectsGroup from "./ObjectsGroup";

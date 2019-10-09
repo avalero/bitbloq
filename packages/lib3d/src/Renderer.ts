@@ -60,7 +60,7 @@ export default class Renderer {
   private objectInTransition: THREE.Group | undefined;
   private helpersGroup: THREE.Group;
   private sceneSetupGroup: THREE.Group;
-  private container: HTMLElement;
+  private container?: HTMLElement;
   private objectClickHandlers: ObjectClickHandler[];
   private backgroundClickHandlers: BackgroundClickHandler[];
   private containerRect: ClientRect;
@@ -87,33 +87,33 @@ export default class Renderer {
   }
 
   public async updateScene(): Promise<void> {
-    try{
-    // objects in transition
-    const newObjectInTranstion:
-      | THREE.Group
-      | undefined = await this.scene.getObjectInTransitionAsync();
-    if (newObjectInTranstion) {
+    try {
+      // objects in transition
+      const newObjectInTranstion:
+        | THREE.Group
+        | undefined = await this.scene.getObjectInTransitionAsync();
+      if (newObjectInTranstion) {
+        if (this.objectInTransition) {
+          this.threeScene.remove(this.objectInTransition);
+        }
+        this.objectInTransition = newObjectInTranstion;
+        this.threeScene.add(this.objectInTransition);
+      }
+
+      // set objects
+      const newObjectsGroup = await this.scene.getObjectsAsync();
+
+      this.threeScene.remove(this.objectsGroup);
       if (this.objectInTransition) {
         this.threeScene.remove(this.objectInTransition);
+        (this.objectInTransition as any) = undefined;
       }
-      this.objectInTransition = newObjectInTranstion;
-      this.threeScene.add(this.objectInTransition);
+
+      this.threeScene.add(newObjectsGroup);
+      this.objectsGroup = newObjectsGroup;
+    } catch (e) {
+      console.log(e);
     }
-
-    // set objects
-    const newObjectsGroup = await this.scene.getObjectsAsync();
-
-    this.threeScene.remove(this.objectsGroup);
-    if (this.objectInTransition) {
-      this.threeScene.remove(this.objectInTransition);
-      (this.objectInTransition as any) = undefined;
-    }
-
-    this.threeScene.add(newObjectsGroup);
-    this.objectsGroup = newObjectsGroup;
-  }catch(e){
-    console.log(e);
-  }
   }
 
   public setScene(scene: Scene) {
@@ -205,6 +205,14 @@ export default class Renderer {
     return imgData;
   }
 
+  public destroy() {
+    this.navigationBox.destroy();
+    this.axisHelper.destroy();
+    this.threeRenderer.dispose();
+    this.threeRenderer.forceContextLoss();
+    this.container = undefined;
+  }
+
   private setup() {
     const rendererParams = {
       antialias: this.options.antialias,
@@ -236,19 +244,19 @@ export default class Renderer {
       this.threeRenderer.domElement
     );
 
-    this.container.addEventListener("mousedown", this.handleMouseDown);
-    this.container.addEventListener("mousemove", this.handleMouseMove);
-    this.container.addEventListener("mouseup", this.handleMouseUp);
+    this.container!.addEventListener("mousedown", this.handleMouseDown);
+    this.container!.addEventListener("mousemove", this.handleMouseMove);
+    this.container!.addEventListener("mouseup", this.handleMouseUp);
 
-    this.container.style.position = "relative";
+    this.container!.style.position = "relative";
 
     const rendererContainer = document.createElement("div");
     rendererContainer.style.cssText = rendererContainerStyles;
-    this.container.appendChild(rendererContainer);
+    this.container!.appendChild(rendererContainer);
 
     const navBoxContainer = document.createElement("div");
     navBoxContainer.style.cssText = navBoxContainerStyles;
-    this.container.appendChild(navBoxContainer);
+    this.container!.appendChild(navBoxContainer);
 
     this.navigationBox = new NavigationBox(navBoxContainer, {
       boxLabels: this.options.navigationBoxLabels,
@@ -260,7 +268,7 @@ export default class Renderer {
 
     const axisHelperContainer = document.createElement("div");
     axisHelperContainer.style.cssText = axisHelperContainerStyles;
-    this.container.appendChild(axisHelperContainer);
+    this.container!.appendChild(axisHelperContainer);
 
     this.axisHelper = new AxisHelper(axisHelperContainer);
 
@@ -270,7 +278,7 @@ export default class Renderer {
   }
 
   private updateSize() {
-    this.containerRect = this.container.getBoundingClientRect();
+    this.containerRect = this.container!.getBoundingClientRect();
     const { width, height } = this.containerRect;
     this.threeRenderer.setSize(width, height);
 
@@ -301,6 +309,11 @@ export default class Renderer {
   }
 
   private renderLoop = () => {
+    // Renderer has been destroyed. Stop rendering
+    if (!this.container) {
+      return;
+    }
+
     this.updateSize();
     const delta = this.clock.getDelta();
     const cameraNeedsUpdate = this.cameraControls.update(delta);

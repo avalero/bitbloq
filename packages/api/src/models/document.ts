@@ -7,6 +7,7 @@ export interface IDocument extends Document {
   type?: string;
   folder?: string;
   content?: string;
+  advancedMode?: boolean;
   cache?: string;
   image?: string;
   public: boolean;
@@ -41,6 +42,11 @@ const DocumentMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: "content"
+  },
+
+  advancedMode: {
+    type: Boolean,
+    default: false
   },
 
   cache: {

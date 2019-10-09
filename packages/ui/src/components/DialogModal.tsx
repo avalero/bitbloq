@@ -4,15 +4,18 @@ import Button from "./Button";
 import Modal from "./Modal";
 import colors from "../colors";
 
-interface DialogModalProps {
+export interface DialogModalProps {
   isOpen: boolean;
   title?: string;
   text?: string;
   content?: JSX.Element;
   okText?: string;
   cancelText?: string;
+  okButton?: JSX.Element;
+  cancelButton?: JSX.Element;
   onOk: () => void;
-  onCancel: () => void;
+  onCancel?: () => void;
+  transparentOverlay?: boolean;
 }
 
 const DialogModal: React.SFC<DialogModalProps> = ({
@@ -22,16 +25,25 @@ const DialogModal: React.SFC<DialogModalProps> = ({
   content,
   okText,
   cancelText,
+  okButton,
+  cancelButton,
   onOk,
-  onCancel
+  onCancel,
+  transparentOverlay
 }) => (
-  <Modal isOpen={isOpen} showHeader={false} onClose={onCancel}>
+  <Modal
+    isOpen={isOpen}
+    showHeader={false}
+    transparentOverlay={transparentOverlay}
+  >
     <Content>
       <h2>{title}</h2>
       {text && <p>{text}</p>}
       {content}
-      {okText && <Button onClick={onOk}>{okText}</Button>}
-      {cancelText && (
+      {okButton}
+      {!okButton && okText && <Button onClick={onOk}>{okText}</Button>}
+      {cancelButton}
+      {!cancelButton && cancelText && (
         <Button tertiary onClick={onCancel}>
           {cancelText}
         </Button>

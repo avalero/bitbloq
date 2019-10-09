@@ -1,13 +1,37 @@
 import { ApolloError } from "apollo-server-koa";
 import { UploadModel } from "../models/upload";
+import { urlencoded } from "express";
 
+const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
 
 const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
-let publicUrl: string;
+let publicUrl: string, fileSize: number;
+
+const normalize = (function() {
+  let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
+    to = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
+    mapping = {};
+
+  for (let i = 0, j = from.length; i < j; i++)
+    mapping[from.charAt(i)] = to.charAt(i);
+
+  return function(str) {
+    let ret = [];
+    for (let i = 0, j = str.length; i < j; i++) {
+      let c = str.charAt(i);
+      if (mapping.hasOwnProperty(str.charAt(i))) ret.push(mapping[c]);
+      else ret.push(c);
+    }
+    return ret
+      .join("")
+      .replace(/[^-A-Za-z0-9]+/g, "-")
+      .toLowerCase();
+  };
+})();
 
 const processUpload = async (
   createReadStream,
@@ -16,7 +40,7 @@ const processUpload = async (
   resolve,
   reject
 ) => {
-  const uniqueName: string = Date.now() + filename;
+  const uniqueName: string = Date.now() + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
   const file = bucket.file(gcsName);
 
@@ -36,7 +60,7 @@ const processUpload = async (
         throw new ApolloError("Error uploading file", "UPLOAD_ERROR");
       }
 
-      file.makePublic().then(() => {
+      file.makePublic().then(async () => {
         publicUrl = getPublicUrl(gcsName);
         resolve("OK");
       });
@@ -48,6 +72,45 @@ const processUpload = async (
 function getPublicUrl(filename) {
   //const finalName: string = encodeURIComponent(filename);
   return `https://storage.googleapis.com/${bucketName}/${filename}`;
+}
+
+function getFilesizeInBytes(filename) {
+  try {
+    const stats = fs.statSync(filename);
+    const fileSizeInBytes: number = stats["size"];
+    return fileSizeInBytes / 1000000;
+  } catch (e) {
+    console.log(e);
+  }
+}
+
+export async function uploadImage(image, documentID, userID) {
+  const { createReadStream, filename, mimetype, encoding } = await image;
+  if (!createReadStream || !filename || !mimetype || !encoding) {
+    throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
+  }
+  if (String(mimetype).indexOf("image") === -1) {
+    throw new ApolloError(
+      "Upload error, check image format.",
+      "UPLOAD_FORMAT_ERROR"
+    );
+  }
+  if (getFilesizeInBytes(createReadStream().path) > 2) {
+    // 2megas
+    throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
+  }
+  await new Promise((resolve, reject) => {
+    processUpload(createReadStream, filename, userID, resolve, reject);
+  });
+  const uploadNew = new UploadModel({
+    document: documentID,
+    filename,
+    mimetype,
+    encoding,
+    publicUrl,
+    user: userID
+  });
+  return UploadModel.create(uploadNew);
 }
 
 const uploadResolver = {
@@ -82,6 +145,12 @@ const uploadResolver = {
       } = await args.file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
+      }
+      if (mimetype !== "model/stl") {
+        throw new ApolloError(
+          "Upload error, check file format. It must be an STL",
+          "UPLOAD_FORMAT_ERROR"
+        );
       }
       await new Promise((resolve, reject) => {
         processUpload(

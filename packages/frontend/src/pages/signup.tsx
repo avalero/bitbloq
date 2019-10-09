@@ -299,7 +299,7 @@ class SignupPage extends React.Component<any, SignupPageState> {
           <Container>
             <Logo src={logoBetaImage} alt="Bitbloq Beta" />
             <SignupPanel>
-              <PanelHeader>Crear cuenta de profesor</PanelHeader>
+              <PanelHeader>Crear cuenta</PanelHeader>
               <HorizontalRule small />
               {currentStep === SignupStep.Survey && this.renderSurveyStep()}
               {currentStep === SignupStep.UserData && this.renderUserDataStep()}
@@ -316,15 +316,19 @@ const SignupPageWithMutation = props => {
 
   if (accountCreated) {
     return (
-      <Wrap>
-        <DialogModal
-          isOpen={true}
-          title="Cuenta creada"
-          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta."
-          cancelText="Volver a la web"
-          onCancel={() => navigate("/")}
-        />
-      </Wrap>
+      <>
+        <SEO title="Signup" keywords={[`bitbloq`]} />
+        <Global styles={baseStyles} />
+        <Wrap>
+          <DialogModal
+            isOpen={true}
+            title="Cuenta creada"
+            text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta."
+            cancelText="Volver a la web"
+            onCancel={() => navigate("/")}
+          />
+        </Wrap>
+      </>
     );
   }
 
