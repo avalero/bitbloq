@@ -35,6 +35,8 @@ import NewExerciseButton from "./NewExerciseButton";
 import EditTitleModal from "./EditTitleModal";
 import DocumentListComp from "./DocumentsList";
 
+import Breadcrumbs from "./Breadcrumbs";
+
 enum OrderType {
   Creation = "creation",
   Modification = "modification",
@@ -78,6 +80,13 @@ const Documents: FC = () => {
   const [currentLocation, setCurrentLocation] = useState(
     userData ? userData.rootFolder : ""
   );
+  const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
+    {
+      route: userData ? userData.rootFolder : "",
+      text: userData ? "Mis documentos" : "",
+      type: ""
+    }
+  ]);
 
   let openFile = React.createRef<HTMLInputElement>();
 
@@ -99,6 +108,18 @@ const Documents: FC = () => {
 
   const onFolderClick = async (e, folder) => {
     setCurrentLocation(folder.id);
+    setBreadcrumbsLinks([
+      ...breadcrumbLinks,
+      { route: folder.id, text: folder.name, type: "folder" }
+    ]);
+  };
+
+  const onDocumentClick = ({ id, type, title }) => {
+    setBreadcrumbsLinks([
+      ...breadcrumbLinks,
+      { route: id, text: title, type: "document" }
+    ]);
+    window.open(`/app/document/${id}`);
   };
 
   const onCreateFolder = async folderName => {
@@ -212,6 +233,8 @@ const Documents: FC = () => {
 
   const { documents, folders } = dataPage.folder;
 
+  console.log({ folders }, folders.parentsPath);
+
   return (
     <Container>
       <AppHeader />
@@ -220,13 +243,7 @@ const Documents: FC = () => {
           {currentLocation === userData.rootFolder ? (
             <h1>Mis documentos</h1>
           ) : (
-            <h1>
-              <a onClick={() => setCurrentLocation(userData.rootFolder)}>
-                Mis documentos
-              </a>{" "}
-              > <Icon name="folder-icon" />
-              {dataPage.folder.name}
-            </h1>
+            <Breadcrumbs links={breadcrumbLinks} />
           )}
         </Header>
         <Rule />
@@ -292,6 +309,7 @@ const Documents: FC = () => {
                 folders={filterFolders(folders)}
                 currentLocation={currentLocation}
                 onFolderClick={onFolderClick}
+                onDocumentClick={onDocumentClick}
               />
             ) : (
               <NoDocuments>
@@ -304,6 +322,7 @@ const Documents: FC = () => {
               folders={filterFolders(folders)}
               currentLocation={currentLocation}
               onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
             />
           )
         ) : (

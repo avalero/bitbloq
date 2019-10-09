@@ -9,6 +9,19 @@ const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
 import { logger, loggerController } from "../controllers/logs";
 
+const getParentsPath = async (folder: IFolder) => {
+  let path = [];
+  if ((folder.name = "root")) {
+    return [folder, ...path];
+  } else {
+    return [
+      this.parentsPath(await FolderModel.findOne({ _id: folder.parent })),
+      folder,
+      ...path
+    ];
+  }
+};
+
 const duplicateFolderChildren = async (folder, userID) => {
   if (folder.name === "root") {
     return folder;
@@ -368,8 +381,13 @@ const folderResolver = {
 
   Folder: {
     documents: async (folder: IFolder) =>
-      DocumentModel.find({ folder: folder }),
-    folders: async (folder: IFolder) => FolderModel.find({ parent: folder })
+      DocumentModel.find({ folder: folder.id }),
+    folders: async (folder: IFolder) => FolderModel.find({ parent: folder.id }),
+    parentsPath: async (folder: IFolder) => {
+      const result = getParentsPath(folder);
+      console.log(result);
+      return result;
+    }
   }
 };
 
