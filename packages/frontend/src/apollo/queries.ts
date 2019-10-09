@@ -269,6 +269,14 @@ export const EXERCISE_UPDATE_MUTATION = gql`
   }
 `;
 
+export const EXERCISE_DELETE_MUTATION = gql`
+  mutation DeleteExercise($id: ObjectID!) {
+    deleteExercise(id: $id) {
+      id
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission {
     submission {

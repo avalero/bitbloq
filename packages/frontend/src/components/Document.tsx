@@ -22,7 +22,8 @@ import { sortByCreatedAt } from "../util";
 import { UserDataContext } from "../lib/useUserData";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
-  EXERCISE_UPDATE_MUTATION
+  EXERCISE_UPDATE_MUTATION,
+  EXERCISE_DELETE_MUTATION
 } from "../apollo/queries";
 
 const DOCUMENT_QUERY = gql`
@@ -448,9 +449,48 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
+  renderRemoveExerciseModal(t) {
+    const { id: documentId } = this.props;
+    const { isRemoveExerciseOpen, exerciseId } = this.state;
+
+    return (
+      <Mutation mutation={EXERCISE_DELETE_MUTATION}>
+        {deleteExercise => (
+          <DialogModal
+            isOpen={isRemoveExerciseOpen !== 0}
+            title={t("exercises-modal-remove")}
+            text={
+              isRemoveExerciseOpen === 1
+                ? t("exercises-remove-nosubmission")
+                : t("exercises-remove-submission")
+            }
+            okText={t("general-accept-button")}
+            cancelText={t("general-cancel-button")}
+            onOk={() => {
+              deleteExercise({
+                variables: {
+                  id: exerciseId
+                },
+                refetchQueries: [
+                  {
+                    query: DOCUMENT_QUERY,
+                    variables: { id: documentId }
+                  }
+                ]
+              });
+              this.setState({
+                isRemoveExerciseOpen: 0
+              });
+            }}
+            onCancel={() => this.setState({ isRemoveExerciseOpen: 0 })}
+          />
+        )}
+      </Mutation>
+    );
+  }
+
   render() {
     const { id } = this.props;
-    const { isRemoveExerciseOpen } = this.state;
 
     return (
       <UserDataContext.Consumer>
@@ -505,19 +545,7 @@ class Document extends React.Component<any, DocumentState> {
                 </Query>
                 {this.renderCreateExerciseModal(document, t)}
                 {this.renderUpdateExerciseModal(t)}
-                <DialogModal
-                  isOpen={isRemoveExerciseOpen !== 0}
-                  title={t("exercises-modal-remove")}
-                  text={
-                    isRemoveExerciseOpen === 1
-                      ? t("exercises-remove-nosubmission")
-                      : t("exercises-remove-submission")
-                  }
-                  okText={t("general-accept-button")}
-                  cancelText={t("general-cancel-button")}
-                  onOk={() => {}}
-                  onCancel={() => this.setState({ isRemoveExerciseOpen: 0 })}
-                />
+                {this.renderRemoveExerciseModal(t)}
               </Container>
             )}
           </Translate>
