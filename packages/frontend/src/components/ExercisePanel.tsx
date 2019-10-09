@@ -78,6 +78,22 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               ]}
             />
           )}
+          <ExerciseDetails>
+            <ExerciseInfo>
+              <div className="code">
+                <CodeBox>{exercise.code}</CodeBox>
+                {t("exercise-details-code")}
+              </div>
+              <div className="accept-submissions">
+                {t("exercise-details-submissions")}
+                <SubmissionsSwitch
+                  value={exercise.acceptSubmissions}
+                  onChange={onAcceptedSubmissions}
+                />
+              </div>
+            </ExerciseInfo>
+            <ExerciseSubmissions></ExerciseSubmissions>
+          </ExerciseDetails>
           {/*<Header>
             <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
               <Toggle isOpen={isOpen}>
@@ -167,11 +183,36 @@ export default ExercisePanel;
 const Container = styled.div`
   border: 1px solid #c0c3c9;
   border-radius: 4px;
-  height: 38px;
   margin-bottom: 20px;
   position: relative;
   width: 100%;
 `;
+
+const ExerciseDetails = styled.div``;
+
+const ExerciseInfo = styled.div`
+  align-items: center;
+  border-top: 1px solid #c0c3c9;
+  color: #777;
+  display: flex;
+  font-family: Roboto;
+  font-size: 14px;
+  text-align: right;
+  height: 69px;
+  justify-content: space-between;
+  padding: 0 20px;
+
+  div {
+    align-items: center;
+    display: flex;
+  }
+`;
+
+const SubmissionsSwitch = styled(Switch)`
+  margin-left: 10px;
+`;
+
+const ExerciseSubmissions = styled.div``;
 
 const ExerciseMenu = styled(DocumentCardMenu)`
   right: 0;
@@ -181,7 +222,7 @@ const ExerciseMenu = styled(DocumentCardMenu)`
 
 const Header = styled.div`
   display: flex;
-  height: 100%;
+  height: 40px;
   width: 100%;
 `;
 
@@ -217,7 +258,7 @@ const Toggle = styled.div<ToggleProps>`
     props.isOpen &&
     css`
       svg {
-        transform: none;
+        transform: rotate(180deg);
       }
     `}
 `;
@@ -274,16 +315,19 @@ const HeaderRow = styled.div`
 `;
 
 const CodeBox = styled.div`
-  padding: 0px 20px;
-  height: 30px;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 500;
+  border: 1px solid ${colors.gray3};
+  border-radius: 4px;
+  color: #474749;
+  display: flex;
   font-family: Roboto Mono;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+  height: 28px;
+  justify-content: center;
+  margin-right: 10px;
+  padding: 0px 20px;
 `;
 
 const Content = styled.div`

@@ -67,6 +67,8 @@
   "exercises-modal-remove": "Eliminar",
   "exercises-remove-submission": "¿Seguro que quieres eliminar este ejercicio? Si lo haces eliminarás todas las entregas que contiene.",
   "exercises-remove-nosubmission": "¿Seguro que quieres eliminar este ejercicio?",
+  "exercise-details-code": "Código para compartir",
+  "exercise-details-submissions": "Admite más entregas:",
   "document-body-title": "Documento sin título",
   "document-body-description": "Sin descripción",
   "tab-3d": "3D",
