@@ -166,20 +166,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDuplicateFolder = async (e, folder) => {
     e.stopPropagation();
-    await duplicateFolder({
-      variables: {
-        id: folder.id
-      },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation
-          }
-        }
-      ]
-    });
     setMenuOpenId(null);
+    return null;
   };
 
   const onDuplicateDocument = async (e, document) => {
@@ -291,6 +279,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     },
                     {
+                      disabled: true,
                       iconName: "duplicate",
                       label: "Crear una copia",
                       onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
