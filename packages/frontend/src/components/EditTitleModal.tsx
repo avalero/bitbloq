@@ -3,13 +3,14 @@ import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 
 interface EditTitleModalProps {
-  docTitle: string;
+  title: string;
   onSave: (title: string) => any;
   onCancel: () => any;
   modalTitle: string;
   modalText: string;
   placeholder: string;
   saveButton: string;
+  type?: string;
 }
 
 const EditTitleModal: FC<EditTitleModalProps> = props => {
@@ -19,9 +20,11 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
     modalTitle,
     modalText,
     placeholder,
-    saveButton
+    saveButton,
+    type
   } = props;
   const [title, setTitle] = useState(props.title);
+  const [error, setError] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -29,6 +32,17 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
       titleInputRef.current.focus();
     }
   });
+
+  const validate = (value: string): boolean => {
+    if (
+      !value ||
+      (value.length <= 64 && value.match(/^[\w\s]+$/) && !value.match(/^\s+$/))
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
 
   return (
     <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
@@ -43,7 +57,18 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
           <Input
             ref={titleInputRef}
             placeholder={title || placeholder}
-            onChange={e => setTitle(e.target.value)}
+            onChange={e => {
+              const value: string = e.target.value;
+              if (validate(value)) {
+                setTitle(value);
+                setError(false);
+              } else {
+                setTitle(value);
+                setError(true);
+              }
+            }}
+            type={type || "text"}
+            error={error}
           />
           <Buttons>
             <Button
@@ -55,7 +80,7 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button disabled={!title}>{saveButton}</Button>
+            <Button disabled={error}>{saveButton}</Button>
           </Buttons>
         </form>
       </Content>

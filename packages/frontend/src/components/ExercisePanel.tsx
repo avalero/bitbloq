@@ -1,132 +1,232 @@
-import * as React from "react";
+import React, { FC, useState } from "react";
 import dayjs from "dayjs";
 import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { colors, Button, Icon, Switch } from "@bitbloq/ui";
+import { colors, Button, Icon, Switch, Translate } from "@bitbloq/ui";
+import DocumentCardMenu from "./DocumentCardMenu";
 
 export interface ExercisePanelProps {
   exercise: any;
   onCancelSubmission: (value: any) => void;
   onCheckSubmission: (value: any) => void;
   onAcceptedSubmissions: (value: boolean) => void;
+  onChangeName: (value: string) => void;
+  onRemove: () => void;
 }
 
-class ExercisePanelState {
-  readonly isOpen: boolean = false;
-}
+const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
+  const {
+    exercise,
+    onCancelSubmission,
+    onCheckSubmission,
+    onAcceptedSubmissions,
+    onChangeName,
+    onRemove
+  } = props;
 
-class ExercisePanel extends React.Component<
-  ExercisePanelProps,
-  ExercisePanelState
-> {
-  readonly state = new ExercisePanelState();
+  const [isOpen, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuSubmissionOpen, setMenuSubmissionOpen] = useState(false);
 
-  render() {
-    const {
-      exercise,
-      onCancelSubmission,
-      onCheckSubmission,
-      onAcceptedSubmissions
-    } = this.props;
-    const { isOpen } = this.state;
-
-    return (
-      <Container>
-        <Header>
-          <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
-            <Toggle isOpen={isOpen}>
-              <Icon name="angle" />
-            </Toggle>
-          </HeaderLeft>
-          <HeaderCenter>
-            <Title>{exercise.title}</Title>
-            <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
-          </HeaderCenter>
-          <HeaderRight>
-            <Icon name="ellipsis" />
-          </HeaderRight>
-        </Header>
-        {/*<Header>
-          <HeaderLeft onClick={() => this.setState({ isOpen: !isOpen })}>
-            <Toggle isOpen={isOpen}>
-              <Icon name="angle" />
-            </Toggle>
-            <div>
+  return (
+    <Translate>
+      {t => (
+        <Container>
+          <Header onClick={() => setOpen(!isOpen)}>
+            <HeaderLeft>
+              <Toggle isOpen={isOpen}>
+                <Icon name="angle" />
+              </Toggle>
+            </HeaderLeft>
+            <HeaderCenter>
               <Title>{exercise.title}</Title>
-              <Date>{dayjs(exercise.createdAt).format("DD/MM/YY hh:mm")}</Date>
-            </div>
-          </HeaderLeft>
-          <HeaderRight>
-            <HeaderRow>
-              <span>Código para compartir:</span>
-              <CodeBox>{exercise.code}</CodeBox>
-            </HeaderRow>
-            <HeaderRow>
-              <span>Admite más entregas:</span>
-              <Switch
-                value={exercise.acceptSubmissions}
-                onChange={onAcceptedSubmissions}
-              />
-            </HeaderRow>
-          </HeaderRight>
-        </Header>
-        <Spring to={{ height: isOpen ? "auto" : 0 }}>
-          {({ height }) => (
-            <Content style={{ height }}>
-              {exercise.submissions && exercise.submissions.length > 0 && (
-                <Table key="table" style={{ height }}>
-                  <thead>
-                    <tr>
-                      <th>Alumnos</th>
-                      <th>Fecha de entrega</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {exercise.submissions.map(submission => (
-                      <tr key={submission.id}>
-                        <td>
-                          <StudentCell>
-                            <StudentNick>{submission.studentNick}</StudentNick>
-                            <Button
-                              tertiary
-                              small
-                              onClick={() => onCancelSubmission(submission)}
-                            >
-                              Expulsar
-                            </Button>
-                          </StudentCell>
-                        </td>
-                        <td>
-                          {submission.finished &&
-                            dayjs(submission.finishedAt).format(
-                              "DD/MM/YY hh:mm"
-                            )}
-                        </td>
-                        <td>
-                          {submission.finished && (
-                            <Button
-                              tertiary
-                              small
-                              onClick={() => onCheckSubmission(submission)}
-                            >
-                              Comprobar
-                            </Button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              )}
-            </Content>
+              <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
+            </HeaderCenter>
+            <HeaderRight
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                setMenuOpen(!menuOpen);
+              }}
+            >
+              <Icon name="ellipsis" />
+            </HeaderRight>
+          </Header>
+          {menuOpen && (
+            <ExerciseMenu
+              options={[
+                {
+                  iconName: "pencil",
+                  label: t("menu-change-name"),
+                  onClick() {
+                    setMenuOpen(false);
+                    onChangeName(exercise.title);
+                  }
+                },
+                {
+                  iconName: "trash",
+                  label: t("menu-delete-exercise"),
+                  onClick() {
+                    setMenuOpen(false);
+                    onRemove();
+                  },
+                  red: true
+                }
+              ]}
+            />
           )}
-        </Spring>*/}
-      </Container>
-    );
-  }
+          <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
+            {({ height }) => (
+              <ExerciseDetails style={{ height }}>
+                <ExerciseInfo>
+                  <div className="code">
+                    <CodeBox>{exercise.code}</CodeBox>
+                    {t("exercise-details-code")}
+                  </div>
+                  <div className="accept-submissions">
+                    {t("exercise-details-submissions")}
+                    <SubmissionsSwitch
+                      value={exercise.acceptSubmissions}
+                      onChange={onAcceptedSubmissions}
+                    />
+                  </div>
+                </ExerciseInfo>
+                <ExerciseSubmissions>
+                  {exercise.submissions && exercise.submissions.length > 0 ? (
+                    <Table key="table">
+                      <thead>
+                        <tr>
+                          <th>{t("submission-table-team")}</th>
+                          <th>{t("submission-table-date")}</th>
+                          <th>{t("submission-table-grade")}</th>
+                          <th />
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {exercise.submissions.map(submission => (
+                          <SubmissionPanel
+                            key={submission.id}
+                            onCheckSubmission={onCheckSubmission}
+                            t={t}
+                            submission={submission}
+                          />
+                        ))}
+                      </tbody>
+                    </Table>
+                  ) : (
+                    <NoSubmissions>
+                      {t("exercise-details-nosubmissions")}
+                    </NoSubmissions>
+                  )}
+                </ExerciseSubmissions>
+              </ExerciseDetails>
+            )}
+          </Spring>
+        </Container>
+      )}
+    </Translate>
+  );
+};
+
+interface SubmissionPanelProps {
+  onCheckSubmission: any;
+  submission: any;
+  t: any;
 }
+
+const SubmissionPanel: FC<SubmissionPanelProps> = (
+  props: SubmissionPanelProps
+) => {
+  const { onCheckSubmission, submission, t } = props;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <tr>
+      <td>
+        <StudentCell>
+          <Online />
+          <StudentNick>{submission.studentNick}</StudentNick>
+        </StudentCell>
+      </td>
+      <td>
+        {submission.finished ? (
+          dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
+        ) : (
+          <span
+            style={{
+              fontStyle: "italic",
+              color: "#474749"
+            }}
+          >
+            {t("submission-table-unsubmitted")}
+          </span>
+        )}
+      </td>
+      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        <SubmissionOptions
+          isOpen={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <Icon name="ellipsis" />
+        </SubmissionOptions>
+        {menuOpen && (
+          <SubmissionMenu
+            options={[
+              {
+                disabled: !submission.finished,
+                iconName: "eye",
+                label: t("menu-submission-see"),
+                onClick() {
+                  setMenuOpen(false);
+                  onCheckSubmission(submission);
+                }
+              },
+              {
+                iconName: "padlock-close",
+                label: t("menu-submission-password"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onChangeName(exercise.title);
+                }
+              },
+              {
+                disabled: submission.finished,
+                iconName: "close",
+                label: t("menu-submission-expel"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onChangeName(exercise.title);
+                }
+              },
+              {
+                iconName: "trash",
+                label: t("menu-submission-delete"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onRemove();
+                },
+                red: true
+              }
+            ]}
+          />
+        )}
+      </td>
+      {/*<td>
+            {submission.finished && (
+              <Button
+                tertiary
+                small
+                onClick={() => onCheckSubmission(submission)}
+              >
+                Comprobar
+              </Button>
+            )}
+          </td>*/}
+    </tr>
+  );
+};
 
 export default ExercisePanel;
 
@@ -135,14 +235,75 @@ export default ExercisePanel;
 const Container = styled.div`
   border: 1px solid #c0c3c9;
   border-radius: 4px;
-  height: 38px;
   margin-bottom: 20px;
+  position: relative;
   width: 100%;
+`;
+
+interface ExerciseDetailsProps {
+  style: React.CSSProperties;
+}
+const ExerciseDetails = styled.div<ExerciseDetailsProps>`
+  overflow: ${(props: ExerciseDetailsProps) =>
+    props.style.height === "auto" ? "visible" : "hidden"};
+`;
+
+const ExerciseInfo = styled.div`
+  align-items: center;
+  border-top: 1px solid #c0c3c9;
+  color: #777;
+  display: flex;
+  font-family: Roboto;
+  font-size: 14px;
+  text-align: right;
+  height: 69px;
+  justify-content: space-between;
+  padding: 0 20px;
+
+  div {
+    align-items: center;
+    display: flex;
+  }
+`;
+
+const SubmissionsSwitch = styled(Switch)`
+  margin-left: 10px;
+`;
+
+const ExerciseSubmissions = styled.div`
+  position: relative;
+`;
+
+const SubmissionMenu = styled(DocumentCardMenu)`
+  right: 10px;
+  top: 40px;
+  width: 293px;
+  z-index: 2;
+`;
+
+const NoSubmissions = styled.div`
+  align-items: center;
+  border-top: 1px solid #c0c3c9;
+  color: #323843;
+  display: flex;
+  font-size: 14px;
+  font-style: italic;
+  height: 21px;
+  justify-content: center;
+  line-height: 1.57;
+  padding: 30px 20px;
+  text-align: center;
+`;
+
+const ExerciseMenu = styled(DocumentCardMenu)`
+  right: 0;
+  top: 46px;
+  z-index: 2;
 `;
 
 const Header = styled.div`
   display: flex;
-  height: 100%;
+  height: 40px;
   width: 100%;
 `;
 
@@ -178,7 +339,7 @@ const Toggle = styled.div<ToggleProps>`
     props.isOpen &&
     css`
       svg {
-        transform: none;
+        transform: rotate(180deg);
       }
     `}
 `;
@@ -194,6 +355,10 @@ const HeaderRight = styled.div`
 
   svg {
     transform: rotate(90deg);
+  }
+
+  &:hover {
+    background-color: #e8e8e8;
   }
 `;
 
@@ -231,70 +396,122 @@ const HeaderRow = styled.div`
 `;
 
 const CodeBox = styled.div`
-  padding: 0px 20px;
-  height: 30px;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 500;
+  border: 1px solid ${colors.gray3};
+  border-radius: 4px;
+  color: #474749;
+  display: flex;
   font-family: Roboto Mono;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 500;
+  height: 28px;
+  justify-content: center;
+  margin-right: 10px;
+  padding: 0px 20px;
 `;
 
 const Content = styled.div`
   overflow: hidden;
 `;
 
+const Online = styled.div`
+  background-color: #82ad3a;
+  border-radius: 100%;
+  height: 12px;
+  margin-right: 6px;
+  width: 12px;
+`;
+
 const Table = styled.table`
   width: 100%;
 
   thead {
-    background-color: ${colors.gray2};
+    width: 100%;
 
     tr {
-      border-style: solid;
-      border-width: 1px 0px;
+      border-top: 1px solid #c0c3c9;
+      height: 40px;
+      width: 100%;
     }
 
     th {
-      text-align: left;
-      height: 30px;
-      padding: 0px 20px;
-      vertical-align: middle;
+      color: #474749;
+      font-family: Roboto;
       font-size: 12px;
       font-weight: bold;
+      height: 26px;
+      padding: 7px 20px;
+      text-align: left;
+      vertical-align: bottom;
     }
   }
 
   tbody {
+    position: relative;
+    width: 100%;
+
     tr {
-      border-bottom: 1px solid ${colors.gray3};
-      &:last-child {
-        border-bottom: none;
-      }
+      border-top: 1px solid #c0c3c9;
+      position: relative;
+      width: 100%;
     }
 
     td {
-      padding: 0px 20px;
+      color: #373b44;
+      font-family: Roboto;
+      font-size: 14px;
+      height: 14px;
+      padding: 12px 20px;
+      vertical-align: center;
       &:first-of-type {
+        max-width: 0;
         width: 60%;
-        border-right: 1px solid ${colors.gray3};
       }
-      &:nth-of-type(2) {
-        width: 40%;
+      &:last-of-type {
+        height: 24px;
+        padding: 0;
+        position: relative;
       }
     }
   }
 `;
 
-const StudentCell = styled.div`
-  display: flex;
+interface SubmissionOptionsProps {
+  isOpen?: boolean;
+}
+const SubmissionOptions = styled.div<SubmissionOptionsProps>`
   align-items: center;
-  height: 48px;
+  background-color: ${(props: SubmissionOptionsProps) =>
+    props.isOpen ? "#e8e8e8" : "#fff"};
+  border: solid 1px #dddddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  position: absolute;
+  top: 5px;
+  width: 30px;
+
+  &:hover {
+    background-color: #e8e8e8;
+  }
+
+  svg {
+    transform: rotate(90deg);
+  }
+`;
+
+const StudentCell = styled.div`
+  align-items: center;
+  display: flex;
+  width: 100%;
 `;
 
 const StudentNick = styled.div`
-  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 `;

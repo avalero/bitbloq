@@ -3,6 +3,7 @@ import { Query, Mutation, Subscription } from "react-apollo";
 import {
   colors,
   Button,
+  DialogModal,
   HorizontalRule,
   Icon,
   Input,
@@ -17,9 +18,14 @@ import AppHeader from "./AppHeader";
 import DocumentTypeTag from "./DocumentTypeTag";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import EditTitleModal from "./EditTitleModal";
 import { sortByCreatedAt } from "../util";
 import { UserDataContext } from "../lib/useUserData";
-import { DOCUMENT_UPDATED_SUBSCRIPTION } from "../apollo/queries";
+import {
+  DOCUMENT_UPDATED_SUBSCRIPTION,
+  EXERCISE_UPDATE_MUTATION,
+  EXERCISE_DELETE_MUTATION
+} from "../apollo/queries";
 import Breadcrumbs from "./Breadcrumbs";
 
 const DOCUMENT_QUERY = gql`
@@ -47,6 +53,7 @@ const DOCUMENT_QUERY = gql`
           finished
           finishedAt
           type
+          grade
         }
       }
     }
@@ -87,16 +94,26 @@ const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
 
 class DocumentState {
   readonly isCreateExerciseOpen: boolean = false;
+  readonly isUpdateExerciseOpen: boolean = false;
+  readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
+  readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
+  readonly exerciseId: string = "";
 }
 
 class Document extends React.Component<any, DocumentState> {
   readonly state = new DocumentState();
   newExerciseTitleInput = React.createRef<HTMLInputElement>();
 
-  componentDidUpdate(prevProps, prevState) {
-    const { isCreateExerciseOpen } = this.state;
+  componentDidUpdate(prevProps: any, prevState: DocumentState) {
+    const { isCreateExerciseOpen, isUpdateExerciseOpen } = this.state;
     if (isCreateExerciseOpen && !prevState.isCreateExerciseOpen) {
+      const input = this.newExerciseTitleInput.current;
+      if (input) {
+        input.focus();
+      }
+    }
+    if (isUpdateExerciseOpen && !prevState.isUpdateExerciseOpen) {
       const input = this.newExerciseTitleInput.current;
       if (input) {
         input.focus();
@@ -126,79 +143,67 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderDocumentInfo(document) {
+  renderDocumentInfo(document, t) {
     return (
-      <Translate>
-        {t => (
-          <DocumentInfo>
-            <DocumentHeader>
-              <DocumentHeaderText>
-                <Icon name="document" />
-                {t("document-header-info")}
-              </DocumentHeaderText>
-              <DocumentHeaderButton
-                onClick={() =>
-                  window.open(
-                    `/app/document/${document.folder}/${document.type}/${document.id}`
-                  )
-                }
-              >
-                {t("document-header-button")}
-              </DocumentHeaderButton>
-            </DocumentHeader>
-            <DocumentBody>
-              <DocumentImage src={document.image} />
-              <DocumentBodyInfo>
-                <DocumentTypeTag document={document} />
-                <DocumentTitle>
-                  {document.title || t("document-body-title")}
-                </DocumentTitle>
-                <DocumentDescription>
-                  {document.description || t("document-body-description")}
-                </DocumentDescription>
-              </DocumentBodyInfo>
-            </DocumentBody>
-          </DocumentInfo>
-        )}
-      </Translate>
+      <DocumentInfo>
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="document" />
+            {t("document-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              window.open(`/app/document/${document.type}/${document.id}`)
+            }
+          >
+            {t("document-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+        <DocumentBody>
+          <DocumentImage src={document.image} />
+          <DocumentBodyInfo>
+            <DocumentTypeTag document={document} />
+            <DocumentTitle>
+              {document.title || t("document-body-title")}
+            </DocumentTitle>
+            <DocumentDescription>
+              {document.description || t("document-body-description")}
+            </DocumentDescription>
+          </DocumentBodyInfo>
+        </DocumentBody>
+      </DocumentInfo>
     );
   }
 
-  renderDocumentTeacherInfo(document) {
+  renderDocumentTeacherInfo(document, t) {
     return (
-      <Translate>
-        {t => (
-          <DocumentInfo className="teacher">
-            <DocumentHeader>
-              <DocumentHeaderText>
-                <Icon name="document" />
-                {t("document-header-info")}
-              </DocumentHeaderText>
-              <DocumentHeaderButton
-                onClick={() =>
-                  window.open(
-                    `/app/document/${document.folder}/${document.type}/${document.id}`
-                  )
-                }
-              >
-                {t("document-header-button")}
-              </DocumentHeaderButton>
-            </DocumentHeader>
-            <DocumentBody className="teacher">
-              <DocumentImage src={document.image} className="teacher" />
-              <DocumentBodyInfo className="teacher">
-                <DocumentTypeTag document={document} />
-                <DocumentTitle>
-                  {document.title || t("document-body-title")}
-                </DocumentTitle>
-                <DocumentDescription>
-                  {document.description || t("document-body-description")}
-                </DocumentDescription>
-              </DocumentBodyInfo>
-            </DocumentBody>
-          </DocumentInfo>
-        )}
-      </Translate>
+      <DocumentInfo className="teacher">
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="document" />
+            {t("document-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              window.open(`/app/document/${document.type}/${document.id}`)
+            }
+          >
+            {t("document-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+        <DocumentBody className="teacher">
+          <DocumentImage src={document.image} className="teacher" />
+          <DocumentBodyInfo className="teacher">
+            <DocumentTypeTag document={document} />
+            <DocumentTitle>
+              {document.title || t("document-body-title")}
+            </DocumentTitle>
+            <DocumentDescription>
+              {document.description || t("document-body-description")}
+            </DocumentDescription>
+          </DocumentBodyInfo>
+        </DocumentBody>
+      </DocumentInfo>
     );
   }
 
@@ -232,6 +237,20 @@ class Document extends React.Component<any, DocumentState> {
                       ]
                     });
                   }}
+                  onChangeName={(currentName: string) => {
+                    this.setState({
+                      isUpdateExerciseOpen: true,
+                      newExerciseTitle: currentName,
+                      exerciseId: exercise.id
+                    });
+                  }}
+                  onRemove={() => {
+                    this.setState({
+                      isRemoveExerciseOpen:
+                        exercise.submissions.length > 0 ? 2 : 1,
+                      exerciseId: exercise.id
+                    });
+                  }}
                 />
               )}
             </Mutation>
@@ -249,171 +268,244 @@ class Document extends React.Component<any, DocumentState> {
     );
   };
 
-  renderExercises(exercises, refetch) {
+  renderExercises(exercises, refetch, t) {
     return (
-      <Translate>
-        {t => (
-          <Exercises>
-            <DocumentHeader>
-              <DocumentHeaderText>
-                <Icon name="airplane-document" className="exercise" />
-                {t("exercises-header-info")}
-              </DocumentHeaderText>
-              <DocumentHeaderButton
-                onClick={() =>
-                  this.setState({
-                    isCreateExerciseOpen: true,
-                    newExerciseTitle: ""
-                  })
-                }
-              >
-                <Icon name="plus" />
-                {t("exercises-header-button")}
-              </DocumentHeaderButton>
-            </DocumentHeader>
-            {exercises && exercises.length > 0 ? (
-              <ExercisesPanel>
-                {exercises
-                  .slice()
-                  .sort(sortByCreatedAt)
-                  .map(exercise => this.renderExercise(exercise, refetch))}
-              </ExercisesPanel>
-            ) : (
-              <EmptyExercises>
-                <h2>{t("exercises-empty-title")}</h2>
-                <p>{t("exercises-empty-description")}</p>
-                <MyButton
-                  onClick={() =>
-                    this.setState({
-                      isCreateExerciseOpen: true,
-                      newExerciseTitle: ""
-                    })
-                  }
-                >
-                  <Icon name="plus" />
-                  {t("exercises-header-button")}
-                </MyButton>
-              </EmptyExercises>
-            )}
-          </Exercises>
+      <Exercises>
+        <DocumentHeader>
+          <DocumentHeaderText>
+            <Icon name="airplane-document" className="exercise" />
+            {t("exercises-header-info")}
+          </DocumentHeaderText>
+          <DocumentHeaderButton
+            onClick={() =>
+              this.setState({
+                isCreateExerciseOpen: true,
+                newExerciseTitle: ""
+              })
+            }
+          >
+            <Icon name="plus" />
+            {t("exercises-header-button")}
+          </DocumentHeaderButton>
+        </DocumentHeader>
+        {exercises && exercises.length > 0 ? (
+          <ExercisesPanel>
+            {exercises
+              .slice()
+              .sort(sortByCreatedAt)
+              .map(exercise => this.renderExercise(exercise, refetch))}
+          </ExercisesPanel>
+        ) : (
+          <EmptyExercises>
+            <h2>{t("exercises-empty-title")}</h2>
+            <p>{t("exercises-empty-description")}</p>
+            <MyButton
+              onClick={() =>
+                this.setState({
+                  isCreateExerciseOpen: true,
+                  newExerciseTitle: ""
+                })
+              }
+            >
+              <Icon name="plus" />
+              {t("exercises-header-button")}
+            </MyButton>
+          </EmptyExercises>
         )}
-      </Translate>
+      </Exercises>
     );
   }
 
-  renderCreateExerciseModal(document) {
+  renderCreateExerciseModal(document, t) {
     const { id: documentId } = this.props;
-    const { isCreateExerciseOpen, newExerciseTitle } = this.state;
+    const { errorName, isCreateExerciseOpen, newExerciseTitle } = this.state;
 
     return (
-      <Translate>
-        {t => (
-          <Modal
-            isOpen={isCreateExerciseOpen}
-            title={t("exercises-modal-title")}
-            onClose={() => this.setState({ isCreateExerciseOpen: false })}
-          >
-            <ModalContent>
-              <p>{t("exercises-modal-text")}</p>
-              <form>
-                <Input
-                  value={newExerciseTitle}
-                  ref={this.newExerciseTitleInput}
-                  onChange={e =>
-                    this.setState({ newExerciseTitle: e.target.value })
+      <Mutation mutation={CREATE_EXERCISE_MUTATION}>
+        {createExercise => (
+          <EditTitleModal
+            title={newExerciseTitle}
+            onCancel={() =>
+              this.setState({ isCreateExerciseOpen: false, errorName: false })
+            }
+            onSave={() => {
+              createExercise({
+                variables: {
+                  documentId,
+                  title: newExerciseTitle || "Ejercicio sin título"
+                },
+                refetchQueries: [
+                  {
+                    query: DOCUMENT_QUERY,
+                    variables: { id: documentId }
                   }
-                  placeholder={t("exercises-modal-placeholder")}
-                />
-                <ModalButtons>
-                  <ModalButton
-                    tertiary
-                    onClick={() =>
-                      this.setState({ isCreateExerciseOpen: false })
-                    }
-                  >
-                    {t("general-cancel-button")}
-                  </ModalButton>
-                  <Mutation mutation={CREATE_EXERCISE_MUTATION}>
-                    {createExercise => (
-                      <ModalButton
-                        onClick={() => {
-                          createExercise({
-                            variables: {
-                              documentId,
-                              title: newExerciseTitle || "Ejercicio sin título"
-                            },
-                            refetchQueries: [
-                              {
-                                query: DOCUMENT_QUERY,
-                                variables: { id: documentId }
-                              }
-                            ]
-                          });
-                          this.setState({ isCreateExerciseOpen: false });
-                        }}
-                      >
-                        {t("general-create-button")}
-                      </ModalButton>
-                    )}
-                  </Mutation>
-                </ModalButtons>
-              </form>
-            </ModalContent>
-          </Modal>
+                ]
+              });
+              this.setState({
+                isCreateExerciseOpen: false,
+                errorName: false
+              });
+            }}
+            modalTitle={t("exercises-modal-title")}
+            modalText={t("exercises-modal-text")}
+            placeholder={t("exercises-modal-placeholder")}
+            saveButton={t("general-create-button")}
+          />
         )}
-      </Translate>
+      </Mutation>
+    );
+  }
+
+  renderUpdateExerciseModal(t) {
+    const { id: documentId } = this.props;
+    const {
+      errorName,
+      isUpdateExerciseOpen,
+      newExerciseTitle,
+      exerciseId
+    } = this.state;
+
+    return (
+      <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
+        {updateExercise => (
+          <EditTitleModal
+            title={newExerciseTitle}
+            onCancel={() =>
+              this.setState({ isUpdateExerciseOpen: false, errorName: false })
+            }
+            onSave={() => {
+              updateExercise({
+                variables: {
+                  id: exerciseId,
+                  input: {
+                    title: newExerciseTitle || "Ejercicio sin título"
+                  }
+                },
+                refetchQueries: [
+                  {
+                    query: DOCUMENT_QUERY,
+                    variables: { id: documentId }
+                  }
+                ]
+              });
+              this.setState({
+                isUpdateExerciseOpen: false,
+                errorName: false
+              });
+            }}
+            modalTitle={t("exercises-modal-update")}
+            modalText={t("exercises-modal-text")}
+            placeholder={t("exercises-modal-placeholder")}
+            saveButton={t("general-change-button")}
+          />
+        )}
+      </Mutation>
+    );
+  }
+
+  renderRemoveExerciseModal(t) {
+    const { id: documentId } = this.props;
+    const { isRemoveExerciseOpen, exerciseId } = this.state;
+
+    return (
+      <Mutation mutation={EXERCISE_DELETE_MUTATION}>
+        {deleteExercise => (
+          <DialogModal
+            isOpen={isRemoveExerciseOpen !== 0}
+            title={t("exercises-modal-remove")}
+            text={
+              isRemoveExerciseOpen === 1
+                ? t("exercises-remove-nosubmission")
+                : t("exercises-remove-submission")
+            }
+            okText={t("general-accept-button")}
+            cancelText={t("general-cancel-button")}
+            onOk={() => {
+              deleteExercise({
+                variables: {
+                  id: exerciseId
+                },
+                refetchQueries: [
+                  {
+                    query: DOCUMENT_QUERY,
+                    variables: { id: documentId }
+                  }
+                ]
+              });
+              this.setState({
+                isRemoveExerciseOpen: 0
+              });
+            }}
+            onCancel={() => this.setState({ isRemoveExerciseOpen: 0 })}
+          />
+        )}
+      </Mutation>
     );
   }
 
   render() {
     const { id } = this.props;
+    const { isCreateExerciseOpen, isUpdateExerciseOpen } = this.state;
 
     return (
       <UserDataContext.Consumer>
         {user => (
-          <Container>
-            <AppHeader />
-            <Query query={DOCUMENT_QUERY} variables={{ id }}>
-              {({ loading, error, data, refetch }) => {
-                if (error) return <GraphQLErrorMessage apolloError={error} />;
-                if (loading) return <Loading />;
+          <Translate>
+            {t => (
+              <Container>
+                <AppHeader />
+                <Query query={DOCUMENT_QUERY} variables={{ id }}>
+                  {({ loading, error, data, refetch }) => {
+                    if (error)
+                      return <GraphQLErrorMessage apolloError={error} />;
+                    if (loading) return <Loading />;
 
-                const { document } = data;
+                    const { document } = data;
 
-                return (
-                  <>
-                    <Content>
-                      {this.renderHeader(document)}
-                      <Rule />
-                      <DocumentData>
-                        {user.teacher
-                          ? this.renderDocumentTeacherInfo(document)
-                          : this.renderDocumentInfo(document)}
-                        {user.teacher
-                          ? this.renderExercises(document.exercises, refetch)
-                          : ""}
-                      </DocumentData>
-                    </Content>
-                    <Subscription
-                      subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-                      shouldResubscribe={true}
-                      onSubscriptionData={({ subscriptionData }) => {
-                        const { data } = subscriptionData;
-                        if (
-                          data &&
-                          data.documentUpdated &&
-                          data.documentUpdated.id === id
-                        ) {
-                          refetch();
-                        }
-                      }}
-                    />
-                  </>
-                );
-              }}
-            </Query>
-            {this.renderCreateExerciseModal(document)}
-          </Container>
+                    return (
+                      <>
+                        <Content>
+                          {this.renderHeader(document)}
+                          <Rule />
+                          <DocumentData>
+                            {user.teacher
+                              ? this.renderDocumentTeacherInfo(document, t)
+                              : this.renderDocumentInfo(document, t)}
+                            {user.teacher
+                              ? this.renderExercises(
+                                  document.exercises,
+                                  refetch,
+                                  t
+                                )
+                              : ""}
+                          </DocumentData>
+                        </Content>
+                        <Subscription
+                          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                          shouldResubscribe={true}
+                          onSubscriptionData={({ subscriptionData }) => {
+                            const { data } = subscriptionData;
+                            if (
+                              data &&
+                              data.documentUpdated &&
+                              data.documentUpdated.id === id
+                            ) {
+                              refetch();
+                            }
+                          }}
+                        />
+                      </>
+                    );
+                  }}
+                </Query>
+                {isCreateExerciseOpen
+                  ? this.renderCreateExerciseModal(document, t)
+                  : ""}
+                {isUpdateExerciseOpen ? this.renderUpdateExerciseModal(t) : ""}
+                {this.renderRemoveExerciseModal(t)}
+              </Container>
+            )}
+          </Translate>
         )}
       </UserDataContext.Consumer>
     );

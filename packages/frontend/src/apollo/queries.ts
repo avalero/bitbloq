@@ -261,6 +261,29 @@ export const EXERCISE_BY_CODE_QUERY = gql`
   }
 `;
 
+export const EXERCISE_UPDATE_MUTATION = gql`
+  mutation UpdateExercise($id: ObjectID!, $input: ExerciseIn) {
+    updateExercise(id: $id, input: $input) {
+      id
+      type
+      title
+      code
+      teacherName
+      content
+      description
+      image
+    }
+  }
+`;
+
+export const EXERCISE_DELETE_MUTATION = gql`
+  mutation DeleteExercise($id: ObjectID!) {
+    deleteExercise(id: $id) {
+      id
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission {
     submission {
