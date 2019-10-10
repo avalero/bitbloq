@@ -27,6 +27,7 @@ export interface DocumentListProps {
   className?: string;
   currentLocation?: string;
   onFolderClick?: (e) => any;
+  onDocumentClick?: (e) => any;
 }
 
 const DocumentListComp: FC<DocumentListProps> = ({
@@ -34,7 +35,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
   folders,
   currentLocation,
   className,
-  onFolderClick
+  onFolderClick,
+  onDocumentClick
 }) => {
   const [deleteDocumentId, setDeleteDocumentId] = useState({
     id: null,
@@ -59,10 +61,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const [duplicateFolder] = useMutation(DUPLICATE_FOLDER_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
-
-  const onDocumentClick = ({ id, type }) => {
-    window.open(`/app/document/${id}`);
-  };
 
   const onDocumentMenuClick = (e, document) => {
     e.stopPropagation();

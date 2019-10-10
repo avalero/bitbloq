@@ -135,6 +135,8 @@ export interface IPort {
   pins: IPortPin[];
   placeholderPosition: IConnectorPosition;
   direction: IPortDirection;
+  schematicPosition: IConnectorPosition;
+  schematicPlaceholderPosition: IConnectorPosition;
 }
 
 export interface IComponentImage {
@@ -155,6 +157,7 @@ export interface IBoard {
   code: IArduinoCode;
   image: IComponentImage;
   ports: IPort[];
+  schematicCenter: IConnectorPosition;
 }
 
 export enum ConnectorPinMode {
@@ -190,6 +193,7 @@ export interface IBloqAction {
 
 export interface IComponent {
   name: string;
+  label?: string;
   instanceName: string;
   extends: string;
   code: IArduinoCode;

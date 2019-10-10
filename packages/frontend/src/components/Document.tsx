@@ -26,6 +26,7 @@ import {
   EXERCISE_UPDATE_MUTATION,
   EXERCISE_DELETE_MUTATION
 } from "../apollo/queries";
+import Breadcrumbs from "./Breadcrumbs";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -35,6 +36,11 @@ const DOCUMENT_QUERY = gql`
       title
       description
       image
+      folder
+      parentsPath {
+        id
+        name
+      }
       exercises {
         id
         code
@@ -116,10 +122,23 @@ class Document extends React.Component<any, DocumentState> {
   }
 
   renderHeader(document) {
+    let breadParents = [];
+    for (let item of document.parentsPath) {
+      breadParents = [
+        ...breadParents,
+        ...[
+          { route: `/app/folder/${item.id}`, text: item.name, type: "folder" }
+        ]
+      ];
+    }
     return (
       <Header>
-        <Link to="/app">Mis documentos &gt;</Link>
-        {document.title}
+        <Breadcrumbs
+          links={[
+            ...breadParents,
+            { route: "", text: document.title, type: "document" }
+          ]}
+        />
       </Header>
     );
   }

@@ -91,6 +91,7 @@ const PortIndicator = styled.div`
   align-items: center;
   justify-content: center;
   color: #000;
+  z-index: 2;
 `;
 
 const SVG = styled.svg`
