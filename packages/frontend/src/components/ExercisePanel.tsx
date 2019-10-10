@@ -15,11 +15,6 @@ export interface ExercisePanelProps {
   onRemove: () => void;
 }
 
-class ExercisePanelState {
-  readonly isOpen: boolean = false;
-  readonly menuOpen: boolean = false;
-}
-
 const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
   const {
     exercise,
@@ -32,6 +27,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
 
   const [isOpen, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuSubmissionOpen, setMenuSubmissionOpen] = useState(false);
 
   return (
     <Translate>
@@ -79,7 +75,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               ]}
             />
           )}
-          <Spring to={{ height: isOpen ? "auto" : 0 }}>
+          <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
             {({ height }) => (
               <ExerciseDetails style={{ height }}>
                 <ExerciseInfo>
@@ -100,56 +96,19 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                     <Table key="table">
                       <thead>
                         <tr>
-                          <th>Equipo</th>
-                          <th>Fecha de entrega</th>
-                          <th>Calificación</th>
+                          <th>{t("submission-table-team")}</th>
+                          <th>{t("submission-table-date")}</th>
+                          <th>{t("submission-table-grade")}</th>
                           <th />
                         </tr>
                       </thead>
                       <tbody>
                         {exercise.submissions.map(submission => (
-                          <tr key={submission.id}>
-                            <td>
-                              <StudentCell>
-                                <Online />
-                                <StudentNick>
-                                  {submission.studentNick}
-                                </StudentNick>
-                              </StudentCell>
-                            </td>
-                            <td>
-                              {submission.finished ? (
-                                dayjs(submission.finishedAt).format(
-                                  "DD/MM/YY HH:mm"
-                                )
-                              ) : (
-                                <span
-                                  style={{
-                                    fontStyle: "italic",
-                                    color: "#474749"
-                                  }}
-                                >
-                                  sin entregar
-                                </span>
-                              )}
-                            </td>
-                            <td>
-                              {submission.grade ||
-                                (submission.finished ? "-" : "")}
-                            </td>
-                            <td></td>
-                            {/*<td>
-                              {submission.finished && (
-                                <Button
-                                  tertiary
-                                  small
-                                  onClick={() => onCheckSubmission(submission)}
-                                >
-                                  Comprobar
-                                </Button>
-                              )}
-                            </td>*/}
-                          </tr>
+                          <SubmissionPanel
+                            key={submission.id}
+                            t={t}
+                            submission={submission}
+                          />
                         ))}
                       </tbody>
                     </Table>
@@ -168,6 +127,105 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
   );
 };
 
+interface SubmissionPanelProps {
+  submission: any;
+  t: any;
+}
+
+const SubmissionPanel: FC<SubmissionPanelProps> = (
+  props: SubmissionPanelProps
+) => {
+  const { submission, t } = props;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <tr>
+      <td>
+        <StudentCell>
+          <Online />
+          <StudentNick>{submission.studentNick}</StudentNick>
+        </StudentCell>
+      </td>
+      <td>
+        {submission.finished ? (
+          dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
+        ) : (
+          <span
+            style={{
+              fontStyle: "italic",
+              color: "#474749"
+            }}
+          >
+            {t("submission-table-unsubmitted")}
+          </span>
+        )}
+      </td>
+      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        <SubmissionOptions
+          isOpen={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <Icon name="ellipsis" />
+        </SubmissionOptions>
+        {menuOpen && (
+          <SubmissionMenu
+            options={[
+              {
+                disabled: !submission.finished,
+                iconName: "eye",
+                label: t("menu-submission-see"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onChangeName(exercise.title);
+                }
+              },
+              {
+                iconName: "padlock-close",
+                label: t("menu-submission-password"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onChangeName(exercise.title);
+                }
+              },
+              {
+                disabled: submission.finished,
+                iconName: "close",
+                label: t("menu-submission-expel"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onChangeName(exercise.title);
+                }
+              },
+              {
+                iconName: "trash",
+                label: t("menu-submission-delete"),
+                onClick() {
+                  setMenuOpen(false);
+                  //onRemove();
+                },
+                red: true
+              }
+            ]}
+          />
+        )}
+      </td>
+      {/*<td>
+            {submission.finished && (
+              <Button
+                tertiary
+                small
+                onClick={() => onCheckSubmission(submission)}
+              >
+                Comprobar
+              </Button>
+            )}
+          </td>*/}
+    </tr>
+  );
+};
+
 export default ExercisePanel;
 
 /* styled components */
@@ -180,8 +238,12 @@ const Container = styled.div`
   width: 100%;
 `;
 
-const ExerciseDetails = styled.div`
-  overflow: hidden;
+interface ExerciseDetailsProps {
+  style: React.CSSProperties;
+}
+const ExerciseDetails = styled.div<ExerciseDetailsProps>`
+  overflow: ${(props: ExerciseDetailsProps) =>
+    props.style.height === "auto" ? "visible" : "hidden"};
 `;
 
 const ExerciseInfo = styled.div`
@@ -206,7 +268,16 @@ const SubmissionsSwitch = styled(Switch)`
   margin-left: 10px;
 `;
 
-const ExerciseSubmissions = styled.div``;
+const ExerciseSubmissions = styled.div`
+  position: relative;
+`;
+
+const SubmissionMenu = styled(DocumentCardMenu)`
+  right: 10px;
+  top: 40px;
+  width: 293px;
+  z-index: 2;
+`;
 
 const NoSubmissions = styled.div`
   align-items: center;
@@ -375,10 +446,12 @@ const Table = styled.table`
   }
 
   tbody {
+    position: relative;
     width: 100%;
 
     tr {
       border-top: 1px solid #c0c3c9;
+      position: relative;
       width: 100%;
     }
 
@@ -393,7 +466,38 @@ const Table = styled.table`
         max-width: 0;
         width: 60%;
       }
+      &:last-of-type {
+        height: 24px;
+        padding: 0;
+        position: relative;
+      }
     }
+  }
+`;
+
+interface SubmissionOptionsProps {
+  isOpen?: boolean;
+}
+const SubmissionOptions = styled.div<SubmissionOptionsProps>`
+  align-items: center;
+  background-color: ${(props: SubmissionOptionsProps) =>
+    props.isOpen ? "#e8e8e8" : "#fff"};
+  border: solid 1px #dddddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  position: absolute;
+  top: 5px;
+  width: 30px;
+
+  &:hover {
+    background-color: #e8e8e8;
+  }
+
+  svg {
+    transform: rotate(90deg);
   }
 `;
 

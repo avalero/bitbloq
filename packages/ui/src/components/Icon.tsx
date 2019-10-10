@@ -26,6 +26,7 @@ import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
 import Equal from "./icons/Equal";
 import ExportSTL from "./icons/ExportSTL";
+import Eye from "./icons/Eye";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import ImportSTL from "./icons/ImportSTL";
@@ -160,6 +161,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Equal className={className} />;
     case "export-stl":
       return <ExportSTL className={className} />;
+    case "eye":
+      return <Eye className={className} />;
     case "group":
       return <Group className={className} />;
     case "hardware":
@@ -181,7 +184,7 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
     case "open-document":
       return <OpenDocument className={className} />;
     case "move-document":
-      return <MoveDocument className={className} />;      
+      return <MoveDocument className={className} />;
     case "orthographic":
       return <Orthographic className={className} />;
     case "padlock-open":
@@ -277,7 +280,7 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
     case "new-folder":
       return <NewFolder className={className} />;
     case "folder-icon":
-      return <Folder className={className} />;      
+      return <Folder className={className} />;
     default:
       console.warn("Icon not found");
       return null;
