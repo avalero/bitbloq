@@ -51,7 +51,7 @@ const Route = ({
       if (code === "ANOTHER_OPEN_SESSION") {
         setAnotherSession(true);
         setToken("");
-      } else {
+      } else if (rest.path === "app") {
         logout();
       }
     }
@@ -101,7 +101,7 @@ const AppPage = () => (
             path="/app/folder/:id/"
             component={Documents}
             requiresSession
-          />      
+          />
           <Route
             path="/app/document/:id"
             component={Document}
@@ -111,7 +111,7 @@ const AppPage = () => (
             path="/app/document/:folder/:type/:id"
             component={EditDocument}
             requiresSession
-          />    
+          />
           <Route
             path="/app/public-document/:type/:id"
             component={PublicDocument}

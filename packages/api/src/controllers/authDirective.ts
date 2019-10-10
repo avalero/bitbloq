@@ -1,4 +1,8 @@
-import { AuthenticationError, SchemaDirectiveVisitor } from "apollo-server-koa";
+import {
+  ApolloError,
+  AuthenticationError,
+  SchemaDirectiveVisitor
+} from "apollo-server-koa";
 const { defaultFieldResolver } = require("graphql");
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
@@ -59,7 +63,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
             ) {
               passed = true;
               return resolve.apply(this, args);
-            }            
+            }
             if (
               roleReq === "STUDENT" &&
               context.user.role.indexOf("stu-") > -1
@@ -95,7 +99,10 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
             }
           }
           if (!passed) {
-            throw new AuthenticationError("You need to be logged in. Role");
+            throw new ApolloError(
+              "You need to be logged in. Role",
+              "NOT_YOUR_DOCUMENT"
+            );
           }
         }
       };
