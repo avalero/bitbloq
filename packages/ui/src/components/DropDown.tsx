@@ -59,7 +59,7 @@ class DropDown extends Component<DropDownProps, State> {
       <TetherComponent
         attachment={attachmentPosition}
         targetAttachment={targetPosition}
-        style={{ zIndex: 20 }}
+        style={{ zIndex: 21 }}
         renderTarget={(ref: React.MutableRefObject<HTMLElement | null>) => (
           <div
             ref={el => {

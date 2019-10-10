@@ -33,6 +33,13 @@ const Wrap = styled.div`
   display: flex;
 `;
 
+const ToltipPosition = styled.div`
+  height: 37px;
+  position: absolute;
+  right: 150px;
+  top: 0;
+`;
+
 const Container = styled.div`
   width: 310px;
   min-width: 310px;
@@ -217,22 +224,17 @@ class PropertiesPanel extends React.Component {
     draggingOperations: false,
     contextMenuOpen: false,
     editingName: false,
-    errors: new Map()
+    errors: new Map(),
+    inputValues: new Map(),
+    timeout: undefined
   };
 
   nameInputRef = React.createRef();
 
   componentDidUpdate(prevProps, prevState) {
-    document.addEventListener("keydown", this.onRemoveErrors);
-    document.addEventListener("click", this.onRemoveErrors);
     if (this.state.editingName && !prevState.editingName) {
       this.nameInputRef.current.focus();
     }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.onRemoveErrors);
-    document.removeEventListener("click", this.onRemoveErrors);
   }
 
   onObjectNameChange = (object, name) => {
@@ -318,12 +320,6 @@ class PropertiesPanel extends React.Component {
     undoComposition(object);
   };
 
-  onRemoveErrors = () => {
-    if (Array.from(this.state.errors).length > 0) {
-      this.setState({ errors: new Map() });
-    }
-  };
-
   onAddOperation(object, operation) {
     this.props.addOperation(object, operation.create());
   }
@@ -333,7 +329,12 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const { draggingOperations, contextMenuOpen, editingName } = this.state;
+    const {
+      draggingOperations,
+      contextMenuOpen,
+      editingName,
+      inputValues
+    } = this.state;
     const { t } = this.props;
 
     const {
@@ -372,6 +373,42 @@ class PropertiesPanel extends React.Component {
         isViewOption: true
       });
     }
+
+    const onChange = (value, text, parameter, object) => {
+      const { inputValues, timeout } = this.state;
+
+      clearTimeout(timeout);
+
+      const prevValue = parameter.isViewOption
+        ? object.viewOptions && object.viewOptions[parameter.name]
+        : object.parameters && object.parameters[parameter.name];
+
+      if (!parameter.validate || parameter.validate(value)) {
+        let errors = this.state.errors;
+        errors.set(`${object.id}-${parameter.name}`, false);
+        inputValues.set(`${object.id}-${parameter.name}`, value);
+        inputValues.delete(`${object.id}-${parameter.name}`);
+        this.setState({ errors, inputValues });
+        this.onObjectParameterChange(object, parameter, value);
+      } else {
+        let errors = this.state.errors;
+        errors.set(`${object.id}-${parameter.name}`, true);
+        let inputValue = inputValues.get(`${object.id}-${parameter.name}`);
+        inputValue = `${inputValue || ""}${text}`;
+        inputValues.set(`${object.id}-${parameter.name}`, text);
+        this.onObjectParameterChange(object, parameter, prevValue);
+        const myTimeout = setTimeout(
+          () => (
+            errors.set(`${object.id}-${parameter.name}`, false),
+            inputValues.set(`${object.id}-${parameter.name}`, prevValue),
+            inputValues.delete(`${object.id}-${parameter.name}`),
+            this.setState({ errors, inputValues })
+          ),
+          3000
+        );
+        this.setState({ errors, timeout: myTimeout });
+      }
+    };
 
     return (
       <DragDropContext
@@ -434,107 +471,47 @@ class PropertiesPanel extends React.Component {
         </Header>
         <ObjectProperties>
           <ParametersPanel>
-            {parameters.map(parameter =>
-              this.state.errors.has(`${object.id}-${parameter.name}`) &&
-              this.state.errors.get(`${object.id}-${parameter.name}`) ? (
-                <Tooltip
-                  key={parameter.name}
-                  position="left"
-                  content={
-                    <TooltipText>
-                      <img src={warningIcon} />
-                      {t(parameter.errorMessage, [parameter.errorValue])}
-                    </TooltipText>
-                  }
-                >
-                  {tooltipProps => (
-                    <>
-                      <audio src={errorSound} autoPlay />
-                      <PropertyInput
-                        tooltipProps={tooltipProps}
-                        parameter={parameter}
-                        value={
-                          parameter.isViewOption
-                            ? object.viewOptions &&
-                              object.viewOptions[parameter.name]
-                            : object.parameters &&
-                              object.parameters[parameter.name]
-                        }
-                        onBlur={() => {
-                          let errors = this.state.errors;
-                          errors.set(`${object.id}-${parameter.name}`, false);
-                          this.setState({ errors });
-                        }}
-                        onChange={value => {
-                          const prevValue = parameter.isViewOption
-                            ? object.viewOptions &&
-                              object.viewOptions[parameter.name]
-                            : object.parameters &&
-                              object.parameters[parameter.name];
-                          if (
-                            !parameter.validate ||
-                            parameter.validate(value)
-                          ) {
-                            let errors = this.state.errors;
-                            errors.set(`${object.id}-${parameter.name}`, false);
-                            this.setState({ errors });
-                            this.onObjectParameterChange(
-                              object,
-                              parameter,
-                              value
-                            );
-                          } else {
-                            let errors = this.state.errors;
-                            errors.set(`${object.id}-${parameter.name}`, true);
-                            this.setState({ errors });
-                            this.onObjectParameterChange(
-                              object,
-                              parameter,
-                              prevValue
-                            );
-                          }
-                        }}
-                      />
-                    </>
-                  )}
-                </Tooltip>
-              ) : (
+            {parameters.map(parameter => (
+              <div style={{ position: "relative" }} key={parameter.name}>
                 <PropertyInput
-                  key={parameter.name}
                   parameter={parameter}
                   value={
-                    parameter.isViewOption
+                    inputValues.has(`${object.id}-${parameter.name}`)
+                      ? inputValues.get(`${object.id}-${parameter.name}`)
+                      : parameter.isViewOption
                       ? object.viewOptions && object.viewOptions[parameter.name]
                       : object.parameters && object.parameters[parameter.name]
                   }
-                  onBlur={() => {
-                    let errors = this.state.errors;
-                    errors.set(`${object.id}-${parameter.name}`, false);
-                    this.setState({ errors });
-                  }}
-                  onChange={value => {
-                    const prevValue = parameter.isViewOption
-                      ? object.viewOptions && object.viewOptions[parameter.name]
-                      : object.parameters && object.parameters[parameter.name];
-                    if (!parameter.validate || parameter.validate(value)) {
-                      let errors = this.state.errors;
-                      errors.set(`${object.id}-${parameter.name}`, false);
-                      this.setState({ errors });
-                      this.onObjectParameterChange(object, parameter, value);
-                    } else {
-                      let errors = this.state.errors;
-                      errors.set(`${object.id}-${parameter.name}`, true);
-                      this.setState({ errors });
-                      this.onObjectParameterChange(
-                        object,
-                        parameter,
-                        prevValue
-                      );
-                    }
+                  onChange={(value, text) => {
+                    onChange(value, text, parameter, object);
                   }}
                 />
-              )
-            )}
+                {this.state.errors.has(`${object.id}-${parameter.name}`) &&
+                  this.state.errors.get(`${object.id}-${parameter.name}`) && (
+                    <ToltipPosition>
+                      <audio src={errorSound} autoPlay />
+                      <Tooltip
+                        style={{ zIndex: 10 }}
+                        isVisible={true}
+                        position="left"
+                        content={
+                          <TooltipText>
+                            <img src={warningIcon} />
+                            {t(parameter.errorMessage, [parameter.errorValue])}
+                          </TooltipText>
+                        }
+                      >
+                        {tooltipProps => (
+                          <div
+                            style={{ height: "37px", width: "0" }}
+                            {...tooltipProps}
+                          />
+                        )}
+                      </Tooltip>
+                    </ToltipPosition>
+                  )}
+              </div>
+            ))}
           </ParametersPanel>
           {advancedMode && (
             <ObjectButtons>
