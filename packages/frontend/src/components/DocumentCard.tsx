@@ -36,7 +36,6 @@ const Container = styled.div`
   border: 1px solid ${colors.gray3};
   cursor: pointer;
   background-color: white;
-  overflow: hidden;
   position: relative;
 
   &:hover {

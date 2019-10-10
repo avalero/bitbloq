@@ -77,9 +77,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState(
-    id ? id : userData ? userData.rootFolder : null
-  );
+  const [currentLocation, setCurrentLocation] = useState({
+    id: id ? id : userData ? userData.rootFolder : null,
+    name: "root"
+  });
   const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
     {
       route: userData ? "/" : "",
@@ -99,7 +100,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     refetch: refetchPage
   } = useQuery(FOLDER_QUERY, {
     variables: {
-      id: currentLocation
+      id: currentLocation.id
     }
   });
 
@@ -107,11 +108,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [exerciseError, setExerciseError] = useState(false);
 
   const onFolderClick = async (e, folder) => {
-    setCurrentLocation(folder.id);
-    // setBreadcrumbsLinks([
-    //   ...breadcrumbLinks,
-    //   { route: `app/folder/${folder.id}`, text: folder.name, type: "folder" }
-    // ]);
+    setCurrentLocation({ id: folder.id, name: folder.name });
     navigate(`/app/folder/${folder.id}`);
   };
 
@@ -126,13 +123,13 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const onCreateFolder = async folderName => {
     await createFolder({
       variables: {
-        input: { name: folderName, parent: currentLocation }
+        input: { name: folderName, parent: currentLocation.id }
       },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
           variables: {
-            id: currentLocation
+            id: currentLocation.id
           }
         }
       ]
@@ -141,11 +138,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   const onNewDocument = type => {
-    window.open(`/app/document/${currentLocation}/${type}/new`);
+    window.open(`/app/document/${currentLocation.id}/${type}/new`);
   };
 
   const onDocumentCreated = ({ createDocument: { id, type } }) => {
-    navigate(`/app/document/${currentLocation}/${type}/${id}`);
+    navigate(`/app/document/${currentLocation.id}/${type}/${id}`);
   };
 
   const onOrderChange = order => {
@@ -181,12 +178,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
       const { data } = await createDocument({
-        variables: { ...document, folder: currentLocation },
+        variables: { ...document, folder: currentLocation.id },
         refetchQueries: [
           {
             query: FOLDER_QUERY,
             variables: {
-              id: currentLocation
+              id: currentLocation.id
             }
           }
         ]
@@ -247,7 +244,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <AppHeader />
       <Content>
         <Header>
-          {currentLocation === userData.rootFolder ? (
+          {currentLocation.id === userData.rootFolder ? (
             <h1>Mis documentos</h1>
           ) : (
             <Breadcrumbs links={breadParents} />
