@@ -274,6 +274,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     },
                     {
+                      selected: document.id === selectedToMoveId,
                       disabled:
                         folders.filter(op => op.id !== document.id).length ===
                         0,
@@ -338,6 +339,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     },
                     {
+                      selected: folder.id === selectedToMoveId,
                       disabled:
                         folders.filter(op => op.id !== folder.id).length === 0,
                       iconName: "move-document",

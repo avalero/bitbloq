@@ -8,6 +8,7 @@ export interface Option {
   label: string;
   onClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void;
   red?: boolean;
+  selected?: boolean;
 }
 
 export interface DocumentCardMenuProps {
@@ -28,6 +29,7 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
             onClick={option.onClick}
             disabled={option.disabled}
             red={option.red}
+            selected={option.selected}
           >
             <p>
               {option.iconName && <MenuIcon name={option.iconName} />}
@@ -65,6 +67,7 @@ const DocumentMenu = styled.div`
 interface DocumentMenuOptionProps {
   disabled?: boolean;
   red?: boolean;
+  selected?: boolean;
 }
 const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
   width: 179px;
@@ -74,6 +77,7 @@ const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
   width: 100%;
+  background-color: ${props => (props.selected ? "#ebebeb" : "white")};
 
   opacity: ${(props: DocumentMenuOptionProps) => (props.disabled ? 0.5 : 1)};
 

@@ -116,8 +116,6 @@ const FolderSelector = styled.div`
   box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
   border: solid 1px #cfcfcf;
   background-color: white;
-  /* justify-content: flex-start;
-  align-items: flex-end; */
   &:hover {
     cursor: pointer;
   }
