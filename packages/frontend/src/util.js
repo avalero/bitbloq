@@ -25,29 +25,33 @@ export const sortByUpdatedAt = (a, b) => {
 };
 
 export const sortByTitleAZ = (a, b) => {
-  const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
-  const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
+  try {
+    const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
+    const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
 
-  if (aTitle < bTitle) {
-    return -1;
-  }
-  if (aTitle > bTitle) {
-    return 1;
-  }
-  return 0;
+    if (aTitle < bTitle) {
+      return -1;
+    }
+    if (aTitle > bTitle) {
+      return 1;
+    }
+    return 0;
+  } catch (e) {}
 };
 
 export const sortByTitleZA = (a, b) => {
-  const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
-  const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
+  try {
+    const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
+    const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
 
-  if (aTitle < bTitle) {
-    return 1;
-  }
-  if (aTitle > bTitle) {
-    return -1;
-  }
-  return 0;
+    if (aTitle < bTitle) {
+      return 1;
+    }
+    if (aTitle > bTitle) {
+      return -1;
+    }
+    return 0;
+  } catch (e) {}
 };
 
 export const getChromeVersion = () => {
