@@ -22,8 +22,9 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
   return (
     <DocumentMenu className={className}>
       {options &&
-        options.map((option: Option) => (
+        options.map((option: Option, index: number) => (
           <DocumentMenuOption
+            key={index}
             onClick={option.onClick}
             disabled={option.disabled}
             red={option.red}
@@ -72,6 +73,7 @@ const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
   align-items: center;
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
+  width: 100%;
 
   opacity: ${(props: DocumentMenuOptionProps) => (props.disabled ? 0.5 : 1)};
 

@@ -17,7 +17,7 @@ type Mutation {
     @authRequired(requires: [TEACHER])
   updateExercise(id: ObjectID!, input: ExerciseIn): Exercise
     @authRequired(requires: [TEACHER])
-  deleteExercise(id: ObjectID!, code: String!): Exercise
+  deleteExercise(id: ObjectID!): Exercise
     @authRequired(requires: [TEACHER])
 }
 
