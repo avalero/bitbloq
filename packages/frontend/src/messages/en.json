@@ -80,7 +80,7 @@
   "submission-table-team": "Team",
   "submission-table-date": "Submission date",
   "submission-table-grade": "Grade",
-  "submission-table-team": "unsubmitted",
+  "submission-table-unsubmitted": "unsubmitted",
   "submission-passwordmodal-title": "New password to the team",
   "submission-passwordmodal-text": "New password",
   "submission-passwordmodal-placeholder": "Password",
@@ -246,7 +246,7 @@
   "general-create-button": "Create",
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancel",
-  "general-accept-button": "Accept"
+  "general-accept-button": "Accept",
   "junior": {
     "hardware": "Hardware",
     "software": "Software"
