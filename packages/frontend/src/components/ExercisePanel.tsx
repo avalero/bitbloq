@@ -106,6 +106,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                         {exercise.submissions.map(submission => (
                           <SubmissionPanel
                             key={submission.id}
+                            onCheckSubmission={onCheckSubmission}
                             t={t}
                             submission={submission}
                           />
@@ -128,6 +129,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
 };
 
 interface SubmissionPanelProps {
+  onCheckSubmission: any;
   submission: any;
   t: any;
 }
@@ -135,7 +137,7 @@ interface SubmissionPanelProps {
 const SubmissionPanel: FC<SubmissionPanelProps> = (
   props: SubmissionPanelProps
 ) => {
-  const { submission, t } = props;
+  const { onCheckSubmission, submission, t } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -178,7 +180,7 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 label: t("menu-submission-see"),
                 onClick() {
                   setMenuOpen(false);
-                  //onChangeName(exercise.title);
+                  onCheckSubmission(submission);
                 }
               },
               {
