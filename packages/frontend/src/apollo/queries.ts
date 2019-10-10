@@ -301,6 +301,17 @@ export const UPDATE_SUBMISSION_MUTATION = gql`
   }
 `;
 
+export const UPDATE_PASSWORD_SUBMISSION_MUTATION = gql`
+  mutation UpdatePasswordSubmission(
+    $id: ObjectID!
+    $password: String!
+  ) {
+    updatePasswordSubmission(submissionID: $id, password: $password) {
+      id
+    }
+  }
+`;
+
 export const FINISH_SUBMISSION_MUTATION = gql`
   mutation FinishSubmission($content: String!) {
     finishSubmission(content: $content) {

@@ -439,6 +439,43 @@ const submissionResolver = {
         ""
       );
       return updatedSubmission;
+    },
+
+    /**
+     * Update password submission: teacher logged change the password of a submission.
+     * It updates the submission with the new information provided: password.
+     * args: submissionID and password
+     */
+    updatePasswordSubmission: async (root: any, args: any, context: any) => {
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
+        _id: args.submissionID,
+        user: context.user.userID
+      });
+      if (!existSubmission) {
+        throw new ApolloError(
+          "Error grading submission, not found",
+          "SUBMISSION_NOT_FOUND"
+        );
+      }
+      const hash: string = await bcrypt.hash(args.password, saltRounds);
+      const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        { _id: existSubmission._id },
+        {
+          $set: {
+            password: hash,
+          }
+        },
+        { new: true }
+      );
+      loggerController.storeInfoLog(
+        "API",
+        "submission",
+        "passwordUpdated",
+        existSubmission.type,
+        existSubmission.user,
+        ""
+      );
+      return updatedSubmission;
     }
   },
 

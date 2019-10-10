@@ -80,6 +80,10 @@
   "submission-table-team": "Team",
   "submission-table-date": "Submission date",
   "submission-table-grade": "Grade",
+  "submission-table-unsubmitted": "unsubmitted",
+  "submission-passwordmodal-title": "New password to the team",
+  "submission-passwordmodal-text": "New password",
+  "submission-passwordmodal-placeholder": "Password",
   "tab-3d": "3D",
   "tab-project-info": "Document information",
   "tooltip-select-multiple": "Select multiple objects pressing *“Control + clic”* in each of them to be able to use this tool",
@@ -242,7 +246,7 @@
   "general-create-button": "Create",
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancel",
-  "general-accept-button": "Accept"
+  "general-accept-button": "Accept",
   "junior": {
     "hardware": "Hardware",
     "software": "Software"

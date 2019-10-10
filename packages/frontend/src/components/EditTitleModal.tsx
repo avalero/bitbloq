@@ -11,6 +11,7 @@ interface EditTitleModalProps {
   placeholder: string;
   saveButton: string;
   type?: string;
+  validateInput?: boolean;
 }
 
 const EditTitleModal: FC<EditTitleModalProps> = props => {
@@ -21,7 +22,8 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
     modalText,
     placeholder,
     saveButton,
-    type
+    type,
+    validateInput = true
   } = props;
   const [title, setTitle] = useState(props.title);
   const [error, setError] = useState(false);
@@ -59,7 +61,7 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
-              if (validate(value)) {
+              if (!validateInput || validate(value)) {
                 setTitle(value);
                 setError(false);
               } else {
@@ -67,6 +69,7 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
                 setError(true);
               }
             }}
+            value={title}
             type={type || "text"}
             error={error}
           />
