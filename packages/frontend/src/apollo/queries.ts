@@ -26,6 +26,9 @@ export const DOCUMENT_QUERY = gql`
       public
       example
       advancedMode
+      parentsPath {
+        id
+      }
     }
   }
 `;
@@ -91,6 +94,10 @@ export const FOLDER_QUERY = gql`
     folder(id: $id) {
       id
       name
+      parentsPath {
+        id
+        name
+      }
       documents {
         id
         type
@@ -101,7 +108,7 @@ export const FOLDER_QUERY = gql`
         description
         advancedMode
         content
-        exercises{
+        exercises {
           title
           code
         }
@@ -110,7 +117,7 @@ export const FOLDER_QUERY = gql`
         id
         name
         createdAt
-        updatedAt        
+        updatedAt
       }
     }
   }
@@ -163,15 +170,15 @@ export const CREATE_FOLDER_MUTATION = gql`
 `;
 
 export const UPDATE_FOLDER_MUTATION = gql`
-  mutation updateFolder($id:ObjectID!,$input: FolderIn) {
-    updateFolder(id: $id,input: $input) {
+  mutation updateFolder($id: ObjectID!, $input: FolderIn) {
+    updateFolder(id: $id, input: $input) {
       id
     }
   }
 `;
 
 export const DUPLICATE_FOLDER_MUTATION = gql`
-  mutation duplicateFolder($id:ObjectID!) {
+  mutation duplicateFolder($id: ObjectID!) {
     duplicateFolder(id: $id) {
       id
     }

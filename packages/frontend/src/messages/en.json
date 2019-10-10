@@ -178,8 +178,6 @@
   "status-position": "Position (mm):",
   "status-rotation": "Rotation (grads):",
   "untitled-project": "Untitled project",
-  "hardware": "Hardware",
-  "software": "Software",
   "bloqs-sensors": "Sensors",
   "bloqs-actions": "Actions",
   "bloqs-waits": "Waits",
@@ -249,4 +247,19 @@
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancel",
   "general-accept-button": "Accept"
+  "junior": {
+    "hardware": "Hardware",
+    "software": "Software"
+  },
+  "hardware": {
+    "component": {
+      "button": "Button",
+      "cont-rot-servo": "Continuous rotation servo",
+      "double-led": "Double LED",
+      "double-switch": "Double switch",
+      "miniservo": "Miniservo",
+      "multisensor": "Multisensor",
+      "seven-segment": "7 segment display"
+    }
+  }
 }

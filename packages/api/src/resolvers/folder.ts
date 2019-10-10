@@ -8,6 +8,69 @@ import { pubsub } from "../server";
 const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
 import { logger, loggerController } from "../controllers/logs";
+import { getParentsPath } from "../utils";
+
+const duplicateFolderChildren = async (folder, userID) => {
+  if (folder.name === "root") {
+    return folder;
+  } else {
+    const folderOriginalChildren: IFolder[] = await FolderModel.find({
+      parent: folder._id
+    });
+    const docsOriginalChildren: IDocument[] = await DocumentModel.find({
+      folder: folder._id
+    });
+    const newFolder: IFolder = await FolderModel.create({
+      name: folder.name,
+      parent: folder.parent,
+      user: userID
+    });
+    let folderChildren: string[] = [],
+      docsChildren: string[] = [];
+    if (docsOriginalChildren.length > 0) {
+      for (let item of docsOriginalChildren) {
+        const newItem = await DocumentModel.create({
+          user: userID,
+          title: item.title,
+          type: item.type,
+          content: item.content,
+          advancedMode: item.advancedMode,
+          cache: item.cache,
+          description: item.description,
+          version: item.version,
+          image: item.image,
+          folder: newFolder._id
+        });
+        docsChildren.push(newItem._id);
+      }
+    }
+    if (folderOriginalChildren.length > 0) {
+      for (let item of folderOriginalChildren) {
+        const newItem = await FolderModel.create({
+          name: item.name,
+          parent: newFolder._id,
+          user: userID
+        });
+        folderChildren.push(newItem._id);
+      }
+    }
+    await FolderModel.updateOne(
+      { _id: newFolder._id },
+      {
+        foldersID: folderChildren,
+        documentsID: docsChildren
+      },
+      { new: true }
+    );
+    // if (folderOriginalChildren.length > 0) {
+    //   for (let item of folderOriginalChildren) {
+    //     console.log(item);
+    //     duplicateFolderChildren(item, userID);
+    //   }
+    // }
+    return;
+  }
+};
 
 const folderResolver = {
   Subscription: {
@@ -258,55 +321,10 @@ const folderResolver = {
       if (!existFolder) {
         throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
       }
-      const newFolder: IFolder = await FolderModel.create({
-        name: existFolder.name,
-        parent: existFolder.parent,
-        user: context.user.userID
-      });
-      const folderOriginalChildren: IFolder[] = await FolderModel.find({
-        parent: existFolder._id
-      });
-      const docsOriginalChildren: IDocument[] = await DocumentModel.find({
-        folder: existFolder._id
-      });
-      let folderChildren: string[] = [],
-        docsChildren: string[] = [];
-      if (folderOriginalChildren.length > 0) {
-        for (let item of folderOriginalChildren) {
-          const newItem = await FolderModel.create({
-            name: item.name,
-            parent: newFolder._id,
-            user: context.user.userID
-          });
-          folderChildren.push(newItem._id);
-        }
-      }
-      if (docsOriginalChildren.length > 0) {
-        for (let item of docsOriginalChildren) {
-          const newItem = await DocumentModel.create({
-            user: context.user.userID,
-            title: item.title,
-            type: item.type,
-            content: item.content,
-            advancedMode: item.advancedMode,
-            cache: item.cache,
-            description: item.description,
-            version: item.version,
-            image: item.image,
-            folder: newFolder._id
-          });
-          docsChildren.push(newItem._id);
-        }
-      }
-      const updatedFolder: IFolder = await FolderModel.updateOne(
-        { _id: newFolder._id },
-        {
-          foldersID: folderChildren,
-          documentsID: docsChildren
-        },
-        { new: true }
+      const updatedFolder = await duplicateFolderChildren(
+        existFolder,
+        context.user.userID
       );
-
       pubsub.publish(FOLDER_UPDATED, { folderUpdated: updatedFolder });
       return updatedFolder;
     }
@@ -350,8 +368,12 @@ const folderResolver = {
 
   Folder: {
     documents: async (folder: IFolder) =>
-      DocumentModel.find({ folder: folder }),
-    folders: async (folder: IFolder) => FolderModel.find({ parent: folder })
+      DocumentModel.find({ folder: folder.id }),
+    folders: async (folder: IFolder) => FolderModel.find({ parent: folder.id }),
+    parentsPath: async (folder: IFolder) => {
+      const result = await getParentsPath(folder);
+      return result;
+    }
   }
 };
 

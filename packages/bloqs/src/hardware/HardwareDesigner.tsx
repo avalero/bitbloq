@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { colors, useTranslate } from "@bitbloq/ui";
+import { colors, useTranslate, JuniorButton, Icon } from "@bitbloq/ui";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import AddComponentPanel from "./AddComponentPanel";
-import ComponentPropertiesPanel from "./ComponentPropertiesPanel";
 
 import {
   IBoard,
@@ -48,14 +47,6 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   const selectedComponent =
     selectedComponentInstance &&
     components.find(c => c.name === selectedComponentInstance.component)!;
-  const availablePorts = selectedComponent
-    ? board.ports.filter(
-        p =>
-          p === selectedPort ||
-          (isCompatiblePort(p, selectedComponent) &&
-            !hardware.components.some(c => c.port === p.name))
-      )
-    : [];
 
   const renderPort = (port: IPort, i: number) => {
     const componentInstance = hardware.components.find(
@@ -80,14 +71,33 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
           selected={selectedPortIndex === i}
           top={top}
           left={left}
-          width={image.width}
-          height={image.height}
-          src={image.url}
-          onClick={e => {
-            e.stopPropagation();
-            setSelectedPortIndex(i);
-          }}
-        />
+          width={image.width * 0.65}
+          height={image.height * 0.65}
+        >
+          <img
+            src={image.url}
+            onClick={e => {
+              e.stopPropagation();
+              setSelectedPortIndex(i);
+            }}
+          />
+          {selectedPortIndex === i && (
+            <DeleteButton
+              red
+              onClick={() => {
+                onHardwareChange({
+                  ...hardware,
+                  components: hardware.components.filter(
+                    c => c !== componentInstance
+                  )
+                });
+                setSelectedPortIndex(-1);
+              }}
+            >
+              <Icon name="trash" />
+            </DeleteButton>
+          )}
+        </Component>
       );
     }
 
@@ -106,10 +116,6 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   };
 
   const connectionPath = (port: IPort) => {
-    const componentInstance = hardware.components.find(
-      c => c.port === port.name
-    );
-
     const portX = (port.position.x * width) / 2;
     const portY = (-port.position.y * width) / 2;
     const placeholderX = (port.placeholderPosition.x * width) / 2;
@@ -177,32 +183,6 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
           );
         }}
       />
-      <ComponentPropertiesPanel
-        isOpen={!!selectedComponentInstance}
-        components={components}
-        componentInstance={selectedComponentInstance!}
-        availablePorts={availablePorts}
-        onDeleteComponent={() => {
-          onHardwareChange({
-            ...hardware,
-            components: hardware.components.filter(
-              c => c !== selectedComponentInstance
-            )
-          });
-          setSelectedPortIndex(-1);
-        }}
-        onInstanceUpdate={(newInstance: IComponentInstance) => {
-          onHardwareChange({
-            ...hardware,
-            components: hardware.components.map(c =>
-              c === selectedComponentInstance ? newInstance : c
-            )
-          });
-          setSelectedPortIndex(
-            board.ports.findIndex(p => p.name === newInstance.port)
-          );
-        }}
-      />
     </Container>
   );
 };
@@ -250,19 +230,37 @@ interface IComponentProps {
   top: number;
   left: number;
 }
-const Component = styled.img<IComponentProps>`
+const Component = styled.div<IComponentProps>`
   position: absolute;
   cursor: pointer;
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
   top: ${props => props.top}px;
   left: ${props => props.left}px;
+  width: ${props => props.width}px;
+  height: ${props => props.height}px;
   transform: translate(-50%, -50%);
-  border-color: ${props =>
-    props.selected ? colors.brandOrange : "transparent"};
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 6px;
+
+  img {
+    width: ${props => props.width}px;
+    height: ${props => props.height}px;
+    border-color: ${props => (props.selected ? colors.brandOrange : "#bbb")};
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 6px;
+  }
+`;
+
+const DeleteButton = styled(JuniorButton)`
+  position: absolute;
+  padding: 0px;
+  width: 40px;
+  height: 40px;
+  top: -20px;
+  right: -20px;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 interface IBoardProps {

@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import Icon from "../Icon";
+import colors from "../../colors";
 
 export interface ISwitchButtonDefinition {
   content: JSX.Element;
@@ -61,6 +62,7 @@ const Button = styled.button<IButtonProps>`
   cursor: pointer;
   box-shadow: 0 ${props => props.selected ? 2: 14}px 0 0 #ddd;
   transform: translate(0, ${props => props.selected ? -2 : -14}px);
+  color: ${colors.black};
 
   &:focus {
     outline: none;

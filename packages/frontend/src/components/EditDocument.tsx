@@ -23,10 +23,11 @@ import { documentTypes } from "../config";
 import debounce from "lodash/debounce";
 
 interface EditDocumentProps {
+  folder?: string;
   id: string;
   type: string;
 }
-const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
+const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const t = useTranslate();
 
   const user = useUserData();
@@ -127,10 +128,11 @@ const EditDocument: FC<EditDocumentProps> = ({ id, type }) => {
       } = await createDocument({
         variables: {
           ...document,
+          folder: folder,
           title: document.title || "Documento sin título"
         }
       });
-      navigate(`/app/document/${type}/${newId}`, { replace: true });
+      navigate(`/app/document/${folder}/${type}/${newId}`, { replace: true });
     } else {
       debouncedUpdate(document, image);
     }
