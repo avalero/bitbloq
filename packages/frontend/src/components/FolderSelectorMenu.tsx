@@ -1,5 +1,6 @@
+import gql from "graphql-tag";
 import React, { FC, useState } from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors } from "@bitbloq/ui";
 
@@ -8,14 +9,32 @@ interface Folder {
   id: string;
 }
 
+const FOLDER_QUERY = gql`
+  query folder($id: ObjectID!) {
+    folder(id: $id) {
+      id
+      name
+      parent
+      parentsPath {
+        id
+        name
+      }
+      folders {
+        id
+        name
+      }
+    }
+  }
+`;
+
 export interface FolderSelectorMenuProps {
   className?: string;
   currentLocation?: Folder;
   folders?: Folder[];
-  onMove(
+  onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedFolder: Folder
-  ): void;
+  ) => any;
 }
 
 const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
@@ -25,25 +44,42 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
   onMove
 }) => {
   const [selectedFolder, setSelectedFolder] = useState(currentLocation);
+  const { data, loading, error } = useQuery(FOLDER_QUERY, {
+    variables: {
+      id: selectedFolder.id
+    }
+  });
+  if (loading) {
+    return <FolderSelector>loading...</FolderSelector>;
+  }
+  if (error) {
+    console.log(error);
+  }
+  const { folders: foldersData, name: folderName, parent } = data.folder;
   return (
     <FolderSelector className={className}>
-      <ParentButton>
-        {currentLocation ? (
-          currentLocation.name === "root" ? (
+      <ParentButton
+        onClick={e => {
+          e.stopPropagation();
+          setSelectedFolder({ id: parent, name: "" });
+        }}
+      >
+        {folderName ? (
+          folderName === "root" ? (
             <p>Mis documentos</p>
           ) : (
             <>
               <ArrowIcon>
                 <Icon name="arrow" />
               </ArrowIcon>
-              <MenuIcon name="folder-icon" />
-              {currentLocation.name}
+              <MenuIcon title={true} name="folder-icon" />
+              <p>{folderName}</p>
             </>
           )
         ) : null}
       </ParentButton>
-      {folders &&
-        folders.map((folder: Folder, i: number) => (
+      {foldersData &&
+        foldersData.map((folder: Folder, i: number) => (
           <FolderSelectorOption
             key={folder.id}
             selectedFolder={selectedFolder.id === folder.id}
@@ -173,7 +209,7 @@ const MoveButton = styled.div`
 `;
 
 const MenuIcon = styled(Icon)<{ title?: boolean }>`
-  margin-right: ${props => (props.title ? 6 : 14)}px;
+  margin-right: ${props => (props.title ? 0 : 14)}px;
   margin-left: 13px;
   height: ${props => (props.title ? 20 : 13)}px;
   width: ${props => (props.title ? 20 : 13)}px;

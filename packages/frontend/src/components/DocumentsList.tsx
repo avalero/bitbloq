@@ -77,11 +77,13 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDocumentRenameClick = (e, document) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setEditDocTitleModal({ id: document.id, title: document.title });
   };
 
   const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setDeleteDocumentId({ id: document.id, exercises: document.exercises });
   };
 
@@ -113,11 +115,13 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderRenameClick = (e, folder) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setEditFolderNameModal({ id: folder.id, name: folder.name });
   };
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setDeleteFolderId(folder.id);
   };
 
