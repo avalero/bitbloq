@@ -36,6 +36,10 @@ type Mutation {
     grade: Float
     teacherComment: String
   ): Submission @authRequired(requires: [TEACHER])
+  updatePasswordSubmission(
+    submissionID: ObjectID!
+    password: String!
+  ): Submission @authRequired(requires: [TEACHER])
 }
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission

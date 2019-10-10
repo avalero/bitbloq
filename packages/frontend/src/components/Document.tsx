@@ -309,11 +309,11 @@ class Document extends React.Component<any, DocumentState> {
             onCancel={() =>
               this.setState({ isCreateExerciseOpen: false, errorName: false })
             }
-            onSave={() => {
+            onSave={(value: string) => {
               createExercise({
                 variables: {
                   documentId,
-                  title: newExerciseTitle || "Ejercicio sin título"
+                  title: value || "Ejercicio sin título"
                 },
                 refetchQueries: [
                   {
@@ -354,12 +354,12 @@ class Document extends React.Component<any, DocumentState> {
             onCancel={() =>
               this.setState({ isUpdateExerciseOpen: false, errorName: false })
             }
-            onSave={() => {
+            onSave={(value: string) => {
               updateExercise({
                 variables: {
                   id: exerciseId,
                   input: {
-                    title: newExerciseTitle || "Ejercicio sin título"
+                    title: value || "Ejercicio sin título"
                   }
                 },
                 refetchQueries: [

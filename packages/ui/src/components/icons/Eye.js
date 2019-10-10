@@ -37,9 +37,9 @@ const SvgEye = props => (
       </filter>
     </defs>
     <g fill="none" fillRule="evenodd">
-      <path fill="#FBFBFB" d="M-910-490H370V611H-910z" />
+      <path fill="none" d="M-910-490H370V611H-910z" />
       <path
-        fill="#FFF"
+        fill="none"
         stroke="#C0C3C9"
         d="M-460-264h780v757a4 4 0 0 1-4 4h-776v-761z"
       />
@@ -54,7 +54,7 @@ const SvgEye = props => (
           height="144"
           x="-.5"
           y="-.5"
-          fill="#FFF"
+          fill="none"
           stroke="#CFCFCF"
           rx="4"
         />

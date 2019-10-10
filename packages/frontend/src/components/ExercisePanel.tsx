@@ -1,10 +1,13 @@
 import React, { FC, useState } from "react";
+import { Mutation } from "react-apollo";
 import dayjs from "dayjs";
 import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { colors, Button, Icon, Switch, Translate } from "@bitbloq/ui";
+import { colors, Button, Icon, Input, Switch, Translate } from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
+import EditTitleModal from "./EditTitleModal";
+import { UPDATE_PASSWORD_SUBMISSION_MUTATION } from "../apollo/queries";
 
 export interface ExercisePanelProps {
   exercise: any;
@@ -140,91 +143,115 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
   const { onCheckSubmission, submission, t } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
 
   return (
-    <tr>
-      <td>
-        <StudentCell>
-          <Online />
-          <StudentNick>{submission.studentNick}</StudentNick>
-        </StudentCell>
-      </td>
-      <td>
-        {submission.finished ? (
-          dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
-        ) : (
-          <span
-            style={{
-              fontStyle: "italic",
-              color: "#474749"
-            }}
+    <>
+      <tr>
+        <td>
+          <StudentCell>
+            <Online />
+            <StudentNick>{submission.studentNick}</StudentNick>
+          </StudentCell>
+        </td>
+        <td>
+          {submission.finished ? (
+            dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
+          ) : (
+            <span
+              style={{
+                fontStyle: "italic",
+                color: "#474749"
+              }}
+            >
+              {t("submission-table-unsubmitted")}
+            </span>
+          )}
+        </td>
+        <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+        <td>
+          <SubmissionOptions
+            isOpen={menuOpen}
+            onClick={() => setMenuOpen(!menuOpen)}
           >
-            {t("submission-table-unsubmitted")}
-          </span>
-        )}
-      </td>
-      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
-      <td>
-        <SubmissionOptions
-          isOpen={menuOpen}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          <Icon name="ellipsis" />
-        </SubmissionOptions>
-        {menuOpen && (
-          <SubmissionMenu
-            options={[
-              {
-                disabled: !submission.finished,
-                iconName: "eye",
-                label: t("menu-submission-see"),
-                onClick() {
-                  setMenuOpen(false);
-                  onCheckSubmission(submission);
-                }
-              },
-              {
-                iconName: "padlock-close",
-                label: t("menu-submission-password"),
-                onClick() {
-                  setMenuOpen(false);
-                  //onChangeName(exercise.title);
-                }
-              },
-              {
-                disabled: submission.finished,
-                iconName: "close",
-                label: t("menu-submission-expel"),
-                onClick() {
-                  setMenuOpen(false);
-                  //onChangeName(exercise.title);
-                }
-              },
-              {
-                iconName: "trash",
-                label: t("menu-submission-delete"),
-                onClick() {
-                  setMenuOpen(false);
-                  //onRemove();
+            <Icon name="ellipsis" />
+          </SubmissionOptions>
+          {menuOpen && (
+            <SubmissionMenu
+              options={[
+                {
+                  disabled: !submission.finished,
+                  iconName: "eye",
+                  label: t("menu-submission-see"),
+                  onClick() {
+                    setMenuOpen(false);
+                    onCheckSubmission(submission);
+                  }
                 },
-                red: true
-              }
-            ]}
-          />
-        )}
-      </td>
-      {/*<td>
-            {submission.finished && (
-              <Button
-                tertiary
-                small
-                onClick={() => onCheckSubmission(submission)}
-              >
-                Comprobar
-              </Button>
-            )}
-          </td>*/}
-    </tr>
+                {
+                  iconName: "padlock-close",
+                  label: t("menu-submission-password"),
+                  onClick() {
+                    setMenuOpen(false);
+                    setPasswordModalOpen(true);
+                  }
+                },
+                {
+                  disabled: submission.finished,
+                  iconName: "close",
+                  label: t("menu-submission-expel"),
+                  onClick() {
+                    setMenuOpen(false);
+                    //onChangeName(exercise.title);
+                  }
+                },
+                {
+                  iconName: "trash",
+                  label: t("menu-submission-delete"),
+                  onClick() {
+                    setMenuOpen(false);
+                    //onRemove();
+                  },
+                  red: true
+                }
+              ]}
+            />
+          )}
+        </td>
+      </tr>
+      {passwordModalOpen && (
+        <tr>
+          <td>
+            <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
+              {updatePassword => (
+                <EditTitleModal
+                  title=""
+                  onCancel={() => setPasswordModalOpen(false)}
+                  onSave={(value: string) => {
+                    if (value) {
+                      updatePassword({
+                        variables: {
+                          id: submission.id,
+                          password: value
+                        }
+                      });
+                    }
+                    setPasswordModalOpen(false);
+                  }}
+                  modalTitle={t("submission-passwordmodal-title")}
+                  modalText={t("submission-passwordmodal-text")}
+                  placeholder={t("submission-passwordmodal-placeholder")}
+                  saveButton={t("general-accept-button")}
+                  type="password"
+                  validateInput={false}
+                />
+              )}
+            </Mutation>
+          </td>
+        </tr>
+      )}
+    </>
   );
 };
 
@@ -514,4 +541,26 @@ const StudentNick = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+`;
+
+const ModalContent = styled.div`
+  padding: 30px;
+  width: 500px;
+  box-sizing: border-box;
+
+  p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+`;
+
+const ModalButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 50px;
+`;
+
+const ModalButton = styled(Button)`
+  height: 40px;
+  padding: 0 20px;
 `;
