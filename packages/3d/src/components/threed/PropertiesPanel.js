@@ -33,7 +33,7 @@ const Wrap = styled.div`
   display: flex;
 `;
 
-const ToltipPosition = styled.div`
+const TooltipPosition = styled.div`
   height: 37px;
   position: absolute;
   right: 150px;
@@ -375,7 +375,7 @@ class PropertiesPanel extends React.Component {
     }
 
     const onChange = (value, text, parameter, object) => {
-      const { inputValues, timeout } = this.state;
+      let { errors, inputValues, timeout } = this.state;
 
       clearTimeout(timeout);
 
@@ -384,29 +384,25 @@ class PropertiesPanel extends React.Component {
         : object.parameters && object.parameters[parameter.name];
 
       if (!parameter.validate || parameter.validate(value)) {
-        let errors = this.state.errors;
         errors.set(`${object.id}-${parameter.name}`, false);
-        inputValues.set(`${object.id}-${parameter.name}`, value);
         inputValues.delete(`${object.id}-${parameter.name}`);
         this.setState({ errors, inputValues });
         this.onObjectParameterChange(object, parameter, value);
       } else {
-        let errors = this.state.errors;
         errors.set(`${object.id}-${parameter.name}`, true);
         let inputValue = inputValues.get(`${object.id}-${parameter.name}`);
         inputValue = `${inputValue || ""}${text}`;
         inputValues.set(`${object.id}-${parameter.name}`, text);
         this.onObjectParameterChange(object, parameter, prevValue);
-        const myTimeout = setTimeout(
+        timeout = setTimeout(
           () => (
             errors.set(`${object.id}-${parameter.name}`, false),
-            inputValues.set(`${object.id}-${parameter.name}`, prevValue),
             inputValues.delete(`${object.id}-${parameter.name}`),
             this.setState({ errors, inputValues })
           ),
           3000
         );
-        this.setState({ errors, timeout: myTimeout });
+        this.setState({ errors, timeout });
       }
     };
 
@@ -488,7 +484,7 @@ class PropertiesPanel extends React.Component {
                 />
                 {this.state.errors.has(`${object.id}-${parameter.name}`) &&
                   this.state.errors.get(`${object.id}-${parameter.name}`) && (
-                    <ToltipPosition>
+                    <TooltipPosition>
                       <audio src={errorSound} autoPlay />
                       <Tooltip
                         style={{ zIndex: 10 }}
@@ -508,7 +504,7 @@ class PropertiesPanel extends React.Component {
                           />
                         )}
                       </Tooltip>
-                    </ToltipPosition>
+                    </TooltipPosition>
                   )}
               </div>
             ))}
