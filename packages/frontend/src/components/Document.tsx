@@ -153,7 +153,9 @@ class Document extends React.Component<any, DocumentState> {
           </DocumentHeaderText>
           <DocumentHeaderButton
             onClick={() =>
-              window.open(`/app/document/${document.type}/${document.id}`)
+              window.open(
+                `/app/document/${document.folder}/${document.type}/${document.id}`
+              )
             }
           >
             {t("document-header-button")}
@@ -185,7 +187,9 @@ class Document extends React.Component<any, DocumentState> {
           </DocumentHeaderText>
           <DocumentHeaderButton
             onClick={() =>
-              window.open(`/app/document/${document.type}/${document.id}`)
+              window.open(
+                `/app/document/${document.folder}/${document.type}/${document.id}`
+              )
             }
           >
             {t("document-header-button")}
