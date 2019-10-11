@@ -234,6 +234,7 @@ export interface DocumentProps {
   icon?: JSX.Element;
   preMenuContent?: JSX.Element;
   postMenuContent?: JSX.Element;
+  backCallback: () => any;
 }
 
 interface State {

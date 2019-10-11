@@ -13,6 +13,11 @@ import SendMessageConfiguration from "./configuration/SendMessageConfiguration";
 import GetNumberConfiguration from "./configuration/GetNumberConfiguration";
 import SetNumberConfiguration from "./configuration/SetNumberConfiguration";
 import TurnOnConfiguration from "./configuration/TurnOnConfiguration";
+import TurnOnColorConfiguration from "./configuration/TurnOnColorConfiguration";
+import ServoConfiguration from "./configuration/ServoConfiguration";
+import WaitConfiguration from "./configuration/WaitConfiguration";
+import MusicConfiguration from "./configuration/MusicConfiguration";
+import ServoPositionConfiguration from "./configuration/ServoPositionConfiguration";
 
 import { IBloq, IBloqType } from "../index";
 
@@ -28,7 +33,12 @@ const configurationComponents = {
   SendMessageConfiguration,
   GetNumberConfiguration,
   SetNumberConfiguration,
-  TurnOnConfiguration
+  TurnOnConfiguration,
+  TurnOnColorConfiguration,
+  ServoConfiguration,
+  WaitConfiguration,
+  MusicConfiguration,
+  ServoPositionConfiguration
 };
 
 interface IConfigurationProps {
