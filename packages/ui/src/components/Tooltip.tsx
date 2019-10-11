@@ -103,6 +103,7 @@ export interface TooltipChildrenProps {
 }
 
 export interface TooltipProps {
+  className?: string;
   content: React.ReactChild;
   position: string;
   children: (props: TooltipChildrenProps) => React.ReactChild;
@@ -132,7 +133,7 @@ class Tooltip extends React.Component<TooltipProps, State> {
 
   render() {
     const { isVisible } = this.state;
-    const { children, content, position = "bottom" } = this.props;
+    const { className, children, content, position = "bottom" } = this.props;
     const { onMouseOver, onMouseOut } = this;
 
     if (!content) {
@@ -141,6 +142,7 @@ class Tooltip extends React.Component<TooltipProps, State> {
 
     return (
       <TetherComponent
+        className={className}
         attachment={attachmentPostion[position]}
         targetAttachment={targetPosition[position]}
         style={{ zIndex: 20 }}
