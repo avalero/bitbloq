@@ -48,7 +48,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links }) => {
                       ) : link.text === "Mis documentos" ? null : (
                         <IconLink name="document" />
                       )}
-                      {link.text}
+                      <p>{link.text}</p>
                     </li>
                   );
                 }
@@ -95,6 +95,12 @@ const Links = styled.ol`
     justify-content: center;
     flex-direction: row;
     width: auto;
+  }
+  p {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 `;
 
