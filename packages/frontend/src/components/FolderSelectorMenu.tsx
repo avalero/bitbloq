@@ -30,7 +30,7 @@ const FOLDER_QUERY = gql`
 export interface FolderSelectorMenuProps {
   className?: string;
   currentLocation?: Folder;
-  folders?: Folder[];
+  selectedToMove?: string;
   onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedFolder: Folder
@@ -40,7 +40,7 @@ export interface FolderSelectorMenuProps {
 const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
   className,
   currentLocation,
-  folders,
+  selectedToMove,
   onMove
 }) => {
   const [selectedFolder, setSelectedFolder] = useState(currentLocation);
@@ -56,6 +56,7 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
     console.log(error);
   }
   const { folders: foldersData, name: folderName, parent } = data.folder;
+  console.log(selectedFolder, currentLocation)
   return (
     <FolderSelector className={className}>
       <ParentButton
@@ -79,7 +80,7 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
         ) : null}
       </ParentButton>
       {foldersData &&
-        foldersData.map((folder: Folder, i: number) => (
+        foldersData.filter(op=>op.id !==selectedToMove).map((folder: Folder, i: number) => (
           <FolderSelectorOption
             key={folder.id}
             selectedFolder={selectedFolder.id === folder.id}

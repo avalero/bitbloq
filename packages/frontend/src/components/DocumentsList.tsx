@@ -27,6 +27,7 @@ interface Folder {
 export interface DocumentListProps {
   documents?: any;
   folders?: any;
+  parentsPath?: any;
   className?: string;
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
@@ -36,6 +37,7 @@ export interface DocumentListProps {
 const DocumentListComp: FC<DocumentListProps> = ({
   documents,
   folders,
+  parentsPath,
   currentLocation,
   className,
   onFolderClick,
@@ -197,15 +199,19 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  //TODO:
   const onMoveDocumentClick = async (e, document) => {
     e.stopPropagation();
     setSelectedToMoveId(document.id);
-    //setMenuOpenId(null);
   };
   const onMoveFolderClick = async (e, folder) => {
     e.stopPropagation();
     setSelectedToMoveId(folder.id);
+  };
+
+  const onMoveDisabled = async e => {
+    e.stopPropagation();
+    setMenuOpenId(null);
+    setSelectedToMoveId(null);
   };
 
   const onMoveDocument = async (e, folder) => {
@@ -276,12 +282,15 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     {
                       selected: document.id === selectedToMoveId,
                       disabled:
-                        folders.filter(op => op.id !== document.id).length ===
-                        0,
+                        folders.length === 0 && parentsPath.length === 1,
                       iconName: "move-document",
                       label: "Mover a",
                       onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onMoveDocumentClick(e, document);
+                        if (folders.length === 0 && parentsPath.length === 1) {
+                          onMoveDisabled(e);
+                        } else {
+                          onMoveDocumentClick(e, document);
+                        }
                       }
                     },
                     {
@@ -298,9 +307,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
               {selectedToMoveId === document.id && folders != [] && (
                 <FolderSelectorMenu
-                  folders={folders
-                    .map(op => ({ name: op.name, id: op.id }))
-                    .filter(op => op.id !== selectedToMoveId)}
+                  selectedToMove={selectedToMoveId}
                   onMove={onMoveDocument}
                   currentLocation={currentLocation}
                 ></FolderSelectorMenu>
@@ -341,11 +348,15 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     {
                       selected: folder.id === selectedToMoveId,
                       disabled:
-                        folders.filter(op => op.id !== folder.id).length === 0,
+                        folders.length === 0 && parentsPath.length === 1,
                       iconName: "move-document",
                       label: "Mover a",
                       onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onMoveFolderClick(e, folder);
+                        if (folders.length === 0 && parentsPath.length === 1) {
+                          onMoveDisabled(e);
+                        } else {
+                          onMoveFolderClick(e, folder);
+                        }
                       }
                     },
                     {
@@ -361,9 +372,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
               )}
               {selectedToMoveId === folder.id && folders != [] && (
                 <FolderSelectorMenu
-                  folders={folders
-                    .map(op => ({ name: op.name, id: op.id }))
-                    .filter(op => op.id !== selectedToMoveId)}
+                  selectedToMove={selectedToMoveId}
                   onMove={onMoveFolder}
                   currentLocation={currentLocation}
                 ></FolderSelectorMenu>

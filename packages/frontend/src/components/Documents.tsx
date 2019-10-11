@@ -231,13 +231,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const { documents, folders, parentsPath } = dataPage.folder;
 
-  let breadParents = [];
-  for (let item of parentsPath) {
-    breadParents = [
-      ...breadParents,
-      ...[{ route: `/app/folder/${item.id}`, text: item.name, type: "folder" }]
-    ];
-  }
+  const breadParents = parentsPath.map(item => ({
+    route: `/app/folder/${item.id}`,
+    text: item.name,
+    type: "folder"
+  }));
 
   return (
     <Container>
@@ -311,6 +309,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               <DocumentListComp
                 documents={filterDocuments(documents)}
                 folders={filterFolders(folders)}
+                parentsPath={parentsPath}
                 currentLocation={currentLocation}
                 onFolderClick={onFolderClick}
                 onDocumentClick={onDocumentClick}
@@ -324,6 +323,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
             <DocumentListComp
               documents={filterDocuments(documents)}
               folders={filterFolders(folders)}
+              parentsPath={parentsPath}
               currentLocation={currentLocation}
               onFolderClick={onFolderClick}
               onDocumentClick={onDocumentClick}
