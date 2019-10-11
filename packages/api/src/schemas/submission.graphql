@@ -48,7 +48,7 @@ type Mutation {
 }
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission
-    @authRequired(requires: [TEACHER])
+    @authRequired(requires: [TEACHER, STUDENT])
 }
 
 type Submission {

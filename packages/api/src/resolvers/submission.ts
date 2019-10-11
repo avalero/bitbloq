@@ -20,7 +20,8 @@ const submissionResolver = {
           // Filter by exercise code if the exercise is mine
           if (
             String(context.user.userID) ===
-            String(payload.submissionUpdated.user)
+              String(payload.submissionUpdated.user) ||
+            String(context.user.role).indexOf("stu") >= 0
           ) {
             return (
               String(payload.submissionUpdated.exercise) ===
