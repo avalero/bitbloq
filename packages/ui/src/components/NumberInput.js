@@ -105,7 +105,7 @@ export default class NumberInput extends React.Component {
     }
 
     const numberValue = Number(text) || 0;
-    if (Number(value) !== numberValue && !focused) {
+    if (Number(value) !== numberValue) {
       this.setState({
         text: Number(value) ? Number(value).toString() : ""
       });

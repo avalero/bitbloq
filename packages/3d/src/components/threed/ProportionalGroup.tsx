@@ -11,37 +11,33 @@ import PropertyInput from "./PropertyInput";
 import warningIcon from "../../assets/images/warning.svg";
 import errorSound from "../../assets/sounds/error.mp3";
 
+interface Parameter {
+  errorMessage?: string;
+  errorValue?: number;
+  fineStep?: number;
+  label?: string;
+  minValue?: number;
+  name: string;
+  validate?: (value: number | string) => boolean;
+}
+
 export interface IProportionalGroupProps {
-  parameters: object[];
+  parameters: Parameter[];
   operation: object;
   onOperationChange: (operation: object) => any;
+  t: any;
+  tooltipProps: TooltipProps;
 }
 
 class ProportionalGroup extends React.Component<IProportionalGroupProps> {
   state = {
     isLocked: true,
-    errors: new Map<string, boolean>()
+    inputValues: new Map<string, string>(),
+    errors: new Map<string, boolean>(),
+    timeout: setTimeout(() => {}, 10)
   };
 
-  componentDidUpdate() {
-    if (Array.from(this.state.errors).length > 0) {
-      document.addEventListener("keydown", this.onRemoveErrors);
-      document.addEventListener("click", this.onRemoveErrors);
-    }
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener("keydown", this.onRemoveErrors);
-    document.removeEventListener("click", this.onRemoveErrors);
-  }
-
-  onRemoveErrors = () => {
-    if (Array.from(this.state.errors).length > 0) {
-      this.setState({ errors: new Map<string, boolean>() });
-    }
-  };
-
-  onParameterChange = (parameter: object, value: any) => {
+  onParameterChange = (parameter: Parameter, value: any) => {
     const { parameters, operation } = this.props;
     const oldValue = operation[parameter.name];
     const ratio = value / oldValue;
@@ -60,9 +56,79 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
     this.props.onOperationChange(newOperation);
   };
 
+  onBlur = (parameters: Parameter[], parameter: Parameter): void => {
+    /*let errors: Map<string, boolean> = this.state.errors;
+    errors.set(parameter.name, false);
+    if (this.state.isLocked) {
+      parameters.forEach(param => {
+        errors.set(param.name, false);
+      });
+    }
+    this.setState({ errors });*/
+  };
+
+  onSetError = (
+    error: boolean,
+    errors: Map<string, boolean>,
+    parameters: Parameter[],
+    parameter: Parameter,
+    value?: string | number
+  ): Map<string, boolean> => {
+    errors.set(parameter.name, error);
+    if (this.state.isLocked) {
+      parameters.forEach(param => {
+        errors.set(param.name, error);
+      });
+    }
+    if (value) this.onParameterChange(parameter, value);
+    return errors;
+  };
+
+  onChange = (
+    value: any,
+    text: string,
+    operation: object,
+    parameters: Parameter[],
+    parameter: Parameter
+  ): void => {
+    let { errors, inputValues, timeout } = this.state;
+    const oldValue = operation[parameter.name];
+
+    clearTimeout(timeout);
+
+    if (text && (!parameter.validate || parameter.validate(+text))) {
+      inputValues.delete(parameter.name);
+      errors = this.onSetError(false, errors, parameters, parameter, value);
+    } else if (
+      text === undefined &&
+      (!parameter.validate || parameter.validate(+value))
+    ) {
+      inputValues.delete(parameter.name);
+      errors = this.onSetError(false, errors, parameters, parameter, value);
+    } else {
+      inputValues.set(parameter.name, value);
+      errors = this.onSetError(true, errors, parameters, parameter);
+      timeout = setTimeout(
+        () => (
+          (errors = this.onSetError(
+            false,
+            errors,
+            parameters,
+            parameter,
+            oldValue
+          )),
+          inputValues.delete(parameter.name),
+          this.setState({ errors, inputValues })
+        ),
+        3000
+      );
+    }
+    this.setState({ errors, inputValues, timeout });
+  };
+
   render() {
     const { parameters, operation, t, tooltipProps } = this.props;
-    const { isLocked } = this.state;
+    const { inputValues, isLocked } = this.state;
 
     const count = parameters.length;
 
@@ -70,139 +136,53 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
       <Container>
         {parameters.map((parameter, i) => (
           <React.Fragment key={parameter.name}>
-            {this.state.errors.has(parameter.name) &&
-            this.state.errors.get(parameter.name) ? (
-              <Tooltip
-                position="left"
-                content={
-                  <TooltipText>
-                    <img src={warningIcon} />
-                    {t(parameter.errorMessage, [parameter.errorValue])}
-                  </TooltipText>
-                }
-              >
-                {(tooltipProps: TooltipProps) => (
-                  <>
-                    <audio src={errorSound} autoPlay />
-                    <PropertyInput
-                      tooltipProps={tooltipProps}
-                      parameter={{ ...parameter, type: "integer" }}
-                      value={operation[parameter.name]}
-                      onBlur={() => {
-                        let errors: Map<string, boolean> = this.state.errors;
-                        errors.set(parameter.name, false);
-                        if (this.state.isLocked) {
-                          parameters.forEach(param => {
-                            errors.set(param.name, false);
-                          });
-                        }
-                        this.setState({ errors });
-                      }}
-                      onChange={(value: any, text: string) => {
-                        const oldValue = operation[parameter.name];
-                        let errors: Map<string, boolean> = this.state.errors;
-                        if (
-                          text &&
-                          (!parameter.validate || parameter.validate(+text))
-                        ) {
-                          errors.set(parameter.name, false);
-                          if (this.state.isLocked) {
-                            parameters.forEach(param => {
-                              errors.set(param.name, false);
-                            });
-                          }
-                          this.onParameterChange(parameter, value);
-                        } else if (
-                          text === undefined &&
-                          (!parameter.validate || parameter.validate(+value))
-                        ) {
-                          errors.set(parameter.name, false);
-                          if (this.state.isLocked) {
-                            parameters.forEach(param => {
-                              errors.set(param.name, false);
-                            });
-                          }
-                          this.onParameterChange(parameter, value);
-                        } else {
-                          errors.set(parameter.name, true);
-                          if (this.state.isLocked) {
-                            parameters.forEach(param => {
-                              errors.set(param.name, true);
-                            });
-                          }
-                          this.onParameterChange(parameter, oldValue);
-                        }
-                        this.setState({ errors });
-                      }}
-                    />
-                    {i > 0 && (
-                      <Line
-                        style={{ transform: `translate(0, ${(i - 1) * 46}px)` }}
-                      />
-                    )}
-                  </>
-                )}
-              </Tooltip>
-            ) : (
-              <>
-                <PropertyInput
-                  tooltipProps={tooltipProps}
-                  parameter={{ ...parameter, type: "integer" }}
-                  value={operation[parameter.name]}
-                  onBlur={() => {
-                    let errors: Map<string, boolean> = this.state.errors;
-                    errors.set(parameter.name, false);
-                    if (this.state.isLocked) {
-                      parameters.forEach(param => {
-                        errors.set(param.name, false);
-                      });
-                    }
-                    this.setState({ errors });
-                  }}
-                  onChange={(value: any, text: string) => {
-                    const oldValue = operation[parameter.name];
-                    let errors: Map<string, boolean> = this.state.errors;
-                    if (
-                      text &&
-                      (!parameter.validate || parameter.validate(+text))
-                    ) {
-                      errors.set(parameter.name, false);
-                      if (this.state.isLocked) {
-                        parameters.forEach(param => {
-                          errors.set(param.name, false);
-                        });
-                      }
-                      this.onParameterChange(parameter, value);
-                    } else if (
-                      text === undefined &&
-                      (!parameter.validate || parameter.validate(+value))
-                    ) {
-                      errors.set(parameter.name, false);
-                      if (this.state.isLocked) {
-                        parameters.forEach(param => {
-                          errors.set(param.name, false);
-                        });
-                      }
-                      this.onParameterChange(parameter, value);
-                    } else {
-                      errors.set(parameter.name, true);
-                      if (this.state.isLocked) {
-                        parameters.forEach(param => {
-                          errors.set(param.name, true);
-                        });
-                      }
-                      this.onParameterChange(parameter, oldValue);
-                    }
-                    this.setState({ errors });
-                  }}
-                />
-                {i > 0 && (
-                  <Line
-                    style={{ transform: `translate(0, ${(i - 1) * 46}px)` }}
-                  />
-                )}
-              </>
+            {i > 0 && (
+              <Line style={{ transform: `translate(0, ${(i - 1) * 46}px)` }} />
             )}
+            <div style={{ position: "relative" }}>
+              <PropertyInput
+                tooltipProps={tooltipProps}
+                parameter={{
+                  ...parameter,
+                  type: "integer",
+                  minValue: undefined
+                }}
+                value={
+                  inputValues.has(parameter.name)
+                    ? inputValues.get(parameter.name)
+                    : operation[parameter.name]
+                }
+                onBlur={() => {
+                  this.onBlur(parameters, parameter);
+                }}
+                onChange={(value: any, text: string) =>
+                  this.onChange(value, text, operation, parameters, parameter)
+                }
+              />
+              {this.state.errors.has(parameter.name) &&
+                this.state.errors.get(parameter.name) && (
+                  <TooltipPositionf>
+                    <audio src={errorSound} autoPlay />
+                    <Tooltip
+                      isVisible={true}
+                      position="left"
+                      content={
+                        <TooltipText>
+                          <img src={warningIcon} />
+                          {t(parameter.errorMessage, [parameter.errorValue])}
+                        </TooltipText>
+                      }
+                    >
+                      {(tooltipProps: TooltipProps) => (
+                        <div
+                          style={{ height: "37px", width: "0" }}
+                          {...tooltipProps}
+                        />
+                      )}
+                    </Tooltip>
+                  </TooltipPositionf>
+                )}
+            </div>
           </React.Fragment>
         ))}
         <LockButton onClick={() => this.setState({ isLocked: !isLocked })}>
@@ -251,6 +231,13 @@ const Line = styled.div`
   border-style: solid none solid solid;
   border-color: #d8d8d8;
   border-width: 1px;
+`;
+
+const TooltipPositionf = styled.div`
+  height: 37px;
+  position: absolute;
+  right: 120px;
+  top: 0;
 `;
 
 const TooltipText = styled.div`
