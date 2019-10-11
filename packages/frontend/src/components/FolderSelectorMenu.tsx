@@ -56,7 +56,6 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
     console.log(error);
   }
   const { folders: foldersData, name: folderName, parent } = data.folder;
-  console.log(selectedFolder, currentLocation)
   return (
     <FolderSelector className={className}>
       <ParentButton
