@@ -5,10 +5,6 @@ import switch1OnIcon from "../../images/bloqs/switch-1on.svg";
 import switch1OffIcon from "../../images/bloqs/switch-1off.svg";
 import switch2OnIcon from "../../images/bloqs/switch-2on.svg";
 import switch2OffIcon from "../../images/bloqs/switch-2off.svg";
-import rgbBlack from "../../images/bloqs/rgb-black.svg";
-import rgbRed from "../../images/bloqs/rgb-red.svg";
-import rgbGreen from "../../images/bloqs/rgb-green.svg";
-import rgbBlue from "../../images/bloqs/rgb-blue.svg";
 import viewColorBlack from "../../images/bloqs/view-color-black.svg";
 import viewColorWhite from "../../images/bloqs/view-color-white.svg";
 import viewColorBlue from "../../images/bloqs/view-color-blue.svg";
@@ -25,13 +21,15 @@ import buttonReleasedIcon from "../../images/bloqs/button-released.svg";
 import timeIcon from "../../images/bloqs/time.svg";
 import time1Icon from "../../images/bloqs/time-1.svg";
 import time5Icon from "../../images/bloqs/time-5.svg";
-import rcservoclockwise from "../../images/bloqs/rcservo-clockwise.svg";
-import rcservocounterclockwise from "../../images/bloqs/rcservo-counterclockwise.svg";
-import rcservostop from "../../images/bloqs/rcservo-stop.svg";
 import sevenSegmentsIcon from "../../images/bloqs/7segments.svg";
 import obstacleIcon from "../../images/bloqs/obstacle.svg";
 import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
-import buzzerIcon from "../../images/bloqs/buzzer.svg";
+import musicIcon from "../../images/bloqs/music.svg";
+import music1Icon from "../../images/bloqs/music1.svg";
+import music2Icon from "../../images/bloqs/music2.svg";
+import music3Icon from "../../images/bloqs/music3.svg";
+import music4Icon from "../../images/bloqs/music4.svg";
+import musicStopIcon from "../../images/bloqs/music-stop.svg";
 import sendAIcon from "../../images/bloqs/send-message-a.svg";
 import sendBIcon from "../../images/bloqs/send-message-b.svg";
 import sendCIcon from "../../images/bloqs/send-message-c.svg";
@@ -50,11 +48,20 @@ import led1OnIcon from "../../images/bloqs/led1-on.svg";
 import led1OffIcon from "../../images/bloqs/led1-off.svg";
 import led2OnIcon from "../../images/bloqs/led2-on.svg";
 import led2OffIcon from "../../images/bloqs/led2-off.svg";
+import boardLedOnIcon from "../../images/bloqs/board-led-on.svg";
+import boardLedOffIcon from "../../images/bloqs/board-led-off.svg";
+import servoIcon from "../../images/bloqs/servo.svg";
+import servoClockwiseSlowIcon from "../../images/bloqs/servo-clockwise-slow.svg";
+import servoClockwiseMediumIcon from "../../images/bloqs/servo-clockwise-medium.svg";
+import servoClockwiseFastIcon from "../../images/bloqs/servo-clockwise-fast.svg";
+import servoCounterClockwiseSlowIcon from "../../images/bloqs/servo-counterclockwise-slow.svg";
+import servoCounterClockwiseMediumIcon from "../../images/bloqs/servo-counterclockwise-medium.svg";
+import servoCounterClockwiseFastIcon from "../../images/bloqs/servo-counterclockwise-fast.svg";
+import servoStopIcon from "../../images/bloqs/servo-stop.svg";
 
 import { IBloqType, BloqCategory, BloqParameterType } from "@bitbloq/bloqs";
 
-
-export const bloqTypes: Array< Partial <IBloqType> > = [
+export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnStart",
@@ -63,7 +70,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     iconSwitch: {
       "type === 'loop'": flagLoopIcon,
       "type === 'times'": flagTimesIcon,
-      "true": flagIcon
+      true: flagIcon
     },
     configurationComponent: "StartConfiguration",
     parameters: [
@@ -85,7 +92,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       {
         name: "times",
         label: "bloq-parameter-start-times",
-        type: BloqParameterType.Number
+        type: BloqParameterType.Number,
+        defaultValue: 1
       }
     ]
   },
@@ -101,8 +109,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "read",
-        parameters:{
-          pinVarName: "{{component}}Pin1",
+        parameters: {
+          pinVarName: "{{component}}Pin1"
         }
       }
     ],
@@ -132,7 +140,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ],
     code: {}
@@ -149,8 +157,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "read",
-        parameters:{
-          pinVarName: "{{component}}Pin2",
+        parameters: {
+          pinVarName: "{{component}}Pin2"
         }
       }
     ],
@@ -180,7 +188,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ],
     code: {}
@@ -194,29 +202,30 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       "value === 'messageB'": onBIcon,
       "value === 'messageC'": onCIcon,
       "value === 'messageD'": onDIcon,
-      "value === 'messageE'": onEIcon,
+      "value === 'messageE'": onEIcon
     },
     code: {
       globals: [
-      "bool ___messageA = false;",
-      "bool ___messageB = false;",
-      "bool ___messageC = false;",
-      "bool ___messageD = false;",
-      "bool ___messageE = false;"]
-      ,
+        "bool ___messageA = false;",
+        "bool ___messageB = false;",
+        "bool ___messageC = false;",
+        "bool ___messageD = false;",
+        "bool ___messageE = false;"
+      ],
       endloop: [
         "___messageA = false;",
         "___messageB = false;",
         "___messageC = false;",
         "___messageD = false;",
-        "___messageE = false;",
+        "___messageE = false;"
       ]
     },
     actions: [
       {
-      name: "onMessage",
-      parameters: {
-        variable: "___{{value}}"},
+        name: "onMessage",
+        parameters: {
+          variable: "___{{value}}"
+        }
       }
     ],
     configurationComponent: "ReceiveMessageConfiguration",
@@ -245,63 +254,10 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "E",
             value: "messageE"
-          },
-        ]
-      },
-    ],
-  },
-  {
-    category: BloqCategory.Event,
-    label: "bloq-on-cr-servo",
-    name: "OnContRotServo",
-    components: ["ContRotServo"],
-    iconSwitch: {
-      "value === 'clockwise'": rcservoclockwise,
-      "value === 'counterclockwise'": rcservocounterclockwise,
-      "value === 'stop'": rcservostop
-    },
-    actions: [
-      {
-        name: "read",
-        parameters:{
-          pinVarName: "{{component}}"
-        }
-      }
-    ],
-    parameters: [
-      {
-        name: "component",
-        label: "bloq-parameter-component",
-        type: BloqParameterType.SelectComponent
-      },
-      {
-        name: "value",
-        label: "bloq-parameter-rotation",
-        type: BloqParameterType.Select,
-        options: [
-          {
-            label: "bloq-parameter-clockwise",
-            value: "clockwise"
-
-          },
-          {
-            label: "bloq-parameter-counterclockwise",
-            value: "counterclockwise"
-          },
-          {
-            label: "bloq-parameter-stop",
-            value: "stop"
           }
         ]
-      },
-      {
-        name: "trueCondition",
-        label: "bloq-parameter-action",
-        type: BloqParameterType.Hidden,
-        value: "==",
       }
-    ],
-    code: {}
+    ]
   },
   {
     category: BloqCategory.Event,
@@ -315,8 +271,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "read",
-        parameters:{
-          pinVarName: "{{component}}Pin",
+        parameters: {
+          pinVarName: "{{component}}Pin"
         }
       }
     ],
@@ -346,7 +302,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ],
     code: {}
@@ -360,8 +316,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "readNumber",
-        parameters:{
-          pinVarName: "{{component}}i2c",
+        parameters: {
+          pinVarName: "{{component}}i2c"
         }
       }
     ],
@@ -381,7 +337,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ]
   },
@@ -397,8 +353,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "readDistance",
-        parameters:{
-          pinVarName: "{{component}}i2c",
+        parameters: {
+          pinVarName: "{{component}}i2c"
         }
       }
     ],
@@ -428,13 +384,13 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "value",
         label: "bloq-parameter-value",
         type: BloqParameterType.Hidden,
-        value: "20",
+        value: "20"
       },
       {
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "<=",
+        value: "<="
       }
     ]
   },
@@ -501,7 +457,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "bloq-parameter-blue",
             value: "blue"
-          },
+          }
         ]
       }
     ]
@@ -597,7 +553,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "bloq-parameter-on",
             value: "on"
-
           },
           {
             label: "bloq-parameter-off",
@@ -609,13 +564,13 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     code: {},
     actions: [
       {
-        name: 'write',
+        name: "write",
         parameters: {
-          pinVarName: '{{component}}WhitePin',
-          value: '{{value}}',
-        },
-      },
-    ],
+          pinVarName: "{{component}}WhitePin",
+          value: "{{value}}"
+        }
+      }
+    ]
   },
   {
     category: BloqCategory.Action,
@@ -642,7 +597,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "bloq-parameter-on",
             value: "on"
-
           },
           {
             label: "bloq-parameter-off",
@@ -654,13 +608,13 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     code: {},
     actions: [
       {
-        name: 'write',
+        name: "write",
         parameters: {
-          pinVarName: '{{component}}ColorPin',
-          value: '{{value}}',
-        },
-      },
-    ],
+          pinVarName: "{{component}}ColorPin",
+          value: "{{value}}"
+        }
+      }
+    ]
   },
   {
     category: BloqCategory.Action,
@@ -668,17 +622,22 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     label: "bloq-cr-servo",
     components: ["ContRotServo"],
     iconSwitch: {
-      "rotation === 'clockwise'": rcservoclockwise,
-      "rotation === 'counterclockwise'": rcservocounterclockwise,
-      "rotation === 'stop'": rcservostop
+      "rotation === 'clockwise' and speed === 'slow'": servoClockwiseSlowIcon,
+      "rotation === 'clockwise' and speed === 'medium'": servoClockwiseMediumIcon,
+      "rotation === 'clockwise' and speed === 'fast'": servoClockwiseFastIcon,
+      "rotation === 'counterclockwise' and speed === 'slow'": servoCounterClockwiseSlowIcon,
+      "rotation === 'counterclockwise' and speed === 'medium'": servoCounterClockwiseMediumIcon,
+      "rotation === 'counterclockwise' and speed === 'fast'": servoCounterClockwiseFastIcon,
+      "rotation === 'stop'": servoStopIcon,
+      true: servoIcon
     },
+    configurationComponent: "ServoConfiguration",
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
       },
-
       {
         name: "rotation",
         label: "bloq-parameter-rotation",
@@ -687,7 +646,6 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "bloq-parameter-clockwise",
             value: "clockwise"
-
           },
           {
             label: "bloq-parameter-counterclockwise",
@@ -698,18 +656,60 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
             value: "stop"
           }
         ]
+      },
+      {
+        name: "speed",
+        label: "bloq-parameter-speed",
+        type: BloqParameterType.Select,
+        options: [
+          {
+            label: "bloq-parameter-slow",
+            value: "slow"
+          },
+          {
+            label: "bloq-parameter-medium",
+            value: "medium"
+          },
+          {
+            label: "bloq-parameter-fast",
+            value: "fast"
+          }
+        ]
       }
     ],
     code: {},
     actions: [
       {
-        name: 'write',
+        name: "write",
         parameters: {
-          pinVarName: '{{component}}',
-          value: '{{rotation}}',
-        },
+          pinVarName: "{{component}}",
+          value: "{{rotation}}"
+        }
+      }
+    ]
+  },
+  {
+    category: BloqCategory.Action,
+    name: "ServoPosition",
+    label: "bloq-servo-position",
+    components: ["ZumjuniorMiniservo"],
+    iconComponent: "ServoPositionIcon",
+    configurationComponent: "ServoPositionConfiguration",
+    parameters: [
+      {
+        name: "component",
+        label: "bloq-parameter-component",
+        type: BloqParameterType.SelectComponent
+      },
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Number,
+        defaultValue: 90
       }
     ],
+    code: {},
+    actions: []
   },
   {
     category: BloqCategory.Action,
@@ -717,23 +717,25 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     label: "bloq-rgbled-color",
     components: ["DigitalRGBLED"],
     iconSwitch: {
-      "value === 'red'": rgbRed,
-      "value === 'blue'": rgbBlue,
-      "value === 'green'": rgbGreen,
-      "value === 'off'": rgbBlack
+      "value === 'off'": boardLedOffIcon,
+      true: boardLedOnIcon
     },
+    configurationComponent: "TurnOnColorConfiguration",
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
       },
-
       {
         name: "value",
         label: "bloq-parameter-color",
         type: BloqParameterType.Select,
         options: [
+          {
+            label: "white",
+            value: "white"
+          },
           {
             label: "red",
             value: "red"
@@ -749,28 +751,35 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "off",
             value: "off"
-
-          },
+          }
         ]
       }
     ],
     code: {},
     actions: [
       {
-        name: 'write',
+        name: "write",
         parameters: {
-          pinVarName: '{{component}}',
-          value: '{{value}}',
-        },
+          pinVarName: "{{component}}",
+          value: "{{value}}"
+        }
       }
-    ],
+    ]
   },
   {
     category: BloqCategory.Action,
-    name: "Buzzer",
-    label: "bloq-buzzer",
+    name: "Music",
+    label: "bloq-music",
     components: ["Buzzer"],
-    icon: buzzerIcon,
+    iconSwitch: {
+      "melody === '1'": music1Icon,
+      "melody === '2'": music2Icon,
+      "melody === '3'": music3Icon,
+      "melody === '4'": music4Icon,
+      "melody === 'stop'": musicStopIcon,
+      true: musicIcon
+    },
+    configurationComponent: "MusicConfiguration",
     parameters: [
       {
         name: "component",
@@ -778,57 +787,44 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "value",
-        label: "bloq-parameter-tone",
+        name: "melody",
+        label: "bloq-parameter-melody",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "A-tone",
-            value: "A"
+            label: "melody-1",
+            value: "1"
           },
           {
-            label: "B-tone",
-            value: "B"
+            label: "melody-2",
+            value: "2"
           },
           {
-            label: "C-tone",
-            value: "C"
+            label: "melody-3",
+            value: "3"
           },
           {
-            label: "D-tone",
-            value: "D"
+            label: "melody-4",
+            value: "4"
           },
           {
-            label: "E-tone",
-            value: "E"
-          },
-          {
-            label: "F-tone",
-            value: "F"
-          },
-          {
-            label: "G-tone",
-            value: "G"
-          },
+            label: "melody-stop",
+            value: "stop"
+          }
         ]
-      },
-      {
-        name: "duration",
-        label: "bloq-parameter-duration-sec",
-        type: BloqParameterType.Number
-      },
+      }
     ],
     code: {},
     actions: [
       {
-        name: 'write',
+        name: "write",
         parameters: {
-          pinVarName: '{{component}}',
-          value: '{{value}}',
-          duration: '{{duration}}'
-        },
+          pinVarName: "{{component}}",
+          value: "{{value}}",
+          duration: "{{duration}}"
+        }
       }
-    ],
+    ]
   },
   {
     category: BloqCategory.Action,
@@ -866,31 +862,31 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
             value: "decrement"
           }
         ]
-      },
+      }
     ],
     code: {},
     actions: [
       {
-        name: 'writeNumber',
+        name: "writeNumber",
         parameters: {
-          pinVarName: '{{component}}i2c',
-          value: '{{value}}',
-        },
+          pinVarName: "{{component}}i2c",
+          value: "{{value}}"
+        }
       },
       {
-        name: 'incrementNumber',
+        name: "incrementNumber",
         parameters: {
-          pinVarName: '{{component}}i2c',
-          value: '{{value}}',
-        },
+          pinVarName: "{{component}}i2c",
+          value: "{{value}}"
+        }
       },
       {
-        name: 'decrementNumber',
+        name: "decrementNumber",
         parameters: {
-          pinVarName: '{{component}}i2c',
-          value: '{{value}}',
-        },
-      },
+          pinVarName: "{{component}}i2c",
+          value: "{{value}}"
+        }
+      }
     ]
   },
   {
@@ -902,20 +898,23 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       "value === 'messageB'": sendBIcon,
       "value === 'messageC'": sendCIcon,
       "value === 'messageD'": sendDIcon,
-      "value === 'messageE'": sendEIcon,
+      "value === 'messageE'": sendEIcon
     },
     code: {
-      globals: ["bool ___messageA = false;",
-      "bool ___messageB = false;",
-      "bool ___messageC = false;",
-      "bool ___messageD = false;",
-      "bool ___messageE = false;"]
+      globals: [
+        "bool ___messageA = false;",
+        "bool ___messageB = false;",
+        "bool ___messageC = false;",
+        "bool ___messageD = false;",
+        "bool ___messageE = false;"
+      ]
     },
     actions: [
       {
-      name: "send",
-      parameters: {
-        code: "___{{value}} = true;"},
+        name: "send",
+        parameters: {
+          code: "___{{value}} = true;"
+        }
       }
     ],
     configurationComponent: "SendMessageConfiguration",
@@ -944,36 +943,30 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "E",
             value: "messageE"
-          },
+          }
         ]
-      },
-    ],
-
-  },
-  {
-    category: BloqCategory.Wait,
-    name: "Wait1Second",
-    label: "bloq-wait-1-second",
-    icon: time1Icon,
-    code: {
-    },
-    actions: [
-      {
-      name: "wait",
-      parameters: {code: "heap.insert({{functionName}},1000);"},
       }
     ]
   },
   {
     category: BloqCategory.Wait,
-    name: "Wait5Seconds",
-    "label": "bloq-wait-5-second",
-    icon: time5Icon,
+    name: "WaitSeconds",
+    label: "bloq-wait-seconds",
+    iconComponent: "WaitIcon",
+    configurationComponent: "WaitConfiguration",
+    parameters: [
+      {
+        name: "value",
+        label: "bloq-parameter-value",
+        type: BloqParameterType.Number,
+        defaultValue: 1
+      }
+    ],
     code: {},
     actions: [
       {
-      name: "wait",
-      parameters: {code: "heap.insert({{functionName}},5000);"},
+        name: "wait",
+        parameters: { code: "heap.insert({{functionName}},{{value}}*1000);" }
       }
     ]
   },
@@ -989,8 +982,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "readDistance",
-        parameters:{
-          pinVarName: "{{component}}i2c",
+        parameters: {
+          pinVarName: "{{component}}i2c"
         }
       }
     ],
@@ -1020,13 +1013,13 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "value",
         label: "bloq-parameter-value",
         type: BloqParameterType.Hidden,
-        value: "20",
+        value: "20"
       },
       {
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "<=",
+        value: "<="
       }
     ]
   },
@@ -1093,7 +1086,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "bloq-parameter-blue",
             value: "blue"
-          },
+          }
         ]
       }
     ]
@@ -1176,8 +1169,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "read",
-        parameters:{
-          pinVarName: "{{component}}Pin",
+        parameters: {
+          pinVarName: "{{component}}Pin"
         }
       }
     ],
@@ -1207,9 +1200,9 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
-    ],
+    ]
   },
   {
     category: BloqCategory.Wait,
@@ -1220,8 +1213,8 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "readNumber",
-        parameters:{
-          pinVarName: "{{component}}i2c",
+        parameters: {
+          pinVarName: "{{component}}i2c"
         }
       }
     ],
@@ -1241,7 +1234,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ]
   },
@@ -1257,7 +1250,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "read",
-        parameters:{
+        parameters: {
           pinVarName: "{{component}}Pin1",
           value: "{{value}}"
         }
@@ -1289,7 +1282,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ],
     code: {}
@@ -1306,7 +1299,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
     actions: [
       {
         name: "read",
-        parameters:{
+        parameters: {
           pinVarName: "{{component}}Pin2",
           value: "{{value}}"
         }
@@ -1338,7 +1331,7 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
         name: "trueCondition",
         label: "bloq-parameter-action",
         type: BloqParameterType.Hidden,
-        value: "==",
+        value: "=="
       }
     ],
     code: {}
@@ -1352,29 +1345,30 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
       "value === 'messageB'": onBIcon,
       "value === 'messageC'": onCIcon,
       "value === 'messageD'": onDIcon,
-      "value === 'messageE'": onEIcon,
+      "value === 'messageE'": onEIcon
     },
     code: {
       globals: [
-      "bool ___messageA = false;",
-      "bool ___messageB = false;",
-      "bool ___messageC = false;",
-      "bool ___messageD = false;",
-      "bool ___messageE = false;"]
-      ,
+        "bool ___messageA = false;",
+        "bool ___messageB = false;",
+        "bool ___messageC = false;",
+        "bool ___messageD = false;",
+        "bool ___messageE = false;"
+      ],
       endloop: [
         "___messageA = false;",
         "___messageB = false;",
         "___messageC = false;",
         "___messageD = false;",
-        "___messageE = false;",
+        "___messageE = false;"
       ]
     },
     actions: [
       {
-      name: "onMessage",
-      parameters: {
-        variable: "___{{value}}"},
+        name: "onMessage",
+        parameters: {
+          variable: "___{{value}}"
+        }
       }
     ],
     configurationComponent: "ReceiveMessageConfiguration",
@@ -1403,9 +1397,9 @@ export const bloqTypes: Array< Partial <IBloqType> > = [
           {
             label: "E",
             value: "messageE"
-          },
+          }
         ]
-      },
-    ],
-  },
+      }
+    ]
+  }
 ];

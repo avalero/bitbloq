@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import nunjucks from "nunjucks";
 import { colors, Icon } from "@bitbloq/ui";
 import EventShape from "./EventShape";
+import IconComponent from "./IconComponent";
 import { bloqColors, horizontalShapes } from "../config";
 
 import { IBloqType, IBloq, isBloqSelectComponentParameter } from "../index";
@@ -28,7 +29,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
 
   const parameters = (bloq && bloq.parameters) || {};
   let icon = type.icon;
-  const { iconSwitch } = type;
+  const { iconSwitch, iconComponent } = type;
   if (iconSwitch) {
     const iconKey = Object.keys(iconSwitch).find(
       key => nunjucks.renderString(`{{${key}}}`, parameters) === "true"
@@ -47,7 +48,8 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           />
         </g>
       </SVG>
-      {icon && <BloqIcon src={icon} alt={type.name} />}
+      {icon && !iconComponent && <BloqIcon src={icon} alt={type.name} />}
+      {iconComponent && <IconComponent bloq={bloq} component={iconComponent} />}
       {port && <PortIndicator>{port}</PortIndicator>}
     </Container>
   );

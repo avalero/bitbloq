@@ -35,7 +35,7 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
   const color = bloq.parameters.color as string;
 
   return (
-    <Container>
+    <div>
       <ImageWrap>
         <ViewColorImage color={colorValues[color]} closed={detect !== "true"} />
       </ImageWrap>
@@ -74,13 +74,11 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
           }
         />
       </SwitchWrap>
-    </Container>
+    </div>
   );
 };
 
 export default ViewColorConfiguration;
-
-const Container = styled.div``;
 
 const ImageWrap = styled.div`
   margin-bottom: 20px;

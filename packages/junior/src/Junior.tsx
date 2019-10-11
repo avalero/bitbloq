@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { Document, Icon, LoadingBarOverlay, useTranslate } from "@bitbloq/ui";
+import { Document, Icon, useTranslate } from "@bitbloq/ui";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -18,6 +18,7 @@ import {
   BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
+import UploadSpinner from "./UploadSpinner";
 
 export interface JuniorProps {
   brandColor: string;
@@ -30,6 +31,7 @@ export interface JuniorProps {
   onContentChange: (content: any) => any;
   boards: IBoard[];
   components: IComponent[];
+  backCallback: () => any;
 }
 
 const Junior: React.FunctionComponent<JuniorProps> = ({
@@ -54,6 +56,30 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     board: "zumjunior",
     components: []
   };
+
+  const [uploadSpinnerVisible, setUploadSpinnerVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingSuccess, setUploadingSuccess] = useState(false);
+
+  const hideTimeout = useRef(0);
+  useEffect(() => {
+    if (uploading) {
+      setUploadSpinnerVisible(true);
+    }
+
+    if (!uploading) {
+      hideTimeout.current = setTimeout(() => {
+        setUploadSpinnerVisible(false);
+      }, 5000);
+    }
+  }, [uploading]);
+
+  useEffect(() => {
+    if (!uploadSpinnerVisible && hideTimeout.current) {
+      clearTimeout(hideTimeout.current);
+      hideTimeout.current = 0;
+    }
+  }, [uploadSpinnerVisible]);
 
   const board: IBoard = getBoardDefinition(boards, hardware);
   if (hardware.components.length === 0) {
@@ -128,10 +154,8 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       )
   );
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingPercentage, setLoadingPercentage] = useState(0);
-
   const upload = async (timeout: number): Promise<void> => {
+    setUploading(true);
     const web2Board = web2BoardRef.current;
     const code = bloqs2code(boards, components, bloqTypes, hardware, program);
 
@@ -140,16 +164,17 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         await web2Board.waitUntilOpened();
       } catch (e) {
         console.warn(e);
+        setUploading(false);
+        setUploadingSuccess(false);
       }
     }
 
     if (web2Board.isConnected()) {
-      setIsLoading(true);
-      setLoadingPercentage(0);
       // if not loaded in tiemout ms exit
       setTimeout(() => {
-        if (isLoading) {
-          setIsLoading(false);
+        if (uploading) {
+          setUploading(false);
+          setUploadingSuccess(false);
           console.error("Uploading Timeout");
         }
       }, timeout);
@@ -161,19 +186,15 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
           const { value: reply, done } = await uploadGen.next();
           const fn = reply.function;
 
-          if (fn === "is_compiling") {
-            setLoadingPercentage(33);
-          }
-          if (fn === "is_uploading") {
-            setLoadingPercentage(66);
-          }
           if (done) {
-            setIsLoading(false);
+            setUploading(false);
+            setUploadingSuccess(true);
             return;
           }
         }
       } catch (e) {
-        setIsLoading(false);
+        setUploading(false);
+        setUploadingSuccess(false);
         return;
       }
     } else {
@@ -186,7 +207,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       key="hardware"
       icon={<Icon name="hardware" />}
       label={t("junior.hardware")}
-      backCallback={backCallback}
     >
       <HardwareDesigner
         boards={boards}
@@ -201,7 +221,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       key="software"
       icon={<Icon name="programming" />}
       label={t("junior.software")}
-      backCallback={backCallback}
     >
       <HorizontalBloqEditor
         bloqs={program}
@@ -231,7 +250,13 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>
-      <LoadingBarOverlay isOpen={isLoading} percentage={loadingPercentage} />
+      {uploadSpinnerVisible && (
+        <UploadSpinner
+          uploading={uploading}
+          success={uploadingSuccess}
+          onClick={() => !uploading && setUploadSpinnerVisible(false)}
+        />
+      )}
     </>
   );
 };
