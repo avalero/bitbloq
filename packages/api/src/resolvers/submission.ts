@@ -280,6 +280,43 @@ const submissionResolver = {
     },
 
     /**
+     * Set active submissions: update existing exercise.
+     * It updates the exercise with active/disabled submissions.
+     * args: exercise ID, studentNick and active.
+     */
+    setActiveSubmission: async (root: any, args: any, context: any) => {
+      const existSubmission: ISubmission = await SubmissionModel.findOne({
+        studentNick: args.studentNick,
+        exercise: args.exerciseId
+      });
+      if (existSubmission) {
+        const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+          { _id: existSubmission._id },
+          {
+            $set: {
+              active: args.active
+            }
+          },
+          { new: true }
+        );
+        pubsub.publish(SUBMISSION_UPDATED, {
+          submissionUpdated: updatedSubmission
+        });
+        loggerController.storeInfoLog(
+          "API",
+          "submission",
+          "setActive",
+          existSubmission.type,
+          existSubmission.user,
+          ""
+        );
+        return updatedSubmission;
+      } else {
+        return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
+      }
+    },
+
+    /**
      * Finish submission: set the finished property of the submission to true
      * and stores the content and a comment in the database.
      * It checks if the exercise accept new submissions and if the submission is in time.
@@ -462,7 +499,7 @@ const submissionResolver = {
         { _id: existSubmission._id },
         {
           $set: {
-            password: hash,
+            password: hash
           }
         },
         { new: true }

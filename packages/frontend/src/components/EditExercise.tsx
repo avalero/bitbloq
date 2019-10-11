@@ -18,7 +18,8 @@ import {
   EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
-  FINISH_SUBMISSION_MUTATION
+  FINISH_SUBMISSION_MUTATION,
+  SET_ACTIVESUBMISSION_MUTATION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
@@ -50,6 +51,9 @@ const EditExercise = ({ type, id, t }) => {
     context: { tempSession: "exercise-team" }
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION, {
+    context: { tempSession: "exercise-team" }
+  });
+  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION, {
     context: { tempSession: "exercise-team" }
   });
 
@@ -84,6 +88,36 @@ const EditExercise = ({ type, id, t }) => {
   }, [loginVisible]);
 
   useEffect(() => {
+    if (exercise && teamName) {
+      setActiveSubmission({
+        variables: {
+          exerciseId: exercise.id,
+          studentNick: teamName,
+          active: true
+        }
+      });
+
+      const disabled = () => {
+        setActiveSubmission({
+          variables: {
+            exerciseId: exercise.id,
+            studentNick: teamName,
+            active: false
+          }
+        });
+      };
+
+      window.addEventListener("beforeunload", () => {
+        disabled();
+      });
+
+      return () => {
+        disabled();
+      };
+    }
+  }, [teamName]);
+
+  useEffect(() => {
     if (exercise && exercise.content) {
       try {
         const content = JSON.parse(data.exercise.content);
@@ -95,9 +129,7 @@ const EditExercise = ({ type, id, t }) => {
   }, [exercise]);
 
   if (loading) return <Loading />;
-  if (error) return (
-    <GraphQLErrorMessage apolloError={error} />
-  );
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
 
   const loadSubmission = async () => {
     const { data } = await client.query({
@@ -200,6 +232,7 @@ const EditExercise = ({ type, id, t }) => {
           }
         }}
         headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
+        backCallback={() => navigate("/")}
       />
       <Modal
         isOpen={isSubmissionSuccessOpen}

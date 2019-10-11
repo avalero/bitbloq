@@ -151,7 +151,7 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
       <tr>
         <td>
           <StudentCell>
-            <Online />
+            {submission.active && <Online />}
             <StudentNick>{submission.studentNick}</StudentNick>
           </StudentCell>
         </td>
