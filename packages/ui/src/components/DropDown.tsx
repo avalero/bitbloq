@@ -13,7 +13,9 @@ export interface DropDownProps {
     pinnedClass?: string;
     to?: string | HTMLElement | number[];
   }[];
+  notHidden?: boolean;
   offset?: string;
+  targetOffset?: string;
 }
 
 interface State {
@@ -66,7 +68,9 @@ class DropDown extends Component<DropDownProps, State> {
       constraints,
       offset,
       attachmentPosition,
-      targetPosition
+      notHidden,
+      targetPosition,
+      targetOffset
     } = this.props;
     const [element, attachment] = this.props.children as Function[];
 
@@ -78,6 +82,7 @@ class DropDown extends Component<DropDownProps, State> {
         targetAttachment={targetPosition}
         style={{ zIndex: 21 }}
         offset={offset || "0 0"}
+        targetOffset={targetOffset || "0 0"}
         renderTarget={(ref: React.MutableRefObject<HTMLElement | null>) => (
           <div
             ref={el => {
@@ -90,7 +95,7 @@ class DropDown extends Component<DropDownProps, State> {
         )}
         renderElement={(ref: React.MutableRefObject<HTMLElement | null>) => (
           <div
-            style={{ display: isOpen ? "block" : "none" }}
+            style={{ display: isOpen || notHidden ? "block" : "none" }}
             ref={el => {
               ref.current = el;
               this.attachmentEl = el;

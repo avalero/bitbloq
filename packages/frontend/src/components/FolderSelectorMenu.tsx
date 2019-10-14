@@ -110,8 +110,6 @@ export default FolderSelectorMenu;
 const FolderSelector = styled.div`
   display: flex;
   flex-direction: column;
-  position: absolute;
-  right: -264px;
   z-index: 200;
   top: 0px;
   width: 278px;
