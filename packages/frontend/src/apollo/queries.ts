@@ -238,6 +238,15 @@ export const DOCUMENT_UPDATED_SUBSCRIPTION = gql`
   }
 `;
 
+export const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
+  subscription OnSubmisisonUpdated($exercise: ObjectID!) {
+    submissionUpdated(exercise: $exercise) {
+      id
+      active
+    }
+  }
+`;
+
 export const EXERCISE_QUERY = gql`
   query Exercise($id: ObjectID!) {
     exercise(id: $id) {
@@ -298,6 +307,22 @@ export const STUDENT_SUBMISSION_QUERY = gql`
 export const UPDATE_SUBMISSION_MUTATION = gql`
   mutation UpdateSubmission($content: String!) {
     updateSubmission(input: { content: $content }) {
+      id
+    }
+  }
+`;
+
+export const SET_ACTIVESUBMISSION_MUTATION = gql`
+  mutation SetActiveSubmission(
+    $exerciseId: ObjectID!
+    $studentNick: String!
+    $active: Boolean
+  ) {
+    setActiveSubmission(
+      exerciseId: $exerciseId
+      studentNick: $studentNick
+      active: $active
+    ) {
       id
     }
   }

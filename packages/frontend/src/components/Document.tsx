@@ -24,7 +24,8 @@ import { UserDataContext } from "../lib/useUserData";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_UPDATE_MUTATION,
-  EXERCISE_DELETE_MUTATION
+  EXERCISE_DELETE_MUTATION,
+  SUBMISSION_UPDATED_SUBSCRIPTION
 } from "../apollo/queries";
 import Breadcrumbs from "./Breadcrumbs";
 
@@ -54,6 +55,7 @@ const DOCUMENT_QUERY = gql`
           finishedAt
           type
           grade
+          active
         }
       }
     }
@@ -79,14 +81,6 @@ const DELETE_SUBMISSION_MUTATION = gql`
 const CHANGE_SUBMISSIONS_STATE_MUTATION = gql`
   mutation ChangeSubmissionsState($id: ObjectID!, $subState: Boolean!) {
     changeSubmissionsState(id: $id, subState: $subState) {
-      id
-    }
-  }
-`;
-
-const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
-  subscription OnSubmisisonUpdated($exercise: ObjectID!) {
-    submissionUpdated(exercise: $exercise) {
       id
     }
   }

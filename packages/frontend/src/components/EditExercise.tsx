@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { navigate } from "gatsby";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
@@ -18,7 +19,9 @@ import {
   EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
-  FINISH_SUBMISSION_MUTATION
+  FINISH_SUBMISSION_MUTATION,
+  SET_ACTIVESUBMISSION_MUTATION,
+  SUBMISSION_UPDATED_SUBSCRIPTION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
@@ -50,6 +53,9 @@ const EditExercise = ({ type, id, t }) => {
     context: { tempSession: "exercise-team" }
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION, {
+    context: { tempSession: "exercise-team" }
+  });
+  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION, {
     context: { tempSession: "exercise-team" }
   });
 
@@ -84,6 +90,30 @@ const EditExercise = ({ type, id, t }) => {
   }, [loginVisible]);
 
   useEffect(() => {
+    if (exercise && teamName) {
+      const setActive = (active: boolean) => {
+        setActiveSubmission({
+          variables: {
+            exerciseId: exercise.id,
+            studentNick: teamName,
+            active
+          }
+        });
+      };
+
+      setActive(true);
+
+      window.addEventListener("beforeunload", () => {
+        setActive(false);
+      });
+
+      return () => {
+        setActive(false);
+      };
+    }
+  }, [teamName]);
+
+  useEffect(() => {
     if (exercise && exercise.content) {
       try {
         const content = JSON.parse(data.exercise.content);
@@ -95,9 +125,7 @@ const EditExercise = ({ type, id, t }) => {
   }, [exercise]);
 
   if (loading) return <Loading />;
-  if (error) return (
-    <GraphQLErrorMessage apolloError={error} />
-  );
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
 
   const loadSubmission = async () => {
     const { data } = await client.query({
@@ -200,6 +228,7 @@ const EditExercise = ({ type, id, t }) => {
           }
         }}
         headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
+        backCallback={() => navigate("/")}
       />
       <Modal
         isOpen={isSubmissionSuccessOpen}
@@ -241,6 +270,24 @@ const EditExercise = ({ type, id, t }) => {
         onCancel={() => setIsRestartModalVisible(false)}
       />
       <SessionWarningModal tempSession="exercise-team" />
+      {teamName && (
+        <Subscription
+          subscription={SUBMISSION_UPDATED_SUBSCRIPTION}
+          variables={{ exercise: exercise.id }}
+          shouldResubscribe={true}
+          onSubscriptionData={({ subscriptionData }) => {
+            const { data } = subscriptionData;
+            if (
+              data &&
+              data.submissionUpdated &&
+              !data.submissionUpdated.active
+            ) {
+              setToken("", "exercise-team");
+              navigate("/", { replace: true });
+            }
+          }}
+        />
+      )}
     </>
   );
 };

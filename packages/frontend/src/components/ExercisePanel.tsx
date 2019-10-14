@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { Mutation } from "react-apollo";
+import { useMutation, Mutation } from "react-apollo";
 import dayjs from "dayjs";
 import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
@@ -7,7 +7,10 @@ import { css } from "@emotion/core";
 import { colors, Button, Icon, Input, Switch, Translate } from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
 import EditTitleModal from "./EditTitleModal";
-import { UPDATE_PASSWORD_SUBMISSION_MUTATION } from "../apollo/queries";
+import {
+  UPDATE_PASSWORD_SUBMISSION_MUTATION,
+  SET_ACTIVESUBMISSION_MUTATION
+} from "../apollo/queries";
 
 export interface ExercisePanelProps {
   exercise: any;
@@ -109,6 +112,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                         {exercise.submissions.map(submission => (
                           <SubmissionPanel
                             key={submission.id}
+                            exerciseId={exercise.id}
                             onCheckSubmission={onCheckSubmission}
                             t={t}
                             submission={submission}
@@ -132,6 +136,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
 };
 
 interface SubmissionPanelProps {
+  exerciseId: string;
   onCheckSubmission: any;
   submission: any;
   t: any;
@@ -140,18 +145,19 @@ interface SubmissionPanelProps {
 const SubmissionPanel: FC<SubmissionPanelProps> = (
   props: SubmissionPanelProps
 ) => {
-  const { onCheckSubmission, submission, t } = props;
+  const { exerciseId, onCheckSubmission, submission, t } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
+  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
 
   return (
     <>
       <tr>
         <td>
           <StudentCell>
-            <Online />
+            {submission.active && <Online />}
             <StudentNick>{submission.studentNick}</StudentNick>
           </StudentCell>
         </td>
@@ -198,12 +204,18 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                   }
                 },
                 {
-                  disabled: submission.finished,
+                  disabled: submission.finished || !submission.active,
                   iconName: "close",
                   label: t("menu-submission-expel"),
                   onClick() {
                     setMenuOpen(false);
-                    //onChangeName(exercise.title);
+                    setActiveSubmission({
+                      variables: {
+                        exerciseId: exerciseId,
+                        studentNick: submission.studentNick,
+                        active: false
+                      }
+                    });
                   }
                 },
                 {
