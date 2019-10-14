@@ -362,62 +362,98 @@ const DocumentListComp: FC<DocumentListProps> = ({
               folder={folder}
               onClick={e => onFolderClick(e, folder)}
             >
-              <DocumentMenuButton
-                isOpen={menuOpenId === folder.id}
-                onClick={e => onDocumentMenuClick(e, folder)}
+              <DropDown
+                constraints={[
+                  {
+                    attachment: "together",
+                    to: "window"
+                  }
+                ]}
+                notHidden={selectedToMoveId === folder.id && folders != []}
+                targetOffset="-165px -14px"
+                targetPosition="top right"
               >
-                <Icon name="ellipsis" />
-              </DocumentMenuButton>
-              {menuOpenId === folder.id && (
-                <DocumentCardMenu
-                  options={[
+                {(isOpen: boolean) => (
+                  <DocumentMenuButton
+                    isOpen={menuOpenId === folder.id}
+                    onClick={e => onDocumentMenuClick(e, folder)}
+                  >
+                    <Icon name="ellipsis" />
+                  </DocumentMenuButton>
+                )}
+                <DropDown
+                  constraints={[
                     {
-                      iconName: "pencil",
-                      label: "Cambiar nombre",
-                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onFolderRenameClick(e, folder);
-                      }
-                    },
-                    // {
-                    //   disabled: true,
-                    //   iconName: "duplicate",
-                    //   label: "Crear una copia",
-                    //   onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                    //     onDuplicateFolder(e, folder);
-                    //   }
-                    // },
-                    {
-                      selected: folder.id === selectedToMoveId,
-                      disabled:
-                        folders.length === 0 && parentsPath.length === 1,
-                      iconName: "move-document",
-                      label: "Mover a",
-                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        if (folders.length === 0 && parentsPath.length === 1) {
-                          onMoveDisabled(e);
-                        } else {
-                          onMoveFolderClick(e, folder);
-                        }
-                      }
-                    },
-                    {
-                      iconName: "trash",
-                      label: "Eliminar carpeta",
-                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onFolderDeleteClick(e, folder);
-                      },
-                      red: true
+                      attachment: "together",
+                      to: "window"
                     }
                   ]}
-                />
-              )}
-              {selectedToMoveId === folder.id && folders != [] && (
-                <FolderSelectorMenu
-                  selectedToMove={selectedToMoveId}
-                  onMove={onMoveFolder}
-                  currentLocation={currentLocation}
-                ></FolderSelectorMenu>
-              )}
+                  notHidden={selectedToMoveId === folder.id && folders != []}
+                  targetPosition="top right"
+                  attachmentPosition="top left"
+                  offset="60px 0"
+                >
+                  {(isOpen: boolean) => (
+                    <DocumentCardMenu
+                      options={[
+                        {
+                          iconName: "pencil",
+                          label: "Cambiar nombre",
+                          onClick(
+                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                          ) {
+                            onFolderRenameClick(e, folder);
+                          }
+                        },
+                        // {
+                        //   disabled: true,
+                        //   iconName: "duplicate",
+                        //   label: "Crear una copia",
+                        //   onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                        //     onDuplicateFolder(e, folder);
+                        //   }
+                        // },
+                        {
+                          selected: folder.id === selectedToMoveId,
+                          disabled:
+                            folders.length === 0 && parentsPath.length === 1,
+                          iconName: "move-document",
+                          label: "Mover a",
+                          onClick(
+                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                          ) {
+                            if (
+                              folders.length === 0 &&
+                              parentsPath.length === 1
+                            ) {
+                              onMoveDisabled(e);
+                            } else {
+                              onMoveFolderClick(e, folder);
+                            }
+                          }
+                        },
+                        {
+                          iconName: "trash",
+                          label: "Eliminar carpeta",
+                          onClick(
+                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                          ) {
+                            onFolderDeleteClick(e, folder);
+                          },
+                          red: true
+                        }
+                      ]}
+                    />
+                  )}
+                  {selectedToMoveId === folder.id && folders != [] && (
+                    <FolderSelectorMenu
+                      selectedToMove={selectedToMoveId}
+                      onMove={onMoveFolder}
+                      currentLocation={currentLocation}
+                    ></FolderSelectorMenu>
+                  )}
+                </DropDown>
+              </DropDown>
             </StyledFolderCard>
           ))}
       </DocumentList>
