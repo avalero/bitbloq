@@ -4,7 +4,15 @@ import dayjs from "dayjs";
 import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { colors, Button, Icon, Input, Switch, Translate } from "@bitbloq/ui";
+import {
+  colors,
+  Button,
+  DialogModal,
+  Icon,
+  Input,
+  Switch,
+  Translate
+} from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
 import EditTitleModal from "./EditTitleModal";
 import {
@@ -19,6 +27,7 @@ export interface ExercisePanelProps {
   onAcceptedSubmissions: (value: boolean) => void;
   onChangeName: (value: string) => void;
   onRemove: () => void;
+  onRemoveSubmission: (submissionID: string) => void;
 }
 
 const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
@@ -28,12 +37,16 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
     onCheckSubmission,
     onAcceptedSubmissions,
     onChangeName,
-    onRemove
+    onRemove,
+    onRemoveSubmission
   } = props;
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSubmissionOpen, setMenuSubmissionOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [submissionIdModal, setSubmissionIdModal] = useState("");
 
   return (
     <Translate>
@@ -115,6 +128,9 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                             exerciseId={exercise.id}
                             onCheckSubmission={onCheckSubmission}
                             t={t}
+                            setDeleteModalOpen={setDeleteModalOpen}
+                            setPasswordModalOpen={setPasswordModalOpen}
+                            setSubmissionIdModal={setSubmissionIdModal}
                             submission={submission}
                           />
                         ))}
@@ -129,112 +145,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               </ExerciseDetails>
             )}
           </Spring>
-        </Container>
-      )}
-    </Translate>
-  );
-};
-
-interface SubmissionPanelProps {
-  exerciseId: string;
-  onCheckSubmission: any;
-  submission: any;
-  t: any;
-}
-
-const SubmissionPanel: FC<SubmissionPanelProps> = (
-  props: SubmissionPanelProps
-) => {
-  const { exerciseId, onCheckSubmission, submission, t } = props;
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
-  const [passwordValue, setPasswordValue] = useState("");
-  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
-
-  return (
-    <>
-      <tr>
-        <td>
-          <StudentCell>
-            {submission.active && <Online />}
-            <StudentNick>{submission.studentNick}</StudentNick>
-          </StudentCell>
-        </td>
-        <td>
-          {submission.finished ? (
-            dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
-          ) : (
-            <span
-              style={{
-                fontStyle: "italic",
-                color: "#474749"
-              }}
-            >
-              {t("submission-table-unsubmitted")}
-            </span>
-          )}
-        </td>
-        <td>{submission.grade || (submission.finished ? "-" : "")}</td>
-        <td>
-          <SubmissionOptions
-            isOpen={menuOpen}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <Icon name="ellipsis" />
-          </SubmissionOptions>
-          {menuOpen && (
-            <SubmissionMenu
-              options={[
-                {
-                  disabled: !submission.finished,
-                  iconName: "eye",
-                  label: t("menu-submission-see"),
-                  onClick() {
-                    setMenuOpen(false);
-                    onCheckSubmission(submission);
-                  }
-                },
-                {
-                  iconName: "padlock-close",
-                  label: t("menu-submission-password"),
-                  onClick() {
-                    setMenuOpen(false);
-                    setPasswordModalOpen(true);
-                  }
-                },
-                {
-                  disabled: submission.finished || !submission.active,
-                  iconName: "close",
-                  label: t("menu-submission-expel"),
-                  onClick() {
-                    setMenuOpen(false);
-                    setActiveSubmission({
-                      variables: {
-                        exerciseId: exerciseId,
-                        studentNick: submission.studentNick,
-                        active: false
-                      }
-                    });
-                  }
-                },
-                {
-                  iconName: "trash",
-                  label: t("menu-submission-delete"),
-                  onClick() {
-                    setMenuOpen(false);
-                    //onRemove();
-                  },
-                  red: true
-                }
-              ]}
-            />
-          )}
-        </td>
-      </tr>
-      {passwordModalOpen && (
-        <tr>
-          <td>
+          {passwordModalOpen && (
             <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
               {updatePassword => (
                 <EditTitleModal
@@ -244,7 +155,7 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                     if (value) {
                       updatePassword({
                         variables: {
-                          id: submission.id,
+                          id: submissionIdModal,
                           password: value
                         }
                       });
@@ -260,10 +171,133 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 />
               )}
             </Mutation>
-          </td>
-        </tr>
+          )}
+          <DialogModal
+            isOpen={deleteModalOpen}
+            text={t("submission-delete-text")}
+            title={t("exercises-modal-remove")}
+            okText={t("general-accept-button")}
+            cancelText={t("general-cancel-button")}
+            onOk={() => {
+              onRemoveSubmission(submissionIdModal);
+              setDeleteModalOpen(false);
+            }}
+            onCancel={() => setDeleteModalOpen(false)}
+          />
+        </Container>
       )}
-    </>
+    </Translate>
+  );
+};
+
+interface SubmissionPanelProps {
+  exerciseId: string;
+  onCheckSubmission: any;
+  setDeleteModalOpen: (value: boolean) => void;
+  setPasswordModalOpen: (value: boolean) => void;
+  setSubmissionIdModal: (value: string) => void;
+  submission: any;
+  t: any;
+}
+
+const SubmissionPanel: FC<SubmissionPanelProps> = (
+  props: SubmissionPanelProps
+) => {
+  const {
+    exerciseId,
+    onCheckSubmission,
+    setDeleteModalOpen,
+    setPasswordModalOpen,
+    setSubmissionIdModal,
+    submission,
+    t
+  } = props;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
+
+  return (
+    <tr>
+      <td>
+        <StudentCell>
+          {submission.active && <Online />}
+          <StudentNick>{submission.studentNick}</StudentNick>
+        </StudentCell>
+      </td>
+      <td>
+        {submission.finished ? (
+          dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
+        ) : (
+          <span
+            style={{
+              fontStyle: "italic",
+              color: "#474749"
+            }}
+          >
+            {t("submission-table-unsubmitted")}
+          </span>
+        )}
+      </td>
+      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        <SubmissionOptions
+          isOpen={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <Icon name="ellipsis" />
+        </SubmissionOptions>
+        {menuOpen && (
+          <SubmissionMenu
+            options={[
+              {
+                disabled: !submission.finished,
+                iconName: "eye",
+                label: t("menu-submission-see"),
+                onClick() {
+                  setMenuOpen(false);
+                  onCheckSubmission(submission);
+                }
+              },
+              {
+                iconName: "padlock-close",
+                label: t("menu-submission-password"),
+                onClick() {
+                  setMenuOpen(false);
+                  setSubmissionIdModal(submission.id);
+                  setPasswordModalOpen(true);
+                }
+              },
+              {
+                disabled: submission.finished || !submission.active,
+                iconName: "close",
+                label: t("menu-submission-expel"),
+                onClick() {
+                  setMenuOpen(false);
+                  setActiveSubmission({
+                    variables: {
+                      exerciseId: exerciseId,
+                      studentNick: submission.studentNick,
+                      active: false
+                    }
+                  });
+                }
+              },
+              {
+                iconName: "trash",
+                label: t("menu-submission-delete"),
+                onClick() {
+                  setMenuOpen(false);
+                  setSubmissionIdModal(submission.id);
+                  setDeleteModalOpen(true);
+                },
+                red: true
+              }
+            ]}
+          />
+        )}
+      </td>
+    </tr>
   );
 };
 
@@ -479,7 +513,7 @@ const Table = styled.table`
       font-family: Roboto;
       font-size: 12px;
       font-weight: bold;
-      height: 26px;
+      height: 25px;
       padding: 7px 20px;
       text-align: left;
       vertical-align: bottom;
@@ -500,7 +534,7 @@ const Table = styled.table`
       color: #373b44;
       font-family: Roboto;
       font-size: 14px;
-      height: 14px;
+      height: 15px;
       padding: 12px 20px;
       vertical-align: center;
       &:first-of-type {
@@ -530,7 +564,7 @@ const SubmissionOptions = styled.div<SubmissionOptionsProps>`
   height: 30px;
   justify-content: center;
   position: absolute;
-  top: 5px;
+  top: 3.5px;
   width: 30px;
 
   &:hover {
