@@ -25,7 +25,8 @@ import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_UPDATE_MUTATION,
   EXERCISE_DELETE_MUTATION,
-  SUBMISSION_UPDATED_SUBSCRIPTION
+  SUBMISSION_UPDATED_SUBSCRIPTION,
+  REMOVE_SUBMISSION_MUTATION
 } from "../apollo/queries";
 import Breadcrumbs from "./Breadcrumbs";
 
@@ -210,42 +211,65 @@ class Document extends React.Component<any, DocumentState> {
           {deleteSubmission => (
             <Mutation mutation={CHANGE_SUBMISSIONS_STATE_MUTATION}>
               {changeSubmissionsState => (
-                <ExercisePanel
-                  exercise={exercise}
-                  onCancelSubmission={submission =>
-                    deleteSubmission({
-                      variables: { id: submission.id },
-                      refetchQueries: [
-                        { query: DOCUMENT_QUERY, variables: { id: documentId } }
-                      ]
-                    })
-                  }
-                  onCheckSubmission={({ type, id }) =>
-                    window.open(`/app/submission/${type}/${id}`)
-                  }
-                  onAcceptedSubmissions={(value: boolean) => {
-                    changeSubmissionsState({
-                      variables: { id: exercise.id, subState: value },
-                      refetchQueries: [
-                        { query: DOCUMENT_QUERY, variables: { id: documentId } }
-                      ]
-                    });
-                  }}
-                  onChangeName={(currentName: string) => {
-                    this.setState({
-                      isUpdateExerciseOpen: true,
-                      newExerciseTitle: currentName,
-                      exerciseId: exercise.id
-                    });
-                  }}
-                  onRemove={() => {
-                    this.setState({
-                      isRemoveExerciseOpen:
-                        exercise.submissions.length > 0 ? 2 : 1,
-                      exerciseId: exercise.id
-                    });
-                  }}
-                />
+                <Mutation mutation={REMOVE_SUBMISSION_MUTATION}>
+                  {removeSubmission => (
+                    <ExercisePanel
+                      exercise={exercise}
+                      onCancelSubmission={submission =>
+                        deleteSubmission({
+                          variables: { id: submission.id },
+                          refetchQueries: [
+                            {
+                              query: DOCUMENT_QUERY,
+                              variables: { id: documentId }
+                            }
+                          ]
+                        })
+                      }
+                      onCheckSubmission={({ type, id }) =>
+                        window.open(`/app/submission/${type}/${id}`)
+                      }
+                      onAcceptedSubmissions={(value: boolean) => {
+                        changeSubmissionsState({
+                          variables: { id: exercise.id, subState: value },
+                          refetchQueries: [
+                            {
+                              query: DOCUMENT_QUERY,
+                              variables: { id: documentId }
+                            }
+                          ]
+                        });
+                      }}
+                      onChangeName={(currentName: string) => {
+                        this.setState({
+                          isUpdateExerciseOpen: true,
+                          newExerciseTitle: currentName,
+                          exerciseId: exercise.id
+                        });
+                      }}
+                      onRemove={() => {
+                        this.setState({
+                          isRemoveExerciseOpen:
+                            exercise.submissions.length > 0 ? 2 : 1,
+                          exerciseId: exercise.id
+                        });
+                      }}
+                      onRemoveSubmission={(submissionID: string) => {
+                        removeSubmission({
+                          variables: {
+                            submissionID
+                          },
+                          refetchQueries: [
+                            {
+                              query: DOCUMENT_QUERY,
+                              variables: { id: documentId }
+                            }
+                          ]
+                        });
+                      }}
+                    />
+                  )}
+                </Mutation>
               )}
             </Mutation>
           )}
