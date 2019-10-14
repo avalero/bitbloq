@@ -78,20 +78,24 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
           )
         ) : null}
       </ParentButton>
-      {foldersData &&
-        foldersData.filter(op=>op.id !==selectedToMove).map((folder: Folder, i: number) => (
-          <FolderSelectorOption
-            key={folder.id}
-            selectedFolder={selectedFolder.id === folder.id}
-            onClick={e => {
-              e.stopPropagation();
-              setSelectedFolder(folder);
-            }}
-          >
-            <MenuIcon name="folder-icon" />
-            <p>{folder.name}</p>
-          </FolderSelectorOption>
-        ))}
+      <FolderSelectorOptions>
+        {foldersData &&
+          foldersData
+            .filter(op => op.id !== selectedToMove)
+            .map((folder: Folder, i: number) => (
+              <FolderSelectorOption
+                key={folder.id}
+                selectedFolder={selectedFolder.id === folder.id}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedFolder(folder);
+                }}
+              >
+                <MenuIcon name="folder-icon" />
+                <p>{folder.name}</p>
+              </FolderSelectorOption>
+            ))}
+      </FolderSelectorOptions>
       <MoveButton onClick={e => onMove(e, selectedFolder)}>
         <p>Mover aquí</p>
       </MoveButton>
@@ -111,13 +115,21 @@ const FolderSelector = styled.div`
   z-index: 200;
   top: 0px;
   width: 278px;
-  height: 300px;
+  height: 316px;
   border-radius: 4px;
   box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
   border: solid 1px #cfcfcf;
   background-color: white;
   &:hover {
     cursor: pointer;
+  }
+`;
+
+const FolderSelectorOptions = styled.div`
+  overflow: scroll;
+  height: 235px;
+  ::-webkit-scrollbar {
+    display: none;
   }
 `;
 
