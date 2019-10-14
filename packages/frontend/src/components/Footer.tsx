@@ -1,7 +1,6 @@
 import * as React from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
-import { colors, DropDown, Icon } from "@bitbloq/ui";
+import { colors } from "@bitbloq/ui";
 
 const AppFooter = () => {
   return (
@@ -9,11 +8,11 @@ const AppFooter = () => {
       <Links>
         <a href="#" target="_blank">
           Condiciones generales
-        </a>{" "}
-        |{" "}
+        </a>
+        |
         <a href="#" target="_blank">
           Política de Privacidad
-        </a>{" "}
+        </a>
         |
         <a href="#" target="_blank">
           Política de cookies
@@ -39,6 +38,9 @@ const Container = styled.div`
 
 const Links = styled.div`
   height: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: ${colors.gray4};
   a {
     margin: 0px 10px;
