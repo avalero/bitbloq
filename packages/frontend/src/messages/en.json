@@ -84,6 +84,7 @@
   "submission-passwordmodal-title": "New password to the team",
   "submission-passwordmodal-text": "New password",
   "submission-passwordmodal-placeholder": "Password",
+  "submission-delete-text": "Are you sure you want to delete this team?",
   "tab-3d": "3D",
   "tab-project-info": "Document information",
   "tooltip-select-multiple": "Select multiple objects pressing *“Control + clic”* in each of them to be able to use this tool",

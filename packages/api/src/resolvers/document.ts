@@ -12,7 +12,7 @@ import { UserModel } from "../models/user";
 
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
-import uploadResolver, { uploadImage } from "./upload";
+import uploadResolver, { uploadDocumentImage } from "./upload";
 import { getParentsPath } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
@@ -74,7 +74,7 @@ const documentResolver = {
         ""
       );
       if (args.input.image) {
-        const imageUploaded: IUpload = await uploadImage(
+        const imageUploaded: IUpload = await uploadDocumentImage(
           //uploadResolver.Mutation.singleUpload(
           args.input.image,
           newDocument._id,
@@ -192,7 +192,7 @@ const documentResolver = {
         }
         let image: string;
         if (args.input.image) {
-          const imageUploaded: IUpload = await uploadImage(
+          const imageUploaded: IUpload = await uploadDocumentImage(
             //uploadResolver.Mutation.singleUpload(
             args.input.image,
             existDocument._id,

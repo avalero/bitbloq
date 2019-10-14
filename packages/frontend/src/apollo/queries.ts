@@ -344,6 +344,14 @@ export const FINISH_SUBMISSION_MUTATION = gql`
   }
 `;
 
+export const REMOVE_SUBMISSION_MUTATION = gql`
+  mutation DeleteSubmission($submissionID: ObjectID!) {
+    deleteSubmission(submissionID: $submissionID) {
+      id
+    }
+  }
+`;
+
 export const UPLOAD_STL_MUTATION = gql`
   mutation uploadSTLFile($file: Upload!, $documentId: ObjectID) {
     uploadSTLFile(file: $file, documentID: $documentId) {

@@ -4,7 +4,15 @@ import dayjs from "dayjs";
 import { Spring } from "react-spring/renderprops";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { colors, Button, Icon, Input, Switch, Translate } from "@bitbloq/ui";
+import {
+  colors,
+  Button,
+  DialogModal,
+  Icon,
+  Input,
+  Switch,
+  useTranslate
+} from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
 import EditTitleModal from "./EditTitleModal";
 import {
@@ -19,6 +27,7 @@ export interface ExercisePanelProps {
   onAcceptedSubmissions: (value: boolean) => void;
   onChangeName: (value: string) => void;
   onRemove: () => void;
+  onRemoveSubmission: (submissionID: string) => void;
 }
 
 const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
@@ -28,116 +37,162 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
     onCheckSubmission,
     onAcceptedSubmissions,
     onChangeName,
-    onRemove
+    onRemove,
+    onRemoveSubmission
   } = props;
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuSubmissionOpen, setMenuSubmissionOpen] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [submissionIdModal, setSubmissionIdModal] = useState("");
+  const t = useTranslate();
 
   return (
-    <Translate>
-      {t => (
-        <Container>
-          <Header onClick={() => setOpen(!isOpen)}>
-            <HeaderLeft>
-              <Toggle isOpen={isOpen}>
-                <Icon name="angle" />
-              </Toggle>
-            </HeaderLeft>
-            <HeaderCenter>
-              <Title>{exercise.title}</Title>
-              <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
-            </HeaderCenter>
-            <HeaderRight
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                setMenuOpen(!menuOpen);
-              }}
-            >
-              <Icon name="ellipsis" />
-            </HeaderRight>
-          </Header>
-          {menuOpen && (
-            <ExerciseMenu
-              options={[
-                {
-                  iconName: "pencil",
-                  label: t("menu-change-name"),
-                  onClick() {
-                    setMenuOpen(false);
-                    onChangeName(exercise.title);
-                  }
-                },
-                {
-                  iconName: "trash",
-                  label: t("menu-delete-exercise"),
-                  onClick() {
-                    setMenuOpen(false);
-                    onRemove();
-                  },
-                  red: true
+    <Container>
+      <Header onClick={() => setOpen(!isOpen)}>
+        <HeaderLeft>
+          <Toggle isOpen={isOpen}>
+            <Icon name="angle" />
+          </Toggle>
+        </HeaderLeft>
+        <HeaderCenter>
+          <Title>{exercise.title}</Title>
+          <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
+        </HeaderCenter>
+        <HeaderRight
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            setMenuOpen(!menuOpen);
+          }}
+        >
+          <Icon name="ellipsis" />
+        </HeaderRight>
+      </Header>
+      {menuOpen && (
+        <ExerciseMenu
+          options={[
+            {
+              iconName: "pencil",
+              label: t("menu-change-name"),
+              onClick() {
+                setMenuOpen(false);
+                onChangeName(exercise.title);
+              }
+            },
+            {
+              iconName: "trash",
+              label: t("menu-delete-exercise"),
+              onClick() {
+                setMenuOpen(false);
+                onRemove();
+              },
+              red: true
+            }
+          ]}
+        />
+      )}
+      <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
+        {({ height }) => (
+          <ExerciseDetails style={{ height }}>
+            <ExerciseInfo>
+              <div className="code">
+                <CodeBox>{exercise.code}</CodeBox>
+                {t("exercise-details-code")}
+              </div>
+              <div className="accept-submissions">
+                {t("exercise-details-submissions")}
+                <SubmissionsSwitch
+                  value={exercise.acceptSubmissions}
+                  onChange={onAcceptedSubmissions}
+                />
+              </div>
+            </ExerciseInfo>
+            <ExerciseSubmissions>
+              {exercise.submissions && exercise.submissions.length > 0 ? (
+                <Table key="table">
+                  <thead>
+                    <tr>
+                      <th>{t("submission-table-team")}</th>
+                      <th>{t("submission-table-date")}</th>
+                      <th>{t("submission-table-grade")}</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {exercise.submissions.map(submission => (
+                      <SubmissionPanel
+                        key={submission.id}
+                        exerciseId={exercise.id}
+                        onCheckSubmission={onCheckSubmission}
+                        t={t}
+                        setDeleteModalOpen={setDeleteModalOpen}
+                        setPasswordModalOpen={setPasswordModalOpen}
+                        setSubmissionIdModal={setSubmissionIdModal}
+                        submission={submission}
+                      />
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <NoSubmissions>
+                  {t("exercise-details-nosubmissions")}
+                </NoSubmissions>
+              )}
+            </ExerciseSubmissions>
+          </ExerciseDetails>
+        )}
+      </Spring>
+      {passwordModalOpen && (
+        <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
+          {updatePassword => (
+            <EditTitleModal
+              title=""
+              onCancel={() => setPasswordModalOpen(false)}
+              onSave={(value: string) => {
+                if (value) {
+                  updatePassword({
+                    variables: {
+                      id: submissionIdModal,
+                      password: value
+                    }
+                  });
                 }
-              ]}
+                setPasswordModalOpen(false);
+              }}
+              modalTitle={t("submission-passwordmodal-title")}
+              modalText={t("submission-passwordmodal-text")}
+              placeholder={t("submission-passwordmodal-placeholder")}
+              saveButton={t("general-accept-button")}
+              type="password"
+              validateInput={false}
             />
           )}
-          <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
-            {({ height }) => (
-              <ExerciseDetails style={{ height }}>
-                <ExerciseInfo>
-                  <div className="code">
-                    <CodeBox>{exercise.code}</CodeBox>
-                    {t("exercise-details-code")}
-                  </div>
-                  <div className="accept-submissions">
-                    {t("exercise-details-submissions")}
-                    <SubmissionsSwitch
-                      value={exercise.acceptSubmissions}
-                      onChange={onAcceptedSubmissions}
-                    />
-                  </div>
-                </ExerciseInfo>
-                <ExerciseSubmissions>
-                  {exercise.submissions && exercise.submissions.length > 0 ? (
-                    <Table key="table">
-                      <thead>
-                        <tr>
-                          <th>{t("submission-table-team")}</th>
-                          <th>{t("submission-table-date")}</th>
-                          <th>{t("submission-table-grade")}</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {exercise.submissions.map(submission => (
-                          <SubmissionPanel
-                            key={submission.id}
-                            exerciseId={exercise.id}
-                            onCheckSubmission={onCheckSubmission}
-                            t={t}
-                            submission={submission}
-                          />
-                        ))}
-                      </tbody>
-                    </Table>
-                  ) : (
-                    <NoSubmissions>
-                      {t("exercise-details-nosubmissions")}
-                    </NoSubmissions>
-                  )}
-                </ExerciseSubmissions>
-              </ExerciseDetails>
-            )}
-          </Spring>
-        </Container>
+        </Mutation>
       )}
-    </Translate>
+      <DialogModal
+        isOpen={deleteModalOpen}
+        text={t("submission-delete-text")}
+        title={t("exercises-modal-remove")}
+        okText={t("general-accept-button")}
+        cancelText={t("general-cancel-button")}
+        onOk={() => {
+          onRemoveSubmission(submissionIdModal);
+          setDeleteModalOpen(false);
+        }}
+        onCancel={() => setDeleteModalOpen(false)}
+      />
+    </Container>
   );
 };
 
 interface SubmissionPanelProps {
   exerciseId: string;
   onCheckSubmission: any;
+  setDeleteModalOpen: (value: boolean) => void;
+  setPasswordModalOpen: (value: boolean) => void;
+  setSubmissionIdModal: (value: string) => void;
   submission: any;
   t: any;
 }
@@ -145,125 +200,101 @@ interface SubmissionPanelProps {
 const SubmissionPanel: FC<SubmissionPanelProps> = (
   props: SubmissionPanelProps
 ) => {
-  const { exerciseId, onCheckSubmission, submission, t } = props;
+  const {
+    exerciseId,
+    onCheckSubmission,
+    setDeleteModalOpen,
+    setPasswordModalOpen,
+    setSubmissionIdModal,
+    submission,
+    t
+  } = props;
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
   const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
 
   return (
-    <>
-      <tr>
-        <td>
-          <StudentCell>
-            {submission.active && <Online />}
-            <StudentNick>{submission.studentNick}</StudentNick>
-          </StudentCell>
-        </td>
-        <td>
-          {submission.finished ? (
-            dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
-          ) : (
-            <span
-              style={{
-                fontStyle: "italic",
-                color: "#474749"
-              }}
-            >
-              {t("submission-table-unsubmitted")}
-            </span>
-          )}
-        </td>
-        <td>{submission.grade || (submission.finished ? "-" : "")}</td>
-        <td>
-          <SubmissionOptions
-            isOpen={menuOpen}
-            onClick={() => setMenuOpen(!menuOpen)}
+    <tr>
+      <td>
+        <StudentCell>
+          {submission.active && <Online />}
+          <StudentNick>{submission.studentNick}</StudentNick>
+        </StudentCell>
+      </td>
+      <td>
+        {submission.finished ? (
+          dayjs(submission.finishedAt).format("DD/MM/YY HH:mm")
+        ) : (
+          <span
+            style={{
+              fontStyle: "italic",
+              color: "#474749"
+            }}
           >
-            <Icon name="ellipsis" />
-          </SubmissionOptions>
-          {menuOpen && (
-            <SubmissionMenu
-              options={[
-                {
-                  disabled: !submission.finished,
-                  iconName: "eye",
-                  label: t("menu-submission-see"),
-                  onClick() {
-                    setMenuOpen(false);
-                    onCheckSubmission(submission);
-                  }
-                },
-                {
-                  iconName: "padlock-close",
-                  label: t("menu-submission-password"),
-                  onClick() {
-                    setMenuOpen(false);
-                    setPasswordModalOpen(true);
-                  }
-                },
-                {
-                  disabled: submission.finished || !submission.active,
-                  iconName: "close",
-                  label: t("menu-submission-expel"),
-                  onClick() {
-                    setMenuOpen(false);
-                    setActiveSubmission({
-                      variables: {
-                        exerciseId: exerciseId,
-                        studentNick: submission.studentNick,
-                        active: false
-                      }
-                    });
-                  }
-                },
-                {
-                  iconName: "trash",
-                  label: t("menu-submission-delete"),
-                  onClick() {
-                    setMenuOpen(false);
-                    //onRemove();
-                  },
-                  red: true
+            {t("submission-table-unsubmitted")}
+          </span>
+        )}
+      </td>
+      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        <SubmissionOptions
+          isOpen={menuOpen}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <Icon name="ellipsis" />
+        </SubmissionOptions>
+        {menuOpen && (
+          <SubmissionMenu
+            options={[
+              {
+                disabled: !submission.finished,
+                iconName: "eye",
+                label: t("menu-submission-see"),
+                onClick() {
+                  setMenuOpen(false);
+                  onCheckSubmission(submission);
                 }
-              ]}
-            />
-          )}
-        </td>
-      </tr>
-      {passwordModalOpen && (
-        <tr>
-          <td>
-            <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
-              {updatePassword => (
-                <EditTitleModal
-                  title=""
-                  onCancel={() => setPasswordModalOpen(false)}
-                  onSave={(value: string) => {
-                    if (value) {
-                      updatePassword({
-                        variables: {
-                          id: submission.id,
-                          password: value
-                        }
-                      });
+              },
+              {
+                iconName: "padlock-close",
+                label: t("menu-submission-password"),
+                onClick() {
+                  setMenuOpen(false);
+                  setSubmissionIdModal(submission.id);
+                  setPasswordModalOpen(true);
+                }
+              },
+              {
+                disabled: submission.finished || !submission.active,
+                iconName: "close",
+                label: t("menu-submission-expel"),
+                onClick() {
+                  setMenuOpen(false);
+                  setActiveSubmission({
+                    variables: {
+                      exerciseId: exerciseId,
+                      studentNick: submission.studentNick,
+                      active: false
                     }
-                    setPasswordModalOpen(false);
-                  }}
-                  modalTitle={t("submission-passwordmodal-title")}
-                  modalText={t("submission-passwordmodal-text")}
-                  placeholder={t("submission-passwordmodal-placeholder")}
-                  saveButton={t("general-accept-button")}
-                  type="password"
-                  validateInput={false}
-                />
-              )}
-            </Mutation>
-          </td>
-        </tr>
-      )}
-    </>
+                  });
+                }
+              },
+              {
+                iconName: "trash",
+                label: t("menu-submission-delete"),
+                onClick() {
+                  setMenuOpen(false);
+                  setSubmissionIdModal(submission.id);
+                  setDeleteModalOpen(true);
+                },
+                red: true
+              }
+            ]}
+          />
+        )}
+      </td>
+    </tr>
   );
 };
 
@@ -479,7 +510,7 @@ const Table = styled.table`
       font-family: Roboto;
       font-size: 12px;
       font-weight: bold;
-      height: 26px;
+      height: 25px;
       padding: 7px 20px;
       text-align: left;
       vertical-align: bottom;
@@ -500,7 +531,7 @@ const Table = styled.table`
       color: #373b44;
       font-family: Roboto;
       font-size: 14px;
-      height: 14px;
+      height: 15px;
       padding: 12px 20px;
       vertical-align: center;
       &:first-of-type {
@@ -530,7 +561,7 @@ const SubmissionOptions = styled.div<SubmissionOptionsProps>`
   height: 30px;
   justify-content: center;
   position: absolute;
-  top: 5px;
+  top: 3.5px;
   width: 30px;
 
   &:hover {
