@@ -374,6 +374,14 @@ class PropertiesPanel extends React.Component {
       });
     }
 
+    const onBlur = (parameter, object) => {
+      let { errors, inputValues } = this.state;
+
+      errors.set(`${object.id}-${parameter.name}`, false),
+        inputValues.delete(`${object.id}-${parameter.name}`),
+        this.setState({ errors, inputValues });
+    };
+
     const onChange = (value, text, parameter, object) => {
       let { errors, inputValues, timeout } = this.state;
 
@@ -390,9 +398,7 @@ class PropertiesPanel extends React.Component {
         this.onObjectParameterChange(object, parameter, value);
       } else {
         errors.set(`${object.id}-${parameter.name}`, true);
-        let inputValue = inputValues.get(`${object.id}-${parameter.name}`);
-        inputValue = `${inputValue || ""}${text}`;
-        inputValues.set(`${object.id}-${parameter.name}`, text);
+        inputValues.set(`${object.id}-${parameter.name}`, text || value);
         this.onObjectParameterChange(object, parameter, prevValue);
         timeout = setTimeout(
           () => (
@@ -402,7 +408,7 @@ class PropertiesPanel extends React.Component {
           ),
           3000
         );
-        this.setState({ errors, timeout });
+        this.setState({ errors, inputValues, timeout });
       }
     };
 
@@ -481,6 +487,7 @@ class PropertiesPanel extends React.Component {
                   onChange={(value, text) => {
                     onChange(value, text, parameter, object);
                   }}
+                  onBlur={() => onBlur(parameter, object)}
                 />
                 {this.state.errors.has(`${object.id}-${parameter.name}`) &&
                   this.state.errors.get(`${object.id}-${parameter.name}`) && (
