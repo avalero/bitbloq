@@ -24,6 +24,7 @@ export default {
   gray3: "#cccccc",
   gray4: "#8c919b",
   gray5: "#5d6069",
+  grayFooter: "#373b44",
   disabledBackground: "#dbdee3",
   disabledColor: "#bdc0c5",
   tertiary: "#ebebeb",

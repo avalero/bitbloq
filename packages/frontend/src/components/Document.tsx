@@ -29,6 +29,7 @@ import {
   REMOVE_SUBMISSION_MUTATION
 } from "../apollo/queries";
 import Breadcrumbs from "./Breadcrumbs";
+import AppFooter from "./Footer";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -525,6 +526,7 @@ class Document extends React.Component<any, DocumentState> {
                   : ""}
                 {isUpdateExerciseOpen ? this.renderUpdateExerciseModal(t) : ""}
                 {this.renderRemoveExerciseModal(t)}
+                <AppFooter />
               </Container>
             )}
           </Translate>

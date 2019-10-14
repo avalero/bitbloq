@@ -36,6 +36,7 @@ import EditTitleModal from "./EditTitleModal";
 import DocumentListComp from "./DocumentsList";
 
 import Breadcrumbs from "./Breadcrumbs";
+import AppFooter from "./Footer";
 
 enum OrderType {
   Creation = "creation",
@@ -362,6 +363,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           saveButton="Crear"
         />
       )}
+      <AppFooter />
     </Container>
   );
 };
@@ -467,7 +469,7 @@ const NoDocuments = styled.div`
   h1 {
     width: 1179px;
     height: 28px;
-    font-family: Roboto;
+    font-family: Roboto, sans-serif;
     font-size: 24px;
     font-weight: 300;
     font-style: normal;
@@ -482,7 +484,7 @@ const NoDocuments = styled.div`
   p {
     width: 1179px;
     height: 22px;
-    font-family: Roboto;
+    font-family: Roboto, sans-serif;
     font-size: 14px;
     font-weight: normal;
     font-style: normal;
