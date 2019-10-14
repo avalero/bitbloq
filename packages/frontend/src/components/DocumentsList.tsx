@@ -16,16 +16,20 @@ import {
   FOLDER_QUERY,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_FOLDER_MUTATION,
-  DUPLICATE_FOLDER_MUTATION,
   CREATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
+import FolderSelectorMenu from "./FolderSelectorMenu";
 
+interface Folder {
+  name: string;
+  id: string;
+}
 export interface DocumentListProps {
   documents?: any;
   folders?: any;
+  parentsPath?: any;
   className?: string;
-  currentLocation?: string;
+  currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
 }
@@ -33,6 +37,7 @@ export interface DocumentListProps {
 const DocumentListComp: FC<DocumentListProps> = ({
   documents,
   folders,
+  parentsPath,
   currentLocation,
   className,
   onFolderClick,
@@ -43,7 +48,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
     exercises: null
   });
   const [deleteFolderId, setDeleteFolderId] = useState("");
-  const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [editDocTitleModal, setEditDocTitleModal] = useState({
     id: null,
     title: null
@@ -54,11 +58,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
   });
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
+  const [selectedToMoveId, setSelectedToMoveId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
-  const [duplicateFolder] = useMutation(DUPLICATE_FOLDER_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
 
@@ -66,18 +70,22 @@ const DocumentListComp: FC<DocumentListProps> = ({
     e.stopPropagation();
     if (menuOpenId === document.id) {
       setMenuOpenId("");
+      setSelectedToMoveId("");
     } else {
       setMenuOpenId(document.id);
+      setSelectedToMoveId("");
     }
   };
 
   const onDocumentRenameClick = (e, document) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setEditDocTitleModal({ id: document.id, title: document.title });
   };
 
   const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setDeleteDocumentId({ id: document.id, exercises: document.exercises });
   };
 
@@ -98,7 +106,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         {
           query: FOLDER_QUERY,
           variables: {
-            id: currentLocation
+            id: currentLocation.id
           }
         }
       ]
@@ -109,11 +117,13 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderRenameClick = (e, folder) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setEditFolderNameModal({ id: folder.id, name: folder.name });
   };
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
+    setSelectedToMoveId("");
     setDeleteFolderId(folder.id);
   };
 
@@ -124,7 +134,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         {
           query: FOLDER_QUERY,
           variables: {
-            id: currentLocation
+            id: currentLocation.id
           }
         }
       ]
@@ -139,7 +149,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         {
           query: FOLDER_QUERY,
           variables: {
-            id: currentLocation
+            id: currentLocation.id
           }
         }
       ]
@@ -155,7 +165,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         {
           query: FOLDER_QUERY,
           variables: {
-            id: currentLocation
+            id: currentLocation.id
           }
         }
       ]
@@ -164,24 +174,24 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  const onDuplicateFolder = async (e, folder) => {
-    e.stopPropagation();
-    setMenuOpenId(null);
-    return null;
-  };
+  // const onDuplicateFolder = async (e, folder) => {
+  //   e.stopPropagation();
+  //   setMenuOpenId(null);
+  //   return null;
+  // };
 
   const onDuplicateDocument = async (e, document) => {
     e.stopPropagation();
     await createDocument({
       variables: {
         ...document,
-        folder: currentLocation
+        folder: currentLocation.id
       },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
           variables: {
-            id: currentLocation
+            id: currentLocation.id
           }
         }
       ]
@@ -189,18 +199,53 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  //TODO:
-  const onMoveDocument = async (e, document) => {
+  const onMoveDocumentClick = async (e, document) => {
+    e.stopPropagation();
+    setSelectedToMoveId(document.id);
+  };
+  const onMoveFolderClick = async (e, folder) => {
+    e.stopPropagation();
+    setSelectedToMoveId(folder.id);
+  };
+
+  const onMoveDisabled = async e => {
     e.stopPropagation();
     setMenuOpenId(null);
-    return null;
+    setSelectedToMoveId(null);
+  };
+
+  const onMoveDocument = async (e, folder) => {
+    e.stopPropagation();
+    await updateDocument({
+      variables: { id: selectedToMoveId, folder: folder.id },
+      refetchQueries: [
+        {
+          query: FOLDER_QUERY,
+          variables: {
+            id: currentLocation.id
+          }
+        }
+      ]
+    });
+    setMenuOpenId(null);
+    setSelectedToMoveId(null);
   };
   const onMoveFolder = async (e, folder) => {
     e.stopPropagation();
+    await updateFolder({
+      variables: { id: selectedToMoveId, input: { parent: folder.id } },
+      refetchQueries: [
+        {
+          query: FOLDER_QUERY,
+          variables: {
+            id: currentLocation.id
+          }
+        }
+      ]
+    });
     setMenuOpenId(null);
-    return null;
+    setSelectedToMoveId(null);
   };
-
   return (
     <>
       <DocumentList className={className}>
@@ -235,11 +280,17 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     },
                     {
-                      disabled: true,
+                      selected: document.id === selectedToMoveId,
+                      disabled:
+                        folders.length === 0 && parentsPath.length === 1,
                       iconName: "move-document",
                       label: "Mover a",
                       onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onMoveDocument(e, document);
+                        if (folders.length === 0 && parentsPath.length === 1) {
+                          onMoveDisabled(e);
+                        } else {
+                          onMoveDocumentClick(e, document);
+                        }
                       }
                     },
                     {
@@ -252,6 +303,14 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     }
                   ]}
                 />
+              )}
+
+              {selectedToMoveId === document.id && folders != [] && (
+                <FolderSelectorMenu
+                  selectedToMove={selectedToMoveId}
+                  onMove={onMoveDocument}
+                  currentLocation={currentLocation}
+                ></FolderSelectorMenu>
               )}
             </StyledDocumentCard>
           ))}
@@ -278,20 +337,26 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         onFolderRenameClick(e, folder);
                       }
                     },
+                    // {
+                    //   disabled: true,
+                    //   iconName: "duplicate",
+                    //   label: "Crear una copia",
+                    //   onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                    //     onDuplicateFolder(e, folder);
+                    //   }
+                    // },
                     {
-                      disabled: true,
-                      iconName: "duplicate",
-                      label: "Crear una copia",
-                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onDuplicateFolder(e, folder);
-                      }
-                    },
-                    {
-                      disabled: true,
+                      selected: folder.id === selectedToMoveId,
+                      disabled:
+                        folders.length === 0 && parentsPath.length === 1,
                       iconName: "move-document",
                       label: "Mover a",
                       onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onMoveFolder(e, folder);
+                        if (folders.length === 0 && parentsPath.length === 1) {
+                          onMoveDisabled(e);
+                        } else {
+                          onMoveFolderClick(e, folder);
+                        }
                       }
                     },
                     {
@@ -304,6 +369,13 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     }
                   ]}
                 />
+              )}
+              {selectedToMoveId === folder.id && folders != [] && (
+                <FolderSelectorMenu
+                  selectedToMove={selectedToMoveId}
+                  onMove={onMoveFolder}
+                  currentLocation={currentLocation}
+                ></FolderSelectorMenu>
               )}
             </StyledFolderCard>
           ))}

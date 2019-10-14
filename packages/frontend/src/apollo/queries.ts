@@ -196,11 +196,12 @@ export const DELETE_FOLDER_MUTATION = gql`
 export const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
     $id: ObjectID!
-    $title: String!
+    $title: String
     $content: String
     $description: String
     $image: Upload
     $advancedMode: Boolean
+    $folder: ObjectID
   ) {
     updateDocument(
       id: $id
@@ -210,6 +211,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         description: $description
         image: $image
         advancedMode: $advancedMode
+        folder: $folder
       }
     ) {
       id
