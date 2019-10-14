@@ -174,11 +174,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  const onDuplicateFolder = async (e, folder) => {
-    e.stopPropagation();
-    setMenuOpenId(null);
-    return null;
-  };
+  // const onDuplicateFolder = async (e, folder) => {
+  //   e.stopPropagation();
+  //   setMenuOpenId(null);
+  //   return null;
+  // };
 
   const onDuplicateDocument = async (e, document) => {
     e.stopPropagation();
@@ -337,14 +337,14 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         onFolderRenameClick(e, folder);
                       }
                     },
-                    {
-                      disabled: true,
-                      iconName: "duplicate",
-                      label: "Crear una copia",
-                      onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        onDuplicateFolder(e, folder);
-                      }
-                    },
+                    // {
+                    //   disabled: true,
+                    //   iconName: "duplicate",
+                    //   label: "Crear una copia",
+                    //   onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                    //     onDuplicateFolder(e, folder);
+                    //   }
+                    // },
                     {
                       selected: folder.id === selectedToMoveId,
                       disabled:
