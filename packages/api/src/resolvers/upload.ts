@@ -5,11 +5,11 @@ import { urlencoded } from "express";
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
 
-const storage = new Storage(process.env.GCLOUD_PROJECT_ID) // project ID
-const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET) // bucket name
-const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET
+const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
+const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
+const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
-let publicUrl: string, fileSize: number, storageName: string;
+let publicUrl: string, fileSize: number;
 
 const normalize = (function() {
   let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
@@ -33,46 +33,37 @@ const normalize = (function() {
   };
 })();
 
-const processUpload = async (
-  createReadStream,
-  filename,
-  userID,
-  resolve,
-  reject
-) => {
-  const uniqueName: string = Date.now() + normalize(filename);
-  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
-  const file = bucket.file(gcsName);
+const processUpload = async (createReadStream, uniqueName, resolve, reject) => {
+  const file = bucket.file(uniqueName);
 
   const opts = {
     metadata: {
-      cacheControl: "private, max-age=0, no-transform",
-    },
-  }
-  const fileStream = createReadStream()
-  const gStream = file.createWriteStream(opts)
+      cacheControl: "private, max-age=0, no-transform"
+    }
+  };
+  const fileStream = createReadStream();
+  const gStream = file.createWriteStream(opts);
   gStream
     .on("error", err => {
-      reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"))
+      reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
     })
     .on("finish", async err => {
       if (err) {
-        throw new ApolloError("Error uploading file", "UPLOAD_ERROR")
+        throw new ApolloError("Error uploading file", "UPLOAD_ERROR");
       }
 
       file.makePublic().then(async () => {
-        publicUrl = getPublicUrl(gcsName);
-        storageName=gcsName;
+        publicUrl = getPublicUrl(uniqueName);
         resolve("OK");
       });
     });
 
-  fileStream.pipe(gStream)
-}
+  fileStream.pipe(gStream);
+};
 
 function getPublicUrl(filename) {
   //const finalName: string = encodeURIComponent(filename);
-  return `https://storage.googleapis.com/${bucketName}/${filename}`
+  return `https://storage.googleapis.com/${bucketName}/${filename}`;
 }
 
 function getFilesizeInBytes(filename) {
@@ -85,7 +76,7 @@ function getFilesizeInBytes(filename) {
   }
 }
 
-export async function uploadImage(image, documentID, userID) {
+export async function uploadDocumentImage(image, documentID, userID) {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
     throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
@@ -100,8 +91,11 @@ export async function uploadImage(image, documentID, userID) {
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
+  const uniqueName: string = documentID + normalize(filename);
+  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
+
   await new Promise((resolve, reject) => {
-    processUpload(createReadStream, filename, userID, resolve, reject);
+    processUpload(createReadStream, gcsName, resolve, reject);
   });
   const uploadNew = new UploadModel({
     document: documentID,
@@ -109,7 +103,7 @@ export async function uploadImage(image, documentID, userID) {
     mimetype,
     encoding,
     publicUrl,
-    storageName,
+    gcsName,
     size: fileSize,
     user: userID
   });
@@ -122,60 +116,64 @@ const uploadResolver = {
     getUserFiles: async (root: any, args: any, context: any) => {
       //console.log(bucket)
       const [files] = await bucket.getFiles({
-        prefix: `${context.user.userID}`,
-      })
-      console.log("Files:")
+        prefix: `${context.user.userID}`
+      });
+      console.log("Files:");
       files.forEach(async file => {
         await file.getMetadata().then(result => {
-          console.log(file.name)
-          console.log(result[0].size)
-        })
-      })
-      return await UploadModel.find({ user: context.user.userID })
-    },
+          console.log(file.name);
+          console.log(result[0].size);
+        });
+      });
+      return await UploadModel.find({ user: context.user.userID });
+    }
   },
   Mutation: {
     singleUpload: async (file, documentID, userID) => {
-      const { createReadStream, filename, mimetype, encoding } = await file
+      const { createReadStream, filename, mimetype, encoding } = await file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
-        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR")
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
       await new Promise((resolve, reject) => {
-        processUpload(createReadStream, filename, userID, resolve, reject)
-      })
+        processUpload(createReadStream, gcsName, resolve, reject);
+      });
       const uploadNew = new UploadModel({
         document: documentID,
         filename,
         mimetype,
         encoding,
         publicUrl,
-        storageName,
+        gcsName,
         size: fileSize,
-        user: userID,
-      })
-      return UploadModel.create(uploadNew)
+        user: userID
+      });
+      return UploadModel.create(uploadNew);
     },
     uploadSTLFile: async (root: any, args: any, context: any) => {
-      console.log(args.file)
-      const { createReadStream, filename, mimetype, encoding } = await args.file
+      const {
+        createReadStream,
+        filename,
+        mimetype,
+        encoding
+      } = await args.file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
-        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR")
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
-      if (String(mimetype).indexOf("stl")===-1 ){
+      if (String(mimetype).indexOf("stl") === -1) {
         throw new ApolloError(
           "Upload error, check file format. It must be an STL",
           "UPLOAD_FORMAT_ERROR"
         );
       }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+        uniqueName
+      )}`;
       await new Promise((resolve, reject) => {
-        processUpload(
-          createReadStream,
-          filename,
-          context.user.userID,
-          resolve,
-          reject
-        )
-      })
+        processUpload(createReadStream, gcsName, resolve, reject);
+      });
       const uploadNew = new UploadModel({
         document: args.documentID,
         filename,
@@ -183,25 +181,28 @@ const uploadResolver = {
         encoding,
         publicUrl,
         user: context.user.userID,
-        storageName,
-        size: fileSize,
-      })
-      return UploadModel.create(uploadNew)
+        gcsName,
+        size: fileSize
+      });
+      return UploadModel.create(uploadNew);
     },
     uploadImageFile: async (root: any, args: any, context: any) => {
-      const { createReadStream, filename, mimetype, encoding } = await args.file
+      const {
+        createReadStream,
+        filename,
+        mimetype,
+        encoding
+      } = await args.file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
-        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR")
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+        uniqueName
+      )}`;
       await new Promise((resolve, reject) => {
-        processUpload(
-          createReadStream,
-          filename,
-          args.user.userID,
-          resolve,
-          reject
-        )
-      })
+        processUpload(createReadStream, gcsName, resolve, reject);
+      });
       const uploadNew = new UploadModel({
         document: args.documentID,
         filename,
@@ -209,23 +210,23 @@ const uploadResolver = {
         encoding,
         publicUrl,
         user: context.user.userID,
-        storageName,
-        size: fileSize,
-      })
-      return UploadModel.create(uploadNew)
+        gcsName,
+        size: fileSize
+      });
+      return UploadModel.create(uploadNew);
     },
     deleteUserFile: async (root: any, args: any, context: any) => {
       if (args.filename) {
-        await bucket.file(`${context.user.userID}/${args.filename}`).delete()
+        await bucket.file(`${context.user.userID}/${args.filename}`).delete();
         return await UploadModel.deleteOne({
           publicUrl: {
             $regex: `${context.user.userID}/${args.filename}`,
-            $options: "i",
-          },
-        })
+            $options: "i"
+          }
+        });
       }
-    },
-  },
-}
+    }
+  }
+};
 
-export default uploadResolver
+export default uploadResolver;
