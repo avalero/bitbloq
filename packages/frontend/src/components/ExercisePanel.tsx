@@ -11,7 +11,7 @@ import {
   Icon,
   Input,
   Switch,
-  Translate
+  useTranslate
 } from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
 import EditTitleModal from "./EditTitleModal";
@@ -47,146 +47,143 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
   const [menuSubmissionOpen, setMenuSubmissionOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [submissionIdModal, setSubmissionIdModal] = useState("");
+  const t = useTranslate();
 
   return (
-    <Translate>
-      {t => (
-        <Container>
-          <Header onClick={() => setOpen(!isOpen)}>
-            <HeaderLeft>
-              <Toggle isOpen={isOpen}>
-                <Icon name="angle" />
-              </Toggle>
-            </HeaderLeft>
-            <HeaderCenter>
-              <Title>{exercise.title}</Title>
-              <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
-            </HeaderCenter>
-            <HeaderRight
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                setMenuOpen(!menuOpen);
-              }}
-            >
-              <Icon name="ellipsis" />
-            </HeaderRight>
-          </Header>
-          {menuOpen && (
-            <ExerciseMenu
-              options={[
-                {
-                  iconName: "pencil",
-                  label: t("menu-change-name"),
-                  onClick() {
-                    setMenuOpen(false);
-                    onChangeName(exercise.title);
-                  }
-                },
-                {
-                  iconName: "trash",
-                  label: t("menu-delete-exercise"),
-                  onClick() {
-                    setMenuOpen(false);
-                    onRemove();
-                  },
-                  red: true
+    <Container>
+      <Header onClick={() => setOpen(!isOpen)}>
+        <HeaderLeft>
+          <Toggle isOpen={isOpen}>
+            <Icon name="angle" />
+          </Toggle>
+        </HeaderLeft>
+        <HeaderCenter>
+          <Title>{exercise.title}</Title>
+          <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
+        </HeaderCenter>
+        <HeaderRight
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            setMenuOpen(!menuOpen);
+          }}
+        >
+          <Icon name="ellipsis" />
+        </HeaderRight>
+      </Header>
+      {menuOpen && (
+        <ExerciseMenu
+          options={[
+            {
+              iconName: "pencil",
+              label: t("menu-change-name"),
+              onClick() {
+                setMenuOpen(false);
+                onChangeName(exercise.title);
+              }
+            },
+            {
+              iconName: "trash",
+              label: t("menu-delete-exercise"),
+              onClick() {
+                setMenuOpen(false);
+                onRemove();
+              },
+              red: true
+            }
+          ]}
+        />
+      )}
+      <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
+        {({ height }) => (
+          <ExerciseDetails style={{ height }}>
+            <ExerciseInfo>
+              <div className="code">
+                <CodeBox>{exercise.code}</CodeBox>
+                {t("exercise-details-code")}
+              </div>
+              <div className="accept-submissions">
+                {t("exercise-details-submissions")}
+                <SubmissionsSwitch
+                  value={exercise.acceptSubmissions}
+                  onChange={onAcceptedSubmissions}
+                />
+              </div>
+            </ExerciseInfo>
+            <ExerciseSubmissions>
+              {exercise.submissions && exercise.submissions.length > 0 ? (
+                <Table key="table">
+                  <thead>
+                    <tr>
+                      <th>{t("submission-table-team")}</th>
+                      <th>{t("submission-table-date")}</th>
+                      <th>{t("submission-table-grade")}</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {exercise.submissions.map(submission => (
+                      <SubmissionPanel
+                        key={submission.id}
+                        exerciseId={exercise.id}
+                        onCheckSubmission={onCheckSubmission}
+                        t={t}
+                        setDeleteModalOpen={setDeleteModalOpen}
+                        setPasswordModalOpen={setPasswordModalOpen}
+                        setSubmissionIdModal={setSubmissionIdModal}
+                        submission={submission}
+                      />
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <NoSubmissions>
+                  {t("exercise-details-nosubmissions")}
+                </NoSubmissions>
+              )}
+            </ExerciseSubmissions>
+          </ExerciseDetails>
+        )}
+      </Spring>
+      {passwordModalOpen && (
+        <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
+          {updatePassword => (
+            <EditTitleModal
+              title=""
+              onCancel={() => setPasswordModalOpen(false)}
+              onSave={(value: string) => {
+                if (value) {
+                  updatePassword({
+                    variables: {
+                      id: submissionIdModal,
+                      password: value
+                    }
+                  });
                 }
-              ]}
+                setPasswordModalOpen(false);
+              }}
+              modalTitle={t("submission-passwordmodal-title")}
+              modalText={t("submission-passwordmodal-text")}
+              placeholder={t("submission-passwordmodal-placeholder")}
+              saveButton={t("general-accept-button")}
+              type="password"
+              validateInput={false}
             />
           )}
-          <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
-            {({ height }) => (
-              <ExerciseDetails style={{ height }}>
-                <ExerciseInfo>
-                  <div className="code">
-                    <CodeBox>{exercise.code}</CodeBox>
-                    {t("exercise-details-code")}
-                  </div>
-                  <div className="accept-submissions">
-                    {t("exercise-details-submissions")}
-                    <SubmissionsSwitch
-                      value={exercise.acceptSubmissions}
-                      onChange={onAcceptedSubmissions}
-                    />
-                  </div>
-                </ExerciseInfo>
-                <ExerciseSubmissions>
-                  {exercise.submissions && exercise.submissions.length > 0 ? (
-                    <Table key="table">
-                      <thead>
-                        <tr>
-                          <th>{t("submission-table-team")}</th>
-                          <th>{t("submission-table-date")}</th>
-                          <th>{t("submission-table-grade")}</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {exercise.submissions.map(submission => (
-                          <SubmissionPanel
-                            key={submission.id}
-                            exerciseId={exercise.id}
-                            onCheckSubmission={onCheckSubmission}
-                            t={t}
-                            setDeleteModalOpen={setDeleteModalOpen}
-                            setPasswordModalOpen={setPasswordModalOpen}
-                            setSubmissionIdModal={setSubmissionIdModal}
-                            submission={submission}
-                          />
-                        ))}
-                      </tbody>
-                    </Table>
-                  ) : (
-                    <NoSubmissions>
-                      {t("exercise-details-nosubmissions")}
-                    </NoSubmissions>
-                  )}
-                </ExerciseSubmissions>
-              </ExerciseDetails>
-            )}
-          </Spring>
-          {passwordModalOpen && (
-            <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
-              {updatePassword => (
-                <EditTitleModal
-                  title=""
-                  onCancel={() => setPasswordModalOpen(false)}
-                  onSave={(value: string) => {
-                    if (value) {
-                      updatePassword({
-                        variables: {
-                          id: submissionIdModal,
-                          password: value
-                        }
-                      });
-                    }
-                    setPasswordModalOpen(false);
-                  }}
-                  modalTitle={t("submission-passwordmodal-title")}
-                  modalText={t("submission-passwordmodal-text")}
-                  placeholder={t("submission-passwordmodal-placeholder")}
-                  saveButton={t("general-accept-button")}
-                  type="password"
-                  validateInput={false}
-                />
-              )}
-            </Mutation>
-          )}
-          <DialogModal
-            isOpen={deleteModalOpen}
-            text={t("submission-delete-text")}
-            title={t("exercises-modal-remove")}
-            okText={t("general-accept-button")}
-            cancelText={t("general-cancel-button")}
-            onOk={() => {
-              onRemoveSubmission(submissionIdModal);
-              setDeleteModalOpen(false);
-            }}
-            onCancel={() => setDeleteModalOpen(false)}
-          />
-        </Container>
+        </Mutation>
       )}
-    </Translate>
+      <DialogModal
+        isOpen={deleteModalOpen}
+        text={t("submission-delete-text")}
+        title={t("exercises-modal-remove")}
+        okText={t("general-accept-button")}
+        cancelText={t("general-cancel-button")}
+        onOk={() => {
+          onRemoveSubmission(submissionIdModal);
+          setDeleteModalOpen(false);
+        }}
+        onCancel={() => setDeleteModalOpen(false)}
+      />
+    </Container>
   );
 };
 
