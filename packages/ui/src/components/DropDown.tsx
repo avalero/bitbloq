@@ -2,9 +2,20 @@ import React, { Component } from "react";
 import TetherComponent from "react-tether";
 
 export interface DropDownProps {
+  className?: string;
   closeOnClick?: boolean;
   attachmentPosition: string;
   targetPosition: string;
+  constraints: {
+    attachment?: string;
+    outOfBoundsClass?: string;
+    pin?: boolean | string[];
+    pinnedClass?: string;
+    to?: string | HTMLElement | number[];
+  }[];
+  notHidden?: boolean;
+  offset?: string;
+  targetOffset?: string;
 }
 
 interface State {
@@ -52,14 +63,26 @@ class DropDown extends Component<DropDownProps, State> {
 
   render() {
     const { isOpen } = this.state;
-    const { attachmentPosition, targetPosition } = this.props;
+    const {
+      className,
+      constraints,
+      offset,
+      attachmentPosition,
+      notHidden,
+      targetPosition,
+      targetOffset
+    } = this.props;
     const [element, attachment] = this.props.children as Function[];
 
     return (
       <TetherComponent
+        className={className}
+        constraints={constraints}
         attachment={attachmentPosition}
         targetAttachment={targetPosition}
         style={{ zIndex: 21 }}
+        offset={offset || "0 0"}
+        targetOffset={targetOffset || "0 0"}
         renderTarget={(ref: React.MutableRefObject<HTMLElement | null>) => (
           <div
             ref={el => {
@@ -72,7 +95,7 @@ class DropDown extends Component<DropDownProps, State> {
         )}
         renderElement={(ref: React.MutableRefObject<HTMLElement | null>) => (
           <div
-            style={{ display: isOpen ? "block" : "none" }}
+            style={{ display: isOpen || notHidden ? "block" : "none" }}
             ref={el => {
               ref.current = el;
               this.attachmentEl = el;
