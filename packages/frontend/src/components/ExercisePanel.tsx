@@ -8,6 +8,7 @@ import {
   colors,
   Button,
   DialogModal,
+  DropDown,
   Icon,
   Input,
   Switch,
@@ -43,56 +44,57 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isOpen, setOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [menuSubmissionOpen, setMenuSubmissionOpen] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [submissionIdModal, setSubmissionIdModal] = useState("");
   const t = useTranslate();
 
   return (
     <Container>
-      <Header onClick={() => setOpen(!isOpen)}>
-        <HeaderLeft>
+      <Header>
+        <HeaderLeft onClick={() => setOpen(!isOpen)}>
           <Toggle isOpen={isOpen}>
             <Icon name="angle" />
           </Toggle>
         </HeaderLeft>
-        <HeaderCenter>
+        <HeaderCenter onClick={() => setOpen(!isOpen)}>
           <Title>{exercise.title}</Title>
           <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
         </HeaderCenter>
-        <HeaderRight
-          onClick={(e: React.MouseEvent) => {
-            e.stopPropagation();
-            setMenuOpen(!menuOpen);
-          }}
-        >
-          <Icon name="ellipsis" />
-        </HeaderRight>
-      </Header>
-      {menuOpen && (
-        <ExerciseMenu
-          options={[
+        <DropDown
+          offset="-6px 0"
+          constraints={[
             {
-              iconName: "pencil",
-              label: t("menu-change-name"),
-              onClick() {
-                setMenuOpen(false);
-                onChangeName(exercise.title);
-              }
-            },
-            {
-              iconName: "trash",
-              label: t("menu-delete-exercise"),
-              onClick() {
-                setMenuOpen(false);
-                onRemove();
-              },
-              red: true
+              attachment: "together",
+              to: "window"
             }
           ]}
-        />
-      )}
+        >
+          {(isOpen: boolean) => (
+            <HeaderRight isOpen={isOpen}>
+              <Icon name="ellipsis" />
+            </HeaderRight>
+          )}
+          <DocumentCardMenu
+            options={[
+              {
+                iconName: "pencil",
+                label: t("menu-change-name"),
+                onClick() {
+                  onChangeName(exercise.title);
+                }
+              },
+              {
+                iconName: "trash",
+                label: t("menu-delete-exercise"),
+                onClick() {
+                  onRemove();
+                },
+                red: true
+              }
+            ]}
+          />
+        </DropDown>
+      </Header>
       <Spring to={{ height: isOpen ? "auto" : 0, opacity: 0 }}>
         {({ height }) => (
           <ExerciseDetails style={{ height }}>
@@ -210,7 +212,6 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
     t
   } = props;
 
-  const [menuOpen, setMenuOpen] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
   const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
 
@@ -238,13 +239,20 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
       </td>
       <td>{submission.grade || (submission.finished ? "-" : "")}</td>
       <td>
-        <SubmissionOptions
-          isOpen={menuOpen}
-          onClick={() => setMenuOpen(!menuOpen)}
+        <DropDown
+          constraints={[
+            {
+              attachment: "together",
+              to: "window"
+            }
+          ]}
+          offset="-3.5px 0"
         >
-          <Icon name="ellipsis" />
-        </SubmissionOptions>
-        {menuOpen && (
+          {(isOpen: boolean) => (
+            <SubmissionOptions isOpen={isOpen}>
+              <Icon name="ellipsis" />
+            </SubmissionOptions>
+          )}
           <SubmissionMenu
             options={[
               {
@@ -252,7 +260,6 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 iconName: "eye",
                 label: t("menu-submission-see"),
                 onClick() {
-                  setMenuOpen(false);
                   onCheckSubmission(submission);
                 }
               },
@@ -260,7 +267,6 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 iconName: "padlock-close",
                 label: t("menu-submission-password"),
                 onClick() {
-                  setMenuOpen(false);
                   setSubmissionIdModal(submission.id);
                   setPasswordModalOpen(true);
                 }
@@ -270,7 +276,6 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 iconName: "close",
                 label: t("menu-submission-expel"),
                 onClick() {
-                  setMenuOpen(false);
                   setActiveSubmission({
                     variables: {
                       exerciseId: exerciseId,
@@ -281,10 +286,10 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 }
               },
               {
+                disabled: !!submission.grade,
                 iconName: "trash",
                 label: t("menu-submission-delete"),
                 onClick() {
-                  setMenuOpen(false);
                   setSubmissionIdModal(submission.id);
                   setDeleteModalOpen(true);
                 },
@@ -292,7 +297,7 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
               }
             ]}
           />
-        )}
+        </DropDown>
       </td>
     </tr>
   );
@@ -307,6 +312,7 @@ const Container = styled.div`
   border-radius: 4px;
   margin-bottom: 20px;
   position: relative;
+  overflow: hidden;
   width: 100%;
 `;
 
@@ -345,10 +351,7 @@ const ExerciseSubmissions = styled.div`
 `;
 
 const SubmissionMenu = styled(DocumentCardMenu)`
-  right: 10px;
-  top: 40px;
   width: 293px;
-  z-index: 2;
 `;
 
 const NoSubmissions = styled.div`
@@ -363,12 +366,6 @@ const NoSubmissions = styled.div`
   line-height: 1.57;
   padding: 30px 20px;
   text-align: center;
-`;
-
-const ExerciseMenu = styled(DocumentCardMenu)`
-  right: 0;
-  top: 46px;
-  z-index: 2;
 `;
 
 const Header = styled.div`
@@ -414,14 +411,21 @@ const Toggle = styled.div<ToggleProps>`
     `}
 `;
 
-const HeaderRight = styled.div`
+interface HeaderRightProps {
+  isOpen: boolean;
+}
+const HeaderRight = styled.div<HeaderRightProps>`
   align-items: center;
+  background-color: ${(props: HeaderRightProps) =>
+    props.isOpen ? "#e8e8e8" : "white"};
   border-left: 1px solid #c0c3c9;
   cursor: pointer;
   display: flex;
   flex: 1 0 39px;
+  height: 100%;
   justify-content: center;
   max-width: 39px;
+  width: 39px;
 
   svg {
     transform: rotate(90deg);
@@ -533,15 +537,17 @@ const Table = styled.table`
       font-size: 14px;
       height: 15px;
       padding: 12px 20px;
-      vertical-align: center;
+      vertical-align: middle;
       &:first-of-type {
         max-width: 0;
         width: 60%;
       }
       &:last-of-type {
-        height: 24px;
-        padding: 0;
-        position: relative;
+        align-items: center;
+        display: flex;
+        justify-content: flex-end;
+        padding-left: 0;
+        min-width: 32px;
       }
     }
   }
@@ -560,8 +566,6 @@ const SubmissionOptions = styled.div<SubmissionOptionsProps>`
   display: flex;
   height: 30px;
   justify-content: center;
-  position: absolute;
-  top: 3.5px;
   width: 30px;
 
   &:hover {
