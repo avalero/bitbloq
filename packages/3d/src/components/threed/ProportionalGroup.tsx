@@ -56,15 +56,16 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
     this.props.onOperationChange(newOperation);
   };
 
-  onBlur = (parameters: Parameter[], parameter: Parameter): void => {
-    /*let errors: Map<string, boolean> = this.state.errors;
-    errors.set(parameter.name, false);
-    if (this.state.isLocked) {
-      parameters.forEach(param => {
-        errors.set(param.name, false);
-      });
-    }
-    this.setState({ errors });*/
+  onBlur = (
+    operation: object,
+    parameters: Parameter[],
+    parameter: Parameter
+  ): void => {
+    let { inputValues, errors } = this.state;
+    const oldValue = operation[parameter.name];
+    inputValues.delete(parameter.name);
+    errors = this.onSetError(false, errors, parameters, parameter, oldValue);
+    this.setState({ errors, inputValues });
   };
 
   onSetError = (
@@ -153,7 +154,7 @@ class ProportionalGroup extends React.Component<IProportionalGroupProps> {
                     : operation[parameter.name]
                 }
                 onBlur={() => {
-                  this.onBlur(parameters, parameter);
+                  this.onBlur(operation, parameters, parameter);
                 }}
                 onChange={(value: any, text: string) =>
                   this.onChange(value, text, operation, parameters, parameter)
