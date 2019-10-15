@@ -329,6 +329,7 @@ const userResolver = {
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
+        await FolderModel.deleteMany({ user: contactFound._id });
         return UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
       } else {
         throw new ApolloError(
