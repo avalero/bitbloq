@@ -469,13 +469,9 @@ const NoDocuments = styled.div`
   h1 {
     width: 1179px;
     height: 28px;
-    font-family: Roboto, sans-serif;
+    font-family: Roboto;
     font-size: 24px;
     font-weight: 300;
-    font-style: normal;
-    font-stretch: normal;
-    line-height: normal;
-    letter-spacing: normal;
     text-align: center;
     color: #373b44;
     margin-bottom: 20px;
@@ -484,13 +480,9 @@ const NoDocuments = styled.div`
   p {
     width: 1179px;
     height: 22px;
-    font-family: Roboto, sans-serif;
+    font-family: Roboto;
     font-size: 14px;
-    font-weight: normal;
-    font-style: normal;
-    font-stretch: normal;
     line-height: 1.57;
-    letter-spacing: normal;
     text-align: center;
     color: #474749;
   }
