@@ -561,7 +561,7 @@ const Content = styled.div`
 `;
 
 const Header = styled.div`
-  height: 65px;
+  height: 80px;
   display: flex;
   align-items: center;
   font-size: 14px;
