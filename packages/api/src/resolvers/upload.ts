@@ -158,10 +158,11 @@ const uploadResolver = {
         mimetype,
         encoding
       } = await args.file;
+      
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
-      if (String(mimetype).indexOf("stl") === -1) {
+      if (String(filename).indexOf("stl") === -1) {
         throw new ApolloError(
           "Upload error, check file format. It must be an STL",
           "UPLOAD_FORMAT_ERROR"
