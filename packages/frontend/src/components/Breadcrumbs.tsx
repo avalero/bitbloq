@@ -1,161 +1,298 @@
-import React, { FC, useState } from "react";
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useState
+} from "react";
 import styled from "@emotion/styled";
 
-import { colors, Icon } from "@bitbloq/ui";
+import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
+import FolderSelectorMenu from "./FolderSelectorMenu";
 
 export interface BreadcrumbLink {
-  text: string;
   route?: string;
+  text: string;
+  type: "folder" | "document";
 }
 
 export interface BreadcrumbsProps {
   links?: BreadcrumbLink[];
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
+  const t = useTranslate();
+
+  const [customLinks, setLinks]: [
+    BreadcrumbLink[],
+    Dispatch<SetStateAction<BreadcrumbLink[]>>
+  ] = useState([links[0]]);
+  const [hideFolders, setHideFolders]: [
+    BreadcrumbLink[],
+    Dispatch<SetStateAction<BreadcrumbLink[]>>
+  ] = useState([]);
+  const [maxWidth, setMaxWidth]: [
+    number,
+    Dispatch<SetStateAction<number>>
+  ] = useState(0);
+
+  const setElementMaxWidth = (): void => {
+    const element: Element = document.getElementsByClassName(
+      "breadcrumb-target"
+    )[0];
+
+    console.log({ element });
+
+    const elementLeft: number = element.offsetLeft;
+    const parentLeft: number = element.parentElement.offsetLeft;
+    const parentWidth: number = element.parentElement.offsetWidth;
+
+    const maxWidth: number = parentLeft + parentWidth - elementLeft;
+    setMaxWidth(maxWidth);
+  };
+
+  useEffect(() => {
+    setElementMaxWidth();
+    window.addEventListener("resize", setElementMaxWidth);
+
+    return () => window.removeEventListener("resize", setElementMaxWidth);
+  }, [customLinks]);
+
+  useEffect(() => {
+    let customLinks: BreadcrumbLink[];
+    let hideLinks: BreadcrumbLink[];
+    if (links.length > 4) {
+      customLinks = links.slice(links.length - 3);
+      hideLinks = links.slice(1, links.length - 3);
+    } else {
+      customLinks = links.slice(1);
+      hideLinks = [];
+    }
+    setHideFolders(hideLinks);
+    setLinks(customLinks);
+  }, []);
+
   return (
     <Wrap>
-      <Column>
-        <nav aria-label="Migas de pan">
-          <Links>
-            {links &&
-              links.map((link, i) => {
-                if (i < links.length - 1) {
-                  return (
-                    <li key={i}>
-                      <Link href={link.route ? link.route : ""}>
-                        {link.text === "root" ? (
-                          "Mis documentos"
-                        ) : link.type === "folder" ? (
-                          <>
-                            <IconLink name="folder-icon" /> <p>{link.text}</p>
-                          </>
-                        ) : (
-                          <>
-                            <IconLink name="document" />
-                            <p>{link.text}</p>
-                          </>
-                        )}
-                      </Link>
-                      <Separator name="angle" />
-                    </li>
-                  );
-                } else {
-                  return (
-                    <li key={i}>
-                      {link.type === "folder" ? (
-                        <IconLink name="folder-icon" />
-                      ) : link.text === "Mis documentos" ? null : (
-                        <IconLink name="document" />
-                      )}
-                      <p>{link.text}</p>
-                    </li>
-                  );
-                }
-              })}
-          </Links>
-        </nav>
-      </Column>
+      <Links aria-label="Migas de pan">
+        <BreadcrumbRoot>
+          <a href={(links && links[0].route) || ""}>{t("breadcrumbs-root")}</a>
+        </BreadcrumbRoot>
+        {hideFolders.length > 0 ? (
+          <>
+            <Separator name="angle" />
+            <DropDown
+              attachmentPosition="top left"
+              targetPosition="bottom left"
+              offset="-6px 0"
+            >
+              {(isOpen: boolean) => (
+                <FoldersMenu isOpen={isOpen}>
+                  <Icon name="ellipsis" />
+                </FoldersMenu>
+              )}
+              <FolderSelectorOptions>
+                {hideFolders.map((folder: BreadcrumbLink, index: number) => (
+                  <FolderSelectorOption key={index} href={folder.route}>
+                    <MenuIcon name="folder-icon" />
+                    <p>{folder.text}</p>
+                  </FolderSelectorOption>
+                ))}
+              </FolderSelectorOptions>
+            </DropDown>
+          </>
+        ) : (
+          <></>
+        )}
+        <BreadcrumbsNoRoot isThereHidden={hideFolders.length > 0}>
+          {customLinks &&
+            customLinks.map((link: BreadcrumbLink, index: number) => (
+              <React.Fragment key={index}>
+                <Separator name="angle" />
+                {index === customLinks.length - 1 ? (
+                  <BreadcrumbTarget
+                    className="breadcrumb-target"
+                    maxWidth={maxWidth}
+                  >
+                    <IconLink
+                      name={
+                        link.type === "document" ? "document" : "folder-icon"
+                      }
+                    />
+                    <p>{link.text}</p>
+                  </BreadcrumbTarget>
+                ) : (
+                  <BreadcrumbLink folders={links.length - 2}>
+                    <IconLink name="folder-icon" />
+                    <a href={link.route || ""}>{link.text}</a>
+                  </BreadcrumbLink>
+                )}
+              </React.Fragment>
+            ))}
+        </BreadcrumbsNoRoot>
+      </Links>
     </Wrap>
   );
 };
 
 export default Breadcrumbs;
 
-const Wrap = styled.div`
-  height: 40px;
-  width: 100%;
-  display: flex;
-  align-items: left;
-`;
-
-const Links = styled.ol`
-  flex: 1;
-  display: flex;
-  font-size: 16px;
-
-  li {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-  }
-
-  a {
-    color: #373b44;
-    font-size: 14px;
-    font-weight: bold;
-    font-style: normal;
-    font-stretch: normal;
-  }
-
-  li:nth-last-of-type(2) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    width: auto;
-  }
-  p {
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-`;
-
-const Link = styled.a`
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-  text-decoration: none;
-  color: #373b44;
-  font-size: 14px;
-  font-weight: bold;
-  font-style: normal;
-  font-stretch: normal;
-  display: flex;
+const Breadcrumb = styled.li`
   align-items: center;
-  justify-content: center;
-  flex-direction: row;
+  color: #373b44;
+  display: flex;
+  font-size: 14px;
+  justify-content: flex-start;
 
+  a,
   p {
-    max-width: 210px;
+    margin: 0;
     overflow: hidden;
+    padding-right: 2px;
+    text-decoration: none;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 `;
 
-const BackImage = styled.img`
-  transform: rotate(90deg);
-  margin-right: 8px;
+interface BreadcrumbLinkProps {
+  folders: number;
+}
+const BreadcrumbLink = styled(Breadcrumb)<BreadcrumbLinkProps>`
+  max-width: ${(props: BreadcrumbLinkProps) =>
+    props.folders === 1 ? "50" : props.folders === 2 ? "30" : "25"}%;
+  font-weight: bold;
 `;
 
-const Separator = styled(Icon)`
-  margin-left: 10px;
-  margin-right: 10px;
-  transform: rotate(-90deg);
-  height: 13px;
-  width: 13px;
-  /* display: none; */
+const BreadcrumbRoot = styled(Breadcrumb)`
+  flex: 0 0;
+  font-weight: bold;
+`;
+
+interface BreadcrumbsNoRootProps {
+  isThereHidden: boolean;
+}
+const BreadcrumbsNoRoot = styled.div<BreadcrumbsNoRootProps>`
+  align-items: center;
+  display: flex;
+  height: 100%;
+  justify-content: flex-start;
+  width: calc(
+    100% - 110px -
+      ${(props: BreadcrumbsNoRootProps) => (props.isThereHidden ? 65 : 0)}px
+  );
+`;
+
+interface BreadcrumbTargetProps {
+  maxWidth: number;
+}
+const BreadcrumbTarget = styled(Breadcrumb)<BreadcrumbTargetProps>`
+  max-width: ${(props: BreadcrumbTargetProps) => props.maxWidth}px;
+`;
+
+interface FoldersMenuProps {
+  isOpen: boolean;
+}
+const FoldersMenu = styled.div<FoldersMenuProps>`
+  align-items: center;
+  background-color: ${(props: FoldersMenuProps) =>
+    props.isOpen ? "#e8e8e8" : "#fff"};
+  border: solid 1px #dddddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-shrink: 0;
+  height: 34px;
+  justify-content: center;
+  width: 34px;
+
+  &:hover {
+    background-color: #e8e8e8;
+  }
+
+  svg {
+    height: 14px;
+    width: 14px;
+  }
+`;
+
+const FolderSelectorOption = styled.a`
+  align-items: center;
+  background-color: white;
+  border-bottom: 1px solid #ebebeb;
+  cursor: pointer;
+  display: flex;
+  height: 35px;
+  padding: 0 14px 0 13px;
+  text-decoration: none;
+
+  p {
+    color: #3b3e45;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &:hover {
+    background-color: #ebebeb;
+  }
+`;
+
+const FolderSelectorOptions = styled.div`
+  background-color: white;
+  border: solid 1px #cfcfcf;
+  border-radius: 4px;
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
+  max-height: 303px;
+  max-width: 849px;
+  overflow: scroll;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const IconLink = styled(Icon)`
+  flex-shrink: 0;
   margin-right: 6px;
   height: 20px;
   width: 20px;
-  /* display: none; */
 `;
 
-const Row = styled.div`
+const Links = styled.ul`
+  align-items: center;
   display: flex;
-  flex-direction: row;
+  font-size: 16px;
+  height: 100%;
+  justify-content: flex-start;
   width: 100%;
-  align-items: center;
 `;
 
-const Column = styled.div`
-  display: flex;
+const MenuIcon = styled(Icon)`
+  flex-shrink: 0;
+  height: 13px;
+  margin-right: 14px;
+  width: 13px;
+`;
+
+const Separator = styled(Icon)`
+  flex-shrink: 0;
+  height: 13px;
+  margin: 10px;
+  transform: rotate(-90deg);
+  width: 13px;
+`;
+
+const Wrap = styled.nav`
   align-items: center;
-  /* flex-direction: column; */
+  display: flex;
+  height: 40px;
+  justify-content: flex-start;
+  overflow: hidden;
+  width: 100%;
 `;

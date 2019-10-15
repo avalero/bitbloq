@@ -61,7 +61,7 @@ const DocumentMongSchema: Schema = new Schema({
 
   description: {
     type: String,
-    default: "description"
+    default: ""
   },
 
   version: {
