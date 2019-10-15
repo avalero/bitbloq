@@ -203,6 +203,7 @@
   "bloq-led-instance-name": "led",
   "bloq-switch-instance-name": "interruptor",
   "bloq-seven-segment-instance-name": "sieteSegmentos",
+  "bloq-servo-instance-name": "sieteSegmentos",
   "bloq-set-seven-segment-num": "Escribir Número",
   "bloq-sensors-instance-name": "sensores",
   "bloq-miniservo-instance-name": "miniservo",

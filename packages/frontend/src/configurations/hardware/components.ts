@@ -151,20 +151,48 @@ export const components: Partial<IComponent>[] = [
       setup: [
         `{% for pin in pinsInfo %}
         {{pin.pinVarName}}Obj.attach({{pin.pinVarName}});
-        {{pin.pinVarName}}Obj.write(90);
         {% endfor %}`,
       ],
     },
   },
   {
     name: "ContRotServo",
-    extends: "Servo",
-    instanceName: "bloq-controt-servo-instance-name"
+    extends: "Component",
+    actions: [
+      {
+        name: 'write',
+        parameters: ['pinVarName', 'value'],
+        code: `{{pinVarName}}PinObj.write({{value}});`,
+      },
+      {
+        name: 'read',
+        parameters: ['pinVarName'],
+        code: `{{pinVarName}}PinObj.read()`,
+        return: "uint8_t"
+      },
+    ],
+    code: {
+      includes: [
+        "<Servo.h>"
+      ],
+      globals: [
+        `{% for pin in pinsInfo %}
+        Servo {{pin.pinVarName}}Obj;
+        {% endfor %}`
+      ],
+      setup: [
+        `{% for pin in pinsInfo %}
+        {{pin.pinVarName}}Obj.attach({{pin.pinVarName}});
+        {{pin.pinVarName}}Obj.write(90);
+        {% endfor %}`,
+      ],
+    },
   },
   {
     name: "ZumjuniorServo",
     label: "hardware.component.cont-rot-servo",
     extends: "ContRotServo",
+    instanceName: "bloq-controt-servo-instance-name",
     values:{
       clockwise: "175",
       counterclockwise: "5",
@@ -191,7 +219,8 @@ export const components: Partial<IComponent>[] = [
       url: ServoImage,
       width: 124,
       height: 124
-    }
+    },
+    
   },
   {
     name: "DigitalRGBLED",
@@ -481,7 +510,13 @@ export const components: Partial<IComponent>[] = [
           x: 0.28,
           y: 1
         },
-        pins: []
+        pins: [
+          {
+            name: "Pin",
+            mode: ConnectorPinMode.OUTPUT,
+            portPin: "0"
+          }
+        ]
       }
     ],
     image: {
