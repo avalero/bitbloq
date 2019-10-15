@@ -389,9 +389,14 @@ const Content = styled.div`
 `;
 
 const Header = styled.div`
-  height: 85px;
+  height: 80px;
   display: flex;
   align-items: center;
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
   h1 {
     flex: 1;
