@@ -26,7 +26,7 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
         options.map((option: Option, index: number) => (
           <DocumentMenuOption
             key={index}
-            onClick={option.onClick}
+            onClick={option.disabled ? () => {} : option.onClick}
             disabled={option.disabled}
             red={option.red}
             selected={option.selected}
@@ -48,9 +48,6 @@ export default DocumentCardMenu;
 const DocumentMenu = styled.div`
   display: flex;
   flex-direction: column;
-  position: absolute;
-  right: 14px;
-  top: 54px;
   width: 179px;
   height: auto;
   border-radius: 4px;
@@ -77,7 +74,8 @@ const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
   width: 100%;
-  background-color: ${props => (props.selected ? "#ebebeb" : "white")};
+  background-color: ${(props: DocumentMenuOptionProps) =>
+    props.selected ? "#ebebeb" : "white"};
 
   opacity: ${(props: DocumentMenuOptionProps) => (props.disabled ? 0.5 : 1)};
 
@@ -94,8 +92,13 @@ const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
     background-color: #ebebeb;
   }
 
-  &:last-child {
+  &:first-of-type {
+    border-radius: 4px 4px 0 0;
+  }
+
+  &:last-of-type {
     border: none;
+    border-radius: 0 0 4px 4px;
   }
 `;
 
