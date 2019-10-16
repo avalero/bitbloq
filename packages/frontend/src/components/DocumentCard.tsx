@@ -1,34 +1,52 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { useDrag } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
 
 export interface DocumentCardProps {
+  beginFunction?: () => void;
   document: any;
   draggable?: boolean;
   className?: string;
+  endFunction?: () => void;
   onClick?: (e: React.MouseEvent) => any;
 }
 
 const DocumentCard: FC<DocumentCardProps> = ({
+  beginFunction,
   document,
   className,
   draggable,
   onClick,
+  endFunction,
   children
 }) => {
-  const [{ isDragging }, drag, preview] = useDrag({
+  const [hidden, setHidden] = useState(false);
+  const [{ isDragging }, drag] = useDrag({
     item: { type: "document" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
     canDrag: monitor => {
       return !!draggable;
+    },
+    begin: monitor => {
+      beginFunction && beginFunction();
+    },
+    end: (item, monitor) => {
+      if (monitor.didDrop()) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      endFunction && endFunction();
     }
   });
 
-  return (
+  return hidden ? (
+    <></>
+  ) : (
     <Container
       ref={drag}
       onClick={onClick}

@@ -8,6 +8,7 @@ export interface FolderCardProps {
   draggable?: boolean;
   folder: any;
   className?: string;
+  dropCallback?: () => void;
   onClick?: (e: React.MouseEvent) => any;
 }
 
@@ -16,6 +17,7 @@ const FolderCard: FC<FolderCardProps> = ({
   folder,
   className,
   onClick,
+  dropCallback,
   children
 }) => {
   const [{ isDragging }, drag, preview] = useDrag({
@@ -30,7 +32,9 @@ const FolderCard: FC<FolderCardProps> = ({
 
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: () => console.log("drop"),
+    drop: () => {
+      dropCallback && dropCallback();
+    },
     collect: monitor => ({
       isOver: !!monitor.isOver()
     })

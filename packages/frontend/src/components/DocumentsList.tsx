@@ -61,6 +61,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
   const [selectedToMoveId, setSelectedToMoveId] = useState("");
+  const [draggingItemId, setDraggingItemId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
@@ -224,10 +225,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setSelectedToMoveId("");
   };
 
-  const onMoveDocument = async (e, folder) => {
-    e.stopPropagation();
+  const onMoveDocument = async (e, folder, documentId?) => {
+    e && e.stopPropagation();
     await updateDocument({
-      variables: { id: selectedToMoveId, folder: folder.id },
+      variables: { id: documentId || selectedToMoveId, folder: folder.id },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -263,6 +264,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
           {documents &&
             documents.map((document: any) => (
               <StyledDocumentCard
+                beginFunction={() => setDraggingItemId(document.id)}
+                endFunction={() => setDraggingItemId("")}
                 draggable={folders.length > 0}
                 key={document.id}
                 document={document}
@@ -368,6 +371,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
           {folders &&
             folders.map((folder: any) => (
               <StyledFolderCard
+                dropCallback={() =>
+                  onMoveDocument(undefined, folder, draggingItemId)
+                }
                 draggable={folders.length > 1}
                 key={folder.id}
                 folder={folder}
