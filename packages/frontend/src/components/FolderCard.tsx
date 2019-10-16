@@ -1,25 +1,32 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 import folderImg from "../images/folder.svg";
 
 export interface FolderCardProps {
+  beginFunction?: () => void;
   draggable?: boolean;
   folder: any;
   className?: string;
-  dropCallback?: () => void;
+  dropDocumentCallback?: () => void;
+  dropFolderCallback?: () => void;
+  endFunction?: () => void;
   onClick?: (e: React.MouseEvent) => any;
 }
 
 const FolderCard: FC<FolderCardProps> = ({
+  beginFunction,
   draggable,
   folder,
   className,
   onClick,
-  dropCallback,
+  dropDocumentCallback,
+  dropFolderCallback,
+  endFunction,
   children
 }) => {
+  const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag, preview] = useDrag({
     item: { type: "folder" },
     collect: monitor => ({
@@ -27,20 +34,37 @@ const FolderCard: FC<FolderCardProps> = ({
     }),
     canDrag: monitor => {
       return !!draggable;
+    },
+    begin: monitor => {
+      beginFunction && beginFunction();
+    },
+    end: (item, monitor) => {
+      if (monitor.didDrop()) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      endFunction && endFunction();
     }
   });
 
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: () => {
-      dropCallback && dropCallback();
+    drop: item => {
+      if (item.type === "document" && dropDocumentCallback) {
+        dropDocumentCallback();
+      } else if (item.type === "folder" && dropFolderCallback) {
+        dropFolderCallback();
+      }
     },
     collect: monitor => ({
       isOver: !!monitor.isOver()
     })
   });
 
-  return (
+  return hidden ? (
+    <></>
+  ) : (
     <Container
       ref={drag}
       onClick={onClick}
