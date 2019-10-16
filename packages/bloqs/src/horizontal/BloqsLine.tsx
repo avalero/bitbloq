@@ -44,19 +44,18 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
       )}
       {bloqs.map((bloq, i) => (
         <React.Fragment key={i}>
-          {selectedBloq !== i &&
+          {selectedBloq !== i && (
             <StyledBloq
               type={bloqTypes.find(t => t.name === bloq.type)!}
               onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
               bloq={bloq}
               port={getBloqPort(bloq)}
             />
-          }
-          {(selectedBloq === i || selectedPlaceholder === i + 1) &&
+          )}
+          {(selectedBloq === i || selectedPlaceholder === i + 1) && (
             <EmptyPlaceholder />
-          }
-          {(selectedBloq === i ||
-            i === bloqs.length - 1) && (
+          )}
+          {(selectedBloq === i || i === bloqs.length - 1) && (
             <BloqPlaceholder
               onClick={(e: React.MouseEvent) => onPlaceholderClick(i + 1, e)}
               category={BloqCategory.Action}

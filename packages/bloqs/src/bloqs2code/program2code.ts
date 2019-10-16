@@ -14,11 +14,11 @@ import {
   IHardware,
   IComponentInstance,
   IComponentAction,
-  IArduinoCode,
-} from '../index';
-import { getFullComponentDefinition } from './componentBuilder';
-import nunjucks from 'nunjucks';
-import { BloqCategory } from '../enums';
+  IArduinoCode
+} from "../index";
+import { getFullComponentDefinition } from "./componentBuilder";
+import nunjucks from "nunjucks";
+import { BloqCategory } from "../enums";
 
 interface IAction {
   parameters: { [name: string]: string };
@@ -128,7 +128,7 @@ export const getActions = (
 
   if (actionsParameters.length !== actionsDefinitions.length) {
     throw new Error(
-      'Unexpected different sizes of actionParameters and actionDefinitions'
+      "Unexpected different sizes of actionParameters and actionDefinitions"
     );
   }
 
@@ -136,7 +136,7 @@ export const getActions = (
     const obj: IAction = {
       parameters: { ...parameters },
       definition: { ...actionsDefinitions[index] },
-      valuesSym: { ...componentDefinition.values },
+      valuesSym: { ...componentDefinition.values }
     };
     actions.push(obj);
   });
@@ -200,17 +200,17 @@ const waitTimer2Code = (
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
   if (!bloqDefinition.actions) {
-    throw new Error('Wait bloq should have actions');
+    throw new Error("Wait bloq should have actions");
   }
 
   if (!bloqDefinition.actions[0].name) {
-    throw new Error('Wait bloq should have actions.name');
+    throw new Error("Wait bloq should have actions.name");
   }
-  if (bloqDefinition.actions[0].name === 'wait') {
+  if (bloqDefinition.actions[0].name === "wait") {
     const waitCodeTempalete: string = bloqDefinition.actions[0].parameters.code;
     const waitNunjucksParameters = {
       functionName,
-      value: bloqInstance.parameters!.value,
+      value: bloqInstance.parameters!.value
     };
 
     const waitCode: string = `
@@ -241,7 +241,7 @@ const onstart2code = (
   bool ${timelineFlagName} = false;
   void ${functionName}();
   bool onStartForEver${timelineFlagName} = ${bloqInstance.parameters.type ===
-    'loop'}; //onStart loop forever
+    "loop"}; //onStart loop forever
   unsigned short onStartLoopTimes${timelineFlagName} = ${
     bloqInstance.parameters.times
   }; //onStart loops n times
@@ -279,7 +279,7 @@ const waitEvent2Code = (
   );
 
   if (waitEventCodeArray.length > 1 || waitEventCodeArray.length === 0) {
-    throw new Error('Unexepcted number of actions for an event');
+    throw new Error("Unexepcted number of actions for an event");
   }
 
   const waitEventCode: string = waitEventCodeArray[0];
@@ -327,8 +327,8 @@ const program2code = (
   if (!arduinoCode.setup) arduinoCode.setup = [];
 
   let functionNameIndex: number = 0;
-  let functionName: string = '';
-  let timelineFunctionName: string = ''; // first function name of a timeline
+  let functionName: string = "";
+  let timelineFunctionName: string = ""; // first function name of a timeline
   let timelineFlagName: string; // flag to avoid a timeline to run simultaneously
   let onStartEvent: boolean = false;
 
@@ -359,7 +359,7 @@ const program2code = (
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
           if (!bloqDefinition.actions) {
-            throw new Error('Wait bloq should have actions');
+            throw new Error("Wait bloq should have actions");
           }
 
           functionName = `func_${++functionNameIndex}`;
@@ -390,7 +390,7 @@ const program2code = (
           timelineFunctionName = functionName;
 
           // OnStart Bloq requires special treatment
-          if (bloqDefinition.name === 'OnStart') {
+          if (bloqDefinition.name === "OnStart") {
             onStartEvent = true;
             onstart2code(
               bloqInstance,
@@ -401,7 +401,7 @@ const program2code = (
             break;
           }
 
-          let eventLoopCode: string = '';
+          let eventLoopCode: string = "";
           const eventGlobalsCode: string = `bool ${timelineFlagName} = false;`;
           const eventDefinitionCode: string = `void ${functionName}(){\n`;
 
@@ -442,7 +442,7 @@ const program2code = (
             );
 
             if (codeArray.length > 1 || codeArray.length === 0) {
-              throw new Error('Unexepcted number of actions for an event');
+              throw new Error("Unexepcted number of actions for an event");
             }
 
             const code: string = codeArray[0];
@@ -492,7 +492,7 @@ const program2code = (
                   hardware,
                   bloqTypes,
                   componentsDefinition
-                ).join('\n\t')}\n`
+                ).join("\n\t")}\n`
               );
             }
             i += 1;
