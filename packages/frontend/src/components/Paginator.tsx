@@ -74,6 +74,24 @@ const Paginator: React.FC<PaginatorProps> = ({
     );
   }
 
+  if (pages > 9 && currentPage < pages / 2) {
+    pagesElements = [
+      ...pagesElements.slice(0, 8),
+      <Ellipsis>
+        <Icon name="ellipsis" />
+      </Ellipsis>,
+      pagesElements[pagesElements.length - 1]
+    ];
+  } else if (pages > 9 && currentPage >= pages / 2) {
+    pagesElements = [
+      pagesElements[0],
+      <Ellipsis>
+        <Icon name="ellipsis" />
+      </Ellipsis>,
+      ...pagesElements.slice(pagesElements.length - 8, pagesElements.length)
+    ];
+  }
+
   return (
     <PagesBar className={className}>
       <Arrow
@@ -107,6 +125,18 @@ const AngleIcon = styled(Icon)<AngleIconProps>`
   width: 12px;
 `;
 
+const Ellipsis = styled.div`
+  align-items: flex-end;
+  display: flex;
+  height: 25px;
+  margin-right: 10px;
+  width: 10px;
+
+  svg {
+    width: 10px;
+  }
+`;
+
 interface PageItemProps {
   selected?: boolean;
 }
@@ -125,7 +155,7 @@ const PageItem = styled.div<PageItemProps>`
   font-weight: 500;
   height: 32px;
   justify-content: center;
-  margin-right: 6px;
+  margin-right: 10px;
   width: 32px;
 
   &:hover {
