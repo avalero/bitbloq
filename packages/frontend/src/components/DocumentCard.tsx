@@ -1,10 +1,12 @@
 import React, { FC } from "react";
+import { useDrag } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
 
 export interface DocumentCardProps {
   document: any;
+  draggable?: boolean;
   className?: string;
   onClick?: (e: React.MouseEvent) => any;
 }
@@ -12,11 +14,24 @@ export interface DocumentCardProps {
 const DocumentCard: FC<DocumentCardProps> = ({
   document,
   className,
+  draggable,
   onClick,
   children
 }) => {
+  const [{ isDragging }, drag, preview] = useDrag({
+    item: { type: "document" },
+    collect: monitor => ({
+      isDragging: !!monitor.isDragging()
+    })
+  });
+
   return (
-    <Container onClick={onClick} className={className}>
+    <Container
+      ref={draggable ? drag : null}
+      onClick={onClick}
+      className={className}
+      isDragging={isDragging && draggable}
+    >
       <Image src={document.image} />
       <Info>
         <DocumentTypeTag small document={document} />
@@ -29,14 +44,22 @@ const DocumentCard: FC<DocumentCardProps> = ({
 
 export default DocumentCard;
 
-const Container = styled.div`
+interface ContainerProps {
+  isDragging: boolean | undefined;
+}
+const Container = styled.div<ContainerProps>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
-  border: 1px solid ${colors.gray3};
+  border: 1px solid
+    ${(props: ContainerProps) =>
+      props.isDragging ? colors.gray4 : colors.gray3};
   cursor: pointer;
   background-color: white;
   position: relative;
+  overflow: hidden;
+  visibility: ${(props: ContainerProps) =>
+    props.isDragging ? "hidden" : "visible"};
 
   &:hover {
     border-color: ${colors.gray4};
