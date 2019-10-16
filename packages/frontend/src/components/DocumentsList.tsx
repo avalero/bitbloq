@@ -9,6 +9,7 @@ import DocumentCard from "./DocumentCard";
 import EditTitleModal from "./EditTitleModal";
 import FolderCard from "./FolderCard";
 import DocumentCardMenu from "./DocumentCardMenu";
+import Paginator from "./Paginator";
 
 import { css } from "@emotion/core";
 
@@ -45,6 +46,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
   onFolderClick,
   onDocumentClick
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const [deleteDocumentId, setDeleteDocumentId] = useState({
     id: null,
     exercises: null
@@ -260,8 +262,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
   };
   return (
     <>
-      <DocumentList className={className}>
-        <DndProvider backend={HTML5Backend}>
+      <DndProvider backend={HTML5Backend}>
+        <DocumentList className={className}>
           {documents &&
             documents.map((document: any) => (
               <StyledDocumentCard
@@ -457,8 +459,13 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 </DropDown>
               </StyledFolderCard>
             ))}
-        </DndProvider>
-      </DocumentList>
+        </DocumentList>
+      </DndProvider>
+      <DocumentsPaginator
+        currentPage={currentPage}
+        pages={12}
+        selectPage={(page: number) => setCurrentPage(page)}
+      />
       <DialogModal
         isOpen={!!deleteDocumentId.id}
         title="Eliminar"
@@ -524,7 +531,7 @@ const DocumentList = styled.div`
   grid-auto-rows: 1fr;
   grid-column-gap: 40px;
   grid-row-gap: 40px;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 
   &::before {
     content: "";
@@ -567,6 +574,10 @@ const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
     `} svg {
     transform: rotate(90deg);
   }
+`;
+
+const DocumentsPaginator = styled(Paginator)`
+  margin-bottom: 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`
