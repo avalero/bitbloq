@@ -15,12 +15,7 @@ export interface ISwitchProps {
   className?: string;
 }
 
-const Switch: FC<ISwitchProps> = ({
-  buttons,
-  value,
-  onChange,
-  className
-}) => {
+const Switch: FC<ISwitchProps> = ({ buttons, value, onChange, className }) => {
   return (
     <Container className={className}>
       {buttons.map(button => (
@@ -60,8 +55,8 @@ const Button = styled.button<IButtonProps>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 ${props => props.selected ? 2: 14}px 0 0 #ddd;
-  transform: translate(0, ${props => props.selected ? -2 : -14}px);
+  box-shadow: 0 ${props => (props.selected ? 2 : 14)}px 0 0 #ddd;
+  transform: translate(0, ${props => (props.selected ? -2 : -14)}px);
   color: ${colors.black};
 
   &:focus {
@@ -69,8 +64,8 @@ const Button = styled.button<IButtonProps>`
   }
 
   &:active {
-    box-shadow: 0 ${props => props.selected ? 2: 12}px 0 0 #ddd;
-    transform: translate(0, ${props => props.selected ? -2 : -12}px);
+    box-shadow: 0 ${props => (props.selected ? 2 : 12)}px 0 0 #ddd;
+    transform: translate(0, ${props => (props.selected ? -2 : -12)}px);
   }
 
   &:first-of-type {

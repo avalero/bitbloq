@@ -5,7 +5,7 @@ import colors from "../../colors";
 interface ButtonProps {
   secondary?: boolean;
   red?: boolean;
-};
+}
 
 const Button = styled.button<ButtonProps>`
   border-radius: 3px;
@@ -51,4 +51,3 @@ const Button = styled.button<ButtonProps>`
 `;
 
 export default Button;
-

@@ -35,7 +35,7 @@ const MusicConfiguration: FC<IMusicConfigurationProps> = ({
           { content: <ButtonIcon src={Music2Icon} />, id: "2" },
           { content: <ButtonIcon src={Music3Icon} />, id: "3" },
           { content: <ButtonIcon src={Music4Icon} />, id: "4" },
-          { content: <ButtonIcon src={MusicStopIcon} />, id: "stop" },
+          { content: <ButtonIcon src={MusicStopIcon} />, id: "stop" }
         ]}
         value={melody}
         onChange={newValue =>
