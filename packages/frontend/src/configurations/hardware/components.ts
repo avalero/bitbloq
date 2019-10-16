@@ -226,6 +226,7 @@ export const components: Partial<IComponent>[] = [
     name: "DigitalRGBLED",
     extends: "Component",
     values:{
+      white: "{0,0,0}",
       red: "{0,255,255}",
       green: "{255,0,255}",
       blue: "{255,255,0}",

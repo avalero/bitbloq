@@ -505,7 +505,7 @@ const program2code = (
           if(onStartForEver${timelineFlagName}){
             ${timelineFunctionName}();
           }else if(onStartLoopTimes${timelineFlagName} > 1){
-            onStartLoopTimes--;
+            onStartLoopTimes${timelineFlagName}--;
             ${timelineFunctionName}();
           }else{
             ${timelineFlagName}=false;
