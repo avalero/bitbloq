@@ -82,8 +82,11 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
         if (picture) {
           const canvas: HTMLCanvasElement = await html2canvas(picture);
           const imgData: string = canvas.toDataURL("image/jpeg");
-          const file: Blob = dataURItoBlob(imgData);
-          document.image = file;
+
+          if (imgData !== "data:,") {
+            const file: Blob = dataURItoBlob(imgData);
+            document.image = file;
+          }
         }
       }
       await updateDocument({ variables: { ...document, id } });
