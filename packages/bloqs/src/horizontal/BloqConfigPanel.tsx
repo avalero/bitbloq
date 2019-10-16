@@ -33,6 +33,7 @@ interface IBloqConfigPanelProps {
   getComponents: (types: string[]) => IComponentInstance[];
   board: IBoard;
   components: IComponent[];
+  linesScrollLeft: number;
 }
 
 const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
@@ -48,7 +49,8 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   onClose,
   getComponents,
   board,
-  components
+  components,
+  linesScrollLeft
 }) => {
   const [selectedTab, setSelectedTab] = useState(BloqCategory.Action);
 
@@ -68,7 +70,10 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap bloqPosition={selectedPlaceholder}>
+        <BloqPlaceholderWrap
+          bloqPosition={selectedPlaceholder}
+          linesScrollLeft={linesScrollLeft}
+        >
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
           />
@@ -91,7 +96,10 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap bloqPosition={selectedPlaceholder}>
+        <BloqPlaceholderWrap
+          bloqPosition={selectedPlaceholder}
+          linesScrollLeft={linesScrollLeft}
+        >
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
           />
@@ -133,7 +141,10 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap bloqPosition={selectedBloqIndex}>
+        <BloqPlaceholderWrap
+          bloqPosition={selectedBloqIndex}
+          linesScrollLeft={linesScrollLeft}
+        >
           <HorizontalBloq
             type={bloqType}
             bloq={selectedBloq}
@@ -228,12 +239,15 @@ const CloseButton = styled.div`
 
 interface IBloqPlaceholderWrapProps {
   bloqPosition: number;
+  linesScrollLeft: number;
 }
 const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
   position: absolute;
   top: -72px;
   left: ${props =>
-    (props.bloqPosition > 0 ? 65 : 60) + props.bloqPosition * 65}px;
+    (props.bloqPosition > 0 ? 65 : 60) +
+    props.bloqPosition * 65 -
+    props.linesScrollLeft}px;
   background-color: white;
   height: 70px;
   padding: 10px 10px 0px 10px;
