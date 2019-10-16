@@ -56,6 +56,7 @@ const bloqs2code = (
   };
 
   try {
+    debugger;
     board2code(boards, hardware, arduinoCode);
     const board: IBoard = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
