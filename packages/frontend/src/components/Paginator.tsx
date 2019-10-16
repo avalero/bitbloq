@@ -10,20 +10,26 @@ import { Icon } from "@bitbloq/ui";
 
 export interface ArrowProps {
   direction: "decrement" | "increment";
+  disabled: boolean;
   page: number;
   onClick: (page: number) => void;
 }
 
-const Arrow: React.FC<ArrowProps> = ({ direction, page, onClick }) => {
+const Arrow: React.FC<ArrowProps> = ({
+  direction,
+  disabled,
+  page,
+  onClick
+}) => {
   return (
     <PageItem
-      onClick={() => onClick(direction === "decrement" ? page - 1 : page + 1)}
+      onClick={e =>
+        disabled
+          ? e.stopPropagation()
+          : onClick(direction === "decrement" ? page - 1 : page + 1)
+      }
     >
-      {direction === "decrement" ? (
-        <AngleIcon direction={direction} name="angle" />
-      ) : (
-        <AngleIcon direction={direction} name="angle" />
-      )}
+      <AngleIcon direction={direction} name="angle" />
     </PageItem>
   );
 };
@@ -70,9 +76,19 @@ const Paginator: React.FC<PaginatorProps> = ({
 
   return (
     <PagesBar className={className}>
-      <Arrow direction="decrement" page={currentPage} onClick={selectPage} />
+      <Arrow
+        direction="decrement"
+        disabled={currentPage === 1}
+        page={currentPage}
+        onClick={selectPage}
+      />
       {pagesElements}
-      <Arrow direction="increment" page={currentPage} onClick={selectPage} />
+      <Arrow
+        direction="increment"
+        disabled={currentPage === pages}
+        page={currentPage}
+        onClick={selectPage}
+      />
     </PagesBar>
   );
 };

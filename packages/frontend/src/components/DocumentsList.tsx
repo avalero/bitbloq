@@ -46,6 +46,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
   onFolderClick,
   onDocumentClick
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const [deleteDocumentId, setDeleteDocumentId] = useState({
     id: null,
     exercises: null
@@ -485,9 +486,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
         </DocumentList>
       </DndProvider>
       <DocumentsPaginator
-        currentPage={6}
+        currentPage={currentPage}
         pages={12}
-        selectPage={(page: number) => console.log({ page })}
+        selectPage={(page: number) => setCurrentPage(page)}
       />
       <DialogModal
         isOpen={!!deleteDocumentId.id}
