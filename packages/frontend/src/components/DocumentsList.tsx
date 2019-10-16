@@ -185,6 +185,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
     await createDocument({
       variables: {
         ...document,
+        title: `${document.title} copia`,
         folder: currentLocation.id
       },
       refetchQueries: [
