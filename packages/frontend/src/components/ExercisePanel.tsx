@@ -153,14 +153,12 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               title=""
               onCancel={() => setPasswordModalOpen(false)}
               onSave={(value: string) => {
-                if (value) {
-                  updatePassword({
-                    variables: {
-                      id: submissionIdModal,
-                      password: value
-                    }
-                  });
-                }
+                updatePassword({
+                  variables: {
+                    id: submissionIdModal,
+                    password: value
+                  }
+                });
                 setPasswordModalOpen(false);
               }}
               modalTitle={t("submission-passwordmodal-title")}
