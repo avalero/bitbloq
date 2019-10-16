@@ -75,9 +75,7 @@ const FolderCard: FC<FolderCardProps> = ({
       <DropContainer ref={drop} />
       <Image src={folderImg} />
       <Info>
-        <Title>
-          {folder.name === " " ? "Carpeta sin título" : folder.name}
-        </Title>
+        <Title>{folder.name}</Title>
       </Info>
       {children}
     </Container>
