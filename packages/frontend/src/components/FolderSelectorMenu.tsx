@@ -30,7 +30,7 @@ const FOLDER_QUERY = gql`
 export interface FolderSelectorMenuProps {
   className?: string;
   currentLocation?: Folder;
-  selectedToMove?: string;
+  selectedToMove?: { id: string; parent: string };
   onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedFolder: Folder
@@ -55,7 +55,7 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
   if (error) {
     console.log(error);
   }
-  const { folders: foldersData, name: folderName, parent } = data.folder;
+  const { folders: foldersData, name: folderName, parent, id } = data.folder;
   return (
     <FolderSelector className={className}>
       <ParentButton
@@ -78,10 +78,10 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
           )
         ) : null}
       </ParentButton>
-      <FolderSelectorOptions>
+      <FolderSelectorOptions showMove={selectedToMove.parent !== id}>
         {foldersData &&
           foldersData
-            .filter(op => op.id !== selectedToMove)
+            .filter(op => op.id !== selectedToMove.id)
             .map((folder: Folder, i: number) => (
               <FolderSelectorOption
                 key={folder.id}
@@ -96,9 +96,11 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
               </FolderSelectorOption>
             ))}
       </FolderSelectorOptions>
-      <MoveButton onClick={e => onMove(e, selectedFolder)}>
-        <p>Mover aquí</p>
-      </MoveButton>
+      {selectedToMove.parent !== id && (
+        <MoveButton onClick={e => onMove(e, selectedFolder)}>
+          <p>Mover aquí</p>
+        </MoveButton>
+      )}
     </FolderSelector>
   );
 };
@@ -123,9 +125,9 @@ const FolderSelector = styled.div`
   }
 `;
 
-const FolderSelectorOptions = styled.div`
+const FolderSelectorOptions = styled.div<{ showMove?: boolean }>`
   overflow: scroll;
-  height: 235px;
+  height: ${props => (props.showMove ? 235 : 270)}px;
   ::-webkit-scrollbar {
     display: none;
   }

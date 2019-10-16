@@ -62,7 +62,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
   });
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
-  const [selectedToMoveId, setSelectedToMoveId] = useState("");
+  const [selectedToMove, setSelectedToMove] = useState({
+    id: null,
+    parent: null
+  });
   const [draggingItemId, setDraggingItemId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
@@ -75,22 +78,34 @@ const DocumentListComp: FC<DocumentListProps> = ({
     e.stopPropagation();
     if (menuOpenId === document.id) {
       setMenuOpenId("");
-      setSelectedToMoveId("");
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     } else {
       setMenuOpenId(document.id);
-      setSelectedToMoveId("");
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     }
   };
 
   const onDocumentRenameClick = (e, document) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setEditDocTitleModal({ id: document.id, title: document.title });
   };
 
   const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setDeleteDocumentId({ id: document.id, exercises: document.exercises });
   };
 
@@ -122,13 +137,19 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderRenameClick = (e, folder) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setEditFolderNameModal({ id: folder.id, name: folder.name });
   };
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setDeleteFolderId(folder.id);
   };
 
@@ -149,7 +170,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onUpdateDocTitle = async docTitle => {
     await updateDocument({
-      variables: { id: editDocTitleModal.id, title: docTitle ? docTitle : " " },
+      variables: {
+        id: editDocTitleModal.id,
+        title: docTitle ? docTitle : "Documento sin título"
+      },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -167,7 +191,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
     await updateFolder({
       variables: {
         id: editFolderNameModal.id,
-        input: { name: folderName ? folderName : " " }
+        input: { name: folderName ? folderName : "Carpeta sin título" }
       },
       refetchQueries: [
         {
@@ -210,25 +234,31 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onMoveDocumentClick = async (e, document) => {
     e.stopPropagation();
-    if (selectedToMoveId) {
-      setSelectedToMoveId("");
+    if (selectedToMove.id) {
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     } else {
-      setSelectedToMoveId(document.id);
+      setSelectedToMove({ id: document.id, parent: document.folder });
     }
   };
   const onMoveFolderClick = async (e, folder) => {
     e.stopPropagation();
-    if (selectedToMoveId) {
-      setSelectedToMoveId("");
+    if (selectedToMove.id) {
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     } else {
-      setSelectedToMoveId(folder.id);
+      setSelectedToMove({ id: folder.id, parent: folder.parent });
     }
   };
 
   const onMoveDocument = async (e, folder, documentId?) => {
     e && e.stopPropagation();
     await updateDocument({
-      variables: { id: documentId || selectedToMoveId, folder: folder.id },
+      variables: { id: documentId || selectedToMove.id, folder: folder.id },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -239,13 +269,16 @@ const DocumentListComp: FC<DocumentListProps> = ({
       ]
     });
     setMenuOpenId(null);
-    setSelectedToMoveId(null);
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
   };
   const onMoveFolder = async (e, folderParent, folderMovedId?) => {
     e && e.stopPropagation();
     await updateFolder({
       variables: {
-        id: folderMovedId || selectedToMoveId,
+        id: folderMovedId || selectedToMove.id,
         input: { parent: folderParent.id }
       },
       refetchQueries: [
@@ -258,7 +291,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
       ]
     });
     setMenuOpenId(null);
-    setSelectedToMoveId(null);
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
   };
   return (
     <>
@@ -281,7 +317,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMoveId === document.id && folders != []}
+                  notHidden={selectedToMove.id === document.id && folders != []}
                   targetOffset="-165px -14px"
                   targetPosition="top right"
                 >
@@ -301,7 +337,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     ]}
                     notHidden={
-                      selectedToMoveId === document.id && folders != []
+                      selectedToMove.id === document.id && folders != []
                     }
                     targetPosition="top right"
                     attachmentPosition="top left"
@@ -329,7 +365,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             }
                           },
                           {
-                            selected: document.id === selectedToMoveId,
+                            selected: document.id === selectedToMove.id,
                             disabled:
                               folders.length === 0 && parentsPath.length === 1,
                             iconName: "move-document",
@@ -353,9 +389,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMoveId === document.id && folders != [] && (
+                    {selectedToMove.id === document.id && folders != [] && (
                       <FolderSelectorMenu
-                        selectedToMove={selectedToMoveId}
+                        selectedToMove={selectedToMove}
                         onMove={onMoveDocument}
                         currentLocation={currentLocation}
                       />
@@ -387,7 +423,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMoveId === folder.id && folders != []}
+                  notHidden={selectedToMove.id === folder.id && folders != []}
                   targetOffset="-165px -14px"
                   targetPosition="top right"
                 >
@@ -406,7 +442,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         to: "window"
                       }
                     ]}
-                    notHidden={selectedToMoveId === folder.id && folders != []}
+                    notHidden={selectedToMove.id === folder.id && folders != []}
                     targetPosition="top right"
                     attachmentPosition="top left"
                     offset="60px 0"
@@ -424,7 +460,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             }
                           },
                           {
-                            selected: folder.id === selectedToMoveId,
+                            selected: folder.id === selectedToMove.id,
                             disabled:
                               folders.length === 1 && parentsPath.length === 1,
                             iconName: "move-document",
@@ -448,9 +484,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMoveId === folder.id && folders != [] && (
+                    {selectedToMove.id === folder.id && folders != [] && (
                       <FolderSelectorMenu
-                        selectedToMove={selectedToMoveId}
+                        selectedToMove={selectedToMove}
                         onMove={onMoveFolder}
                         currentLocation={currentLocation}
                       ></FolderSelectorMenu>
