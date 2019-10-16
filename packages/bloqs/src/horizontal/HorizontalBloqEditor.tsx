@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -47,6 +47,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
+  const [linesScrollLeft, setLinesScrollLeft] = useState(0);
+
   const [undoPast, setUndoPast] = useState<IBloq[][][]>([]);
   const [undoFuture, setUndoFuture] = useState<IBloq[][][]>([]);
 
@@ -54,6 +56,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const selectedBloq = selectedLine[selectedBloqIndex];
 
   const t = useTranslate();
+
+  const linesRef = useRef<HTMLDivElement>(null);
 
   const deselectEverything = () => {
     setSelectedLine(-1);
@@ -141,9 +145,15 @@ const HorizontalBloqEditor: React.FunctionComponent<
     setUndoFuture(undoFuture.slice(1));
   };
 
+  const onLinesScroll = (e: React.UIEvent) => {
+    if (linesRef.current) {
+      setLinesScrollLeft(linesRef.current.scrollLeft);
+    }
+  };
+
   return (
     <Container>
-      <Lines selectedLine={selectedLineIndex} onClick={deselectEverything}>
+    <Lines selectedLine={selectedLineIndex} onClick={deselectEverything} ref={linesRef} onScroll={onLinesScroll}>
         {[...bloqs, []].map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
@@ -206,6 +216,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
         getComponents={getComponents}
         board={board}
         components={components}
+        linesScrollLeft={linesScrollLeft}
       />
     </Container>
   );
@@ -220,12 +231,14 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  max-width: 100%;
 `;
 
 interface ILinesProps {
   selectedLine: number;
 }
 const Lines = styled.div<ILinesProps>`
+  overflow: auto;
   padding: 10px;
   box-sizing: border-box;
   flex: 1;
@@ -242,7 +255,7 @@ const Line = styled.div`
 `;
 
 const Number = styled.div`
-  width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 20px;
   background-color: #3b3e45;
