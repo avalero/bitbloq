@@ -233,13 +233,14 @@ const onstart2code = (
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
   const onStartSetupCode = `heap.insert(${functionName});\n ${timelineFlagName} = true;`;
-  const onStartGlobalsCode = `bool ${timelineFlagName} = false;
-   void ${functionName}();
-   bool onStartForEver = ${bloqInstance.parameters.type ===
-     'loop'}; //onStart loop forever
-   unsigned short onStartLoopTimes = ${
-     bloqInstance.parameters.times
-   }; //onStart loops n times
+  const onStartGlobalsCode = `
+  bool ${timelineFlagName} = false;
+  void ${functionName}();
+  bool onStartForEver${timelineFlagName} = ${bloqInstance.parameters.type ===
+    'loop'}; //onStart loop forever
+  unsigned short onStartLoopTimes${timelineFlagName} = ${
+    bloqInstance.parameters.times
+  }; //onStart loops n times
   `;
 
   const onStartDefinitionsCode = `void ${functionName}(){\n`;
@@ -501,9 +502,9 @@ const program2code = (
     if (onStartEvent) {
       arduinoCode.definitions!.push(
         `
-          if(onStartForEver){
+          if(onStartForEver${timelineFlagName}){
             ${timelineFunctionName}();
-          }else if(onStartLoopTimes > 1){
+          }else if(onStartLoopTimes${timelineFlagName} > 1){
             onStartLoopTimes--;
             ${timelineFunctionName}();
           }else{
