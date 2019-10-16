@@ -8,7 +8,7 @@ import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
-import { UserModel } from "../models/user";
+import { UserModel, IUser } from "../models/user";
 
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
@@ -312,11 +312,87 @@ const documentResolver = {
     },
 
     /**
-     * Documents: returns all the documents of the user logged.
+     * Examples: returns all the examples in the platform.
      * args: nothing.
      */
     examples: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ example: true });
+    },
+
+    /**
+     * documentsAndFolders: returns all the documents and folders of the user logged in the order passed as argument.
+     * args: itemsPerPage: Number, order: String, searchTitle: String.
+     */
+    documentsAndFolders: async (root: any, args: any, context: any) => {
+      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+      if (!user) return new AuthenticationError("You need to be logged in");
+
+      const currentLocation: string = args.currentLocation || user.rootFolder;
+      const itemsPerPage: number = args.itemsPerPage || 8;
+      let skipN: number = (args.currentPage - 1) * itemsPerPage;
+      let limit: number = itemsPerPage;
+      const text: string = args.searchTitle;
+
+      const filterOptionsDoc: any = {
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        folder: currentLocation
+      };
+
+      const filterOptionsFol: any = {
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        parent: currentLocation
+      };
+
+      let sortDoc: { [key: string]: number } = { title: 1 };
+      let sortFol: { [key: string]: number } = { name: 1 };
+
+      if (args.order === "alfAZ") {
+        sortDoc = { title: 1 }; // -1 desc, 1 asc
+      } else if (args.order === "alfZA") {
+        sortDoc = { title: -1 };
+      } else if (args.order === "createdAt") {
+        sortDoc = { createdAt: 1, title: 1 };
+      } else if (args.order === "updatedAt") {
+        sortDoc = { updatedAt: -1, title: 1 };
+      }
+
+      if (args.order === "alfAZ") {
+        sortFol = { name: 1 }; // -1 desc, 1 asc
+      } else if (args.order === "alfZA") {
+        sortFol = { name: -1 };
+      } else if (args.order === "createdAt") {
+        sortFol = { createdAt: 1, name: 1 };
+      } else if (args.order === "updatedAt") {
+        sortFol = { updatedAt: -1, name: 1 };
+      }
+
+      const docs: IDocument[] = await DocumentModel.find(
+        filterOptionsDoc,
+        null,
+        {
+          sort: sortDoc,
+          collation: { locale: "es" },
+          skip: skipN,
+          limit: limit
+        }
+      );
+
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol, null, {
+        sort: sortFol,
+        collation: { locale: "es" },
+        skip: skipN,
+        limit: limit
+      });
+
+      const pagesNumber: number = Math.ceil(
+        ((await DocumentModel.countDocuments(filterOptionsDoc)) +
+          (await FolderModel.countDocuments(filterOptionsFol))) /
+          itemsPerPage
+      );
+
+      return { documents: docs, folders: fols, pagesNumber: pagesNumber };
     }
   },
 
