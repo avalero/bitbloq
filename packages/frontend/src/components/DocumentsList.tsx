@@ -147,7 +147,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onUpdateDocTitle = async docTitle => {
     await updateDocument({
-      variables: { id: editDocTitleModal.id, title: docTitle },
+      variables: { id: editDocTitleModal.id, title: docTitle ? docTitle : " " },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -163,7 +163,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onUpdateFolderName = async folderName => {
     await updateFolder({
-      variables: { id: editFolderNameModal.id, input: { name: folderName } },
+      variables: {
+        id: editFolderNameModal.id,
+        input: { name: folderName ? folderName : " " }
+      },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
