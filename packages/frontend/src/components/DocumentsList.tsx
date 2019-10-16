@@ -220,14 +220,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
     }
   };
 
-  const onMoveDisabled = async e => {
-    console.log(e);
-    e.stopPropagation();
-    setMenuOpenId("");
-    setSelectedToMoveId("");
-    return;
-  };
-
   const onMoveDocument = async (e, folder, documentId?) => {
     e && e.stopPropagation();
     await updateDocument({
@@ -311,54 +303,50 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     offset="60px 0"
                   >
                     {(isOpen: boolean) => (
-                      console.log(folders.length, parentsPath.length),
-                      (
-                        <DocumentCardMenu
-                          options={[
-                            {
-                              iconName: "pencil",
-                              label: "Cambiar nombre",
-                              onClick(
-                                e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                              ) {
-                                onDocumentRenameClick(e, document);
-                              }
-                            },
-                            {
-                              iconName: "duplicate",
-                              label: "Crear una copia",
-                              onClick(
-                                e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                              ) {
-                                onDuplicateDocument(e, document);
-                              }
-                            },
-                            {
-                              selected: document.id === selectedToMoveId,
-                              disabled:
-                                folders.length === 0 &&
-                                parentsPath.length === 1,
-                              iconName: "move-document",
-                              label: "Mover a",
-                              onClick(
-                                e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                              ) {
-                                onMoveDocumentClick(e, document);
-                              }
-                            },
-                            {
-                              iconName: "trash",
-                              label: "Eliminar documento",
-                              onClick(
-                                e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                              ) {
-                                onDocumentDeleteClick(e, document);
-                              },
-                              red: true
+                      <DocumentCardMenu
+                        options={[
+                          {
+                            iconName: "pencil",
+                            label: "Cambiar nombre",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onDocumentRenameClick(e, document);
                             }
-                          ]}
-                        />
-                      )
+                          },
+                          {
+                            iconName: "duplicate",
+                            label: "Crear una copia",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onDuplicateDocument(e, document);
+                            }
+                          },
+                          {
+                            selected: document.id === selectedToMoveId,
+                            disabled:
+                              folders.length === 0 && parentsPath.length === 1,
+                            iconName: "move-document",
+                            label: "Mover a",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onMoveDocumentClick(e, document);
+                            }
+                          },
+                          {
+                            iconName: "trash",
+                            label: "Eliminar documento",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onDocumentDeleteClick(e, document);
+                            },
+                            red: true
+                          }
+                        ]}
+                      />
                     )}
                     {selectedToMoveId === document.id && folders != [] && (
                       <FolderSelectorMenu
