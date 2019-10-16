@@ -22,15 +22,18 @@ const DocumentCard: FC<DocumentCardProps> = ({
     item: { type: "document" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
-    })
+    }),
+    canDrag: monitor => {
+      return !!draggable;
+    }
   });
 
   return (
     <Container
-      ref={draggable ? drag : null}
+      ref={drag}
       onClick={onClick}
       className={className}
-      isDragging={isDragging && draggable}
+      isDragging={isDragging}
     >
       <Image src={document.image} />
       <Info>

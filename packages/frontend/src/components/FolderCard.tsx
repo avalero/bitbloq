@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { useDrag } from "react-dnd";
+import { useDrag, useDrop } from "react-dnd";
 import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 import folderImg from "../images/folder.svg";
@@ -22,16 +22,29 @@ const FolderCard: FC<FolderCardProps> = ({
     item: { type: "folder" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
+    }),
+    canDrag: monitor => {
+      return !!draggable;
+    }
+  });
+
+  const [{ isOver }, drop] = useDrop({
+    accept: ["document", "folder"],
+    drop: () => console.log("drop"),
+    collect: monitor => ({
+      isOver: !!monitor.isOver()
     })
   });
 
   return (
     <Container
-      ref={draggable ? drag : null}
+      ref={drag}
       onClick={onClick}
       className={className}
-      isDragging={isDragging && draggable}
+      isDragging={isDragging}
+      isOver={isOver}
     >
+      <DropContainer ref={drop} />
       <Image src={folderImg} />
       <Info>
         <Title>{folder.name}</Title>
@@ -44,7 +57,8 @@ const FolderCard: FC<FolderCardProps> = ({
 export default FolderCard;
 
 interface ContainerProps {
-  isDragging: boolean | undefined;
+  isDragging?: boolean | undefined;
+  isOver?: boolean | undefined;
 }
 const Container = styled.div`
   display: flex;
@@ -52,7 +66,7 @@ const Container = styled.div`
   border-radius: 4px;
   border: 1px solid
     ${(props: ContainerProps) =>
-      props.isDragging ? colors.gray4 : colors.gray3};
+      props.isDragging || props.isOver ? colors.gray4 : colors.gray3};
   cursor: pointer;
   background-color: white;
   position: relative;
@@ -62,6 +76,13 @@ const Container = styled.div`
   &:hover {
     border-color: ${colors.gray4};
   }
+`;
+
+const DropContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0);
+  height: 100%;
+  position: absolute;
+  width: 100%;
 `;
 
 interface ImageProps {
