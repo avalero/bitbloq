@@ -177,12 +177,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  // const onDuplicateFolder = async (e, folder) => {
-  //   e.stopPropagation();
-  //   setMenuOpenId(null);
-  //   return null;
-  // };
-
   const onDuplicateDocument = async (e, document) => {
     e.stopPropagation();
     let newTitle: string = `${document.title} copia`;
@@ -224,12 +218,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
     } else {
       setSelectedToMoveId(folder.id);
     }
-  };
-
-  const onMoveDisabled = async e => {
-    e.stopPropagation();
-    setMenuOpenId("");
-    setSelectedToMoveId("");
   };
 
   const onMoveDocument = async (e, folder, documentId?) => {
@@ -344,14 +332,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              if (
-                                folders.length === 0 &&
-                                parentsPath.length === 1
-                              ) {
-                                onMoveDisabled(e);
-                              } else {
-                                onMoveDocumentClick(e, document);
-                              }
+                              onMoveDocumentClick(e, document);
                             }
                           },
                           {
@@ -437,31 +418,16 @@ const DocumentListComp: FC<DocumentListProps> = ({
                               onFolderRenameClick(e, folder);
                             }
                           },
-                          // {
-                          //   disabled: true,
-                          //   iconName: "duplicate",
-                          //   label: "Crear una copia",
-                          //   onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                          //     onDuplicateFolder(e, folder);
-                          //   }
-                          // },
                           {
                             selected: folder.id === selectedToMoveId,
                             disabled:
-                              folders.length === 0 && parentsPath.length === 1,
+                              folders.length === 1 && parentsPath.length === 1,
                             iconName: "move-document",
                             label: "Mover a",
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              if (
-                                folders.length === 0 &&
-                                parentsPath.length === 1
-                              ) {
-                                onMoveDisabled(e);
-                              } else {
-                                onMoveFolderClick(e, folder);
-                              }
+                              onMoveFolderClick(e, folder);
                             }
                           },
                           {
