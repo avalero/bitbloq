@@ -309,7 +309,7 @@ export const components: Partial<IComponent>[] = [
     extends: "Button",
     values:{
       pressed: "HIGH",
-      unPressed: "LOW"
+      released: "LOW"
     },
     instanceName: "bloq-button-instance-name",
     connectors: [

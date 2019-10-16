@@ -194,7 +194,7 @@ export const bloq2code = (
  * @return arduinoCode
  */
 const waitTimer2Code = (
-  bloqInstance: Partial<IBloq>,
+  bloqInstance: IBloq,
   bloqDefinition: Partial<IBloqType>,
   functionName: string,
   arduinoCode: IArduinoCode
@@ -258,6 +258,7 @@ const onstart2code = (
 
 const waitEvent2Code = (
   bloqInstance: IBloq,
+  bloqDefinition: Partial<IBloqType>,
   hardware: IHardware,
   componentsDefinition: Array<Partial<IComponent>>,
   bloqTypes: Array<Partial<IBloqType>>,
@@ -284,6 +285,10 @@ const waitEvent2Code = (
 
   const waitEventCode: string = waitEventCodeArray[0];
 
+  const trueCondition = bloqDefinition.parameters!.find(
+    obj => obj.name === "trueCondition"
+  );
+
   const waitEventGlobalsCode: string = `
   void ${functionName}Wait();
   void ${functionName}();`;
@@ -294,9 +299,11 @@ const waitEvent2Code = (
   
   void ${functionName}Wait(){
     if(!(${waitEventCode} ${
-    bloqInstance.parameters.trueCondition
+    trueCondition!.value
   } ${(componentDefintion.values &&
-    componentDefintion.values[bloqInstance.parameters.value]) ||
+    componentDefintion.values[
+      bloqInstance.parameters.value as string | number
+    ]) ||
     bloqInstance.parameters.value})){
         heap.insert(${functionName}Wait);
     }else{
@@ -376,6 +383,7 @@ const program2code = (
           } else {
             waitEvent2Code(
               bloqInstance,
+              bloqDefinition,
               hardware,
               componentsDefinition,
               bloqTypes,
@@ -447,11 +455,14 @@ const program2code = (
 
             const code: string = codeArray[0];
 
+            const trueCondition = bloqDefinition.parameters!.find(
+              obj => obj.name === "trueCondition"
+            );
             eventLoopCode = `
-              if(${code} ${
-              bloqInstance.parameters.trueCondition
-            } ${(componentDefintion.values &&
-              componentDefintion.values[bloqInstance.parameters.value]) ||
+              if(${code} ${trueCondition!.value} ${(componentDefintion.values &&
+              componentDefintion.values[
+                bloqInstance.parameters.value as string | number
+              ]) ||
               bloqInstance.parameters.value}){
                 if(!${timelineFlagName}){ 
                   heap.insert(${functionName});
