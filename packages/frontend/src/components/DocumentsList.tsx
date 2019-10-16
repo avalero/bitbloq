@@ -368,6 +368,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
           {folders &&
             folders.map((folder: any) => (
               <StyledFolderCard
+                draggable={folders.length > 1}
                 key={folder.id}
                 folder={folder}
                 onClick={e => onFolderClick(e, folder)}
