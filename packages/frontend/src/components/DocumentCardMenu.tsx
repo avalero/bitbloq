@@ -26,7 +26,9 @@ const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
         options.map((option: Option, index: number) => (
           <DocumentMenuOption
             key={index}
-            onClick={option.disabled ? () => {} : option.onClick}
+            onClick={e =>
+              option.disabled ? e.stopPropagation() : option.onClick(e)
+            }
             disabled={option.disabled}
             red={option.red}
             selected={option.selected}

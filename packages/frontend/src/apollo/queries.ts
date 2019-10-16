@@ -108,6 +108,7 @@ export const FOLDER_QUERY = gql`
         description
         advancedMode
         content
+        folder
         exercises {
           title
           code
@@ -116,6 +117,7 @@ export const FOLDER_QUERY = gql`
       folders {
         id
         name
+        parent
         createdAt
         updatedAt
       }

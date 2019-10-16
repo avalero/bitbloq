@@ -2,11 +2,14 @@ import React, { FC, useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 
 import DocumentCard from "./DocumentCard";
 import EditTitleModal from "./EditTitleModal";
 import FolderCard from "./FolderCard";
 import DocumentCardMenu from "./DocumentCardMenu";
+import Paginator from "./Paginator";
 
 import { css } from "@emotion/core";
 
@@ -43,6 +46,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
   onFolderClick,
   onDocumentClick
 }) => {
+  const [currentPage, setCurrentPage] = useState(1);
   const [deleteDocumentId, setDeleteDocumentId] = useState({
     id: null,
     exercises: null
@@ -58,7 +62,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
   });
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
-  const [selectedToMoveId, setSelectedToMoveId] = useState("");
+  const [selectedToMove, setSelectedToMove] = useState({
+    id: null,
+    parent: null
+  });
+  const [draggingItemId, setDraggingItemId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
@@ -70,22 +78,34 @@ const DocumentListComp: FC<DocumentListProps> = ({
     e.stopPropagation();
     if (menuOpenId === document.id) {
       setMenuOpenId("");
-      setSelectedToMoveId("");
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     } else {
       setMenuOpenId(document.id);
-      setSelectedToMoveId("");
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     }
   };
 
   const onDocumentRenameClick = (e, document) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setEditDocTitleModal({ id: document.id, title: document.title });
   };
 
   const onDocumentDeleteClick = (e, document) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setDeleteDocumentId({ id: document.id, exercises: document.exercises });
   };
 
@@ -117,13 +137,19 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onFolderRenameClick = (e, folder) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setEditFolderNameModal({ id: folder.id, name: folder.name });
   };
 
   const onFolderDeleteClick = (e, folder) => {
     e.stopPropagation();
-    setSelectedToMoveId("");
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
     setDeleteFolderId(folder.id);
   };
 
@@ -144,7 +170,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onUpdateDocTitle = async docTitle => {
     await updateDocument({
-      variables: { id: editDocTitleModal.id, title: docTitle },
+      variables: {
+        id: editDocTitleModal.id,
+        title: docTitle ? docTitle : "Documento sin título"
+      },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -160,7 +189,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onUpdateFolderName = async folderName => {
     await updateFolder({
-      variables: { id: editFolderNameModal.id, input: { name: folderName } },
+      variables: {
+        id: editFolderNameModal.id,
+        input: { name: folderName ? folderName : "Carpeta sin título" }
+      },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -174,17 +206,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  // const onDuplicateFolder = async (e, folder) => {
-  //   e.stopPropagation();
-  //   setMenuOpenId(null);
-  //   return null;
-  // };
-
   const onDuplicateDocument = async (e, document) => {
     e.stopPropagation();
+    let newTitle: string = `${document.title} copia`;
+
+    if (newTitle.length >= 64) {
+      newTitle = newTitle.slice(0, 63);
+    }
+
     await createDocument({
       variables: {
         ...document,
+        title: newTitle,
         folder: currentLocation.id
       },
       refetchQueries: [
@@ -201,27 +234,31 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onMoveDocumentClick = async (e, document) => {
     e.stopPropagation();
-    if (selectedToMoveId) {
-      setSelectedToMoveId("");
+    if (selectedToMove.id) {
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
     } else {
-      setSelectedToMoveId(document.id);
+      setSelectedToMove({ id: document.id, parent: document.folder });
     }
   };
   const onMoveFolderClick = async (e, folder) => {
     e.stopPropagation();
-    setSelectedToMoveId(folder.id);
+    if (selectedToMove.id) {
+      setSelectedToMove({
+        id: null,
+        parent: null
+      });
+    } else {
+      setSelectedToMove({ id: folder.id, parent: folder.parent });
+    }
   };
 
-  const onMoveDisabled = async e => {
-    e.stopPropagation();
-    setMenuOpenId("");
-    setSelectedToMoveId("");
-  };
-
-  const onMoveDocument = async (e, folder) => {
-    e.stopPropagation();
+  const onMoveDocument = async (e, folder, documentId?) => {
+    e && e.stopPropagation();
     await updateDocument({
-      variables: { id: selectedToMoveId, folder: folder.id },
+      variables: { id: documentId || selectedToMove.id, folder: folder.id },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -232,12 +269,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
       ]
     });
     setMenuOpenId(null);
-    setSelectedToMoveId(null);
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
   };
-  const onMoveFolder = async (e, folder) => {
-    e.stopPropagation();
+  const onMoveFolder = async (e, folderParent, folderMovedId?) => {
+    e && e.stopPropagation();
     await updateFolder({
-      variables: { id: selectedToMoveId, input: { parent: folder.id } },
+      variables: {
+        id: folderMovedId || selectedToMove.id,
+        input: { parent: folderParent.id }
+      },
       refetchQueries: [
         {
           query: FOLDER_QUERY,
@@ -248,37 +291,25 @@ const DocumentListComp: FC<DocumentListProps> = ({
       ]
     });
     setMenuOpenId(null);
-    setSelectedToMoveId(null);
+    setSelectedToMove({
+      id: null,
+      parent: null
+    });
   };
   return (
     <>
-      <DocumentList className={className}>
-        {documents &&
-          documents.map((document: any) => (
-            <StyledDocumentCard
-              key={document.id}
-              document={document}
-              onClick={() => onDocumentClick && onDocumentClick(document)}
-            >
-              <DropDown
-                constraints={[
-                  {
-                    attachment: "together",
-                    to: "window"
-                  }
-                ]}
-                notHidden={selectedToMoveId === document.id && folders != []}
-                targetOffset="-165px -14px"
-                targetPosition="top right"
+      <DndProvider backend={HTML5Backend}>
+        <DocumentList className={className}>
+          {documents &&
+            documents.map((document: any) => (
+              <StyledDocumentCard
+                beginFunction={() => setDraggingItemId(document.id)}
+                endFunction={() => setDraggingItemId("")}
+                draggable={folders.length > 0}
+                key={document.id}
+                document={document}
+                onClick={() => onDocumentClick && onDocumentClick(document)}
               >
-                {(isOpen: boolean) => (
-                  <DocumentMenuButton
-                    isOpen={menuOpenId === document.id}
-                    onClick={e => onDocumentMenuClick(e, document)}
-                  >
-                    <Icon name="ellipsis" />
-                  </DocumentMenuButton>
-                )}
                 <DropDown
                   constraints={[
                     {
@@ -286,101 +317,105 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMoveId === document.id && folders != []}
+                  notHidden={selectedToMove.id === document.id && folders != []}
+                  targetOffset="-165px -14px"
                   targetPosition="top right"
-                  attachmentPosition="top left"
-                  offset="60px 0"
                 >
                   {(isOpen: boolean) => (
-                    <DocumentCardMenu
-                      options={[
-                        {
-                          iconName: "pencil",
-                          label: "Cambiar nombre",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            onDocumentRenameClick(e, document);
-                          }
-                        },
-                        {
-                          iconName: "duplicate",
-                          label: "Crear una copia",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            onDuplicateDocument(e, document);
-                          }
-                        },
-                        {
-                          selected: document.id === selectedToMoveId,
-                          disabled:
-                            folders.length === 0 && parentsPath.length === 1,
-                          iconName: "move-document",
-                          label: "Mover a",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            if (
-                              folders.length === 0 &&
-                              parentsPath.length === 1
+                    <DocumentMenuButton
+                      isOpen={menuOpenId === document.id}
+                      onClick={e => onDocumentMenuClick(e, document)}
+                    >
+                      <Icon name="ellipsis" />
+                    </DocumentMenuButton>
+                  )}
+                  <DropDown
+                    constraints={[
+                      {
+                        attachment: "together",
+                        to: "window"
+                      }
+                    ]}
+                    notHidden={
+                      selectedToMove.id === document.id && folders != []
+                    }
+                    targetPosition="top right"
+                    attachmentPosition="top left"
+                    offset="60px 0"
+                  >
+                    {(isOpen: boolean) => (
+                      <DocumentCardMenu
+                        options={[
+                          {
+                            iconName: "pencil",
+                            label: "Cambiar nombre",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onMoveDisabled(e);
-                            } else {
+                              onDocumentRenameClick(e, document);
+                            }
+                          },
+                          {
+                            iconName: "duplicate",
+                            label: "Crear una copia",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onDuplicateDocument(e, document);
+                            }
+                          },
+                          {
+                            selected: document.id === selectedToMove.id,
+                            disabled:
+                              folders.length === 0 && parentsPath.length === 1,
+                            iconName: "move-document",
+                            label: "Mover a",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
                               onMoveDocumentClick(e, document);
                             }
-                          }
-                        },
-                        {
-                          iconName: "trash",
-                          label: "Eliminar documento",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            onDocumentDeleteClick(e, document);
                           },
-                          red: true
-                        }
-                      ]}
-                    />
-                  )}
-                  {selectedToMoveId === document.id && folders != [] && (
-                    <FolderSelectorMenu
-                      selectedToMove={selectedToMoveId}
-                      onMove={onMoveDocument}
-                      currentLocation={currentLocation}
-                    />
-                  )}
+                          {
+                            iconName: "trash",
+                            label: "Eliminar documento",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onDocumentDeleteClick(e, document);
+                            },
+                            red: true
+                          }
+                        ]}
+                      />
+                    )}
+                    {selectedToMove.id === document.id && folders != [] && (
+                      <FolderSelectorMenu
+                        selectedToMove={selectedToMove}
+                        onMove={onMoveDocument}
+                        currentLocation={currentLocation}
+                      />
+                    )}
+                  </DropDown>
                 </DropDown>
-              </DropDown>
-            </StyledDocumentCard>
-          ))}
-        {folders &&
-          folders.map((folder: any) => (
-            <StyledFolderCard
-              key={folder.id}
-              folder={folder}
-              onClick={e => onFolderClick(e, folder)}
-            >
-              <DropDown
-                constraints={[
-                  {
-                    attachment: "together",
-                    to: "window"
-                  }
-                ]}
-                notHidden={selectedToMoveId === folder.id && folders != []}
-                targetOffset="-165px -14px"
-                targetPosition="top right"
+              </StyledDocumentCard>
+            ))}
+          {folders &&
+            folders.map((folder: any) => (
+              <StyledFolderCard
+                dropDocumentCallback={() =>
+                  onMoveDocument(undefined, folder, draggingItemId)
+                }
+                dropFolderCallback={() =>
+                  onMoveFolder(undefined, folder, draggingItemId)
+                }
+                beginFunction={() => setDraggingItemId(folder.id)}
+                endFunction={() => setDraggingItemId("")}
+                draggable={folders.length > 1}
+                key={folder.id}
+                folder={folder}
+                onClick={e => onFolderClick(e, folder)}
               >
-                {(isOpen: boolean) => (
-                  <DocumentMenuButton
-                    isOpen={menuOpenId === folder.id}
-                    onClick={e => onDocumentMenuClick(e, folder)}
-                  >
-                    <Icon name="ellipsis" />
-                  </DocumentMenuButton>
-                )}
                 <DropDown
                   constraints={[
                     {
@@ -388,75 +423,85 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMoveId === folder.id && folders != []}
+                  notHidden={selectedToMove.id === folder.id && folders != []}
+                  targetOffset="-165px -14px"
                   targetPosition="top right"
-                  attachmentPosition="top left"
-                  offset="60px 0"
                 >
                   {(isOpen: boolean) => (
-                    <DocumentCardMenu
-                      options={[
-                        {
-                          iconName: "pencil",
-                          label: "Cambiar nombre",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            onFolderRenameClick(e, folder);
-                          }
-                        },
-                        // {
-                        //   disabled: true,
-                        //   iconName: "duplicate",
-                        //   label: "Crear una copia",
-                        //   onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-                        //     onDuplicateFolder(e, folder);
-                        //   }
-                        // },
-                        {
-                          selected: folder.id === selectedToMoveId,
-                          disabled:
-                            folders.length === 0 && parentsPath.length === 1,
-                          iconName: "move-document",
-                          label: "Mover a",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            if (
-                              folders.length === 0 &&
-                              parentsPath.length === 1
+                    <DocumentMenuButton
+                      isOpen={menuOpenId === folder.id}
+                      onClick={e => onDocumentMenuClick(e, folder)}
+                    >
+                      <Icon name="ellipsis" />
+                    </DocumentMenuButton>
+                  )}
+                  <DropDown
+                    constraints={[
+                      {
+                        attachment: "together",
+                        to: "window"
+                      }
+                    ]}
+                    notHidden={selectedToMove.id === folder.id && folders != []}
+                    targetPosition="top right"
+                    attachmentPosition="top left"
+                    offset="60px 0"
+                  >
+                    {(isOpen: boolean) => (
+                      <DocumentCardMenu
+                        options={[
+                          {
+                            iconName: "pencil",
+                            label: "Cambiar nombre",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onMoveDisabled(e);
-                            } else {
+                              onFolderRenameClick(e, folder);
+                            }
+                          },
+                          {
+                            selected: folder.id === selectedToMove.id,
+                            disabled:
+                              folders.length === 1 && parentsPath.length === 1,
+                            iconName: "move-document",
+                            label: "Mover a",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
                               onMoveFolderClick(e, folder);
                             }
-                          }
-                        },
-                        {
-                          iconName: "trash",
-                          label: "Eliminar carpeta",
-                          onClick(
-                            e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                          ) {
-                            onFolderDeleteClick(e, folder);
                           },
-                          red: true
-                        }
-                      ]}
-                    />
-                  )}
-                  {selectedToMoveId === folder.id && folders != [] && (
-                    <FolderSelectorMenu
-                      selectedToMove={selectedToMoveId}
-                      onMove={onMoveFolder}
-                      currentLocation={currentLocation}
-                    ></FolderSelectorMenu>
-                  )}
+                          {
+                            iconName: "trash",
+                            label: "Eliminar carpeta",
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
+                              onFolderDeleteClick(e, folder);
+                            },
+                            red: true
+                          }
+                        ]}
+                      />
+                    )}
+                    {selectedToMove.id === folder.id && folders != [] && (
+                      <FolderSelectorMenu
+                        selectedToMove={selectedToMove}
+                        onMove={onMoveFolder}
+                        currentLocation={currentLocation}
+                      ></FolderSelectorMenu>
+                    )}
+                  </DropDown>
                 </DropDown>
-              </DropDown>
-            </StyledFolderCard>
-          ))}
-      </DocumentList>
+              </StyledFolderCard>
+            ))}
+        </DocumentList>
+      </DndProvider>
+      <DocumentsPaginator
+        currentPage={currentPage}
+        pages={12}
+        selectPage={(page: number) => setCurrentPage(page)}
+      />
       <DialogModal
         isOpen={!!deleteDocumentId.id}
         title="Eliminar"
@@ -522,7 +567,7 @@ const DocumentList = styled.div`
   grid-auto-rows: 1fr;
   grid-column-gap: 40px;
   grid-row-gap: 40px;
-  margin-bottom: 60px;
+  margin-bottom: 40px;
 
   &::before {
     content: "";
@@ -565,6 +610,10 @@ const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
     `} svg {
     transform: rotate(90deg);
   }
+`;
+
+const DocumentsPaginator = styled(Paginator)`
+  margin-bottom: 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`
