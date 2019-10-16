@@ -24,6 +24,8 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
+  const [titleInput, setTitle] = useState(title);
+  const [titleError, setTitleError] = useState(false);
 
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
@@ -32,6 +34,19 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
       setImageError("El tamaño de la imagen es demasiado grande");
     } else {
       onChange({ title, description, image: file });
+    }
+  };
+
+  const validate = (value: string): boolean => {
+    if (
+      !value ||
+      (value.length <= 64 &&
+        value.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
+        !value.match(/^\s+$/))
+    ) {
+      return true;
+    } else {
+      return false;
     }
   };
 
@@ -46,11 +61,19 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
             </FormLabel>
             <FormInput>
               <Input
-                value={title}
+                value={titleInput}
                 placeholder="Nombre del documento"
                 onChange={e => {
-                  onChange({ title: e.target.value, description });
+                  const value: string = e.target.value;
+                  if (validate(value)) {
+                    setTitleError(false);
+                    onChange({ title: value, description });
+                  } else {
+                    setTitleError(true);
+                  }
+                  setTitle(value);
                 }}
+                error={titleError}
               />
             </FormInput>
           </FormRow>

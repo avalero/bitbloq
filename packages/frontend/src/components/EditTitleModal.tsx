@@ -38,7 +38,9 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
   const validate = (value: string): boolean => {
     if (
       !value ||
-      (value.length <= 64 && value.match(/^[\w\s]+$/) && !value.match(/^\s+$/))
+      (value.length <= 64 &&
+        value.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
+        !value.match(/^\s+$/))
     ) {
       return true;
     } else {
