@@ -185,9 +185,16 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDuplicateDocument = async (e, document) => {
     e.stopPropagation();
+    let newTitle: string = `${document.title} copia`;
+
+    if (newTitle.length >= 64) {
+      newTitle = newTitle.slice(0, 63);
+    }
+
     await createDocument({
       variables: {
         ...document,
+        title: newTitle,
         folder: currentLocation.id
       },
       refetchQueries: [
