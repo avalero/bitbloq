@@ -194,6 +194,7 @@ export const bloq2code = (
  * @return arduinoCode
  */
 const waitTimer2Code = (
+  bloqInstance: Partial<IBloq>,
   bloqDefinition: Partial<IBloqType>,
   functionName: string,
   arduinoCode: IArduinoCode
@@ -207,7 +208,10 @@ const waitTimer2Code = (
   }
   if (bloqDefinition.actions[0].name === 'wait') {
     const waitCodeTempalete: string = bloqDefinition.actions[0].parameters.code;
-    const waitNunjucksParameters = { functionName };
+    const waitNunjucksParameters = {
+      functionName,
+      value: bloqInstance.parameters!.value,
+    };
 
     const waitCode: string = `
       ${nunjucks.renderString(waitCodeTempalete, waitNunjucksParameters)}\n}
@@ -362,7 +366,12 @@ const program2code = (
 
           // Wait time bloq (it has no components)
           if (!bloqDefinition.components) {
-            waitTimer2Code(bloqDefinition, functionName, arduinoCode);
+            waitTimer2Code(
+              bloqInstance,
+              bloqDefinition,
+              functionName,
+              arduinoCode
+            );
             break;
           } else {
             waitEvent2Code(
