@@ -41,8 +41,6 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
       "breadcrumb-target"
     )[0];
 
-    console.log({ element });
-
     const elementLeft: number = element.offsetLeft;
     const parentLeft: number = element.parentElement.offsetLeft;
     const parentWidth: number = element.parentElement.offsetWidth;
