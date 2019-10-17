@@ -60,7 +60,6 @@ const LoginPanel: FC<LoginPanelProps> = (props: LoginPanelProps) => {
         <ErrorMessage>Correo electrónico o contraseña no válidos</ErrorMessage>
       )}
       <Button
-        className="btn submit-btn"
         type="submit"
         onClick={() => onLoginClick()}
         disabled={logingIn}
@@ -68,13 +67,12 @@ const LoginPanel: FC<LoginPanelProps> = (props: LoginPanelProps) => {
         Entrar
       </Button>
       <Button
-        className="btn cancel-btn"
         secondary
         onClick={secondaryButtonCallback}
       >
         {secondaryButtonText}
       </Button>
-      <Link className="forgot-password-link" to="/forgot-password">
+      <Link to="/forgot-password">
         No recuerdo mi contraseña
       </Link>
     </Panel>
