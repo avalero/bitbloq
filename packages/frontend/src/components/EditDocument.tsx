@@ -1,4 +1,11 @@
-import React, { FC, useState, useEffect, useCallback } from "react";
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useState,
+  useEffect,
+  useCallback
+} from "react";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import html2canvas from "html2canvas";
@@ -29,6 +36,7 @@ interface EditDocumentProps {
 }
 const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const t = useTranslate();
+  let imageToUpload: Blob = new Blob();
 
   const user = useUserData();
   const isPublisher = user && user.publisher;
@@ -57,6 +65,31 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   );
 
   useEffect(() => {
+    let updateInterval: any, saveUpdate: any;
+    if (!loadingDocument) {
+      window.addEventListener(
+        "unload",
+        event => {
+          event.preventDefault();
+          updateImage();
+        },
+        true
+      );
+      saveImage();
+      updateInterval = setInterval(updateImage, 10 * 60 * 1000);
+      saveUpdate = setInterval(saveImage, 30 * 1000);
+    }
+
+    return () => (
+      window.removeEventListener("unload", event => {
+        updateImage();
+      }),
+      clearInterval(updateInterval),
+      clearInterval(saveUpdate)
+    );
+  }, [loadingDocument]);
+
+  useEffect(() => {
     if (isNew) {
       setLoading(false);
     } else if (!loadingDocument) {
@@ -70,25 +103,31 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
 
-  const debouncedUpdate = useCallback(
-    debounce(async (document: any, image: string) => {
-      if (
-        !document.image &&
-        (!image || !image.match(/^http/) || image.match(/blob$/))
-      ) {
-        const picture: HTMLElement | null =
-          window.document.querySelector("canvas") ||
-          window.document.querySelector("[class*=Canvas]");
-        if (picture) {
-          const canvas: HTMLCanvasElement = await html2canvas(picture);
-          const imgData: string = canvas.toDataURL("image/jpeg");
+  const saveImage = async () => {
+    if (!image || !image.match(/^http/) || image.match(/blob$/)) {
+      const picture: HTMLElement | null = window.document.querySelector(
+        ".image-snapshot"
+      );
+      if (picture) {
+        const canvas: HTMLCanvasElement = await html2canvas(picture);
+        const imgData: string = canvas.toDataURL("image/jpeg");
 
-          if (imgData !== "data:,") {
-            const file: Blob = dataURItoBlob(imgData);
-            document.image = file;
-          }
+        if (imgData !== "data:,") {
+          const file: Blob = dataURItoBlob(imgData);
+          imageToUpload = file;
         }
       }
+    }
+  };
+
+  const updateImage = () => {
+    if (imageToUpload && imageToUpload.size > 0) {
+      updateDocument({ variables: { ...document, image: imageToUpload, id } });
+    }
+  };
+
+  const debouncedUpdate = useCallback(
+    debounce(async (document: any, image: string) => {
       await updateDocument({ variables: { ...document, id } });
       refetch();
     }, 1000),
