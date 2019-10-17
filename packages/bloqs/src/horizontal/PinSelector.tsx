@@ -14,6 +14,7 @@ interface IPinSelectorProps {
   value: string;
   onChange: (newValue: string) => any;
   componentInstances: IComponentInstance[];
+  fallbackComponent: string;
   board: IBoard;
   components: IComponent[];
 }
@@ -22,16 +23,19 @@ const PinSelector: FC<IPinSelectorProps> = ({
   value,
   onChange,
   componentInstances,
+  fallbackComponent,
   board,
   components
 }) => {
   const t = useTranslate();
   const componentInstance = componentInstances.find(c => c.name === value)!;
   const component = components.find(
-    c => c.name === componentInstance.component
-  )!;
+    c =>
+      c.name ===
+      (componentInstance ? componentInstance.component : fallbackComponent)
+  );
 
-  if (!component || componentInstance.integrated) {
+  if (!component || (componentInstance && componentInstance.integrated)) {
     return null;
   }
 
@@ -62,7 +66,7 @@ const PinSelector: FC<IPinSelectorProps> = ({
   return (
     <Container>
       <Header>
-        <img src={component.image.url} />
+        <img src={component.image && component.image.url} />
         {component.label ? t(component.label) : component.name}
       </Header>
       <BoardSchema>

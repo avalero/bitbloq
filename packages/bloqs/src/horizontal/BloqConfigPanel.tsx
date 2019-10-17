@@ -22,6 +22,7 @@ import {
 interface IBloqConfigPanelProps {
   isOpen: boolean;
   bloqTypes: IBloqType[];
+  availableBloqs: IBloqType[];
   onSelectBloqType: (bloqType: IBloqType) => any;
   selectedPlaceholder: number;
   selectedBloq: IBloq;
@@ -39,6 +40,7 @@ interface IBloqConfigPanelProps {
 const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   isOpen,
   bloqTypes,
+  availableBloqs,
   onSelectBloqType,
   selectedPlaceholder,
   selectedBloq,
@@ -64,7 +66,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   let content = null;
 
   if (addEvent) {
-    const filteredTypes = bloqTypes.filter(
+    const filteredTypes = availableBloqs.filter(
       t => t.category === BloqCategory.Event
     );
 
@@ -92,7 +94,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   }
 
   if (addAction) {
-    const filteredTypes = bloqTypes.filter(t => t.category === selectedTab);
+    const filteredTypes = availableBloqs.filter(t => t.category === selectedTab);
 
     content = (
       <>
@@ -164,6 +166,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
               <PinSelector
                 value={selectedBloq.parameters[componentParam.name] as string}
                 componentInstances={getComponents(bloqType.components || [])}
+                fallbackComponent={(bloqType.components || [])[0]}
                 onChange={(value: any) =>
                   onUpdateBloq(
                     update(selectedBloq, {

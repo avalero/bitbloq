@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -23,6 +23,7 @@ import {
 interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
   bloqTypes: IBloqType[];
+  availableBloqs: IBloqType[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
   onUpload: () => any;
   getComponents: (types: string[]) => IComponentInstance[];
@@ -36,6 +37,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
 > = ({
   bloqs,
   bloqTypes,
+  availableBloqs,
   onBloqsChange,
   onUpload,
   getComponents,
@@ -48,6 +50,29 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
   const [linesScrollLeft, setLinesScrollLeft] = useState(0);
+  const linesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (linesRef.current) {
+      let bloqIndex = -1;
+      if (selectedBloqIndex >= 0) {
+        bloqIndex = selectedBloqIndex;
+      }
+      if (selectedPlaceholder >= 0) {
+        bloqIndex = selectedPlaceholder;
+      }
+
+      if (bloqIndex >= 0) {
+        const bloqPosition = 65 + bloqIndex * 65;
+        const width = linesRef.current.clientWidth;
+        if (bloqPosition - linesScrollLeft < 0) {
+          linesRef.current.scrollLeft = bloqPosition;
+        } else if (bloqPosition - linesScrollLeft > width - 160) {
+          linesRef.current.scrollLeft = bloqPosition - width + 160;
+        }
+      }
+    }
+  }, [linesScrollLeft, selectedBloqIndex, selectedPlaceholder]);
 
   const [undoPast, setUndoPast] = useState<IBloq[][][]>([]);
   const [undoFuture, setUndoFuture] = useState<IBloq[][][]>([]);
@@ -56,8 +81,6 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const selectedBloq = selectedLine[selectedBloqIndex];
 
   const t = useTranslate();
-
-  const linesRef = useRef<HTMLDivElement>(null);
 
   const deselectEverything = () => {
     setSelectedLine(-1);
@@ -82,7 +105,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
           if (isBloqSelectComponentParameter(param)) {
             const compatibleComponents =
               getComponents(bloqType.components || []) || [];
-            const { name = "" } = compatibleComponents[0] || {};
+            const { name = "" } = compatibleComponents.sort((a,b) => {
+              const aPort = a.port || "";
+              const bPort = b.port || "";
+              const aIsNumber = !isNaN(parseInt(aPort, 10));
+              const bIsNumber = !isNaN(parseInt(bPort, 10));
+
+              if ((aIsNumber && bIsNumber) || (!aIsNumber && !bIsNumber)) {
+                return aPort < bPort ? -1 : 1;
+              }
+              if (aIsNumber) {
+                return -1;
+              }
+              return 1;
+            })[0] || {};
+
             obj[param.name] = name;
           }
           if (param.type === BloqParameterType.Number) {
@@ -153,7 +190,12 @@ const HorizontalBloqEditor: React.FunctionComponent<
 
   return (
     <Container>
-    <Lines selectedLine={selectedLineIndex} onClick={deselectEverything} ref={linesRef} onScroll={onLinesScroll}>
+      <Lines
+        selectedLine={selectedLineIndex}
+        onClick={deselectEverything}
+        ref={linesRef}
+        onScroll={onLinesScroll}
+      >
         {[...bloqs, []].map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
@@ -205,6 +247,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
       <BloqConfigPanel
         isOpen={selectedPlaceholder >= 0 || selectedBloqIndex >= 0}
         bloqTypes={bloqTypes}
+        availableBloqs={availableBloqs}
         onSelectBloqType={onAddBloq}
         selectedPlaceholder={selectedPlaceholder}
         selectedBloq={selectedBloq}
@@ -238,7 +281,8 @@ interface ILinesProps {
   selectedLine: number;
 }
 const Lines = styled.div<ILinesProps>`
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: ${props => (props.selectedLine >= 0 ? "hidden" : "auto")};
   padding: 10px;
   box-sizing: border-box;
   flex: 1;

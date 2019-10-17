@@ -50,7 +50,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
       </SVG>
       {icon && !iconComponent && <BloqIcon src={icon} alt={type.name} />}
       {iconComponent && <IconComponent bloq={bloq} component={iconComponent} />}
-      {port && <PortIndicator>{port}</PortIndicator>}
+      {port && <PortIndicator error={port === "?"}>{port}</PortIndicator>}
     </Container>
   );
 };
@@ -77,7 +77,10 @@ const BloqIcon = styled.img`
   z-index: 1;
 `;
 
-const PortIndicator = styled.div`
+interface IPortIndicatorProps {
+  error: boolean;
+}
+const PortIndicator = styled.div<IPortIndicatorProps>`
   position: absolute;
   left: 50%;
   top: 60px;
@@ -92,7 +95,7 @@ const PortIndicator = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #000;
+  color: ${props => props.error ? colors.red : "#000"};
   z-index: 2;
 `;
 
