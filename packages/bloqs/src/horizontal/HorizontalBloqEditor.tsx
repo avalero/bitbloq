@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -50,6 +50,30 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
   const [linesScrollLeft, setLinesScrollLeft] = useState(0);
+  const linesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (linesRef.current) {
+      let bloqIndex = -1;
+      if (selectedBloqIndex >= 0) {
+        bloqIndex = selectedBloqIndex;
+      }
+      if (selectedPlaceholder >= 0) {
+        bloqIndex = selectedPlaceholder;
+      }
+
+      if (bloqIndex >= 0) {
+        const bloqPosition = 65 + bloqIndex * 65;
+        const width = linesRef.current.clientWidth;
+        if (bloqPosition - linesScrollLeft < 0) {
+          linesRef.current.scrollLeft = bloqPosition;
+        } else if (bloqPosition - linesScrollLeft > width - 160) {
+          linesRef.current.scrollLeft = bloqPosition - width + 160;
+          console.log(bloqPosition, width, width - 160);
+        }
+      }
+    }
+  }, [linesScrollLeft, selectedBloqIndex, selectedPlaceholder]);
 
   const [undoPast, setUndoPast] = useState<IBloq[][][]>([]);
   const [undoFuture, setUndoFuture] = useState<IBloq[][][]>([]);
@@ -58,8 +82,6 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const selectedBloq = selectedLine[selectedBloqIndex];
 
   const t = useTranslate();
-
-  const linesRef = useRef<HTMLDivElement>(null);
 
   const deselectEverything = () => {
     setSelectedLine(-1);
@@ -241,7 +263,8 @@ interface ILinesProps {
   selectedLine: number;
 }
 const Lines = styled.div<ILinesProps>`
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: ${props => props.selectedLine >= 0 ? "hidden" : "auto"};
   padding: 10px;
   box-sizing: border-box;
   flex: 1;
