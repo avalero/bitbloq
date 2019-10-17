@@ -69,7 +69,6 @@ const HorizontalBloqEditor: React.FunctionComponent<
           linesRef.current.scrollLeft = bloqPosition;
         } else if (bloqPosition - linesScrollLeft > width - 160) {
           linesRef.current.scrollLeft = bloqPosition - width + 160;
-          console.log(bloqPosition, width, width - 160);
         }
       }
     }
@@ -106,7 +105,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
           if (isBloqSelectComponentParameter(param)) {
             const compatibleComponents =
               getComponents(bloqType.components || []) || [];
-            const { name = "" } = compatibleComponents[0] || {};
+            const { name = "" } = compatibleComponents.sort((a,b) => {
+              const aPort = a.port || "";
+              const bPort = b.port || "";
+              const aIsNumber = !isNaN(parseInt(aPort, 10));
+              const bIsNumber = !isNaN(parseInt(bPort, 10));
+
+              if ((aIsNumber && bIsNumber) || (!aIsNumber && !bIsNumber)) {
+                return aPort < bPort ? -1 : 1;
+              }
+              if (aIsNumber) {
+                return -1;
+              }
+              return 1;
+            })[0] || {};
+
             obj[param.name] = name;
           }
           if (param.type === BloqParameterType.Number) {
@@ -177,7 +190,12 @@ const HorizontalBloqEditor: React.FunctionComponent<
 
   return (
     <Container>
-    <Lines selectedLine={selectedLineIndex} onClick={deselectEverything} ref={linesRef} onScroll={onLinesScroll}>
+      <Lines
+        selectedLine={selectedLineIndex}
+        onClick={deselectEverything}
+        ref={linesRef}
+        onScroll={onLinesScroll}
+      >
         {[...bloqs, []].map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
@@ -264,7 +282,7 @@ interface ILinesProps {
 }
 const Lines = styled.div<ILinesProps>`
   overflow-x: auto;
-  overflow-y: ${props => props.selectedLine >= 0 ? "hidden" : "auto"};
+  overflow-y: ${props => (props.selectedLine >= 0 ? "hidden" : "auto")};
   padding: 10px;
   box-sizing: border-box;
   flex: 1;
