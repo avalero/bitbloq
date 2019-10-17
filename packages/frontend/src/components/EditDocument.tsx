@@ -122,7 +122,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
 
   const updateImage = () => {
     if (imageToUpload && imageToUpload.size > 0) {
-      updateDocument({ variables: { ...document, image: imageToUpload, id } });
+      updateDocument({ variables: { image: imageToUpload, id } });
     }
   };
 
