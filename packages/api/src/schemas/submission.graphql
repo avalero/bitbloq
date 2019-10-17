@@ -81,6 +81,7 @@ input SubmissionIn {
   content: String
   cache: String
   type: String
+  active: Boolean
 }
 type loginOut {
   token: String
