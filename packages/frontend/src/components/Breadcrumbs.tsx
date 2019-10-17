@@ -23,6 +23,14 @@ export interface BreadcrumbsProps {
 const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
   const t = useTranslate();
 
+  const [breadcrumbTarget, setBreadcrumbTarget]: [
+    HTMLElement | undefined,
+    Dispatch<SetStateAction<HTMLElement | undefined>>
+  ] = useState();
+  const [breadcrumbTargetParent, setBreadcrumbTargetParent]: [
+    HTMLElement | undefined,
+    Dispatch<SetStateAction<HTMLElement | undefined>>
+  ] = useState();
   const [customLinks, setLinks]: [
     BreadcrumbLink[],
     Dispatch<SetStateAction<BreadcrumbLink[]>>
@@ -37,16 +45,17 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
   ] = useState(0);
 
   const setElementMaxWidth = (): void => {
-    const element: Element = document.getElementsByClassName(
-      "breadcrumb-target"
-    )[0];
+    const element: HTMLElement = breadcrumbTarget as HTMLElement;
+    const parentElement: HTMLElement = breadcrumbTargetParent as HTMLElement;
 
-    const elementLeft: number = element.offsetLeft;
-    const parentLeft: number = element.parentElement.offsetLeft;
-    const parentWidth: number = element.parentElement.offsetWidth;
+    if (element && breadcrumbTargetParent) {
+      const elementLeft: number = element.offsetLeft;
+      const parentLeft: number = parentElement.offsetLeft;
+      const parentWidth: number = parentElement.offsetWidth;
 
-    const maxWidth: number = parentLeft + parentWidth - elementLeft;
-    setMaxWidth(maxWidth);
+      const maxWidth: number = parentLeft + parentWidth - elementLeft;
+      setMaxWidth(maxWidth);
+    }
   };
 
   useEffect(() => {
@@ -54,7 +63,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
     window.addEventListener("resize", setElementMaxWidth);
 
     return () => window.removeEventListener("resize", setElementMaxWidth);
-  }, [customLinks]);
+  }, [breadcrumbTarget]);
 
   useEffect(() => {
     let customLinks: BreadcrumbLink[];
@@ -102,14 +111,17 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
         ) : (
           <></>
         )}
-        <BreadcrumbsNoRoot isThereHidden={hideFolders.length > 0}>
+        <BreadcrumbsNoRoot
+          isThereHidden={hideFolders.length > 0}
+          ref={(el: HTMLLIElement) => setBreadcrumbTargetParent(el)}
+        >
           {customLinks &&
             customLinks.map((link: BreadcrumbLink, index: number) => (
               <React.Fragment key={index}>
                 <Separator name="angle" />
                 {index === customLinks.length - 1 ? (
                   <BreadcrumbTarget
-                    className="breadcrumb-target"
+                    ref={(el: HTMLLIElement) => setBreadcrumbTarget(el)}
                     maxWidth={maxWidth}
                   >
                     <IconLink
