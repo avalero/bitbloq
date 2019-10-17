@@ -23,6 +23,7 @@ import {
 interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
   bloqTypes: IBloqType[];
+  availableBloqs: IBloqType[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
   onUpload: () => any;
   getComponents: (types: string[]) => IComponentInstance[];
@@ -36,6 +37,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
 > = ({
   bloqs,
   bloqTypes,
+  availableBloqs,
   onBloqsChange,
   onUpload,
   getComponents,
@@ -205,6 +207,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
       <BloqConfigPanel
         isOpen={selectedPlaceholder >= 0 || selectedBloqIndex >= 0}
         bloqTypes={bloqTypes}
+        availableBloqs={availableBloqs}
         onSelectBloqType={onAddBloq}
         selectedPlaceholder={selectedPlaceholder}
         selectedBloq={selectedBloq}

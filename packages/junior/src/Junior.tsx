@@ -133,9 +133,14 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         bloqType.parameters.find(isBloqSelectComponentParameter);
       const componentName =
         componentParameter && bloq.parameters[componentParameter.name];
+
+      if (!componentName) {
+        return;
+      }
+
       const component = hardware.components.find(c => c.name === componentName);
 
-      return component && component.port;
+      return component ? component.port : "?";
     }
 
     return;
@@ -224,7 +229,8 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         components={components}
         getComponents={getComponents}
         getBloqPort={getBloqPort}
-        bloqTypes={availableBloqs}
+        bloqTypes={bloqTypes}
+        availableBloqs={availableBloqs}
         onBloqsChange={(newProgram: IBloq[][]) =>
           setContent({ program: newProgram, hardware })
         }
