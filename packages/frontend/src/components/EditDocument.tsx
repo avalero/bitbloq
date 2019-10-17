@@ -121,7 +121,11 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   };
 
   const updateImage = () => {
-    if (imageToUpload && imageToUpload.size > 0) {
+    if (
+      (!image ||
+      !image.match(/^http/) ||
+      image.match(/blob$/) && imageToUpload && imageToUpload.size > 0)
+    ) {
       updateDocument({ variables: { image: imageToUpload, id } });
     }
   };
