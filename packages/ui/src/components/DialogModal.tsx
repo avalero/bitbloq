@@ -2,6 +2,7 @@ import * as React from "react";
 import styled from "@emotion/styled";
 import Button from "./Button";
 import Modal from "./Modal";
+import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
 export interface DialogModalProps {
@@ -16,6 +17,7 @@ export interface DialogModalProps {
   onOk: () => void;
   onCancel?: () => void;
   transparentOverlay?: boolean;
+  horizontalRule?: boolean;
 }
 
 const DialogModal: React.SFC<DialogModalProps> = ({
@@ -29,7 +31,8 @@ const DialogModal: React.SFC<DialogModalProps> = ({
   cancelButton,
   onOk,
   onCancel,
-  transparentOverlay
+  transparentOverlay,
+  horizontalRule = false
 }) => (
   <Modal
     isOpen={isOpen}
@@ -37,7 +40,10 @@ const DialogModal: React.SFC<DialogModalProps> = ({
     transparentOverlay={transparentOverlay}
   >
     <Content>
-      <h2>{title}</h2>
+      <Header horizontalRule={horizontalRule}>
+        <h2>{title}</h2>
+        {horizontalRule && <Rule small />}
+      </Header>
       {text && <p>{text}</p>}
       {content}
       {okButton}
@@ -57,13 +63,14 @@ export default DialogModal;
 /* styled-components */
 
 const Content = styled.div`
-  padding: 30px;
+  padding: 40px 30px 30px;
   width: 400px;
   text-align: center;
   box-sizing: border-box;
   color: ${colors.blackHover};
 
   h2 {
+    height: 20px;
     font-size: 18px;
     font-weight: bold;
     margin: 0px 0px 40px 0px;
@@ -90,4 +97,19 @@ const Content = styled.div`
       margin-bottom: 0px;
     }
   }
+`;
+
+interface HeaderProps {
+  horizontalRule: boolean;
+}
+const Header = styled.div<HeaderProps>`
+  height: 60px;
+  margin-bottom: ${(props: HeaderProps) => props.horizontalRule ? 40 : 0}px;
+  position: relative;
+`;
+
+const Rule = styled(HorizontalRule)`
+  left: -30px;
+  position: absolute;
+  width: calc(100% + 60px);
 `;

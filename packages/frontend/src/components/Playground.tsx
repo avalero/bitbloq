@@ -3,16 +3,16 @@ import { navigate } from "gatsby";
 import { saveAs } from "file-saver";
 import Loading from "./Loading";
 import { documentTypes } from "../config";
-import { Button, Modal, useTranslate } from "@bitbloq/ui";
+import { Button, DialogModal, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { SessionEvent, setToken, useSessionEvent } from "../lib/session";
-import { Response, useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import {
   CREATE_DOCUMENT_MUTATION,
   ME_QUERY,
   LOGIN_MUTATION
 } from "../apollo/queries";
-import LoginPanel from "./LoginPanel";
+import LoginForm from "./LoginForm";
 import HeaderRightContent from "./HeaderRightContent";
 import UserInfo from "./UserInfo";
 
@@ -74,7 +74,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     const token: string = event.data;
     setUserLogged(!!token);
     refetch().then(
-      (result: Response) => (setUserName(result.data.me.name), createDocument())
+      result => (setUserName(result.data.me.name), createDocument())
     );
   });
 
@@ -160,23 +160,24 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
 
   return (
     <>
-      <MyModal
+      <DialogModal
         isOpen={loginModal}
         title={t("general-enter-button")}
-        onClose={onCloseModal}
-      >
-        <MyLoginPanel
-          email={email}
-          logingError={logingError}
-          logingIn={loggingIn}
-          password={password}
-          onLoginClick={onLoginClick}
-          secondaryButtonCallback={onCloseModal}
-          secondaryButtonText={t("general-cancel-button")}
-          setEmail={setEmail}
-          setPassword={setPassword}
-        />
-      </MyModal>
+        okText={t("general-enter-button")}
+        cancelText={t("general-cancel-button")}
+        onOk={onLoginClick}
+        onCancel={onCloseModal}
+        horizontalRule={true}
+        content={
+          <ModalLoginForm
+            email={email}
+            logingError={logingError}
+            password={password}
+            setEmail={setEmail}
+            setPassword={setPassword}
+          />
+        }
+      />
       <EditorComponent
         content={contentRef.current}
         onContentChange={onContentChange}
@@ -206,45 +207,13 @@ const EnterButton = styled(Button)`
   padding: 0 20px;
 `;
 
-const MyLoginPanel = styled(LoginPanel)`
-  .btn {
-    font-family: Roboto;
+const ModalLoginForm = styled(LoginForm)`
+  label {
+    font-size: 14px;
+    text-align: left;
   }
 
-  .cancel-btn {
-    background-color: #ebebeb;
-    color: #373b44;
-  }
-
-  .cancel-btn: hover {
-    background-color: #cfcdcd;
-  }
-
-  .forgot-password-link {
-    display: none;
-  }
-`;
-
-const MyModal = styled(Modal)`
-  font-size: 14px;
-
-  [class*="Close"] {
-    display: none;
-  }
-
-  [class*="Header"] {
-    height: 101px;
-    text-align: center;
-  }
-
-  [class*="Panel"] {
-    padding: 40px;
-    width: 300px;
-  }
-
-  [class*="Title"] {
-    align-items: center;
-    display: flex;
-    justify-content: center;
+  & > div:last-of-type {
+    margin-bottom: 30px;
   }
 `;

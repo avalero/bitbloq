@@ -99,11 +99,11 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
         {({ height }) => (
           <ExerciseDetails style={{ height }}>
             <ExerciseInfo>
-              <div className="code">
+              <div>
                 <CodeBox>{exercise.code}</CodeBox>
                 {t("exercise-details-code")}
               </div>
-              <div className="accept-submissions">
+              <div>
                 {t("exercise-details-submissions")}
                 <SubmissionsSwitch
                   value={exercise.acceptSubmissions}

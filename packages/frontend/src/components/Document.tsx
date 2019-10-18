@@ -171,7 +171,7 @@ class Document extends React.Component<any, DocumentState> {
 
   renderDocumentTeacherInfo(document, t) {
     return (
-      <DocumentInfo className="teacher">
+      <DocumentInfo teacher>
         <DocumentHeader>
           <DocumentHeaderText>
             <Icon name="document" />
@@ -187,9 +187,9 @@ class Document extends React.Component<any, DocumentState> {
             {t("document-header-button")}
           </DocumentHeaderButton>
         </DocumentHeader>
-        <DocumentBody className="teacher">
-          <DocumentImage src={document.image} className="teacher" />
-          <DocumentBodyInfo className="teacher">
+        <DocumentBody teacher>
+          <DocumentImage src={document.image} teacher />
+          <DocumentBodyInfo teacher>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
               {document.title || t("document-body-title")}
@@ -291,8 +291,8 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Exercises>
         <DocumentHeader>
-          <DocumentHeaderText>
-            <Icon name="airplane-document" className="exercise" />
+          <DocumentHeaderText exercise>
+            <Icon name="airplane-document" />
             {t("exercises-header-info")}
           </DocumentHeaderText>
           <DocumentHeaderButton
@@ -603,30 +603,31 @@ const EmptyExercises = styled.div`
   }
 `;
 
-const DocumentBody = styled.div`
+interface DocumentBodyProps {
+  teacher?: boolean;
+}
+const DocumentBody = styled.div<DocumentBodyProps>`
   display: flex;
-  padding: 40px 20px;
+  flex-flow: ${(props: DocumentBodyProps) =>
+    props.teacher ? "column nowrap" : "row nowrap"};
+  padding: ${(props: DocumentBodyProps) =>
+    props.teacher ? "20px" : "40px 20px"};
   width: calc(100% - 40px);
-
-  &.teacher {
-    flex-flow: column nowrap;
-    padding: 20px;
-  }
 `;
 
 const ExercisesPanel = styled.div`
   padding: 23px 20px;
 `;
 
-const DocumentBodyInfo = styled.div`
+interface DocumentBodyInfoProps {
+  teacher?: boolean;
+}
+const DocumentBodyInfo = styled.div<DocumentBodyInfoProps>`
   color: #474749;
   flex-grow: 0;
-  width: calc(100% - 375px);
-
-  &.teacher {
-    margin-top: 20px;
-    width: 100%;
-  }
+  margin-top: ${(props: DocumentBodyInfoProps) => (props.teacher ? 20 : 0)}px;
+  width: ${(props: DocumentBodyInfoProps) =>
+    props.teacher ? "100%" : "calc(100% - 375px)"};
 `;
 
 const DocumentHeader = styled.div`
@@ -658,16 +659,21 @@ const DocumentHeaderButton = styled(MyButton)`
   align-self: flex-end;
 `;
 
-const DocumentHeaderText = styled.div`
+interface DocumentHeaderTextProps {
+  exercise?: boolean;
+}
+const DocumentHeaderText = styled.div<DocumentHeaderTextProps>`
   align-items: center;
   display: flex;
   font-family: Roboto;
   font-size: 20px;
   font-weight: 500;
 
-  svg.exercise {
-    height: 24px;
-    width: 24px;
+  svg {
+    height: ${(props: DocumentHeaderTextProps) =>
+      props.exercise ? "24px" : "auto"};
+    width: ${(props: DocumentHeaderTextProps) =>
+      props.exercise ? "24px" : "auto"};
   }
 `;
 
@@ -681,35 +687,31 @@ const DocumentData = styled.div`
   width: 100%;
 `;
 
-const DocumentInfo = styled.div`
+interface DocumentInfoProps {
+  teacher?: boolean;
+}
+const DocumentInfo = styled.div<DocumentInfoProps>`
+  border-right: ${(props: DocumentInfoProps) =>
+    props.teacher ? "solid 1px #c0c3c9" : "none"};
   display: flex;
   flex-flow: column nowrap;
-  width: 100%;
-
-  &.teacher {
-    border-right: solid 1px #c0c3c9;
-    width: 34%;
-  }
+  width: ${(props: DocumentInfoProps) => (props.teacher ? 34 : 100)}%;
 `;
 
 interface DocumentImageProps {
   src: string;
+  teacher?: boolean;
 }
 const DocumentImage = styled.div<DocumentImageProps>`
-  width: 360px;
-  height: 215px;
   background-color: ${colors.gray2};
-  border-radius: 4px;
-  margin-right: 20px;
   background-image: url(${(props: DocumentImageProps) => props.src});
-  background-size: cover;
   background-position: center;
+  background-size: cover;
+  border-radius: 4px;
   flex-shrink: 0;
-
-  &.teacher {
-    margin: 0;
-    width: 100%;
-  }
+  height: 215px;
+  margin: ${(props: DocumentImageProps) => (props.teacher ? 0 : "0 20px 0 0")};
+  width: ${(props: DocumentImageProps) => (props.teacher ? "100%" : "360px")};
 `;
 
 const DocumentTitle = styled.div`
@@ -721,6 +723,7 @@ const DocumentTitle = styled.div`
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
+  height: 22px;
 `;
 
 const DocumentDescription = styled.div`

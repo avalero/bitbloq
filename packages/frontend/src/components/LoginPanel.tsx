@@ -1,7 +1,8 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { Link } from "gatsby";
-import { Input, Button } from "@bitbloq/ui";
+import { Button } from "@bitbloq/ui";
+import LoginForm from "./LoginForm";
 
 interface LoginPanelProps {
   className?: string;
@@ -34,69 +35,25 @@ const LoginPanel: FC<LoginPanelProps> = (props: LoginPanelProps) => {
       className={className}
       onSubmit={(event: Event) => event.preventDefault()}
     >
-      <FormGroup>
-        <label>Correo electrónico</label>
-        <Input
-          name="email"
-          type="text"
-          placeholder="Correo electrónico"
-          value={email}
-          error={logingError}
-          onChange={e => setEmail(e.target.value)}
-        />
-      </FormGroup>
-      <FormGroup>
-        <label>Contraseña</label>
-        <Input
-          name="email"
-          type="password"
-          placeholder="Contraseña"
-          value={password}
-          error={logingError}
-          onChange={e => setPassword(e.target.value)}
-        />
-      </FormGroup>
-      {logingError && (
-        <ErrorMessage>Correo electrónico o contraseña no válidos</ErrorMessage>
-      )}
-      <Button
-        className="btn submit-btn"
-        type="submit"
-        onClick={() => onLoginClick()}
-        disabled={logingIn}
-      >
+      <LoginForm
+        email={email}
+        logingError={logingError}
+        password={password}
+        setEmail={setEmail}
+        setPassword={setPassword}
+      />
+      <Button type="submit" onClick={() => onLoginClick()} disabled={logingIn}>
         Entrar
       </Button>
-      <Button
-        className="btn cancel-btn"
-        secondary
-        onClick={secondaryButtonCallback}
-      >
+      <Button secondary onClick={secondaryButtonCallback}>
         {secondaryButtonText}
       </Button>
-      <Link className="forgot-password-link" to="/forgot-password">
-        No recuerdo mi contraseña
-      </Link>
+      <Link to="/forgot-password">No recuerdo mi contraseña</Link>
     </Panel>
   );
 };
 
 export default LoginPanel;
-
-const ErrorMessage = styled.div`
-  color: #d82b32;
-  font-size: 12px;
-  font-style: italic;
-  margin-bottom: 30px;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 20px;
-  label {
-    display: block;
-    margin-bottom: 10px;
-  }
-`;
 
 const Panel = styled.form`
   font-family: Roboto;
