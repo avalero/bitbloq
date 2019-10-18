@@ -94,7 +94,9 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   }
 
   if (addAction) {
-    const filteredTypes = availableBloqs.filter(t => t.category === selectedTab);
+    const filteredTypes = availableBloqs.filter(
+      t => t.category === selectedTab
+    );
 
     content = (
       <>
