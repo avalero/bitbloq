@@ -387,6 +387,7 @@ const documentResolver = {
           id,
           createdAt,
           updatedAt,
+          type: "folder",
           ...op
         })
       );

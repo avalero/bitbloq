@@ -46,6 +46,7 @@ type Result {
   id: ObjectID
   title: String
   image: String
+  type: String
   createdAt: Date
   updatedAt: Date
 }

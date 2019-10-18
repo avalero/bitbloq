@@ -59,10 +59,16 @@ const DocumentCard: FC<DocumentCardProps> = ({
       ) : (
         <ImageFol src={folderImg} />
       )}
-      <Info>
-        <DocumentTypeTag small document={document} />
-        <Title>{document.title}</Title>
-      </Info>
+      {document.type !== "folder" ? (
+        <Info>
+          <DocumentTypeTag small document={document} />
+          <Title>{document.title}</Title>
+        </Info>
+      ) : (
+        <Info folder={true}>
+          <Title folder={true}>{document.title}</Title>
+        </Info>
+      )}
       {children}
     </Container>
   );
@@ -115,19 +121,19 @@ const ImageFol = styled.div<ImageProps>`
   border-bottom: 1px solid ${colors.gray3};
 `;
 
-const Info = styled.div`
-  height: 80px;
+const Info = styled.div<{ folder?: boolean }>`
+  height: ${props => (props.folder ? null : 80)}px;
   padding: 14px;
   font-weight: 500;
   box-sizing: border-box;
 `;
 
-const Title = styled.div`
-  margin-top: 10px;
+const Title = styled.div<{ folder?: boolean }>`
+  margin-top: ${props => (props.folder ? null : 10)}px;
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
+  white-space: ${props => (props.folder ? null : "nowrap")};
 `;
 
 const DocumentMenu = styled.div`
