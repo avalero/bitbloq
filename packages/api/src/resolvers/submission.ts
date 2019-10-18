@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
+const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
 
 const submissionResolver = {
   Subscription: {
@@ -17,7 +18,6 @@ const submissionResolver = {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
         (payload, variables, context) => {
-          // Filter by exercise code if the exercise is mine
           if (
             String(context.user.userID) ===
               String(payload.submissionUpdated.user) ||
@@ -30,6 +30,17 @@ const submissionResolver = {
           } else {
             return undefined;
           }
+        }
+      )
+    },
+    submissionActive: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
+        (payload, variables, context) => {
+          return (
+            String(payload.submissionActive._id) ===
+            String(context.user.submissionID)
+          );
         }
       )
     }
@@ -87,7 +98,8 @@ const submissionResolver = {
         user: exFather.user,
         document: exFather.document,
         title: exFather.title,
-        type: exFather.type
+        type: exFather.type,
+        active: true
       });
       const newSub: ISubmission = await SubmissionModel.create(submissionNew);
       const token: string = jsonwebtoken.sign(
@@ -192,7 +204,7 @@ const submissionResolver = {
         );
         await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
-          { $set: { submissionToken: token } },
+          { $set: { submissionToken: token, active: true } },
           { new: true }
         );
         loggerController.storeInfoLog(
@@ -287,8 +299,8 @@ const submissionResolver = {
      */
     setActiveSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
-        studentNick: args.studentNick,
-        exercise: args.exerciseId
+        _id: args.submissionID,
+        user: context.user.userID
       });
       if (existSubmission) {
         const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
@@ -300,8 +312,8 @@ const submissionResolver = {
           },
           { new: true }
         );
-        pubsub.publish(SUBMISSION_UPDATED, {
-          submissionUpdated: updatedSubmission
+        pubsub.publish(SUBMISSION_ACTIVE, {
+          submissionActive: updatedSubmission
         });
         loggerController.storeInfoLog(
           "API",

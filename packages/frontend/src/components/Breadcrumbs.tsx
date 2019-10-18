@@ -18,9 +18,10 @@ export interface BreadcrumbLink {
 
 export interface BreadcrumbsProps {
   links?: BreadcrumbLink[];
+  title?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [], title }) => {
   const t = useTranslate();
 
   const [customLinks, setLinks]: [
@@ -117,7 +118,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
                         link.type === "document" ? "document" : "folder-icon"
                       }
                     />
-                    <p>{link.text}</p>
+                    <p>{title || link.text}</p>
                   </BreadcrumbTarget>
                 ) : (
                   <BreadcrumbLink folders={links.length - 2}>
