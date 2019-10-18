@@ -16,6 +16,7 @@ import {
   IArduinoCode
 } from "../index";
 import nunjucks from "nunjucks";
+import cloneDeep from "clone-deep";
 
 import juniorcodetemplate from "./juniorcodetemplate";
 import board2code, { getBoardDefinition } from "./board2code";
@@ -59,7 +60,13 @@ const bloqs2code = (
     board2code(boards, hardware, arduinoCode);
     const board: IBoard = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
-    program2code(components, bloqTypes, hardware, program, arduinoCode);
+    program2code(
+      components,
+      bloqTypes,
+      hardware,
+      cloneDeep(program),
+      arduinoCode
+    );
   } catch (e) {
     console.warn(e);
     // throw e;

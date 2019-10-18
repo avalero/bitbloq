@@ -28,6 +28,13 @@ interface IAction {
 
 type ActionsArray = IAction[];
 
+const WaitMessage2EventMessage = (wait: IBloq): IBloq => {
+  return {
+    type: "OnMessage",
+    parameters: { value: wait.parameters.value }
+  };
+};
+
 /**
  * Returns the bloq definition to which a bloq refers
  * @param bloqTypes The array of existing bloqs
@@ -335,8 +342,9 @@ const program2code = (
   let timelineFlagName: string; // flag to avoid a timeline to run simultaneously
   let onStartEvent: boolean = false;
 
-  program.forEach((timeline, index) => {
-    if (timeline.length === 0) return;
+  for (let index = 0; index < program.length; index++) {
+    const timeline = program[index];
+    if (timeline.length === 0) continue;
 
     timelineFlagName = `timeline${index + 1}`;
     let i = 0;
@@ -367,8 +375,20 @@ const program2code = (
 
           functionName = `func_${++functionNameIndex}`;
 
-          // Wait time bloq (it has no components)
+          // Wait Time or Wait Message bloq (it has no components)
           if (!bloqDefinition.components) {
+            if (bloqDefinition.name === "WaitMessage") {
+              // in this case we create a new timeline for the message event
+              const newTimeLine = [
+                WaitMessage2EventMessage(bloqInstance),
+                ...timeline.slice(i + 1)
+              ];
+              timeline.splice(i);
+              program.push(newTimeLine);
+              break; // jump to next timeline
+            }
+
+            // else -> Wait timer
             waitTimer2Code(
               bloqInstance,
               bloqDefinition,
@@ -512,6 +532,7 @@ const program2code = (
           break;
       }
     }
+
     // close timeline definitions with by setting flag variable to false
     // or repeating timeline if event has an associated loop
     if (onStartEvent) {
@@ -535,7 +556,7 @@ const program2code = (
         }`
       );
     }
-  });
+  }
 
   return arduinoCode;
 };
