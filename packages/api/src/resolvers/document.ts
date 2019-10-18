@@ -329,7 +329,6 @@ const documentResolver = {
      * args: itemsPerPage: Number, order: String, searchTitle: String.
      */
     documentsAndFolders: async (root: any, args: any, context: any) => {
-      console.log(args, context)
       const user: IUser = await UserModel.findOne({ _id: context.user.userID });
       if (!user) return new AuthenticationError("You need to be logged in");
 
@@ -391,17 +390,14 @@ const documentResolver = {
           ...op
         })
       );
-      console.log(docs.length, fols.length)
       const allData = [...docs, ...folsTitle];
       const allDataSorted = allData.sort(orderFunction);
-      console.log(docs.length, fols.length, allDataSorted.length)
       const pagesNumber: number = Math.ceil(
         ((await DocumentModel.countDocuments(filterOptionsDoc)) +
           (await FolderModel.countDocuments(filterOptionsFol))) /
           itemsPerPage
       );
-      console.log(skipN, limit)
-      const result= allDataSorted.slice(skipN, limit);
+      const result = allDataSorted.slice(skipN, limit);
       return {
         result: result,
         pagesNumber: pagesNumber

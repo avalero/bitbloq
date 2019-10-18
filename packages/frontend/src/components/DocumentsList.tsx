@@ -79,15 +79,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
 
-  const { data: resultData, loading, error } = useQuery(DOCS_FOLDERS_PAGE_QUERY, {
-    variables: {
-      currentLocation: currentLocation ? currentLocation.id : undefined,
-      currentPage: currentPage,
-      order: order,
-      searchTitle: searchTitle,
-      itemsPerPage: 8,
+  const { data: resultData, loading, error } = useQuery(
+    DOCS_FOLDERS_PAGE_QUERY,
+    {
+      variables: {
+        currentLocation: currentLocation ? currentLocation.id : undefined,
+        currentPage: currentPage,
+        order: order,
+        searchTitle: searchTitle,
+        itemsPerPage: 8
+      }
     }
-  });
+  );
 
   const onDocumentMenuClick = (e, document) => {
     e.stopPropagation();
@@ -315,14 +318,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
     console.log(error);
     return <div>error</div>;
   }
-  
-  console.log(resultData);
-  
-  const pagesNumber=resultData && resultData.documentsAndFolders.pagesNumber;
-  const docsAndFols=resultData && resultData.documentsAndFolders.result;
-  
+  if (loading) {
+    return <div>loading...</div>;
+  }
 
-  console.log(resultData);
+  const pagesNumber = resultData && resultData.documentsAndFolders.pagesNumber;
+  const docsAndFols = resultData && resultData.documentsAndFolders.result;
 
   return (
     <>

@@ -5,7 +5,6 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
 import folderImg from "../images/folder.svg";
 
-
 export interface DocumentCardProps {
   beginFunction?: () => void;
   document: any;
@@ -55,11 +54,11 @@ const DocumentCard: FC<DocumentCardProps> = ({
       className={className}
       isDragging={isDragging}
     >
-
-    {document.image?
-      <Image src={document.image} />:
-      <Image src={folderImg} />
-    }
+      {document.image ? (
+        <Image src={document.image} />
+      ) : (
+        <ImageFol src={folderImg} />
+      )}
       <Info>
         <DocumentTypeTag small document={document} />
         <Title>{document.title}</Title>
@@ -102,6 +101,17 @@ const Image = styled.div<ImageProps>`
   background-image: url(${props => props.src});
   background-size: cover;
   background-position: center;
+  border-bottom: 1px solid ${colors.gray3};
+`;
+
+const ImageFol = styled.div<ImageProps>`
+  flex: 1;
+  background-color: ${colors.white};
+  background-image: url(${props => props.src});
+  background-size: 60px 60px;
+  background-position: center;
+  background-repeat: no-repeat;
+  object-fit: contain;
   border-bottom: 1px solid ${colors.gray3};
 `;
 
