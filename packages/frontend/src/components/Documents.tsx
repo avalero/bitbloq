@@ -109,9 +109,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
-  const onFolderClick = async (e, folder) => {
-    setCurrentLocation({ id: folder.id, name: folder.name });
-    navigate(`/app/folder/${folder.id}`);
+  const onFolderClick = async ({ id, title }) => {
+    console.log(id, title);
+    setCurrentLocation({ id: id, name: title });
+    navigate(`/app/folder/${id}`);
   };
 
   const onDocumentClick = ({ id, type, title }) => {

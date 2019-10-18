@@ -337,7 +337,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 draggable={folders.length > 0}
                 key={document.id}
                 document={document}
-                onClick={() => onDocumentClick && onDocumentClick(document)}
+                onClick={e =>
+                  document.type === "folder"
+                    ? onFolderClick && onFolderClick(document)
+                    : onDocumentClick && onDocumentClick(document)
+                }
               >
                 <DropDown
                   constraints={[
