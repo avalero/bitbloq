@@ -683,7 +683,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         name: "write",
         parameters: {
           pinVarName: "{{component}}",
-          value: "{{rotation}}"
+          value: "{{rotation}}{{speed}}"
         }
       }
     ]

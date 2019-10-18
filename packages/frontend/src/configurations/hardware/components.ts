@@ -194,9 +194,13 @@ export const components: Partial<IComponent>[] = [
     extends: "ContRotServo",
     instanceName: "bloq-controt-servo-instance-name",
     values:{
-      clockwise: "175",
-      counterclockwise: "5",
-      stop: "90"
+      clockwiseslow: "110",
+      clockwisemedium: "120",
+      clockwisefast: "180",
+      counterclockwiseslow: "70",
+      counterclockwisemedium: "60",
+      counterclockwisefast: "0",
+      stopslow: "90",
     },
     connectors: [
       {
