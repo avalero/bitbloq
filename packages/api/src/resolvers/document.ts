@@ -13,7 +13,12 @@ import { UserModel, IUser } from "../models/user";
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
 import uploadResolver, { uploadDocumentImage } from "./upload";
-import { getParentsPath } from "../utils";
+import {
+  getParentsPath,
+  orderFunctions,
+  OrderType,
+  orderOptions
+} from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -330,7 +335,7 @@ const documentResolver = {
       const currentLocation: string = args.currentLocation || user.rootFolder;
       const itemsPerPage: number = args.itemsPerPage || 8;
       let skipN: number = (args.currentPage - 1) * itemsPerPage;
-      let limit: number = itemsPerPage;
+      let limit: number = skipN + itemsPerPage;
       const text: string = args.searchTitle;
 
       const filterOptionsDoc: any = {
@@ -347,6 +352,8 @@ const documentResolver = {
 
       let sortDoc: { [key: string]: number } = { title: 1 };
       let sortFol: { [key: string]: number } = { name: 1 };
+
+      const orderFunction = orderFunctions[args.order];
 
       if (args.order === "alfAZ") {
         sortDoc = { title: 1 }; // -1 desc, 1 asc
@@ -373,18 +380,26 @@ const documentResolver = {
         null,
         {
           sort: sortDoc,
-          collation: { locale: "es" },
-          skip: skipN,
-          limit: limit
+          collation: { locale: "es" }
         }
       );
 
       const fols: IFolder[] = await FolderModel.find(filterOptionsFol, null, {
         sort: sortFol,
-        collation: { locale: "es" },
-        skip: skipN,
-        limit: limit
+        collation: { locale: "es" }
       });
+      const folsTitle = fols.map(
+        ({ name: title, _id: id, createdAt, updatedAt, ...op }) => ({
+          title,
+          id,
+          createdAt,
+          updatedAt,
+          folder: true,
+          ...op
+        })
+      );
+      const allData = [...docs, ...folsTitle];
+      const allDataSorted = allData.sort(orderFunction);
 
       const pagesNumber: number = Math.ceil(
         ((await DocumentModel.countDocuments(filterOptionsDoc)) +
@@ -392,7 +407,10 @@ const documentResolver = {
           itemsPerPage
       );
 
-      return { documents: docs, folders: fols, pagesNumber: pagesNumber };
+      return {
+        result: allDataSorted.slice(skipN, limit),
+        pagesNumber: pagesNumber
+      };
     }
   },
 
