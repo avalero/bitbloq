@@ -5,6 +5,8 @@ import React, {
   useEffect,
   useState
 } from "react";
+import { DndProvider, useDrop } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 import styled from "@emotion/styled";
 import { Icon } from "@bitbloq/ui";
 
@@ -21,8 +23,28 @@ const Arrow: React.FC<ArrowProps> = ({
   page,
   onClick
 }) => {
+  const [changePage, setChangePage] = useState(true);
+  const [{ isOver }, drop] = useDrop({
+    accept: ["document", "folder"],
+    drop: item => {
+      console.log(item);
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver()
+    }),
+    hover: () => {
+      if (!disabled && changePage) {
+        setChangePage(false);
+        onClick(direction === "decrement" ? page - 1 : page + 1);
+        setTimeout(setChangePage, 500, true);
+      }
+    }
+  });
+
   return (
     <PageItem
+      isOver={isOver}
+      ref={drop}
       onClick={e =>
         disabled
           ? e.stopPropagation()
@@ -41,8 +63,24 @@ export interface PageProps {
 }
 
 const Page: React.FC<PageProps> = ({ page, selected, onClick }) => {
+  const [{ isOver }, drop] = useDrop({
+    accept: ["document", "folder"],
+    drop: item => {
+      console.log(item);
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver()
+    }),
+    hover: () => onClick(page)
+  });
+
   return (
-    <PageItem onClick={() => onClick(page)} selected={selected}>
+    <PageItem
+      onClick={() => onClick(page)}
+      selected={selected}
+      ref={drop}
+      isOver={isOver}
+    >
       {page}
     </PageItem>
   );
@@ -77,7 +115,7 @@ const Paginator: React.FC<PaginatorProps> = ({
   if (pages > 9 && currentPage < pages / 2) {
     pagesElements = [
       ...pagesElements.slice(0, 8),
-      <Ellipsis>
+      <Ellipsis key="ellipsis">
         <Icon name="ellipsis" />
       </Ellipsis>,
       pagesElements[pagesElements.length - 1]
@@ -85,7 +123,7 @@ const Paginator: React.FC<PaginatorProps> = ({
   } else if (pages > 9 && currentPage >= pages / 2) {
     pagesElements = [
       pagesElements[0],
-      <Ellipsis>
+      <Ellipsis key="ellipsis">
         <Icon name="ellipsis" />
       </Ellipsis>,
       ...pagesElements.slice(pagesElements.length - 8, pagesElements.length)
@@ -93,21 +131,23 @@ const Paginator: React.FC<PaginatorProps> = ({
   }
 
   return (
-    <PagesBar className={className}>
-      <Arrow
-        direction="decrement"
-        disabled={currentPage === 1}
-        page={currentPage}
-        onClick={selectPage}
-      />
-      {pagesElements}
-      <Arrow
-        direction="increment"
-        disabled={currentPage === pages}
-        page={currentPage}
-        onClick={selectPage}
-      />
-    </PagesBar>
+    <DndProvider backend={HTML5Backend}>
+      <PagesBar className={className}>
+        <Arrow
+          direction="decrement"
+          disabled={currentPage === 1}
+          page={currentPage}
+          onClick={selectPage}
+        />
+        {pagesElements}
+        <Arrow
+          direction="increment"
+          disabled={currentPage === pages}
+          page={currentPage}
+          onClick={selectPage}
+        />
+      </PagesBar>
+    </DndProvider>
   );
 };
 
@@ -138,13 +178,13 @@ const Ellipsis = styled.div`
 `;
 
 interface PageItemProps {
+  isOver?: boolean;
   selected?: boolean;
 }
 const PageItem = styled.div<PageItemProps>`
   align-items: center;
-  background-color: ${(props: PageItemProps) =>
-    props.selected ? "#eee" : "#fff"};
-  border: solid 1px #cccccc;
+  background-color: ${props => (props.selected ? "#eee" : "#fff")};
+  border: solid 1px ${props => (props.isOver ? "#373b44" : "#ccc")};
   border-radius: 4px;
   color: #373b44;
   cursor: pointer;
