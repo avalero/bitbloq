@@ -75,6 +75,7 @@ export default BloqsLine;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  padding-right: 80px;
 `;
 
 const StyledBloq = styled(HorizontalBloq)`
