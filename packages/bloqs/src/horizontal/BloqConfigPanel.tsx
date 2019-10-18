@@ -22,6 +22,7 @@ import {
 interface IBloqConfigPanelProps {
   isOpen: boolean;
   bloqTypes: IBloqType[];
+  availableBloqs: IBloqType[];
   onSelectBloqType: (bloqType: IBloqType) => any;
   selectedPlaceholder: number;
   selectedBloq: IBloq;
@@ -33,11 +34,13 @@ interface IBloqConfigPanelProps {
   getComponents: (types: string[]) => IComponentInstance[];
   board: IBoard;
   components: IComponent[];
+  linesScrollLeft: number;
 }
 
 const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   isOpen,
   bloqTypes,
+  availableBloqs,
   onSelectBloqType,
   selectedPlaceholder,
   selectedBloq,
@@ -48,7 +51,8 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   onClose,
   getComponents,
   board,
-  components
+  components,
+  linesScrollLeft
 }) => {
   const [selectedTab, setSelectedTab] = useState(BloqCategory.Action);
 
@@ -62,13 +66,16 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   let content = null;
 
   if (addEvent) {
-    const filteredTypes = bloqTypes.filter(
+    const filteredTypes = availableBloqs.filter(
       t => t.category === BloqCategory.Event
     );
 
     content = (
       <>
-        <BloqPlaceholderWrap bloqPosition={selectedPlaceholder}>
+        <BloqPlaceholderWrap
+          bloqPosition={selectedPlaceholder}
+          linesScrollLeft={linesScrollLeft}
+        >
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
           />
@@ -87,11 +94,14 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   }
 
   if (addAction) {
-    const filteredTypes = bloqTypes.filter(t => t.category === selectedTab);
+    const filteredTypes = availableBloqs.filter(t => t.category === selectedTab);
 
     content = (
       <>
-        <BloqPlaceholderWrap bloqPosition={selectedPlaceholder}>
+        <BloqPlaceholderWrap
+          bloqPosition={selectedPlaceholder}
+          linesScrollLeft={linesScrollLeft}
+        >
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
           />
@@ -133,7 +143,10 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap bloqPosition={selectedBloqIndex}>
+        <BloqPlaceholderWrap
+          bloqPosition={selectedBloqIndex}
+          linesScrollLeft={linesScrollLeft}
+        >
           <HorizontalBloq
             type={bloqType}
             bloq={selectedBloq}
@@ -153,6 +166,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
               <PinSelector
                 value={selectedBloq.parameters[componentParam.name] as string}
                 componentInstances={getComponents(bloqType.components || [])}
+                fallbackComponent={(bloqType.components || [])[0]}
                 onChange={(value: any) =>
                   onUpdateBloq(
                     update(selectedBloq, {
@@ -228,12 +242,15 @@ const CloseButton = styled.div`
 
 interface IBloqPlaceholderWrapProps {
   bloqPosition: number;
+  linesScrollLeft: number;
 }
 const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
   position: absolute;
   top: -72px;
   left: ${props =>
-    (props.bloqPosition > 0 ? 65 : 60) + props.bloqPosition * 65}px;
+    (props.bloqPosition > 0 ? 65 : 60) +
+    props.bloqPosition * 65 -
+    props.linesScrollLeft}px;
   background-color: white;
   height: 70px;
   padding: 10px 10px 0px 10px;

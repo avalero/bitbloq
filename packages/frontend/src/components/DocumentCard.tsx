@@ -1,22 +1,58 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
+import { useDrag } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
 
 export interface DocumentCardProps {
+  beginFunction?: () => void;
   document: any;
+  draggable?: boolean;
   className?: string;
+  endFunction?: () => void;
   onClick?: (e: React.MouseEvent) => any;
 }
 
 const DocumentCard: FC<DocumentCardProps> = ({
+  beginFunction,
   document,
   className,
+  draggable,
   onClick,
+  endFunction,
   children
 }) => {
-  return (
-    <Container onClick={onClick} className={className}>
+  const [hidden, setHidden] = useState(false);
+  const [{ isDragging }, drag] = useDrag({
+    item: { type: "document" },
+    collect: monitor => ({
+      isDragging: !!monitor.isDragging()
+    }),
+    canDrag: monitor => {
+      return !!draggable;
+    },
+    begin: monitor => {
+      beginFunction && beginFunction();
+    },
+    end: (item, monitor) => {
+      if (monitor.didDrop()) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      endFunction && endFunction();
+    }
+  });
+
+  return hidden ? (
+    <></>
+  ) : (
+    <Container
+      ref={drag}
+      onClick={onClick}
+      className={className}
+      isDragging={isDragging}
+    >
       <Image src={document.image} />
       <Info>
         <DocumentTypeTag small document={document} />
@@ -29,14 +65,22 @@ const DocumentCard: FC<DocumentCardProps> = ({
 
 export default DocumentCard;
 
-const Container = styled.div`
+interface ContainerProps {
+  isDragging: boolean | undefined;
+}
+const Container = styled.div<ContainerProps>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
-  border: 1px solid ${colors.gray3};
+  border: 1px solid
+    ${(props: ContainerProps) =>
+      props.isDragging ? colors.gray4 : colors.gray3};
   cursor: pointer;
   background-color: white;
   position: relative;
+  overflow: hidden;
+  visibility: ${(props: ContainerProps) =>
+    props.isDragging ? "hidden" : "visible"};
 
   &:hover {
     border-color: ${colors.gray4};

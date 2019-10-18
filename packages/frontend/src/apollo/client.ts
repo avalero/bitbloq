@@ -36,7 +36,7 @@ const request = async (operation, client) => {
     ) {
       token = await renewToken(client, context.tempSession);
       if (token) {
-        setToken(token);
+        setToken(token, context.tempSession);
       }
     }
 

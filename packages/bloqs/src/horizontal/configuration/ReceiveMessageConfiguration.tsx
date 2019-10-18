@@ -29,7 +29,7 @@ const ReceiveMessageConfiguration: FC<IReceiveMessageConfigurationProps> = ({
           { content: <Letter>B</Letter>, id: "messageB" },
           { content: <Letter>C</Letter>, id: "messageC" },
           { content: <Letter>D</Letter>, id: "messageD" },
-          { content: <Letter>E</Letter>, id: "messageE" },
+          { content: <Letter>E</Letter>, id: "messageE" }
         ]}
         value={value}
         onChange={newValue =>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -23,6 +23,7 @@ import {
 interface IHorizontalBloqEditorProps {
   bloqs: IBloq[][];
   bloqTypes: IBloqType[];
+  availableBloqs: IBloqType[];
   onBloqsChange: (bloqs: IBloq[][]) => any;
   onUpload: () => any;
   getComponents: (types: string[]) => IComponentInstance[];
@@ -36,6 +37,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
 > = ({
   bloqs,
   bloqTypes,
+  availableBloqs,
   onBloqsChange,
   onUpload,
   getComponents,
@@ -46,6 +48,31 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
+
+  const [linesScrollLeft, setLinesScrollLeft] = useState(0);
+  const linesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (linesRef.current) {
+      let bloqIndex = -1;
+      if (selectedBloqIndex >= 0) {
+        bloqIndex = selectedBloqIndex;
+      }
+      if (selectedPlaceholder >= 0) {
+        bloqIndex = selectedPlaceholder;
+      }
+
+      if (bloqIndex >= 0) {
+        const bloqPosition = 65 + bloqIndex * 65;
+        const width = linesRef.current.clientWidth;
+        if (bloqPosition - linesScrollLeft < 0) {
+          linesRef.current.scrollLeft = bloqPosition;
+        } else if (bloqPosition - linesScrollLeft > width - 160) {
+          linesRef.current.scrollLeft = bloqPosition - width + 160;
+        }
+      }
+    }
+  }, [linesScrollLeft, selectedBloqIndex, selectedPlaceholder]);
 
   const [undoPast, setUndoPast] = useState<IBloq[][][]>([]);
   const [undoFuture, setUndoFuture] = useState<IBloq[][][]>([]);
@@ -78,7 +105,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
           if (isBloqSelectComponentParameter(param)) {
             const compatibleComponents =
               getComponents(bloqType.components || []) || [];
-            const { name = "" } = compatibleComponents[0] || {};
+            const { name = "" } = compatibleComponents.sort((a,b) => {
+              const aPort = a.port || "";
+              const bPort = b.port || "";
+              const aIsNumber = !isNaN(parseInt(aPort, 10));
+              const bIsNumber = !isNaN(parseInt(bPort, 10));
+
+              if ((aIsNumber && bIsNumber) || (!aIsNumber && !bIsNumber)) {
+                return aPort < bPort ? -1 : 1;
+              }
+              if (aIsNumber) {
+                return -1;
+              }
+              return 1;
+            })[0] || {};
+
             obj[param.name] = name;
           }
           if (param.type === BloqParameterType.Number) {
@@ -141,9 +182,20 @@ const HorizontalBloqEditor: React.FunctionComponent<
     setUndoFuture(undoFuture.slice(1));
   };
 
+  const onLinesScroll = (e: React.UIEvent) => {
+    if (linesRef.current) {
+      setLinesScrollLeft(linesRef.current.scrollLeft);
+    }
+  };
+
   return (
     <Container>
-      <Lines selectedLine={selectedLineIndex} onClick={deselectEverything}>
+      <Lines
+        selectedLine={selectedLineIndex}
+        onClick={deselectEverything}
+        ref={linesRef}
+        onScroll={onLinesScroll}
+      >
         {[...bloqs, []].map((line, i) => (
           <Line key={i}>
             <Number>{i + 1}</Number>
@@ -195,6 +247,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
       <BloqConfigPanel
         isOpen={selectedPlaceholder >= 0 || selectedBloqIndex >= 0}
         bloqTypes={bloqTypes}
+        availableBloqs={availableBloqs}
         onSelectBloqType={onAddBloq}
         selectedPlaceholder={selectedPlaceholder}
         selectedBloq={selectedBloq}
@@ -206,6 +259,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
         getComponents={getComponents}
         board={board}
         components={components}
+        linesScrollLeft={linesScrollLeft}
       />
     </Container>
   );
@@ -220,12 +274,15 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
+  max-width: 100%;
 `;
 
 interface ILinesProps {
   selectedLine: number;
 }
 const Lines = styled.div<ILinesProps>`
+  overflow-x: auto;
+  overflow-y: ${props => (props.selectedLine >= 0 ? "hidden" : "auto")};
   padding: 10px;
   box-sizing: border-box;
   flex: 1;
@@ -242,7 +299,7 @@ const Line = styled.div`
 `;
 
 const Number = styled.div`
-  width: 40px;
+  min-width: 40px;
   height: 40px;
   border-radius: 20px;
   background-color: #3b3e45;

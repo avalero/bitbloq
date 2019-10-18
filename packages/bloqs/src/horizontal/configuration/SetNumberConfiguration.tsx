@@ -27,7 +27,9 @@ const SetNumberConfiguration: FC<ISetNumberConfigurationProps> = ({
         ]}
         value={operation}
         onChange={newValue =>
-          onChange(update(bloq, { parameters: { operation: { $set: newValue } } }))
+          onChange(
+            update(bloq, { parameters: { operation: { $set: newValue } } })
+          )
         }
       />
       <JuniorNumberInput

@@ -99,11 +99,11 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
         {({ height }) => (
           <ExerciseDetails style={{ height }}>
             <ExerciseInfo>
-              <div className="code">
+              <div>
                 <CodeBox>{exercise.code}</CodeBox>
                 {t("exercise-details-code")}
               </div>
-              <div className="accept-submissions">
+              <div>
                 {t("exercise-details-submissions")}
                 <SubmissionsSwitch
                   value={exercise.acceptSubmissions}
@@ -153,14 +153,12 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
               title=""
               onCancel={() => setPasswordModalOpen(false)}
               onSave={(value: string) => {
-                if (value) {
-                  updatePassword({
-                    variables: {
-                      id: submissionIdModal,
-                      password: value
-                    }
-                  });
-                }
+                updatePassword({
+                  variables: {
+                    id: submissionIdModal,
+                    password: value
+                  }
+                });
                 setPasswordModalOpen(false);
               }}
               modalTitle={t("submission-passwordmodal-title")}

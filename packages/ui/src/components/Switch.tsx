@@ -55,7 +55,11 @@ export const Switch: React.SFC<SwitchProps> = ({
   onChange,
   leftRight
 }) => (
-  <Container className={className} onClick={() => onChange(!value)} leftRight={leftRight}>
+  <Container
+    className={className}
+    onClick={() => onChange(!value)}
+    leftRight={leftRight}
+  >
     <Toggle active={value} leftRight={leftRight} />
   </Container>
 );

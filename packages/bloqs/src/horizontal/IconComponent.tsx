@@ -16,7 +16,7 @@ const iconComponents = {
   ServoPositionIcon
 };
 
-const IconComponent: FC<IIconComponentProps> =({ bloq, component }) => {
+const IconComponent: FC<IIconComponentProps> = ({ bloq, component }) => {
   const Component = iconComponents[component];
 
   if (!Component) {
