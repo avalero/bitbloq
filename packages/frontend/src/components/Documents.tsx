@@ -29,7 +29,8 @@ import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   CREATE_FOLDER_MUTATION,
-  FOLDER_QUERY
+  FOLDER_QUERY,
+  DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
 import NewExerciseButton from "./NewExerciseButton";
 import EditTitleModal from "./EditTitleModal";
