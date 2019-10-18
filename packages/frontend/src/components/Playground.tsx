@@ -6,13 +6,13 @@ import { documentTypes } from "../config";
 import { Button, DialogModal, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { SessionEvent, setToken, useSessionEvent } from "../lib/session";
-import { Response, useQuery, useMutation } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import {
   CREATE_DOCUMENT_MUTATION,
   ME_QUERY,
   LOGIN_MUTATION
 } from "../apollo/queries";
-import { LoginForm } from "./LoginPanel";
+import LoginForm from "./LoginForm";
 import HeaderRightContent from "./HeaderRightContent";
 import UserInfo from "./UserInfo";
 
@@ -74,7 +74,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     const token: string = event.data;
     setUserLogged(!!token);
     refetch().then(
-      (result: Response) => (setUserName(result.data.me.name), createDocument())
+      result => (setUserName(result.data.me.name), createDocument())
     );
   });
 
