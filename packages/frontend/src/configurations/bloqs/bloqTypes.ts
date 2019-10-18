@@ -110,7 +110,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {
         name: "read",
         parameters: {
-          pinVarName: "{{component}}Pin1"
+          pinVarName: "{{component}}Pin0"
         }
       }
     ],
@@ -158,7 +158,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {
         name: "read",
         parameters: {
-          pinVarName: "{{component}}Pin2"
+          pinVarName: "{{component}}Pin1"
         }
       }
     ],
@@ -1259,7 +1259,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {
         name: "read",
         parameters: {
-          pinVarName: "{{component}}Pin1",
+          pinVarName: "{{component}}Pin0",
           value: "{{value}}"
         }
       }
@@ -1308,7 +1308,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {
         name: "read",
         parameters: {
-          pinVarName: "{{component}}Pin2",
+          pinVarName: "{{component}}Pin1",
           value: "{{value}}"
         }
       }

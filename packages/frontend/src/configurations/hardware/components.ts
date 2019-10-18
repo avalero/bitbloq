@@ -398,12 +398,12 @@ export const components: Partial<IComponent>[] = [
         },
         pins: [
           {
-            name: "Pin1",
+            name: "Pin0",
             mode: ConnectorPinMode.INPUT,
             portPin: "1"
           },
           {
-            name: "Pin0",
+            name: "Pin1",
             mode: ConnectorPinMode.INPUT,
             portPin: "0"
           }
