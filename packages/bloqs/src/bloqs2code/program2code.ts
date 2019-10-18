@@ -363,6 +363,7 @@ const program2code = (
 
       let componentDefintion: Partial<IComponent> = {};
 
+      debugger;
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
           if (!bloqDefinition.actions) {

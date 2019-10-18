@@ -709,7 +709,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    actions: []
+    actions: [
+      {
+        name: "write",
+        parameters: {
+          pinVarName: "{{component}}",
+          value: "{{value}}"
+        }
+      }
+    ]
   },
   {
     category: BloqCategory.Action,
