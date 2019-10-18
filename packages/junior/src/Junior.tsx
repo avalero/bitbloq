@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from "react";
-import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { Document, Icon, useTranslate } from "@bitbloq/ui";
 import {
@@ -57,6 +56,12 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     components: []
   };
 
+  useEffect(() => {
+    if (content !== initialContent) {
+      onContentChange(content);
+    }
+  }, [content]);
+
   const [uploadSpinnerVisible, setUploadSpinnerVisible] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingSuccess, setUploadingSuccess] = useState(false);
@@ -96,25 +101,17 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     web2BoardRef.current = new Web2Board("wss://web2board.es:9867/bitbloq");
   }, []);
 
-  const componentMapRef = useRef<{ [key: string]: IComponent }>();
-  useEffect(() => {
-    componentMapRef.current = components.reduce((map, c) => {
-      map[c.name] = c;
-      return map;
-    }, {});
-  }, [components]);
-
   if (!board.integrated) {
     board.integrated = [];
   }
 
-  // If componentMap is not set, add at least integrated componentes definition
-  const componentMap = componentMapRef.current || {
-    ...board.integrated.reduce((map, c) => {
-      map[c.component] = getComponentDefinition(components, c.component);
+  const componentMapRef = useRef<{ [key: string]: IComponent }>(
+    [...components, ...board.integrated].reduce((map, c) => {
+      map[c.name] = c;
       return map;
     }, {})
-  };
+  );
+  const componentMap = componentMapRef.current;
 
   const getComponents = (types: string[]) =>
     hardware.components.filter(c =>
@@ -136,9 +133,14 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         bloqType.parameters.find(isBloqSelectComponentParameter);
       const componentName =
         componentParameter && bloq.parameters[componentParameter.name];
+
+      if (!componentName) {
+        return;
+      }
+
       const component = hardware.components.find(c => c.name === componentName);
 
-      return component && component.port;
+      return component ? component.port : "?";
     }
 
     return;
@@ -213,7 +215,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         components={components}
         hardware={hardware}
         onHardwareChange={newHardware =>
-          setContent(update(content, { hardware: { $set: newHardware } }))
+          setContent({ hardware: newHardware, program })
         }
       />
     </Document.Tab>,
@@ -227,9 +229,10 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         components={components}
         getComponents={getComponents}
         getBloqPort={getBloqPort}
-        bloqTypes={availableBloqs}
+        bloqTypes={bloqTypes}
+        availableBloqs={availableBloqs}
         onBloqsChange={(newProgram: IBloq[][]) =>
-          setContent(update(content, { program: { $set: newProgram } }))
+          setContent({ program: newProgram, hardware })
         }
         onUpload={() => upload(10000)}
         board={board}
