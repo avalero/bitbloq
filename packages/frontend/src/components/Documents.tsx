@@ -315,6 +315,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
                 currentLocation={currentLocation}
                 onFolderClick={onFolderClick}
                 onDocumentClick={onDocumentClick}
+                order={order}
+                searchTitle={searchText}
               />
             ) : (
               <NoDocuments>
@@ -329,6 +331,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               currentLocation={currentLocation}
               onFolderClick={onFolderClick}
               onDocumentClick={onDocumentClick}
+              order={order}
+              searchTitle={searchText}
             />
           )
         ) : (

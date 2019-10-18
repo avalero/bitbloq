@@ -3,6 +3,8 @@ import { useDrag } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
+import folderImg from "../images/folder.svg";
+
 
 export interface DocumentCardProps {
   beginFunction?: () => void;
@@ -53,7 +55,11 @@ const DocumentCard: FC<DocumentCardProps> = ({
       className={className}
       isDragging={isDragging}
     >
-      <Image src={document.image} />
+
+    {document.image?
+      <Image src={document.image} />:
+      <Image src={folderImg} />
+    }
       <Info>
         <DocumentTypeTag small document={document} />
         <Title>{document.title}</Title>

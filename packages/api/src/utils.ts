@@ -16,10 +16,10 @@ export const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
 };
 
 export enum OrderType {
-  Creation = "createdAt",
-  Modification = "updatedAt",
-  NameAZ = "alfAZ",
-  NameZA = "alfZA"
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
 }
 
 export const orderOptions = [

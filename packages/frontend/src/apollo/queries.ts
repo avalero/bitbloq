@@ -63,11 +63,11 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
       order: $order
       searchTitle: $searchTitle
     ) {
-      result {
+      result{
         id
         title
         createdAt
-        updatedAt
+        updatedAt      
         image
       }
       pagesNumber

@@ -329,6 +329,7 @@ const documentResolver = {
      * args: itemsPerPage: Number, order: String, searchTitle: String.
      */
     documentsAndFolders: async (root: any, args: any, context: any) => {
+      console.log(args, context)
       const user: IUser = await UserModel.findOne({ _id: context.user.userID });
       if (!user) return new AuthenticationError("You need to be logged in");
 
@@ -355,26 +356,19 @@ const documentResolver = {
 
       const orderFunction = orderFunctions[args.order];
 
-      if (args.order === "alfAZ") {
+      if (args.order === OrderType.NameAZ) {
         sortDoc = { title: 1 }; // -1 desc, 1 asc
-      } else if (args.order === "alfZA") {
+        sortFol = { name: 1 };
+      } else if (args.order === OrderType.NameZA) {
         sortDoc = { title: -1 };
-      } else if (args.order === "createdAt") {
-        sortDoc = { createdAt: 1, title: 1 };
-      } else if (args.order === "updatedAt") {
-        sortDoc = { updatedAt: -1, title: 1 };
-      }
-
-      if (args.order === "alfAZ") {
-        sortFol = { name: 1 }; // -1 desc, 1 asc
-      } else if (args.order === "alfZA") {
         sortFol = { name: -1 };
-      } else if (args.order === "createdAt") {
+      } else if (args.order === OrderType.Creation) {
+        sortDoc = { createdAt: 1, title: 1 };
         sortFol = { createdAt: 1, name: 1 };
-      } else if (args.order === "updatedAt") {
-        sortFol = { updatedAt: -1, name: 1 };
+      } else if (args.order === OrderType.Modification) {
+        sortDoc = { updatedAt: 1, title: 1 };
+        sortFol = { updatedAt: 1, name: 1 };
       }
-
       const docs: IDocument[] = await DocumentModel.find(
         filterOptionsDoc,
         null,
@@ -394,21 +388,22 @@ const documentResolver = {
           id,
           createdAt,
           updatedAt,
-          folder: true,
           ...op
         })
       );
+      console.log(docs.length, fols.length)
       const allData = [...docs, ...folsTitle];
       const allDataSorted = allData.sort(orderFunction);
-
+      console.log(docs.length, fols.length, allDataSorted.length)
       const pagesNumber: number = Math.ceil(
         ((await DocumentModel.countDocuments(filterOptionsDoc)) +
           (await FolderModel.countDocuments(filterOptionsFol))) /
           itemsPerPage
       );
-
+      console.log(skipN, limit)
+      const result= allDataSorted.slice(skipN, limit);
       return {
-        result: allDataSorted.slice(skipN, limit),
+        result: result,
         pagesNumber: pagesNumber
       };
     }

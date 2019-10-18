@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
 import { DndProvider } from "react-dnd";
@@ -19,7 +19,8 @@ import {
   FOLDER_QUERY,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION
+  CREATE_DOCUMENT_MUTATION,
+  DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
 import FolderSelectorMenu from "./FolderSelectorMenu";
 
@@ -32,6 +33,8 @@ export interface DocumentListProps {
   folders?: any;
   parentsPath?: any;
   className?: string;
+  order?: string;
+  searchTitle?: string;
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
@@ -44,7 +47,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
   currentLocation,
   className,
   onFolderClick,
-  onDocumentClick
+  onDocumentClick,
+  order,
+  searchTitle
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDocumentId, setDeleteDocumentId] = useState({
@@ -73,6 +78,16 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
+
+  const { data: resultData, loading, error } = useQuery(DOCS_FOLDERS_PAGE_QUERY, {
+    variables: {
+      currentLocation: currentLocation ? currentLocation.id : undefined,
+      currentPage: currentPage,
+      order: order,
+      searchTitle: searchTitle,
+      itemsPerPage: 8,
+    }
+  });
 
   const onDocumentMenuClick = (e, document) => {
     e.stopPropagation();
@@ -296,12 +311,25 @@ const DocumentListComp: FC<DocumentListProps> = ({
       parent: null
     });
   };
+  if (error || !resultData) {
+    console.log(error);
+    return <div>error</div>;
+  }
+  
+  console.log(resultData);
+  
+  const pagesNumber=resultData && resultData.documentsAndFolders.pagesNumber;
+  const docsAndFols=resultData && resultData.documentsAndFolders.result;
+  
+
+  console.log(resultData);
+
   return (
     <>
       <DndProvider backend={HTML5Backend}>
         <DocumentList className={className}>
-          {documents &&
-            documents.map((document: any) => (
+          {docsAndFols &&
+            docsAndFols.map((document: any) => (
               <StyledDocumentCard
                 beginFunction={() => setDraggingItemId(document.id)}
                 endFunction={() => setDraggingItemId("")}
@@ -352,16 +380,21 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onDocumentRenameClick(e, document);
+                              document.image
+                                ? onDocumentRenameClick(e, document)
+                                : onFolderRenameClick(e, document);
                             }
                           },
                           {
                             iconName: "duplicate",
                             label: "Crear una copia",
+                            disabled: document.image === null,
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onDuplicateDocument(e, document);
+                              document.image
+                                ? onDuplicateDocument(e, document)
+                                : null;
                             }
                           },
                           {
@@ -373,16 +406,22 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onMoveDocumentClick(e, document);
+                              document.image
+                                ? onMoveDocumentClick(e, document)
+                                : onMoveFolderClick(e, document);
                             }
                           },
                           {
                             iconName: "trash",
-                            label: "Eliminar documento",
+                            label: document.image
+                              ? "Eliminar documento"
+                              : "Eliminar carpeta",
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onDocumentDeleteClick(e, document);
+                              document.image
+                                ? onDocumentDeleteClick(e, document)
+                                : onFolderDeleteClick(e, document);
                             },
                             red: true
                           }
@@ -392,7 +431,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     {selectedToMove.id === document.id && folders != [] && (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
-                        onMove={onMoveDocument}
+                        onMove={document.image ? onMoveDocument : onMoveFolder}
                         currentLocation={currentLocation}
                       />
                     )}
@@ -400,7 +439,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 </DropDown>
               </StyledDocumentCard>
             ))}
-          {folders &&
+          {/*folders &&
             folders.map((folder: any) => (
               <StyledFolderCard
                 dropDocumentCallback={() =>
@@ -494,12 +533,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   </DropDown>
                 </DropDown>
               </StyledFolderCard>
-            ))}
+            ))*/}
         </DocumentList>
       </DndProvider>
       <DocumentsPaginator
         currentPage={currentPage}
-        pages={12}
+        pages={pagesNumber}
         selectPage={(page: number) => setCurrentPage(page)}
       />
       <DialogModal
