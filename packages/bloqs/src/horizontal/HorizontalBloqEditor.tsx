@@ -132,6 +132,9 @@ const HorizontalBloqEditor: React.FunctionComponent<
           if (param.type === BloqParameterType.Boolean) {
             obj[param.name] = false;
           }
+          if (param.type === BloqParameterType.Hidden) {
+            obj[param.name] = param.value;
+          }
         }
         return obj;
       }, {})

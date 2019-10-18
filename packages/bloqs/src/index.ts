@@ -32,7 +32,6 @@ export interface IBloqBaseParameter {
   type: BloqParameterType;
   value?: string;
   defaultValue?: string | number | boolean;
-  trueCondition?: string;
 }
 
 export interface IBloqParameterOption {
