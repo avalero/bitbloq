@@ -19,6 +19,7 @@ import {
 import { getFullComponentDefinition } from "./componentBuilder";
 import nunjucks from "nunjucks";
 import { BloqCategory } from "../enums";
+import { isString } from "util";
 
 interface IAction {
   parameters: { [name: string]: string };
@@ -183,7 +184,15 @@ export const bloq2code = (
     componentDefintion
   );
 
-  const code: string[] = actions2code(actions);
+  const runActions = actions.filter(action => {
+    // if the bloq has an "action" parameter defining which action to run
+    if (bloqInstance.parameters.action) {
+      return bloqInstance.parameters.action === action.definition.name;
+    }
+    return true;
+  });
+
+  const code: string[] = actions2code(runActions);
   return code;
 };
 
@@ -286,7 +295,10 @@ const waitEvent2Code = (
 
   const waitEventCode: string = waitEventCodeArray[0];
 
-  const bloqInstanceValueTemplate = bloqInstance.parameters.value;
+  let bloqInstanceValueTemplate = bloqInstance.parameters.value;
+  if (!isString(bloqInstanceValueTemplate)) {
+    bloqInstanceValueTemplate = bloqInstanceValueTemplate.toString();
+  }
   const nunjucksData = { ...bloqInstance.parameters };
   const bloqInstanceValue = nunjucks.renderString(
     bloqInstanceValueTemplate,
@@ -297,12 +309,15 @@ const waitEvent2Code = (
   void ${functionName}Wait();
   void ${functionName}();`;
 
+  // some blocks will have a trueCondition. If not, foget it.
+  const trueCondition = bloqInstance.parameters.trueCondition || "";
+
   const waitEventDefinitionCode: string = `
     heap.insert(${functionName}Wait);
   }
   
   void ${functionName}Wait(){
-    if(!(${waitEventCode} ${(componentDefintion.values &&
+    if(!(${waitEventCode} ${trueCondition} ${(componentDefintion.values &&
     componentDefintion.values[bloqInstanceValue]) ||
     bloqInstanceValue})){
         heap.insert(${functionName}Wait);
@@ -457,15 +472,22 @@ const program2code = (
 
             const code: string = codeArray[0];
 
-            const bloqInstanceValueTemplate = bloqInstance.parameters.value;
+            let bloqInstanceValueTemplate = bloqInstance.parameters.value;
+
+            if (!isString(bloqInstanceValueTemplate)) {
+              bloqInstanceValueTemplate = bloqInstanceValueTemplate.toString();
+            }
             const nunjucksData = { ...bloqInstance.parameters };
             const bloqInstanceValue = nunjucks.renderString(
               bloqInstanceValueTemplate,
               nunjucksData
             );
 
+            // some blocks will have a trueCondition. If not, foget it.
+            const trueCondition = bloqInstance.parameters.trueCondition || "";
+
             eventLoopCode = `
-              if(${code} ${(componentDefintion.values &&
+              if(${code} ${trueCondition} ${(componentDefintion.values &&
               componentDefintion.values[bloqInstanceValue]) ||
               bloqInstanceValue}){
                 if(!${timelineFlagName}){ 

@@ -843,21 +843,21 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                type: BloqParameterType.Number
              },
              {
-               name: "operation",
-               label: "bloq-message-operation",
+               name: "action",
+               label: "bloq-message-action",
                type: BloqParameterType.Select,
                options: [
                  {
                    label: "bloq-parameter-set",
-                   value: "set"
+                   value: "writeNumber"
                  },
                  {
                    label: "bloq-parameter-increment",
-                   value: "increment"
+                   value: "incrementNumber"
                  },
                  {
                    label: "bloq-parameter-decrement",
-                   value: "decrement"
+                   value: "decrementNumber"
                  }
                ]
              }
@@ -1241,6 +1241,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                name: "value",
                label: "bloq-parameter-value",
                type: BloqParameterType.Number
+             },
+             {
+               name: "trueCondition",
+               label: "bloq-parameter-true",
+               value: "==",
+               type: BloqParameterType.Hidden
              }
            ]
          },
