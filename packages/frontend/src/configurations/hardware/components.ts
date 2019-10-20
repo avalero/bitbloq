@@ -597,7 +597,9 @@ export const components: Partial<IComponent>[] = [
       hot: ">= 25",
       cold: "< 25",
       light: ">50",
-      dark: "<50"
+      dark: "<50",
+      obstacle: "<20",
+      no_obstacle: ">=20"
     }
   }
 ];

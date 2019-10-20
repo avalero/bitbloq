@@ -342,10 +342,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
            name: "OnObstacle",
            label: "bloq-on-obstacle",
            iconSwitch: {
-             "detect === 'true'": obstacleIcon,
-             "detect === 'false'": noObstacleIcon
+             "value === 'obstacle'": obstacleIcon,
+             "value === 'no_obstacle'": noObstacleIcon
            },
-           components: ["ZumjuniorMultiSensor"],
            actions: [
              {
                name: "readDistance",
@@ -354,6 +353,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                }
              }
            ],
+           components: ["ZumjuniorMultiSensor"],
            configurationComponent: "ObstacleConfiguration",
            parameters: [
              {
@@ -362,31 +362,25 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                type: BloqParameterType.SelectComponent
              },
              {
-               name: "detect",
+               name: "value",
                label: "bloq-parameter-detect",
                type: BloqParameterType.Select,
                options: [
                  {
                    label: "bloq-parameter-detect",
-                   value: "true"
+                   value: "obstacle"
                  },
                  {
                    label: "bloq-parameter-not-detect",
-                   value: "false"
+                   value: "no_obstacle"
                  }
                ]
-             },
-             {
-               name: "value",
-               label: "bloq-parameter-value",
-               type: BloqParameterType.Hidden,
-               value: "20"
              },
              {
                name: "trueCondition",
                label: "bloq-parameter-action",
                type: BloqParameterType.Hidden,
-               value: "<="
+               value: ""
              }
            ]
          },
@@ -1009,8 +1003,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
            name: "WaitObstacle",
            label: "bloq-wait-obstacle",
            iconSwitch: {
-             "value === 'true'": obstacleIcon,
-             "value === 'false'": noObstacleIcon
+             "value === 'obstacle'": obstacleIcon,
+             "value === 'no_obstacle'": noObstacleIcon
            },
            components: ["ZumjuniorMultiSensor"],
            actions: [
@@ -1035,25 +1029,19 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                options: [
                  {
                    label: "bloq-parameter-detect",
-                   value: "true"
+                   value: "obstacle"
                  },
                  {
                    label: "bloq-parameter-not-detect",
-                   value: "false"
+                   value: "no_obstacle"
                  }
-               ]
-             },
-             {
-               name: "value",
-               label: "bloq-parameter-value",
-               type: BloqParameterType.Hidden,
-               value: "20"
+               ],
              },
              {
                name: "trueCondition",
                label: "bloq-parameter-action",
                type: BloqParameterType.Hidden,
-               value: "<="
+               value: ""
              }
            ]
          },
