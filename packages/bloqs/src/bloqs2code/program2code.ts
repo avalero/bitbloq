@@ -294,9 +294,7 @@ const waitEvent2Code = (
   }
   
   void ${functionName}Wait(){
-    if(!(${waitEventCode} ${
-    bloqInstance.parameters.trueCondition
-  } ${(componentDefintion.values &&
+    if(!(${waitEventCode} ${(componentDefintion.values &&
     componentDefintion.values[
       bloqInstance.parameters.value as string | number
     ]) ||
@@ -454,9 +452,7 @@ const program2code = (
             const code: string = codeArray[0];
 
             eventLoopCode = `
-              if(${code} ${
-              bloqInstance.parameters.trueCondition
-            } ${(componentDefintion.values &&
+              if(${code} ${(componentDefintion.values &&
               componentDefintion.values[
                 bloqInstance.parameters.value as string | number
               ]) ||

@@ -28,8 +28,8 @@ export const components: Partial<IComponent>[] = [
   {
     name: "DigitalInput",
     extends: "Digital",
-    onValue: "HIGH",
-    offValue: "LOW",
+    // onValue: "HIGH",
+    // offValue: "LOW",
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -49,8 +49,8 @@ export const components: Partial<IComponent>[] = [
   {
     name: "DigitalOutput",
     extends: "Digital",
-    onValue: "HIGH",
-    offValue: "LOW",
+    // onValue: "HIGH",
+    // offValue: "LOW",
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -307,8 +307,8 @@ export const components: Partial<IComponent>[] = [
     label: "hardware.component.button",
     extends: "Button",
     values: {
-      pressed: "HIGH",
-      released: "LOW"
+      pressed: "== HIGH",
+      released: "== LOW"
     },
     instanceName: "bloq-button-instance-name",
     connectors: [
@@ -384,8 +384,8 @@ export const components: Partial<IComponent>[] = [
     extends: "DigitalInput",
     instanceName: "bloq-switch-instance-name",
     values: {
-      pos1: "LOW",
-      pos2: "HIGH"
+      pos1: " == LOW",
+      pos2: " == HIGH"
     },
     connectors: [
       {

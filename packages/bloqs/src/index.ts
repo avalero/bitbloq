@@ -200,8 +200,8 @@ export interface IComponent {
   actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
-  onValue?: string;
-  offValue?: string;
+  // onValue?: string;
+  // offValue?: string;
   values: { [name: string]: string };
 }
 

@@ -132,12 +132,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ],
            code: {}
          },
@@ -180,12 +174,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ],
            code: {}
          },
@@ -294,12 +282,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ],
            code: {}
          },
@@ -329,12 +311,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                label: "bloq-parameter-value",
                type: BloqParameterType.Number
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ]
          },
          {
@@ -376,12 +352,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: ""
-             }
            ]
          },
          {
@@ -491,12 +461,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: ""
-             }
            ]
          },
          {
@@ -538,12 +502,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: ""
-             }
            ]
          },
          {
@@ -1037,12 +995,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ],
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: ""
-             }
            ]
          },
          {
@@ -1152,12 +1104,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: ""
-             }
            ]
          },
          {
@@ -1199,12 +1145,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: ""
-             }
            ]
          },
          {
@@ -1246,12 +1186,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ]
          },
          {
@@ -1280,12 +1214,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                label: "bloq-parameter-value",
                type: BloqParameterType.Number
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ]
          },
          {
@@ -1328,12 +1256,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ],
            code: {}
          },
@@ -1377,12 +1299,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                  }
                ]
              },
-             {
-               name: "trueCondition",
-               label: "bloq-parameter-action",
-               type: BloqParameterType.Hidden,
-               value: "=="
-             }
            ],
            code: {}
          },
