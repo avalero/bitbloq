@@ -99,7 +99,10 @@ const bloqs2code = (
 
   try {
     // adjust program
-    const programFixed: IBloq[][] = adjustProgram(program, bloqTypes);
+    const programFixed: IBloq[][] = adjustProgram(
+      cloneDeep(program),
+      bloqTypes
+    );
 
     board2code(boards, hardware, arduinoCode);
     const board: IBoard = getBoardDefinition(boards, hardware);
