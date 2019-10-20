@@ -21,7 +21,7 @@ import cloneDeep from "clone-deep";
 import juniorcodetemplate from "./juniorcodetemplate";
 import board2code, { getBoardDefinition } from "./board2code";
 import components2code from "./components2code";
-import program2code from "./program2code";
+import program2code, { getBloqDefinition } from "./program2code";
 
 /**
  * @returns date in dd/mm/yyyy -- HH:MM format
@@ -31,6 +31,47 @@ const getDate = (): string => {
   const dateString = `${date.getDate()}/${date.getMonth() +
     1}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
   return dateString;
+};
+
+/**
+ * Removes empty timelines
+ * Splits timelines with WaitForMessage bloqs in new timelines.
+ * @param program original program
+ * @param bloqTypes array of bloq types
+ */
+const adjustProgram = (
+  program: IBloq[][],
+  bloqTypes: Array<Partial<IBloqType>>
+): IBloq[][] => {
+  const WaitMessage2EventMessage = (wait: IBloq): IBloq => {
+    return {
+      type: "OnMessage",
+      parameters: { value: wait.parameters.value }
+    };
+  };
+
+  let adjustedProgram: IBloq[][] = program.filter(timeline =>
+    timeline.length > 0 ? true : false
+  );
+
+  adjustedProgram = adjustedProgram.flatMap(timeline => {
+    const result: IBloq[][] = [];
+    timeline.forEach((bloqInstance, index, arr) => {
+      const bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
+      if (bloqDefinition.name === "WaitMessage") {
+        arr[index] = WaitMessage2EventMessage(bloqInstance);
+        const lastIndex = result.flatMap(e => e).length;
+        result.push(arr.slice(lastIndex, index));
+      }
+      if (index === arr.length - 1) {
+        const lastIndex = result.flatMap(e => e).length;
+        result.push(arr.slice(lastIndex));
+      }
+    });
+
+    return result;
+  });
+  return adjustedProgram;
 };
 
 const bloqs2code = (
@@ -57,16 +98,13 @@ const bloqs2code = (
   };
 
   try {
+    // adjust program
+    const programFixed: IBloq[][] = adjustProgram(program, bloqTypes);
+
     board2code(boards, hardware, arduinoCode);
     const board: IBoard = getBoardDefinition(boards, hardware);
     components2code(components, hardware.components, board, arduinoCode);
-    program2code(
-      components,
-      bloqTypes,
-      hardware,
-      cloneDeep(program),
-      arduinoCode
-    );
+    program2code(components, bloqTypes, hardware, programFixed, arduinoCode);
   } catch (e) {
     console.warn(e);
     // throw e;

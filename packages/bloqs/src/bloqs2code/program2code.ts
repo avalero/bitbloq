@@ -28,13 +28,6 @@ interface IAction {
 
 type ActionsArray = IAction[];
 
-const WaitMessage2EventMessage = (wait: IBloq): IBloq => {
-  return {
-    type: "OnMessage",
-    parameters: { value: wait.parameters.value }
-  };
-};
-
 /**
  * Returns the bloq definition to which a bloq refers
  * @param bloqTypes The array of existing bloqs
@@ -344,7 +337,7 @@ const program2code = (
 
   for (let index = 0; index < program.length; index++) {
     const timeline = program[index];
-    if (timeline.length === 0) continue;
+    if (timeline.length === 0) continue; // this should not happen on fixed programs
 
     timelineFlagName = `timeline${index + 1}`;
     let i = 0;
@@ -375,20 +368,9 @@ const program2code = (
 
           functionName = `func_${++functionNameIndex}`;
 
-          // Wait Time or Wait Message bloq (it has no components)
+          // Wait Timer
           if (!bloqDefinition.components) {
-            if (bloqDefinition.name === "WaitMessage") {
-              // in this case we create a new timeline for the message event
-              const newTimeLine = [
-                WaitMessage2EventMessage(bloqInstance),
-                ...timeline.slice(i + 1)
-              ];
-              timeline.splice(i);
-              program.push(newTimeLine);
-              break; // jump to next timeline
-            }
-
-            // else -> Wait timer
+            // Wait timer
             waitTimer2Code(
               bloqInstance,
               bloqDefinition,
