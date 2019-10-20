@@ -153,6 +153,7 @@ export const actions2code = (actions: ActionsArray): string[] => {
     if (action.valuesSym[action.parameters.value]) {
       nunjucksData.value = action.valuesSym[action.parameters.value];
     }
+
     const codeTemplate = action.definition.code;
     const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
     code.push(c);
@@ -285,6 +286,13 @@ const waitEvent2Code = (
 
   const waitEventCode: string = waitEventCodeArray[0];
 
+  const bloqInstanceValueTemplate = bloqInstance.parameters.value;
+  const nunjucksData = { ...bloqInstance.parameters };
+  const bloqInstanceValue = nunjucks.renderString(
+    bloqInstanceValueTemplate,
+    nunjucksData
+  );
+
   const waitEventGlobalsCode: string = `
   void ${functionName}Wait();
   void ${functionName}();`;
@@ -295,10 +303,8 @@ const waitEvent2Code = (
   
   void ${functionName}Wait(){
     if(!(${waitEventCode} ${(componentDefintion.values &&
-    componentDefintion.values[
-      bloqInstance.parameters.value as string | number
-    ]) ||
-    bloqInstance.parameters.value})){
+    componentDefintion.values[bloqInstanceValue]) ||
+    bloqInstanceValue})){
         heap.insert(${functionName}Wait);
     }else{
       heap.insert(${functionName});
@@ -451,12 +457,17 @@ const program2code = (
 
             const code: string = codeArray[0];
 
+            const bloqInstanceValueTemplate = bloqInstance.parameters.value;
+            const nunjucksData = { ...bloqInstance.parameters };
+            const bloqInstanceValue = nunjucks.renderString(
+              bloqInstanceValueTemplate,
+              nunjucksData
+            );
+
             eventLoopCode = `
               if(${code} ${(componentDefintion.values &&
-              componentDefintion.values[
-                bloqInstance.parameters.value as string | number
-              ]) ||
-              bloqInstance.parameters.value}){
+              componentDefintion.values[bloqInstanceValue]) ||
+              bloqInstanceValue}){
                 if(!${timelineFlagName}){ 
                   heap.insert(${functionName});
                   ${timelineFlagName} = true;

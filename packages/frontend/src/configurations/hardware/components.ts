@@ -591,6 +591,12 @@ export const components: Partial<IComponent>[] = [
         parameters: ["pinVarName"],
         code: `{{pinVarName}}ALPS.getAL()`,
         return: "uint8_t"
+      },
+      {
+        name: "readColor",
+        parameters: ["pinVarName"],
+        code: `{{pinVarName}}Color.whichColor()`,
+        return: "uint8_t"
       }
     ],
     values: {
@@ -599,7 +605,17 @@ export const components: Partial<IComponent>[] = [
       light: ">=40",
       dark: "<40",
       obstacle: "<20",
-      no_obstacle: ">=20"
+      no_obstacle: ">=20",
+      truered: "==0",
+      truegreen: "==1",
+      trueblue: "==2",
+      truewhite: "==3",
+      trueblack: "==4",
+      falsered: "!=0",
+      falsegreen: "!=1",
+      falseblue: "!=2",
+      falsewhite: "!=3",
+      falseblack: "!=4"
     }
   }
 ];

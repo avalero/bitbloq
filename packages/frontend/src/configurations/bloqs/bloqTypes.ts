@@ -131,7 +131,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "pos1"
                  }
                ]
-             },
+             }
            ],
            code: {}
          },
@@ -173,7 +173,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "pos1"
                  }
                ]
-             },
+             }
            ],
            code: {}
          },
@@ -281,7 +281,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "released"
                  }
                ]
-             },
+             }
            ],
            code: {}
          },
@@ -310,7 +310,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                name: "value",
                label: "bloq-parameter-value",
                type: BloqParameterType.Number
-             },
+             }
            ]
          },
          {
@@ -351,7 +351,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "no_obstacle"
                  }
                ]
-             },
+             }
            ]
          },
          {
@@ -372,6 +372,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
            },
            configurationComponent: "ViewColorConfiguration",
            components: ["ZumjuniorMultiSensor"],
+           actions: [
+             {
+               name: "readColor",
+               parameters: {
+                 pinVarName: "{{component}}i2c"
+               }
+             }
+           ],
            parameters: [
              {
                name: "component",
@@ -419,6 +427,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "blue"
                  }
                ]
+             },
+             {
+               name: "value",
+               label: "bloq-parameter-value",
+               type: BloqParameterType.Hidden,
+               value: "{{detect}}{{color}}"
              }
            ]
          },
@@ -460,7 +474,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "dark"
                  }
                ]
-             },
+             }
            ]
          },
          {
@@ -501,7 +515,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "cold"
                  }
                ]
-             },
+             }
            ]
          },
          {
@@ -993,8 +1007,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    label: "bloq-parameter-not-detect",
                    value: "no_obstacle"
                  }
-               ],
-             },
+               ]
+             }
            ]
          },
          {
@@ -1015,6 +1029,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
            },
            configurationComponent: "ViewColorConfiguration",
            components: ["ZumjuniorMultiSensor"],
+           actions: [
+             {
+               name: "readColor",
+               parameters: {
+                 pinVarName: "{{component}}i2c"
+               }
+             }
+           ],
            parameters: [
              {
                name: "component",
@@ -1062,6 +1084,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "blue"
                  }
                ]
+             },
+             {
+               name: "value",
+               label: "bloq-parameter-value",
+               type: BloqParameterType.Hidden,
+               value: "{{detect}}{{color}}"
              }
            ]
          },
@@ -1103,7 +1131,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "dark"
                  }
                ]
-             },
+             }
            ]
          },
          {
@@ -1144,7 +1172,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "cold"
                  }
                ]
-             },
+             }
            ]
          },
          {
@@ -1185,7 +1213,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "released"
                  }
                ]
-             },
+             }
            ]
          },
          {
@@ -1213,7 +1241,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                name: "value",
                label: "bloq-parameter-value",
                type: BloqParameterType.Number
-             },
+             }
            ]
          },
          {
@@ -1255,7 +1283,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "pos1"
                  }
                ]
-             },
+             }
            ],
            code: {}
          },
@@ -1298,7 +1326,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "pos1"
                  }
                ]
-             },
+             }
            ],
            code: {}
          },

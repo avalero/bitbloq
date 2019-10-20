@@ -84,7 +84,7 @@ export interface IBloqType {
 
 export interface IBloq {
   type: string;
-  parameters: { [name: string]: string | number | boolean };
+  parameters: { [name: string]: string };
 }
 
 export interface IBloqTypeGroup {
