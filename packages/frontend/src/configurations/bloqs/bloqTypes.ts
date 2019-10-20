@@ -310,6 +310,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                name: "value",
                label: "bloq-parameter-value",
                type: BloqParameterType.Number
+             },
+             {
+               name: "trueCondition",
+               label: "bloq-parameter-trueCondition",
+               type: BloqParameterType.Hidden,
+               value: "==",
              }
            ]
          },
