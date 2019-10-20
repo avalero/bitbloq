@@ -500,9 +500,17 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "OnDetectTemperature",
     label: "bloq-on-detect-temperature",
     iconSwitch: {
-      "detect === 'hot'": temperatureHotIcon,
-      "detect === 'cold'": temperatureColdIcon
+      "value === 'hot'": temperatureHotIcon,
+      "value === 'cold'": temperatureColdIcon
     },
+    actions: [
+      {
+        name: "readTemperature",
+        parameters: {
+          pinVarName: "{{component}}i2c"
+        }
+      }
+    ],
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -512,7 +520,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "detect",
+        name: "value",
         label: "bloq-parameter-detect",
         type: BloqParameterType.Select,
         options: [
@@ -525,6 +533,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
             value: "cold"
           }
         ]
+      },
+      {
+        name: "trueCondition",
+        label: "bloq-parameter-action",
+        type: BloqParameterType.Hidden,
+        value: ""
       }
     ]
   },
@@ -983,8 +997,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "WaitObstacle",
     label: "bloq-wait-obstacle",
     iconSwitch: {
-      "detect === 'true'": obstacleIcon,
-      "detect === 'false'": noObstacleIcon
+      "value === 'true'": obstacleIcon,
+      "value === 'false'": noObstacleIcon
     },
     components: ["ZumjuniorMultiSensor"],
     actions: [
@@ -1003,7 +1017,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.SelectComponent
       },
       {
-        name: "detect",
+        name: "value",
         label: "bloq-parameter-detect",
         type: BloqParameterType.Select,
         options: [
