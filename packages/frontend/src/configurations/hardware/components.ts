@@ -585,11 +585,19 @@ export const components: Partial<IComponent>[] = [
         parameters: ["pinVarName"],
         code: `{{pinVarName}}Temp.getTemp()`,
         return: "uint8_t"
+      },
+      {
+        name: "readLight",
+        parameters: ["pinVarName"],
+        code: `{{pinVarName}}ALPS.getAL()`,
+        return: "uint8_t"
       }
     ],
     values: {
       hot: ">= 25",
-      cold: "< 25"
+      cold: "< 25",
+      light: ">50",
+      dark: "<50"
     }
   }
 ];

@@ -20,22 +20,22 @@ const DetectLightConfiguration: FC<ILightConfigurationProps> = ({
   bloq,
   onChange
 }) => {
-  const detect = bloq.parameters.detect as string;
+  const value = bloq.parameters.value as string;
 
   return (
     <Container>
       <ImageWrap>
-        {detect === "light" && <LightImage />}
-        {detect === "dark" && <DarkImage />}
+        {value === "light" && <LightImage />}
+        {value === "dark" && <DarkImage />}
       </ImageWrap>
       <JuniorSwitch
         buttons={[
           { content: <ButtonIcon src={LightIcon} />, id: "light" },
           { content: <ButtonIcon src={DarkIcon} />, id: "dark" }
         ]}
-        value={detect}
+        value={value}
         onChange={newValue =>
-          onChange(update(bloq, { parameters: { detect: { $set: newValue } } }))
+          onChange(update(bloq, { parameters: { value: { $set: newValue } } }))
         }
       />
     </Container>

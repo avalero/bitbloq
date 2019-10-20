@@ -463,9 +463,17 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
            name: "OnDetectLight",
            label: "bloq-on-detect-light",
            iconSwitch: {
-             "detect === 'light'": lightIcon,
-             "detect === 'dark'": darkIcon
+             "value === 'light'": lightIcon,
+             "value === 'dark'": darkIcon
            },
+           actions: [
+             {
+               name: "readLight",
+               parameters: {
+                 pinVarName: "{{component}}i2c"
+               }
+             }
+           ],
            configurationComponent: "DetectLightConfiguration",
            components: ["ZumjuniorMultiSensor"],
            parameters: [
@@ -475,7 +483,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                type: BloqParameterType.SelectComponent
              },
              {
-               name: "detect",
+               name: "value",
                label: "bloq-parameter-detect",
                type: BloqParameterType.Select,
                options: [
@@ -488,6 +496,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "dark"
                  }
                ]
+             },
+             {
+               name: "trueCondition",
+               label: "bloq-parameter-action",
+               type: BloqParameterType.Hidden,
+               value: ""
              }
            ]
          },
@@ -1116,9 +1130,17 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
            name: "WaitDetectLight",
            label: "bloq-wait-detect-light",
            iconSwitch: {
-             "detect === 'light'": lightIcon,
-             "detect === 'dark'": darkIcon
+             "value === 'light'": lightIcon,
+             "value === 'dark'": darkIcon
            },
+           actions: [
+             {
+               name: "readLight",
+               parameters: {
+                 pinVarName: "{{component}}i2c"
+               }
+             }
+           ],
            configurationComponent: "DetectLightConfiguration",
            components: ["ZumjuniorMultiSensor"],
            parameters: [
@@ -1128,7 +1150,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                type: BloqParameterType.SelectComponent
              },
              {
-               name: "detect",
+               name: "value",
                label: "bloq-parameter-detect",
                type: BloqParameterType.Select,
                options: [
@@ -1141,6 +1163,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                    value: "dark"
                  }
                ]
+             },
+             {
+               name: "trueCondition",
+               label: "bloq-parameter-action",
+               type: BloqParameterType.Hidden,
+               value: ""
              }
            ]
          },
