@@ -13,6 +13,7 @@ import {
 } from "@bitbloq/ui";
 import { navigate } from "gatsby";
 import { Subscription } from "react-apollo";
+import debounce from "lodash/debounce";
 import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import NewDocumentDropDown from "./NewDocumentDropDown";
@@ -65,6 +66,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentLocation, setCurrentLocation] = useState({
@@ -95,7 +97,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       currentLocation: currentLocation.id,
       currentPage: currentPage,
       order: order,
-      searchTitle: searchText,
+      searchTitle: searchQuery,
       itemsPerPage: 8
     },
     fetchPolicy: "cache-and-network"
@@ -169,6 +171,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   };
 
+  const onSearchInput = debounce((value: string) => {
+    setSearchQuery(value);
+  }, 500);
+
   const onFileSelected = file => {
     const reader = new FileReader();
     reader.onload = async e => {
@@ -228,7 +234,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
                 <SearchInput
                   value={searchText}
                   onChange={e => (
-                    setSearchText(e.target.value), setCurrentPage(1)
+                    setSearchText(e.target.value), onSearchInput(e.target.value)
                   )}
                   placeholder="Buscar..."
                 />
