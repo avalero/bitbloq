@@ -95,7 +95,7 @@ const PortIndicator = styled.div<IPortIndicatorProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => props.error ? colors.red : "#000"};
+  color: ${props => (props.error ? colors.red : "#000")};
   z-index: 2;
 `;
 

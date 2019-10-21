@@ -14,7 +14,7 @@ const GetNumberConfiguration: FC<IGetNumberConfigurationProps> = ({
   bloq,
   onChange
 }) => {
-  const value = bloq.parameters.value as number;
+  const value = Number(bloq.parameters.value);
 
   return (
     <Container>
