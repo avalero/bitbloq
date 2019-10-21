@@ -17,6 +17,8 @@ type Mutation {
   deleteDocument(id: ObjectID!): Document @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
     @authRequired(requires: [USER])
+  setDocumentImage(id: ObjectID, image: Upload, isSnapshot: Boolean): Document
+    @authRequired(requires: [USER])
   updateDocumentContent(
     id: ObjectID
     content: String
@@ -30,6 +32,11 @@ type Subscription {
   documentUpdated: Document @authRequired(requires: [USER])
 }
 
+type DocImage {
+  image: String
+  isSnapshot: Boolean
+}
+
 type Document {
   id: ObjectID
   user: ObjectID
@@ -41,7 +48,7 @@ type Document {
   cache: String
   description: String
   version: String
-  image: String
+  image: DocImage
   public: Boolean
   example: Boolean
   createdAt: Date
@@ -61,6 +68,4 @@ input DocumentIn {
   cache: String
   description: String
   version: String
-  image: Upload
-  imageUrl: String
 }

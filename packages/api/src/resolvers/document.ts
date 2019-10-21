@@ -56,8 +56,7 @@ const documentResolver = {
         advancedMode: args.input.advancedMode,
         cache: args.input.cache,
         description: args.input.description,
-        version: args.input.version,
-        image: args.input.imageUrl
+        version: args.input.version
       });
       const newDocument: IDocument = await DocumentModel.create(documentNew);
       await FolderModel.updateOne(
@@ -73,24 +72,8 @@ const documentResolver = {
         documentNew.user,
         ""
       );
-      if (args.input.image) {
-        const imageUploaded: IUpload = await uploadDocumentImage(
-          //uploadResolver.Mutation.singleUpload(
-          args.input.image,
-          newDocument._id,
-          context.user.userID
-        );
-        const newDoc: IDocument = await DocumentModel.findOneAndUpdate(
-          { _id: documentNew._id },
-          { $set: { image: imageUploaded.publicUrl } },
-          { new: true }
-        );
-        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
-        return newDoc;
-      } else {
-        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
-        return newDocument;
-      }
+      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
+      return newDocument;
     },
 
     /**
@@ -190,18 +173,6 @@ const documentResolver = {
             { $pull: { documentsID: existDocument._id } }
           );
         }
-        let image: string;
-        if (args.input.image) {
-          const imageUploaded: IUpload = await uploadDocumentImage(
-            //uploadResolver.Mutation.singleUpload(
-            args.input.image,
-            existDocument._id,
-            context.user.userID
-          );
-          image = imageUploaded.publicUrl;
-        } else if (args.input.imageUrl) {
-          image = args.input.imageUrl;
-        }
         if (args.input.content || args.input.cache) {
           console.log(
             "You should use Update document Content Mutation, USE_UPDATECONTENT_MUTATION"
@@ -221,8 +192,7 @@ const documentResolver = {
                   : existDocument.advancedMode,
               cache: args.input.cache || existDocument.cache,
               description: args.input.description || existDocument.description,
-              version: args.input.version || existDocument.version,
-              image: image || existDocument.image
+              version: args.input.version || existDocument.version
             }
           },
           { new: true }
@@ -240,6 +210,33 @@ const documentResolver = {
       } else {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
+    },
+
+    /**
+     * setDocumentImage: mutation for uploading images to the document.
+     * It could be an image uploaded by the user or a snapshot taken by the app.
+     * args: imag: Upload and isSnapshot: Boolean
+     */
+    setDocumentImage: async (root: any, args: any, context: any) => {
+      const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
+      if (!docFound) {
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
+      }
+      const imageUploaded: IUpload = await uploadDocumentImage(
+        args.image,
+        docFound._id,
+        context.user.userID
+      );
+      const image = imageUploaded.publicUrl;
+
+      const updatedDoc = await DocumentModel.findOneAndUpdate(
+        { _id: docFound._id },
+        { $set: { image: { image: image, isSnapshot: args.isSnapshot } } },
+        { new: true }
+      );
+      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
+
+      return updatedDoc;
     },
 
     /**
