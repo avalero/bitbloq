@@ -18,25 +18,25 @@ const ObstacleConfiguration: FC<IObstacleConfigurationProps> = ({
   bloq,
   onChange
 }) => {
-  const detect = bloq.parameters.detect as string;
+  const value = bloq.parameters.value as string;
 
   return (
     <Container>
       <ImageWrap>
-        <ViewObstacleImage closed={detect !== "true"} />
+        <ViewObstacleImage closed={value !== "obstacle"} />
       </ImageWrap>
       <SwitchWrap>
         <JuniorSwitch
           buttons={[
-            { content: <ButtonIcon src={ViewIcon} />, id: "true" },
-            { content: <ButtonIcon src={NotViewIcon} />, id: "false" }
+            { content: <ButtonIcon src={ViewIcon} />, id: "obstacle" },
+            { content: <ButtonIcon src={NotViewIcon} />, id: "no_obstacle" }
           ]}
-          value={detect}
-          onChange={(value: string) =>
+          value={value}
+          onChange={(newvalue: string) =>
             onChange(
               update(bloq, {
                 parameters: {
-                  detect: { $set: value }
+                  value: { $set: newvalue }
                 }
               })
             )
