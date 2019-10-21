@@ -62,9 +62,7 @@ export interface PageProps {
 const Page: React.FC<PageProps> = ({ page, selected, onClick }) => {
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: item => {
-      console.log(item);
-    },
+    canDrop: () => false,
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),
