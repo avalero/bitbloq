@@ -20,22 +20,22 @@ const TemperatureConfiguration: FC<ITemperatureConfigurationProps> = ({
   bloq,
   onChange
 }) => {
-  const detect = bloq.parameters.detect as string;
+  const value = bloq.parameters.value as string;
 
   return (
     <Container>
       <ImageWrap>
-        {detect === "hot" && <HotImage />}
-        {detect === "cold" && <ColdImage />}
+        {value === "hot" && <HotImage />}
+        {value === "cold" && <ColdImage />}
       </ImageWrap>
       <JuniorSwitch
         buttons={[
           { content: <ButtonIcon src={HotIcon} />, id: "hot" },
           { content: <ButtonIcon src={ColdIcon} />, id: "cold" }
         ]}
-        value={detect}
+        value={value}
         onChange={newValue =>
-          onChange(update(bloq, { parameters: { detect: { $set: newValue } } }))
+          onChange(update(bloq, { parameters: { value: { $set: newValue } } }))
         }
       />
     </Container>

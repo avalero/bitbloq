@@ -8,12 +8,17 @@ import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
-import { UserModel } from "../models/user";
+import { UserModel, IUser } from "../models/user";
 
 import { logger, loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
 import uploadResolver, { uploadDocumentImage } from "./upload";
-import { getParentsPath } from "../utils";
+import {
+  getParentsPath,
+  orderFunctions,
+  OrderType,
+  orderOptions
+} from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -312,11 +317,142 @@ const documentResolver = {
     },
 
     /**
-     * Documents: returns all the documents of the user logged.
+     * Examples: returns all the examples in the platform.
      * args: nothing.
      */
     examples: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ example: true });
+    },
+
+    /**
+     * documentsAndFolders: returns all the documents and folders of the user logged in the order passed as argument.
+     * args: itemsPerPage: Number, order: String, searchTitle: String.
+     */
+    documentsAndFolders: async (root: any, args: any, context: any) => {
+      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+      if (!user) return new AuthenticationError("You need to be logged in");
+
+      const currentLocation: string = args.currentLocation || user.rootFolder;
+      const itemsPerPage: number = args.itemsPerPage || 8;
+      let skipN: number = (args.currentPage - 1) * itemsPerPage;
+      let limit: number = skipN + itemsPerPage;
+      const text: string = args.searchTitle;
+
+      const filterOptionsDoc: any = {
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        folder: currentLocation
+      };
+
+      const filterOptionsFol: any = {
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        parent: currentLocation
+      };
+
+      let sortDoc: { [key: string]: number } = { title: 1 };
+      let sortFol: { [key: string]: number } = { name: 1 };
+
+      const orderFunction = orderFunctions[args.order];
+
+      if (args.order === OrderType.NameAZ) {
+        sortDoc = { title: 1 }; // -1 desc, 1 asc
+        sortFol = { name: 1 };
+      } else if (args.order === OrderType.NameZA) {
+        sortDoc = { title: -1 };
+        sortFol = { name: -1 };
+      } else if (args.order === OrderType.Creation) {
+        sortDoc = { createdAt: 1, title: 1 };
+        sortFol = { createdAt: 1, name: 1 };
+      } else if (args.order === OrderType.Modification) {
+        sortDoc = { updatedAt: 1, title: 1 };
+        sortFol = { updatedAt: 1, name: 1 };
+      }
+      const docs: IDocument[] = await DocumentModel.find(
+        filterOptionsDoc,
+        null,
+        {
+          sort: sortDoc,
+          collation: { locale: "es" }
+        }
+      );
+
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol, null, {
+        sort: sortFol,
+        collation: { locale: "es" }
+      });
+      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
+      const parentsPath = getParentsPath(folderLoc);
+
+      const docsParent = docs.map(
+        async ({
+          title,
+          _id: id,
+          createdAt,
+          updatedAt,
+          type,
+          folder: parent,
+          image,
+          ...op
+        }) => {
+          let hasChildren: boolean = false;
+          if ((await ExerciseModel.find({ document: id })).length > 0) {
+            hasChildren = true;
+          }
+          return {
+            title,
+            id,
+            createdAt,
+            updatedAt,
+            type,
+            parent,
+            image,
+            hasChildren,
+            ...op
+          };
+        }
+      );
+      const folsTitle = fols.map(
+        async ({
+          name: title,
+          _id: id,
+          createdAt,
+          updatedAt,
+          parent,
+          ...op
+        }) => {
+          let hasChildren: boolean = false;
+          if (
+            (op.documentsID && op.documentsID.length > 0) ||
+            (op.foldersID && op.foldersID.length > 0)
+          ) {
+            hasChildren = true;
+          }
+          return {
+            title,
+            id,
+            createdAt,
+            updatedAt,
+            type: "folder",
+            parent,
+            hasChildren,
+            ...op
+          };
+        }
+      );
+      const allData = [...docsParent, ...folsTitle];
+      const allDataSorted = allData.sort(orderFunction);
+      const pagesNumber: number = Math.ceil(
+        ((await DocumentModel.countDocuments(filterOptionsDoc)) +
+          (await FolderModel.countDocuments(filterOptionsFol))) /
+          itemsPerPage
+      );
+      const result = allDataSorted.slice(skipN, limit);
+      return {
+        result: result,
+        pagesNumber: pagesNumber,
+        parentsPath: parentsPath
+      };
     }
   },
 

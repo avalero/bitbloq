@@ -7,6 +7,8 @@ export interface IFolder extends Document {
   documentsID?: [string];
   foldersID?: [string];
   parent?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const FolderMongSchema: Schema = new Schema({

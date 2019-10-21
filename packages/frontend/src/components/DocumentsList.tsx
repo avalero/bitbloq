@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
 import { DndProvider } from "react-dnd";
@@ -19,7 +19,8 @@ import {
   FOLDER_QUERY,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION
+  CREATE_DOCUMENT_MUTATION,
+  DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
 import FolderSelectorMenu from "./FolderSelectorMenu";
 
@@ -30,26 +31,33 @@ interface Folder {
 export interface DocumentListProps {
   documents?: any;
   folders?: any;
+  docsAndFols?: any;
   parentsPath?: any;
   className?: string;
+  order?: string;
+  searchTitle?: string;
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
+  refetchDocsFols?: (e) => any;
 }
 
 const DocumentListComp: FC<DocumentListProps> = ({
   documents,
   folders,
+  docsAndFols,
   parentsPath,
   currentLocation,
   className,
   onFolderClick,
-  onDocumentClick
+  onDocumentClick,
+  refetchDocsFols,
+  order,
+  searchTitle
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [deleteDocumentId, setDeleteDocumentId] = useState({
+  const [deleteItem, setDeleteItem] = useState({
     id: null,
-    exercises: null
+    hasChildren: null
   });
   const [deleteFolderId, setDeleteFolderId] = useState("");
   const [editDocTitleModal, setEditDocTitleModal] = useState({
@@ -106,11 +114,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
       id: null,
       parent: null
     });
-    setDeleteDocumentId({ id: document.id, exercises: document.exercises });
+    setDeleteItem({ id: document.id, hasChildren: document.hasChildren });
   };
 
   const confirmDelete = () => {
-    if (deleteDocumentId.exercises.length > 0) {
+    if (deleteItem.hasChildren) {
       setDocWithEx(true);
       return;
     } else {
@@ -121,17 +129,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDeleteDocument = async () => {
     await deleteDocument({
-      variables: { id: deleteDocumentId.id },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      variables: { id: deleteItem.id }
     });
-    setDeleteDocumentId({ id: null, exercises: null });
+    refetchDocsFols();
+    setDeleteItem({ id: null, hasChildren: null });
     setDocWithEx(false);
   };
 
@@ -155,16 +156,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDeleteFolder = async (e, folder) => {
     await deleteFolder({
-      variables: { id: deleteFolderId },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      variables: { id: deleteFolderId }
     });
+    refetchDocsFols();
     setDeleteFolderId(null);
   };
 
@@ -173,16 +167,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
       variables: {
         id: editDocTitleModal.id,
         title: docTitle ? docTitle : "Documento sin título"
-      },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      }
     });
+    refetchDocsFols();
     setEditDocTitleModal({ id: null, title: null });
     setMenuOpenId(null);
   };
@@ -192,16 +179,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
       variables: {
         id: editFolderNameModal.id,
         input: { name: folderName ? folderName : "Carpeta sin título" }
-      },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      }
     });
+    refetchDocsFols();
     setEditFolderNameModal({ id: null, title: null });
     setMenuOpenId(null);
   };
@@ -219,16 +199,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
         ...document,
         title: newTitle,
         folder: currentLocation.id
-      },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      }
     });
+    refetchDocsFols();
     setMenuOpenId("");
   };
 
@@ -240,7 +213,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         parent: null
       });
     } else {
-      setSelectedToMove({ id: document.id, parent: document.folder });
+      setSelectedToMove({ id: document.id, parent: document.parent });
     }
   };
   const onMoveFolderClick = async (e, folder) => {
@@ -258,16 +231,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const onMoveDocument = async (e, folder, documentId?) => {
     e && e.stopPropagation();
     await updateDocument({
-      variables: { id: documentId || selectedToMove.id, folder: folder.id },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      variables: { id: documentId || selectedToMove.id, folder: folder.id }
     });
+    refetchDocsFols();
     setMenuOpenId(null);
     setSelectedToMove({
       id: null,
@@ -280,35 +246,33 @@ const DocumentListComp: FC<DocumentListProps> = ({
       variables: {
         id: folderMovedId || selectedToMove.id,
         input: { parent: folderParent.id }
-      },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
+      }
     });
+    refetchDocsFols();
     setMenuOpenId(null);
     setSelectedToMove({
       id: null,
       parent: null
     });
   };
+
   return (
     <>
       <DndProvider backend={HTML5Backend}>
         <DocumentList className={className}>
-          {documents &&
-            documents.map((document: any) => (
+          {docsAndFols &&
+            docsAndFols.map((document: any) => (
               <StyledDocumentCard
                 beginFunction={() => setDraggingItemId(document.id)}
                 endFunction={() => setDraggingItemId("")}
-                draggable={folders.length > 0}
+                draggable={docsAndFols.length > 0}
                 key={document.id}
                 document={document}
-                onClick={() => onDocumentClick && onDocumentClick(document)}
+                onClick={e =>
+                  document.type === "folder"
+                    ? onFolderClick && onFolderClick(document)
+                    : onDocumentClick && onDocumentClick(document)
+                }
               >
                 <DropDown
                   constraints={[
@@ -317,7 +281,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMove.id === document.id && folders != []}
+                  notHidden={
+                    selectedToMove.id === document.id && docsAndFols != []
+                  }
                   targetOffset="-165px -14px"
                   targetPosition="top right"
                 >
@@ -337,7 +303,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     ]}
                     notHidden={
-                      selectedToMove.id === document.id && folders != []
+                      selectedToMove.id === document.id && docsAndFols != []
                     }
                     targetPosition="top right"
                     attachmentPosition="top left"
@@ -352,55 +318,70 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onDocumentRenameClick(e, document);
+                              document.image
+                                ? onDocumentRenameClick(e, document)
+                                : onFolderRenameClick(e, document);
                             }
                           },
                           {
                             iconName: "duplicate",
                             label: "Crear una copia",
+                            disabled: document.image === null,
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onDuplicateDocument(e, document);
+                              document.image
+                                ? onDuplicateDocument(e, document)
+                                : null;
                             }
                           },
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:
-                              folders.length === 0 && parentsPath.length === 1,
+                              docsAndFols.length === 0 &&
+                              parentsPath.length === 1, //carpetas
                             iconName: "move-document",
                             label: "Mover a",
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onMoveDocumentClick(e, document);
+                              document.image
+                                ? onMoveDocumentClick(e, document)
+                                : onMoveFolderClick(e, document);
                             }
                           },
                           {
                             iconName: "trash",
-                            label: "Eliminar documento",
+                            label: document.image
+                              ? "Eliminar documento"
+                              : "Eliminar carpeta",
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              onDocumentDeleteClick(e, document);
+                              document.image
+                                ? onDocumentDeleteClick(e, document)
+                                : onFolderDeleteClick(e, document);
                             },
                             red: true
                           }
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id && folders != [] && (
-                      <FolderSelectorMenu
-                        selectedToMove={selectedToMove}
-                        onMove={onMoveDocument}
-                        currentLocation={currentLocation}
-                      />
-                    )}
+                    {selectedToMove.id === document.id &&
+                    docsAndFols != [] && ( //carpetas
+                        <FolderSelectorMenu
+                          selectedToMove={selectedToMove}
+                          onMove={
+                            document.image ? onMoveDocument : onMoveFolder
+                          }
+                          currentLocation={currentLocation}
+                        />
+                      )}
                   </DropDown>
                 </DropDown>
               </StyledDocumentCard>
             ))}
-          {folders &&
+          {/*folders &&
             folders.map((folder: any) => (
               <StyledFolderCard
                 dropDocumentCallback={() =>
@@ -494,22 +475,17 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   </DropDown>
                 </DropDown>
               </StyledFolderCard>
-            ))}
+            ))*/}
         </DocumentList>
       </DndProvider>
-      <DocumentsPaginator
-        currentPage={currentPage}
-        pages={12}
-        selectPage={(page: number) => setCurrentPage(page)}
-      />
       <DialogModal
-        isOpen={!!deleteDocumentId.id}
+        isOpen={!!deleteItem.id}
         title="Eliminar"
         text="¿Seguro que quieres eliminar este documento?"
         okText="Aceptar"
         cancelText="Cancelar"
         onOk={confirmDelete}
-        onCancel={() => setDeleteDocumentId({ id: null, exercises: null })}
+        onCancel={() => setDeleteItem({ id: null, hasChildren: null })}
       />
       <DialogModal
         isOpen={!!deleteFolderId}
@@ -528,7 +504,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteDocument}
         onCancel={() => {
-          setDeleteDocumentId({ id: null, exercises: null });
+          setDeleteItem({ id: null, hasChildren: null });
           setDocWithEx(false);
         }}
       />
@@ -610,10 +586,6 @@ const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
     `} svg {
     transform: rotate(90deg);
   }
-`;
-
-const DocumentsPaginator = styled(Paginator)`
-  margin-bottom: 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`

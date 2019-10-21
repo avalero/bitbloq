@@ -19,17 +19,11 @@ import NewDocumentDropDown from "./NewDocumentDropDown";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import useUserData from "../lib/useUserData";
 import {
-  sortByCreatedAt,
-  sortByTitleAZ,
-  sortByTitleZA,
-  sortByUpdatedAt
-} from "../util";
-import {
   CREATE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   CREATE_FOLDER_MUTATION,
-  FOLDER_QUERY
+  DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
 import NewExerciseButton from "./NewExerciseButton";
 import EditTitleModal from "./EditTitleModal";
@@ -37,6 +31,7 @@ import DocumentListComp from "./DocumentsList";
 
 import Breadcrumbs from "./Breadcrumbs";
 import AppFooter from "./Footer";
+import Paginator from "./Paginator";
 
 enum OrderType {
   Creation = "creation",
@@ -64,13 +59,6 @@ const orderOptions = [
   }
 ];
 
-const orderFunctions = {
-  [OrderType.Creation]: sortByCreatedAt,
-  [OrderType.Modification]: sortByUpdatedAt,
-  [OrderType.NameAZ]: sortByTitleAZ,
-  [OrderType.NameZA]: sortByTitleZA
-};
-
 const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
@@ -78,6 +66,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [currentLocation, setCurrentLocation] = useState({
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
@@ -94,23 +83,27 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
+
   const {
-    data: dataPage,
-    loading: loadingPage,
-    error: errorPage,
-    refetch: refetchPage
-  } = useQuery(FOLDER_QUERY, {
+    data: resultData,
+    loading,
+    error,
+    refetch: refetchDocsFols
+  } = useQuery(DOCS_FOLDERS_PAGE_QUERY, {
     variables: {
-      id: currentLocation.id
+      currentLocation: currentLocation.id,
+      currentPage: currentPage,
+      order: order,
+      searchTitle: searchText,
+      itemsPerPage: 8
     }
   });
 
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
-  const onFolderClick = async (e, folder) => {
-    setCurrentLocation({ id: folder.id, name: folder.name });
-    navigate(`/app/folder/${folder.id}`);
+  const onFolderClick = async ({ id, title }) => {
+    window.open(`/app/folder/${id}`, "_self");
   };
 
   const onDocumentClick = ({ id, type, title }) => {
@@ -126,15 +119,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       variables: {
         input: { name: folderName, parent: currentLocation.id }
       },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
     });
+    refetchDocsFols();
     setFolderTitleModal(false);
   };
 
@@ -148,6 +134,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const onOrderChange = order => {
     setOrder(order);
+    refetchDocsFols();
   };
 
   const onOpenDocumentClick = () => {
@@ -180,57 +167,25 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       const document = JSON.parse(reader.result as string);
       const { data } = await createDocument({
         variables: { ...document, folder: currentLocation.id },
-        refetchQueries: [
-          {
-            query: FOLDER_QUERY,
-            variables: {
-              id: currentLocation.id
-            }
-          }
-        ]
       });
+      refetchDocsFols();
       onDocumentCreated(data);
     };
 
     reader.readAsText(file);
   };
 
-  const filterDocuments = documents => {
-    return documents
-      .slice()
-      .sort(orderFunction)
-      .filter(d => documentTypes[d.type] && documentTypes[d.type].supported)
-      .filter(
-        d =>
-          !searchText ||
-          (d.title &&
-            d.title.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
-      );
-  };
-
-  const filterFolders = folders => {
-    return folders
-      .slice()
-      .sort(orderFunction)
-      .filter(
-        d =>
-          !searchText ||
-          (d.name &&
-            d.name.toLowerCase().indexOf(searchText.toLowerCase()) >= 0)
-      );
-  };
-
-  const orderFunction = orderFunctions[order];
-
-  if (errorPage) return <GraphQLErrorMessage apolloError={errorPage} />;
-  if (loadingPage)
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (loading)
     return (
       <Container>
         <Loading />
       </Container>
     );
 
-  const { documents, folders, parentsPath } = dataPage.folder;
+  const pagesNumber = resultData && resultData.documentsAndFolders.pagesNumber;
+  const docsAndFols = resultData && resultData.documentsAndFolders.result;
+  const parentsPath = resultData && resultData.documentsAndFolders.parentsPath;
 
   const breadParents = parentsPath.map(item => ({
     route: `/app/folder/${item.id}`,
@@ -250,9 +205,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           )}
         </Header>
         <Rule />
-        {(documents || folders) && (
+        {docsAndFols && (
           <DocumentListHeader>
-            {(documents.length > 0 || folders.length > 0) && (
+            {docsAndFols.length > 0 && (
               <>
                 <ViewOptions>
                   <OrderSelect
@@ -302,34 +257,48 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
             </HeaderButtons>
           </DocumentListHeader>
         )}
-        {(documents || folders) &&
-        (documents.length > 0 || folders.length > 0) ? (
-          searchText ? (
-            filterDocuments(documents).length > 0 ||
-            filterFolders(folders).length > 0 ? (
+        {searchText ? (
+          docsAndFols.length > 0 ? (
+            <>
               <DocumentListComp
-                documents={filterDocuments(documents)}
-                folders={filterFolders(folders)}
                 parentsPath={parentsPath}
+                refetchDocsFols={refetchDocsFols}
+                docsAndFols={docsAndFols}
                 currentLocation={currentLocation}
                 onFolderClick={onFolderClick}
                 onDocumentClick={onDocumentClick}
+                order={order}
+                searchTitle={searchText}
               />
-            ) : (
-              <NoDocuments>
-                <h1>No hay resultados para tu búsqueda</h1>
-              </NoDocuments>
-            )
+              <DocumentsPaginator
+                currentPage={currentPage}
+                pages={pagesNumber}
+                selectPage={(page: number) => setCurrentPage(page)}
+              />
+            </>
           ) : (
+            <NoDocuments>
+              <h1>No hay resultados para tu búsqueda</h1>
+            </NoDocuments>
+          )
+        ) : docsAndFols.length > 0 ? (
+          <>
             <DocumentListComp
-              documents={filterDocuments(documents)}
-              folders={filterFolders(folders)}
               parentsPath={parentsPath}
+              refetchDocsFols={refetchDocsFols}
+              docsAndFols={docsAndFols}
               currentLocation={currentLocation}
               onFolderClick={onFolderClick}
               onDocumentClick={onDocumentClick}
+              order={order}
+              searchTitle={searchText}
             />
-          )
+            <DocumentsPaginator
+              currentPage={currentPage}
+              pages={pagesNumber}
+              selectPage={(page: number) => setCurrentPage(page)}
+            />
+          </>
         ) : (
           <NoDocuments>
             <h1>No tienes ningún documento</h1>
@@ -342,7 +311,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
           shouldResubscribe={true}
           onSubscriptionData={() => {
-            refetchPage();
+            refetchDocsFols();
           }}
         />
       </Content>
@@ -500,4 +469,8 @@ const NewFolderButton = styled(Button)`
     height: 20px;
     margin-right: 6px;
   }
+`;
+
+const DocumentsPaginator = styled(Paginator)`
+  margin-bottom: 60px;
 `;

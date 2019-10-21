@@ -9,6 +9,13 @@ directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 type Query {
   documents: [Document] @authRequired(requires: [USER])
   document(id: ObjectID!): Document @authRequired(requires: [USER])
+  documentsAndFolders(
+    currentLocation: ObjectID
+    currentPage: Number
+    itemsPerPage: Number
+    order: String
+    searchTitle: String
+  ): DocsAndFolders
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
   examples: [Document]
 }
@@ -28,6 +35,23 @@ type Mutation {
 }
 type Subscription {
   documentUpdated: Document @authRequired(requires: [USER])
+}
+
+type DocsAndFolders {
+  result: [Result]
+  pagesNumber: Number
+  parentsPath: [Folder]
+}
+
+type Result {
+  id: ObjectID
+  title: String
+  image: String
+  type: String
+  createdAt: Date
+  updatedAt: Date
+  parent: ObjectID
+  hasChildren: Boolean
 }
 
 type Document {

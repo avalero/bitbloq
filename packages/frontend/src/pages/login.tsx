@@ -23,7 +23,9 @@ const LoginPage: FC = () => {
     try {
       setLoggingIn(true);
       setLogingError(false);
+      console.log(email, password)
       const result = await login({ variables: { email, password } });
+      console.log(result)
       setLoggingIn(false);
       onLoginSuccess(result.data.login);
     } catch (e) {
