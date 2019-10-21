@@ -78,6 +78,7 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
         name
       }
       pagesNumber
+      nFolders
     }
   }
 `;
