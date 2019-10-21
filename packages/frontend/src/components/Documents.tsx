@@ -19,17 +19,10 @@ import NewDocumentDropDown from "./NewDocumentDropDown";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import useUserData from "../lib/useUserData";
 import {
-  sortByCreatedAt,
-  sortByTitleAZ,
-  sortByTitleZA,
-  sortByUpdatedAt
-} from "../util";
-import {
   CREATE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   CREATE_FOLDER_MUTATION,
-  FOLDER_QUERY,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
 import NewExerciseButton from "./NewExerciseButton";
@@ -126,14 +119,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       variables: {
         input: { name: folderName, parent: currentLocation.id }
       },
-      refetchQueries: [
-        {
-          query: FOLDER_QUERY,
-          variables: {
-            id: currentLocation.id
-          }
-        }
-      ]
     });
     refetchDocsFols();
     setFolderTitleModal(false);
@@ -149,6 +134,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const onOrderChange = order => {
     setOrder(order);
+    refetchDocsFols();
   };
 
   const onOpenDocumentClick = () => {
@@ -181,14 +167,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       const document = JSON.parse(reader.result as string);
       const { data } = await createDocument({
         variables: { ...document, folder: currentLocation.id },
-        refetchQueries: [
-          {
-            query: FOLDER_QUERY,
-            variables: {
-              id: currentLocation.id
-            }
-          }
-        ]
       });
       refetchDocsFols();
       onDocumentCreated(data);
@@ -204,8 +182,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         <Loading />
       </Container>
     );
-
-  //const { documents, folders, parentsPath } = dataPage.folder;
 
   const pagesNumber = resultData && resultData.documentsAndFolders.pagesNumber;
   const docsAndFols = resultData && resultData.documentsAndFolders.result;
