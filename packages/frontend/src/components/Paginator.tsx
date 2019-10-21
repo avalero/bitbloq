@@ -26,9 +26,6 @@ const Arrow: React.FC<ArrowProps> = ({
   const [changePage, setChangePage] = useState(true);
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: item => {
-      console.log(item);
-    },
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),

@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
 import { DndProvider } from "react-dnd";
@@ -55,6 +55,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
   order,
   searchTitle
 }) => {
+  const nFolders = docsAndFols.filter(doc => doc.type === "folder").length;
+
   const [deleteItem, setDeleteItem] = useState({
     id: null,
     hasChildren: null
@@ -265,7 +267,16 @@ const DocumentListComp: FC<DocumentListProps> = ({
               <StyledDocumentCard
                 beginFunction={() => setDraggingItemId(document.id)}
                 endFunction={() => setDraggingItemId("")}
-                draggable={docsAndFols.length > 0}
+                draggable={
+                  (document.type === "folder" && nFolders > 1) ||
+                  (document.type !== "folder" && nFolders > 0)
+                }
+                dropDocumentCallback={() =>
+                  onMoveDocument(undefined, document, draggingItemId)
+                }
+                dropFolderCallback={() =>
+                  onMoveFolder(undefined, document, draggingItemId)
+                }
                 key={document.id}
                 document={document}
                 onClick={e =>
@@ -338,8 +349,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:
-                              docsAndFols.length === 0 &&
-                              parentsPath.length === 1, //carpetas
+                              nFolders === 0 && parentsPath.length === 1,
                             iconName: "move-document",
                             label: "Mover a",
                             onClick(
@@ -367,16 +377,13 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id &&
-                    docsAndFols != [] && ( //carpetas
-                        <FolderSelectorMenu
-                          selectedToMove={selectedToMove}
-                          onMove={
-                            document.image ? onMoveDocument : onMoveFolder
-                          }
-                          currentLocation={currentLocation}
-                        />
-                      )}
+                    {selectedToMove.id === document.id && nFolders !== 0 && (
+                      <FolderSelectorMenu
+                        selectedToMove={selectedToMove}
+                        onMove={document.image ? onMoveDocument : onMoveFolder}
+                        currentLocation={currentLocation}
+                      />
+                    )}
                   </DropDown>
                 </DropDown>
               </StyledDocumentCard>
