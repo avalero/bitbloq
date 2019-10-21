@@ -44,7 +44,7 @@ const getErrorProps = (extensionCode: string) => {
       return {
         code: "500",
         text:
-          "¡Uy! A ocurrido un error inesperado, vuelve a intentarlo más tarde."
+          "¡Uy! Ha ocurrido un error inesperado, vuelve a intentarlo más tarde."
       };
   }
 };
