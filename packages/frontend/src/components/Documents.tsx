@@ -118,7 +118,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     await createFolder({
       variables: {
         input: { name: folderName, parent: currentLocation.id }
-      },
+      }
     });
     refetchDocsFols();
     setFolderTitleModal(false);
@@ -166,7 +166,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
       const { data } = await createDocument({
-        variables: { ...document, folder: currentLocation.id },
+        variables: { ...document, folder: currentLocation.id }
       });
       refetchDocsFols();
       onDocumentCreated(data);
@@ -186,6 +186,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const pagesNumber = resultData && resultData.documentsAndFolders.pagesNumber;
   const docsAndFols = resultData && resultData.documentsAndFolders.result;
   const parentsPath = resultData && resultData.documentsAndFolders.parentsPath;
+  const nFolders = resultData && resultData.documentsAndFolders.nFolders;
 
   const breadParents = parentsPath.map(item => ({
     route: `/app/folder/${item.id}`,
@@ -218,7 +219,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
                 </ViewOptions>
                 <SearchInput
                   value={searchText}
-                  onChange={e => setSearchText(e.target.value)}
+                  onChange={e => (
+                    setSearchText(e.target.value), setCurrentPage(1)
+                  )}
                   placeholder="Buscar..."
                 />
               </>
@@ -269,6 +272,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
                 onDocumentClick={onDocumentClick}
                 order={order}
                 searchTitle={searchText}
+                nFolders={nFolders}
               />
               <DocumentsPaginator
                 currentPage={currentPage}
@@ -292,6 +296,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               onDocumentClick={onDocumentClick}
               order={order}
               searchTitle={searchText}
+              nFolders={nFolders}
             />
             <DocumentsPaginator
               currentPage={currentPage}

@@ -447,7 +447,10 @@ const documentResolver = {
           (await FolderModel.countDocuments(filterOptionsFol))) /
           itemsPerPage
       );
-      const nFolders: number= await FolderModel.countDocuments({userID: context.user.userID});
+      const nFolders: number = await FolderModel.countDocuments({
+        user: context.user.userID,
+        parent: currentLocation
+      });
       const result = allDataSorted.slice(skipN, limit);
       return {
         result: result,

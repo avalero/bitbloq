@@ -7,7 +7,6 @@ import HTML5Backend from "react-dnd-html5-backend";
 
 import DocumentCard from "./DocumentCard";
 import EditTitleModal from "./EditTitleModal";
-import FolderCard from "./FolderCard";
 import DocumentCardMenu from "./DocumentCardMenu";
 import Paginator from "./Paginator";
 
@@ -29,22 +28,17 @@ interface Folder {
   id: string;
 }
 export interface DocumentListProps {
-  documents?: any;
-  folders?: any;
   docsAndFols?: any;
   parentsPath?: any;
   className?: string;
-  order?: string;
-  searchTitle?: string;
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
-  refetchDocsFols?: (e) => any;
+  refetchDocsFols: (e) => any;
+  nFolders: number;
 }
 
 const DocumentListComp: FC<DocumentListProps> = ({
-  documents,
-  folders,
   docsAndFols,
   parentsPath,
   currentLocation,
@@ -52,11 +46,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
   onFolderClick,
   onDocumentClick,
   refetchDocsFols,
-  order,
-  searchTitle
+  nFolders
 }) => {
-  const nFolders = docsAndFols.filter(doc => doc.type === "folder").length;
-
   const [deleteItem, setDeleteItem] = useState({
     id: null,
     hasChildren: null
@@ -388,101 +379,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 </DropDown>
               </StyledDocumentCard>
             ))}
-          {/*folders &&
-            folders.map((folder: any) => (
-              <StyledFolderCard
-                dropDocumentCallback={() =>
-                  onMoveDocument(undefined, folder, draggingItemId)
-                }
-                dropFolderCallback={() =>
-                  onMoveFolder(undefined, folder, draggingItemId)
-                }
-                beginFunction={() => setDraggingItemId(folder.id)}
-                endFunction={() => setDraggingItemId("")}
-                draggable={folders.length > 1}
-                key={folder.id}
-                folder={folder}
-                onClick={e => onFolderClick(e, folder)}
-              >
-                <DropDown
-                  constraints={[
-                    {
-                      attachment: "together",
-                      to: "window"
-                    }
-                  ]}
-                  notHidden={selectedToMove.id === folder.id && folders != []}
-                  targetOffset="-165px -14px"
-                  targetPosition="top right"
-                >
-                  {(isOpen: boolean) => (
-                    <DocumentMenuButton
-                      isOpen={menuOpenId === folder.id}
-                      onClick={e => onDocumentMenuClick(e, folder)}
-                    >
-                      <Icon name="ellipsis" />
-                    </DocumentMenuButton>
-                  )}
-                  <DropDown
-                    constraints={[
-                      {
-                        attachment: "together",
-                        to: "window"
-                      }
-                    ]}
-                    notHidden={selectedToMove.id === folder.id && folders != []}
-                    targetPosition="top right"
-                    attachmentPosition="top left"
-                    offset="60px 0"
-                  >
-                    {(isOpen: boolean) => (
-                      <DocumentCardMenu
-                        options={[
-                          {
-                            iconName: "pencil",
-                            label: "Cambiar nombre",
-                            onClick(
-                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                            ) {
-                              onFolderRenameClick(e, folder);
-                            }
-                          },
-                          {
-                            selected: folder.id === selectedToMove.id,
-                            disabled:
-                              folders.length === 1 && parentsPath.length === 1,
-                            iconName: "move-document",
-                            label: "Mover a",
-                            onClick(
-                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                            ) {
-                              onMoveFolderClick(e, folder);
-                            }
-                          },
-                          {
-                            iconName: "trash",
-                            label: "Eliminar carpeta",
-                            onClick(
-                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                            ) {
-                              onFolderDeleteClick(e, folder);
-                            },
-                            red: true
-                          }
-                        ]}
-                      />
-                    )}
-                    {selectedToMove.id === folder.id && folders != [] && (
-                      <FolderSelectorMenu
-                        selectedToMove={selectedToMove}
-                        onMove={onMoveFolder}
-                        currentLocation={currentLocation}
-                      ></FolderSelectorMenu>
-                    )}
-                  </DropDown>
-                </DropDown>
-              </StyledFolderCard>
-            ))*/}
         </DocumentList>
       </DndProvider>
       <DialogModal
@@ -596,14 +492,6 @@ const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`
-  &:hover {
-    ${DocumentMenuButton} {
-      display: flex;
-    }
-  }
-`;
-
-const StyledFolderCard = styled(FolderCard)`
   &:hover {
     ${DocumentMenuButton} {
       display: flex;
