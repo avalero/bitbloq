@@ -40,6 +40,7 @@ type Subscription {
 type DocsAndFolders {
   result: [Result]
   pagesNumber: Number
+  parentsPath: [Folder]
 }
 
 type Result {
@@ -49,6 +50,8 @@ type Result {
   type: String
   createdAt: Date
   updatedAt: Date
+  parent: ObjectID
+  hasChildren: Boolean
 }
 
 type Document {

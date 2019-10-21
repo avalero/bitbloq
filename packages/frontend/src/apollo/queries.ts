@@ -70,6 +70,12 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
         createdAt
         updatedAt
         image
+        parent
+        hasChildren
+      }
+      parentsPath {
+        id
+        name
       }
       pagesNumber
     }

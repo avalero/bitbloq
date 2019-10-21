@@ -381,17 +381,66 @@ const documentResolver = {
         sort: sortFol,
         collation: { locale: "es" }
       });
-      const folsTitle = fols.map(
-        ({ name: title, _id: id, createdAt, updatedAt, ...op }) => ({
+      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
+      const parentsPath = getParentsPath(folderLoc);
+
+      const docsParent = docs.map(
+        async ({
           title,
-          id,
+          _id: id,
           createdAt,
           updatedAt,
-          type: "folder",
+          type,
+          folder: parent,
+          image,
           ...op
-        })
+        }) => {
+          let hasChildren: boolean = false;
+          if ((await ExerciseModel.find({ document: id })).length > 0) {
+            hasChildren = true;
+          }
+          return {
+            title,
+            id,
+            createdAt,
+            updatedAt,
+            type,
+            parent,
+            image,
+            hasChildren,
+            ...op
+          };
+        }
       );
-      const allData = [...docs, ...folsTitle];
+      const folsTitle = fols.map(
+        async ({
+          name: title,
+          _id: id,
+          createdAt,
+          updatedAt,
+          parent,
+          ...op
+        }) => {
+          let hasChildren: boolean = false;
+          if (
+            (op.documentsID && op.documentsID.length > 0) ||
+            (op.foldersID && op.foldersID.length > 0)
+          ) {
+            hasChildren = true;
+          }
+          return {
+            title,
+            id,
+            createdAt,
+            updatedAt,
+            type: "folder",
+            parent,
+            hasChildren,
+            ...op
+          };
+        }
+      );
+      const allData = [...docsParent, ...folsTitle];
       const allDataSorted = allData.sort(orderFunction);
       const pagesNumber: number = Math.ceil(
         ((await DocumentModel.countDocuments(filterOptionsDoc)) +
@@ -401,7 +450,8 @@ const documentResolver = {
       const result = allDataSorted.slice(skipN, limit);
       return {
         result: result,
-        pagesNumber: pagesNumber
+        pagesNumber: pagesNumber,
+        parentsPath: parentsPath
       };
     }
   },
