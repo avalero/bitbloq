@@ -326,6 +326,7 @@ const documentResolver = {
 
     /**
      * documentsAndFolders: returns all the documents and folders of the user logged in the order passed as argument.
+     * It also returns the total number of pages, the parent folders path of the current location and the number of folders in the current location.
      * args: itemsPerPage: Number, order: String, searchTitle: String.
      */
     documentsAndFolders: async (root: any, args: any, context: any) => {
@@ -338,89 +339,54 @@ const documentResolver = {
       let limit: number = skipN + itemsPerPage;
       const text: string = args.searchTitle;
 
+      const orderFunction = orderFunctions[args.order];
+
       const filterOptionsDoc: any = {
         title: { $regex: `.*${text}.*`, $options: "i" },
         user: context.user.userID,
         folder: currentLocation
       };
-
       const filterOptionsFol: any = {
         name: { $regex: `.*${text}.*`, $options: "i" },
         user: context.user.userID,
         parent: currentLocation
       };
 
-      let sortDoc: { [key: string]: number } = { title: 1 };
-      let sortFol: { [key: string]: number } = { name: 1 };
+      const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
 
-      const orderFunction = orderFunctions[args.order];
-
-      if (args.order === OrderType.NameAZ) {
-        sortDoc = { title: 1 }; // -1 desc, 1 asc
-        sortFol = { name: 1 };
-      } else if (args.order === OrderType.NameZA) {
-        sortDoc = { title: -1 };
-        sortFol = { name: -1 };
-      } else if (args.order === OrderType.Creation) {
-        sortDoc = { createdAt: 1, title: 1 };
-        sortFol = { createdAt: 1, name: 1 };
-      } else if (args.order === OrderType.Modification) {
-        sortDoc = { updatedAt: 1, title: 1 };
-        sortFol = { updatedAt: 1, name: 1 };
-      }
-      const docs: IDocument[] = await DocumentModel.find(
-        filterOptionsDoc,
-        null,
-        {
-          sort: sortDoc,
-          collation: { locale: "es" }
-        }
-      );
-
-      const fols: IFolder[] = await FolderModel.find(filterOptionsFol, null, {
-        sort: sortFol,
-        collation: { locale: "es" }
-      });
-      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
-      const parentsPath = getParentsPath(folderLoc);
-
-      const docsParent = docs.map(
-        async ({
-          title,
-          _id: id,
-          createdAt,
-          updatedAt,
-          type,
-          folder: parent,
-          image,
-          ...op
-        }) => {
-          let hasChildren: boolean = false;
-          if ((await ExerciseModel.find({ document: id })).length > 0) {
-            hasChildren = true;
-          }
-          return {
+      const docsParent = await Promise.all(
+        docs.map(
+          async ({
             title,
-            id,
+            _id: id,
             createdAt,
             updatedAt,
             type,
-            parent,
+            folder: parent,
             image,
-            hasChildren,
             ...op
-          };
-        }
+          }) => {
+            let hasChildren: boolean = false;
+            if ((await ExerciseModel.find({ document: id })).length > 0) {
+              hasChildren = true;
+            }
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type,
+              parent,
+              image,
+              hasChildren,
+              ...op
+            };
+          }
+        )
       );
       const folsTitle = fols.map(
-        async ({
-          name: title,
-          _id: id,
-          createdAt,
-          updatedAt,
-          parent,
-          ...op
-        }) => {
+        ({ name: title, _id: id, createdAt, updatedAt, parent, ...op }) => {
           let hasChildren: boolean = false;
           if (
             (op.documentsID && op.documentsID.length > 0) ||
@@ -440,6 +406,7 @@ const documentResolver = {
           };
         }
       );
+
       const allData = [...docsParent, ...folsTitle];
       const allDataSorted = allData.sort(orderFunction);
       const pagesNumber: number = Math.ceil(
@@ -447,16 +414,19 @@ const documentResolver = {
           (await FolderModel.countDocuments(filterOptionsFol))) /
           itemsPerPage
       );
+
       const nFolders: number = await FolderModel.countDocuments({
         user: context.user.userID,
         parent: currentLocation
       });
+      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
+      const parentsPath = getParentsPath(folderLoc);
       const result = allDataSorted.slice(skipN, limit);
       return {
-        result: result,
-        pagesNumber: pagesNumber,
-        nFolders: nFolders,
-        parentsPath: parentsPath
+        result,
+        pagesNumber,
+        nFolders,
+        parentsPath
       };
     }
   },
