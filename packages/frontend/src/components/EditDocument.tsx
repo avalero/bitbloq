@@ -1,11 +1,4 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useState,
-  useEffect,
-  useCallback
-} from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import html2canvas from "html2canvas";
@@ -36,7 +29,6 @@ interface EditDocumentProps {
 }
 const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const t = useTranslate();
-  let imageToUpload: Blob = new Blob();
 
   const user = useUserData();
   const isPublisher = user && user.publisher;
@@ -55,6 +47,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     advancedMode: false
   });
   const [image, setImage] = useState("");
+  const imageToUpload = useRef(new Blob());
 
   const { loading: loadingDocument, error, data, refetch } = useQuery(
     DOCUMENT_QUERY,
@@ -65,29 +58,15 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   );
 
   useEffect(() => {
-    let updateInterval: any, saveUpdate: any;
-    if (!loadingDocument) {
-      window.addEventListener(
-        "unload",
-        event => {
-          event.preventDefault();
-          updateImage();
-        },
-        true
-      );
-      saveImage();
-      updateInterval = setInterval(updateImage, 10 * 60 * 1000);
-      saveUpdate = setInterval(saveImage, 30 * 1000);
-    }
-
-    return () => (
-      window.removeEventListener("unload", event => {
+    window.addEventListener(
+      "beforeunload",
+      (e: Event) => {
+        e.preventDefault();
         updateImage();
-      }),
-      clearInterval(updateInterval),
-      clearInterval(saveUpdate)
+      },
+      true
     );
-  }, [loadingDocument]);
+  }, []);
 
   useEffect(() => {
     if (isNew) {
@@ -114,7 +93,8 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
 
         if (imgData !== "data:,") {
           const file: Blob = dataURItoBlob(imgData);
-          imageToUpload = file;
+          imageToUpload.current = file;
+          setImage("blob");
         }
       }
     }
@@ -122,16 +102,17 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
 
   const updateImage = () => {
     if (
-      (!image ||
-      !image.match(/^http/) ||
-      image.match(/blob$/) && imageToUpload && imageToUpload.size > 0)
+      (!image || !image.match(/^http/) || image.match(/blob$/)) &&
+      imageToUpload.current &&
+      imageToUpload.current.size > 0
     ) {
-      updateDocument({ variables: { image: imageToUpload, id } });
+      updateDocument({ variables: { image: imageToUpload.current, id } });
     }
   };
 
   const debouncedUpdate = useCallback(
     debounce(async (document: any, image: string) => {
+      saveImage();
       await updateDocument({ variables: { ...document, id } });
       refetch();
     }, 1000),
