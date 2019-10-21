@@ -40,6 +40,7 @@ type Subscription {
 type DocsAndFolders {
   result: [Result]
   pagesNumber: Number
+  nFolders: Number
   parentsPath: [Folder]
 }
 
