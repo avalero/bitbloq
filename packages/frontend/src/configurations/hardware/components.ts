@@ -28,8 +28,6 @@ export const components: Partial<IComponent>[] = [
   {
     name: "DigitalInput",
     extends: "Digital",
-    // onValue: "HIGH",
-    // offValue: "LOW",
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -49,8 +47,6 @@ export const components: Partial<IComponent>[] = [
   {
     name: "DigitalOutput",
     extends: "Digital",
-    // onValue: "HIGH",
-    // offValue: "LOW",
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -559,7 +555,6 @@ export const components: Partial<IComponent>[] = [
       ],
       globals: [
         `{% for pin in pinsInfo %}
-        // uint8_t {{pin.pinVarName}} = {{pin.pinNumber}};
         BQ::ZUM::I2CALPSSensor {{pin.pinVarName}}ALPS({{pin.pinVarName}});
         BQ::ZUM::I2CColorSensor {{pin.pinVarName}}Color({{pin.pinVarName}});
         BQ::ZUM::I2CTempSensor {{pin.pinVarName}}Temp({{pin.pinVarName}});

@@ -50,8 +50,8 @@ const adjustProgram = (
     };
   };
 
-  let adjustedProgram: IBloq[][] = program.filter(timeline =>
-    timeline.length > 0 ? true : false
+  let adjustedProgram: IBloq[][] = program.filter(
+    timeline => timeline.length > 0
   );
 
   adjustedProgram = adjustedProgram.flatMap(timeline => {
