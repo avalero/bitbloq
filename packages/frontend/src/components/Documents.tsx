@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import {
@@ -83,6 +83,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
+  const [documentsData, setDocumentsData] = useState<any>({});
 
   const {
     data: resultData,
@@ -96,8 +97,15 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       order: order,
       searchTitle: searchText,
       itemsPerPage: 8
-    }
+    },
+    fetchPolicy: "cache-and-network"
   });
+
+  useEffect(() => {
+    if (!loading) {
+      setDocumentsData(resultData);
+    }
+  }, [loading]);
 
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
@@ -176,17 +184,17 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   if (error) return <GraphQLErrorMessage apolloError={error} />;
-  if (loading)
+  if (!documentsData || !documentsData.documentsAndFolders)
     return (
       <Container>
         <Loading />
       </Container>
     );
 
-  const pagesNumber = resultData && resultData.documentsAndFolders.pagesNumber;
-  const docsAndFols = resultData && resultData.documentsAndFolders.result;
-  const parentsPath = resultData && resultData.documentsAndFolders.parentsPath;
-  const nFolders = resultData && resultData.documentsAndFolders.nFolders;
+  const pagesNumber = documentsData.documentsAndFolders.pagesNumber;
+  const docsAndFols = documentsData.documentsAndFolders.result;
+  const parentsPath = documentsData.documentsAndFolders.parentsPath;
+  const nFolders = documentsData.documentsAndFolders.nFolders;
 
   const breadParents = parentsPath.map(item => ({
     route: `/app/folder/${item.id}`,
@@ -206,9 +214,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           )}
         </Header>
         <Rule />
-        {docsAndFols && (
+        {(docsAndFols || searchText) && (
           <DocumentListHeader>
-            {docsAndFols.length > 0 && (
+            {(docsAndFols.length > 0 || searchText) && (
               <>
                 <ViewOptions>
                   <OrderSelect
