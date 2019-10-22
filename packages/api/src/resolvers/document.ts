@@ -378,22 +378,36 @@ const documentResolver = {
           }
         )
       );
-      const folsTitle = fols.map(
-        ({ name: title, _id: id, createdAt, updatedAt, parent, ...op }) => {
-          let hasChildren: boolean =
-            (op.documentsID && op.documentsID.length > 0) ||
-            (op.foldersID && op.foldersID.length > 0);
-          return {
-            title,
-            id,
+      const folsTitle = await Promise.all(
+        fols.map(
+          async ({
+            name: title,
+            _id: id,
             createdAt,
             updatedAt,
-            type: "folder",
             parent,
-            hasChildren,
+            documentsID,
             ...op
-          };
-        }
+          }) => {
+            let docsEx;
+            documentsID && documentsID.length > 0
+              ? (docsEx = await ExerciseModel.find({
+                  document: { $in: documentsID }
+                }))
+              : (docsEx = []);
+            const hasChildren: boolean = docsEx.length > 0;
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type: "folder",
+              parent,
+              hasChildren,
+              ...op
+            };
+          }
+        )
       );
 
       const allData = [...docsParent, ...folsTitle];
