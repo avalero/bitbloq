@@ -158,6 +158,11 @@ const BreadcrumbLink = styled(Breadcrumb)<BreadcrumbLinkProps>`
   max-width: ${props =>
     props.folders === 1 ? "50" : props.folders === 2 ? "30" : "25"}%;
   font-weight: bold;
+
+  a {
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 const BreadcrumbRoot = styled(Breadcrumb)`
@@ -181,6 +186,11 @@ interface BreadcrumbTargetProps {
 }
 const BreadcrumbTarget = styled(Breadcrumb)<BreadcrumbTargetProps>`
   max-width: ${props => props.maxWidth}px;
+
+  p {
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 interface FoldersMenuProps {

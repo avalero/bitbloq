@@ -14,3 +14,45 @@ export const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
     return [...result, ...path];
   }
 };
+
+export enum OrderType {
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
+}
+
+export const sortByCreatedAt = (a, b) => {
+  const aCreatedAt = a && a.createdAt;
+  const bCreatedAt = b && b.createdAt;
+  return Math.sign(bCreatedAt - aCreatedAt);
+};
+
+export const sortByUpdatedAt = (a, b) => {
+  const aUpdatedAt = a && a.updatedAt;
+  const bUpdatedAt = b && b.updatedAt;
+  return Math.sign(bUpdatedAt - aUpdatedAt);
+};
+
+export const sortByTitleAZ = (a, b) => {
+  try {
+    const aTitle = a && a.title.toLowerCase();
+    const bTitle = b && b.title.toLowerCase();
+    return aTitle === bTitle ? 0 : aTitle < bTitle ? -1 : 1;
+  } catch (e) {}
+};
+
+export const sortByTitleZA = (a, b) => {
+  try {
+    const aTitle = a && a.title.toLowerCase();
+    const bTitle = b && b.title.toLowerCase();
+    return aTitle === bTitle ? 0 : aTitle > bTitle ? -1 : 1;
+  } catch (e) {}
+};
+
+export const orderFunctions = {
+  [OrderType.Creation]: sortByCreatedAt,
+  [OrderType.Modification]: sortByUpdatedAt,
+  [OrderType.NameAZ]: sortByTitleAZ,
+  [OrderType.NameZA]: sortByTitleZA
+};

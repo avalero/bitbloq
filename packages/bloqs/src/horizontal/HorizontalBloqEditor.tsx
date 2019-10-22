@@ -105,20 +105,21 @@ const HorizontalBloqEditor: React.FunctionComponent<
           if (isBloqSelectComponentParameter(param)) {
             const compatibleComponents =
               getComponents(bloqType.components || []) || [];
-            const { name = "" } = compatibleComponents.sort((a,b) => {
-              const aPort = a.port || "";
-              const bPort = b.port || "";
-              const aIsNumber = !isNaN(parseInt(aPort, 10));
-              const bIsNumber = !isNaN(parseInt(bPort, 10));
+            const { name = "" } =
+              compatibleComponents.sort((a, b) => {
+                const aPort = a.port || "";
+                const bPort = b.port || "";
+                const aIsNumber = !isNaN(parseInt(aPort, 10));
+                const bIsNumber = !isNaN(parseInt(bPort, 10));
 
-              if ((aIsNumber && bIsNumber) || (!aIsNumber && !bIsNumber)) {
-                return aPort < bPort ? -1 : 1;
-              }
-              if (aIsNumber) {
-                return -1;
-              }
-              return 1;
-            })[0] || {};
+                if ((aIsNumber && bIsNumber) || (!aIsNumber && !bIsNumber)) {
+                  return aPort < bPort ? -1 : 1;
+                }
+                if (aIsNumber) {
+                  return -1;
+                }
+                return 1;
+              })[0] || {};
 
             obj[param.name] = name;
           }
@@ -130,6 +131,9 @@ const HorizontalBloqEditor: React.FunctionComponent<
           }
           if (param.type === BloqParameterType.Boolean) {
             obj[param.name] = false;
+          }
+          if (param.type === BloqParameterType.Hidden) {
+            obj[param.name] = param.value;
           }
         }
         return obj;
