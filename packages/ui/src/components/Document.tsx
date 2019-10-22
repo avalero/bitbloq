@@ -35,6 +35,7 @@ const HeaderWrap = styled.div<HeaderWrapProps>`
 `;
 
 const Header = styled.div`
+  background-color: #ebebeb;
   height: 69px;
   display: flex;
   border-bottom: 1px solid #dadada;
@@ -104,7 +105,6 @@ const Title = styled.div<TitleProps>`
   display: flex;
   align-items: center;
   padding-left: 18px;
-  background-color: #ebebeb;
   flex: 1;
   font-weight: 500;
   font-style: italic;
