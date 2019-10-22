@@ -425,10 +425,16 @@ const submissionResolver = {
      */
     // el profesor borra la sumbission de un alumno
     deleteSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: args.submissionID,
-        user: context.user.userID
-      });
+      const existSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        {
+          _id: args.submissionID,
+          user: context.user.userID
+        },
+        {
+          $set: { active: false }
+        },
+        { new: true }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error deleting submission, not found",
@@ -443,6 +449,9 @@ const submissionResolver = {
         existSubmission.user,
         ""
       );
+      pubsub.publish(SUBMISSION_ACTIVE, {
+        submissionActive: existSubmission
+      });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
