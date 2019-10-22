@@ -1,5 +1,6 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
 import { logger, loggerController } from "../controllers/logs";
+import { contextController } from "../controllers/context";
 import { ExerciseModel, IExercise } from "../models/exercise";
 import { ISubmission, SubmissionModel } from "../models/submission";
 import { pubsub, redisClient } from "../server";
@@ -36,10 +37,10 @@ const submissionResolver = {
     submissionActive: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
-        (payload, variables, context) => {
+        async (payload, variables, context) => {
+          const user = await contextController.getDataInToken(variables.token);
           return (
-            String(payload.submissionActive._id) ===
-            String(context.user.submissionID)
+            String(payload.submissionActive._id) === String(user.submissionID)
           );
         }
       )

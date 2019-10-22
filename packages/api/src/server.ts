@@ -100,7 +100,7 @@ const server = new ApolloServer({
         const user = await contextController.getDataInToken(justToken);
         return { user }; //  add the user to the ctx
       }
-      throw new AuthenticationError("You need to be logged in");
+      //throw new AuthenticationError("You need to be logged in");
     }
   }
 });
