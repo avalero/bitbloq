@@ -336,12 +336,12 @@ const documentResolver = {
 
       const orderFunction = orderFunctions[args.order];
 
-      const filterOptionsDoc: any = {
+      const filterOptionsDoc = {
         title: { $regex: `.*${text}.*`, $options: "i" },
         user: context.user.userID,
         folder: currentLocation
       };
-      const filterOptionsFol: any = {
+      const filterOptionsFol = {
         name: { $regex: `.*${text}.*`, $options: "i" },
         user: context.user.userID,
         parent: currentLocation
