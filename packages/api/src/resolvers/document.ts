@@ -10,15 +10,10 @@ import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
 import { UserModel, IUser } from "../models/user";
 
-import { logger, loggerController } from "../controllers/logs";
+import { loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
-import uploadResolver, { uploadDocumentImage } from "./upload";
-import {
-  getParentsPath,
-  orderFunctions,
-  OrderType,
-  orderOptions
-} from "../utils";
+import { uploadDocumentImage } from "./upload";
+import { getParentsPath, orderFunctions } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -367,10 +362,8 @@ const documentResolver = {
             image,
             ...op
           }) => {
-            let hasChildren: boolean = false;
-            if ((await ExerciseModel.find({ document: id })).length > 0) {
-              hasChildren = true;
-            }
+            let hasChildren: boolean =
+              (await ExerciseModel.find({ document: id })).length > 0;
             return {
               title,
               id,
@@ -387,13 +380,9 @@ const documentResolver = {
       );
       const folsTitle = fols.map(
         ({ name: title, _id: id, createdAt, updatedAt, parent, ...op }) => {
-          let hasChildren: boolean = false;
-          if (
+          let hasChildren: boolean =
             (op.documentsID && op.documentsID.length > 0) ||
-            (op.foldersID && op.foldersID.length > 0)
-          ) {
-            hasChildren = true;
-          }
+            (op.foldersID && op.foldersID.length > 0);
           return {
             title,
             id,

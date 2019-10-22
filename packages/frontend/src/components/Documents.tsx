@@ -14,7 +14,6 @@ import {
 import { navigate } from "gatsby";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
-import { documentTypes } from "../config";
 import AppHeader from "./AppHeader";
 import NewDocumentDropDown from "./NewDocumentDropDown";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
@@ -69,7 +68,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [currentLocation, setCurrentLocation] = useState({
+  const [currentLocation] = useState({
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
   });
@@ -197,10 +196,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       </Container>
     );
 
-  const pagesNumber = documentsData.documentsAndFolders.pagesNumber;
-  const docsAndFols = documentsData.documentsAndFolders.result;
-  const parentsPath = documentsData.documentsAndFolders.parentsPath;
-  const nFolders = documentsData.documentsAndFolders.nFolders;
+  const {
+    pagesNumber,
+    result: docsAndFols,
+    parentsPath,
+    nFolders
+  } = documentsData.documentsAndFolders;
 
   const breadParents = parentsPath.map(item => ({
     route: `/app/folder/${item.id}`,

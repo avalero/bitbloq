@@ -283,9 +283,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={
-                    selectedToMove.id === document.id && docsAndFols != []
-                  }
+                  notHidden={selectedToMove.id === document.id && nFolders > 0}
                   targetOffset="-165px -14px"
                   targetPosition="top right"
                 >
@@ -305,7 +303,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       }
                     ]}
                     notHidden={
-                      selectedToMove.id === document.id && docsAndFols != []
+                      selectedToMove.id === document.id && nFolders > 0
                     }
                     targetPosition="top right"
                     attachmentPosition="top left"
@@ -320,7 +318,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              document.image
+                              document.type !== "folder"
                                 ? onDocumentRenameClick(e, document)
                                 : onFolderRenameClick(e, document);
                             }
@@ -328,11 +326,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
                           {
                             iconName: "duplicate",
                             label: "Crear una copia",
-                            disabled: document.image === null,
+                            disabled: document.type === "folder",
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              document.image
+                              document.type !== "folder"
                                 ? onDuplicateDocument(e, document)
                                 : null;
                             }
@@ -346,20 +344,21 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              document.image
+                              document.type !== "folder"
                                 ? onMoveDocumentClick(e, document)
                                 : onMoveFolderClick(e, document);
                             }
                           },
                           {
                             iconName: "trash",
-                            label: document.image
-                              ? "Eliminar documento"
-                              : "Eliminar carpeta",
+                            label:
+                              document.type !== "folder"
+                                ? "Eliminar documento"
+                                : "Eliminar carpeta",
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
-                              document.image
+                              document.type !== "folder"
                                 ? onDocumentDeleteClick(e, document)
                                 : onFolderDeleteClick(e, document);
                             },
@@ -371,7 +370,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     {selectedToMove.id === document.id && nFolders !== 0 && (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
-                        onMove={document.image ? onMoveDocument : onMoveFolder}
+                        onMove={
+                          document.type !== "folder"
+                            ? onMoveDocument
+                            : onMoveFolder
+                        }
                         currentLocation={currentLocation}
                       />
                     )}
