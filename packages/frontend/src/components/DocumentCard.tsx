@@ -52,7 +52,6 @@ const DocumentCard: FC<DocumentCardProps> = ({
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
     drop: item => {
-      console.log(item);
       if (item.type === "document" && dropDocumentCallback) {
         dropDocumentCallback();
       } else if (item.type === "folder" && dropFolderCallback) {
