@@ -276,8 +276,7 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
                 onClick() {
                   setActiveSubmission({
                     variables: {
-                      exerciseId: exerciseId,
-                      studentNick: submission.studentNick,
+                      submissionID: submission.id,
                       active: false
                     }
                   });

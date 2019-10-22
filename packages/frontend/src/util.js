@@ -11,3 +11,10 @@ export const getChromeVersion = () => {
 
 export const isValidEmail = email =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
+
+
+export const sortByCreatedAt = (a, b) => {
+  const aCreatedAt = a && a.createdAt;
+  const bCreatedAt = b && b.createdAt;
+  return Math.sign(bCreatedAt - aCreatedAt);
+};

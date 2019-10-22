@@ -127,14 +127,10 @@ class Document extends React.Component<any, DocumentState> {
         ]
       ];
     }
+    breadParents.push({ route: "", text: document.title, type: "document" });
     return (
       <Header>
-        <Breadcrumbs
-          links={[
-            ...breadParents,
-            { route: "", text: document.title, type: "document" }
-          ]}
-        />
+        <Breadcrumbs links={breadParents} title={document.title} />
       </Header>
     );
   }

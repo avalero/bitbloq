@@ -40,15 +40,13 @@ type Mutation {
     submissionID: ObjectID!
     password: String!
   ): Submission @authRequired(requires: [TEACHER])
-  setActiveSubmission(
-    exerciseId: ObjectID!
-    studentNick: String!
-    active: Boolean
-  ): Submission @authRequired(requires: [TEACHER, STUDENT])
+  setActiveSubmission(submissionID: ObjectID!, active: Boolean!): Submission
+    @authRequired(requires: [TEACHER])
 }
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission
-    @authRequired(requires: [TEACHER, STUDENT])
+    @authRequired(requires: [TEACHER])
+  submissionActive: Submission @authRequired(requires: [STUDENT])
 }
 
 type Submission {
@@ -81,6 +79,7 @@ input SubmissionIn {
   content: String
   cache: String
   type: String
+  active: Boolean
 }
 type loginOut {
   token: String
