@@ -29,7 +29,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
 }) => {
   const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
-    item: { type: "document" },
+    item: { type: document.type === "folder" ? "folder" : "document" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
@@ -52,6 +52,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
     drop: item => {
+      console.log(item);
       if (item.type === "document" && dropDocumentCallback) {
         dropDocumentCallback();
       } else if (item.type === "folder" && dropFolderCallback) {
