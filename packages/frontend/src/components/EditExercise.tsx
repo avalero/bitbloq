@@ -102,19 +102,11 @@ const EditExercise = ({ type, id, t }) => {
         });
       };
 
-      window.addEventListener(
-        "beforeunload",
-        e => ((e.returnValue = ""), setActive(false)),
-        true
-      );
+      window.addEventListener("beforeunload", e => setActive(false), true);
 
       return () => {
         setActive(false);
-        window.removeEventListener(
-          "beforeunload",
-          e => ((e.returnValue = ""), setActive(false)),
-          true
-        );
+        window.removeEventListener("beforeunload", e => setActive(false), true);
       };
     }
   }, [teamName]);
