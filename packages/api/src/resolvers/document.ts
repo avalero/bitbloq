@@ -8,12 +8,12 @@ import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
-import { UserModel } from "../models/user";
+import { UserModel, IUser } from "../models/user";
 
-import { logger, loggerController } from "../controllers/logs";
+import { loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
-import uploadResolver, { uploadDocumentImage } from "./upload";
-import { getParentsPath } from "../utils";
+import { uploadDocumentImage } from "./upload";
+import { getParentsPath, orderFunctions } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -309,11 +309,111 @@ const documentResolver = {
     },
 
     /**
-     * Documents: returns all the documents of the user logged.
+     * Examples: returns all the examples in the platform.
      * args: nothing.
      */
     examples: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ example: true });
+    },
+
+    /**
+     * documentsAndFolders: returns all the documents and folders of the user logged in the order passed as argument.
+     * It also returns the total number of pages, the parent folders path of the current location and the number of folders in the current location.
+     * args: itemsPerPage: Number, order: String, searchTitle: String.
+     */
+    documentsAndFolders: async (root: any, args: any, context: any) => {
+      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+      if (!user) return new AuthenticationError("You need to be logged in");
+
+      const currentLocation: string = args.currentLocation || user.rootFolder;
+      const itemsPerPage: number = args.itemsPerPage || 8;
+      let skipN: number = (args.currentPage - 1) * itemsPerPage;
+      let limit: number = skipN + itemsPerPage;
+      const text: string = args.searchTitle;
+
+      const orderFunction = orderFunctions[args.order];
+
+      const filterOptionsDoc = {
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        folder: currentLocation
+      };
+      const filterOptionsFol = {
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        parent: currentLocation
+      };
+
+      const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
+
+      const docsParent = await Promise.all(
+        docs.map(
+          async ({
+            title,
+            _id: id,
+            createdAt,
+            updatedAt,
+            type,
+            folder: parent,
+            image,
+            ...op
+          }) => {
+            let hasChildren: boolean =
+              (await ExerciseModel.find({ document: id })).length > 0;
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type,
+              parent,
+              image,
+              hasChildren,
+              ...op
+            };
+          }
+        )
+      );
+      const folsTitle = fols.map(
+        ({ name: title, _id: id, createdAt, updatedAt, parent, ...op }) => {
+          let hasChildren: boolean =
+            (op.documentsID && op.documentsID.length > 0) ||
+            (op.foldersID && op.foldersID.length > 0);
+          return {
+            title,
+            id,
+            createdAt,
+            updatedAt,
+            type: "folder",
+            parent,
+            hasChildren,
+            ...op
+          };
+        }
+      );
+
+      const allData = [...docsParent, ...folsTitle];
+      const allDataSorted = allData.sort(orderFunction);
+      const pagesNumber: number = Math.ceil(
+        ((await DocumentModel.countDocuments(filterOptionsDoc)) +
+          (await FolderModel.countDocuments(filterOptionsFol))) /
+          itemsPerPage
+      );
+
+      const nFolders: number = await FolderModel.countDocuments({
+        user: context.user.userID,
+        parent: currentLocation
+      });
+      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
+      const parentsPath = getParentsPath(folderLoc);
+      const result = allDataSorted.slice(skipN, limit);
+      return {
+        result,
+        pagesNumber,
+        nFolders,
+        parentsPath
+      };
     }
   },
 
