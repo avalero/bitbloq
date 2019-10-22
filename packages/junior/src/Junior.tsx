@@ -31,6 +31,7 @@ export interface JuniorProps {
   boards: IBoard[];
   components: IComponent[];
   backCallback: () => any;
+  headerRightContent: JSX.Element;
 }
 
 const Junior: React.FunctionComponent<JuniorProps> = ({
@@ -45,7 +46,8 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   onContentChange,
   boards,
   components,
-  backCallback
+  backCallback,
+  headerRightContent
 }) => {
   const t = useTranslate();
 
@@ -250,6 +252,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         tabIndex={tabIndex}
         onTabChange={onTabChange}
         backCallback={backCallback}
+        headerRightContent={headerRightContent}
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>
