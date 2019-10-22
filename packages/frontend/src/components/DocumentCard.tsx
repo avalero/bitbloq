@@ -29,7 +29,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
 }) => {
   const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
-    item: { type: "document" },
+    item: { type: document.type === "folder" ? "folder" : "document" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
