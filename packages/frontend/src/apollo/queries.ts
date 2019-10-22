@@ -48,6 +48,41 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
   }
 `;
 
+export const DOCS_FOLDERS_PAGE_QUERY = gql`
+  query documentsAndFolders(
+    $currentLocation: ObjectID
+    $currentPage: Number
+    $itemsPerPage: Number
+    $order: String
+    $searchTitle: String
+  ) {
+    documentsAndFolders(
+      currentLocation: $currentLocation
+      currentPage: $currentPage
+      itemsPerPage: $itemsPerPage
+      order: $order
+      searchTitle: $searchTitle
+    ) {
+      result {
+        id
+        title
+        type
+        createdAt
+        updatedAt
+        image
+        parent
+        hasChildren
+      }
+      parentsPath {
+        id
+        name
+      }
+      pagesNumber
+      nFolders
+    }
+  }
+`;
+
 export const DOCUMENTS_QUERY = gql`
   query Documents {
     documents {
