@@ -188,7 +188,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     reader.readAsText(file);
   };
 
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (error) {
+    console.log(error);
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
   if (!documentsData || !documentsData.documentsAndFolders)
     return (
       <Container>
