@@ -482,7 +482,7 @@ class Document extends React.Component<any, DocumentState> {
                 <Query query={DOCUMENT_QUERY} variables={{ id }}>
                   {({ loading, error, data, refetch }) => {
                     if (error) {
-                      this.setState({ stateError: error });
+                      return <GraphQLErrorMessage apolloError={error} />;
                     }
                     if (loading) return <Loading />;
 
