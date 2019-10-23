@@ -93,7 +93,7 @@ const PropertiesPanel: FC<IPropertiesPanelProps> = ({
       label: "param-base-object",
       type: "select",
       options: (object as ICompoundObjectJSON).children.map(child => ({
-        labelId: child.viewOptions.name!,
+        label: child.viewOptions.name!,
         value: child
       }))
     });

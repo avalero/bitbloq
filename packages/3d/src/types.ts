@@ -45,7 +45,8 @@ export interface IObjectType {
 }
 
 export interface ISelectOption {
-  labelId: string;
+  label?: string;
+  labelId?: string;
   value: any;
 }
 

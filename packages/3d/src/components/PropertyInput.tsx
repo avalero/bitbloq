@@ -175,7 +175,7 @@ const SelectProperty: FC<ISelectPropertyProps> = ({
           value={value}
           options={options.map(o => ({
             ...o,
-            label: o.labelId ? t(o.labelId) : o.labelId
+            label: o.labelId ? t(o.labelId) : o.label
           }))}
           selectConfig={{ isSearchable: false }}
           onChange={onChange}
