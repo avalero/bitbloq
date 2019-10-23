@@ -17,6 +17,23 @@ import { getParentsPath, orderFunctions } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
+const hasDocsWithEx = async (folder: any) => {
+  if (folder.documentsID && folder.documentsID.length > 0) {
+    const docsEx = await ExerciseModel.find({
+      document: { $in: folder.documentsID }
+    });
+    if (docsEx.length > 0) {
+      return true;
+    }
+  }
+  if (folder.foldersID && folder.foldersID.length > 0) {
+    const folders = await FolderModel.find({ _id: { $in: folder.foldersID } });
+    return folders.map(async i => await hasDocsWithEx(i));
+  } else {
+    return false;
+  }
+};
+
 const documentResolver = {
   Subscription: {
     documentUpdated: {
@@ -378,22 +395,34 @@ const documentResolver = {
           }
         )
       );
-      const folsTitle = fols.map(
-        ({ name: title, _id: id, createdAt, updatedAt, parent, ...op }) => {
-          let hasChildren: boolean =
-            (op.documentsID && op.documentsID.length > 0) ||
-            (op.foldersID && op.foldersID.length > 0);
-          return {
-            title,
-            id,
+      const folsTitle = await Promise.all(
+        fols.map(
+          async ({
+            name: title,
+            _id: id,
             createdAt,
             updatedAt,
-            type: "folder",
             parent,
-            hasChildren,
+            documentsID,
+            foldersID,
             ...op
-          };
-        }
+          }) => {
+            const hasChildren: boolean = await hasDocsWithEx({
+              documentsID,
+              foldersID
+            });
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type: "folder",
+              parent,
+              hasChildren,
+              ...op
+            };
+          }
+        )
       );
 
       const allData = [...docsParent, ...folsTitle];
