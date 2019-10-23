@@ -172,6 +172,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   const onSearchInput = debounce((value: string) => {
     setSearchQuery(value);
+    setCurrentPage(1);
   }, 500);
 
   const onFileSelected = file => {
