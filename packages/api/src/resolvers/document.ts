@@ -346,10 +346,11 @@ const documentResolver = {
       if (!user) return new AuthenticationError("You need to be logged in");
 
       const currentLocation: string = args.currentLocation || user.rootFolder;
-      const folLoc: IFolder = await FolderModel.findOne({
-        _id: currentLocation
-      });
-      if (!folLoc)
+      if (
+        !(await FolderModel.findOne({
+          _id: currentLocation
+        }))
+      )
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
 
       const itemsPerPage: number = args.itemsPerPage || 8;

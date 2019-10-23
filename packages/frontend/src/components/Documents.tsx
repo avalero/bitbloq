@@ -189,7 +189,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   if (error) {
-    console.log(error);
     return <GraphQLErrorMessage apolloError={error} />;
   }
   if (!documentsData || !documentsData.documentsAndFolders)

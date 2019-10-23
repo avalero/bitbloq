@@ -63,10 +63,12 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   useEffect(() => {
     if (isNew) {
       setLoading(false);
+      setError(null);
     } else if (!loadingDocument && !errorDocument) {
       setDocument(data.document);
       setImage(data.document && data.document.image);
       setLoading(false);
+      setError(null);
     } else if (errorDocument) {
       setError(errorDocument);
       setLoading(false);
