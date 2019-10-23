@@ -340,7 +340,7 @@ const PropertiesPanel: FC<IPropertiesPanelProps> = ({
 export default PropertiesPanel;
 
 interface IObjectPropertyInputProps {
-  object: IPrimitiveObjectJSON;
+  object: IObjectsCommonJSON;
   parameter: IObjectParameter;
   onObjectParameterChange: (parameter: IObjectParameter, value: any) => any;
 }
@@ -357,10 +357,15 @@ const ObjectPropertyInput: FC<IObjectPropertyInputProps> = ({
     [parameter, onObjectParameterChange]
   );
 
-  const baseObject = parameter.isViewOption
-    ? object.viewOptions
-    : object.parameters;
-  const value = baseObject[parameter.name];
+  let value: any;
+  if (parameter.name === "baseObject") {
+    value = (object as ICompoundObjectJSON).children[0];
+  } else {
+    const baseObject = parameter.isViewOption
+      ? object.viewOptions
+      : (object as IPrimitiveObjectJSON).parameters;
+    value = baseObject[parameter.name];
+  }
 
   return (
     <PropertyInput parameter={parameter} value={value} onChange={onChange} />
