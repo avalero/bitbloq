@@ -145,6 +145,8 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
           folder: folder,
           title: document.title || "Documento sin título"
         }
+      }).catch(e => {
+        return setError(e);
       });
       navigate(`/app/document/${folder}/${type}/${newId}`, { replace: true });
     } else {

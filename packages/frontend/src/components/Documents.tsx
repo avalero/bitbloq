@@ -32,6 +32,7 @@ import DocumentListComp from "./DocumentsList";
 import Breadcrumbs from "./Breadcrumbs";
 import AppFooter from "./Footer";
 import Paginator from "./Paginator";
+import { ApolloError } from "apollo-client";
 
 enum OrderType {
   Creation = "creation",
@@ -85,11 +86,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
   const [documentsData, setDocumentsData] = useState<any>({});
+  const [error, setError] = useState<ApolloError>();
 
   const {
     data: resultData,
     loading,
-    error,
+    error: errorQuery,
     refetch: refetchDocsFols
   } = useQuery(DOCS_FOLDERS_PAGE_QUERY, {
     variables: {
@@ -103,10 +105,14 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   });
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading & !errorQuery) {
+      setError(null);
       setDocumentsData(resultData);
     }
-  }, [loading]);
+    if (errorQuery) {
+      setError(errorQuery);
+    }
+  }, [loading, errorQuery]);
 
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
@@ -128,6 +134,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       variables: {
         input: { name: folderName, parent: currentLocation.id }
       }
+    }).catch(e => {
+      setError(e);
     });
     refetchDocsFols();
     setFolderTitleModal(false);
@@ -147,6 +155,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   const onOpenDocumentClick = () => {
+    refetchDocsFols();
     openFile.current.click();
   };
 
