@@ -17,8 +17,8 @@ import { getParentsPath, orderFunctions } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
-const getDocsWithEx = async (folder: any) => {
-  if (folder.documentsID) {
+const hasDocsWithEx = async (folder: any) => {
+  if (folder.documentsID && folder.documentsID.length > 0) {
     const docsEx = await ExerciseModel.find({
       document: { $in: folder.documentsID }
     });
@@ -26,9 +26,9 @@ const getDocsWithEx = async (folder: any) => {
       return true;
     }
   }
-  if (folder.foldersID) {
+  if (folder.foldersID && folder.foldersID.length > 0) {
     const folders = await FolderModel.find({ _id: { $in: folder.foldersID } });
-    return folders.map(async i => await getDocsWithEx(i));
+    return folders.map(async i => await hasDocsWithEx(i));
   } else {
     return false;
   }
@@ -407,7 +407,7 @@ const documentResolver = {
             foldersID,
             ...op
           }) => {
-            const hasChildren: boolean = await getDocsWithEx({
+            const hasChildren: boolean = await hasDocsWithEx({
               documentsID,
               foldersID
             });

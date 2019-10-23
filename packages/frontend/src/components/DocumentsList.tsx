@@ -32,7 +32,7 @@ export interface DocumentListProps {
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
-  refetchDocsFols: (e) => any;
+  refetchDocsFols: () => any;
   nFolders: number;
 }
 
@@ -164,6 +164,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
       variables: { id: deleteFol.id }
     });
     refetchDocsFols();
+    setFolWithChildren(false);
     setDeleteFol({ id: null, hasChildren: null });
   };
 
