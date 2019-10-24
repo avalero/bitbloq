@@ -252,7 +252,8 @@
   "general-accept-button": "Aceptar",
   "junior": {
     "hardware": "Hardware",
-    "software": "Software"
+    "software": "Software",
+    "component-not-found": "Componente no encontrado"
   },
   "hardware": {
     "component": {
