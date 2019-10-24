@@ -71,7 +71,6 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   });
 
   useEffect(() => {
-    console.log(image);
     if (firstLoad) {
       saveImage();
       if (
