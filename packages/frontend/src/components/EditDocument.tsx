@@ -256,7 +256,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   };
 
   const onSaveTitle = (title: string) => {
-    update({ ...document, title });
+    update({ ...document, title: title || t("untitled-project") });
     setIsEditTitleVisible(false);
   };
 
