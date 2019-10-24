@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useCallback } from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import html2canvas from "html2canvas";
@@ -16,12 +16,18 @@ import {
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
   PUBLISH_DOCUMENT_MUTATION,
-  ME_QUERY
+  ME_QUERY,
+  SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+
+interface DocumentImage {
+  image: string;
+  isSnapshot: boolean;
+}
 
 interface EditDocumentProps {
   folder?: string;
@@ -38,8 +44,11 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [imageInterval, setImageInterval] = useState<NodeJS.Timeout>();
+  const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
   const [document, setDocument] = useState({
+    id: "",
     content: "[]",
     title: "",
     description: "",
@@ -48,7 +57,8 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     type,
     advancedMode: false
   });
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<DocumentImage>();
+  const imageToUpload = useRef(new Blob());
 
   const {
     loading: loadingDocument,
@@ -59,6 +69,26 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     variables: { id },
     skip: isNew
   });
+
+  useEffect(() => {
+    console.log(image);
+    if (firstLoad) {
+      saveImage();
+      if (
+        document &&
+        document.id &&
+        image &&
+        image.isSnapshot &&
+        imageToUpload.current &&
+        imageToUpload.current.size > 0
+      ) {
+        updateImage(document.id);
+        setFirstLoad(false);
+        const interval = setInterval(updateImage, 10 * 60 * 1000, document.id);
+        setImageInterval(interval);
+      }
+    }
+  }, [imageToUpload.current]);
 
   useEffect(() => {
     if (isNew) {
@@ -78,26 +108,56 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
+  const [setDocumentImage] = useMutation(SET_DOCUMENT_IMAGE_MUTATION);
 
-  const debouncedUpdate = useCallback(
-    debounce(async (document: any, image: string) => {
-      if (
-        !document.image &&
-        (!image || !image.match(/^http/) || image.match(/blob$/))
-      ) {
-        const picture: HTMLElement | null =
-          window.document.querySelector("canvas") ||
-          window.document.querySelector("[class*=Canvas]");
-        if (picture) {
-          const canvas: HTMLCanvasElement = await html2canvas(picture);
-          const imgData: string = canvas.toDataURL("image/jpeg");
+  const saveImage = async () => {
+    if (!image || image.isSnapshot) {
+      const picture: HTMLElement | null = window.document.querySelector(
+        ".image-snapshot"
+      );
+      if (picture) {
+        const canvas: HTMLCanvasElement = await html2canvas(picture);
+        const imgData: string = canvas.toDataURL("image/jpeg");
 
-          if (imgData !== "data:,") {
-            const file: Blob = dataURItoBlob(imgData);
-            document.image = file;
-          }
+        if (imgData !== "data:,") {
+          const file: Blob = dataURItoBlob(imgData);
+          imageToUpload.current = file;
         }
       }
+    }
+  };
+
+  const updateImage = (
+    id: string,
+    imageFile?: Blob,
+    isImageSnapshot?: boolean
+  ) => {
+    const image = imageFile || imageToUpload.current;
+    const isSnapshot = isImageSnapshot === undefined ? true : isImageSnapshot;
+    setImage({ image: "udpated", isSnapshot });
+
+    if (!isSnapshot) {
+      setImageInterval(undefined);
+    } else {
+      setImage({ image: "blob", isSnapshot: true });
+    }
+
+    if (image.size > 0) {
+      setDocumentImage({
+        variables: {
+          id,
+          image,
+          isSnapshot
+        }
+      }).catch(e => {
+        return setError(e);
+      });
+    }
+  };
+
+  const debouncedUpdate = useCallback(
+    debounce(async (document: any) => {
+      saveImage();
       await updateDocument({ variables: { ...document, id } }).catch(e => {
         return setError(e);
       });
@@ -150,7 +210,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
       });
       navigate(`/app/document/${folder}/${type}/${newId}`, { replace: true });
     } else {
-      debouncedUpdate(document, image);
+      debouncedUpdate(document);
     }
   };
 
@@ -196,23 +256,21 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   };
 
   const onSaveTitle = (title: string) => {
-    update({ ...document, title, image: undefined });
+    update({ ...document, title });
     setIsEditTitleVisible(false);
   };
 
   const onContentChange = (content: any[]) => {
     update({
       ...document,
-      content: JSON.stringify(content),
-      image: undefined
+      content: JSON.stringify(content)
     });
   };
 
   const onSetAdvancedMode = (advancedMode: boolean) => {
     update({
       ...document,
-      advancedMode,
-      image: undefined
+      advancedMode
     });
   };
 
@@ -248,12 +306,10 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
       <DocumentInfoForm
         title={title}
         description={description}
-        image={image}
+        image={image ? image.image : ""}
         onChange={({ title, description, image }) => {
-          const newDocument = { ...document, title, description, image };
-          if (!image || typeof image === "string") {
-            delete newDocument.image;
-          }
+          const newDocument = { ...document, title, description };
+          updateImage(document.id, image, false);
           update(newDocument);
         }}
       />

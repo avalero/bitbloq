@@ -144,7 +144,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     : [];
 
   return (
-    <Container>
+    <Container className="image-snapshot">
       <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
         <ConnectionCanvas>
           {board.ports.map((port, i) => (

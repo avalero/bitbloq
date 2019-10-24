@@ -39,7 +39,10 @@ const DOCUMENT_QUERY = gql`
       type
       title
       description
-      image
+      image {
+        image
+        isSnapshot
+      }
       folder
       parentsPath {
         id
@@ -156,7 +159,7 @@ class Document extends React.Component<any, DocumentState> {
           </DocumentHeaderButton>
         </DocumentHeader>
         <DocumentBody>
-          <DocumentImage src={document.image} />
+          <DocumentImage src={document.image.image} />
           <DocumentBodyInfo>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
@@ -190,7 +193,7 @@ class Document extends React.Component<any, DocumentState> {
           </DocumentHeaderButton>
         </DocumentHeader>
         <DocumentBody teacher>
-          <DocumentImage src={document.image} teacher />
+          <DocumentImage src={document.image.image} teacher />
           <DocumentBodyInfo teacher>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
