@@ -368,7 +368,7 @@ const documentResolver = {
               updatedAt,
               type,
               parent,
-              image,
+              image: image.image,
               hasChildren,
               ...op
             };

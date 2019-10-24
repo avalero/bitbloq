@@ -22,7 +22,10 @@ export const DOCUMENT_QUERY = gql`
       title
       description
       content
-      image
+      image {
+        image
+        isSnapshot
+      }
       public
       example
       advancedMode
@@ -41,7 +44,10 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
       title
       description
       content
-      image
+      image {
+        image
+        isSnapshot
+      }
       public
       advancedMode
     }
@@ -90,7 +96,10 @@ export const DOCUMENTS_QUERY = gql`
       type
       title
       createdAt
-      image
+      image {
+        image
+        isSnapshot
+      }
     }
   }
 `;
@@ -114,7 +123,10 @@ export const ROOT_FOLDER_QUERY = gql`
         type
         title
         createdAt
-        image
+        image {
+          image
+          isSnapshot
+        }
       }
       folders {
         id
@@ -166,7 +178,10 @@ export const EXAMPLES_QUERY = gql`
       id
       type
       title
-      image
+      image {
+        image
+        isSnapshot
+      }
     }
   }
 `;
@@ -177,7 +192,6 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $title: String!
     $description: String
     $content: String
-    $image: String
     $advancedMode: Boolean
     $folder: ObjectID
   ) {
@@ -187,7 +201,6 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         title: $title
         description: $description
         content: $content
-        imageUrl: $image
         advancedMode: $advancedMode
         folder: $folder
       }
@@ -230,13 +243,24 @@ export const DELETE_FOLDER_MUTATION = gql`
   }
 `;
 
+export const SET_DOCUMENT_IMAGE_MUTATION = gql`
+  mutation SetDocumentImage(
+    $id: ObjectID
+    $image: Upload
+    $isSnapshot: Boolean
+  ) {
+    setDocumentImage(id: $id, image: $image, isSnapshot: $isSnapshot) {
+      id
+    }
+  }
+`;
+
 export const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
     $id: ObjectID!
     $title: String
     $content: String
     $description: String
-    $image: Upload
     $advancedMode: Boolean
     $folder: ObjectID
   ) {
@@ -246,7 +270,6 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         title: $title
         content: $content
         description: $description
-        image: $image
         advancedMode: $advancedMode
         folder: $folder
       }
@@ -254,7 +277,10 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
       id
       type
       content
-      image
+      image {
+        image
+        isSnapshot
+      }
     }
   }
 `;
