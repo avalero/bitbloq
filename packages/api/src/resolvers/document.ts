@@ -15,7 +15,7 @@ import { pubsub } from "../server";
 import { uploadDocumentImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
 
-const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
+export const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
 const hasDocsWithEx = async (folder: any) => {
   if (folder.documentsID && folder.documentsID.length > 0) {
@@ -398,10 +398,10 @@ const documentResolver = {
             type,
             folder: parent,
             image,
+            exercisesID,
             ...op
           }) => {
-            let hasChildren: boolean =
-              (await ExerciseModel.find({ document: id })).length > 0;
+            let hasChildren: boolean = exercisesID.length > 0;
             return {
               title,
               id,

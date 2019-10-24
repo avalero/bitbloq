@@ -5,6 +5,8 @@ import { SubmissionModel } from "../models/submission";
 import { IUser, UserModel } from "../models/user";
 
 import { logger, loggerController } from "../controllers/logs";
+import { pubsub } from "../server";
+import { DOCUMENT_UPDATED } from "./document";
 
 const exerciseResolver = {
   Mutation: {
@@ -57,6 +59,12 @@ const exerciseResolver = {
         ""
       );
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
+      const docEx = await DocumentModel.findOneAndUpdate(
+        { _id: docFather._id },
+        { $push: { exercisesID: newEx._id } },
+        { new: true }
+      );
+      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docEx });
       return newEx;
     },
 
@@ -109,6 +117,12 @@ const exerciseResolver = {
           ""
         );
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
+        const docEx = await DocumentModel.findOneAndUpdate(
+          { _id: existExercise.document },
+          { $pull: { exercisesID: existExercise._id } },
+          { new: true }
+        );
+        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docEx });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
