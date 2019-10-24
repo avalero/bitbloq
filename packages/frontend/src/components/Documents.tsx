@@ -105,7 +105,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   });
 
   useEffect(() => {
-    if (!loading & !errorQuery) {
+    if (!loading && !errorQuery) {
       setError(null);
       setDocumentsData(resultData);
     }
@@ -233,86 +233,59 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           )}
         </Header>
         <Rule />
-        {(docsAndFols || searchText) && (
-          <DocumentListHeader>
-            {(docsAndFols.length > 0 || searchText) && (
-              <>
-                <ViewOptions>
-                  <OrderSelect
-                    options={orderOptions}
-                    onChange={onOrderChange}
-                    selectConfig={{ isSearchable: false }}
-                  />
-                </ViewOptions>
-                <SearchInput
-                  value={searchText}
-                  onChange={e => (
-                    setSearchText(e.target.value), onSearchInput(e.target.value)
-                  )}
-                  placeholder="Buscar..."
+        <DocumentListHeader>
+          {(docsAndFols.length > 0 || searchQuery) && (
+            <>
+              <ViewOptions>
+                <OrderSelect
+                  options={orderOptions}
+                  onChange={onOrderChange}
+                  selectConfig={{ isSearchable: false }}
                 />
-              </>
-            )}
-            <HeaderButtons>
-              <NewFolderButton
-                tertiary
-                onClick={() => {
-                  setFolderTitleModal(true);
-                }}
-              >
-                <Icon name="new-folder" />
-                Nueva carpeta
-              </NewFolderButton>
-              <NewExerciseButton
-                onOpenExercise={onOpenExercise}
-                exerciseError={exerciseError}
-                loadingExercise={loadingExercise}
-              />
-              <DropDown
-                attachmentPosition={"top center"}
-                targetPosition={"bottom center"}
-              >
-                {(isOpen: boolean) => (
-                  <NewDocumentButton tertiary isOpen={isOpen}>
-                    <Icon name="new-document" />
-                    Nuevo documento
-                  </NewDocumentButton>
+              </ViewOptions>
+              <SearchInput
+                value={searchText}
+                onChange={e => (
+                  setSearchText(e.target.value), onSearchInput(e.target.value)
                 )}
-                <NewDocumentDropDown
-                  onNewDocument={onNewDocument}
-                  onOpenDocument={onOpenDocumentClick}
-                  arrowOffset={10}
-                />
-              </DropDown>
-            </HeaderButtons>
-          </DocumentListHeader>
-        )}
-        {searchText ? (
-          docsAndFols.length > 0 ? (
-            <DocumentsAndPaginator>
-              <DocumentListComp
-                parentsPath={parentsPath}
-                refetchDocsFols={refetchDocsFols}
-                docsAndFols={docsAndFols}
-                currentLocation={currentLocation}
-                onFolderClick={onFolderClick}
-                onDocumentClick={onDocumentClick}
-                order={order}
-                searchTitle={searchText}
-                nFolders={nFolders}
+                placeholder="Buscar..."
               />
-              <DocumentsPaginator
-                currentPage={currentPage}
-                pages={pagesNumber}
-                selectPage={(page: number) => setCurrentPage(page)}
+            </>
+          )}
+          <HeaderButtons>
+            <NewFolderButton
+              tertiary
+              onClick={() => {
+                setFolderTitleModal(true);
+              }}
+            >
+              <Icon name="new-folder" />
+              Nueva carpeta
+            </NewFolderButton>
+            <NewExerciseButton
+              onOpenExercise={onOpenExercise}
+              exerciseError={exerciseError}
+              loadingExercise={loadingExercise}
+            />
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+            >
+              {(isOpen: boolean) => (
+                <NewDocumentButton tertiary isOpen={isOpen}>
+                  <Icon name="new-document" />
+                  Nuevo documento
+                </NewDocumentButton>
+              )}
+              <NewDocumentDropDown
+                onNewDocument={onNewDocument}
+                onOpenDocument={onOpenDocumentClick}
+                arrowOffset={10}
               />
-            </DocumentsAndPaginator>
-          ) : (
-            <NoDocuments>
-              <h1>No hay resultados para tu búsqueda</h1>
-            </NoDocuments>
-          )
-        ) : docsAndFols.length > 0 ? (
+            </DropDown>
+          </HeaderButtons>
+        </DocumentListHeader>
+        {docsAndFols.length > 0 ? (
           <DocumentsAndPaginator>
             <DocumentListComp
               parentsPath={parentsPath}
@@ -331,6 +304,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               selectPage={(page: number) => setCurrentPage(page)}
             />
           </DocumentsAndPaginator>
+        ) : searchQuery ? (
+          <NoDocuments>
+            <h1>No hay resultados para tu búsqueda</h1>
+          </NoDocuments>
         ) : (
           <NoDocuments>
             <h1>No tienes ningún documento</h1>
