@@ -398,10 +398,10 @@ const documentResolver = {
             type,
             folder: parent,
             image,
-            exercisesID,
             ...op
           }) => {
-            let hasChildren: boolean = exercisesID.length > 0;
+            let hasChildren: boolean =
+              (await ExerciseModel.find({ document: id })).length > 0;
             return {
               title,
               id,

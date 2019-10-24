@@ -16,7 +16,6 @@ export interface IDocument extends Document {
   updatedAt?: Date;
   description?: string;
   version?: string;
-  exercisesID?: string[];
 }
 
 const DocumentMongSchema: Schema = new Schema({
@@ -78,9 +77,7 @@ const DocumentMongSchema: Schema = new Schema({
   example: {
     type: Boolean,
     default: false
-  },
-
-  exercisesID: { type: [String] }
+  }
 });
 
 DocumentMongSchema.plugin(timestamps);
