@@ -203,7 +203,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
         variables: {
           ...document,
           folder: folder,
-          title: document.title || "Documento sin título"
+          title: document.title || t("untitled-project")
         }
       }).catch(e => {
         return setError(e);
@@ -308,7 +308,11 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
         description={description}
         image={image ? image.image : ""}
         onChange={({ title, description, image }) => {
-          const newDocument = { ...document, title, description };
+          const newDocument = {
+            ...document,
+            title: title || t("untitled-project"),
+            description
+          };
           updateImage(document.id, image, false);
           update(newDocument);
         }}
