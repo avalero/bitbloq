@@ -289,7 +289,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         )}
         {searchText ? (
           docsAndFols.length > 0 ? (
-            <>
+            <DocumentsAndPaginator>
               <DocumentListComp
                 parentsPath={parentsPath}
                 refetchDocsFols={refetchDocsFols}
@@ -306,14 +306,14 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
                 pages={pagesNumber}
                 selectPage={(page: number) => setCurrentPage(page)}
               />
-            </>
+            </DocumentsAndPaginator>
           ) : (
             <NoDocuments>
               <h1>No hay resultados para tu búsqueda</h1>
             </NoDocuments>
           )
         ) : docsAndFols.length > 0 ? (
-          <>
+          <DocumentsAndPaginator>
             <DocumentListComp
               parentsPath={parentsPath}
               refetchDocsFols={refetchDocsFols}
@@ -330,7 +330,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               pages={pagesNumber}
               selectPage={(page: number) => setCurrentPage(page)}
             />
-          </>
+          </DocumentsAndPaginator>
         ) : (
           <NoDocuments>
             <h1>No tienes ningún documento</h1>
@@ -385,8 +385,14 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
+  display: flex;
   flex: 1;
+  flex-flow: column nowrap;
   padding: 0px 50px;
+
+  & > div {
+    flex-shrink: 0;
+  }
 `;
 
 const Header = styled.div`
@@ -505,4 +511,12 @@ const NewFolderButton = styled(Button)`
 
 const DocumentsPaginator = styled(Paginator)`
   margin-bottom: 60px;
+`;
+
+const DocumentsAndPaginator = styled.div`
+  display: flex;
+  flex: 1;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  width: 100%;
 `;
