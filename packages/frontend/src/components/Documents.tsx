@@ -105,7 +105,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   });
 
   useEffect(() => {
-    if (!loading & !errorQuery) {
+    if (!loading && !errorQuery) {
       setError(null);
       setDocumentsData(resultData);
     }
@@ -233,87 +233,60 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           )}
         </Header>
         <Rule />
-        {(docsAndFols || searchText) && (
-          <DocumentListHeader>
-            {(docsAndFols.length > 0 || searchText) && (
-              <>
-                <ViewOptions>
-                  <OrderSelect
-                    options={orderOptions}
-                    onChange={onOrderChange}
-                    selectConfig={{ isSearchable: false }}
-                  />
-                </ViewOptions>
-                <SearchInput
-                  value={searchText}
-                  onChange={e => (
-                    setSearchText(e.target.value), onSearchInput(e.target.value)
-                  )}
-                  placeholder="Buscar..."
-                />
-              </>
-            )}
-            <HeaderButtons>
-              <NewFolderButton
-                tertiary
-                onClick={() => {
-                  setFolderTitleModal(true);
-                }}
-              >
-                <Icon name="new-folder" />
-                Nueva carpeta
-              </NewFolderButton>
-              <NewExerciseButton
-                onOpenExercise={onOpenExercise}
-                exerciseError={exerciseError}
-                loadingExercise={loadingExercise}
-              />
-              <DropDown
-                attachmentPosition={"top center"}
-                targetPosition={"bottom center"}
-              >
-                {(isOpen: boolean) => (
-                  <NewDocumentButton tertiary isOpen={isOpen}>
-                    <Icon name="new-document" />
-                    Nuevo documento
-                  </NewDocumentButton>
-                )}
-                <NewDocumentDropDown
-                  onNewDocument={onNewDocument}
-                  onOpenDocument={onOpenDocumentClick}
-                  arrowOffset={10}
-                />
-              </DropDown>
-            </HeaderButtons>
-          </DocumentListHeader>
-        )}
-        {searchText ? (
-          docsAndFols.length > 0 ? (
+        <DocumentListHeader>
+          {(docsAndFols.length > 0 || searchQuery) && (
             <>
-              <DocumentListComp
-                parentsPath={parentsPath}
-                refetchDocsFols={refetchDocsFols}
-                docsAndFols={docsAndFols}
-                currentLocation={currentLocation}
-                onFolderClick={onFolderClick}
-                onDocumentClick={onDocumentClick}
-                order={order}
-                searchTitle={searchText}
-                nFolders={nFolders}
-              />
-              <DocumentsPaginator
-                currentPage={currentPage}
-                pages={pagesNumber}
-                selectPage={(page: number) => setCurrentPage(page)}
+              <ViewOptions>
+                <OrderSelect
+                  options={orderOptions}
+                  onChange={onOrderChange}
+                  selectConfig={{ isSearchable: false }}
+                />
+              </ViewOptions>
+              <SearchInput
+                value={searchText}
+                onChange={e => (
+                  setSearchText(e.target.value), onSearchInput(e.target.value)
+                )}
+                placeholder="Buscar..."
               />
             </>
-          ) : (
-            <NoDocuments>
-              <h1>No hay resultados para tu búsqueda</h1>
-            </NoDocuments>
-          )
-        ) : docsAndFols.length > 0 ? (
-          <>
+          )}
+          <HeaderButtons>
+            <NewFolderButton
+              tertiary
+              onClick={() => {
+                setFolderTitleModal(true);
+              }}
+            >
+              <Icon name="new-folder" />
+              Nueva carpeta
+            </NewFolderButton>
+            <NewExerciseButton
+              onOpenExercise={onOpenExercise}
+              exerciseError={exerciseError}
+              loadingExercise={loadingExercise}
+            />
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+            >
+              {(isOpen: boolean) => (
+                <NewDocumentButton tertiary isOpen={isOpen}>
+                  <Icon name="new-document" />
+                  Nuevo documento
+                </NewDocumentButton>
+              )}
+              <NewDocumentDropDown
+                onNewDocument={onNewDocument}
+                onOpenDocument={onOpenDocumentClick}
+                arrowOffset={10}
+              />
+            </DropDown>
+          </HeaderButtons>
+        </DocumentListHeader>
+        {docsAndFols.length > 0 ? (
+          <DocumentsAndPaginator>
             <DocumentListComp
               parentsPath={parentsPath}
               refetchDocsFols={refetchDocsFols}
@@ -330,7 +303,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               pages={pagesNumber}
               selectPage={(page: number) => setCurrentPage(page)}
             />
-          </>
+          </DocumentsAndPaginator>
+        ) : searchQuery ? (
+          <NoDocuments>
+            <h1>No hay resultados para tu búsqueda</h1>
+          </NoDocuments>
         ) : (
           <NoDocuments>
             <h1>No tienes ningún documento</h1>
@@ -385,8 +362,14 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
+  display: flex;
   flex: 1;
+  flex-flow: column nowrap;
   padding: 0px 50px;
+
+  & > div {
+    flex-shrink: 0;
+  }
 `;
 
 const Header = styled.div`
@@ -505,4 +488,12 @@ const NewFolderButton = styled(Button)`
 
 const DocumentsPaginator = styled(Paginator)`
   margin-bottom: 60px;
+`;
+
+const DocumentsAndPaginator = styled.div`
+  display: flex;
+  flex: 1;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  width: 100%;
 `;
