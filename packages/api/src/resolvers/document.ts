@@ -18,6 +18,7 @@ import { getParentsPath, orderFunctions } from "../utils";
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
 const hasDocsWithEx = async (folder: any) => {
+  let result: boolean = false;
   if (folder.documentsID && folder.documentsID.length > 0) {
     const docsEx = await ExerciseModel.find({
       document: { $in: folder.documentsID }
@@ -28,7 +29,8 @@ const hasDocsWithEx = async (folder: any) => {
   }
   if (folder.foldersID && folder.foldersID.length > 0) {
     const folders = await FolderModel.find({ _id: { $in: folder.foldersID } });
-    return folders.map(async i => await hasDocsWithEx(i));
+    folders.forEach(async i => (result = result || (await hasDocsWithEx(i))));
+    return result;
   } else {
     return false;
   }
@@ -360,16 +362,28 @@ const documentResolver = {
 
       const orderFunction = orderFunctions[args.order];
 
-      const filterOptionsDoc = {
-        title: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        folder: currentLocation
-      };
-      const filterOptionsFol = {
-        name: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        parent: currentLocation
-      };
+      let filterOptionsDoc, filterOptionsFol;
+      if (text !== "") {
+        filterOptionsDoc = {
+          title: { $regex: `.*${text}.*`, $options: "i" },
+          user: context.user.userID
+        };
+        filterOptionsFol = {
+          name: { $regex: `.*${text}.*`, $options: "i" },
+          user: context.user.userID
+        };
+      } else {
+        filterOptionsDoc = {
+          title: { $regex: `.*${text}.*`, $options: "i" },
+          user: context.user.userID,
+          folder: currentLocation
+        };
+        filterOptionsFol = {
+          name: { $regex: `.*${text}.*`, $options: "i" },
+          user: context.user.userID,
+          parent: currentLocation
+        };
+      }
 
       const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
       const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
@@ -415,6 +429,8 @@ const documentResolver = {
             ...op
           }) => {
             const hasChildren: boolean = await hasDocsWithEx({
+              id,
+              title,
               documentsID,
               foldersID
             });
