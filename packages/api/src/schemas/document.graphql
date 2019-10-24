@@ -9,6 +9,13 @@ directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 type Query {
   documents: [Document] @authRequired(requires: [USER])
   document(id: ObjectID!): Document @authRequired(requires: [USER])
+  documentsAndFolders(
+    currentLocation: ObjectID
+    currentPage: Number
+    itemsPerPage: Number
+    order: String
+    searchTitle: String
+  ): DocsAndFolders
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
   examples: [Document]
 }
@@ -16,6 +23,8 @@ type Mutation {
   createDocument(input: DocumentIn!): Document @authRequired(requires: [USER])
   deleteDocument(id: ObjectID!): Document @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
+    @authRequired(requires: [USER])
+  setDocumentImage(id: ObjectID, image: Upload, isSnapshot: Boolean): Document
     @authRequired(requires: [USER])
   updateDocumentContent(
     id: ObjectID
@@ -30,6 +39,29 @@ type Subscription {
   documentUpdated: Document @authRequired(requires: [USER])
 }
 
+type DocImage {
+  image: String
+  isSnapshot: Boolean
+}
+
+type DocsAndFolders {
+  result: [Result]
+  pagesNumber: Number
+  nFolders: Number
+  parentsPath: [Folder]
+}
+
+type Result {
+  id: ObjectID
+  title: String
+  image: String
+  type: String
+  createdAt: Date
+  updatedAt: Date
+  parent: ObjectID
+  hasChildren: Boolean
+}
+
 type Document {
   id: ObjectID
   user: ObjectID
@@ -41,7 +73,7 @@ type Document {
   cache: String
   description: String
   version: String
-  image: String
+  image: DocImage
   public: Boolean
   example: Boolean
   createdAt: Date
@@ -61,6 +93,4 @@ input DocumentIn {
   cache: String
   description: String
   version: String
-  image: Upload
-  imageUrl: String
 }

@@ -14,22 +14,20 @@ const SetNumberConfiguration: FC<ISetNumberConfigurationProps> = ({
   bloq,
   onChange
 }) => {
-  const value = bloq.parameters.value as number;
-  const operation = bloq.parameters.operation as string;
+  const value = Number(bloq.parameters.value);
+  const action = bloq.parameters.action as string;
 
   return (
     <Container>
       <Switch
         buttons={[
-          { content: <Icon name="equal" />, id: "set" },
-          { content: <Icon name="plus" />, id: "increment" },
-          { content: <Icon name="minus" />, id: "decrement" }
+          { content: <Icon name="equal" />, id: "writeNumber" },
+          { content: <Icon name="plus" />, id: "incrementNumber" },
+          { content: <Icon name="minus" />, id: "decrementNumber" }
         ]}
-        value={operation}
+        value={action}
         onChange={newValue =>
-          onChange(
-            update(bloq, { parameters: { operation: { $set: newValue } } })
-          )
+          onChange(update(bloq, { parameters: { action: { $set: newValue } } }))
         }
       />
       <JuniorNumberInput

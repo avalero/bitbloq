@@ -84,7 +84,7 @@ export interface IBloqType {
 
 export interface IBloq {
   type: string;
-  parameters: { [name: string]: string | number | boolean };
+  parameters: { [name: string]: string | number };
 }
 
 export interface IBloqTypeGroup {
@@ -200,8 +200,8 @@ export interface IComponent {
   actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
-  onValue?: string;
-  offValue?: string;
+  // onValue?: string;
+  // offValue?: string;
   values: { [name: string]: string };
 }
 

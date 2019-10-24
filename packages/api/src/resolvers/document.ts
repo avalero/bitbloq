@@ -8,12 +8,12 @@ import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
-import { UserModel } from "../models/user";
+import { UserModel, IUser } from "../models/user";
 
-import { logger, loggerController } from "../controllers/logs";
+import { loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
-import uploadResolver, { uploadDocumentImage } from "./upload";
-import { getParentsPath } from "../utils";
+import { uploadDocumentImage } from "./upload";
+import { getParentsPath, orderFunctions } from "../utils";
 
 const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -56,8 +56,7 @@ const documentResolver = {
         advancedMode: args.input.advancedMode,
         cache: args.input.cache,
         description: args.input.description,
-        version: args.input.version,
-        image: args.input.imageUrl
+        version: args.input.version
       });
       const newDocument: IDocument = await DocumentModel.create(documentNew);
       await FolderModel.updateOne(
@@ -73,24 +72,8 @@ const documentResolver = {
         documentNew.user,
         ""
       );
-      if (args.input.image) {
-        const imageUploaded: IUpload = await uploadDocumentImage(
-          //uploadResolver.Mutation.singleUpload(
-          args.input.image,
-          newDocument._id,
-          context.user.userID
-        );
-        const newDoc: IDocument = await DocumentModel.findOneAndUpdate(
-          { _id: documentNew._id },
-          { $set: { image: imageUploaded.publicUrl } },
-          { new: true }
-        );
-        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDoc });
-        return newDoc;
-      } else {
-        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
-        return newDocument;
-      }
+      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
+      return newDocument;
     },
 
     /**
@@ -190,18 +173,6 @@ const documentResolver = {
             { $pull: { documentsID: existDocument._id } }
           );
         }
-        let image: string;
-        if (args.input.image) {
-          const imageUploaded: IUpload = await uploadDocumentImage(
-            //uploadResolver.Mutation.singleUpload(
-            args.input.image,
-            existDocument._id,
-            context.user.userID
-          );
-          image = imageUploaded.publicUrl;
-        } else if (args.input.imageUrl) {
-          image = args.input.imageUrl;
-        }
         if (args.input.content || args.input.cache) {
           console.log(
             "You should use Update document Content Mutation, USE_UPDATECONTENT_MUTATION"
@@ -221,8 +192,7 @@ const documentResolver = {
                   : existDocument.advancedMode,
               cache: args.input.cache || existDocument.cache,
               description: args.input.description || existDocument.description,
-              version: args.input.version || existDocument.version,
-              image: image || existDocument.image
+              version: args.input.version || existDocument.version
             }
           },
           { new: true }
@@ -240,6 +210,33 @@ const documentResolver = {
       } else {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
+    },
+
+    /**
+     * setDocumentImage: mutation for uploading images to the document.
+     * It could be an image uploaded by the user or a snapshot taken by the app.
+     * args: imag: Upload and isSnapshot: Boolean
+     */
+    setDocumentImage: async (root: any, args: any, context: any) => {
+      const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
+      if (!docFound) {
+        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
+      }
+      const imageUploaded: IUpload = await uploadDocumentImage(
+        args.image,
+        docFound._id,
+        context.user.userID
+      );
+      const image = imageUploaded.publicUrl;
+
+      const updatedDoc = await DocumentModel.findOneAndUpdate(
+        { _id: docFound._id },
+        { $set: { image: { image: image, isSnapshot: args.isSnapshot } } },
+        { new: true }
+      );
+      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
+
+      return updatedDoc;
     },
 
     /**
@@ -312,11 +309,111 @@ const documentResolver = {
     },
 
     /**
-     * Documents: returns all the documents of the user logged.
+     * Examples: returns all the examples in the platform.
      * args: nothing.
      */
     examples: async (root: any, args: any, context: any) => {
       return DocumentModel.find({ example: true });
+    },
+
+    /**
+     * documentsAndFolders: returns all the documents and folders of the user logged in the order passed as argument.
+     * It also returns the total number of pages, the parent folders path of the current location and the number of folders in the current location.
+     * args: itemsPerPage: Number, order: String, searchTitle: String.
+     */
+    documentsAndFolders: async (root: any, args: any, context: any) => {
+      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+      if (!user) return new AuthenticationError("You need to be logged in");
+
+      const currentLocation: string = args.currentLocation || user.rootFolder;
+      const itemsPerPage: number = args.itemsPerPage || 8;
+      let skipN: number = (args.currentPage - 1) * itemsPerPage;
+      let limit: number = skipN + itemsPerPage;
+      const text: string = args.searchTitle;
+
+      const orderFunction = orderFunctions[args.order];
+
+      const filterOptionsDoc = {
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        folder: currentLocation
+      };
+      const filterOptionsFol = {
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        parent: currentLocation
+      };
+
+      const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
+
+      const docsParent = await Promise.all(
+        docs.map(
+          async ({
+            title,
+            _id: id,
+            createdAt,
+            updatedAt,
+            type,
+            folder: parent,
+            image,
+            ...op
+          }) => {
+            let hasChildren: boolean =
+              (await ExerciseModel.find({ document: id })).length > 0;
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type,
+              parent,
+              image,
+              hasChildren,
+              ...op
+            };
+          }
+        )
+      );
+      const folsTitle = fols.map(
+        ({ name: title, _id: id, createdAt, updatedAt, parent, ...op }) => {
+          let hasChildren: boolean =
+            (op.documentsID && op.documentsID.length > 0) ||
+            (op.foldersID && op.foldersID.length > 0);
+          return {
+            title,
+            id,
+            createdAt,
+            updatedAt,
+            type: "folder",
+            parent,
+            hasChildren,
+            ...op
+          };
+        }
+      );
+
+      const allData = [...docsParent, ...folsTitle];
+      const allDataSorted = allData.sort(orderFunction);
+      const pagesNumber: number = Math.ceil(
+        ((await DocumentModel.countDocuments(filterOptionsDoc)) +
+          (await FolderModel.countDocuments(filterOptionsFol))) /
+          itemsPerPage
+      );
+
+      const nFolders: number = await FolderModel.countDocuments({
+        user: context.user.userID,
+        parent: currentLocation
+      });
+      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
+      const parentsPath = getParentsPath(folderLoc);
+      const result = allDataSorted.slice(skipN, limit);
+      return {
+        result,
+        pagesNumber,
+        nFolders,
+        parentsPath
+      };
     }
   },
 
