@@ -1,10 +1,12 @@
-import * as React from "react";
-import styled from '@emotion/styled';
+import React, { useEffect, useState } from "react";
+import styled from "@emotion/styled";
 import { navigate } from "gatsby";
-import { Mutation } from "react-apollo";
-import { Spinner } from '@bitbloq/ui';
+import { useMutation } from "react-apollo";
+import { Spinner } from "@bitbloq/ui";
 import gql from "graphql-tag";
 import { setToken } from "../lib/session";
+import { ApolloError } from "apollo-client";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
 const ACTIVATE_ACCOUNT_MUTATION = gql`
   mutation ActivateAccount($token: String!) {
@@ -12,31 +14,29 @@ const ACTIVATE_ACCOUNT_MUTATION = gql`
   }
 `;
 
-interface ActivateProps {
-  activateAccount: (any) => any;
-}
+const Activate = () => {
+  const [activateAccount] = useMutation(ACTIVATE_ACCOUNT_MUTATION);
+  const [error, setError] = useState<ApolloError>();
+  const token = location.search.split("?token=")[1];
 
-class Activate extends React.Component<ActivateProps> {
-  componentDidMount() {
-    const token = location.search.split("?token=")[1];
-    this.props.activateAccount({ variables: { token } }).then(() => {
-      setToken(token);
-      navigate("/app");
-    });
-  }
+  useEffect(() => {
+    activateAccount({ variables: { token } })
+      .then(({ data }) => {
+        setToken(data.activateAccount);
+        navigate("/app");
+      })
+      .catch(e => setError(e));
+  }, []);
 
-  render() {
-    return <Container><Loading /></Container>;
-  }
-}
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  return (
+    <Container>
+      <Loading />
+    </Container>
+  );
+};
 
-export default () =>
-  <Mutation
-    mutation={ACTIVATE_ACCOUNT_MUTATION}
-    
-  >
-    {mutate => <Activate activateAccount={mutate} />}
-  </Mutation>;
+export default Activate;
 
 /* styled components */
 

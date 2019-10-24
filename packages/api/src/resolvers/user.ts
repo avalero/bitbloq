@@ -54,7 +54,7 @@ const userResolver = {
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
         lastLogin: new Date(),
-        teacher: true,
+        teacher: true
       });
       const newUser: IUser = await UserModel.create(userNew);
       const token: string = jsonwebtoken.sign(
@@ -63,7 +63,6 @@ const userResolver = {
         },
         process.env.JWT_SECRET
       );
-      console.log(token);
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
@@ -153,7 +152,6 @@ const userResolver = {
      * renewToken: returns a new token for a logged user
      */
     renewToken: async (root: any, args: any, context: any) => {
-      console.log("renew token, api");
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
@@ -269,6 +267,7 @@ const userResolver = {
       const userInToken: ISignUpToken = await contextController.getDataInToken(
         args.token
       );
+
       const contactFound: IUser = await UserModel.findOne({
         _id: userInToken.signUpUserID
       });
@@ -286,15 +285,6 @@ const userResolver = {
             }
           }
         );
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "activate",
-          "user",
-          contactFound._id,
-          ""
-        );
-
         await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
