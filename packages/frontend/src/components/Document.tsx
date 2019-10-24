@@ -30,6 +30,7 @@ import {
 } from "../apollo/queries";
 import Breadcrumbs from "./Breadcrumbs";
 import AppFooter from "./Footer";
+import { ApolloError } from "apollo-client";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -98,6 +99,7 @@ class DocumentState {
   readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
   readonly exerciseId: string = "";
+  readonly stateError: ApolloError = "";
 }
 
 class Document extends React.Component<any, DocumentState> {
@@ -130,14 +132,10 @@ class Document extends React.Component<any, DocumentState> {
         ]
       ];
     }
+    breadParents.push({ route: "", text: document.title, type: "document" });
     return (
       <Header>
-        <Breadcrumbs
-          links={[
-            ...breadParents,
-            { route: "", text: document.title, type: "document" }
-          ]}
-        />
+        <Breadcrumbs links={breadParents} title={document.title} />
       </Header>
     );
   }
@@ -232,7 +230,7 @@ class Document extends React.Component<any, DocumentState> {
                               variables: { id: documentId }
                             }
                           ]
-                        })
+                        }).catch(e => this.setState({ stateError: e }))
                       }
                       onCheckSubmission={({ type, id }) =>
                         window.open(`/app/submission/${type}/${id}`)
@@ -246,7 +244,7 @@ class Document extends React.Component<any, DocumentState> {
                               variables: { id: documentId }
                             }
                           ]
-                        });
+                        }).catch(e => this.setState({ stateError: e }));
                       }}
                       onChangeName={(currentName: string) => {
                         this.setState({
@@ -273,7 +271,7 @@ class Document extends React.Component<any, DocumentState> {
                               variables: { id: documentId }
                             }
                           ]
-                        });
+                        }).catch(e => this.setState({ stateError: e }));
                       }}
                     />
                   )}
@@ -366,7 +364,7 @@ class Document extends React.Component<any, DocumentState> {
                     variables: { id: documentId }
                   }
                 ]
-              });
+              }).catch(e => this.setState({ stateError: e }));
               this.setState({
                 isCreateExerciseOpen: false,
                 errorName: false
@@ -413,7 +411,7 @@ class Document extends React.Component<any, DocumentState> {
                     variables: { id: documentId }
                   }
                 ]
-              });
+              }).catch(e => this.setState({ stateError: e }));
               this.setState({
                 isUpdateExerciseOpen: false,
                 errorName: false
@@ -457,7 +455,7 @@ class Document extends React.Component<any, DocumentState> {
                     variables: { id: documentId }
                   }
                 ]
-              });
+              }).catch(e => this.setState({ stateError: e }));
               this.setState({
                 isRemoveExerciseOpen: 0
               });
@@ -471,7 +469,11 @@ class Document extends React.Component<any, DocumentState> {
 
   render() {
     const { id } = this.props;
-    const { isCreateExerciseOpen, isUpdateExerciseOpen } = this.state;
+    const {
+      isCreateExerciseOpen,
+      isUpdateExerciseOpen,
+      stateError
+    } = this.state;
 
     return (
       <UserDataContext.Consumer>
@@ -482,9 +484,14 @@ class Document extends React.Component<any, DocumentState> {
                 <AppHeader />
                 <Query query={DOCUMENT_QUERY} variables={{ id }}>
                   {({ loading, error, data, refetch }) => {
-                    if (error)
+                    if (error) {
                       return <GraphQLErrorMessage apolloError={error} />;
+                    }
                     if (loading) return <Loading />;
+
+                    if (stateError) {
+                      return <GraphQLErrorMessage apolloError={stateError} />;
+                    }
 
                     const { document } = data;
 

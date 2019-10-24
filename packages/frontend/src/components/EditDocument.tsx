@@ -22,6 +22,7 @@ import {
 import { documentTypes } from "../config";
 
 import debounce from "lodash/debounce";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
 interface DocumentImage {
   image: string;
@@ -45,6 +46,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [loading, setLoading] = useState(true);
   const [imageInterval, setImageInterval] = useState<NodeJS.Timeout>();
   const [firstLoad, setFirstLoad] = useState(true);
+  const [error, setError] = useState(null);
   const [document, setDocument] = useState({
     id: "",
     content: "[]",
@@ -58,13 +60,15 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [image, setImage] = useState<DocumentImage>();
   const imageToUpload = useRef(new Blob());
 
-  const { loading: loadingDocument, error, data, refetch } = useQuery(
-    DOCUMENT_QUERY,
-    {
-      variables: { id },
-      skip: isNew
-    }
-  );
+  const {
+    loading: loadingDocument,
+    error: errorDocument,
+    data,
+    refetch
+  } = useQuery(DOCUMENT_QUERY, {
+    variables: { id },
+    skip: isNew
+  });
 
   useEffect(() => {
     console.log(image);
@@ -89,9 +93,14 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   useEffect(() => {
     if (isNew) {
       setLoading(false);
-    } else if (!loadingDocument) {
+      setError(null);
+    } else if (!loadingDocument && !errorDocument) {
       setDocument(data.document);
       setImage(data.document && data.document.image);
+      setLoading(false);
+      setError(null);
+    } else if (errorDocument) {
+      setError(errorDocument);
       setLoading(false);
     }
   }, [loadingDocument]);
@@ -140,6 +149,8 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
           image,
           isSnapshot
         }
+      }).catch(e => {
+        return setError(e);
       });
     }
   };
@@ -147,7 +158,9 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const debouncedUpdate = useCallback(
     debounce(async (document: any) => {
       saveImage();
-      await updateDocument({ variables: { ...document, id } });
+      await updateDocument({ variables: { ...document, id } }).catch(e => {
+        return setError(e);
+      });
       refetch();
     }, 1000),
     [id]
@@ -192,6 +205,8 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
           folder: folder,
           title: document.title || "Documento sin título"
         }
+      }).catch(e => {
+        return setError(e);
       });
       navigate(`/app/document/${folder}/${type}/${newId}`, { replace: true });
     } else {
@@ -212,6 +227,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const documentType = documentTypes[type];
 
   if (loading) return <Loading color={documentType.color} />;
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
 
   const {
     title,

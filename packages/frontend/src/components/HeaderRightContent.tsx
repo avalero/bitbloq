@@ -5,9 +5,7 @@ const HeaderRightContent = styled.div`
   align-items: center;
   display: flex;
   height: 70px;
-  position: absolute;
-  right: 20px;
-  top: 0;
+  margin-right: 20px;
 `;
 
 export default HeaderRightContent;
