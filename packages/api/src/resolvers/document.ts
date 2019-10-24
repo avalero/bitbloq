@@ -29,8 +29,9 @@ const hasDocsWithEx = async (folder: any) => {
   }
   if (folder.foldersID && folder.foldersID.length > 0) {
     const folders = await FolderModel.find({ _id: { $in: folder.foldersID } });
-    folders.forEach(async i => (result = result || (await hasDocsWithEx(i))));
-    return result;
+    return (await Promise.all(folders.map(hasDocsWithEx))).some(
+      result => result
+    );
   } else {
     return false;
   }
@@ -362,28 +363,28 @@ const documentResolver = {
 
       const orderFunction = orderFunctions[args.order];
 
-      let filterOptionsDoc, filterOptionsFol;
-      if (text !== "") {
-        filterOptionsDoc = {
-          title: { $regex: `.*${text}.*`, $options: "i" },
-          user: context.user.userID
-        };
-        filterOptionsFol = {
-          name: { $regex: `.*${text}.*`, $options: "i" },
-          user: context.user.userID
-        };
-      } else {
-        filterOptionsDoc = {
-          title: { $regex: `.*${text}.*`, $options: "i" },
-          user: context.user.userID,
-          folder: currentLocation
-        };
-        filterOptionsFol = {
-          name: { $regex: `.*${text}.*`, $options: "i" },
-          user: context.user.userID,
-          parent: currentLocation
-        };
-      }
+      const filterOptionsDoc =
+        text === ""
+          ? {
+              title: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID,
+              folder: currentLocation
+            }
+          : {
+              title: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
+      const filterOptionsFol =
+        text === ""
+          ? {
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID,
+              parent: currentLocation
+            }
+          : {
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
 
       const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
       const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
