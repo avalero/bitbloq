@@ -15,7 +15,7 @@ import { pubsub } from "../server";
 import { uploadDocumentImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
 
-const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
+export const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
 const hasDocsWithEx = async (folder: any) => {
   if (folder.documentsID && folder.documentsID.length > 0) {
