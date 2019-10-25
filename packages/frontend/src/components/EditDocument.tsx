@@ -16,7 +16,6 @@ import {
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
   PUBLISH_DOCUMENT_MUTATION,
-  ME_QUERY,
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
@@ -44,7 +43,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [imageInterval, setImageInterval] = useState<NodeJS.Timeout>();
+  const [, setImageInterval] = useState<number>();
   const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
   const [document, setDocument] = useState({
@@ -202,7 +201,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
         variables: {
           ...document,
           folder: folder,
-          title: document.title || "Documento sin título"
+          title: document.title || t("untitled-project")
         }
       }).catch(e => {
         return setError(e);
@@ -255,7 +254,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   };
 
   const onSaveTitle = (title: string) => {
-    update({ ...document, title });
+    update({ ...document, title: title || t("untitled-project") });
     setIsEditTitleVisible(false);
   };
 
@@ -307,7 +306,11 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
         description={description}
         image={image ? image.image : ""}
         onChange={({ title, description, image }) => {
-          const newDocument = { ...document, title, description };
+          const newDocument = {
+            ...document,
+            title: title || t("untitled-project"),
+            description
+          };
           updateImage(document.id, image, false);
           update(newDocument);
         }}

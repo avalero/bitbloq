@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import {
   colors,
@@ -26,6 +26,10 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   const [imageError, setImageError] = useState("");
   const [titleInput, setTitle] = useState(title);
   const [titleError, setTitleError] = useState(false);
+
+  useEffect(() => {
+    setTitle(title);
+  });
 
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
