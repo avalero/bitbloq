@@ -52,7 +52,8 @@ export default NewDocumentDropDown;
 
 const DropDownContainer = styled.div<{ arrowOffset }>`
   margin-top: 12px;
-  margin-right: ${props => (props.arrowOffset ? 50 : 0)}px;
+  margin-right: ${props => (props.arrowOffset ? -50 : 0)}px;
+  transform: translateX(${props => (props.arrowOffset ? -50 : 0)}px);
   background-color: white;
   border-radius: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
