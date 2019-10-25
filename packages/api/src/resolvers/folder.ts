@@ -5,72 +5,9 @@ import { IUser, UserModel } from "../models/user";
 import documentResolver from "./document";
 
 import { pubsub } from "../server";
-const FOLDER_UPDATED: string = "FOLDER_UPDATED";
-
-import { logger, loggerController } from "../controllers/logs";
 import { getParentsPath } from "../utils";
 
-const duplicateFolderChildren = async (folder, userID) => {
-  if (folder.name === "root") {
-    return folder;
-  } else {
-    const folderOriginalChildren: IFolder[] = await FolderModel.find({
-      parent: folder._id
-    });
-    const docsOriginalChildren: IDocument[] = await DocumentModel.find({
-      folder: folder._id
-    });
-    const newFolder: IFolder = await FolderModel.create({
-      name: folder.name,
-      parent: folder.parent,
-      user: userID
-    });
-    let folderChildren: string[] = [],
-      docsChildren: string[] = [];
-    if (docsOriginalChildren.length > 0) {
-      for (let item of docsOriginalChildren) {
-        const newItem = await DocumentModel.create({
-          user: userID,
-          title: item.title,
-          type: item.type,
-          content: item.content,
-          advancedMode: item.advancedMode,
-          cache: item.cache,
-          description: item.description,
-          version: item.version,
-          image: item.image,
-          folder: newFolder._id
-        });
-        docsChildren.push(newItem._id);
-      }
-    }
-    if (folderOriginalChildren.length > 0) {
-      for (let item of folderOriginalChildren) {
-        const newItem = await FolderModel.create({
-          name: item.name,
-          parent: newFolder._id,
-          user: userID
-        });
-        folderChildren.push(newItem._id);
-      }
-    }
-    await FolderModel.updateOne(
-      { _id: newFolder._id },
-      {
-        foldersID: folderChildren,
-        documentsID: docsChildren
-      },
-      { new: true }
-    );
-    // if (folderOriginalChildren.length > 0) {
-    //   for (let item of folderOriginalChildren) {
-    //     console.log(item);
-    //     duplicateFolderChildren(item, userID);
-    //   }
-    // }
-    return;
-  }
-};
+const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
 const folderResolver = {
   Subscription: {
@@ -112,14 +49,6 @@ const folderResolver = {
         { _id: folderNew.parent },
         { $push: { foldersID: newFolder._id } },
         { new: true }
-      );
-      loggerController.storeInfoLog(
-        "API",
-        "space",
-        "create",
-        "folder",
-        newFolder.user,
-        ""
       );
       pubsub.publish(FOLDER_UPDATED, { folderUpdated: newFolder });
       return newFolder;
@@ -173,14 +102,6 @@ const folderResolver = {
           { _id: existFolder.parent },
           { $pull: { foldersID: existFolder._id } },
           { new: true }
-        );
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "delete",
-          "folder",
-          existFolder.user,
-          ""
         );
         return await FolderModel.deleteOne({ _id: args.id });
       } else {
@@ -285,14 +206,6 @@ const folderResolver = {
             "CANT_UPDATE_ROOT"
           );
         }
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "update",
-          "folder",
-          existFolder.user,
-          ""
-        );
         const updatedFolder: IFolder = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           {
@@ -308,25 +221,6 @@ const folderResolver = {
       } else {
         return new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
       }
-    },
-
-    /**
-     * duplicate folder
-     */
-    duplicateFolder: async (root: any, args: any, context: any) => {
-      const existFolder: IFolder = await FolderModel.findOne({
-        _id: args.id,
-        user: context.user.userID
-      });
-      if (!existFolder) {
-        throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
-      }
-      const updatedFolder = await duplicateFolderChildren(
-        existFolder,
-        context.user.userID
-      );
-      pubsub.publish(FOLDER_UPDATED, { folderUpdated: updatedFolder });
-      return updatedFolder;
     }
   },
 

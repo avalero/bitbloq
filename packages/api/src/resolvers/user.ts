@@ -13,8 +13,6 @@ import {
   ISignUpToken
 } from "../models/interfaces";
 
-import { logger, loggerController } from "../controllers/logs";
-
 import * as mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
@@ -91,14 +89,6 @@ const userResolver = {
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true }
       );
-      loggerController.storeInfoLog(
-        "API",
-        "space",
-        "signUp",
-        "user",
-        newUser._id,
-        ""
-      );
       return "OK";
     },
 
@@ -132,14 +122,6 @@ const userResolver = {
         await UserModel.updateOne(
           { _id: contactFound._id },
           { $set: { authToken: token, lastLogin: new Date() } }
-        );
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "login",
-          "user",
-          contactFound._id,
-          ""
         );
         await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
@@ -307,15 +289,6 @@ const userResolver = {
         _id: context.user.userID
       });
       if (String(contactFound._id) === args.id) {
-        logger.info("USER_delete");
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "delete",
-          "user",
-          contactFound._id,
-          ""
-        );
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -340,14 +313,6 @@ const userResolver = {
         _id: context.user.userID
       });
       if (String(contactFound._id) === args.id) {
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "update",
-          "user",
-          contactFound._id,
-          ""
-        );
         const data: IUser = args.input;
         return await UserModel.findOneAndUpdate(
           { _id: contactFound._id },

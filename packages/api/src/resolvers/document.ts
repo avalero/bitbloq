@@ -9,8 +9,6 @@ import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel } from "../models/upload";
 import { UserModel, IUser } from "../models/user";
-
-import { loggerController } from "../controllers/logs";
 import { pubsub } from "../server";
 import { uploadDocumentImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
@@ -83,14 +81,6 @@ const documentResolver = {
         { $push: { documentsID: newDocument._id } },
         { new: true }
       );
-      loggerController.storeInfoLog(
-        "API",
-        "document",
-        "create",
-        args.input.type,
-        documentNew.user,
-        ""
-      );
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
       return newDocument;
     },
@@ -107,14 +97,6 @@ const documentResolver = {
         user: context.user.userID
       });
       if (existDocument) {
-        loggerController.storeInfoLog(
-          "API",
-          "document",
-          "delete",
-          existDocument.type,
-          existDocument.user,
-          ""
-        );
         await FolderModel.updateOne(
           { _id: existDocument.folder }, // modifico los documentsID de la carpeta
           { $pull: { documentsID: existDocument._id } }
@@ -215,14 +197,6 @@ const documentResolver = {
             }
           },
           { new: true }
-        );
-        loggerController.storeInfoLog(
-          "API",
-          "document",
-          "update",
-          existDocument.type,
-          existDocument.user,
-          ""
         );
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
         return updatedDoc;
