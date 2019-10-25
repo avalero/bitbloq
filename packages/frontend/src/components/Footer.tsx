@@ -36,6 +36,7 @@ const Container = styled.div`
   a {
     margin: 0px 10px;
     font-weight: bold;
+    font-size: 14px;
     color: ${colors.gray4};
     text-decoration: none;
     &:hover {
