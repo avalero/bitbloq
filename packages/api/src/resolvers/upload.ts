@@ -158,7 +158,7 @@ const uploadResolver = {
         mimetype,
         encoding
       } = await args.file;
-      
+
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
