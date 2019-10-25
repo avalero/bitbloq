@@ -16,7 +16,6 @@ import {
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
   PUBLISH_DOCUMENT_MUTATION,
-  ME_QUERY,
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
@@ -44,7 +43,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [imageInterval, setImageInterval] = useState<NodeJS.Timeout>();
+  const [, setImageInterval] = useState<number>();
   const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
   const [document, setDocument] = useState({
