@@ -74,7 +74,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
       isOver={document.type === "folder" && isOver}
     >
       {document.type === "folder" && <DropContainer ref={drop} />}
-      {document.image ? (
+      {document.type !== "folder" ? (
         <Image src={document.image} />
       ) : (
         <ImageFol src={folderImg} />
