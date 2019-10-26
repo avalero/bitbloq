@@ -1,59 +1,3 @@
-export const sortByCreatedAt = (a, b) => {
-  const aCreatedAt = a && a.createdAt;
-  const bCreatedAt = b && b.createdAt;
-
-  if (aCreatedAt < bCreatedAt) {
-    return 1;
-  }
-  if (aCreatedAt > bCreatedAt) {
-    return -1;
-  }
-  return 0;
-};
-
-export const sortByUpdatedAt = (a, b) => {
-  const aUpdatedAt = a && a.updatedAt;
-  const bUpdatedAt = b && b.updatedAt;
-
-  if (aUpdatedAt < bUpdatedAt) {
-    return 1;
-  }
-  if (aUpdatedAt > bUpdatedAt) {
-    return -1;
-  }
-  return 0;
-};
-
-export const sortByTitleAZ = (a, b) => {
-  try {
-    const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
-    const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
-
-    if (aTitle < bTitle) {
-      return -1;
-    }
-    if (aTitle > bTitle) {
-      return 1;
-    }
-    return 0;
-  } catch (e) {}
-};
-
-export const sortByTitleZA = (a, b) => {
-  try {
-    const aTitle = a && (a.title ? a.title : a.name).toLowerCase();
-    const bTitle = b && (b.title ? b.title : b.name).toLowerCase();
-
-    if (aTitle < bTitle) {
-      return 1;
-    }
-    if (aTitle > bTitle) {
-      return -1;
-    }
-    return 0;
-  } catch (e) {}
-};
-
 export const getChromeVersion = () => {
   if (typeof navigator !== `undefined`) {
     const pieces = navigator.userAgent.match(
@@ -67,3 +11,10 @@ export const getChromeVersion = () => {
 
 export const isValidEmail = email =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
+
+
+export const sortByCreatedAt = (a, b) => {
+  const aCreatedAt = a && a.createdAt;
+  const bCreatedAt = b && b.createdAt;
+  return Math.sign(bCreatedAt - aCreatedAt);
+};

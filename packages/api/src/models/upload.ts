@@ -1,17 +1,17 @@
-import { Document, Model, model, Schema } from "mongoose"
-const timestamps = require("mongoose-timestamp")
+import { Document, Model, model, Schema } from "mongoose";
+const timestamps = require("mongoose-timestamp");
 
 export interface IUpload extends Document {
-  filename: string
-  mimetype: string
-  encoding: string
-  publicUrl: string
-  document: string
-  user: string
-  storageName: string
-  size: number
-  createdAt?: Date
-  updatedAt?: Date
+  filename: string;
+  mimetype: string;
+  encoding: string;
+  publicUrl: string;
+  document: string;
+  user: string;
+  storageName: string;
+  size: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const UploadMongSchema: Schema = new Schema({
@@ -23,16 +23,16 @@ const UploadMongSchema: Schema = new Schema({
   storageName: String,
   document: {
     type: Schema.Types.ObjectId,
-    ref: "DocumentModel",
+    ref: "DocumentModel"
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: "UserModel",
-  },
-})
+    ref: "UserModel"
+  }
+});
 
-UploadMongSchema.plugin(timestamps)
+UploadMongSchema.plugin(timestamps);
 export const UploadModel: Model<IUpload> = model<IUpload>(
   "UploadModel",
   UploadMongSchema
-)
+);

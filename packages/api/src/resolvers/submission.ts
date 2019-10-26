@@ -1,5 +1,4 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
-import { logger, loggerController } from "../controllers/logs";
 import { ExerciseModel, IExercise } from "../models/exercise";
 import { ISubmission, SubmissionModel } from "../models/submission";
 import { pubsub, redisClient } from "../server";
@@ -10,6 +9,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
+const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
 
 const submissionResolver = {
   Subscription: {
@@ -17,7 +17,6 @@ const submissionResolver = {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
         (payload, variables, context) => {
-          // Filter by exercise code if the exercise is mine
           if (
             String(context.user.userID) ===
               String(payload.submissionUpdated.user) ||
@@ -30,6 +29,17 @@ const submissionResolver = {
           } else {
             return undefined;
           }
+        }
+      )
+    },
+    submissionActive: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
+        (payload, variables, context) => {
+          return (
+            String(payload.submissionActive._id) ===
+            String(context.user.submissionID)
+          );
         }
       )
     }
@@ -87,7 +97,8 @@ const submissionResolver = {
         user: exFather.user,
         document: exFather.document,
         title: exFather.title,
-        type: exFather.type
+        type: exFather.type,
+        active: true
       });
       const newSub: ISubmission = await SubmissionModel.create(submissionNew);
       const token: string = jsonwebtoken.sign(
@@ -103,14 +114,6 @@ const submissionResolver = {
         { _id: newSub._id },
         { $set: { submissionToken: token } },
         { new: true }
-      );
-      loggerController.storeInfoLog(
-        "API",
-        "submission",
-        "create",
-        newSub.type,
-        newSub.user,
-        ""
       );
       if (process.env.USE_REDIS === "true") {
         await redisClient.set(
@@ -192,16 +195,8 @@ const submissionResolver = {
         );
         await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
-          { $set: { submissionToken: token } },
+          { $set: { submissionToken: token, active: true } },
           { new: true }
-        );
-        loggerController.storeInfoLog(
-          "API",
-          "submission",
-          "login",
-          existSubmission.type,
-          existSubmission.user,
-          ""
         );
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: existSubmission
@@ -268,14 +263,6 @@ const submissionResolver = {
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission
         });
-        loggerController.storeInfoLog(
-          "API",
-          "submission",
-          "update",
-          existSubmission.type,
-          existSubmission.user,
-          ""
-        );
         return updatedSubmission;
       }
     },
@@ -287,8 +274,8 @@ const submissionResolver = {
      */
     setActiveSubmission: async (root: any, args: any, context: any) => {
       const existSubmission: ISubmission = await SubmissionModel.findOne({
-        studentNick: args.studentNick,
-        exercise: args.exerciseId
+        _id: args.submissionID,
+        user: context.user.userID
       });
       if (existSubmission) {
         const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
@@ -300,17 +287,9 @@ const submissionResolver = {
           },
           { new: true }
         );
-        pubsub.publish(SUBMISSION_UPDATED, {
-          submissionUpdated: updatedSubmission
+        pubsub.publish(SUBMISSION_ACTIVE, {
+          submissionActive: updatedSubmission
         });
-        loggerController.storeInfoLog(
-          "API",
-          "submission",
-          "setActive",
-          existSubmission.type,
-          existSubmission.user,
-          ""
-        );
         return updatedSubmission;
       } else {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
@@ -366,14 +345,6 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_UPDATED, {
         submissionUpdated: updatedSubmission
       });
-      loggerController.storeInfoLog(
-        "API",
-        "submission",
-        "finish",
-        existSubmission.type,
-        existSubmission.user,
-        ""
-      );
       return updatedSubmission;
     },
 
@@ -394,14 +365,6 @@ const submissionResolver = {
           "SUBMISSION_NOT_FOUND"
         );
       }
-      loggerController.storeInfoLog(
-        "API",
-        "submission",
-        "cancel",
-        existSubmission.type,
-        existSubmission.user,
-        ""
-      );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -422,14 +385,6 @@ const submissionResolver = {
           "SUBMISSION_NOT_FOUND"
         );
       }
-      loggerController.storeInfoLog(
-        "API",
-        "submission",
-        "delete",
-        existSubmission.type,
-        existSubmission.user,
-        ""
-      );
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -468,14 +423,6 @@ const submissionResolver = {
         },
         { new: true }
       );
-      loggerController.storeInfoLog(
-        "API",
-        "submission",
-        "grade",
-        existSubmission.type,
-        existSubmission.user,
-        ""
-      );
       return updatedSubmission;
     },
 
@@ -504,14 +451,6 @@ const submissionResolver = {
           }
         },
         { new: true }
-      );
-      loggerController.storeInfoLog(
-        "API",
-        "submission",
-        "passwordUpdated",
-        existSubmission.type,
-        existSubmission.user,
-        ""
       );
       return updatedSubmission;
     }

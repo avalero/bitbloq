@@ -21,7 +21,8 @@ import {
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION,
   SET_ACTIVESUBMISSION_MUTATION,
-  SUBMISSION_UPDATED_SUBSCRIPTION
+  SUBMISSION_UPDATED_SUBSCRIPTION,
+  SUBMISSION_ACTIVE_SUBSCRIPTION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
@@ -60,6 +61,7 @@ const EditExercise = ({ type, id, t }) => {
   });
 
   const [submissionContent, setSubmissionContent] = useState([]);
+  const [active, setActive] = useState(false);
   const currentContent = useRef([]);
 
   const client = useApolloClient();
@@ -91,15 +93,15 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     if (exercise && teamName) {
-      const setActive = (active: boolean) => {
-        setActiveSubmission({
-          variables: {
-            exerciseId: exercise.id,
-            studentNick: teamName,
-            active
-          }
-        });
-      };
+      // const setActive = (active: boolean) => {
+      //   setActiveSubmission({
+      //     variables: {
+      //       exerciseId: exercise.id,
+      //       studentNick: teamName,
+      //       active
+      //     }
+      //   });
+      // };
 
       setActive(true);
 
@@ -146,7 +148,10 @@ const EditExercise = ({ type, id, t }) => {
     setRestartCount(restartCount + 1);
     setSubmissionContent(initialContent);
     updateSubmission({
-      variables: { content: JSON.stringify(initialContent || []) }
+      variables: {
+        content: JSON.stringify(initialContent || []),
+        active: active
+      }
     });
     currentContent.current = initialContent;
     setIsRestartModalVisible(false);
@@ -272,15 +277,14 @@ const EditExercise = ({ type, id, t }) => {
       <SessionWarningModal tempSession="exercise-team" />
       {teamName && (
         <Subscription
-          subscription={SUBMISSION_UPDATED_SUBSCRIPTION}
-          variables={{ exercise: exercise.id }}
+          subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}
           onSubscriptionData={({ subscriptionData }) => {
             const { data } = subscriptionData;
             if (
               data &&
-              data.submissionUpdated &&
-              !data.submissionUpdated.active
+              data.submissionActive &&
+              !data.submissionActive.active
             ) {
               setToken("", "exercise-team");
               navigate("/", { replace: true });

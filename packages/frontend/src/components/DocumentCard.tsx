@@ -1,30 +1,35 @@
 import React, { FC, useState } from "react";
-import { useDrag } from "react-dnd";
+import { useDrag, useDrop } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
+import folderImg from "../images/folder.svg";
 
 export interface DocumentCardProps {
   beginFunction?: () => void;
+  className?: string;
   document: any;
   draggable?: boolean;
-  className?: string;
+  dropDocumentCallback?: () => void;
+  dropFolderCallback?: () => void;
   endFunction?: () => void;
   onClick?: (e: React.MouseEvent) => any;
 }
 
 const DocumentCard: FC<DocumentCardProps> = ({
   beginFunction,
-  document,
+  children,
   className,
+  document,
   draggable,
-  onClick,
+  dropDocumentCallback,
+  dropFolderCallback,
   endFunction,
-  children
+  onClick
 }) => {
   const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
-    item: { type: "document" },
+    item: { type: document.type === "folder" ? "folder" : "document" },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
@@ -44,6 +49,20 @@ const DocumentCard: FC<DocumentCardProps> = ({
     }
   });
 
+  const [{ isOver }, drop] = useDrop({
+    accept: ["document", "folder"],
+    drop: item => {
+      if (item.type === "document" && dropDocumentCallback) {
+        dropDocumentCallback();
+      } else if (item.type === "folder" && dropFolderCallback) {
+        dropFolderCallback();
+      }
+    },
+    collect: monitor => ({
+      isOver: !!monitor.isOver()
+    })
+  });
+
   return hidden ? (
     <></>
   ) : (
@@ -52,12 +71,24 @@ const DocumentCard: FC<DocumentCardProps> = ({
       onClick={onClick}
       className={className}
       isDragging={isDragging}
+      isOver={document.type === "folder" && isOver}
     >
-      <Image src={document.image} />
-      <Info>
-        <DocumentTypeTag small document={document} />
-        <Title>{document.title}</Title>
-      </Info>
+      {document.type === "folder" && <DropContainer ref={drop} />}
+      {document.type !== "folder" ? (
+        <Image src={document.image} />
+      ) : (
+        <ImageFol src={folderImg} />
+      )}
+      {document.type !== "folder" ? (
+        <Info>
+          <DocumentTypeTag small document={document} />
+          <Title>{document.title}</Title>
+        </Info>
+      ) : (
+        <Info folder={true}>
+          <Title folder={true}>{document.title}</Title>
+        </Info>
+      )}
       {children}
     </Container>
   );
@@ -66,7 +97,8 @@ const DocumentCard: FC<DocumentCardProps> = ({
 export default DocumentCard;
 
 interface ContainerProps {
-  isDragging: boolean | undefined;
+  isDragging: boolean;
+  isOver: boolean;
 }
 const Container = styled.div<ContainerProps>`
   display: flex;
@@ -74,7 +106,7 @@ const Container = styled.div<ContainerProps>`
   border-radius: 4px;
   border: 1px solid
     ${(props: ContainerProps) =>
-      props.isDragging ? colors.gray4 : colors.gray3};
+      props.isDragging || props.isOver ? colors.gray4 : colors.gray3};
   cursor: pointer;
   background-color: white;
   position: relative;
@@ -85,6 +117,13 @@ const Container = styled.div<ContainerProps>`
   &:hover {
     border-color: ${colors.gray4};
   }
+`;
+
+const DropContainer = styled.div`
+  background-color: rgba(0, 0, 0, 0);
+  height: 100%;
+  position: absolute;
+  width: 100%;
 `;
 
 interface ImageProps {
@@ -99,19 +138,30 @@ const Image = styled.div<ImageProps>`
   border-bottom: 1px solid ${colors.gray3};
 `;
 
-const Info = styled.div`
-  height: 80px;
+const ImageFol = styled.div<ImageProps>`
+  flex: 1;
+  background-color: ${colors.white};
+  background-image: url(${props => props.src});
+  background-size: 60px 60px;
+  background-position: center;
+  background-repeat: no-repeat;
+  object-fit: contain;
+  border-bottom: 1px solid ${colors.gray3};
+`;
+
+const Info = styled.div<{ folder?: boolean }>`
+  height: ${props => (props.folder ? null : 80)}px;
   padding: 14px;
   font-weight: 500;
   box-sizing: border-box;
 `;
 
-const Title = styled.div`
-  margin-top: 10px;
+const Title = styled.div<{ folder?: boolean }>`
+  margin-top: ${props => (props.folder ? null : 10)}px;
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
-  white-space: nowrap;
+  white-space: ${props => (props.folder ? null : "nowrap")};
 `;
 
 const DocumentMenu = styled.div`

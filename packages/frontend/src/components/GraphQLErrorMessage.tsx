@@ -40,6 +40,12 @@ const getErrorProps = (extensionCode: string) => {
         text: "Lo sentimos, no encontramos este ejercicio."
       };
 
+    case "FOLDER_NOT_FOUND":
+      return {
+        title: "Carpeta no encontrada",
+        text: "Lo sentimos, no encontramos esta carpeta."
+      };
+
     default:
       return {
         code: "500",

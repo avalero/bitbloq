@@ -29,13 +29,9 @@ const PinSelector: FC<IPinSelectorProps> = ({
 }) => {
   const t = useTranslate();
   const componentInstance = componentInstances.find(c => c.name === value)!;
-  const component = components.find(
-    c =>
-      c.name ===
-      (componentInstance ? componentInstance.component : fallbackComponent)
-  );
+  const component = componentInstance && components.find(c => c.name === componentInstance.component);
 
-  if (!component || (componentInstance && componentInstance.integrated)) {
+  if (componentInstance && componentInstance.integrated) {
     return null;
   }
 
@@ -66,8 +62,8 @@ const PinSelector: FC<IPinSelectorProps> = ({
   return (
     <Container>
       <Header>
-        <img src={component.image && component.image.url} />
-        {component.label ? t(component.label) : component.name}
+        <img src={component && component.image && component.image.url} />
+        {component ? t(component.label!) : t("junior.component-not-found")}
       </Header>
       <BoardSchema>
         <Connections viewBox="-95 -85 190 170">

@@ -95,7 +95,7 @@ const AppPage = () => (
     <Global styles={baseStyles} />
     <NoSSR>
       <TranslateProvider messagesFiles={messagesFiles}>
-        <Router>
+        <Router primary={false}>
           <Route path="app" component={Documents} requiresSession />
           <Route
             path="/app/folder/:id/"

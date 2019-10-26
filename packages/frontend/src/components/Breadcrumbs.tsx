@@ -20,9 +20,10 @@ export interface BreadcrumbLink {
 
 export interface BreadcrumbsProps {
   links?: BreadcrumbLink[];
+  title?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [], title }) => {
   const t = useTranslate();
 
   const breadcrumbTarget = useRef<HTMLLIElement>(null);
@@ -114,7 +115,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [] }) => {
                         link.type === "document" ? "document" : "folder-icon"
                       }
                     />
-                    <p>{link.text}</p>
+                    <p>{title || link.text}</p>
                   </BreadcrumbTarget>
                 ) : (
                   <BreadcrumbLink folders={links.length - 2}>
@@ -157,6 +158,11 @@ const BreadcrumbLink = styled(Breadcrumb)<BreadcrumbLinkProps>`
   max-width: ${props =>
     props.folders === 1 ? "50" : props.folders === 2 ? "30" : "25"}%;
   font-weight: bold;
+
+  a {
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 const BreadcrumbRoot = styled(Breadcrumb)`
@@ -180,6 +186,11 @@ interface BreadcrumbTargetProps {
 }
 const BreadcrumbTarget = styled(Breadcrumb)<BreadcrumbTargetProps>`
   max-width: ${props => props.maxWidth}px;
+
+  p {
+    height: 16px;
+    padding: 0;
+  }
 `;
 
 interface FoldersMenuProps {

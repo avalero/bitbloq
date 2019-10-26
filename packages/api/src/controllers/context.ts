@@ -9,19 +9,25 @@ import { redisClient } from "../server";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string;
-  if (user.userID) {
-    reply = await redisClient.getAsync("authToken-" + user.userID);
-  } else if (user.submissionID) {
-    reply = await redisClient.getAsync("subToken-" + user.submissionID);
-  }
-  if (reply === justToken) {
-    return user;
-  } else {
-    throw new ApolloError(
-      "Token not valid. More than one session opened",
-      "ANOTHER_OPEN_SESSION"
-    );
-  }
+  if (String(process.env.USE_REDIS) === "true") {
+    if (user.userID) {
+      try {
+        reply = await redisClient.getAsync(`authToken-${user.userID}`);
+      } catch (e) {}
+    } else if (user.submissionID) {
+      try {
+        reply = await redisClient.getAsync(`subToken-${user.submissionID}`);
+      } catch (e) {}
+    }
+    if (reply === justToken) {
+      return user;
+    } else {
+      throw new ApolloError(
+        "Token not valid. More than one session opened",
+        "ANOTHER_OPEN_SESSION"
+      );
+    }
+  } else return user;
 };
 
 const contextController = {
@@ -55,17 +61,8 @@ const contextController = {
           return undefined;
         }
         // check if there is another open session
-        if (user.role.indexOf("usr-") > -1) {
-          if (process.env.USE_REDIS === "true") {
-            return checkOtherSessionOpen(user, justToken);
-          }
-          return user;
-        }
-        if (user.role.indexOf("stu-") > -1) {
-          if (process.env.USE_REDIS === "true") {
-            return checkOtherSessionOpen(user, justToken);
-          }
-          return user;
+        if (user.role.indexOf("usr-") > -1 || user.role.indexOf("stu-") > -1) {
+          return checkOtherSessionOpen(user, justToken);
         }
       }
     } else if (type === "Basic") {
@@ -124,7 +121,7 @@ const contextController = {
     }
     if (user.publisher) {
       rolePerm = rolePerm.concat("pub-");
-    }    
+    }
     if (user.teacher) {
       rolePerm = rolePerm.concat("tchr-");
     }
@@ -149,7 +146,7 @@ const contextController = {
 
   generateNewToken: async oldToken => {
     const data = await contextController.getDataInToken(oldToken);
-    checkOtherSessionOpen(data, oldToken);
+    await checkOtherSessionOpen(data, oldToken);
     delete data.exp;
     const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, {
       expiresIn: "1.1h"
