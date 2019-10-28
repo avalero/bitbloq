@@ -28,7 +28,12 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { useSessionEvent, watchSession, setToken } from "../lib/session";
+import {
+  useSessionEvent,
+  watchSession,
+  setToken,
+  getToken
+} from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
@@ -56,12 +61,8 @@ const EditExercise = ({ type, id, t }) => {
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION, {
     context: { tempSession: "exercise-team" }
   });
-  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION, {
-    context: { tempSession: "exercise-team" }
-  });
 
   const [submissionContent, setSubmissionContent] = useState([]);
-  const [active, setActive] = useState(false);
   const currentContent = useRef([]);
 
   const client = useApolloClient();
@@ -93,25 +94,22 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     if (exercise && teamName) {
-      // const setActive = (active: boolean) => {
-      //   setActiveSubmission({
-      //     variables: {
-      //       exerciseId: exercise.id,
-      //       studentNick: teamName,
-      //       active
-      //     }
-      //   });
-      // };
+      const setActiveToFalse = () => {
+        updateSubmission({
+          variables: {
+            active: false
+          }
+        });
+      };
 
-      setActive(true);
-
-      window.addEventListener("beforeunload", () => {
-        setActive(false);
-      });
+      window.addEventListener("beforeunload", setActiveToFalse, true);
 
       return () => {
-        setActive(false);
+        setActiveToFalse();
+        window.removeEventListener("beforeunload", setActiveToFalse, true);
       };
+    } else {
+      return () => {};
     }
   }, [teamName]);
 
@@ -149,8 +147,7 @@ const EditExercise = ({ type, id, t }) => {
     setSubmissionContent(initialContent);
     updateSubmission({
       variables: {
-        content: JSON.stringify(initialContent || []),
-        active: active
+        content: JSON.stringify(initialContent || [])
       }
     });
     currentContent.current = initialContent;
@@ -279,6 +276,9 @@ const EditExercise = ({ type, id, t }) => {
         <Subscription
           subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}
+          variables={{
+            token: getToken("exercise-team")
+          }}
           onSubscriptionData={({ subscriptionData }) => {
             const { data } = subscriptionData;
             if (

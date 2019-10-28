@@ -2,6 +2,32 @@ import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 
+export interface SwitchProps {
+  className?: string;
+  value: boolean;
+  onChange: (newValue: boolean) => void;
+  leftRight?: boolean;
+}
+
+export const Switch: React.SFC<SwitchProps> = ({
+  className,
+  value,
+  onChange,
+  leftRight
+}) => (
+  <Container
+    className={className}
+    onClick={() => onChange(!value)}
+    leftRight={leftRight}
+  >
+    <Toggle active={value} leftRight={leftRight} />
+  </Container>
+);
+
+export default Switch;
+
+/* styled components */
+
 interface ContainerProps {
   leftRight?: boolean;
 }
@@ -42,26 +68,3 @@ const Toggle = styled.div<ToggleProps>`
     `};
 `;
 
-export interface SwitchProps {
-  className?: string;
-  value: boolean;
-  onChange: (newValue: boolean) => void;
-  leftRight?: boolean;
-}
-
-export const Switch: React.SFC<SwitchProps> = ({
-  className,
-  value,
-  onChange,
-  leftRight
-}) => (
-  <Container
-    className={className}
-    onClick={() => onChange(!value)}
-    leftRight={leftRight}
-  >
-    <Toggle active={value} leftRight={leftRight} />
-  </Container>
-);
-
-export default Switch;

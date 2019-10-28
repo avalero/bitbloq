@@ -3,11 +3,11 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import MenuBar, {
   MainMenuOption,
-  OptionClickHandler as MenuOptionClickHandler
+  MenuOptionClickHandler
 } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
-import { IHeaderButton, HeaderButtonClickCallback } from "../index.d";
+import { IHeaderButton } from "../types";
 
 const Container = styled.div`
   display: flex;
@@ -44,6 +44,7 @@ const Header = styled.div`
 const HeaderButton = styled.div`
   display: flex;
   align-items: center;
+  background-color: #fcfcfc;
   justify-content: center;
   width: 76px;
   border-left: 1px solid #dadada;
@@ -230,7 +231,7 @@ export interface DocumentProps {
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
-  onHeaderButtonClick?: HeaderButtonClickCallback;
+  onHeaderButtonClick?: (id: string) => any;
   icon?: JSX.Element;
   preMenuContent?: JSX.Element;
   postMenuContent?: JSX.Element;

@@ -122,13 +122,15 @@ export default class Renderer {
   }
 
   public async setActiveHelper(
-    activeOperation: IHelperDescription
+    activeOperation: IHelperDescription | null
   ): Promise<void> {
     while (this.helpersGroup.children.length > 0) {
       this.helpersGroup.remove(this.helpersGroup.children[0]);
     }
-    const helpers = await this.scene.setActiveHelperAsync(activeOperation);
-    helpers.forEach(helper => this.helpersGroup.add(helper));
+    if (activeOperation) {
+      const helpers = await this.scene.setActiveHelperAsync(activeOperation);
+      helpers.forEach(helper => this.helpersGroup.add(helper));
+    }
   }
 
   public updateCameraAngle(theta: number, phi: number) {

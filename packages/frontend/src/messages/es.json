@@ -95,10 +95,7 @@
   "tooltip-zoom-minus": "Zoom -",
   "tooltip-orthogonal-view": "Vista ortogonal",
   "tooltip-perspective-view": "Vista en perspectiva",
-  "tooltip-error-length": "Debe tener al menos %v%mm",
-  "tooltip-error-sides": "Debe tener al menos %v% lados",
-  "tooltip-error-number": "Debe ser al menos %v%",
-  "tooltip-error-peaks": "Debe tener al menos %v% puntas",
+  "tooltip-error-min-value": "Debe ser al menos %v% %v%",
   "undo": "Deshacer",
   "redo": "Rehacer",
   "navigation-top": "superior",
@@ -265,5 +262,10 @@
       "multisensor": "Multisensor",
       "seven-segment": "Display 7 segmentos"
     }
+  },
+  "units": {
+    "mm": "mm",
+    "peaks": "puntas",
+    "sides": "caras"
   }
 }

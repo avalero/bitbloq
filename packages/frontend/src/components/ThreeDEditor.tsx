@@ -85,7 +85,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
 
   readonly state = {
     showExportModal: false,
-    showSTLError: ""
+    showSTLError: "",
   };
 
   onMenuOptionClick = option => {
@@ -203,7 +203,7 @@ class ThreeDEditor extends React.Component<EditorProps> {
       <>
         <ThreeD
           brandColor={brandColor}
-          ref={this.threedRef}
+          threeDRef={this.threedRef}
           initialContent={content}
           tabIndex={tabIndex}
           onTabChange={onTabChange}

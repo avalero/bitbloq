@@ -311,8 +311,8 @@ export const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
 `;
 
 export const SUBMISSION_ACTIVE_SUBSCRIPTION = gql`
-  subscription OnSubmissionActive {
-    submissionActive {
+  subscription OnSubmissionActive($token: String!) {
+    submissionActive(token: $token) {
       id
       active
     }
@@ -377,8 +377,8 @@ export const STUDENT_SUBMISSION_QUERY = gql`
 `;
 
 export const UPDATE_SUBMISSION_MUTATION = gql`
-  mutation UpdateSubmission($content: String!) {
-    updateSubmission(input: { content: $content }) {
+  mutation UpdateSubmission($content: String, $active: Boolean) {
+    updateSubmission(input: { content: $content, active: $active }) {
       id
     }
   }

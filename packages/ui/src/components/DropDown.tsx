@@ -6,7 +6,7 @@ export interface DropDownProps {
   closeOnClick?: boolean;
   attachmentPosition: string;
   targetPosition: string;
-  constraints: {
+  constraints?: {
     attachment?: string;
     outOfBoundsClass?: string;
     pin?: boolean | string[];
