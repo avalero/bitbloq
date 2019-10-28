@@ -1,4 +1,5 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
+import { contextController } from "../controllers/context";
 import { ExerciseModel, IExercise } from "../models/exercise";
 import { ISubmission, SubmissionModel } from "../models/submission";
 import { pubsub, redisClient } from "../server";
@@ -35,10 +36,10 @@ const submissionResolver = {
     submissionActive: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
-        (payload, variables, context) => {
+        async (payload, variables, context) => {
+          const user = await contextController.getDataInToken(variables.token);
           return (
-            String(payload.submissionActive._id) ===
-            String(context.user.submissionID)
+            String(payload.submissionActive._id) === String(user.submissionID)
           );
         }
       )
@@ -375,16 +376,25 @@ const submissionResolver = {
      */
     // el profesor borra la sumbission de un alumno
     deleteSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: args.submissionID,
-        user: context.user.userID
-      });
+      const existSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        {
+          _id: args.submissionID,
+          user: context.user.userID
+        },
+        {
+          $set: { active: false }
+        },
+        { new: true }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error deleting submission, not found",
           "SUBMISSION_NOT_FOUND"
         );
       }
+      pubsub.publish(SUBMISSION_ACTIVE, {
+        submissionActive: existSubmission
+      });
       return SubmissionModel.deleteOne({ _id: existSubmission._id });
     },
 
@@ -493,7 +503,7 @@ const submissionResolver = {
           user: context.user.userID
         });
         if (!existSubmission) {
-          throw new ApolloError(
+          throw new ApolloError(html.wf-roboto-n3-active.wf-roboto-n4-active.wf-roboto-n5-active.wf-roboto-n7-active.wf-robotomono-n4-active.wf-active
             "Submission does not exist",
             "SUBMISSION_NOT_FOUND"
           );

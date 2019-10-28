@@ -44,6 +44,7 @@ const Header = styled.div`
 const HeaderButton = styled.div`
   display: flex;
   align-items: center;
+  background-color: #fcfcfc;
   justify-content: center;
   width: 76px;
   border-left: 1px solid #dadada;

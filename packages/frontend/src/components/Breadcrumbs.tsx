@@ -19,11 +19,11 @@ export interface BreadcrumbLink {
 }
 
 export interface BreadcrumbsProps {
-  links?: BreadcrumbLink[];
+  links: BreadcrumbLink[];
   title?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links = [], title }) => {
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links, title }) => {
   const t = useTranslate();
 
   const breadcrumbTarget = useRef<HTMLLIElement>(null);
