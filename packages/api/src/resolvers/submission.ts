@@ -503,7 +503,7 @@ const submissionResolver = {
           user: context.user.userID
         });
         if (!existSubmission) {
-          throw new ApolloError(html.wf-roboto-n3-active.wf-roboto-n4-active.wf-roboto-n5-active.wf-roboto-n7-active.wf-robotomono-n4-active.wf-active
+          throw new ApolloError(
             "Submission does not exist",
             "SUBMISSION_NOT_FOUND"
           );
