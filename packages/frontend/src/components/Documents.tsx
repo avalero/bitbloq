@@ -1,4 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import {
@@ -286,24 +288,26 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           </HeaderButtons>
         </DocumentListHeader>
         {docsAndFols.length > 0 ? (
-          <DocumentsAndPaginator>
-            <DocumentListComp
-              parentsPath={parentsPath}
-              refetchDocsFols={refetchDocsFols}
-              docsAndFols={docsAndFols}
-              currentLocation={currentLocation}
-              onFolderClick={onFolderClick}
-              onDocumentClick={onDocumentClick}
-              order={order}
-              searchTitle={searchText}
-              nFolders={nFolders}
-            />
-            <DocumentsPaginator
-              currentPage={currentPage}
-              pages={pagesNumber}
-              selectPage={(page: number) => setCurrentPage(page)}
-            />
-          </DocumentsAndPaginator>
+          <DndProvider backend={HTML5Backend}>
+            <DocumentsAndPaginator>
+              <DocumentListComp
+                parentsPath={parentsPath}
+                refetchDocsFols={refetchDocsFols}
+                docsAndFols={docsAndFols}
+                currentLocation={currentLocation}
+                onFolderClick={onFolderClick}
+                onDocumentClick={onDocumentClick}
+                order={order}
+                searchTitle={searchText}
+                nFolders={nFolders}
+              />
+              <DocumentsPaginator
+                currentPage={currentPage}
+                pages={pagesNumber}
+                selectPage={(page: number) => setCurrentPage(page)}
+              />
+            </DocumentsAndPaginator>
+          </DndProvider>
         ) : searchQuery ? (
           <NoDocuments>
             <h1>No hay resultados para tu búsqueda</h1>
