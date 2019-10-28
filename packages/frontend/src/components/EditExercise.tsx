@@ -94,20 +94,22 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     if (exercise && teamName) {
-      const setActive = (active: boolean) => {
+      const setActiveToFalse = () => {
         updateSubmission({
           variables: {
-            active
+            active: false
           }
         });
       };
 
-      window.addEventListener("beforeunload", e => setActive(false), true);
+      window.addEventListener("beforeunload", setActiveToFalse, true);
 
       return () => {
-        setActive(false);
-        window.removeEventListener("beforeunload", e => setActive(false), true);
+        setActiveToFalse();
+        window.removeEventListener("beforeunload", setActiveToFalse, true);
       };
+    } else {
+      return () => {};
     }
   }, [teamName]);
 
