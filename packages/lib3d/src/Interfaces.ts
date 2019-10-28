@@ -65,6 +65,30 @@ export type Operation =
   | IScaleOperation
   | IMirrorOperation;
 
+export function isTranslateOperation(
+  operation: Operation
+): operation is ITranslateOperation {
+  return operation.type === "translation";
+}
+
+export function isRotationOperation(
+  operation: Operation
+): operation is IRotateOperation {
+  return operation.type === "rotation";
+}
+
+export function isScaleOperation(
+  operation: Operation
+): operation is IScaleOperation {
+  return operation.type === "scale";
+}
+
+export function isMirrorOperation(
+  operation: Operation
+): operation is IMirrorOperation {
+  return operation.type === "mirror";
+}
+
 export type OperationsArray = Operation[];
 
 export interface IViewOptions {

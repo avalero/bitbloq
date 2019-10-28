@@ -96,10 +96,7 @@
   "tooltip-zoom-minus": "Zoom -",
   "tooltip-orthogonal-view": "Orthogonal view",
   "tooltip-perspective-view": "Perspective view",
-  "tooltip-error-length": "Must have at least %v%mm",
-  "tooltip-error-sides": "Must have at least %v% sides",
-  "tooltip-error-number": "It must be at least %v%",
-  "tooltip-error-peaks": "Must have at least %v% peaks",
+  "tooltip-error-min-value": "It must be at least %v% %v%",
   "undo": "Undo",
   "redo": "Redo",
   "navigation-top": "top",
@@ -264,5 +261,10 @@
       "multisensor": "Multisensor",
       "seven-segment": "7 segment display"
     }
+  },
+  "units": {
+    "mm": "mm",
+    "peaks": "peaks",
+    "sides": "sides"
   }
 }

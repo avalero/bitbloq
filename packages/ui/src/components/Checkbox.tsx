@@ -65,10 +65,9 @@ export interface CheckboxProps {
  */
 export default class Checkbox extends React.Component<CheckboxProps> {
   render() {
-    const { className, checked, error, onChange, tooltipProps } = this.props;
+    const { className, checked, error, onChange } = this.props;
     return (
       <Container
-        {...tooltipProps}
         className={className}
         checked={checked}
         error={error}
