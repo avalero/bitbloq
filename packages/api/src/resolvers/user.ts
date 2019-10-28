@@ -13,8 +13,6 @@ import {
   ISignUpToken
 } from "../models/interfaces";
 
-import { logger, loggerController } from "../controllers/logs";
-
 import * as mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
@@ -54,7 +52,7 @@ const userResolver = {
         notifications: args.input.notifications,
         signUpSurvey: args.input.signUpSurvey,
         lastLogin: new Date(),
-        teacher: true,
+        teacher: true
       });
       const newUser: IUser = await UserModel.create(userNew);
       const token: string = jsonwebtoken.sign(
@@ -63,7 +61,6 @@ const userResolver = {
         },
         process.env.JWT_SECRET
       );
-      console.log(token);
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
@@ -91,14 +88,6 @@ const userResolver = {
         { _id: newUser._id },
         { $set: { signUpToken: token, rootFolder: userFolder._id } },
         { new: true }
-      );
-      loggerController.storeInfoLog(
-        "API",
-        "space",
-        "signUp",
-        "user",
-        newUser._id,
-        ""
       );
       return "OK";
     },
@@ -134,14 +123,6 @@ const userResolver = {
           { _id: contactFound._id },
           { $set: { authToken: token, lastLogin: new Date() } }
         );
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "login",
-          "user",
-          contactFound._id,
-          ""
-        );
         await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
@@ -153,7 +134,6 @@ const userResolver = {
      * renewToken: returns a new token for a logged user
      */
     renewToken: async (root: any, args: any, context: any) => {
-      console.log("renew token, api");
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
@@ -269,6 +249,7 @@ const userResolver = {
       const userInToken: ISignUpToken = await contextController.getDataInToken(
         args.token
       );
+
       const contactFound: IUser = await UserModel.findOne({
         _id: userInToken.signUpUserID
       });
@@ -286,15 +267,6 @@ const userResolver = {
             }
           }
         );
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "activate",
-          "user",
-          contactFound._id,
-          ""
-        );
-
         await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
@@ -317,15 +289,6 @@ const userResolver = {
         _id: context.user.userID
       });
       if (String(contactFound._id) === args.id) {
-        logger.info("USER_delete");
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "delete",
-          "user",
-          contactFound._id,
-          ""
-        );
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
         await DocumentModel.deleteMany({ user: contactFound._id });
@@ -350,14 +313,6 @@ const userResolver = {
         _id: context.user.userID
       });
       if (String(contactFound._id) === args.id) {
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "update",
-          "user",
-          contactFound._id,
-          ""
-        );
         const data: IUser = args.input;
         return await UserModel.findOneAndUpdate(
           { _id: contactFound._id },

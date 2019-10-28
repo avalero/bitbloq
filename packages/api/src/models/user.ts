@@ -44,7 +44,7 @@ export const ContactSchema: Schema = new Schema({
   publisher: {
     type: Boolean,
     default: false
-  },  
+  },
 
   teacher: {
     type: Boolean,

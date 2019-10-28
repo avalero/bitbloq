@@ -3,8 +3,8 @@ import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel, IExercise } from "../models/exercise";
 import { SubmissionModel } from "../models/submission";
 import { IUser, UserModel } from "../models/user";
-
-import { logger, loggerController } from "../controllers/logs";
+import { pubsub } from "../server";
+import { DOCUMENT_UPDATED } from "./document";
 
 const exerciseResolver = {
   Mutation: {
@@ -46,17 +46,10 @@ const exerciseResolver = {
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        image: docFather.image
+        image: docFather.image.image
       });
-      loggerController.storeInfoLog(
-        "API",
-        "exercise",
-        "create",
-        exerciseNew.type,
-        exerciseNew.user,
-        ""
-      );
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
+      pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
       return newEx;
     },
 
@@ -72,14 +65,6 @@ const exerciseResolver = {
       if (!existExercise) {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
-      loggerController.storeInfoLog(
-        "API",
-        "exercise",
-        "changeSubState",
-        existExercise.type,
-        existExercise.user,
-        ""
-      );
 
       return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
@@ -100,15 +85,11 @@ const exerciseResolver = {
         user: context.user.userID
       });
       if (existExercise) {
-        loggerController.storeInfoLog(
-          "API",
-          "exercise",
-          "delete",
-          existExercise.type,
-          existExercise.user,
-          ""
-        );
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
+        const docFather = await DocumentModel.findOne({
+          _id: existExercise.document
+        });
+        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
         return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
@@ -126,14 +107,6 @@ const exerciseResolver = {
         user: context.user.userID
       });
       if (existExercise) {
-        loggerController.storeInfoLog(
-          "API",
-          "exercise",
-          "update",
-          existExercise.type,
-          existExercise.user,
-          ""
-        );
         return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
           { $set: args.input },

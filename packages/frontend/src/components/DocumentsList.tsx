@@ -8,14 +8,12 @@ import HTML5Backend from "react-dnd-html5-backend";
 import DocumentCard from "./DocumentCard";
 import EditTitleModal from "./EditTitleModal";
 import DocumentCardMenu from "./DocumentCardMenu";
-import Paginator from "./Paginator";
 
 import { css } from "@emotion/core";
 
 import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
-  FOLDER_QUERY,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
   CREATE_DOCUMENT_MUTATION,
@@ -34,7 +32,7 @@ export interface DocumentListProps {
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
-  refetchDocsFols: (e) => any;
+  refetchDocsFols: () => any;
   nFolders: number;
 }
 
@@ -48,11 +46,14 @@ const DocumentListComp: FC<DocumentListProps> = ({
   refetchDocsFols,
   nFolders
 }) => {
-  const [deleteItem, setDeleteItem] = useState({
+  const [deleteDoc, setDeleteDoc] = useState({
     id: null,
     hasChildren: null
   });
-  const [deleteFolderId, setDeleteFolderId] = useState("");
+  const [deleteFol, setDeleteFol] = useState({
+    id: null,
+    hasChildren: null
+  });
   const [editDocTitleModal, setEditDocTitleModal] = useState({
     id: null,
     title: null
@@ -63,6 +64,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
   });
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
+  const [folWithChildren, setFolWithChildren] = useState(false);
   const [selectedToMove, setSelectedToMove] = useState({
     id: null,
     parent: null
@@ -107,11 +109,11 @@ const DocumentListComp: FC<DocumentListProps> = ({
       id: null,
       parent: null
     });
-    setDeleteItem({ id: document.id, hasChildren: document.hasChildren });
+    setDeleteDoc({ id: document.id, hasChildren: document.hasChildren });
   };
 
-  const confirmDelete = () => {
-    if (deleteItem.hasChildren) {
+  const confirmDeleteDoc = () => {
+    if (deleteDoc.hasChildren) {
       setDocWithEx(true);
       return;
     } else {
@@ -122,10 +124,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const onDeleteDocument = async () => {
     await deleteDocument({
-      variables: { id: deleteItem.id }
+      variables: { id: deleteDoc.id }
     });
     refetchDocsFols();
-    setDeleteItem({ id: null, hasChildren: null });
+    setDeleteDoc({ id: null, hasChildren: null });
     setDocWithEx(false);
   };
 
@@ -144,15 +146,26 @@ const DocumentListComp: FC<DocumentListProps> = ({
       id: null,
       parent: null
     });
-    setDeleteFolderId(folder.id);
+    setDeleteFol({ id: folder.id, hasChildren: folder.hasChildren });
   };
 
-  const onDeleteFolder = async (e, folder) => {
+  const confirmDeleteFol = () => {
+    if (deleteFol.hasChildren) {
+      setFolWithChildren(true);
+      return;
+    } else {
+      onDeleteFolder();
+      return;
+    }
+  };
+
+  const onDeleteFolder = async () => {
     await deleteFolder({
-      variables: { id: deleteFolderId }
+      variables: { id: deleteFol.id }
     });
     refetchDocsFols();
-    setDeleteFolderId(null);
+    setFolWithChildren(false);
+    setDeleteFol({ id: null, hasChildren: null });
   };
 
   const onUpdateDocTitle = async docTitle => {
@@ -385,22 +398,22 @@ const DocumentListComp: FC<DocumentListProps> = ({
         </DocumentList>
       </DndProvider>
       <DialogModal
-        isOpen={!!deleteItem.id}
+        isOpen={!!deleteDoc.id}
         title="Eliminar"
         text="¿Seguro que quieres eliminar este documento?"
         okText="Aceptar"
         cancelText="Cancelar"
-        onOk={confirmDelete}
-        onCancel={() => setDeleteItem({ id: null, hasChildren: null })}
+        onOk={confirmDeleteDoc}
+        onCancel={() => setDeleteDoc({ id: null, hasChildren: null })}
       />
       <DialogModal
-        isOpen={!!deleteFolderId}
+        isOpen={!!deleteFol.id}
         title="Eliminar"
         text="¿Seguro que quieres eliminar esta carpeta?"
         okText="Aceptar"
         cancelText="Cancelar"
-        onOk={onDeleteFolder}
-        onCancel={() => setDeleteFolderId(null)}
+        onOk={confirmDeleteFol}
+        onCancel={() => setDeleteFol({ id: null, hasChildren: null })}
       />
       <DialogModal
         isOpen={!!docWithEx}
@@ -410,8 +423,21 @@ const DocumentListComp: FC<DocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteDocument}
         onCancel={() => {
-          setDeleteItem({ id: null, hasChildren: null });
+          setDeleteDoc({ id: null, hasChildren: null });
           setDocWithEx(false);
+        }}
+      />
+
+      <DialogModal
+        isOpen={!!folWithChildren}
+        title="Aviso"
+        text="Has creado ejercicios en los documentos que contiene esta carpeta, si los eliminas, eliminarás también estos ejercicios y sus entregas. ¿Seguro que quieres hacerlo?"
+        okText="Aceptar"
+        cancelText="Cancelar"
+        onOk={onDeleteFolder}
+        onCancel={() => {
+          setDeleteFol({ id: null, hasChildren: null });
+          setFolWithChildren(false);
         }}
       />
 

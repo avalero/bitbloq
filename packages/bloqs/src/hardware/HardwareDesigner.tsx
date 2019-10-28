@@ -144,25 +144,27 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     : [];
 
   return (
-    <Container>
-      <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
-        <ConnectionCanvas>
-          {board.ports.map((port, i) => (
-            <path
-              key={port.name}
-              d={connectionPath(port)}
-              fill="none"
-              stroke={selectedPortIndex === i ? colors.brandOrange : "#bbb"}
-              strokeWidth={2}
-              strokeDasharray="7 3"
-            />
-          ))}
-        </ConnectionCanvas>
-        <Canvas>
-          {board.ports.map(renderPort)}
-          <Board width={width} height={height} src={board.image.url} />
-        </Canvas>
-      </CanvasWrap>
+    <Container className="image-snapshot">
+      <ScrollContainer>
+        <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
+          <ConnectionCanvas>
+            {board.ports.map((port, i) => (
+              <path
+                key={port.name}
+                d={connectionPath(port)}
+                fill="none"
+                stroke={selectedPortIndex === i ? colors.brandOrange : "#bbb"}
+                strokeWidth={2}
+                strokeDasharray="7 3"
+              />
+            ))}
+          </ConnectionCanvas>
+          <Canvas>
+            {board.ports.map(renderPort)}
+            <Board width={width} height={height} src={board.image.url} />
+          </Canvas>
+        </CanvasWrap>
+      </ScrollContainer>
       <AddComponentPanel
         isOpen={selectedPortIndex >= 0 && !selectedComponentInstance}
         board={board}
@@ -205,9 +207,16 @@ const Container = styled.div`
   display: flex;
 `;
 
+const ScrollContainer = styled.div`
+  flex: 1;
+  display: flex;
+  overflow: auto;
+`;
+
 const CanvasWrap = styled.div`
   flex: 1;
   position: relative;
+  min-height: 600px;
 `;
 
 const Canvas = styled.div`

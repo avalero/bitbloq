@@ -9,7 +9,7 @@ export interface IDocument extends Document {
   content?: string;
   advancedMode?: boolean;
   cache?: string;
-  image?: string;
+  image?: { image: string; isSnapshot: boolean };
   public: boolean;
   example: boolean;
   createdAt?: Date;
@@ -55,8 +55,11 @@ const DocumentMongSchema: Schema = new Schema({
   },
 
   image: {
-    type: String,
-    default: "imageURL"
+    image: { type: String, default: "imageURL" },
+    isSnapshot: {
+      type: Boolean,
+      default: true
+    }
   },
 
   description: {

@@ -271,7 +271,7 @@ class ThreeDViewer extends React.Component<
     const { t } = this.props;
 
     return (
-      <Container ref={this.rendererContainerRef}>
+      <Container ref={this.rendererContainerRef} className="image-snapshot">
         <CameraButtons>
           <Tooltip position="right" content={t("tooltip-center-view")}>
             {(tooltipProps: TooltipProps) => (
