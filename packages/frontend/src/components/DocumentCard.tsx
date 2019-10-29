@@ -31,6 +31,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
 }) => {
   const [{ isDragging }, drag] = useDrag({
     item: {
+      id: document.id,
       type: document.type === "folder" ? "folder" : "document"
     },
     collect: monitor => ({
@@ -51,11 +52,13 @@ const DocumentCard: FC<DocumentCardProps> = ({
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),
-    drop: item => {
-      if (item.type === "document" && dropDocumentCallback) {
-        dropDocumentCallback();
-      } else if (item.type === "folder" && dropFolderCallback) {
-        dropFolderCallback();
+    drop: (item, monitor) => {
+      if (document.id !== monitor.getItem().id) {
+        if (item.type === "document" && dropDocumentCallback) {
+          dropDocumentCallback();
+        } else if (item.type === "folder" && dropFolderCallback) {
+          dropFolderCallback();
+        }
       }
     }
   });

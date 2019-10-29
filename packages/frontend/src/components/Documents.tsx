@@ -289,22 +289,20 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         </DocumentListHeader>
         {docsAndFols.length > 0 ? (
           <DndProvider backend={HTML5Backend}>
-            <DocumentsAndPaginator>
-              <DocumentListComp
-                currentPage={currentPage}
-                parentsPath={parentsPath}
-                pagesNumber={pagesNumber}
-                refetchDocsFols={refetchDocsFols}
-                docsAndFols={docsAndFols}
-                currentLocation={currentLocation}
-                onFolderClick={onFolderClick}
-                onDocumentClick={onDocumentClick}
-                order={order}
-                searchTitle={searchText}
-                selectPage={(page: number) => setCurrentPage(page)}
-                nFolders={nFolders}
-              />
-            </DocumentsAndPaginator>
+            <DocumentListComp
+              currentPage={currentPage}
+              parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
+              refetchDocsFols={refetchDocsFols}
+              docsAndFols={docsAndFols}
+              currentLocation={currentLocation}
+              onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
+              order={order}
+              searchTitle={searchText}
+              selectPage={(page: number) => setCurrentPage(page)}
+              nFolders={nFolders}
+            />
           </DndProvider>
         ) : searchQuery ? (
           <NoDocuments>
@@ -490,12 +488,4 @@ const NewFolderButton = styled(Button)`
 
 const DocumentsPaginator = styled(Paginator)`
   margin-bottom: 60px;
-`;
-
-const DocumentsAndPaginator = styled.div`
-  display: flex;
-  flex: 1;
-  flex-flow: column nowrap;
-  justify-content: space-between;
-  width: 100%;
 `;
