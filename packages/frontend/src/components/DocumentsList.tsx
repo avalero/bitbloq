@@ -75,6 +75,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
     parent: null
   });
   const [draggingItemId, setDraggingItemId] = useState("");
+  const [droppedItemId, setDroppedItemId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
@@ -289,8 +290,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   onMoveDocument(undefined, document, draggingItemId);
                 }}
                 dropFolderCallback={() => {
+                  setDroppedItemId(draggingItemId);
                   onMoveFolder(undefined, document, draggingItemId);
                 }}
+                hidden={document.id === droppedItemId}
                 key={document.id}
                 document={document}
                 onClick={e =>

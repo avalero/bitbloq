@@ -13,6 +13,7 @@ export interface DocumentCardProps {
   dropDocumentCallback?: () => void;
   dropFolderCallback?: () => void;
   endFunction?: () => void;
+  hidden?: boolean;
   onClick?: (e: React.MouseEvent) => any;
 }
 
@@ -25,9 +26,9 @@ const DocumentCard: FC<DocumentCardProps> = ({
   dropDocumentCallback,
   dropFolderCallback,
   endFunction,
+  hidden = false,
   onClick
 }) => {
-  const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
     item: {
       type: document.type === "folder" ? "folder" : "document",
@@ -41,20 +42,13 @@ const DocumentCard: FC<DocumentCardProps> = ({
       beginFunction && beginFunction();
     },
     end: (item, monitor) => {
-      if (monitor.didDrop()) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
       endFunction && endFunction();
     }
   });
 
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    canDrop: () => {
-      return true;
-    },
+    canDrop: () => true,
     collect: monitor => ({
       isOver: !!monitor.isOver()
     }),
