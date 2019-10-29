@@ -5,6 +5,8 @@ import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { useSpring, animated } from "react-spring";
 import { EXAMPLES_QUERY } from "../apollo/queries";
 import DocumentCard from "./DocumentCard";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 
 const LandingExamples: FC = () => {
   const { data } = useQuery(EXAMPLES_QUERY);
@@ -36,7 +38,9 @@ const LandingExamples: FC = () => {
           <Examples style={examplesStyle}>
             {data.examples.map((example: any) => (
               <Example key={example.id} onClick={() => onExampleClick(example)}>
-                <DocumentCard document={example} />
+                <DndProvider backend={HTML5Backend}>
+                  <DocumentCard draggable={false} document={example} />
+                </DndProvider>
               </Example>
             ))}
           </Examples>

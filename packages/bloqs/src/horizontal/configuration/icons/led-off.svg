@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30" height="30" viewBox="0 0 30 30">
+    <defs>
+        <path id="a" d="M153 4180h376v220H153z"/>
+        <mask id="b" width="376" height="220" x="0" y="0" fill="#fff">
+            <use xlink:href="#a"/>
+        </mask>
+    </defs>
+    <g fill="none" fill-rule="evenodd" transform="translate(-468 -4272)">
+        <path fill-rule="nonzero" stroke="#000" stroke-width="2" d="M83 4072h495v361H83z"/>
+        <rect width="130" height="66" x="386" y="4268" fill-rule="nonzero" stroke="#979797" stroke-width="6" rx="10"/>
+        <path fill="#DDD" fill-rule="nonzero" d="M453 4271h50c5.523 0 10 4.477 10 10v40c0 5.523-4.477 10-10 10h-50v-60z"/>
+        <path fill="#EEE" fill-rule="nonzero" d="M453 4257h50c5.523 0 10 4.477 10 10v40c0 5.523-4.477 10-10 10h-50v-60z"/>
+        <use fill-rule="nonzero" stroke="#373B44" stroke-dasharray="6,6" stroke-width="2" mask="url(#b)" xlink:href="#a"/>
+        <path fill="#000" d="M483.34 4281.545c.225 0 .453.014.684.04 2.577.3 4.685 2.376 5.052 4.987.293 2.084-.506 3.978-1.86 5.254-1.436 1.351-1.212 3.371-1.212 3.371h.001c0 1.498-1.192 2.712-2.663 2.712-1.472 0-2.665-1.214-2.665-2.712 0 0 .225-2.02-1.21-3.371-1.355-1.276-2.154-3.17-1.861-5.254.367-2.611 2.475-4.687 5.051-4.986.23-.027.459-.04.684-.04"/>
+    </g>
+</svg>

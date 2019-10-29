@@ -159,7 +159,7 @@ class MenuBar extends React.Component<MenuBarProps, State> {
               <OptionText>{option.label}</OptionText>
               {option.children && (
                 <RightArrow>
-                  <Icon name="arrow" />
+                  <Icon name="triangle" />
                 </RightArrow>
               )}
               {option.children && this.renderSubMenu(option.children)}

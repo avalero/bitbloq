@@ -4,9 +4,12 @@ export const ME_QUERY = gql`
   query Me {
     me {
       id
+      rootFolder
       email
       name
       admin
+      publisher
+      teacher
     }
   }
 `;
@@ -19,10 +22,16 @@ export const DOCUMENT_QUERY = gql`
       title
       description
       content
-      image
+      image {
+        image
+        isSnapshot
+      }
       public
       example
       advancedMode
+      parentsPath {
+        id
+      }
     }
   }
 `;
@@ -35,9 +44,47 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
       title
       description
       content
-      image
+      image {
+        image
+        isSnapshot
+      }
       public
       advancedMode
+    }
+  }
+`;
+
+export const DOCS_FOLDERS_PAGE_QUERY = gql`
+  query documentsAndFolders(
+    $currentLocation: ObjectID
+    $currentPage: Number
+    $itemsPerPage: Number
+    $order: String
+    $searchTitle: String
+  ) {
+    documentsAndFolders(
+      currentLocation: $currentLocation
+      currentPage: $currentPage
+      itemsPerPage: $itemsPerPage
+      order: $order
+      searchTitle: $searchTitle
+    ) {
+      result {
+        id
+        title
+        type
+        createdAt
+        updatedAt
+        image
+        parent
+        hasChildren
+      }
+      parentsPath {
+        id
+        name
+      }
+      pagesNumber
+      nFolders
     }
   }
 `;
@@ -49,7 +96,78 @@ export const DOCUMENTS_QUERY = gql`
       type
       title
       createdAt
-      image
+      image {
+        image
+        isSnapshot
+      }
+    }
+  }
+`;
+
+export const FOLDERS_QUERY = gql`
+  query Folders {
+    folders {
+      id
+      name
+    }
+  }
+`;
+
+export const ROOT_FOLDER_QUERY = gql`
+  query RootFolder {
+    rootFolder {
+      id
+      name
+      documents {
+        id
+        type
+        title
+        createdAt
+        image {
+          image
+          isSnapshot
+        }
+      }
+      folders {
+        id
+        name
+      }
+    }
+  }
+`;
+
+export const FOLDER_QUERY = gql`
+  query folder($id: ObjectID!) {
+    folder(id: $id) {
+      id
+      name
+      parentsPath {
+        id
+        name
+      }
+      documents {
+        id
+        type
+        title
+        createdAt
+        updatedAt
+        image
+        description
+        advancedMode
+        content
+        folder
+        exercises {
+          title
+          code
+        }
+      }
+      folders {
+        id
+        name
+        parent
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
@@ -60,7 +178,10 @@ export const EXAMPLES_QUERY = gql`
       id
       type
       title
-      image
+      image {
+        image
+        isSnapshot
+      }
     }
   }
 `;
@@ -71,8 +192,8 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $title: String!
     $description: String
     $content: String
-    $image: String
     $advancedMode: Boolean
+    $folder: ObjectID
   ) {
     createDocument(
       input: {
@@ -80,8 +201,8 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         title: $title
         description: $description
         content: $content
-        imageUrl: $image
         advancedMode: $advancedMode
+        folder: $folder
       }
     ) {
       id
@@ -90,14 +211,58 @@ export const CREATE_DOCUMENT_MUTATION = gql`
   }
 `;
 
+export const CREATE_FOLDER_MUTATION = gql`
+  mutation createFolder($input: FolderIn) {
+    createFolder(input: $input) {
+      id
+    }
+  }
+`;
+
+export const UPDATE_FOLDER_MUTATION = gql`
+  mutation updateFolder($id: ObjectID!, $input: FolderIn) {
+    updateFolder(id: $id, input: $input) {
+      id
+    }
+  }
+`;
+
+export const DUPLICATE_FOLDER_MUTATION = gql`
+  mutation duplicateFolder($id: ObjectID!) {
+    duplicateFolder(id: $id) {
+      id
+    }
+  }
+`;
+
+export const DELETE_FOLDER_MUTATION = gql`
+  mutation deleteFolder($id: ObjectID!) {
+    deleteFolder(id: $id) {
+      id
+    }
+  }
+`;
+
+export const SET_DOCUMENT_IMAGE_MUTATION = gql`
+  mutation SetDocumentImage(
+    $id: ObjectID
+    $image: Upload
+    $isSnapshot: Boolean
+  ) {
+    setDocumentImage(id: $id, image: $image, isSnapshot: $isSnapshot) {
+      id
+    }
+  }
+`;
+
 export const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
     $id: ObjectID!
-    $title: String!
+    $title: String
     $content: String
     $description: String
-    $image: Upload
     $advancedMode: Boolean
+    $folder: ObjectID
   ) {
     updateDocument(
       id: $id
@@ -105,14 +270,17 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         title: $title
         content: $content
         description: $description
-        image: $image
         advancedMode: $advancedMode
+        folder: $folder
       }
     ) {
       id
       type
       content
-      image
+      image {
+        image
+        isSnapshot
+      }
     }
   }
 `;
@@ -129,6 +297,24 @@ export const DOCUMENT_UPDATED_SUBSCRIPTION = gql`
   subscription OnDocumentUpdated {
     documentUpdated {
       id
+    }
+  }
+`;
+
+export const SUBMISSION_UPDATED_SUBSCRIPTION = gql`
+  subscription OnSubmisisonUpdated($exercise: ObjectID!) {
+    submissionUpdated(exercise: $exercise) {
+      id
+      active
+    }
+  }
+`;
+
+export const SUBMISSION_ACTIVE_SUBSCRIPTION = gql`
+  subscription OnSubmissionActive {
+    submissionActive {
+      id
+      active
     }
   }
 `;
@@ -158,6 +344,29 @@ export const EXERCISE_BY_CODE_QUERY = gql`
   }
 `;
 
+export const EXERCISE_UPDATE_MUTATION = gql`
+  mutation UpdateExercise($id: ObjectID!, $input: ExerciseIn) {
+    updateExercise(id: $id, input: $input) {
+      id
+      type
+      title
+      code
+      teacherName
+      content
+      description
+      image
+    }
+  }
+`;
+
+export const EXERCISE_DELETE_MUTATION = gql`
+  mutation DeleteExercise($id: ObjectID!) {
+    deleteExercise(id: $id) {
+      id
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission {
     submission {
@@ -175,9 +384,34 @@ export const UPDATE_SUBMISSION_MUTATION = gql`
   }
 `;
 
+export const SET_ACTIVESUBMISSION_MUTATION = gql`
+  mutation SetActiveSubmission($submissionID: ObjectID!, $active: Boolean!) {
+    setActiveSubmission(submissionID: $submissionID, active: $active) {
+      id
+      active
+    }
+  }
+`;
+
+export const UPDATE_PASSWORD_SUBMISSION_MUTATION = gql`
+  mutation UpdatePasswordSubmission($id: ObjectID!, $password: String!) {
+    updatePasswordSubmission(submissionID: $id, password: $password) {
+      id
+    }
+  }
+`;
+
 export const FINISH_SUBMISSION_MUTATION = gql`
   mutation FinishSubmission($content: String!) {
     finishSubmission(content: $content) {
+      id
+    }
+  }
+`;
+
+export const REMOVE_SUBMISSION_MUTATION = gql`
+  mutation DeleteSubmission($submissionID: ObjectID!) {
+    deleteSubmission(submissionID: $submissionID) {
       id
     }
   }

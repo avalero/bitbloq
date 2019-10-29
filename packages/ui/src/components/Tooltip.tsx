@@ -34,20 +34,51 @@ const Container = styled.div<ContainerProps>`
     top: 12px;
     left: 50%;
 
-    ${props =>
+    ${(props: ContainerProps) =>
       props.position === "right" &&
       css`
         transform: translate(0, -50%) rotate(45deg);
         top: 50%;
         left: 12px;
       `};
+
+    ${(props: ContainerProps) =>
+      props.position === "left" &&
+      css`
+        transform: translate(0, -50%) rotate(45deg);
+        top: 50%;
+        right: 12px;
+        left: auto;
+      `};
+
+    ${(props: ContainerProps) =>
+      props.position === "top" &&
+      css`
+        transform: translate(-50%, 0) rotate(45deg);
+        bottom: 12px;
+        top: auto;
+      `};
   }
 
-  ${props =>
+  ${(props: ContainerProps) =>
     props.position === "right" &&
     css`
       margin-top: 0px;
       margin-left: 16px;
+    `};
+
+  ${(props: ContainerProps) =>
+    props.position === "left" &&
+    css`
+      margin-top: 0px;
+      margin-right: 16px;
+    `};
+
+  ${(props: ContainerProps) =>
+    props.position === "top" &&
+    css`
+      margin-top: 0px;
+      margin-bottom: 16px;
     `};
 `;
 
@@ -72,9 +103,11 @@ export interface TooltipChildrenProps {
 }
 
 export interface TooltipProps {
+  className?: string;
   content: React.ReactChild;
   position: string;
   children: (props: TooltipChildrenProps) => React.ReactChild;
+  isVisible?: boolean;
 }
 
 interface State {
@@ -82,19 +115,25 @@ interface State {
 }
 
 class Tooltip extends React.Component<TooltipProps, State> {
-  state = { isVisible: false };
+  state = {
+    isVisible: this.props.isVisible !== undefined ? this.props.isVisible : false
+  };
 
   onMouseOver = () => {
-    this.setState({ isVisible: true });
+    if (this.props.isVisible === undefined) {
+      this.setState({ isVisible: true });
+    }
   };
 
   onMouseOut = () => {
-    this.setState({ isVisible: false });
+    if (this.props.isVisible === undefined) {
+      this.setState({ isVisible: false });
+    }
   };
 
   render() {
     const { isVisible } = this.state;
-    const { children, content, position = "bottom" } = this.props;
+    const { className, children, content, position = "bottom" } = this.props;
     const { onMouseOver, onMouseOut } = this;
 
     if (!content) {
@@ -103,6 +142,7 @@ class Tooltip extends React.Component<TooltipProps, State> {
 
     return (
       <TetherComponent
+        className={className}
         attachment={attachmentPostion[position]}
         targetAttachment={targetPosition[position]}
         style={{ zIndex: 20 }}

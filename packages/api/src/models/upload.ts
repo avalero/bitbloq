@@ -8,6 +8,8 @@ export interface IUpload extends Document {
   publicUrl: string;
   document: string;
   user: string;
+  storageName: string;
+  size: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -17,6 +19,8 @@ const UploadMongSchema: Schema = new Schema({
   mimetype: String,
   encoding: String,
   publicUrl: String,
+  size: Number,
+  storageName: String,
   document: {
     type: Schema.Types.ObjectId,
     ref: "DocumentModel"

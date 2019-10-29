@@ -7,6 +7,25 @@ interface TranslateProviderProps {
   fallback?: React.ReactNode;
 }
 
+const findByString = function(object: any, selector: string) {
+  if (!selector) {
+    return;
+  }
+
+  const ids = selector
+    .replace(/\[(\w+)\]/g, ".$1")
+    .replace(/^\./, "")
+    .split(".");
+
+  return ids.reduce((o, id) => {
+    if (typeof o === "object" && id in o) {
+      return o[id];
+    } else {
+      return;
+    }
+  }, object);
+};
+
 class TranslateProvider extends React.Component<TranslateProviderProps> {
   readonly state = {
     messages: null
@@ -32,8 +51,16 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
     const { fallback } = this.props;
     const messages = this.state.messages || {};
 
-    const translateFn = (id: string) => {
-      if (messages[id]) return messages[id];
+    const translateFn = (id: string, variables?: string[]) => {
+      let translation: string = findByString(messages, id);
+      if (translation) {
+        if (variables) {
+          variables.forEach((variable: string) => {
+            translation = translation.replace("%v%", variable);
+          });
+        }
+        return translation;
+      }
       console.warn(`Missing translation for ${id}`);
       return id;
     };

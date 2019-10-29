@@ -15,7 +15,7 @@ const bluebird = require("bluebird");
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
-const USE_REDIS = process.env.USE_REDIS;
+const USE_REDIS: string = String(process.env.USE_REDIS);
 
 const PORT = process.env.PORT;
 

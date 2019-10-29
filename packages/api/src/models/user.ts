@@ -5,6 +5,10 @@ export interface IUser extends Document {
   email?: string;
   password?: string;
   admin?: boolean;
+  publisher?: boolean;
+  teacher?: boolean;
+  teacherPro?: boolean;
+  family?: boolean;
   name?: string;
   center?: string;
   active?: boolean;
@@ -12,7 +16,8 @@ export interface IUser extends Document {
   authToken?: string;
   notifications?: boolean;
   signUpSurvey?: JSON;
-  rootFolder?: string;
+  rootFolder?: Date;
+  lastLogin?: string;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -32,6 +37,26 @@ export const ContactSchema: Schema = new Schema({
   },
 
   admin: {
+    type: Boolean,
+    default: false
+  },
+
+  publisher: {
+    type: Boolean,
+    default: false
+  },
+
+  teacher: {
+    type: Boolean,
+    default: false
+  },
+
+  teacherPro: {
+    type: Boolean,
+    default: false
+  },
+
+  family: {
     type: Boolean,
     default: false
   },
@@ -60,6 +85,10 @@ export const ContactSchema: Schema = new Schema({
 
   notifications: {
     type: Boolean
+  },
+
+  lastLogin: {
+    type: Date
   },
 
   signUpSurvey: {

@@ -13,6 +13,7 @@ export interface ISubmission extends Document {
   comment?: string;
   type: string;
   image: string;
+  active: boolean;
 }
 
 const SubmissionMongSchema: Schema = new Schema({
@@ -65,6 +66,11 @@ const SubmissionMongSchema: Schema = new Schema({
   },
 
   finished: {
+    type: Boolean,
+    default: false
+  },
+
+  active: {
     type: Boolean,
     default: false
   },

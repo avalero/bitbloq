@@ -27,6 +27,10 @@ import TranslateProvider, {
 import baseStyles from "./base-styles";
 import colors from "./colors";
 
+import JuniorButton from "./components/junior/Button";
+import JuniorSwitch from "./components/junior/Switch";
+import JuniorNumberInput from "./components/junior/NumberInput";
+
 export {
   Button,
   Input,
@@ -54,7 +58,10 @@ export {
   withTranslate,
   useTranslate,
   baseStyles,
-  colors
+  colors,
+  JuniorButton,
+  JuniorSwitch,
+  JuniorNumberInput
 };
 
 export type DialogModalProps = DialogModalProps;

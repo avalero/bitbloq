@@ -1,9 +1,9 @@
-import React from 'react';
-import { connect } from 'react-redux';
-import styled from '@emotion/styled';
-import { css } from '@emotion/core';
-import { Spring } from 'react-spring';
-import { DragDropContext } from 'react-beautiful-dnd';
+import React from "react";
+import { connect } from "react-redux";
+import styled from "@emotion/styled";
+import { css } from "@emotion/core";
+import { Spring } from "react-spring";
+import { DragDropContext } from "react-beautiful-dnd";
 import {
   updateObject,
   updateObjectParameter,
@@ -19,16 +19,25 @@ import {
   setActiveOperation,
   unsetActiveOperation,
   ungroup,
-  convertToGroup,
-} from '../../actions/threed';
-import { getObjects, getSelectedObjects } from '../../reducers/threed/';
-import PropertyInput from './PropertyInput';
-import OperationsList from './OperationsList';
-import { DropDown, Icon, Input, Tooltip, withTranslate } from '@bitbloq/ui';
-import config from '../../config/threed';
+  convertToGroup
+} from "../../actions/threed";
+import { getObjects, getSelectedObjects } from "../../reducers/threed/";
+import PropertyInput from "./PropertyInput";
+import OperationsList from "./OperationsList";
+import { DropDown, Icon, Input, Tooltip, withTranslate } from "@bitbloq/ui";
+import config from "../../config/threed";
+import warningIcon from "../../assets/images/warning.svg";
+import errorSound from "../../assets/sounds/error.mp3";
 
 const Wrap = styled.div`
   display: flex;
+`;
+
+const TooltipPosition = styled.div`
+  height: 37px;
+  position: absolute;
+  right: 150px;
+  top: 0;
 `;
 
 const Container = styled.div`
@@ -73,6 +82,14 @@ const ObjectName = styled.div`
   font-style: italic;
   font-size: 13px;
   cursor: pointer;
+
+  p {
+    max-width: 175px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 1px;
+    white-space: nowrap;
+  }
 
   svg {
     display: none;
@@ -188,11 +205,28 @@ const ContextMenuOption = styled.div`
     `};
 `;
 
+const TooltipText = styled.div`
+  align-items: center;
+  color: #fff;
+  display: flex;
+  font-family: Helvetica;
+  font-size: 12px;
+  justify-content: space-between;
+  padding: 0;
+
+  img {
+    margin-right: 5px;
+  }
+`;
+
 class PropertiesPanel extends React.Component {
   state = {
     draggingOperations: false,
     contextMenuOpen: false,
     editingName: false,
+    errors: new Map(),
+    inputValues: new Map(),
+    timeout: undefined
   };
 
   nameInputRef = React.createRef();
@@ -204,16 +238,16 @@ class PropertiesPanel extends React.Component {
   }
 
   onObjectNameChange = (object, name) => {
-    this.props.updateObjectViewOption(object, 'name', name);
+    this.props.updateObjectViewOption(object, "name", name);
   };
 
   onObjectParameterChange = (object, parameter, value) => {
-    if (parameter.name === 'baseObject') {
+    if (parameter.name === "baseObject") {
       const newChildren = object.children.filter(c => c !== value);
       newChildren.unshift(value);
       this.props.updateObject({
         ...object,
-        children: newChildren,
+        children: newChildren
       });
     } else if (parameter.isViewOption) {
       this.props.updateObjectViewOption(object, parameter.name, value);
@@ -228,7 +262,7 @@ class PropertiesPanel extends React.Component {
     } else {
       this.props.updateOperation(object, {
         ...operation,
-        [parameter.name]: value,
+        [parameter.name]: value
       });
     }
   };
@@ -295,14 +329,19 @@ class PropertiesPanel extends React.Component {
   }
 
   renderObjectPanel(object) {
-    const { draggingOperations, contextMenuOpen, editingName } = this.state;
+    const {
+      draggingOperations,
+      contextMenuOpen,
+      editingName,
+      inputValues
+    } = this.state;
     const { t } = this.props;
 
     const {
       setActiveOperation,
       unsetActiveOperation,
       advancedMode,
-      isTopObject,
+      isTopObject
     } = this.props;
     const { color } = object.viewOptions;
 
@@ -316,24 +355,62 @@ class PropertiesPanel extends React.Component {
 
     if (typeConfig.showBaseObject) {
       parameters.push({
-        name: 'baseObject',
-        label: 'param-base-object',
-        type: 'select',
+        name: "baseObject",
+        label: "param-base-object",
+        type: "select",
         options: object.children.map(child => ({
           label: child.viewOptions.name,
-          value: child,
-        })),
+          value: child
+        }))
       });
     }
 
     if (!typeConfig.withoutColor) {
       parameters.push({
-        name: 'color',
-        label: 'param-color',
-        type: 'color',
-        isViewOption: true,
+        name: "color",
+        label: "param-color",
+        type: "color",
+        isViewOption: true
       });
     }
+
+    const onBlur = (parameter, object) => {
+      let { errors, inputValues } = this.state;
+
+      errors.set(`${object.id}-${parameter.name}`, false),
+        inputValues.delete(`${object.id}-${parameter.name}`),
+        this.setState({ errors, inputValues });
+    };
+
+    const onChange = (value, text, parameter, object) => {
+      let { errors, inputValues, timeout } = this.state;
+
+      clearTimeout(timeout);
+
+      const prevValue = parameter.isViewOption
+        ? object.viewOptions && object.viewOptions[parameter.name]
+        : object.parameters && object.parameters[parameter.name];
+
+      if (!parameter.validate || parameter.validate(value)) {
+        errors.set(`${object.id}-${parameter.name}`, false);
+        inputValues.delete(`${object.id}-${parameter.name}`);
+        this.setState({ errors, inputValues });
+        this.onObjectParameterChange(object, parameter, value);
+      } else {
+        errors.set(`${object.id}-${parameter.name}`, true);
+        inputValues.set(`${object.id}-${parameter.name}`, text || value);
+        this.onObjectParameterChange(object, parameter, prevValue);
+        timeout = setTimeout(
+          () => (
+            errors.set(`${object.id}-${parameter.name}`, false),
+            inputValues.delete(`${object.id}-${parameter.name}`),
+            this.setState({ errors, inputValues })
+          ),
+          3000
+        );
+        this.setState({ errors, inputValues, timeout });
+      }
+    };
 
     return (
       <DragDropContext
@@ -353,7 +430,7 @@ class PropertiesPanel extends React.Component {
           )}
           {!editingName && (
             <ObjectName onClick={() => this.setState({ editingName: true })}>
-              {object.viewOptions.name} <Icon name="pencil" />
+              <p>{object.viewOptions.name}</p> <Icon name="pencil" />
             </ObjectName>
           )}
           <DropDown>
@@ -365,20 +442,20 @@ class PropertiesPanel extends React.Component {
             <ContextMenu>
               {isTopObject && (
                 <ContextMenuOption onClick={this.onDuplicateClick}>
-                  <Icon name="duplicate" /> {t('menu-duplicate')}
+                  <Icon name="duplicate" /> {t("menu-duplicate")}
                 </ContextMenuOption>
               )}
               <ContextMenuOption onClick={this.onRenameClick}>
-                <Icon name="pencil" /> {t('menu-rename')}
+                <Icon name="pencil" /> {t("menu-rename")}
               </ContextMenuOption>
               {canUngroup && (
                 <ContextMenuOption onClick={this.onUngroupClick}>
-                  <Icon name="ungroup" /> {t('menu-ungroup')}
+                  <Icon name="ungroup" /> {t("menu-ungroup")}
                 </ContextMenuOption>
               )}
               {canConverToGroup && (
                 <ContextMenuOption onClick={this.onConvertToGroupClick}>
-                  <Icon name="group" /> {t('menu-convert-to-group')}
+                  <Icon name="group" /> {t("menu-convert-to-group")}
                 </ContextMenuOption>
               )}
               {canUndo && isTopObject && (
@@ -388,7 +465,7 @@ class PropertiesPanel extends React.Component {
               )}
               {isTopObject && (
                 <ContextMenuOption danger={true} onClick={this.onDeleteClick}>
-                  <Icon name="trash" /> {t('menu-delete')}
+                  <Icon name="trash" /> {t("menu-delete")}
                 </ContextMenuOption>
               )}
             </ContextMenu>
@@ -397,18 +474,46 @@ class PropertiesPanel extends React.Component {
         <ObjectProperties>
           <ParametersPanel>
             {parameters.map(parameter => (
-              <PropertyInput
-                key={parameter.name}
-                parameter={parameter}
-                value={
-                  parameter.isViewOption
-                    ? object.viewOptions && object.viewOptions[parameter.name]
-                    : object.parameters && object.parameters[parameter.name]
-                }
-                onChange={value =>
-                  this.onObjectParameterChange(object, parameter, value)
-                }
-              />
+              <div style={{ position: "relative" }} key={parameter.name}>
+                <PropertyInput
+                  parameter={parameter}
+                  value={
+                    inputValues.has(`${object.id}-${parameter.name}`)
+                      ? inputValues.get(`${object.id}-${parameter.name}`)
+                      : parameter.isViewOption
+                      ? object.viewOptions && object.viewOptions[parameter.name]
+                      : object.parameters && object.parameters[parameter.name]
+                  }
+                  onChange={(value, text) => {
+                    onChange(value, text, parameter, object);
+                  }}
+                  onBlur={() => onBlur(parameter, object)}
+                />
+                {this.state.errors.has(`${object.id}-${parameter.name}`) &&
+                  this.state.errors.get(`${object.id}-${parameter.name}`) && (
+                    <TooltipPosition>
+                      <audio src={errorSound} autoPlay />
+                      <Tooltip
+                        style={{ zIndex: 10 }}
+                        isVisible={true}
+                        position="left"
+                        content={
+                          <TooltipText>
+                            <img src={warningIcon} />
+                            {t(parameter.errorMessage, [parameter.errorValue])}
+                          </TooltipText>
+                        }
+                      >
+                        {tooltipProps => (
+                          <div
+                            style={{ height: "37px", width: "0" }}
+                            {...tooltipProps}
+                          />
+                        )}
+                      </Tooltip>
+                    </TooltipPosition>
+                  )}
+              </div>
             ))}
           </ParametersPanel>
           {advancedMode && (
@@ -478,7 +583,7 @@ const mapStateToProps = ({ threed }) => {
   return {
     object,
     advancedMode: threed.ui.advancedMode,
-    isTopObject: topObjects.includes(object),
+    isTopObject: topObjects.includes(object)
   };
 };
 
@@ -504,7 +609,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(reorderOperation(object, operation, from, to)),
   setActiveOperation: ({ object, type, axis, relative, id }) =>
     dispatch(setActiveOperation(object, type, axis, relative, id)),
-  unsetActiveOperation: () => dispatch(unsetActiveOperation()),
+  unsetActiveOperation: () => dispatch(unsetActiveOperation())
 });
 
 export default connect(

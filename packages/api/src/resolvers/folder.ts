@@ -5,9 +5,9 @@ import { IUser, UserModel } from "../models/user";
 import documentResolver from "./document";
 
 import { pubsub } from "../server";
-const FOLDER_UPDATED: string = "FOLDER_UPDATED";
+import { getParentsPath } from "../utils";
 
-import { logger, loggerController } from "../controllers/logs";
+const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
 const folderResolver = {
   Subscription: {
@@ -50,14 +50,6 @@ const folderResolver = {
         { $push: { foldersID: newFolder._id } },
         { new: true }
       );
-      loggerController.storeInfoLog(
-        "API",
-        "space",
-        "create",
-        "folder",
-        newFolder.user,
-        ""
-      );
       pubsub.publish(FOLDER_UPDATED, { folderUpdated: newFolder });
       return newFolder;
     },
@@ -87,7 +79,7 @@ const folderResolver = {
           for (const document of existFolder.documentsID) {
             await documentResolver.Mutation.deleteDocument(
               "",
-              { _id: document },
+              { id: document },
               context
             );
             await FolderModel.updateOne(
@@ -101,7 +93,7 @@ const folderResolver = {
           for (const folder of existFolder.foldersID) {
             await folderResolver.Mutation.deleteFolder(
               "",
-              { _id: folder },
+              { id: folder },
               context
             );
           }
@@ -110,14 +102,6 @@ const folderResolver = {
           { _id: existFolder.parent },
           { $pull: { foldersID: existFolder._id } },
           { new: true }
-        );
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "delete",
-          "folder",
-          existFolder.user,
-          ""
         );
         return await FolderModel.deleteOne({ _id: args.id });
       } else {
@@ -222,14 +206,6 @@ const folderResolver = {
             "CANT_UPDATE_ROOT"
           );
         }
-        loggerController.storeInfoLog(
-          "API",
-          "space",
-          "update",
-          "folder",
-          existFolder.user,
-          ""
-        );
         const updatedFolder: IFolder = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           {
@@ -286,8 +262,12 @@ const folderResolver = {
 
   Folder: {
     documents: async (folder: IFolder) =>
-      DocumentModel.find({ folder: folder }),
-    folders: async (folder: IFolder) => FolderModel.find({ parent: folder })
+      DocumentModel.find({ folder: folder.id }),
+    folders: async (folder: IFolder) => FolderModel.find({ parent: folder.id }),
+    parentsPath: async (folder: IFolder) => {
+      const result = await getParentsPath(folder);
+      return result;
+    }
   }
 };
 

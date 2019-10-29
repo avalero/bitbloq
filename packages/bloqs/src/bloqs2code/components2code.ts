@@ -148,7 +148,7 @@ const components2code = (
       throw new Error(`Error generating component code ${e}`);
     }
 
-    return arduinoCode;
+    // return arduinoCode;
   });
 
   return arduinoCode;
