@@ -6,3 +6,5 @@ node_modules
 /src/email/*.mjml
 /src/images/*
 /logs/*
+migrations/
+migrate-mongo-config.js
