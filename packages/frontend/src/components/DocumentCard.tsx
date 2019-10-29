@@ -31,8 +31,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
 }) => {
   const [{ isDragging }, drag] = useDrag({
     item: {
-      type: document.type === "folder" ? "folder" : "document",
-      id: document.id
+      type: document.type === "folder" ? "folder" : "document"
     },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
@@ -41,7 +40,7 @@ const DocumentCard: FC<DocumentCardProps> = ({
     begin: () => {
       beginFunction && beginFunction();
     },
-    end: (item, monitor) => {
+    end: () => {
       endFunction && endFunction();
     }
   });
