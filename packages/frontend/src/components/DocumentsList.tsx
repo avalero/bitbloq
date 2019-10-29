@@ -2,8 +2,7 @@ import React, { FC, useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
-import { DndProvider } from "react-dnd";
-import HTML5Backend from "react-dnd-html5-backend";
+import { useDrop } from "react-dnd";
 
 import DocumentCard from "./DocumentCard";
 import EditTitleModal from "./EditTitleModal";
@@ -16,34 +15,40 @@ import {
   DELETE_DOCUMENT_MUTATION,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION,
-  DOCS_FOLDERS_PAGE_QUERY
+  CREATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
 import FolderSelectorMenu from "./FolderSelectorMenu";
+import Paginator from "./Paginator";
 
 interface Folder {
   name: string;
   id: string;
 }
 export interface DocumentListProps {
+  currentPage: number;
   docsAndFols?: any;
+  pagesNumber: number;
   parentsPath?: any;
   className?: string;
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
+  selectPage: (page: number) => void;
   nFolders: number;
 }
 
 const DocumentListComp: FC<DocumentListProps> = ({
+  currentPage,
   docsAndFols,
+  pagesNumber,
   parentsPath,
   currentLocation,
   className,
   onFolderClick,
   onDocumentClick,
   refetchDocsFols,
+  selectPage,
   nFolders
 }) => {
   const [deleteDoc, setDeleteDoc] = useState({
@@ -70,12 +75,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
     parent: null
   });
   const [draggingItemId, setDraggingItemId] = useState("");
+  const [droppedItemId, setDroppedItemId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
+
+  const [, drop] = useDrop({
+    accept: ["document", "folder"],
+    drop: () => {}
+  });
 
   const onDocumentMenuClick = (e, document) => {
     e.stopPropagation();
@@ -264,7 +275,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   return (
     <>
-      <DndProvider backend={HTML5Backend}>
+      <DocumentsAndPaginator ref={drop}>
         <DocumentList className={className}>
           {docsAndFols &&
             docsAndFols.map((document: any) => (
@@ -275,12 +286,14 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   (document.type === "folder" && nFolders > 1) ||
                   (document.type !== "folder" && nFolders > 0)
                 }
-                dropDocumentCallback={() =>
-                  onMoveDocument(undefined, document, draggingItemId)
-                }
-                dropFolderCallback={() =>
-                  onMoveFolder(undefined, document, draggingItemId)
-                }
+                dropDocumentCallback={() => {
+                  onMoveDocument(undefined, document, draggingItemId);
+                }}
+                dropFolderCallback={() => {
+                  setDroppedItemId(draggingItemId);
+                  onMoveFolder(undefined, document, draggingItemId);
+                }}
+                hidden={document.id === droppedItemId}
                 key={document.id}
                 document={document}
                 onClick={e =>
@@ -396,7 +409,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
               </StyledDocumentCard>
             ))}
         </DocumentList>
-      </DndProvider>
+        <DocumentsPaginator
+          currentPage={currentPage}
+          pages={pagesNumber}
+          selectPage={selectPage}
+        />
+      </DocumentsAndPaginator>
       <DialogModal
         isOpen={!!deleteDoc.id}
         title="Eliminar"
@@ -518,6 +536,18 @@ const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
     `} svg {
     transform: rotate(90deg);
   }
+`;
+
+const DocumentsAndPaginator = styled.div`
+  display: flex;
+  flex: 1;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const DocumentsPaginator = styled(Paginator)`
+  margin-bottom: 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`
