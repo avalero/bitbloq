@@ -291,7 +291,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           <DndProvider backend={HTML5Backend}>
             <DocumentsAndPaginator>
               <DocumentListComp
+                currentPage={currentPage}
                 parentsPath={parentsPath}
+                pagesNumber={pagesNumber}
                 refetchDocsFols={refetchDocsFols}
                 docsAndFols={docsAndFols}
                 currentLocation={currentLocation}
@@ -299,12 +301,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
                 onDocumentClick={onDocumentClick}
                 order={order}
                 searchTitle={searchText}
-                nFolders={nFolders}
-              />
-              <DocumentsPaginator
-                currentPage={currentPage}
-                pages={pagesNumber}
                 selectPage={(page: number) => setCurrentPage(page)}
+                nFolders={nFolders}
               />
             </DocumentsAndPaginator>
           </DndProvider>
