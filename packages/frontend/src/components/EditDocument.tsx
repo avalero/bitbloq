@@ -48,7 +48,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [error, setError] = useState(null);
   const [document, setDocument] = useState({
     id: "",
-    content: "",
+    content: "[]",
     title: "",
     description: "",
     public: false,
