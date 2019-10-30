@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import React, { FC, useState } from "react";
+import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors } from "@bitbloq/ui";
@@ -27,10 +27,44 @@ const FOLDER_QUERY = gql`
   }
 `;
 
+interface SelectorOptionProps {
+  folder: Folder;
+  selectedFolder?: Folder;
+  setSelectedFolder: (folder: Folder) => void;
+}
+
+const SelectorOption: FC<SelectorOptionProps> = ({
+  folder,
+  selectedFolder,
+  setSelectedFolder
+}) => {
+  const selectorRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      e.stopPropagation();
+      setSelectedFolder(folder);
+    };
+    selectorRef.current!.addEventListener("click", onClick);
+
+    return () => selectorRef.current!.removeEventListener("click", onClick);
+  });
+
+  return (
+    <FolderSelectorOption
+      ref={selectorRef}
+      selectedFolder={!!selectedFolder && selectedFolder.id === folder.id}
+    >
+      <MenuIcon name="folder-icon" />
+      <p>{folder.name}</p>
+    </FolderSelectorOption>
+  );
+};
+
 export interface FolderSelectorMenuProps {
   className?: string;
   currentLocation?: Folder;
-  selectedToMove?: { id: string; parent: string };
+  selectedToMove: { id: string | null; parent: string | null };
   onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedFolder: Folder
@@ -46,9 +80,28 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
   const [selectedFolder, setSelectedFolder] = useState(currentLocation);
   const { data, loading, error } = useQuery(FOLDER_QUERY, {
     variables: {
-      id: selectedFolder.id
+      id: selectedFolder!.id
     }
   });
+
+  const parentButtonRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      e.stopPropagation();
+      setSelectedFolder({ id: parent, name: "" });
+    };
+    parentButtonRef &&
+      parentButtonRef.current &&
+      parentButtonRef.current.addEventListener("click", onClick);
+
+    return () => {
+      parentButtonRef &&
+        parentButtonRef.current &&
+        parentButtonRef.current.removeEventListener("click", onClick);
+    };
+  });
+
   if (loading) {
     return <FolderSelector>loading...</FolderSelector>;
   }
@@ -58,12 +111,7 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
   const { folders: foldersData, name: folderName, parent, id } = data.folder;
   return (
     <FolderSelector className={className}>
-      <ParentButton
-        onClick={e => {
-          e.stopPropagation();
-          setSelectedFolder({ id: parent, name: "" });
-        }}
-      >
+      <ParentButton ref={parentButtonRef}>
         {folderName ? (
           folderName === "root" ? (
             <p>Mis documentos</p>
@@ -81,23 +129,21 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
       <FolderSelectorOptions showMove={selectedToMove.parent !== id}>
         {foldersData &&
           foldersData
-            .filter(op => op.id !== selectedToMove.id)
+            .filter(
+              (op: { id: string; parent: string }) =>
+                op.id !== selectedToMove.id
+            )
             .map((folder: Folder, i: number) => (
-              <FolderSelectorOption
+              <SelectorOption
                 key={folder.id}
-                selectedFolder={selectedFolder.id === folder.id}
-                onClick={e => {
-                  e.stopPropagation();
-                  setSelectedFolder(folder);
-                }}
-              >
-                <MenuIcon name="folder-icon" />
-                <p>{folder.name}</p>
-              </FolderSelectorOption>
+                folder={folder}
+                selectedFolder={selectedFolder}
+                setSelectedFolder={setSelectedFolder}
+              />
             ))}
       </FolderSelectorOptions>
       {selectedToMove.parent !== id && (
-        <MoveButton onClick={e => onMove(e, selectedFolder)}>
+        <MoveButton onClick={e => onMove(e, selectedFolder!)}>
           <p>Mover aquí</p>
         </MoveButton>
       )}

@@ -296,7 +296,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMove.id === document.id && nFolders > 0}
+                  closeOnClick={!(selectedToMove.id === document.id)}
                   targetOffset="-165px -14px"
                   targetPosition="top right"
                 >
@@ -315,9 +315,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         to: "window"
                       }
                     ]}
-                    notHidden={
-                      selectedToMove.id === document.id && nFolders > 0
-                    }
+                    closeOnClick={!(selectedToMove.id === document.id)}
                     targetPosition="top right"
                     attachmentPosition="top left"
                     offset="60px 0"
@@ -331,6 +329,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
+                              setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDocumentRenameClick(e, document)
                                 : onFolderRenameClick(e, document);
@@ -343,6 +342,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
+                              setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDuplicateDocument(e, document)
                                 : null;
@@ -351,7 +351,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:
-                              nFolders === 0 && parentsPath.length === 1,
+                              ((document.type === "folder" && nFolders === 1) ||
+                                (document.type !== "folder" &&
+                                  nFolders === 0)) &&
+                              parentsPath.length === 1,
                             iconName: "move-document",
                             label: "Mover a",
                             onClick(
@@ -371,6 +374,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
+                              setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDocumentDeleteClick(e, document)
                                 : onFolderDeleteClick(e, document);
@@ -380,7 +384,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id && nFolders !== 0 && (
+                    {selectedToMove.id === document.id && (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
                         onMove={
