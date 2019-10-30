@@ -309,9 +309,11 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
           const newDocument = {
             ...document,
             title: title || t("untitled-project"),
-            description
+            description: description || t("document-body-description")
           };
-          updateImage(document.id, image, false);
+          if (image) {
+            updateImage(document.id, image, false);
+          }
           update(newDocument);
         }}
       />
