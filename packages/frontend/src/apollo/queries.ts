@@ -194,6 +194,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $content: String
     $advancedMode: Boolean
     $folder: ObjectID
+    $image: DocImageIn
   ) {
     createDocument(
       input: {
@@ -203,6 +204,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         content: $content
         advancedMode: $advancedMode
         folder: $folder
+        image: $image
       }
     ) {
       id

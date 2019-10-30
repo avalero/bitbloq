@@ -36,6 +36,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) =
   const onSave = async () => {
     try {
       setLoginError(false);
+      console.log(document.image.image)
       await createDocument({
         variables: {
           ...document,
@@ -49,6 +50,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) =
       });
       setShowSaveSuccess(true);
     } catch (e) {
+      console.log(e);
       setLoginError(true);
     }
   };
