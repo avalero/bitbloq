@@ -309,9 +309,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  closeOnClick={
-                    !(selectedToMove.id === document.id && nFolders > 0)
-                  }
+                  closeOnClick={!(selectedToMove.id === document.id)}
                   targetOffset="-165px -14px"
                   targetPosition="top right"
                 >
@@ -330,9 +328,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         to: "window"
                       }
                     ]}
-                    closeOnClick={
-                      !(selectedToMove.id === document.id && nFolders > 0)
-                    }
+                    closeOnClick={!(selectedToMove.id === document.id)}
                     targetPosition="top right"
                     attachmentPosition="top left"
                     offset="60px 0"
@@ -343,7 +339,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                           {
                             iconName: "pencil",
                             label: "Cambiar nombre",
-                            onClick(e: MouseEvent) {
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
                               setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDocumentRenameClick(e, document)
@@ -354,7 +352,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             iconName: "duplicate",
                             label: "Crear una copia",
                             disabled: document.type === "folder",
-                            onClick(e: MouseEvent) {
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
                               setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDuplicateDocument(e, document)
@@ -370,7 +370,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                               parentsPath.length === 1,
                             iconName: "move-document",
                             label: "Mover a",
-                            onClick(e: MouseEvent) {
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
                               document.type !== "folder"
                                 ? onMoveDocumentClick(e, document)
                                 : onMoveFolderClick(e, document);
@@ -382,7 +384,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                               document.type !== "folder"
                                 ? "Eliminar documento"
                                 : "Eliminar carpeta",
-                            onClick(e: MouseEvent) {
+                            onClick(
+                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                            ) {
                               setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDocumentDeleteClick(e, document)
@@ -393,7 +397,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id && nFolders !== 0 && (
+                    {selectedToMove.id === document.id && (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
                         onMove={

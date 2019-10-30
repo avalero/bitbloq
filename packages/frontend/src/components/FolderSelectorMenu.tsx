@@ -64,7 +64,7 @@ const SelectorOption: FC<SelectorOptionProps> = ({
 export interface FolderSelectorMenuProps {
   className?: string;
   currentLocation?: Folder;
-  selectedToMove: { id: string; parent: string };
+  selectedToMove: { id: string | null; parent: string | null };
   onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedFolder: Folder
