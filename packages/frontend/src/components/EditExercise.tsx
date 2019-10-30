@@ -193,9 +193,11 @@ const EditExercise = ({ type, id, t }) => {
           </Title>
         }
         onContentChange={debounce((content: any[]) => {
-          updateSubmission({
-            variables: { content: JSON.stringify(content || []) }
-          });
+          if (teamName) {
+            updateSubmission({
+              variables: { content: JSON.stringify(content || []) }
+            });
+          }
           currentContent.current = content;
         }, 1000)}
         getTabs={mainTab => [
