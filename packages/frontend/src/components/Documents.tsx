@@ -25,14 +25,14 @@ import {
   CREATE_FOLDER_MUTATION,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
+import { ApolloError } from "apollo-client";
+
 import NewExerciseButton from "./NewExerciseButton";
 import EditTitleModal from "./EditTitleModal";
 import DocumentListComp from "./DocumentsList";
-
 import Breadcrumbs from "./Breadcrumbs";
 import AppFooter from "./Footer";
 import Paginator from "./Paginator";
-import { ApolloError } from "apollo-client";
 
 enum OrderType {
   Creation = "creation",
@@ -433,10 +433,6 @@ const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
   align-items: center;
   height: 40px;
   cursor: pointer;
-
-  &:hover {
-    background-color: ${colors.gray2};
-  }
 
   svg {
     height: 20px;
