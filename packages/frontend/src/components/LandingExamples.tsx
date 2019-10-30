@@ -36,14 +36,23 @@ const LandingExamples: FC = () => {
       <Wrap>
         <ExamplesWrap>
           <Examples style={examplesStyle}>
-            {data.examples.map((example: any) => (
-              example.image=example.image.image,
-              <Example key={example.id} onClick={() => onExampleClick(example)}>
-                <DndProvider backend={HTML5Backend}>
-                  <DocumentCard draggable={false} document={example} />
-                </DndProvider>
-              </Example>
-            ))}
+            {data.examples.map(
+              (example: any) => (
+                example.image && example.image.image
+                  ? (example.image = example.image.image)
+                  : (example.image = example.image),
+                (
+                  <Example
+                    key={example.id}
+                    onClick={() => onExampleClick(example)}
+                  >
+                    <DndProvider backend={HTML5Backend}>
+                      <DocumentCard draggable={false} document={example} />
+                    </DndProvider>
+                  </Example>
+                )
+              )
+            )}
           </Examples>
         </ExamplesWrap>
         {first > 0 && (
