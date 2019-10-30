@@ -386,9 +386,6 @@ const Header = styled.div`
     flex: 1;
     font-weight: bold;
     font-size: 24px;
-    &:hover {
-      cursor: pointer;
-    }
   }
 `;
 
