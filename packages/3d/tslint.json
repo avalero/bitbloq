@@ -1,19 +1,7 @@
 {
-  "extends": [
-    "tslint:latest",
-    "tslint-react",
-    "tslint-config-airbnb",
-    "tslint-config-prettier"
-  ],
+  "extends": ["tslint:latest", "tslint-react", "tslint-config-prettier"],
   "linterOptions": {
-    "exclude": [
-      "config/**/*.js",
-      "node_modules/**/*.ts",
-      "src/lib/object3dts/threeCSG.ts",
-      "src/**/*.tsx",
-      "src/**/*.js*",
-      "coverage/**/*"
-    ]
+    "exclude": ["node_modules/**/*"]
   },
   "rules": {
     "no-console": false,
@@ -21,10 +9,15 @@
     "no-debugger": false,
     "ter-arrow-parens": false,
     "import-name": false,
-    "variable-name": [true, "check-format", "allow-leading-underscore", "allow-pascal-case"],
-    "prefer-array-literal": [true, { "allow-type-parameters": true }],
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ],
     "ordered-imports": [false],
-    "max-classes-per-file": [false]
+    "max-classes-per-file": [false],
+    "jsx-no-lambda": false
   },
   "jsRules": {
     "no-console": false,

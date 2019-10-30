@@ -224,6 +224,14 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
 
   const documentType = documentTypes[type];
 
+  const onEditTitle = useCallback(() => {
+    setIsEditTitleVisible(true);
+  }, []);
+
+  const onTabChange = useCallback((tabIndex: number) => {
+    setTabIndex(tabIndex);
+  }, []);
+
   if (loading) return <Loading color={documentType.color} />;
   if (error) return <GraphQLErrorMessage apolloError={error} />;
 
@@ -242,16 +250,12 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
 
   const EditorComponent = documentType.editorComponent;
 
-  let content: any[] = [];
+  let content: any;
   try {
     content = JSON.parse(document.content);
   } catch (e) {
     console.warn("Error parsing document content", e);
   }
-
-  const onEditTitle = () => {
-    setIsEditTitleVisible(true);
-  };
 
   const onSaveTitle = (title: string) => {
     update({ ...document, title: title || t("untitled-project") });
@@ -333,7 +337,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
         canEditTitle={true}
         content={content}
         tabIndex={tabIndex}
-        onTabChange={(tabIndex: number) => setTabIndex(tabIndex)}
+        onTabChange={onTabChange}
         getTabs={(mainTabs: any[]) => [...mainTabs, InfoTab]}
         title={title}
         onEditTitle={onEditTitle}

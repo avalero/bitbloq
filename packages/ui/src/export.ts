@@ -14,6 +14,7 @@ import Panel from "./components/Panel";
 import HorizontalRule from "./components/HorizontalRule";
 import TextArea from "./components/TextArea";
 import Option from "./components/Option";
+import MenuBar, { MainMenuOption } from "./components/MenuBar";
 import Modal from "./components/Modal";
 import Spinner from "./components/Spinner";
 import ScrollableTabs from "./components/ScrollableTabs";
@@ -21,15 +22,19 @@ import FileSelectButton from "./components/FileSelectButton";
 import LoadingBarOverlay from "./components/LoadingBarOverlay";
 import TranslateProvider, {
   Translate,
+  TranslateFn,
   withTranslate,
   useTranslate
 } from "./components/TranslateProvider";
+import useKeyPressed from "./hooks/useKeyPressed";
 import baseStyles from "./base-styles";
 import colors from "./colors";
 
 import JuniorButton from "./components/junior/Button";
 import JuniorSwitch from "./components/junior/Switch";
 import JuniorNumberInput from "./components/junior/NumberInput";
+
+import { IHeaderButton } from "./types";
 
 export {
   Button,
@@ -57,6 +62,7 @@ export {
   ScrollableTabs,
   withTranslate,
   useTranslate,
+  useKeyPressed,
   baseStyles,
   colors,
   JuniorButton,
@@ -65,3 +71,6 @@ export {
 };
 
 export type DialogModalProps = DialogModalProps;
+export type TranslateFn = TranslateFn;
+export type IHeaderButton = IHeaderButton;
+export type MainMenuOption = MainMenuOption;

@@ -13,6 +13,7 @@ export interface DocumentCardProps {
   dropDocumentCallback?: () => void;
   dropFolderCallback?: () => void;
   endFunction?: () => void;
+  hidden?: boolean;
   onClick?: (e: React.MouseEvent) => any;
 }
 
@@ -25,42 +26,41 @@ const DocumentCard: FC<DocumentCardProps> = ({
   dropDocumentCallback,
   dropFolderCallback,
   endFunction,
+  hidden = false,
   onClick
 }) => {
-  const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
-    item: { type: document.type === "folder" ? "folder" : "document" },
+    item: {
+      id: document.id,
+      type: document.type === "folder" ? "folder" : "document"
+    },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
-    canDrag: monitor => {
-      return !!draggable;
-    },
-    begin: monitor => {
+    canDrag: () => !!draggable,
+    begin: () => {
       beginFunction && beginFunction();
     },
-    end: (item, monitor) => {
-      if (monitor.didDrop()) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
+    end: () => {
       endFunction && endFunction();
     }
   });
 
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: item => {
-      if (item.type === "document" && dropDocumentCallback) {
-        dropDocumentCallback();
-      } else if (item.type === "folder" && dropFolderCallback) {
-        dropFolderCallback();
-      }
-    },
+    canDrop: () => true,
     collect: monitor => ({
       isOver: !!monitor.isOver()
-    })
+    }),
+    drop: (item, monitor) => {
+      if (document.id !== monitor.getItem().id) {
+        if (item.type === "document" && dropDocumentCallback) {
+          dropDocumentCallback();
+        } else if (item.type === "folder" && dropFolderCallback) {
+          dropFolderCallback();
+        }
+      }
+    }
   });
 
   return hidden ? (

@@ -105,7 +105,7 @@ export interface TooltipChildrenProps {
 export interface TooltipProps {
   className?: string;
   content: React.ReactChild;
-  position: string;
+  position?: string;
   children: (props: TooltipChildrenProps) => React.ReactChild;
   isVisible?: boolean;
 }
@@ -118,6 +118,15 @@ class Tooltip extends React.Component<TooltipProps, State> {
   state = {
     isVisible: this.props.isVisible !== undefined ? this.props.isVisible : false
   };
+
+  componentDidUpdate(prevProps: TooltipProps) {
+    if (
+      this.props.isVisible !== undefined &&
+      prevProps.isVisible !== this.props.isVisible
+    ) {
+      this.setState({ isVisible: this.props.isVisible });
+    }
+  }
 
   onMouseOver = () => {
     if (this.props.isVisible === undefined) {

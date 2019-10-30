@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useState
-} from "react";
+import React, { useState } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import styled from "@emotion/styled";
@@ -94,36 +88,50 @@ const Paginator: React.FC<PaginatorProps> = ({
   pages,
   selectPage
 }) => {
-  let pagesElements: JSX.Element[] = [];
+  const preparePagesElements = (): JSX.Element[] => {
+    let pagesElements: JSX.Element[] = [];
+    let numberPages: Set<number> = new Set();
 
-  for (let i = 1; i <= pages; i++) {
-    pagesElements.push(
-      <Page
-        key={i}
-        page={i}
-        selected={currentPage === i}
-        onClick={selectPage}
-      />
-    );
-  }
+    numberPages.add(currentPage);
 
-  if (pages > 9 && currentPage < pages / 2) {
-    pagesElements = [
-      ...pagesElements.slice(0, 8),
-      <Ellipsis key="ellipsis">
-        <Icon name="ellipsis" />
-      </Ellipsis>,
-      pagesElements[pagesElements.length - 1]
-    ];
-  } else if (pages > 9 && currentPage >= pages / 2) {
-    pagesElements = [
-      pagesElements[0],
-      <Ellipsis key="ellipsis">
-        <Icon name="ellipsis" />
-      </Ellipsis>,
-      ...pagesElements.slice(pagesElements.length - 8, pagesElements.length)
-    ];
-  }
+    for (let i = 1; i <= pages && numberPages.size < 7; i++) {
+      if (currentPage - i > 0) {
+        numberPages.add(currentPage - i);
+      }
+      if (currentPage + i <= pages) {
+        numberPages.add(currentPage + i);
+      }
+    }
+
+    numberPages.add(1);
+    numberPages.add(pages);
+
+    const pagesArray = Array.from(numberPages).sort((a, b) => a - b);
+
+    for (let i in pagesArray) {
+      const page = pagesArray[i];
+      pagesElements.push(
+        <Page
+          key={i}
+          page={page}
+          selected={currentPage === page}
+          onClick={selectPage}
+        />
+      );
+
+      if (pagesArray[+i + 1] && pagesArray[+i + 1] - page > 1) {
+        pagesElements.push(
+          <Ellipsis key={`ellipsis-${page}-${pagesArray[+i + 1]}`}>
+            <Icon name="ellipsis" />
+          </Ellipsis>
+        );
+      }
+    }
+
+    return pagesElements;
+  };
+
+  const pagesElements = preparePagesElements();
 
   return (
     <DndProvider backend={HTML5Backend}>
