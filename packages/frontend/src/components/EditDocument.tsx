@@ -315,7 +315,9 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
             title: title || t("untitled-project"),
             description
           };
-          updateImage(document.id, image, false);
+          if (image) {
+            updateImage(document.id, image, false);
+          }
           update(newDocument);
         }}
       />
