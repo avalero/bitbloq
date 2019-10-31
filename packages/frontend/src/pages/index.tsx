@@ -355,7 +355,7 @@ const HeaderButton = styled(Button)`
 
 const ExerciseDropDown = styled.div`
   width: 280px;
-  margin-top: 8px;
+  margin-top: 12px;
   background-color: white;
   border-radius: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));

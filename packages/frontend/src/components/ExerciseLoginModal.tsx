@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { Button, Modal, Input, DialogModal } from "@bitbloq/ui";
+import { Button, Modal, Input, DialogModal, useTranslate } from "@bitbloq/ui";
 import { useMutation } from "@apollo/react-hooks";
 import {
   START_SUBMISSION_MUTATION,
@@ -32,6 +32,8 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
   const [start] = useMutation(START_SUBMISSION_MUTATION);
   const [login] = useMutation(LOGIN_SUBMISSION_MUTATION);
 
+  const t = useTranslate();
+
   useEffect(() => {
     setTeamNameError("");
     setPasswordError("");
@@ -45,7 +47,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
 
   const onStartClick = async () => {
     if (!teamName) {
-      setTeamNameError("Debes escribir un nombre de equipo");
+      setTeamNameError(t("submission-error-not-name"));
     } else {
       try {
         const { data } = await start({
@@ -54,19 +56,27 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
             exerciseCode: code,
             password
           }
+        }).catch(e => {
+          if (e.graphQLErrors[0].extensions.code === "SUBMISSION_EXISTS") {
+            setTeamNameError(t("submission-error-submission-exists"));
+          } else if (
+            e.graphQLErrors[0].extensions.code === "NOT_ACCEPT_SUBMISSIONS"
+          ) {
+            setTeamNameError(t("submission-error-not-accepted-submission"));
+          } else {
+            setTeamNameError(e.message);
+          }
         });
         const { token } = data.startSubmission;
         setToken(token, "exercise-team");
         onSuccess(teamName);
-      } catch (e) {
-        setTeamNameError("Ya existe un equipo con ese nombre");
-      }
+      } catch (e) {}
     }
   };
 
   const onContinueClick = async () => {
     if (!teamName) {
-      setTeamNameError("Debes escribir un nombre de equipo");
+      setTeamNameError(t("submission-error-not-name"));
     } else {
       try {
         const { data } = await login({
@@ -85,10 +95,17 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
             extensions && extensions.code === "SUBMISSION_NOT_FOUND"
         );
 
+        const notAcceptSubmissions = (e.graphQLErrors || []).some(
+          ({ path, extensions }) =>
+            extensions && extensions.code === "NOT_ACCEPT_SUBMISSIONS"
+        );
+
         if (submissionNotFound) {
-          setTeamNameError("No existe un equipo con ese nombre");
+          setTeamNameError(t("submission-error-submission-not-found"));
+        } else if (notAcceptSubmissions) {
+          setTeamNameError(t("submission-error-not-accepted-submission"));
         } else {
-          setPasswordError("La contraseña no es correcta");
+          setPasswordError(t("submission-error-wrong-password"));
         }
       }
     }

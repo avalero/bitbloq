@@ -745,6 +745,8 @@ const DocumentTitle = styled.div`
 
 const DocumentDescription = styled.div`
   font-size: 16px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 `;
 
 const Buttons = styled.div`

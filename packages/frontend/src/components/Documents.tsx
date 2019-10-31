@@ -1,4 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import {
@@ -288,9 +290,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           </HeaderButtons>
         </DocumentListHeader>
         {docsAndFols.length > 0 ? (
-          <DocumentsAndPaginator>
+          <DndProvider backend={HTML5Backend}>
             <DocumentListComp
+              currentPage={currentPage}
               parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
               refetchDocsFols={refetchDocsFols}
               docsAndFols={docsAndFols}
               currentLocation={currentLocation}
@@ -298,14 +302,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               onDocumentClick={onDocumentClick}
               order={order}
               searchTitle={searchText}
+              selectPage={(page: number) => setCurrentPage(page)}
               nFolders={nFolders}
             />
-            <DocumentsPaginator
-              currentPage={currentPage}
-              pages={pagesNumber}
-              selectPage={(page: number) => setCurrentPage(page)}
-            />
-          </DocumentsAndPaginator>
+          </DndProvider>
         ) : searchQuery ? (
           <NoDocuments>
             <h1>No hay resultados para tu búsqueda</h1>
@@ -388,9 +388,6 @@ const Header = styled.div`
     flex: 1;
     font-weight: bold;
     font-size: 24px;
-    &:hover {
-      cursor: pointer;
-    }
   }
 `;
 
@@ -439,10 +436,6 @@ const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
   height: 40px;
   cursor: pointer;
 
-  &:hover {
-    background-color: ${colors.gray2};
-  }
-
   svg {
     height: 20px;
     margin-right: 8px;
@@ -490,12 +483,4 @@ const NewFolderButton = styled(Button)`
 
 const DocumentsPaginator = styled(Paginator)`
   margin-bottom: 60px;
-`;
-
-const DocumentsAndPaginator = styled.div`
-  display: flex;
-  flex: 1;
-  flex-flow: column nowrap;
-  justify-content: space-between;
-  width: 100%;
 `;

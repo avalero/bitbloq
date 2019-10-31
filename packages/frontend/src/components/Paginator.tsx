@@ -1,10 +1,4 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useState
-} from "react";
+import React, { useState } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import styled from "@emotion/styled";
@@ -127,7 +121,7 @@ const Paginator: React.FC<PaginatorProps> = ({
 
       if (pagesArray[+i + 1] && pagesArray[+i + 1] - page > 1) {
         pagesElements.push(
-          <Ellipsis key="ellipsis">
+          <Ellipsis key={`ellipsis-${page}-${pagesArray[+i + 1]}`}>
             <Icon name="ellipsis" />
           </Ellipsis>
         );
@@ -137,7 +131,7 @@ const Paginator: React.FC<PaginatorProps> = ({
     return pagesElements;
   };
 
-  let pagesElements: JSX.Element[] = preparePagesElements();
+  const pagesElements = preparePagesElements();
 
   return (
     <DndProvider backend={HTML5Backend}>

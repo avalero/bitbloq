@@ -2,10 +2,7 @@ import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal, DialogModal, Option } from "@bitbloq/ui";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import {
-  DOCUMENTS_QUERY,
-  CREATE_DOCUMENT_MUTATION
-} from "../apollo/queries";
+import { DOCUMENTS_QUERY, CREATE_DOCUMENT_MUTATION } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 
 interface SaveCopyModalProps {
@@ -14,8 +11,11 @@ interface SaveCopyModalProps {
   content: any;
 }
 
-const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) => {
-
+const SaveCopyModal: FC<SaveCopyModalProps> = ({
+  onClose,
+  document,
+  content
+}) => {
   const userData = useUserData();
 
   const [email, setEmail] = useState("");
@@ -39,6 +39,10 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) =
       await createDocument({
         variables: {
           ...document,
+          image: {
+            image: document.image.image,
+            isSnapshot: document.image.isSnapshot
+          },
           content: JSON.stringify(content)
         },
         context: {
@@ -123,9 +127,9 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({ onClose, document, content }) =
             />
           </FormGroup>
         </LoginForm>
-        {loginError &&
+        {loginError && (
           <Error>El Correo electrónico o la contraseña no son correctos</Error>
-        }
+        )}
         <Buttons>
           <Button onClick={() => onSave()}>Añadir copia</Button>
         </Buttons>
