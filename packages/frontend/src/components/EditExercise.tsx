@@ -70,17 +70,14 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     setToken("", "exercise-team");
-    watchSession("exercise-team");
   }, []);
 
   useSessionEvent(
     "expired",
     () => {
-      if (!loginVisible) {
-        setToken("", "exercise-team");
-        client.resetStore();
-        navigate("/");
-      }
+      setToken("", "exercise-team");
+      client.resetStore();
+      navigate("/");
     },
     "exercise-team"
   );
@@ -113,6 +110,10 @@ const EditExercise = ({ type, id, t }) => {
         setActive(false);
       };
     }
+  }, [teamName]);
+
+  useEffect(() => {
+    watchSession("exercise-team");
   }, [teamName]);
 
   useEffect(() => {
