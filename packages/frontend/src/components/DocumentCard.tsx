@@ -87,8 +87,8 @@ const DocumentCard: FC<DocumentCardProps> = ({
           <Title>{document.title}</Title>
         </Info>
       ) : (
-        <Info folder={true}>
-          <Title folder={true}>{document.title}</Title>
+        <Info folder>
+          <Title folder>{document.title}</Title>
         </Info>
       )}
       {children}
@@ -159,11 +159,16 @@ const Info = styled.div<{ folder?: boolean }>`
 `;
 
 const Title = styled.div<{ folder?: boolean }>`
+  -webkit-box-orient: ${props => (props.folder ? "vertical" : null)};
+  -webkit-line-clamp: ${props => (props.folder ? 2 : null)};
+  display: ${props => (props.folder ? "-webkit-box" : null)};
   margin-top: ${props => (props.folder ? null : 10)}px;
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
+  overflow-wrap: ${props => (props.folder ? "break-word" : null)};
   white-space: ${props => (props.folder ? null : "nowrap")};
+  word-wrap: ${props => (props.folder ? "break-word" : null)};
 `;
 
 const DocumentMenu = styled.div`
