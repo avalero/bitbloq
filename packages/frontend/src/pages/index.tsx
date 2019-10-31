@@ -10,7 +10,7 @@ import {
   Icon,
   DropDown,
   HorizontalRule,
-  Spinner, 
+  Spinner
 } from "@bitbloq/ui";
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
@@ -40,7 +40,12 @@ const IndexPage: FC = () => {
   const headerRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const handleScroll = () => setIsHeaderSticky(headerRef.current !== null ? headerRef.current.getBoundingClientRect().top < -10 : false);
+    const handleScroll = () =>
+      setIsHeaderSticky(
+        headerRef.current !== null
+          ? headerRef.current.getBoundingClientRect().top < -10
+          : false
+      );
 
     document.addEventListener("scroll", handleScroll);
     return () => document.removeEventListener("scroll", handleScroll);
@@ -51,7 +56,7 @@ const IndexPage: FC = () => {
   }
 
   if (getChromeVersion() < 69) {
-    return <BrowserVersionWarning version={69} />
+    return <BrowserVersionWarning version={69} />;
   }
 
   if (data && data.me) {
@@ -165,7 +170,9 @@ const IndexPage: FC = () => {
                 onOpenDocument={onOpenDocument}
               />
             </DropDown>
-            <HeaderButton onClick={() => navigate("/login")}>Entrar</HeaderButton>
+            <HeaderButton onClick={() => navigate("/login")}>
+              Entrar
+            </HeaderButton>
             <HeaderButton secondary onClick={() => navigate("/signup")}>
               Crear una cuenta
             </HeaderButton>
@@ -630,7 +637,7 @@ const FooterLeft = styled.div`
   }
 `;
 
-const FooterRight = styled.div`  
+const FooterRight = styled.div`
   display: flex;
   width: 480.56px;
   align-items: center;
