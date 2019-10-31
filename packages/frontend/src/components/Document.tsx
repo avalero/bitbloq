@@ -14,13 +14,7 @@ import {
 import styled from "@emotion/styled";
 import { Link, navigate } from "gatsby";
 import gql from "graphql-tag";
-import AppHeader from "./AppHeader";
-import DocumentTypeTag from "./DocumentTypeTag";
-import ExercisePanel from "./ExercisePanel";
-import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import EditTitleModal from "./EditTitleModal";
-import { sortByCreatedAt } from "../util";
-import { UserDataContext } from "../lib/useUserData";
+import { ApolloError } from "apollo-client";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_UPDATE_MUTATION,
@@ -28,9 +22,16 @@ import {
   SUBMISSION_UPDATED_SUBSCRIPTION,
   REMOVE_SUBMISSION_MUTATION
 } from "../apollo/queries";
-import Breadcrumbs from "./Breadcrumbs";
+import { UserDataContext } from "../lib/useUserData";
+import { sortByCreatedAt } from "../util";
 import AppFooter from "./Footer";
-import { ApolloError } from "apollo-client";
+import AppHeader from "./AppHeader";
+import Breadcrumbs from "./Breadcrumbs";
+import DocumentTypeTag from "./DocumentTypeTag";
+import EditTitleModal from "./EditTitleModal";
+import ExercisePanel from "./ExercisePanel";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import UserSession from "./UserSession";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -481,7 +482,9 @@ class Document extends React.Component<any, DocumentState> {
           <Translate>
             {t => (
               <Container>
-                <AppHeader />
+                <AppHeader>
+                  <UserSession />
+                </AppHeader>
                 <Query query={DOCUMENT_QUERY} variables={{ id }}>
                   {({ loading, error, data, refetch }) => {
                     if (error) {

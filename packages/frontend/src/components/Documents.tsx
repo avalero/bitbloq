@@ -14,10 +14,7 @@ import {
 import { navigate } from "gatsby";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
-import AppHeader from "./AppHeader";
-import NewDocumentDropDown from "./NewDocumentDropDown";
-import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import useUserData from "../lib/useUserData";
+import { ApolloError } from "apollo-client";
 import {
   CREATE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
@@ -25,14 +22,17 @@ import {
   CREATE_FOLDER_MUTATION,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
-import NewExerciseButton from "./NewExerciseButton";
-import EditTitleModal from "./EditTitleModal";
-import DocumentListComp from "./DocumentsList";
-
-import Breadcrumbs from "./Breadcrumbs";
+import useUserData from "../lib/useUserData";
 import AppFooter from "./Footer";
+import AppHeader from "./AppHeader";
+import Breadcrumbs from "./Breadcrumbs";
+import DocumentListComp from "./DocumentsList";
+import EditTitleModal from "./EditTitleModal";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import NewDocumentDropDown from "./NewDocumentDropDown";
+import NewExerciseButton from "./NewExerciseButton";
 import Paginator from "./Paginator";
-import { ApolloError } from "apollo-client";
+import UserSession from "./UserSession";
 
 enum OrderType {
   Creation = "creation",
@@ -223,7 +223,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   return (
     <Container>
-      <AppHeader />
+      <AppHeader>
+        <UserSession />
+      </AppHeader>
       <Content>
         <Header>
           {currentLocation.id === userData.rootFolder ? (
