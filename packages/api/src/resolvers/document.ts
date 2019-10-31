@@ -76,7 +76,7 @@ const documentResolver = {
         version: args.input.version,
         image: args.input.image
       });
-      let newDocument: IDocument = await DocumentModel.create(documentNew);
+      const newDocument: IDocument = await DocumentModel.create(documentNew);
 
       await FolderModel.updateOne(
         { _id: documentNew.folder },
