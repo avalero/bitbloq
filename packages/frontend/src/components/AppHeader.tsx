@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
+import { css } from "@emotion/core";
 import logoBetaImage from "../images/logo-beta.svg";
 
 export interface AppHeaderProps {
@@ -9,7 +10,7 @@ export interface AppHeaderProps {
 
 const AppHeader: FC<AppHeaderProps> = ({
   children,
-  isSticky = false
+  isSticky
 }) => {
   return (
     <Container isSticky={isSticky}>
@@ -25,15 +26,31 @@ export default AppHeader;
 
 const Container = styled.div<AppHeaderProps>`
   background-color: white;
+  border-bottom: 1px solid ${colors.gray3};
   display: flex;
-  margin-top: ${props => (props.isSticky ? "10" : "0")}px;
-  min-height: ${props => (props.isSticky ? "80" : "60")}px;
+  min-height: ${props => (props.isSticky !== undefined && !props.isSticky ? "80" : "60")}px;
   padding: 0px 50px;
   align-items: center;
-  border-bottom: ${props => (props.isSticky ? "0" : "1")}px solid ${colors.gray3};
   justify-content: space-between;
+  transition: min-height 0.3s ease-out;
+
+  ${props =>
+    props.isSticky ?
+      css`
+        border-bottom: 1px solid ${colors.gray3};
+        position: fixed;
+        width: -webkit-fill-available;
+        z-index: 19;  /* modals z-index = 20 */
+      `
+      :
+      props.isSticky !== undefined && css`
+        border-bottom: none;
+        margin-top: 10px;
+      `
+  };
 `;
 
 const Logo = styled.img<AppHeaderProps>`
-  height: ${props => (props.isSticky ? "40" : "30")}px;
+  height: ${props => (props.isSticky === undefined || props.isSticky ? "30" : "40")}px;
+  transition: height 100ms ease-out;
 `;

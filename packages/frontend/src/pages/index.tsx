@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import { navigate, Link } from "gatsby";
 import { Global, css } from "@emotion/core";
@@ -34,10 +34,18 @@ const IndexPage: FC = () => {
   const [exerciseCode, setExerciseCode] = useState("");
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLInputElement>(null);
 
-  
+  useEffect(() => {
+    const handleScroll = () => setIsHeaderSticky(headerRef.current !== null ? headerRef.current.getBoundingClientRect().top < -10 : false);
+
+    document.addEventListener("scroll", handleScroll);
+    return () => document.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (loading) {
     return <Loading />;
   }
@@ -45,7 +53,6 @@ const IndexPage: FC = () => {
   if (getChromeVersion() < 69) {
     return <BrowserVersionWarning version={69} />
   }
-
 
   if (data && data.me) {
     navigate("/app");
@@ -108,7 +115,8 @@ const IndexPage: FC = () => {
     <>
       <SEO title="Home" keywords={[`bitbloq`]} />
       <Global styles={baseStyles} />
-        <AppHeader isSticky={true}>
+      <div ref={headerRef}>
+        <AppHeader isSticky={isHeaderSticky}>
           <HeaderButtonGroup>
             <DropDown
               attachmentPosition={"top center"}
@@ -163,6 +171,7 @@ const IndexPage: FC = () => {
             </HeaderButton>
           </HeaderButtonGroup>
         </AppHeader>
+      </div>
       <Container>
         <Hero>
           <h1>
