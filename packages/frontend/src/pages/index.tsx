@@ -1,4 +1,4 @@
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import { navigate, Link } from "gatsby";
 import { Global, css } from "@emotion/core";
@@ -10,14 +10,15 @@ import {
   Icon,
   DropDown,
   HorizontalRule,
-  Spinner, 
+  Spinner
 } from "@bitbloq/ui";
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
-import SEO from "../components/SEO";
+import AppHeader from "../components/AppHeader";
 import BrowserVersionWarning from "../components/BrowserVersionWarning";
-import NewDocumentDropDown from "../components/NewDocumentDropDown";
 import LandingExamples from "../components/LandingExamples";
+import NewDocumentDropDown from "../components/NewDocumentDropDown";
+import SEO from "../components/SEO";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
 import { getChromeVersion } from "../util";
@@ -33,18 +34,30 @@ const IndexPage: FC = () => {
   const [exerciseCode, setExerciseCode] = useState("");
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLInputElement>(null);
 
-  
+  useEffect(() => {
+    const handleScroll = () =>
+      setIsHeaderSticky(
+        headerRef.current !== null
+          ? headerRef.current.getBoundingClientRect().top < -10
+          : false
+      );
+
+    document.addEventListener("scroll", handleScroll);
+    return () => document.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (loading) {
     return <Loading />;
   }
 
   if (getChromeVersion() < 69) {
-    return <BrowserVersionWarning version={69} />
+    return <BrowserVersionWarning version={69} />;
   }
-
 
   if (data && data.me) {
     navigate("/app");
@@ -107,60 +120,66 @@ const IndexPage: FC = () => {
     <>
       <SEO title="Home" keywords={[`bitbloq`]} />
       <Global styles={baseStyles} />
-      <Container>
-        <Header>
-          <DropDown
-            attachmentPosition={"top center"}
-            targetPosition={"bottom center"}
-            closeOnClick={false}
-          >
-            {(isOpen: boolean) => (
-              <HeaderButton tertiary>
-                <Icon name="airplane-document" />
-                Ir al ejercicio
-              </HeaderButton>
-            )}
-            <ExerciseDropDown>
-              <ExerciseForm>
-                <label>Código del ejercicio</label>
-                <Input
-                  type="text"
-                  placeholder="Código del ejercicio"
-                  value={exerciseCode}
-                  error={exerciseError}
-                  onChange={e => setExerciseCode(e.target.value)}
-                />
-                {exerciseError && <Error>El código no es válido</Error>}
-                <HeaderButton
-                  onClick={() => onOpenExercise()}
-                  disabled={loadingExercise}
-                >
+      <div ref={headerRef}>
+        <AppHeader isSticky={isHeaderSticky}>
+          <HeaderButtonGroup>
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+              closeOnClick={false}
+            >
+              {(isOpen: boolean) => (
+                <HeaderButton tertiary>
+                  <Icon name="airplane-document" />
                   Ir al ejercicio
                 </HeaderButton>
-              </ExerciseForm>
-            </ExerciseDropDown>
-          </DropDown>
-          <DropDown
-            attachmentPosition={"top center"}
-            targetPosition={"bottom center"}
-          >
-            {(isOpen: boolean) => (
-              <HeaderButton tertiary>
-                <Icon name="new-document" />
-                Nuevo documento
-              </HeaderButton>
-            )}
+              )}
+              <ExerciseDropDown>
+                <ExerciseForm>
+                  <label>Código del ejercicio</label>
+                  <Input
+                    type="text"
+                    placeholder="Código del ejercicio"
+                    value={exerciseCode}
+                    error={exerciseError}
+                    onChange={e => setExerciseCode(e.target.value)}
+                  />
+                  {exerciseError && <Error>El código no es válido</Error>}
+                  <HeaderButton
+                    onClick={() => onOpenExercise()}
+                    disabled={loadingExercise}
+                  >
+                    Ir al ejercicio
+                  </HeaderButton>
+                </ExerciseForm>
+              </ExerciseDropDown>
+            </DropDown>
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+            >
+              {(isOpen: boolean) => (
+                <HeaderButton tertiary>
+                  <Icon name="new-document" />
+                  Nuevo documento
+                </HeaderButton>
+              )}
 
-            <NewDocumentDropDown
-              onNewDocument={onNewDocument}
-              onOpenDocument={onOpenDocument}
-            />
-          </DropDown>
-          <HeaderButton onClick={() => navigate("/login")}>Entrar</HeaderButton>
-          <HeaderButton secondary onClick={() => navigate("/signup")}>
-            Crear una cuenta
-          </HeaderButton>
-        </Header>
+              <NewDocumentDropDown
+                onNewDocument={onNewDocument}
+                onOpenDocument={onOpenDocument}
+              />
+            </DropDown>
+            <HeaderButton onClick={() => navigate("/login")}>
+              Entrar
+            </HeaderButton>
+            <HeaderButton secondary onClick={() => navigate("/signup")}>
+              Crear una cuenta
+            </HeaderButton>
+          </HeaderButtonGroup>
+        </AppHeader>
+      </div>
+      <Container>
         <Hero>
           <h1>
             <img src={logoBetaImage} alt="Bitbloq Beta" />
@@ -325,10 +344,8 @@ const Container = styled.div`
   padding: 0px 50px;
 `;
 
-const Header = styled.div`
-  padding: 30px 0px 20px 0px;
+const HeaderButtonGroup = styled.div`
   display: flex;
-  justify-content: flex-end;
   button {
     margin-left: 10px;
   }
@@ -620,7 +637,7 @@ const FooterLeft = styled.div`
   }
 `;
 
-const FooterRight = styled.div`  
+const FooterRight = styled.div`
   display: flex;
   width: 480.56px;
   align-items: center;
