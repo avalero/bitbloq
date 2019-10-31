@@ -497,6 +497,7 @@ const DocumentList = styled.div`
   grid-auto-rows: 1fr;
   grid-column-gap: 40px;
   grid-row-gap: 40px;
+  margin-bottom: 40px;
 
   &::before {
     content: "";
