@@ -3,13 +3,7 @@ import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
 import { useDrop } from "react-dnd";
-
-import DocumentCard from "./DocumentCard";
-import EditTitleModal from "./EditTitleModal";
-import DocumentCardMenu from "./DocumentCardMenu";
-
 import { css } from "@emotion/core";
-
 import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
@@ -17,13 +11,18 @@ import {
   DELETE_FOLDER_MUTATION,
   CREATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
+import DocumentCard from "./DocumentCard";
+import DocumentCardMenu from "./DocumentCardMenu";
+import EditTitleModal from "./EditTitleModal";
 import FolderSelectorMenu from "./FolderSelectorMenu";
+import MenuButton from "./MenuButton";
 import Paginator from "./Paginator";
 
 interface Folder {
   name: string;
   id: string;
 }
+
 export interface DocumentListProps {
   currentPage: number;
   docsAndFols?: any;
@@ -296,7 +295,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                 hidden={document.id === droppedItemId}
                 key={document.id}
                 document={document}
-                onClick={e =>
+                onClick={() =>
                   document.type === "folder"
                     ? onFolderClick && onFolderClick(document)
                     : onDocumentClick && onDocumentClick(document)
@@ -314,12 +313,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   targetPosition="top right"
                 >
                   {(isOpen: boolean) => (
-                    <DocumentMenuButton
-                      isOpen={menuOpenId === document.id}
-                      onClick={e => onDocumentMenuClick(e, document)}
-                    >
-                      <Icon name="ellipsis" />
-                    </DocumentMenuButton>
+                    <MenuButtonContainer isOpen={isOpen} onClick={e => onDocumentMenuClick(e, document)}>
+                      <MenuButton isOpen={isOpen} />
+                    </MenuButtonContainer>
                   )}
                   <DropDown
                     constraints={[
@@ -333,7 +329,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     attachmentPosition="top left"
                     offset="60px 0"
                   >
-                    {(isOpen: boolean) => (
+                    {() => (
                       <DocumentCardMenu
                         options={[
                           {
@@ -449,7 +445,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
           setDocWithEx(false);
         }}
       />
-
       <DialogModal
         isOpen={!!folWithChildren}
         title="Aviso"
@@ -462,7 +457,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
           setFolWithChildren(false);
         }}
       />
-
       {editDocTitleModal.id && (
         <EditTitleModal
           title={editDocTitleModal.title}
@@ -512,33 +506,17 @@ const DocumentList = styled.div`
   }
 `;
 
-const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
+const MenuButtonContainer = styled.div<{ isOpen: boolean }>`
   position: absolute;
   right: 14px;
   top: 14px;
-  width: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  background-color: white;
   display: none;
-
-  &:hover {
-    background-color: ${colors.gray1};
-    border-color: ${colors.gray4};
-  }
 
   ${props =>
     props.isOpen &&
     css`
-      display: flex;
-      border: solid 1px #dddddd;
-      background-color: "red";
-    `} svg {
-    transform: rotate(90deg);
-  }
+      display: initial;
+    `}
 `;
 
 const DocumentsAndPaginator = styled.div`
@@ -555,8 +533,8 @@ const DocumentsPaginator = styled(Paginator)`
 
 const StyledDocumentCard = styled(DocumentCard)`
   &:hover {
-    ${DocumentMenuButton} {
-      display: flex;
+    ${MenuButtonContainer} {
+      display: initial;
     }
   }
 `;

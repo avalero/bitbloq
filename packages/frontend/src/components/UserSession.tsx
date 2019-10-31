@@ -1,9 +1,9 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
 import { DropDown, Icon } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
+import MenuButton from "./MenuButton";
 
 const UserSession = () => {
   const userData = useUserData();
@@ -14,9 +14,7 @@ const UserSession = () => {
       <UserName>{userData && userData.name}</UserName>
       <DropDown>
         {(isOpen: boolean) => (
-          <ContextButton isOpen={isOpen}>
-            <Icon name="ellipsis" />
-          </ContextButton>
+          <MenuButton isOpen={isOpen} />
         )}
         <ContextMenu>
           <ContextMenuOption onClick={() => logout()}>
@@ -40,30 +38,6 @@ const Container = styled.div`
 const UserName = styled.div`
   font-size: 14px;
   margin-right: 10px;
-`;
-
-interface ContextButtonProps {
-  isOpen: boolean;
-}
-const ContextButton = styled.div<ContextButtonProps>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-  border: solid 1px white;
-
-  ${props =>
-    props.isOpen &&
-    css`
-      border: solid 1px #dddddd;
-      background-color: #e8e8e8;
-    `} svg {
-    transform: rotate(90deg);
-  }
 `;
 
 const ContextMenu = styled.div`
