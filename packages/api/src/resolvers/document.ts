@@ -73,9 +73,11 @@ const documentResolver = {
         advancedMode: args.input.advancedMode,
         cache: args.input.cache,
         description: args.input.description,
-        version: args.input.version
+        version: args.input.version,
+        image: args.input.image
       });
       const newDocument: IDocument = await DocumentModel.create(documentNew);
+
       await FolderModel.updateOne(
         { _id: documentNew.folder },
         { $push: { documentsID: newDocument._id } },
