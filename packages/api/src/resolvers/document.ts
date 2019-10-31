@@ -62,8 +62,6 @@ const documentResolver = {
           throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
         }
       }
-
-      console.log(args.input);
       const documentNew: IDocument = new DocumentModel({
         user: context.user.userID,
         title: args.input.title,
@@ -80,25 +78,6 @@ const documentResolver = {
       });
       let newDocument: IDocument = await DocumentModel.create(documentNew);
 
-      // if (args.input.image) {
-      //   const imageUploaded: IUpload = await uploadDocumentImage(
-      //     args.input.image.image,
-      //     newDocument._id,
-      //     context.user.userID
-      //   );
-      //   const imageURL: string = imageUploaded.publicUrl;
-      //   newDocument = await DocumentModel.findOneAndUpdate(
-      //     { _id: newDocument._id },
-      //     {
-      //       $set: {
-      //         image: {
-      //           image: imageURL,
-      //           isSnapshot: args.input.image.isSnapshot
-      //         }
-      //       }
-      //     }
-      //   );
-      // }
       await FolderModel.updateOne(
         { _id: documentNew.folder },
         { $push: { documentsID: newDocument._id } },
