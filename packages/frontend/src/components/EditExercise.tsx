@@ -71,13 +71,12 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     setToken("", "exercise-team");
-    watchSession("exercise-team");
   }, []);
 
   useSessionEvent(
     "expired",
-    () => {
-      if (!loginVisible) {
+    event => {
+      if (event.tempSession === "exercise-team") {
         setToken("", "exercise-team");
         client.resetStore();
         navigate("/");
@@ -111,6 +110,10 @@ const EditExercise = ({ type, id, t }) => {
     } else {
       return () => {};
     }
+  }, [teamName]);
+
+  useEffect(() => {
+    watchSession("exercise-team");
   }, [teamName]);
 
   useEffect(() => {

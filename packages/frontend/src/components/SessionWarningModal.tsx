@@ -17,8 +17,10 @@ const SessionWarningModal: FC<SessionWarningModalProps> = ({ tempSession }) => {
   useSessionEvent(
     "expiration-warning",
     e => {
-      setIsOpen(true);
-      setRemainingSeconds(e.remainingSeconds || 0);
+      if (e.tempSession === tempSession) {
+        setIsOpen(true);
+        setRemainingSeconds(e.remainingSeconds || 0);
+      }
     },
     tempSession
   );
