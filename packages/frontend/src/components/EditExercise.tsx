@@ -74,10 +74,12 @@ const EditExercise = ({ type, id, t }) => {
 
   useSessionEvent(
     "expired",
-    () => {
-      setToken("", "exercise-team");
-      client.resetStore();
-      navigate("/");
+    event => {
+      if (event.tempSession === "exercise-team") {
+        setToken("", "exercise-team");
+        client.resetStore();
+        navigate("/");
+      }
     },
     "exercise-team"
   );

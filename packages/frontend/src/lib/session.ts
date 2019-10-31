@@ -91,7 +91,11 @@ export const watchSession = (tempSession?: string) => {
       const elapsedSeconds = Math.floor((Date.now() - session.time) / 1000);
       const remainingSeconds = TOKEN_DURATION_MINUTES * 60 - elapsedSeconds;
       if (remainingSeconds < TOKEN_WARNING_SECONDS) {
-        triggerEvent({ event: "expiration-warning", remainingSeconds });
+        triggerEvent({
+          event: "expiration-warning",
+          remainingSeconds,
+          tempSession
+        });
       }
     }
   }, CHECK_TOKEN_MS);
@@ -106,7 +110,10 @@ export const useSessionEvent = (
     const channel = new BroadcastChannel("bitbloq-session");
     channel.onmessage = e => {
       const event = e.data as SessionEvent;
-      if (eventName === event.event) {
+      if (
+        eventName === event.event &&
+        (!event.tempSession || event.tempSession === tempSession)
+      ) {
         callback(event);
       }
     };
