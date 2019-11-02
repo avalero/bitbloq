@@ -58,7 +58,7 @@
     "koa": "^2.7.0",
     "koa-jwt": "^3.5.1",
     "lowdb": "^1.0.0",
-    "mongoose": "^5.4.19",
+    "mongoose": "^5.7.5",
     "mongoose-timestamp": "^0.6.0",
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
