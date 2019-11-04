@@ -26,7 +26,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   openDocument
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
-  const [currentType, setCurrentType] = useState(type || "3d");
+  const [currentType, setCurrentType] = useState(type);
   const [loading, setLoading] = useState(openDocument);
   const [userLogged, setUserLogged] = useState(false);
   const [userName, setUserName] = useState("");
@@ -70,6 +70,17 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (userLogged) {
+      refetch().then(
+        result => (
+          setUserName(result.data.me.name),
+          createDocument(result.data.me.rootFolder)
+        )
+      );
+    }
+  }, [userLogged]);
+
   const createDocument = async (folderID?: string) => {
     const title: string = "playground";
     const document = {
@@ -95,12 +106,6 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   useSessionEvent("new-token", (event: SessionEvent) => {
     const token: string = event.data;
     setUserLogged(!!token);
-    refetch().then(
-      result => (
-        setUserName(result.data.me.name),
-        createDocument(result.data.me.rootFolder)
-      )
-    );
   });
 
   if (loading) {
