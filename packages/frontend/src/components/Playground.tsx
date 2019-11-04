@@ -70,33 +70,47 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     };
   }, []);
 
-  useSessionEvent("new-token", (event: SessionEvent) => {
-    const token: string = event.data;
-    setUserLogged(!!token);
-    refetch().then(
-      result => (setUserName(result.data.me.name), createDocument())
-    );
-  });
+  useEffect(() => {
+    if (userLogged) {
+      refetch().then(
+        result => (
+          setUserName(result.data.me.name),
+          createDocument(result.data.me.rootFolder)
+        )
+      );
+    }
+  }, [userLogged]);
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  const createDocument = async () => {
+  const createDocument = async (folderID?: string) => {
     const title: string = "playground";
     const document = {
       type: currentType,
       title,
       content: JSON.stringify(contentRef.current),
-      advancedMode: advancedModeRef.current
+      advancedMode: advancedModeRef.current,
+      image: {
+        image: "",
+        isSnapshot: true
+      }
     };
     const {
       data: {
         createDocument: { id: newId }
       }
     } = await createDocumentMutation({ variables: document });
-    navigate(`/app/document/${undefined}/${type}/${newId}`, { replace: true });
+    navigate(`/app/document/${folderID}/${currentType}/${newId}`, {
+      replace: true
+    });
   };
+
+  useSessionEvent("new-token", (event: SessionEvent) => {
+    const token: string = event.data;
+    setUserLogged(!!token);
+  });
+
+  if (loading) {
+    return <Loading />;
+  }
 
   const onLoginClick = async () => {
     try {
@@ -124,10 +138,14 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   const onSaveDocument = () => {
     const title = "playground";
     const documentJSON = {
-      currentType,
+      type: currentType,
       title,
       content: JSON.stringify(contentRef.current),
-      advancedMode: advancedModeRef.current
+      advancedMode: advancedModeRef.current,
+      image: {
+        image: "",
+        isSnapshot: true
+      }
     };
     var blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"

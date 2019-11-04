@@ -189,7 +189,17 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     reader.onload = async e => {
       const document = JSON.parse(reader.result as string);
       const { data } = await createDocument({
-        variables: { ...document, folder: currentLocation.id }
+        variables: {
+          ...document,
+          image: {
+            image: document.image.image ? document.image.image : document.image,
+            isSnapshot:
+              document.image.isSnapshot !== undefined
+                ? document.image.isSnapshot
+                : false
+          },
+          folder: currentLocation.id
+        }
       });
       refetchDocsFols();
       onDocumentCreated(data);
