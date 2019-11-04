@@ -214,6 +214,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
     await createDocument({
       variables: {
         ...document,
+        image: {
+          image: document.image,
+          isSnapshot: document.image.indexOf("blob") > -1
+        },
         title: newTitle,
         folder: currentLocation.id
       }
