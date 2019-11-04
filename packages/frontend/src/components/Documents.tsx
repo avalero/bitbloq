@@ -128,7 +128,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       ...breadcrumbLinks,
       { route: id, text: title, type: "document" }
     ]);
-    window.open(`/app/document/${id}`);
+    navigate(`/app/document/${id}`);
   };
 
   const onCreateFolder = async folderName => {
