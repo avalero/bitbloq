@@ -40,8 +40,11 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
         variables: {
           ...document,
           image: {
-            image: document.image.image,
-            isSnapshot: document.image.isSnapshot
+            image: document.image.image ? document.image.image : document.image,
+            isSnapshot:
+              document.image.isSnapshot !== undefined
+                ? document.image.isSnapshot
+                : false
           },
           content: JSON.stringify(content)
         },
