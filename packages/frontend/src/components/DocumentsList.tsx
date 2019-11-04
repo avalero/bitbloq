@@ -309,8 +309,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
                     }
                   ]}
                   closeOnClick={!(selectedToMove.id === document.id)}
-                  targetOffset="-165px -14px"
-                  targetPosition="top right"
+                  attachmentPosition="top right"
+                  offset="182px 14px" // 182 = 240(card height) - 2(card border) - 14(button offset) - 36(button height) - 6(dropdow offset)
                 >
                   {(isOpen: boolean) => (
                     <MenuButtonContainer isOpen={isOpen} onClick={e => onDocumentMenuClick(e, document)}>
@@ -487,9 +487,9 @@ export default DocumentListComp;
 
 const DocumentList = styled.div`
   display: grid;
+  grid-auto-rows: 240px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  grid-auto-rows: 1fr;
-  grid-column-gap: 40px;
+  grid-column-gap: 20px;
   grid-row-gap: 40px;
 
   &::before {
