@@ -12,7 +12,7 @@ const AppHeader: FC<IAppHeaderProps> = ({ children, isSticky }) => {
   return (
     <Container isSticky={isSticky}>
       <Logo isSticky={isSticky} src={logoBetaImage} alt="Bitbloq" />
-      {children}
+      <Content>{children}</Content>
     </Container>
   );
 };
@@ -45,6 +45,14 @@ const Container = styled.div<IAppHeaderProps>`
           border-bottom: none;
           margin-top: 10px;
         `};
+`;
+
+const Content =  styled.div`
+  align-items: center;
+  display: flex;
+  > * {
+    margin-left: 10px;
+  }
 `;
 
 const Logo = styled.img<IAppHeaderProps>`

@@ -1,6 +1,6 @@
-import React, { FC } from "react";
+import React from "react";
 import styled from "@emotion/styled";
-import { DropDown, Icon } from "@bitbloq/ui";
+import { colors, DropDown } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 import MenuButton from "./MenuButton";
@@ -10,8 +10,9 @@ const UserSession = () => {
   const logout = useLogout();
 
   return (
-    <Container>
+    <>
       <UserName>{userData && userData.name}</UserName>
+      <UserAvatar src={userData ? userData.avatar : ''} />
       <DropDown>
         {(isOpen: boolean) => (
           <MenuButton isOpen={isOpen} />
@@ -22,7 +23,7 @@ const UserSession = () => {
           </ContextMenuOption>
         </ContextMenu>
       </DropDown>
-    </Container>
+    </>
   );
 };
 
@@ -30,14 +31,22 @@ export default UserSession;
 
 /* styled components */
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
 const UserName = styled.div`
   font-size: 14px;
-  margin-right: 10px;
+`;
+
+interface ImageProps {
+  src: string;
+}
+
+const UserAvatar = styled.div<ImageProps>`
+  background-color: ${colors.gray6};
+  background-image: url(${props => props.src});
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
 `;
 
 const ContextMenu = styled.div`

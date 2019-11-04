@@ -122,61 +122,59 @@ const IndexPage: FC = () => {
       <Global styles={baseStyles} />
       <div ref={headerRef}>
         <AppHeader isSticky={isHeaderSticky}>
-          <HeaderButtonGroup>
-            <DropDown
-              attachmentPosition={"top center"}
-              targetPosition={"bottom center"}
-              closeOnClick={false}
-            >
-              {(isOpen: boolean) => (
-                <HeaderButton tertiary>
-                  <Icon name="airplane-document" />
+          <DropDown
+            attachmentPosition={"top center"}
+            targetPosition={"bottom center"}
+            closeOnClick={false}
+          >
+            {(isOpen: boolean) => (
+              <HeaderButton tertiary>
+                <Icon name="airplane-document" />
+                Ir al ejercicio
+              </HeaderButton>
+            )}
+            <ExerciseDropDown>
+              <ExerciseForm>
+                <label>Código del ejercicio</label>
+                <Input
+                  type="text"
+                  placeholder="Código del ejercicio"
+                  value={exerciseCode}
+                  error={exerciseError}
+                  onChange={e => setExerciseCode(e.target.value)}
+                />
+                {exerciseError && <Error>El código no es válido</Error>}
+                <HeaderButton
+                  onClick={() => onOpenExercise()}
+                  disabled={loadingExercise}
+                >
                   Ir al ejercicio
                 </HeaderButton>
-              )}
-              <ExerciseDropDown>
-                <ExerciseForm>
-                  <label>Código del ejercicio</label>
-                  <Input
-                    type="text"
-                    placeholder="Código del ejercicio"
-                    value={exerciseCode}
-                    error={exerciseError}
-                    onChange={e => setExerciseCode(e.target.value)}
-                  />
-                  {exerciseError && <Error>El código no es válido</Error>}
-                  <HeaderButton
-                    onClick={() => onOpenExercise()}
-                    disabled={loadingExercise}
-                  >
-                    Ir al ejercicio
-                  </HeaderButton>
-                </ExerciseForm>
-              </ExerciseDropDown>
-            </DropDown>
-            <DropDown
-              attachmentPosition={"top center"}
-              targetPosition={"bottom center"}
-            >
-              {(isOpen: boolean) => (
-                <HeaderButton tertiary>
-                  <Icon name="new-document" />
-                  Nuevo documento
-                </HeaderButton>
-              )}
+              </ExerciseForm>
+            </ExerciseDropDown>
+          </DropDown>
+          <DropDown
+            attachmentPosition={"top center"}
+            targetPosition={"bottom center"}
+          >
+            {(isOpen: boolean) => (
+              <HeaderButton tertiary>
+                <Icon name="new-document" />
+                Nuevo documento
+              </HeaderButton>
+            )}
 
-              <NewDocumentDropDown
-                onNewDocument={onNewDocument}
-                onOpenDocument={onOpenDocument}
-              />
-            </DropDown>
-            <HeaderButton onClick={() => navigate("/login")}>
-              Entrar
-            </HeaderButton>
-            <HeaderButton secondary onClick={() => navigate("/signup")}>
-              Crear una cuenta
-            </HeaderButton>
-          </HeaderButtonGroup>
+            <NewDocumentDropDown
+              onNewDocument={onNewDocument}
+              onOpenDocument={onOpenDocument}
+            />
+          </DropDown>
+          <HeaderButton onClick={() => navigate("/login")}>
+            Entrar
+          </HeaderButton>
+          <HeaderButton secondary onClick={() => navigate("/signup")}>
+            Crear una cuenta
+          </HeaderButton>
         </AppHeader>
       </div>
       <Container>
@@ -342,13 +340,6 @@ const Container = styled.div`
   box-sizing: border-box;
   margin: 0px auto;
   padding: 0px 50px;
-`;
-
-const HeaderButtonGroup = styled.div`
-  display: flex;
-  button {
-    margin-left: 10px;
-  }
 `;
 
 const HeaderButton = styled(Button)`
