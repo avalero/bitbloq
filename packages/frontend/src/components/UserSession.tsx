@@ -40,7 +40,7 @@ interface ImageProps {
 }
 
 const UserAvatar = styled.div<ImageProps>`
-  background-color: ${colors.gray6};
+  background-color: ${colors.grayAvatar};
   background-image: url(${props => props.src});
   background-size: cover;
   background-position: center;

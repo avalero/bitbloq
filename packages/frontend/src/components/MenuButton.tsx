@@ -24,7 +24,7 @@ export default MenuButton;
 const Button = styled.div<IMenuButtonProps>`
   align-items: center;
   background-color: white;
-  border: 1px solid ${colors.gray3};
+  border: 1px solid ${colors.gray6};
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -33,17 +33,16 @@ const Button = styled.div<IMenuButtonProps>`
   width: 34px;
 
   &:hover {
-    background-color: ${colors.gray1};
-    border-color: ${colors.gray4};
-  }
-
-  svg {
-    transform: rotate(90deg);
+    background-color: ${colors.gray7};
   }
 
   ${props =>
     props.isOpen &&
     css`
-      border: solid 1px #dddddd;
+      background-color: ${colors.gray7};
     `}
+
+  svg {
+    transform: rotate(90deg);
+  }
 `;
