@@ -249,17 +249,28 @@ const DocumentListComp: FC<DocumentListProps> = ({
     }
   };
 
-  const onMoveDocument = async (e, folder, documentId?) => {
-    e && e.stopPropagation();
-    await updateDocument({
-      variables: { id: documentId || selectedToMove.id, folder: folder.id }
-    });
+  const onMove = () => {
     refetchDocsFols();
     setMenuOpenId(null);
     setSelectedToMove({
       id: null,
       parent: null
     });
+    if (
+      pagesNumber > 1 &&
+      pagesNumber === currentPage &&
+      docsAndFols.length === 1
+    ) {
+      selectPage(currentPage - 1);
+    }
+  };
+
+  const onMoveDocument = async (e, folder, documentId?) => {
+    e && e.stopPropagation();
+    await updateDocument({
+      variables: { id: documentId || selectedToMove.id, folder: folder.id }
+    });
+    onMove();
   };
   const onMoveFolder = async (e, folderParent, folderMovedId?) => {
     e && e.stopPropagation();
@@ -269,12 +280,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
         input: { parent: folderParent.id }
       }
     });
-    refetchDocsFols();
-    setMenuOpenId(null);
-    setSelectedToMove({
-      id: null,
-      parent: null
-    });
+    onMove();
   };
 
   return (
