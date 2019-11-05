@@ -1,5 +1,5 @@
-import React, { FC } from "react";
-import { Modal, useTranslate } from "@bitbloq/ui";
+import React, { FC, useState } from "react";
+import { Modal, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { resources } from "../config";
 
@@ -10,10 +10,25 @@ import MenuButton from "./MenuButton";
 interface IResource {
   label: string;
   icon: string;
+  id: number;
 }
 
-const Resource: FC<IResource> = ({ label, icon }) => {
-  return <RecourseItem></RecourseItem>;
+interface IResourceProps {
+  active: boolean;
+  label: string;
+  icon: string;
+  onClick: () => void;
+}
+
+const Resource: FC<IResourceProps> = ({ active, label, icon, onClick }) => {
+  const t = useTranslate();
+
+  return (
+    <RecourseItem active={active} onClick={onClick}>
+      <Icon name={icon} />
+      <p>{t(label)}</p>
+    </RecourseItem>
+  );
 };
 
 export interface ICloudModalProps {
@@ -22,13 +37,15 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
-  const t = useTranslate();
-
   let cloudResources: IResource[] = [];
 
   for (let r in resources) {
     cloudResources.push(resources[r]);
   }
+
+  const [resourceActiveId, setResourceActiveId] = useState<number | string>(
+    cloudResources[0].id
+  );
 
   return (
     <Modal
@@ -39,8 +56,14 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
     >
       <CloudModalBody>
         <LateralBar>
-          {cloudResources.map((resource, index) => (
-            <Resource key={index} label={resource.label} icon={resource.icon} />
+          {cloudResources.map(resource => (
+            <Resource
+              active={resourceActiveId === resource.id}
+              key={resource.id}
+              label={resource.label}
+              icon={resource.icon}
+              onClick={() => setResourceActiveId(resource.id)}
+            />
           ))}
         </LateralBar>
       </CloudModalBody>
@@ -65,19 +88,32 @@ const LateralBar = styled.div`
 `;
 
 const RecourseItem = styled.div<{ active?: boolean }>`
+  align-items: center;
   background-color: ${props => (props.active ? "#fff" : "#eee")};
   border-bottom: 1px solid #ddd;
   border-right: ${props =>
     props.active ? "1px solid #fff" : "1px solid #ddd"};
+  cursor: pointer;
+  display: flex;
   height: 40px;
-  width: 100%;
+  padding-left: 20px;
+  width: calc(100% - 20px);
 
   &:first-of-type {
     border-top: 1px solid #ddd;
   }
 
-  &:hover {
-    background-color: #fff;
-    border-right: 1px solid #fff;
+  p {
+    align-items: center;
+    color: #373b44;
+    display: flex;
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: bold;
+    height: 16px;
+  }
+
+  svg {
+    margin-right: 6px;
   }
 `;

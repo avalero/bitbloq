@@ -254,8 +254,9 @@
   "general-accept-button": "Aceptar",
   "cloud": {
     "resources": {
+      "deleted": "Papelera",
+      "images": "Imágenes",
       "objects": "Objetos 3D",
-      "pictures": "Imágenes",
       "sounds": "Sonidos",
       "videos": "Vídeos"
     }

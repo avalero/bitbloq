@@ -69,21 +69,30 @@ export const documentTypes = {
 };
 
 export const resources = {
-  objects: {
-    "label": "cloud.resources.objects",
+  images: {
+    "id": 0,
+    "label": "cloud.resources.images",
     "icon": "resource-image"
   },
-  pictures: {
-    "label": "cloud.resources.pictures",
-    "icon": "resource-image"
+  videos: {
+    "id": 1,
+    "label": "cloud.resources.videos",
+    "icon": "resource-video"
   },
   sounds: {
+    "id": 2,
     "label": "cloud.resources.sounds",
     "icon": "resource-sound"
   },
-  videos: {
-    "label": "cloud.resources.videos",
-    "icon": "resource-video"
+  objects: {
+    "id": 3,
+    "label": "cloud.resources.objects",
+    "icon": "resource-object"
+  },
+  deleted: {
+    "id": 4,
+    "label": "cloud.resources.deleted",
+    "icon": "resource-deleted"
   }
 }
 

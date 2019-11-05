@@ -58,6 +58,11 @@ import Reflection from "./icons/Reflection";
 import Reload from "./icons/Reload";
 import Repeat from "./icons/Repeat";
 import RepeatPolar from "./icons/RepeatPolar";
+import ResourceDeleted from "./icons/ResourceDeleted";
+import ResourceImage from "./icons/ResourceImage";
+import ResourceObject from "./icons/ResourceObject";
+import ResourceSound from "./icons/ResourceSound";
+import ResourceVideo from "./icons/ResourceVideo";
 import Rotation from "./icons/Rotation";
 import Scale from "./icons/Scale";
 import Sphere from "./icons/Sphere";
@@ -215,7 +220,7 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
     case "truncatedcone":
       return <TruncatedCone className={className} />;
     case "programming":
-      return <Programming className={className} />;
+      return <Programming classResourceImageName={className} />;
     case "programming2":
       return <Programming2 className={className} />;
     case "programming3":
@@ -236,6 +241,16 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Repeat className={className} />;
     case "repeat-polar":
       return <RepeatPolar className={className} />;
+    case "resource-deleted":
+      return <ResourceDeleted className={className} />;
+    case "resource-image":
+      return <ResourceImage className={className} />;
+    case "resource-object":
+      return <ResourceObject className={className} />;
+    case "resource-sound":
+      return <ResourceSound className={className} />;
+    case "resource-video":
+      return <ResourceVideo className={className} />;
     case "rotation":
       return <Rotation className={className} />;
     case "scale":
