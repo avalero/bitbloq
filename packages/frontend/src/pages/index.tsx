@@ -1,7 +1,7 @@
 import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { navigate, Link } from "gatsby";
-import { Global, css } from "@emotion/core";
+import { navigate } from "gatsby";
+import { Global } from "@emotion/core";
 import {
   baseStyles,
   colors,
@@ -17,6 +17,7 @@ import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 import AppHeader from "../components/AppHeader";
 import BrowserVersionWarning from "../components/BrowserVersionWarning";
 import LandingExamples from "../components/LandingExamples";
+import Layout from "../components/Layout";
 import NewDocumentDropDown from "../components/NewDocumentDropDown";
 import SEO from "../components/SEO";
 import logoBetaImage from "../images/logo-beta.svg";
@@ -177,7 +178,7 @@ const IndexPage: FC = () => {
           </HeaderButton>
         </AppHeader>
       </div>
-      <Container>
+      <Layout>
         <Hero>
           <h1>
             <img src={logoBetaImage} alt="Bitbloq Beta" />
@@ -187,9 +188,9 @@ const IndexPage: FC = () => {
             programación y la robótica en el aula.
           </p>
         </Hero>
-      </Container>
+      </Layout>
       <Tools>
-        <Container>
+        <Layout>
           <h2>
             <Icon name="new-document" />
             Crea o abre un documento
@@ -234,10 +235,10 @@ const IndexPage: FC = () => {
               </OpenDocumentButton>
             </OpenDocumentPanel>
           </ToolsList>
-        </Container>
+        </Layout>
       </Tools>
       <OpenExercise>
-        <Container>
+        <Layout>
           <OpenExerciseWrap>
             <OpenExerciseInfo>
               <h2>
@@ -282,9 +283,11 @@ const IndexPage: FC = () => {
               </OpenExercisePanelContent>
             </OpenExercisePanel>
           </OpenExerciseWrap>
-        </Container>
+        </Layout>
       </OpenExercise>
-      <LandingExamples />
+      <Layout>
+        <LandingExamples />
+      </Layout>
       <Footer>
         <MainFooter>
           <FooterContainer>
@@ -325,6 +328,7 @@ export default IndexPage;
 interface LoadingProps {
   type?: string;
 }
+
 const Loading = styled(Spinner)<LoadingProps>`
   position: absolute;
   height: 100%;
@@ -333,13 +337,6 @@ const Loading = styled(Spinner)<LoadingProps>`
     (props.type && documentTypes[props.type].color) || colors.gray1};
   color: ${(props: LoadingProps) => (props.type ? "white" : "inherit")};
   display: flex;
-`;
-
-const Container = styled.div`
-  max-width: 1280px;
-  box-sizing: border-box;
-  margin: 0px auto;
-  padding: 0px 50px;
 `;
 
 const HeaderButton = styled(Button)`
@@ -420,6 +417,7 @@ const Hero = styled.div`
 const Tools = styled.div`
   border-bottom: 1px solid #e0e0e0;
   margin-top: 60px;
+
   h2 {
     display: flex;
     justify-content: center;
@@ -470,6 +468,7 @@ const OpenDocumentPanel = styled(Tool)`
 interface ToolIconProps {
   color: string;
 }
+
 const ToolIcon = styled.div<ToolIconProps>`
   width: 60px;
   height: 60px;
@@ -611,7 +610,7 @@ const MainFooter = styled.div`
   background-color: #5d6069;
 `;
 
-const FooterContainer = styled(Container)`
+const FooterContainer = styled(Layout)`
   display: flex;
   padding: 40px 50px;
   justify-content: flex-end;

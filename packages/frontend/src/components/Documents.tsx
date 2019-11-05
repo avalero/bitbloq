@@ -28,12 +28,12 @@ import useUserData from "../lib/useUserData";
 import AppFooter from "./Footer";
 import AppHeader from "./AppHeader";
 import Breadcrumbs from "./Breadcrumbs";
-import DocumentListComp from "./DocumentsList";
+import DocumentList from "./DocumentsList";
 import EditTitleModal from "./EditTitleModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import Layout from "./Layout";
 import NewDocumentDropDown from "./NewDocumentDropDown";
 import NewExerciseButton from "./NewExerciseButton";
-import Paginator from "./Paginator";
 import UserSession from "./UserSession";
 
 enum OrderType {
@@ -238,104 +238,104 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <AppHeader>
         <UserSession />
       </AppHeader>
-      <Content>
-        <Header>
-          {currentLocation.id === userData.rootFolder ? (
-            <h1>Mis documentos</h1>
-          ) : (
-            <Breadcrumbs links={breadParents} />
-          )}
-        </Header>
-        <Rule />
-        <DocumentListHeader>
-          {(docsAndFols.length > 0 || searchQuery) && (
-            <>
-              <ViewOptions>
-                <OrderSelect
-                  options={orderOptions}
-                  onChange={onOrderChange}
-                  selectConfig={{ isSearchable: false }}
+      <Layout>
+        <Content>
+          <Header>
+            {currentLocation.id === userData.rootFolder ? (
+              <h1>Mis documentos</h1>
+            ) : (
+              <Breadcrumbs links={breadParents} />
+            )}
+          </Header>
+          <Rule />
+          <DocumentListHeader>
+            {(docsAndFols.length > 0 || searchQuery) && (
+              <>
+                <ViewOptions>
+                  <OrderSelect
+                    options={orderOptions}
+                    onChange={onOrderChange}
+                    selectConfig={{ isSearchable: false }}
+                  />
+                </ViewOptions>
+                <SearchInput
+                  value={searchText}
+                  onChange={e => (
+                    setSearchText(e.target.value), onSearchInput(e.target.value)
+                  )}
+                  placeholder="Buscar..."
                 />
-              </ViewOptions>
-              <SearchInput
-                value={searchText}
-                onChange={e => (
-                  setSearchText(e.target.value), onSearchInput(e.target.value)
+              </>
+            )}
+            <HeaderButtons>
+              <NewFolderButton
+                tertiary
+                onClick={() => {
+                  setFolderTitleModal(true);
+                }}
+              >
+                <Icon name="new-folder" />
+                Nueva carpeta
+              </NewFolderButton>
+              <NewExerciseButton
+                onOpenExercise={onOpenExercise}
+                exerciseError={exerciseError}
+                loadingExercise={loadingExercise}
+              />
+              <DropDown
+                attachmentPosition={"top center"}
+                targetPosition={"bottom center"}
+              >
+                {(isOpen: boolean) => (
+                  <NewDocumentButton tertiary isOpen={isOpen}>
+                    <Icon name="new-document" />
+                    Nuevo documento
+                  </NewDocumentButton>
                 )}
-                placeholder="Buscar..."
+                <NewDocumentDropDown
+                  onNewDocument={onNewDocument}
+                  onOpenDocument={onOpenDocumentClick}
+                  arrowOffset={10}
+                />
+              </DropDown>
+            </HeaderButtons>
+          </DocumentListHeader>
+          {docsAndFols.length > 0 ? (
+            <DndProvider backend={HTML5Backend}>
+              <DocumentList
+                currentPage={currentPage}
+                parentsPath={parentsPath}
+                pagesNumber={pagesNumber}
+                refetchDocsFols={refetchDocsFols}
+                docsAndFols={docsAndFols}
+                currentLocation={currentLocation}
+                onFolderClick={onFolderClick}
+                onDocumentClick={onDocumentClick}
+                selectPage={(page: number) => setCurrentPage(page)}
+                nFolders={nFolders}
               />
-            </>
+            </DndProvider>
+          ) : searchQuery ? (
+            <NoDocuments>
+              <h1>No hay resultados para tu búsqueda</h1>
+            </NoDocuments>
+          ) : (
+            <NoDocuments>
+              <h1>No tienes ningún documento</h1>
+              <p>
+                Puedes crear un documento nuevo o subir uno desde tu ordenador.
+              </p>
+            </NoDocuments>
           )}
-          <HeaderButtons>
-            <NewFolderButton
-              tertiary
-              onClick={() => {
-                setFolderTitleModal(true);
-              }}
-            >
-              <Icon name="new-folder" />
-              Nueva carpeta
-            </NewFolderButton>
-            <NewExerciseButton
-              onOpenExercise={onOpenExercise}
-              exerciseError={exerciseError}
-              loadingExercise={loadingExercise}
-            />
-            <DropDown
-              attachmentPosition={"top center"}
-              targetPosition={"bottom center"}
-            >
-              {(isOpen: boolean) => (
-                <NewDocumentButton tertiary isOpen={isOpen}>
-                  <Icon name="new-document" />
-                  Nuevo documento
-                </NewDocumentButton>
-              )}
-              <NewDocumentDropDown
-                onNewDocument={onNewDocument}
-                onOpenDocument={onOpenDocumentClick}
-                arrowOffset={10}
-              />
-            </DropDown>
-          </HeaderButtons>
-        </DocumentListHeader>
-        {docsAndFols.length > 0 ? (
-          <DndProvider backend={HTML5Backend}>
-            <DocumentListComp
-              currentPage={currentPage}
-              parentsPath={parentsPath}
-              pagesNumber={pagesNumber}
-              refetchDocsFols={refetchDocsFols}
-              docsAndFols={docsAndFols}
-              currentLocation={currentLocation}
-              onFolderClick={onFolderClick}
-              onDocumentClick={onDocumentClick}
-              order={order}
-              searchTitle={searchText}
-              selectPage={(page: number) => setCurrentPage(page)}
-              nFolders={nFolders}
-            />
-          </DndProvider>
-        ) : searchQuery ? (
-          <NoDocuments>
-            <h1>No hay resultados para tu búsqueda</h1>
-          </NoDocuments>
-        ) : (
-          <NoDocuments>
-            <h1>No tienes ningún documento</h1>
-            <p>
-              Puedes crear un documento nuevo o subir uno desde tu ordenador.
-            </p>
-          </NoDocuments>
-        )}
-        <Subscription
-          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-          shouldResubscribe={true}
-          onSubscriptionData={() => {
-            refetchDocsFols();
-          }}
-        />
-      </Content>
+          <Subscription
+            subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+            shouldResubscribe={true}
+            onSubscriptionData={() => {
+              refetchDocsFols();
+            }}
+          />
+        </Content>
+      </Layout>
       <input
         ref={openFile}
         type="file"
@@ -365,23 +365,11 @@ export default DocumentsWithDelete;
 /* styled components */
 
 const Container = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
   background-color: ${colors.gray1};
-  display: flex;
-  flex-direction: column;
 `;
 
 const Content = styled.div`
-  display: flex;
-  flex: 1;
-  flex-flow: column nowrap;
-  padding: 0px 50px;
-
-  & > div {
-    flex-shrink: 0;
-  }
+  min-height: calc(100vh - 60px - 54px);
 `;
 
 const Header = styled.div`
@@ -489,8 +477,4 @@ const NewFolderButton = styled(Button)`
     height: 20px;
     margin-right: 6px;
   }
-`;
-
-const DocumentsPaginator = styled(Paginator)`
-  margin-bottom: 60px;
 `;
