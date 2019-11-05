@@ -253,6 +253,10 @@
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
   "cloud": {
+    "text": {
+      "empty": "No tienes ningún recurso en esta categoría",
+      "trash": "Aún no has enviado ningún recurso a la papelera"
+    },
     "resources": {
       "deleted": "Papelera",
       "images": "Imágenes",

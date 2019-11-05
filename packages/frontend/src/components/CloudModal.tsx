@@ -1,33 +1,38 @@
 import React, { FC, useState } from "react";
 import { Modal, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { resources } from "../config";
+import { resourceTypes } from "../config";
 
 import useUserData from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 import MenuButton from "./MenuButton";
 
-interface IResource {
+interface IResourceType {
   label: string;
   icon: string;
-  id: number;
+  id: string;
 }
 
-interface IResourceProps {
+interface IResourceTypeProps {
   active: boolean;
   label: string;
   icon: string;
   onClick: () => void;
 }
 
-const Resource: FC<IResourceProps> = ({ active, label, icon, onClick }) => {
+const ResourceType: FC<IResourceTypeProps> = ({
+  active,
+  label,
+  icon,
+  onClick
+}) => {
   const t = useTranslate();
 
   return (
-    <RecourseItem active={active} onClick={onClick}>
+    <RecourseTypeItem active={active} onClick={onClick}>
       <Icon name={icon} />
       <p>{t(label)}</p>
-    </RecourseItem>
+    </RecourseTypeItem>
   );
 };
 
@@ -37,15 +42,17 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
-  let cloudResources: IResource[] = [];
+  let cloudResources: IResourceType[] = [];
 
-  for (let r in resources) {
-    cloudResources.push(resources[r]);
+  for (let r in resourceTypes) {
+    cloudResources.push(resourceTypes[r]);
   }
 
-  const [resourceActiveId, setResourceActiveId] = useState<number | string>(
+  const [resourceActiveId, setResourceActiveId] = useState<string>(
     cloudResources[0].id
   );
+  const [resources, setResources] = useState<any[]>([]); // Crear tipo Resource
+  const t = useTranslate();
 
   return (
     <Modal
@@ -57,7 +64,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
       <CloudModalBody>
         <LateralBar>
           {cloudResources.map(resource => (
-            <Resource
+            <ResourceType
               active={resourceActiveId === resource.id}
               key={resource.id}
               label={resource.label}
@@ -66,6 +73,17 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
             />
           ))}
         </LateralBar>
+        <MainContent>
+          {resources.length === 0 ? (
+            <EmptyResources>
+              {resourceActiveId === "resource-deleted"
+                ? t("cloud.text.trash")
+                : t("cloud.text.empty")}
+            </EmptyResources>
+          ) : (
+            <></>
+          )}
+        </MainContent>
       </CloudModalBody>
     </Modal>
   );
@@ -80,6 +98,18 @@ const CloudModalBody = styled.div`
   width: 1000px;
 `;
 
+const EmptyResources = styled.div`
+  align-items: center;
+  color: #373b44;
+  display: flex;
+  font-family: Roboto;
+  font-size: 24px;
+  font-weight: 300;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+`;
+
 const LateralBar = styled.div`
   border-right: 1px solid #ddd;
   height: calc(100% - 21px);
@@ -87,7 +117,13 @@ const LateralBar = styled.div`
   width: 259px;
 `;
 
-const RecourseItem = styled.div<{ active?: boolean }>`
+const MainContent = styled.div`
+  height: calc(100% - 49px);
+  padding: 19px 20px 30px;
+  width: calc(100% - 40px);
+`;
+
+const RecourseTypeItem = styled.div<{ active?: boolean }>`
   align-items: center;
   background-color: ${props => (props.active ? "#fff" : "#eee")};
   border-bottom: 1px solid #ddd;
