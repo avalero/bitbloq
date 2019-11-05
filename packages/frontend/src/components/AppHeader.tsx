@@ -46,7 +46,7 @@ const Container = styled.div<IAppHeaderProps>`
         `};
 `;
 
-const Content =  styled.div`
+const Content = styled.div`
   align-items: center;
   display: flex;
   > * {

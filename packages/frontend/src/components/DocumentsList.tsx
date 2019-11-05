@@ -323,7 +323,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   offset="182px 14px" // 182 = 240(card height) - 2(card border) - 14(button offset) - 36(button height) - 6(dropdow offset)
                 >
                   {(isOpen: boolean) => (
-                    <MenuButtonContainer isOpen={isOpen} onClick={e => onDocumentMenuClick(e, document)}>
+                    <MenuButtonContainer
+                      isOpen={isOpen}
+                      onClick={e => onDocumentMenuClick(e, document)}
+                    >
                       <MenuButton isOpen={isOpen} />
                     </MenuButtonContainer>
                   )}

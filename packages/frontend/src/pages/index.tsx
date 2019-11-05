@@ -170,9 +170,7 @@ const IndexPage: FC = () => {
               onOpenDocument={onOpenDocument}
             />
           </DropDown>
-          <HeaderButton onClick={() => navigate("/login")}>
-            Entrar
-          </HeaderButton>
+          <HeaderButton onClick={() => navigate("/login")}>Entrar</HeaderButton>
           <HeaderButton secondary onClick={() => navigate("/signup")}>
             Crear una cuenta
           </HeaderButton>
@@ -225,8 +223,8 @@ const IndexPage: FC = () => {
                 </OpenDocumentIcon>
                 <h3>Abrir documento desde archivo</h3>
                 <p>
-                  Abre cualquier documento de tipo .bitbloq que hayas guardado en
-                  tu ordenador.
+                  Abre cualquier documento de tipo .bitbloq que hayas guardado
+                  en tu ordenador.
                 </p>
                 <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
                   <Icon name="open-document" />
@@ -385,7 +383,7 @@ const ExerciseForm = styled.div`
 const Section = styled.div`
   :not(:last-of-type):after {
     border-bottom: 1px solid #e0e0e0;
-    content: '';
+    content: "";
     left: 0;
     position: absolute;
     width: 100vw;
