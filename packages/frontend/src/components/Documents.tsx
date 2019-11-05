@@ -398,9 +398,9 @@ const Rule = styled(HorizontalRule)`
 `;
 
 const DocumentListHeader = styled.div`
-  display: flex;
-  height: 115px;
   align-items: center;
+  display: flex;
+  margin: 20px 0 40px;
 `;
 
 const HeaderButtons = styled.div`

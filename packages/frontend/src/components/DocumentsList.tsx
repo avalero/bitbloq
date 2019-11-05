@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
+import { DialogModal, DropDown } from "@bitbloq/ui";
 import { useDrop } from "react-dnd";
 import { css } from "@emotion/core";
 import {
@@ -539,7 +539,7 @@ const DocumentsAndPaginator = styled.div`
 `;
 
 const DocumentsPaginator = styled(Paginator)`
-  margin-bottom: 60px;
+  margin: 40px 0 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`
