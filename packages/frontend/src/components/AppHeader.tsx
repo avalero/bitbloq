@@ -65,7 +65,6 @@ const Header = styled.div<IAppHeaderProps>`
 const Logo = styled.img<IAppHeaderProps>`
   height: ${props =>
     props.isSticky === undefined || props.isSticky ? "30" : "40"}px;
-  top: 50%;
   transform: translateY(50%);
   transition: height 100ms ease-out;
 `;
