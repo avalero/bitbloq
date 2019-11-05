@@ -69,7 +69,7 @@ const LandingExamples: FC = () => {
 export default LandingExamples;
 
 const Container = styled.div`
-  padding: 80px 50px;
+  padding: 80px 0;
 
   h2 {
     display: flex;
