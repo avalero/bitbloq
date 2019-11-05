@@ -36,7 +36,7 @@ const CloudLogo = props => (
         />
       </filter>
     </defs>
-    <g fill="none" fill-rule="evenodd">
+    <g fill="none" fillRule="evenodd">
       <path fill="#FBFBFB" d="M-1039-63H241v951h-1280z" />
       <g transform="translate(-14 -10)">
         <use fill="#000" filter="url(#a)" />

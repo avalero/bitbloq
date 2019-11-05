@@ -68,6 +68,25 @@ export const documentTypes = {
   },
 };
 
+export const resources = {
+  objects: {
+    "label": "cloud.resources.objects",
+    "icon": "resource-image"
+  },
+  pictures: {
+    "label": "cloud.resources.pictures",
+    "icon": "resource-image"
+  },
+  sounds: {
+    "label": "cloud.resources.sounds",
+    "icon": "resource-sound"
+  },
+  videos: {
+    "label": "cloud.resources.videos",
+    "icon": "resource-video"
+  }
+}
+
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
   TOKEN_DURATION_MINUTES: 60,

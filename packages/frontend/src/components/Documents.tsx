@@ -28,6 +28,7 @@ import useUserData from "../lib/useUserData";
 import AppFooter from "./Footer";
 import AppHeader from "./AppHeader";
 import Breadcrumbs from "./Breadcrumbs";
+import CloudModal from "./CloudModal";
 import DocumentListComp from "./DocumentsList";
 import EditTitleModal from "./EditTitleModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
@@ -66,6 +67,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
 
+  const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [order, setOrder] = useState(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -236,7 +238,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   return (
     <Container>
       <AppHeader>
-        <UserSession />
+        <UserSession cloudClick={() => setCloudModalOpen(true)} />
       </AppHeader>
       <Content>
         <Header>
@@ -354,6 +356,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         />
       )}
       <AppFooter />
+      <CloudModal isOpen={true} onClose={() => setCloudModalOpen(false)} />
     </Container>
   );
 };

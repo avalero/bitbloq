@@ -7,20 +7,22 @@ import colors from "../colors";
 export interface ModalProps {
   isOpen: boolean;
   title?: string;
-  showHeader: boolean;
+  showHeader?: boolean;
   onClose?: () => void;
   transparentOverlay?: boolean;
   className?: string;
+  iconName?: string;
 }
 
 const Modal: FC<ModalProps> = ({
   isOpen,
   title,
-  showHeader,
+  showHeader = true,
   onClose,
   transparentOverlay,
   children,
-  className
+  className,
+  iconName
 }) => {
   if (!isOpen) {
     return null;
@@ -39,7 +41,10 @@ const Modal: FC<ModalProps> = ({
         {showHeader && (
           <>
             <Header>
-              <Title>{title}</Title>
+              <Title>
+                {iconName && <Icon name={iconName} />}
+                {title}
+              </Title>
               {onClose && (
                 <Close onClick={onClose}>
                   <Icon name="close" />
@@ -105,6 +110,10 @@ const Title = styled.div`
   padding: 0px 30px;
   display: flex;
   align-items: center;
+
+  svg {
+    margin-right: 10px;
+  }
 `;
 
 const Close = styled.div`

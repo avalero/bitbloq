@@ -252,6 +252,14 @@
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
+  "cloud": {
+    "resources": {
+      "objects": "Objetos 3D",
+      "pictures": "Imágenes",
+      "sounds": "Sonidos",
+      "videos": "Vídeos"
+    }
+  },
   "junior": {
     "hardware": "Hardware",
     "software": "Software",

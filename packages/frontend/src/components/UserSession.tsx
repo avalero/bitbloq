@@ -1,11 +1,15 @@
-import React from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 import MenuButton from "./MenuButton";
 
-const UserSession = () => {
+interface IUserSessionProps {
+  cloudClick?: () => void;
+}
+
+const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
   const logout = useLogout();
   const userData = useUserData();
   const t = useTranslate();
@@ -17,10 +21,12 @@ const UserSession = () => {
       <DropDown>
         {(isOpen: boolean) => <MenuButton isOpen={isOpen} />}
         <ContextMenu>
-          <ContextMenuOption>
-            <Icon name="cloud-logo" />
-            <p>{t("user.cloud.access")}</p>
-          </ContextMenuOption>
+          {cloudClick && (
+            <ContextMenuOption onClick={cloudClick}>
+              <Icon name="cloud-logo" />
+              <p>{t("user.cloud.access")}</p>
+            </ContextMenuOption>
+          )}
           <ContextMenuOption onClick={() => logout()}>
             <p>{t("user.session.logout")}</p>
           </ContextMenuOption>
