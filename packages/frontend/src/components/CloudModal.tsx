@@ -1,11 +1,8 @@
 import React, { FC, useState } from "react";
 import { Modal, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import ResourcesList from "./ResourcesList";
 import { resourceTypes } from "../config";
-
-import useUserData from "../lib/useUserData";
-import useLogout from "../lib/useLogout";
-import MenuButton from "./MenuButton";
 
 interface IResourceType {
   label: string;
@@ -51,7 +48,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   const [resourceActiveId, setResourceActiveId] = useState<string>(
     cloudResources[0].id
   );
-  const [resources, setResources] = useState<any[]>([]); // Crear tipo Resource
+  const [resources, setResources] = useState<any[]>([3]); // Crear tipo IResource
   const t = useTranslate();
 
   return (
@@ -81,7 +78,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
                 : t("cloud.text.empty")}
             </EmptyResources>
           ) : (
-            <></>
+            <ResourcesList resources={resources} setResources={setResources} />
           )}
         </MainContent>
       </CloudModalBody>
@@ -93,7 +90,7 @@ export default CloudModal;
 
 const CloudModalBody = styled.div`
   display: flex;
-  flex: row nowrap;
+  flex-flow: row nowrap;
   height: 447px;
   width: 1000px;
 `;
@@ -114,13 +111,13 @@ const LateralBar = styled.div`
   border-right: 1px solid #ddd;
   height: calc(100% - 21px);
   padding-top: 21px;
-  width: 259px;
+  width: 258px;
 `;
 
 const MainContent = styled.div`
+  flex: 1 1 auto;
   height: calc(100% - 49px);
   padding: 19px 20px 30px;
-  width: calc(100% - 40px);
 `;
 
 const RecourseTypeItem = styled.div<{ active?: boolean }>`
