@@ -366,6 +366,7 @@ export default DocumentsWithDelete;
 
 const Container = styled.div`
   background-color: ${colors.gray1};
+  height: 100vh;
 `;
 
 const Content = styled.div`
@@ -390,7 +391,7 @@ const Header = styled.div`
 `;
 
 const Loading = styled(Spinner)`
-  flex: 1;
+  height: 100vh;
 `;
 
 const Rule = styled(HorizontalRule)`

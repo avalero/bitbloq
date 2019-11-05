@@ -179,67 +179,65 @@ const IndexPage: FC = () => {
         </AppHeader>
       </div>
       <Layout>
-        <Hero>
-          <h1>
-            <img src={logoBetaImage} alt="Bitbloq Beta" />
-          </h1>
-          <p>
-            La plataforma más completa para trabajar el diseño 3D, la
-            programación y la robótica en el aula.
-          </p>
-        </Hero>
-      </Layout>
-      <Tools>
-        <Layout>
-          <h2>
-            <Icon name="new-document" />
-            Crea o abre un documento
-          </h2>
-          <ToolsList>
-            {Object.keys(documentTypes)
-              .map(id => ({ ...documentTypes[id], id }))
-              .map(type => (
-                <Tool key={type.id}>
-                  <ToolIcon color={type.color}>
-                    <Icon name={type.icon} />
-                  </ToolIcon>
-                  <h3>{type.label}</h3>
-                  <ToolLevel>{type.level}</ToolLevel>
-                  <p>{type.landingText}</p>
-                  {type.supported && (
-                    <Button
-                      {...{ [type.buttonType]: true }}
-                      onClick={() => onNewDocument(type.id)}
-                    >
-                      <PlusIcon>
-                        <Icon name="plus" />
-                      </PlusIcon>
-                      Nuevo documento
-                    </Button>
-                  )}
-                  {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
-                </Tool>
-              ))}
-            <OpenDocumentPanel>
-              <OpenDocumentIcon color="white">
-                <Icon name="open-document" />
-              </OpenDocumentIcon>
-              <h3>Abrir documento desde archivo</h3>
-              <p>
-                Abre cualquier documento de tipo .bitbloq que hayas guardado en
-                tu ordenador.
-              </p>
-              <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
-                <Icon name="open-document" />
-                Abrir documento
-              </OpenDocumentButton>
-            </OpenDocumentPanel>
-          </ToolsList>
-        </Layout>
-      </Tools>
-      <OpenExercise>
-        <Layout>
-          <OpenExerciseWrap>
+        <Section>
+          <Hero>
+            <h1>
+              <img src={logoBetaImage} alt="Bitbloq Beta" />
+            </h1>
+            <p>
+              La plataforma más completa para trabajar el diseño 3D, la
+              programación y la robótica en el aula.
+            </p>
+          </Hero>
+          <Tools>
+            <h2>
+              <Icon name="new-document" />
+              Crea o abre un documento
+            </h2>
+            <ToolsList>
+              {Object.keys(documentTypes)
+                .map(id => ({ ...documentTypes[id], id }))
+                .map(type => (
+                  <Tool key={type.id}>
+                    <ToolIcon color={type.color}>
+                      <Icon name={type.icon} />
+                    </ToolIcon>
+                    <h3>{type.label}</h3>
+                    <ToolLevel>{type.level}</ToolLevel>
+                    <p>{type.landingText}</p>
+                    {type.supported && (
+                      <Button
+                        {...{ [type.buttonType]: true }}
+                        onClick={() => onNewDocument(type.id)}
+                      >
+                        <PlusIcon>
+                          <Icon name="plus" />
+                        </PlusIcon>
+                        Nuevo documento
+                      </Button>
+                    )}
+                    {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
+                  </Tool>
+                ))}
+              <OpenDocumentPanel>
+                <OpenDocumentIcon color="white">
+                  <Icon name="open-document" />
+                </OpenDocumentIcon>
+                <h3>Abrir documento desde archivo</h3>
+                <p>
+                  Abre cualquier documento de tipo .bitbloq que hayas guardado en
+                  tu ordenador.
+                </p>
+                <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
+                  <Icon name="open-document" />
+                  Abrir documento
+                </OpenDocumentButton>
+              </OpenDocumentPanel>
+            </ToolsList>
+          </Tools>
+        </Section>
+        <Section>
+          <OpenExercise>
             <OpenExerciseInfo>
               <h2>
                 <Icon name="airplane-document" />
@@ -282,27 +280,25 @@ const IndexPage: FC = () => {
                 </ExerciseForm>
               </OpenExercisePanelContent>
             </OpenExercisePanel>
-          </OpenExerciseWrap>
-        </Layout>
-      </OpenExercise>
-      <Layout>
-        <LandingExamples />
+          </OpenExercise>
+        </Section>
+        <Section>
+          <LandingExamples />
+        </Section>
       </Layout>
       <Footer>
-        <MainFooter>
-          <FooterContainer>
-            {/* <FooterLeft>
-              <h2>Contacto</h2>
-              <p>Bq Educación</p>
-              <p>900 00 00 00</p>
-              <p>soporte.bitbloq@bq.com</p>
-            </FooterLeft> */}
-            <FooterRight>
-              <p>Bitbloq es un proyecto de:</p>
-              <img src={bqLogo} alt="BQ" />
-            </FooterRight>
-          </FooterContainer>
-        </MainFooter>
+        <FooterContainer>
+          {/* <FooterLeft>
+            <h2>Contacto</h2>
+            <p>Bq Educación</p>
+            <p>900 00 00 00</p>
+            <p>soporte.bitbloq@bq.com</p>
+          </FooterLeft> */}
+          <FooterRight>
+            <p>Bitbloq es un proyecto de:</p>
+            <img src={bqLogo} alt="BQ" />
+          </FooterRight>
+        </FooterContainer>
         <LegalLinks>
           <a href="#">Condiciones generales</a>
           {" | "}
@@ -386,6 +382,16 @@ const ExerciseForm = styled.div`
   }
 `;
 
+const Section = styled.div`
+  :not(:last-of-type):after {
+    border-bottom: 1px solid #e0e0e0;
+    content: '';
+    left: 0;
+    position: absolute;
+    width: 100vw;
+  }
+`;
+
 const Hero = styled.div`
   padding: 0px 50px;
   box-sizing: border-box;
@@ -415,7 +421,6 @@ const Hero = styled.div`
 `;
 
 const Tools = styled.div`
-  border-bottom: 1px solid #e0e0e0;
   margin-top: 60px;
 
   h2 {
@@ -534,10 +539,6 @@ const ComingSoon = styled.div`
 `;
 
 const OpenExercise = styled.div`
-  border-bottom: 1px solid #e0e0e0;
-`;
-
-const OpenExerciseWrap = styled.div`
   width: 83.33%;
   display: flex;
   margin: 80px 0px 80px 8.33%;
@@ -604,9 +605,6 @@ const OpenExercisePanelContent = styled.div`
 const Footer = styled.div`
   color: white;
   font-size: 14px;
-`;
-
-const MainFooter = styled.div`
   background-color: #5d6069;
 `;
 
