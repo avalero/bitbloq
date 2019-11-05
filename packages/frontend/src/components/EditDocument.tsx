@@ -43,7 +43,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [, setImageInterval] = useState<number>();
+  const [, setImageInterval] = useState<NodeJS.Timeout>();
   const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
   const [document, setDocument] = useState({
@@ -70,6 +70,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   });
 
   useEffect(() => {
+    imageToUpload.current;
     if (firstLoad) {
       saveImage();
       if (
@@ -225,7 +226,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const documentType = documentTypes[type];
 
   if (loading) return <Loading color={documentType.color} />;
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (error) return <GraphQLErrorMessage apolloError={error!} />;
 
   const {
     title,
