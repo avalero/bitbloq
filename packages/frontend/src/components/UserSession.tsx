@@ -1,25 +1,28 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { colors, DropDown } from "@bitbloq/ui";
+import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 import MenuButton from "./MenuButton";
 
 const UserSession = () => {
-  const userData = useUserData();
   const logout = useLogout();
+  const userData = useUserData();
+  const t = useTranslate();
 
   return (
     <>
       <UserName>{userData && userData.name}</UserName>
-      <UserAvatar src={userData ? userData.avatar : ''} />
+      <UserAvatar src={userData ? userData.avatar : ""} />
       <DropDown>
-        {(isOpen: boolean) => (
-          <MenuButton isOpen={isOpen} />
-        )}
+        {(isOpen: boolean) => <MenuButton isOpen={isOpen} />}
         <ContextMenu>
+          <ContextMenuOption>
+            <Icon name="cloud-logo" />
+            <p>{t("user.cloud.access")}</p>
+          </ContextMenuOption>
           <ContextMenuOption onClick={() => logout()}>
-            Cerrar sesión
+            <p>{t("user.session.logout")}</p>
           </ContextMenuOption>
         </ContextMenu>
       </DropDown>
@@ -58,14 +61,20 @@ const ContextMenu = styled.div`
 `;
 
 const ContextMenuOption = styled.div`
-  width: 220px;
-  display: flex;
   align-items: center;
-  height: 34px;
   border-bottom: 1px solid #ebebeb;
-  font-size: 14px;
   cursor: pointer;
-  padding: 0px 20px;
+  display: flex;
+  padding: 10px 14px 9px;
+
+  p {
+    font-size: 14px;
+    height: 16px;
+  }
+
+  svg {
+    margin-right: 10px;
+  }
 
   &:hover {
     background-color: #ebebeb;

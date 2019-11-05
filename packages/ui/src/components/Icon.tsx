@@ -11,6 +11,7 @@ import Brain from "./icons/Brain";
 import Brush from "./icons/Brush";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
+import CloudLogo from "./icons/CloudLogo";
 import Cube from "./icons/Cube";
 import CurveAngle from "./icons/CurveAngle";
 import Cylinder from "./icons/Cylinder";
@@ -131,6 +132,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <CityElements className={className} />;
     case "close":
       return <Close className={className} />;
+    case "cloud-logo":
+      return <CloudLogo className={className} />;
     case "cube":
       return <Cube className={className} />;
     case "curve-angle":

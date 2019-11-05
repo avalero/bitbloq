@@ -272,5 +272,13 @@
     "mm": "mm",
     "peaks": "puntas",
     "sides": "caras"
+  },
+  "user": {
+    "cloud": {
+      "access": "Ver mi Bitbloq Cloud"
+    },
+    "session": {
+      "logout": "salir"
+    }
   }
 }
