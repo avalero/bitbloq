@@ -69,6 +69,8 @@ const LandingExamples: FC = () => {
 export default LandingExamples;
 
 const Container = styled.div`
+  padding: 80px 50px;
+
   h2 {
     display: flex;
     align-items: center;
