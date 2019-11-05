@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect } from "react";
+import Router from "next/router";
 import styled from "@emotion/styled";
 import { useQuery } from "@apollo/react-hooks";
 import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
-import { navigate } from "gatsby";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
@@ -128,7 +128,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
               break;
           }
         }}
-        backCallback={() => navigate("/")}
+        backCallback={() => Router.push("/")}
         documentAdvancedMode={document.advancedMode}
         isPlayground
       />

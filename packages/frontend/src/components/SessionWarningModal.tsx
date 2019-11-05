@@ -4,10 +4,10 @@ import { useSessionEvent, setToken } from "../lib/session";
 import { RENEW_TOKEN_MUTATION } from "../apollo/queries";
 import { useMutation } from "@apollo/react-hooks";
 
-export interface SessionWarningModalProps {
+export interface ISessionWarningModalProps {
   tempSession?: string;
 }
-const SessionWarningModal: FC<SessionWarningModalProps> = ({ tempSession }) => {
+const SessionWarningModal: FC<ISessionWarningModalProps> = ({ tempSession }) => {
   const [renewToken] = useMutation(RENEW_TOKEN_MUTATION, {
     context: { tempSession }
   });

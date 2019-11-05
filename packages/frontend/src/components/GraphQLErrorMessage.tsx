@@ -30,7 +30,7 @@ const getErrorProps = (extensionCode: string) => {
 
     case "NOT_YOUR_DOCUMENT":
       return {
-        code: 403,
+        code: "403",
         text: "Lo sentimos, no tienes permisos para poder ver este contenido"
       };
 

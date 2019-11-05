@@ -1,7 +1,9 @@
 import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { navigate } from "gatsby";
-import { Global } from "@emotion/core";
+import { NextPage } from "next";
+import Router from "next/router";
+import withApollo, { IContext } from "../apollo/withApollo";
+import redirect from "../lib/redirect";
 import {
   baseStyles,
   colors,
@@ -10,26 +12,24 @@ import {
   Icon,
   DropDown,
   HorizontalRule,
-  Spinner
+  Spinner,
+  useTranslate
 } from "@bitbloq/ui";
-import { useApolloClient, useQuery } from "@apollo/react-hooks";
+import { useApolloClient } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
 import AppHeader from "../components/AppHeader";
-import BrowserVersionWarning from "../components/BrowserVersionWarning";
 import LandingExamples from "../components/LandingExamples";
 import Layout from "../components/Layout";
 import NewDocumentDropDown from "../components/NewDocumentDropDown";
-import SEO from "../components/SEO";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
-import { getChromeVersion } from "../util";
 import bqLogo from "../images/bq-logo.svg";
 import studentStep1Image from "../images/student-step-1.svg";
 import studentStep2Image from "../images/student-step-2.svg";
 import heroImage from "../images/home_beta-decoration.svg";
 
-const IndexPage: FC = () => {
-  const { data, loading } = useQuery(ME_QUERY);
+const IndexPage: NextPage = () => {
+  const t = useTranslate();
   const client = useApolloClient();
 
   const [exerciseCode, setExerciseCode] = useState("");
@@ -52,19 +52,6 @@ const IndexPage: FC = () => {
     return () => document.removeEventListener("scroll", handleScroll);
   }, []);
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (getChromeVersion() < 69) {
-    return <BrowserVersionWarning version={69} />;
-  }
-
-  if (data && data.me) {
-    navigate("/app");
-    return <Loading />;
-  }
-
   const onNewDocument = (type: string) => {
     window.open(`/app/playground/${type}`);
   };
@@ -82,9 +69,9 @@ const IndexPage: FC = () => {
       reader.onload = e => {
         const document = JSON.parse(reader.result as string);
         const channel = new BroadcastChannel("bitbloq-landing");
-        channel.onmessage = e => {
-          if (e.data.command === "open-document-ready") {
-            channel.postMessage({ command: "open-document", document });
+        channel.onmessage = event => {
+          if (event.data.command === "open-document-ready") {
+            channel.postMessage({ document, command: "open-document" });
             channel.close();
           }
         };
@@ -119,8 +106,6 @@ const IndexPage: FC = () => {
 
   return (
     <>
-      <SEO title="Home" keywords={[`bitbloq`]} />
-      <Global styles={baseStyles} />
       <div ref={headerRef}>
         <AppHeader isSticky={isHeaderSticky}>
           <DropDown
@@ -131,7 +116,7 @@ const IndexPage: FC = () => {
             {(isOpen: boolean) => (
               <HeaderButton tertiary>
                 <Icon name="airplane-document" />
-                Ir al ejercicio
+                {t("documents.go-to-exercise")}
               </HeaderButton>
             )}
             <ExerciseDropDown>
@@ -170,8 +155,10 @@ const IndexPage: FC = () => {
               onOpenDocument={onOpenDocument}
             />
           </DropDown>
-          <HeaderButton onClick={() => navigate("/login")}>Entrar</HeaderButton>
-          <HeaderButton secondary onClick={() => navigate("/signup")}>
+          <HeaderButton onClick={() => Router.push("/login")}>
+            Entrar
+          </HeaderButton>
+          <HeaderButton secondary onClick={() => Router.push("/signup")}>
             Crear una cuenta
           </HeaderButton>
         </AppHeader>
@@ -315,21 +302,36 @@ const IndexPage: FC = () => {
   );
 };
 
-export default IndexPage;
+IndexPage.getInitialProps = async (ctx: IContext) => {
+  const { apolloClient } = ctx;
+  try {
+    const { data } = await apolloClient.query({
+      query: ME_QUERY,
+      errorPolicy: "ignore"
+    });
+    if (data && data.me) {
+      redirect(ctx, "/app");
+    }
+  } catch (e) {}
+
+  return {};
+};
+
+export default withApollo(IndexPage, { requiresSession: false });
 
 /* styled components */
 
-interface LoadingProps {
+interface ILoadingProps {
   type?: string;
 }
 
-const Loading = styled(Spinner)<LoadingProps>`
+const Loading = styled(Spinner)<ILoadingProps>`
   position: absolute;
   height: 100%;
   width: 100%;
-  background-color: ${(props: LoadingProps) =>
+  background-color: ${props =>
     (props.type && documentTypes[props.type].color) || colors.gray1};
-  color: ${(props: LoadingProps) => (props.type ? "white" : "inherit")};
+  color: ${props => (props.type ? "white" : "inherit")};
   display: flex;
 `;
 
@@ -468,11 +470,11 @@ const OpenDocumentPanel = styled(Tool)`
   align-self: flex-start;
 `;
 
-interface ToolIconProps {
+interface IToolIconProps {
   color: string;
 }
 
-const ToolIcon = styled.div<ToolIconProps>`
+const ToolIcon = styled.div<IToolIconProps>`
   width: 60px;
   height: 60px;
   border-radius: 4px;

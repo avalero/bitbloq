@@ -1,18 +1,19 @@
 import React, { FC, useState, useEffect } from "react";
 import queryString from "query-string";
 import styled from "@emotion/styled";
+import Router from "next/router";
+import withApollo from "../apollo/withApollo";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import { navigate } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
 import { ME_QUERY, CHECK_RESET_PASSWORD_TOKEN_MUTATION, UPDATE_PASSWORD_MUTATION } from "../apollo/queries";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
 import ModalLayout from "../components/ModalLayout";
 
-export interface ForgotPasswordPageProps {
+export interface IForgotPasswordPageProps {
   location: any;
 }
 
-const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
+const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -27,7 +28,7 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
 
   const { data } = useQuery(ME_QUERY);
   if (data && data.me) {
-    navigate("/app");
+    Router.push("/app");
   }
 
   const checkTokenValidity = async () => {
@@ -74,9 +75,10 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
           "debes volver a solicitar el cambio."
         }
         okText="Volver a solicitar cambio de contraseña"
-        onOk={() => navigate("/forgot-password")}
+        onOk={() => Router.push("/forgot-password")}
         cancelText="Volver al inicio"
-        onCancel={() => navigate("/")}
+        onCancel={() => Router.push("/")}
+        isOpen={true}
       />
     );
   }
@@ -87,18 +89,18 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
         title="Contraseña cambiada"
         modalTitle="Contraseña cambiada"
         text={
-          "Tu contraseña se ha cambiado con éxito, a partir de ahora " + 
+          "Tu contraseña se ha cambiado con éxito, a partir de ahora " +
           "ya no podrás entrar con la anterior contraseña."
         }
         cancelText="Volver al inicio"
-        onCancel={() => navigate("/")}
+        onCancel={() => Router.push("/")}
+        isOpen={true}
       />
     );
   }
 
   return (
     <AccessLayout
-      title="Bitbloq | Nueva contraseña"
       panelTitle="Nueva contraseña"
       size={AccessLayoutSize.MEDIUM}
     >
@@ -111,7 +113,7 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
           type="password"
           placeholder="Contraseña"
           value={password}
-          error={passwordError}
+          error={!!passwordError}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setPassword(e.target.value)
           }
@@ -126,7 +128,7 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
           type="password"
           placeholder="Repetir contraseña"
           value={repeat}
-          error={repeatError}
+          error={!!repeatError}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setRepeat(e.target.value)
           }
@@ -136,7 +138,7 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
         )}
       </FormGroup>
       <Buttons>
-        <Button secondary onClick={() => navigate("/login")}>
+        <Button secondary onClick={() => Router.push("/login")}>
           Cancelar
         </Button>
         <Button onClick={() => onSaveClick()} disabled={loading}>
@@ -147,7 +149,7 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
   );
 };
 
-export default ForgotPasswordPage;
+export default withApollo(ForgotPasswordPage, { requiresSession: false });
 
 const Text = styled.p`
   line-height: 1.57;

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
+import Router from "next/router";
 import {
   colors,
   Button,
@@ -12,7 +13,6 @@ import {
   Translate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { Link, navigate } from "gatsby";
 import gql from "graphql-tag";
 import { ApolloError } from "apollo-client";
 import {
@@ -100,7 +100,7 @@ class DocumentState {
   readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
   readonly exerciseId: string = "";
-  readonly stateError: ApolloError = "";
+  readonly stateError: ApolloError | null = null;
 }
 
 class Document extends React.Component<any, DocumentState> {
@@ -152,7 +152,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.folder}/${document.type}/${document.id}`
               )
             }
           >
@@ -504,10 +504,10 @@ class Document extends React.Component<any, DocumentState> {
                           {this.renderHeader(document)}
                           <Rule />
                           <DocumentData>
-                            {user.teacher
+                            {user && user.teacher
                               ? this.renderDocumentTeacherInfo(document, t)
                               : this.renderDocumentInfo(document, t)}
-                            {user.teacher
+                            {user && user.teacher
                               ? this.renderExercises(
                                   document.exercises,
                                   refetch,

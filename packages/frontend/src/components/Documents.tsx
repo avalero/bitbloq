@@ -13,7 +13,7 @@ import {
   Input,
   HorizontalRule
 } from "@bitbloq/ui";
-import { navigate } from "gatsby";
+import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { ApolloError } from "apollo-client";
@@ -120,7 +120,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [exerciseError, setExerciseError] = useState(false);
 
   const onFolderClick = async ({ id, title }) => {
-    window.open(`/app/folder/${id}`, "_self");
+    Router.push(`/app/folder/${id}`);
   };
 
   const onDocumentClick = ({ id, type, title }) => {
@@ -128,7 +128,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       ...breadcrumbLinks,
       { route: id, text: title, type: "document" }
     ]);
-    navigate(`/app/document/${id}`);
+    Router.push(`/app/document/${id}`);
   };
 
   const onCreateFolder = async folderName => {
@@ -144,11 +144,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   const onNewDocument = type => {
-    window.open(`/app/document/${currentLocation.id}/${type}/new`);
+    window.open(`/app/edit-document/${currentLocation.id}/${type}/new`);
   };
 
   const onDocumentCreated = ({ createDocument: { id, type } }) => {
-    navigate(`/app/document/${currentLocation.id}/${type}/${id}`);
+    Router.push(`/app/edit-document/${currentLocation.id}/${type}/${id}`);
   };
 
   const onOrderChange = order => {
@@ -213,12 +213,13 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
-  if (!documentsData || !documentsData.documentsAndFolders)
+  if (!documentsData || !documentsData.documentsAndFolders) {
     return (
       <Container>
         <Loading />
       </Container>
     );
+  }
 
   const {
     pagesNumber,
@@ -414,19 +415,19 @@ const ViewOptions = styled.div`
   margin-right: 10px;
 `;
 
-const OrderSelect: Select = styled(Select)`
+const OrderSelect = styled(Select)`
   width: 200px;
 `;
 
-const SearchInput: Input = styled(Input)`
+const SearchInput = styled(Input)`
   width: 210px;
   flex: inherit;
 `;
 
-interface NewDocumentButtonProps {
+interface INewDocumentButtonProps {
   isOpen: boolean;
 }
-const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
+const NewDocumentButton = styled(Button)<INewDocumentButtonProps>`
   border-radius: 4px;
   font-size: 14px;
   padding: 0px 20px;
