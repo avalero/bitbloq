@@ -15,10 +15,10 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 import {
-  OperationsArray,
-  IViewOptions,
+  IPyramidJSON,
   IPyramidParams,
-  IPyramidJSON
+  IViewOptions,
+  OperationsArray
 } from "./Interfaces";
 
 export default class Pyramid extends PrimitiveObject {

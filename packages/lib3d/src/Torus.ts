@@ -8,14 +8,14 @@
  */
 
 import * as THREE from "three";
+import {
+  ITorusJSON,
+  ITorusParams,
+  IViewOptions,
+  OperationsArray
+} from "./Interfaces";
 import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
-import {
-  IViewOptions,
-  OperationsArray,
-  ITorusJSON,
-  ITorusParams
-} from "./Interfaces";
 
 export default class Torus extends PrimitiveObject {
   public static typeName: string = "Torus";

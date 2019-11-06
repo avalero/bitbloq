@@ -38,8 +38,8 @@ export class SphericalCoords {
   public get sphericalGrads(): ISpherical {
     const rads: ISpherical = this.spherical;
     return {
-      radius: rads.radius,
       phi: (rads.phi * 180) / Math.PI,
+      radius: rads.radius,
       theta: (rads.theta * 180) / Math.PI
     };
   }

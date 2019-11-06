@@ -7,9 +7,9 @@
  * Copyright 2018 - 2019 BQ Educacion.
  */
 
+import * as THREE from "three";
 import ObjectsCommon from "./ObjectsCommon";
 import { IObjectPosition } from "./Scene";
-import * as THREE from "three";
 
 export default class PositionCalculator {
   private object: ObjectsCommon;
@@ -195,8 +195,8 @@ export default class PositionCalculator {
   }
 }
 
+import { MeshOperations } from "./Bitbloq";
 import CompoundObject from "./CompoundObject";
 import ObjectsGroup from "./ObjectsGroup";
-import RepetitionObject from "./RepetitionObject";
 import PrimitiveObject from "./PrimitiveObject";
-import { MeshOperations } from "./Bitbloq";
+import RepetitionObject from "./RepetitionObject";
