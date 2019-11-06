@@ -74,6 +74,6 @@ services:
       - ./data/db:/data/db
     ports:
       - 8001:27017
-    command: mongod --smallfiles --logpath=/dev/null
+    command: mongod --logpath=/dev/null
 
 

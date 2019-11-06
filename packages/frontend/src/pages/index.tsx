@@ -1,7 +1,7 @@
-import React, { FC, useState, useRef } from "react";
+import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { navigate, Link } from "gatsby";
-import { Global, css } from "@emotion/core";
+import { navigate } from "gatsby";
+import { Global } from "@emotion/core";
 import {
   baseStyles,
   colors,
@@ -10,14 +10,16 @@ import {
   Icon,
   DropDown,
   HorizontalRule,
-  Spinner, 
+  Spinner
 } from "@bitbloq/ui";
 import { useApolloClient, useQuery } from "@apollo/react-hooks";
 import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
-import SEO from "../components/SEO";
+import AppHeader from "../components/AppHeader";
 import BrowserVersionWarning from "../components/BrowserVersionWarning";
-import NewDocumentDropDown from "../components/NewDocumentDropDown";
 import LandingExamples from "../components/LandingExamples";
+import Layout from "../components/Layout";
+import NewDocumentDropDown from "../components/NewDocumentDropDown";
+import SEO from "../components/SEO";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
 import { getChromeVersion } from "../util";
@@ -33,18 +35,30 @@ const IndexPage: FC = () => {
   const [exerciseCode, setExerciseCode] = useState("");
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLInputElement>(null);
 
-  
+  useEffect(() => {
+    const handleScroll = () =>
+      setIsHeaderSticky(
+        headerRef.current !== null
+          ? headerRef.current.getBoundingClientRect().top < -10
+          : false
+      );
+
+    document.addEventListener("scroll", handleScroll);
+    return () => document.removeEventListener("scroll", handleScroll);
+  }, []);
+
   if (loading) {
     return <Loading />;
   }
 
   if (getChromeVersion() < 69) {
-    return <BrowserVersionWarning version={69} />
+    return <BrowserVersionWarning version={69} />;
   }
-
 
   if (data && data.me) {
     navigate("/app");
@@ -107,8 +121,8 @@ const IndexPage: FC = () => {
     <>
       <SEO title="Home" keywords={[`bitbloq`]} />
       <Global styles={baseStyles} />
-      <Container>
-        <Header>
+      <div ref={headerRef}>
+        <AppHeader isSticky={isHeaderSticky}>
           <DropDown
             attachmentPosition={"top center"}
             targetPosition={"bottom center"}
@@ -160,68 +174,68 @@ const IndexPage: FC = () => {
           <HeaderButton secondary onClick={() => navigate("/signup")}>
             Crear una cuenta
           </HeaderButton>
-        </Header>
-        <Hero>
-          <h1>
-            <img src={logoBetaImage} alt="Bitbloq Beta" />
-          </h1>
-          <p>
-            La plataforma más completa para trabajar el diseño 3D, la
-            programación y la robótica en el aula.
-          </p>
-        </Hero>
-      </Container>
-      <Tools>
-        <Container>
-          <h2>
-            <Icon name="new-document" />
-            Crea o abre un documento
-          </h2>
-          <ToolsList>
-            {Object.keys(documentTypes)
-              .map(id => ({ ...documentTypes[id], id }))
-              .map(type => (
-                <Tool key={type.id}>
-                  <ToolIcon color={type.color}>
-                    <Icon name={type.icon} />
-                  </ToolIcon>
-                  <h3>{type.label}</h3>
-                  <ToolLevel>{type.level}</ToolLevel>
-                  <p>{type.landingText}</p>
-                  {type.supported && (
-                    <Button
-                      {...{ [type.buttonType]: true }}
-                      onClick={() => onNewDocument(type.id)}
-                    >
-                      <PlusIcon>
-                        <Icon name="plus" />
-                      </PlusIcon>
-                      Nuevo documento
-                    </Button>
-                  )}
-                  {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
-                </Tool>
-              ))}
-            <OpenDocumentPanel>
-              <OpenDocumentIcon color="white">
-                <Icon name="open-document" />
-              </OpenDocumentIcon>
-              <h3>Abrir documento desde archivo</h3>
-              <p>
-                Abre cualquier documento de tipo .bitbloq que hayas guardado en
-                tu ordenador.
-              </p>
-              <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
-                <Icon name="open-document" />
-                Abrir documento
-              </OpenDocumentButton>
-            </OpenDocumentPanel>
-          </ToolsList>
-        </Container>
-      </Tools>
-      <OpenExercise>
-        <Container>
-          <OpenExerciseWrap>
+        </AppHeader>
+      </div>
+      <Layout>
+        <Section>
+          <Hero>
+            <h1>
+              <img src={logoBetaImage} alt="Bitbloq Beta" />
+            </h1>
+            <p>
+              La plataforma más completa para trabajar el diseño 3D, la
+              programación y la robótica en el aula.
+            </p>
+          </Hero>
+          <Tools>
+            <h2>
+              <Icon name="new-document" />
+              Crea o abre un documento
+            </h2>
+            <ToolsList>
+              {Object.keys(documentTypes)
+                .map(id => ({ ...documentTypes[id], id }))
+                .map(type => (
+                  <Tool key={type.id}>
+                    <ToolIcon color={type.color}>
+                      <Icon name={type.icon} />
+                    </ToolIcon>
+                    <h3>{type.label}</h3>
+                    <ToolLevel>{type.level}</ToolLevel>
+                    <p>{type.landingText}</p>
+                    {type.supported && (
+                      <Button
+                        {...{ [type.buttonType]: true }}
+                        onClick={() => onNewDocument(type.id)}
+                      >
+                        <PlusIcon>
+                          <Icon name="plus" />
+                        </PlusIcon>
+                        Nuevo documento
+                      </Button>
+                    )}
+                    {!type.supported && <ComingSoon>Próximamente</ComingSoon>}
+                  </Tool>
+                ))}
+              <OpenDocumentPanel>
+                <OpenDocumentIcon color="white">
+                  <Icon name="open-document" />
+                </OpenDocumentIcon>
+                <h3>Abrir documento desde archivo</h3>
+                <p>
+                  Abre cualquier documento de tipo .bitbloq que hayas guardado
+                  en tu ordenador.
+                </p>
+                <OpenDocumentButton quaternary onClick={() => onOpenDocument()}>
+                  <Icon name="open-document" />
+                  Abrir documento
+                </OpenDocumentButton>
+              </OpenDocumentPanel>
+            </ToolsList>
+          </Tools>
+        </Section>
+        <Section>
+          <OpenExercise>
             <OpenExerciseInfo>
               <h2>
                 <Icon name="airplane-document" />
@@ -264,25 +278,25 @@ const IndexPage: FC = () => {
                 </ExerciseForm>
               </OpenExercisePanelContent>
             </OpenExercisePanel>
-          </OpenExerciseWrap>
-        </Container>
-      </OpenExercise>
-      <LandingExamples />
+          </OpenExercise>
+        </Section>
+        <Section>
+          <LandingExamples />
+        </Section>
+      </Layout>
       <Footer>
-        <MainFooter>
-          <FooterContainer>
-            {/* <FooterLeft>
-              <h2>Contacto</h2>
-              <p>Bq Educación</p>
-              <p>900 00 00 00</p>
-              <p>soporte.bitbloq@bq.com</p>
-            </FooterLeft> */}
-            <FooterRight>
-              <p>Bitbloq es un proyecto de:</p>
-              <img src={bqLogo} alt="BQ" />
-            </FooterRight>
-          </FooterContainer>
-        </MainFooter>
+        <FooterContainer>
+          {/* <FooterLeft>
+            <h2>Contacto</h2>
+            <p>Bq Educación</p>
+            <p>900 00 00 00</p>
+            <p>soporte.bitbloq@bq.com</p>
+          </FooterLeft> */}
+          <FooterRight>
+            <p>Bitbloq es un proyecto de:</p>
+            <img src={bqLogo} alt="BQ" />
+          </FooterRight>
+        </FooterContainer>
         <LegalLinks>
           <a href="#">Condiciones generales</a>
           {" | "}
@@ -308,6 +322,7 @@ export default IndexPage;
 interface LoadingProps {
   type?: string;
 }
+
 const Loading = styled(Spinner)<LoadingProps>`
   position: absolute;
   height: 100%;
@@ -316,22 +331,6 @@ const Loading = styled(Spinner)<LoadingProps>`
     (props.type && documentTypes[props.type].color) || colors.gray1};
   color: ${(props: LoadingProps) => (props.type ? "white" : "inherit")};
   display: flex;
-`;
-
-const Container = styled.div`
-  max-width: 1280px;
-  box-sizing: border-box;
-  margin: 0px auto;
-  padding: 0px 50px;
-`;
-
-const Header = styled.div`
-  padding: 30px 0px 20px 0px;
-  display: flex;
-  justify-content: flex-end;
-  button {
-    margin-left: 10px;
-  }
 `;
 
 const HeaderButton = styled(Button)`
@@ -345,7 +344,7 @@ const HeaderButton = styled(Button)`
 
 const ExerciseDropDown = styled.div`
   width: 280px;
-  margin-top: 8px;
+  margin-top: 12px;
   background-color: white;
   border-radius: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -381,6 +380,16 @@ const ExerciseForm = styled.div`
   }
 `;
 
+const Section = styled.div`
+  :not(:last-of-type):after {
+    border-bottom: 1px solid #e0e0e0;
+    content: "";
+    left: 0;
+    position: absolute;
+    width: 100vw;
+  }
+`;
+
 const Hero = styled.div`
   padding: 0px 50px;
   box-sizing: border-box;
@@ -410,8 +419,8 @@ const Hero = styled.div`
 `;
 
 const Tools = styled.div`
-  border-bottom: 1px solid #e0e0e0;
   margin-top: 60px;
+
   h2 {
     display: flex;
     justify-content: center;
@@ -462,6 +471,7 @@ const OpenDocumentPanel = styled(Tool)`
 interface ToolIconProps {
   color: string;
 }
+
 const ToolIcon = styled.div<ToolIconProps>`
   width: 60px;
   height: 60px;
@@ -527,10 +537,6 @@ const ComingSoon = styled.div`
 `;
 
 const OpenExercise = styled.div`
-  border-bottom: 1px solid #e0e0e0;
-`;
-
-const OpenExerciseWrap = styled.div`
   width: 83.33%;
   display: flex;
   margin: 80px 0px 80px 8.33%;
@@ -597,13 +603,10 @@ const OpenExercisePanelContent = styled.div`
 const Footer = styled.div`
   color: white;
   font-size: 14px;
-`;
-
-const MainFooter = styled.div`
   background-color: #5d6069;
 `;
 
-const FooterContainer = styled(Container)`
+const FooterContainer = styled(Layout)`
   display: flex;
   padding: 40px 50px;
   justify-content: flex-end;
@@ -620,7 +623,7 @@ const FooterLeft = styled.div`
   }
 `;
 
-const FooterRight = styled.div`  
+const FooterRight = styled.div`
   display: flex;
   width: 480.56px;
   align-items: center;

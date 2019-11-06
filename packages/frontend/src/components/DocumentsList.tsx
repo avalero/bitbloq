@@ -1,49 +1,53 @@
 import React, { FC, useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
-import { DndProvider } from "react-dnd";
-import HTML5Backend from "react-dnd-html5-backend";
-
-import DocumentCard from "./DocumentCard";
-import EditTitleModal from "./EditTitleModal";
-import DocumentCardMenu from "./DocumentCardMenu";
-
+import { DialogModal, DropDown } from "@bitbloq/ui";
+import { useDrop } from "react-dnd";
 import { css } from "@emotion/core";
-
 import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION,
-  DOCS_FOLDERS_PAGE_QUERY
+  CREATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
+import DocumentCard from "./DocumentCard";
+import DocumentCardMenu from "./DocumentCardMenu";
+import EditTitleModal from "./EditTitleModal";
 import FolderSelectorMenu from "./FolderSelectorMenu";
+import MenuButton from "./MenuButton";
+import Paginator from "./Paginator";
 
 interface Folder {
   name: string;
   id: string;
 }
+
 export interface DocumentListProps {
+  currentPage: number;
   docsAndFols?: any;
+  pagesNumber: number;
   parentsPath?: any;
   className?: string;
   currentLocation?: Folder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
+  selectPage: (page: number) => void;
   nFolders: number;
 }
 
 const DocumentListComp: FC<DocumentListProps> = ({
+  currentPage,
   docsAndFols,
+  pagesNumber,
   parentsPath,
   currentLocation,
   className,
   onFolderClick,
   onDocumentClick,
   refetchDocsFols,
+  selectPage,
   nFolders
 }) => {
   const [deleteDoc, setDeleteDoc] = useState({
@@ -70,12 +74,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
     parent: null
   });
   const [draggingItemId, setDraggingItemId] = useState("");
+  const [droppedItemId, setDroppedItemId] = useState("");
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
+
+  const [, drop] = useDrop({
+    accept: ["document", "folder"],
+    drop: () => {}
+  });
 
   const onDocumentMenuClick = (e, document) => {
     e.stopPropagation();
@@ -203,6 +213,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
     await createDocument({
       variables: {
         ...document,
+        image: {
+          image: document.image,
+          isSnapshot: document.image.indexOf("blob") > -1
+        },
         title: newTitle,
         folder: currentLocation.id
       }
@@ -234,17 +248,28 @@ const DocumentListComp: FC<DocumentListProps> = ({
     }
   };
 
-  const onMoveDocument = async (e, folder, documentId?) => {
-    e && e.stopPropagation();
-    await updateDocument({
-      variables: { id: documentId || selectedToMove.id, folder: folder.id }
-    });
+  const onMove = () => {
     refetchDocsFols();
     setMenuOpenId(null);
     setSelectedToMove({
       id: null,
       parent: null
     });
+    if (
+      pagesNumber > 1 &&
+      pagesNumber === currentPage &&
+      docsAndFols.length === 1
+    ) {
+      selectPage(currentPage - 1);
+    }
+  };
+
+  const onMoveDocument = async (e, folder, documentId?) => {
+    e && e.stopPropagation();
+    await updateDocument({
+      variables: { id: documentId || selectedToMove.id, folder: folder.id }
+    });
+    onMove();
   };
   const onMoveFolder = async (e, folderParent, folderMovedId?) => {
     e && e.stopPropagation();
@@ -254,17 +279,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
         input: { parent: folderParent.id }
       }
     });
-    refetchDocsFols();
-    setMenuOpenId(null);
-    setSelectedToMove({
-      id: null,
-      parent: null
-    });
+    onMove();
   };
 
   return (
     <>
-      <DndProvider backend={HTML5Backend}>
+      <DocumentsAndPaginator ref={drop}>
         <DocumentList className={className}>
           {docsAndFols &&
             docsAndFols.map((document: any) => (
@@ -275,15 +295,17 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   (document.type === "folder" && nFolders > 1) ||
                   (document.type !== "folder" && nFolders > 0)
                 }
-                dropDocumentCallback={() =>
-                  onMoveDocument(undefined, document, draggingItemId)
-                }
-                dropFolderCallback={() =>
-                  onMoveFolder(undefined, document, draggingItemId)
-                }
+                dropDocumentCallback={() => {
+                  onMoveDocument(undefined, document, draggingItemId);
+                }}
+                dropFolderCallback={() => {
+                  setDroppedItemId(draggingItemId);
+                  onMoveFolder(undefined, document, draggingItemId);
+                }}
+                hidden={document.id === droppedItemId}
                 key={document.id}
                 document={document}
-                onClick={e =>
+                onClick={() =>
                   document.type === "folder"
                     ? onFolderClick && onFolderClick(document)
                     : onDocumentClick && onDocumentClick(document)
@@ -296,17 +318,17 @@ const DocumentListComp: FC<DocumentListProps> = ({
                       to: "window"
                     }
                   ]}
-                  notHidden={selectedToMove.id === document.id && nFolders > 0}
-                  targetOffset="-165px -14px"
-                  targetPosition="top right"
+                  closeOnClick={!(selectedToMove.id === document.id)}
+                  attachmentPosition="top right"
+                  offset="182px 14px" // 182 = 240(card height) - 2(card border) - 14(button offset) - 36(button height) - 6(dropdow offset)
                 >
                   {(isOpen: boolean) => (
-                    <DocumentMenuButton
-                      isOpen={menuOpenId === document.id}
+                    <MenuButtonContainer
+                      isOpen={isOpen}
                       onClick={e => onDocumentMenuClick(e, document)}
                     >
-                      <Icon name="ellipsis" />
-                    </DocumentMenuButton>
+                      <MenuButton isOpen={isOpen} />
+                    </MenuButtonContainer>
                   )}
                   <DropDown
                     constraints={[
@@ -315,14 +337,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         to: "window"
                       }
                     ]}
-                    notHidden={
-                      selectedToMove.id === document.id && nFolders > 0
-                    }
+                    closeOnClick={!(selectedToMove.id === document.id)}
                     targetPosition="top right"
                     attachmentPosition="top left"
                     offset="60px 0"
                   >
-                    {(isOpen: boolean) => (
+                    {() => (
                       <DocumentCardMenu
                         options={[
                           {
@@ -331,6 +351,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
+                              setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDocumentRenameClick(e, document)
                                 : onFolderRenameClick(e, document);
@@ -343,6 +364,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
+                              setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDuplicateDocument(e, document)
                                 : null;
@@ -351,7 +373,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:
-                              nFolders === 0 && parentsPath.length === 1,
+                              ((document.type === "folder" && nFolders === 1) ||
+                                (document.type !== "folder" &&
+                                  nFolders === 0)) &&
+                              parentsPath.length === 1,
                             iconName: "move-document",
                             label: "Mover a",
                             onClick(
@@ -371,6 +396,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                             onClick(
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
+                              setMenuOpenId("");
                               document.type !== "folder"
                                 ? onDocumentDeleteClick(e, document)
                                 : onFolderDeleteClick(e, document);
@@ -380,7 +406,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id && nFolders !== 0 && (
+                    {selectedToMove.id === document.id && (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
                         onMove={
@@ -396,7 +422,12 @@ const DocumentListComp: FC<DocumentListProps> = ({
               </StyledDocumentCard>
             ))}
         </DocumentList>
-      </DndProvider>
+        <DocumentsPaginator
+          currentPage={currentPage}
+          pages={pagesNumber}
+          selectPage={selectPage}
+        />
+      </DocumentsAndPaginator>
       <DialogModal
         isOpen={!!deleteDoc.id}
         title="Eliminar"
@@ -427,7 +458,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
           setDocWithEx(false);
         }}
       />
-
       <DialogModal
         isOpen={!!folWithChildren}
         title="Aviso"
@@ -440,7 +470,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
           setFolWithChildren(false);
         }}
       />
-
       {editDocTitleModal.id && (
         <EditTitleModal
           title={editDocTitleModal.title}
@@ -471,9 +500,9 @@ export default DocumentListComp;
 
 const DocumentList = styled.div`
   display: grid;
+  grid-auto-rows: 240px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  grid-auto-rows: 1fr;
-  grid-column-gap: 40px;
+  grid-column-gap: 20px;
   grid-row-gap: 40px;
   margin-bottom: 40px;
 
@@ -491,39 +520,35 @@ const DocumentList = styled.div`
   }
 `;
 
-const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
+const MenuButtonContainer = styled.div<{ isOpen: boolean }>`
   position: absolute;
   right: 14px;
   top: 14px;
-  width: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  background-color: white;
   display: none;
-
-  &:hover {
-    background-color: ${colors.gray1};
-    border-color: ${colors.gray4};
-  }
 
   ${props =>
     props.isOpen &&
     css`
-      display: flex;
-      border: solid 1px #dddddd;
-      background-color: "red";
-    `} svg {
-    transform: rotate(90deg);
-  }
+      display: initial;
+    `}
+`;
+
+const DocumentsAndPaginator = styled.div`
+  display: flex;
+  flex: 1;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  width: 100%;
+`;
+
+const DocumentsPaginator = styled(Paginator)`
+  margin: 40px 0 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`
   &:hover {
-    ${DocumentMenuButton} {
-      display: flex;
+    ${MenuButtonContainer} {
+      display: initial;
     }
   }
 `;

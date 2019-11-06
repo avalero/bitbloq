@@ -13,6 +13,7 @@ export interface DocumentCardProps {
   dropDocumentCallback?: () => void;
   dropFolderCallback?: () => void;
   endFunction?: () => void;
+  hidden?: boolean;
   onClick?: (e: React.MouseEvent) => any;
 }
 
@@ -25,42 +26,41 @@ const DocumentCard: FC<DocumentCardProps> = ({
   dropDocumentCallback,
   dropFolderCallback,
   endFunction,
+  hidden = false,
   onClick
 }) => {
-  const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
-    item: { type: document.type === "folder" ? "folder" : "document" },
+    item: {
+      id: document.id,
+      type: document.type === "folder" ? "folder" : "document"
+    },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
-    canDrag: monitor => {
-      return !!draggable;
-    },
-    begin: monitor => {
+    canDrag: () => !!draggable,
+    begin: () => {
       beginFunction && beginFunction();
     },
-    end: (item, monitor) => {
-      if (monitor.didDrop()) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
+    end: () => {
       endFunction && endFunction();
     }
   });
 
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: item => {
-      if (item.type === "document" && dropDocumentCallback) {
-        dropDocumentCallback();
-      } else if (item.type === "folder" && dropFolderCallback) {
-        dropFolderCallback();
-      }
-    },
+    canDrop: () => true,
     collect: monitor => ({
       isOver: !!monitor.isOver()
-    })
+    }),
+    drop: (item, monitor) => {
+      if (document.id !== monitor.getItem().id) {
+        if (item.type === "document" && dropDocumentCallback) {
+          dropDocumentCallback();
+        } else if (item.type === "folder" && dropFolderCallback) {
+          dropFolderCallback();
+        }
+      }
+    }
   });
 
   return hidden ? (
@@ -75,7 +75,9 @@ const DocumentCard: FC<DocumentCardProps> = ({
     >
       {document.type === "folder" && <DropContainer ref={drop} />}
       {document.type !== "folder" ? (
-        <Image src={document.image} />
+        <Image
+          src={document.image.image ? document.image.image : document.image}
+        />
       ) : (
         <ImageFol src={folderImg} />
       )}
@@ -85,8 +87,8 @@ const DocumentCard: FC<DocumentCardProps> = ({
           <Title>{document.title}</Title>
         </Info>
       ) : (
-        <Info folder={true}>
-          <Title folder={true}>{document.title}</Title>
+        <Info folder>
+          <Title folder>{document.title}</Title>
         </Info>
       )}
       {children}
@@ -157,11 +159,16 @@ const Info = styled.div<{ folder?: boolean }>`
 `;
 
 const Title = styled.div<{ folder?: boolean }>`
+  -webkit-box-orient: ${props => (props.folder ? "vertical" : null)};
+  -webkit-line-clamp: ${props => (props.folder ? 2 : null)};
+  display: ${props => (props.folder ? "-webkit-box" : null)};
   margin-top: ${props => (props.folder ? null : 10)}px;
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
+  overflow-wrap: ${props => (props.folder ? "break-word" : null)};
   white-space: ${props => (props.folder ? null : "nowrap")};
+  word-wrap: ${props => (props.folder ? "break-word" : null)};
 `;
 
 const DocumentMenu = styled.div`
