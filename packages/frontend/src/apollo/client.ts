@@ -128,9 +128,10 @@ export const createClient = (
       isBrowser
         ? split(
             ({ query }) => {
-              const { kind, operation } = getMainDefinition(query);
+              const definition = getMainDefinition(query);
               return (
-                kind === "OperationDefinition" && operation === "subscription"
+                definition.kind === "OperationDefinition" &&
+                definition.operation === "subscription"
               );
             },
             new WebSocketLink({

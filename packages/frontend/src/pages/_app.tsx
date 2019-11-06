@@ -4,7 +4,6 @@ import { TranslateProvider } from "@bitbloq/ui";
 
 import enMessages from "../messages/en.json";
 import esMessages from "../messages/es.json";
-import { UserDataProvider } from "../lib/useUserData";
 import redirect from "../lib/redirect";
 import {
   minChromeVersion,
