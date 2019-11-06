@@ -1,6 +1,7 @@
 import React, { FC, useState, useEffect } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
+import { saveAs } from "file-saver";
 import { useQuery } from "@apollo/react-hooks";
 import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
 import Loading from "./Loading";

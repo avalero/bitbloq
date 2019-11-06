@@ -242,7 +242,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <Layout>
         <Content>
           <Header>
-            {currentLocation.id === userData.rootFolder ? (
+            {currentLocation.id === (userData && userData.rootFolder) ? (
               <h1>Mis documentos</h1>
             ) : (
               <Breadcrumbs links={breadParents} />

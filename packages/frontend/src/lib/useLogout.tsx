@@ -1,4 +1,5 @@
 import { useApolloClient } from "@apollo/react-hooks";
+import Router from "next/router";
 import { setToken } from "./session";
 
 const useLogout = () => {
@@ -8,7 +9,7 @@ const useLogout = () => {
       setToken("");
     }
     client.resetStore();
-    window.location.assign("/");
+    Router.push("/");
   };
 };
 

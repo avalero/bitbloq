@@ -5,6 +5,7 @@ import Head from "next/head";
 import { ApolloClient } from "apollo-client";
 import { ApolloProvider } from "@apollo/react-hooks";
 import { createClient } from "./client";
+import { ME_QUERY } from "./queries";
 import {
   getToken,
   setToken,
@@ -13,7 +14,7 @@ import {
   watchSession,
   useSessionEvent
 } from "../lib/session";
-import { UserDataProvider } from "../lib/useUserData";
+import { UserDataContext } from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
@@ -27,7 +28,10 @@ const SessionWatcher = ({ tempSession }) => {
   const logout = useLogout();
 
   useEffect(() => {
-    watchSession(tempSession);
+    const interval = watchSession(tempSession);
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   useSessionEvent("error", ({ error }) => {
@@ -58,15 +62,20 @@ export default function withApollo(
   PageComponent,
   { ssr = true, tempSession = "", requiresSession = true } = {}
 ) {
-  const WithApollo = ({ apolloClient, apolloState, ...pageProps }) => {
+  const WithApollo = ({
+    apolloClient,
+    apolloState,
+    userData,
+    ...pageProps
+  }) => {
     const client = apolloClient || initApolloClient(apolloState, tempSession);
 
     return (
       <ApolloProvider client={client}>
-        <UserDataProvider>
+        <UserDataContext.Provider value={userData}>
           <PageComponent {...pageProps} />
           {requiresSession && <SessionWatcher tempSession={tempSession} />}
-        </UserDataProvider>
+        </UserDataContext.Provider>
       </ApolloProvider>
     );
   };
@@ -117,9 +126,15 @@ export default function withApollo(
 
       const apolloState = apolloClient.cache.extract();
 
+      const { data, error } = await apolloClient.query({
+        query: ME_QUERY,
+        errorPolicy: "ignore"
+      });
+
       return {
         ...pageProps,
-        apolloState
+        apolloState,
+        userData: (data && data.me) || {}
       };
     };
   }

@@ -111,7 +111,7 @@ export const onSessionError = (error: any, tempSession?: string) => {
 };
 
 export const watchSession = (tempSession?: string) => {
-  setInterval(() => {
+  return setInterval(() => {
     const session = getSession(tempSession);
     if (session && session.token) {
       const elapsedSeconds = Math.floor((Date.now() - session.time) / 1000);
@@ -120,7 +120,7 @@ export const watchSession = (tempSession?: string) => {
         triggerEvent({
           remainingSeconds,
           tempSession,
-          event: "expiration-warning",
+          event: "expiration-warning"
         });
       }
     }

@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import Router from "next/router";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useApolloClient } from "@apollo/react-hooks";
 import withApollo from "../apollo/withApollo";
 import AccessLayout from "../components/AccessLayout";
 import BrowserVersionWarning from "../components/BrowserVersionWarning";
@@ -14,6 +14,7 @@ const LoginPage: FC = () => {
   const [logingError, setLogingError] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
+  const client = useApolloClient();
 
   const onLoginClick = async () => {
     try {
@@ -29,6 +30,7 @@ const LoginPage: FC = () => {
   };
 
   const onLoginSuccess = (token: string) => {
+    client.resetStore();
     setToken(token);
     Router.push("/app");
   };
