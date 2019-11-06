@@ -9,6 +9,11 @@
     ]
   },
   "rules": {
-    "variable-name": [true, "check-format", "allow-leading-underscore"]
+    "variable-name": [true, "check-format", "allow-leading-underscore"],
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "no-any": false,
+    "no-unsafe-any": true,
+    "no-require-imports": false
   }
 }
