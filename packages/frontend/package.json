@@ -65,15 +65,13 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "format": "prettier --write \"src/**/*.js\"",
     "test": "echo \"Write tests!\""
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.1",
     "@types/lodash": "^4.14.138",
     "@types/react": "^16.8.3",
-    "babel-plugin-emotion": "^10.0.23",
-    "prettier": "^1.15.2"
+    "babel-plugin-emotion": "^10.0.23"
   },
   "repository": {
     "type": "git",

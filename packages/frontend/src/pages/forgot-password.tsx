@@ -35,7 +35,7 @@ const ForgotPasswordPage: FC = () => {
     return () => {
       clearInterval(interval);
     };
-  }, [disableRetry])
+  }, [disableRetry]);
 
   const onSendClick = async () => {
     try {
@@ -139,4 +139,3 @@ const Buttons = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-

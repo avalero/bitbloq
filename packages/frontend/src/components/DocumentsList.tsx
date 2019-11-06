@@ -505,7 +505,6 @@ const DocumentList = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   grid-column-gap: 20px;
   grid-row-gap: 40px;
-  margin-bottom: 40px;
 
   &::before {
     content: "";
