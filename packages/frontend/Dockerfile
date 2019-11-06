@@ -7,10 +7,12 @@ COPY . ./
 
 ENV NODE_ENV=production
 
-RUN npm install -g yarn
 RUN yarn install
 
 WORKDIR /usr/src/app/packages/frontend
-RUN npm run build
+RUN yarn run build
 
-CMD /bin/bash -c "npm run start -- -p 80"
+EXPOSE 80
+
+RUN chmod +x /usr/src/app/packages/frontend/docker-entrypoint.sh
+ENTRYPOINT ["/usr/src/app/packages/frontend/docker-entrypoint.sh"]
