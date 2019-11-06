@@ -135,7 +135,7 @@ const userResolver = {
             { $set: { folder: userFolder._id } }
           );
           await FolderModel.updateMany(
-            { user: contactFound._id },
+            { user: contactFound._id, name: { $ne: "root" } },
             { $set: { parent: userFolder._id } }
           );
           await UserModel.updateOne(
