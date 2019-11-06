@@ -96,6 +96,13 @@ export const resourceTypes = {
   }
 }
 
+export enum OrderType {
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
+}
+
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
   TOKEN_DURATION_MINUTES: 60,

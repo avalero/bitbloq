@@ -265,6 +265,11 @@
       "videos": "Vídeos"
     }
   },
+  "filter":  {
+    "text": {
+      "placeholder": "Buscar..."
+    }
+  },
   "junior": {
     "hardware": "Hardware",
     "software": "Software",

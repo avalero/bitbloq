@@ -22,13 +22,14 @@ const customStyles = {
   }),
   control: (provided, state) => ({
     ...provided,
-    minHeight: '35px',
+    minHeight: '40px',
     border: '1px solid #cfcfcf',
     borderBottomColor: state.selectProps.menuIsOpen ? '#e4e4e4' : '#cfcfcf',
     backgroundColor: 'white',
     boxShadow: 'none',
     cursor: 'pointer',
     borderRadius: state.selectProps.menuIsOpen ? '4px 4px 0px 0px' : '4px',
+    paddingLeft: '12px',
     '&:hover': {
       borderColor: '#cfcfcf',
     },
@@ -37,7 +38,7 @@ const customStyles = {
     ...provided,
     padding: '0 10px',
   }),
-  indicatorSeparator: provided => ({
+  indicatorSeparator: () => ({
     display: 'none',
   }),
   menu: provided => ({
@@ -61,6 +62,15 @@ const customStyles = {
       backgroundColor: '#e4e4e4',
     },
   }),
+  singleValue: provided => ({
+    ...provided,
+    alignItems: 'center',
+    color: '#3b3e45',
+    display: 'flex',
+    fontSize: '14px',
+    minHeight: '16px',
+    margin: '0'
+  })
 };
 
 class Select extends React.Component {
