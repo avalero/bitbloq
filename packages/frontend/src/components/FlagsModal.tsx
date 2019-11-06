@@ -34,10 +34,10 @@ const flagFields = [
 ];
 
 const konamiCode = "38384040373937396665";
-const commit = process.env.GATSBY_COMMIT;
-const commitDate = process.env.GATSBY_COMMIT_DATE;
-const buildDate = process.env.GATSBY_BUILD_DATE; 
-const branch = process.env.GATSBY_BRANCH;
+const commit = process.env.COMMIT;
+const commitDate = process.env.COMMIT_DATE;
+const buildDate = process.env.BUILD_DATE;
+const branch = process.env.BRANCH;
 
 const FlagsModal: FC = () => {
   const [isOpen, setIsOpen] = useState(false);

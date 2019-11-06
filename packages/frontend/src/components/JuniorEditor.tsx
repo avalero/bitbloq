@@ -17,7 +17,6 @@ const JuniorEditor: React.FunctionComponent<EditorProps> = ({
   title,
   onEditTitle,
   headerRightContent,
-  canEditTitle,
   backCallback
 }) => {
   return (
@@ -27,7 +26,6 @@ const JuniorEditor: React.FunctionComponent<EditorProps> = ({
       onTabChange={onTabChange}
       title={title}
       onEditTitle={onEditTitle}
-      canEditTitle={canEditTitle}
       bloqTypes={bloqTypes}
       initialContent={content || {}}
       onContentChange={onContentChange}

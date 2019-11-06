@@ -1,8 +1,9 @@
 import React, { FC, useState, useEffect } from "react";
+import Router from "next/router";
 import styled from "@emotion/styled";
 import { useMutation } from "@apollo/react-hooks";
-import { navigate } from "gatsby";
 import { Input, Button } from "@bitbloq/ui";
+import withApollo from "../apollo/withApollo";
 import { RESET_PASSWORD_MUTATION } from "../apollo/queries";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
 import ModalLayout from "../components/ModalLayout";
@@ -67,14 +68,14 @@ const ForgotPasswordPage: FC = () => {
           </Button>
         }
         cancelText="Volver al inicio"
-        onCancel={() => navigate("/")}
+        onCancel={() => Router.push("/")}
+        isOpen={true}
       />
     );
   }
 
   return (
     <AccessLayout
-      title="Bitbloq | Contraseña olvidada"
       panelTitle="Contraseña olvidada"
       size={AccessLayoutSize.MEDIUM}
     >
@@ -101,7 +102,7 @@ const ForgotPasswordPage: FC = () => {
         </ErrorMessage>
       )}
       <Buttons>
-        <Button secondary onClick={() => navigate("/login")}>
+        <Button secondary onClick={() => Router.push("/login")}>
           Cancelar
         </Button>
         <Button onClick={() => onSendClick()} disabled={loading}>
@@ -112,7 +113,7 @@ const ForgotPasswordPage: FC = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default withApollo(ForgotPasswordPage, { requiresSession: false });
 
 const Text = styled.p`
   line-height: 1.57;
@@ -138,3 +139,4 @@ const Buttons = styled.div`
   display: flex;
   justify-content: space-between;
 `;
+
