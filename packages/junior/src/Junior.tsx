@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { Document, Icon, LoadingBarOverlay, useTranslate } from "@bitbloq/ui";
+import { Document, Icon, useTranslate } from "@bitbloq/ui";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -18,6 +17,7 @@ import {
   BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
+import UploadSpinner from "./UploadSpinner";
 
 export interface JuniorProps {
   brandColor: string;
@@ -30,6 +30,8 @@ export interface JuniorProps {
   onContentChange: (content: any) => any;
   boards: IBoard[];
   components: IComponent[];
+  backCallback: () => any;
+  headerRightContent: JSX.Element;
 }
 
 const Junior: React.FunctionComponent<JuniorProps> = ({
@@ -43,7 +45,9 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   initialContent,
   onContentChange,
   boards,
-  components
+  components,
+  backCallback,
+  headerRightContent
 }) => {
   const t = useTranslate();
 
@@ -53,6 +57,36 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     board: "zumjunior",
     components: []
   };
+
+  useEffect(() => {
+    if (content !== initialContent) {
+      onContentChange(content);
+    }
+  }, [content]);
+
+  const [uploadSpinnerVisible, setUploadSpinnerVisible] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadingSuccess, setUploadingSuccess] = useState(false);
+
+  const hideTimeout = useRef(0);
+  useEffect(() => {
+    if (uploading) {
+      setUploadSpinnerVisible(true);
+    }
+
+    if (!uploading) {
+      hideTimeout.current = setTimeout(() => {
+        setUploadSpinnerVisible(false);
+      }, 5000);
+    }
+  }, [uploading]);
+
+  useEffect(() => {
+    if (!uploadSpinnerVisible && hideTimeout.current) {
+      clearTimeout(hideTimeout.current);
+      hideTimeout.current = 0;
+    }
+  }, [uploadSpinnerVisible]);
 
   const board: IBoard = getBoardDefinition(boards, hardware);
   if (hardware.components.length === 0) {
@@ -64,30 +98,22 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   }
 
-  const web2BoardRef = useRef(new Web2Board("wss://web2board.es:9867/bitbloq"));
-  const web2Board = web2BoardRef.current;
-
-  const componentMapRef = useRef<{ [key: string]: IComponent }>();
+  const web2BoardRef = useRef<Web2Board>();
   useEffect(() => {
-    componentMapRef.current = components.reduce((map, c) => {
-      map[c.name] = c;
-      return map;
-    }, {});
-  }, [components]);
+    web2BoardRef.current = new Web2Board("wss://web2board.es:9867/bitbloq");
+  }, []);
 
   if (!board.integrated) {
     board.integrated = [];
   }
 
-  // REVIEW DAVID GARCÍA
-
-  // If componentMap is not set, add at least integrated componentes definition
-  const componentMap = componentMapRef.current || {
-    ...board.integrated.reduce((map, c) => {
-      map[c.component] = getComponentDefinition(components, c.component);
+  const componentMapRef = useRef<{ [key: string]: IComponent }>(
+    [...components, ...board.integrated].reduce((map, c) => {
+      map[c.name] = c;
       return map;
     }, {})
-  };
+  );
+  const componentMap = componentMapRef.current;
 
   const getComponents = (types: string[]) =>
     hardware.components.filter(c =>
@@ -109,9 +135,14 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         bloqType.parameters.find(isBloqSelectComponentParameter);
       const componentName =
         componentParameter && bloq.parameters[componentParameter.name];
+
+      if (!componentName) {
+        return;
+      }
+
       const component = hardware.components.find(c => c.name === componentName);
 
-      return component && component.port;
+      return component ? component.port : "?";
     }
 
     return;
@@ -127,10 +158,9 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
       )
   );
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingPercentage, setLoadingPercentage] = useState(0);
-
   const upload = async (timeout: number): Promise<void> => {
+    setUploading(true);
+    const web2Board = web2BoardRef.current;
     const code = bloqs2code(boards, components, bloqTypes, hardware, program);
 
     if (!web2Board.isConnected()) {
@@ -138,16 +168,17 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         await web2Board.waitUntilOpened();
       } catch (e) {
         console.warn(e);
+        setUploading(false);
+        setUploadingSuccess(false);
       }
     }
 
     if (web2Board.isConnected()) {
-      setIsLoading(true);
-      setLoadingPercentage(0);
       // if not loaded in tiemout ms exit
       setTimeout(() => {
-        if (isLoading) {
-          setIsLoading(false);
+        if (uploading) {
+          setUploading(false);
+          setUploadingSuccess(false);
           console.error("Uploading Timeout");
         }
       }, timeout);
@@ -159,19 +190,15 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
           const { value: reply, done } = await uploadGen.next();
           const fn = reply.function;
 
-          if (fn === "is_compiling") {
-            setLoadingPercentage(33);
-          }
-          if (fn === "is_uploading") {
-            setLoadingPercentage(66);
-          }
           if (done) {
-            setIsLoading(false);
+            setUploading(false);
+            setUploadingSuccess(true);
             return;
           }
         }
       } catch (e) {
-        setIsLoading(false);
+        setUploading(false);
+        setUploadingSuccess(false);
         return;
       }
     } else {
@@ -179,79 +206,38 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   };
 
-  const onHeaderButtonClick = (id: string) => {
-    switch (id) {
-      case "upload":
-        upload(10000);
-      default:
-        return;
-    }
-  };
-
-  const getGroupsForCategory = (category: BloqCategory) =>
-    bloqTypes
-      .filter(
-        bt =>
-          bt.category === category && (!bt.components || !bt.components.length)
-      )
-      .map(bt => ({ types: [bt.name] }))
-      .concat(
-        hardware.components
-          .map(c => c.component)
-          .filter((elem, pos, arr) => arr.indexOf(elem) === pos)
-          .map(c => ({
-            icon: componentMap[c].image.url,
-            types: bloqTypes
-              .filter(
-                bt =>
-                  bt.category === category &&
-                  (bt.components || []).some(btComponent =>
-                    isInstanceOf(componentMap[c], btComponent, componentMap)
-                  )
-              )
-              .map(bt => bt.name)
-          }))
-      );
-
-  const eventGroups: IBloqTypeGroup[] = getGroupsForCategory(
-    BloqCategory.Event
-  );
-  const actionGroups: IBloqTypeGroup[] = getGroupsForCategory(
-    BloqCategory.Action
-  );
-  const waitGroups: IBloqTypeGroup[] = getGroupsForCategory(BloqCategory.Wait);
-
   const mainTabs = [
     <Document.Tab
       key="hardware"
       icon={<Icon name="hardware" />}
-      label={t("hardware")}
+      label={t("junior.hardware")}
     >
       <HardwareDesigner
         boards={boards}
         components={components}
         hardware={hardware}
         onHardwareChange={newHardware =>
-          setContent(update(content, { hardware: { $set: newHardware } }))
+          setContent({ hardware: newHardware, program })
         }
       />
     </Document.Tab>,
     <Document.Tab
       key="software"
       icon={<Icon name="programming" />}
-      label={t("software")}
+      label={t("junior.software")}
     >
       <HorizontalBloqEditor
         bloqs={program}
+        components={components}
         getComponents={getComponents}
         getBloqPort={getBloqPort}
-        bloqTypes={availableBloqs}
+        bloqTypes={bloqTypes}
+        availableBloqs={availableBloqs}
         onBloqsChange={(newProgram: IBloq[][]) =>
-          setContent(update(content, { program: { $set: newProgram } }))
+          setContent({ program: newProgram, hardware })
         }
-        eventGroups={eventGroups}
-        actionGroups={actionGroups}
-        waitGroups={waitGroups}
+        onUpload={() => upload(10000)}
+        board={board}
       />
     </Document.Tab>
   ];
@@ -259,17 +245,24 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   return (
     <>
       <Document
+        icon={<Icon name="logo-junior" />}
         brandColor={brandColor}
         title={title || t("untitled-project")}
         onEditTitle={onEditTitle}
         tabIndex={tabIndex}
         onTabChange={onTabChange}
-        onHeaderButtonClick={onHeaderButtonClick}
-        headerButtons={[{ id: "upload", icon: "hardware" }]}
+        backCallback={backCallback}
+        headerRightContent={headerRightContent}
       >
         {typeof children === "function" ? children(mainTabs) : mainTabs}
       </Document>
-      <LoadingBarOverlay isOpen={isLoading} percentage={loadingPercentage} />
+      {uploadSpinnerVisible && (
+        <UploadSpinner
+          uploading={uploading}
+          success={uploadingSuccess}
+          onClick={() => !uploading && setUploadSpinnerVisible(false)}
+        />
+      )}
     </>
   );
 };

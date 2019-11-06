@@ -50,7 +50,8 @@ const Route = ({
     if (requiresSession) {
       if (code === "ANOTHER_OPEN_SESSION") {
         setAnotherSession(true);
-      } else {
+        setToken("");
+      } else if (rest.path === "app") {
         logout();
       }
     }
@@ -74,14 +75,14 @@ const Route = ({
 
   return (
     <Suspense fallback={<Loading type={type} />}>
-      {rest.path === "/app/activate" ? (
+      {!requiresSession ? (
         <Component {...rest} type={type} />
       ) : (
         <>
           <UserDataProvider>
             <Component {...rest} type={type} />
           </UserDataProvider>
-          {requiresSession && <SessionWarningModal />}
+          <SessionWarningModal />
         </>
       )}
     </Suspense>
@@ -94,15 +95,20 @@ const AppPage = () => (
     <Global styles={baseStyles} />
     <NoSSR>
       <TranslateProvider messagesFiles={messagesFiles}>
-        <Router>
+        <Router primary={false}>
           <Route path="app" component={Documents} requiresSession />
+          <Route
+            path="/app/folder/:id/"
+            component={Documents}
+            requiresSession
+          />
           <Route
             path="/app/document/:id"
             component={Document}
             requiresSession
           />
           <Route
-            path="/app/document/:type/:id"
+            path="/app/document/:folder/:type/:id"
             component={EditDocument}
             requiresSession
           />

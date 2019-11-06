@@ -169,7 +169,7 @@ export default class Scene {
   }
 
   public canUndo(): boolean {
-    return this.historyIndex >= 0;
+    return this.historyIndex > 0;
   }
 
   public canRedo(): boolean {
@@ -235,6 +235,10 @@ export default class Scene {
       const sceneJSON = this.history[this.historyIndex];
       this.setHistorySceneFromJSON(sceneJSON);
 
+      // clean all parents from 1st level objects
+      this.objectsInScene.forEach(obj => {
+        obj.removeParent();
+      });
       return sceneJSON;
     }
 
@@ -473,6 +477,20 @@ export default class Scene {
         throw new Error(`Cannot add new Object from JSON ${e}`);
       }
     }
+  }
+
+  public updateObjectsOrder(orderedObjects: string[]): ISceneJSON {
+    this.objectsInScene = [];
+    orderedObjects.forEach(id => {
+      const foundObj = this.objectCollector.find(obj => obj.getID() === id);
+      if (foundObj) {
+        this.objectsInScene.push(foundObj);
+      } else {
+        console.info("Object not found. This SHOULD NOT HAPPEN");
+      }
+    });
+
+    return this.toJSON();
   }
 
   /**
@@ -876,6 +894,7 @@ export default class Scene {
     const sceneJSON = this.toJSON();
     // Add to history
     this.history = this.history.slice(0, this.historyIndex + 1);
+
     this.history.push(sceneJSON);
     this.historyIndex = this.history.length - 1;
   }

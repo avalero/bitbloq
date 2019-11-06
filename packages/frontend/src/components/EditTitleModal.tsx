@@ -6,11 +6,27 @@ interface EditTitleModalProps {
   title: string;
   onSave: (title: string) => any;
   onCancel: () => any;
+  modalTitle: string;
+  modalText: string;
+  placeholder: string;
+  saveButton: string;
+  type?: string;
+  validateInput?: boolean;
 }
 
-const EditTitleModal: FC<EditTitleModalProps> = (props) => {
-  const { onSave, onCancel } = props;
+const EditTitleModal: FC<EditTitleModalProps> = props => {
+  const {
+    onSave,
+    onCancel,
+    modalTitle,
+    modalText,
+    placeholder,
+    saveButton,
+    type,
+    validateInput = true
+  } = props;
   const [title, setTitle] = useState(props.title);
+  const [error, setError] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -19,12 +35,21 @@ const EditTitleModal: FC<EditTitleModalProps> = (props) => {
     }
   });
 
+  const validate = (value: string): boolean => {
+    if (
+      !value ||
+      (value.length <= 64 &&
+        value.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
+        !value.match(/^\s+$/))
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
   return (
-    <Modal
-      isOpen={true}
-      title="Cambiar el nombre del proyecto"
-      onClose={onCancel}
-    >
+    <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
       <Content>
         <form
           onSubmit={e => {
@@ -32,16 +57,25 @@ const EditTitleModal: FC<EditTitleModalProps> = (props) => {
             onSave(title);
           }}
         >
-          <p>Introduce un nuevo nombre para el proyecto</p>
+          <p>{modalText}</p>
           <Input
-            value={title}
             ref={titleInputRef}
-            onChange={e => setTitle(e.target.value)}
+            placeholder={title || placeholder}
+            onChange={e => {
+              const value: string = e.target.value;
+              if (!validateInput || validate(value)) {
+                setTitle(value);
+                setError(false);
+              } else {
+                setTitle(value);
+                setError(true);
+              }
+            }}
+            value={title}
+            type={type || "text"}
+            error={error}
           />
           <Buttons>
-            <Button onClick={() => onSave(title)} disabled={!title}>
-              Guardar
-            </Button>
             <Button
               tertiary
               onClick={e => {
@@ -51,6 +85,7 @@ const EditTitleModal: FC<EditTitleModalProps> = (props) => {
             >
               Cancelar
             </Button>
+            <Button disabled={error}>{saveButton}</Button>
           </Buttons>
         </form>
       </Content>
@@ -76,10 +111,9 @@ const Content = styled.div`
 const Buttons = styled.div`
   display: flex;
   margin-top: 50px;
-
+  justify-content: space-between;
   ${Button} {
-    height: 50px;
-    width: 170px;
-    margin-right: 20px;
+    height: 40px;
+    border-radius: 4px;
   }
 `;

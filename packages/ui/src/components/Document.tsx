@@ -35,6 +35,7 @@ const HeaderWrap = styled.div<HeaderWrapProps>`
 `;
 
 const Header = styled.div`
+  background-color: #ebebeb;
   height: 69px;
   display: flex;
   border-bottom: 1px solid #dadada;
@@ -56,14 +57,30 @@ const HeaderButton = styled.div`
 
 interface DocumentIconProps {
   color: string;
+  pointer?: boolean;
 }
 const DocumentIcon = styled.div`
   width: 70px;
-  background-color: ${props => props.color || "#4dc3ff"};
+  background-color: ${(props: DocumentIconProps) => props.color || "#4dc3ff"};
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: ${(props: DocumentIconProps) => (props.pointer ? "pointer" : "auto")};
+
+  .back {
+    display: none;
+  }
+
+  &:hover {
+    .back {
+      display: block;
+    }
+    .main {
+      display: ${(props: DocumentIconProps) =>
+        props.pointer ? "none" : "block"};
+    }
+  }
 
   svg {
     width: 46px;
@@ -88,7 +105,6 @@ const Title = styled.div<TitleProps>`
   display: flex;
   align-items: center;
   padding-left: 18px;
-  background-color: #ebebeb;
   flex: 1;
   font-weight: 500;
   font-style: italic;
@@ -218,6 +234,7 @@ export interface DocumentProps {
   icon?: JSX.Element;
   preMenuContent?: JSX.Element;
   postMenuContent?: JSX.Element;
+  backCallback: () => any;
 }
 
 interface State {
@@ -254,7 +271,8 @@ class Document extends React.Component<DocumentProps, State> {
       onTabChange,
       icon,
       preMenuContent,
-      postMenuContent
+      postMenuContent,
+      backCallback
     } = this.props;
     const { isHeaderCollapsed } = this.state;
 
@@ -264,7 +282,20 @@ class Document extends React.Component<DocumentProps, State> {
       <Container>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
-            <DocumentIcon color={brandColor}>{icon}</DocumentIcon>
+            <DocumentIcon
+              pointer={!!backCallback}
+              color={brandColor}
+              onClick={() => {
+                if (backCallback) backCallback();
+              }}
+            >
+              {icon && icon.props ? (
+                <Icon className="main" name={icon.props.name} />
+              ) : (
+                ""
+              )}
+              {backCallback ? <Icon className="back" name="arrow-left" /> : ""}
+            </DocumentIcon>
             <Title canEdit={!!onEditTitle} onClick={onEditTitle}>
               <span>
                 {title}

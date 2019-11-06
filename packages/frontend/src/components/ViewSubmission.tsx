@@ -23,7 +23,11 @@ class ThreeDSubmission extends React.Component {
     return (
       <Query query={SUBMISSION_QUERY} variables={{ id }}>
         {({ loading, error, data }) => {
-          if (error) return <GraphQLErrorMessage apolloError={error} />;
+          if (error) {
+            if (error.graphQLErrors[0].extensions.code === "UNAUTHENTICATED")
+              error.graphQLErrors[0].extensions.code = "NOT_YOUR_DOCUMENT";
+            return <GraphQLErrorMessage apolloError={error} />;
+          }
           if (loading) return <Loading />;
 
           const { submission } = data;

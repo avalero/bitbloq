@@ -31,6 +31,7 @@ export interface IBloqBaseParameter {
   label: string;
   type: BloqParameterType;
   value?: string;
+  defaultValue?: string | number | boolean;
 }
 
 export interface IBloqParameterOption {
@@ -75,14 +76,15 @@ export interface IBloqType {
   iconSwitch?: IIconSwitch;
   iconComponent?: string;
   code: IArduinoCode;
-  parameters: IBloqParameter[];
+  parameters?: IBloqParameter[];
   components?: string[];
+  configurationComponent?: string;
   actions: IBloqAction[];
 }
 
 export interface IBloq {
   type: string;
-  parameters: { [name: string]: string };
+  parameters: { [name: string]: string | number };
 }
 
 export interface IBloqTypeGroup {
@@ -133,6 +135,8 @@ export interface IPort {
   pins: IPortPin[];
   placeholderPosition: IConnectorPosition;
   direction: IPortDirection;
+  schematicPosition: IConnectorPosition;
+  schematicPlaceholderPosition: IConnectorPosition;
 }
 
 export interface IComponentImage {
@@ -153,6 +157,7 @@ export interface IBoard {
   code: IArduinoCode;
   image: IComponentImage;
   ports: IPort[];
+  schematicCenter: IConnectorPosition;
 }
 
 export enum ConnectorPinMode {
@@ -188,14 +193,15 @@ export interface IBloqAction {
 
 export interface IComponent {
   name: string;
+  label?: string;
   instanceName: string;
   extends: string;
   code: IArduinoCode;
   actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
-  onValue?: string;
-  offValue?: string;
+  // onValue?: string;
+  // offValue?: string;
   values: { [name: string]: string };
 }
 

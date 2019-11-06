@@ -27,7 +27,7 @@ const getSession = (tempSession?: string): Session | null => {
   if (Date.now() - session.time > TOKEN_DURATION_MINUTES * 60000) {
     if (session.token) {
       triggerEvent({ event: "expired", tempSession });
-      setSession({ token: "", time: 0 });
+      setSession({ token: "", time: 0 }, tempSession);
     }
     return null;
   } else {
@@ -51,7 +51,7 @@ export const getToken = (tempSession?: string): string | null => {
 
 export const setToken = (token: string, tempSession?: string) => {
   setSession({ token, time: token ? Date.now() : 0 }, tempSession);
-  triggerEvent({ event: "new-token", tempSession });
+  triggerEvent({ event: "new-token", tempSession, data: token });
 };
 
 export const shouldRenewToken = (tempSession?: string): boolean => {
@@ -62,11 +62,12 @@ export const shouldRenewToken = (tempSession?: string): boolean => {
     : false;
 };
 
-interface SessionEvent {
+export interface SessionEvent {
   event: string;
   tempSession?: string;
   error?: any;
   remainingSeconds?: number;
+  data?: any;
 }
 
 export type SessionCallback = (event: SessionEvent) => any;
@@ -90,7 +91,11 @@ export const watchSession = (tempSession?: string) => {
       const elapsedSeconds = Math.floor((Date.now() - session.time) / 1000);
       const remainingSeconds = TOKEN_DURATION_MINUTES * 60 - elapsedSeconds;
       if (remainingSeconds < TOKEN_WARNING_SECONDS) {
-        triggerEvent({ event: "expiration-warning", remainingSeconds });
+        triggerEvent({
+          event: "expiration-warning",
+          remainingSeconds,
+          tempSession
+        });
       }
     }
   }, CHECK_TOKEN_MS);
@@ -105,7 +110,10 @@ export const useSessionEvent = (
     const channel = new BroadcastChannel("bitbloq-session");
     channel.onmessage = e => {
       const event = e.data as SessionEvent;
-      if (eventName === event.event) {
+      if (
+        eventName === event.event &&
+        (!event.tempSession || event.tempSession === tempSession)
+      ) {
         callback(event);
       }
     };

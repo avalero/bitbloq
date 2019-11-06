@@ -33,6 +33,10 @@ export const boards: IBoard[] = [
       width: 300,
       height: 300
     },
+    schematicCenter: {
+      x: 0,
+      y: -0.23,
+    },
     ports: [
       {
         name: "1",
@@ -55,13 +59,21 @@ export const boards: IBoard[] = [
           x: -1.5,
           y: 0.8
         },
-        direction: IPortDirection.West
+        direction: IPortDirection.West,
+        schematicPosition: {
+          x: -0.03,
+          y: -0.17
+        },
+        schematicPlaceholderPosition: {
+          x: -0.76,
+          y: 0.22
+        }
       },
       {
         name: "2",
         position: {
           x: -0.9,
-          y: -0.15
+          y: -0.29
         },
         connectorTypes: ["zumjunior-digital", "zumjunior-analog"],
         pins: [
@@ -78,7 +90,15 @@ export const boards: IBoard[] = [
           x: -1.5,
           y: -0.8
         },
-        direction: IPortDirection.West
+        direction: IPortDirection.West,
+        schematicPosition: {
+          x: -0.03,
+          y: -0.29
+        },
+        schematicPlaceholderPosition: {
+          x: -0.76,
+          y: -0.68
+        }
       },
       {
         name: "3",
@@ -101,7 +121,15 @@ export const boards: IBoard[] = [
           x: 1.5,
           y: -0.8
         },
-        direction: IPortDirection.East
+        direction: IPortDirection.East,
+        schematicPosition: {
+          x: 0.03,
+          y: -0.29
+        },
+        schematicPlaceholderPosition: {
+          x: 0.76,
+          y: -0.68
+        }
       },
       {
         name: "4",
@@ -124,7 +152,15 @@ export const boards: IBoard[] = [
           x: 1.5,
           y: 0.8
         },
-        direction: IPortDirection.East
+        direction: IPortDirection.East,
+        schematicPosition: {
+          x: 0.03,
+          y: -0.17
+        },
+        schematicPlaceholderPosition: {
+          x: 0.76,
+          y: 0.22
+        }
       },
       {
         name: "A",
@@ -155,7 +191,15 @@ export const boards: IBoard[] = [
           x: 0.8,
           y: 1.5
         },
-        direction: IPortDirection.North
+        direction: IPortDirection.North,
+        schematicPosition: {
+          x: 0.06,
+          y: -0.29
+        },
+        schematicPlaceholderPosition: {
+          x: 0.38,
+          y: 0.68
+        }
       },
       {
         name: "B",
@@ -186,7 +230,15 @@ export const boards: IBoard[] = [
           x: -0.8,
           y: 1.5
         },
-        direction: IPortDirection.North
+        direction: IPortDirection.North,
+        schematicPosition: {
+          x: -0.06,
+          y: -0.29
+        },
+        schematicPlaceholderPosition: {
+          x: -0.38,
+          y: 0.68
+        }
       }
     ]
   }

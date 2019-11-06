@@ -33,16 +33,8 @@ const normalize = (function() {
   };
 })();
 
-const processUpload = async (
-  createReadStream,
-  filename,
-  userID,
-  resolve,
-  reject
-) => {
-  const uniqueName: string = Date.now() + normalize(filename);
-  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
-  const file = bucket.file(gcsName);
+const processUpload = async (createReadStream, uniqueName, resolve, reject) => {
+  const file = bucket.file(uniqueName);
 
   const opts = {
     metadata: {
@@ -61,7 +53,7 @@ const processUpload = async (
       }
 
       file.makePublic().then(async () => {
-        publicUrl = getPublicUrl(gcsName);
+        publicUrl = getPublicUrl(uniqueName);
         resolve("OK");
       });
     });
@@ -84,7 +76,7 @@ function getFilesizeInBytes(filename) {
   }
 }
 
-export async function uploadImage(image, documentID, userID) {
+export async function uploadDocumentImage(image, documentID, userID) {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
     throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
@@ -99,8 +91,11 @@ export async function uploadImage(image, documentID, userID) {
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
+  const uniqueName: string = documentID + normalize(filename);
+  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
+
   await new Promise((resolve, reject) => {
-    processUpload(createReadStream, filename, userID, resolve, reject);
+    processUpload(createReadStream, gcsName, resolve, reject);
   });
   const uploadNew = new UploadModel({
     document: documentID,
@@ -108,6 +103,8 @@ export async function uploadImage(image, documentID, userID) {
     mimetype,
     encoding,
     publicUrl,
+    gcsName,
+    size: fileSize,
     user: userID
   });
   return UploadModel.create(uploadNew);
@@ -115,7 +112,21 @@ export async function uploadImage(image, documentID, userID) {
 
 const uploadResolver = {
   Query: {
-    uploads: () => UploadModel.find({})
+    uploads: () => UploadModel.find({}),
+    getUserFiles: async (root: any, args: any, context: any) => {
+      //console.log(bucket)
+      const [files] = await bucket.getFiles({
+        prefix: `${context.user.userID}`
+      });
+      console.log("Files:");
+      files.forEach(async file => {
+        await file.getMetadata().then(result => {
+          console.log(file.name);
+          console.log(result[0].size);
+        });
+      });
+      return await UploadModel.find({ user: context.user.userID });
+    }
   },
   Mutation: {
     singleUpload: async (file, documentID, userID) => {
@@ -123,8 +134,10 @@ const uploadResolver = {
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
       await new Promise((resolve, reject) => {
-        processUpload(createReadStream, filename, userID, resolve, reject);
+        processUpload(createReadStream, gcsName, resolve, reject);
       });
       const uploadNew = new UploadModel({
         document: documentID,
@@ -132,6 +145,8 @@ const uploadResolver = {
         mimetype,
         encoding,
         publicUrl,
+        gcsName,
+        size: fileSize,
         user: userID
       });
       return UploadModel.create(uploadNew);
@@ -143,23 +158,22 @@ const uploadResolver = {
         mimetype,
         encoding
       } = await args.file;
+
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
-      if (mimetype !== "model/stl") {
+      if (String(filename).indexOf("stl") === -1) {
         throw new ApolloError(
           "Upload error, check file format. It must be an STL",
           "UPLOAD_FORMAT_ERROR"
         );
       }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+        uniqueName
+      )}`;
       await new Promise((resolve, reject) => {
-        processUpload(
-          createReadStream,
-          filename,
-          context.user.userID,
-          resolve,
-          reject
-        );
+        processUpload(createReadStream, gcsName, resolve, reject);
       });
       const uploadNew = new UploadModel({
         document: args.documentID,
@@ -167,7 +181,9 @@ const uploadResolver = {
         mimetype,
         encoding,
         publicUrl,
-        user: context.user.userID
+        user: context.user.userID,
+        gcsName,
+        size: fileSize
       });
       return UploadModel.create(uploadNew);
     },
@@ -181,14 +197,12 @@ const uploadResolver = {
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
       }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+        uniqueName
+      )}`;
       await new Promise((resolve, reject) => {
-        processUpload(
-          createReadStream,
-          filename,
-          args.user.userID,
-          resolve,
-          reject
-        );
+        processUpload(createReadStream, gcsName, resolve, reject);
       });
       const uploadNew = new UploadModel({
         document: args.documentID,
@@ -196,9 +210,22 @@ const uploadResolver = {
         mimetype,
         encoding,
         publicUrl,
-        user: context.user.userID
+        user: context.user.userID,
+        gcsName,
+        size: fileSize
       });
       return UploadModel.create(uploadNew);
+    },
+    deleteUserFile: async (root: any, args: any, context: any) => {
+      if (args.filename) {
+        await bucket.file(`${context.user.userID}/${args.filename}`).delete();
+        return await UploadModel.deleteOne({
+          publicUrl: {
+            $regex: `${context.user.userID}/${args.filename}`,
+            $options: "i"
+          }
+        });
+      }
     }
   }
 };

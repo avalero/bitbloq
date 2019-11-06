@@ -36,28 +36,28 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
 
   return (
     <Container>
-      {!startsWithEvent() && (
+      {!startsWithEvent() && selectedPlaceholder !== 0 && (
         <BloqPlaceholder
           onClick={(e: React.MouseEvent) => onPlaceholderClick(0, e)}
-          selected={selectedPlaceholder === 0}
           category={BloqCategory.Event}
         />
       )}
       {bloqs.map((bloq, i) => (
         <React.Fragment key={i}>
-          <StyledBloq
-            type={bloqTypes.find(t => t.name === bloq.type)!}
-            selected={selectedBloq === i}
-            onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
-            bloq={bloq}
-            port={getBloqPort(bloq)}
-          />
-          {(selectedBloq === i ||
-            selectedPlaceholder === i + 1 ||
-            i === bloqs.length - 1) && (
+          {selectedBloq !== i && (
+            <StyledBloq
+              type={bloqTypes.find(t => t.name === bloq.type)!}
+              onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
+              bloq={bloq}
+              port={getBloqPort(bloq)}
+            />
+          )}
+          {(selectedBloq === i || selectedPlaceholder === i + 1) && (
+            <EmptyPlaceholder />
+          )}
+          {(selectedBloq === i || i === bloqs.length - 1) && (
             <BloqPlaceholder
               onClick={(e: React.MouseEvent) => onPlaceholderClick(i + 1, e)}
-              selected={selectedPlaceholder === i + 1}
               category={BloqCategory.Action}
               half={i < bloqs.length - 1}
             />
@@ -75,8 +75,19 @@ export default BloqsLine;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  padding-right: 80px;
 `;
 
 const StyledBloq = styled(HorizontalBloq)`
   margin-right: 5px;
+`;
+
+const EmptyPlaceholder = styled.div`
+  width: 80px;
+  height: 60px;
+  margin-left: 5px;
+  margin-right: 10px;
+  &:first-of-type {
+    margin-left: 0px;
+  }
 `;

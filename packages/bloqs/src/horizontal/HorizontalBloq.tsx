@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 import nunjucks from "nunjucks";
 import { colors, Icon } from "@bitbloq/ui";
 import EventShape from "./EventShape";
+import IconComponent from "./IconComponent";
 import { bloqColors, horizontalShapes } from "../config";
 
 import { IBloqType, IBloq, isBloqSelectComponentParameter } from "../index";
@@ -28,7 +29,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
 
   const parameters = (bloq && bloq.parameters) || {};
   let icon = type.icon;
-  const { iconSwitch } = type;
+  const { iconSwitch, iconComponent } = type;
   if (iconSwitch) {
     const iconKey = Object.keys(iconSwitch).find(
       key => nunjucks.renderString(`{{${key}}}`, parameters) === "true"
@@ -47,8 +48,9 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           />
         </g>
       </SVG>
-      {icon && <BloqIcon src={icon} alt={type.name} />}
-      {port && <PortIndicator>{port}</PortIndicator>}
+      {icon && !iconComponent && <BloqIcon src={icon} alt={type.name} />}
+      {iconComponent && <IconComponent bloq={bloq} component={iconComponent} />}
+      {port && <PortIndicator error={port === "?"}>{port}</PortIndicator>}
     </Container>
   );
 };
@@ -75,7 +77,10 @@ const BloqIcon = styled.img`
   z-index: 1;
 `;
 
-const PortIndicator = styled.div`
+interface IPortIndicatorProps {
+  error: boolean;
+}
+const PortIndicator = styled.div<IPortIndicatorProps>`
   position: absolute;
   left: 50%;
   top: 60px;
@@ -90,7 +95,8 @@ const PortIndicator = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #000;
+  color: ${props => (props.error ? colors.red : "#000")};
+  z-index: 2;
 `;
 
 const SVG = styled.svg`
