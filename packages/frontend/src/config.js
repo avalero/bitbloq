@@ -77,7 +77,7 @@ export const documentTypes = {
 
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
-  TOKEN_DURATION_MINUTES: 60,
+  TOKEN_DURATION_MINUTES: 300,
   TOKEN_WARNING_SECONDS: 300,
   SHOW_GRAPHQL_LOGS: false
 };
