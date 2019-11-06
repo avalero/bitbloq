@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { navigate } from "gatsby";
+import Router from "next/router";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
@@ -13,7 +13,7 @@ import {
   Spinner,
   Modal,
   Icon,
-  withTranslate
+  useTranslate
 } from "@bitbloq/ui";
 import {
   EXERCISE_QUERY,
@@ -28,16 +28,12 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import {
-  useSessionEvent,
-  watchSession,
-  setToken,
-  getToken
-} from "../lib/session";
+import { setToken, getToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
-const EditExercise = ({ type, id, t }) => {
+const EditExercise = ({ type, id }) => {
+  const t = useTranslate();
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
 
@@ -55,12 +51,8 @@ const EditExercise = ({ type, id, t }) => {
   const { data, loading, error } = useQuery(EXERCISE_QUERY, {
     variables: { id }
   });
-  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION, {
-    context: { tempSession: "exercise-team" }
-  });
-  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION, {
-    context: { tempSession: "exercise-team" }
-  });
+  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
+  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
   const [submissionContent, setSubmissionContent] = useState([]);
   const currentContent = useRef([]);
@@ -71,20 +63,7 @@ const EditExercise = ({ type, id, t }) => {
 
   useEffect(() => {
     setToken("", "exercise-team");
-    watchSession("exercise-team");
   }, []);
-
-  useSessionEvent(
-    "expired",
-    () => {
-      if (!loginVisible) {
-        setToken("", "exercise-team");
-        client.resetStore();
-        navigate("/");
-      }
-    },
-    "exercise-team"
-  );
 
   useEffect(() => {
     if (!loginVisible) {
@@ -129,8 +108,7 @@ const EditExercise = ({ type, id, t }) => {
 
   const loadSubmission = async () => {
     const { data } = await client.query({
-      query: STUDENT_SUBMISSION_QUERY,
-      context: { tempSession: "exercise-team" }
+      query: STUDENT_SUBMISSION_QUERY
     });
     try {
       const content = JSON.parse(data.submission.content);
@@ -193,9 +171,11 @@ const EditExercise = ({ type, id, t }) => {
           </Title>
         }
         onContentChange={debounce((content: any[]) => {
-          updateSubmission({
-            variables: { content: JSON.stringify(content || []) }
-          });
+          if (teamName) {
+            updateSubmission({
+              variables: { content: JSON.stringify(content || []) }
+            });
+          }
           currentContent.current = content;
         }, 1000)}
         getTabs={mainTab => [
@@ -230,7 +210,7 @@ const EditExercise = ({ type, id, t }) => {
           }
         }}
         headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
-        backCallback={() => navigate("/")}
+        backCallback={() => Router.push("/")}
       />
       <Modal
         isOpen={isSubmissionSuccessOpen}
@@ -287,7 +267,7 @@ const EditExercise = ({ type, id, t }) => {
               !data.submissionActive.active
             ) {
               setToken("", "exercise-team");
-              navigate("/", { replace: true });
+              Router.replace("/");
             }
           }}
         />
@@ -296,7 +276,7 @@ const EditExercise = ({ type, id, t }) => {
   );
 };
 
-export default withTranslate(EditExercise);
+export default EditExercise;
 
 /* styled components */
 

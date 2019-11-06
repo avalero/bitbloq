@@ -83,6 +83,11 @@ type Document {
   parentsPath: [Folder]
 }
 
+input DocImageIn {
+  image: String
+  isSnapshot: Boolean
+}
+
 input DocumentIn {
   user: ObjectID
   title: String
@@ -93,4 +98,5 @@ input DocumentIn {
   cache: String
   description: String
   version: String
+  image: DocImageIn
 }

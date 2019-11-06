@@ -85,6 +85,11 @@
   "submission-passwordmodal-text": "Nueva contraseña",
   "submission-passwordmodal-placeholder": "Contraseña",
   "submission-delete-text": "¿Seguro que quieres eliminar este equipo?",
+  "submission-error-submission-exists": "Ya existe un equipo con ese nombre",
+  "submission-error-not-accepted-submission": "Este ejercicio no admite más entregas",
+  "submission-error-submission-not-found": "No existe un equipo con ese nombre",
+  "submission-error-wrong-password": "La contraseña no es correcta",
+  "submission-error-not-name": "Debes escribir un nombre de equipo",
   "tab-3d": "3D",
   "tab-project-info": "Información del documento",
   "tooltip-select-multiple": "Selecciona varios objetos pulsando *“Control + clic”* en cada uno de ellos para utilizar esta herramienta",
@@ -267,5 +272,8 @@
     "mm": "mm",
     "peaks": "puntas",
     "sides": "caras"
+  },
+  "documents": {
+    "go-to-exercise": "Ir al ejercicio"
   }
 }

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
+import Router from "next/router";
 import {
   colors,
   Button,
@@ -12,15 +13,8 @@ import {
   Translate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { Link, navigate } from "gatsby";
 import gql from "graphql-tag";
-import AppHeader from "./AppHeader";
-import DocumentTypeTag from "./DocumentTypeTag";
-import ExercisePanel from "./ExercisePanel";
-import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import EditTitleModal from "./EditTitleModal";
-import { sortByCreatedAt } from "../util";
-import { UserDataContext } from "../lib/useUserData";
+import { ApolloError } from "apollo-client";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_UPDATE_MUTATION,
@@ -28,9 +22,16 @@ import {
   SUBMISSION_UPDATED_SUBSCRIPTION,
   REMOVE_SUBMISSION_MUTATION
 } from "../apollo/queries";
-import Breadcrumbs from "./Breadcrumbs";
+import { UserDataContext } from "../lib/useUserData";
+import { sortByCreatedAt } from "../util";
 import AppFooter from "./Footer";
-import { ApolloError } from "apollo-client";
+import AppHeader from "./AppHeader";
+import Breadcrumbs from "./Breadcrumbs";
+import DocumentTypeTag from "./DocumentTypeTag";
+import EditTitleModal from "./EditTitleModal";
+import ExercisePanel from "./ExercisePanel";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import UserSession from "./UserSession";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -99,7 +100,7 @@ class DocumentState {
   readonly errorName: boolean = false;
   readonly newExerciseTitle: string = "";
   readonly exerciseId: string = "";
-  readonly stateError: ApolloError = "";
+  readonly stateError: ApolloError | null = null;
 }
 
 class Document extends React.Component<any, DocumentState> {
@@ -151,7 +152,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.folder}/${document.type}/${document.id}`
               )
             }
           >
@@ -185,7 +186,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.folder}/${document.type}/${document.id}`
               )
             }
           >
@@ -481,7 +482,9 @@ class Document extends React.Component<any, DocumentState> {
           <Translate>
             {t => (
               <Container>
-                <AppHeader />
+                <AppHeader>
+                  <UserSession />
+                </AppHeader>
                 <Query query={DOCUMENT_QUERY} variables={{ id }}>
                   {({ loading, error, data, refetch }) => {
                     if (error) {
@@ -501,10 +504,10 @@ class Document extends React.Component<any, DocumentState> {
                           {this.renderHeader(document)}
                           <Rule />
                           <DocumentData>
-                            {user.teacher
+                            {user && user.teacher
                               ? this.renderDocumentTeacherInfo(document, t)
                               : this.renderDocumentInfo(document, t)}
-                            {user.teacher
+                            {user && user.teacher
                               ? this.renderExercises(
                                   document.exercises,
                                   refetch,
@@ -742,6 +745,8 @@ const DocumentTitle = styled.div`
 
 const DocumentDescription = styled.div`
   font-size: 16px;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 `;
 
 const Buttons = styled.div`

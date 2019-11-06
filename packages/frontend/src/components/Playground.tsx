@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { navigate } from "gatsby";
+import Router from "next/router";
 import { saveAs } from "file-saver";
 import Loading from "./Loading";
 import { documentTypes } from "../config";
 import { Button, DialogModal, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { SessionEvent, setToken, useSessionEvent } from "../lib/session";
+import { ISessionEvent, setToken, useSessionEvent } from "../lib/session";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import {
   CREATE_DOCUMENT_MUTATION,
@@ -15,6 +15,7 @@ import {
 import LoginForm from "./LoginForm";
 import HeaderRightContent from "./HeaderRightContent";
 import UserInfo from "./UserInfo";
+import { EditorProps } from "../types";
 
 interface PlaygroundProps {
   type?: string;
@@ -70,33 +71,45 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
     };
   }, []);
 
-  useSessionEvent("new-token", (event: SessionEvent) => {
-    const token: string = event.data;
-    setUserLogged(!!token);
-    refetch().then(
-      result => (setUserName(result.data.me.name), createDocument())
-    );
-  });
+  useEffect(() => {
+    if (userLogged) {
+      refetch().then(
+        result => (
+          setUserName(result.data.me.name),
+          createDocument(result.data.me.rootFolder)
+        )
+      );
+    }
+  }, [userLogged]);
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  const createDocument = async () => {
+  const createDocument = async (folderID?: string) => {
     const title: string = "playground";
     const document = {
       type: currentType,
       title,
       content: JSON.stringify(contentRef.current),
-      advancedMode: advancedModeRef.current
+      advancedMode: advancedModeRef.current,
+      image: {
+        image: "",
+        isSnapshot: true
+      }
     };
     const {
       data: {
         createDocument: { id: newId }
       }
     } = await createDocumentMutation({ variables: document });
-    navigate(`/app/document/${undefined}/${type}/${newId}`, { replace: true });
+    Router.replace(`/app/edit-document/${folderID}/${type}/${newId}`);
   };
+
+  useSessionEvent("new-token", (event: ISessionEvent) => {
+    const token: string = event.data;
+    setUserLogged(!!token);
+  });
+
+  if (loading) {
+    return <Loading />;
+  }
 
   const onLoginClick = async () => {
     try {
@@ -119,15 +132,19 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   };
 
   const documentType = documentTypes[currentType || "3d"];
-  const EditorComponent = documentType.editorComponent;
+  const EditorComponent = documentType.editorComponent as React.ElementType;
 
   const onSaveDocument = () => {
     const title = "playground";
     const documentJSON = {
-      currentType,
+      type: currentType,
       title,
       content: JSON.stringify(contentRef.current),
-      advancedMode: advancedModeRef.current
+      advancedMode: advancedModeRef.current,
+      image: {
+        image: "",
+        isSnapshot: true
+      }
     };
     var blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
@@ -191,7 +208,7 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
         }
         documentAdvancedMode={advancedModeRef.current}
         headerRightContent={headerRightContent}
-        backCallback={() => navigate("/")}
+        backCallback={() => Router.push("/")}
         isPlayground
       />
     </>

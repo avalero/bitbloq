@@ -1,24 +1,4 @@
 {
-  "name": "root",
-  "private": false,
-  "scripts": {
-    "test": "lerna exec -- npm run test",
-    "coveralls": "lerna exec -- npm run coveralls",
-    "tslint:prod": "lerna run tslint:prod",
-    "tslint:dev": "lerna run tslint:dev",
-    "prettier": "lerna run prettier",
-    "prettier:ts": "lerna run prettier:ts"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-syntax-decorators": "^7.2.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-plugin-emotion": "^10.0.16"
-  },
-  "dependencies": {
-    "@babel/preset-env": "^7.5.5",
-    "@babel/preset-typescript": "^7.3.3",
-    "deepmerge": "^4.0.0"
-  }
+  "private": true,
+  "workspaces": ["packages/*"]
 }

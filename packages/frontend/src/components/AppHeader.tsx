@@ -1,34 +1,23 @@
-import * as React from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
+import { colors } from "@bitbloq/ui";
 import { css } from "@emotion/core";
-import { colors, DropDown, Icon } from "@bitbloq/ui";
-import useUserData from "../lib/useUserData";
-import useLogout from "../lib/useLogout";
-
 import logoBetaImage from "../images/logo-beta.svg";
+import Layout from "./Layout";
 
-const AppHeader = () => {
-  const userData = useUserData();
-  const logout = useLogout();
+export interface IAppHeaderProps {
+  isSticky?: boolean;
+}
 
+const AppHeader: FC<IAppHeaderProps> = ({ children, isSticky }) => {
   return (
-    <Container>
-      <Logo src={logoBetaImage} alt="Bitbloq" />
-      <UserContainer>
-        <UserName>{userData && userData.name}</UserName>
-        <DropDown>
-          {(isOpen: boolean) => (
-            <ContextButton isOpen={isOpen}>
-              <Icon name="ellipsis" />
-            </ContextButton>
-          )}
-          <ContextMenu>
-            <ContextMenuOption onClick={() => logout()}>
-              Cerrar sesión
-            </ContextMenuOption>
-          </ContextMenu>
-        </DropDown>
-      </UserContainer>
+    <Container isSticky={isSticky}>
+      <Layout>
+        <Header isSticky={isSticky}>
+          <Logo isSticky={isSticky} src={logoBetaImage} alt="Bitbloq" />
+          <Content>{children}</Content>
+        </Header>
+      </Layout>
     </Container>
   );
 };
@@ -37,77 +26,45 @@ export default AppHeader;
 
 /* styled components */
 
-const Container = styled.div`
+const Container = styled.div<IAppHeaderProps>`
   background-color: white;
-  display: flex;
-  min-height: 60px;
-  padding: 0px 50px;
-  align-items: center;
   border-bottom: 1px solid ${colors.gray3};
-  justify-content: space-between;
-`;
-
-const Logo = styled.img`
-  height: 30px;
-`;
-
-const UserContainer = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const UserName = styled.div`
-  font-size: 14px;
-  margin-right: 10px;
-`;
-
-interface ContextButtonProps {
-  isOpen: boolean;
-}
-const ContextButton = styled.div<ContextButtonProps>`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 4px;
-  background-color: white;
-  cursor: pointer;
-  border: solid 1px white;
+  transition: min-height 0.3s ease-out;
 
   ${props =>
-    props.isOpen &&
-    css`
-      border: solid 1px #dddddd;
-      background-color: #e8e8e8;
-    `} svg {
-    transform: rotate(90deg);
-  }
+    props.isSticky
+      ? css`
+          border-bottom: 1px solid ${colors.gray3};
+          position: fixed;
+          width: -webkit-fill-available;
+          z-index: 19; /* modals z-index = 20 */
+        `
+      : props.isSticky !== undefined &&
+        css`
+          border-bottom: none;
+          margin-top: 10px;
+        `};
 `;
 
-const ContextMenu = styled.div`
-  background-color: white;
-  margin-top: 6px;
-  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
-  border: solid 1px #cfcfcf;
-`;
-
-const ContextMenuOption = styled.div`
-  width: 220px;
-  display: flex;
+const Content = styled.div`
   align-items: center;
-  height: 34px;
-  border-bottom: 1px solid #ebebeb;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 0px 20px;
-
-  &:hover {
-    background-color: #ebebeb;
+  display: flex;
+  > * {
+    margin-left: 10px;
   }
+`;
 
-  &:last-child {
-    border: none;
-  }
+const Header = styled.div<IAppHeaderProps>`
+  display: flex;
+  justify-content: space-between;
+  min-height: ${props =>
+    props.isSticky !== undefined && !props.isSticky ? "80" : "60"}px;
+  transition: min-height 0.3s ease-out;
+`;
+
+const Logo = styled.img<IAppHeaderProps>`
+  height: ${props =>
+    props.isSticky === undefined || props.isSticky ? "30" : "40"}px;
+  transform: translateY(50%);
+  transition: height 100ms ease-out;
 `;

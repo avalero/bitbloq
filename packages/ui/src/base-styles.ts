@@ -89,6 +89,9 @@ export default css`
   mark,
   audio,
   video {
+    ::-webkit-scrollbar {
+      display: none;
+    }
     margin: 0;
     padding: 0;
     border: 0;
