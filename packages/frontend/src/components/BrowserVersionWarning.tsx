@@ -1,13 +1,13 @@
-import * as React from "react";
+import React from "react";
 import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 
-interface BrowserVersionWarningProps {
+interface IBrowserVersionWarningProps {
   version: number;
-  color: string;
+  color?: string;
 }
 
-const BrowserVersionWarning: React.SFC<BrowserVersionWarningProps> = ({
+const BrowserVersionWarning: React.SFC<IBrowserVersionWarningProps> = ({
   version,
   color
 }) => (
@@ -30,10 +30,10 @@ export default BrowserVersionWarning;
 
 /* styled components */
 
-interface WarningScreenProps {
-  color: string;
+interface IWarningScreenProps {
+  color?: string;
 }
-const WarningScreen = styled.div<WarningScreenProps>`
+const WarningScreen = styled.div<IWarningScreenProps>`
   position: absolute;
   top: 0px;
   left: 0px;

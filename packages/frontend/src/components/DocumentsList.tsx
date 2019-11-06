@@ -198,7 +198,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
       }
     });
     refetchDocsFols();
-    setEditFolderNameModal({ id: null, title: null });
+    setEditFolderNameModal({ id: null, name: null });
     setMenuOpenId(null);
   };
 
@@ -289,6 +289,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
           {docsAndFols &&
             docsAndFols.map((document: any) => (
               <StyledDocumentCard
+                isOpen={true}
                 beginFunction={() => setDraggingItemId(document.id)}
                 endFunction={() => setDraggingItemId("")}
                 draggable={

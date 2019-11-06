@@ -1,4 +1,4 @@
-FROM node:10.16.3 as node
+FROM node:12.13.0
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app/
@@ -7,14 +7,10 @@ COPY . ./
 
 ENV NODE_ENV=production
 
-RUN npx lerna bootstrap --ignore api
+RUN npm install -g yarn
+RUN yarn install
 
 WORKDIR /usr/src/app/packages/frontend
 RUN npm run build
 
-FROM nginx:1.13
-
-COPY --from=node /usr/src/app/packages/frontend/public/ /usr/share/nginx/html
-COPY /packages/frontend/nginx-config.conf /etc/nginx/conf.d/default.conf
-
-CMD /bin/bash -c "nginx -g 'daemon off;'"
+CMD /bin/bash -c "npm run start -- -p 80"

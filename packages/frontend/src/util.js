@@ -1,6 +1,6 @@
-export const getChromeVersion = () => {
-  if (typeof navigator !== `undefined`) {
-    const pieces = navigator.userAgent.match(
+export const getChromeVersion = (userAgent) => {
+  if (userAgent) {
+    const pieces = userAgent.match(
       /Chrom(?:e|ium)\/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)/
     );
     return pieces && pieces[1] ? parseInt(pieces[1]) : 0;

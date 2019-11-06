@@ -14,7 +14,7 @@ export interface DialogModalProps {
   cancelText?: string;
   okButton?: JSX.Element;
   cancelButton?: JSX.Element;
-  onOk: () => void;
+  onOk?: () => void;
   onCancel?: () => void;
   transparentOverlay?: boolean;
   horizontalRule?: boolean;
