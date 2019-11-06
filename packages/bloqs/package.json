@@ -29,8 +29,6 @@
   },
   "scripts": {
     "coveralls": "echo \"not defined\"",
-    "tslint:dev": "tslint --project tsconfig.json -c ./tslint-dev.json \"**/*.ts\"",
-    "tslint:prod": "tslint --project tsconfig.json -c ./tslint-prod.json \"**/*.ts\"",
     "test": "echo \"not defined\"",
     "test:debug": "node --inspect node_modules/.bin/jest --watch --runInBand"
   },
@@ -54,7 +52,6 @@
     "jest": "^24.7.1",
     "source-map-loader": "^0.2.4",
     "ts-jest": "^24.0.1",
-    "tslint": "^5.15.0",
     "typescript": "^3.4.1",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
