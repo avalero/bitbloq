@@ -5,9 +5,9 @@ WORKDIR /usr/src/app/
 
 COPY . ./
 
-RUN npm install -g yarn
+RUN yarn install -g yarn
 RUN yarn install
 
 WORKDIR /usr/src/app/packages/frontend
 
-CMD npm run dev
+CMD yarn run dev
