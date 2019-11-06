@@ -6,7 +6,9 @@
   "scripts": {
     "prettier": "prettier --write \"packages/*/src/**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "tslint:dev": "tslint -c ./tslint-dev.json \"packages/*/src/**/*.ts\"",
-    "tslint:prod": "tslint -c ./tslint-prod.json \"packages/*/src/**/*.ts\""
+    "tslint:prod": "tslint -c ./tslint-prod.json \"packages/*/src/**/*.ts\"",
+    "tslint:sta": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.ts\"",
+    "tslint:qa": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.ts\""
   },
   "devDependencies": {
     "prettier": "^1.18.2",
