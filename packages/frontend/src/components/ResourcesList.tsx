@@ -1,8 +1,9 @@
-import React, { FC, useState } from "react";
-import { Modal, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import debounce from "lodash/debounce";
+import React, { FC, useState } from "react";
+import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
-import { resourceTypes } from "../config";
+import { OrderType } from "../config";
 
 interface IResourcesListProps {
   resources?: any[]; // Crear tipo IResource
@@ -14,10 +15,26 @@ const ResourcesList: FC<IResourcesListProps> = ({
   setResources
 }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const t = useTranslate();
+  const [order, setOrder] = useState<OrderType>(OrderType.Creation);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchText, setSearchText] = useState("");
+
+  const onSearchInput = debounce((value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  }, 500);
 
   return (
     <Container>
+      <FilterContainer>
+        <FilterOptions
+          searchText={searchText}
+          onChange={(value: string) => (
+            setSearchText(value), onSearchInput(value)
+          )}
+          onOrderChange={(order: OrderType) => setOrder(order)}
+        />
+      </FilterContainer>
       <List></List>
       <Paginator
         currentPage={currentPage}
@@ -36,6 +53,11 @@ const Container = styled.div`
   height: 100%;
   justify-content: space-between;
   width: 100%;
+`;
+
+const FilterContainer = styled.div`
+  display: flex;
+  flex-flow: row wrap;
 `;
 
 const List = styled.div`
