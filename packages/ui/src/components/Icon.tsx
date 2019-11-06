@@ -15,6 +15,7 @@ import CloudLogo from "./icons/CloudLogo";
 import Cube from "./icons/Cube";
 import CurveAngle from "./icons/CurveAngle";
 import Cylinder from "./icons/Cylinder";
+import Description from "./icons/Description";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
 import Download from "./icons/Download";
@@ -145,6 +146,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <CurveAngle className={className} />;
     case "cylinder":
       return <Cylinder className={className} />;
+      case "description":
+        return <Description className={className} />;
     case "difference":
       return <Difference className={className} />;
     case "difficulty":

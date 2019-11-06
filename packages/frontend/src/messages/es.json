@@ -257,6 +257,11 @@
       "empty": "No tienes ningún recurso en esta categoría",
       "trash": "Aún no has enviado ningún recurso a la papelera"
     },
+    "options": {
+      "details": "Ver detalles del recurso",
+      "recover": "Restaurar",
+      "trash": "Enviar a la papelera"
+    },
     "resources": {
       "deleted": "Papelera",
       "images": "Imágenes",

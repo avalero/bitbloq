@@ -1,6 +1,8 @@
-import { Icon } from "@bitbloq/ui";
+import { DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
+import DocumentCardMenu from "./DocumentCardMenu";
+import MenuButton from "./MenuButton";
 import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
@@ -14,6 +16,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
   type
 }) => {
   const extTitle = title.split(".").pop();
+  const t = useTranslate();
   const titleName = title.replace(`.${extTitle}`, "");
 
   const [firstTitle, setFirsTitle] = useState<string>(
@@ -38,7 +41,34 @@ const ResourceCard: FC<IResourceCardProps> = ({
   }, []);
 
   return (
-    <ResourceContainer className={className}>
+    <ResourceContainer className={className} isOpen={true}>
+      <DropDown
+        attachmentPosition="top left"
+        constraints={[
+          {
+            attachment: "together",
+            to: "window"
+          }
+        ]}
+        offset="-50px 210px"
+        targetPosition="top right"
+      >
+        {(isOpen: boolean) => <CardMenuButton isOpen={isOpen} />}
+        <ResourceCardMenu
+          options={[
+            {
+              iconName: "description",
+              label: t("cloud.options.details"),
+              onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
+            },
+            {
+              iconName: "trash",
+              label: t("cloud.options.trash"),
+              onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
+            }
+          ]}
+        />
+      </DropDown>
       <Image imageUrl={image}>{!image && <Icon name={type} />}</Image>
       <Title ref={titleRef}>
         {firstTitle}
@@ -49,6 +79,15 @@ const ResourceCard: FC<IResourceCardProps> = ({
 };
 
 export default ResourceCard;
+
+const CardMenuButton = styled(MenuButton)`
+  height: 32px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  visibility: ${props => (props.isOpen ? "visible" : "hidden")};
+  width: 32px;
+`;
 
 const Image = styled.div<{ imageUrl?: string }>`
   align-items: center;
@@ -66,16 +105,25 @@ const Image = styled.div<{ imageUrl?: string }>`
   }
 `;
 
-const ResourceContainer = styled.div`
+const ResourceCardMenu = styled(DocumentCardMenu)`
+  min-width: 200px;
+`;
+
+const ResourceContainer = styled.div<{ isOpen?: boolean }>`
   border: solid 1px #ccc;
   border-radius: 4px;
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
+  position: relative;
   width: 100%;
 
   &:hover {
     border: solid 1px #373b44;
+
+    ${CardMenuButton} {
+      visibility: ${props => (props.isOpen ? "visible" : "hidden")};
+    }
 
     ${Image} {
       border-bottom: solid 1px #373b44;
