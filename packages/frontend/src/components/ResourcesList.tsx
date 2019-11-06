@@ -3,10 +3,12 @@ import debounce from "lodash/debounce";
 import React, { FC, useState } from "react";
 import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
+import ResourceCard from "./ResourceCard";
 import { OrderType } from "../config";
+import { IResource } from "../types";
 
 interface IResourcesListProps {
-  resources?: any[]; // Crear tipo IResource
+  resources?: IResource[];
   setResources?: () => void;
 }
 
@@ -35,7 +37,11 @@ const ResourcesList: FC<IResourcesListProps> = ({
           onOrderChange={(order: OrderType) => setOrder(order)}
         />
       </FilterContainer>
-      <List></List>
+      <List>
+        {resources.map((resource, index) => (
+          <ResourceCard key={index} {...resource} />
+        ))}
+      </List>
       <Paginator
         currentPage={currentPage}
         pages={3}
@@ -53,6 +59,10 @@ const Container = styled.div`
   height: 100%;
   justify-content: space-between;
   width: 100%;
+
+  & > * {
+    flex-shrink: 0;
+  }
 `;
 
 const FilterContainer = styled.div`
@@ -62,8 +72,10 @@ const FilterContainer = styled.div`
 
 const List = styled.div`
   display: grid;
+  flex: 1;
   grid-auto-rows: 132px;
   grid-column-gap: 20px;
   grid-template-columns: repeat(auto-fill, 160px);
   grid-row-gap: 20px;
+  margin: 20px 0;
 `;

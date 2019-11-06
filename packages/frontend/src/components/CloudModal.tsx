@@ -3,6 +3,7 @@ import { Modal, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ResourcesList from "./ResourcesList";
 import { resourceTypes } from "../config";
+import { IResource, ResourcesTypes } from "../types";
 
 interface IResourceType {
   label: string;
@@ -48,7 +49,33 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   const [resourceActiveId, setResourceActiveId] = useState<string>(
     cloudResources[0].id
   );
-  const [resources, setResources] = useState<any[]>([3]); // Crear tipo IResource
+  const [resources, setResources] = useState<IResource[]>([
+    {
+      image:
+        "https://www.movilzona.es/app/uploads/2018/01/Personalizacion-Android-1.jpg",
+      title:
+        "long long long long long long long long long long long long long long long title image.jpg",
+      type: ResourcesTypes.images
+    },
+    {
+      title: "long long long long long long long long long title video.mp4",
+      type: ResourcesTypes.videos
+    },
+    {
+      image:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
+      title: "title objects 3D.stl",
+      type: ResourcesTypes.objects
+    },
+    {
+      title: "long long long title sounds.mp3",
+      type: ResourcesTypes.sounds
+    },
+    {
+      title: "WWWWWWWWWWWWWWWW.mp3",
+      type: ResourcesTypes.sounds
+    }
+  ]);
   const t = useTranslate();
 
   return (

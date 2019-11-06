@@ -26,3 +26,16 @@ export interface Document {
   description: string;
   image: string;
 }
+
+export enum ResourcesTypes {
+  images = "resource-image",
+  objects = "resource-object",
+  sounds = "resource-sound", 
+  videos  = "resource-video"
+}
+
+export interface IResource {
+  image?: string;
+  title: string;
+  type: ResourcesTypes
+}
