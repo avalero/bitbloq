@@ -212,13 +212,18 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
-  }
-  if (!documentsData || !documentsData.documentsAndFolders) {
+  } else if (loading || !documentsData.documentsAndFolders) {
     return (
       <Container>
-        <Loading />
+        <AppHeader>
+          <UserSession />
+        </AppHeader>
+        <Content>
+          <Loading />
+        </Content>
+        <AppFooter />
       </Container>
-    );
+    )
   }
 
   const {
@@ -393,7 +398,7 @@ const Header = styled.div`
 `;
 
 const Loading = styled(Spinner)`
-  height: 100vh;
+  height: 100%;
 `;
 
 const Rule = styled(HorizontalRule)`
