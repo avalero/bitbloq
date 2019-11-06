@@ -10,9 +10,28 @@ type File {
   storageName: String
 }
 
+type CloudResourcesResult {
+  resources: [Resource]
+  pagesNumber: Number
+}
+type Resource {
+  id: ID
+  title: String
+  type: String
+  thumbnail: String
+  preview: String
+  size: Number
+}
+
 type Query {
   uploads: [File] @authRequired(requires: [ADMIN])
   getUserFiles: [File] @authRequired(requires: [USER])
+  cloudResources(
+    type: String
+    currentPage: Number
+    order: String
+    searchTitle: String    
+  ): CloudResourcesResult @authRequired(requires: [USER])
 }
 
 type Mutation {

@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-server-koa";
-import { UploadModel } from "../models/upload";
+import { UploadModel, IUpload, IResource } from "../models/upload";
 import { urlencoded } from "express";
+import { orderFunctions } from "../utils";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
@@ -126,6 +127,38 @@ const uploadResolver = {
         });
       });
       return await UploadModel.find({ user: context.user.userID });
+    },
+    
+    cloudResources: async (root: any, args: any, context: any) => {
+      const itemsPerPage: number = 8;
+      let skipN: number = (args.currentPage - 1) * itemsPerPage;
+      let limit: number = skipN + itemsPerPage;
+      const text: string = args.searchTitle;
+
+      const orderFunction = orderFunctions[args.order];
+
+      const filterOptions = {
+        filename: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        type: args.type
+      };
+
+      const userUploads: IUpload[] = await UploadModel.find(filterOptions);
+      const dataSorted: IUpload[] = await userUploads.sort(orderFunction);
+      const pagesNumber: number = Math.ceil(dataSorted.length / itemsPerPage);
+
+      const result: IResource[] = dataSorted.slice(skipN, limit).map(i => {
+        return {
+          id: i._id,
+          title: i.filename,
+          type: i.type,
+          size: i.size,
+          thumbnail:
+            i.type === "object3D" || i.type === "image" ? i.image : null,
+          preview: i.type === "object3D" || i.type === "image" ? i.image : null
+        };
+      });
+      return { resources: result, pagesNumber };
     }
   },
   Mutation: {
