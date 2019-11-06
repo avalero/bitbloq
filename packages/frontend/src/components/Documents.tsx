@@ -239,104 +239,102 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <AppHeader>
         <UserSession />
       </AppHeader>
-      <Layout>
-        <Content>
-          <Header>
-            {currentLocation.id === (userData && userData.rootFolder) ? (
-              <h1>Mis documentos</h1>
-            ) : (
-              <Breadcrumbs links={breadParents} />
-            )}
-          </Header>
-          <Rule />
-          <DocumentListHeader>
-            {(docsAndFols.length > 0 || searchQuery) && (
-              <>
-                <ViewOptions>
-                  <OrderSelect
-                    options={orderOptions}
-                    onChange={onOrderChange}
-                    selectConfig={{ isSearchable: false }}
-                  />
-                </ViewOptions>
-                <SearchInput
-                  value={searchText}
-                  onChange={e => (
-                    setSearchText(e.target.value), onSearchInput(e.target.value)
-                  )}
-                  placeholder="Buscar..."
-                />
-              </>
-            )}
-            <HeaderButtons>
-              <NewFolderButton
-                tertiary
-                onClick={() => {
-                  setFolderTitleModal(true);
-                }}
-              >
-                <Icon name="new-folder" />
-                Nueva carpeta
-              </NewFolderButton>
-              <NewExerciseButton
-                onOpenExercise={onOpenExercise}
-                exerciseError={exerciseError}
-                loadingExercise={loadingExercise}
-              />
-              <DropDown
-                attachmentPosition={"top center"}
-                targetPosition={"bottom center"}
-              >
-                {(isOpen: boolean) => (
-                  <NewDocumentButton tertiary isOpen={isOpen}>
-                    <Icon name="new-document" />
-                    Nuevo documento
-                  </NewDocumentButton>
-                )}
-                <NewDocumentDropDown
-                  onNewDocument={onNewDocument}
-                  onOpenDocument={onOpenDocumentClick}
-                  arrowOffset={10}
-                />
-              </DropDown>
-            </HeaderButtons>
-          </DocumentListHeader>
-          {docsAndFols.length > 0 ? (
-            <DndProvider backend={HTML5Backend}>
-              <DocumentList
-                currentPage={currentPage}
-                parentsPath={parentsPath}
-                pagesNumber={pagesNumber}
-                refetchDocsFols={refetchDocsFols}
-                docsAndFols={docsAndFols}
-                currentLocation={currentLocation}
-                onFolderClick={onFolderClick}
-                onDocumentClick={onDocumentClick}
-                selectPage={(page: number) => setCurrentPage(page)}
-                nFolders={nFolders}
-              />
-            </DndProvider>
-          ) : searchQuery ? (
-            <NoDocuments>
-              <h1>No hay resultados para tu búsqueda</h1>
-            </NoDocuments>
+      <Content>
+        <Header>
+          {currentLocation.id === (userData && userData.rootFolder) ? (
+            <h1>Mis documentos</h1>
           ) : (
-            <NoDocuments>
-              <h1>No tienes ningún documento</h1>
-              <p>
-                Puedes crear un documento nuevo o subir uno desde tu ordenador.
-              </p>
-            </NoDocuments>
+            <Breadcrumbs links={breadParents} />
           )}
-          <Subscription
-            subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-            shouldResubscribe={true}
-            onSubscriptionData={() => {
-              refetchDocsFols();
-            }}
-          />
-        </Content>
-      </Layout>
+        </Header>
+        <Rule />
+        <DocumentListHeader>
+          {(docsAndFols.length > 0 || searchQuery) && (
+            <>
+              <ViewOptions>
+                <OrderSelect
+                  options={orderOptions}
+                  onChange={onOrderChange}
+                  selectConfig={{ isSearchable: false }}
+                />
+              </ViewOptions>
+              <SearchInput
+                value={searchText}
+                onChange={e => (
+                  setSearchText(e.target.value), onSearchInput(e.target.value)
+                )}
+                placeholder="Buscar..."
+              />
+            </>
+          )}
+          <HeaderButtons>
+            <NewFolderButton
+              tertiary
+              onClick={() => {
+                setFolderTitleModal(true);
+              }}
+            >
+              <Icon name="new-folder" />
+              Nueva carpeta
+            </NewFolderButton>
+            <NewExerciseButton
+              onOpenExercise={onOpenExercise}
+              exerciseError={exerciseError}
+              loadingExercise={loadingExercise}
+            />
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+            >
+              {(isOpen: boolean) => (
+                <NewDocumentButton tertiary isOpen={isOpen}>
+                  <Icon name="new-document" />
+                  Nuevo documento
+                </NewDocumentButton>
+              )}
+              <NewDocumentDropDown
+                onNewDocument={onNewDocument}
+                onOpenDocument={onOpenDocumentClick}
+                arrowOffset={10}
+              />
+            </DropDown>
+          </HeaderButtons>
+        </DocumentListHeader>
+        {docsAndFols.length > 0 ? (
+          <DndProvider backend={HTML5Backend}>
+            <DocumentList
+              currentPage={currentPage}
+              parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
+              refetchDocsFols={refetchDocsFols}
+              docsAndFols={docsAndFols}
+              currentLocation={currentLocation}
+              onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
+              selectPage={(page: number) => setCurrentPage(page)}
+              nFolders={nFolders}
+            />
+          </DndProvider>
+        ) : searchQuery ? (
+          <NoDocuments>
+            <h1>No hay resultados para tu búsqueda</h1>
+          </NoDocuments>
+        ) : (
+          <NoDocuments>
+            <h1>No tienes ningún documento</h1>
+            <p>
+              Puedes crear un documento nuevo o subir uno desde tu ordenador.
+            </p>
+          </NoDocuments>
+        )}
+        <Subscription
+          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={() => {
+            refetchDocsFols();
+          }}
+        />
+      </Content>
       <input
         ref={openFile}
         type="file"
@@ -368,10 +366,13 @@ export default DocumentsWithDelete;
 const Container = styled.div`
   background-color: ${colors.gray1};
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
-const Content = styled.div`
-  min-height: calc(100vh - 60px - 54px);
+const Content = styled(Layout)`
+  flex: 1;
+  width: 100%;
 `;
 
 const Header = styled.div`
