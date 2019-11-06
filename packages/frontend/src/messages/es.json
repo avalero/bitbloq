@@ -253,6 +253,15 @@
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
   "cloud": {
+    "details": {
+      "date": "Fecha de importación",
+      "ext": "Formato del recurso",
+      "no-preview": "El formato de este recurso no se puede visualizar",
+      "preview": "Previsualización",
+      "return": "Volver",
+      "size": "Tamaño del recurso",
+      "title": "Nombre del recurso"
+    },
     "text": {
       "empty": "No tienes ningún recurso en esta categoría",
       "trash": "Aún no has enviado ningún recurso a la papelera"

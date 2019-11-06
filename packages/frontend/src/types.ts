@@ -29,13 +29,17 @@ export interface Document {
 
 export enum ResourcesTypes {
   images = "resource-image",
-  objects = "resource-object",
+  objects3D = "resource-object",
   sounds = "resource-sound", 
   videos  = "resource-video"
 }
 
 export interface IResource {
-  image?: string;
+  deleted: boolean;
+  id: string;
+  preview?: string;
+  size: number; // Bytes
+  thumbnail?: string;
   title: string;
-  type: ResourcesTypes
+  type: ResourcesTypes;
 }

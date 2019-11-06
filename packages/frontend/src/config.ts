@@ -84,8 +84,8 @@ export const resourceTypes = {
     "label": "cloud.resources.sounds",
     "icon": "resource-sound"
   },
-  objects: {
-    "id": "resource-object",
+  objects3D: {
+    "id": "resource-object-3d",
     "label": "cloud.resources.objects",
     "icon": "resource-object"
   },

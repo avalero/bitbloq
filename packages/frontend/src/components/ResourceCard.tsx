@@ -3,15 +3,19 @@ import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import DocumentCardMenu from "./DocumentCardMenu";
 import MenuButton from "./MenuButton";
-import { IResource } from "../types";
+import { IResource, ResourcesTypes } from "../types";
 
 interface IResourceCardProps extends IResource {
   className?: string;
+  selectResource: (id: string) => void;
 }
 
 const ResourceCard: FC<IResourceCardProps> = ({
   className,
-  image,
+  deleted,
+  id,
+  selectResource,
+  thumbnail,
   title,
   type
 }) => {
@@ -59,17 +63,21 @@ const ResourceCard: FC<IResourceCardProps> = ({
             {
               iconName: "description",
               label: t("cloud.options.details"),
-              onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
+              onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                selectResource(id);
+              }
             },
             {
-              iconName: "trash",
-              label: t("cloud.options.trash"),
+              iconName: deleted ? "undo" : "trash",
+              label: deleted
+                ? t("cloud.options.recover")
+                : t("cloud.options.trash"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
             }
           ]}
         />
       </DropDown>
-      <Image imageUrl={image}>{!image && <Icon name={type} />}</Image>
+      <Image imageUrl={thumbnail}>{!thumbnail && <Icon name={type} />}</Image>
       <Title ref={titleRef}>
         {firstTitle}
         {secondTitle}
@@ -112,9 +120,11 @@ const ResourceCardMenu = styled(DocumentCardMenu)`
 const ResourceContainer = styled.div<{ isOpen?: boolean }>`
   border: solid 1px #ccc;
   border-radius: 4px;
+  cursor: default;
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
+  overflow: hidden;
   position: relative;
   width: 100%;
 

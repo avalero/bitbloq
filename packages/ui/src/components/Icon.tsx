@@ -29,6 +29,7 @@ import Ellipsis from "./icons/Ellipsis";
 import Equal from "./icons/Equal";
 import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
+import EyeClose from "./icons/EyeClose";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import ImportSTL from "./icons/ImportSTL";
@@ -174,6 +175,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <ExportSTL className={className} />;
     case "eye":
       return <Eye className={className} />;
+    case "eye-close":
+      return <EyeClose className={className} />;
     case "group":
       return <Group className={className} />;
     case "hardware":

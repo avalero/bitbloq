@@ -9,12 +9,12 @@ import { IResource } from "../types";
 
 interface IResourcesListProps {
   resources?: IResource[];
-  setResources?: () => void;
+  selectResource: (id: string) => void;
 }
 
 const ResourcesList: FC<IResourcesListProps> = ({
   resources = [],
-  setResources
+  selectResource
 }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
@@ -38,15 +38,21 @@ const ResourcesList: FC<IResourcesListProps> = ({
         />
       </FilterContainer>
       <List>
-        {resources.map((resource, index) => (
-          <ResourceCard key={index} {...resource} />
+        {resources.map(resource => (
+          <ResourceCard
+            key={resource.id}
+            {...resource}
+            selectResource={selectResource}
+          />
         ))}
       </List>
-      <Paginator
-        currentPage={currentPage}
-        pages={3}
-        selectPage={(page: number) => setCurrentPage(page)}
-      />
+      {resources.length > 8 && (
+        <Paginator
+          currentPage={currentPage}
+          pages={3}
+          selectPage={(page: number) => setCurrentPage(page)}
+        />
+      )}
     </Container>
   );
 };

@@ -1,6 +1,7 @@
 import React, { FC, useState } from "react";
 import { Modal, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
 import { resourceTypes } from "../config";
 import { IResource, ResourcesTypes } from "../types";
@@ -40,42 +41,70 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
-  let cloudResources: IResourceType[] = [];
+  let cloudResourceTypes: IResourceType[] = [];
 
   for (let r in resourceTypes) {
-    cloudResources.push(resourceTypes[r]);
+    cloudResourceTypes.push(resourceTypes[r]);
   }
 
-  const [resourceActiveId, setResourceActiveId] = useState<string>(
-    cloudResources[0].id
+  const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>(
+    cloudResourceTypes[0].id
   );
   const [resources, setResources] = useState<IResource[]>([
     {
-      image:
+      size: 456544,
+      deleted: true,
+      id: "0",
+      preview:
+        "https://www.movilzona.es/app/uploads/2018/01/Personalizacion-Android-1.jpg",
+      thumbnail:
         "https://www.movilzona.es/app/uploads/2018/01/Personalizacion-Android-1.jpg",
       title:
         "long long long long long long long long long long long long long long long title image.jpg",
       type: ResourcesTypes.images
     },
     {
+      size: 654,
+      deleted: false,
+      id: "1",
+      preview:
+        "https://storage.googleapis.com/macmillan-static-qa/content/level-1/project-2/N1P2EJ.mp4",
       title: "long long long long long long long long long title video.mp4",
       type: ResourcesTypes.videos
     },
     {
-      image:
+      size: 456654,
+      deleted: false,
+      id: "2",
+      preview:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
+      thumbnail:
         "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
       title: "title objects 3D.stl",
-      type: ResourcesTypes.objects
+      type: ResourcesTypes.objects3D
     },
     {
+      size: 456454654,
+      deleted: false,
+      preview:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
+      id: "3",
       title: "long long long title sounds.mp3",
       type: ResourcesTypes.sounds
     },
     {
+      size: 45654654,
+      deleted: false,
+      id: "4",
+      preview:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
       title: "WWWWWWWWWWWWWWWW.mp3",
       type: ResourcesTypes.sounds
     }
   ]);
+  const [selectedResource, setSelectedResource] = useState<
+    IResource | undefined
+  >();
   const t = useTranslate();
 
   return (
@@ -87,25 +116,37 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
     >
       <CloudModalBody>
         <LateralBar>
-          {cloudResources.map(resource => (
+          {cloudResourceTypes.map(resourceType => (
             <ResourceType
-              active={resourceActiveId === resource.id}
-              key={resource.id}
-              label={resource.label}
-              icon={resource.icon}
-              onClick={() => setResourceActiveId(resource.id)}
+              active={resourceTypeActiveId === resourceType.id}
+              key={resourceType.id}
+              label={resourceType.label}
+              icon={resourceType.icon}
+              onClick={() => setResourceTypeActiveId(resourceType.id)}
             />
           ))}
         </LateralBar>
         <MainContent>
-          {resources.length === 0 ? (
+          {selectedResource ? (
+            <ResourceDetails
+              {...selectedResource}
+              returnCallback={() => setSelectedResource(undefined)}
+            />
+          ) : resources.length === 0 ? (
             <EmptyResources>
-              {resourceActiveId === "resource-deleted"
+              {resourceTypeActiveId === "resource-deleted"
                 ? t("cloud.text.trash")
                 : t("cloud.text.empty")}
             </EmptyResources>
           ) : (
-            <ResourcesList resources={resources} setResources={setResources} />
+            <ResourcesList
+              resources={resources}
+              selectResource={(resourceId: string) =>
+                setSelectedResource(
+                  resources.find(resource => resource.id === resourceId)
+                )
+              }
+            />
           )}
         </MainContent>
       </CloudModalBody>
