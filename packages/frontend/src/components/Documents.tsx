@@ -321,7 +321,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         />
       )}
       <AppFooter />
-      <CloudModal isOpen={true} onClose={() => setCloudModalOpen(false)} />
+      <CloudModal isOpen={cloudModalOpen} onClose={() => setCloudModalOpen(false)} />
     </Container>
   );
 };

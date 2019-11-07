@@ -28,10 +28,10 @@ export interface Document {
 }
 
 export enum ResourcesTypes {
-  images = "resource-image",
-  objects3D = "resource-object",
-  sounds = "resource-sound", 
-  videos  = "resource-video"
+  images = "images",
+  objects3D = "objects3D",
+  sounds = "sounds", 
+  videos  = "videos"
 }
 
 export interface IResource {
