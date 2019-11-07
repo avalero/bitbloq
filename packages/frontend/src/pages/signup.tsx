@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Router from "next/router";
-import { Mutation } from "react-apollo";
+import { useMutation } from "react-apollo";
 import gql from "graphql-tag";
 import { Formik, Form, Field } from "formik";
 import {
@@ -13,7 +13,6 @@ import {
   HorizontalRule,
   Checkbox
 } from "@bitbloq/ui";
-import { ApolloError } from "apollo-client";
 import withApollo from "../apollo/withApollo";
 import Survey, { Question, QuestionType } from "../components/Survey";
 import logoBetaImage from "../images/logo-beta.svg";
@@ -94,54 +93,39 @@ enum SignupStep {
   UserData
 }
 
-interface ISignupPageProps {
-  signUp: any;
-  isSigningUp: boolean;
-  signUpError?: ApolloError;
-}
-
-const SignupPage: FC<ISignupPageProps> = ({
-  signUp,
-  isSigningUp,
-  signUpError
-}) => {
+const SignupPage: FC = () => {
+  const [accountCreated, setAccountCreated] = useState(false);
   const [currentStep, setCurrentStep] = useState(SignupStep.Survey);
-  const [prevSignUpError, setPrevSignUpError] = useState(signUpError);
   const [surveyValues, setSurveyValues] = useState({});
+
+  const [signup, { loading: isSigningup, error: signupError }] = useMutation(
+    SIGNUP_MUTATION,
+    {
+      onCompleted() {
+        setAccountCreated(true);
+      }
+    }
+  );
 
   const wrapRef = React.createRef<HTMLDivElement>();
   const formRef = React.createRef<Formik>();
-  const prevStep = usePrevious(currentStep);
 
   useEffect(() => {
-    if (wrapRef.current && currentStep !== prevStep) {
-      wrapRef.current.scrollIntoView();
-    }
+    wrapRef.current.scrollIntoView();
   }, [currentStep]);
 
   useEffect(() => {
-    if (formRef.current && signUpError && signUpError !== prevSignUpError) {
+    if (signupError) {
       formRef.current.setErrors({
         email: "Ya hay un usuario registrado con este correo electrónico"
       });
       console.log("Signup ERROR");
     }
-    setPrevSignUpError(signUpError);
-  }, [signUpError]);
-
-  function usePrevious(value: any) {
-    const ref = useRef();
-
-    useEffect(() => {
-      ref.current = value;
-    }, [value]);
-
-    return ref.current;
-  }
+  }, [signupError]);
 
   const renderSurveyStep = () => {
     return (
-      <StepContent>
+      <>
         <StepCount>Paso 1 de 2</StepCount>
         <StepTitle>Encuesta previa</StepTitle>
         <p>
@@ -164,13 +148,13 @@ const SignupPage: FC<ISignupPageProps> = ({
             Siguiente
           </Button>
         </Buttons>
-      </StepContent>
+      </>
     );
   };
 
   const renderUserDataStep = () => {
     return (
-      <StepContent>
+      <>
         <StepCount>Paso 2 de 2</StepCount>
         <StepTitle>Datos de usuario</StepTitle>
         <Formik
@@ -210,7 +194,7 @@ const SignupPage: FC<ISignupPageProps> = ({
             return errors;
           }}
           onSubmit={values => {
-            signUp({
+            signup({
               variables: {
                 user: {
                   email: values.email,
@@ -284,38 +268,20 @@ const SignupPage: FC<ISignupPageProps> = ({
                 >
                   Volver
                 </Button>
-                <Button type="submit" disabled={isSigningUp}>
+                <Button type="submit" disabled={isSigningup}>
                   Crear cuenta
                 </Button>
               </Buttons>
             </Form>
           )}
         </Formik>
-      </StepContent>
+      </>
     );
   };
 
   return (
     <Wrap ref={wrapRef}>
-      <Container>
-        <Logo src={logoBetaImage} alt="Bitbloq Beta" />
-        <SignupPanel>
-          <PanelHeader>Crear cuenta</PanelHeader>
-          <HorizontalRule small />
-          {currentStep === SignupStep.Survey && renderSurveyStep()}
-          {currentStep === SignupStep.UserData && renderUserDataStep()}
-        </SignupPanel>
-      </Container>
-    </Wrap>
-  );
-};
-
-const SignupPageWithMutation = () => {
-  const [accountCreated, setAccountCreated] = useState(false);
-
-  if (accountCreated) {
-    return (
-      <Wrap>
+      {accountCreated ? (
         <DialogModal
           isOpen={true}
           title="Cuenta creada"
@@ -323,26 +289,24 @@ const SignupPageWithMutation = () => {
           cancelText="Volver a la web"
           onCancel={() => Router.push("/")}
         />
-      </Wrap>
-    );
-  }
-
-  return (
-    <Mutation
-      mutation={SIGNUP_MUTATION}
-      onCompleted={() => setAccountCreated(true)}
-    >
-      {(
-        signUp,
-        { loading, error }: { loading: boolean; error?: ApolloError }
-      ) => (
-        <SignupPage signUp={signUp} isSigningUp={loading} signUpError={error} />
+      ) : (
+        <Container>
+          <Logo src={logoBetaImage} alt="Bitbloq Beta" />
+          <SignupPanel>
+            <PanelHeader>Crear cuenta</PanelHeader>
+            <HorizontalRule small />
+            <StepContent>
+              {currentStep === SignupStep.Survey && renderSurveyStep()}
+              {currentStep === SignupStep.UserData && renderUserDataStep()}
+            </StepContent>
+          </SignupPanel>
+        </Container>
       )}
-    </Mutation>
+    </Wrap>
   );
 };
 
-export default withApollo(SignupPageWithMutation, { requiresSession: false });
+export default withApollo(SignupPage, { requiresSession: false });
 
 const FormInput = ({ field, form: { touched, errors }, ...props }) => {
   const showError = touched[field.name] && errors[field.name];
