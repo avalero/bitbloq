@@ -47,6 +47,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagesNumber, setPagesNumber] = useState(1);
   const [currentLocation] = useState({
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
@@ -86,6 +87,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     if (!loading && !errorQuery) {
       setError(null);
       setDocumentsData(resultData);
+      setPagesNumber(resultData.documentsAndFolders.pagesNumber);
     }
     if (errorQuery) {
       setError(errorQuery);
@@ -98,6 +100,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const onFolderClick = async ({ id, title }) => {
     Router.push(`/app/folder/${id}`);
   };
+
+  useEffect(() => {
+    if (currentPage > pagesNumber) {
+      setCurrentPage(pagesNumber);
+    }
+  }, [pagesNumber]);
 
   const onDocumentClick = ({ id, type, title }) => {
     setBreadcrumbsLinks([
@@ -199,11 +207,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         </Content>
         <AppFooter />
       </Container>
-    )
+    );
   }
 
   const {
-    pagesNumber,
     result: docsAndFols,
     parentsPath,
     nFolders
