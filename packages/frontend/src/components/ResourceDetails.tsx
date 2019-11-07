@@ -51,6 +51,12 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
                 <source src={preview} type={`video/${titleExt}`} />
               </PreviewVideo>
             </Preview>
+          ) : type === ResourcesTypes.sounds ? (
+            <Preview>
+              <PreviewAudio controls>
+                <source src={preview} type={`audio/${titleExt}`} />
+              </PreviewAudio>
+            </Preview>
           ) : (
             <PreviewEmpty>
               <Icon name="eye-close" />
@@ -142,10 +148,21 @@ const DataItem = styled.div`
 `;
 
 const Preview = styled.div`
+  align-items: center;
   border: solid 1px #979797;
   border-radius: 4px;
+  display: flex;
   height: calc(100% - 26px);
+  justify-content: center;
   width: 100%;
+`;
+
+const PreviewAudio = styled.audio`
+  width: 320px;
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const PreviewEmpty = styled(Preview)`

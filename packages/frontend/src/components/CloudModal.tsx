@@ -105,6 +105,36 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
         "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
       title: "WWWWWWWWWWWWWWWW.mp3",
       type: ResourcesTypes.sounds
+    },
+    {
+      date: new Date(),
+      size: 456654,
+      deleted: false,
+      id: "6",
+      preview:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
+      thumbnail:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
+      title: "title objects 3D.stl",
+      type: ResourcesTypes.objects3D
+    },
+    {
+      date: new Date(),
+      size: 456454654,
+      deleted: false,
+      preview:
+        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
+      id: "7",
+      title: "long long long title sounds.mp3",
+      type: ResourcesTypes.sounds
+    },
+    {
+      date: new Date(),
+      size: 45654654,
+      deleted: false,
+      id: "8",
+      title: "WWWWWWWWWWWWWWWW.mp3",
+      type: ResourcesTypes.sounds
     }
   ]);
   const [selectedResource, setSelectedResource] = useState<
