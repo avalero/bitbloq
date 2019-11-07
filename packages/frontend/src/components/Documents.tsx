@@ -383,7 +383,9 @@ const Container = styled.div`
 `;
 
 const Content = styled(Layout)`
+  display: flex;
   flex: 1;
+  flex-flow: column nowrap;
   width: 100%;
 `;
 
