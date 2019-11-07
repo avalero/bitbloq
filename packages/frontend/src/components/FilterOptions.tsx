@@ -7,12 +7,14 @@ export interface IFilterOptionsProps {
   onChange: (value: string) => void;
   onOrderChange: (order: OrderType) => void;
   searchText: string;
+  selectValue?: OrderType;
 }
 
 const FilterOptions: FC<IFilterOptionsProps> = ({
   onChange,
   onOrderChange,
-  searchText
+  searchText,
+  selectValue
 }) => {
   const orderOptions = [
     {
@@ -41,6 +43,7 @@ const FilterOptions: FC<IFilterOptionsProps> = ({
           options={orderOptions}
           onChange={onOrderChange}
           selectConfig={{ isSearchable: false }}
+          value={selectValue}
         />
       </ViewOptions>
       <SearchInput

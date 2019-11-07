@@ -1,10 +1,19 @@
-import React, { FC, useEffect, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState
+} from "react";
+import { useQuery } from "@apollo/react-hooks";
 import { Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
+import { GET_CLOUD_RESOURCES } from "../apollo/queries";
 import { OrderType, resourceTypes } from "../config";
-import { IResource, ResourcesTypes } from "../types";
+import { IResource } from "../types";
 
 interface IResourceType {
   label: string;
@@ -41,109 +50,28 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 500);
-  });
-
   const [cloudResourceTypes, setCloudResourceTypes] = useState<IResourceType[]>(
     []
   );
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
-  const [resources, setResources] = useState<IResource[]>([
-    {
-      date: new Date(),
-      size: 456544,
-      deleted: true,
-      id: "0",
-      preview:
-        "https://www.movilzona.es/app/uploads/2018/01/Personalizacion-Android-1.jpg",
-      thumbnail:
-        "https://www.movilzona.es/app/uploads/2018/01/Personalizacion-Android-1.jpg",
-      title:
-        "long long long long long long long long long long long long long long long title image.jpg",
-      type: ResourcesTypes.images
-    },
-    {
-      date: new Date(),
-      size: 654,
-      deleted: false,
-      id: "1",
-      preview:
-        "https://storage.googleapis.com/macmillan-static-qa/content/level-1/project-2/N1P2EJ.mp4",
-      title: "long long long long long long long long long title video.mp4",
-      type: ResourcesTypes.videos
-    },
-    {
-      date: new Date(),
-      size: 456654,
-      deleted: false,
-      id: "2",
-      preview:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      thumbnail:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      title: "title objects 3D.stl",
-      type: ResourcesTypes.objects3D
-    },
-    {
-      date: new Date(),
-      size: 456454654,
-      deleted: false,
-      preview:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      id: "3",
-      title: "long long long title sounds.mp3",
-      type: ResourcesTypes.sounds
-    },
-    {
-      date: new Date(),
-      size: 45654654,
-      deleted: false,
-      id: "4",
-      preview:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      title: "WWWWWWWWWWWWWWWW.mp3",
-      type: ResourcesTypes.sounds
-    },
-    {
-      date: new Date(),
-      size: 456654,
-      deleted: false,
-      id: "6",
-      preview:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      thumbnail:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      title: "title objects 3D.stl",
-      type: ResourcesTypes.objects3D
-    },
-    {
-      date: new Date(),
-      size: 456454654,
-      deleted: false,
-      preview:
-        "https://previews.123rf.com/images/sasaperic/sasaperic1506/sasaperic150600188/40774509-geom%C3%A9trico-objeto-3d-en-construcci%C3%B3n-matem%C3%A1tica-blanco.jpg",
-      id: "7",
-      title: "long long long title sounds.mp3",
-      type: ResourcesTypes.sounds
-    },
-    {
-      date: new Date(),
-      size: 45654654,
-      deleted: false,
-      id: "8",
-      title: "WWWWWWWWWWWWWWWW.mp3",
-      type: ResourcesTypes.sounds
-    }
-  ]);
+  const [pagesNumber, setPagesNumber] = useState<number>(1);
+  const [resources, setResources] = useState<IResource[]>([]);
   const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [selectedResource, setSelectedResource] = useState<
     IResource | undefined
   >();
+  const { data, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
+    variables: {
+      deleted: resourceTypeActiveId === "deleted",
+      currentPage,
+      order,
+      searchTitle: searchQuery,
+      type: resourceTypeActiveId
+    }
+  });
   const t = useTranslate();
 
   useEffect(() => {
@@ -155,8 +83,33 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   }, []);
 
   useEffect(() => {
-    setLoading(true);
-  }, [resourceTypeActiveId, selectedResource]);
+    onSearchInput(searchText);
+  }, [searchText]);
+
+  useLayoutEffect(() => {
+    if (!loading && data) {
+      const { pagesNumber, resources } = data.cloudResources;
+      setPagesNumber(pagesNumber || 1);
+      setResources(resources || []);
+    }
+  }, [data]);
+
+  const onChangeResourceType = (id: string) => {
+    setCurrentPage(1);
+    setOrder(OrderType.Creation);
+    setResourceTypeActiveId(id);
+    setSearchQuery("");
+    setSearchText("");
+    setSelectedResource(undefined);
+  };
+
+  const onSearchInput = useCallback(
+    debounce((value: string) => {
+      setSearchQuery(value);
+      setCurrentPage(1);
+    }, 500),
+    []
+  );
 
   return (
     <Modal
@@ -173,7 +126,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
               key={resourceType.id}
               label={resourceType.label}
               icon={resourceType.icon}
-              onClick={() => setResourceTypeActiveId(resourceType.id)}
+              onClick={() => onChangeResourceType(resourceType.id)}
             />
           ))}
         </LateralBar>
@@ -194,8 +147,10 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
           ) : (
             <ResourcesList
               currentPage={currentPage}
-              pagesNumber={3}
+              pagesNumber={pagesNumber}
+              order={order}
               resources={resources}
+              searchText={searchText}
               selectResource={(resourceId: string) =>
                 setSelectedResource(
                   resources.find(resource => resource.id === resourceId)
@@ -203,7 +158,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
               }
               setCurrentPage={setCurrentPage}
               setOrder={setOrder}
-              setSearchQuery={setSearchQuery}
+              setSearchText={setSearchText}
             />
           )}
         </MainContent>

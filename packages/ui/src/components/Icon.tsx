@@ -249,13 +249,13 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <RepeatPolar className={className} />;
     case "resource-deleted":
       return <ResourceDeleted className={className} />;
-    case "resource-image":
+    case "resource-images":
       return <ResourceImage className={className} />;
-    case "resource-object":
+    case "resource-objects3D":
       return <ResourceObject className={className} />;
-    case "resource-sound":
+    case "resource-sounds":
       return <ResourceSound className={className} />;
-    case "resource-video":
+    case "resource-videos":
       return <ResourceVideo className={className} />;
     case "rotation":
       return <Rotation className={className} />;

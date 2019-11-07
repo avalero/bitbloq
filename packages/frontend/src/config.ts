@@ -70,27 +70,27 @@ export const documentTypes = {
 
 export const resourceTypes = {
   images: {
-    "id": "resource-image",
+    "id": "images",
     "label": "cloud.resources.images",
-    "icon": "resource-image"
+    "icon": "resource-images"
   },
   videos: {
-    "id": "resource-video",
+    "id": "videos",
     "label": "cloud.resources.videos",
-    "icon": "resource-video"
+    "icon": "resource-videos"
   },
   sounds: {
-    "id": "resource-sound",
+    "id": "sounds",
     "label": "cloud.resources.sounds",
-    "icon": "resource-sound"
+    "icon": "resource-sounds"
   },
   objects3D: {
-    "id": "resource-object-3d",
+    "id": "objects3D",
     "label": "cloud.resources.objects",
-    "icon": "resource-object"
+    "icon": "resource-objects3D"
   },
   deleted: {
-    "id": "resource-deleted",
+    "id": "deleted",
     "label": "cloud.resources.deleted",
     "icon": "resource-deleted"
   }

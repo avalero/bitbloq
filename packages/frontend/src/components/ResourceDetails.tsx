@@ -1,4 +1,4 @@
-import { Button, DropDown, Icon, useTranslate } from "@bitbloq/ui";
+import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useEffect, useState } from "react";
 import { IResource, ResourcesTypes } from "../types";
@@ -10,7 +10,7 @@ interface IResourceDetailsProps extends IResource {
 
 const ResourceDetails: FC<IResourceDetailsProps> = ({
   className,
-  date,
+  createdAt,
   preview,
   size,
   title,
@@ -79,7 +79,7 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
         <DataItem>
           <h2>{t("cloud.details.date")}</h2>
           <p>
-            {date.toLocaleString(undefined, {
+            {new Date(createdAt).toLocaleString(undefined, {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",

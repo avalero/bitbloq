@@ -35,9 +35,10 @@ export enum ResourcesTypes {
 }
 
 export interface IResource {
-  date: Date;
+  createdAt: Date;
   deleted: boolean;
   id: string;
+  file: string
   preview?: string;
   size: number; // Bytes
   thumbnail?: string;

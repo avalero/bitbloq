@@ -1,7 +1,6 @@
 import { useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import debounce from "lodash/debounce";
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
 import ResourceCard from "./ResourceCard";
@@ -10,40 +9,37 @@ import { IResource } from "../types";
 
 interface IResourcesListProps {
   currentPage: number;
+  order: OrderType;
   pagesNumber: number;
   resources?: IResource[];
+  searchText: string;
   selectResource: (id: string) => void;
   setCurrentPage: (page: number) => void;
   setOrder: (order: OrderType) => void;
-  setSearchQuery: (value: string) => void;
+  setSearchText: (value: string) => void;
 }
 
 const ResourcesList: FC<IResourcesListProps> = ({
   currentPage,
+  order,
   pagesNumber,
   resources = [],
+  searchText,
   selectResource,
   setCurrentPage,
   setOrder,
-  setSearchQuery
+  setSearchText
 }) => {
-  const [searchText, setSearchText] = useState("");
   const t = useTranslate();
-
-  const onSearchInput = debounce((value: string) => {
-    setSearchQuery(value);
-    setCurrentPage(1);
-  }, 500);
 
   return (
     <Container>
       <FilterContainer>
         <FilterOptions
           searchText={searchText}
-          onChange={(value: string) => (
-            setSearchText(value), onSearchInput(value)
-          )}
+          onChange={(value: string) => setSearchText(value)}
           onOrderChange={(order: OrderType) => setOrder(order)}
+          selectValue={order}
         />
       </FilterContainer>
       {searchText && resources.length === 0 ? (
@@ -59,7 +55,7 @@ const ResourcesList: FC<IResourcesListProps> = ({
           ))}
         </List>
       )}
-      {resources.length > 8 && (
+      {pagesNumber > 1 && (
         <Paginator
           currentPage={currentPage}
           pages={pagesNumber}

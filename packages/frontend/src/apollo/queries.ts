@@ -508,3 +508,34 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
     }
   }
 `;
+
+export const GET_CLOUD_RESOURCES = gql`
+  query CloudResources(
+    $deleted: Boolean
+    $currentPage: Number
+    $order: String
+    $searchTitle: String
+    $type: String
+  ) {
+    cloudResources(
+      deleted: $deleted
+      currentPage: $currentPage
+      order: $order
+      searchTitle: $searchTitle
+      type: $type
+    ) {
+      pagesNumber,
+      resources {
+        createdAt
+        deleted
+        id
+        file
+        preview
+        size
+        thumbnail
+        title
+        type
+      }
+    }
+  }
+`;

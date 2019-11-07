@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import DocumentCardMenu from "./DocumentCardMenu";
 import MenuButton from "./MenuButton";
-import { IResource, ResourcesTypes } from "../types";
+import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
   className?: string;
@@ -77,7 +77,9 @@ const ResourceCard: FC<IResourceCardProps> = ({
           ]}
         />
       </DropDown>
-      <Image imageUrl={thumbnail}>{!thumbnail && <Icon name={type} />}</Image>
+      <Image imageUrl={thumbnail}>
+        {!thumbnail && <Icon name={`resource-${type}`} />}
+      </Image>
       <Title ref={titleRef}>
         {firstTitle}
         {secondTitle}
