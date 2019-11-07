@@ -4,8 +4,7 @@ import React, { FC } from "react";
 import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
 import ResourceCard from "./ResourceCard";
-import { OrderType } from "../config";
-import { IResource } from "../types";
+import { IResource, OrderType } from "../types";
 
 interface IResourcesListProps {
   currentPage: number;

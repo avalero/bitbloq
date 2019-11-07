@@ -16,8 +16,8 @@ import {
   MOVE_RESOURCE_TO_TRASH,
   RESTORE_RESOURCE_FROM_TRASH
 } from "../apollo/queries";
-import { OrderType, resourceTypes } from "../config";
-import { IResource } from "../types";
+import { resourceTypes } from "../config";
+import { IResource, OrderType } from "../types";
 
 interface IResourceType {
   label: string;

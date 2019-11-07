@@ -103,7 +103,7 @@ export function getFilesizeInBytes(filename) {
   }
 }
 
-export async function uploadDocumentImage(image, documentID, userID) {
+export async function uploadDocumentImage(image, documentID, userID): Promise<IUpload> {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
     throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");

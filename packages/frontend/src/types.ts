@@ -27,6 +27,13 @@ export interface Document {
   image: any;
 }
 
+export enum OrderType {
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
+}
+
 export enum ResourcesTypes {
   images = "images",
   objects3D = "objects3D",
