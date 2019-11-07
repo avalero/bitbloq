@@ -13,7 +13,9 @@ const JuniorEditor: React.FunctionComponent<EditorProps> = ({
   title,
   onEditTitle,
   headerRightContent,
-  backCallback
+  backCallback,
+  headerButtons,
+  onHeaderButtonClick
 }) => {
   return (
     <Junior
@@ -29,6 +31,8 @@ const JuniorEditor: React.FunctionComponent<EditorProps> = ({
       components={components}
       backCallback={backCallback}
       headerRightContent={headerRightContent}
+      headerButtons={headerButtons}
+      onHeaderButtonClick={onHeaderButtonClick}
     >
       {getTabs}
     </Junior>

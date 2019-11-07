@@ -68,7 +68,6 @@
     "reflect-metadata": "^0.1.13",
     "shortid": "^2.2.14",
     "ts-node": "^7.0.1",
-    "tslint": "^5.14.0",
     "typescript": "^3.3.4000",
     "winston": "^3.2.1",
     "winston-elasticsearch": "^0.7.9"
