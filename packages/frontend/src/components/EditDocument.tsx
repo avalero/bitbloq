@@ -210,7 +210,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
             createDocument: { id: newId }
           }
         } = result;
-        const href = '/app/edit-document/[folder]/[type]/[id]';
+        const href = "/app/edit-document/[folder]/[type]/[id]";
         const as = `/app/edit-document/${folder}/${type}/${newId}`;
         Router.replace(href, as, { shallow: true });
       }

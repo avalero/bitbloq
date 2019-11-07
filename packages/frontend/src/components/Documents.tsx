@@ -223,7 +223,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         </Content>
         <AppFooter />
       </Container>
-    )
+    );
   }
 
   const {
