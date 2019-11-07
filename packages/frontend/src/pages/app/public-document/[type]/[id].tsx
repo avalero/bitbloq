@@ -1,5 +1,4 @@
 import { useRouter } from "next/router";
-import dynamic from "next/dynamic";
 
 import PublicDocument from "../../../../components/PublicDocument";
 import withApollo from "../../../../apollo/withApollo";

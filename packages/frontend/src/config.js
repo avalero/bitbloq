@@ -6,18 +6,14 @@ import { addShapeGroups } from "./configurations/3d/addShapeGroups";
 import { bloqTypes } from "./configurations/bloqs/bloqTypes";
 import { boards } from "./configurations/hardware/boards";
 import { components } from "./configurations/hardware/components";
+import Loading from "./components/Loading";
 
 export { addShapeGroups, bloqTypes, boards, components };
 
-const ThreeDEditor = dynamic(() => import("./components/ThreeDEditor"), {
-  ssr: false
-});
-
-const JuniorEditor = dynamic(() => import("./components/JuniorEditor"), {
-  ssr: false
-});
-
 const ENABLED_TOOLS = process.env.ENABLED_TOOLS || [];
+
+const CreateDynamicComponent = (fn, loadingColor) =>
+  dynamic(fn, { loading: () => <Loading color={loadingColor} /> });
 
 export const documentTypes = {
   junior: {
@@ -29,7 +25,10 @@ export const documentTypes = {
     icon: "logo-junior",
     level: "Principiante",
     landingText: `Da tus primeros pasos en la robótica con una programación por bloques sencilla e intuitiva.`,
-    editorComponent: JuniorEditor
+    editorComponent: CreateDynamicComponent(
+      () => import("./components/JuniorEditor"),
+      colors.brandOrange
+    )
   },
   bloqs: {
     label: "Robótica",
@@ -62,7 +61,10 @@ export const documentTypes = {
     level: "Medio",
     landingText:
       "Descubre las tres dimensiones, aprende geometría y convierte tus ideas en diseños.",
-    editorComponent: ThreeDEditor
+    editorComponent: CreateDynamicComponent(
+      () => import("./components/ThreeDEditor"),
+      colors.brandBlue
+    )
   },
   apps: {
     label: "Apps",
