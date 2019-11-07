@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import { Icon, colors, DialogModal, DropDown } from "@bitbloq/ui";
+import { DialogModal, DropDown } from "@bitbloq/ui";
 import { useDrop } from "react-dnd";
 import { css } from "@emotion/core";
 import {
@@ -198,7 +198,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
       }
     });
     refetchDocsFols();
-    setEditFolderNameModal({ id: null, title: null });
+    setEditFolderNameModal({ id: null, name: null });
     setMenuOpenId(null);
   };
 
@@ -289,6 +289,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
           {docsAndFols &&
             docsAndFols.map((document: any) => (
               <StyledDocumentCard
+                isOpen={true}
                 beginFunction={() => setDraggingItemId(document.id)}
                 endFunction={() => setDraggingItemId("")}
                 draggable={
@@ -323,7 +324,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
                   offset="182px 14px" // 182 = 240(card height) - 2(card border) - 14(button offset) - 36(button height) - 6(dropdow offset)
                 >
                   {(isOpen: boolean) => (
-                    <MenuButtonContainer isOpen={isOpen} onClick={e => onDocumentMenuClick(e, document)}>
+                    <MenuButtonContainer
+                      isOpen={isOpen}
+                      onClick={e => onDocumentMenuClick(e, document)}
+                    >
                       <MenuButton isOpen={isOpen} />
                     </MenuButtonContainer>
                   )}
@@ -501,7 +505,6 @@ const DocumentList = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   grid-column-gap: 20px;
   grid-row-gap: 40px;
-  margin-bottom: 40px;
 
   &::before {
     content: "";
@@ -539,7 +542,7 @@ const DocumentsAndPaginator = styled.div`
 `;
 
 const DocumentsPaginator = styled(Paginator)`
-  margin-bottom: 60px;
+  margin: 40px 0 60px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`

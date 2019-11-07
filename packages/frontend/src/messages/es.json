@@ -313,5 +313,8 @@
     "session": {
       "logout": "salir"
     }
+  },
+  "documents": {
+    "go-to-exercise": "Ir al ejercicio"
   }
 }

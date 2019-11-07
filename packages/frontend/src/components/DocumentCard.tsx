@@ -5,7 +5,7 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
 import folderImg from "../images/folder.svg";
 
-export interface DocumentCardProps {
+export interface IDocumentCardProps {
   beginFunction?: () => void;
   className?: string;
   document: any;
@@ -17,7 +17,7 @@ export interface DocumentCardProps {
   onClick?: (e: React.MouseEvent) => any;
 }
 
-const DocumentCard: FC<DocumentCardProps> = ({
+const DocumentCard: FC<IDocumentCardProps> = ({
   beginFunction,
   children,
   className,
@@ -76,7 +76,11 @@ const DocumentCard: FC<DocumentCardProps> = ({
       {document.type === "folder" && <DropContainer ref={drop} />}
       {document.type !== "folder" ? (
         <Image
-          src={document.image.image ? document.image.image : document.image}
+          src={
+            document.image && document.image.image
+              ? document.image.image
+              : document.image
+          }
         />
       ) : (
         <ImageFol src={folderImg} />
@@ -98,23 +102,21 @@ const DocumentCard: FC<DocumentCardProps> = ({
 
 export default DocumentCard;
 
-interface ContainerProps {
+interface IContainerProps {
   isDragging: boolean;
   isOver: boolean;
 }
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<IContainerProps>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
   border: 1px solid
-    ${(props: ContainerProps) =>
-      props.isDragging || props.isOver ? colors.gray4 : colors.gray3};
+    ${props => (props.isDragging || props.isOver ? colors.gray4 : colors.gray3)};
   cursor: pointer;
   background-color: white;
   position: relative;
   overflow: hidden;
-  visibility: ${(props: ContainerProps) =>
-    props.isDragging ? "hidden" : "visible"};
+  visibility: ${props => (props.isDragging ? "hidden" : "visible")};
 
   &:hover {
     border-color: ${colors.gray4};
@@ -128,10 +130,10 @@ const DropContainer = styled.div`
   width: 100%;
 `;
 
-interface ImageProps {
+interface IImageProps {
   src: string;
 }
-const Image = styled.div<ImageProps>`
+const Image = styled.div<IImageProps>`
   flex: 1;
   background-color: ${colors.gray2};
   background-image: url(${props => props.src});
@@ -140,9 +142,9 @@ const Image = styled.div<ImageProps>`
   border-bottom: 1px solid ${colors.gray3};
 `;
 
-const ImageFol = styled.div<ImageProps>`
+const ImageFol = styled.div<IImageProps>`
   flex: 1;
-  background-color: ${colors.white};
+  background-color: white;
   background-image: url(${props => props.src});
   background-size: 60px 60px;
   background-position: center;
@@ -200,33 +202,5 @@ const DocumentMenuOption = styled.div`
 
   &:last-child {
     border: none;
-  }
-`;
-
-const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  width: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  background-color: white;
-  display: none;
-
-  &:hover {
-    background-color: ${colors.gray1};
-    border-color: ${colors.gray4};
-  }
-
-  ${props =>
-    props.isOpen &&
-    css`
-      border: solid 1px #dddddd;
-      background-color: #e8e8e8;
-    `} svg {
-    transform: rotate(90deg);
   }
 `;
