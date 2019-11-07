@@ -35,7 +35,7 @@ const questions: Question[] = [
     id: "courses",
     type: QuestionType.MultipleOption,
     title: "¿A qué cursos das clases?",
-    options: [ // TODO: check error management
+    options: [
       { label: "Primaria", value: "primary" },
       { label: "Secundaria", value: "secondary" },
       { label: "Universidad", value: "university" }
@@ -87,15 +87,9 @@ interface UserField {
   type: string;
 }
 
-// TODO: update to 1 and 2
-enum SignupStep {
-  Survey,
-  UserData
-}
-
 const SignupPage: FC = () => {
   const [accountCreated, setAccountCreated] = useState(false);
-  const [currentStep, setCurrentStep] = useState(SignupStep.Survey);
+  const [currentStep, setCurrentStep] = useState(0);
   const [surveyValues, setSurveyValues] = useState({});
 
   const [signup, { loading, error }] = useMutation(
@@ -122,10 +116,9 @@ const SignupPage: FC = () => {
     }
   }, [error]);
 
-  const renderSurveyStep = () => {
-    return (
+  const renderSteps = () => {
+    return ([
       <>
-        <StepCount>Paso 1 de 2</StepCount>
         <StepTitle>Encuesta previa</StepTitle>
         <p>
           Bienvenido a la beta del nuevo Bitbloq. Para poder crear una cuenta de
@@ -143,18 +136,13 @@ const SignupPage: FC = () => {
           <Button secondary onClick={() => Router.push("/")}>
             Cancelar
           </Button>
-          <Button tertiary onClick={() => setCurrentStep(SignupStep.UserData)}>
+          <Button tertiary onClick={() => setCurrentStep(currentStep + 1)}>
             Siguiente
           </Button>
         </Buttons>
       </>
-    );
-  };
-
-  const renderUserDataStep = () => {
-    return (
+    ,
       <>
-        <StepCount>Paso 2 de 2</StepCount>
         <StepTitle>Datos de usuario</StepTitle>
         <Formik
           ref={formRef}
@@ -263,7 +251,7 @@ const SignupPage: FC = () => {
               <Buttons>
                 <Button
                   tertiary
-                  onClick={() => setCurrentStep(SignupStep.Survey)}
+                  onClick={() => setCurrentStep(currentStep-1)}
                 >
                   Volver
                 </Button>
@@ -275,7 +263,7 @@ const SignupPage: FC = () => {
           )}
         </Formik>
       </>
-    );
+    ]);
   };
 
   return (
@@ -295,8 +283,8 @@ const SignupPage: FC = () => {
             <PanelHeader>Crear cuenta</PanelHeader>
             <HorizontalRule small />
             <StepContent>
-              {currentStep === SignupStep.Survey && renderSurveyStep()}
-              {currentStep === SignupStep.UserData && renderUserDataStep()}
+              <StepCount>Paso {currentStep+1} de 2</StepCount>
+              {renderSteps()[currentStep]}
             </StepContent>
           </SignupPanel>
         </Container>
