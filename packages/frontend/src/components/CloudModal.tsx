@@ -1,5 +1,5 @@
-import React, { FC, useState } from "react";
-import { Modal, Icon, useTranslate } from "@bitbloq/ui";
+import React, { FC, useEffect, useState } from "react";
+import { Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
@@ -28,10 +28,10 @@ const ResourceType: FC<IResourceTypeProps> = ({
   const t = useTranslate();
 
   return (
-    <RecourseTypeItem active={active} onClick={onClick}>
+    <ResourceTypeItem active={active} onClick={onClick}>
       <Icon name={icon} />
       <p>{t(label)}</p>
-    </RecourseTypeItem>
+    </ResourceTypeItem>
   );
 };
 
@@ -42,6 +42,12 @@ export interface ICloudModalProps {
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   let cloudResourceTypes: IResourceType[] = [];
+
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 500);
+  });
 
   for (let r in resourceTypes) {
     cloudResourceTypes.push(resourceTypes[r]);
@@ -142,6 +148,10 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   >();
   const t = useTranslate();
 
+  useEffect(() => {
+    setLoading(true);
+  }, [resourceTypeActiveId, selectedResource]);
+
   return (
     <Modal
       iconName="cloud-logo"
@@ -162,7 +172,9 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
           ))}
         </LateralBar>
         <MainContent>
-          {selectedResource ? (
+          {loading ? (
+            <ResourcesSpinner />
+          ) : selectedResource ? (
             <ResourceDetails
               {...selectedResource}
               returnCallback={() => setSelectedResource(undefined)}
@@ -223,7 +235,17 @@ const MainContent = styled.div`
   padding: 19px 20px 30px;
 `;
 
-const RecourseTypeItem = styled.div<{ active?: boolean }>`
+const ResourcesSpinner = styled(Spinner)`
+  height: 100%;
+  width: 100%;
+
+  svg {
+    height: 150px !important;
+    width: 150px !important;
+  }
+`;
+
+const ResourceTypeItem = styled.div<{ active?: boolean }>`
   align-items: center;
   background-color: ${props => (props.active ? "#fff" : "#eee")};
   border-bottom: 1px solid #ddd;
