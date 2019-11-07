@@ -22,8 +22,8 @@ import {
   CREATE_FOLDER_MUTATION,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
-import { OrderType } from "../config";
 import useUserData from "../lib/useUserData";
+import { OrderType } from "../types";
 import AppFooter from "./Footer";
 import AppHeader from "./AppHeader";
 import Breadcrumbs from "./Breadcrumbs";

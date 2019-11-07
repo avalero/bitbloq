@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { Input, Select, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { OrderType } from "../config";
+import { OrderType } from "../types";
 
 export interface IFilterOptionsProps {
   onChange: (value: string) => void;
@@ -48,8 +48,8 @@ const FilterOptions: FC<IFilterOptionsProps> = ({
       </ViewOptions>
       <SearchInput
         value={searchText}
-        onChange={(e: Event) =>
-          e && e.target && onChange((e.target as HTMLTextAreaElement).value)
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+          e && e.target && onChange(e.target.value)
         }
         placeholder={t("filter.text.placeholder")}
       />
@@ -59,12 +59,12 @@ const FilterOptions: FC<IFilterOptionsProps> = ({
 
 export default FilterOptions;
 
-const OrderSelect: Select = styled(Select)`
+const OrderSelect = styled(Select)`
   height: 40px;
   width: 216px;
 `;
 
-const SearchInput: Input = styled(Input)`
+const SearchInput = styled(Input)`
   flex: inherit;
   height: 40px;
   padding: 12px 19px;
