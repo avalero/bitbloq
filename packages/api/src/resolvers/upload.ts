@@ -1,6 +1,6 @@
 import { ApolloError } from "apollo-server-koa";
-import { UploadModel } from "../models/upload";
-import { urlencoded } from "express";
+import { UploadModel, IUpload, IResource } from "../models/upload";
+import { orderFunctions } from "../utils";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
@@ -33,8 +33,19 @@ const normalize = (function() {
   };
 })();
 
-const processUpload = async (createReadStream, uniqueName, resolve, reject) => {
-  const file = bucket.file(uniqueName);
+const processUpload = async (
+  resolve: any,
+  reject: any,
+  createReadStream: any,
+  gcsName: string,
+  documentID?: string,
+  filename?: string,
+  mimetype?: string,
+  encoding?: string,
+  userID?: string,
+  type?: string
+) => {
+  const file = bucket.file(gcsName);
 
   const opts = {
     metadata: {
@@ -53,8 +64,24 @@ const processUpload = async (createReadStream, uniqueName, resolve, reject) => {
       }
 
       file.makePublic().then(async () => {
-        publicUrl = getPublicUrl(uniqueName);
-        resolve("OK");
+        publicUrl = getPublicUrl(gcsName);
+        fileSize = getFilesizeInBytes(createReadStream().path);
+        const uploadNew = new UploadModel({
+          document: documentID,
+          filename,
+          mimetype,
+          encoding,
+          publicUrl,
+          storageName: gcsName,
+          size: fileSize,
+          user: userID,
+          image: type === "images" ? publicUrl : null,
+          type: type,
+          deleted: false
+        });
+        console.log(fileSize, type);
+        const uploaded: IUpload = await UploadModel.create(uploadNew);
+        resolve(uploaded);
       });
     });
 
@@ -66,11 +93,11 @@ function getPublicUrl(filename) {
   return `https://storage.googleapis.com/${bucketName}/${filename}`;
 }
 
-function getFilesizeInBytes(filename) {
+export function getFilesizeInBytes(filename) {
   try {
     const stats = fs.statSync(filename);
     const fileSizeInBytes: number = stats["size"];
-    return fileSizeInBytes / 1000000;
+    return fileSizeInBytes;
   } catch (e) {
     console.log(e);
   }
@@ -94,20 +121,20 @@ export async function uploadDocumentImage(image, documentID, userID) {
   const uniqueName: string = documentID + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
 
-  await new Promise((resolve, reject) => {
-    processUpload(createReadStream, gcsName, resolve, reject);
+  return await new Promise((resolve, reject) => {
+    processUpload(
+      resolve,
+      reject,
+      createReadStream,
+      gcsName,
+      documentID,
+      filename,
+      mimetype,
+      encoding,
+      userID,
+      "images"
+    );
   });
-  const uploadNew = new UploadModel({
-    document: documentID,
-    filename,
-    mimetype,
-    encoding,
-    publicUrl,
-    gcsName,
-    size: fileSize,
-    user: userID
-  });
-  return UploadModel.create(uploadNew);
 }
 
 const uploadResolver = {
@@ -126,6 +153,46 @@ const uploadResolver = {
         });
       });
       return await UploadModel.find({ user: context.user.userID });
+    },
+
+    cloudResources: async (root: any, args: any, context: any) => {
+      const itemsPerPage: number = 8;
+      let skipN: number = (args.currentPage - 1) * itemsPerPage;
+      let limit: number = skipN + itemsPerPage;
+      const text: string = args.searchTitle;
+
+      const orderFunction = orderFunctions[args.order];
+      let filtedOptions = {};
+      args.deleted
+        ? (filtedOptions = {
+            deleted: true
+          })
+        : (filtedOptions = {
+            type: args.type,
+            deleted: false
+          });
+      const userUploads: IUpload[] = await UploadModel.find({
+        filename: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filtedOptions
+      });
+      const dataSorted: IUpload[] = await userUploads.sort(orderFunction);
+      const pagesNumber: number = Math.ceil(dataSorted.length / itemsPerPage);
+
+      const result: IResource[] = dataSorted.slice(skipN, limit).map(i => {
+        return {
+          id: i._id,
+          title: i.filename,
+          type: i.type,
+          size: i.size,
+          thumbnail: i.image,
+          preview: i.image,
+          file: i.publicUrl,
+          deleted: i.deleted,
+          createdAt: i.createdAt
+        };
+      });
+      return { resources: result, pagesNumber };
     }
   },
   Mutation: {
@@ -136,20 +203,20 @@ const uploadResolver = {
       }
       const uniqueName: string = Date.now() + normalize(filename);
       const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
-      await new Promise((resolve, reject) => {
-        processUpload(createReadStream, gcsName, resolve, reject);
+      return await new Promise((resolve, reject) => {
+        processUpload(
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
+          documentID,
+          filename,
+          mimetype,
+          encoding,
+          userID,
+          ""
+        );
       });
-      const uploadNew = new UploadModel({
-        document: documentID,
-        filename,
-        mimetype,
-        encoding,
-        publicUrl,
-        gcsName,
-        size: fileSize,
-        user: userID
-      });
-      return UploadModel.create(uploadNew);
     },
     uploadSTLFile: async (root: any, args: any, context: any) => {
       const {
@@ -172,20 +239,20 @@ const uploadResolver = {
       const gcsName: string = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      await new Promise((resolve, reject) => {
-        processUpload(createReadStream, gcsName, resolve, reject);
+      return await new Promise((resolve, reject) => {
+        processUpload(
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
+          args.documentID,
+          filename,
+          mimetype,
+          encoding,
+          context.user.userID,
+          "objects3D"
+        );
       });
-      const uploadNew = new UploadModel({
-        document: args.documentID,
-        filename,
-        mimetype,
-        encoding,
-        publicUrl,
-        user: context.user.userID,
-        gcsName,
-        size: fileSize
-      });
-      return UploadModel.create(uploadNew);
     },
     uploadImageFile: async (root: any, args: any, context: any) => {
       const {
@@ -201,20 +268,20 @@ const uploadResolver = {
       const gcsName: string = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      await new Promise((resolve, reject) => {
-        processUpload(createReadStream, gcsName, resolve, reject);
+      return await new Promise((resolve, reject) => {
+        processUpload(
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
+          args.documentID,
+          filename,
+          mimetype,
+          encoding,
+          context.user.userID,
+          "images"
+        );
       });
-      const uploadNew = new UploadModel({
-        document: args.documentID,
-        filename,
-        mimetype,
-        encoding,
-        publicUrl,
-        user: context.user.userID,
-        gcsName,
-        size: fileSize
-      });
-      return UploadModel.create(uploadNew);
     },
     deleteUserFile: async (root: any, args: any, context: any) => {
       if (args.filename) {
