@@ -57,32 +57,23 @@ const customStyles = {
     padding: 0,
     borderRadius: "0px 0px 4px 4px"
   }),
-  option: (provided, state) => ({
+  option: provided => ({
     ...provided,
-<<<<<<< HEAD
-    backgroundColor: 'white',
-    color: 'inherit',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: '#e4e4e4',
-    },
-  }),
-  singleValue: provided => ({
-    ...provided,
-    alignItems: 'center',
-    color: '#3b3e45',
-    display: 'flex',
-    fontSize: '14px',
-    minHeight: '16px',
-    margin: '0'
-=======
     backgroundColor: "white",
     color: "inherit",
     cursor: "pointer",
     "&:hover": {
       backgroundColor: "#e4e4e4"
     }
->>>>>>> 2e7cd383a1d55c4ee68c0f94cfea064476bc77ea
+  }),
+  singleValue: provided => ({
+    ...provided,
+    alignItems: "center",
+    color: "#3b3e45",
+    display: "flex",
+    fontSize: "14px",
+    minHeight: "16px",
+    margin: "0"
   })
 };
 
