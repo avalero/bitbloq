@@ -35,6 +35,7 @@ export enum ResourcesTypes {
 }
 
 export interface IResource {
+  date: Date;
   deleted: boolean;
   id: string;
   preview?: string;

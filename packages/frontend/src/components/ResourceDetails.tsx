@@ -10,6 +10,7 @@ interface IResourceDetailsProps extends IResource {
 
 const ResourceDetails: FC<IResourceDetailsProps> = ({
   className,
+  date,
   preview,
   size,
   title,
@@ -71,7 +72,15 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
         </DataItem>
         <DataItem>
           <h2>{t("cloud.details.date")}</h2>
-          <p></p>
+          <p>
+            {date.toLocaleString(undefined, {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            })}
+          </p>
         </DataItem>
       </DataContainer>
       <Buttons>

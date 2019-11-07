@@ -52,6 +52,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   );
   const [resources, setResources] = useState<IResource[]>([
     {
+      date: new Date(),
       size: 456544,
       deleted: true,
       id: "0",
@@ -64,6 +65,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
       type: ResourcesTypes.images
     },
     {
+      date: new Date(),
       size: 654,
       deleted: false,
       id: "1",
@@ -73,6 +75,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
       type: ResourcesTypes.videos
     },
     {
+      date: new Date(),
       size: 456654,
       deleted: false,
       id: "2",
@@ -84,6 +87,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
       type: ResourcesTypes.objects3D
     },
     {
+      date: new Date(),
       size: 456454654,
       deleted: false,
       preview:
@@ -93,6 +97,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
       type: ResourcesTypes.sounds
     },
     {
+      date: new Date(),
       size: 45654654,
       deleted: false,
       id: "4",
