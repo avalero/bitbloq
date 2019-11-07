@@ -2,7 +2,6 @@ import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
-import html2canvas from "html2canvas";
 import { useQuery, useMutation } from "@apollo/react-hooks";
 import { Document, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
@@ -33,6 +32,12 @@ interface EditDocumentProps {
   id: string;
   type: string;
 }
+
+let html2canvas;
+if (typeof window !== undefined) {
+  import("html2canvas").then(module => (html2canvas = module.default));
+}
+
 const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const t = useTranslate();
 
@@ -56,7 +61,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     advancedMode: false
   });
   const [image, setImage] = useState<DocumentImage>();
-  const imageToUpload = useRef(new Blob());
+  const imageToUpload = useRef<Blob | null>(null);
 
   const {
     loading: loadingDocument,
@@ -112,7 +117,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
       const picture: HTMLElement | null = window.document.querySelector(
         ".image-snapshot"
       );
-      if (picture) {
+      if (picture && html2canvas) {
         const canvas: HTMLCanvasElement = await html2canvas(picture);
         const imgData: string = canvas.toDataURL("image/jpeg");
 
@@ -205,7 +210,9 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
             createDocument: { id: newId }
           }
         } = result;
-        Router.replace(`/app/edit-document/${folder}/${type}/${newId}`);
+        const href = '/app/edit-document/[folder]/[type]/[id]';
+        const as = `/app/edit-document/${folder}/${type}/${newId}`;
+        Router.replace(href, as, { shallow: true });
       }
     } else {
       debouncedUpdate(document);

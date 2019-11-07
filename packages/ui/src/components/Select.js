@@ -22,7 +22,7 @@ const customStyles = {
   }),
   control: (provided, state) => ({
     ...provided,
-    minHeight: "35px",
+    minHeight: "40px",
     border: "1px solid #cfcfcf",
     borderBottomColor: state.selectProps.menuIsOpen ? "#e4e4e4" : "#cfcfcf",
     backgroundColor: "white",
@@ -31,13 +31,18 @@ const customStyles = {
     borderRadius: state.selectProps.menuIsOpen ? "4px 4px 0px 0px" : "4px",
     "&:hover": {
       borderColor: "#cfcfcf"
+    },
+    paddingLeft: "12px",
+    "&:hover": {
+      borderColor: "#cfcfcf"
     }
   }),
   dropdownIndicator: provided => ({
     ...provided,
     padding: "0 10px"
   }),
-  indicatorSeparator: provided => ({
+
+  indicatorSeparator: () => ({
     display: "none"
   }),
   menu: provided => ({
@@ -54,12 +59,30 @@ const customStyles = {
   }),
   option: (provided, state) => ({
     ...provided,
+<<<<<<< HEAD
+    backgroundColor: 'white',
+    color: 'inherit',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: '#e4e4e4',
+    },
+  }),
+  singleValue: provided => ({
+    ...provided,
+    alignItems: 'center',
+    color: '#3b3e45',
+    display: 'flex',
+    fontSize: '14px',
+    minHeight: '16px',
+    margin: '0'
+=======
     backgroundColor: "white",
     color: "inherit",
     cursor: "pointer",
     "&:hover": {
       backgroundColor: "#e4e4e4"
     }
+>>>>>>> 2e7cd383a1d55c4ee68c0f94cfea064476bc77ea
   })
 };
 

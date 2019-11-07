@@ -8,9 +8,7 @@ import {
   colors,
   Icon,
   DropDown,
-  Select,
   Spinner,
-  Input,
   HorizontalRule
 } from "@bitbloq/ui";
 import Router from "next/router";
@@ -24,49 +22,27 @@ import {
   CREATE_FOLDER_MUTATION,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
+import { OrderType } from "../config";
 import useUserData from "../lib/useUserData";
 import AppFooter from "./Footer";
 import AppHeader from "./AppHeader";
 import Breadcrumbs from "./Breadcrumbs";
+import CloudModal from "./CloudModal";
 import DocumentList from "./DocumentsList";
 import EditTitleModal from "./EditTitleModal";
+import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import Layout from "./Layout";
 import NewDocumentDropDown from "./NewDocumentDropDown";
 import NewExerciseButton from "./NewExerciseButton";
 import UserSession from "./UserSession";
 
-enum OrderType {
-  Creation = "creation",
-  Modification = "modification",
-  NameAZ = "nameAZ",
-  NameZA = "nameZA"
-}
-
-const orderOptions = [
-  {
-    label: "Orden: Creación",
-    value: OrderType.Creation
-  },
-  {
-    label: "Orden: Modificación",
-    value: OrderType.Modification
-  },
-  {
-    label: "Orden: Nombre A-Z",
-    value: OrderType.NameAZ
-  },
-  {
-    label: "Orden: Nombre Z-A",
-    value: OrderType.NameZA
-  }
-];
-
 const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
 
-  const [order, setOrder] = useState(OrderType.Creation);
+  const [cloudModalOpen, setCloudModalOpen] = useState(false);
+  const [order, setOrder] = useState<OrderType>(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
@@ -151,7 +127,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     Router.push(`/app/edit-document/${currentLocation.id}/${type}/${id}`);
   };
 
-  const onOrderChange = order => {
+  const onOrderChange = (order: OrderType) => {
     setOrder(order);
     refetchDocsFols();
   };
@@ -242,7 +218,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   return (
     <Container>
       <AppHeader>
-        <UserSession />
+        <UserSession cloudClick={() => setCloudModalOpen(true)} />
       </AppHeader>
       <Content>
         <Header>
@@ -255,22 +231,13 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         <Rule />
         <DocumentListHeader>
           {(docsAndFols.length > 0 || searchQuery) && (
-            <>
-              <ViewOptions>
-                <OrderSelect
-                  options={orderOptions}
-                  onChange={onOrderChange}
-                  selectConfig={{ isSearchable: false }}
-                />
-              </ViewOptions>
-              <SearchInput
-                value={searchText}
-                onChange={e => (
-                  setSearchText(e.target.value), onSearchInput(e.target.value)
-                )}
-                placeholder="Buscar..."
-              />
-            </>
+            <FilterOptions
+              onOrderChange={onOrderChange}
+              searchText={searchText}
+              onChange={(value: string) => (
+                setSearchText(value), onSearchInput(value)
+              )}
+            />
           )}
           <HeaderButtons>
             <NewFolderButton
@@ -358,6 +325,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         />
       )}
       <AppFooter />
+      <CloudModal isOpen={cloudModalOpen} onClose={() => setCloudModalOpen(false)} />
     </Container>
   );
 };
@@ -415,19 +383,6 @@ const HeaderButtons = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
-`;
-
-const ViewOptions = styled.div`
-  margin-right: 10px;
-`;
-
-const OrderSelect = styled(Select)`
-  width: 200px;
-`;
-
-const SearchInput = styled(Input)`
-  width: 210px;
-  flex: inherit;
 `;
 
 interface INewDocumentButtonProps {

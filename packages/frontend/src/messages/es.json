@@ -252,6 +252,39 @@
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
+  "cloud": {
+    "details": {
+      "date": "Fecha de importación",
+      "ext": "Formato del recurso",
+      "no-preview": "El formato de este recurso no se puede visualizar",
+      "preview": "Previsualización",
+      "return": "Volver",
+      "size": "Tamaño del recurso",
+      "title": "Nombre del recurso"
+    },
+    "text": {
+      "empty": "No tienes ningún recurso en esta categoría",
+      "no-result": "No hay resultados para tu búsqueda",
+      "trash": "Aún no has enviado ningún recurso a la papelera"
+    },
+    "options": {
+      "details": "Ver detalles del recurso",
+      "recover": "Restaurar",
+      "trash": "Enviar a la papelera"
+    },
+    "resources": {
+      "deleted": "Papelera",
+      "images": "Imágenes",
+      "objects": "Objetos 3D",
+      "sounds": "Sonidos",
+      "videos": "Vídeos"
+    }
+  },
+  "filter":  {
+    "text": {
+      "placeholder": "Buscar..."
+    }
+  },
   "junior": {
     "hardware": "Hardware",
     "software": "Software",
@@ -272,6 +305,14 @@
     "mm": "mm",
     "peaks": "puntas",
     "sides": "caras"
+  },
+  "user": {
+    "cloud": {
+      "access": "Ver mi Bitbloq Cloud"
+    },
+    "session": {
+      "logout": "salir"
+    }
   },
   "documents": {
     "go-to-exercise": "Ir al ejercicio"
