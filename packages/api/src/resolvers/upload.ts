@@ -293,6 +293,34 @@ const uploadResolver = {
           }
         });
       }
+    },
+    moveToTrash: async (root: any, args: any, context: any) => {
+      const uploaded: IUpload = await UploadModel.findOne({
+        _id: args.id,
+        userID: context.user.userID
+      });
+      if (!uploaded) {
+        throw new ApolloError("File not found", "FILE_NOT_FOUND");
+      }
+      return await UploadModel.findOneAndUpdate(
+        { _id: uploaded._id },
+        { $set: { deleted: true } },
+        { new: true }
+      );
+    },
+    restoreResource: async (root: any, args: any, context: any) => {
+      const uploaded: IUpload = await UploadModel.findOne({
+        _id: args.id,
+        userID: context.user.userID
+      });
+      if (!uploaded) {
+        throw new ApolloError("File not found", "FILE_NOT_FOUND");
+      }
+      return await UploadModel.findOneAndUpdate(
+        { _id: uploaded._id },
+        { $set: { deleted: false } },
+        { new: true }
+      );
     }
   }
 };
