@@ -5,10 +5,17 @@ module.exports = {
       .collection("documentmodels")
       .find({})
       .forEach(element => {
-        if (element.image && typeof(element.image) === "string") {
+        if (element.image && typeof element.image === "string") {
           db.collection("documentmodels").updateOne(
             { _id: element._id },
-            { $set: { image: { image: element.image, isSnapshot: element.image.indexOf('blob')>-1 } } }
+            {
+              $set: {
+                image: {
+                  image: element.image,
+                  isSnapshot: element.image.indexOf("blob") > -1
+                }
+              }
+            }
           );
         }
       });

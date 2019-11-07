@@ -21,6 +21,9 @@ type Resource {
   thumbnail: String
   preview: String
   size: Number
+  file: String
+  deleted: Boolean
+  createdAt: Date
 }
 
 type Query {
@@ -30,7 +33,8 @@ type Query {
     type: String
     currentPage: Number
     order: String
-    searchTitle: String    
+    searchTitle: String
+    deleted: Boolean
   ): CloudResourcesResult @authRequired(requires: [USER])
 }
 

@@ -12,17 +12,18 @@ export interface IUpload extends Document {
   size: number;
   type: string;
   image?: string;
+  deleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export interface IResource {
-  id: string
-  title: string
-  type: string
-  thumbnail: string
-  preview: string
-  size: number
+  id: string;
+  title: string;
+  type: string;
+  thumbnail: string;
+  preview: string;
+  size: number;
 }
 
 const UploadMongSchema: Schema = new Schema({
@@ -33,6 +34,8 @@ const UploadMongSchema: Schema = new Schema({
   size: Number,
   image: String,
   storageName: String,
+  type: { type: String, enum: ["images", "videos", "sounds", "objects3D"] },
+  deleted: { type: Boolean, default: false },
   document: {
     type: Schema.Types.ObjectId,
     ref: "DocumentModel"
