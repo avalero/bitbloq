@@ -297,11 +297,7 @@ const uploadResolver = {
     moveToTrash: async (root: any, args: any, context: any) => {
       const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
-<<<<<<< HEAD
-        userID: context.user.userID
-=======
         user: context.user.userID
->>>>>>> 463cdc386493a1dafb9b079b44107abcfb290de2
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
@@ -315,11 +311,7 @@ const uploadResolver = {
     restoreResource: async (root: any, args: any, context: any) => {
       const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
-<<<<<<< HEAD
-        userID: context.user.userID
-=======
         user: context.user.userID
->>>>>>> 463cdc386493a1dafb9b079b44107abcfb290de2
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
