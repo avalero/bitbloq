@@ -1,3 +1,4 @@
+import { useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import React, { FC, useState } from "react";
@@ -8,18 +9,26 @@ import { OrderType } from "../config";
 import { IResource } from "../types";
 
 interface IResourcesListProps {
+  currentPage: number;
+  pagesNumber: number;
   resources?: IResource[];
   selectResource: (id: string) => void;
+  setCurrentPage: (page: number) => void;
+  setOrder: (order: OrderType) => void;
+  setSearchQuery: (value: string) => void;
 }
 
 const ResourcesList: FC<IResourcesListProps> = ({
+  currentPage,
+  pagesNumber,
   resources = [],
-  selectResource
+  selectResource,
+  setCurrentPage,
+  setOrder,
+  setSearchQuery
 }) => {
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [order, setOrder] = useState<OrderType>(OrderType.Creation);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchText, setSearchText] = useState("");
+  const t = useTranslate();
 
   const onSearchInput = debounce((value: string) => {
     setSearchQuery(value);
@@ -37,19 +46,23 @@ const ResourcesList: FC<IResourcesListProps> = ({
           onOrderChange={(order: OrderType) => setOrder(order)}
         />
       </FilterContainer>
-      <List>
-        {resources.map(resource => (
-          <ResourceCard
-            key={resource.id}
-            {...resource}
-            selectResource={selectResource}
-          />
-        ))}
-      </List>
+      {searchText && resources.length === 0 ? (
+        <EmptyResources>{t("cloud.text.no-result")}</EmptyResources>
+      ) : (
+        <List>
+          {resources.map(resource => (
+            <ResourceCard
+              key={resource.id}
+              {...resource}
+              selectResource={selectResource}
+            />
+          ))}
+        </List>
+      )}
       {resources.length > 8 && (
         <Paginator
           currentPage={currentPage}
-          pages={3}
+          pages={pagesNumber}
           selectPage={(page: number) => setCurrentPage(page)}
         />
       )}
@@ -69,6 +82,18 @@ const Container = styled.div`
   & > * {
     flex-shrink: 0;
   }
+`;
+
+const EmptyResources = styled.div`
+  align-items: center;
+  color: #373b44;
+  display: flex;
+  flex: 1;
+  font-family: Roboto;
+  font-size: 24px;
+  font-weight: 300;
+  justify-content: center;
+  width: 100%;
 `;
 
 const FilterContainer = styled.div`

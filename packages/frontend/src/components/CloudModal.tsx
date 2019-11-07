@@ -3,7 +3,7 @@ import { Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
-import { resourceTypes } from "../config";
+import { OrderType, resourceTypes } from "../config";
 import { IResource, ResourcesTypes } from "../types";
 
 interface IResourceType {
@@ -41,21 +41,17 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
-  let cloudResourceTypes: IResourceType[] = [];
-
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setTimeout(() => setLoading(false), 500);
   });
 
-  for (let r in resourceTypes) {
-    cloudResourceTypes.push(resourceTypes[r]);
-  }
-
-  const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>(
-    cloudResourceTypes[0].id
+  const [cloudResourceTypes, setCloudResourceTypes] = useState<IResourceType[]>(
+    []
   );
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [order, setOrder] = useState<OrderType>(OrderType.Creation);
   const [resources, setResources] = useState<IResource[]>([
     {
       date: new Date(),
@@ -143,10 +139,20 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
       type: ResourcesTypes.sounds
     }
   ]);
+  const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedResource, setSelectedResource] = useState<
     IResource | undefined
   >();
   const t = useTranslate();
+
+  useEffect(() => {
+    for (let r in resourceTypes) {
+      cloudResourceTypes.push(resourceTypes[r]);
+    }
+    setCloudResourceTypes(cloudResourceTypes);
+    setResourceTypeActiveId(cloudResourceTypes[0].id);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -179,7 +185,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
               {...selectedResource}
               returnCallback={() => setSelectedResource(undefined)}
             />
-          ) : resources.length === 0 ? (
+          ) : resources.length === 0 && !searchQuery ? (
             <EmptyResources>
               {resourceTypeActiveId === "resource-deleted"
                 ? t("cloud.text.trash")
@@ -187,12 +193,17 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
             </EmptyResources>
           ) : (
             <ResourcesList
+              currentPage={currentPage}
+              pagesNumber={3}
               resources={resources}
               selectResource={(resourceId: string) =>
                 setSelectedResource(
                   resources.find(resource => resource.id === resourceId)
                 )
               }
+              setCurrentPage={setCurrentPage}
+              setOrder={setOrder}
+              setSearchQuery={setSearchQuery}
             />
           )}
         </MainContent>

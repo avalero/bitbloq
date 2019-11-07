@@ -264,6 +264,7 @@
     },
     "text": {
       "empty": "No tienes ningún recurso en esta categoría",
+      "no-result": "No hay resultados para tu búsqueda",
       "trash": "Aún no has enviado ningún recurso a la papelera"
     },
     "options": {
