@@ -45,4 +45,6 @@ type Mutation {
   uploadImageFile(file: Upload!, documentID: ObjectID): File
     @authRequired(requires: [USER])
   deleteUserFile(filename: String!): File @authRequired(requires: [USER])
+  moveToTrash(id: ObjectID): File @authRequired(requires: [USER])
+  restoreResource(id: ObjectID): File @authRequired(requires: [USER])
 }
