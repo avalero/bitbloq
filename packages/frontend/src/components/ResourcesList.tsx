@@ -13,6 +13,7 @@ interface IResourcesListProps {
   order: OrderType;
   pagesNumber: number;
   resources?: IResource[];
+  restoreFromTrash: (id: string) => void;
   searchText: string;
   selectResource: (id: string) => void;
   setCurrentPage: (page: number) => void;
@@ -26,6 +27,7 @@ const ResourcesList: FC<IResourcesListProps> = ({
   order,
   pagesNumber,
   resources = [],
+  restoreFromTrash,
   searchText,
   selectResource,
   setCurrentPage,
@@ -53,6 +55,7 @@ const ResourcesList: FC<IResourcesListProps> = ({
               key={resource.id}
               moveToTrash={moveToTrash}
               {...resource}
+              restoreFromTrash={restoreFromTrash}
               selectResource={selectResource}
             />
           ))}

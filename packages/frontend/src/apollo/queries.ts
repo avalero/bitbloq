@@ -547,3 +547,11 @@ export const MOVE_RESOURCE_TO_TRASH = gql`
     }
   }
 `;
+
+export const RESTORE_RESOURCE_FROM_TRASH = gql`
+  mutation RestoreResource($id: ObjectID) {
+    restoreResource(id: $id) {
+      id
+    }
+  }
+`;

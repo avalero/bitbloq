@@ -11,7 +11,11 @@ import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
-import { GET_CLOUD_RESOURCES, MOVE_RESOURCE_TO_TRASH } from "../apollo/queries";
+import {
+  GET_CLOUD_RESOURCES,
+  MOVE_RESOURCE_TO_TRASH,
+  RESTORE_RESOURCE_FROM_TRASH
+} from "../apollo/queries";
 import { OrderType, resourceTypes } from "../config";
 import { IResource } from "../types";
 
@@ -50,7 +54,8 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
-  const [moveTotrash] = useMutation(MOVE_RESOURCE_TO_TRASH);
+  const [moveToTrash] = useMutation(MOVE_RESOURCE_TO_TRASH);
+  const [restoreFromTrash] = useMutation(RESTORE_RESOURCE_FROM_TRASH);
   const [cloudResourceTypes, setCloudResourceTypes] = useState<IResourceType[]>(
     []
   );
@@ -150,7 +155,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
             <ResourcesList
               currentPage={currentPage}
               moveToTrash={async (id: string) => {
-                await moveTotrash({
+                await moveToTrash({
                   variables: {
                     id
                   }
@@ -165,6 +170,19 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
               pagesNumber={pagesNumber}
               order={order}
               resources={resources}
+              restoreFromTrash={async (id: string) => {
+                await restoreFromTrash({
+                  variables: {
+                    id
+                  }
+                });
+                const { data } = await refetch();
+                const { pagesNumber } = data.cloudResources;
+                if (currentPage > pagesNumber) {
+                  setCurrentPage(pagesNumber);
+                  setPagesNumber(pagesNumber);
+                }
+              }}
               searchText={searchText}
               selectResource={(resourceId: string) =>
                 setSelectedResource(

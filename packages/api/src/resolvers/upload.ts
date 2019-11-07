@@ -311,7 +311,7 @@ const uploadResolver = {
     restoreResource: async (root: any, args: any, context: any) => {
       const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
-        userID: context.user.userID
+        user: context.user.userID
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
