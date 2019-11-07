@@ -35,7 +35,7 @@ const questions: Question[] = [
     id: "courses",
     type: QuestionType.MultipleOption,
     title: "¿A qué cursos das clases?",
-    options: [
+    options: [ // TODO: check error management
       { label: "Primaria", value: "primary" },
       { label: "Secundaria", value: "secondary" },
       { label: "Universidad", value: "university" }
@@ -98,13 +98,8 @@ const SignupPage: FC = () => {
   const [currentStep, setCurrentStep] = useState(SignupStep.Survey);
   const [surveyValues, setSurveyValues] = useState({});
 
-  const [signup, { loading: isSigningup, error: signupError }] = useMutation(
-    SIGNUP_MUTATION,
-    {
-      onCompleted() {
-        setAccountCreated(true);
-      }
-    }
+  const [signup, { loading, error }] = useMutation(
+    SIGNUP_MUTATION
   );
 
   const wrapRef = React.createRef<HTMLDivElement>();
@@ -114,14 +109,18 @@ const SignupPage: FC = () => {
     wrapRef.current.scrollIntoView();
   }, [currentStep]);
 
+  /* TODO: check error management
+  return new ApolloError(
+    "Error sending message",
+    "SENDING_MESSAGE_ERROR"
+  ); */
   useEffect(() => {
-    if (signupError) {
+    if (error) {
       formRef.current.setErrors({
         email: "Ya hay un usuario registrado con este correo electrónico"
       });
-      console.log("Signup ERROR");
     }
-  }, [signupError]);
+  }, [error]);
 
   const renderSurveyStep = () => {
     return (
@@ -204,7 +203,7 @@ const SignupPage: FC = () => {
                   signUpSurvey: surveyValues
                 }
               }
-            });
+            }).then(() => setAccountCreated(true));
           }}
         >
           {({ isSubmitting }) => (
@@ -268,7 +267,7 @@ const SignupPage: FC = () => {
                 >
                   Volver
                 </Button>
-                <Button type="submit" disabled={isSigningup}>
+                <Button type="submit" disabled={loading}>
                   Crear cuenta
                 </Button>
               </Buttons>
