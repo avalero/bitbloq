@@ -7,6 +7,7 @@ import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
   className?: string;
+  moveToTrash: (id: string) => void;
   selectResource: (id: string) => void;
 }
 
@@ -14,6 +15,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
   className,
   deleted,
   id,
+  moveToTrash,
   selectResource,
   thumbnail,
   title,
@@ -72,7 +74,9 @@ const ResourceCard: FC<IResourceCardProps> = ({
               label: deleted
                 ? t("cloud.options.recover")
                 : t("cloud.options.trash"),
-              onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {}
+              onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                moveToTrash(id);
+              }
             }
           ]}
         />

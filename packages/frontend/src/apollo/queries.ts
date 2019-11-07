@@ -539,3 +539,11 @@ export const GET_CLOUD_RESOURCES = gql`
     }
   }
 `;
+
+export const MOVE_RESOURCE_TO_TRASH = gql`
+  mutation MoveToTrash($id: ObjectID) {
+    moveToTrash(id: $id) {
+      id
+    }
+  }
+`;

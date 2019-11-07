@@ -5,13 +5,13 @@ import React, {
   useLayoutEffect,
   useState
 } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
-import { GET_CLOUD_RESOURCES } from "../apollo/queries";
+import { GET_CLOUD_RESOURCES, MOVE_RESOURCE_TO_TRASH } from "../apollo/queries";
 import { OrderType, resourceTypes } from "../config";
 import { IResource } from "../types";
 
@@ -50,6 +50,7 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
+  const [moveTotrash] = useMutation(MOVE_RESOURCE_TO_TRASH);
   const [cloudResourceTypes, setCloudResourceTypes] = useState<IResourceType[]>(
     []
   );
@@ -64,6 +65,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
     IResource | undefined
   >();
   const { data, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
+    fetchPolicy: "network-only",
     variables: {
       deleted: resourceTypeActiveId === "deleted",
       currentPage,
@@ -147,6 +149,19 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
           ) : (
             <ResourcesList
               currentPage={currentPage}
+              moveToTrash={async (id: string) => {
+                await moveTotrash({
+                  variables: {
+                    id
+                  }
+                });
+                const { data } = await refetch();
+                const { pagesNumber } = data.cloudResources;
+                if (currentPage > pagesNumber) {
+                  setCurrentPage(pagesNumber);
+                  setPagesNumber(pagesNumber);
+                }
+              }}
               pagesNumber={pagesNumber}
               order={order}
               resources={resources}

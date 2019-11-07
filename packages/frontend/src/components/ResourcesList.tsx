@@ -9,6 +9,7 @@ import { IResource } from "../types";
 
 interface IResourcesListProps {
   currentPage: number;
+  moveToTrash: (id: string) => void;
   order: OrderType;
   pagesNumber: number;
   resources?: IResource[];
@@ -21,6 +22,7 @@ interface IResourcesListProps {
 
 const ResourcesList: FC<IResourcesListProps> = ({
   currentPage,
+  moveToTrash,
   order,
   pagesNumber,
   resources = [],
@@ -49,6 +51,7 @@ const ResourcesList: FC<IResourcesListProps> = ({
           {resources.map(resource => (
             <ResourceCard
               key={resource.id}
+              moveToTrash={moveToTrash}
               {...resource}
               selectResource={selectResource}
             />
