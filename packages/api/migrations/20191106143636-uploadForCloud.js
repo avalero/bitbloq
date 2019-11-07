@@ -49,6 +49,6 @@ module.exports = {
   down(db) {
     return db
       .collection("uploadmodels")
-      .updateMany({}, { $unset: { type: 1, image: 1, delted: 1, size: 1 } });
+      .updateMany({}, { $unset: { type: 1, image: 1, deleted: 1, size: 1 } });
   }
 };
