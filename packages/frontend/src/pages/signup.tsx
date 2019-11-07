@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Router from "next/router";
-import withApollo from "../apollo/withApollo";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
 import { Formik, Form, Field } from "formik";
@@ -14,9 +13,11 @@ import {
   HorizontalRule,
   Checkbox
 } from "@bitbloq/ui";
+import { ApolloError } from "apollo-client";
+import withApollo from "../apollo/withApollo";
 import Survey, { Question, QuestionType } from "../components/Survey";
-import { isValidEmail } from "../util";
 import logoBetaImage from "../images/logo-beta.svg";
+import { isValidEmail } from "../util";
 
 const SIGNUP_MUTATION = gql`
   mutation Signup($user: UserIn!) {
@@ -79,6 +80,7 @@ const questions: Question[] = [
   }
 ];
 
+// TODO: update and use
 interface UserField {
   label: string;
   field: string;
@@ -86,45 +88,58 @@ interface UserField {
   type: string;
 }
 
+// TODO: update to 1 and 2
 enum SignupStep {
   Survey,
   UserData
 }
 
-interface ISignupPageState {
-  currentStep: SignupStep;
-  surveyValues: object;
+interface ISignupPageProps {
+  signUp: any;
+  isSigningUp: boolean;
+  signUpError?: ApolloError;
 }
 
-class SignupPage extends React.Component<any, ISignupPageState> {
-  public readonly state = {
-    currentStep: SignupStep.Survey,
-    surveyValues: {}
-  };
+const SignupPage: FC<ISignupPageProps> = ({
+  signUp,
+  isSigningUp,
+  signUpError
+}) => {
+  const [currentStep, setCurrentStep] = useState(SignupStep.Survey);
+  const [prevSignUpError, setPrevSignUpError] = useState(signUpError);
+  const [surveyValues, setSurveyValues] = useState({});
 
-  wrapRef = React.createRef<HTMLDivElement>();
-  formRef = React.createRef<Formik>();
+  const wrapRef = React.createRef<HTMLDivElement>();
+  const formRef = React.createRef<Formik>();
+  const prevStep = usePrevious(currentStep);
 
-  componentDidUpdate(prevProps, prevState: ISignupPageState) {
-    const { currentStep } = this.state;
-    const { signupError } = this.props;
-    if (currentStep !== prevState.currentStep && this.wrapRef.current) {
-      this.wrapRef.current.scrollIntoView();
+  useEffect(() => {
+    if (wrapRef.current && currentStep !== prevStep) {
+      wrapRef.current.scrollIntoView();
     }
-    const form = this.formRef.current;
-    if (form && signupError !== prevProps.signupError) {
-      if (signupError) {
-        form.setErrors({
-          email: "Ya hay un usuario registrado con este correo electrónico"
-        });
-        console.log("Signup ERROR");
-      }
+  }, [currentStep]);
+
+  useEffect(() => {
+    if (formRef.current && signUpError && signUpError !== prevSignUpError) {
+      formRef.current.setErrors({
+        email: "Ya hay un usuario registrado con este correo electrónico"
+      });
+      console.log("Signup ERROR");
     }
+    setPrevSignUpError(signUpError);
+  }, [signUpError]);
+
+  function usePrevious(value: any) {
+    const ref = useRef();
+
+    useEffect(() => {
+      ref.current = value;
+    }, [value]);
+
+    return ref.current;
   }
 
-  renderSurveyStep() {
-    const { surveyValues } = this.state;
-
+  const renderSurveyStep = () => {
     return (
       <StepContent>
         <StepCount>Paso 1 de 2</StepCount>
@@ -139,33 +154,27 @@ class SignupPage extends React.Component<any, ISignupPageState> {
         <Survey
           questions={questions}
           values={surveyValues}
-          onChange={values => this.setState({ surveyValues: values })}
+          onChange={setSurveyValues}
         />
         <Buttons>
           <Button secondary onClick={() => Router.push("/")}>
             Cancelar
           </Button>
-          <Button
-            tertiary
-            onClick={() => this.setState({ currentStep: SignupStep.UserData })}
-          >
+          <Button tertiary onClick={() => setCurrentStep(SignupStep.UserData)}>
             Siguiente
           </Button>
         </Buttons>
       </StepContent>
     );
-  }
+  };
 
-  renderUserDataStep() {
-    const { signUp, isSigningUp } = this.props;
-    const { surveyValues } = this.state;
-
+  const renderUserDataStep = () => {
     return (
       <StepContent>
         <StepCount>Paso 2 de 2</StepCount>
         <StepTitle>Datos de usuario</StepTitle>
         <Formik
-          ref={this.formRef}
+          ref={formRef}
           initialValues={{
             name: "",
             email: "",
@@ -271,9 +280,7 @@ class SignupPage extends React.Component<any, ISignupPageState> {
               <Buttons>
                 <Button
                   tertiary
-                  onClick={() =>
-                    this.setState({ currentStep: SignupStep.Survey })
-                  }
+                  onClick={() => setCurrentStep(SignupStep.Survey)}
                 >
                   Volver
                 </Button>
@@ -286,28 +293,24 @@ class SignupPage extends React.Component<any, ISignupPageState> {
         </Formik>
       </StepContent>
     );
-  }
+  };
 
-  render() {
-    const { currentStep } = this.state;
+  return (
+    <Wrap ref={wrapRef}>
+      <Container>
+        <Logo src={logoBetaImage} alt="Bitbloq Beta" />
+        <SignupPanel>
+          <PanelHeader>Crear cuenta</PanelHeader>
+          <HorizontalRule small />
+          {currentStep === SignupStep.Survey && renderSurveyStep()}
+          {currentStep === SignupStep.UserData && renderUserDataStep()}
+        </SignupPanel>
+      </Container>
+    </Wrap>
+  );
+};
 
-    return (
-      <Wrap ref={this.wrapRef}>
-        <Container>
-          <Logo src={logoBetaImage} alt="Bitbloq Beta" />
-          <SignupPanel>
-            <PanelHeader>Crear cuenta</PanelHeader>
-            <HorizontalRule small />
-            {currentStep === SignupStep.Survey && this.renderSurveyStep()}
-            {currentStep === SignupStep.UserData && this.renderUserDataStep()}
-          </SignupPanel>
-        </Container>
-      </Wrap>
-    );
-  }
-}
-
-const SignupPageWithMutation = props => {
+const SignupPageWithMutation = () => {
   const [accountCreated, setAccountCreated] = useState(false);
 
   if (accountCreated) {
@@ -329,13 +332,11 @@ const SignupPageWithMutation = props => {
       mutation={SIGNUP_MUTATION}
       onCompleted={() => setAccountCreated(true)}
     >
-      {(signUp, { loading, error }) => (
-        <SignupPage
-          {...props}
-          signUp={signUp}
-          isSigningUp={loading}
-          signupError={error}
-        />
+      {(
+        signUp,
+        { loading, error }: { loading: boolean; error?: ApolloError }
+      ) => (
+        <SignupPage signUp={signUp} isSigningUp={loading} signUpError={error} />
       )}
     </Mutation>
   );
