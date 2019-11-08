@@ -1,9 +1,9 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
 import { bloqTypes, boards, components } from "../config";
-import { EditorProps } from "../types";
+import { IEditorProps } from "../types";
 
-const JuniorEditor: React.FunctionComponent<EditorProps> = ({
+const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
   content,
   onContentChange,
   brandColor,

@@ -5,7 +5,7 @@ import { Mutation } from "react-apollo";
 import { colors, Icon, withTranslate, DialogModal } from "@bitbloq/ui";
 import { addShapeGroups } from "../config";
 import ExportSTLModal from "./ExportSTLModal";
-import { EditorProps } from "../types";
+import { IEditorProps } from "../types";
 import { maxSTLFileSize } from "../config";
 import { UPLOAD_STL_MUTATION } from "../apollo/queries";
 
@@ -37,6 +37,11 @@ const getMenuOptions = (baseMenuOptions, t, props) => [
       // {
       //   divider: true
       // },
+      {
+        id: "import-resource",
+        label: t("menu-import-resource"),
+        icon: <Icon name="import-stl" />
+      },
       {
         id: "import-stl",
         label: t("menu-import-stl"),
@@ -76,7 +81,7 @@ const getMenuOptions = (baseMenuOptions, t, props) => [
   ...baseMenuOptions
 ];
 
-class ThreeDEditor extends React.Component<EditorProps> {
+class ThreeDEditor extends React.Component<IEditorProps> {
   threedRef = React.createRef<IThreeDRef>();
   openSTLInput = React.createRef<HTMLInputElement>();
 
@@ -86,9 +91,12 @@ class ThreeDEditor extends React.Component<EditorProps> {
   };
 
   onMenuOptionClick = option => {
-    const { onSaveDocument } = this.props;
+    const { importResource, onSaveDocument } = this.props;
 
     switch (option.id) {
+      case "import-resource":
+        importResource(true);
+        return;
       case "import-stl":
         // is user is not logged (PlayGround)
         const { isPlayground } = this.props;

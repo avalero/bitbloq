@@ -9,6 +9,7 @@ import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
+import UploadResourceModal from "./UploadResourceModal";
 import UserInfo from "./UserInfo";
 import {
   DOCUMENT_QUERY,
@@ -50,6 +51,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
   const [loading, setLoading] = useState(true);
   const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
+  const [resourceModal, setResourceModal] = useState<boolean>(true);
   const [document, setDocument] = useState({
     id: "",
     content: "[]",
@@ -359,6 +361,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
             />
           )
         }
+        importResource={(open: boolean) => setResourceModal(open)}
         changeAdvancedMode={onSetAdvancedMode}
         documentAdvancedMode={advancedMode}
         headerRightContent={headerRightContent}
@@ -375,6 +378,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
           saveButton="Cambiar"
         />
       )}
+      <UploadResourceModal isOpen={resourceModal} onClose={() => setResourceModal(false)} />
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { IHeaderButton } from "@bitbloq/ui";
 
-export interface EditorProps {
+export interface IEditorProps {
   content: any;
   onContentChange: (content: any) => any;
   tabIndex: number;
@@ -10,6 +10,7 @@ export interface EditorProps {
   onEditTitle?: () => any;
   onSaveDocument?: () => any;
   brandColor: string;
+  importResource: (open: boolean) => void;
   headerButtons?: IHeaderButton[];
   onHeaderButtonClick?: (id: string) => any;
   isPlayground?: boolean;
