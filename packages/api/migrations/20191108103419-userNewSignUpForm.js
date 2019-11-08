@@ -4,13 +4,18 @@ module.exports = {
       .collection("usermodels")
       .find({})
       .forEach(element => {
-        const name = element.name.split(" ")[0];
-        const surnames = element.name.split(" ")[1] || "";
+        const names = element.name.split(" ");
+        let surnames = "";
+        if (names.length > 1) {
+          for (let i = 1; i < names.length; i++) {
+            surnames += names[i] + " ";
+          }
+        }
         db.collection("usermodels").findOneAndUpdate(
           { _id: element._id },
           {
             $set: {
-              name: name,
+              name: names[0],
               surnames: surnames,
               bornDate: new Date(0),
               imTeacherCheck: false,
