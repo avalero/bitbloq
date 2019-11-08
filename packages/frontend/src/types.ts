@@ -35,10 +35,10 @@ export enum OrderType {
 }
 
 export enum ResourcesTypes {
-  images = "images",
-  objects3D = "objects3D",
-  sounds = "sounds", 
-  videos  = "videos"
+  image = "image",
+  object3D = "object3D",
+  sound = "sound", 
+  video  = "video"
 }
 
 export interface IResource {

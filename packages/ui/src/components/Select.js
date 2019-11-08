@@ -12,7 +12,7 @@ const DropdownIndicator = props => {
   );
 };
 
-const customStyles = {
+const customStyles = height => ({
   container: (provided, { selectProps }) => ({
     ...provided,
     boxShadow: selectProps.menuIsOpen
@@ -22,7 +22,7 @@ const customStyles = {
   }),
   control: (provided, state) => ({
     ...provided,
-    minHeight: "40px",
+    minHeight: height,
     border: "1px solid #cfcfcf",
     borderBottomColor: state.selectProps.menuIsOpen ? "#e4e4e4" : "#cfcfcf",
     backgroundColor: "white",
@@ -75,7 +75,7 @@ const customStyles = {
     minHeight: "16px",
     margin: "0"
   })
-};
+});
 
 class Select extends React.Component {
   render() {
@@ -86,7 +86,8 @@ class Select extends React.Component {
       onMouseDown,
       selectConfig,
       components = {},
-      className
+      className,
+      height = "35px"
     } = this.props;
 
     return (
@@ -97,7 +98,7 @@ class Select extends React.Component {
           defaultValue={options[0]}
           value={options.find(o => o.value === value)}
           options={options}
-          styles={customStyles}
+          styles={customStyles(height)}
           onChange={({ value }) => onChange && onChange(value)}
         />
       </div>

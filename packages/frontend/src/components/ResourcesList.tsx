@@ -90,7 +90,6 @@ const EmptyResources = styled.div`
   color: #373b44;
   display: flex;
   flex: 1;
-  font-family: Roboto;
   font-size: 24px;
   font-weight: 300;
   justify-content: center;

@@ -40,6 +40,7 @@ const FilterOptions: FC<IFilterOptionsProps> = ({
     <>
       <ViewOptions>
         <OrderSelect
+          height="40px"
           options={orderOptions}
           onChange={onOrderChange}
           selectConfig={{ isSearchable: false }}

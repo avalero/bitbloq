@@ -17,7 +17,7 @@ export interface ModalProps {
 const Modal: FC<ModalProps> = ({
   isOpen,
   title,
-  showHeader = true,
+  showHeader,
   onClose,
   transparentOverlay,
   children,

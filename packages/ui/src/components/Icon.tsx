@@ -226,7 +226,7 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
     case "truncatedcone":
       return <TruncatedCone className={className} />;
     case "programming":
-      return <Programming classResourceImageName={className} />;
+      return <Programming className={className} />;
     case "programming2":
       return <Programming2 className={className} />;
     case "programming3":
@@ -249,13 +249,13 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <RepeatPolar className={className} />;
     case "resource-deleted":
       return <ResourceDeleted className={className} />;
-    case "resource-images":
+    case "resource-image":
       return <ResourceImage className={className} />;
-    case "resource-objects3D":
+    case "resource-object3D":
       return <ResourceObject className={className} />;
-    case "resource-sounds":
+    case "resource-sound":
       return <ResourceSound className={className} />;
-    case "resource-videos":
+    case "resource-video":
       return <ResourceVideo className={className} />;
     case "rotation":
       return <Rotation className={className} />;

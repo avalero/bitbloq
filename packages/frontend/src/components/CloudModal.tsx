@@ -69,7 +69,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   const [selectedResource, setSelectedResource] = useState<
     IResource | undefined
   >();
-  const { data, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
+  const { data, error, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
     fetchPolicy: "network-only",
     variables: {
       deleted: resourceTypeActiveId === "deleted",
@@ -139,7 +139,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
         </LateralBar>
         <MainContent>
           {loading ? (
-            <ResourcesSpinner />
+            <ResourcesSpinner small />
           ) : selectedResource ? (
             <ResourceDetails
               {...selectedResource}
@@ -213,7 +213,6 @@ const EmptyResources = styled.div`
   align-items: center;
   color: #373b44;
   display: flex;
-  font-family: Roboto;
   font-size: 24px;
   font-weight: 300;
   height: 100%;
@@ -223,25 +222,22 @@ const EmptyResources = styled.div`
 
 const LateralBar = styled.div`
   border-right: 1px solid #ddd;
-  height: calc(100% - 21px);
+  box-sizing: border-box;
+  height: 100%;
   padding-top: 21px;
   width: 258px;
 `;
 
 const MainContent = styled.div`
+  box-sizing: border-box;
   flex: 1 1 auto;
-  height: calc(100% - 49px);
+  height: 100%;
   padding: 19px 20px 30px;
 `;
 
 const ResourcesSpinner = styled(Spinner)`
   height: 100%;
   width: 100%;
-
-  svg {
-    height: 150px !important;
-    width: 150px !important;
-  }
 `;
 
 const ResourceTypeItem = styled.div<{ active?: boolean }>`
@@ -264,7 +260,6 @@ const ResourceTypeItem = styled.div<{ active?: boolean }>`
     align-items: center;
     color: #373b44;
     display: flex;
-    font-family: Roboto;
     font-size: 14px;
     font-weight: bold;
     height: 16px;

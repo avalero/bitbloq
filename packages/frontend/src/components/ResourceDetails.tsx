@@ -30,7 +30,7 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
     } else if (size < 1000000000) {
       setSizeStr(`${(size / 1000000).toFixed(1)} MB`);
     }
-  }, []);
+  }, [size]);
 
   return (
     <Container className={className}>
@@ -42,16 +42,16 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
               <Icon name="eye-close" />
               <p>{t("cloud.details.no-preview")}</p>
             </PreviewEmpty>
-          ) : type === ResourcesTypes.images ||
-            type === ResourcesTypes.objects3D ? (
+          ) : type === ResourcesTypes.image ||
+            type === ResourcesTypes.object3D ? (
             <PreviewImage src={preview} />
-          ) : type === ResourcesTypes.videos ? (
+          ) : type === ResourcesTypes.video ? (
             <Preview>
               <PreviewVideo controls>
                 <source src={preview} type={`video/${titleExt}`} />
               </PreviewVideo>
             </Preview>
-          ) : type === ResourcesTypes.sounds ? (
+          ) : type === ResourcesTypes.sound ? (
             <Preview>
               <PreviewAudio controls>
                 <source src={preview} type={`audio/${titleExt}`} />
@@ -173,7 +173,6 @@ const PreviewEmpty = styled(Preview)`
 
   p {
     color: #373b44;
-    font-family: Roboto;
     font-size: 14px;
     font-style: italic;
     height: 32px;
