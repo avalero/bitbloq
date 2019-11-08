@@ -3,10 +3,11 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState
 } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
+import { Button, Modal, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
@@ -30,7 +31,12 @@ export interface IUploadResourcTabsProps {
 }
 
 const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({ setTab, tab }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const t = useTranslate();
+
+  const onOpenSelect = () => {
+    inputRef.current.click();
+  };
 
   return (
     <Container>
@@ -45,7 +51,20 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({ setTab, tab }) => {
           {t("cloud.upload.add")}
         </Tab>
       </Tabs>
-      <Body></Body>
+      <Body>
+        {tab === TabType.import ? (
+          <ResourceInput>
+            <input onChange={e => console.log(e)} ref={inputRef} type="file" />
+            <Icon name="drag-file" />
+            <p>{t("cloud.upload.drag")}</p>
+            <SelectModalButton onClick={() => onOpenSelect()} tertiary>
+              {t("cloud.upload.select")}
+            </SelectModalButton>
+          </ResourceInput>
+        ) : (
+          <></>
+        )}
+      </Body>
     </Container>
   );
 };
@@ -54,7 +73,6 @@ export default UploadResourcTabs;
 
 const Body = styled.div`
   box-sizing: border-box;
-  flex: 1;
 `;
 
 const Container = styled.div`
@@ -62,7 +80,43 @@ const Container = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-flow: column nowrap;
-  height: 280px;
+`;
+
+const ResourceInput = styled.div`
+  align-items: center;
+  border: dashed 2px #979797;
+  box-sizing: border-box;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 200px;
+  justify-content: space-between;
+  margin: 20px;
+  padding: 27px 0;
+  position: relative;
+  width: calc(100% - 40px);
+
+  input {
+    height: 100%;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  p {
+    color: #373b44;
+    font-size: 14px;
+    font-style: italic;
+  }
+`;
+
+const SelectModalButton = styled(Button)`
+  color: #373b44;
+  font-family: Roboto;
+  font-weight: bold;
+  line-height: 1.43;
+  padding: 10px 20px;
+  z-index: 2;
 `;
 
 const Tab = styled.div<{ active: boolean }>`

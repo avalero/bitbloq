@@ -282,7 +282,9 @@
     },
     "upload": {
       "add": "Añadir un recurso ya importado",
+      "drag": "Arrastra un archivo aquí",
       "import": "Importar un nuevo recurso",
+      "select": "O selecciona un archivo",
       "title": "Añadir recurso importado"
     }
   },
