@@ -5,14 +5,14 @@ module.exports = {
       .find({})
       .forEach(element => {
         const name = element.name.split(" ")[0];
-        const surnames = element.name.split(" ")[1];
+        const surnames = element.name.split(" ")[1] || "";
         db.collection("usermodels").findOneAndUpdate(
           { _id: element._id },
           {
             $set: {
               name: name,
               surnames: surnames,
-              bornDate: "01/01/1990",
+              bornDate: new Date(0),
               imTeacherCheck: false,
               centerName: "",
               educationalStage: "",
@@ -33,7 +33,7 @@ module.exports = {
           { _id: element._id },
           {
             $set: {
-              name: elment.name + " " + element.surnames
+              name: element.name + " " + element.surnames
             }
           }
         );

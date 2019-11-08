@@ -13,7 +13,7 @@ import {
   ISignUpToken
 } from "../models/interfaces";
 
-import * as mjml2html from "mjml";
+import mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
 
@@ -47,7 +47,7 @@ const userResolver = {
         password: hash,
         name: args.input.name,
         surnames: args.input.surnames,
-        bornDate: args.input.bornDate,
+        bornDate: new Date(args.input.bornDate),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
