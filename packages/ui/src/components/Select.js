@@ -12,7 +12,7 @@ const DropdownIndicator = props => {
   );
 };
 
-const customStyles = {
+const customStyles = height => ({
   container: (provided, { selectProps }) => ({
     ...provided,
     boxShadow: selectProps.menuIsOpen
@@ -22,7 +22,7 @@ const customStyles = {
   }),
   control: (provided, state) => ({
     ...provided,
-    minHeight: "35px",
+    minHeight: height,
     border: "1px solid #cfcfcf",
     borderBottomColor: state.selectProps.menuIsOpen ? "#e4e4e4" : "#cfcfcf",
     backgroundColor: "white",
@@ -31,13 +31,18 @@ const customStyles = {
     borderRadius: state.selectProps.menuIsOpen ? "4px 4px 0px 0px" : "4px",
     "&:hover": {
       borderColor: "#cfcfcf"
+    },
+    paddingLeft: "12px",
+    "&:hover": {
+      borderColor: "#cfcfcf"
     }
   }),
   dropdownIndicator: provided => ({
     ...provided,
     padding: "0 10px"
   }),
-  indicatorSeparator: provided => ({
+
+  indicatorSeparator: () => ({
     display: "none"
   }),
   menu: provided => ({
@@ -52,7 +57,7 @@ const customStyles = {
     padding: 0,
     borderRadius: "0px 0px 4px 4px"
   }),
-  option: (provided, state) => ({
+  option: provided => ({
     ...provided,
     backgroundColor: "white",
     color: "inherit",
@@ -60,8 +65,17 @@ const customStyles = {
     "&:hover": {
       backgroundColor: "#e4e4e4"
     }
+  }),
+  singleValue: provided => ({
+    ...provided,
+    alignItems: "center",
+    color: "#3b3e45",
+    display: "flex",
+    fontSize: "14px",
+    minHeight: "16px",
+    margin: "0"
   })
-};
+});
 
 class Select extends React.Component {
   render() {
@@ -72,7 +86,8 @@ class Select extends React.Component {
       onMouseDown,
       selectConfig,
       components = {},
-      className
+      className,
+      height = "35px"
     } = this.props;
 
     return (
@@ -83,7 +98,7 @@ class Select extends React.Component {
           defaultValue={options[0]}
           value={options.find(o => o.value === value)}
           options={options}
-          styles={customStyles}
+          styles={customStyles(height)}
           onChange={({ value }) => onChange && onChange(value)}
         />
       </div>

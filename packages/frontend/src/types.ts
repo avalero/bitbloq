@@ -26,3 +26,29 @@ export interface Document {
   description: string;
   image: any;
 }
+
+export enum OrderType {
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
+}
+
+export enum ResourcesTypes {
+  image = "image",
+  object3D = "object3D",
+  sound = "sound", 
+  video  = "video"
+}
+
+export interface IResource {
+  createdAt: Date;
+  deleted: boolean;
+  id: string;
+  file: string
+  preview?: string;
+  size: number; // Bytes
+  thumbnail?: string;
+  title: string;
+  type: ResourcesTypes;
+}

@@ -58,6 +58,7 @@
     "koa": "^2.7.0",
     "koa-jwt": "^3.5.1",
     "lowdb": "^1.0.0",
+    "migrate-mongo": "^7.0.1",
     "mongoose": "^5.7.5",
     "mongoose-timestamp": "^0.6.0",
     "nodemailer": "^5.1.1",
@@ -87,7 +88,8 @@
     "dev": "./node_modules/nodemon/bin/nodemon.js",
     "dev-inspect": "nodemon --exec npm run start-inspect",
     "prod": "npm run build && npm run start",
-    "test": "jest"
+    "test": "jest",
+    "migrate-db": "migrate-mongo up"
   },
   "keywords": [],
   "author": "",

@@ -10,9 +10,32 @@ type File {
   storageName: String
 }
 
+type CloudResourcesResult {
+  resources: [Resource]
+  pagesNumber: Number
+}
+type Resource {
+  id: ID
+  title: String
+  type: String
+  thumbnail: String
+  preview: String
+  size: Number
+  file: String
+  deleted: Boolean
+  createdAt: Date
+}
+
 type Query {
   uploads: [File] @authRequired(requires: [ADMIN])
   getUserFiles: [File] @authRequired(requires: [USER])
+  cloudResources(
+    type: String
+    currentPage: Number
+    order: String
+    searchTitle: String
+    deleted: Boolean
+  ): CloudResourcesResult @authRequired(requires: [USER])
 }
 
 type Mutation {
@@ -22,4 +45,6 @@ type Mutation {
   uploadImageFile(file: Upload!, documentID: ObjectID): File
     @authRequired(requires: [USER])
   deleteUserFile(filename: String!): File @authRequired(requires: [USER])
+  moveToTrash(id: ObjectID): File @authRequired(requires: [USER])
+  restoreResource(id: ObjectID): File @authRequired(requires: [USER])
 }

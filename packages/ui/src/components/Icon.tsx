@@ -11,9 +11,11 @@ import Brain from "./icons/Brain";
 import Brush from "./icons/Brush";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
+import CloudLogo from "./icons/CloudLogo";
 import Cube from "./icons/Cube";
 import CurveAngle from "./icons/CurveAngle";
 import Cylinder from "./icons/Cylinder";
+import Description from "./icons/Description";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
 import Download from "./icons/Download";
@@ -27,6 +29,7 @@ import Ellipsis from "./icons/Ellipsis";
 import Equal from "./icons/Equal";
 import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
+import EyeClose from "./icons/EyeClose";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import ImportSTL from "./icons/ImportSTL";
@@ -57,6 +60,11 @@ import Reflection from "./icons/Reflection";
 import Reload from "./icons/Reload";
 import Repeat from "./icons/Repeat";
 import RepeatPolar from "./icons/RepeatPolar";
+import ResourceDeleted from "./icons/ResourceDeleted";
+import ResourceImage from "./icons/ResourceImage";
+import ResourceObject from "./icons/ResourceObject";
+import ResourceSound from "./icons/ResourceSound";
+import ResourceVideo from "./icons/ResourceVideo";
 import Rotation from "./icons/Rotation";
 import Scale from "./icons/Scale";
 import Sphere from "./icons/Sphere";
@@ -131,12 +139,16 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <CityElements className={className} />;
     case "close":
       return <Close className={className} />;
+    case "cloud-logo":
+      return <CloudLogo className={className} />;
     case "cube":
       return <Cube className={className} />;
     case "curve-angle":
       return <CurveAngle className={className} />;
     case "cylinder":
       return <Cylinder className={className} />;
+      case "description":
+        return <Description className={className} />;
     case "difference":
       return <Difference className={className} />;
     case "difficulty":
@@ -163,6 +175,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <ExportSTL className={className} />;
     case "eye":
       return <Eye className={className} />;
+    case "eye-close":
+      return <EyeClose className={className} />;
     case "group":
       return <Group className={className} />;
     case "hardware":
@@ -233,6 +247,16 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Repeat className={className} />;
     case "repeat-polar":
       return <RepeatPolar className={className} />;
+    case "resource-deleted":
+      return <ResourceDeleted className={className} />;
+    case "resource-image":
+      return <ResourceImage className={className} />;
+    case "resource-object3D":
+      return <ResourceObject className={className} />;
+    case "resource-sound":
+      return <ResourceSound className={className} />;
+    case "resource-video":
+      return <ResourceVideo className={className} />;
     case "rotation":
       return <Rotation className={className} />;
     case "scale":
