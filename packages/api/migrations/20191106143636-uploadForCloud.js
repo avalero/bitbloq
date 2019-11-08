@@ -6,7 +6,6 @@ module.exports = {
       .forEach(element => {
         let type = "";
         let image = "";
-        console.log(element.filename.toLowerCase());
         if (
           element.filename.toLowerCase().indexOf("blob") > -1 ||
           element.filename.toLowerCase().indexOf(".jpg") > -1 ||
@@ -14,22 +13,22 @@ module.exports = {
           element.filename.toLowerCase().indexOf(".jpeg") > -1 ||
           element.filename.toLowerCase().indexOf(".webp") > -1
         ) {
-          type = "images";
+          type = "image";
           image = element.publicUrl;
         } else if (
           element.filename.toLowerCase().indexOf(".mp4") > -1 ||
           element.filename.toLowerCase().indexOf(".webm") > -1
         ) {
-          type = "videos";
+          type = "video";
           image = null;
         } else if (
           element.filename.toLowerCase().indexOf(".mp3") > -1 ||
           element.filename.toLowerCase().indexOf(".ogg") > -1
         ) {
-          type = "sounds";
+          type = "sound";
           image = null;
         } else if (element.filename.toLowerCase().indexOf(".stl") > -1) {
-          type = "objects3D";
+          type = "object3D";
           image = null;
         }
         db.collection("uploadmodels").updateOne(

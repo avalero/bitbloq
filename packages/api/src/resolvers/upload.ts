@@ -75,11 +75,10 @@ const processUpload = async (
           storageName: gcsName,
           size: fileSize,
           user: userID,
-          image: type === "images" ? publicUrl : null,
+          image: type === "image" ? publicUrl : null,
           type: type,
           deleted: false
         });
-        console.log(fileSize, type);
         const uploaded: IUpload = await UploadModel.create(uploadNew);
         resolve(uploaded);
       });
@@ -103,7 +102,11 @@ export function getFilesizeInBytes(filename) {
   }
 }
 
-export async function uploadDocumentImage(image, documentID, userID): Promise<IUpload> {
+export async function uploadDocumentImage(
+  image,
+  documentID,
+  userID
+): Promise<IUpload> {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
     throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
@@ -132,7 +135,7 @@ export async function uploadDocumentImage(image, documentID, userID): Promise<IU
       mimetype,
       encoding,
       userID,
-      "images"
+      "image"
     );
   });
 }
@@ -141,7 +144,6 @@ const uploadResolver = {
   Query: {
     uploads: () => UploadModel.find({}),
     getUserFiles: async (root: any, args: any, context: any) => {
-      //console.log(bucket)
       const [files] = await bucket.getFiles({
         prefix: `${context.user.userID}`
       });
@@ -250,7 +252,7 @@ const uploadResolver = {
           mimetype,
           encoding,
           context.user.userID,
-          "objects3D"
+          "object3D"
         );
       });
     },
@@ -279,7 +281,7 @@ const uploadResolver = {
           mimetype,
           encoding,
           context.user.userID,
-          "images"
+          "image"
         );
       });
     },
