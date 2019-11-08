@@ -3,10 +3,10 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import Icon from "./Icon";
 
-interface SubMenuProps {
+interface ISubMenuProps {
   isTop?: boolean;
 }
-const SubMenu = styled.div<SubMenuProps>`
+const SubMenu = styled.div<ISubMenuProps>`
   position: absolute;
   display: none;
   top: 0px;
@@ -82,10 +82,10 @@ const Divider = styled.div`
   background-color: #cfcfcf;
 `;
 
-interface ContainerProps {
+interface IContainerProps {
   disabled: boolean;
 }
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<IContainerProps>`
   display: flex;
   flex: 1;
   align-items: center;
@@ -102,42 +102,53 @@ const Container = styled.div<ContainerProps>`
     `};
 `;
 
-export interface MenuOption {
+export interface IMenuOption {
   id: string;
   label: string;
   icon?: React.ReactElement<SVGElement>;
-  children?: MenuOption[];
   checked?: boolean;
+  onClick?: (e: React.MouseEvent, option: IMenuOption) => void;
+  type: "option";
 }
 
-export interface MainMenuOption {
+export interface ISubMenu {
   id: string;
   label: string;
-  children: MenuOption[];
+  icon?: React.ReactElement<SVGElement>;
+  children: Array<IMenuItem>;
+  type: "submenu";
 }
 
-export type MenuOptionClickHandler = (option: MenuOption) => void;
-
-export interface MenuBarProps {
-  options: MainMenuOption[];
-  onOptionClick?: MenuOptionClickHandler;
+export interface IMenuDivider {
+  type: "divider";
 }
 
-interface State {
+type IMenuItem = IMenuOption | ISubMenu | IMenuDivider;
+
+export interface IMainMenuOption {
+  id: string;
+  label: string;
+  children: Array<IMenuItem>;
+}
+
+export interface IMenuBarProps {
+  options: IMainMenuOption[];
+}
+
+interface IState {
   disabled: boolean;
 }
 
-class MenuBar extends React.Component<MenuBarProps, State> {
+class MenuBar extends React.Component<IMenuBarProps, IState> {
   state = {
     disabled: false
   };
 
-  onOptionClick(option: MenuOption) {
-    const { onOptionClick } = this.props;
+  onOptionClick(e: React.MouseEvent, option: IMenuOption) {
     this.setState({ disabled: true });
 
-    if (onOptionClick) {
-      onOptionClick(option);
+    if (option.onClick) {
+      option.onClick(e, option);
     }
   }
 
@@ -145,24 +156,36 @@ class MenuBar extends React.Component<MenuBarProps, State> {
     this.setState({ disabled: false });
   };
 
-  renderSubMenu(options: MenuOption[], isTop?: boolean) {
+  renderSubMenu(options: Array<IMenuItem>, isTop?: boolean) {
     return (
       <SubMenu isTop={isTop}>
         {options.map((option, i) => {
-          if (option.divider) {
+          if (option.type === "divider") {
             return <Divider key={`divider-${i}`} />;
           }
 
-          return (
-            <Option key={option.id} onClick={() => this.onOptionClick(option)}>
-              {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
-              <OptionText>{option.label}</OptionText>
-              {option.children && (
+          if (option.type === "submenu") {
+            return (
+              <Option
+                key={option.id}
+              >
+                {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
+                <OptionText>{option.label}</OptionText>
                 <RightArrow>
                   <Icon name="triangle" />
                 </RightArrow>
-              )}
-              {option.children && this.renderSubMenu(option.children)}
+                {this.renderSubMenu(option.children)}
+              </Option>
+            );
+          }
+
+          return (
+            <Option
+              key={option.id}
+              onClick={e => this.onOptionClick(e, option)}
+            >
+              {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
+              <OptionText>{option.label}</OptionText>
               {option.checked && (
                 <Tick>
                   <Icon name="tick" />

@@ -40,7 +40,9 @@ const Playground: React.FunctionComponent<PlaygroundProps> = ({
   const contentRef = useRef([]);
   const advancedModeRef = useRef(false);
 
-  const { data, loading: loadingQuery, refetch } = useQuery(ME_QUERY);
+  const { data, loading: loadingQuery, refetch } = useQuery(ME_QUERY, {
+    errorPolicy: "ignore"
+  });
   const [createDocumentMutation] = useMutation(CREATE_DOCUMENT_MUTATION);
 
   const t = useTranslate();

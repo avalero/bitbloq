@@ -1,9 +1,22 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo
+} from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import { Document, Icon, Spinner, useTranslate } from "@bitbloq/ui";
+import {
+  Document,
+  IDocumentTab,
+  Icon,
+  Spinner,
+  useTranslate
+} from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
@@ -18,16 +31,12 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
+import { IDocument, IDocumentImage } from "../types";
 
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
-interface DocumentImage {
-  image: string;
-  isSnapshot: boolean;
-}
-
-interface EditDocumentProps {
+interface IEditDocumentProps {
   folder?: string;
   id: string;
   type: string;
@@ -38,7 +47,7 @@ if (typeof window !== undefined) {
   import("html2canvas").then(module => (html2canvas = module.default));
 }
 
-const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
+const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
   const t = useTranslate();
 
   const user = useUserData();
@@ -60,7 +69,7 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     type,
     advancedMode: false
   });
-  const [image, setImage] = useState<DocumentImage>();
+  const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
 
   const {
@@ -239,6 +248,39 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     setTabIndex(tabIndex);
   }, []);
 
+  const onSaveDocument = () => {
+    const documentJSON = {
+      type,
+      title: title || `document${type}`,
+      description: description || `bitbloq ${type} document`,
+      content: JSON.stringify(content),
+      advancedMode: document.advancedMode,
+      image
+    };
+
+    var blob = new Blob([JSON.stringify(documentJSON)], {
+      type: "text/json;charset=utf-8"
+    });
+
+    saveAs(blob, `${documentJSON.title}.bitbloq`);
+  };
+
+  const menuOptions = [
+    {
+      id: "file",
+      label: t("menu-file"),
+      children: [
+        {
+          id: "download-document",
+          label: t("menu-download-document"),
+          icon: <Icon name="download-document" />,
+          type: "option",
+          onClick: () => onSaveDocument()
+        }
+      ]
+    }
+  ];
+
   if (loading) return <Loading color={documentType.color} />;
   if (error) return <GraphQLErrorMessage apolloError={error!} />;
 
@@ -246,11 +288,8 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     title,
     description,
     public: isPublic,
-    example: isExample,
-    advancedMode
+    example: isExample
   } = document || {};
-
-  window.sessionStorage.setItem("advancedMode", `${advancedMode}`);
 
   const location = window.location;
   const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${id}`;
@@ -269,49 +308,16 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
     setIsEditTitleVisible(false);
   };
 
-  const onContentChange = (content: any[]) => {
-    update({
-      ...document,
-      content: JSON.stringify(content)
-    });
-  };
-
-  const onSetAdvancedMode = (advancedMode: boolean) => {
-    update({
-      ...document,
-      advancedMode
-    });
-  };
-
   const onChangePublic = (isPublic: boolean, isExample: boolean) => {
     if (publish) {
       publish(isPublic, isExample);
     }
   };
 
-  const onSaveDocument = () => {
-    const documentJSON = {
-      type,
-      title: title || `document${type}`,
-      description: description || `bitbloq ${type} document`,
-      content: JSON.stringify(content),
-      advancedMode: document.advancedMode,
-      image
-    };
-
-    var blob = new Blob([JSON.stringify(documentJSON)], {
-      type: "text/json;charset=utf-8"
-    });
-
-    saveAs(blob, `${documentJSON.title}.bitbloq`);
-  };
-
-  const InfoTab = (
-    <Document.Tab
-      key="info"
-      icon={<Icon name="info" />}
-      label={t("tab-project-info")}
-    >
+  const infoTab: IDocumentTab = {
+    icon: <Icon name="info" />,
+    label: t("tab-project-info"),
+    content: (
       <DocumentInfoForm
         title={title}
         description={description}
@@ -328,42 +334,50 @@ const EditDocument: FC<EditDocumentProps> = ({ folder, id, type }) => {
           update(newDocument);
         }}
       />
-    </Document.Tab>
-  );
+    )
+  };
 
-  const headerRightContent: JSX.Element = (
+  const headerRightContent = (
     <HeaderRightContent>
       <UserInfo name={user && user.name} />
     </HeaderRightContent>
   );
 
+  const onMenuOptionClick = option => {};
+
   return (
     <>
       <EditorComponent
-        brandColor={documentType.color}
-        content={content}
-        tabIndex={tabIndex}
-        onTabChange={onTabChange}
-        getTabs={(mainTabs: any[]) => [...mainTabs, InfoTab]}
-        title={title}
-        onEditTitle={onEditTitle}
-        onSaveDocument={onSaveDocument}
-        onContentChange={(content: any[]) => onContentChange(content)}
-        preMenuContent={
-          isPublisher && (
-            <PublishBar
-              isPublic={isPublic}
-              isExample={isExample}
-              onChange={onChangePublic}
-              url={isPublic ? publicUrl : ""}
-            />
-          )
-        }
-        changeAdvancedMode={onSetAdvancedMode}
-        documentAdvancedMode={advancedMode}
-        headerRightContent={headerRightContent}
-        backCallback={() => Router.push("/")}
-      />
+        document={document}
+        onDocumentChange={(document: IDocument) => update(document)}
+        baseTabs={[infoTab]}
+        baseMenuOptions={menuOptions}
+      >
+        {documentProps => (
+          <Document
+            brandColor={documentType.color}
+            title={title}
+            onEditTitle={onEditTitle}
+            icon={<Icon name={documentType.icon} />}
+            tabIndex={tabIndex}
+            onTabChange={onTabChange}
+            headerRightContent={headerRightContent}
+            onMenuOptionClick={onMenuOptionClick}
+            preMenuContent={
+              isPublisher && (
+                <PublishBar
+                  isPublic={isPublic}
+                  isExample={isExample}
+                  onChange={onChangePublic}
+                  url={isPublic ? publicUrl : ""}
+                />
+              )
+            }
+            backCallback={() => Router.push("/")}
+            {...documentProps}
+          />
+        )}
+      </EditorComponent>
       {isEditTitleVisible && (
         <EditTitleModal
           title={title}
