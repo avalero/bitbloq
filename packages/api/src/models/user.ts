@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import { timestamps } from "mongoose-timestamp";
 
 export interface IUser extends Document {
   email?: string;
@@ -10,17 +10,24 @@ export interface IUser extends Document {
   teacherPro?: boolean;
   family?: boolean;
   name?: string;
-  center?: string;
+  surnames?: string;
+  bornDate?: Date;
   active?: boolean;
   signUpToken?: string;
   authToken?: string;
   notifications?: boolean;
+  imTeacherCheck?: boolean;
+  centerName?: string;
+  educationalStage?: string;
+  province?: string;
+  postCode?: number;
+  country?: string;
   signUpSurvey?: JSON;
-  rootFolder?: Date;
+  rootFolder?: string;
   lastLogin?: string;
 }
 
-export const ContactSchema: Schema = new Schema({
+export const contactSchema: Schema = new Schema({
   // id: Schema.Types.ObjectId,
 
   email: {
@@ -65,7 +72,36 @@ export const ContactSchema: Schema = new Schema({
     type: String
   },
 
-  center: {
+  surnames: {
+    type: String
+  },
+
+  bornDate: {
+    type: Date
+  },
+
+  imTeacherCheck: {
+    type: Boolean
+  },
+
+  centerName: {
+    type: String
+  },
+
+  educationalStage: {
+    type: String,
+    enum: ["preschool", "primary", "secondary", "bachelor", "university"]
+  },
+
+  province: {
+    type: String
+  },
+
+  postCode: {
+    type: Number
+  },
+
+  country: {
     type: String
   },
 
@@ -74,13 +110,11 @@ export const ContactSchema: Schema = new Schema({
   },
 
   signUpToken: {
-    type: String,
-    default: "aa"
+    type: String
   },
 
   authToken: {
-    type: String,
-    default: "aa"
+    type: String
   },
 
   notifications: {
@@ -101,8 +135,8 @@ export const ContactSchema: Schema = new Schema({
   }
 });
 
-ContactSchema.plugin(timestamps);
+contactSchema.plugin(timestamps);
 export const UserModel: Model<IUser> = model<IUser>(
   "UserModels",
-  ContactSchema
+  contactSchema
 );
