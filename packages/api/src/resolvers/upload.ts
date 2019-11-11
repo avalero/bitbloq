@@ -9,7 +9,15 @@ const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
-let publicUrl: string, fileSize: number;
+let publicUrl: string;
+let fileSize: number;
+
+const acceptedFiles = {
+  image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
+  video: [".mp4", ".webm"],
+  sound: [".mp3", ".ocg"],
+  object3D: [".stl"]
+};
 
 const normalize = (function() {
   let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
@@ -217,6 +225,52 @@ const uploadResolver = {
           encoding,
           userID,
           ""
+        );
+      });
+    },
+    uploadCloudResource: async (root: any, args: any, context: any) => {
+      const {
+        createReadStream,
+        filename,
+        mimetype,
+        encoding
+      } = await args.file;
+      if (!createReadStream || !filename || !mimetype || !encoding) {
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
+      }
+      let fileType: string = "";
+      for (const type in acceptedFiles) {
+        if (acceptedFiles.hasOwnProperty(type)) {
+          for (const item of acceptedFiles[type]) {
+            if (filename.indexOf(item) > -1) {
+              fileType = type;
+              break;
+            }
+          }
+        }
+      }
+      if (fileType === "") {
+        throw new ApolloError(
+          "Upload error, check file format",
+          "UPLOAD_FORMAT_ERROR"
+        );
+      }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+        uniqueName
+      )}`;
+      return new Promise((resolve, reject) => {
+        processUpload(
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
+          undefined,
+          filename,
+          mimetype,
+          encoding,
+          context.user.userID,
+          fileType
         );
       });
     },
