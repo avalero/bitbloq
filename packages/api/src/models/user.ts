@@ -18,6 +18,7 @@ export interface IUser extends Document {
   signUpSurvey?: JSON;
   rootFolder?: Date;
   lastLogin?: string;
+  finishedSignUp?: boolean;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -91,8 +92,9 @@ export const ContactSchema: Schema = new Schema({
     type: Date
   },
 
-  signUpSurvey: {
-    type: Schema.Types.Mixed
+  finishedSignUp: {
+    type: Boolean,
+    default: false
   },
 
   rootFolder: {
