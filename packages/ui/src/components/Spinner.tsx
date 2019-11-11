@@ -34,7 +34,7 @@ const Container = styled.div<{ small?: boolean }>`
 
   svg {
     animation: ${rotation} 2s ease infinite;
-    width: ${props => props.small ? 150 : 200}px;
-    height: ${props => props.small ? 150 : 200}px;
+    width: ${props => (props.small ? 150 : 200)}px;
+    height: ${props => (props.small ? 150 : 200)}px;
   }
 `;
