@@ -15,6 +15,7 @@ import {
   IDocumentTab,
   Icon,
   Spinner,
+  Button,
   useTranslate
 } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
@@ -23,6 +24,8 @@ import EditTitleModal from "./EditTitleModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
 import UserInfo from "./UserInfo";
+import Loading from "./Loading";
+import DocumentLoginModal from "./DocumentLoginModal";
 import {
   DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
@@ -31,7 +34,9 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
+import { dataURItoBlob } from "../util";
 import { IDocument, IDocumentImage } from "../types";
+import { ISessionEvent, useSessionEvent } from "../lib/session";
 
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
@@ -47,22 +52,31 @@ if (typeof window !== undefined) {
   import("html2canvas").then(module => (html2canvas = module.default));
 }
 
-const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
+const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType }) => {
   const t = useTranslate();
 
   const user = useUserData();
+  const isLoggedIn = !!user;
+  const prevIsLoggedIn = useRef(isLoggedIn);
+
+  const [type, setType] = useState(initialType);
+
   const isPublisher = user && user.publisher;
+
   const isNew = id === "new";
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [opening, setOpening] = useState(type === "open");
   const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
   const [document, setDocument] = useState({
     id: "",
     content: "[]",
-    title: "",
+    title: t("untitled-project"),
     description: "",
     public: false,
     example: false,
@@ -82,8 +96,23 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
     skip: isNew
   });
 
+  const {
+    content,
+    advancedMode,
+    title,
+    description,
+    public: isPublic,
+    example: isExample
+  } = document || {};
+
   useEffect(() => {
-    imageToUpload.current;
+    if (isLoggedIn && !prevIsLoggedIn.current) {
+      update({ content, title, description, type, advancedMode });
+    }
+    prevIsLoggedIn.current = isLoggedIn;
+  }, [isLoggedIn]);
+
+  useEffect(() => {
     if (firstLoad) {
       saveImage();
       if (
@@ -102,7 +131,10 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
   }, [imageToUpload.current]);
 
   useEffect(() => {
-    if (isNew) {
+    if (type === "open") {
+      setLoading(opening);
+      setError(null);
+    } else if (isNew) {
       setLoading(false);
       setError(null);
     } else if (!loadingDocument && !errorDocument) {
@@ -114,7 +146,21 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
       setError(errorDocument);
       setLoading(false);
     }
-  }, [loadingDocument]);
+  }, [loadingDocument, opening]);
+
+  useEffect(() => {
+    const channel = new BroadcastChannel("bitbloq-documents");
+    channel.postMessage({ command: "open-document-ready" });
+    channel.onmessage = e => {
+      const { document, command } = e.data;
+      if (command === "open-document") {
+        setType(document.type);
+        update(document);
+        setOpening(false);
+        channel.close();
+      }
+    };
+  }, []);
 
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
@@ -151,7 +197,7 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
       setImage({ image: "blob", isSnapshot: true });
     }
 
-    if (image.size > 0) {
+    if (image.size > 0 && isLoggedIn) {
       setDocumentImage({
         variables: {
           id,
@@ -179,35 +225,19 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
     setImage(data && data.document && data.document.image);
   }, [data]);
 
-  const dataURItoBlob = (dataURI: string): Blob => {
-    // convert base64/URLEncoded data component to raw binary data held in a string
-    let byteString;
-    if (dataURI.split(",")[0].indexOf("base64") >= 0)
-      byteString = atob(dataURI.split(",")[1]);
-    else byteString = unescape(dataURI.split(",")[1]);
-
-    // separate out the mime component
-    let mimeString = dataURI
-      .split(",")[0]
-      .split(":")[1]
-      .split(";")[0];
-
-    // write the bytes of the string to a typed array
-    let ia = new Uint8Array(byteString.length);
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-
-    return new Blob([ia], { type: mimeString });
-  };
-
   const update = async (document: any) => {
     setDocument(document);
+
+    if (!isLoggedIn) {
+      return;
+    }
+
     if (isNew) {
+      const saveFolder = folder === "local" ? user.rootFolder : folder;
       const result = await createDocument({
         variables: {
           ...document,
-          folder: folder,
+          folder: saveFolder,
           title: document.title || t("untitled-project")
         }
       }).catch(e => {
@@ -220,7 +250,7 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
           }
         } = result;
         const href = "/app/edit-document/[folder]/[type]/[id]";
-        const as = `/app/edit-document/${folder}/${type}/${newId}`;
+        const as = `/app/edit-document/${saveFolder}/${type}/${newId}`;
         Router.replace(href, as, { shallow: true });
       }
     } else {
@@ -238,7 +268,7 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
     }
   };
 
-  const documentType = documentTypes[type];
+  const documentType = documentTypes[type] || {};
 
   const onEditTitle = useCallback(() => {
     setIsEditTitleVisible(true);
@@ -253,9 +283,12 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
       type,
       title: title || `document${type}`,
       description: description || `bitbloq ${type} document`,
-      content: JSON.stringify(content),
-      advancedMode: document.advancedMode,
-      image
+      content,
+      advancedMode,
+      image: {
+        image: "",
+        isSnapshot: true
+      }
     };
 
     var blob = new Blob([JSON.stringify(documentJSON)], {
@@ -284,24 +317,10 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
   if (loading) return <Loading color={documentType.color} />;
   if (error) return <GraphQLErrorMessage apolloError={error!} />;
 
-  const {
-    title,
-    description,
-    public: isPublic,
-    example: isExample
-  } = document || {};
-
   const location = window.location;
   const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${id}`;
 
   const EditorComponent = documentType.editorComponent;
-
-  let content: any;
-  try {
-    content = JSON.parse(document.content);
-  } catch (e) {
-    console.warn("Error parsing document content", e);
-  }
 
   const onSaveTitle = (title: string) => {
     update({ ...document, title: title || t("untitled-project") });
@@ -339,7 +358,13 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
 
   const headerRightContent = (
     <HeaderRightContent>
-      <UserInfo name={user && user.name} />
+      {isLoggedIn ? (
+        <UserInfo name={user.name} />
+      ) : (
+        <EnterButton onClick={() => setShowLoginModal(true)}>
+          {t("document-enter-button")}
+        </EnterButton>
+      )}
     </HeaderRightContent>
   );
 
@@ -389,23 +414,19 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type }) => {
           saveButton="Cambiar"
         />
       )}
+      <DocumentLoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </>
   );
 };
 
 export default EditDocument;
 
-/* styled components */
-
-interface LoadingProps {
-  color: string;
-}
-const Loading = styled(Spinner)<LoadingProps>`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  color: white;
-  background-color: ${(props: LoadingProps) => props.color};
+const EnterButton = styled(Button)`
+  font-family: Roboto;
+  font-weight: bold;
+  line-height: 1.57;
+  padding: 0 20px;
 `;

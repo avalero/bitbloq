@@ -16,7 +16,6 @@ import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { ApolloError } from "apollo-client";
 import {
-  CREATE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   CREATE_FOLDER_MUTATION,
@@ -62,7 +61,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   let openFile = React.createRef<HTMLInputElement>();
 
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
   const [documentsData, setDocumentsData] = useState<any>({});
   const [error, setError] = useState<ApolloError>();
@@ -131,17 +129,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     window.open(`/app/edit-document/${currentLocation.id}/${type}/new`);
   };
 
-  const onDocumentCreated = ({ createDocument: { id, type } }) => {
-    Router.push(`/app/edit-document/${currentLocation.id}/${type}/${id}`);
-  };
-
   const onOrderChange = (order: OrderType) => {
     setOrder(order);
     refetchDocsFols();
   };
 
   const onOpenDocumentClick = () => {
-    refetchDocsFols();
     openFile.current.click();
   };
 
@@ -171,27 +164,24 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   }, 500);
 
   const onFileSelected = file => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const document = JSON.parse(reader.result as string);
-      const { data } = await createDocument({
-        variables: {
-          ...document,
-          image: {
-            image: document.image.image ? document.image.image : document.image,
-            isSnapshot:
-              document.image.isSnapshot !== undefined
-                ? document.image.isSnapshot
-                : false
-          },
-          folder: currentLocation.id
-        }
-      });
-      refetchDocsFols();
-      onDocumentCreated(data);
-    };
-
-    reader.readAsText(file);
+    if (file) {
+      window.open(`/app/edit-document/${currentLocation.id}/open/new`);
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const document = JSON.parse(reader.result as string);
+        const channel = new BroadcastChannel("bitbloq-documents");
+        channel.onmessage = event => {
+          if (event.data.command === "open-document-ready") {
+            channel.postMessage({ document, command: "open-document" });
+            channel.close();
+          }
+        };
+      };
+      reader.readAsText(file);
+      if (openFile.current) {
+        openFile.current.value = "";
+      }
+    }
   };
 
   if (error) {
