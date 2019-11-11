@@ -21,10 +21,12 @@ import {
 } from "@bitbloq/ui";
 import { addShapeGroups as bitbloqShapeGroups } from "../config";
 import ExportSTLModal from "./ExportSTLModal";
+import UploadResourceModal from "./UploadResourceModal";
 import { IEditorProps, IDocument } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 import { maxSTLFileSize } from "../config";
 import { UPLOAD_STL_MUTATION } from "../apollo/queries";
+import { ResourcesTypes } from "../types";
 
 const ThreeDEditor: FC<IEditorProps> = ({
   document,
@@ -36,11 +38,15 @@ const ThreeDEditor: FC<IEditorProps> = ({
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
   const openSTLInput = useRef<HTMLInputElement>(null);
+  const [resourceModal, setResourceModal] = useState<boolean>(true);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSTLError, setShowSTLError] = useState("");
   const [advancedMode, setAdvancedMode] = useState(document.advancedMode);
 
-  const [initialContent, onContentChange] = useDocumentContent(document, onDocumentChange);
+  const [initialContent, onContentChange] = useDocumentContent(
+    document,
+    onDocumentChange
+  );
 
   useEffect(() => {
     if (advancedMode !== document.advancedMode) {
@@ -78,13 +84,24 @@ const ThreeDEditor: FC<IEditorProps> = ({
     );
 
     const fileMenu = { ...baseFileMenu, children: [...baseFileMenu.children] };
-    fileMenu.children.splice(Math.max(downloadDocumentIndex, 0), 0, {
-      id: "download-stl",
-      label: t("menu-export-stl"),
-      icon: <Icon name="export-stl" />,
-      onClick: () => setShowExportModal(true),
-      type: "option"
-    });
+    fileMenu.children.splice(
+      Math.max(downloadDocumentIndex, 0),
+      0,
+      {
+        id: "download-stl",
+        label: t("menu-export-stl"),
+        icon: <Icon name="export-stl" />,
+        onClick: () => setShowExportModal(true),
+        type: "option"
+      },
+      {
+        id: "import-resource",
+        label: t("cloud.upload.import"),
+        icon: <Icon name="import-stl" />,
+        onClick: () => setResourceModal(true),
+        type: "option"
+      }
+    );
 
     const viewMenu: IMainMenuOption = {
       id: "view",
@@ -110,6 +127,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
               onClick: () => setAdvancedMode(true),
               type: "option"
             }
+          ]
         }
       ]
     };
@@ -145,6 +163,11 @@ const ThreeDEditor: FC<IEditorProps> = ({
           }}
         />
       )}
+      <UploadResourceModal
+        acceptedTypes={[ResourcesTypes.object3D]}
+        isOpen={resourceModal}
+        onClose={() => setResourceModal(false)}
+      />
     </>
   );
 };

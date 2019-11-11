@@ -18,7 +18,7 @@ import {
   RESTORE_RESOURCE_FROM_TRASH
 } from "../apollo/queries";
 import { resourceTypes } from "../config";
-import { IResource, OrderType } from "../types";
+import { IResource, OrderType, ResourcesTypes } from "../types";
 
 export enum TabType {
   add,
@@ -26,12 +26,14 @@ export enum TabType {
 }
 
 export interface IUploadResourcTabsProps {
+  acceptedTypes: string[];
   setFile: (file: File) => void;
   setTab: (tab: TabType) => void;
   tab: TabType;
 }
 
 const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
+  acceptedTypes,
   setFile,
   setTab,
   tab
@@ -60,6 +62,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
         {tab === TabType.import ? (
           <ResourceInput>
             <input
+              accept={acceptedTypes.join(", ")}
               onChange={e => setFile(e.target.files[0])}
               onClick={e => e.isTrusted && e.preventDefault()}
               ref={inputRef}

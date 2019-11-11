@@ -287,7 +287,9 @@
       "import": "Importar un nuevo recurso",
       "name": "Nombre del recurso",
       "select": "O selecciona un archivo",
-      "title": "Añadir recurso importado"
+      "title": "Añadir recurso importado",
+      "warning": "Este recurso no es compatible con este documento.",
+      "warning-title": "Aviso"
     }
   },
   "filter":  {

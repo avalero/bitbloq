@@ -1,6 +1,7 @@
 import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
+import { isValidName } from "../util";
 
 interface EditTitleModalProps {
   title: string;
@@ -35,19 +36,6 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
     }
   });
 
-  const validate = (value: string): boolean => {
-    if (
-      !value ||
-      (value.length <= 64 &&
-        value.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
-        !value.match(/^\s+$/))
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   return (
     <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
       <Content>
@@ -63,7 +51,7 @@ const EditTitleModal: FC<EditTitleModalProps> = props => {
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
-              if (!validateInput || validate(value)) {
+              if (!validateInput || isValidName(value)) {
                 setTitle(value);
                 setError(false);
               } else {

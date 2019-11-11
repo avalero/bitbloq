@@ -570,3 +570,11 @@ export const RESTORE_RESOURCE_FROM_TRASH = gql`
     }
   }
 `;
+
+export const UPLOAD_CLOUD_RESOURCE = gql`
+  mutation UploadCloudResource($file: Upload!) {
+    uploadCloudResource(file: $file) {
+      id
+    }
+  }
+`;

@@ -7,46 +7,102 @@ import React, {
   ChangeEvent
 } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Modal, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
+import {
+  Button,
+  DialogModal,
+  Modal,
+  Icon,
+  Input,
+  Spinner,
+  useTranslate
+} from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
 import ResourcesList from "./ResourcesList";
 import UploadResourceTabs, { TabType } from "./UploadResourceTabs";
-import {
-  GET_CLOUD_RESOURCES,
-  MOVE_RESOURCE_TO_TRASH,
-  RESTORE_RESOURCE_FROM_TRASH
-} from "../apollo/queries";
+import { UPLOAD_CLOUD_RESOURCE } from "../apollo/queries";
 import { resourceTypes } from "../config";
-import { IResource, OrderType } from "../types";
+import { IResource, ResourcesTypes, OrderType } from "../types";
+import { isValidName } from "../util";
+
+const acceptedFiles = {
+  image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
+  video: [".mp4", ".webm"],
+  sound: [".mp3", ".ocg"],
+  object3D: [".stl"]
+};
 
 export interface IUploadResourceModalProps {
+  acceptedTypes?: ResourcesTypes[];
   isOpen: boolean;
   onClose?: () => void;
 }
 
 const UploadResourceModal: FC<IUploadResourceModalProps> = ({
+  acceptedTypes = [],
   isOpen,
   onClose
 }) => {
-  const [file, setFile] = useState<File>(new File([], "sdfds"));
+  const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
+  const [accept, setAccept] = useState<string[]>([]);
+  const [error, setError] = useState<0 | 1 | 2>(1); // 0 -> No error; 1 -> Extension error; 2 -> Size error
+  const [file, setFile] = useState<File>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
   const [tab, setTab] = useState<TabType>(TabType.import);
   const t = useTranslate();
 
+  useEffect(() => {
+    let acceptedExt: string[] = [];
+    for (let type of acceptedTypes) {
+      acceptedExt = [...acceptedExt, ...acceptedFiles[type]];
+    }
+    setAccept(acceptedExt);
+  }, []);
+
   const onCloseModal = () => {
+    setError(0);
     setFile(undefined);
     onClose();
   };
 
-  const onSetFile = (file: File) => {
-    const extFile = file.name.split(".").pop();
-    setNameFile(file.name.replace(`.${extFile}`, ""));
-    setFile(file);
+  const onSendResource = async () => {
+    const resourceBlob = file.slice(0, file.size, file.type);
+    const resourceFile = new File(
+      [resourceBlob],
+      file.name.replace(/.+(\.\w+$)/, `${nameFile}$1`),
+      { type: file.type }
+    );
+    await uploadResource({
+      variables: {
+        file: resourceFile
+      }
+    })
+      .then(r => console.log(r))
+      .catch(e => console.log(e));
+    onCloseModal();
   };
 
-  return (
+  const onSetFile = (file: File) => {
+    const extFile = file.name.split(".").pop();
+    if (accept.indexOf(`.${extFile}`) < 0) {
+      setError(1);
+    } else {
+      setNameFile(file.name.replace(`.${extFile}`, "").substring(0, 64));
+      setFile(file);
+    }
+  };
+
+  return error === 1 ? (
+    <DialogModal
+      isOpen={true}
+      onCancel={onCloseModal}
+      onOk={onCloseModal}
+      text={t("cloud.upload.warning")}
+      okText={t("general-accept-button")}
+      title={t("cloud.upload.warning-title")}
+    />
+  ) : (
     <Modal
       isOpen={isOpen}
       onClose={onCloseModal}
@@ -55,6 +111,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       <UploadResourceModalBody input={file !== undefined}>
         {file === undefined ? (
           <UploadResourceTabs
+            acceptedTypes={accept}
             setFile={onSetFile}
             setTab={(tab: TabType) => setTab(tab)}
             tab={tab}
@@ -63,6 +120,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           <FormGroup>
             <label>{t("cloud.upload.name")}</label>
             <Input
+              error={!isValidName(nameFile)}
               onChange={(e: ChangeEvent) =>
                 setNameFile((e.target as HTMLInputElement).value)
               }
@@ -75,7 +133,10 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             {t("general-cancel-button")}
           </ResourceModalButton>
           {file !== undefined && (
-            <ResourceModalButton onClick={onCloseModal}>
+            <ResourceModalButton
+              disabled={!isValidName(nameFile)}
+              onClick={() => onSendResource()}
+            >
               {t("general-add-button")}
             </ResourceModalButton>
           )}
