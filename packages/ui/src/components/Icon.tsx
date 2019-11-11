@@ -147,8 +147,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <CurveAngle className={className} />;
     case "cylinder":
       return <Cylinder className={className} />;
-      case "description":
-        return <Description className={className} />;
+    case "description":
+      return <Description className={className} />;
     case "difference":
       return <Difference className={className} />;
     case "difficulty":
