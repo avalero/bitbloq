@@ -373,7 +373,7 @@ export default class Scene {
           parent instanceof CompoundObject &&
           parent.getChildren()[0].getID() === object.getID()
         ) {
-          const childMesh: THREE.Mesh = (object as any).mesh.clone();
+          const childMesh: THREE.Mesh = object.getMesh().clone() as THREE.Mesh;
           childMesh.position.set(0, 0, 0);
           childMesh.rotation.set(0, 0, 0);
           childMesh.scale.set(1, 1, 1);

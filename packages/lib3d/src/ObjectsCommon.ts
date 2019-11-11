@@ -240,6 +240,10 @@ export default class ObjectsCommon {
     this.parent = undefined;
   }
 
+  public getMesh() {
+    return this.mesh;
+  }
+
   public setMaterial(material: object) {
     setMeshMaterial(this.mesh, material);
   }
