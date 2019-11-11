@@ -46,7 +46,7 @@ type Mutation {
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission
     @authRequired(requires: [TEACHER])
-  submissionActive(token: String!): Submission
+  submissionActive: Submission
 }
 
 type Submission {

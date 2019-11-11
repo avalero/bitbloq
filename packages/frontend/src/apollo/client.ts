@@ -7,7 +7,6 @@ import { ApolloLink, Observable, split } from "apollo-link";
 import { createUploadLink } from "apollo-upload-client";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
-import { RENEW_TOKEN_MUTATION } from "./queries";
 import { flags } from "../config";
 
 const { SHOW_GRAPHQL_LOGS } = flags;
@@ -15,7 +14,7 @@ const { SHOW_GRAPHQL_LOGS } = flags;
 const request = async (
   operation,
   client,
-  { getToken, setToken, shouldRenewToken }
+  { getToken, onSessionActivity }
 ) => {
   const context = operation.getContext();
 
@@ -25,41 +24,16 @@ const request = async (
     const basicAuth = btoa(`${context.email}:${context.password}`);
     authHeader = `Basic ${basicAuth}`;
   } else {
-    let token = getToken();
-    if (
-      token &&
-      operation.operationName !== "Login" &&
-      operation.operationName !== "RenewToken" &&
-      shouldRenewToken()
-    ) {
-      token = await renewToken(client);
-      if (token) {
-        setToken(token);
-      }
-    }
-
+    const token = context.token || await getToken();
     authHeader = `Bearer ${token}`;
   }
 
+  onSessionActivity();
   operation.setContext({
     headers: {
       Authorization: authHeader
     }
   });
-};
-
-const renewToken = async client => {
-  try {
-    const { data, error } = await client.mutate({
-      mutation: RENEW_TOKEN_MUTATION
-    });
-    return data.renewToken;
-  } catch (e) {
-    if (SHOW_GRAPHQL_LOGS) {
-      console.log("Renew token error", e);
-    }
-    return "";
-  }
 };
 
 const isBrowser = typeof window !== "undefined";
@@ -73,7 +47,7 @@ const httpLink = createUploadLink({
 
 export const createClient = (
   initialState,
-  { getToken, setToken, shouldRenewToken, onSessionError }
+  { getToken, onSessionError, onSessionActivity }
 ) => {
   const client = new ApolloClient({
     link: ApolloLink.from([
@@ -109,7 +83,10 @@ export const createClient = (
             let handle;
             Promise.resolve(operation)
               .then(oper =>
-                request(oper, client, { getToken, setToken, shouldRenewToken })
+                request(oper, client, {
+                  getToken,
+                  onSessionActivity
+                })
               )
               .then(() => {
                 handle = forward(operation).subscribe({
@@ -140,7 +117,7 @@ export const createClient = (
                 lazy: true,
                 reconnect: true,
                 connectionParams: async () => {
-                  const token = getToken();
+                  const token = await getToken();
 
                   return {
                     authorization: token ? `Bearer ${token}` : ""

@@ -36,10 +36,9 @@ const submissionResolver = {
     submissionActive: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
-        async (payload, variables, context) => {
-          const user = await contextController.getDataInToken(variables.token);
+        (payload, variables, context) => {
           return (
-            String(payload.submissionActive._id) === String(user.submissionID)
+            String(payload.submissionActive._id) === String(context.user.submissionID)
           );
         }
       )
