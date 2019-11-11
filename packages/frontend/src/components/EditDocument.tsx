@@ -23,6 +23,7 @@ import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
+import UploadResourceModal from "./UploadResourceModal";
 import UserInfo from "./UserInfo";
 import Loading from "./Loading";
 import DocumentLoginModal from "./DocumentLoginModal";
@@ -73,6 +74,7 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType })
   const [opening, setOpening] = useState(type === "open");
   const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState(null);
+  const [resourceModal, setResourceModal] = useState<boolean>(true);
   const [document, setDocument] = useState({
     id: "",
     content: "[]",
@@ -418,6 +420,7 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType })
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
       />
+      <UploadResourceModal isOpen={resourceModal} onClose={() => setResourceModal(false)} />
     </>
   );
 };

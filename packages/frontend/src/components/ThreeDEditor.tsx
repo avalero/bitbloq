@@ -110,7 +110,6 @@ const ThreeDEditor: FC<IEditorProps> = ({
               onClick: () => setAdvancedMode(true),
               type: "option"
             }
-          ]
         }
       ]
     };
