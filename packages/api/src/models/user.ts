@@ -22,7 +22,6 @@ export interface IUser extends Document {
   province?: string;
   postCode?: number;
   country?: string;
-  signUpSurvey?: JSON;
   rootFolder?: string;
   lastLogin?: string;
 }
@@ -123,10 +122,6 @@ export const ContactSchema: Schema = new Schema({
 
   lastLogin: {
     type: Date
-  },
-
-  signUpSurvey: {
-    type: Schema.Types.Mixed
   },
 
   rootFolder: {

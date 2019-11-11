@@ -1,4 +1,4 @@
-# import Date, ObjectID, EmailAddress, JSON, Role from "./scalars.graphql"
+# import Date, ObjectID, EmailAddress, Role from "./scalars.graphql"
 # import Document from "./document.graphql"
 # import Folder from "./folder.graphql"
 
@@ -53,7 +53,6 @@ type User {
   createdAt: Date
   updatedAt: Date
   lastLogin: Date
-  signUpSurvey: JSON
   rootFolder: ObjectID
   documents: [Document]
   folders: [Folder]
@@ -72,5 +71,4 @@ input UserIn {
   province: String
   postCode: Number
   country: String
-  signUpSurvey: JSON
 }

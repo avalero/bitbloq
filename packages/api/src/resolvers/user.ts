@@ -57,7 +57,6 @@ const userResolver = {
         province: args.input.province,
         postCode: args.input.postCode,
         country: args.input.country,
-        signUpSurvey: args.input.signUpSurvey,
         lastLogin: new Date()
       });
       const newUser: IUser = await UserModel.create(userNew);
