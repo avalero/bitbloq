@@ -7,7 +7,7 @@ import React, {
   useState
 } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Modal, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
+import { Button, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
@@ -26,11 +26,16 @@ export enum TabType {
 }
 
 export interface IUploadResourcTabsProps {
+  setFile: (file: File) => void;
   setTab: (tab: TabType) => void;
   tab: TabType;
 }
 
-const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({ setTab, tab }) => {
+const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
+  setFile,
+  setTab,
+  tab
+}) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const t = useTranslate();
 
@@ -55,7 +60,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({ setTab, tab }) => {
         {tab === TabType.import ? (
           <ResourceInput>
             <input
-              onChange={e => console.log(e)}
+              onChange={e => setFile(e.target.files[0])}
               onClick={e => e.isTrusted && e.preventDefault()}
               ref={inputRef}
               type="file"

@@ -253,6 +253,7 @@
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
+  "general-add-button": "Añadir",
   "cloud": {
     "details": {
       "date": "Fecha de importación",
@@ -262,11 +263,6 @@
       "return": "Volver",
       "size": "Tamaño del recurso",
       "title": "Nombre del recurso"
-    },
-    "text": {
-      "empty": "No tienes ningún recurso en esta categoría",
-      "no-result": "No hay resultados para tu búsqueda",
-      "trash": "Aún no has enviado ningún recurso a la papelera"
     },
     "options": {
       "details": "Ver detalles del recurso",
@@ -280,10 +276,16 @@
       "sounds": "Sonidos",
       "videos": "Vídeos"
     },
+    "text": {
+      "empty": "No tienes ningún recurso en esta categoría",
+      "no-result": "No hay resultados para tu búsqueda",
+      "trash": "Aún no has enviado ningún recurso a la papelera"
+    },
     "upload": {
       "add": "Añadir un recurso ya importado",
       "drag": "Arrastra un archivo aquí",
       "import": "Importar un nuevo recurso",
+      "name": "Nombre del recurso",
       "select": "O selecciona un archivo",
       "title": "Añadir recurso importado"
     }
