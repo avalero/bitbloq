@@ -1,4 +1,4 @@
-# import Date, ObjectID, EmailAddress, Role from "./scalars.graphql"
+# import Date, ObjectID, EmailAddress, JSON, Role from "./scalars.graphql"
 # import Document from "./document.graphql"
 # import Folder from "./folder.graphql"
 
@@ -22,11 +22,6 @@ type Mutation {
     @authRequired(requires: [USER])
 }
 
-type UserStep1 {
-  id: ObjectID
-  email: EmailAddress
-}
-
 type User {
   id: ObjectID
   email: EmailAddress
@@ -37,22 +32,15 @@ type User {
   teacherPro: Boolean
   family: Boolean
   name: String
-  surnames: String
-  bornDate: Date
   center: String
   active: Boolean
   signUpToken: String
   authToken: String
   notifications: Boolean
-  imTeacherCheck: Boolean
-  centerName: String
-  educationalStage: String
-  province: String
-  postCode: Number
-  country: String
   createdAt: Date
   updatedAt: Date
   lastLogin: Date
+  signUpSurvey: JSON
   rootFolder: ObjectID
   documents: [Document]
   folders: [Folder]
@@ -62,13 +50,10 @@ input UserIn {
   email: EmailAddress
   password: String
   name: String
-  surnames: String
-  bornDate: Date
+  center: String
+  active: Boolean
+  signUpToken: String
+  authToken: String
   notifications: Boolean
-  imTeacherCheck: Boolean
-  centerName: String
-  educationalStage: String
-  province: String
-  postCode: Number
-  country: String
+  signUpSurvey: JSON
 }

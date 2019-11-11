@@ -13,14 +13,14 @@ import {
   ISignUpToken
 } from "../models/interfaces";
 
-import mjml2html from "mjml";
+import * as mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
 
 import { redisClient } from "../server";
 
-import { hash as bcryptHash, compare } from "bcrypt";
-import { sign } from "jsonwebtoken";
+const bcrypt = require("bcrypt");
+const jsonwebtoken = require("jsonwebtoken");
 
 const saltRounds = 7;
 
@@ -49,13 +49,12 @@ const userResolver = {
         }
       }
       // Store the password with a hash
-      const hash: string = await bcryptHash(args.input.password, saltRounds);
+      const hash: string = await bcrypt.hash(args.input.password, saltRounds);
       const userNew: IUser = new UserModel({
         email: args.input.email,
         password: hash,
         name: args.input.name,
-        surnames: args.input.surnames,
-        bornDate: new Date(args.input.bornDate),
+        center: args.input.center,
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
@@ -110,14 +109,14 @@ const userResolver = {
       }
       const signUpToken: string = sign(
         {
-          signUpUserID: user._id
+          signUpUserID: newUser._id
         },
         process.env.JWT_SECRET
       );
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/activate?token=${signUpToken}`
+        url: `${process.env.FRONTEND_URL}/app/activate?token=${token}`
       };
       const mjml: string = welcomeTemplate(data);
       const htmlMessage: any = mjml2html(mjml, {
@@ -126,13 +125,25 @@ const userResolver = {
         minify: true
       });
       await mailerController.sendEmail(
-        user.email,
+        newUser.email,
         "Bitbloq Sign Up ✔",
         htmlMessage.html
       );
+
+      // Create user root folder for documents
+      const userFolder: IFolder = await FolderModel.create({
+        name: "root",
+        user: newUser._id
+      });
+      // Update the user information in the database
       await UserModel.findOneAndUpdate(
+<<<<<<< HEAD
         { _id: user._id },
         { $set: { signUpToken, teacher, finishedSignUp: true } },
+=======
+        { _id: newUser._id },
+        { $set: { signUpToken: token, rootFolder: userFolder._id } },
+>>>>>>> 35097856d866a070adc36abf3237fc90520f50cd
         { new: true }
       );
       return "OK";
@@ -158,7 +169,10 @@ const userResolver = {
         );
       }
       // Compare passwords from request and database
-      const valid: boolean = await compare(password, contactFound.password);
+      const valid: boolean = await bcrypt.compare(
+        password,
+        contactFound.password
+      );
       if (valid) {
         const { token, role } = await contextController.generateLoginToken(
           contactFound
@@ -236,7 +250,7 @@ const userResolver = {
       if (!contactFound) {
         throw new AuthenticationError("The email does not exist.");
       }
-      const token: string = sign(
+      const token: string = jsonwebtoken.sign(
         {
           resetPassUserID: contactFound._id
         },
@@ -288,7 +302,7 @@ const userResolver = {
         );
       }
       // Store the password with a hash
-      const hash: string = await bcryptHash(newPassword, saltRounds);
+      const hash: string = await bcrypt.hash(newPassword, saltRounds);
       const {
         token: authToken,
         role
