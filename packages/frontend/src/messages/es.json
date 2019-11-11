@@ -288,7 +288,8 @@
       "name": "Nombre del recurso",
       "select": "O selecciona un archivo",
       "title": "Añadir recurso importado",
-      "warning": "Este recurso no es compatible con este documento.",
+      "warning-ext": "Este recurso no es compatible con este documento.",
+      "warning-size": "El recurso pesa más de 10MB, intenta reducir su tamaño e impórtalo de nuevo.",
       "warning-title": "Aviso"
     }
   },

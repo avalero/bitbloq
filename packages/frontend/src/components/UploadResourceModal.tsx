@@ -46,7 +46,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
 }) => {
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const [accept, setAccept] = useState<string[]>([]);
-  const [error, setError] = useState<0 | 1 | 2>(1); // 0 -> No error; 1 -> Extension error; 2 -> Size error
+  const [error, setError] = useState<0 | 1 | 2>(0); // 0 -> No error; 1 -> Extension error; 2 -> Size error
   const [file, setFile] = useState<File>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
   const [tab, setTab] = useState<TabType>(TabType.import);
@@ -87,18 +87,24 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     const extFile = file.name.split(".").pop();
     if (accept.indexOf(`.${extFile}`) < 0) {
       setError(1);
+    } else if (file.size > 10000000) {
+      setError(2);
     } else {
       setNameFile(file.name.replace(`.${extFile}`, "").substring(0, 64));
       setFile(file);
     }
   };
 
-  return error === 1 ? (
+  return error !== 0 ? (
     <DialogModal
       isOpen={true}
       onCancel={onCloseModal}
       onOk={onCloseModal}
-      text={t("cloud.upload.warning")}
+      text={
+        error === 1
+          ? t("cloud.upload.warning-ext")
+          : t("cloud.upload.warning-size")
+      }
       okText={t("general-accept-button")}
       title={t("cloud.upload.warning-title")}
     />
