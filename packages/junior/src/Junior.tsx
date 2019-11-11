@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { Document, Icon, useTranslate, IHeaderButton } from "@bitbloq/ui";
+import { useTranslate } from "@bitbloq/ui";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -20,38 +20,21 @@ import {
 import UploadSpinner from "./UploadSpinner";
 
 export interface JuniorProps {
-  brandColor: string;
-  title: string;
-  onEditTitle: () => any;
-  tabIndex: number;
-  onTabChange: (tabIndex: number) => any;
   bloqTypes: IBloqType[];
   initialContent?: any;
   onContentChange: (content: any) => any;
   boards: IBoard[];
   components: IComponent[];
-  backCallback: () => any;
-  headerButtons?: IHeaderButton[];
-  headerRightContent: React.ReactChildren;
-  onHeaderButtonClick?: (id: string) => any;
+  children: (hardware: JSX.Element, software: JSX.Element) => JSX.Element;
 }
 
 const Junior: React.FunctionComponent<JuniorProps> = ({
   children,
-  brandColor,
-  title,
-  onEditTitle,
-  tabIndex,
-  onTabChange,
   bloqTypes,
   initialContent,
   onContentChange,
   boards,
-  components,
-  backCallback,
-  headerButtons,
-  headerRightContent,
-  onHeaderButtonClick
+  components
 }) => {
   const t = useTranslate();
 
@@ -214,26 +197,16 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   };
 
-  const mainTabs = [
-    <Document.Tab
-      key="hardware"
-      icon={<Icon name="hardware" />}
-      label={t("junior.hardware")}
-    >
-      <HardwareDesigner
-        boards={boards}
-        components={components}
-        hardware={hardware}
-        onHardwareChange={newHardware =>
-          setContent({ hardware: newHardware, program })
-        }
-      />
-    </Document.Tab>,
-    <Document.Tab
-      key="software"
-      icon={<Icon name="programming" />}
-      label={t("junior.software")}
-    >
+  return children(
+    <HardwareDesigner
+      boards={boards}
+      components={components}
+      hardware={hardware}
+      onHardwareChange={newHardware =>
+        setContent({ hardware: newHardware, program })
+      }
+    />,
+    <>
       <HorizontalBloqEditor
         bloqs={program}
         components={components}
@@ -247,25 +220,6 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
         onUpload={() => upload(10000)}
         board={board}
       />
-    </Document.Tab>
-  ];
-
-  return (
-    <>
-      <Document
-        icon={<Icon name="logo-junior" />}
-        brandColor={brandColor}
-        title={title || t("untitled-project")}
-        onEditTitle={onEditTitle}
-        tabIndex={tabIndex}
-        onTabChange={onTabChange}
-        backCallback={backCallback}
-        headerRightContent={headerRightContent}
-        headerButtons={headerButtons}
-        onHeaderButtonClick={onHeaderButtonClick}
-      >
-        {typeof children === "function" ? children(mainTabs) : mainTabs}
-      </Document>
       {uploadSpinnerVisible && (
         <UploadSpinner
           uploading={uploading}
