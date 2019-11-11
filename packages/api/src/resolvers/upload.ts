@@ -125,7 +125,7 @@ export async function uploadDocumentImage(
       "UPLOAD_FORMAT_ERROR"
     );
   }
-  if (getFilesizeInBytes(createReadStream().path) > 2) {
+  if (getFilesizeInBytes(createReadStream().path) > 2000000) {
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
@@ -247,6 +247,16 @@ const uploadResolver = {
               break;
             }
           }
+          if (
+            getFilesizeInBytes(createReadStream().path) >
+            (type === "object3D" ? 5000000 : 2000000)
+          ) {
+            // 2megas
+            throw new ApolloError(
+              "Upload error, image too big.",
+              "UPLOAD_SIZE_ERROR"
+            );
+          }
         }
       }
       if (fileType === "") {
@@ -295,7 +305,7 @@ const uploadResolver = {
       const gcsName: string = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      return await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         processUpload(
           resolve,
           reject,
