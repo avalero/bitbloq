@@ -81,31 +81,31 @@ export const documentTypes = {
 
 export const resourceTypes = {
   image: {
-    "id": "image",
-    "label": "cloud.resources.images",
-    "icon": "resource-image"
+    id: "image",
+    label: "cloud.resources.images",
+    icon: "resource-image"
   },
   video: {
-    "id": "video",
-    "label": "cloud.resources.videos",
-    "icon": "resource-video"
+    id: "video",
+    label: "cloud.resources.videos",
+    icon: "resource-video"
   },
   sounds: {
-    "id": "sound",
-    "label": "cloud.resources.sounds",
-    "icon": "resource-sound"
+    id: "sound",
+    label: "cloud.resources.sounds",
+    icon: "resource-sound"
   },
   objects3D: {
-    "id": "object3D",
-    "label": "cloud.resources.objects",
-    "icon": "resource-object3D"
+    id: "object3D",
+    label: "cloud.resources.objects",
+    icon: "resource-object3D"
   },
   deleted: {
-    "id": "deleted",
-    "label": "cloud.resources.deleted",
-    "icon": "resource-deleted"
+    id: "deleted",
+    label: "cloud.resources.deleted",
+    icon: "resource-deleted"
   }
-}
+};
 
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,

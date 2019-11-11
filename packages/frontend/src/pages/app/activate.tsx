@@ -9,8 +9,7 @@ const ActivatePage = ({ token }) => {
 ActivatePage.getInitialProps = async ({ query }) => {
   return {
     token: query.token
-  }
+  };
 };
-
 
 export default withApollo(ActivatePage, { requiresSession: false });

@@ -529,7 +529,7 @@ export const GET_CLOUD_RESOURCES = gql`
       searchTitle: $searchTitle
       type: $type
     ) {
-      pagesNumber,
+      pagesNumber
       resources {
         createdAt
         deleted

@@ -280,7 +280,7 @@
       "videos": "Vídeos"
     }
   },
-  "filter":  {
+  "filter": {
     "text": {
       "placeholder": "Buscar..."
     }
