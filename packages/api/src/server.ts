@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-import { set, connect } from "mongoose";
+import * as mongoose from "mongoose";
 import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
@@ -9,9 +9,8 @@ const { ApolloServer, AuthenticationError } = require("apollo-server-koa");
 import { PubSub } from "apollo-server";
 
 import { RedisPubSub } from "graphql-redis-subscriptions";
-import { RedisClient, createClient } from "redis";
-
-const Redis = require("ioredis");
+import * as Redis from "ioredis";
+const redis = require("redis");
 const bluebird = require("bluebird");
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
@@ -22,9 +21,9 @@ const PORT = process.env.PORT;
 
 const mongoUrl: string = process.env.MONGO_URL;
 
-set("debug", true);
-set("useFindAndModify", false); // ojo con esto al desplegar
-connect(
+mongoose.set("debug", true);
+mongoose.set("useFindAndModify", false); // ojo con esto al desplegar
+mongoose.connect(
   mongoUrl,
   { useNewUrlParser: true, useCreateIndex: true },
   (err: any) => {
@@ -62,8 +61,8 @@ if (USE_REDIS === "true") {
 
   // Redis client for session tokens
   // to do async/await
-  bluebird.promisifyAll(RedisClient.prototype);
-  redisClient = createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
+  bluebird.promisifyAll(redis.RedisClient.prototype);
+  redisClient = redis.createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
   redisClient.on("connect", () => {
     console.log("Redis client connected.");
   });
