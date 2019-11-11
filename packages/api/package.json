@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^2.4.3",
+    "@graphql-codegen/cli": "^1.8.3",
     "@nestjs/common": "^5.7.4",
     "@nestjs/core": "^5.7.4",
     "@nestjs/graphql": "^5.5.7",
@@ -82,7 +83,12 @@
     "mjml": "^4.5.1",
     "mjml-with-images-loader": "^2.0.0",
     "nodemon": "^1.18.10",
-    "ts-jest": "^23.10.5"
+    "ts-jest": "^23.10.5",
+    "@graphql-codegen/typescript": "1.8.3",
+    "@graphql-codegen/typescript-resolvers": "1.8.3",
+    "@graphql-codegen/typescript-mongodb": "1.8.3",
+    "@graphql-codegen/typescript-document-nodes": "1.8.3",
+    "@graphql-codegen/introspection": "1.8.3"
   },
   "scripts": {
     "build": "tsc",
@@ -92,7 +98,8 @@
     "dev-inspect": "nodemon --exec npm run start-inspect",
     "prod": "npm run build && npm run start",
     "test": "jest",
-    "migrate-db": "migrate-mongo up"
+    "migrate-db": "migrate-mongo up",
+    "generate-types": "graphql-codegen --config codegen.yml"
   },
   "keywords": [],
   "author": "",
