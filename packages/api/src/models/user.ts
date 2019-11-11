@@ -24,6 +24,7 @@ export interface IUser extends Document {
   country?: string;
   rootFolder?: string;
   lastLogin?: string;
+  finishedSignUp?: boolean;
 }
 
 export const ContactSchema: Schema = new Schema({
@@ -122,6 +123,11 @@ export const ContactSchema: Schema = new Schema({
 
   lastLogin: {
     type: Date
+  },
+
+  finishedSignUp: {
+    type: Boolean,
+    default: false
   },
 
   rootFolder: {

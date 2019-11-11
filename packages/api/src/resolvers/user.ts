@@ -38,7 +38,15 @@ const userResolver = {
         email: args.input.email
       });
       if (contactFound) {
-        throw new ApolloError("This user already exists", "USER_EMAIL_EXISTS");
+        if (contactFound.finishedSignUp) {
+          throw new ApolloError(
+            "This user already exists",
+            "USER_EMAIL_EXISTS"
+          );
+        } else {
+          await FolderModel.deleteMany({ user: contactFound._id });
+          await UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
+        }
       }
       // Store the password with a hash
       const hash: string = await bcryptHash(args.input.password, saltRounds);
@@ -57,7 +65,8 @@ const userResolver = {
         province: args.input.province,
         postCode: args.input.postCode,
         country: args.input.country,
-        lastLogin: new Date()
+        lastLogin: new Date(),
+        finishedSignUp: false
       });
       const newUser: IUser = await UserModel.create(userNew);
 
@@ -122,7 +131,7 @@ const userResolver = {
       );
       await UserModel.findOneAndUpdate(
         { _id: user._id },
-        { $set: { signUpToken, teacher } },
+        { $set: { signUpToken, teacher, finishedSignUp: true } },
         { new: true }
       );
       return "OK";
@@ -134,7 +143,10 @@ const userResolver = {
       args: email and password.
     */
     login: async (root: any, { email, password }) => {
-      const contactFound: IUser = await UserModel.findOne({ email });
+      const contactFound: IUser = await UserModel.findOne({
+        email,
+        finishedSignUp: true
+      });
       if (!contactFound) {
         throw new AuthenticationError("Email or password incorrect");
       }
@@ -216,7 +228,10 @@ const userResolver = {
      * args: email
      */
     resetPasswordEmail: async (root: any, { email }) => {
-      const contactFound: IUser = await UserModel.findOne({ email });
+      const contactFound: IUser = await UserModel.findOne({
+        email,
+        finishedSignUp: true
+      });
       if (!contactFound) {
         throw new AuthenticationError("The email does not exist.");
       }
@@ -261,7 +276,8 @@ const userResolver = {
       const dataInToken = await getResetPasswordData(token);
 
       const contactFound: IUser = await UserModel.findOne({
-        _id: dataInToken.resetPassUserID
+        _id: dataInToken.resetPassUserID,
+        finishedSignUp: true
       });
 
       if (!contactFound) {
@@ -312,7 +328,8 @@ const userResolver = {
       );
 
       const contactFound: IUser = await UserModel.findOne({
-        _id: userInToken.signUpUserID
+        _id: userInToken.signUpUserID,
+        finishedSignUp: true
       });
       if (userInToken.signUpUserID && !contactFound.active) {
         const { token } = await contextController.generateLoginToken(
@@ -347,7 +364,8 @@ const userResolver = {
     deleteUser: async (root: any, args: any, context: any) => {
       const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
-        _id: context.user.userID
+        _id: context.user.userID,
+        finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
         await SubmissionModel.deleteMany({ user: contactFound._id });
@@ -371,7 +389,8 @@ const userResolver = {
     updateUser: async (root: any, args: any, context: any, input: any) => {
       const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
-        _id: context.user.userID
+        _id: context.user.userID,
+        finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
         const data: IUser = args.input;
