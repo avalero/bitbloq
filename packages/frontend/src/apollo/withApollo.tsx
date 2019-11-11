@@ -14,7 +14,7 @@ import {
   watchSession,
   useSessionEvent
 } from "../lib/session";
-import { UserDataContext } from "../lib/useUserData";
+import { UserDataProvider } from "../lib/useUserData";
 import useLogout from "../lib/useLogout";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
@@ -72,10 +72,10 @@ export default function withApollo(
 
     return (
       <ApolloProvider client={client}>
-        <UserDataContext.Provider value={userData}>
+        <UserDataProvider initialUserData={userData}>
           <PageComponent {...pageProps} />
           {requiresSession && <SessionWatcher tempSession={tempSession} />}
-        </UserDataContext.Provider>
+        </UserDataProvider>
       </ApolloProvider>
     );
   };
@@ -134,7 +134,7 @@ export default function withApollo(
       return {
         ...pageProps,
         apolloState,
-        userData: (data && data.me) || {}
+        userData: data && data.me
       };
     };
   }

@@ -45,8 +45,7 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
               document.image.isSnapshot !== undefined
                 ? document.image.isSnapshot
                 : false
-          },
-          content: JSON.stringify(content)
+          }
         },
         context: {
           email,

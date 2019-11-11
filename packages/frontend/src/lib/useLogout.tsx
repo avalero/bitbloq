@@ -8,8 +8,8 @@ const useLogout = () => {
     if (resetToken) {
       setToken("");
     }
-    client.resetStore();
     Router.push("/");
+    client.resetStore();
   };
 };
 

@@ -498,6 +498,10 @@ class Document extends React.Component<any, DocumentState> {
 
                     const { document } = data;
 
+                    if (!document) {
+                      return null;
+                    }
+
                     return (
                       <>
                         <Content>

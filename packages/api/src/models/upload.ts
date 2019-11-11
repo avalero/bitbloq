@@ -10,8 +10,20 @@ export interface IUpload extends Document {
   user: string;
   storageName: string;
   size: number;
+  type: string;
+  image?: string;
+  deleted: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface IResource {
+  id: string;
+  title: string;
+  type: string;
+  thumbnail: string;
+  preview: string;
+  size: number;
 }
 
 const UploadMongSchema: Schema = new Schema({
@@ -20,7 +32,10 @@ const UploadMongSchema: Schema = new Schema({
   encoding: String,
   publicUrl: String,
   size: Number,
+  image: String,
   storageName: String,
+  type: { type: String, enum: ["image", "video", "sound", "object3D"] },
+  deleted: { type: Boolean, default: false },
   document: {
     type: Schema.Types.ObjectId,
     ref: "DocumentModel"

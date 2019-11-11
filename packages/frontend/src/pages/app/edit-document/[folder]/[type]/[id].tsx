@@ -1,12 +1,6 @@
 import { useRouter } from "next/router";
-import dynamic from "next/dynamic";
 
-const EditDocument = dynamic(
-  () => import("../../../../../components/EditDocument"),
-  {
-    ssr: false
-  }
-);
+import EditDocument from "../../../../../components/EditDocument";
 import withApollo from "../../../../../apollo/withApollo";
 
 const EditDocumentPage = () => {

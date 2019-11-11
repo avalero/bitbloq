@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
 import { useMutation } from "react-apollo";
@@ -14,10 +14,13 @@ const ACTIVATE_ACCOUNT_MUTATION = gql`
   }
 `;
 
-const Activate = () => {
+interface IActivateProps {
+  token: string;
+}
+
+const Activate: FC<IActivateProps> = ({ token }) => {
   const [activateAccount] = useMutation(ACTIVATE_ACCOUNT_MUTATION);
   const [error, setError] = useState<ApolloError>();
-  const token = location.search.split("?token=")[1];
 
   useEffect(() => {
     activateAccount({ variables: { token } })

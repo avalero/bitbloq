@@ -1,28 +1,48 @@
-import { IHeaderButton } from "@bitbloq/ui";
+import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
 
-export interface EditorProps {
-  content: any;
-  onContentChange: (content: any) => any;
-  tabIndex: number;
-  onTabChange: (index: number) => any;
-  getTabs: (mainTabs: any) => any;
-  title: string;
-  onEditTitle?: () => any;
-  onSaveDocument?: () => any;
-  brandColor: string;
-  headerButtons?: IHeaderButton[];
-  onHeaderButtonClick?: (id: string) => any;
-  isPlayground?: boolean;
-  headerRightContent?: React.ReactChild;
-  preMenuContent?: React.ReactChild;
-  changeAdvancedMode?: (mode: boolean) => any;
-  documentAdvancedMode?: boolean;
-  backCallback?: () => any;
-  t?: (id: string) => string;
+export interface IEditorProps {
+  document: IDocument;
+  onDocumentChange: (document: IDocument) => any;
+  baseTabs: IDocumentTab[];
+  baseMenuOptions: IMainMenuOption[];
+  children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
 }
 
-export interface Document {
+export interface IDocument {
   title: string;
   description: string;
-  image: any;
+  image: IDocumentImage | string;
+  content: any;
+  advancedMode?: boolean;
+}
+
+export interface IDocumentImage {
+  image: string;
+  isSnapshot: boolean;
+}
+
+export enum OrderType {
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
+}
+
+export enum ResourcesTypes {
+  image = "image",
+  object3D = "object3D",
+  sound = "sound", 
+  video  = "video"
+}
+
+export interface IResource {
+  createdAt: Date;
+  deleted: boolean;
+  id: string;
+  file: string
+  preview?: string;
+  size: number; // Bytes
+  thumbnail?: string;
+  title: string;
+  type: ResourcesTypes;
 }

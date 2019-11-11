@@ -135,9 +135,7 @@ export const createClient = (
               );
             },
             new WebSocketLink({
-              uri: `${window.location.protocol === "https:" ? "wss" : "ws"}://${
-                window.location.host
-              }/api/graphql`,
+              uri: `${process.env.API_URL.replace("http", "ws")}`,
               options: {
                 lazy: true,
                 reconnect: true,
