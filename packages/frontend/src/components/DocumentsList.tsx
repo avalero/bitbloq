@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation, useLazyQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { DialogModal, DropDown } from "@bitbloq/ui";
 import { useDrop } from "react-dnd";
@@ -9,7 +9,8 @@ import {
   DELETE_DOCUMENT_MUTATION,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION
+  CREATE_DOCUMENT_MUTATION,
+  HAS_EXERCISES_QUERY
 } from "../apollo/queries";
 import DocumentCard from "./DocumentCard";
 import DocumentCardMenu from "./DocumentCardMenu";
@@ -51,12 +52,14 @@ const DocumentListComp: FC<DocumentListProps> = ({
   nFolders
 }) => {
   const [deleteDoc, setDeleteDoc] = useState({
-    id: null,
-    hasChildren: null
+    id: null
   });
   const [deleteFol, setDeleteFol] = useState({
+    id: null
+  });
+  const [selectedToDel, setSelectedToDel] = useState({
     id: null,
-    hasChildren: null
+    type: null
   });
   const [editDocTitleModal, setEditDocTitleModal] = useState({
     id: null,
@@ -81,6 +84,16 @@ const DocumentListComp: FC<DocumentListProps> = ({
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
+
+  const [
+    hasExercises,
+    { data: hasExercisesRes, error: errorHasEx, loading: loadingHasEx }
+  ] = useLazyQuery(HAS_EXERCISES_QUERY, {
+    variables: {
+      id: selectedToDel.id,
+      type: selectedToDel.type
+    }
+  });
 
   const [, drop] = useDrop({
     accept: ["document", "folder"],
@@ -119,16 +132,24 @@ const DocumentListComp: FC<DocumentListProps> = ({
       id: null,
       parent: null
     });
-    setDeleteDoc({ id: document.id, hasChildren: document.hasChildren });
+    setSelectedToDel({ id: document.id, type: document.type });
+    setDeleteDoc({
+      id: document.id
+    });
+    hasExercises();
   };
 
   const confirmDeleteDoc = () => {
-    if (deleteDoc.hasChildren) {
-      setDocWithEx(true);
-      return;
-    } else {
-      onDeleteDocument();
-      return;
+    if (loadingHasEx || !hasExercisesRes) {
+    }
+    if (!errorHasEx && hasExercisesRes !== undefined) {
+      if (hasExercisesRes && hasExercisesRes.hasExercises) {
+        setDocWithEx(true);
+        return;
+      } else {
+        onDeleteDocument();
+        return;
+      }
     }
   };
 
@@ -137,7 +158,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
       variables: { id: deleteDoc.id }
     });
     refetchDocsFols();
-    setDeleteDoc({ id: null, hasChildren: null });
+    setDeleteDoc({ id: null });
     setDocWithEx(false);
   };
 
@@ -156,16 +177,22 @@ const DocumentListComp: FC<DocumentListProps> = ({
       id: null,
       parent: null
     });
-    setDeleteFol({ id: folder.id, hasChildren: folder.hasChildren });
+    setSelectedToDel({ id: folder.id, type: folder.type });
+    setDeleteFol({ id: folder.id });
+    hasExercises();
   };
 
-  const confirmDeleteFol = () => {
-    if (deleteFol.hasChildren) {
-      setFolWithChildren(true);
-      return;
-    } else {
-      onDeleteFolder();
-      return;
+  const confirmDeleteFol = async () => {
+    if (loadingHasEx || !hasExercisesRes) {
+    }
+    if (!errorHasEx && hasExercisesRes !== undefined) {
+      if (hasExercisesRes && hasExercisesRes.hasExercises) {
+        setFolWithChildren(true);
+        return;
+      } else {
+        onDeleteFolder();
+        return;
+      }
     }
   };
 
@@ -175,7 +202,7 @@ const DocumentListComp: FC<DocumentListProps> = ({
     });
     refetchDocsFols();
     setFolWithChildren(false);
-    setDeleteFol({ id: null, hasChildren: null });
+    setDeleteFol({ id: null });
   };
 
   const onUpdateDocTitle = async docTitle => {
@@ -436,7 +463,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
         okText="Aceptar"
         cancelText="Cancelar"
         onOk={confirmDeleteDoc}
-        onCancel={() => setDeleteDoc({ id: null, hasChildren: null })}
+        onCancel={() => {
+          setDeleteDoc({ id: null });
+          setSelectedToDel({ id: null, type: null });
+        }}
       />
       <DialogModal
         isOpen={!!deleteFol.id}
@@ -445,7 +475,10 @@ const DocumentListComp: FC<DocumentListProps> = ({
         okText="Aceptar"
         cancelText="Cancelar"
         onOk={confirmDeleteFol}
-        onCancel={() => setDeleteFol({ id: null, hasChildren: null })}
+        onCancel={() => {
+          setDeleteFol({ id: null });
+          setSelectedToDel({ id: null, type: null });
+        }}
       />
       <DialogModal
         isOpen={!!docWithEx}
@@ -455,7 +488,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteDocument}
         onCancel={() => {
-          setDeleteDoc({ id: null, hasChildren: null });
+          setSelectedToDel({ id: null, type: null });
+          setDeleteDoc({ id: null });
           setDocWithEx(false);
         }}
       />
@@ -467,7 +501,8 @@ const DocumentListComp: FC<DocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteFolder}
         onCancel={() => {
-          setDeleteFol({ id: null, hasChildren: null });
+          setSelectedToDel({ id: null, type: null });
+          setDeleteFol({ id: null });
           setFolWithChildren(false);
         }}
       />
@@ -505,7 +540,6 @@ const DocumentList = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   grid-column-gap: 20px;
   grid-row-gap: 40px;
-  margin-bottom: 40px;
 
   &::before {
     content: "";

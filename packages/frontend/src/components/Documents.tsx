@@ -8,9 +8,7 @@ import {
   colors,
   Icon,
   DropDown,
-  Select,
   Spinner,
-  Input,
   HorizontalRule
 } from "@bitbloq/ui";
 import Router from "next/router";
@@ -18,59 +16,37 @@ import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { ApolloError } from "apollo-client";
 import {
-  CREATE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   CREATE_FOLDER_MUTATION,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
+import { OrderType } from "../types";
 import AppFooter from "./Footer";
 import AppHeader from "./AppHeader";
 import Breadcrumbs from "./Breadcrumbs";
+import CloudModal from "./CloudModal";
 import DocumentList from "./DocumentsList";
 import EditTitleModal from "./EditTitleModal";
+import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import Layout from "./Layout";
 import NewDocumentDropDown from "./NewDocumentDropDown";
 import NewExerciseButton from "./NewExerciseButton";
 import UserSession from "./UserSession";
 
-enum OrderType {
-  Creation = "creation",
-  Modification = "modification",
-  NameAZ = "nameAZ",
-  NameZA = "nameZA"
-}
-
-const orderOptions = [
-  {
-    label: "Orden: Creación",
-    value: OrderType.Creation
-  },
-  {
-    label: "Orden: Modificación",
-    value: OrderType.Modification
-  },
-  {
-    label: "Orden: Nombre A-Z",
-    value: OrderType.NameAZ
-  },
-  {
-    label: "Orden: Nombre Z-A",
-    value: OrderType.NameZA
-  }
-];
-
 const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
 
-  const [order, setOrder] = useState(OrderType.Creation);
+  const [cloudModalOpen, setCloudModalOpen] = useState(false);
+  const [order, setOrder] = useState<OrderType>(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagesNumber, setPagesNumber] = useState(1);
   const [currentLocation] = useState({
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
@@ -85,7 +61,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   let openFile = React.createRef<HTMLInputElement>();
 
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
   const [documentsData, setDocumentsData] = useState<any>({});
   const [error, setError] = useState<ApolloError>();
@@ -110,6 +85,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     if (!loading && !errorQuery) {
       setError(null);
       setDocumentsData(resultData);
+      setPagesNumber(resultData.documentsAndFolders.pagesNumber);
     }
     if (errorQuery) {
       setError(errorQuery);
@@ -122,6 +98,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const onFolderClick = async ({ id, title }) => {
     Router.push(`/app/folder/${id}`);
   };
+
+  useEffect(() => {
+    if (currentPage > pagesNumber) {
+      setCurrentPage(pagesNumber);
+    }
+  }, [pagesNumber]);
 
   const onDocumentClick = ({ id, type, title }) => {
     setBreadcrumbsLinks([
@@ -147,17 +129,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     window.open(`/app/edit-document/${currentLocation.id}/${type}/new`);
   };
 
-  const onDocumentCreated = ({ createDocument: { id, type } }) => {
-    Router.push(`/app/edit-document/${currentLocation.id}/${type}/${id}`);
-  };
-
-  const onOrderChange = order => {
+  const onOrderChange = (order: OrderType) => {
     setOrder(order);
     refetchDocsFols();
   };
 
   const onOpenDocumentClick = () => {
-    refetchDocsFols();
     openFile.current.click();
   };
 
@@ -187,42 +164,43 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   }, 500);
 
   const onFileSelected = file => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const document = JSON.parse(reader.result as string);
-      const { data } = await createDocument({
-        variables: {
-          ...document,
-          image: {
-            image: document.image.image ? document.image.image : document.image,
-            isSnapshot:
-              document.image.isSnapshot !== undefined
-                ? document.image.isSnapshot
-                : false
-          },
-          folder: currentLocation.id
-        }
-      });
-      refetchDocsFols();
-      onDocumentCreated(data);
-    };
-
-    reader.readAsText(file);
+    if (file) {
+      window.open(`/app/edit-document/${currentLocation.id}/open/new`);
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const document = JSON.parse(reader.result as string);
+        const channel = new BroadcastChannel("bitbloq-documents");
+        channel.onmessage = event => {
+          if (event.data.command === "open-document-ready") {
+            channel.postMessage({ document, command: "open-document" });
+            channel.close();
+          }
+        };
+      };
+      reader.readAsText(file);
+      if (openFile.current) {
+        openFile.current.value = "";
+      }
+    }
   };
 
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
-  }
-  if (!documentsData || !documentsData.documentsAndFolders) {
+  } else if (loading || !documentsData.documentsAndFolders) {
     return (
       <Container>
-        <Loading />
+        <AppHeader>
+          <UserSession />
+        </AppHeader>
+        <Content>
+          <Loading />
+        </Content>
+        <AppFooter />
       </Container>
     );
   }
 
   const {
-    pagesNumber,
     result: docsAndFols,
     parentsPath,
     nFolders
@@ -237,106 +215,95 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   return (
     <Container>
       <AppHeader>
-        <UserSession />
+        <UserSession cloudClick={() => setCloudModalOpen(true)} />
       </AppHeader>
-      <Layout>
-        <Content>
-          <Header>
-            {currentLocation.id === (userData && userData.rootFolder) ? (
-              <h1>Mis documentos</h1>
-            ) : (
-              <Breadcrumbs links={breadParents} />
-            )}
-          </Header>
-          <Rule />
-          <DocumentListHeader>
-            {(docsAndFols.length > 0 || searchQuery) && (
-              <>
-                <ViewOptions>
-                  <OrderSelect
-                    options={orderOptions}
-                    onChange={onOrderChange}
-                    selectConfig={{ isSearchable: false }}
-                  />
-                </ViewOptions>
-                <SearchInput
-                  value={searchText}
-                  onChange={e => (
-                    setSearchText(e.target.value), onSearchInput(e.target.value)
-                  )}
-                  placeholder="Buscar..."
-                />
-              </>
-            )}
-            <HeaderButtons>
-              <NewFolderButton
-                tertiary
-                onClick={() => {
-                  setFolderTitleModal(true);
-                }}
-              >
-                <Icon name="new-folder" />
-                Nueva carpeta
-              </NewFolderButton>
-              <NewExerciseButton
-                onOpenExercise={onOpenExercise}
-                exerciseError={exerciseError}
-                loadingExercise={loadingExercise}
-              />
-              <DropDown
-                attachmentPosition={"top center"}
-                targetPosition={"bottom center"}
-              >
-                {(isOpen: boolean) => (
-                  <NewDocumentButton tertiary isOpen={isOpen}>
-                    <Icon name="new-document" />
-                    Nuevo documento
-                  </NewDocumentButton>
-                )}
-                <NewDocumentDropDown
-                  onNewDocument={onNewDocument}
-                  onOpenDocument={onOpenDocumentClick}
-                  arrowOffset={10}
-                />
-              </DropDown>
-            </HeaderButtons>
-          </DocumentListHeader>
-          {docsAndFols.length > 0 ? (
-            <DndProvider backend={HTML5Backend}>
-              <DocumentList
-                currentPage={currentPage}
-                parentsPath={parentsPath}
-                pagesNumber={pagesNumber}
-                refetchDocsFols={refetchDocsFols}
-                docsAndFols={docsAndFols}
-                currentLocation={currentLocation}
-                onFolderClick={onFolderClick}
-                onDocumentClick={onDocumentClick}
-                selectPage={(page: number) => setCurrentPage(page)}
-                nFolders={nFolders}
-              />
-            </DndProvider>
-          ) : searchQuery ? (
-            <NoDocuments>
-              <h1>No hay resultados para tu búsqueda</h1>
-            </NoDocuments>
+      <Content>
+        <Header>
+          {currentLocation.id === (userData && userData.rootFolder) ? (
+            <h1>Mis documentos</h1>
           ) : (
-            <NoDocuments>
-              <h1>No tienes ningún documento</h1>
-              <p>
-                Puedes crear un documento nuevo o subir uno desde tu ordenador.
-              </p>
-            </NoDocuments>
+            <Breadcrumbs links={breadParents} />
           )}
-          <Subscription
-            subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-            shouldResubscribe={true}
-            onSubscriptionData={() => {
-              refetchDocsFols();
-            }}
-          />
-        </Content>
-      </Layout>
+        </Header>
+        <Rule />
+        <DocumentListHeader>
+          {(docsAndFols.length > 0 || searchQuery) && (
+            <FilterOptions
+              onOrderChange={onOrderChange}
+              searchText={searchText}
+              onChange={(value: string) => (
+                setSearchText(value), onSearchInput(value)
+              )}
+            />
+          )}
+          <HeaderButtons>
+            <NewFolderButton
+              tertiary
+              onClick={() => {
+                setFolderTitleModal(true);
+              }}
+            >
+              <Icon name="new-folder" />
+              Nueva carpeta
+            </NewFolderButton>
+            <NewExerciseButton
+              onOpenExercise={onOpenExercise}
+              exerciseError={exerciseError}
+              loadingExercise={loadingExercise}
+            />
+            <DropDown
+              attachmentPosition={"top center"}
+              targetPosition={"bottom center"}
+            >
+              {(isOpen: boolean) => (
+                <NewDocumentButton tertiary isOpen={isOpen}>
+                  <Icon name="new-document" />
+                  Nuevo documento
+                </NewDocumentButton>
+              )}
+              <NewDocumentDropDown
+                onNewDocument={onNewDocument}
+                onOpenDocument={onOpenDocumentClick}
+                arrowOffset={10}
+              />
+            </DropDown>
+          </HeaderButtons>
+        </DocumentListHeader>
+        {docsAndFols.length > 0 ? (
+          <DndProvider backend={HTML5Backend}>
+            <DocumentList
+              currentPage={currentPage}
+              parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
+              refetchDocsFols={refetchDocsFols}
+              docsAndFols={docsAndFols}
+              currentLocation={currentLocation}
+              onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
+              selectPage={(page: number) => setCurrentPage(page)}
+              nFolders={nFolders}
+            />
+          </DndProvider>
+        ) : searchQuery ? (
+          <NoDocuments>
+            <h1>No hay resultados para tu búsqueda</h1>
+          </NoDocuments>
+        ) : (
+          <NoDocuments>
+            <h1>No tienes ningún documento</h1>
+            <p>
+              Puedes crear un documento nuevo o subir uno desde tu ordenador.
+            </p>
+          </NoDocuments>
+        )}
+        <Subscription
+          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={() => {
+            refetchDocsFols();
+          }}
+        />
+      </Content>
       <input
         ref={openFile}
         type="file"
@@ -355,6 +322,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         />
       )}
       <AppFooter />
+      <CloudModal isOpen={cloudModalOpen} onClose={() => setCloudModalOpen(false)} />
     </Container>
   );
 };
@@ -368,10 +336,13 @@ export default DocumentsWithDelete;
 const Container = styled.div`
   background-color: ${colors.gray1};
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 `;
 
-const Content = styled.div`
-  min-height: calc(100vh - 60px - 54px);
+const Content = styled(Layout)`
+  flex: 1;
+  width: 100%;
 `;
 
 const Header = styled.div`
@@ -392,7 +363,7 @@ const Header = styled.div`
 `;
 
 const Loading = styled(Spinner)`
-  height: 100vh;
+  height: 100%;
 `;
 
 const Rule = styled(HorizontalRule)`
@@ -409,19 +380,6 @@ const HeaderButtons = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
-`;
-
-const ViewOptions = styled.div`
-  margin-right: 10px;
-`;
-
-const OrderSelect = styled(Select)`
-  width: 200px;
-`;
-
-const SearchInput = styled(Input)`
-  width: 210px;
-  flex: inherit;
 `;
 
 interface INewDocumentButtonProps {

@@ -11,7 +11,7 @@ import { setToken } from "../lib/session";
 const LoginPage: FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [logingError, setLogingError] = useState(false);
+  const [loginError, setLogingError] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
   const client = useApolloClient();
@@ -39,8 +39,8 @@ const LoginPage: FC = () => {
     <AccessLayout panelTitle="Entrar">
       <LoginPanel
         email={email}
-        logingError={logingError}
-        logingIn={loggingIn}
+        loginError={loginError}
+        loginIn={loggingIn}
         password={password}
         onLoginClick={onLoginClick}
         secondaryButtonCallback={() => Router.push("/signup")}

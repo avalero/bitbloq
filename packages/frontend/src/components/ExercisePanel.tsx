@@ -354,7 +354,6 @@ const SubmissionMenu = styled(DocumentCardMenu)`
 const NoSubmissions = styled.div`
   align-items: center;
   border-top: 1px solid #c0c3c9;
-  color: #323843;
   display: flex;
   font-size: 14px;
   font-style: italic;

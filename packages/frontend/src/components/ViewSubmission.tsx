@@ -1,88 +1,66 @@
-import * as React from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { Query } from "react-apollo";
-import { colors, Spinner } from "@bitbloq/ui";
+import { useQuery } from "@apollo/react-hooks";
+import { colors, Spinner, Document, useTranslate, Icon } from "@bitbloq/ui";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { documentTypes } from "../config";
-import gql from "graphql-tag";
-
-const SUBMISSION_QUERY = gql`
-  query Submission($id: ObjectID!) {
-    submission(id: $id) {
-      title
-      studentNick
-      content
-    }
-  }
-`;
+import { SUBMISSION_QUERY } from "../apollo/queries";
 
 interface IViewSubmissionProps {
   id: string;
   type: string;
 }
 
-interface IViewSubmissionState {
-  tabIndex: number;
-}
+const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
+  const t = useTranslate();
+  const [tabIndex, setTabIndex] = useState(0);
+  const documentType = documentTypes[type];
+  const EditorComponent = documentType.editorComponent;
+  const { data, loading, error } = useQuery(SUBMISSION_QUERY, {
+    variables: { id }
+  });
 
-class ViewSubmission extends React.Component<
-  IViewSubmissionProps,
-  IViewSubmissionState
-> {
-  constructor(props) {
-    super(props);
+  if (loading) return <Loading color={documentType.color} />;
+  if (error) return <GraphQLErrorMessage apolloError={error!} />;
 
-    this.state = { tabIndex: 0 };
-  }
+  const { submission } = data;
+  const { title, studentNick } = submission;
 
-  render() {
-    const { id, type } = this.props;
-    const { tabIndex } = this.state;
+  const menuOptions = [
+    {
+      id: "file",
+      label: t("menu-file"),
+      children: []
+    }
+  ];
 
-    const documentType = documentTypes[type];
-    const EditorComponent = documentType.editorComponent;
-
-    return (
-      <Query query={SUBMISSION_QUERY} variables={{ id }}>
-        {({ loading, error, data }) => {
-          if (error) {
-            if (error.graphQLErrors[0].extensions.code === "UNAUTHENTICATED")
-              error.graphQLErrors[0].extensions.code = "NOT_YOUR_DOCUMENT";
-            return <GraphQLErrorMessage apolloError={error} />;
-          }
-          if (loading) return <Loading />;
-
-          const { submission } = data;
-          const { title, studentNick, type } = submission;
-          let content = [];
-          try {
-            content = JSON.parse(submission.content);
-          } catch (e) {
-            console.warn("Error parsing document content", e);
-          }
-
-          return (
-            <EditorComponent
-              brandColor={documentType.color}
-              content={content}
-              tabIndex={tabIndex}
-              onTabChange={(tab: number) => this.setState({ tabIndex: tab })}
-              getTabs={(mainTabs: any[]) => mainTabs}
-              title={`${title} (${studentNick})`}
-              onContentChange={() => null}
-            />
-          );
-        }}
-      </Query>
-    );
-  }
-}
+  return (
+    <EditorComponent
+      document={submission}
+      onDocumentChange={() => null}
+      baseTabs={[]}
+      baseMenuOptions={menuOptions}
+    >
+      {documentProps => (
+        <Document
+          icon={<Icon name={documentType.icon} />}
+          brandColor={documentType.color}
+          tabIndex={tabIndex}
+          onTabChange={setTabIndex}
+          getTabs={(mainTabs: any[]) => mainTabs}
+          title={`${title} (${studentNick})`}
+          {...documentProps}
+        />
+      )}
+    </EditorComponent>
+  );
+};
 
 export default ViewSubmission;
 
 /* styled components */
 
-const Loading = styled(Spinner)`
+const Loading = styled(Spinner)<{ color: string }>`
   position: absolute;
   top: 0px;
   left: 0px;

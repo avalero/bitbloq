@@ -77,7 +77,6 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
         updatedAt
         image
         parent
-        hasChildren
       }
       parentsPath {
         id
@@ -86,6 +85,12 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
       pagesNumber
       nFolders
     }
+  }
+`;
+
+export const HAS_EXERCISES_QUERY = gql`
+  query HasExercises($id: ObjectID!, $type: String) {
+    hasExercises(id: $id, type: $type)
   }
 `;
 
@@ -369,6 +374,16 @@ export const EXERCISE_DELETE_MUTATION = gql`
   }
 `;
 
+export const SUBMISSION_QUERY = gql`
+  query Submission($id: ObjectID!) {
+    submission(id: $id) {
+      title
+      studentNick
+      content
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission {
     submission {
@@ -505,6 +520,53 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
       token
       exerciseID
       type
+    }
+  }
+`;
+
+export const GET_CLOUD_RESOURCES = gql`
+  query CloudResources(
+    $deleted: Boolean
+    $currentPage: Number
+    $order: String
+    $searchTitle: String
+    $type: String
+  ) {
+    cloudResources(
+      deleted: $deleted
+      currentPage: $currentPage
+      order: $order
+      searchTitle: $searchTitle
+      type: $type
+    ) {
+      pagesNumber,
+      resources {
+        createdAt
+        deleted
+        id
+        file
+        preview
+        size
+        thumbnail
+        title
+        type
+      }
+    }
+  }
+`;
+
+export const MOVE_RESOURCE_TO_TRASH = gql`
+  mutation MoveToTrash($id: ObjectID) {
+    moveToTrash(id: $id) {
+      id
+    }
+  }
+`;
+
+export const RESTORE_RESOURCE_FROM_TRASH = gql`
+  mutation RestoreResource($id: ObjectID) {
+    restoreResource(id: $id) {
+      id
     }
   }
 `;
