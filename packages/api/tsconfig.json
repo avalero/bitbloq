@@ -8,7 +8,7 @@
     "outDir": "./dist",
     "baseUrl": "./lib",
     "forceConsistentCasingInFileNames": true,
-    "suppressImplicitAnyIndexErrors": true,    
+    "suppressImplicitAnyIndexErrors": true,
 },
   "files": [
     "./node_modules/@types/node/index.d.ts"

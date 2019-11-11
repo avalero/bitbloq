@@ -9,7 +9,23 @@ const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
-let publicUrl: string, fileSize: number;
+let publicUrl: string; 
+let fileSize: number;
+
+const acceptedFiles = {
+  image: [
+    ".png",".gif",".jpg", ".jpeg", "webp"
+  ],
+  video: [
+    ".mp4",".webm"
+  ],
+  sound: [
+    ".mp3",".ocg"
+  ],
+  object3D: [
+    ".stl"
+  ]
+}
 
 const normalize = (function() {
   let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
@@ -219,6 +235,34 @@ const uploadResolver = {
           ""
         );
       });
+    },
+    uploadCloudResource: async (root: any, args: any, context: any) => {
+      const { createReadStream, filename, mimetype, encoding } = await args.file;
+      if (!createReadStream || !filename || !mimetype || !encoding) {
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
+      }
+      const extension: string=filename.split(/[\s.]+/);
+      console.log(extension);
+      for (let type in acceptedFiles) {
+        console.log(type);
+        console.log(acceptedFiles[type]);
+      }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(uniqueName)}`;
+      // return new Promise((resolve, reject) => {
+      //   processUpload(
+      //     resolve,
+      //     reject,
+      //     createReadStream,
+      //     gcsName,
+      //     documentID,
+      //     filename,
+      //     mimetype,
+      //     encoding,
+      //     userID,
+      //     ""
+      //   );
+      // });
     },
     uploadSTLFile: async (root: any, args: any, context: any) => {
       const {
