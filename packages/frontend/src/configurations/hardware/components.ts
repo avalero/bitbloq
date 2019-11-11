@@ -244,12 +244,6 @@ export const components: Array<Partial<IComponent>> = [
                 analogWrite({{pinVarName}}PinGreen,(int[3]){{value}}[1]);
                 analogWrite({{pinVarName}}PinBlue,(int[3]){{value}}[2]);
                 `
-        // code: `
-        // uint8_t {{pinVarName}}color[3] = {{value}} ;
-        // analogWrite({{pinVarName}}PinRed,{{pinVarName}}color[0]);
-        // analogWrite({{pinVarName}}PinGreen,{{pinVarName}}color[1]);
-        // analogWrite({{pinVarName}}PinBlue,{{pinVarName}}color[2]);
-        // `
       }
     ],
     instanceName: "bloq-digitalrgbled-instance-name",
