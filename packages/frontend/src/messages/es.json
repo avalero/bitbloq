@@ -50,6 +50,7 @@
   "menu-open-document": "Abrir documento",
   "menu-change-name": "Cambiar nombre",
   "menu-duplicate-document": "Crear una copia",
+  "menu-import-resource": "Importar recurso",
   "menu-import-stl": "Importar un archivo STL",
   "menu-export-stl": "Exportar la escena en formato STL",
   "menu-change-language": "Cambiar idioma",
@@ -278,6 +279,13 @@
       "objects": "Objetos 3D",
       "sounds": "Sonidos",
       "videos": "Vídeos"
+    },
+    "upload": {
+      "add": "Añadir un recurso ya importado",
+      "drag": "Arrastra un archivo aquí",
+      "import": "Importar un nuevo recurso",
+      "select": "O selecciona un archivo",
+      "title": "Añadir recurso importado"
     }
   },
   "filter":  {
