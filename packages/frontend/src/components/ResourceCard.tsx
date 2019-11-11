@@ -7,6 +7,8 @@ import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
   className?: string;
+  click?: (id: string) => void;
+  importResource: boolean;
   moveToTrash: (id: string) => void;
   restoreFromTrash: (id: string) => void;
   selectResource: (id: string) => void;
@@ -14,8 +16,10 @@ interface IResourceCardProps extends IResource {
 
 const ResourceCard: FC<IResourceCardProps> = ({
   className,
+  click,
   deleted,
   id,
+  importResource,
   moveToTrash,
   restoreFromTrash,
   selectResource,
@@ -49,7 +53,12 @@ const ResourceCard: FC<IResourceCardProps> = ({
   }, []);
 
   return (
-    <ResourceContainer className={className} isOpen={true}>
+    <ResourceContainer
+      className={className}
+      importResource={importResource}
+      isOpen={true}
+      onClick={() => importResource && click && click(id)}
+    >
       <DropDown
         attachmentPosition="top left"
         constraints={[
@@ -125,10 +134,14 @@ const ResourceCardMenu = styled(DocumentCardMenu)`
   min-width: 200px;
 `;
 
-const ResourceContainer = styled.div<{ isOpen?: boolean }>`
+const ResourceContainer = styled.div<{
+  importResource?: boolean;
+  isOpen?: boolean;
+}>`
+  background-color: #fff;
   border: solid 1px #ccc;
   border-radius: 4px;
-  cursor: default;
+  cursor: ${props => (props.importResource ? "pointer" : "default")};
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
@@ -137,10 +150,12 @@ const ResourceContainer = styled.div<{ isOpen?: boolean }>`
   width: 100%;
 
   &:hover {
+    background-color: ${props => (props.importResource ? "#f1f1f1" : "#fff")};
     border: solid 1px #373b44;
 
     ${CardMenuButton} {
-      visibility: ${props => (props.isOpen ? "visible" : "hidden")};
+      visibility: ${props =>
+        props.isOpen && !props.importResource ? "visible" : "hidden"};
     }
 
     ${Image} {
