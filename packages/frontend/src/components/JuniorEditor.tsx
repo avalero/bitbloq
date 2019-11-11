@@ -1,40 +1,50 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
+import { Icon, useTranslate } from "@bitbloq/ui";
 import { bloqTypes, boards, components } from "../config";
-import { EditorProps } from "../types";
+import { IEditorProps } from "../types";
+import useDocumentContent from "../lib/useDocumentContent";
 
-const JuniorEditor: React.FunctionComponent<EditorProps> = ({
-  content,
-  onContentChange,
-  brandColor,
-  tabIndex,
-  onTabChange,
-  getTabs,
-  title,
-  onEditTitle,
-  headerRightContent,
-  backCallback,
-  headerButtons,
-  onHeaderButtonClick
+const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
+  document,
+  onDocumentChange,
+  baseTabs,
+  baseMenuOptions,
+  children
 }) => {
+  const t = useTranslate();
+
+  const [initialContent, onContentChange] = useDocumentContent(
+    document,
+    onDocumentChange
+  );
+
   return (
     <Junior
-      brandColor={brandColor}
-      tabIndex={tabIndex}
-      onTabChange={onTabChange}
-      title={title}
-      onEditTitle={onEditTitle}
       bloqTypes={bloqTypes}
-      initialContent={content || {}}
+      initialContent={initialContent || {}}
       onContentChange={onContentChange}
       boards={boards}
       components={components}
-      backCallback={backCallback}
-      headerRightContent={headerRightContent}
-      headerButtons={headerButtons}
-      onHeaderButtonClick={onHeaderButtonClick}
     >
-      {getTabs}
+      {(hardware, software) =>
+        children({
+          tabs: [
+            {
+              icon: <Icon name="hardware" />,
+              label: t("junior.hardware"),
+              content: hardware
+            },
+            {
+              icon: <Icon name="programming" />,
+              label: t("junior.software"),
+              content: software
+            },
+            ...baseTabs
+          ],
+          menuOptions: baseMenuOptions
+        })
+      }
     </Junior>
   );
 };
