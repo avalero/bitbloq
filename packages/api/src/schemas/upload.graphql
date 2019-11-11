@@ -40,6 +40,7 @@ type Query {
 
 type Mutation {
   singleUpload(file: Upload!, documentID: ObjectID): File
+  uploadCloudResource(file: Upload!): File @authRequired(requires: [USER])
   uploadSTLFile(file: Upload!, documentID: ObjectID): File
     @authRequired(requires: [USER])
   uploadImageFile(file: Upload!, documentID: ObjectID): File

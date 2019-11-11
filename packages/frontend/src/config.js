@@ -13,7 +13,7 @@ export { addShapeGroups, bloqTypes, boards, components };
 const ENABLED_TOOLS = process.env.ENABLED_TOOLS || [];
 
 const CreateDynamicComponent = (fn, loadingColor) =>
-  dynamic(fn, { loading: () => <Loading color={loadingColor} /> });
+  dynamic(fn, { ssr: false, loading: () => <Loading color={loadingColor} /> });
 
 export const documentTypes = {
   junior: {

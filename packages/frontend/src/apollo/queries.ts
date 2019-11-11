@@ -374,6 +374,16 @@ export const EXERCISE_DELETE_MUTATION = gql`
   }
 `;
 
+export const SUBMISSION_QUERY = gql`
+  query Submission($id: ObjectID!) {
+    submission(id: $id) {
+      title
+      studentNick
+      content
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission {
     submission {

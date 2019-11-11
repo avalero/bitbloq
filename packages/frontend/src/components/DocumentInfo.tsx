@@ -2,14 +2,14 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors, Button } from "@bitbloq/ui";
 
-import { Document } from "../types";
+import { IDocument, IDocumentImage } from "../types";
 
-interface DocumentInfoProps {
-  document: Document;
+interface IDocumentInfoProps {
+  document: IDocument;
   onGotoDocument: () => any;
 }
 
-const DocumentInfo: FC<DocumentInfoProps> = ({ document, onGotoDocument }) => {
+const DocumentInfo: FC<IDocumentInfoProps> = ({ document, onGotoDocument }) => {
   const { title, description, image } = document;
 
   return (
@@ -17,7 +17,13 @@ const DocumentInfo: FC<DocumentInfoProps> = ({ document, onGotoDocument }) => {
       <Left>
         <LeftContent>
           <h2>{title}</h2>
-          <Image src={image.image ? image.image : (image as string)} />
+          <Image
+            src={
+              (image as IDocumentImage).image!
+                ? (image as IDocumentImage).image
+                : (image as string)
+            }
+          />
         </LeftContent>
       </Left>
       <Right>
