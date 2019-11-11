@@ -54,7 +54,12 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({ setTab, tab }) => {
       <Body>
         {tab === TabType.import ? (
           <ResourceInput>
-            <input onChange={e => console.log(e)} ref={inputRef} type="file" />
+            <input
+              onChange={e => console.log(e)}
+              onClick={e => e.isTrusted && e.preventDefault()}
+              ref={inputRef}
+              type="file"
+            />
             <Icon name="drag-file" />
             <p>{t("cloud.upload.drag")}</p>
             <SelectModalButton onClick={() => onOpenSelect()} tertiary>
@@ -124,7 +129,7 @@ const Tab = styled.div<{ active: boolean }>`
   background-color: ${props => (props.active ? "#fff" : "#eee")};
   border-bottom: ${props => (props.active ? "" : "solid 1px #ddd")};
   color: #5d6069;
-  cursor: pointer;
+  cursor: ${props => (props.active ? "default" : "pointer")};
   display: flex;
   font-size: 14px;
   font-weight: bold;
