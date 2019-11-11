@@ -9,8 +9,8 @@ type Query {
   me: User @authRequired(requires: [USER])
 }
 type Mutation {
-  signUpUser(input: UserIn!): UserStep1
-  selectUserPlanAndFinishSignUp(id: ObjectID!, userPlan: String!): String
+  saveUserData(input: UserIn!): UserStep1
+  finishSignUp(id: ObjectID!, userPlan: String!): String
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
   renewToken: String

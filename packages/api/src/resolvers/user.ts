@@ -29,11 +29,11 @@ const userResolver = {
     // Public mutations:
 
     /**
-     * Sign up user: register a new uer.
-     * It sends a e-mail to activate the account and check if the registered account exists.
+     * Save user: register the data of a new uer.
+     * It saves the new user data if the email passed as argument is not registered yet.
      * args: email, password and user information.
      */
-    signUpUser: async (root: any, args: any) => {
+    saveUserData: async (root: any, args: any) => {
       const contactFound: IUser = await UserModel.findOne({
         email: args.input.email
       });
@@ -85,11 +85,12 @@ const userResolver = {
     },
 
     /**
-     * Sign up user: register a new uer.
-     * It sends a e-mail to activate the account and check if the registered account exists.
-     * args: email, password and user information.
+     * Finish sign up: checks if the user id passed as argument is registered in platform
+     * and update the user plan.
+     * It sends a e-mail to activate the account.
+     * args: userID and plan selected("member" or "teacher").
      */
-    selectUserPlanAndFinishSignUp: async (root: any, args: any) => {
+    finishSignUp: async (root: any, args: any) => {
       const user: IUser = await UserModel.findOne({
         _id: args.id,
         active: false
