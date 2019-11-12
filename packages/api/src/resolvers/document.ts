@@ -338,26 +338,28 @@ const documentResolver = {
       const filterOptionsDoc =
         text === ""
           ? {
-              folder: currentLocation
+              folder: currentLocation,
+              title: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
             }
-          : {};
+          : {
+              title: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
       const filterOptionsFol =
         text === ""
           ? {
-              parent: currentLocation
+              parent: currentLocation,
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
             }
-          : {};
+          : {
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
 
-      const docs: IDocument[] = await DocumentModel.find({
-        title: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsDoc
-      });
-      const fols: IFolder[] = await FolderModel.find({
-        name: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsFol
-      });
+      const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
 
       const docsParent = await Promise.all(
         docs.map(
