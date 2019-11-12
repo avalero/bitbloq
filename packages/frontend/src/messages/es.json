@@ -50,6 +50,7 @@
   "menu-open-document": "Abrir documento",
   "menu-change-name": "Cambiar nombre",
   "menu-duplicate-document": "Crear una copia",
+  "menu-import-resource": "Importar recurso",
   "menu-import-stl": "Importar un archivo STL",
   "menu-export-stl": "Exportar la escena en formato STL",
   "menu-change-language": "Cambiar idioma",
@@ -246,13 +247,18 @@
   "G-tone": "SOL",
   "bloq-parameter-duration-sec": "Duración (seg.)",
   "bloq-on-message": "Al recibir el mensaje",
-  "playground-enter-button": "Entra con tu cuenta",
+  "document-enter-button": "Entra con tu cuenta",
   "general-enter-button": "Entrar",
   "general-create-button": "Crear",
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
+  "general-add-button": "Añadir",
   "cloud": {
+    "buttons": {
+      "import": "Importar nuevo recurso",
+      "see-more": "Ver más recursos en mi Bitbloq Cloud"
+    },
     "details": {
       "date": "Fecha de importación",
       "ext": "Formato del recurso",
@@ -261,11 +267,6 @@
       "return": "Volver",
       "size": "Tamaño del recurso",
       "title": "Nombre del recurso"
-    },
-    "text": {
-      "empty": "No tienes ningún recurso en esta categoría",
-      "no-result": "No hay resultados para tu búsqueda",
-      "trash": "Aún no has enviado ningún recurso a la papelera"
     },
     "options": {
       "details": "Ver detalles del recurso",
@@ -278,9 +279,27 @@
       "objects": "Objetos 3D",
       "sounds": "Sonidos",
       "videos": "Vídeos"
+    },
+    "text": {
+      "empty": "No tienes ningún recurso en esta categoría",
+      "empty-imported-text": "Aún no has importado un recurso compatible con este documento",
+      "empty-imported-title": "No tienes recursos importados",
+      "no-result": "No hay resultados para tu búsqueda",
+      "trash": "Aún no has enviado ningún recurso a la papelera"
+    },
+    "upload": {
+      "add": "Añadir un recurso ya importado",
+      "drag": "Arrastra un archivo aquí",
+      "import": "Importar un nuevo recurso",
+      "name": "Nombre del recurso",
+      "select": "O selecciona un archivo",
+      "title": "Añadir recurso importado",
+      "warning-ext": "Este recurso no es compatible con este documento.",
+      "warning-size": "El recurso pesa más de 10MB, intenta reducir su tamaño e impórtalo de nuevo.",
+      "warning-title": "Aviso"
     }
   },
-  "filter":  {
+  "filter": {
     "text": {
       "placeholder": "Buscar..."
     }

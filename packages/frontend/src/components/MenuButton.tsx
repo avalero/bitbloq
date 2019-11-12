@@ -6,11 +6,12 @@ import { colors, Icon } from "@bitbloq/ui";
 export interface IMenuButtonProps {
   className?: string;
   isOpen: boolean;
+  onClick?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }
 
-const MenuButton: FC<IMenuButtonProps> = ({ className, isOpen }) => {
+const MenuButton: FC<IMenuButtonProps> = props => {
   return (
-    <Button className={className} isOpen={isOpen}>
+    <Button {...props}>
       <Icon name="ellipsis" />
     </Button>
   );

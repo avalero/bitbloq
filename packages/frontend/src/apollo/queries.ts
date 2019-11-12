@@ -374,6 +374,16 @@ export const EXERCISE_DELETE_MUTATION = gql`
   }
 `;
 
+export const SUBMISSION_QUERY = gql`
+  query Submission($id: ObjectID!) {
+    submission(id: $id) {
+      title
+      studentNick
+      content
+    }
+  }
+`;
+
 export const STUDENT_SUBMISSION_QUERY = gql`
   query Submission {
     submission {
@@ -514,13 +524,23 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
   }
 `;
 
+/** Cloud **/
+
+export const ADD_RESOURCE_TO_DOCUMENT = gql`
+  mutation AddResourceToDocument($resourceID: ID!, $documentID: ID!) {
+    addResourceToDocument(resourceID: $resourceID, documentID: $documentID) {
+      id
+    }
+  }
+`;
+
 export const GET_CLOUD_RESOURCES = gql`
   query CloudResources(
     $deleted: Boolean
     $currentPage: Number
     $order: String
     $searchTitle: String
-    $type: String
+    $type: [String]
   ) {
     cloudResources(
       deleted: $deleted
@@ -529,7 +549,7 @@ export const GET_CLOUD_RESOURCES = gql`
       searchTitle: $searchTitle
       type: $type
     ) {
-      pagesNumber,
+      pagesNumber
       resources {
         createdAt
         deleted
@@ -556,6 +576,14 @@ export const MOVE_RESOURCE_TO_TRASH = gql`
 export const RESTORE_RESOURCE_FROM_TRASH = gql`
   mutation RestoreResource($id: ObjectID) {
     restoreResource(id: $id) {
+      id
+    }
+  }
+`;
+
+export const UPLOAD_CLOUD_RESOURCE = gql`
+  mutation UploadCloudResource($file: Upload!) {
+    uploadCloudResource(file: $file) {
       id
     }
   }

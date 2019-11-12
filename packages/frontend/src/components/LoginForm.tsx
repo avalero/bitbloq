@@ -5,7 +5,7 @@ import { Input } from "@bitbloq/ui";
 interface IFormProps {
   className?: string;
   email: string;
-  logingError: boolean;
+  loginError: boolean;
   password: string;
   setEmail(email: string): void;
   setPassword(password: string): void;
@@ -14,7 +14,7 @@ interface IFormProps {
 const LoginForm: FC<IFormProps> = ({
   className,
   email,
-  logingError,
+  loginError,
   password,
   setEmail,
   setPassword
@@ -28,7 +28,7 @@ const LoginForm: FC<IFormProps> = ({
           type="text"
           placeholder="Correo electrónico"
           value={email}
-          error={logingError}
+          error={loginError}
           onChange={e => setEmail(e.target.value)}
         />
       </FormGroup>
@@ -39,11 +39,11 @@ const LoginForm: FC<IFormProps> = ({
           type="password"
           placeholder="Contraseña"
           value={password}
-          error={logingError}
+          error={loginError}
           onChange={e => setPassword(e.target.value)}
         />
       </FormGroup>
-      {logingError && (
+      {loginError && (
         <ErrorMessage>Correo electrónico o contraseña no válidos</ErrorMessage>
       )}
     </div>

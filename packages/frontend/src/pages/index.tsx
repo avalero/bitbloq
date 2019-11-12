@@ -4,6 +4,7 @@ import { NextPage } from "next";
 import Router from "next/router";
 import withApollo, { IContext } from "../apollo/withApollo";
 import redirect from "../lib/redirect";
+import useUserData from "../lib/useUserData";
 import {
   baseStyles,
   colors,
@@ -32,6 +33,13 @@ const IndexPage: NextPage = () => {
   const t = useTranslate();
   const client = useApolloClient();
 
+  const user = useUserData();
+  useEffect(() => {
+    if (user) {
+      Router.replace("/app");
+    }
+  }, [user]);
+
   const [exerciseCode, setExerciseCode] = useState("");
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
@@ -53,7 +61,7 @@ const IndexPage: NextPage = () => {
   }, []);
 
   const onNewDocument = (type: string) => {
-    window.open(`/app/playground/${type}`);
+    window.open(`/app/edit-document/local/${type}/new`);
   };
 
   const onOpenDocument = () => {
@@ -64,11 +72,11 @@ const IndexPage: NextPage = () => {
 
   const onFileSelected = (file: File) => {
     if (file) {
-      window.open(`/app/open-document`);
+      window.open(`/app/edit-document/local/open/new`);
       const reader = new FileReader();
       reader.onload = e => {
         const document = JSON.parse(reader.result as string);
-        const channel = new BroadcastChannel("bitbloq-landing");
+        const channel = new BroadcastChannel("bitbloq-documents");
         channel.onmessage = event => {
           if (event.data.command === "open-document-ready") {
             channel.postMessage({ document, command: "open-document" });

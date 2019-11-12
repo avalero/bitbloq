@@ -7,7 +7,7 @@ import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
-import { IUpload, UploadModel } from "../models/upload";
+import { IUpload, UploadModel, IResource } from "../models/upload";
 import { UserModel, IUser } from "../models/user";
 import { pubsub } from "../server";
 import { uploadDocumentImage } from "./upload";
@@ -459,6 +459,24 @@ const documentResolver = {
     parentsPath: async (document: IDocument) => {
       const parent = await FolderModel.findOne({ _id: document.folder });
       const result = await getParentsPath(parent);
+      return result;
+    },
+    resources: async (document: IDocument) => {
+      const result: IResource[] = (await UploadModel.find({
+        _id: { $in: document.resourcesID }
+      })).map(i => {
+        return {
+          id: i._id,
+          title: i.filename,
+          type: i.type,
+          size: i.size,
+          thumbnail: i.image,
+          preview: i.image,
+          file: i.publicUrl,
+          deleted: i.deleted,
+          createdAt: i.createdAt
+        };
+      });
       return result;
     }
   }

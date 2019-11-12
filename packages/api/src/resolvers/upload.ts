@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-server-koa";
 import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
+import { DocumentModel } from "../models/document";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
@@ -9,7 +10,15 @@ const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
 const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
-let publicUrl: string, fileSize: number;
+let publicUrl: string;
+let fileSize: number;
+
+const acceptedFiles = {
+  image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
+  video: [".mp4", ".webm"],
+  sound: [".mp3", ".ocg"],
+  object3D: [".stl"]
+};
 
 const normalize = (function() {
   let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
@@ -66,6 +75,12 @@ const processUpload = async (
       file.makePublic().then(async () => {
         publicUrl = getPublicUrl(gcsName);
         fileSize = getFilesizeInBytes(createReadStream().path);
+        if (fileSize > 10000000) {
+          throw new ApolloError(
+            "Upload error, image too big.",
+            "UPLOAD_SIZE_ERROR"
+          );
+        }
         const uploadNew = new UploadModel({
           document: documentID,
           filename,
@@ -117,7 +132,7 @@ export async function uploadDocumentImage(
       "UPLOAD_FORMAT_ERROR"
     );
   }
-  if (getFilesizeInBytes(createReadStream().path) > 2) {
+  if (getFilesizeInBytes(createReadStream().path) > 2000000) {
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
@@ -159,8 +174,8 @@ const uploadResolver = {
 
     cloudResources: async (root: any, args: any, context: any) => {
       const itemsPerPage: number = 8;
-      let skipN: number = (args.currentPage - 1) * itemsPerPage;
-      let limit: number = skipN + itemsPerPage;
+      const skipN: number = (args.currentPage - 1) * itemsPerPage;
+      const limit: number = skipN + itemsPerPage;
       const text: string = args.searchTitle;
 
       const orderFunction = orderFunctions[args.order];
@@ -170,7 +185,7 @@ const uploadResolver = {
             deleted: true
           })
         : (filtedOptions = {
-            type: args.type,
+            type: { $in: args.type },
             deleted: false
           });
       const userUploads: IUpload[] = await UploadModel.find({
@@ -178,10 +193,8 @@ const uploadResolver = {
         user: context.user.userID,
         ...filtedOptions
       });
-      const dataSorted: IUpload[] = await userUploads.sort(orderFunction);
-      const pagesNumber: number = Math.ceil(dataSorted.length / itemsPerPage);
 
-      const result: IResource[] = dataSorted.slice(skipN, limit).map(i => {
+      const resources: IResource[] = userUploads.map(i => {
         return {
           id: i._id,
           title: i.filename,
@@ -194,6 +207,11 @@ const uploadResolver = {
           createdAt: i.createdAt
         };
       });
+      const pagesNumber: number = Math.ceil(resources.length / itemsPerPage);
+      const result: IResource[] = await resources
+        .sort(orderFunction)
+        .slice(skipN, limit);
+
       return { resources: result, pagesNumber };
     }
   },
@@ -220,6 +238,52 @@ const uploadResolver = {
         );
       });
     },
+    uploadCloudResource: async (root: any, args: any, context: any) => {
+      const {
+        createReadStream,
+        filename,
+        mimetype,
+        encoding
+      } = await args.file;
+      if (!createReadStream || !filename || !mimetype || !encoding) {
+        throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
+      }
+      let fileType: string = "";
+      for (const type in acceptedFiles) {
+        if (acceptedFiles.hasOwnProperty(type)) {
+          for (const item of acceptedFiles[type]) {
+            if (filename.indexOf(item) > -1) {
+              fileType = type;
+              break;
+            }
+          }
+        }
+      }
+      if (fileType === "") {
+        throw new ApolloError(
+          "Upload error, check file format",
+          "UPLOAD_FORMAT_ERROR"
+        );
+      }
+      const uniqueName: string = Date.now() + normalize(filename);
+      const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+        uniqueName
+      )}`;
+      return new Promise((resolve, reject) => {
+        processUpload(
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
+          undefined,
+          filename,
+          mimetype,
+          encoding,
+          context.user.userID,
+          fileType
+        );
+      });
+    },
     uploadSTLFile: async (root: any, args: any, context: any) => {
       const {
         createReadStream,
@@ -241,7 +305,7 @@ const uploadResolver = {
       const gcsName: string = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      return await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         processUpload(
           resolve,
           reject,
@@ -256,6 +320,20 @@ const uploadResolver = {
         );
       });
     },
+
+    addResourceToDocument: async (root: any, args: any, context: any) => {
+      await DocumentModel.findOneAndUpdate(
+        { _id: args.documentID },
+        { $push: { resourcesID: args.resourceID } },
+        { new: true }
+      );
+      return UploadModel.findOneAndUpdate(
+        { _id: args.resourceID, deleted: false },
+        { $push: { documentsID: args.documentID } },
+        { new: true }
+      );
+    },
+
     uploadImageFile: async (root: any, args: any, context: any) => {
       const {
         createReadStream,
@@ -323,6 +401,11 @@ const uploadResolver = {
         { $set: { deleted: false } },
         { new: true }
       );
+    }
+  },
+  Upload: {
+    documents: async (upload: IUpload) => {
+      return await DocumentModel.find({ _id: { $in: upload.documentsID } });
     }
   }
 };

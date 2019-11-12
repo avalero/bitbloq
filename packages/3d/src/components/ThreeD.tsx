@@ -7,15 +7,7 @@ import React, {
 } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import {
-  Document,
-  Icon,
-  Switch,
-  useTranslate,
-  TranslateFn,
-  IHeaderButton,
-  MainMenuOption
-} from "@bitbloq/ui";
+import { useTranslate } from "@bitbloq/ui";
 import {
   Object3D,
   Operation,
@@ -45,67 +37,34 @@ export interface IThreeDRef {
 
 export interface IThreeDProps {
   initialContent?: any;
-  onMenuOptionClick: (option: any) => any;
-  title: string;
-  onEditTitle: () => any;
-  tabIndex: number;
-  onTabChange: (tabIndex: number) => any;
-  headerButtons?: IHeaderButton[];
-  headerRightContent?: React.ReactChild;
-  onHeaderButtonClick?: (id: string) => any;
   addShapeGroups: (base: IShapeGroup[]) => IShapeGroup[];
-  menuOptions: (base: MainMenuOption[]) => MainMenuOption[];
-  preMenuContent?: React.ReactChild;
-  postMenuContent?: React.ReactChild;
-  backCallback: () => any;
-  documentAdvancedMode: boolean;
-  changeAdvancedMode: (advancedMode: boolean) => any;
+  advancedMode: boolean;
   onContentChange: (content: IObjectsCommonJSON[]) => any;
   threeDRef?: { current: IThreeDRef | null };
-  brandColor: string;
-  children: any;
 }
 
 const ThreeD: React.FC<IThreeDProps> = ({
   initialContent,
-  onMenuOptionClick,
-  title,
-  onEditTitle,
-  tabIndex,
-  onTabChange,
-  headerButtons,
-  headerRightContent,
-  onHeaderButtonClick,
-  children,
   addShapeGroups,
-  menuOptions,
-  preMenuContent,
-  postMenuContent,
-  backCallback,
-  documentAdvancedMode,
-  changeAdvancedMode,
+  advancedMode,
   onContentChange,
-  threeDRef,
-  brandColor
+  threeDRef
 }) => {
   const sceneRef = useRef<Scene | null>(null);
   const initialObjectsRef = useRef<IObjectsCommonJSON[]>([]);
-
   const [objects, setObjects] = useState<IObjectsCommonJSON[]>([]);
 
   useEffect(() => {
-    const initialScene = Scene.newFromJSON(initialContent);
-    const initialObjects = initialScene.toJSON();
-    sceneRef.current = initialScene;
-    setObjects(initialObjects);
-    initialObjectsRef.current = initialObjects;
-  }, []);
-
-  useEffect(() => {
-    if (objects !== initialObjectsRef.current) {
+    if (sceneRef.current && objects !== initialObjectsRef.current) {
       onContentChange(objects);
     }
   }, [objects]);
+
+  useEffect(() => {
+    sceneRef.current = Scene.newFromJSON(initialContent);
+    initialObjectsRef.current = sceneRef.current.toJSON();
+    setObjects(initialObjectsRef.current);
+  }, []);
 
   const scene = sceneRef.current || new Scene();
 
@@ -182,13 +141,12 @@ const ThreeD: React.FC<IThreeDProps> = ({
     setActiveOperation(null);
   };
 
-  const [advancedMode, setAdvancedMode] = useState(documentAdvancedMode);
   const previousAdvancedMode = useRef<boolean>(advancedMode);
 
   useEffect(() => {
     if (advancedMode && !previousAdvancedMode.current) {
       // Convert operations to advance mode
-      objects.forEach(object => () => {
+      objects.forEach(object => {
         const operations: Operation[] = [];
         object.operations.forEach(operation => {
           if (isTranslateOperation(operation)) {
@@ -225,7 +183,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
 
     if (!advancedMode && previousAdvancedMode.current) {
       // Convert operations to basic mode
-      objects.forEach(object => () => {
+      objects.forEach(object => {
         const { position, angle, scale } = scene.getLocalPosition(object);
         setObjects(
           scene.updateObject({
@@ -243,6 +201,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
         );
       });
     }
+    previousAdvancedMode.current = advancedMode;
   }, [advancedMode]);
 
   // Keyboard handling
@@ -355,7 +314,9 @@ const ThreeD: React.FC<IThreeDProps> = ({
         },
         exportToSTL: (name, separate) => {
           const nameToPass = name === "" ? "scene" : name;
-          scene.exportToSTLAsync(nameToPass, separate);
+          if (sceneRef.current) {
+            sceneRef.current.exportToSTLAsync(nameToPass, separate);
+          }
         }
       };
     }
@@ -363,167 +324,65 @@ const ThreeD: React.FC<IThreeDProps> = ({
 
   const t = useTranslate();
 
-  const baseMenuOptions = getBaseMenuOptions(advancedMode, t);
-
-  const menuOptionClick = (option: MainMenuOption) => {
-    switch (option.id) {
-      case "basic-mode":
-        setAdvancedMode(false);
-        return;
-
-      case "advanced-mode":
-        setAdvancedMode(true);
-        return;
-
-      default:
-        if (onMenuOptionClick) {
-          onMenuOptionClick(option);
-        }
-        return;
-    }
-  };
-
-  const menuRightContent = (
-    <AdvanceModeWrap>
-      <span>{t("menu-basic-mode")}</span>
-      <Switch
-        value={advancedMode}
-        onChange={value => {
-          setAdvancedMode(value);
-          if (changeAdvancedMode) {
-            changeAdvancedMode(value);
-          }
-        }}
-        leftRight={true}
-      />
-      <span>{t("menu-advanced-mode")}</span>
-    </AdvanceModeWrap>
-  );
-
   const baseShapeGroups = config.addShapeGroups;
   const shapeGroups = useMemo(
     () => (addShapeGroups ? addShapeGroups(baseShapeGroups) : baseShapeGroups),
     [addShapeGroups]
   );
 
-  const mainTabs = [
-    <Document.Tab key="3d" icon={<Icon name="threed" />} label={t("tab-3d")}>
-      <Container>
-        <ObjectTree
+  return (
+    <Container>
+      <ObjectTree
+        objects={objects}
+        selectedObjects={selectedObjects}
+        advancedMode={advancedMode}
+        shapeGroups={shapeGroups}
+        onCreateObject={onCreateObject}
+        onUpdateObject={onUpdateObject}
+        onDeleteObject={onDeleteObject}
+        onObjectClick={onObjectClick}
+      />
+      <MainArea>
+        <Toolbar
           objects={objects}
           selectedObjects={selectedObjects}
           advancedMode={advancedMode}
-          shapeGroups={shapeGroups}
           onCreateObject={onCreateObject}
+          canUndo={scene.canUndo()}
+          canRedo={scene.canRedo()}
+          onUndo={onUndo}
+          onRedo={onRedo}
+        />
+        <ThreeDViewer
+          activeOperation={activeOperation}
+          sceneObjects={objects}
+          scene={scene}
+          selectedObjects={selectedObjects}
+          onObjectClick={onObjectClick}
+          onBackgroundClick={onBackgroundClick}
+        />
+      </MainArea>
+      {selectedObjects[0] && (
+        <PropertiesPanel
+          advancedMode={advancedMode}
+          object={selectedObjects[0]}
+          isTopObject={
+            selectedObjects[0] && objects.includes(selectedObjects[0])
+          }
           onUpdateObject={onUpdateObject}
           onDeleteObject={onDeleteObject}
-          onObjectClick={onObjectClick}
+          onUndoObject={onUndoObject}
+          onConvertToGroup={onConvertToGroup}
+          onDuplicateObject={onDuplicateObject}
+          onSetActiveOperation={onSetActiveOperation}
+          onUnsetActiveOperation={onUnsetActiveOperation}
         />
-        <MainArea>
-          <Toolbar
-            objects={objects}
-            selectedObjects={selectedObjects}
-            advancedMode={advancedMode}
-            onCreateObject={onCreateObject}
-            canUndo={scene.canUndo()}
-            canRedo={scene.canRedo()}
-            onUndo={onUndo}
-            onRedo={onRedo}
-          />
-          <ThreeDViewer
-            activeOperation={activeOperation}
-            sceneObjects={objects}
-            scene={scene}
-            selectedObjects={selectedObjects}
-            onObjectClick={onObjectClick}
-            onBackgroundClick={onBackgroundClick}
-          />
-        </MainArea>
-        {selectedObjects[0] && (
-          <PropertiesPanel
-            advancedMode={advancedMode}
-            object={selectedObjects[0]}
-            isTopObject={
-              selectedObjects[0] && objects.includes(selectedObjects[0])
-            }
-            onUpdateObject={onUpdateObject}
-            onDeleteObject={onDeleteObject}
-            onUndoObject={onUndoObject}
-            onConvertToGroup={onConvertToGroup}
-            onDuplicateObject={onDuplicateObject}
-            onSetActiveOperation={onSetActiveOperation}
-            onUnsetActiveOperation={onUnsetActiveOperation}
-          />
-        )}
-      </Container>
-    </Document.Tab>
-  ];
-
-  return (
-    <Document
-      brandColor={brandColor}
-      title={title || t("untitled-project")}
-      icon={<Icon name="logo-3d" />}
-      tabIndex={tabIndex}
-      onTabChange={onTabChange}
-      onEditTitle={onEditTitle}
-      headerButtons={headerButtons}
-      onHeaderButtonClick={onHeaderButtonClick}
-      headerRightContent={headerRightContent}
-      menuOptions={menuOptions ? menuOptions(baseMenuOptions) : baseMenuOptions}
-      onMenuOptionClick={menuOptionClick}
-      menuRightContent={menuRightContent}
-      preMenuContent={preMenuContent}
-      postMenuContent={postMenuContent}
-      backCallback={backCallback}
-    >
-      {typeof children === "function" ? children(mainTabs) : mainTabs}
-    </Document>
+      )}
+    </Container>
   );
 };
 
-export default React.memo(ThreeD);
-
-const getBaseMenuOptions = (advancedMode: boolean, t: TranslateFn) => [
-  {
-    id: "view",
-    label: t("menu-view"),
-    children: [
-      {
-        id: "mode",
-        label: t("menu-mode"),
-        icon: <Icon name="difficulty" />,
-        children: [
-          {
-            id: "basic-mode",
-            label: t("menu-basic"),
-            checked: !advancedMode
-          },
-          {
-            id: "advanced-mode",
-            label: t("menu-advanced"),
-            checked: advancedMode
-          }
-        ]
-      },
-      {
-        id: "change-theme",
-        label: t("menu-change-theme"),
-        icon: <Icon name="brush" />,
-        children: [
-          {
-            id: "color-theme",
-            label: t("menu-color")
-          },
-          {
-            id: "gray-theme",
-            label: t("menu-gray")
-          }
-        ]
-      }
-    ]
-  }
-];
+export default ThreeD;
 
 /* styled components */
 
@@ -538,15 +397,4 @@ const MainArea = styled.div`
   display: flex;
   flex-direction: column;
   overflow: hidden;
-`;
-
-const AdvanceModeWrap = styled.div`
-  display: flex;
-  align-items: center;
-  margin-right: 10px;
-
-  span {
-    font-size: 14px;
-    margin: 0px 10px;
-  }
 `;

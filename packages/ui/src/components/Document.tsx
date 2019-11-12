@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import MenuBar, { MainMenuOption, MenuOptionClickHandler } from "./MenuBar";
+import MenuBar, { IMainMenuOption } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
 import { IHeaderButton } from "../types";
@@ -54,7 +54,7 @@ const HeaderButton = styled.div`
 `;
 
 interface DocumentIconProps {
-  color: string;
+  color?: string;
   pointer?: boolean;
 }
 const DocumentIcon = styled.div`
@@ -209,19 +209,16 @@ const Content = styled.div<ContentProps>`
     `};
 `;
 
-export interface TabProps {
+export interface IDocumentTab {
   label: string;
   icon: JSX.Element;
-  children: React.ReactChild;
+  content: JSX.Element;
 }
 
-export const Tab: React.SFC<TabProps> = props => null;
-
-export interface DocumentProps {
-  menuOptions?: MainMenuOption[];
-  onMenuOptionClick?: MenuOptionClickHandler;
+export interface IDocumentProps {
+  menuOptions?: IMainMenuOption[];
   menuRightContent?: React.ReactChild;
-  headerRightContent?: React.ReactChildren;
+  headerRightContent?: JSX.Element;
   headerButtons?: IHeaderButton[];
   title?: JSX.Element | string;
   brandColor?: string;
@@ -233,15 +230,14 @@ export interface DocumentProps {
   preMenuContent?: JSX.Element;
   postMenuContent?: JSX.Element;
   backCallback: () => any;
+  tabs: IDocumentTab[];
 }
 
-interface State {
+interface IState {
   isHeaderCollapsed: boolean;
 }
 
-class Document extends React.Component<DocumentProps, State> {
-  static Tab = Tab;
-
+class Document extends React.Component<IDocumentProps, IState> {
   state = {
     isHeaderCollapsed: false
   };
@@ -255,11 +251,9 @@ class Document extends React.Component<DocumentProps, State> {
 
   render() {
     const {
-      children,
       menuOptions = [],
       menuRightContent,
       headerRightContent,
-      onMenuOptionClick,
       title,
       onEditTitle,
       brandColor,
@@ -270,11 +264,10 @@ class Document extends React.Component<DocumentProps, State> {
       icon,
       preMenuContent,
       postMenuContent,
-      backCallback
+      backCallback,
+      tabs
     } = this.props;
     const { isHeaderCollapsed } = this.state;
-
-    const currentTab = React.Children.toArray(children)[tabIndex];
 
     return (
       <Container>
@@ -317,7 +310,7 @@ class Document extends React.Component<DocumentProps, State> {
         </HeaderWrap>
         {preMenuContent}
         <MenuWrap>
-          <MenuBar options={menuOptions} onOptionClick={onMenuOptionClick} />
+          <MenuBar options={menuOptions} />
           {menuRightContent}
           <CollapseButton
             onClick={this.onCollapseButtonClick}
@@ -329,29 +322,25 @@ class Document extends React.Component<DocumentProps, State> {
         {postMenuContent}
         <Main>
           <Tabs>
-            {React.Children.map(
-              children,
-              (tab: React.ReactElement<TabProps>, i) => (
-                <Tooltip position="right" content={tab.props.label}>
-                  {tooltipProps => (
-                    <TabIcon
-                      {...tooltipProps}
-                      selected={i === tabIndex}
-                      onClick={() => onTabChange && onTabChange(i)}
-                    >
-                      {tab.props.icon}
-                    </TabIcon>
-                  )}
-                </Tooltip>
-              )
-            )}
+            {tabs.map((tab, i) => (
+              <Tooltip position="right" content={tab.label} key={i}>
+                {tooltipProps => (
+                  <TabIcon
+                    {...tooltipProps}
+                    selected={i === tabIndex}
+                    onClick={() => onTabChange && onTabChange(i)}
+                  >
+                    {tab.icon}
+                  </TabIcon>
+                )}
+              </Tooltip>
+            ))}
           </Tabs>
-          {React.Children.map(
-            children,
-            (tab: React.ReactElement<TabProps>, i) => (
-              <Content active={i === tabIndex}>{tab.props.children}</Content>
-            )
-          )}
+          {tabs.map((tab, i) => (
+            <Content key={i} active={i === tabIndex}>
+              {tab.content}
+            </Content>
+          ))}
         </Main>
       </Container>
     );

@@ -7,8 +7,8 @@ import LoginForm from "./LoginForm";
 interface ILoginPanelProps {
   className?: string;
   email: string;
-  logingError: boolean;
-  logingIn: boolean;
+  loginError: boolean;
+  loginIn: boolean;
   password: string;
   onLoginClick: () => any;
   secondaryButtonCallback: () => any;
@@ -21,8 +21,8 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
   const {
     className,
     email,
-    logingError,
-    logingIn,
+    loginError,
+    loginIn,
     password,
     onLoginClick,
     secondaryButtonCallback,
@@ -37,12 +37,12 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
     >
       <LoginForm
         email={email}
-        logingError={logingError}
+        loginError={loginError}
         password={password}
         setEmail={setEmail}
         setPassword={setPassword}
       />
-      <Button type="submit" onClick={() => onLoginClick()} disabled={logingIn}>
+      <Button type="submit" onClick={() => onLoginClick()} disabled={loginIn}>
         Entrar
       </Button>
       <Button secondary onClick={secondaryButtonCallback}>

@@ -10,6 +10,7 @@ import {
   Button,
   DialogModal,
   Document,
+  IDocumentTab,
   Spinner,
   Modal,
   Icon,
@@ -28,9 +29,10 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { setToken, getToken } from "../lib/session";
+import { setToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import { IDocument } from "../types";
 
 const EditExercise = ({ type, id }) => {
   const t = useTranslate();
@@ -54,7 +56,7 @@ const EditExercise = ({ type, id }) => {
   const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
-  const [submissionContent, setSubmissionContent] = useState([]);
+  const [submission, setSubmission] = useState<IDocument>(null);
   const currentContent = useRef([]);
 
   const client = useApolloClient();
@@ -64,12 +66,6 @@ const EditExercise = ({ type, id }) => {
   useEffect(() => {
     setToken("", "exercise-team");
   }, []);
-
-  useEffect(() => {
-    if (!loginVisible) {
-      loadSubmission();
-    }
-  }, [loginVisible]);
 
   useEffect(() => {
     if (exercise && teamName) {
@@ -95,10 +91,9 @@ const EditExercise = ({ type, id }) => {
   useEffect(() => {
     if (exercise && exercise.content) {
       try {
-        const content = JSON.parse(data.exercise.content);
-        setInitialContent(content);
+        setInitialContent(data.exercise.content);
       } catch (e) {
-        console.warn("Error parsing submission content", e);
+        console.warn("Error parsing exercise content", e);
       }
     }
   }, [exercise]);
@@ -111,10 +106,9 @@ const EditExercise = ({ type, id }) => {
       query: STUDENT_SUBMISSION_QUERY
     });
     try {
-      const content = JSON.parse(data.submission.content);
-      setSubmissionContent(content);
+      setSubmission(data.submission);
       setRestartCount(restartCount + 1);
-      currentContent.current = content;
+      currentContent.current = data.submission.content;
     } catch (e) {
       console.warn("Error parsing submission content", e);
     }
@@ -122,10 +116,10 @@ const EditExercise = ({ type, id }) => {
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setSubmissionContent(initialContent);
+    setSubmission({ ...submission, content: initialContent });
     updateSubmission({
       variables: {
-        content: JSON.stringify(initialContent || [])
+        content: initialContent
       }
     });
     currentContent.current = initialContent;
@@ -143,7 +137,7 @@ const EditExercise = ({ type, id }) => {
   const onSubmitClick = async () => {
     await finishSubmission({
       variables: {
-        content: JSON.stringify(currentContent.current || [])
+        content: currentContent.current
       }
     });
     setIsSubmissionSuccessOpen(true);
@@ -151,67 +145,79 @@ const EditExercise = ({ type, id }) => {
 
   const { title, teacherName } = exercise;
 
+  const infoTab: IDocumentTab = {
+    icon: <Icon name="info" />,
+    label: t("tab-project-info"),
+    content: (
+      <ExerciseInfo exercise={exercise} onGotoExercise={() => setTabIndex(0)} />
+    )
+  };
+
+  const menuOptions = [
+    {
+      id: "file",
+      label: t("menu-file"),
+      children: []
+    }
+  ];
+
   return (
     <>
       <EditorComponent
-        brandColor={documentType.color}
-        key={restartCount}
-        content={submissionContent}
-        tabIndex={tabIndex}
-        onTabChange={setTabIndex}
-        title={
-          <Title>
-            <TitleIcon>
-              <Icon name="airplane-document" />
-            </TitleIcon>
-            <div>
-              <TitleText>{title}</TitleText>
-              <TeacherName>Profesor: {teacherName}</TeacherName>
-            </div>
-          </Title>
-        }
-        onContentChange={debounce((content: any[]) => {
+        document={submission || exercise}
+        onDocumentChange={debounce((document: IDocument) => {
           if (teamName) {
             updateSubmission({
-              variables: { content: JSON.stringify(content || []) }
+              variables: { content: document.content }
             });
           }
-          currentContent.current = content;
+          currentContent.current = document.content;
         }, 1000)}
-        getTabs={mainTab => [
-          mainTab,
-          <Document.Tab
-            key="info"
-            icon={<Icon name="info" />}
-            label={t("tab-project-info")}
-          >
-            <ExerciseInfo
-              exercise={exercise}
-              onGotoExercise={() => setTabIndex(0)}
-            />
-          </Document.Tab>
-        ]}
-        headerButtons={[
-          { id: "save-copy", icon: "add-document" },
-          { id: "restart", icon: "reload" },
-          { id: "submit", icon: "airplane" }
-        ]}
-        onHeaderButtonClick={(buttonId: string) => {
-          switch (buttonId) {
-            case "save-copy":
-              onSaveCopyClick();
-              return;
-            case "restart":
-              onRestartClick();
-              return;
-            case "submit":
-              onSubmitClick();
-              return;
-          }
-        }}
-        headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
-        backCallback={() => Router.push("/")}
-      />
+        baseTabs={[infoTab]}
+        baseMenuOptions={menuOptions}
+        key={restartCount}
+      >
+        {documentProps => (
+          <Document
+            brandColor={documentType.color}
+            title={
+              <Title>
+                <TitleIcon>
+                  <Icon name="airplane-document" />
+                </TitleIcon>
+                <div>
+                  <TitleText>{title}</TitleText>
+                  <TeacherName>Profesor: {teacherName}</TeacherName>
+                </div>
+              </Title>
+            }
+            icon={<Icon name={documentType.icon} />}
+            tabIndex={tabIndex}
+            onTabChange={setTabIndex}
+            headerButtons={[
+              { id: "save-copy", icon: "add-document" },
+              { id: "restart", icon: "reload" },
+              { id: "submit", icon: "airplane" }
+            ]}
+            onHeaderButtonClick={(buttonId: string) => {
+              switch (buttonId) {
+                case "save-copy":
+                  onSaveCopyClick();
+                  return;
+                case "restart":
+                  onRestartClick();
+                  return;
+                case "submit":
+                  onSubmitClick();
+                  return;
+              }
+            }}
+            headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
+            backCallback={() => Router.push("/")}
+            {...documentProps}
+          />
+        )}
+      </EditorComponent>
       <Modal
         isOpen={isSubmissionSuccessOpen}
         title="Entregar ejercicio"
@@ -232,6 +238,7 @@ const EditExercise = ({ type, id }) => {
           onSuccess={teamName => {
             setTeamName(teamName);
             setLoginVisible(false);
+            loadSubmission();
           }}
         />
       )}
@@ -256,9 +263,6 @@ const EditExercise = ({ type, id }) => {
         <Subscription
           subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}
-          variables={{
-            token: getToken("exercise-team")
-          }}
           onSubscriptionData={({ subscriptionData }) => {
             const { data } = subscriptionData;
             if (
