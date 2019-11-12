@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import cookie from "cookie";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
@@ -9,12 +9,16 @@ import { ME_QUERY } from "./queries";
 import {
   getToken,
   setToken,
+  renewToken,
   shouldRenewToken,
   onSessionError,
+  onSessionActivity,
   watchSession,
   useSessionEvent
 } from "../lib/session";
 import { UserDataProvider } from "../lib/useUserData";
+import redirect from "../lib/redirect";
+import { RENEW_TOKEN_MUTATION } from "./queries";
 import useLogout from "../lib/useLogout";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
@@ -23,7 +27,11 @@ export interface IContext extends NextPageContext {
   apolloClient: ApolloClient<any>;
 }
 
-const SessionWatcher = ({ tempSession }) => {
+interface ISessionWatcherProps {
+  tempSession: string;
+  client: ApolloClient<any>;
+}
+const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
   const [anotherSession, setAnotherSession] = useState(false);
   const logout = useLogout();
 
@@ -45,6 +53,23 @@ const SessionWatcher = ({ tempSession }) => {
   useSessionEvent("expired", () => {
     logout(false);
   });
+
+  useSessionEvent("activity", () => {
+    if (shouldRenewToken(tempSession)) {
+      renewToken(
+          getToken(tempSession)
+          .then(currentToken => 
+        client
+          .mutate({
+            mutation: RENEW_TOKEN_MUTATION,
+            context: { token: currentToken }
+          }))
+          .then(({ data }) => data.renewToken),
+        tempSession
+      );
+    }
+  });
+
   if (anotherSession) {
     return (
       <ErrorLayout
@@ -74,7 +99,9 @@ export default function withApollo(
       <ApolloProvider client={client}>
         <UserDataProvider initialUserData={userData}>
           <PageComponent {...pageProps} />
-          {requiresSession && <SessionWatcher tempSession={tempSession} />}
+          {requiresSession && (
+            <SessionWatcher tempSession={tempSession} client={client} />
+          )}
         </UserDataProvider>
       </ApolloProvider>
     );
@@ -131,6 +158,10 @@ export default function withApollo(
         errorPolicy: "ignore"
       });
 
+      if (requiresSession && !tempSession && !(data && data.me)) {
+        redirect(ctx, "/");
+      }
+
       return {
         ...pageProps,
         apolloState,
@@ -151,9 +182,8 @@ function initApolloClient(
 ) {
   const sessionMethods = {
     getToken: () => getToken(tempSession, req),
-    setToken: token => setToken(token, tempSession),
-    shouldRenewToken: () => (req ? false : shouldRenewToken(tempSession)),
-    onSessionError: error => onSessionError(error, tempSession)
+    onSessionError: error => onSessionError(error, tempSession),
+    onSessionActivity: () => onSessionActivity()
   };
 
   if (typeof window === "undefined") {
