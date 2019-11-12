@@ -74,6 +74,12 @@ const processUpload = async (
       file.makePublic().then(async () => {
         publicUrl = getPublicUrl(gcsName);
         fileSize = getFilesizeInBytes(createReadStream().path);
+        if (fileSize > 10000000) {
+          throw new ApolloError(
+            "Upload error, image too big.",
+            "UPLOAD_SIZE_ERROR"
+          );
+        }
         const uploadNew = new UploadModel({
           document: documentID,
           filename,
@@ -246,16 +252,6 @@ const uploadResolver = {
               fileType = type;
               break;
             }
-          }
-          if (
-            getFilesizeInBytes(createReadStream().path) >
-            (type === "object3D" ? 5000000 : 2000000)
-          ) {
-            // 2megas
-            throw new ApolloError(
-              "Upload error, image too big.",
-              "UPLOAD_SIZE_ERROR"
-            );
           }
         }
       }

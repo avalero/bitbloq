@@ -77,9 +77,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       variables: {
         file: resourceFile
       }
-    })
-      .then(r => console.log(r))
-      .catch(e => console.log(e));
+    });
     onCloseModal();
   };
 
@@ -117,7 +115,8 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       <UploadResourceModalBody input={file !== undefined}>
         {file === undefined ? (
           <UploadResourceTabs
-            acceptedTypes={accept}
+            acceptedExt={accept}
+            acceptedTypes={acceptedTypes}
             setFile={onSetFile}
             setTab={(tab: TabType) => setTab(tab)}
             tab={tab}

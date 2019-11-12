@@ -69,7 +69,7 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
   const [selectedResource, setSelectedResource] = useState<
     IResource | undefined
   >();
-  const { data, error, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
+  const { data, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
     fetchPolicy: "network-only",
     variables: {
       deleted: resourceTypeActiveId === "deleted",

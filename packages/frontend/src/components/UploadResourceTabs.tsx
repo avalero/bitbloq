@@ -11,7 +11,7 @@ import { Button, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
-import ResourcesList from "./ResourcesList";
+import ResourcesGrid from "./ResourcesGrid";
 import {
   GET_CLOUD_RESOURCES,
   MOVE_RESOURCE_TO_TRASH,
@@ -26,20 +26,40 @@ export enum TabType {
 }
 
 export interface IUploadResourcTabsProps {
-  acceptedTypes: string[];
+  acceptedExt: string[];
+  acceptedTypes: ResourcesTypes[];
   setFile: (file: File) => void;
   setTab: (tab: TabType) => void;
   tab: TabType;
 }
 
 const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
+  acceptedExt,
   acceptedTypes,
   setFile,
   setTab,
   tab
 }) => {
+  const { data, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
+    fetchPolicy: "network-only",
+    variables: {
+      currentPage: 1,
+      deleted: false,
+      order: OrderType.Creation,
+      searchTitle: "",
+      type: acceptedTypes[0]
+    }
+  });
   const inputRef = useRef<HTMLInputElement>(null);
+  const [resources, setResources] = useState<IResource[]>([]);
   const t = useTranslate();
+
+  useLayoutEffect(() => {
+    if (!loading && data) {
+      const { resources } = data.cloudResources;
+      setResources(resources || []);
+    }
+  }, [data]);
 
   const onOpenSelect = () => {
     inputRef.current.click();
@@ -62,7 +82,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
         {tab === TabType.import ? (
           <ResourceInput>
             <input
-              accept={acceptedTypes.join(", ")}
+              accept={acceptedExt.join(", ")}
               onChange={e => setFile(e.target.files[0])}
               onClick={e => e.isTrusted && e.preventDefault()}
               ref={inputRef}
@@ -75,7 +95,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
             </SelectModalButton>
           </ResourceInput>
         ) : (
-          <></>
+          <UploadResourcesGrid resources={resources} importResource />
         )}
       </Body>
     </Container>
@@ -151,4 +171,10 @@ const Tabs = styled.div`
   display: flex;
   flex-flow: row wrap;
   height: 40px;
+`;
+
+const UploadResourcesGrid = styled(ResourcesGrid)`
+  height: 284px;
+  margin: 20px;
+  width: 620px;
 `;

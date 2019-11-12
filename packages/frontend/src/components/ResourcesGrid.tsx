@@ -4,21 +4,23 @@ import ResourceCard from "./ResourceCard";
 import { IResource } from "../types";
 
 interface IResourcesGridProps {
+  className?: string;
   importResource?: boolean;
-  moveToTrash: (id: string) => void;
+  moveToTrash?: (id: string) => void;
   resources: IResource[];
-  restoreFromTrash: (id: string) => void;
-  selectResource: (id: string) => void;
+  restoreFromTrash?: (id: string) => void;
+  selectResource?: (id: string) => void;
 }
 
 const ResourcesGrid: FC<IResourcesGridProps> = ({
+  className,
   importResource,
   moveToTrash,
   resources,
   restoreFromTrash,
   selectResource
 }) => (
-  <Grid>
+  <Grid className={className} importResource={importResource}>
     {resources.map(resource => (
       <ResourceCard
         importResource={importResource}
@@ -34,12 +36,15 @@ const ResourcesGrid: FC<IResourcesGridProps> = ({
 
 export default ResourcesGrid;
 
-const Grid = styled.div`
+const Grid = styled.div<{ importResource?: boolean }>`
   display: grid;
   flex: 1;
-  grid-auto-rows: 132px;
+  grid-auto-rows: 130px;
   grid-column-gap: 20px;
-  grid-template-columns: repeat(auto-fill, 160px);
+  grid-template-columns: repeat(
+    auto-fill,
+    ${props => (props.importResource ? 140 : 160)}px
+  );
   grid-row-gap: 20px;
   margin: 20px 0;
 `;

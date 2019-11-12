@@ -9,9 +9,9 @@ interface IResourceCardProps extends IResource {
   className?: string;
   click?: (id: string) => void;
   importResource: boolean;
-  moveToTrash: (id: string) => void;
-  restoreFromTrash: (id: string) => void;
-  selectResource: (id: string) => void;
+  moveToTrash?: (id: string) => void;
+  restoreFromTrash?: (id: string) => void;
+  selectResource?: (id: string) => void;
 }
 
 const ResourceCard: FC<IResourceCardProps> = ({
