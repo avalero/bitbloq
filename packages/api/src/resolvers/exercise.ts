@@ -5,6 +5,7 @@ import { SubmissionModel } from "../models/submission";
 import { IUser, UserModel } from "../models/user";
 import { pubsub } from "../server";
 import { DOCUMENT_UPDATED } from "./document";
+import { UploadModel, IResource } from "../models/upload";
 
 const exerciseResolver = {
   Mutation: {
@@ -46,7 +47,8 @@ const exerciseResolver = {
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        image: docFather.image.image
+        image: docFather.image.image,
+        resourcesID: docFather.resourcesID
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
@@ -181,7 +183,25 @@ const exerciseResolver = {
 
   Exercise: {
     submissions: async (exercise: IExercise) =>
-      SubmissionModel.find({ exercise: exercise._id })
+      SubmissionModel.find({ exercise: exercise._id }),
+    resources: async (exercise: IExercise) => {
+      const result: IResource[] = (await UploadModel.find({
+        _id: { $in: exercise.resourcesID }
+      })).map(i => {
+        return {
+          id: i._id,
+          title: i.filename,
+          type: i.type,
+          size: i.size,
+          thumbnail: i.image,
+          preview: i.image,
+          file: i.publicUrl,
+          deleted: i.deleted,
+          createdAt: i.createdAt
+        };
+      });
+      return result;
+    }
   }
 };
 

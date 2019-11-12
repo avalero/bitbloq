@@ -14,6 +14,7 @@ export interface IExercise extends Document {
   acceptSubmissions?: boolean;
   expireDate?: Date;
   image: string;
+  resourcesID: string[];
 }
 
 const ExerciseMongSchema: Schema = new Schema({
@@ -25,6 +26,11 @@ const ExerciseMongSchema: Schema = new Schema({
   document: {
     type: Schema.Types.ObjectId,
     ref: "DocumentModel"
+  },
+
+  resourcesID: {
+    type: [Schema.Types.ObjectId],
+    ref: "UploadModel"
   },
 
   code: {

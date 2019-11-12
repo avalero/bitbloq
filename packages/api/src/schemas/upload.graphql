@@ -45,6 +45,10 @@ type Mutation {
   uploadCloudResource(file: Upload!): File @authRequired(requires: [USER])
   addResourceToDocument(resourceID: ID!, documentID: ID!): File
     @authRequired(requires: [USER])
+  addResourceToExercises(resourceID: ID!, documentID: ID!): File
+    @authRequired(requires: [USER])
+  deleteResourceFromExercises(resourceID: ID!, documentID: ID!): File
+    @authRequired(requires: [USER])
   uploadSTLFile(file: Upload!, documentID: ObjectID): File
     @authRequired(requires: [USER])
   uploadImageFile(file: Upload!, documentID: ObjectID): File
