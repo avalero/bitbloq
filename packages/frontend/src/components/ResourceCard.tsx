@@ -7,6 +7,8 @@ import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
   className?: string;
+  importAllow?: boolean;
+  importCallback?: (id: string) => void;
   importResource: boolean;
   moveToTrash?: (id: string) => void;
   restoreFromTrash?: (id: string) => void;
@@ -17,6 +19,8 @@ const ResourceCard: FC<IResourceCardProps> = ({
   className,
   deleted,
   id,
+  importAllow,
+  importCallback,
   importResource,
   moveToTrash,
   restoreFromTrash,
@@ -53,9 +57,12 @@ const ResourceCard: FC<IResourceCardProps> = ({
   return (
     <ResourceContainer
       className={className}
+      importAllow={importAllow}
       importResource={importResource}
       isOpen={true}
-      onClick={() => importResource && selectResource(id)}
+      onClick={() =>
+        (importResource || importAllow) && importCallback && importCallback(id)
+      }
     >
       <DropDown
         attachmentPosition="top left"
@@ -68,13 +75,16 @@ const ResourceCard: FC<IResourceCardProps> = ({
         offset="-50px 210px"
         targetPosition="top right"
       >
-        {(isOpen: boolean) => <CardMenuButton isOpen={isOpen} />}
+        {(isOpen: boolean) => (
+          <CardMenuButton isOpen={isOpen} onClick={e => e.stopPropagation()} />
+        )}
         <ResourceCardMenu
           options={[
             {
               iconName: "description",
               label: t("cloud.options.details"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                e.stopPropagation();
                 selectResource(id);
               }
             },
@@ -84,6 +94,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
                 ? t("cloud.options.recover")
                 : t("cloud.options.trash"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                e.stopPropagation();
                 deleted ? restoreFromTrash(id) : moveToTrash(id);
               }
             }
@@ -133,13 +144,15 @@ const ResourceCardMenu = styled(DocumentCardMenu)`
 `;
 
 const ResourceContainer = styled.div<{
+  importAllow?: boolean;
   importResource?: boolean;
   isOpen?: boolean;
 }>`
   background-color: #fff;
   border: solid 1px #ccc;
   border-radius: 4px;
-  cursor: ${props => (props.importResource ? "pointer" : "default")};
+  cursor: ${props =>
+    props.importResource || props.importAllow ? "pointer" : "default"};
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
@@ -148,7 +161,8 @@ const ResourceContainer = styled.div<{
   width: 100%;
 
   &:hover {
-    background-color: ${props => (props.importResource ? "#f1f1f1" : "#fff")};
+    background-color: ${props =>
+      props.importResource || props.importAllow ? "#f1f1f1" : "#fff"};
     border: solid 1px #373b44;
 
     ${CardMenuButton} {

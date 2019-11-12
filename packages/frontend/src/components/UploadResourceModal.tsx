@@ -100,6 +100,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     <CloudModal
       acceptedExt={accept}
       importAllow
+      importCallback={id => console.log(id)}
       isOpen={true}
       onClose={onCloseModal}
       setFile={onSetFile}

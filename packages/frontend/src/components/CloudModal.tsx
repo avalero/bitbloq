@@ -52,6 +52,7 @@ const ResourceType: FC<IResourceTypeProps> = ({
 export interface ICloudModalProps {
   acceptedExt?: string[];
   importAllow?: boolean;
+  importCallback?: (id: string) => void;
   isOpen: boolean;
   onClose?: () => void;
   setFile?: (file: File) => void;
@@ -60,6 +61,7 @@ export interface ICloudModalProps {
 const CloudModal: FC<ICloudModalProps> = ({
   acceptedExt,
   importAllow,
+  importCallback,
   isOpen,
   onClose,
   setFile
@@ -121,6 +123,34 @@ const CloudModal: FC<ICloudModalProps> = ({
     setSelectedResource(undefined);
   };
 
+  const onMoveToTrash = async (id: string) => {
+    await moveToTrash({
+      variables: {
+        id
+      }
+    });
+    const { data } = await refetch();
+    const { pagesNumber } = data.cloudResources;
+    if (currentPage > pagesNumber) {
+      setCurrentPage(pagesNumber);
+      setPagesNumber(pagesNumber);
+    }
+  };
+
+  const onRestoreFromTrash = async (id: string) => {
+    await restoreFromTrash({
+      variables: {
+        id
+      }
+    });
+    const { data } = await refetch();
+    const { pagesNumber } = data.cloudResources;
+    if (currentPage > pagesNumber) {
+      setCurrentPage(pagesNumber);
+      setPagesNumber(pagesNumber);
+    }
+  };
+
   const onSearchInput = useCallback(
     debounce((value: string) => {
       setSearchQuery(value);
@@ -128,6 +158,9 @@ const CloudModal: FC<ICloudModalProps> = ({
     }, 500),
     []
   );
+
+  const onSelectResource = (resourceId: string) =>
+    setSelectedResource(resources.find(resource => resource.id === resourceId));
 
   return (
     <Modal
@@ -178,41 +211,15 @@ const CloudModal: FC<ICloudModalProps> = ({
           ) : (
             <ResourcesList
               currentPage={currentPage}
-              moveToTrash={async (id: string) => {
-                await moveToTrash({
-                  variables: {
-                    id
-                  }
-                });
-                const { data } = await refetch();
-                const { pagesNumber } = data.cloudResources;
-                if (currentPage > pagesNumber) {
-                  setCurrentPage(pagesNumber);
-                  setPagesNumber(pagesNumber);
-                }
-              }}
+              importAllow={importAllow}
+              importCallback={importCallback}
+              moveToTrash={onMoveToTrash}
               pagesNumber={pagesNumber}
               order={order}
               resources={resources}
-              restoreFromTrash={async (id: string) => {
-                await restoreFromTrash({
-                  variables: {
-                    id
-                  }
-                });
-                const { data } = await refetch();
-                const { pagesNumber } = data.cloudResources;
-                if (currentPage > pagesNumber) {
-                  setCurrentPage(pagesNumber);
-                  setPagesNumber(pagesNumber);
-                }
-              }}
+              restoreFromTrash={onRestoreFromTrash}
               searchText={searchText}
-              selectResource={(resourceId: string) =>
-                setSelectedResource(
-                  resources.find(resource => resource.id === resourceId)
-                )
-              }
+              selectResource={onSelectResource}
               setCurrentPage={setCurrentPage}
               setOrder={setOrder}
               setSearchText={setSearchText}
