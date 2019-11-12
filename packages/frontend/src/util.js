@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getChromeVersion = userAgent => {
   if (userAgent) {
     const pieces = userAgent.match(
@@ -9,6 +11,8 @@ export const getChromeVersion = userAgent => {
   }
 };
 
+export const isValidDate = date => moment(date, "DD/MM/YYYY").isValid();
+
 export const isValidEmail = email =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 
@@ -18,7 +22,7 @@ export const sortByCreatedAt = (a, b) => {
   return Math.sign(bCreatedAt - aCreatedAt);
 };
 
-export const dataURItoBlob = (dataURI) => {
+export const dataURItoBlob = dataURI => {
   // convert base64/URLEncoded data component to raw binary data held in a string
   let byteString;
   if (dataURI.split(",")[0].indexOf("base64") >= 0)

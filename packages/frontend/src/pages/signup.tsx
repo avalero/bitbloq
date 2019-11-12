@@ -1,9 +1,10 @@
-import React, { FC, useEffect, useRef, useState } from "react";
+import * as React from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import Router from "next/router";
 import { useMutation } from "react-apollo";
+import useForm from "react-hook-form";
 import gql from "graphql-tag";
-import { Formik, Form, Field } from "formik";
 import {
   colors,
   Input,
@@ -14,256 +15,106 @@ import {
   Checkbox
 } from "@bitbloq/ui";
 import withApollo from "../apollo/withApollo";
-import Survey, { Question, QuestionType } from "../components/Survey";
 import logoBetaImage from "../images/logo-beta.svg";
-import { isValidEmail } from "../util";
+import { isValidDate, isValidEmail } from "../util";
 
-const SIGNUP_MUTATION = gql`
-  mutation Signup($user: UserIn!) {
-    signUpUser(input: $user)
+const SAVE_MUTATION = gql`
+  mutation SignUpUser($input: UserIn!) {
+    signUpUser(input: $input) {
+      id
+    }
   }
 `;
 
-const questions: Question[] = [
-  {
-    id: "isTeacher",
-    type: QuestionType.SingleOption,
-    title: "¿Eres profesor?",
-    options: [{ label: "Sí", value: true }, { label: "No", value: false }]
-  },
-  {
-    id: "courses",
-    type: QuestionType.MultipleOption,
-    title: "¿A qué cursos das clases?",
-    options: [
-      { label: "Primaria", value: "primary" },
-      { label: "Secundaria", value: "secondary" },
-      { label: "Universidad", value: "university" }
-    ],
-    allowOther: true,
-    otherLabel: "Otros (Especificar)",
-    otherPlaceholder: "Respuesta"
-  },
-  {
-    id: "useReason",
-    type: QuestionType.SingleOption,
-    title: "¿Para qué quieres usar Bitbloq Beta?",
-    options: [
-      { label: "Probarlo", value: "test" },
-      { label: "Usarlo en clase", value: "useInClass" },
-      { label: "Ambas", value: "both" }
-    ]
-  },
-  {
-    id: "howDidYouKnow",
-    type: QuestionType.SingleOption,
-    title: "¿Cómo has conocido la existencia de esta beta?",
-    options: [
-      { label: "Alguien te lo ha contado", value: "someoneTold" },
-      { label: "Lo has visto en las redes sociales", value: "socialNetworks" },
-      { label: "Te hemos avisado por correo electrónico", value: "email" }
-    ]
-  },
-  {
-    id: "usedBefore",
-    type: QuestionType.Text,
-    title: "¿Habías usado antes Bitbloq? ¿Durante cuanto tiempo?",
-    placeholder: "Respuesta"
-  },
-  {
-    id: "worked3DBefore",
-    type: QuestionType.Text,
-    title:
-      "¿Has trabajado el diseño 3D alguna vez? ¿Qué plataformas de 3D has utilizado?",
-    placeholder: "Respuesta"
+const SIGNUP_MUTATION = gql`
+  mutation SelectUserPlanAndFinishSignUp($id: string, $userPlan: string) {
+    selectUserPlanAndFinishSignUp(id: $id, userPlan: $userPlan)
   }
-];
+`;
 
-// TODO: update and use
-interface UserField {
-  label: string;
-  field: string;
-  placeholder?: string;
-  type: string;
+interface IUserInputs {
+  acceptTerms: boolean;
+  date: Date;
+  day: number;
+  email: string;
+  imTeacherCheck: boolean;
+  month: number;
+  name: string;
+  noNotifications: boolean;
+  password: string;
+  surnames: string;
+  year: number;
+}
+
+interface IUserPlanInput {
+  usePlan: string;
+}
+
+// TODO: use or remove
+interface IUserIn {
+  bornDate: Date;
+  centerName: string;
+  country: string;
+  educationalStage: string;
+  email: string;
+  imTeacherCheck: boolean;
+  name: string;
+  notifications: boolean;
+  password: string;
+  postCode: number;
+  province: string;
+  surnames: string;
 }
 
 const SignupPage: FC = () => {
   const [accountCreated, setAccountCreated] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [surveyValues, setSurveyValues] = useState({});
+  const [currentStep, setCurrentStep] = useState(1);
+  const [userId, setUserId] = useState();
+  const [userData, setUserData] = useState({});
 
-  const [signup, { loading, error }] = useMutation(
+  const [saveUser, { loading: saving, error: savingError }] = useMutation(
+    SAVE_MUTATION
+  );
+  const [signupUser, { loading: signingup, error: signupError }] = useMutation(
     SIGNUP_MUTATION
   );
 
   const wrapRef = React.createRef<HTMLDivElement>();
-  const formRef = React.createRef<Formik>();
 
   useEffect(() => {
     wrapRef.current.scrollIntoView();
   }, [currentStep]);
 
-  /* TODO: check error management
-  return new ApolloError(
-    "Error sending message",
-    "SENDING_MESSAGE_ERROR"
-  ); */
-  useEffect(() => {
-    if (error) {
-      formRef.current.setErrors({
-        email: "Ya hay un usuario registrado con este correo electrónico"
-      });
-    }
-  }, [error]);
+  const goToPreviousStep = () => setCurrentStep(currentStep - 1);
+  const goToNextStep = () => setCurrentStep(currentStep + 1);
 
-  const renderSteps = () => {
-    return ([
-      <>
-        <StepTitle>Encuesta previa</StepTitle>
-        <p>
-          Bienvenido a la beta del nuevo Bitbloq. Para poder crear una cuenta de
-          usuario necesitamos que rellenes la siguiente información que nos
-          ayudará a conocer mejor tus necesidades. Por motivos técnicos la
-          cuenta de usuario que crees y su contenido se eliminará tras finalizar
-          la beta.
-        </p>
-        <Survey
-          questions={questions}
-          values={surveyValues}
-          onChange={setSurveyValues}
-        />
-        <Buttons>
-          <Button secondary onClick={() => Router.push("/")}>
-            Cancelar
-          </Button>
-          <Button tertiary onClick={() => setCurrentStep(currentStep + 1)}>
-            Siguiente
-          </Button>
-        </Buttons>
-      </>
-    ,
-      <>
-        <StepTitle>Datos de usuario</StepTitle>
-        <Formik
-          ref={formRef}
-          initialValues={{
-            name: "",
-            email: "",
-            password: "",
-            repeatPassword: "",
-            receiveNews: false,
-            legalAge: false,
-            acceptTerms: false
-          }}
-          validate={values => {
-            const errors: any = {};
-            if (!values.name) {
-              errors.name = "Debes introducir un nombre";
-            }
-            if (!values.email) {
-              errors.email = "Debes introducir un correo electronico";
-            } else if (!isValidEmail(values.email)) {
-              errors.email = "La dirección de correo electrónico no es válida";
-            }
-            if (!values.password) {
-              errors.password = "Debes introducir una contraseña";
-            }
-            if (values.password !== values.repeatPassword) {
-              errors.repeatPassword = "Las dos contraseñas no coinciden";
-            }
-            if (!values.legalAge) {
-              errors.legalAge = "Debes ser mayor de edad para crear una cuenta";
-            }
-            if (!values.acceptTerms) {
-              errors.acceptTerms =
-                "Debes leer y aceptar las condiciones generales para crear una cuenta.";
-            }
-            return errors;
-          }}
-          onSubmit={values => {
-            signup({
-              variables: {
-                user: {
-                  email: values.email,
-                  name: values.name,
-                  password: values.password,
-                  notifications: values.receiveNews,
-                  signUpSurvey: surveyValues
-                }
-              }
-            }).then(() => setAccountCreated(true));
-          }}
-        >
-          {({ isSubmitting }) => (
-            <Form>
-              <FormGroup>
-                <label>Nombre</label>
-                <Field
-                  name="name"
-                  component={FormInput}
-                  type="text"
-                  placeholder="Pepe Pérez"
-                />
-              </FormGroup>
-              <FormGroup>
-                <label>Correo electrónico</label>
-                <Field
-                  name="email"
-                  component={FormInput}
-                  type="email"
-                  placeholder="pepe@perez.com"
-                />
-              </FormGroup>
-              <FormGroup>
-                <label>Contraseña</label>
-                <Field name="password" component={FormInput} type="password" />
-              </FormGroup>
-              <FormGroup>
-                <label>Repetir contraseña</label>
-                <Field
-                  name="repeatPassword"
-                  component={FormInput}
-                  type="password"
-                />
-              </FormGroup>
-              <Field
-                name="receiveNews"
-                component={FormCheckbox}
-                label="Acepto recibir noticias y novedades en mi correo electrónico."
-              />
-              <Field
-                name="legalAge"
-                component={FormCheckbox}
-                label="Soy mayor de edad."
-              />
-              <Field
-                name="acceptTerms"
-                component={FormCheckbox}
-                label={
-                  <>
-                    He leido y acepto la{" "}
-                    <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-                      política de privacidad.
-                    </a>
-                  </>
-                }
-              />
-              <Buttons>
-                <Button
-                  tertiary
-                  onClick={() => setCurrentStep(currentStep-1)}
-                >
-                  Volver
-                </Button>
-                <Button type="submit" disabled={loading}>
-                  Crear cuenta
-                </Button>
-              </Buttons>
-            </Form>
-          )}
-        </Formik>
-      </>
-    ]);
+  const onSaveUser = async (userInputs: IUserInputs) => {
+    const result = await saveUser({
+      variables: {
+        input: {
+          bornDate: userInputs.date,
+          email: userInputs.email,
+          imTeacherCheck: userInputs.imTeacherCheck,
+          name: userInputs.name,
+          notifications: !userInputs.noNotifications,
+          password: userInputs.password,
+          surnames: userInputs.surnames
+        }
+      }
+    });
+    setUserData(userInputs);
+    setUserId(result.data.signUpUser.id);
+    goToNextStep();
+  };
+
+  const onSignupUser = async (userPlanInput: IUserPlanInput) => {
+    await signupUser({
+      variables: {
+        id: userId,
+        userPlan: userPlanInput.usePlan
+      }
+    });
+    setAccountCreated(true);
   };
 
   return (
@@ -280,12 +131,25 @@ const SignupPage: FC = () => {
         <Container>
           <Logo src={logoBetaImage} alt="Bitbloq Beta" />
           <SignupPanel>
-            <PanelHeader>Crear cuenta</PanelHeader>
+            <SignupHeader>Crear una cuenta</SignupHeader>
             <HorizontalRule small />
-            <StepContent>
-              <StepCount>Paso {currentStep+1} de 2</StepCount>
-              {renderSteps()[currentStep]}
-            </StepContent>
+            <Content>
+              <Counter>Paso {currentStep} de 2</Counter>
+              <Step1
+                currentStep={currentStep}
+                error={savingError}
+                loading={saving}
+                onSubmit={onSaveUser}
+                userData={userData}
+              />
+              <Step2
+                currentStep={currentStep}
+                error={signupError}
+                goToPreviousStep={goToPreviousStep}
+                loading={signingup}
+                onSubmit={onSignupUser}
+              />
+            </Content>
           </SignupPanel>
         </Container>
       )}
@@ -293,40 +157,280 @@ const SignupPage: FC = () => {
   );
 };
 
-export default withApollo(SignupPage, { requiresSession: false });
-
-const FormInput = ({ field, form: { touched, errors }, ...props }) => {
-  const showError = touched[field.name] && errors[field.name];
-  return (
-    <div>
-      <Input {...field} {...props} error={showError} />
-      {showError && <ErrorMessage>{errors[field.name]}</ErrorMessage>}
-    </div>
-  );
-};
-
-const FormCheckbox = ({
-  field,
-  form: { touched, errors, setFieldValue },
-  label,
-  ...props
+const Step1: FC<any> = ({
+  currentStep,
+  error,
+  loading,
+  onSubmit,
+  userData
 }) => {
-  const showError = touched[field.name] && errors[field.name];
+  if (currentStep !== 1) {
+    return null;
+  }
+
+  const {
+    clearError,
+    errors,
+    getValues,
+    handleSubmit,
+    register,
+    setError,
+    setValue
+  } = useForm({ defaultValues: userData });
+
+  register({ name: "date" }, { validate: isValidDate });
+
+  useEffect(() => {
+    if (error) setError("email", "existing");
+  }, [error]);
+
+  const onChangeDate = () => {
+    setValue(
+      "date",
+      [getValues()["day"], getValues()["month"], getValues()["year"]].join("/")
+    );
+  };
+
+  const onClickCheckOption = (name: string) => {
+    clearError(name);
+    setValue(name, !getValues()[name]);
+  };
+
+  const onGotoMicrosoft = () => {
+    // TODO
+  };
+
+  const onGotoGoogle = () => {
+    // TODO
+  };
+
   return (
-    <div>
-      <CheckOption onClick={() => setFieldValue(field.name, !field.value)}>
-        <Checkbox
-          {...field}
-          {...props}
-          checked={field.value}
-          error={showError}
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Title>Datos de usuario</Title>
+      <Login>
+        <p>
+          ¿Ya tienes cuenta con esta versión de Bitbloq?{" "}
+          <a
+            href="#"
+            onClick={e => {
+              e.preventDefault();
+              Router.push("/login");
+            }}
+          >
+            Entra usando tus credenciales
+          </a>
+          .
+        </p>
+        <LoginWith>
+          <div>
+            <p>Crear la cuenta con mi perfil de:</p>
+            <LoginWithInfo>
+              <p>
+                Registrándote con una cuenta, estás aceptando las{" "}
+                <a target="_blank" href="https://bitbloq.bq.com/#">
+                  condiciones generales
+                </a>{" "}
+                y la{" "}
+                <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
+                  política de privacidad
+                </a>
+                .
+              </p>
+            </LoginWithInfo>
+          </div>
+          <LoginWithExternalProfile>
+            <Button tertiary onClick={onGotoMicrosoft}>
+              Microsoft
+            </Button>
+            <Button tertiary onClick={onGotoGoogle}>
+              Google
+            </Button>
+          </LoginWithExternalProfile>
+        </LoginWith>
+      </Login>
+      <FormGroup>
+        <FormField>
+          <label>Nombre</label>
+          <Input
+            type="text"
+            name="name"
+            placeholder="Nombre"
+            ref={register({ required: true })}
+            error={!!errors.name}
+          />
+          {errors.name && (
+            <ErrorMessage>
+              El nombre que has introducido no es válido
+            </ErrorMessage>
+          )}
+        </FormField>
+        <FormField>
+          <label>Apellidos</label>
+          <Input
+            type="text"
+            name="surnames"
+            placeholder="Apellidos"
+            ref={register({ required: true })}
+            error={!!errors.surnames}
+          />
+          {errors.surnames && (
+            <ErrorMessage>
+              Los apellidos que has introducido no son válidos
+            </ErrorMessage>
+          )}
+        </FormField>
+      </FormGroup>
+      <FormField>
+        <label>Correo electrónico</label>
+        <Input
+          type="text"
+          name="email"
+          placeholder="Correo electrónico"
+          onChange={() => clearError("email")}
+          ref={register({ validate: isValidEmail })}
+          error={!!errors.email}
         />
-        <span>{label}</span>
+        {errors.email && errors.email.type === "validate" && (
+          <ErrorMessage>
+            Debes introducir una dirección de correo electrónico válida
+          </ErrorMessage>
+        )}
+        {errors.email && errors.email.type === "existing" && (
+          <ErrorMessage>
+            Ya hay un usuario registrado con este correo electrónico
+          </ErrorMessage>
+        )}
+      </FormField>
+      <FormField>
+        <label>Contraseña</label>
+        <Input
+          type="text"
+          name="password"
+          placeholder="Contraseña"
+          ref={register({ required: true })}
+          error={!!errors.password}
+        />
+        {errors.password && (
+          <ErrorMessage>Debes introducir una contraseña</ErrorMessage>
+        )}
+      </FormField>
+      <FormField>
+        <label>Fecha de nacimiento</label>
+        <FormGroup onChange={onChangeDate}>
+          <Input
+            type="number"
+            name="day"
+            placeholder="DD"
+            ref={register}
+            error={!!errors.year || !!errors.date}
+          />
+          <Input
+            type="number"
+            name="month"
+            placeholder="MM"
+            ref={register}
+            error={!!errors.year || !!errors.date}
+          />
+          <Input
+            type="number"
+            name="year"
+            placeholder="AAAA"
+            ref={register({ minLength: 4 })}
+            error={!!errors.year || !!errors.date}
+          />
+        </FormGroup>
+        {(errors.year || errors.date) && (
+          <ErrorMessage>Debes introducir una fecha válida</ErrorMessage>
+        )}
+      </FormField>
+      <CheckOption onClick={() => onClickCheckOption("imTeacherCheck")}>
+        <input hidden type="checkbox" name="imTeacherCheck" ref={register} />
+        <Checkbox checked={getValues()["imTeacherCheck"]} />
+        <span>Soy profesor</span>
       </CheckOption>
-      {showError && <ErrorMessage>{errors[field.name]}</ErrorMessage>}
-    </div>
+      <input hidden type="checkbox" name="noNotifications" ref={register} />
+      <CheckOption onClick={() => onClickCheckOption("noNotifications")}>
+        <Checkbox checked={getValues()["noNotifications"]} />
+        <span>
+          No quiero recibir noticias y novedades en mi correo electrónico.
+        </span>
+      </CheckOption>
+      <input
+        hidden
+        type="checkbox"
+        name="acceptTerms"
+        ref={register({ required: true })}
+      />
+      <CheckOption onClick={() => onClickCheckOption("acceptTerms")}>
+        <Checkbox
+          checked={getValues()["acceptTerms"]}
+          error={!!errors.acceptTerms}
+        />
+        <span>
+          He leido y acepto las{" "}
+          <a target="_blank" href="https://bitbloq.bq.com/#">
+            condiciones generales
+          </a>{" "}
+          y la{" "}
+          <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
+            política de privacidad
+          </a>
+          .
+        </span>
+      </CheckOption>
+      {errors.acceptTerms && (
+        <ErrorMessage>
+          Debes leer y aceptar las condiciones generales y la política de
+          privacidad
+        </ErrorMessage>
+      )}
+      <Buttons>
+        <Button secondary onClick={() => Router.push("/")}>
+          Cancelar
+        </Button>
+        <Button tertiary type="submit" disabled={loading}>
+          Guardar
+        </Button>
+      </Buttons>
+    </form>
   );
 };
+
+const Step2: FC<any> = ({
+  currentStep,
+  error,
+  loading,
+  onSubmit,
+  goToPreviousStep
+}) => {
+  if (currentStep !== 2) {
+    return null;
+  }
+
+  const { handleSubmit, register } = useForm();
+
+  useEffect(() => {
+    // TODO: check error management
+    if (error) console.log("Ha habido algún error: " + error);
+  }, [error]);
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Title>Configuración de la cuenta</Title>
+      <input name="usePlan" value="teacher" ref={register} />
+      <Buttons>
+        <Button tertiary onClick={goToPreviousStep}>
+          Volver
+        </Button>
+        <Button type="submit" disabled={loading}>
+          Crear cuenta
+        </Button>
+      </Buttons>
+    </form>
+  );
+};
+
+export default withApollo(SignupPage, { requiresSession: false });
 
 /* Styled components */
 
@@ -359,7 +463,7 @@ const SignupPanel = styled(Panel)`
   width: 100%;
 `;
 
-const PanelHeader = styled.div`
+const SignupHeader = styled.div`
   text-align: center;
   height: 105px;
   display: flex;
@@ -369,26 +473,59 @@ const PanelHeader = styled.div`
   font-weight: bold;
 `;
 
-const StepContent = styled.div`
-  padding: 40px;
+const Content = styled.div`
   font-size: 14px;
+  line-height: 22px;
+  padding: 40px;
 
-  p {
-    line-height: 1.57;
-    margin: 0px 0px 20px 0px;
+  a {
+    color: ${colors.brandBlue};
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: none;
   }
 `;
 
-const StepCount = styled.div`
+const Counter = styled.div`
   color: ${colors.gray4};
   text-transform: uppercase;
   margin-bottom: 8px;
 `;
 
-const StepTitle = styled.div`
+const Title = styled.div`
   font-weight: bold;
   font-size: 16px;
   margin-bottom: 40px;
+`;
+
+const Login = styled.div`
+  color: #474749;
+`;
+
+const LoginWith = styled.div`
+  display: flex;
+  padding: 20px 0;
+  width: 50%;
+`;
+
+const LoginWithInfo = styled.div`
+  font-size: 12px;
+  padding-top: 10px;
+`;
+
+const LoginWithExternalProfile = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+
+  button {
+    background-color: white;
+    border: solid 1px #dddddd;
+    border-radius: 4px;
+    cursor: pointer;
+    height 40px;
+    width: 145px;
+  }
 `;
 
 const Buttons = styled.div`
@@ -398,7 +535,17 @@ const Buttons = styled.div`
 `;
 
 const FormGroup = styled.div`
+  display: flex;
+
+  > :not(:first-child) {
+    margin-left: 10px;
+  }
+`;
+
+const FormField = styled.div`
+  flex: 1;
   margin-bottom: 20px;
+
   label {
     display: block;
     margin-bottom: 10px;
@@ -414,17 +561,10 @@ const CheckOption = styled.div`
   span {
     margin-left: 10px;
   }
-  a {
-    color: ${colors.brandBlue};
-    font-style: italic;
-    font-weight: bold;
-    text-decoration: none;
-  }
 `;
 
 const ErrorMessage = styled.div`
   margin-top: 10px;
-  margin-bottom: 20px;
   font-size: 12px;
   font-style: italic;
   color: #d82b32;
