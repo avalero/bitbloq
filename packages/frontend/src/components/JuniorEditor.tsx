@@ -19,6 +19,10 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
     onDocumentChange
   );
 
+  if (!initialContent) {
+    return null;
+  }
+
   return (
     <Junior
       bloqTypes={bloqTypes}
