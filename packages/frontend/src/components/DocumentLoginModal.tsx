@@ -11,7 +11,10 @@ interface IDocumentLoginModalProps {
   onClose: () => void;
 }
 
-const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({ isOpen, onClose }) => {
+const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
+  isOpen,
+  onClose
+}) => {
   const t = useTranslate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +38,6 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({ isOpen, onClose }) =
       setLoginError(true);
     }
   };
-
 
   return (
     <DialogModal

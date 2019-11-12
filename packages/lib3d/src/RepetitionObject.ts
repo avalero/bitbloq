@@ -9,24 +9,24 @@
 
 import ObjectsCommon from "./ObjectsCommon";
 
-import { isEqual, cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsGroup from "./ObjectsGroup";
 import Scene from "./Scene";
 
+import CompoundObject from "./CompoundObject";
 import {
+  ICartesianRepetitionParams,
   IMirrorOperation,
+  IPolarRepetitionParams,
+  IRepetitionObjectJSON,
   IRotateOperation,
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
-  IRepetitionObjectJSON,
-  IPolarRepetitionParams,
-  ICartesianRepetitionParams,
   OperationsArray
 } from "./Interfaces";
-import CompoundObject from "./CompoundObject";
 
 /**
  * RepetitionObject Class
@@ -225,8 +225,8 @@ export default class RepetitionObject extends ObjectsCommon {
   public toJSON(): IRepetitionObjectJSON {
     const obj = {
       ...super.toJSON(),
-      parameters: this.parameters,
-      children: [this.originalObject.toJSON()]
+      children: [this.originalObject.toJSON()],
+      parameters: this.parameters
     };
     return obj;
   }
@@ -326,8 +326,8 @@ export default class RepetitionObject extends ObjectsCommon {
         this.mesh.add(mesh);
         mesh.userData = {
           ...mesh.userData,
-          repetitionObject: true,
-          originalObject: this.originalObject
+          originalObject: this.originalObject,
+          repetitionObject: true
         };
       });
 

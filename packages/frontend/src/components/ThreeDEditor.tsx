@@ -40,7 +40,10 @@ const ThreeDEditor: FC<IEditorProps> = ({
   const [showSTLError, setShowSTLError] = useState("");
   const [advancedMode, setAdvancedMode] = useState(document.advancedMode);
 
-  const [initialContent, onContentChange] = useDocumentContent(document, onDocumentChange);
+  const [initialContent, onContentChange] = useDocumentContent(
+    document,
+    onDocumentChange
+  );
 
   useEffect(() => {
     if (advancedMode !== document.advancedMode) {

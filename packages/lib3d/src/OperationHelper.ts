@@ -73,7 +73,7 @@ export default class OperationHelper {
 
     if (parent instanceof ObjectsGroup) {
       this.helperMesh = await new OperationHelper(
-        this.obj.userData.objectClone,
+        this.obj.userData.objectClone as ObjectsCommon,
         this.type,
         this.axis,
         this.relative,
@@ -168,13 +168,17 @@ export default class OperationHelper {
 
     // add operations that will be applied after operationID to afterOperations Array
     operations.forEach(op => {
-      if (found) afterOperations.push(op);
+      if (found) {
+        afterOperations.push(op);
+      }
       if (!found && op.id === operationID) {
         found = true;
       }
     });
 
-    if (afterOperations.length === 0) return mesh;
+    if (afterOperations.length === 0) {
+      return mesh;
+    }
 
     const dummyObj = new DummyObject();
     dummyObj.setOperations(afterOperations);
@@ -209,7 +213,7 @@ export default class OperationHelper {
     const childrenHelpers: THREE.Group[] = await Promise.all(
       children.map(child => {
         const helper = new OperationHelper(
-          child.userData.objectClone,
+          child.userData.objectClone as ObjectsCommon,
           this.type,
           this.axis,
           this.relative,

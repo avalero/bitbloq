@@ -18,7 +18,7 @@ export const sortByCreatedAt = (a, b) => {
   return Math.sign(bCreatedAt - aCreatedAt);
 };
 
-export const dataURItoBlob = (dataURI) => {
+export const dataURItoBlob = dataURI => {
   // convert base64/URLEncoded data component to raw binary data held in a string
   let byteString;
   if (dataURI.split(",")[0].indexOf("base64") >= 0)

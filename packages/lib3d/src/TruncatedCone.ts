@@ -8,14 +8,14 @@
  */
 
 import * as THREE from "three";
+import {
+  ITruncatedConeJSON,
+  ITruncatedConeParams,
+  IViewOptions,
+  OperationsArray
+} from "./Interfaces";
 import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
-import {
-  IViewOptions,
-  OperationsArray,
-  ITruncatedConeJSON,
-  ITruncatedConeParams
-} from "./Interfaces";
 
 export default class TruncatedCone extends PrimitiveObject {
   public static typeName: string = "TruncatedCone";

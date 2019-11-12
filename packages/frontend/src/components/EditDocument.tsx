@@ -52,7 +52,11 @@ if (typeof window !== undefined) {
   import("html2canvas").then(module => (html2canvas = module.default));
 }
 
-const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType }) => {
+const EditDocument: FC<IEditDocumentProps> = ({
+  folder,
+  id,
+  type: initialType
+}) => {
   const t = useTranslate();
 
   const user = useUserData();

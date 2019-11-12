@@ -14,14 +14,14 @@
  */
 
 import * as THREE from "three";
-import STLObject from "./STLObject";
 import {
+  ISTLJSON,
   ISTLParams,
-  OperationsArray,
   IViewOptions,
-  ISTLJSON
+  OperationsArray
 } from "./Interfaces";
 import ObjectsCommon from "./ObjectsCommon";
+import STLObject from "./STLObject";
 
 export default class PredesignedObject extends STLObject {
   public static typeName: string = "PredesignedObject";

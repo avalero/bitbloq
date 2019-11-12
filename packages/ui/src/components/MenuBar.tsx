@@ -166,9 +166,7 @@ class MenuBar extends React.Component<IMenuBarProps, IState> {
 
           if (option.type === "submenu") {
             return (
-              <Option
-                key={option.id}
-              >
+              <Option key={option.id}>
                 {option.icon && <OptionIcon>{option.icon}</OptionIcon>}
                 <OptionText>{option.label}</OptionText>
                 <RightArrow>

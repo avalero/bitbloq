@@ -21,7 +21,14 @@ import {
   ICompoundObjectJSON
 } from "./Interfaces";
 import * as THREE from "three";
+// tslint:disable-next-line: no-implicit-dependencies
 import Worker from "worker-loader?name=static/[hash].worker.js!./compound.worker";
+
+interface IWorkerMessage {
+  status: string;
+  vertices: ArrayBuffer;
+  normals: ArrayBuffer;
+}
 
 export type ChildrenArray = ObjectsCommon[];
 
@@ -95,19 +102,19 @@ export default class CompoundObject extends Object3D {
         this.worker = new Worker("http://bitbloq.bq.com");
         // listen to events from web worker
 
-        (this.worker as Worker).onmessage = (event: any) => {
-          if (event.data.status === "error") {
+        (this.worker as Worker).onmessage = (event: MessageEvent) => {
+          if ((event.data as IWorkerMessage).status === "error") {
             (this.worker as Worker).terminate();
             this.worker = null;
             reject(new Error("Compound Object Error"));
-          } else if (event.data.status === "invisible") {
+          } else if ((event.data as IWorkerMessage).status === "invisible") {
             const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
             mesh.visible = false;
             this.mesh = mesh;
             resolve(this.mesh);
           }
 
-          const message = event.data;
+          const message = event.data as IWorkerMessage;
           // save vertices and normals
 
           const verticesBuffer: ArrayBuffer = message.vertices;
@@ -310,16 +317,19 @@ export default class CompoundObject extends Object3D {
     return;
   }
 
-  protected fromBufferData(vertices: any, normals: any): Promise<THREE.Mesh> {
+  protected fromBufferData(
+    vertices: ArrayBuffer | ArrayLike<number>,
+    normals: ArrayBuffer | ArrayLike<number>
+  ): Promise<THREE.Mesh> {
     return new Promise((resolve, reject) => {
       const buffGeometry = new THREE.BufferGeometry();
       buffGeometry.addAttribute(
         "position",
-        new THREE.BufferAttribute(vertices, 3)
+        new THREE.BufferAttribute(vertices as ArrayLike<number>, 3)
       );
       buffGeometry.addAttribute(
         "normal",
-        new THREE.BufferAttribute(normals, 3)
+        new THREE.BufferAttribute(normals as ArrayLike<number>, 3)
       );
       const mesh: THREE.Mesh = new THREE.Mesh(
         buffGeometry,
@@ -335,7 +345,7 @@ export default class CompoundObject extends Object3D {
       const bufferArray: ArrayBuffer[] = [];
       Promise.all(this.children.map(child => child.computeMeshAsync())).then(
         meshes => {
-          meshes.forEach(mesh => {
+          (meshes as THREE.Object3D[]).forEach(mesh => {
             if (mesh instanceof THREE.Mesh) {
               // 1 mesh added
               bufferArray.push(Float32Array.from([1]).buffer);
@@ -402,3 +412,4 @@ export default class CompoundObject extends Object3D {
 // they need to be at bottom to avoid typescript error with circular imports
 import RepetitionObject from "./RepetitionObject";
 import ObjectsGroup from "./ObjectsGroup";
+import { AnyARecord } from "dns";

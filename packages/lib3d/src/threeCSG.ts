@@ -173,7 +173,7 @@ export default class ThreeBSP {
     this.tree = new Node(polygons);
   }
 
-  public subtract(other_tree: ThreeBSP) {
+  public subtract(other_tree: ThreeBSP): ThreeBSP {
     let a: any = this.tree.clone(),
       b = other_tree.tree.clone();
 
@@ -190,7 +190,7 @@ export default class ThreeBSP {
     return a;
   }
 
-  public union(other_tree: ThreeBSP) {
+  public union(other_tree: ThreeBSP): ThreeBSP {
     let a: any = this.tree.clone(),
       b = other_tree.tree.clone();
 
@@ -205,7 +205,7 @@ export default class ThreeBSP {
     return a;
   }
 
-  public intersect(other_tree: ThreeBSP) {
+  public intersect(other_tree: ThreeBSP): ThreeBSP {
     let a: any = this.tree.clone(),
       b = other_tree.tree.clone();
 
@@ -525,21 +525,21 @@ class Vertex {
     );
   }
 
-  public add(vertex: Vertex) {
+  public add(vertex: Vertex): Vertex {
     this.x += vertex.x;
     this.y += vertex.y;
     this.z += vertex.z;
     return this;
   }
 
-  public subtract(vertex: Vertex) {
+  public subtract(vertex: Vertex): Vertex {
     this.x -= vertex.x;
     this.y -= vertex.y;
     this.z -= vertex.z;
     return this;
   }
 
-  public multiplyScalar(scalar: number) {
+  public multiplyScalar(scalar: number): Vertex {
     this.x *= scalar;
     this.y *= scalar;
     this.z *= scalar;
@@ -558,7 +558,7 @@ class Vertex {
     return this;
   }
 
-  public normalize() {
+  public normalize(): Vertex {
     const length = Math.sqrt(
       this.x * this.x + this.y * this.y + this.z * this.z
     );
@@ -570,11 +570,11 @@ class Vertex {
     return this;
   }
 
-  public dot(vertex: Vertex) {
+  public dot(vertex: Vertex): number {
     return this.x * vertex.x + this.y * vertex.y + this.z * vertex.z;
   }
 
-  public lerp(a: Vertex, t: number) {
+  public lerp(a: Vertex, t: number): Vertex {
     this.add(
       a
         .clone()

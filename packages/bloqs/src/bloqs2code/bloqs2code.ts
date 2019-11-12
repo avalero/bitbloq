@@ -43,7 +43,7 @@ const adjustProgram = (
   program: IBloq[][],
   bloqTypes: Array<Partial<IBloqType>>
 ): IBloq[][] => {
-  const WaitMessage2EventMessage = (wait: IBloq): IBloq => {
+  const waitMessage2EventMessage = (wait: IBloq): IBloq => {
     return {
       type: "OnMessage",
       parameters: { value: wait.parameters.value }
@@ -59,7 +59,7 @@ const adjustProgram = (
     timeline.forEach((bloqInstance, index, arr) => {
       const bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
       if (bloqDefinition.name === "WaitMessage") {
-        arr[index] = WaitMessage2EventMessage(bloqInstance);
+        arr[index] = waitMessage2EventMessage(bloqInstance);
         const lastIndex = result.flatMap(e => e).length;
         result.push(arr.slice(lastIndex, index));
       }
@@ -109,8 +109,8 @@ const bloqs2code = (
     components2code(components, hardware.components, board, arduinoCode);
     program2code(components, bloqTypes, hardware, programFixed, arduinoCode);
   } catch (e) {
-    console.warn(e);
-    // throw e;
+    // console.warn(e);
+    throw e;
   }
 
   // Remove duplicates from includes, globals and setup
