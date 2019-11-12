@@ -63,6 +63,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const onCloseModal = () => {
     setError(0);
     setFile(undefined);
+    setTab(TabType.import);
     onClose();
   };
 

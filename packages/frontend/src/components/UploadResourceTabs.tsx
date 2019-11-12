@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState
 } from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { useMutation, useLazyQuery } from "@apollo/react-hooks";
 import { Button, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
@@ -40,24 +40,26 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
   setTab,
   tab
 }) => {
-  const { data, loading, refetch } = useQuery(GET_CLOUD_RESOURCES, {
-    fetchPolicy: "network-only",
-    variables: {
-      currentPage: 1,
-      deleted: false,
-      order: OrderType.Creation,
-      searchTitle: "",
-      type: acceptedTypes[0]
+  const [getResources, { called, data, loading }] = useLazyQuery(
+    GET_CLOUD_RESOURCES,
+    {
+      fetchPolicy: "network-only",
+      variables: {
+        currentPage: 1,
+        deleted: false,
+        order: OrderType.Creation,
+        searchTitle: "",
+        type: acceptedTypes[0]
+      }
     }
-  });
+  );
   const inputRef = useRef<HTMLInputElement>(null);
   const [resources, setResources] = useState<IResource[]>([]);
   const t = useTranslate();
 
-  useLayoutEffect(() => {
-    if (!loading && data) {
-      const { resources } = data.cloudResources;
-      setResources(resources || []);
+  useEffect(() => {
+    if (called && !loading && data) {
+      setResources(data.cloudResources.resources);
     }
   }, [data]);
 
@@ -74,7 +76,10 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
         >
           {t("cloud.upload.import")}
         </Tab>
-        <Tab active={tab === TabType.add} onClick={() => setTab(TabType.add)}>
+        <Tab
+          active={tab === TabType.add}
+          onClick={() => (getResources(), setTab(TabType.add))}
+        >
           {t("cloud.upload.add")}
         </Tab>
       </Tabs>
@@ -95,7 +100,15 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
             </SelectModalButton>
           </ResourceInput>
         ) : resources.length > 0 ? (
-          <UploadResourcesGrid resources={resources} importResource />
+          <UploadResourcesGrid
+            resources={resources}
+            selectResource={id => console.log(id)}
+            importResource
+          />
+        ) : !called || loading ? (
+          <EmptyImportedResources>
+            <Spinner small />
+          </EmptyImportedResources>
         ) : (
           <EmptyImportedResources>
             <h1>{t("cloud.text.empty-imported-title")}</h1>

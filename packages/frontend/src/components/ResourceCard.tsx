@@ -7,16 +7,14 @@ import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
   className?: string;
-  click?: (id: string) => void;
   importResource: boolean;
   moveToTrash?: (id: string) => void;
   restoreFromTrash?: (id: string) => void;
-  selectResource?: (id: string) => void;
+  selectResource: (id: string) => void;
 }
 
 const ResourceCard: FC<IResourceCardProps> = ({
   className,
-  click,
   deleted,
   id,
   importResource,
@@ -57,7 +55,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
       className={className}
       importResource={importResource}
       isOpen={true}
-      onClick={() => importResource && click && click(id)}
+      onClick={() => importResource && selectResource(id)}
     >
       <DropDown
         attachmentPosition="top left"
