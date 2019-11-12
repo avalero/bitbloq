@@ -1,23 +1,14 @@
 import React, {
   FC,
-  useCallback,
   useEffect,
-  useLayoutEffect,
   useRef,
   useState
 } from "react";
-import { useMutation, useLazyQuery } from "@apollo/react-hooks";
-import { Button, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
+import { useLazyQuery } from "@apollo/react-hooks";
+import { Button, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import debounce from "lodash/debounce";
-import ResourceDetails from "./ResourceDetails";
 import ResourcesGrid from "./ResourcesGrid";
-import {
-  GET_CLOUD_RESOURCES,
-  MOVE_RESOURCE_TO_TRASH,
-  RESTORE_RESOURCE_FROM_TRASH
-} from "../apollo/queries";
-import { resourceTypes } from "../config";
+import { GET_CLOUD_RESOURCES } from "../apollo/queries";
 import { IResource, OrderType, ResourcesTypes } from "../types";
 
 export enum TabType {

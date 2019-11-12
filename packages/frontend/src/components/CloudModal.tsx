@@ -7,7 +7,7 @@ import React, {
   useState
 } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Button, Modal, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
+import { Button, Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";

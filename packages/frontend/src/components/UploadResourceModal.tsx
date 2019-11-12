@@ -1,29 +1,11 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useState,
-  ChangeEvent
-} from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
-import {
-  Button,
-  DialogModal,
-  Modal,
-  Icon,
-  Input,
-  Spinner,
-  useTranslate
-} from "@bitbloq/ui";
+import React, { FC, useEffect, useState, ChangeEvent } from "react";
+import { useMutation } from "@apollo/react-hooks";
+import { Button, DialogModal, Modal, Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import debounce from "lodash/debounce";
 import CloudModal from "./CloudModal";
-import ResourcesList from "./ResourcesList";
 import UploadResourceTabs, { TabType } from "./UploadResourceTabs";
 import { UPLOAD_CLOUD_RESOURCE } from "../apollo/queries";
-import { resourceTypes } from "../config";
-import { IResource, ResourcesTypes, OrderType } from "../types";
+import { ResourcesTypes } from "../types";
 import { isValidName } from "../util";
 
 const acceptedFiles = {
