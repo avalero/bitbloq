@@ -1,11 +1,18 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
-import { DocumentModel, IDocument } from "../models/document";
+import { documentModel, IDocument } from "../models/document";
 import { FolderModel, IFolder } from "../models/folder";
-import { IUser, UserModel } from "../models/user";
+import { IUser, userModel } from "../models/user";
 import documentResolver from "./document";
 
 import { pubsub } from "../server";
 import { getParentsPath } from "../utils";
+import { IUserInToken } from "../models/interfaces";
+import {
+  MutationCreateFolderArgs,
+  MutationDeleteFolderArgs,
+  MutationUpdateFolderArgs,
+  QueryFolderArgs
+} from "../generated/graphql";
 
 const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
@@ -15,7 +22,11 @@ const folderResolver = {
       subscribe: withFilter(
         // Filtra para devolver solo los documentos del usuario
         () => pubsub.asyncIterator([FOLDER_UPDATED]),
-        (payload, variables, context) => {
+        (
+          payload: { folderUpdated: IFolder },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
           return (
             String(context.user.userID) === String(payload.folderUpdated.user)
           );
@@ -29,8 +40,11 @@ const folderResolver = {
      * Create folder: create a new empty folder.
      * args: folder information
      */
-    createFolder: async (root: any, args: any, context: any) => {
-      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+    createFolder: async (
+      args: MutationCreateFolderArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const user: IUser = await userModel.findOne({ _id: context.user.userID });
       if (args.input.parent) {
         if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
           throw new ApolloError(
@@ -60,7 +74,10 @@ const folderResolver = {
      * The method deletes all the documents inside de document
      * args: folder ID
      */
-    deleteFolder: async (root: any, args: any, context: any) => {
+    deleteFolder: async (
+      args: MutationDeleteFolderArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -78,7 +95,6 @@ const folderResolver = {
         if (existFolder.documentsID.length > 0) {
           for (const document of existFolder.documentsID) {
             await documentResolver.Mutation.deleteDocument(
-              "",
               { id: document },
               context
             );
@@ -91,11 +107,7 @@ const folderResolver = {
         }
         if (existFolder.foldersID.length > 0) {
           for (const folder of existFolder.foldersID) {
-            await folderResolver.Mutation.deleteFolder(
-              "",
-              { id: folder },
-              context
-            );
+            await folderResolver.Mutation.deleteFolder({ id: folder }, context);
           }
         }
         await FolderModel.updateOne(
@@ -103,7 +115,7 @@ const folderResolver = {
           { $pull: { foldersID: existFolder._id } },
           { new: true }
         );
-        return await FolderModel.deleteOne({ _id: args.id });
+        return FolderModel.deleteOne({ _id: args.id });
       } else {
         return new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
       }
@@ -114,7 +126,10 @@ const folderResolver = {
      * It updates the folder with the new information provided.
      * args: folder ID, new folder information.
      */
-    updateFolder: async (root: any, args: any, context: any) => {
+    updateFolder: async (
+      args: MutationUpdateFolderArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -162,7 +177,7 @@ const folderResolver = {
         if (args.input.documentsID) {
           // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
           for (const document of args.input.documentsID) {
-            const doc: IDocument = await DocumentModel.findOne({
+            const doc: IDocument = await documentModel.findOne({
               _id: document
             });
             if (!doc) {
@@ -177,7 +192,7 @@ const folderResolver = {
               { $pull: { documentsID: document } },
               { new: true }
             );
-            await DocumentModel.updateOne(
+            await documentModel.updateOne(
               // actualizo el documento con la nueva carpeta
               { _id: document },
               { folder: existFolder._id }
@@ -229,7 +244,7 @@ const folderResolver = {
      * Folders: returns all the folders of the user logged.
      * args: nothing.
      */
-    folders: async (root: any, args: any, context: any) => {
+    folders: async (context: { user: IUserInToken }) => {
       return FolderModel.find({ user: context.user.userID });
     },
 
@@ -237,7 +252,7 @@ const folderResolver = {
      * Folder: returns the information of the folder ID provided in the arguments.
      * args: folder ID.
      */
-    folder: async (root: any, args: any, context: any) => {
+    folder: async (args: QueryFolderArgs, context: { user: IUserInToken }) => {
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -252,8 +267,8 @@ const folderResolver = {
      * Root: returns the root folder of the user logged.
      * args: nothing.
      */
-    rootFolder: async (root: any, args: any, context: any) => {
-      return await FolderModel.findOne({
+    rootFolder: async (context: { user: IUserInToken }) => {
+      return FolderModel.findOne({
         name: "root",
         user: context.user.userID
       });
@@ -262,7 +277,7 @@ const folderResolver = {
 
   Folder: {
     documents: async (folder: IFolder) =>
-      DocumentModel.find({ folder: folder.id }),
+      documentModel.find({ folder: folder.id }),
     folders: async (folder: IFolder) => FolderModel.find({ parent: folder.id }),
     parentsPath: async (folder: IFolder) => {
       const result = await getParentsPath(folder);

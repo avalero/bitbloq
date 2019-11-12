@@ -1,17 +1,18 @@
-require("dotenv").config();
+// require("dotenv").config();
 
-import * as mongoose from "mongoose";
+import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
 import Koa = require("koa");
-const { ApolloServer, AuthenticationError } = require("apollo-server-koa");
+import { ApolloServer } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
 
 import { RedisPubSub } from "graphql-redis-subscriptions";
 import * as Redis from "ioredis";
-const redis = require("redis");
-const bluebird = require("bluebird");
+
+import { RedisClient, createClient } from "redis";
+import { promisifyAll } from "bluebird";
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
@@ -21,23 +22,23 @@ const PORT = process.env.PORT;
 
 const mongoUrl: string = process.env.MONGO_URL;
 
-mongoose.set("debug", true);
-mongoose.set("useFindAndModify", false); // ojo con esto al desplegar
-mongoose.connect(
+mongooseSet("debug", true);
+mongooseSet("useFindAndModify", false); // ojo con esto al desplegar
+mongooseConnect(
   mongoUrl,
   { useNewUrlParser: true, useCreateIndex: true },
   (err: any) => {
     if (err) {
       throw err;
     }
-
     console.log("Successfully connected to Mongo");
   }
 );
 
-let pubsub, redisClient;
+let pubsub;
+let redisClient;
 if (USE_REDIS === "true") {
-  //Redis configuration
+  // Redis configuration
   const redisOptions = {
     host: REDIS_DOMAIN_NAME,
     port: REDIS_PORT_NUMBER,
@@ -61,8 +62,8 @@ if (USE_REDIS === "true") {
 
   // Redis client for session tokens
   // to do async/await
-  bluebird.promisifyAll(redis.RedisClient.prototype);
-  redisClient = redis.createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
+  promisifyAll(RedisClient.prototype);
+  redisClient = createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
   redisClient.on("connect", () => {
     console.log("Redis client connected.");
   });
@@ -71,11 +72,8 @@ if (USE_REDIS === "true") {
 }
 
 const app = new Koa();
-const httpServer = app.listen(
-  PORT,
-  () => console.log(`🚀 Server ready at http://localhost:${PORT}`)
-  //console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`),
-  //console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+const httpServer = app.listen(PORT, () =>
+  console.log(`🚀 Server ready at http://localhost:${PORT}`)
 );
 
 const server = new ApolloServer({
@@ -94,13 +92,12 @@ const server = new ApolloServer({
     maxFiles: 1
   },
   subscriptions: {
-    onConnect: async (connectionParams, webSocket) => {
+    onConnect: async connectionParams => {
       if (connectionParams.authorization) {
         const justToken = connectionParams.authorization.split(" ")[1];
         const user = await contextController.getDataInToken(justToken);
         return { user }; //  add the user to the ctx
       }
-      //throw new AuthenticationError("You need to be logged in");
     }
   }
 });

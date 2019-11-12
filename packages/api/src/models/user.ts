@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import timestamps from "mongoose-timestamp";
 
 export interface IUser extends Document {
   email?: string;
@@ -20,7 +20,7 @@ export interface IUser extends Document {
   lastLogin?: string;
 }
 
-export const ContactSchema: Schema = new Schema({
+export const contactSchema: Schema = new Schema({
   // id: Schema.Types.ObjectId,
 
   email: {
@@ -101,8 +101,8 @@ export const ContactSchema: Schema = new Schema({
   }
 });
 
-ContactSchema.plugin(timestamps);
-export const UserModel: Model<IUser> = model<IUser>(
-  "UserModels",
-  ContactSchema
+contactSchema.plugin(timestamps);
+export const userModel: Model<IUser> = model<IUser>(
+  "userModels",
+  contactSchema
 );

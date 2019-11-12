@@ -6,6 +6,7 @@ export interface IUserInToken {
   userID: string;
   submissionID: string;
   role: string;
+  exerciseID?: string;
 }
 
 // Email data needed in mjml

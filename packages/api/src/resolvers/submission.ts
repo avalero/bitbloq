@@ -1,12 +1,27 @@
 import { ApolloError, withFilter } from "apollo-server-koa";
-import { contextController } from "../controllers/context";
-import { ExerciseModel, IExercise } from "../models/exercise";
-import { ISubmission, SubmissionModel } from "../models/submission";
+import { exerciseModel, IExercise } from "../models/exercise";
+import { ISubmission, submissionModel } from "../models/submission";
 import { pubsub, redisClient } from "../server";
 
-const jsonwebtoken = require("jsonwebtoken");
+import { sign as jwtSign } from "jsonwebtoken";
+import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+import {
+  SubscriptionSubmissionUpdatedArgs,
+  MutationStartSubmissionArgs,
+  MutationLoginArgs,
+  MutationLoginSubmissionArgs,
+  MutationUpdateSubmissionArgs,
+  MutationSetActiveSubmissionArgs,
+  MutationFinishSubmissionArgs,
+  MutationDeleteSubmissionArgs,
+  MutationGradeSubmissionArgs,
+  MutationUpdatePasswordArgs,
+  MutationUpdatePasswordSubmissionArgs,
+  QuerySubmissionArgs,
+  QuerySubmissionsByExerciseArgs
+} from "../generated/graphql";
+import { IUserInToken } from "../models/interfaces";
 
-const bcrypt = require("bcrypt");
 const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
@@ -17,7 +32,11 @@ const submissionResolver = {
     submissionUpdated: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
-        (payload, variables, context) => {
+        (
+          payload: { submissionUpdated: ISubmission },
+          variables: SubscriptionSubmissionUpdatedArgs,
+          context: { user: IUserInToken }
+        ) => {
           if (
             String(context.user.userID) ===
               String(payload.submissionUpdated.user) ||
@@ -36,9 +55,14 @@ const submissionResolver = {
     submissionActive: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
-        (payload, variables, context) => {
+        (
+          payload: { submissionActive: ISubmission },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
           return (
-            String(payload.submissionActive._id) === String(context.user.submissionID)
+            String(payload.submissionActive._id) ===
+            String(context.user.submissionID)
           );
         }
       )
@@ -51,14 +75,17 @@ const submissionResolver = {
      * returns a login token with the exercise and submission ID.
      * args: exercise code and student nickname and password.
      */
-    startSubmission: async (root: any, args: any, context: any) => {
+    startSubmission: async (
+      args: MutationStartSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
       if (!args.studentNick) {
         throw new ApolloError(
           "Error creating submission, you must introduce a nickname",
           "NOT_NICKNAME_PROVIDED"
         );
       }
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise = await exerciseModel.findOne({
         code: args.exerciseCode
       });
       if (!exFather) {
@@ -76,7 +103,7 @@ const submissionResolver = {
         );
       }
       // check if there is a submission with this nickname and password. If true, return error.
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await submissionModel.findOne({
         studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id
       });
@@ -87,8 +114,8 @@ const submissionResolver = {
         );
       }
 
-      const hash: string = await bcrypt.hash(args.password, saltRounds);
-      const submissionNew: ISubmission = new SubmissionModel({
+      const hash: string = await bcryptHash(args.password, saltRounds);
+      const submissionNew: ISubmission = new submissionModel({
         exercise: exFather._id,
         studentNick: args.studentNick.toLowerCase(),
         password: hash,
@@ -100,8 +127,8 @@ const submissionResolver = {
         type: exFather.type,
         active: true
       });
-      const newSub: ISubmission = await SubmissionModel.create(submissionNew);
-      const token: string = jsonwebtoken.sign(
+      const newSub: ISubmission = await submissionModel.create(submissionNew);
+      const token: string = jwtSign(
         {
           exerciseID: exFather._id,
           submissionID: newSub._id,
@@ -110,7 +137,7 @@ const submissionResolver = {
         process.env.JWT_SECRET,
         { expiresIn: "3h" }
       );
-      await SubmissionModel.findOneAndUpdate(
+      await submissionModel.findOneAndUpdate(
         { _id: newSub._id },
         { $set: { submissionToken: token } },
         { new: true }
@@ -131,7 +158,7 @@ const submissionResolver = {
       }
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
       return {
-        token: token,
+        token,
         exerciseID: exFather._id,
         type: newSub.type
       };
@@ -142,14 +169,14 @@ const submissionResolver = {
      * the mutation returns it. If not, returns an error.
      * args: exercise code and student nickname and password.
      */
-    loginSubmission: async (root: any, args: any, context: any) => {
+    loginSubmission: async (args: MutationLoginSubmissionArgs) => {
       if (!args.studentNick) {
         throw new ApolloError(
           "Error creating submission, you must introduce a nickname",
           "NOT_NICKNAME_PROVIDED"
         );
       }
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise = await exerciseModel.findOne({
         code: args.exerciseCode
       });
       if (!exFather) {
@@ -167,7 +194,7 @@ const submissionResolver = {
         );
       }
       // check if there is a submission with this nickname and password. If true, return it.
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+      const existSubmission: ISubmission = await submissionModel.findOne({
         studentNick: args.studentNick.toLowerCase(),
         exercise: exFather._id
       });
@@ -179,12 +206,12 @@ const submissionResolver = {
       }
 
       // si existe la submission, compruebo la contraseña y la devuelvo
-      const valid: boolean = await bcrypt.compare(
+      const valid: boolean = await bcryptCompare(
         args.password,
         existSubmission.password
       );
       if (valid) {
-        const token: string = jsonwebtoken.sign(
+        const token: string = jwtSign(
           {
             exerciseID: exFather._id,
             submissionID: existSubmission._id,
@@ -193,7 +220,7 @@ const submissionResolver = {
           process.env.JWT_SECRET,
           { expiresIn: "3h" }
         );
-        await SubmissionModel.findOneAndUpdate(
+        await submissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: { submissionToken: token, active: true } },
           { new: true }
@@ -219,7 +246,7 @@ const submissionResolver = {
           submissionUpdated: existSubmission
         });
         return {
-          token: token,
+          token,
           exerciseID: exFather._id,
           type: existSubmission.type
         };
@@ -236,8 +263,11 @@ const submissionResolver = {
      * It updates the submission with the new information provided.
      * args: submission ID, new submission information.
      */
-    updateSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+    updateSubmission: async (
+      args: MutationUpdateSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existSubmission: ISubmission = await submissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID
       });
@@ -255,7 +285,7 @@ const submissionResolver = {
             "CANT_UPDATE_NICKNAME"
           );
         }
-        const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        const updatedSubmission: ISubmission = await submissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: args.input },
           { new: true }
@@ -272,13 +302,16 @@ const submissionResolver = {
      * It updates the exercise with active/disabled submissions.
      * args: exercise ID, studentNick and active.
      */
-    setActiveSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+    setActiveSubmission: async (
+      args: MutationSetActiveSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existSubmission: ISubmission = await submissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID
       });
       if (existSubmission) {
-        const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        const updatedSubmission: ISubmission = await submissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           {
             $set: {
@@ -303,8 +336,11 @@ const submissionResolver = {
      * It is necessary to be logged in as student.
      * args: content of the submission and comment.
      */
-    finishSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+    finishSubmission: async (
+      args: MutationFinishSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existSubmission: ISubmission = await submissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID
       });
@@ -314,7 +350,7 @@ const submissionResolver = {
           "SUBMISSION_NOT_FOUND"
         );
       }
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise = await exerciseModel.findOne({
         _id: existSubmission.exercise
       });
       // check if the exercise accepts submissions
@@ -329,7 +365,7 @@ const submissionResolver = {
       if (timeNow > exFather.expireDate) {
         throw new ApolloError("Your submission is late", "SUBMISSION_LATE");
       }
-      const updatedSubmission = await SubmissionModel.findOneAndUpdate(
+      const updatedSubmission = await submissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -354,8 +390,8 @@ const submissionResolver = {
      * args: nothing
      */
     // alumno cancela su propia submission
-    cancelSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+    cancelSubmission: async (context: { user: IUserInToken }) => {
+      const existSubmission: ISubmission = await submissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID
       });
@@ -365,7 +401,7 @@ const submissionResolver = {
           "SUBMISSION_NOT_FOUND"
         );
       }
-      return SubmissionModel.deleteOne({ _id: existSubmission._id });
+      return submissionModel.deleteOne({ _id: existSubmission._id });
     },
 
     /**
@@ -374,8 +410,11 @@ const submissionResolver = {
      * args: submission ID
      */
     // el profesor borra la sumbission de un alumno
-    deleteSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+    deleteSubmission: async (
+      args: MutationDeleteSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existSubmission: ISubmission = await submissionModel.findOneAndUpdate(
         {
           _id: args.submissionID,
           user: context.user.userID
@@ -394,7 +433,7 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_ACTIVE, {
         submissionActive: existSubmission
       });
-      return SubmissionModel.deleteOne({ _id: existSubmission._id });
+      return submissionModel.deleteOne({ _id: existSubmission._id });
     },
 
     /**
@@ -402,8 +441,11 @@ const submissionResolver = {
      * It updates the submission with the new information provided: grade and teacher comment.
      * args: submissionID, grade and teacherComment
      */
-    gradeSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+    gradeSubmission: async (
+      args: MutationGradeSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existSubmission: ISubmission = await submissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID
       });
@@ -421,7 +463,7 @@ const submissionResolver = {
         );
       }
 
-      const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+      const updatedSubmission: ISubmission = await submissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -440,8 +482,11 @@ const submissionResolver = {
      * It updates the submission with the new information provided: password.
      * args: submissionID and password
      */
-    updatePasswordSubmission: async (root: any, args: any, context: any) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
+    updatePasswordSubmission: async (
+      args: MutationUpdatePasswordSubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existSubmission: ISubmission = await submissionModel.findOne({
         _id: args.submissionID,
         user: context.user.userID
       });
@@ -451,8 +496,8 @@ const submissionResolver = {
           "SUBMISSION_NOT_FOUND"
         );
       }
-      const hash: string = await bcrypt.hash(args.password, saltRounds);
-      const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+      const hash: string = await bcryptHash(args.password, saltRounds);
+      const updatedSubmission: ISubmission = await submissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -471,8 +516,8 @@ const submissionResolver = {
      * args: nothing.
      */
     // devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
-    submissions: async (root: any, args: any, context: any) => {
-      return SubmissionModel.find({ user: context.user.userID });
+    submissions: async (context: { user: IUserInToken }) => {
+      return submissionModel.find({ user: context.user.userID });
     },
 
     /**
@@ -482,10 +527,13 @@ const submissionResolver = {
      */
     // Student and user querie:
     // devuelve la información de la submission que se le pasa en el id con el tocken del alumno o de usuario
-    submission: async (root: any, args: any, context: any) => {
+    submission: async (
+      args: QuerySubmissionArgs,
+      context: { user: IUserInToken }
+    ) => {
       if (context.user.submissionID) {
         // Token de alumno
-        const existSubmission: ISubmission = await SubmissionModel.findOne({
+        const existSubmission: ISubmission = await submissionModel.findOne({
           _id: context.user.submissionID
         });
         if (!existSubmission) {
@@ -497,7 +545,7 @@ const submissionResolver = {
         return existSubmission;
       } else if (context.user.userID) {
         // token de profesor
-        const existSubmission: ISubmission = await SubmissionModel.findOne({
+        const existSubmission: ISubmission = await submissionModel.findOne({
           _id: args.id,
           user: context.user.userID
         });
@@ -517,14 +565,14 @@ const submissionResolver = {
      * args: exercise ID.
      */
     // user queries:
-    submissionsByExercise: async (root: any, args: any, context: any) => {
-      const exFather: IExercise = await ExerciseModel.findOne({
+    submissionsByExercise: async (args: QuerySubmissionsByExerciseArgs) => {
+      const exFather: IExercise = await exerciseModel.findOne({
         _id: args.exercise
       });
       if (!exFather) {
         throw new ApolloError("exercise does not exist", "EXERCISE_NOT_FOUND");
       }
-      return await SubmissionModel.find({
+      return submissionModel.find({
         exercise: exFather._id
       });
     }
