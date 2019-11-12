@@ -31,15 +31,15 @@ export enum OrderType {
 export enum ResourcesTypes {
   image = "image",
   object3D = "object3D",
-  sound = "sound", 
-  video  = "video"
+  sound = "sound",
+  video = "video"
 }
 
 export interface IResource {
   createdAt: Date;
   deleted: boolean;
   id: string;
-  file: string
+  file: string;
   preview?: string;
   size: number; // Bytes
   thumbnail?: string;

@@ -23,7 +23,8 @@ module.exports = {
               educationalStage: "",
               province: "",
               postCode: 0,
-              country: ""
+              country: "",
+              finishedSignUp: true
             }
           }
         );
@@ -54,7 +55,8 @@ module.exports = {
           educationalStage: 1,
           province: 1,
           postCode: 1,
-          country: 1
+          country: 1,
+          finishedSignUp: 1
         }
       }
     );
