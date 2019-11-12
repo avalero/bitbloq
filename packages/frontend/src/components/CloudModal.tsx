@@ -3,10 +3,11 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useRef,
   useState
 } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
-import { Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
+import { Button, Modal, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
 import ResourceDetails from "./ResourceDetails";
@@ -49,13 +50,23 @@ const ResourceType: FC<IResourceTypeProps> = ({
 };
 
 export interface ICloudModalProps {
+  acceptedExt?: string[];
+  importAllow?: boolean;
   isOpen: boolean;
   onClose?: () => void;
+  setFile?: (file: File) => void;
 }
 
-const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
+const CloudModal: FC<ICloudModalProps> = ({
+  acceptedExt,
+  importAllow,
+  isOpen,
+  onClose,
+  setFile
+}) => {
   const [moveToTrash] = useMutation(MOVE_RESOURCE_TO_TRASH);
   const [restoreFromTrash] = useMutation(RESTORE_RESOURCE_FROM_TRASH);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [cloudResourceTypes, setCloudResourceTypes] = useState<IResourceType[]>(
     []
   );
@@ -127,6 +138,19 @@ const CloudModal: FC<ICloudModalProps> = ({ isOpen, onClose }) => {
     >
       <CloudModalBody>
         <LateralBar>
+          {importAllow && (
+            <>
+              <ImportInput
+                accept={acceptedExt.join(", ")}
+                onChange={e => setFile(e.target.files[0])}
+                ref={inputRef}
+                type="file"
+              />
+              <ImportButton onClick={() => inputRef.current.click()}>
+                {t("cloud.buttons.import")}
+              </ImportButton>
+            </>
+          )}
           {cloudResourceTypes.map(resourceType => (
             <ResourceType
               active={resourceTypeActiveId === resourceType.id}
@@ -218,6 +242,15 @@ const EmptyResources = styled.div`
   height: 100%;
   justify-content: center;
   width: 100%;
+`;
+
+const ImportButton = styled(Button)`
+  margin: 0 20px 20px;
+  width: calc(100% - 40px);
+`;
+
+const ImportInput = styled.input`
+  display: none;
 `;
 
 const LateralBar = styled.div`

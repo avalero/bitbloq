@@ -18,7 +18,7 @@ import {
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
-import ResourceDetails from "./ResourceDetails";
+import CloudModal from "./CloudModal";
 import ResourcesList from "./ResourcesList";
 import UploadResourceTabs, { TabType } from "./UploadResourceTabs";
 import { UPLOAD_CLOUD_RESOURCE } from "../apollo/queries";
@@ -49,6 +49,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [error, setError] = useState<0 | 1 | 2>(0); // 0 -> No error; 1 -> Extension error; 2 -> Size error
   const [file, setFile] = useState<File>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
+  const [openCloud, setOpenCloud] = useState<boolean>(true);
   const [tab, setTab] = useState<TabType>(TabType.import);
   const t = useTranslate();
 
@@ -63,6 +64,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const onCloseModal = () => {
     setError(0);
     setFile(undefined);
+    setOpenCloud(false);
     setTab(TabType.import);
     onClose();
   };
@@ -94,7 +96,15 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     }
   };
 
-  return error !== 0 ? (
+  return openCloud && file === undefined && error === 0 ? (
+    <CloudModal
+      acceptedExt={accept}
+      importAllow
+      isOpen={true}
+      onClose={onCloseModal}
+      setFile={onSetFile}
+    />
+  ) : error !== 0 ? (
     <DialogModal
       isOpen={true}
       onCancel={onCloseModal}
@@ -138,8 +148,8 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           <ResourceModalButton onClick={onCloseModal} tertiary>
             {t("general-cancel-button")}
           </ResourceModalButton>
-          {tab === TabType.add && (
-            <ResourceModalButton onClick={onCloseModal} tertiary>
+          {tab === TabType.add && file === undefined && (
+            <ResourceModalButton onClick={() => setOpenCloud(true)} tertiary>
               {t("cloud.buttons.see-more")}
             </ResourceModalButton>
           )}

@@ -256,6 +256,7 @@
   "general-add-button": "Añadir",
   "cloud": {
     "buttons": {
+      "import": "Importar nuevo recurso",
       "see-more": "Ver más recursos en mi Bitbloq Cloud"
     },
     "details": {
