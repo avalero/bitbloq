@@ -1,6 +1,8 @@
 import { ApolloError } from "apollo-server-koa";
 import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
+import { DocumentModel } from "../models/document";
+import { ObjectId, ObjectID } from "bson";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
@@ -173,8 +175,8 @@ const uploadResolver = {
 
     cloudResources: async (root: any, args: any, context: any) => {
       const itemsPerPage: number = 8;
-      let skipN: number = (args.currentPage - 1) * itemsPerPage;
-      let limit: number = skipN + itemsPerPage;
+      const skipN: number = (args.currentPage - 1) * itemsPerPage;
+      const limit: number = skipN + itemsPerPage;
       const text: string = args.searchTitle;
 
       const orderFunction = orderFunctions[args.order];
@@ -184,7 +186,7 @@ const uploadResolver = {
             deleted: true
           })
         : (filtedOptions = {
-            type: args.type,
+            type: { $in: args.type },
             deleted: false
           });
       const userUploads: IUpload[] = await UploadModel.find({
@@ -192,10 +194,8 @@ const uploadResolver = {
         user: context.user.userID,
         ...filtedOptions
       });
-      const dataSorted: IUpload[] = await userUploads.sort(orderFunction);
-      const pagesNumber: number = Math.ceil(dataSorted.length / itemsPerPage);
 
-      const result: IResource[] = dataSorted.slice(skipN, limit).map(i => {
+      const resources: IResource[] = userUploads.map(i => {
         return {
           id: i._id,
           title: i.filename,
@@ -208,6 +208,11 @@ const uploadResolver = {
           createdAt: i.createdAt
         };
       });
+      const pagesNumber: number = Math.ceil(resources.length / itemsPerPage);
+      const result: IResource[] = await resources
+        .sort(orderFunction)
+        .slice(skipN, limit);
+
       return { resources: result, pagesNumber };
     }
   },
@@ -316,6 +321,20 @@ const uploadResolver = {
         );
       });
     },
+
+    addResourceToDocument: async (root: any, args: any, context: any) => {
+      await DocumentModel.findOneAndUpdate(
+        { _id: args.documentID },
+        { $push: { resourcesID: args.resourceID } },
+        { new: true }
+      );
+      return UploadModel.findOneAndUpdate(
+        { _id: args.resourceID, deleted: false },
+        { $push: { documentsID: args.documentID } },
+        { new: true }
+      );
+    },
+
     uploadImageFile: async (root: any, args: any, context: any) => {
       const {
         createReadStream,
@@ -383,6 +402,11 @@ const uploadResolver = {
         { $set: { deleted: false } },
         { new: true }
       );
+    }
+  },
+  Upload: {
+    documents: async (upload: IUpload) => {
+      return await DocumentModel.find({ _id: { $in: upload.documentsID } });
     }
   }
 };
