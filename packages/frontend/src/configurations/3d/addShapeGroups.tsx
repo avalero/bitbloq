@@ -127,13 +127,7 @@ export const addShapeGroups = [
         parameters: { url: windmillSTL },
         label: "shape-windmill",
         icon: <img src={windmillIcon} />
-      }
-    ]
-  },
-  {
-    label: "people",
-    icon: <Icon name="people" />,
-    shapes: [
+      },
       {
         type: "PredesignedObject",
         parameters: { url: building1STL },
