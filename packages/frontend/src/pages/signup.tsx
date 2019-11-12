@@ -1,7 +1,6 @@
-import * as React from "react";
-import { FC, useEffect, useRef, useState } from "react";
-import styled from "@emotion/styled";
+import React, { FC, useEffect, useState } from "react";
 import Router from "next/router";
+import { ApolloError } from "apollo-client";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
 import gql from "graphql-tag";
@@ -12,8 +11,10 @@ import {
   Button,
   DialogModal,
   HorizontalRule,
-  Checkbox
+  Checkbox,
+  Option
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
 import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
@@ -32,7 +33,12 @@ const SIGNUP_MUTATION = gql`
   }
 `;
 
-interface IUserInputs {
+enum UserPlanOptions {
+  Member = "member",
+  Teacher = "teacher"
+}
+
+interface IUserData {
   acceptTerms: boolean;
   date: Date;
   day: number;
@@ -46,8 +52,16 @@ interface IUserInputs {
   year: number;
 }
 
-interface IUserPlanInput {
-  usePlan: string;
+interface IUserPlan {
+  userPlan: UserPlanOptions;
+}
+
+interface IStepInput {
+  defaultValues: {};
+  error: ApolloError;
+  goToPreviousStep?: () => void;
+  loading: boolean;
+  onSubmit: (userInputs: IUserData | IUserPlan) => void;
 }
 
 // TODO: use or remove
@@ -67,11 +81,9 @@ interface IUserIn {
 }
 
 const SignupPage: FC = () => {
-  const [accountCreated, setAccountCreated] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
-  const [userId, setUserId] = useState();
   const [userData, setUserData] = useState({});
-
+  const [userId, setUserId] = useState();
   const [saveUser, { loading: saving, error: savingError }] = useMutation(
     SAVE_MUTATION
   );
@@ -88,38 +100,38 @@ const SignupPage: FC = () => {
   const goToPreviousStep = () => setCurrentStep(currentStep - 1);
   const goToNextStep = () => setCurrentStep(currentStep + 1);
 
-  const onSaveUser = async (userInputs: IUserInputs) => {
-    const result = await saveUser({
+  const onSaveUser = (input: IUserData) => {
+    saveUser({
       variables: {
         input: {
-          bornDate: userInputs.date,
-          email: userInputs.email,
-          imTeacherCheck: userInputs.imTeacherCheck,
-          name: userInputs.name,
-          notifications: !userInputs.noNotifications,
-          password: userInputs.password,
-          surnames: userInputs.surnames
+          bornDate: input.date,
+          email: input.email,
+          imTeacherCheck: input.imTeacherCheck,
+          name: input.name,
+          notidifications: !input.noNotifications,
+          password: input.password,
+          surnames: input.surnames
         }
       }
+    }).then(result => {
+      setUserData(input);
+      setUserId(result.data.signUpUser.id);
+      goToNextStep();
     });
-    setUserData(userInputs);
-    setUserId(result.data.signUpUser.id);
-    goToNextStep();
   };
 
-  const onSignupUser = async (userPlanInput: IUserPlanInput) => {
-    await signupUser({
+  const onSignupUser = (input: IUserPlan) => {
+    signupUser({
       variables: {
         id: userId,
-        userPlan: userPlanInput.usePlan
+        userPlan: input.userPlan
       }
-    });
-    setAccountCreated(true);
+    }).then(() => goToNextStep());
   };
 
   return (
     <Wrap ref={wrapRef}>
-      {accountCreated ? (
+      {currentStep === 3 ? (
         <DialogModal
           isOpen={true}
           title="Cuenta creada"
@@ -135,20 +147,23 @@ const SignupPage: FC = () => {
             <HorizontalRule small />
             <Content>
               <Counter>Paso {currentStep} de 2</Counter>
-              <Step1
-                currentStep={currentStep}
-                error={savingError}
-                loading={saving}
-                onSubmit={onSaveUser}
-                userData={userData}
-              />
-              <Step2
-                currentStep={currentStep}
-                error={signupError}
-                goToPreviousStep={goToPreviousStep}
-                loading={signingup}
-                onSubmit={onSignupUser}
-              />
+              {currentStep === 1 && (
+                <Step1
+                  defaultValues={userData}
+                  error={savingError}
+                  loading={saving}
+                  onSubmit={onSaveUser}
+                />
+              )}
+              {currentStep === 2 && (
+                <Step2
+                  defaultValues={{ userPlan: UserPlanOptions.Member }}
+                  error={signupError}
+                  goToPreviousStep={goToPreviousStep}
+                  loading={signingup}
+                  onSubmit={onSignupUser}
+                />
+              )}
             </Content>
           </SignupPanel>
         </Container>
@@ -157,17 +172,7 @@ const SignupPage: FC = () => {
   );
 };
 
-const Step1: FC<any> = ({
-  currentStep,
-  error,
-  loading,
-  onSubmit,
-  userData
-}) => {
-  if (currentStep !== 1) {
-    return null;
-  }
-
+const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   const {
     clearError,
     errors,
@@ -176,24 +181,26 @@ const Step1: FC<any> = ({
     register,
     setError,
     setValue
-  } = useForm({ defaultValues: userData });
+  } = useForm({ defaultValues });
 
-  register({ name: "date" }, { validate: isValidDate });
+  register({ name: "date", type: "custom" }, { validate: isValidDate });
+  register({ name: "imTeacherCheck", type: "custom" });
+  register({ name: "noNotifications", type: "custom" });
+  register(
+    { name: "acceptTerms", type: "custom" },
+    { validate: (value: boolean) => !!value }
+  );
 
   useEffect(() => {
     if (error) setError("email", "existing");
   }, [error]);
 
-  const onChangeDate = () => {
+  const onChangeDate = async () => {
+    clearError("date");
     setValue(
       "date",
-      [getValues()["day"], getValues()["month"], getValues()["year"]].join("/")
+      [getValues().day, getValues().month, getValues().year].join("/")
     );
-  };
-
-  const onClickCheckOption = (name: string) => {
-    clearError(name);
-    setValue(name, !getValues()[name]);
   };
 
   const onGotoMicrosoft = () => {
@@ -322,48 +329,51 @@ const Step1: FC<any> = ({
             name="day"
             placeholder="DD"
             ref={register}
-            error={!!errors.year || !!errors.date}
+            error={!!errors.date}
           />
           <Input
             type="number"
             name="month"
             placeholder="MM"
             ref={register}
-            error={!!errors.year || !!errors.date}
+            error={!!errors.date}
           />
           <Input
             type="number"
             name="year"
             placeholder="AAAA"
-            ref={register({ minLength: 4 })}
-            error={!!errors.year || !!errors.date}
+            ref={register}
+            error={!!errors.date}
           />
         </FormGroup>
-        {(errors.year || errors.date) && (
+        {errors.date && (
           <ErrorMessage>Debes introducir una fecha válida</ErrorMessage>
         )}
       </FormField>
-      <CheckOption onClick={() => onClickCheckOption("imTeacherCheck")}>
-        <input hidden type="checkbox" name="imTeacherCheck" ref={register} />
-        <Checkbox checked={getValues()["imTeacherCheck"]} />
+      <CheckOption
+        onClick={() => setValue("imTeacherCheck", !getValues().imTeacherCheck)}
+      >
+        <Checkbox checked={getValues().imTeacherCheck} />
         <span>Soy profesor</span>
       </CheckOption>
-      <input hidden type="checkbox" name="noNotifications" ref={register} />
-      <CheckOption onClick={() => onClickCheckOption("noNotifications")}>
-        <Checkbox checked={getValues()["noNotifications"]} />
+      <CheckOption
+        onClick={() =>
+          setValue("noNotifications", !getValues().noNotifications)
+        }
+      >
+        <Checkbox checked={getValues().noNotifications} />
         <span>
           No quiero recibir noticias y novedades en mi correo electrónico.
         </span>
       </CheckOption>
-      <input
-        hidden
-        type="checkbox"
-        name="acceptTerms"
-        ref={register({ required: true })}
-      />
-      <CheckOption onClick={() => onClickCheckOption("acceptTerms")}>
+      <CheckOption
+        onClick={() => {
+          clearError("acceptTerms");
+          setValue("acceptTerms", !getValues().acceptTerms);
+        }}
+      >
         <Checkbox
-          checked={getValues()["acceptTerms"]}
+          checked={getValues().acceptTerms}
           error={!!errors.acceptTerms}
         />
         <span>
@@ -396,18 +406,18 @@ const Step1: FC<any> = ({
   );
 };
 
-const Step2: FC<any> = ({
-  currentStep,
+const Step2: FC<IStepInput> = ({
+  defaultValues,
   error,
+  goToPreviousStep,
   loading,
-  onSubmit,
-  goToPreviousStep
+  onSubmit
 }) => {
-  if (currentStep !== 2) {
-    return null;
-  }
+  const { getValues, handleSubmit, register, setValue } = useForm({
+    defaultValues
+  });
 
-  const { handleSubmit, register } = useForm();
+  register({ name: "userPlan", type: "custom" }, { required: true });
 
   useEffect(() => {
     // TODO: check error management
@@ -417,7 +427,32 @@ const Step2: FC<any> = ({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Title>Configuración de la cuenta</Title>
-      <input name="usePlan" value="teacher" ref={register} />
+      Elije el tipo de cuenta que deseas crear:
+      <PlanOption>
+        <Option
+          className={"bullet"}
+          checked={getValues().userPlan === UserPlanOptions.Member}
+          onClick={() => setValue("userPlan", UserPlanOptions.Member)}
+        />
+        <PlanOptionInfo>
+          <span>Miembro</span>
+          <PlanOptionCost>Gratis</PlanOptionCost>
+        </PlanOptionInfo>
+      </PlanOption>
+      <PlanOption>
+        <Option
+          className={"bullet"}
+          checked={getValues().userPlan === UserPlanOptions.Teacher}
+          onClick={() => setValue("userPlan", UserPlanOptions.Teacher)}
+        />
+        <PlanOptionInfo>
+          <span>Profesor</span>
+          <PlanOptionCost>
+            <span>6€ al mes</span>
+            <span>Gratis durante la beta</span>
+          </PlanOptionCost>
+        </PlanOptionInfo>
+      </PlanOption>
       <Buttons>
         <Button tertiary onClick={goToPreviousStep}>
           Volver
@@ -443,6 +478,14 @@ const Wrap = styled.div`
   min-height: 100%;
   justify-content: center;
   background-color: ${colors.gray1};
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 `;
 
 const Container = styled.div`
@@ -537,7 +580,7 @@ const Buttons = styled.div`
 const FormGroup = styled.div`
   display: flex;
 
-  > :not(:first-child) {
+  > :not(:first-of-type) {
     margin-left: 10px;
   }
 `;
@@ -568,4 +611,36 @@ const ErrorMessage = styled.div`
   font-size: 12px;
   font-style: italic;
   color: #d82b32;
+`;
+
+const PlanOption = styled.div`
+  border: solid 1px #cfcfcf;
+  border-radius: 4px;
+  display: flex;
+  height: 40px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+
+  .bullet {
+    justify-content: center;
+    width: 40px;
+  }
+`;
+
+const PlanOptionInfo = styled.div`
+  align-items: center;
+  border-left: solid 1px #cfcfcf;
+  display: flex;
+  flex: 1;
+  justify-content: space-between;
+  padding: 0 20px;
+`;
+
+const PlanOptionCost = styled.div`
+  font-weight: bold;
+
+  > :first-of-type {
+    color: #e0e0e0;
+    text-decoration: line-through;
+  }
 `;

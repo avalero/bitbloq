@@ -11,7 +11,8 @@ export const getChromeVersion = userAgent => {
   }
 };
 
-export const isValidDate = date => moment(date, "DD/MM/YYYY").isValid();
+export const isValidDate = date =>
+  /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/i.test(date) && moment(date, "DD/MM/YYYY").isValid();
 
 export const isValidEmail = email =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
