@@ -1,7 +1,7 @@
 # import Date, ObjectID, Role from "./scalars.graphql"
 # import Exercise from "./exercise.graphql"
 # import Folder from "./folder.graphql"
-# import File from "./upload.graphql"
+# import File, Resource from "./upload.graphql"
 # import Upload from "./scalars.graphql"
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
@@ -16,7 +16,8 @@ type Query {
     order: String
     searchTitle: String
   ): DocsAndFolders @authRequired(requires: [USER])
-  hasExercises(id: ObjectID!, type: String): Boolean @authRequired(requires: [USER])
+  hasExercises(id: ObjectID!, type: String): Boolean
+    @authRequired(requires: [USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
   examples: [Document]
 }
@@ -81,6 +82,7 @@ type Document {
   exercises: [Exercise]
   images: [File]
   parentsPath: [Folder]
+  resources: [Resource]
 }
 
 input DocImageIn {
