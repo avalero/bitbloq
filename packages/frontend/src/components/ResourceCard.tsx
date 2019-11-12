@@ -6,9 +6,9 @@ import MenuButton from "./MenuButton";
 import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
+  addAllow?: boolean;
+  addCallback?: (id: string, ext: string) => void;
   className?: string;
-  importAllow?: boolean;
-  importCallback?: (id: string) => void;
   importResource: boolean;
   moveToTrash?: (id: string) => void;
   restoreFromTrash?: (id: string) => void;
@@ -16,11 +16,11 @@ interface IResourceCardProps extends IResource {
 }
 
 const ResourceCard: FC<IResourceCardProps> = ({
+  addAllow,
+  addCallback,
   className,
   deleted,
   id,
-  importAllow,
-  importCallback,
   importResource,
   moveToTrash,
   restoreFromTrash,
@@ -57,11 +57,13 @@ const ResourceCard: FC<IResourceCardProps> = ({
   return (
     <ResourceContainer
       className={className}
-      importAllow={importAllow}
+      addAllow={addAllow && !deleted}
       importResource={importResource}
       isOpen={true}
       onClick={() =>
-        (importResource || importAllow) && importCallback && importCallback(id)
+        (importResource || (addAllow && !deleted)) &&
+        addCallback &&
+        addCallback(id, extTitle)
       }
     >
       <DropDown
@@ -144,7 +146,7 @@ const ResourceCardMenu = styled(DocumentCardMenu)`
 `;
 
 const ResourceContainer = styled.div<{
-  importAllow?: boolean;
+  addAllow?: boolean;
   importResource?: boolean;
   isOpen?: boolean;
 }>`
@@ -152,7 +154,7 @@ const ResourceContainer = styled.div<{
   border: solid 1px #ccc;
   border-radius: 4px;
   cursor: ${props =>
-    props.importResource || props.importAllow ? "pointer" : "default"};
+    props.importResource || props.addAllow ? "pointer" : "default"};
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
@@ -162,7 +164,7 @@ const ResourceContainer = styled.div<{
 
   &:hover {
     background-color: ${props =>
-      props.importResource || props.importAllow ? "#f1f1f1" : "#fff"};
+      props.importResource || props.addAllow ? "#f1f1f1" : "#fff"};
     border: solid 1px #373b44;
 
     ${CardMenuButton} {

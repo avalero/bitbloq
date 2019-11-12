@@ -51,8 +51,8 @@ const ResourceType: FC<IResourceTypeProps> = ({
 
 export interface ICloudModalProps {
   acceptedExt?: string[];
-  importAllow?: boolean;
-  importCallback?: (id: string) => void;
+  addAllow?: boolean;
+  addCallback?: (id: string, ext: string) => void;
   isOpen: boolean;
   onClose?: () => void;
   setFile?: (file: File) => void;
@@ -60,8 +60,8 @@ export interface ICloudModalProps {
 
 const CloudModal: FC<ICloudModalProps> = ({
   acceptedExt,
-  importAllow,
-  importCallback,
+  addAllow,
+  addCallback,
   isOpen,
   onClose,
   setFile
@@ -89,7 +89,7 @@ const CloudModal: FC<ICloudModalProps> = ({
       currentPage,
       order,
       searchTitle: searchQuery,
-      type: resourceTypeActiveId
+      type: [resourceTypeActiveId]
     }
   });
   const t = useTranslate();
@@ -171,7 +171,7 @@ const CloudModal: FC<ICloudModalProps> = ({
     >
       <CloudModalBody>
         <LateralBar>
-          {importAllow && (
+          {addAllow && (
             <>
               <ImportInput
                 accept={acceptedExt.join(", ")}
@@ -210,9 +210,9 @@ const CloudModal: FC<ICloudModalProps> = ({
             </EmptyResources>
           ) : (
             <ResourcesList
+              addAllow={addAllow}
+              addCallback={addCallback}
               currentPage={currentPage}
-              importAllow={importAllow}
-              importCallback={importCallback}
               moveToTrash={onMoveToTrash}
               pagesNumber={pagesNumber}
               order={order}
