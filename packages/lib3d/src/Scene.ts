@@ -10,12 +10,11 @@
 import * as THREE from "three";
 import { isArray } from "util";
 import BaseGrid from "./BaseGrid";
-import CompoundObject from "./CompoundObject";
+import Union from "./Union";
 import Difference from "./Difference";
 import Intersection from "./Intersection";
+import CompoundObject from "./CompoundObject";
 import ObjectsCommon from "./ObjectsCommon";
-import Union from "./Union";
-
 import ObjectsGroup from "./ObjectsGroup";
 import RepetitionObject from "./RepetitionObject";
 
