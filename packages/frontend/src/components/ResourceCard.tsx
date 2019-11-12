@@ -57,13 +57,11 @@ const ResourceCard: FC<IResourceCardProps> = ({
   return (
     <ResourceContainer
       className={className}
-      addAllow={addAllow && !deleted}
+      addAllow={addAllow}
       importResource={importResource}
       isOpen={true}
       onClick={() =>
-        (importResource || (addAllow && !deleted)) &&
-        addCallback &&
-        addCallback(id, extTitle)
+        (importResource || addAllow) && addCallback && addCallback(id, extTitle)
       }
     >
       <DropDown

@@ -2,7 +2,6 @@ import { ApolloError } from "apollo-server-koa";
 import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
 import { DocumentModel } from "../models/document";
-import { ObjectId, ObjectID } from "bson";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");

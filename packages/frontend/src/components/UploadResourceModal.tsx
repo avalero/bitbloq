@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState, ChangeEvent } from "react";
+import React, { FC, useMemo, useState, ChangeEvent } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { Button, DialogModal, Modal, Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -18,6 +18,12 @@ const acceptedFiles = {
   object3D: [".stl"]
 };
 
+enum Errors {
+  extError,
+  noError,
+  sizeError
+}
+
 export interface IUploadResourceModalProps {
   acceptedTypes?: ResourcesTypes[];
   documentId: string;
@@ -31,29 +37,24 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   isOpen,
   onClose
 }) => {
+  const accept = useMemo(
+    () => acceptedTypes.flatMap(type => acceptedFiles[type]),
+    []
+  );
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
-  const [accept, setAccept] = useState<string[]>([]);
-  const [error, setError] = useState<0 | 1 | 2>(0); // 0 -> No error; 1 -> Extension error; 2 -> Size error
+  const [error, setError] = useState<Errors>(Errors.noError);
   const [file, setFile] = useState<File>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
   const [openCloud, setOpenCloud] = useState<boolean>(false);
   const [tab, setTab] = useState<TabType>(TabType.import);
   const t = useTranslate();
 
-  useEffect(() => {
-    let acceptedExt: string[] = [];
-    for (let type of acceptedTypes) {
-      acceptedExt = [...acceptedExt, ...acceptedFiles[type]];
-    }
-    setAccept(acceptedExt);
-  }, []);
-
   const isValidExt = (ext: string): boolean => accept.indexOf(`.${ext}`) > -1;
 
   const onAddResource = (id: string, ext?: string) => {
     if (ext && !isValidExt(ext)) {
-      setError(1);
+      setError(Errors.extError);
     } else {
       addResource({
         variables: {
@@ -66,7 +67,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   };
 
   const onCloseModal = () => {
-    setError(0);
+    setError(Errors.noError);
     setFile(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
@@ -93,16 +94,16 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const onSetFile = (file: File) => {
     const extFile = file.name.split(".").pop();
     if (!isValidExt(extFile)) {
-      setError(1);
+      setError(Errors.extError);
     } else if (file.size > 10000000) {
-      setError(2);
+      setError(Errors.sizeError);
     } else {
       setNameFile(file.name.replace(`.${extFile}`, "").substring(0, 64));
       setFile(file);
     }
   };
 
-  return openCloud && file === undefined && error === 0 ? (
+  return openCloud && file === undefined && error === Errors.noError ? (
     <CloudModal
       acceptedExt={accept}
       addAllow
@@ -111,13 +112,13 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       onClose={onCloseModal}
       setFile={onSetFile}
     />
-  ) : error !== 0 ? (
+  ) : error !== Errors.noError ? (
     <DialogModal
       isOpen={true}
       onCancel={onCloseModal}
       onOk={onCloseModal}
       text={
-        error === 1
+        error === Errors.extError
           ? t("cloud.upload.warning-ext")
           : t("cloud.upload.warning-size")
       }
