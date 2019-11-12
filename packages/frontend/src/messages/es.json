@@ -278,6 +278,8 @@
     },
     "text": {
       "empty": "No tienes ningún recurso en esta categoría",
+      "empty-imported-text": "Aún no has importado un recurso compatible con este documento",
+      "empty-imported-title": "No tienes recursos importados",
       "no-result": "No hay resultados para tu búsqueda",
       "trash": "Aún no has enviado ningún recurso a la papelera"
     },

@@ -94,8 +94,13 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
               {t("cloud.upload.select")}
             </SelectModalButton>
           </ResourceInput>
-        ) : (
+        ) : resources.length > 0 ? (
           <UploadResourcesGrid resources={resources} importResource />
+        ) : (
+          <EmptyImportedResources>
+            <h1>{t("cloud.text.empty-imported-title")}</h1>
+            <p>{t("cloud.text.empty-imported-text")}</p>
+          </EmptyImportedResources>
         )}
       </Body>
     </Container>
@@ -113,6 +118,30 @@ const Container = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-flow: column nowrap;
+`;
+
+const EmptyImportedResources = styled.div`
+  align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  height: 324px;
+  justify-content: center;
+  width: 660px;
+
+  h1 {
+    color: #373b44;
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  p {
+    color: #474749;
+    font-size: 14px;
+    line-height: 1.57;
+    text-align: center;
+  }
 `;
 
 const ResourceInput = styled.div`
