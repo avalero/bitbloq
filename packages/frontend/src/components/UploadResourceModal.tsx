@@ -138,6 +138,11 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           <ResourceModalButton onClick={onCloseModal} tertiary>
             {t("general-cancel-button")}
           </ResourceModalButton>
+          {tab === TabType.add && (
+            <ResourceModalButton onClick={onCloseModal} tertiary>
+              {t("cloud.buttons.see-more")}
+            </ResourceModalButton>
+          )}
           {file !== undefined && (
             <ResourceModalButton
               disabled={!isValidName(nameFile)}

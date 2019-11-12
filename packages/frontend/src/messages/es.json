@@ -255,6 +255,9 @@
   "general-accept-button": "Aceptar",
   "general-add-button": "Añadir",
   "cloud": {
+    "buttons": {
+      "see-more": "Ver más recursos en mi Bitbloq Cloud"
+    },
     "details": {
       "date": "Fecha de importación",
       "ext": "Formato del recurso",
