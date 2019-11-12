@@ -7,6 +7,7 @@ import {
   TextArea,
   DialogModal
 } from "@bitbloq/ui";
+import { isValidName } from "../util";
 
 export interface DocumentInfoFormProps {
   title?: string;
@@ -44,19 +45,6 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
     }
   };
 
-  const validate = (value: string): boolean => {
-    if (
-      !value ||
-      (value.length <= 64 &&
-        value.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
-        !value.match(/^\s+$/))
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
   return (
     <Container>
       <Panel>
@@ -72,7 +60,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
                 placeholder="Nombre del documento"
                 onChange={e => {
                   const value: string = e.target.value;
-                  if (validate(value)) {
+                  if (isValidName(value)) {
                     setTitleError(false);
                     onChange({ title: value, description });
                   } else {

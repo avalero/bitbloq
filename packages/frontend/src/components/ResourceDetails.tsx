@@ -23,7 +23,9 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
   const [sizeStr, setSizeStr] = useState<string>("");
 
   useEffect(() => {
-    if (size < 1000) {
+    if (!size) {
+      setSizeStr("-");
+    } else if (size < 1000) {
       setSizeStr(`${size} B`);
     } else if (size < 1000000) {
       setSizeStr(`${(size / 1000).toFixed(1)} kB`);
