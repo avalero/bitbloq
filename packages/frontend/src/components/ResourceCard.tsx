@@ -6,16 +6,22 @@ import MenuButton from "./MenuButton";
 import { IResource } from "../types";
 
 interface IResourceCardProps extends IResource {
+  addAllow?: boolean;
+  addCallback?: (id: string, ext: string) => void;
   className?: string;
-  moveToTrash: (id: string) => void;
-  restoreFromTrash: (id: string) => void;
+  importResource: boolean;
+  moveToTrash?: (id: string) => void;
+  restoreFromTrash?: (id: string) => void;
   selectResource: (id: string) => void;
 }
 
 const ResourceCard: FC<IResourceCardProps> = ({
+  addAllow,
+  addCallback,
   className,
   deleted,
   id,
+  importResource,
   moveToTrash,
   restoreFromTrash,
   selectResource,
@@ -49,7 +55,15 @@ const ResourceCard: FC<IResourceCardProps> = ({
   }, []);
 
   return (
-    <ResourceContainer className={className} isOpen={true}>
+    <ResourceContainer
+      className={className}
+      addAllow={addAllow}
+      importResource={importResource}
+      isOpen={true}
+      onClick={() =>
+        (importResource || addAllow) && addCallback && addCallback(id, extTitle)
+      }
+    >
       <DropDown
         attachmentPosition="top left"
         constraints={[
@@ -61,13 +75,16 @@ const ResourceCard: FC<IResourceCardProps> = ({
         offset="-50px 210px"
         targetPosition="top right"
       >
-        {(isOpen: boolean) => <CardMenuButton isOpen={isOpen} />}
+        {(isOpen: boolean) => (
+          <CardMenuButton isOpen={isOpen} onClick={e => e.stopPropagation()} />
+        )}
         <ResourceCardMenu
           options={[
             {
               iconName: "description",
               label: t("cloud.options.details"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                e.stopPropagation();
                 selectResource(id);
               }
             },
@@ -77,6 +94,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
                 ? t("cloud.options.recover")
                 : t("cloud.options.trash"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
+                e.stopPropagation();
                 deleted ? restoreFromTrash(id) : moveToTrash(id);
               }
             }
@@ -125,10 +143,16 @@ const ResourceCardMenu = styled(DocumentCardMenu)`
   min-width: 200px;
 `;
 
-const ResourceContainer = styled.div<{ isOpen?: boolean }>`
+const ResourceContainer = styled.div<{
+  addAllow?: boolean;
+  importResource?: boolean;
+  isOpen?: boolean;
+}>`
+  background-color: #fff;
   border: solid 1px #ccc;
   border-radius: 4px;
-  cursor: default;
+  cursor: ${props =>
+    props.importResource || props.addAllow ? "pointer" : "default"};
   display: flex;
   flex-flow: column nowrap;
   height: 100%;
@@ -137,10 +161,13 @@ const ResourceContainer = styled.div<{ isOpen?: boolean }>`
   width: 100%;
 
   &:hover {
+    background-color: ${props =>
+      props.importResource || props.addAllow ? "#f1f1f1" : "#fff"};
     border: solid 1px #373b44;
 
     ${CardMenuButton} {
-      visibility: ${props => (props.isOpen ? "visible" : "hidden")};
+      visibility: ${props =>
+        props.isOpen && !props.importResource ? "visible" : "hidden"};
     }
 
     ${Image} {

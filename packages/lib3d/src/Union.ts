@@ -8,9 +8,9 @@
  */
 
 import { cloneDeep } from "lodash";
+import * as THREE from "three";
 import CompoundObject, { ChildrenArray } from "./CompoundObject";
 import ObjectsCommon from "./ObjectsCommon";
-import * as THREE from "three";
 
 import {
   ICompoundObjectJSON,

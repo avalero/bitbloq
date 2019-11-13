@@ -16,6 +16,7 @@ export interface IDocument extends Document {
   updatedAt?: Date;
   description?: string;
   version?: string;
+  resourcesID?: string[];
 }
 
 const DocumentMongSchema: Schema = new Schema({
@@ -80,6 +81,10 @@ const DocumentMongSchema: Schema = new Schema({
   example: {
     type: Boolean,
     default: false
+  },
+  resourcesID: {
+    type: [Schema.Types.ObjectId],
+    ref: "UploadModel"
   }
 });
 

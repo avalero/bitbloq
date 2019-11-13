@@ -29,7 +29,7 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { setToken, getToken } from "../lib/session";
+import { setToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { IDocument } from "../types";
@@ -263,9 +263,6 @@ const EditExercise = ({ type, id }) => {
         <Subscription
           subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}
-          variables={{
-            token: getToken("exercise-team")
-          }}
           onSubscriptionData={({ subscriptionData }) => {
             const { data } = subscriptionData;
             if (

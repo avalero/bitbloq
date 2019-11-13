@@ -43,7 +43,9 @@ export const getBloqDefinition = (
     bloq => bloq.name === bloqInstance.type
   );
 
-  if (bloqDefinition) return bloqDefinition;
+  if (bloqDefinition) {
+    return bloqDefinition;
+  }
 
   throw new Error(`Bloq Type ${bloqInstance.type} not defined`);
 };
@@ -342,11 +344,21 @@ const program2code = (
   program: IBloq[][],
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
-  if (!arduinoCode.definitions) arduinoCode.definitions = [];
-  if (!arduinoCode.globals) arduinoCode.globals = [];
-  if (!arduinoCode.loop) arduinoCode.loop = [];
-  if (!arduinoCode.endloop) arduinoCode.endloop = [];
-  if (!arduinoCode.setup) arduinoCode.setup = [];
+  if (!arduinoCode.definitions) {
+    arduinoCode.definitions = [];
+  }
+  if (!arduinoCode.globals) {
+    arduinoCode.globals = [];
+  }
+  if (!arduinoCode.loop) {
+    arduinoCode.loop = [];
+  }
+  if (!arduinoCode.endloop) {
+    arduinoCode.endloop = [];
+  }
+  if (!arduinoCode.setup) {
+    arduinoCode.setup = [];
+  }
 
   let functionNameIndex: number = 0;
   let functionName: string = "";
@@ -356,7 +368,9 @@ const program2code = (
 
   for (let index = 0; index < program.length; index++) {
     const timeline = program[index];
-    if (timeline.length === 0) continue; // this should not happen on fixed programs
+    if (timeline.length === 0) {
+      continue;
+    } // this should not happen on fixed programs
 
     timelineFlagName = `timeline${index + 1}`;
     let i = 0;
@@ -372,7 +386,9 @@ const program2code = (
       if (bloqDefinition.code) {
         Object.keys(arduinoCode).forEach(key => {
           if (bloqDefinition.code![key]) {
-            arduinoCode[key].push(...bloqDefinition.code![key]);
+            (arduinoCode[key] as string[]).push(
+              ...(bloqDefinition.code![key] as string)
+            );
           }
         });
       }
@@ -533,7 +549,9 @@ const program2code = (
               );
             }
             i += 1;
-            if (i >= timeline.length) break;
+            if (i >= timeline.length) {
+              break;
+            }
 
             bloqInstance = timeline[i];
             bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);

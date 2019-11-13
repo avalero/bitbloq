@@ -22,6 +22,7 @@ import Download from "./icons/Download";
 import Document from "./icons/Document";
 import DownloadDocument from "./icons/DownloadDocument";
 import Drag from "./icons/Drag";
+import DragFile from "./icons/DragFile";
 import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
 import Earth from "./icons/Earth";
@@ -161,6 +162,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <DownloadDocument className={className} />;
     case "drag":
       return <Drag className={className} />;
+    case "drag-file":
+      return <DragFile className={className} />;
     case "dropdown":
       return <Dropdown className={className} />;
     case "duplicate":

@@ -8,14 +8,14 @@
  */
 
 import * as THREE from "three";
+import {
+  ITubeJSON,
+  ITubeParams,
+  IViewOptions,
+  OperationsArray
+} from "./Interfaces";
 import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
-import {
-  IViewOptions,
-  OperationsArray,
-  ITubeJSON,
-  ITubeParams
-} from "./Interfaces";
 
 export default class Tube extends PrimitiveObject {
   public static typeName: string = "Tube";
@@ -106,9 +106,9 @@ export default class Tube extends PrimitiveObject {
     const tubeGeometry: THREE.ExtrudeGeometry = new THREE.ExtrudeGeometry(
       outerCircleShape,
       {
-        depth: height,
         bevelEnabled: false,
-        curveSegments: Math.max(6, Math.min(r0 * 5, 12))
+        curveSegments: Math.max(6, Math.min(r0 * 5, 12)),
+        depth: height
       }
     );
 

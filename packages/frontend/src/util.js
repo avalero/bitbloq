@@ -17,6 +17,19 @@ export const isValidDate = date =>
 export const isValidEmail = email =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 
+export const isValidName = name => {
+  if (
+    !name ||
+    (name.length <= 64 &&
+      name.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
+      !name.match(/^\s+$/))
+  ) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
 export const sortByCreatedAt = (a, b) => {
   const aCreatedAt = a && a.createdAt;
   const bCreatedAt = b && b.createdAt;

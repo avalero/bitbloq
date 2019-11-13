@@ -13,6 +13,11 @@
 import * as THREE from "three";
 import ThreeBSP from "./threeCSG";
 
+interface IMessageData {
+  bufferArray: ArrayLike<ArrayBuffer>;
+  type: string;
+}
+
 export default Worker;
 
 const ctx: Worker = self as any;
@@ -20,7 +25,7 @@ const ctx: Worker = self as any;
 const getUnionFromGeometries = (
   geometries: THREE.Geometry[]
 ): THREE.Geometry => {
-  let geomBSP: any = new ThreeBSP(geometries[0]);
+  let geomBSP: ThreeBSP = new ThreeBSP(geometries[0]);
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
     const bspGeom = new ThreeBSP(geometries[i]);
@@ -33,10 +38,10 @@ const getUnionFromGeometries = (
 const getDifferenceFromGeometries = (
   geometries: THREE.Geometry[]
 ): THREE.Geometry => {
-  let geomBSP: any = new ThreeBSP(geometries[0]);
+  let geomBSP: ThreeBSP = new ThreeBSP(geometries[0]);
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
-    const bspGeom = new ThreeBSP(geometries[i]);
+    const bspGeom: ThreeBSP = new ThreeBSP(geometries[i]);
     geomBSP = geomBSP.subtract(bspGeom);
   }
   const geom = geomBSP.toGeometry();
@@ -46,7 +51,7 @@ const getDifferenceFromGeometries = (
 const getIntersectionFromGeometries = (
   geometries: THREE.Geometry[]
 ): THREE.Geometry => {
-  let geomBSP: any = new ThreeBSP(geometries[0]);
+  let geomBSP: ThreeBSP = new ThreeBSP(geometries[0]);
   // Union with the rest
   for (let i = 1; i < geometries.length; i += 1) {
     const bspGeom = new ThreeBSP(geometries[i]);
@@ -60,15 +65,17 @@ ctx.addEventListener(
   "message",
   e => {
     const geometries: THREE.Geometry[] = [];
-    const bufferArray = e.data.bufferArray;
-    if (!bufferArray) return;
+    const bufferArray: ArrayLike<number> = (e.data as IMessageData).bufferArray;
+    if (!bufferArray) {
+      return;
+    }
 
     let firstGeomMatrix: THREE.Matrix4 | undefined;
 
     // add all children to geometries array
     for (let i = 0, first = true; i < bufferArray.length; ) {
       // recompute object form vertices and normals
-      const numMeshesBuffer: ArrayBuffer = e.data.bufferArray[i];
+      const numMeshesBuffer = (e.data as IMessageData).bufferArray[i];
       i += 1;
 
       const _numMeshes: number = new Float32Array(
@@ -80,13 +87,18 @@ ctx.addEventListener(
       const subGeometries: THREE.Geometry[] = [];
 
       for (let j = 0; j < _numMeshes; j += 1) {
-        const verticesBuffer: ArrayBuffer = e.data.bufferArray[i];
+        const verticesBuffer: ArrayBuffer = (e.data as IMessageData)
+          .bufferArray[i];
         i += 1;
-        const normalsBuffer: ArrayBuffer = e.data.bufferArray[i];
+        const normalsBuffer: ArrayBuffer = (e.data as IMessageData).bufferArray[
+          i
+        ];
         i += 1;
-        const positionBuffer: ArrayBuffer = e.data.bufferArray[i];
+        const positionBuffer: ArrayBuffer = (e.data as IMessageData)
+          .bufferArray[i];
         i += 1;
-        const localPositionBuffer: ArrayBuffer = e.data.bufferArray[i];
+        const localPositionBuffer: ArrayBuffer = (e.data as IMessageData)
+          .bufferArray[i];
         i += 1;
 
         const _vertices: ArrayLike<number> = new Float32Array(
@@ -170,11 +182,11 @@ ctx.addEventListener(
     // compute action
     let geometry: THREE.Geometry = new THREE.Geometry();
     try {
-      if (e.data.type === "Union") {
+      if ((e.data as IMessageData).type === "Union") {
         geometry = getUnionFromGeometries(geometries);
-      } else if (e.data.type === "Difference") {
+      } else if ((e.data as IMessageData).type === "Difference") {
         geometry = getDifferenceFromGeometries(geometries);
-      } else if (e.data.type === "Intersection") {
+      } else if ((e.data as IMessageData).type === "Intersection") {
         geometry = getIntersectionFromGeometries(geometries);
       } else {
         const postMessage = {
@@ -204,7 +216,7 @@ ctx.addEventListener(
     }
 
     if (geometry.vertices.length === 0) {
-      console.info("Empty Geometry");
+      // console.info("Empty Geometry");
       const buffGeom = new THREE.BufferGeometry().fromGeometry(
         new THREE.BoxGeometry(1, 1, 1)
       );

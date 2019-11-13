@@ -6,7 +6,7 @@ export interface IUpload extends Document {
   mimetype: string;
   encoding: string;
   publicUrl: string;
-  document: string;
+  documentsID: string[];
   user: string;
   storageName: string;
   size: number;
@@ -36,8 +36,8 @@ const UploadMongSchema: Schema = new Schema({
   storageName: String,
   type: { type: String, enum: ["image", "video", "sound", "object3D"] },
   deleted: { type: Boolean, default: false },
-  document: {
-    type: Schema.Types.ObjectId,
+  documentsID: {
+    type: [Schema.Types.ObjectId],
     ref: "DocumentModel"
   },
   user: {

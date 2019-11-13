@@ -3,10 +3,12 @@ import styled from "@emotion/styled";
 import React, { FC } from "react";
 import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
-import ResourceCard from "./ResourceCard";
+import ResourcesGrid from "./ResourcesGrid";
 import { IResource, OrderType } from "../types";
 
 interface IResourcesListProps {
+  addAllow?: boolean;
+  addCallback?: (id: string, ext: string) => void;
   currentPage: number;
   moveToTrash: (id: string) => void;
   order: OrderType;
@@ -21,6 +23,8 @@ interface IResourcesListProps {
 }
 
 const ResourcesList: FC<IResourcesListProps> = ({
+  addAllow,
+  addCallback,
   currentPage,
   moveToTrash,
   order,
@@ -48,17 +52,14 @@ const ResourcesList: FC<IResourcesListProps> = ({
       {searchText && resources.length === 0 ? (
         <EmptyResources>{t("cloud.text.no-result")}</EmptyResources>
       ) : (
-        <List>
-          {resources.map(resource => (
-            <ResourceCard
-              key={resource.id}
-              moveToTrash={moveToTrash}
-              {...resource}
-              restoreFromTrash={restoreFromTrash}
-              selectResource={selectResource}
-            />
-          ))}
-        </List>
+        <ResourcesGrid
+          addAllow={addAllow}
+          addCallback={addCallback}
+          moveToTrash={moveToTrash}
+          resources={resources}
+          restoreFromTrash={restoreFromTrash}
+          selectResource={selectResource}
+        />
       )}
       {pagesNumber > 1 && (
         <Paginator
@@ -99,14 +100,4 @@ const EmptyResources = styled.div`
 const FilterContainer = styled.div`
   display: flex;
   flex-flow: row wrap;
-`;
-
-const List = styled.div`
-  display: grid;
-  flex: 1;
-  grid-auto-rows: 132px;
-  grid-column-gap: 20px;
-  grid-template-columns: repeat(auto-fill, 160px);
-  grid-row-gap: 20px;
-  margin: 20px 0;
 `;

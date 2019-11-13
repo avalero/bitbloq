@@ -52,16 +52,16 @@ export default class OrbitCamera {
 
     if (this.camera instanceof THREE.OrthographicCamera) {
       this.ortho = {
-        near: this.camera.near,
         far: this.camera.far,
         left: this.camera.left,
+        near: this.camera.near,
         right: this.camera.right
       };
     } else {
       this.ortho = {
-        near: 0.1,
         far: 10000,
         left: -200,
+        near: 0.1,
         right: 200
       };
     }
@@ -488,24 +488,22 @@ export default class OrbitCamera {
 
   public toJSON(): object {
     return {
-      enabled: this.enabled,
+      dampingFactor: this.dampingFactor,
+      dollySpeed: this.dollySpeed,
+      draggingDampingFactor: this.draggingDampingFactor,
 
-      minDistance: this.minDistance,
+      enabled: this.enabled,
+      maxAzimuthAngle: infinityToMaxNumber(this.maxAzimuthAngle),
       maxDistance: infinityToMaxNumber(this.maxDistance),
-      minPolarAngle: this.minPolarAngle,
       maxPolarAngle: infinityToMaxNumber(this.maxPolarAngle),
       minAzimuthAngle: infinityToMaxNumber(this.minAzimuthAngle),
-      maxAzimuthAngle: infinityToMaxNumber(this.maxAzimuthAngle),
-      dampingFactor: this.dampingFactor,
-      draggingDampingFactor: this.draggingDampingFactor,
-      dollySpeed: this.dollySpeed,
-      truckSpeed: this.truckSpeed,
-
-      target: this._targetEnd.toArray(),
+      minDistance: this.minDistance,
+      minPolarAngle: this.minPolarAngle,
       position: this.camera.position.toArray(),
-
+      position0: this._position0.toArray(),
+      target: this._targetEnd.toArray(),
       target0: this._target0.toArray(),
-      position0: this._position0.toArray()
+      truckSpeed: this.truckSpeed
     };
   }
 

@@ -72,6 +72,7 @@ export const ContactSchema: Schema = new Schema({
     type: String
   },
 
+<<<<<<< HEAD
   surnames: {
     type: String
   },
@@ -80,6 +81,12 @@ export const ContactSchema: Schema = new Schema({
     type: Date
   },
 
+=======
+  center: {
+    type: String
+  },
+
+>>>>>>> b942012c666d9233b009bea07fb5cf45e53681e6
   active: {
     type: Boolean
   },

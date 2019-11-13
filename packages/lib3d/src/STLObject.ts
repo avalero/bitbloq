@@ -88,8 +88,8 @@ export default class STLObject extends PrimitiveObject {
 
     const params: ISTLParams = {
       ...parameters,
-      url: parameters.url,
-      blob: parameters.blob
+      blob: parameters.blob,
+      url: parameters.url
     };
 
     // if we have url we prioritize it wrt. blob
@@ -262,7 +262,9 @@ export default class STLObject extends PrimitiveObject {
 
   private computeGeometry(): THREE.Geometry {
     const params = this.parameters as ISTLParams;
-    if (!params.blob) throw new Error(`No blob to compute`);
+    if (!params.blob) {
+      throw new Error(`No blob to compute`);
+    }
 
     const uint8Data = params.blob.uint8Data;
     let data: Uint8Array = new Uint8Array([]);
