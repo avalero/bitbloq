@@ -90,12 +90,12 @@ export const resourceTypes = {
     label: "cloud.resources.videos",
     icon: "resource-video"
   },
-  sounds: {
+  sound: {
     id: "sound",
     label: "cloud.resources.sounds",
     icon: "resource-sound"
   },
-  objects3D: {
+  object3D: {
     id: "object3D",
     label: "cloud.resources.objects",
     icon: "resource-object3D"
