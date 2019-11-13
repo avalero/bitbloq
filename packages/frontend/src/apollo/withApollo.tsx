@@ -57,13 +57,13 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
   useSessionEvent("activity", () => {
     if (shouldRenewToken(tempSession)) {
       renewToken(
-          getToken(tempSession)
-          .then(currentToken => 
-        client
-          .mutate({
-            mutation: RENEW_TOKEN_MUTATION,
-            context: { token: currentToken }
-          }))
+        getToken(tempSession)
+          .then(currentToken =>
+            client.mutate({
+              mutation: RENEW_TOKEN_MUTATION,
+              context: { token: currentToken }
+            })
+          )
           .then(({ data }) => data.renewToken),
         tempSession
       );

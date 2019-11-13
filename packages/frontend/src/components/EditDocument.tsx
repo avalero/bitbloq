@@ -159,7 +159,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       const { document, command } = e.data;
       if (command === "open-document") {
         setType(document.type);
-        const newDocument = { ...document};
+        const newDocument = { ...document };
         delete newDocument.image;
         updateRef.current(newDocument);
         setOpening(false);

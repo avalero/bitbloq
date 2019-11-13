@@ -23,7 +23,7 @@ export const isValidName = name => {
   } else {
     return false;
   }
-}
+};
 
 export const sortByCreatedAt = (a, b) => {
   const aCreatedAt = a && a.createdAt;

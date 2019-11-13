@@ -185,7 +185,7 @@ export default class Scene {
 
       const objects3D: THREE.Object3D[] = await Promise.all(
         this.objectsInScene.map(async object => {
-          const mesh = await object.getMeshAsync();
+          const mesh = await object.getMeshAsync() as THREE.Object3D;
           return mesh;
         })
       );
@@ -894,13 +894,12 @@ export default class Scene {
 
     const currentTime: number = new Date().getTime() / 1000;
     if (currentTime - this.lastUpdateTS < 1) {
-      this.history.splice(this.history.length-2, 1);
+      this.history.splice(this.history.length - 2, 1);
       this.historyIndex = this.history.length - 1;
       return;
     }
-    
+
     this.lastUpdateTS = currentTime;
-    
   }
 
   private setMaterials(): void {
