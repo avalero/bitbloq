@@ -7,6 +7,8 @@ import ResourcesGrid from "./ResourcesGrid";
 import { IResource, OrderType } from "../types";
 
 interface IResourcesListProps {
+  addAllow?: boolean;
+  addCallback?: (id: string, ext: string) => void;
   currentPage: number;
   moveToTrash: (id: string) => void;
   order: OrderType;
@@ -21,6 +23,8 @@ interface IResourcesListProps {
 }
 
 const ResourcesList: FC<IResourcesListProps> = ({
+  addAllow,
+  addCallback,
   currentPage,
   moveToTrash,
   order,
@@ -49,8 +53,10 @@ const ResourcesList: FC<IResourcesListProps> = ({
         <EmptyResources>{t("cloud.text.no-result")}</EmptyResources>
       ) : (
         <ResourcesGrid
-          resources={resources}
+          addAllow={addAllow}
+          addCallback={addCallback}
           moveToTrash={moveToTrash}
+          resources={resources}
           restoreFromTrash={restoreFromTrash}
           selectResource={selectResource}
         />

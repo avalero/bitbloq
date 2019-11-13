@@ -9,6 +9,7 @@ export interface IEditorProps {
 }
 
 export interface IDocument {
+  id: string;
   title: string;
   description: string;
   image: IDocumentImage | string;

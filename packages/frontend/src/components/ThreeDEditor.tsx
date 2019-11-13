@@ -38,7 +38,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
   const openSTLInput = useRef<HTMLInputElement>(null);
-  const [resourceModal, setResourceModal] = useState<boolean>(true);
+  const [resourceModal, setResourceModal] = useState<boolean>(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [showSTLError, setShowSTLError] = useState("");
   const [advancedMode, setAdvancedMode] = useState(document.advancedMode);
@@ -165,6 +165,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
       )}
       <UploadResourceModal
         acceptedTypes={[ResourcesTypes.object3D]}
+        documentId={document.id}
         isOpen={resourceModal}
         onClose={() => setResourceModal(false)}
       />

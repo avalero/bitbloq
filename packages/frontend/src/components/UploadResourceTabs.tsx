@@ -1,23 +1,9 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState
-} from "react";
-import { useMutation, useLazyQuery } from "@apollo/react-hooks";
-import { Button, Icon, Input, Spinner, useTranslate } from "@bitbloq/ui";
+import React, { FC, useEffect, useRef, useState } from "react";
+import { useLazyQuery } from "@apollo/react-hooks";
+import { Button, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import debounce from "lodash/debounce";
-import ResourceDetails from "./ResourceDetails";
 import ResourcesGrid from "./ResourcesGrid";
-import {
-  GET_CLOUD_RESOURCES,
-  MOVE_RESOURCE_TO_TRASH,
-  RESTORE_RESOURCE_FROM_TRASH
-} from "../apollo/queries";
-import { resourceTypes } from "../config";
+import { GET_CLOUD_RESOURCES } from "../apollo/queries";
 import { IResource, OrderType, ResourcesTypes } from "../types";
 
 export enum TabType {
@@ -28,6 +14,7 @@ export enum TabType {
 export interface IUploadResourcTabsProps {
   acceptedExt: string[];
   acceptedTypes: ResourcesTypes[];
+  addCallback: (id: string) => void;
   setFile: (file: File) => void;
   setTab: (tab: TabType) => void;
   tab: TabType;
@@ -36,6 +23,7 @@ export interface IUploadResourcTabsProps {
 const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
   acceptedExt,
   acceptedTypes,
+  addCallback,
   setFile,
   setTab,
   tab
@@ -49,7 +37,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
         deleted: false,
         order: OrderType.Creation,
         searchTitle: "",
-        type: acceptedTypes[0]
+        type: acceptedTypes
       }
     }
   );
@@ -101,8 +89,8 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
           </ResourceInput>
         ) : resources.length > 0 ? (
           <UploadResourcesGrid
+            addCallback={addCallback}
             resources={resources}
-            selectResource={id => console.log(id)}
             importResource
           />
         ) : !called || loading ? (

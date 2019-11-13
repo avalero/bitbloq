@@ -524,13 +524,23 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
   }
 `;
 
+/** Cloud **/
+
+export const ADD_RESOURCE_TO_DOCUMENT = gql`
+  mutation AddResourceToDocument($resourceID: ID!, $documentID: ID!) {
+    addResourceToDocument(resourceID: $resourceID, documentID: $documentID) {
+      id
+    }
+  }
+`;
+
 export const GET_CLOUD_RESOURCES = gql`
   query CloudResources(
     $deleted: Boolean
     $currentPage: Number
     $order: String
     $searchTitle: String
-    $type: String
+    $type: [String]
   ) {
     cloudResources(
       deleted: $deleted

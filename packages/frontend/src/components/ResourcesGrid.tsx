@@ -4,6 +4,8 @@ import ResourceCard from "./ResourceCard";
 import { IResource } from "../types";
 
 interface IResourcesGridProps {
+  addAllow?: boolean;
+  addCallback?: (id: string, ext: string) => void;
   className?: string;
   importResource?: boolean;
   moveToTrash?: (id: string) => void;
@@ -13,6 +15,8 @@ interface IResourcesGridProps {
 }
 
 const ResourcesGrid: FC<IResourcesGridProps> = ({
+  addAllow,
+  addCallback,
   className,
   importResource,
   moveToTrash,
@@ -23,6 +27,8 @@ const ResourcesGrid: FC<IResourcesGridProps> = ({
   <Grid className={className} importResource={importResource}>
     {resources.map(resource => (
       <ResourceCard
+        addAllow={addAllow}
+        addCallback={addCallback}
         importResource={importResource}
         key={resource.id}
         moveToTrash={moveToTrash}
