@@ -55,7 +55,7 @@ const userResolver = {
         password: hash,
         name: args.input.name,
         surnames: args.input.surnames,
-        birthDate: new Date(birthDate[1], birthDate[0], birthDate[2]),
+        birthDate: new Date(birthDate[2], birthDate[1]-1, birthDate[0]),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
