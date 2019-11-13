@@ -35,7 +35,7 @@ import {
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage } from "../types";
+import { IDocument, IDocumentImage, IResource } from "../types";
 import { ISessionEvent, useSessionEvent } from "../lib/session";
 
 import debounce from "lodash/debounce";
@@ -88,6 +88,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     advancedMode: false,
     resources: []
   });
+  const [resources, setResources] = useState<IResource[]>([]);
   const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
 
@@ -107,8 +108,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     title,
     description,
     public: isPublic,
-    example: isExample,
-    resources
+    example: isExample
   } = document || {};
 
   useEffect(() => {
@@ -231,6 +231,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   useEffect(() => {
     setImage(data && data.document && data.document.image);
+    setResources(data && data.document && data.document.resources);
   }, [data]);
 
   const update = async (document: any) => {
@@ -350,7 +351,10 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentInfoForm
         title={title}
         description={description}
+        documentId={document.id}
+        resourceAdded={(id: string) => id && refetch()}
         resources={resources}
+        resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
         onChange={({ title, description, image }) => {
           const newDocument = {

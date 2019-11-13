@@ -26,6 +26,7 @@ enum Errors {
 
 export interface IUploadResourceModalProps {
   acceptedTypes?: ResourcesTypes[];
+  addedCallback?: (id: string) => void;
   documentId: string;
   isOpen: boolean;
   onClose?: () => void;
@@ -33,6 +34,7 @@ export interface IUploadResourceModalProps {
 
 const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   acceptedTypes = [],
+  addedCallback,
   documentId,
   isOpen,
   onClose
@@ -52,16 +54,20 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
 
   const isValidExt = (ext: string): boolean => accept.indexOf(`.${ext}`) > -1;
 
-  const onAddResource = (id: string, ext?: string) => {
+  const onAddResource = async (id: string, ext?: string) => {
     if (ext && !isValidExt(ext)) {
       setError(Errors.extError);
     } else {
-      addResource({
+      const { data } = await addResource({
         variables: {
           documentID: documentId,
           resourceID: id
         }
       });
+      const { id: newId } = data.addResourceToDocument;
+      if (addedCallback) {
+        addedCallback(newId);
+      }
       onCloseModal();
     }
   };

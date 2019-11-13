@@ -1,8 +1,9 @@
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
+import UploadResourceModal from "./UploadResourceModal";
 import { resourceTypes } from "../config";
-import { IResource } from "../types";
+import { IResource, ResourcesTypes } from "../types";
 
 const ResourceItem: FC<IResource> = ({ title, type }) => {
   const extTitle = title.split(".").pop();
@@ -44,29 +45,48 @@ const ResourceItem: FC<IResource> = ({ title, type }) => {
 };
 
 interface IResourcesBoxProps {
+  documentId: string;
+  resourceAdded: (id: string) => void;
   resources: IResource[];
+  resourcesTypesAccepted: ResourcesTypes[];
 }
 
-const ResourcesBox: FC<IResourcesBoxProps> = ({ resources }) => {
+const ResourcesBox: FC<IResourcesBoxProps> = ({
+  documentId,
+  resourceAdded,
+  resources,
+  resourcesTypesAccepted
+}) => {
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const t = useTranslate();
+
   return (
-    <Box>
-      {resources.length > 0 ? (
-        resources.map(resource => (
-          <ResourceItem key={resource.id} {...resource} />
-        ))
-      ) : (
-        <EmptyResources>
-          {t("document-info.placeholders.resources")}
-        </EmptyResources>
-      )}
-      <AddButton tertiary>
-        <Icon name="plus" />
-        {resources.length > 0
-          ? t("document-info.buttons.add-more-resources")
-          : t("document-info.buttons.add-new-resource")}
-      </AddButton>
-    </Box>
+    <>
+      <Box>
+        {resources.length > 0 ? (
+          resources.map(resource => (
+            <ResourceItem key={resource.id} {...resource} />
+          ))
+        ) : (
+          <EmptyResources>
+            {t("document-info.placeholders.resources")}
+          </EmptyResources>
+        )}
+        <AddButton onClick={() => setModalOpen(true)} tertiary>
+          <Icon name="plus" />
+          {resources.length > 0
+            ? t("document-info.buttons.add-more-resources")
+            : t("document-info.buttons.add-new-resource")}
+        </AddButton>
+      </Box>
+      <UploadResourceModal
+        acceptedTypes={resourcesTypesAccepted}
+        addedCallback={resourceAdded}
+        documentId={documentId}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+      />
+    </>
   );
 };
 

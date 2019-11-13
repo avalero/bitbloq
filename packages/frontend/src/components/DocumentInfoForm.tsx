@@ -10,13 +10,16 @@ import {
 } from "@bitbloq/ui";
 import ResourcesBox from "./ResourcesBox";
 import { isValidName } from "../util";
-import { IResource } from "../types";
+import { IResource, ResourcesTypes } from "../types";
 
 export interface DocumentInfoFormProps {
   title?: string;
   description?: string;
+  documentId: string;
   image: string;
+  resourceAdded: (id: string) => void;
   resources?: IResource[];
+  resourcesTypesAccepted: ResourcesTypes[];
   onChange: (data: any) => void;
 }
 
@@ -25,8 +28,11 @@ const maxImageSize = 2097152;
 const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   title,
   description,
+  documentId,
   image,
+  resourceAdded,
   resources = [],
+  resourcesTypesAccepted,
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
@@ -121,7 +127,12 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
               </FormSubLabel>
             </FormLabel>
             <FormInput>
-              <ResourcesBox resources={resources} />
+              <ResourcesBox
+                documentId={documentId}
+                resourceAdded={resourceAdded}
+                resources={resources}
+                resourcesTypesAccepted={resourcesTypesAccepted}
+              />
             </FormInput>
           </FormRow>
         </Form>
