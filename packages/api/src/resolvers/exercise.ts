@@ -48,7 +48,7 @@ const exerciseResolver = {
         teacherName: user.name,
         expireDate: args.input.expireDate,
         image: docFather.image.image,
-        resourcesID: docFather.resourcesID
+        resourcesID: docFather.exResourcesID
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });

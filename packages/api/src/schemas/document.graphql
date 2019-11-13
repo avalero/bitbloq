@@ -83,6 +83,7 @@ type Document {
   images: [File]
   parentsPath: [Folder]
   resources: [Resource]
+  exercisesResources: [Resource]
 }
 
 input DocImageIn {

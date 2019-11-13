@@ -339,7 +339,7 @@ const uploadResolver = {
     addResourceToExercises: async (root: any, args: any, context: any) => {
       await DocumentModel.findOneAndUpdate(
         { _id: args.documentID },
-        { $push: { resourcesID: args.resourceID } },
+        { $push: { exResourcesID: args.resourceID } },
         { new: true }
       );
       return UploadModel.findOneAndUpdate(
@@ -352,7 +352,7 @@ const uploadResolver = {
     deleteResourceFromExercises: async (root: any, args: any, context: any) => {
       await DocumentModel.findOneAndUpdate(
         { _id: args.documentID },
-        { $pull: { resourcesID: args.resourceID } },
+        { $pull: { exResourcesID: args.resourceID } },
         { new: true }
       );
       return UploadModel.findOneAndUpdate(
