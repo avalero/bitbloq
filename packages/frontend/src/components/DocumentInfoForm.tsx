@@ -5,7 +5,8 @@ import {
   FileSelectButton,
   Input,
   TextArea,
-  DialogModal
+  DialogModal,
+  useTranslate
 } from "@bitbloq/ui";
 import { isValidName } from "../util";
 
@@ -28,6 +29,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   const [titleInput, setTitle] = useState(title);
   const [titleError, setTitleError] = useState(false);
   const [titleFocused, setTitleFocused] = useState(false);
+  const t = useTranslate();
 
   useEffect(() => {
     if (!titleFocused) {
@@ -37,9 +39,9 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
 
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
-      setImageError("El formato de la imagen no es válido");
+      setImageError(t("document-info.errors.image-ext"));
     } else if (file.size > maxImageSize) {
-      setImageError("El tamaño de la imagen es demasiado grande");
+      setImageError(t("document-info.errors.image-size"));
     } else {
       onChange({ title, description, image: file });
     }
@@ -48,16 +50,16 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   return (
     <Container>
       <Panel>
-        <Header>Información del documento</Header>
+        <Header>{t("document-info.title")}</Header>
         <Form>
           <FormRow>
             <FormLabel>
-              <label>Nombre del documento</label>
+              <label>{t("document-info.labels.title")}</label>
             </FormLabel>
             <FormInput>
               <Input
                 value={titleInput}
-                placeholder="Nombre del documento"
+                placeholder={t("document-info.placeholders.title")}
                 onChange={e => {
                   const value: string = e.target.value;
                   if (isValidName(value)) {
@@ -76,12 +78,12 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
           </FormRow>
           <FormRow>
             <FormLabel>
-              <label>Descripción del documento</label>
+              <label>{t("document-info.labels.description")}</label>
             </FormLabel>
             <FormInput>
               <TextArea
                 value={description}
-                placeholder="Descripción del documento"
+                placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
                   onChange({ title, description: e.target.value });
                 }}
@@ -91,9 +93,27 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
           </FormRow>
           <FormRow>
             <FormLabel>
-              <label>Imagen del documento</label>
+              <label>{t("document-info.labels.image")}</label>
+              <FormSubLabel>{t("document-info.sublabels.image")}</FormSubLabel>
+            </FormLabel>
+            <FormInput>
+              <Image src={image} />
+              <ImageButton
+                accept="image/*"
+                tertiary
+                onFileSelected={onFileSelected}
+              >
+                {t("document-info.buttons.image")}
+              </ImageButton>
+            </FormInput>
+          </FormRow>
+        </Form>
+        <Form>
+          <FormRow>
+            <FormLabel>
+              <label>{t("document-info.labels.resources")}</label>
               <FormSubLabel>
-                Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 2Mb.
+                {t("document-info.sublabels.resources")}
               </FormSubLabel>
             </FormLabel>
             <FormInput>
@@ -154,12 +174,21 @@ const Header = styled.div`
 `;
 
 const Form = styled.div`
+  border-bottom: 1px solid ${colors.gray2};
   padding: 20px 30px;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 `;
 
 const FormRow = styled.div`
   display: flex;
   margin-bottom: 20px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const FormLabel = styled.div`
