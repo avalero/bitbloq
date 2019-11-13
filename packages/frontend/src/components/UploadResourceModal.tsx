@@ -98,7 +98,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     } else if (file.size > 10000000) {
       setError(Errors.sizeError);
     } else {
-      setNameFile(file.name.replace(`.${extFile}`, "").substring(0, 64));
+      setNameFile(
+        file.name.replace(new RegExp(`\.${extFile}$`), "").substring(0, 64)
+      );
       setFile(file);
     }
   };
