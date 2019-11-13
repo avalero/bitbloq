@@ -87,7 +87,7 @@ const DocumentMongSchema: Schema = new Schema({
     type: [Schema.Types.ObjectId],
     ref: "UploadModel"
   },
-  exresourcesID: {
+  exResourcesID: {
     type: [Schema.Types.ObjectId],
     ref: "UploadModel"
   }
