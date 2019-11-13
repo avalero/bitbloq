@@ -24,7 +24,9 @@ export const getComponentDefinition = (
   const component: Partial<IComponent> | undefined = componentsDef.find(
     c => c.name === name
   );
-  if (component) return component;
+  if (component) {
+    return component;
+  }
 
   // if undefined throw Error exception
   throw new Error(`Unknown component name ${name}`);

@@ -17,4 +17,4 @@ const EditDocumentPage = () => {
   );
 };
 
-export default withApollo(EditDocumentPage);
+export default withApollo(EditDocumentPage, { requiresSession: false });

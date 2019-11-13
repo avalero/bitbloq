@@ -9,6 +9,7 @@ export const UserDataContext = createContext<any>(null);
 export const UserDataProvider = ({ initialUserData, children }) => {
   const [userData, setUserData] = useState(initialUserData);
   const client = useApolloClient();
+
   useSessionEvent("new-token", async event => {
     const token = event.data;
     if (!token) {

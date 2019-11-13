@@ -46,6 +46,10 @@ const getSession = (
 
 const setSession = (session?: ISession, tempSession?: string) => {
   const sessionString = JSON.stringify(session);
+  if (typeof window === "undefined") {
+    return;
+  }
+
   if (tempSession) {
     document.cookie = cookie.serialize(
       `session-${tempSession}`,
@@ -64,17 +68,35 @@ const setSession = (session?: ISession, tempSession?: string) => {
   }
 };
 
-export const getToken = (
+const renewTokenPromises: { [tempSession: string]: Promise<string> } = {};
+
+export const getToken = async (
   tempSession?: string,
   req?: NextApiRequest
-): string | null => {
+): Promise<string | null> => {
+  if (renewTokenPromises[tempSession]) {
+    await renewTokenPromises[tempSession];
+  }
   const session = getSession(tempSession, req);
-  return session ? session.token : null;
+  return Promise.resolve(session ? session.token : null);
 };
 
 export const setToken = (token: string, tempSession?: string) => {
   setSession({ token, time: token ? Date.now() : 0 }, tempSession);
   triggerEvent({ tempSession, event: "new-token", data: token });
+};
+
+export const renewToken = async (
+  tokenPromise: Promise<string>,
+  tempSession?: string
+) => {
+  if (renewTokenPromises[tempSession]) {
+    return;
+  }
+  renewTokenPromises[tempSession] = tokenPromise;
+  const token = await tokenPromise;
+  delete renewTokenPromises[tempSession];
+  setToken(token, tempSession);
 };
 
 export const shouldRenewToken = (tempSession?: string): boolean => {
@@ -91,6 +113,7 @@ export interface ISessionEvent {
   error?: any;
   remainingSeconds?: number;
   data?: any;
+  allSessions?: boolean;
 }
 
 export type SessionCallback = (event: ISessionEvent) => any;
@@ -108,6 +131,10 @@ const triggerEvent = (event: ISessionEvent) => {
 
 export const onSessionError = (error: any, tempSession?: string) => {
   triggerEvent({ tempSession, error, event: "error" });
+};
+
+export const onSessionActivity = () => {
+  triggerEvent({ event: "activity", allSessions: true });
 };
 
 export const watchSession = (tempSession?: string) => {
@@ -138,7 +165,9 @@ export const useSessionEvent = (
       const event = e.data as ISessionEvent;
       if (
         eventName === event.event &&
-        (!event.tempSession || event.tempSession === tempSession)
+        (event.allSessions ||
+          event.tempSession === tempSession ||
+          (!event.tempSession && !tempSession))
       ) {
         callback(event);
       }

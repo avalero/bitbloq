@@ -21,7 +21,9 @@ export const getBoardDefinition = (
 ): IBoard => {
   const boardName: string = hardware.board;
   const board = boards.find(b => b.name === boardName);
-  if (board) return board;
+  if (board) {
+    return board;
+  }
   // if not defined no board found
   throw new Error(`Board ${boardName} not found`);
 };
@@ -30,7 +32,7 @@ const boardCodes = (board: IBoard, section: string): string[] => {
   if (!board.code[section]) {
     return [];
   }
-  return board.code[section];
+  return board.code[section] as string[];
 };
 
 /**
@@ -50,10 +52,10 @@ const board2code = (
   // get board code
   try {
     Object.keys(arduinoCode).forEach(section => {
-      arduinoCode[section].push(...boardCodes(board, section));
+      (arduinoCode[section] as string[]).push(...boardCodes(board, section));
     });
   } catch (e) {
-    console.info(`Error generating board code ${e}`);
+    throw e;
   }
   return arduinoCode;
 };

@@ -15,26 +15,25 @@ import Difference from "./Difference";
 import Intersection from "./Intersection";
 import CompoundObject from "./CompoundObject";
 import ObjectsCommon from "./ObjectsCommon";
-
 import ObjectsGroup from "./ObjectsGroup";
 import RepetitionObject from "./RepetitionObject";
 
 import { isEqual } from "lodash";
 
 import ObjectFactory from "./ObjectFactory";
+import OperationHelper from "./OperationHelper";
 import PositionCalculator from "./PositionCalculator";
 import meshArray2STLAsync from "./STLExporter";
-import OperationHelper from "./OperationHelper";
 
+import { MeshOperations, setMeshMaterial } from "./Bitbloq";
 import {
-  IGeometry,
   ICompoundObjectJSON,
+  IGeometry,
   IObjectsCommonJSON,
-  IRepetitionObjectJSON,
   IObjectsGroupJSON,
+  IRepetitionObjectJSON,
   OperationsArray
 } from "./Interfaces";
-import { setMeshMaterial, MeshOperations } from "./Bitbloq";
 
 enum HelperType {
   Rotation = "rotation",
@@ -373,7 +372,7 @@ export default class Scene {
           parent instanceof CompoundObject &&
           parent.getChildren()[0].getID() === object.getID()
         ) {
-          const childMesh: THREE.Mesh = (object as any).mesh.clone();
+          const childMesh: THREE.Mesh = object.getMesh().clone() as THREE.Mesh;
           childMesh.position.set(0, 0, 0);
           childMesh.rotation.set(0, 0, 0);
           childMesh.scale.set(1, 1, 1);
@@ -446,8 +445,8 @@ export default class Scene {
               if (geom.id === json.id) {
                 json.geometry = {
                   id: geom.id,
-                  vertices: geom.vertices,
-                  normals: geom.normals
+                  normals: geom.normals,
+                  vertices: geom.vertices
                 };
                 break;
               }
@@ -945,14 +944,14 @@ export default class Scene {
         lineWidth: 2
       },
       plane: {
-        enabled: false,
-        color: 0x98f5ff
+        color: 0x98f5ff,
+        enabled: false
       }
     };
 
     this.sceneSetup = {
-      base: new BaseGrid(gridConfig).getMesh(),
       ambientLight: new THREE.AmbientLight(0x666666),
+      base: new BaseGrid(gridConfig).getMesh(),
       spotLight: new THREE.SpotLight(0xdddddd),
       spotLight2: new THREE.SpotLight(0xbbbbbb)
     };

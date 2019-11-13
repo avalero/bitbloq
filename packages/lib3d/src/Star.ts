@@ -8,14 +8,14 @@
  */
 
 import * as THREE from "three";
+import {
+  IStarJSON,
+  IStarParams,
+  IViewOptions,
+  OperationsArray
+} from "./Interfaces";
 import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
-import {
-  IViewOptions,
-  OperationsArray,
-  IStarJSON,
-  IStarParams
-} from "./Interfaces";
 
 export default class Star extends PrimitiveObject {
   public static typeName: string = "Star";

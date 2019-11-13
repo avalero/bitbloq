@@ -52,7 +52,11 @@ if (typeof window !== undefined) {
   import("html2canvas").then(module => (html2canvas = module.default));
 }
 
-const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType }) => {
+const EditDocument: FC<IEditDocumentProps> = ({
+  folder,
+  id,
+  type: initialType
+}) => {
   const t = useTranslate();
 
   const user = useUserData();
@@ -155,7 +159,9 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType })
       const { document, command } = e.data;
       if (command === "open-document") {
         setType(document.type);
-        update(document);
+        const newDocument = { ...document};
+        delete newDocument.image;
+        updateRef.current(newDocument);
         setOpening(false);
         channel.close();
       }
@@ -257,6 +263,8 @@ const EditDocument: FC<IEditDocumentProps> = ({ folder, id, type: initialType })
       debouncedUpdate(document);
     }
   };
+  const updateRef = useRef(update);
+  updateRef.current = update;
 
   const publish = async (isPublic: boolean, isExample: boolean) => {
     if (!isNew) {

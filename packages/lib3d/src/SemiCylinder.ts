@@ -8,14 +8,14 @@
  */
 
 import * as THREE from "three";
+import {
+  ICylinderJSON,
+  ICylinderParams,
+  IViewOptions,
+  OperationsArray
+} from "./Interfaces";
 import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
-import {
-  IViewOptions,
-  OperationsArray,
-  ICylinderJSON,
-  ICylinderParams
-} from "./Interfaces";
 
 export default class SemiCylinder extends PrimitiveObject {
   public static typeName: string = "SemiCylinder";
@@ -101,9 +101,9 @@ export default class SemiCylinder extends PrimitiveObject {
     const semiCylGeometry: THREE.ExtrudeGeometry = new THREE.ExtrudeGeometry(
       semiCircleShape,
       {
-        depth: height,
         bevelEnabled: false,
-        curveSegments: Math.max(6, Math.min(r0 * 5, 12))
+        curveSegments: Math.max(6, Math.min(r0 * 5, 12)),
+        depth: height
       }
     );
 

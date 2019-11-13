@@ -7,7 +7,7 @@ import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
 import { SubmissionModel } from "../models/submission";
-import { IUpload, UploadModel } from "../models/upload";
+import { IUpload, UploadModel, IResource } from "../models/upload";
 import { UserModel, IUser } from "../models/user";
 import { pubsub } from "../server";
 import { uploadDocumentImage } from "./upload";
@@ -338,26 +338,28 @@ const documentResolver = {
       const filterOptionsDoc =
         text === ""
           ? {
-              folder: currentLocation
+              folder: currentLocation,
+              title: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
             }
-          : {};
+          : {
+              title: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
       const filterOptionsFol =
         text === ""
           ? {
-              parent: currentLocation
+              parent: currentLocation,
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
             }
-          : {};
+          : {
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
 
-      const docs: IDocument[] = await DocumentModel.find({
-        title: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsDoc
-      });
-      const fols: IFolder[] = await FolderModel.find({
-        name: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsFol
-      });
+      const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
+      const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
 
       const docsParent = await Promise.all(
         docs.map(
@@ -459,6 +461,24 @@ const documentResolver = {
     parentsPath: async (document: IDocument) => {
       const parent = await FolderModel.findOne({ _id: document.folder });
       const result = await getParentsPath(parent);
+      return result;
+    },
+    resources: async (document: IDocument) => {
+      const result: IResource[] = (await UploadModel.find({
+        _id: { $in: document.resourcesID }
+      })).map(i => {
+        return {
+          id: i._id,
+          title: i.filename,
+          type: i.type,
+          size: i.size,
+          thumbnail: i.image,
+          preview: i.image,
+          file: i.publicUrl,
+          deleted: i.deleted,
+          createdAt: i.createdAt
+        };
+      });
       return result;
     }
   }
