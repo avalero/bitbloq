@@ -35,7 +35,10 @@ const UploadMongSchema: Schema = new Schema({
   size: Number,
   image: String,
   storageName: String,
-  type: { type: String, enum: ["image", "video", "sound", "object3D"] },
+  type: {
+    type: String,
+    enum: ["image", "video", "sound", "object3D", "docImage"]
+  },
   deleted: { type: Boolean, default: false },
   documentsID: {
     type: [Schema.Types.ObjectId],

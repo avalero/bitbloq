@@ -83,20 +83,51 @@ const processUpload = async (
             "UPLOAD_SIZE_ERROR"
           );
         }
-        const uploadNew = new UploadModel({
-          document: documentID,
-          filename,
-          mimetype,
-          encoding,
-          publicUrl,
-          storageName: gcsName,
-          size: fileSize,
-          user: userID,
-          image: type === "image" ? publicUrl : null,
-          type: type,
-          deleted: false
-        });
-        const uploaded: IUpload = await UploadModel.create(uploadNew);
+        let uploaded: IUpload;
+        if (
+          await UploadModel.findOne({
+            document: documentID,
+            publicUrl,
+            user: userID
+          })
+        ) {
+          uploaded = await UploadModel.findOneAndUpdate(
+            {
+              document: documentID,
+              publicUrl,
+              user: userID,
+              type
+            },
+            {
+              $set: {
+                filename,
+                mimetype,
+                encoding,
+                storageName: gcsName,
+                size: fileSize,
+                image: type === "image" ? publicUrl : null,
+                type,
+                deleted: false
+              }
+            },
+            { new: true }
+          );
+        } else {
+          const uploadNew = new UploadModel({
+            document: documentID,
+            filename,
+            mimetype,
+            encoding,
+            publicUrl,
+            storageName: gcsName,
+            size: fileSize,
+            user: userID,
+            image: type === "image" ? publicUrl : null,
+            type,
+            deleted: false
+          });
+          uploaded = await UploadModel.create(uploadNew);
+        }
         resolve(uploaded);
       });
     });
@@ -152,7 +183,7 @@ export async function uploadDocumentImage(
       mimetype,
       encoding,
       userID,
-      "image"
+      "docImage"
     );
   });
 }

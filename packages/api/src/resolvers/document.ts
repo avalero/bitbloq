@@ -481,7 +481,7 @@ const documentResolver = {
       });
       return result;
     },
-    ExercisesResources: async (document: IDocument) => {
+    exercisesResources: async (document: IDocument) => {
       const result: IResource[] = (await UploadModel.find({
         _id: { $in: document.exResourcesID }
       })).map(i => {
