@@ -16,6 +16,7 @@ import {
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
+import GraphQLErrorMessage from "../components/GraphQLErrorMessage";
 import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
 
@@ -58,7 +59,7 @@ interface IUserPlan {
 
 interface IStepInput {
   defaultValues: {};
-  error: ApolloError;
+  error?: ApolloError;
   goToPreviousStep?: () => void;
   loading: boolean;
   onSubmit: (userInputs: IUserData | IUserPlan) => void;
@@ -66,6 +67,8 @@ interface IStepInput {
 
 const SignupPage: FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [error, setError] = useState<ApolloError>();
+  const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
     acceptTerms: false,
     imTeacherCheck: false,
@@ -76,12 +79,8 @@ const SignupPage: FC = () => {
     userPlan: UserPlanOptions.Member
   });
 
-  const [saveUser, { loading: saving, error: savingError }] = useMutation(
-    SAVE_MUTATION
-  );
-  const [signupUser, { loading: signingup, error: signupError }] = useMutation(
-    SIGNUP_MUTATION
-  );
+  const [saveUser, { loading: saving }] = useMutation(SAVE_MUTATION);
+  const [signupUser, { loading: signingup }] = useMutation(SIGNUP_MUTATION);
 
   const wrapRef = React.createRef<HTMLDivElement>();
 
@@ -107,10 +106,16 @@ const SignupPage: FC = () => {
           surnames: input.surnames
         }
       }
-    }).then(result => {
-      setUserId(result.data.saveUserData.id);
-      goToNextStep();
-    });
+    })
+      .then(result => {
+        setUserId(result.data.saveUserData.id);
+        goToNextStep();
+      })
+      .catch(e =>
+        e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
+          ? setUserError(e)
+          : setError(e)
+      );
   };
 
   const onSignupUser = (input: IUserPlan) => {
@@ -120,12 +125,16 @@ const SignupPage: FC = () => {
         id: userId,
         userPlan: input.userPlan
       }
-    }).then(() => goToNextStep());
+    })
+      .then(() => goToNextStep())
+      .catch(e => setError(e));
   };
 
   return (
     <Wrap ref={wrapRef}>
-      {currentStep === 3 ? (
+      {error ? (
+        <GraphQLErrorMessage apolloError={error} />
+      ) : currentStep === 3 ? (
         <DialogModal
           isOpen={true}
           title="Cuenta creada"
@@ -148,7 +157,7 @@ const SignupPage: FC = () => {
               {currentStep === 1 && (
                 <Step1
                   defaultValues={userData}
-                  error={savingError}
+                  error={userError}
                   loading={saving}
                   onSubmit={onSaveUser}
                 />
@@ -156,7 +165,6 @@ const SignupPage: FC = () => {
               {currentStep === 2 && (
                 <Step2
                   defaultValues={userPlan}
-                  error={signupError}
                   goToPreviousStep={goToPreviousStep}
                   loading={signingup}
                   onSubmit={onSignupUser}
@@ -193,11 +201,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   );
 
   useEffect(() => {
-    // TODO: check error management - error 500
     if (error) setError("email", "existing");
   }, [error]);
 
-  const onChangeBirthDate = async () => {
+  const onChangeBirthDate = () => {
     clearError("birthDate");
     setValue(
       "birthDate",
@@ -411,7 +418,6 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
 const Step2: FC<IStepInput> = ({
   defaultValues,
-  error,
   goToPreviousStep,
   loading,
   onSubmit
@@ -421,11 +427,6 @@ const Step2: FC<IStepInput> = ({
   });
 
   register({ name: "userPlan", type: "custom" }, { required: true });
-
-  useEffect(() => {
-    // TODO: check error management - error 500
-    if (error) console.log("Ha habido algún error: " + error);
-  }, [error]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -563,6 +564,7 @@ const LoginWithExternalProfile = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  margin-left: 15px;
 
   button {
     background-color: white;
