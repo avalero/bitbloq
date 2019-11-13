@@ -88,7 +88,7 @@ const SignupPage: FC = () => {
   }, [currentStep]);
 
   const goToPreviousStep = () => setCurrentStep(currentStep - 1);
-  const goToNextStep = () => setCurrentStep(currentStep + 1);
+  const goToNextStep = () => setCurrentStep(currentStep < 3 ? currentStep + 1 : currentStep);
 
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
