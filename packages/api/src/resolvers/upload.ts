@@ -2,6 +2,8 @@ import { ApolloError } from "apollo-server-koa";
 import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
 import { DocumentModel } from "../models/document";
+import { ObjectId, ObjectID } from "bson";
+import { ExerciseModel } from "../models/exercise";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
@@ -330,6 +332,32 @@ const uploadResolver = {
       return UploadModel.findOneAndUpdate(
         { _id: args.resourceID, deleted: false },
         { $push: { documentsID: args.documentID } },
+        { new: true }
+      );
+    },
+
+    addResourceToExercises: async (root: any, args: any, context: any) => {
+      await DocumentModel.findOneAndUpdate(
+        { _id: args.documentID },
+        { $push: { resourcesID: args.resourceID } },
+        { new: true }
+      );
+      return UploadModel.findOneAndUpdate(
+        { _id: args.resourceID },
+        { $push: { exercisesWithDocID: args.documentID } },
+        { new: true }
+      );
+    },
+
+    deleteResourceFromExercises: async (root: any, args: any, context: any) => {
+      await DocumentModel.findOneAndUpdate(
+        { _id: args.documentID },
+        { $pull: { resourcesID: args.resourceID } },
+        { new: true }
+      );
+      return UploadModel.findOneAndUpdate(
+        { _id: args.resourceID },
+        { $pull: { exercisesWithDocID: args.documentID } },
         { new: true }
       );
     },
