@@ -69,10 +69,12 @@ const SignupPage: FC = () => {
   const [userData, setUserData] = useState({
     acceptTerms: false,
     imTeacherCheck: false,
-    noNotifications: false,
+    noNotifications: false
   });
   const [userId, setUserId] = useState();
-  const [userPlan, setUserPlan] = useState({ userPlan: UserPlanOptions.Member });
+  const [userPlan, setUserPlan] = useState({
+    userPlan: UserPlanOptions.Member
+  });
 
   const [saveUser, { loading: saving, error: savingError }] = useMutation(
     SAVE_MUTATION
@@ -88,7 +90,8 @@ const SignupPage: FC = () => {
   }, [currentStep]);
 
   const goToPreviousStep = () => setCurrentStep(currentStep - 1);
-  const goToNextStep = () => setCurrentStep(currentStep < 3 ? currentStep + 1 : currentStep);
+  const goToNextStep = () =>
+    setCurrentStep(currentStep < 3 ? currentStep + 1 : currentStep);
 
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
@@ -178,7 +181,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     setValue
   } = useForm({ defaultValues });
 
-  register({ name: "birthDate", type: "custom" }, { validate: isValidDate });
+  register(
+    { name: "birthDate", type: "custom" },
+    { required: true, validate: isValidDate }
+  );
   register({ name: "imTeacherCheck", type: "custom" });
   register({ name: "noNotifications", type: "custom" });
   register(
