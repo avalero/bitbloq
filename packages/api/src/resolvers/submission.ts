@@ -38,7 +38,8 @@ const submissionResolver = {
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
         (payload, variables, context) => {
           return (
-            String(payload.submissionActive._id) === String(context.user.submissionID)
+            String(payload.submissionActive._id) ===
+            String(context.user.submissionID)
           );
         }
       )
