@@ -54,7 +54,8 @@ const userResolver = {
         email: args.input.email,
         password: hash,
         name: args.input.name,
-        center: args.input.center,
+        surnames: args.input.surnames,
+        bornDate: new Date(args.input.bornDate),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
@@ -95,7 +96,10 @@ const userResolver = {
         active: false
       });
       if (!user) {
-        return new ApolloError("User does not exist.", "USER_NOT_FOUND");
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
       }
       let teacher: boolean = false;
       switch (args.userPlan) {
@@ -107,16 +111,16 @@ const userResolver = {
         default:
           throw new ApolloError("User plan not value", "PLAN_NOT_FOUND");
       }
-      const signUpToken: string = sign(
+      const signUpToken: string = jsonwebtoken.sign(
         {
-          signUpUserID: newUser._id
+          signUpUserID: user._id
         },
         process.env.JWT_SECRET
       );
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/activate?token=${token}`
+        url: `${process.env.FRONTEND_URL}/app/activate?token=${signUpToken}`
       };
       const mjml: string = welcomeTemplate(data);
       const htmlMessage: any = mjml2html(mjml, {
@@ -125,25 +129,15 @@ const userResolver = {
         minify: true
       });
       await mailerController.sendEmail(
-        newUser.email,
+        user.email,
         "Bitbloq Sign Up ✔",
         htmlMessage.html
       );
 
-      // Create user root folder for documents
-      const userFolder: IFolder = await FolderModel.create({
-        name: "root",
-        user: newUser._id
-      });
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
-<<<<<<< HEAD
         { _id: user._id },
         { $set: { signUpToken, teacher, finishedSignUp: true } },
-=======
-        { _id: newUser._id },
-        { $set: { signUpToken: token, rootFolder: userFolder._id } },
->>>>>>> 35097856d866a070adc36abf3237fc90520f50cd
         { new: true }
       );
       return "OK";

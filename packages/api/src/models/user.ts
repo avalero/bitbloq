@@ -10,14 +10,20 @@ export interface IUser extends Document {
   teacherPro?: boolean;
   family?: boolean;
   name?: string;
-  center?: string;
+  surnames?: string;
+  bornDate: string;
   active?: boolean;
   signUpToken?: string;
   authToken?: string;
   notifications?: boolean;
-  signUpSurvey?: JSON;
-  rootFolder?: Date;
-  lastLogin?: string;
+  imTeacherCheck: boolean;
+  centerName: string;
+  educationalStage: string;
+  province: string;
+  postCode: string;
+  country: string;
+  rootFolder?: string;
+  lastLogin?: Date;
   finishedSignUp?: boolean;
 }
 
@@ -66,8 +72,12 @@ export const ContactSchema: Schema = new Schema({
     type: String
   },
 
-  center: {
+  surnames: {
     type: String
+  },
+
+  bornDate: {
+    type: Date
   },
 
   active: {
@@ -87,6 +97,13 @@ export const ContactSchema: Schema = new Schema({
   notifications: {
     type: Boolean
   },
+
+  imTeacherCheck: { type: Boolean, default: false },
+  centerName: { type: String },
+  educationalStage: { type: String },
+  province: { type: String },
+  postCode: { type: String },
+  country: { type: String },
 
   lastLogin: {
     type: Date

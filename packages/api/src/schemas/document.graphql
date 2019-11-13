@@ -16,7 +16,8 @@ type Query {
     order: String
     searchTitle: String
   ): DocsAndFolders @authRequired(requires: [USER])
-  hasExercises(id: ObjectID!, type: String): Boolean @authRequired(requires: [USER])
+  hasExercises(id: ObjectID!, type: String): Boolean
+    @authRequired(requires: [USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
   examples: [Document]
 }
