@@ -12,7 +12,8 @@ import {
   DialogModal,
   HorizontalRule,
   Checkbox,
-  Option
+  Option,
+  Select
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
@@ -34,6 +35,25 @@ const SIGNUP_MUTATION = gql`
   }
 `;
 
+// TODO
+const CountryAndProvinceOptions = [
+  {
+    name: 'España',
+    provinces: [
+      'Madrid',
+      'Valladolid'
+    ]
+  }
+]
+
+const EducationalStageOptions = [
+  'Preescolar',
+  'Primaria',
+  'Secundaria',
+  'Bachiller',
+  'Universidad',
+]
+
 enum UserPlanOptions {
   Member = "member",
   Teacher = "teacher"
@@ -42,13 +62,18 @@ enum UserPlanOptions {
 interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
+  centerName?: string,
+  country?: string,
   day: number;
+  educationalStage?: number,
   email: string;
   imTeacherCheck: boolean;
   month: number;
   name: string;
   noNotifications: boolean;
   password: string;
+  postCode?: number,
+  province?: string,
   surnames: string;
   year: number;
 }
@@ -98,11 +123,16 @@ const SignupPage: FC = () => {
       variables: {
         input: {
           birthDate: input.birthDate,
+          centerName: input.imTeacherCheck ? input.centerName : undefined,
+          country: input.imTeacherCheck ? input.country : undefined,
+          educationalStage: input.imTeacherCheck ? input.educationalStage : undefined,
           email: input.email,
           imTeacherCheck: input.imTeacherCheck,
           name: input.name,
           notifications: !input.noNotifications,
           password: input.password,
+          postCode: input.imTeacherCheck ? input.postCode : undefined,
+          province: input.imTeacherCheck ? input.province : undefined,
           surnames: input.surnames
         }
       }
@@ -190,15 +220,15 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   } = useForm({ defaultValues });
 
   register(
+    { name: "acceptTerms", type: "custom" },
+    { validate: (value: boolean) => !!value }
+  );
+  register(
     { name: "birthDate", type: "custom" },
     { required: true, validate: isValidDate }
   );
   register({ name: "imTeacherCheck", type: "custom" });
   register({ name: "noNotifications", type: "custom" });
-  register(
-    { name: "acceptTerms", type: "custom" },
-    { validate: (value: boolean) => !!value }
-  );
 
   useEffect(() => {
     if (error) setError("email", "existing");
@@ -219,6 +249,117 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   const onGotoGoogle = () => {
     // TODO
   };
+
+  const teacherSubForm = (isShown: boolean) => {
+    register({ name: "country", type: "custom" }, { required: isShown });
+    register({ name: "educationalStage", type: "custom" }, { required: isShown });
+    register({ name: "province", type: "custom" }, { required: isShown });
+
+    if (!isShown) return;
+
+    // validation is not triggered automatically
+    const onChangeValue = (name: string, value: string) => {
+      setValue(name, value);
+      if (errors[name]) clearError(name);
+    }
+
+    return (
+      <>
+        <FormGroup>
+          <FormField>
+            <label>Nombre del centro</label>
+            <Input
+              type="text"
+              name="centerName"
+              placeholder="Nombre del centro"
+              ref={register({ required: true })}
+              error={!!errors.centerName}
+            />
+            {errors.centerName && (
+              <ErrorMessage>
+                El nombre que has introducido no es válido
+              </ErrorMessage>
+            )}
+          </FormField>
+          <FormField>
+            <label>Etapa</label>
+            <Select
+              name="educationalStage"
+              error={!!errors.educationalStage} // TODO: not working
+              onChange={(value: string) => onChangeValue("educationalStage", value)}
+              options={EducationalStageOptions.map(o => ({ value: o, label: o }))}
+              selectConfig={{
+                isSearchable: false,
+                placeholder: '-', // TODO: not working
+              }}
+            />
+            {errors.educationalStage && (
+              <ErrorMessage>
+                Debes introducir un curso
+              </ErrorMessage>
+            )}
+          </FormField>
+        </FormGroup>
+        <FormGroup>
+          <FormField>
+            <label>Provincia</label>
+            <Select
+              name="province"
+              error={!!errors.province} // TODO: not working
+              onChange={(value: string) => onChangeValue("province", value)}
+              options={
+                CountryAndProvinceOptions.find(o => o.name === getValues().country) ?
+                CountryAndProvinceOptions.find(o => o.name === getValues().country).provinces.map(o => ({ value: o, label: o })) : [{ value: '', label: ''}]}
+              selectConfig={{
+                isSearchable: true,
+                placeholder: 'Madrid', // TODO: not working
+                noOptionsMessage: 'No hay opciones'  // TODO: not working
+              }}
+            />
+            {errors.province && (
+              <ErrorMessage>
+                Debes introducir una provincia
+              </ErrorMessage>
+            )}
+          </FormField>
+          <FormField>
+            <label>Código postal</label>
+            <Input
+              type="number"
+              name="postCode"
+              placeholder="00000"
+              ref={register({ required: true})}
+              error={!!errors.postCode}
+            />
+            {errors.postCode && (
+              <ErrorMessage>
+                Debes introducir un código postal
+              </ErrorMessage>
+            )}
+          </FormField>
+          <FormField>
+            <label>País</label>
+            <Select
+              name="country"
+              error={!!errors.country} // TODO: not working
+              onChange={(value: string) => onChangeValue("country", value)}
+              options={CountryAndProvinceOptions.map(o => ({ value: o.name, label: o.name }))}
+              selectConfig={{
+                isSearchable: true,
+                placeholder: 'España', // TODO: not working
+                noOptionsMessage: 'No hay opciones' // TODO: not working
+              }}
+            />
+            {errors.country && (
+              <ErrorMessage>
+                Debes introducir un país
+              </ErrorMessage>
+            )}
+          </FormField>
+        </FormGroup>
+      </>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -366,6 +507,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         <Checkbox checked={getValues().imTeacherCheck} />
         <span>Soy profesor</span>
       </CheckOption>
+      {teacherSubForm(getValues().imTeacherCheck)}
       <CheckOption
         onClick={() =>
           setValue("noNotifications", !getValues().noNotifications)
