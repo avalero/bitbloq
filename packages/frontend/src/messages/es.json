@@ -301,6 +301,8 @@
   },
   "document-info": {
     "buttons": {
+      "add-new-resource": "Añadir un recurso al ejercicio",
+      "add-more-resources": "Añadir más recursos al ejercicio",
       "image": "Seleccionar una imagen"
     },
     "errors": {
@@ -315,6 +317,7 @@
     },
     "placeholders": {
       "description": "Descripción del documento",
+      "resources": "El documento no usa recursos importados",
       "title": "Título del documento"
     },
     "sublabels": {

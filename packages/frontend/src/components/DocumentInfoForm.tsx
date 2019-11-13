@@ -8,12 +8,15 @@ import {
   DialogModal,
   useTranslate
 } from "@bitbloq/ui";
+import ResourcesBox from "./ResourcesBox";
 import { isValidName } from "../util";
+import { IResource } from "../types";
 
 export interface DocumentInfoFormProps {
   title?: string;
   description?: string;
   image: string;
+  resources?: IResource[];
   onChange: (data: any) => void;
 }
 
@@ -23,6 +26,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   title,
   description,
   image,
+  resources = [],
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
@@ -117,14 +121,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
               </FormSubLabel>
             </FormLabel>
             <FormInput>
-              <Image src={image} />
-              <ImageButton
-                accept="image/*"
-                tertiary
-                onFileSelected={onFileSelected}
-              >
-                Seleccionar imagen
-              </ImageButton>
+              <ResourcesBox resources={resources} />
             </FormInput>
           </FormRow>
         </Form>

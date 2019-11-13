@@ -85,7 +85,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
     public: false,
     example: false,
     type,
-    advancedMode: false
+    advancedMode: false,
+    resources: []
   });
   const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
@@ -106,7 +107,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
     title,
     description,
     public: isPublic,
-    example: isExample
+    example: isExample,
+    resources
   } = document || {};
 
   useEffect(() => {
@@ -348,6 +350,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentInfoForm
         title={title}
         description={description}
+        resources={resources}
         image={image ? image.image : ""}
         onChange={({ title, description, image }) => {
           const newDocument = {

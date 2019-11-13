@@ -32,6 +32,11 @@ export const DOCUMENT_QUERY = gql`
       parentsPath {
         id
       }
+      resources {
+        id
+        title
+        type
+      }
     }
   }
 `;
