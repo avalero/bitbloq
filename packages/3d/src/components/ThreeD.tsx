@@ -133,6 +133,12 @@ const ThreeD: React.FC<IThreeDProps> = ({
     );
   };
 
+  const onUpdateObjectsOrder = useCallback(
+    (orderedObjectIds: string[]) =>
+      setObjects(scene.updateObjectsOrder(orderedObjectIds)),
+    [scene]
+  );
+
   const onSetActiveOperation = (helper: IHelperDescription) => {
     setActiveOperation(helper);
   };
@@ -341,6 +347,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
         onUpdateObject={onUpdateObject}
         onDeleteObject={onDeleteObject}
         onObjectClick={onObjectClick}
+        onUpdateObjectsOrder={onUpdateObjectsOrder}
       />
       <MainArea>
         <Toolbar
