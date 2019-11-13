@@ -5,12 +5,16 @@ const useDocumentContent = (
   document: IDocument,
   onDocumentChange: (document: IDocument) => any
 ) => {
-  const documentRef = useRef<IDocument>(document);
+  const documentRef = useRef(document);
+  const onDocumentChangeRef = useRef(onDocumentChange);
   const [initialContent, setInitialContent] = useState<any | null>(null);
 
   useEffect(() => {
     documentRef.current = document;
   }, [document]);
+  useEffect(() => {
+    onDocumentChangeRef.current = onDocumentChange;
+  }, [onDocumentChange]);
 
   useEffect(() => {
     try {
@@ -22,11 +26,11 @@ const useDocumentContent = (
 
   const onContentChange = useCallback(
     (newContent: any) =>
-      onDocumentChange({
+      onDocumentChangeRef.current({
         ...documentRef.current,
         content: JSON.stringify(newContent)
       }),
-    [documentRef]
+    [documentRef, onDocumentChangeRef]
   );
 
   return [initialContent, onContentChange];
