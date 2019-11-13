@@ -11,7 +11,7 @@ export interface IUser extends Document {
   family?: boolean;
   name?: string;
   surnames?: string;
-  bornDate: string;
+  birthDate?: Date;
   active?: boolean;
   signUpToken?: string;
   authToken?: string;
@@ -76,7 +76,7 @@ export const ContactSchema: Schema = new Schema({
     type: String
   },
 
-  bornDate: {
+  birthDate: {
     type: Date
   },
 

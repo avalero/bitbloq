@@ -38,7 +38,7 @@ type User {
   family: Boolean
   name: String
   surnames: String
-  bornDate: Date
+  birthDate: Date
   active: Boolean
   signUpToken: String
   authToken: String
@@ -62,7 +62,7 @@ input UserIn {
   password: String
   name: String
   surnames: String
-  bornDate: Date
+  birthDate: Date
   active: Boolean
   signUpToken: String
   authToken: String
