@@ -8,14 +8,11 @@ import React, {
 } from "react";
 import styled from "@emotion/styled";
 import { ThreeD, IThreeDRef } from "@bitbloq/3d";
-import { STLLoader } from "@bitbloq/lib3d";
-import { useMutation } from "@apollo/react-hooks";
 import {
   Icon,
   useTranslate,
   IDocumentProps,
   IDocumentTab,
-  DialogModal,
   Switch,
   IMainMenuOption
 } from "@bitbloq/ui";
@@ -24,8 +21,6 @@ import ExportSTLModal from "./ExportSTLModal";
 import UploadResourceModal from "./UploadResourceModal";
 import { IEditorProps, IDocument } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
-import { maxSTLFileSize } from "../config";
-import { UPLOAD_STL_MUTATION } from "../apollo/queries";
 import { ResourcesTypes } from "../types";
 
 const ThreeDEditor: FC<IEditorProps> = ({
@@ -37,10 +32,8 @@ const ThreeDEditor: FC<IEditorProps> = ({
 }) => {
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
-  const openSTLInput = useRef<HTMLInputElement>(null);
   const [resourceModal, setResourceModal] = useState<boolean>(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [showSTLError, setShowSTLError] = useState("");
   const [advancedMode, setAdvancedMode] = useState(document.advancedMode);
 
   const [initialContent, onContentChange] = useDocumentContent(
@@ -164,6 +157,13 @@ const ThreeDEditor: FC<IEditorProps> = ({
         />
       )}
       <UploadResourceModal
+        addedCallback={(id, filename, publicUrl) =>
+          threedRef.current.createObject(
+            "STLObject",
+            { url: publicUrl },
+            filename
+          )
+        }
         acceptedTypes={[ResourcesTypes.object3D]}
         documentId={document.id}
         isOpen={resourceModal}

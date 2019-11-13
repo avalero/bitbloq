@@ -534,7 +534,9 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
 export const ADD_RESOURCE_TO_DOCUMENT = gql`
   mutation AddResourceToDocument($resourceID: ID!, $documentID: ID!) {
     addResourceToDocument(resourceID: $resourceID, documentID: $documentID) {
+      filename
       id
+      publicUrl
     }
   }
 `;

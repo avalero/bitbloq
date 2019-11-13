@@ -26,7 +26,7 @@ enum Errors {
 
 export interface IUploadResourceModalProps {
   acceptedTypes?: ResourcesTypes[];
-  addedCallback?: (id: string) => void;
+  addedCallback?: (id: string, fileName?: string, publicUrl?: string) => void;
   documentId: string;
   isOpen: boolean;
   onClose?: () => void;
@@ -64,9 +64,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           resourceID: id
         }
       });
-      const { id: newId } = data.addResourceToDocument;
+      const { filename, id: newId, publicUrl } = data.addResourceToDocument;
       if (addedCallback) {
-        addedCallback(newId);
+        addedCallback(newId, filename, publicUrl);
       }
       onCloseModal();
     }
