@@ -20,16 +20,16 @@ import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
 
 const SAVE_MUTATION = gql`
-  mutation SignUpUser($input: UserIn!) {
-    signUpUser(input: $input) {
+  mutation SaveUserData($input: UserIn!) {
+    saveUserData(input: $input) {
       id
     }
   }
 `;
 
 const SIGNUP_MUTATION = gql`
-  mutation SelectUserPlanAndFinishSignUp($id: string, $userPlan: string) {
-    selectUserPlanAndFinishSignUp(id: $id, userPlan: $userPlan)
+  mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
+    finishSignUp(id: $id, userPlan: $userPlan)
   }
 `;
 
@@ -64,26 +64,16 @@ interface IStepInput {
   onSubmit: (userInputs: IUserData | IUserPlan) => void;
 }
 
-// TODO: use or remove
-interface IUserIn {
-  bornDate: Date;
-  centerName: string;
-  country: string;
-  educationalStage: string;
-  email: string;
-  imTeacherCheck: boolean;
-  name: string;
-  notifications: boolean;
-  password: string;
-  postCode: number;
-  province: string;
-  surnames: string;
-}
-
 const SignupPage: FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState({
+    acceptTerms: false,
+    imTeacherCheck: false,
+    noNotifications: false,
+  });
   const [userId, setUserId] = useState();
+  const [userPlan, setUserPlan] = useState({ userPlan: UserPlanOptions.Member });
+
   const [saveUser, { loading: saving, error: savingError }] = useMutation(
     SAVE_MUTATION
   );
@@ -101,6 +91,7 @@ const SignupPage: FC = () => {
   const goToNextStep = () => setCurrentStep(currentStep + 1);
 
   const onSaveUser = (input: IUserData) => {
+    setUserData(input);
     saveUser({
       variables: {
         input: {
@@ -108,19 +99,19 @@ const SignupPage: FC = () => {
           email: input.email,
           imTeacherCheck: input.imTeacherCheck,
           name: input.name,
-          notidifications: !input.noNotifications,
+          notifications: !input.noNotifications,
           password: input.password,
           surnames: input.surnames
         }
       }
     }).then(result => {
-      setUserData(input);
-      setUserId(result.data.signUpUser.id);
+      setUserId(result.data.saveUserData.id);
       goToNextStep();
     });
   };
 
   const onSignupUser = (input: IUserPlan) => {
+    setUserPlan(input);
     signupUser({
       variables: {
         id: userId,
@@ -135,9 +126,13 @@ const SignupPage: FC = () => {
         <DialogModal
           isOpen={true}
           title="Cuenta creada"
-          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta."
-          cancelText="Volver a la web"
+          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam."
+          okText="Volver a enviar email"
+          onOk={() => onSignupUser(userPlan)}
+          cancelText="Volver al inicio"
           onCancel={() => Router.push("/")}
+          transparentOverlay={true}
+          /* TODO: add counter */
         />
       ) : (
         <Container>
@@ -157,7 +152,7 @@ const SignupPage: FC = () => {
               )}
               {currentStep === 2 && (
                 <Step2
-                  defaultValues={{ userPlan: UserPlanOptions.Member }}
+                  defaultValues={userPlan}
                   error={signupError}
                   goToPreviousStep={goToPreviousStep}
                   loading={signingup}
@@ -192,6 +187,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   );
 
   useEffect(() => {
+    // TODO: check error management - error 500
     if (error) setError("email", "existing");
   }, [error]);
 
@@ -317,6 +313,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
           ref={register({ required: true })}
           error={!!errors.password}
         />
+        {/* TODO: hide password */}
         {errors.password && (
           <ErrorMessage>Debes introducir una contraseña</ErrorMessage>
         )}
@@ -420,7 +417,7 @@ const Step2: FC<IStepInput> = ({
   register({ name: "userPlan", type: "custom" }, { required: true });
 
   useEffect(() => {
-    // TODO: check error management
+    // TODO: check error management - error 500
     if (error) console.log("Ha habido algún error: " + error);
   }, [error]);
 
@@ -455,10 +452,10 @@ const Step2: FC<IStepInput> = ({
       </PlanOption>
       <Buttons>
         <Button tertiary onClick={goToPreviousStep}>
-          Volver
+          Anterior
         </Button>
         <Button type="submit" disabled={loading}>
-          Crear cuenta
+          ¡Unirme a Bitbloq ya!
         </Button>
       </Buttons>
     </form>
