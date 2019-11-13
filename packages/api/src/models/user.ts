@@ -11,7 +11,7 @@ export interface IUser extends Document {
   family?: boolean;
   name?: string;
   surnames?: string;
-  birthDate: string;
+  birthDate?: Date;
   active?: boolean;
   signUpToken?: string;
   authToken?: string;

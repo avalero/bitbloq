@@ -49,12 +49,13 @@ const userResolver = {
       }
       // Store the password with a hash
       const hash: string = await bcrypt.hash(args.input.password, saltRounds);
+      const birthDate: number[] = args.input.birthDate.split("/");
       const userNew: IUser = new UserModel({
         email: args.input.email,
         password: hash,
         name: args.input.name,
         surnames: args.input.surnames,
-        birthDate: new Date(args.input.birthDate),
+        birthDate: new Date(birthDate[1], birthDate[0], birthDate[2]),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
