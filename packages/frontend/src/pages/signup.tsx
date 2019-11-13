@@ -40,7 +40,7 @@ enum UserPlanOptions {
 
 interface IUserData {
   acceptTerms: boolean;
-  date: Date;
+  birthDate: Date;
   day: number;
   email: string;
   imTeacherCheck: boolean;
@@ -95,7 +95,7 @@ const SignupPage: FC = () => {
     saveUser({
       variables: {
         input: {
-          bornDate: input.date,
+          birthDate: input.birthDate,
           email: input.email,
           imTeacherCheck: input.imTeacherCheck,
           name: input.name,
@@ -178,7 +178,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     setValue
   } = useForm({ defaultValues });
 
-  register({ name: "date", type: "custom" }, { validate: isValidDate });
+  register({ name: "birthDate", type: "custom" }, { validate: isValidDate });
   register({ name: "imTeacherCheck", type: "custom" });
   register({ name: "noNotifications", type: "custom" });
   register(
@@ -191,10 +191,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     if (error) setError("email", "existing");
   }, [error]);
 
-  const onChangeDate = async () => {
-    clearError("date");
+  const onChangeBirthDate = async () => {
+    clearError("birthDate");
     setValue(
-      "date",
+      "birthDate",
       [getValues().day, getValues().month, getValues().year].join("/")
     );
   };
@@ -320,30 +320,30 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       </FormField>
       <FormField>
         <label>Fecha de nacimiento</label>
-        <FormGroup onChange={onChangeDate}>
+        <FormGroup onChange={onChangeBirthDate}>
           <Input
             type="number"
             name="day"
             placeholder="DD"
             ref={register}
-            error={!!errors.date}
+            error={!!errors.birthDate}
           />
           <Input
             type="number"
             name="month"
             placeholder="MM"
             ref={register}
-            error={!!errors.date}
+            error={!!errors.birthDate}
           />
           <Input
             type="number"
             name="year"
             placeholder="AAAA"
             ref={register}
-            error={!!errors.date}
+            error={!!errors.birthDate}
           />
         </FormGroup>
-        {errors.date && (
+        {errors.birthDate && (
           <ErrorMessage>Debes introducir una fecha válida</ErrorMessage>
         )}
       </FormField>
