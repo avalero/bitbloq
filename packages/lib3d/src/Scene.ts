@@ -885,17 +885,22 @@ export default class Scene {
 
   private updateHistory(): void {
     this.sceneUpdated = true;
-    const currentTime: number = new Date().getTime() / 1000;
-    if (currentTime - this.lastUpdateTS < 1) {
-      return;
-    }
-    this.lastUpdateTS = currentTime;
     const sceneJSON = this.toJSON();
     // Add to history
     this.history = this.history.slice(0, this.historyIndex + 1);
 
     this.history.push(sceneJSON);
     this.historyIndex = this.history.length - 1;
+
+    const currentTime: number = new Date().getTime() / 1000;
+    if (currentTime - this.lastUpdateTS < 1) {
+      this.history.splice(this.history.length-2, 1);
+      this.historyIndex = this.history.length - 1;
+      return;
+    }
+    
+    this.lastUpdateTS = currentTime;
+    
   }
 
   private setMaterials(): void {
