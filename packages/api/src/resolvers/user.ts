@@ -44,7 +44,6 @@ const userResolver = {
             "USER_EMAIL_EXISTS"
           );
         } else {
-          await FolderModel.deleteMany({ user: contactFound._id });
           await UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
         }
       }
@@ -55,7 +54,7 @@ const userResolver = {
         password: hash,
         name: args.input.name,
         surnames: args.input.surnames,
-        bornDate: new Date(args.input.bornDate),
+        birthDate: new Date(args.input.birthDate),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
@@ -69,18 +68,6 @@ const userResolver = {
         finishedSignUp: false
       });
       const newUser: IUser = await UserModel.create(userNew);
-
-      // Create user root folder for documents
-      const userFolder: IFolder = await FolderModel.create({
-        name: "root",
-        user: newUser._id
-      });
-      // Update the user information in the database
-      await UserModel.findOneAndUpdate(
-        { _id: newUser._id },
-        { $set: { rootFolder: userFolder._id } },
-        { new: true }
-      );
       return { id: newUser._id, email: newUser.email };
     },
 
@@ -109,7 +96,7 @@ const userResolver = {
         case "member":
           break;
         default:
-          throw new ApolloError("User plan not value", "PLAN_NOT_FOUND");
+          throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
       const signUpToken: string = jsonwebtoken.sign(
         {
@@ -134,10 +121,22 @@ const userResolver = {
         htmlMessage.html
       );
 
+      // Create user root folder for documents
+      const userFolder: IFolder = await FolderModel.create({
+        name: "root",
+        user: user._id
+      });
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
         { _id: user._id },
-        { $set: { signUpToken, teacher, finishedSignUp: true } },
+        {
+          $set: {
+            signUpToken,
+            teacher,
+            finishedSignUp: true,
+            rootFolder: userFolder._id
+          }
+        },
         { new: true }
       );
       return "OK";
