@@ -223,6 +223,7 @@ const FormSubLabel = styled.div`
 
 const FormInput = styled.div`
   flex: 2;
+  max-width: 66%;
 `;
 
 interface ImageProps {

@@ -152,6 +152,8 @@ const ResourceTitle = styled.div`
   flex-grow: 1;
   font-size: 14px;
   margin: 0 10px;
+  max-width: calc(100% - 96px); /* 40 Icon, 36 Trash, 20 margin left and right*/
+  word-break: break-all;
 `;
 
 const TrashIcon = styled.div`
