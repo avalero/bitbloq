@@ -117,12 +117,12 @@ export const contactSchema: Schema = new Schema({
 
   rootFolder: {
     type: Schema.Types.ObjectId,
-    ref: "folderModel"
+    ref: "FolderModel"
   }
 });
 
 contactSchema.plugin(timestamps);
-export const userModel: Model<IUser> = model<IUser>(
-  "userModels",
+export const UserModel: Model<IUser> = model<IUser>(
+  "UserModels",
   contactSchema
 );

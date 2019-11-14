@@ -19,7 +19,7 @@ export interface ISubmission extends Document {
 const submissionMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "userModel"
+    ref: "UserModel"
   },
 
   title: {
@@ -29,17 +29,17 @@ const submissionMongSchema: Schema = new Schema({
 
   exercise: {
     type: Schema.Types.ObjectId,
-    ref: "exerciseModel"
+    ref: "ExerciseModel"
   },
 
   document: {
     type: Schema.Types.ObjectId,
-    ref: "documentModel"
+    ref: "DocumentModel"
   },
 
   teacherID: {
     type: Schema.Types.ObjectId,
-    ref: "userModel"
+    ref: "UserModel"
   },
 
   studentNick: {
@@ -102,7 +102,7 @@ const submissionMongSchema: Schema = new Schema({
   }
 });
 submissionMongSchema.plugin(timestamps);
-export const submissionModel: Model<ISubmission> = model<ISubmission>(
-  "submissionModel",
+export const SubmissionModel: Model<ISubmission> = model<ISubmission>(
+  "SubmissionModel",
   submissionMongSchema
 );

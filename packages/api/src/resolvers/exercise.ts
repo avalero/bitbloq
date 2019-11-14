@@ -1,8 +1,8 @@
 import { ApolloError } from "apollo-server-koa";
-import { documentModel, IDocument } from "../models/document";
-import { exerciseModel, IExercise } from "../models/exercise";
-import { submissionModel } from "../models/submission";
-import { IUser, userModel } from "../models/user";
+import { DocumentModel, IDocument } from "../models/document";
+import { ExerciseModel, IExercise } from "../models/exercise";
+import { SubmissionModel } from "../models/submission";
+import { IUser, UserModel } from "../models/user";
 import { pubsub } from "../server";
 import { DOCUMENT_UPDATED } from "./document";
 import { IUserInToken } from "../models/interfaces";
@@ -28,7 +28,7 @@ const exerciseResolver = {
       args: IMutationCreateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
-      const docFather: IDocument = await documentModel.findOne({
+      const docFather: IDocument = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.userID
       });
@@ -38,17 +38,17 @@ const exerciseResolver = {
           "DOCUMENT_NOT_FOUND"
         );
       }
-      const user: IUser = await userModel.findById(context.user.userID);
+      const user: IUser = await UserModel.findById(context.user.userID);
       let newCode: string = Math.random()
         .toString(36)
         .substr(2, 6);
-      while ((await exerciseModel.findOne({ code: newCode })) != null) {
+      while ((await ExerciseModel.findOne({ code: newCode })) != null) {
         console.log("The exercise code already exists");
         newCode = Math.random()
           .toString(36)
           .substr(2, 6);
       }
-      const exerciseNew: IExercise = new exerciseModel({
+      const exerciseNew: IExercise = new ExerciseModel({
         user: context.user.userID,
         document: docFather._id,
         title: args.input.title,
@@ -62,7 +62,7 @@ const exerciseResolver = {
         expireDate: args.input.expireDate,
         image: docFather.image.image
       });
-      const newEx: IExercise = await exerciseModel.create(exerciseNew);
+      const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
       return newEx;
     },
@@ -76,7 +76,7 @@ const exerciseResolver = {
       args: IMutationChangeSubmissionsStateArgs,
       context: { user: IUserInToken }
     ) => {
-      const existExercise: IExercise = await exerciseModel.findOne({
+      const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -84,7 +84,7 @@ const exerciseResolver = {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
 
-      return exerciseModel.findOneAndUpdate(
+      return ExerciseModel.findOneAndUpdate(
         { _id: existExercise._id },
         { $set: { acceptSubmissions: args.subState } },
         { new: true }
@@ -102,17 +102,17 @@ const exerciseResolver = {
       args: IMutationDeleteExerciseArgs,
       context: { user: IUserInToken }
     ) => {
-      const existExercise: IExercise = await exerciseModel.findOne({
+      const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
       if (existExercise) {
-        await submissionModel.deleteMany({ exercise: existExercise._id });
-        const docFather = await documentModel.findOne({
+        await SubmissionModel.deleteMany({ exercise: existExercise._id });
+        const docFather = await DocumentModel.findOne({
           _id: existExercise.document
         });
         pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
-        return exerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
+        return ExerciseModel.deleteOne({ _id: args.id }); // delete all the exercise dependencies
       } else {
         return new ApolloError("Exercise does not exist", "EXERCISE_NOT_FOUND");
       }
@@ -128,12 +128,12 @@ const exerciseResolver = {
       args: IMutationUpdateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
-      const existExercise: IExercise = await exerciseModel.findOne({
+      const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
       if (existExercise) {
-        return exerciseModel.findOneAndUpdate(
+        return ExerciseModel.findOneAndUpdate(
           { _id: existExercise._id },
           { $set: args.input },
           { new: true }
@@ -150,7 +150,7 @@ const exerciseResolver = {
      * args: nothing.
      */
     exercises: async (_, __, context: { user: IUserInToken }) => {
-      return exerciseModel.find({ user: context.user.userID });
+      return ExerciseModel.find({ user: context.user.userID });
     },
 
     /**
@@ -162,7 +162,7 @@ const exerciseResolver = {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
-      const existExercise: IExercise = await exerciseModel.findOne({
+      const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id
       });
       if (!existExercise) {
@@ -177,7 +177,7 @@ const exerciseResolver = {
      * args: exercise code.
      */
     exerciseByCode: async (_, args: IQueryExerciseByCodeArgs) => {
-      const existExercise: IExercise = await exerciseModel.findOne({
+      const existExercise: IExercise = await ExerciseModel.findOne({
         code: args.code
       });
       if (!existExercise) {
@@ -195,14 +195,14 @@ const exerciseResolver = {
       args: IQueryExercisesByDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      const docFather: IDocument = await documentModel.findOne({
+      const docFather: IDocument = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.userID
       });
       if (!docFather) {
         throw new ApolloError("document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      return exerciseModel.find({
+      return ExerciseModel.find({
         document: docFather._id,
         user: context.user.userID
       });
@@ -211,7 +211,7 @@ const exerciseResolver = {
 
   Exercise: {
     submissions: async (exercise: IExercise) =>
-      submissionModel.find({ exercise: exercise._id })
+      SubmissionModel.find({ exercise: exercise._id })
   }
 };
 

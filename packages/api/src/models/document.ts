@@ -22,7 +22,7 @@ export interface IDocument extends Document {
 const documentMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "userModel"
+    ref: "UserModel"
   },
 
   title: {
@@ -37,7 +37,7 @@ const documentMongSchema: Schema = new Schema({
 
   folder: {
     type: Schema.Types.ObjectId,
-    ref: "folderModel"
+    ref: "FolderModel"
   },
 
   content: {
@@ -84,12 +84,12 @@ const documentMongSchema: Schema = new Schema({
   },
   resourcesID: {
     type: [Schema.Types.ObjectId],
-    ref: "uploadModel"
+    ref: "UploadModel"
   }
 });
 
 documentMongSchema.plugin(timestamps);
-export const documentModel: Model<IDocument> = model<IDocument>(
-  "documentModel",
+export const DocumentModel: Model<IDocument> = model<IDocument>(
+  "DocumentModel",
   documentMongSchema
 );

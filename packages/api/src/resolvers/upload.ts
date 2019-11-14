@@ -1,7 +1,7 @@
 import { ApolloError } from "apollo-server-koa";
-import { uploadModel, IUpload, IResource } from "../models/upload";
+import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
-import { documentModel } from "../models/document";
+import { DocumentModel } from "../models/document";
 import { IUserInToken } from "../models/interfaces";
 import {
   IQueryCloudResourcesArgs,
@@ -93,7 +93,7 @@ const processUpload = async (
             "UPLOAD_SIZE_ERROR"
           );
         }
-        const uploadNew = new uploadModel({
+        const uploadNew = new UploadModel({
           document: documentID,
           filename,
           mimetype,
@@ -106,7 +106,7 @@ const processUpload = async (
           type,
           deleted: false
         });
-        const uploaded: IUpload = await uploadModel.create(uploadNew);
+        const uploaded: IUpload = await UploadModel.create(uploadNew);
         resolve(uploaded);
       });
     });
@@ -168,7 +168,7 @@ export async function uploadDocumentImage(
 
 const uploadResolver = {
   Query: {
-    uploads: () => uploadModel.find({}),
+    uploads: () => UploadModel.find({}),
     getUserFiles: async (_, __, context: { user: IUserInToken }) => {
       const [files] = await bucket.getFiles({
         prefix: `${context.user.userID}`
@@ -179,7 +179,7 @@ const uploadResolver = {
           // console.log(result[0].size);
         });
       });
-      return uploadModel.find({ user: context.user.userID });
+      return UploadModel.find({ user: context.user.userID });
     },
 
     cloudResources: async (
@@ -202,7 +202,7 @@ const uploadResolver = {
             type: { $in: args.type },
             deleted: false
           });
-      const userUploads: IUpload[] = await uploadModel.find({
+      const userUploads: IUpload[] = await UploadModel.find({
         filename: { $regex: `.*${text}.*`, $options: "i" },
         user: context.user.userID,
         ...filtedOptions
@@ -344,12 +344,12 @@ const uploadResolver = {
       args: IMutationAddResourceToDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      await documentModel.findOneAndUpdate(
+      await DocumentModel.findOneAndUpdate(
         { _id: args.documentID },
         { $push: { resourcesID: args.resourceID } },
         { new: true }
       );
-      return uploadModel.findOneAndUpdate(
+      return UploadModel.findOneAndUpdate(
         { _id: args.resourceID, deleted: false },
         { $push: { documentsID: args.documentID } },
         { new: true }
@@ -388,7 +388,7 @@ const uploadResolver = {
     deleteUserFile: async (_, args: any, context: { user: IUserInToken }) => {
       if (args.filename) {
         await bucket.file(`${context.user.userID}/${args.filename}`).delete();
-        return uploadModel.deleteOne({
+        return UploadModel.deleteOne({
           publicUrl: {
             $regex: `${context.user.userID}/${args.filename}`,
             $options: "i"
@@ -401,14 +401,14 @@ const uploadResolver = {
       args: IMutationMoveToTrashArgs,
       context: { user: IUserInToken }
     ) => {
-      const uploaded: IUpload = await uploadModel.findOne({
+      const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
       }
-      return uploadModel.findOneAndUpdate(
+      return UploadModel.findOneAndUpdate(
         { _id: uploaded._id },
         { $set: { deleted: true } },
         { new: true }
@@ -419,14 +419,14 @@ const uploadResolver = {
       args: IMutationRestoreResourceArgs,
       context: { user: IUserInToken }
     ) => {
-      const uploaded: IUpload = await uploadModel.findOne({
+      const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
       }
-      return uploadModel.findOneAndUpdate(
+      return UploadModel.findOneAndUpdate(
         { _id: uploaded._id },
         { $set: { deleted: false } },
         { new: true }
@@ -435,7 +435,7 @@ const uploadResolver = {
   },
   Upload: {
     documents: async (_, upload: IUpload) => {
-      return documentModel.find({ _id: { $in: upload.documentsID } });
+      return DocumentModel.find({ _id: { $in: upload.documentsID } });
     }
   }
 };

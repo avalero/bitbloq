@@ -38,16 +38,16 @@ const uploadMongSchema: Schema = new Schema({
   deleted: { type: Boolean, default: false },
   documentsID: {
     type: [Schema.Types.ObjectId],
-    ref: "documentModel"
+    ref: "DocumentModel"
   },
   user: {
     type: Schema.Types.ObjectId,
-    ref: "userModel"
+    ref: "UserModel"
   }
 });
 
 uploadMongSchema.plugin(timestamps);
-export const uploadModel: Model<IUpload> = model<IUpload>(
-  "uploadModel",
+export const UploadModel: Model<IUpload> = model<IUpload>(
+  "UploadModel",
   uploadMongSchema
 );

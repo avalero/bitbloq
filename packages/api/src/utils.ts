@@ -1,4 +1,4 @@
-import { IFolder, folderModel } from "./models/folder";
+import { IFolder, FolderModel } from "./models/folder";
 
 /**
  * Función para conseguir todas las carpetas padres de la carpeta pasada como parámetro
@@ -12,7 +12,7 @@ export const getParentsPath = async (
   if (folder.name === "root") {
     return [folder, ...path];
   } else {
-    const parentFolder = await folderModel.findOne({ _id: folder.parent });
+    const parentFolder = await FolderModel.findOne({ _id: folder.parent });
     const result = await getParentsPath(parentFolder, [folder]);
     return [...result, ...path];
   }

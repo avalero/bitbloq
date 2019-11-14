@@ -19,31 +19,31 @@ const folderMongSchema: Schema = new Schema({
 
   user: {
     type: Schema.Types.ObjectId,
-    ref: "userModel"
+    ref: "UserModel"
   },
 
   documentsID: [
     {
       type: Schema.Types.ObjectId,
-      ref: "documentModel"
+      ref: "DocumentModel"
     }
   ],
 
   foldersID: [
     {
       type: Schema.Types.ObjectId,
-      ref: "folderModel"
+      ref: "FolderModel"
     }
   ],
 
   parent: {
     type: Schema.Types.ObjectId,
-    ref: "folderModel"
+    ref: "FolderModel"
   }
 });
 
 folderMongSchema.plugin(timestamps);
-export const folderModel: Model<IFolder> = model<IFolder>(
-  "folderModel",
+export const FolderModel: Model<IFolder> = model<IFolder>(
+  "FolderModel",
   folderMongSchema
 );

@@ -1,11 +1,11 @@
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
-import { documentModel, IDocument } from "../models/document";
-import { exerciseModel } from "../models/exercise";
-import { folderModel, IFolder } from "../models/folder";
-import { submissionModel } from "../models/submission";
-import { IUser, userModel } from "../models/user";
+import { DocumentModel, IDocument } from "../models/document";
+import { ExerciseModel } from "../models/exercise";
+import { FolderModel, IFolder } from "../models/folder";
+import { SubmissionModel } from "../models/submission";
+import { IUser, UserModel } from "../models/user";
 
 import {
   IEmailData,
@@ -42,7 +42,7 @@ const userResolver = {
      * args: email, password and user information.
      */
     saveUserData: async (_, args: IMutationSaveUserDataArgs) => {
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: args.input.email
       });
       if (contactFound) {
@@ -52,7 +52,7 @@ const userResolver = {
             "USER_EMAIL_EXISTS"
           );
         } else {
-          await userModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
+          await UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
         }
       }
       // Store the password with a hash
@@ -61,7 +61,7 @@ const userResolver = {
         saltRounds as number
       );
       const birthDate: string[] = String(args.input.birthDate).split("/");
-      const userNew: IUser = new userModel({
+      const userNew: IUser = new UserModel({
         email: args.input.email,
         password: hash,
         name: args.input.name,
@@ -83,7 +83,7 @@ const userResolver = {
         lastLogin: new Date(),
         finishedSignUp: false
       });
-      const newUser: IUser = await userModel.create(userNew);
+      const newUser: IUser = await UserModel.create(userNew);
       return { id: newUser._id, email: newUser.email };
     },
 
@@ -94,7 +94,7 @@ const userResolver = {
      * args: userID and plan selected("member" or "teacher").
      */
     finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
-      const user: IUser = await userModel.findOne({
+      const user: IUser = await UserModel.findOne({
         _id: args.id,
         active: false
       });
@@ -138,12 +138,12 @@ const userResolver = {
       );
 
       // Create user root folder for documents
-      const userFolder: IFolder = await folderModel.create({
+      const userFolder: IFolder = await FolderModel.create({
         name: "root",
         user: user._id
       });
       // Update the user information in the database
-      await userModel.findOneAndUpdate(
+      await UserModel.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
@@ -164,7 +164,7 @@ const userResolver = {
       args: email and password.
     */
     login: async (_, { email, password }) => {
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email,
         finishedSignUp: true
       });
@@ -187,27 +187,27 @@ const userResolver = {
           contactFound
         );
         if (!contactFound.rootFolder) {
-          const userDocs: IDocument[] = await documentModel.find({
+          const userDocs: IDocument[] = await DocumentModel.find({
             user: contactFound._id
           });
-          const userFols: IFolder[] = await folderModel.find({
+          const userFols: IFolder[] = await FolderModel.find({
             user: contactFound._id
           });
-          const userFolder: IFolder = await folderModel.create({
+          const userFolder: IFolder = await FolderModel.create({
             name: "root",
             user: contactFound._id,
             documentsID: userDocs.map(i => i._id),
             foldersID: userFols.map(i => i._id)
           });
-          await documentModel.updateMany(
+          await DocumentModel.updateMany(
             { user: contactFound._id },
             { $set: { folder: userFolder._id } }
           );
-          await folderModel.updateMany(
+          await FolderModel.updateMany(
             { user: contactFound._id, name: { $ne: "root" } },
             { $set: { parent: userFolder._id } }
           );
-          await userModel.updateOne(
+          await UserModel.updateOne(
             { _id: contactFound._id },
             { $set: { rootFolder: userFolder._id } },
             { new: true }
@@ -215,7 +215,7 @@ const userResolver = {
         }
 
         // Update the user information in the database
-        await userModel.updateOne(
+        await UserModel.updateOne(
           { _id: contactFound._id },
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
@@ -252,7 +252,7 @@ const userResolver = {
      * args: email
      */
     resetPasswordEmail: async (_, { email }) => {
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email,
         finishedSignUp: true
       });
@@ -299,7 +299,7 @@ const userResolver = {
     updatePassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         _id: dataInToken.resetPassUserID,
         finishedSignUp: true
       });
@@ -317,7 +317,7 @@ const userResolver = {
         role
       } = await contextController.generateLoginToken(contactFound);
 
-      await userModel.findOneAndUpdate(
+      await UserModel.findOneAndUpdate(
         { _id: contactFound._id },
         {
           $set: {
@@ -351,7 +351,7 @@ const userResolver = {
         args.token
       );
 
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         _id: userInToken.signUpUserID,
         finishedSignUp: true
       });
@@ -359,7 +359,7 @@ const userResolver = {
         const { token } = await contextController.generateLoginToken(
           contactFound
         );
-        await userModel.findOneAndUpdate(
+        await UserModel.findOneAndUpdate(
           { _id: contactFound._id },
           {
             $set: {
@@ -390,17 +390,17 @@ const userResolver = {
       args: IMutationDeleteUserArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
         finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
-        await submissionModel.deleteMany({ user: contactFound._id });
-        await exerciseModel.deleteMany({ user: contactFound._id });
-        await documentModel.deleteMany({ user: contactFound._id });
-        await folderModel.deleteMany({ user: contactFound._id });
-        return userModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
+        await SubmissionModel.deleteMany({ user: contactFound._id });
+        await ExerciseModel.deleteMany({ user: contactFound._id });
+        await DocumentModel.deleteMany({ user: contactFound._id });
+        await FolderModel.deleteMany({ user: contactFound._id });
+        return UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
       } else {
         throw new ApolloError(
           "Can not delete a user that is not yours",
@@ -419,13 +419,13 @@ const userResolver = {
       args: IMutationUpdateUserArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
         finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
-        return userModel.findOneAndUpdate(
+        return UserModel.findOneAndUpdate(
           { _id: contactFound._id },
           { $set: args.input },
           { new: true }
@@ -442,7 +442,7 @@ const userResolver = {
      *  args: nothing.
      */
     me: async (_, __, context: { user: IUserInToken }) => {
-      const contactFound: IUser = await userModel.findOne({
+      const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID
       });
@@ -457,12 +457,12 @@ const userResolver = {
      *  args: nothing.
      */
     users() {
-      return userModel.find({});
+      return UserModel.find({});
     }
   },
 
   User: {
-    documents: async (user: IUser) => documentModel.find({ user: user._id })
+    documents: async (user: IUser) => DocumentModel.find({ user: user._id })
   }
 };
 

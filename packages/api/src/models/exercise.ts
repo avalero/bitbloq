@@ -19,12 +19,12 @@ export interface IExercise extends Document {
 const exerciseMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
-    ref: "userModel"
+    ref: "UserModel"
   },
 
   document: {
     type: Schema.Types.ObjectId,
-    ref: "documentModel"
+    ref: "DocumentModel"
   },
 
   code: {
@@ -71,7 +71,7 @@ const exerciseMongSchema: Schema = new Schema({
   }
 });
 exerciseMongSchema.plugin(timestamps);
-export const exerciseModel: Model<IExercise> = model<IExercise>(
-  "exerciseModel",
+export const ExerciseModel: Model<IExercise> = model<IExercise>(
+  "ExerciseModel",
   exerciseMongSchema
 );

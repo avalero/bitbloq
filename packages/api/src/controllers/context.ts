@@ -1,5 +1,5 @@
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
-import { userModel } from "../models/user";
+import { UserModel } from "../models/user";
 import { IUserInToken } from "../models/interfaces";
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
@@ -74,7 +74,7 @@ const contextController = {
       const data = await contextController.getDataInBasicAuth(justToken);
       const email: string = data.split(":")[0];
       const pass: string = data.split(":")[1];
-      const contactFound = await userModel.findOne({ email });
+      const contactFound = await UserModel.findOne({ email });
       if (!contactFound) {
         throw new AuthenticationError("Email or password incorrect");
       }
