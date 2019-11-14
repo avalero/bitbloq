@@ -70,14 +70,8 @@ const contextController = {
       const email: string = data.split(":")[0];
       const pass: string = data.split(":")[1];
       const contactFound = await UserModel.findOne({ email });
-      if (!contactFound) {
-        throw new AuthenticationError("Email or password incorrect");
-      }
-      if (!contactFound.active) {
-        throw new ApolloError(
-          "Not active user, please activate your account",
-          "NOT_ACTIVE_USER"
-        );
+      if (!contactFound || !contactFound.active) {
+        return undefined;
       }
       // Compare passwords from request and database
       const valid: boolean = await bcrypt.compare(pass, contactFound.password);
