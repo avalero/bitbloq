@@ -5,17 +5,22 @@ import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
 import gql from "graphql-tag";
 import {
+  Button,
+  Checkbox,
   colors,
+  HorizontalRule,
+  Icon,
   Input,
   Panel,
-  Button,
-  DialogModal,
-  HorizontalRule,
-  Checkbox,
-  Option
+  Option,
+  Select,
+  useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
+import CounterButton from "../components/CounterButton";
+import GraphQLErrorMessage from "../components/GraphQLErrorMessage";
+import ModalLayout from "../components/ModalLayout";
 import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
 
@@ -33,6 +38,14 @@ const SIGNUP_MUTATION = gql`
   }
 `;
 
+const EducationalStageOptions = [
+  "Preescolar",
+  "Primaria",
+  "Secundaria",
+  "Bachiller",
+  "Universidad"
+];
+
 enum UserPlanOptions {
   Member = "member",
   Teacher = "teacher"
@@ -41,13 +54,18 @@ enum UserPlanOptions {
 interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
+  centerName: string | undefined;
+  city: string | undefined;
+  countryKey: string | undefined;
   day: number;
+  educationalStage: string | undefined;
   email: string;
   imTeacherCheck: boolean;
   month: number;
   name: string;
   noNotifications: boolean;
   password: string;
+  postCode: number | undefined;
   surnames: string;
   year: number;
 }
@@ -58,30 +76,30 @@ interface IUserPlan {
 
 interface IStepInput {
   defaultValues: {};
-  error: ApolloError;
+  error?: ApolloError;
   goToPreviousStep?: () => void;
   loading: boolean;
   onSubmit: (userInputs: IUserData | IUserPlan) => void;
 }
 
 const SignupPage: FC = () => {
+  const t = useTranslate();
+
   const [currentStep, setCurrentStep] = useState(1);
+  const [error, setError] = useState<ApolloError>();
+  const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
     acceptTerms: false,
+    countryKey: "ES",
+    educationalStage: EducationalStageOptions[0],
     imTeacherCheck: false,
     noNotifications: false
   });
   const [userId, setUserId] = useState();
-  const [userPlan, setUserPlan] = useState({
-    userPlan: UserPlanOptions.Member
-  });
+  const [userPlan, setUserPlan] = useState();
 
-  const [saveUser, { loading: saving, error: savingError }] = useMutation(
-    SAVE_MUTATION
-  );
-  const [signupUser, { loading: signingup, error: signupError }] = useMutation(
-    SIGNUP_MUTATION
-  );
+  const [saveUser, { loading: saving }] = useMutation(SAVE_MUTATION);
+  const [signupUser, { loading: signingup }] = useMutation(SIGNUP_MUTATION);
 
   const wrapRef = React.createRef<HTMLDivElement>();
 
@@ -95,22 +113,40 @@ const SignupPage: FC = () => {
 
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
+    setUserPlan({
+      userPlan: input.imTeacherCheck
+        ? UserPlanOptions.Teacher
+        : UserPlanOptions.Member
+    });
     saveUser({
       variables: {
         input: {
           birthDate: input.birthDate,
+          centerName: input.imTeacherCheck ? input.centerName : undefined,
+          city: input.imTeacherCheck ? input.city : undefined,
+          country: input.imTeacherCheck ? Object.keys(t("countries")).find((key: string) => input.countryKey === key) : undefined,
+          educationalStage: input.imTeacherCheck
+            ? input.educationalStage
+            : undefined,
           email: input.email,
           imTeacherCheck: input.imTeacherCheck,
           name: input.name,
           notifications: !input.noNotifications,
           password: input.password,
+          postCode: input.imTeacherCheck ? input.postCode : undefined,
           surnames: input.surnames
         }
       }
-    }).then(result => {
-      setUserId(result.data.saveUserData.id);
-      goToNextStep();
-    });
+    })
+      .then(result => {
+        setUserId(result.data.saveUserData.id);
+        goToNextStep();
+      })
+      .catch(e =>
+        e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
+          ? setUserError(e)
+          : setError(e)
+      );
   };
 
   const onSignupUser = (input: IUserPlan) => {
@@ -120,22 +156,31 @@ const SignupPage: FC = () => {
         id: userId,
         userPlan: input.userPlan
       }
-    }).then(() => goToNextStep());
+    })
+      .then(() => goToNextStep())
+      .catch(e => setError(e));
   };
 
   return (
     <Wrap ref={wrapRef}>
-      {currentStep === 3 ? (
-        <DialogModal
-          isOpen={true}
-          title="Cuenta creada"
-          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam."
-          okText="Volver a enviar email"
-          onOk={() => onSignupUser(userPlan)}
+      {error ? (
+        <GraphQLErrorMessage apolloError={error} />
+      ) : currentStep === 3 ? (
+        <ModalLayout
+          title="Bitbloq | Cuenta creada"
+          modalTitle="Cuenta creada"
+          text={
+            "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. " +
+            "Si no ves el mensaje revisa tu carpeta de spam."
+          }
+          okButton={
+            <CounterButton onClick={() => onSignupUser(userPlan)}>
+              Volver a enviar email
+            </CounterButton>
+          }
           cancelText="Volver al inicio"
           onCancel={() => Router.push("/")}
-          transparentOverlay={true}
-          /* TODO: add counter */
+          isOpen={true}
         />
       ) : (
         <Container>
@@ -148,7 +193,7 @@ const SignupPage: FC = () => {
               {currentStep === 1 && (
                 <Step1
                   defaultValues={userData}
-                  error={savingError}
+                  error={userError}
                   loading={saving}
                   onSubmit={onSaveUser}
                 />
@@ -156,7 +201,6 @@ const SignupPage: FC = () => {
               {currentStep === 2 && (
                 <Step2
                   defaultValues={userPlan}
-                  error={signupError}
                   goToPreviousStep={goToPreviousStep}
                   loading={signingup}
                   onSubmit={onSignupUser}
@@ -181,28 +225,34 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     setValue
   } = useForm({ defaultValues });
 
+  const t = useTranslate();
+  const [passwordIsMasked, setPasswordIsMasked] = useState(true);
+
+  register(
+    { name: "acceptTerms", type: "custom" },
+    { validate: (value: boolean) => !!value }
+  );
   register(
     { name: "birthDate", type: "custom" },
     { required: true, validate: isValidDate }
   );
   register({ name: "imTeacherCheck", type: "custom" });
   register({ name: "noNotifications", type: "custom" });
-  register(
-    { name: "acceptTerms", type: "custom" },
-    { validate: (value: boolean) => !!value }
-  );
 
   useEffect(() => {
-    // TODO: check error management - error 500
     if (error) setError("email", "existing");
   }, [error]);
 
-  const onChangeBirthDate = async () => {
+  const onChangeBirthDate = () => {
     clearError("birthDate");
     setValue(
       "birthDate",
       [getValues().day, getValues().month, getValues().year].join("/")
     );
+  };
+
+  const togglePasswordMask = () => {
+    setPasswordIsMasked(!passwordIsMasked);
   };
 
   const onGotoMicrosoft = () => {
@@ -211,6 +261,103 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
   const onGotoGoogle = () => {
     // TODO
+  };
+
+  const teacherSubForm = (isShown: boolean) => {
+    register({ name: "countryKey", type: "custom" }, { required: isShown });
+    register(
+      { name: "educationalStage", type: "custom" },
+      { required: isShown }
+    );
+
+    if (!isShown) return;
+
+    // validation is not triggered automatically
+    const onChangeValue = (name: string, value: string) => {
+      setValue(name, value);
+      if (errors[name]) clearError(name);
+    };
+
+    return (
+      <>
+        <FormGroup style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
+          <FormField style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
+            <label>Nombre del centro</label>
+            <Input
+              type="text"
+              name="centerName"
+              placeholder="Nombre del centro"
+              ref={register({ required: true })}
+              error={!!errors.centerName}
+            />
+            {errors.centerName && (
+              <ErrorMessage>
+                El nombre que has introducido no es válido
+              </ErrorMessage>
+            )}
+          </FormField>
+          <FormField>
+            <label>Etapa</label>
+            <Select
+              name="educationalStage"
+              onChange={(value: string) =>
+                onChangeValue("educationalStage", value)
+              }
+              options={EducationalStageOptions.map(o => ({
+                value: o,
+                label: o
+              }))}
+              selectConfig={{
+                isSearchable: false
+              }}
+              value={getValues().educationalStage}
+            />
+          </FormField>
+          <FormField>
+            <label>Ciudad</label>
+            <Input
+              type="text"
+              name="city"
+              placeholder="Madrid"
+              ref={register({ required: true })}
+              error={!!errors.city}
+            />
+            {errors.city && (
+              <ErrorMessage>Debes introducir una ciudad</ErrorMessage>
+            )}
+          </FormField>
+          <FormField>
+            <label>Código postal</label>
+            <Input
+              type="number"
+              name="postCode"
+              placeholder="00000"
+              ref={register({ required: true })}
+              error={!!errors.postCode}
+            />
+            {errors.postCode && (
+              <ErrorMessage>Debes introducir un código postal</ErrorMessage>
+            )}
+          </FormField>
+          <FormField>
+            <label>País</label>
+            <Select
+              name="countryKey"
+              onChange={(value: string) => onChangeValue("countryKey", value)}
+              options={Object.keys(t("countries")).map((key: string) => ({
+                value: key,
+                label: t("countries")[key]
+              }))}
+              selectConfig={{
+                isSearchable: true
+              }}
+              value={getValues().countryKey}
+            />
+            {/* TODO: translate NO OPTIONS message */}
+          </FormField>
+        </FormGroup>
+      </>
+    );
   };
 
   return (
@@ -312,14 +459,19 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       </FormField>
       <FormField>
         <label>Contraseña</label>
-        <Input
-          type="text"
-          name="password"
-          placeholder="Contraseña"
-          ref={register({ required: true })}
-          error={!!errors.password}
-        />
-        {/* TODO: hide password */}
+        <InputPassword>
+          <Input
+            type={passwordIsMasked ? "password" : "text"}
+            name="password"
+            placeholder="Contraseña"
+            ref={register({ required: true })}
+            error={!!errors.password}
+          />
+          <TooglePassword onClick={togglePasswordMask}>
+            <Icon name={passwordIsMasked ? "eye" : "eye-close"} />
+          </TooglePassword>
+        </InputPassword>
+        {/* TODO: remove eye-close background */}
         {errors.password && (
           <ErrorMessage>Debes introducir una contraseña</ErrorMessage>
         )}
@@ -359,6 +511,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         <Checkbox checked={getValues().imTeacherCheck} />
         <span>Soy profesor</span>
       </CheckOption>
+      {teacherSubForm(getValues().imTeacherCheck)}
       <CheckOption
         onClick={() =>
           setValue("noNotifications", !getValues().noNotifications)
@@ -411,7 +564,6 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
 const Step2: FC<IStepInput> = ({
   defaultValues,
-  error,
   goToPreviousStep,
   loading,
   onSubmit
@@ -422,38 +574,48 @@ const Step2: FC<IStepInput> = ({
 
   register({ name: "userPlan", type: "custom" }, { required: true });
 
-  useEffect(() => {
-    // TODO: check error management - error 500
-    if (error) console.log("Ha habido algún error: " + error);
-  }, [error]);
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Title>Configuración de la cuenta</Title>
       Elije el tipo de cuenta que deseas crear:
       <PlanOption>
-        <Option
-          className={"bullet"}
-          checked={getValues().userPlan === UserPlanOptions.Member}
-          onClick={() => setValue("userPlan", UserPlanOptions.Member)}
-        />
-        <PlanOptionInfo>
-          <span>Miembro</span>
-          <PlanOptionCost>Gratis</PlanOptionCost>
-        </PlanOptionInfo>
+        <PlanOptionHeader>
+          <Option
+            className={"bullet"}
+            checked={getValues().userPlan === UserPlanOptions.Member}
+            onClick={() => setValue("userPlan", UserPlanOptions.Member)}
+          />
+          <PlanOptionTitle>
+            <span>Miembro</span>
+            <PlanOptionCost>Gratis</PlanOptionCost>
+          </PlanOptionTitle>
+        </PlanOptionHeader>
       </PlanOption>
       <PlanOption>
-        <Option
-          className={"bullet"}
-          checked={getValues().userPlan === UserPlanOptions.Teacher}
-          onClick={() => setValue("userPlan", UserPlanOptions.Teacher)}
-        />
+        <PlanOptionHeader>
+          <Option
+            className={"bullet"}
+            checked={getValues().userPlan === UserPlanOptions.Teacher}
+            onClick={() => setValue("userPlan", UserPlanOptions.Teacher)}
+          />
+          <PlanOptionTitle>
+            <span>Profesor</span>
+            <PlanOptionCost>
+              <span>6€ al mes</span>
+              <span>Gratis durante la beta</span>
+            </PlanOptionCost>
+          </PlanOptionTitle>
+        </PlanOptionHeader>
         <PlanOptionInfo>
-          <span>Profesor</span>
-          <PlanOptionCost>
-            <span>6€ al mes</span>
-            <span>Gratis durante la beta</span>
-          </PlanOptionCost>
+          <p>
+            Estas son las ventajas que disfrutarás siendo Profesor en Bitbloq:
+          </p>
+          <ul>
+            <li>Crear ejercicios</li>
+            <li>Corregir ejercicios</li>
+            <li>Acceso de alumnos sin registrar</li>
+          </ul>
+          Incluye Bitbloq Cloud
         </PlanOptionInfo>
       </PlanOption>
       <Buttons>
@@ -563,6 +725,7 @@ const LoginWithExternalProfile = styled.div`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
+  margin-left: 15px;
 
   button {
     background-color: white;
@@ -574,6 +737,26 @@ const LoginWithExternalProfile = styled.div`
   }
 `;
 
+const InputPassword = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const TooglePassword = styled.div`
+  align-items: center;
+  bottom: 0;
+  cursor: pointer;
+  display: flex;
+  height: 35px;
+  position: absolute;
+  right: 0;
+  padding: 0 10px;
+
+  svg {
+    width: 13px;
+  }
+`;
+
 const Buttons = styled.div`
   display: flex;
   justify-content: space-between;
@@ -581,15 +764,12 @@ const Buttons = styled.div`
 `;
 
 const FormGroup = styled.div`
-  display: flex;
-
-  > :not(:first-of-type) {
-    margin-left: 10px;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-column-gap: 10px;
 `;
 
 const FormField = styled.div`
-  flex: 1;
   margin-bottom: 20px;
 
   label {
@@ -617,20 +797,30 @@ const ErrorMessage = styled.div`
 `;
 
 const PlanOption = styled.div`
+  background-color: #fbfbfb;
   border: solid 1px #cfcfcf;
   border-radius: 4px;
-  display: flex;
-  height: 40px;
   margin-top: 10px;
   margin-bottom: 20px;
+  overflow: hidden;
+`;
+
+const PlanOptionHeader = styled.div`
+  background-color: white;
+  display: flex;
+  height: 40px;
 
   .bullet {
     justify-content: center;
     width: 40px;
   }
+
+  &:not(:last-child) {
+    border-bottom: solid 1px #cfcfcf;
+  }
 `;
 
-const PlanOptionInfo = styled.div`
+const PlanOptionTitle = styled.div`
   align-items: center;
   border-left: solid 1px #cfcfcf;
   display: flex;
@@ -645,5 +835,17 @@ const PlanOptionCost = styled.div`
   > :first-of-type {
     color: #e0e0e0;
     text-decoration: line-through;
+  }
+`;
+
+const PlanOptionInfo = styled.div`
+  background-color: white;
+  border: solid 1px #cfcfcf;
+  border-radius: 4px;
+  margin: 20px;
+  padding: 20px;
+
+  > p {
+    font-weight: bold;
   }
 `;
