@@ -171,15 +171,20 @@ const Panel = styled.div`
   box-shadow: 0 2px 3px 0 #c7c7c7;
   background-color: white;
   width: 100%;
+  max-height: 100%;
   max-width: 900px;
+  overflow: scroll;
 `;
 
 const Header = styled.div`
+  background-color: #fff;
   border-bottom: 1px solid ${colors.gray2};
   font-size: 16px;
   font-weight: bold;
   padding: 0px 30px;
+  position: sticky;
   height: 50px;
+  top: 0;
   display: flex;
   align-items: center;
 `;
