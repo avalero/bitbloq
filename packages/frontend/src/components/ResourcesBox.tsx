@@ -1,6 +1,6 @@
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import React, { FC, useLayoutEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import UploadResourceModal from "./UploadResourceModal";
 import { resourceTypes } from "../config";
 import { IResource, ResourcesTypes } from "../types";
@@ -15,24 +15,23 @@ const ResourceItem: FC<IResourceItemProps> = ({
   title,
   type
 }) => {
-  const extTitle = title.split(".").pop();
-  const titleName = title
-    .replace(new RegExp(`\.${extTitle}$`), "")
-    .substring(0, 64);
-
-  const [firstTitle, setFirsTitle] = useState<string>(
-    titleName.substring(0, titleName.length - 3)
-  );
-  const [secondTitle, setSecondTitle] = useState<string>(
-    `${titleName.substring(titleName.length - 3)}.${extTitle}`
-  );
+  const [firstTitle, setFirsTitle] = useState<string>("");
+  const [secondTitle, setSecondTitle] = useState<string>("");
 
   const titleRef = useRef<HTMLDivElement>(null);
 
-  useLayoutEffect(() => {
-    if (titleRef.current!.clientHeight > 16) {
-      setFirsTitle(firstTitle.substring(0, firstTitle.length - 1));
+  useEffect(() => {
+    const extTitle = title.split(".").pop();
+    const titleName = title
+      .replace(new RegExp(`\.${extTitle}$`), "")
+      .substring(0, 64);
+    setFirsTitle(titleName.substring(0, titleName.length - 3));
+    setSecondTitle(`${titleName.substring(titleName.length - 3)}.${extTitle}`);
+  }, []);
 
+  useLayoutEffect(() => {
+    if (titleRef.current && titleRef.current.clientHeight > 16) {
+      setFirsTitle(firstTitle.substring(0, firstTitle.length - 1));
       if (!secondTitle.match(/^\.{3}/)) {
         setSecondTitle(`...${secondTitle}`);
       }
