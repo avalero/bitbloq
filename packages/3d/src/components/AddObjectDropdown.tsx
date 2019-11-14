@@ -28,7 +28,7 @@ const AddObjectDropdown: FC<IAddObjectDropDownProps> = ({
               <Shapes>
                 {group.shapes.map(shape => (
                   <Shape key={shape.label} onClick={() => onAddObject(shape)}>
-                    <ShapeImage resource={group.resources}>
+                    <ShapeImage resource={!!group.resources}>
                       {shape.icon}
                     </ShapeImage>
                     <ShapeText>{t(shape.label)}</ShapeText>
@@ -95,6 +95,13 @@ const ShapeImage = styled.div<{ resource: boolean }>`
 `;
 
 const ShapeText = styled.div`
-  margin-top: 4px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
   font-size: 14px;
+  margin-top: 4px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  word-break: break-word;
 `;

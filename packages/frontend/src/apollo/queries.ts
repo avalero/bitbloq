@@ -345,6 +345,7 @@ export const EXERCISE_QUERY = gql`
       resources {
         file
         id
+        thumbnail
         title
         type
       }
