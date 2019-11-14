@@ -30,7 +30,6 @@ type Resource {
 
 type Query {
   uploads: [File] @authRequired(requires: [ADMIN])
-  getUserFiles: [File] @authRequired(requires: [USER])
   cloudResources(
     type: [String]
     currentPage: Number

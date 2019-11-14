@@ -169,19 +169,6 @@ export async function uploadDocumentImage(
 const uploadResolver = {
   Query: {
     uploads: () => UploadModel.find({}),
-    getUserFiles: async (_, __, context: { user: IUserInToken }) => {
-      const [files] = await bucket.getFiles({
-        prefix: `${context.user.userID}`
-      });
-      files.forEach(async file => {
-        await file.getMetadata().then(result => {
-          // console.log(file.name);
-          // console.log(result[0].size);
-        });
-      });
-      return UploadModel.find({ user: context.user.userID });
-    },
-
     cloudResources: async (
       _,
       args: IQueryCloudResourcesArgs,

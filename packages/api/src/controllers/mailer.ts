@@ -21,15 +21,13 @@ const mailerController = {
       html: message
     };
 
-    const info = await transporter.sendMail(mailOptions, (err /* info */) => {
+    const info = await transporter.sendMail(mailOptions, err => {
       if (err) {
         return new ApolloError(
           "Error sending message",
           "SENDING_MESSAGE_ERROR"
         );
       }
-      // console.log(info.response);
-      // console.log("Message sent: %s", info.messageId);
     });
   }
 };
