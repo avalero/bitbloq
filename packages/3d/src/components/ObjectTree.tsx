@@ -21,6 +21,7 @@ export interface IObjectTreeProps {
   onDeleteObject: (object: IObjectsCommonJSON) => any;
   onUpdateObject: (object: IObjectsCommonJSON | ICompoundObjectJSON) => any;
   onObjectClick: (object: IObjectsCommonJSON) => any;
+  onUpdateObjectsOrder: (orderedObjectIds: string[]) => any;
   shapeGroups: IShapeGroup[];
 }
 
@@ -32,6 +33,7 @@ const ObjectTree: FC<IObjectTreeProps> = ({
   onDeleteObject,
   onUpdateObject,
   onObjectClick,
+  onUpdateObjectsOrder,
   shapeGroups
 }) => {
   const addDropdownRef = useRef<DropDown>(null);
@@ -88,6 +90,13 @@ const ObjectTree: FC<IObjectTreeProps> = ({
 
     if (!destination || !destination.droppableId) {
       return;
+    }
+
+    if (destination.droppableId === "root") {
+      const objectIds = objects.map(o => o.id);
+      objectIds.splice(source.index, 1);
+      objectIds.splice(destination.index, 0, draggableId);
+      onUpdateObjectsOrder(objectIds);
     }
 
     const parent = objects.find(
