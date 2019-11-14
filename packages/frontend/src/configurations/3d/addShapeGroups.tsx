@@ -153,5 +153,11 @@ export const addShapeGroups = [
         icon: <img src={building4Icon} />
       }
     ]
+  },
+  {
+    label: "exercises.resources.title",
+    icon: <Icon name="exercise-resources" />,
+    shapes: [],
+    resources: true
   }
 ];

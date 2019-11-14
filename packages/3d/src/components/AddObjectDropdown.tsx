@@ -19,6 +19,7 @@ const AddObjectDropdown: FC<IAddObjectDropDownProps> = ({
     <Tabs
       tabs={shapeGroups.map(group => ({
         icon: group.icon,
+        bottom: group.resources,
         content: (
           <ShapeGroup>
             <GroupLabel>{t(group.label)}</GroupLabel>

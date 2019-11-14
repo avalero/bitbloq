@@ -326,6 +326,11 @@
     },
     "title": "Información del documento"
   },
+  "exercises": {
+    "resources": {
+      "title": "Recursos del ejercicio"
+    }
+  },
   "filter": {
     "text": {
       "placeholder": "Buscar..."

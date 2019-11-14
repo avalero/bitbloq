@@ -342,6 +342,12 @@ export const EXERCISE_QUERY = gql`
       content
       description
       image
+      resources {
+        file
+        id
+        title
+        type
+      }
     }
   }
 `;
