@@ -13,7 +13,8 @@ import {
   Input,
   Panel,
   Option,
-  Select
+  Select,
+  useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
@@ -37,9 +38,6 @@ const SIGNUP_MUTATION = gql`
   }
 `;
 
-// TODO
-const CountryOptions = ["Inglaterra", "España", "Francia", "Portugal"];
-
 const EducationalStageOptions = [
   "Preescolar",
   "Primaria",
@@ -56,18 +54,18 @@ enum UserPlanOptions {
 interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
-  centerName: string|undefined;
-  city: string|undefined;
-  country: string|undefined;
+  centerName: string | undefined;
+  city: string | undefined;
+  countryKey: string | undefined;
   day: number;
-  educationalStage: string|undefined;
+  educationalStage: string | undefined;
   email: string;
   imTeacherCheck: boolean;
   month: number;
   name: string;
   noNotifications: boolean;
   password: string;
-  postCode: number|undefined;
+  postCode: number | undefined;
   surnames: string;
   year: number;
 }
@@ -85,12 +83,14 @@ interface IStepInput {
 }
 
 const SignupPage: FC = () => {
+  const t = useTranslate();
+
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<ApolloError>();
   const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
     acceptTerms: false,
-    country: "España",
+    countryKey: "ES",
     educationalStage: EducationalStageOptions[0],
     imTeacherCheck: false,
     noNotifications: false
@@ -123,8 +123,8 @@ const SignupPage: FC = () => {
         input: {
           birthDate: input.birthDate,
           centerName: input.imTeacherCheck ? input.centerName : undefined,
-          province: input.imTeacherCheck ? input.city : undefined, // TODO: need api change
-          country: input.imTeacherCheck ? input.country : undefined,
+          city: input.imTeacherCheck ? input.city : undefined,
+          country: input.imTeacherCheck ? Object.keys(t("countries")).find((key: string) => input.countryKey === key) : undefined,
           educationalStage: input.imTeacherCheck
             ? input.educationalStage
             : undefined,
@@ -225,6 +225,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     setValue
   } = useForm({ defaultValues });
 
+  const t = useTranslate();
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
 
   register(
@@ -263,7 +264,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   };
 
   const teacherSubForm = (isShown: boolean) => {
-    register({ name: "country", type: "custom" }, { required: isShown });
+    register({ name: "countryKey", type: "custom" }, { required: isShown });
     register(
       { name: "educationalStage", type: "custom" },
       { required: isShown }
@@ -279,7 +280,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
     return (
       <>
-        <FormGroup style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+        <FormGroup style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
           <FormField style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
             <label>Nombre del centro</label>
             <Input
@@ -341,13 +342,16 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
           <FormField>
             <label>País</label>
             <Select
-              name="country"
-              onChange={(value: string) => onChangeValue("country", value)}
-              options={CountryOptions.map(o => ({ value: o, label: o }))}
+              name="countryKey"
+              onChange={(value: string) => onChangeValue("countryKey", value)}
+              options={Object.keys(t("countries")).map((key: string) => ({
+                value: key,
+                label: t("countries")[key]
+              }))}
               selectConfig={{
-                isSearchable: true,
+                isSearchable: true
               }}
-              value={getValues().country}
+              value={getValues().countryKey}
             />
             {/* TODO: translate NO OPTIONS message */}
           </FormField>
