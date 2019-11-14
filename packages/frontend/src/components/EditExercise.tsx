@@ -90,11 +90,7 @@ const EditExercise = ({ type, id }) => {
 
   useEffect(() => {
     if (exercise && exercise.content) {
-      try {
-        setInitialContent(data.exercise.content);
-      } catch (e) {
-        console.warn("Error parsing exercise content", e);
-      }
+      setInitialContent(data.exercise.content);
     }
   }, [exercise]);
 
@@ -103,15 +99,12 @@ const EditExercise = ({ type, id }) => {
 
   const loadSubmission = async () => {
     const { data } = await client.query({
-      query: STUDENT_SUBMISSION_QUERY
+      query: STUDENT_SUBMISSION_QUERY,
+      errorPolicy: "ignore"
     });
-    try {
-      setSubmission(data.submission);
-      setRestartCount(restartCount + 1);
-      currentContent.current = data.submission.content;
-    } catch (e) {
-      console.warn("Error parsing submission content", e);
-    }
+    setSubmission(data.submission);
+    setRestartCount(restartCount + 1);
+    currentContent.current = data.submission.content;
   };
 
   const restart = () => {
