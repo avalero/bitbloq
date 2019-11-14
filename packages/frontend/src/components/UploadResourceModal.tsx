@@ -26,6 +26,7 @@ enum Errors {
 
 export interface IUploadResourceModalProps {
   acceptedTypes?: ResourcesTypes[];
+  addedCallback?: (id: string, fileName?: string, publicUrl?: string) => void;
   documentId: string;
   isOpen: boolean;
   onClose?: () => void;
@@ -33,6 +34,7 @@ export interface IUploadResourceModalProps {
 
 const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   acceptedTypes = [],
+  addedCallback,
   documentId,
   isOpen,
   onClose
@@ -52,16 +54,20 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
 
   const isValidExt = (ext: string): boolean => accept.indexOf(`.${ext}`) > -1;
 
-  const onAddResource = (id: string, ext?: string) => {
+  const onAddResource = async (id: string, ext?: string) => {
     if (ext && !isValidExt(ext)) {
       setError(Errors.extError);
     } else {
-      addResource({
+      const { data } = await addResource({
         variables: {
           documentID: documentId,
           resourceID: id
         }
       });
+      const { filename, id: newId, publicUrl } = data.addResourceToDocument;
+      if (addedCallback) {
+        addedCallback(newId, filename, publicUrl);
+      }
       onCloseModal();
     }
   };
@@ -98,7 +104,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     } else if (file.size > 10000000) {
       setError(Errors.sizeError);
     } else {
-      setNameFile(file.name.replace(`.${extFile}`, "").substring(0, 64));
+      setNameFile(
+        file.name.replace(new RegExp(`\.${extFile}$`), "").substring(0, 64)
+      );
       setFile(file);
     }
   };

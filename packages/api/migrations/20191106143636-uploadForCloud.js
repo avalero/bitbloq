@@ -13,7 +13,7 @@ module.exports = {
           element.filename.toLowerCase().indexOf(".jpeg") > -1 ||
           element.filename.toLowerCase().indexOf(".webp") > -1
         ) {
-          type = "image";
+          type = "docImage";
           image = element.publicUrl;
         } else if (
           element.filename.toLowerCase().indexOf(".mp4") > -1 ||

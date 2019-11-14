@@ -7,6 +7,7 @@ import { bloqTypes } from "./configurations/bloqs/bloqTypes";
 import { boards } from "./configurations/hardware/boards";
 import { components } from "./configurations/hardware/components";
 import Loading from "./components/Loading";
+import { ResourcesTypes } from "./types";
 
 export { addShapeGroups, bloqTypes, boards, components };
 
@@ -52,6 +53,7 @@ export const documentTypes = {
     supported: ENABLED_TOOLS.includes("code")
   },
   "3d": {
+    acceptedResourcesTypes: [ResourcesTypes.object3D],
     label: "Diseño 3D",
     shortLabel: "Diseño 3D",
     color: colors.brandBlue,
@@ -90,12 +92,12 @@ export const resourceTypes = {
     label: "cloud.resources.videos",
     icon: "resource-video"
   },
-  sounds: {
+  sound: {
     id: "sound",
     label: "cloud.resources.sounds",
     icon: "resource-sound"
   },
-  objects3D: {
+  object3D: {
     id: "object3D",
     label: "cloud.resources.objects",
     icon: "resource-object3D"

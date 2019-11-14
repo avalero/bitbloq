@@ -17,6 +17,7 @@ export interface IDocument extends Document {
   description?: string;
   version?: string;
   resourcesID?: string[];
+  exResourcesID?: string[];
 }
 
 const documentMongSchema: Schema = new Schema({
@@ -83,6 +84,10 @@ const documentMongSchema: Schema = new Schema({
     default: false
   },
   resourcesID: {
+    type: [Schema.Types.ObjectId],
+    ref: "UploadModel"
+  },
+  exResourcesID: {
     type: [Schema.Types.ObjectId],
     ref: "UploadModel"
   }

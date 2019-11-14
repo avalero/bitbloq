@@ -2,6 +2,8 @@ import { ApolloError } from "apollo-server-koa";
 import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
 import { DocumentModel } from "../models/document";
+import { ObjectId, ObjectID } from "bson";
+import { ExerciseModel } from "../models/exercise";
 import { IUserInToken } from "../models/interfaces";
 import {
   IQueryCloudResourcesArgs,
@@ -93,20 +95,51 @@ const processUpload = async (
             "UPLOAD_SIZE_ERROR"
           );
         }
-        const uploadNew = new UploadModel({
-          document: documentID,
-          filename,
-          mimetype,
-          encoding,
-          publicUrl,
-          storageName: gcsName,
-          size: fileSize,
-          user: userID,
-          image: type === "image" ? publicUrl : null,
-          type,
-          deleted: false
-        });
-        const uploaded: IUpload = await UploadModel.create(uploadNew);
+        let uploaded: IUpload;
+        if (
+          await UploadModel.findOne({
+            document: documentID,
+            publicUrl,
+            user: userID
+          })
+        ) {
+          uploaded = await UploadModel.findOneAndUpdate(
+            {
+              document: documentID,
+              publicUrl,
+              user: userID,
+              type
+            },
+            {
+              $set: {
+                filename,
+                mimetype,
+                encoding,
+                storageName: gcsName,
+                size: fileSize,
+                image: type === "image" ? publicUrl : null,
+                type,
+                deleted: false
+              }
+            },
+            { new: true }
+          );
+        } else {
+          const uploadNew = new UploadModel({
+            document: documentID,
+            filename,
+            mimetype,
+            encoding,
+            publicUrl,
+            storageName: gcsName,
+            size: fileSize,
+            user: userID,
+            image: type === "image" ? publicUrl : null,
+            type,
+            deleted: false
+          });
+          uploaded = await UploadModel.create(uploadNew);
+        }
         resolve(uploaded);
       });
     });
@@ -161,7 +194,7 @@ export async function uploadDocumentImage(
       mimetype,
       encoding,
       userID,
-      "image"
+      "docImage"
     );
   });
 }
@@ -339,6 +372,31 @@ const uploadResolver = {
       return UploadModel.findOneAndUpdate(
         { _id: args.resourceID, deleted: false },
         { $push: { documentsID: args.documentID } },
+        { new: true }
+      );
+    },
+    addResourceToExercises: async (root: any, args: any, context: any) => {
+      await DocumentModel.findOneAndUpdate(
+        { _id: args.documentID },
+        { $push: { exResourcesID: args.resourceID } },
+        { new: true }
+      );
+      return UploadModel.findOneAndUpdate(
+        { _id: args.resourceID },
+        { $push: { exercisesWithDocID: args.documentID } },
+        { new: true }
+      );
+    },
+
+    deleteResourceFromExercises: async (root: any, args: any, context: any) => {
+      await DocumentModel.findOneAndUpdate(
+        { _id: args.documentID },
+        { $pull: { exResourcesID: args.resourceID } },
+        { new: true }
+      );
+      return UploadModel.findOneAndUpdate(
+        { _id: args.resourceID },
+        { $pull: { exercisesWithDocID: args.documentID } },
         { new: true }
       );
     },

@@ -19,7 +19,7 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
 }) => {
   const t = useTranslate();
   const titleExt = title.split(".").pop();
-  const titleName = title.replace(`.${titleExt}`, "");
+  const titleName = title.replace(new RegExp(`\.${titleExt}$`), "");
   const [sizeStr, setSizeStr] = useState<string>("");
 
   useEffect(() => {

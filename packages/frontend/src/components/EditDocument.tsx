@@ -27,6 +27,8 @@ import UserInfo from "./UserInfo";
 import Loading from "./Loading";
 import DocumentLoginModal from "./DocumentLoginModal";
 import {
+  ADD_RESOURCE_TO_EXERCISES,
+  DELETE_RESOURCE_FROM_EXERCISES,
   DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
@@ -35,8 +37,8 @@ import {
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage } from "../types";
-
+import { IDocument, IDocumentImage, IResource } from "../types";
+import { ISessionEvent, useSessionEvent } from "../lib/session";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
@@ -86,6 +88,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     type,
     advancedMode: false
   });
+  const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
   const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
 
@@ -158,7 +161,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       const { document, command } = e.data;
       if (command === "open-document") {
         setType(document.type);
-        const newDocument = { ...document};
+        const newDocument = { ...document };
         delete newDocument.image;
         updateRef.current(newDocument);
         setOpening(false);
@@ -167,7 +170,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
     };
   }, []);
 
+  const [addResourceToExercises] = useMutation(ADD_RESOURCE_TO_EXERCISES);
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
+  const [deleteResourceFromExercises] = useMutation(
+    DELETE_RESOURCE_FROM_EXERCISES
+  );
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
   const [setDocumentImage] = useMutation(SET_DOCUMENT_IMAGE_MUTATION);
@@ -228,6 +235,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   useEffect(() => {
     setImage(data && data.document && data.document.image);
+    setExercisesResources(
+      data && data.document && data.document.exercisesResources
+    );
   }, [data]);
 
   const update = async (document: any) => {
@@ -284,6 +294,26 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const onTabChange = useCallback((tabIndex: number) => {
     setTabIndex(tabIndex);
   }, []);
+
+  const onResourceAdded = async (id: string) => {
+    await addResourceToExercises({
+      variables: {
+        documentID: document.id,
+        resourceID: id
+      }
+    });
+    refetch();
+  };
+
+  const onResourceDeleted = async (id: string) => {
+    await deleteResourceFromExercises({
+      variables: {
+        documentID: document.id,
+        resourceID: id
+      }
+    });
+    refetch();
+  };
 
   const onSaveDocument = () => {
     const documentJSON = {
@@ -347,6 +377,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentInfoForm
         title={title}
         description={description}
+        documentId={document.id}
+        resourceAdded={onResourceAdded}
+        resourceDeleted={onResourceDeleted}
+        resources={exercisesResources}
+        resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
         onChange={({ title, description, image }) => {
           const newDocument = {

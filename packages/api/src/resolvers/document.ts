@@ -536,6 +536,24 @@ const documentResolver = {
         };
       });
       return result;
+    },
+    exercisesResources: async (document: IDocument) => {
+      const result: IResource[] = (await UploadModel.find({
+        _id: { $in: document.exResourcesID }
+      })).map(i => {
+        return {
+          id: i._id,
+          title: i.filename,
+          type: i.type,
+          size: i.size,
+          thumbnail: i.image,
+          preview: i.image,
+          file: i.publicUrl,
+          deleted: i.deleted,
+          createdAt: i.createdAt
+        };
+      });
+      return result;
     }
   }
 };

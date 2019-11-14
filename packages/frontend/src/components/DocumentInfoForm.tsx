@@ -5,14 +5,22 @@ import {
   FileSelectButton,
   Input,
   TextArea,
-  DialogModal
+  DialogModal,
+  useTranslate
 } from "@bitbloq/ui";
+import ResourcesBox from "./ResourcesBox";
 import { isValidName } from "../util";
+import { IResource, ResourcesTypes } from "../types";
 
 export interface DocumentInfoFormProps {
   title?: string;
   description?: string;
+  documentId: string;
   image: string;
+  resourceAdded: (id: string) => void;
+  resourceDeleted: (id: string) => void;
+  resources?: IResource[];
+  resourcesTypesAccepted: ResourcesTypes[];
   onChange: (data: any) => void;
 }
 
@@ -21,13 +29,19 @@ const maxImageSize = 2097152;
 const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   title,
   description,
+  documentId,
   image,
+  resourceAdded,
+  resourceDeleted,
+  resources = [],
+  resourcesTypesAccepted,
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
   const [titleInput, setTitle] = useState(title);
   const [titleError, setTitleError] = useState(false);
   const [titleFocused, setTitleFocused] = useState(false);
+  const t = useTranslate();
 
   useEffect(() => {
     if (!titleFocused) {
@@ -37,9 +51,9 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
 
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
-      setImageError("El formato de la imagen no es válido");
+      setImageError(t("document-info.errors.image-ext"));
     } else if (file.size > maxImageSize) {
-      setImageError("El tamaño de la imagen es demasiado grande");
+      setImageError(t("document-info.errors.image-size"));
     } else {
       onChange({ title, description, image: file });
     }
@@ -48,16 +62,16 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   return (
     <Container>
       <Panel>
-        <Header>Información del documento</Header>
+        <Header>{t("document-info.title")}</Header>
         <Form>
           <FormRow>
             <FormLabel>
-              <label>Nombre del documento</label>
+              <label>{t("document-info.labels.title")}</label>
             </FormLabel>
             <FormInput>
               <Input
                 value={titleInput}
-                placeholder="Nombre del documento"
+                placeholder={t("document-info.placeholders.title")}
                 onChange={e => {
                   const value: string = e.target.value;
                   if (isValidName(value)) {
@@ -76,12 +90,12 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
           </FormRow>
           <FormRow>
             <FormLabel>
-              <label>Descripción del documento</label>
+              <label>{t("document-info.labels.description")}</label>
             </FormLabel>
             <FormInput>
               <TextArea
                 value={description}
-                placeholder="Descripción del documento"
+                placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
                   onChange({ title, description: e.target.value });
                 }}
@@ -91,10 +105,8 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
           </FormRow>
           <FormRow>
             <FormLabel>
-              <label>Imagen del documento</label>
-              <FormSubLabel>
-                Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 2Mb.
-              </FormSubLabel>
+              <label>{t("document-info.labels.image")}</label>
+              <FormSubLabel>{t("document-info.sublabels.image")}</FormSubLabel>
             </FormLabel>
             <FormInput>
               <Image src={image} />
@@ -103,8 +115,27 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
                 tertiary
                 onFileSelected={onFileSelected}
               >
-                Seleccionar imagen
+                {t("document-info.buttons.image")}
               </ImageButton>
+            </FormInput>
+          </FormRow>
+        </Form>
+        <Form>
+          <FormRow>
+            <FormLabel>
+              <label>{t("document-info.labels.resources")}</label>
+              <FormSubLabel>
+                {t("document-info.sublabels.resources")}
+              </FormSubLabel>
+            </FormLabel>
+            <FormInput>
+              <ResourcesBox
+                documentId={documentId}
+                resourceAdded={resourceAdded}
+                resourceDeleted={resourceDeleted}
+                resources={resources}
+                resourcesTypesAccepted={resourcesTypesAccepted}
+              />
             </FormInput>
           </FormRow>
         </Form>
@@ -140,26 +171,40 @@ const Panel = styled.div`
   box-shadow: 0 2px 3px 0 #c7c7c7;
   background-color: white;
   width: 100%;
+  max-height: 100%;
   max-width: 900px;
+  overflow: scroll;
 `;
 
 const Header = styled.div`
+  background-color: #fff;
   border-bottom: 1px solid ${colors.gray2};
   font-size: 16px;
   font-weight: bold;
   padding: 0px 30px;
+  position: sticky;
   height: 50px;
+  top: 0;
   display: flex;
   align-items: center;
 `;
 
 const Form = styled.div`
+  border-bottom: 1px solid ${colors.gray2};
   padding: 20px 30px;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 `;
 
 const FormRow = styled.div`
   display: flex;
   margin-bottom: 20px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const FormLabel = styled.div`
@@ -183,6 +228,7 @@ const FormSubLabel = styled.div`
 
 const FormInput = styled.div`
   flex: 2;
+  max-width: 66%;
 `;
 
 interface ImageProps {

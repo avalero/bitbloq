@@ -299,6 +299,33 @@
       "warning-title": "Aviso"
     }
   },
+  "document-info": {
+    "buttons": {
+      "add-new-resource": "Añadir un recurso al ejercicio",
+      "add-more-resources": "Añadir más recursos al ejercicio",
+      "image": "Seleccionar una imagen"
+    },
+    "errors": {
+      "image-ext": "El formato de la imagen no es válido",
+      "image-size": "El tamaño de la imagen es demasiado grande"
+    },
+    "labels": {
+      "description": "Descripción del documento",
+      "image": "Imagen del documento",
+      "resources": "Recursos del ejercicio",
+      "title": "Título del documento"
+    },
+    "placeholders": {
+      "description": "Descripción del documento",
+      "resources": "El documento no usa recursos importados",
+      "title": "Título del documento"
+    },
+    "sublabels": {
+      "image": "Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1 MB.",
+      "resources": "Estos son los recursos importados que necesita el alumno para visualizar y realizar el ejercicio."
+    },
+    "title": "Información del documento"
+  },
   "filter": {
     "text": {
       "placeholder": "Buscar..."

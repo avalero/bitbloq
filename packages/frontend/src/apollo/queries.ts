@@ -32,6 +32,11 @@ export const DOCUMENT_QUERY = gql`
       parentsPath {
         id
       }
+      exercisesResources {
+        id
+        title
+        type
+      }
     }
   }
 `;
@@ -529,6 +534,27 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
 export const ADD_RESOURCE_TO_DOCUMENT = gql`
   mutation AddResourceToDocument($resourceID: ID!, $documentID: ID!) {
     addResourceToDocument(resourceID: $resourceID, documentID: $documentID) {
+      filename
+      id
+      publicUrl
+    }
+  }
+`;
+
+export const ADD_RESOURCE_TO_EXERCISES = gql`
+  mutation AddResourceToExercises($resourceID: ID!, $documentID: ID!) {
+    addResourceToExercises(resourceID: $resourceID, documentID: $documentID) {
+      id
+    }
+  }
+`;
+
+export const DELETE_RESOURCE_FROM_EXERCISES = gql`
+  mutation DeleteResourceFromExercises($resourceID: ID!, $documentID: ID!) {
+    deleteResourceFromExercises(
+      resourceID: $resourceID
+      documentID: $documentID
+    ) {
       id
     }
   }

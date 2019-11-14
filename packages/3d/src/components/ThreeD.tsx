@@ -317,6 +317,9 @@ const ThreeD: React.FC<IThreeDProps> = ({
                 config.colors[Math.floor(Math.random() * config.colors.length)]
             }
           };
+          if (sceneRef.current) {
+            setObjects(sceneRef.current.addNewObjectFromJSON(object));
+          }
         },
         exportToSTL: (name, separate) => {
           const nameToPass = name === "" ? "scene" : name;
