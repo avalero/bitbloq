@@ -39,7 +39,6 @@ import { documentTypes } from "../config";
 import { dataURItoBlob } from "../util";
 import { IDocument, IDocumentImage, IResource } from "../types";
 import { ISessionEvent, useSessionEvent } from "../lib/session";
-
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
