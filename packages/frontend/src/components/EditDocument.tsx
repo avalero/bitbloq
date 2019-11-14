@@ -159,7 +159,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
       const { document, command } = e.data;
       if (command === "open-document") {
         setType(document.type);
-        update(document);
+        const newDocument = { ...document};
+        delete newDocument.image;
+        updateRef.current(newDocument);
         setOpening(false);
         channel.close();
       }
@@ -261,6 +263,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
       debouncedUpdate(document);
     }
   };
+  const updateRef = useRef(update);
+  updateRef.current = update;
 
   const publish = async (isPublic: boolean, isExample: boolean) => {
     if (!isNew) {

@@ -31,7 +31,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
 }) => {
   const extTitle = title.split(".").pop();
   const t = useTranslate();
-  const titleName = title.replace(`.${extTitle}`, "");
+  const titleName = title.replace(`.${extTitle}`, "").substring(0, 64);
 
   const [firstTitle, setFirsTitle] = useState<string>(
     titleName.substring(0, titleName.length - 3)
