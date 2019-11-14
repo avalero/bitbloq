@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface IDocument extends Document {
   user?: string;
@@ -19,7 +19,7 @@ export interface IDocument extends Document {
   resourcesID?: string[];
 }
 
-const DocumentMongSchema: Schema = new Schema({
+const documentMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: "UserModel"
@@ -88,8 +88,8 @@ const DocumentMongSchema: Schema = new Schema({
   }
 });
 
-DocumentMongSchema.plugin(timestamps);
+documentMongSchema.plugin(timestamps);
 export const DocumentModel: Model<IDocument> = model<IDocument>(
   "DocumentModel",
-  DocumentMongSchema
+  documentMongSchema
 );

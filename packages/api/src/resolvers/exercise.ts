@@ -5,6 +5,16 @@ import { SubmissionModel } from "../models/submission";
 import { IUser, UserModel } from "../models/user";
 import { pubsub } from "../server";
 import { DOCUMENT_UPDATED } from "./document";
+import { IUserInToken } from "../models/interfaces";
+import {
+  IMutationCreateExerciseArgs,
+  IMutationChangeSubmissionsStateArgs,
+  IMutationDeleteExerciseArgs,
+  IMutationUpdateExerciseArgs,
+  IQueryExerciseArgs,
+  IQueryExerciseByCodeArgs,
+  IQueryExercisesByDocumentArgs
+} from "../api-types";
 
 const exerciseResolver = {
   Mutation: {
@@ -13,7 +23,11 @@ const exerciseResolver = {
      * It stores the new exercise in the database with the document father information or new one provided by the user
      * args: exercise information
      */
-    createExercise: async (root: any, args: any, context: any) => {
+    createExercise: async (
+      _,
+      args: IMutationCreateExerciseArgs,
+      context: { user: IUserInToken }
+    ) => {
       const docFather: IDocument = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.userID
@@ -57,7 +71,11 @@ const exerciseResolver = {
      * Change Submission State: changes the value of the boolean acceptSubmissions.
      * args: exerciseID, new state of acceptSubmissions
      */
-    changeSubmissionsState: async (root: any, args: any, context: any) => {
+    changeSubmissionsState: async (
+      _,
+      args: IMutationChangeSubmissionsStateArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -79,7 +97,11 @@ const exerciseResolver = {
      * This method deletes all the submissions related with the exercise ID.
      * args: exercise ID
      */
-    deleteExercise: async (root: any, args: any, context: any) => {
+    deleteExercise: async (
+      _,
+      args: IMutationDeleteExerciseArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -101,7 +123,11 @@ const exerciseResolver = {
      * It updates the exercise with the new information provided.
      * args: exercise ID, new exercise information.
      */
-    updateExercise: async (root: any, args: any, context: any) => {
+    updateExercise: async (
+      _,
+      args: IMutationUpdateExerciseArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existExercise: IExercise = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -123,7 +149,7 @@ const exerciseResolver = {
      * Exercises: returns all the exercises of the user logged.
      * args: nothing.
      */
-    exercises: async (root: any, args: any, context: any) => {
+    exercises: async (_, __, context: { user: IUserInToken }) => {
       return ExerciseModel.find({ user: context.user.userID });
     },
 
@@ -132,7 +158,7 @@ const exerciseResolver = {
      * It can be asked with the user logged token or the student token.
      * args: exercise ID.
      */
-    exercise: async (root: any, args: any, context: any) => {
+    exercise: async (_, args: IQueryExerciseArgs) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
@@ -150,7 +176,7 @@ const exerciseResolver = {
      * It can be asked by anyone. It is the step previous to login in the exercise as student.
      * args: exercise code.
      */
-    exerciseByCode: async (root: any, args: any, context: any) => {
+    exerciseByCode: async (_, args: IQueryExerciseByCodeArgs) => {
       const existExercise: IExercise = await ExerciseModel.findOne({
         code: args.code
       });
@@ -164,7 +190,11 @@ const exerciseResolver = {
      * Exercises by document: returns all the exercises that depends on the document father ID passed in the arguments.
      * args: document ID.
      */
-    exercisesByDocument: async (root: any, args: any, context: any) => {
+    exercisesByDocument: async (
+      _,
+      args: IQueryExercisesByDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       const docFather: IDocument = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.userID
@@ -172,7 +202,7 @@ const exerciseResolver = {
       if (!docFather) {
         throw new ApolloError("document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      return await ExerciseModel.find({
+      return ExerciseModel.find({
         document: docFather._id,
         user: context.user.userID
       });

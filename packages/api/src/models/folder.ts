@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface IFolder extends Document {
   name?: string;
@@ -11,7 +11,7 @@ export interface IFolder extends Document {
   updatedAt?: Date;
 }
 
-const FolderMongSchema: Schema = new Schema({
+const folderMongSchema: Schema = new Schema({
   name: {
     type: String,
     default: "New Folder"
@@ -42,8 +42,8 @@ const FolderMongSchema: Schema = new Schema({
   }
 });
 
-FolderMongSchema.plugin(timestamps);
+folderMongSchema.plugin(timestamps);
 export const FolderModel: Model<IFolder> = model<IFolder>(
   "FolderModel",
-  FolderMongSchema
+  folderMongSchema
 );
