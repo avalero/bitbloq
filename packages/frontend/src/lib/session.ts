@@ -174,6 +174,7 @@ export const useSessionEvent = (
     };
 
     return () => {
+      eventChannel.onmessage = null;
       eventChannel.close();
     };
   }, []);

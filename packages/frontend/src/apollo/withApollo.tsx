@@ -28,7 +28,7 @@ export interface IContext extends NextPageContext {
 }
 
 interface ISessionWatcherProps {
-  tempSession: string;
+  tempSession?: string;
   client: ApolloClient<any>;
 }
 const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
@@ -48,34 +48,34 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
       setAnotherSession(true);
       setToken("");
     }
-  });
+  }, tempSession);
 
   useSessionEvent("expired", () => {
-    logout(false);
-  });
+    logout();
+  }, tempSession);
 
   useSessionEvent("activity", () => {
     if (shouldRenewToken(tempSession)) {
       renewToken(
-          getToken(tempSession)
-          .then(currentToken => 
-        client
-          .mutate({
-            mutation: RENEW_TOKEN_MUTATION,
-            context: { token: currentToken }
-          }))
+        getToken(tempSession)
+          .then(currentToken =>
+            client.mutate({
+              mutation: RENEW_TOKEN_MUTATION,
+              context: { token: currentToken }
+            })
+          )
           .then(({ data }) => data.renewToken),
         tempSession
       );
     }
-  });
+  }, tempSession);
 
   if (anotherSession) {
     return (
       <ErrorLayout
         title="Has iniciado sesión en otro dispositivo"
         text="Solo se puede tener una sesión abierta al mismo tiempo"
-        onOk={() => logout(false)}
+        onOk={() => logout()}
       />
     );
   }
@@ -97,12 +97,20 @@ export default function withApollo(
 
     return (
       <ApolloProvider client={client}>
-        <UserDataProvider initialUserData={userData}>
-          <PageComponent {...pageProps} />
-          {requiresSession && (
+        { tempSession ? (
+          <>
+            <PageComponent {...pageProps} />
             <SessionWatcher tempSession={tempSession} client={client} />
-          )}
-        </UserDataProvider>
+          </>
+        ) : (
+          <UserDataProvider
+            initialUserData={userData}
+            requiresSession={requiresSession}
+          >
+            <PageComponent {...pageProps} />
+            <SessionWatcher client={client} />
+          </UserDataProvider>
+        )}
       </ApolloProvider>
     );
   };
@@ -153,20 +161,27 @@ export default function withApollo(
 
       const apolloState = apolloClient.cache.extract();
 
-      const { data, error } = await apolloClient.query({
-        query: ME_QUERY,
-        errorPolicy: "ignore"
-      });
+      if (tempSession) {
+        return {
+          ...pageProps,
+          apolloState
+        };
+      } else {
+        const { data, error } = await apolloClient.query({
+          query: ME_QUERY,
+          errorPolicy: "ignore",
+        });
 
-      if (requiresSession && !tempSession && !(data && data.me)) {
-        redirect(ctx, "/");
+        if (requiresSession && !(data && data.me)) {
+          redirect(ctx, "/");
+        }
+
+        return {
+          ...pageProps,
+          apolloState,
+          userData: data && data.me
+        };
       }
-
-      return {
-        ...pageProps,
-        apolloState,
-        userData: data && data.me
-      };
     };
   }
 
