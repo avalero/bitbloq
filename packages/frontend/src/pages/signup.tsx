@@ -38,7 +38,7 @@ const SIGNUP_MUTATION = gql`
 `;
 
 // TODO
-const CountryOptions = ["España", "Francia", "Portugal"];
+const CountryOptions = ["Inglaterra", "España", "Francia", "Portugal"];
 
 const EducationalStageOptions = [
   "Preescolar",
@@ -56,18 +56,18 @@ enum UserPlanOptions {
 interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
-  centerName?: string;
-  city?: string;
-  country?: string;
+  centerName: string|undefined;
+  city: string|undefined;
+  country: string|undefined;
   day: number;
-  educationalStage?: number;
+  educationalStage: string|undefined;
   email: string;
   imTeacherCheck: boolean;
   month: number;
   name: string;
   noNotifications: boolean;
   password: string;
-  postCode?: number;
+  postCode: number|undefined;
   surnames: string;
   year: number;
 }
@@ -90,6 +90,8 @@ const SignupPage: FC = () => {
   const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
     acceptTerms: false,
+    country: "España",
+    educationalStage: EducationalStageOptions[0],
     imTeacherCheck: false,
     noNotifications: false
   });
@@ -261,7 +263,6 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   };
 
   const teacherSubForm = (isShown: boolean) => {
-    register({ name: "city", type: "custom" }, { required: isShown });
     register({ name: "country", type: "custom" }, { required: isShown });
     register(
       { name: "educationalStage", type: "custom" },
@@ -308,6 +309,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               selectConfig={{
                 isSearchable: false
               }}
+              value={getValues().educationalStage}
             />
           </FormField>
           <FormField>
@@ -344,10 +346,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               options={CountryOptions.map(o => ({ value: o, label: o }))}
               selectConfig={{
                 isSearchable: true,
-                noOptionsMessage: "No hay opciones" // TODO: not working
               }}
+              value={getValues().country}
             />
-            {/* TODO: España preselected */}
+            {/* TODO: translate NO OPTIONS message */}
           </FormField>
         </FormGroup>
       </>
