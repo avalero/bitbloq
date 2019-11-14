@@ -32,7 +32,7 @@ export const DOCUMENT_QUERY = gql`
       parentsPath {
         id
       }
-      resources {
+      exercisesResources {
         id
         title
         type
@@ -537,6 +537,14 @@ export const ADD_RESOURCE_TO_DOCUMENT = gql`
       filename
       id
       publicUrl
+    }
+  }
+`;
+
+export const ADD_RESOURCE_TO_EXERCISES = gql`
+  mutation AddResourceToExercises($resourceID: ID!, $documentID: ID!) {
+    addResourceToExercises(resourceID: $resourceID, documentID: $documentID) {
+      id
     }
   }
 `;
