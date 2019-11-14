@@ -1,16 +1,16 @@
-// require("dotenv").config();
+import { config } from "dotenv";
+config();
 
 import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
-import Koa = require("koa");
+import * as Koa from "koa";
 import { ApolloServer } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
-
 import { RedisPubSub } from "graphql-redis-subscriptions";
-import * as Redis from "ioredis";
 
+import * as Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
 
@@ -87,10 +87,6 @@ const server = new ApolloServer({
     }
   },
   schema: exSchema,
-  // upload: {
-  //   maxFileSize: 10000000,
-  //   maxFiles: 1
-  // },
   subscriptions: {
     onConnect: async (connectionParams: any) => {
       if (connectionParams.authorization) {
