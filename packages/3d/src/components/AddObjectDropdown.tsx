@@ -28,7 +28,9 @@ const AddObjectDropdown: FC<IAddObjectDropDownProps> = ({
               <Shapes>
                 {group.shapes.map(shape => (
                   <Shape key={shape.label} onClick={() => onAddObject(shape)}>
-                    <ShapeImage>{shape.icon}</ShapeImage>
+                    <ShapeImage resource={group.resources}>
+                      {shape.icon}
+                    </ShapeImage>
                     <ShapeText>{t(shape.label)}</ShapeText>
                   </Shape>
                 ))}
@@ -75,19 +77,20 @@ const Shape = styled.div`
   cursor: pointer;
 `;
 
-const ShapeImage = styled.div`
+const ShapeImage = styled.div<{ resource: boolean }>`
   width: 80px;
   height: 80px;
   border-radius: 4px;
-  background-color: #def6fb;
+  background-color: ${props => (props.resource ? "#fff" : "#def6fb")};
   display: flex;
   justify-content: center;
   align-items: center;
 
   svg,
   img {
-    width: 56px;
-    height: 56px;
+    color: ${props => (props.resource ? "#c0c3c9" : "")};
+    width: ${props => (props.resource ? 80 : 56)}px;
+    height: ${props => (props.resource ? 80 : 56)}px;
   }
 `;
 
