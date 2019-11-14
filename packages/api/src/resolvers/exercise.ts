@@ -7,14 +7,14 @@ import { pubsub } from "../server";
 import { DOCUMENT_UPDATED } from "./document";
 import { IUserInToken } from "../models/interfaces";
 import {
-  MutationCreateExerciseArgs,
-  MutationChangeSubmissionsStateArgs,
-  MutationDeleteExerciseArgs,
-  MutationUpdateExerciseArgs,
-  QueryExerciseArgs,
-  QueryExerciseByCodeArgs,
-  QueryExercisesByDocumentArgs
-} from "../generated/graphql";
+  IMutationCreateExerciseArgs,
+  IMutationChangeSubmissionsStateArgs,
+  IMutationDeleteExerciseArgs,
+  IMutationUpdateExerciseArgs,
+  IQueryExerciseArgs,
+  IQueryExerciseByCodeArgs,
+  IQueryExercisesByDocumentArgs
+} from "../api-types";
 
 const exerciseResolver = {
   Mutation: {
@@ -24,7 +24,7 @@ const exerciseResolver = {
      * args: exercise information
      */
     createExercise: async (
-      args: MutationCreateExerciseArgs,
+      args: IMutationCreateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
       const docFather: IDocument = await documentModel.findOne({
@@ -71,7 +71,7 @@ const exerciseResolver = {
      * args: exerciseID, new state of acceptSubmissions
      */
     changeSubmissionsState: async (
-      args: MutationChangeSubmissionsStateArgs,
+      args: IMutationChangeSubmissionsStateArgs,
       context: { user: IUserInToken }
     ) => {
       const existExercise: IExercise = await exerciseModel.findOne({
@@ -96,7 +96,7 @@ const exerciseResolver = {
      * args: exercise ID
      */
     deleteExercise: async (
-      args: MutationDeleteExerciseArgs,
+      args: IMutationDeleteExerciseArgs,
       context: { user: IUserInToken }
     ) => {
       const existExercise: IExercise = await exerciseModel.findOne({
@@ -121,7 +121,7 @@ const exerciseResolver = {
      * args: exercise ID, new exercise information.
      */
     updateExercise: async (
-      args: MutationUpdateExerciseArgs,
+      args: IMutationUpdateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
       const existExercise: IExercise = await exerciseModel.findOne({
@@ -154,7 +154,7 @@ const exerciseResolver = {
      * It can be asked with the user logged token or the student token.
      * args: exercise ID.
      */
-    exercise: async (args: QueryExerciseArgs) => {
+    exercise: async (args: IQueryExerciseArgs) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
@@ -172,7 +172,7 @@ const exerciseResolver = {
      * It can be asked by anyone. It is the step previous to login in the exercise as student.
      * args: exercise code.
      */
-    exerciseByCode: async (args: QueryExerciseByCodeArgs) => {
+    exerciseByCode: async (args: IQueryExerciseByCodeArgs) => {
       const existExercise: IExercise = await exerciseModel.findOne({
         code: args.code
       });
@@ -187,7 +187,7 @@ const exerciseResolver = {
      * args: document ID.
      */
     exercisesByDocument: async (
-      args: QueryExercisesByDocumentArgs,
+      args: IQueryExercisesByDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       const docFather: IDocument = await documentModel.findOne({

@@ -2,17 +2,17 @@ overwrite: true
 schema: "http://localhost:8000/graphql"
 documents: null
 generates:
-  src/generated/graphql.ts:
+  src/api-types.ts:
+    plugins:
+      - "typescript"
+      - "typescript-resolvers"
     config:
+      typesPrefix: I
+      declarationKind: 'interface'
+      useIndexSignature: true
       scalars:
         Date: Date
         EmailAddress: string
         ObjectID: string
         Number: number
-        Upload: File
-    plugins:
-      - "typescript"
-      - "typescript-resolvers"
-  ./graphql.schema.json:
-    plugins:
-      - "introspection"
+        Upload: File      

@@ -23,13 +23,14 @@ import { redisClient } from "../server";
 import { sign as jwtSign } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 import {
-  MutationSignUpUserArgs,
-  MutationActivateAccountArgs,
-  MutationDeleteUserArgs,
-  MutationUpdateUserArgs
-} from "../generated/graphql";
+  IMutationActivateAccountArgs,
+  IMutationDeleteUserArgs,
+  IMutationUpdateUserArgs,
+  IMutationSaveUserDataArgs,
+  IMutationFinishSignUpArgs
+} from "../api-types";
 
-const saltRounds = 7;
+const saltRounds: number = 7;
 
 const userResolver = {
   Mutation: {
@@ -40,8 +41,8 @@ const userResolver = {
      * It saves the new user data if the email passed as argument is not registered yet.
      * args: email, password and user information.
      */
-    saveUserData: async (root: any, args: any) => {
-      const contactFound: IUser = await UserModel.findOne({
+    saveUserData: async (args: IMutationSaveUserDataArgs) => {
+      const contactFound: IUser = await userModel.findOne({
         email: args.input.email
       });
       if (contactFound) {
@@ -51,18 +52,25 @@ const userResolver = {
             "USER_EMAIL_EXISTS"
           );
         } else {
-          await UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
+          await userModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
         }
       }
       // Store the password with a hash
-      const hash: string = await bcryptHash(args.input.password, saltRounds);
-      const birthDate: number[] = args.input.birthDate.split("/");
-      const userNew: IUser = new UserModel({
+      const hash: string = await bcryptHash(
+        args.input.password as string,
+        saltRounds as number
+      );
+      const birthDate: string[] = String(args.input.birthDate).split("/");
+      const userNew: IUser = new userModel({
         email: args.input.email,
         password: hash,
         name: args.input.name,
         surnames: args.input.surnames,
-        birthDate: new Date(birthDate[2], birthDate[1] - 1, birthDate[0]),
+        birthDate: new Date(
+          Number(birthDate[2]),
+          Number(birthDate[1]) - 1,
+          Number(birthDate[0])
+        ),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
@@ -75,7 +83,7 @@ const userResolver = {
         lastLogin: new Date(),
         finishedSignUp: false
       });
-      const newUser: IUser = await UserModel.create(userNew);
+      const newUser: IUser = await userModel.create(userNew);
       return { id: newUser._id, email: newUser.email };
     },
 
@@ -85,8 +93,8 @@ const userResolver = {
      * It sends a e-mail to activate the account.
      * args: userID and plan selected("member" or "teacher").
      */
-    finishSignUp: async (root: any, args: any) => {
-      const user: IUser = await UserModel.findOne({
+    finishSignUp: async (args: IMutationFinishSignUpArgs) => {
+      const user: IUser = await userModel.findOne({
         _id: args.id,
         active: false
       });
@@ -135,7 +143,7 @@ const userResolver = {
         user: user._id
       });
       // Update the user information in the database
-      await UserModel.findOneAndUpdate(
+      await userModel.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
@@ -155,8 +163,8 @@ const userResolver = {
       It returns the authorization token with user information.
       args: email and password.
     */
-    login: async (root: any, { email, password }) => {
-      const contactFound: IUser = await UserModel.findOne({
+    login: async ({ email, password }) => {
+      const contactFound: IUser = await userModel.findOne({
         email,
         finishedSignUp: true
       });
@@ -243,8 +251,8 @@ const userResolver = {
      * reset Password: send a email to the user email with a new token for edit the password.
      * args: email
      */
-    resetPasswordEmail: async (root: any, { email }) => {
-      const contactFound: IUser = await UserModel.findOne({
+    resetPasswordEmail: async ({ email }) => {
+      const contactFound: IUser = await userModel.findOne({
         email,
         finishedSignUp: true
       });
@@ -291,7 +299,7 @@ const userResolver = {
     updatePassword: async ({ token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser = await userModel.findOne({
         _id: dataInToken.resetPassUserID,
         finishedSignUp: true
       });
@@ -314,7 +322,7 @@ const userResolver = {
         {
           $set: {
             password: hash,
-            authToken: authToken
+            authToken
           }
         }
       );
@@ -332,7 +340,7 @@ const userResolver = {
       It takes the information of the token received and activates the account created before.
       args: sign up token. This token is provided in the email sent.
     */
-    activateAccount: async (args: MutationActivateAccountArgs) => {
+    activateAccount: async (args: IMutationActivateAccountArgs) => {
       if (!args.token) {
         throw new ApolloError(
           "Error with sign up token, no token in args",
@@ -343,7 +351,7 @@ const userResolver = {
         args.token
       );
 
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser = await userModel.findOne({
         _id: userInToken.signUpUserID,
         finishedSignUp: true
       });
@@ -378,7 +386,7 @@ const userResolver = {
      * args: user ID.
      */
     deleteUser: async (
-      args: MutationDeleteUserArgs,
+      args: IMutationDeleteUserArgs,
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser = await userModel.findOne({
@@ -406,7 +414,7 @@ const userResolver = {
       args: user ID, new user information.
     */
     updateUser: async (
-      args: MutationUpdateUserArgs,
+      args: IMutationUpdateUserArgs,
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser = await userModel.findOne({
@@ -415,7 +423,7 @@ const userResolver = {
         finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
-        return await userModel.findOneAndUpdate(
+        return userModel.findOneAndUpdate(
           { _id: contactFound._id },
           { $set: args.input },
           { new: true }

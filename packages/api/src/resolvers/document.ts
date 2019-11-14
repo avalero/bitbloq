@@ -14,17 +14,17 @@ import { uploadDocumentImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
 import { IUserInToken } from "../models/interfaces";
 import {
-  MutationCreateDocumentArgs,
-  MutationDeleteDocumentArgs,
-  MutationUpdateDocumentContentArgs,
-  MutationUpdateDocumentArgs,
-  MutationSetDocumentImageArgs,
-  MutationPublishDocumentArgs,
-  QueryDocumentArgs,
-  QueryOpenPublicDocumentArgs,
-  QueryDocumentsAndFoldersArgs,
-  QueryHasExercisesArgs
-} from "../generated/graphql";
+  IMutationCreateDocumentArgs,
+  IMutationDeleteDocumentArgs,
+  IMutationUpdateDocumentContentArgs,
+  IMutationUpdateDocumentArgs,
+  IMutationSetDocumentImageArgs,
+  IMutationPublishDocumentArgs,
+  IQueryDocumentArgs,
+  IQueryOpenPublicDocumentArgs,
+  IQueryDocumentsAndFoldersArgs,
+  IQueryHasExercisesArgs
+} from "../api-types";
 
 export const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -74,7 +74,7 @@ const documentResolver = {
      * args: document information
      */
     createDocument: async (
-      args: MutationCreateDocumentArgs,
+      args: IMutationCreateDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       if (args.input.folder) {
@@ -114,7 +114,7 @@ const documentResolver = {
      * args: document ID
      */
     deleteDocument: async (
-      args: MutationDeleteDocumentArgs,
+      args: IMutationDeleteDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       const existDocument: IDocument = await documentModel.findOne({
@@ -144,7 +144,7 @@ const documentResolver = {
      *  args: id, content and cache
      */
     updateDocumentContent: async (
-      args: MutationUpdateDocumentContentArgs,
+      args: IMutationUpdateDocumentContentArgs,
       context: { user: IUserInToken }
     ) => {
       const existDocument: IDocument = await documentModel.findOne({
@@ -179,7 +179,7 @@ const documentResolver = {
      * args: document ID, new document information.
      */
     updateDocument: async (
-      args: MutationUpdateDocumentArgs,
+      args: IMutationUpdateDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       const existDocument: IDocument = await documentModel.findOne({
@@ -207,7 +207,7 @@ const documentResolver = {
         }
         if (args.input.content || args.input.cache) {
           console.log(
-            "You should use Update document Content Mutation, USE_UPDATECONTENT_MUTATION"
+            "You should use Update document Content IMutation, USE_UPDATECONTENT_MUTATION"
           );
         }
         const updatedDoc: IDocument = await documentModel.findOneAndUpdate(
@@ -242,7 +242,7 @@ const documentResolver = {
      * args: imag: Upload and isSnapshot: Boolean
      */
     setDocumentImage: async (
-      args: MutationSetDocumentImageArgs,
+      args: IMutationSetDocumentImageArgs,
       context: { user: IUserInToken }
     ) => {
       const docFound: IDocument = await documentModel.findOne({ _id: args.id });
@@ -272,7 +272,7 @@ const documentResolver = {
      * args: document id, and public value.
      */
     publishDocument: async (
-      args: MutationPublishDocumentArgs,
+      args: IMutationPublishDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       const docFound: IDocument = await documentModel.findOne({ _id: args.id });
@@ -305,7 +305,7 @@ const documentResolver = {
      * args: document ID.
      */
     document: async (
-      args: QueryDocumentArgs,
+      args: IQueryDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
@@ -330,7 +330,7 @@ const documentResolver = {
      * open public document: returns the information of the public document ID provided in the arguments.
      * args: public document ID.
      */
-    openPublicDocument: async (args: QueryOpenPublicDocumentArgs) => {
+    openPublicDocument: async (args: IQueryOpenPublicDocumentArgs) => {
       const existDocument: IDocument = await documentModel.findOne({
         _id: args.id,
         public: true
@@ -355,7 +355,7 @@ const documentResolver = {
      * args: itemsPerPage: Number, order: String, searchTitle: String.
      */
     documentsAndFolders: async (
-      args: QueryDocumentsAndFoldersArgs,
+      args: IQueryDocumentsAndFoldersArgs,
       context: { user: IUserInToken }
     ) => {
       const user: IUser = await userModel.findOne({ _id: context.user.userID });
@@ -477,7 +477,7 @@ const documentResolver = {
     },
 
     hasExercises: async (
-      args: QueryHasExercisesArgs,
+      args: IQueryHasExercisesArgs,
       context: { user: IUserInToken }
     ) => {
       let hasChildren: boolean;

@@ -74,18 +74,18 @@
     "winston-elasticsearch": "^0.7.9"
   },
   "devDependencies": {
+    "@graphql-codegen/introspection": "1.8.3",
+    "@graphql-codegen/typescript": "1.8.3",
+    "@graphql-codegen/typescript-document-nodes": "1.8.3",
+    "@graphql-codegen/typescript-mongodb": "1.8.3",
+    "@graphql-codegen/typescript-resolvers": "1.8.3",
     "@types/mongodb": "^3.1.22",
     "graphql": "^0.13.2",
     "graphql-tools": "^4.0.4",
     "mjml": "^4.4.1",
     "mjml-with-images-loader": "^2.0.0",
     "nodemon": "^1.18.10",
-    "ts-jest": "^23.10.5",
-    "@graphql-codegen/typescript": "1.8.3",
-    "@graphql-codegen/typescript-resolvers": "1.8.3",
-    "@graphql-codegen/typescript-mongodb": "1.8.3",
-    "@graphql-codegen/typescript-document-nodes": "1.8.3",
-    "@graphql-codegen/introspection": "1.8.3"
+    "ts-jest": "^23.10.5"
   },
   "scripts": {
     "build": "tsc",

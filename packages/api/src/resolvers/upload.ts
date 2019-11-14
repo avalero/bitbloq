@@ -4,18 +4,18 @@ import { orderFunctions } from "../utils";
 import { documentModel } from "../models/document";
 import { IUserInToken } from "../models/interfaces";
 import {
-  QueryCloudResourcesArgs,
-  MutationUploadCloudResourceArgs,
-  MutationAddResourceToDocumentArgs,
-  MutationMoveToTrashArgs,
-  MutationRestoreResourceArgs
-} from "../generated/graphql";
+  IQueryCloudResourcesArgs,
+  IMutationUploadCloudResourceArgs,
+  IMutationAddResourceToDocumentArgs,
+  IMutationMoveToTrashArgs,
+  IMutationRestoreResourceArgs
+} from "../api-types";
 
 const fs = require("fs"); //Load the filesystem module
 const { Storage } = require("@google-cloud/storage");
 
 const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
-const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
+const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
 let publicUrl: string;
@@ -86,7 +86,7 @@ const processUpload = async (
 
       file.makePublic().then(async () => {
         publicUrl = getPublicUrl(gcsName);
-        fileSize = getFilesizeInBytes(createReadStream().path);
+        fileSize = Number(getFilesizeInBytes(createReadStream().path));
         if (fileSize > 10000000) {
           throw new ApolloError(
             "Upload error, image too big.",
@@ -184,7 +184,7 @@ const uploadResolver = {
     },
 
     cloudResources: async (
-      args: QueryCloudResourcesArgs,
+      args: IQueryCloudResourcesArgs,
       context: { user: IUserInToken }
     ) => {
       const itemsPerPage: number = 8;
@@ -336,7 +336,7 @@ const uploadResolver = {
     },
 
     addResourceToDocument: async (
-      args: MutationAddResourceToDocumentArgs,
+      args: IMutationAddResourceToDocumentArgs,
       context: { user: IUserInToken }
     ) => {
       await documentModel.findOneAndUpdate(
@@ -392,7 +392,7 @@ const uploadResolver = {
       }
     },
     moveToTrash: async (
-      args: MutationMoveToTrashArgs,
+      args: IMutationMoveToTrashArgs,
       context: { user: IUserInToken }
     ) => {
       const uploaded: IUpload = await UploadModel.findOne({
@@ -409,7 +409,7 @@ const uploadResolver = {
       );
     },
     restoreResource: async (
-      args: MutationRestoreResourceArgs,
+      args: IMutationRestoreResourceArgs,
       context: { user: IUserInToken }
     ) => {
       const uploaded: IUpload = await UploadModel.findOne({

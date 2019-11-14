@@ -8,11 +8,11 @@ import { pubsub } from "../server";
 import { getParentsPath } from "../utils";
 import { IUserInToken } from "../models/interfaces";
 import {
-  MutationCreateFolderArgs,
-  MutationDeleteFolderArgs,
-  MutationUpdateFolderArgs,
-  QueryFolderArgs
-} from "../generated/graphql";
+  IMutationCreateFolderArgs,
+  IMutationDeleteFolderArgs,
+  IMutationUpdateFolderArgs,
+  IQueryFolderArgs
+} from "../api-types";
 
 const FOLDER_UPDATED: string = "FOLDER_UPDATED";
 
@@ -41,7 +41,7 @@ const folderResolver = {
      * args: folder information
      */
     createFolder: async (
-      args: MutationCreateFolderArgs,
+      args: IMutationCreateFolderArgs,
       context: { user: IUserInToken }
     ) => {
       const user: IUser = await userModel.findOne({ _id: context.user.userID });
@@ -75,7 +75,7 @@ const folderResolver = {
      * args: folder ID
      */
     deleteFolder: async (
-      args: MutationDeleteFolderArgs,
+      args: IMutationDeleteFolderArgs,
       context: { user: IUserInToken }
     ) => {
       const existFolder: IFolder = await FolderModel.findOne({
@@ -127,7 +127,7 @@ const folderResolver = {
      * args: folder ID, new folder information.
      */
     updateFolder: async (
-      args: MutationUpdateFolderArgs,
+      args: IMutationUpdateFolderArgs,
       context: { user: IUserInToken }
     ) => {
       const existFolder: IFolder = await FolderModel.findOne({
@@ -252,7 +252,7 @@ const folderResolver = {
      * Folder: returns the information of the folder ID provided in the arguments.
      * args: folder ID.
      */
-    folder: async (args: QueryFolderArgs, context: { user: IUserInToken }) => {
+    folder: async (args: IQueryFolderArgs, context: { user: IUserInToken }) => {
       const existFolder: IFolder = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID

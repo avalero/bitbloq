@@ -13,7 +13,7 @@
     "ordered-imports": false,
     "object-literal-sort-keys": false,
     "no-any": false,
-    "no-unsafe-any": true,
+    "no-unsafe-any": false,
     "no-require-imports": false
   }
 }

@@ -87,12 +87,12 @@ const server = new ApolloServer({
     }
   },
   schema: exSchema,
-  upload: {
-    maxFileSize: 10000000,
-    maxFiles: 1
-  },
+  // upload: {
+  //   maxFileSize: 10000000,
+  //   maxFiles: 1
+  // },
   subscriptions: {
-    onConnect: async connectionParams => {
+    onConnect: async (connectionParams: any) => {
       if (connectionParams.authorization) {
         const justToken = connectionParams.authorization.split(" ")[1];
         const user = await contextController.getDataInToken(justToken);

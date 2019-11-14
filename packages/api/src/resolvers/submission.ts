@@ -6,20 +6,20 @@ import { pubsub, redisClient } from "../server";
 import { sign as jwtSign } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 import {
-  SubscriptionSubmissionUpdatedArgs,
-  MutationStartSubmissionArgs,
-  MutationLoginArgs,
-  MutationLoginSubmissionArgs,
-  MutationUpdateSubmissionArgs,
-  MutationSetActiveSubmissionArgs,
-  MutationFinishSubmissionArgs,
-  MutationDeleteSubmissionArgs,
-  MutationGradeSubmissionArgs,
-  MutationUpdatePasswordArgs,
-  MutationUpdatePasswordSubmissionArgs,
-  QuerySubmissionArgs,
-  QuerySubmissionsByExerciseArgs
-} from "../generated/graphql";
+  ISubscriptionSubmissionUpdatedArgs,
+  IMutationStartSubmissionArgs,
+  IMutationLoginArgs,
+  IMutationLoginSubmissionArgs,
+  IMutationUpdateSubmissionArgs,
+  IMutationSetActiveSubmissionArgs,
+  IMutationFinishSubmissionArgs,
+  IMutationDeleteSubmissionArgs,
+  IMutationGradeSubmissionArgs,
+  IMutationUpdatePasswordArgs,
+  IMutationUpdatePasswordSubmissionArgs,
+  IQuerySubmissionArgs,
+  IQuerySubmissionsByExerciseArgs
+} from "../api-types";
 import { IUserInToken } from "../models/interfaces";
 
 const saltRounds = 7;
@@ -34,7 +34,7 @@ const submissionResolver = {
         () => pubsub.asyncIterator([SUBMISSION_UPDATED]),
         (
           payload: { submissionUpdated: ISubmission },
-          variables: SubscriptionSubmissionUpdatedArgs,
+          variables: ISubscriptionSubmissionUpdatedArgs,
           context: { user: IUserInToken }
         ) => {
           if (
@@ -76,7 +76,7 @@ const submissionResolver = {
      * args: exercise code and student nickname and password.
      */
     startSubmission: async (
-      args: MutationStartSubmissionArgs,
+      args: IMutationStartSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       if (!args.studentNick) {
@@ -169,7 +169,7 @@ const submissionResolver = {
      * the mutation returns it. If not, returns an error.
      * args: exercise code and student nickname and password.
      */
-    loginSubmission: async (args: MutationLoginSubmissionArgs) => {
+    loginSubmission: async (args: IMutationLoginSubmissionArgs) => {
       if (!args.studentNick) {
         throw new ApolloError(
           "Error creating submission, you must introduce a nickname",
@@ -264,7 +264,7 @@ const submissionResolver = {
      * args: submission ID, new submission information.
      */
     updateSubmission: async (
-      args: MutationUpdateSubmissionArgs,
+      args: IMutationUpdateSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       const existSubmission: ISubmission = await submissionModel.findOne({
@@ -303,7 +303,7 @@ const submissionResolver = {
      * args: exercise ID, studentNick and active.
      */
     setActiveSubmission: async (
-      args: MutationSetActiveSubmissionArgs,
+      args: IMutationSetActiveSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       const existSubmission: ISubmission = await submissionModel.findOne({
@@ -337,7 +337,7 @@ const submissionResolver = {
      * args: content of the submission and comment.
      */
     finishSubmission: async (
-      args: MutationFinishSubmissionArgs,
+      args: IMutationFinishSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       const existSubmission: ISubmission = await submissionModel.findOne({
@@ -411,7 +411,7 @@ const submissionResolver = {
      */
     // el profesor borra la sumbission de un alumno
     deleteSubmission: async (
-      args: MutationDeleteSubmissionArgs,
+      args: IMutationDeleteSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       const existSubmission: ISubmission = await submissionModel.findOneAndUpdate(
@@ -442,7 +442,7 @@ const submissionResolver = {
      * args: submissionID, grade and teacherComment
      */
     gradeSubmission: async (
-      args: MutationGradeSubmissionArgs,
+      args: IMutationGradeSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       const existSubmission: ISubmission = await submissionModel.findOne({
@@ -483,7 +483,7 @@ const submissionResolver = {
      * args: submissionID and password
      */
     updatePasswordSubmission: async (
-      args: MutationUpdatePasswordSubmissionArgs,
+      args: IMutationUpdatePasswordSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       const existSubmission: ISubmission = await submissionModel.findOne({
@@ -528,7 +528,7 @@ const submissionResolver = {
     // Student and user querie:
     // devuelve la información de la submission que se le pasa en el id con el tocken del alumno o de usuario
     submission: async (
-      args: QuerySubmissionArgs,
+      args: IQuerySubmissionArgs,
       context: { user: IUserInToken }
     ) => {
       if (context.user.submissionID) {
@@ -565,7 +565,7 @@ const submissionResolver = {
      * args: exercise ID.
      */
     // user queries:
-    submissionsByExercise: async (args: QuerySubmissionsByExerciseArgs) => {
+    submissionsByExercise: async (args: IQuerySubmissionsByExerciseArgs) => {
       const exFather: IExercise = await exerciseModel.findOne({
         _id: args.exercise
       });
