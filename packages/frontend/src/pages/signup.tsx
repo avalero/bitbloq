@@ -87,7 +87,7 @@ interface IStepInput {
 }
 
 const SignupPage: FC = () => {
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<ApolloError>();
   const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
@@ -718,7 +718,7 @@ const FormGroup = styled.div`
   margin-left: -5px;
   margin-right: -5px;
 
-  > :nth-child(n) {
+  > :nth-of-type(n) {
     margin-left: 5px;
     margin-right: 5px;
   }
