@@ -5,19 +5,21 @@ import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
 import gql from "graphql-tag";
 import {
+  Button,
+  Checkbox,
   colors,
+  HorizontalRule,
+  Icon,
   Input,
   Panel,
-  Button,
-  DialogModal,
-  HorizontalRule,
-  Checkbox,
   Option,
   Select
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
+import CounterButton from "../components/CounterButton";
 import GraphQLErrorMessage from "../components/GraphQLErrorMessage";
+import ModalLayout from "../components/ModalLayout";
 import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
 
@@ -36,19 +38,15 @@ const SIGNUP_MUTATION = gql`
 `;
 
 // TODO
-const CountryOptions = [
-  'España',
-  'Francia',
-  'Portugal',
-]
+const CountryOptions = ["España", "Francia", "Portugal"];
 
 const EducationalStageOptions = [
-  'Preescolar',
-  'Primaria',
-  'Secundaria',
-  'Bachiller',
-  'Universidad',
-]
+  "Preescolar",
+  "Primaria",
+  "Secundaria",
+  "Bachiller",
+  "Universidad"
+];
 
 enum UserPlanOptions {
   Member = "member",
@@ -58,18 +56,18 @@ enum UserPlanOptions {
 interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
-  centerName?: string,
-  city?: string,
-  country?: string,
+  centerName?: string;
+  city?: string;
+  country?: string;
   day: number;
-  educationalStage?: number,
+  educationalStage?: number;
   email: string;
   imTeacherCheck: boolean;
   month: number;
   name: string;
   noNotifications: boolean;
   password: string;
-  postCode?: number,
+  postCode?: number;
   surnames: string;
   year: number;
 }
@@ -113,7 +111,11 @@ const SignupPage: FC = () => {
 
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
-    setUserPlan({userPlan: input.imTeacherCheck ? UserPlanOptions.Teacher : UserPlanOptions.Member})
+    setUserPlan({
+      userPlan: input.imTeacherCheck
+        ? UserPlanOptions.Teacher
+        : UserPlanOptions.Member
+    });
     saveUser({
       variables: {
         input: {
@@ -121,7 +123,9 @@ const SignupPage: FC = () => {
           centerName: input.imTeacherCheck ? input.centerName : undefined,
           province: input.imTeacherCheck ? input.city : undefined, // TODO: need api change
           country: input.imTeacherCheck ? input.country : undefined,
-          educationalStage: input.imTeacherCheck ? input.educationalStage : undefined,
+          educationalStage: input.imTeacherCheck
+            ? input.educationalStage
+            : undefined,
           email: input.email,
           imTeacherCheck: input.imTeacherCheck,
           name: input.name,
@@ -160,16 +164,21 @@ const SignupPage: FC = () => {
       {error ? (
         <GraphQLErrorMessage apolloError={error} />
       ) : currentStep === 3 ? (
-        <DialogModal
-          isOpen={true}
-          title="Cuenta creada"
-          text="Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam."
-          okText="Volver a enviar email"
-          onOk={() => onSignupUser(userPlan)}
+        <ModalLayout
+          title="Bitbloq | Cuenta creada"
+          modalTitle="Cuenta creada"
+          text={
+            "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. " +
+            "Si no ves el mensaje revisa tu carpeta de spam."
+          }
+          okButton={
+            <CounterButton onClick={() => onSignupUser(userPlan)}>
+              Volver a enviar email
+            </CounterButton>
+          }
           cancelText="Volver al inicio"
           onCancel={() => Router.push("/")}
-          transparentOverlay={true}
-          /* TODO: add counter */
+          isOpen={true}
         />
       ) : (
         <Container>
@@ -214,6 +223,8 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     setValue
   } = useForm({ defaultValues });
 
+  const [passwordIsMasked, setPasswordIsMasked] = useState(true);
+
   register(
     { name: "acceptTerms", type: "custom" },
     { validate: (value: boolean) => !!value }
@@ -237,6 +248,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     );
   };
 
+  const togglePasswordMask = () => {
+    setPasswordIsMasked(!passwordIsMasked);
+  };
+
   const onGotoMicrosoft = () => {
     // TODO
   };
@@ -248,7 +263,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   const teacherSubForm = (isShown: boolean) => {
     register({ name: "city", type: "custom" }, { required: isShown });
     register({ name: "country", type: "custom" }, { required: isShown });
-    register({ name: "educationalStage", type: "custom" }, { required: isShown });
+    register(
+      { name: "educationalStage", type: "custom" },
+      { required: isShown }
+    );
 
     if (!isShown) return;
 
@@ -256,8 +274,8 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
     const onChangeValue = (name: string, value: string) => {
       setValue(name, value);
       if (errors[name]) clearError(name);
-    }
-  
+    };
+
     return (
       <>
         <FormGroup>
@@ -280,10 +298,15 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             <label>Etapa</label>
             <Select
               name="educationalStage"
-              onChange={(value: string) => onChangeValue("educationalStage", value)}
-              options={EducationalStageOptions.map(o => ({ value: o, label: o }))}
+              onChange={(value: string) =>
+                onChangeValue("educationalStage", value)
+              }
+              options={EducationalStageOptions.map(o => ({
+                value: o,
+                label: o
+              }))}
               selectConfig={{
-                isSearchable: false,
+                isSearchable: false
               }}
             />
           </FormField>
@@ -295,13 +318,11 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               type="text"
               name="city"
               placeholder="Madrid"
-              ref={register({ required: true})}
+              ref={register({ required: true })}
               error={!!errors.city}
             />
             {errors.city && (
-              <ErrorMessage>
-                Debes introducir una ciudad
-              </ErrorMessage>
+              <ErrorMessage>Debes introducir una ciudad</ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -310,13 +331,11 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               type="number"
               name="postCode"
               placeholder="00000"
-              ref={register({ required: true})}
+              ref={register({ required: true })}
               error={!!errors.postCode}
             />
             {errors.postCode && (
-              <ErrorMessage>
-                Debes introducir un código postal
-              </ErrorMessage>
+              <ErrorMessage>Debes introducir un código postal</ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -327,7 +346,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               options={CountryOptions.map(o => ({ value: o, label: o }))}
               selectConfig={{
                 isSearchable: true,
-                noOptionsMessage: 'No hay opciones' // TODO: not working
+                noOptionsMessage: "No hay opciones" // TODO: not working
               }}
             />
             {/* TODO: España preselected */}
@@ -335,7 +354,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         </FormGroup>
       </>
     );
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -436,14 +455,19 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       </FormField>
       <FormField>
         <label>Contraseña</label>
-        <Input
-          type="text"
-          name="password"
-          placeholder="Contraseña"
-          ref={register({ required: true })}
-          error={!!errors.password}
-        />
-        {/* TODO: hide password */}
+        <InputPassword>
+          <Input
+            type={passwordIsMasked ? "password" : "text"}
+            name="password"
+            placeholder="Contraseña"
+            ref={register({ required: true })}
+            error={!!errors.password}
+          />
+          <TooglePassword onClick={togglePasswordMask}>
+            <Icon name={passwordIsMasked ? "eye" : "eye-close"} />
+          </TooglePassword>
+        </InputPassword>
+        {/* TODO: remove eye-close background */}
         {errors.password && (
           <ErrorMessage>Debes introducir una contraseña</ErrorMessage>
         )}
@@ -579,7 +603,9 @@ const Step2: FC<IStepInput> = ({
           </PlanOptionTitle>
         </PlanOptionHeader>
         <PlanOptionInfo>
-          <p>Estas son las ventajas que disfrutarás siendo Profesor en Bitbloq:</p>
+          <p>
+            Estas son las ventajas que disfrutarás siendo Profesor en Bitbloq:
+          </p>
           <ul>
             <li>Crear ejercicios</li>
             <li>Corregir ejercicios</li>
@@ -704,6 +730,26 @@ const LoginWithExternalProfile = styled.div`
     cursor: pointer;
     height 40px;
     width: 145px;
+  }
+`;
+
+const InputPassword = styled.div`
+  position: relative;
+  width: 100%;
+`;
+
+const TooglePassword = styled.div`
+  align-items: center;
+  bottom: 0;
+  cursor: pointer;
+  display: flex;
+  height: 35px;
+  position: absolute;
+  right: 0;
+  padding: 0 10px;
+
+  svg {
+    width: 13px;
   }
 `;
 
