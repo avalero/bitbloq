@@ -100,7 +100,7 @@ const contextController = {
   getDataInToken: async inToken => {
     if (inToken) {
       try {
-        return await jwtVerify(inToken, process.env.JWT_SECRET);
+        return jwtVerify(inToken, process.env.JWT_SECRET);
       } catch (e) {
         throw new AuthenticationError("Token not value.");
       }

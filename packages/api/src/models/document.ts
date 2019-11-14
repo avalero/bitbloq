@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface IDocument extends Document {
   user?: string;
@@ -37,7 +37,7 @@ const documentMongSchema: Schema = new Schema({
 
   folder: {
     type: Schema.Types.ObjectId,
-    ref: "FolderModel"
+    ref: "folderModel"
   },
 
   content: {
@@ -84,7 +84,7 @@ const documentMongSchema: Schema = new Schema({
   },
   resourcesID: {
     type: [Schema.Types.ObjectId],
-    ref: "UploadModel"
+    ref: "uploadModel"
   }
 });
 

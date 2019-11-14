@@ -3,7 +3,7 @@ import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { documentModel, IDocument } from "../models/document";
 import { exerciseModel } from "../models/exercise";
-import { FolderModel, IFolder } from "../models/folder";
+import { folderModel, IFolder } from "../models/folder";
 import { submissionModel } from "../models/submission";
 import { IUser, userModel } from "../models/user";
 
@@ -41,7 +41,7 @@ const userResolver = {
      * It saves the new user data if the email passed as argument is not registered yet.
      * args: email, password and user information.
      */
-    saveUserData: async (args: IMutationSaveUserDataArgs) => {
+    saveUserData: async (_, args: IMutationSaveUserDataArgs) => {
       const contactFound: IUser = await userModel.findOne({
         email: args.input.email
       });
@@ -93,7 +93,7 @@ const userResolver = {
      * It sends a e-mail to activate the account.
      * args: userID and plan selected("member" or "teacher").
      */
-    finishSignUp: async (args: IMutationFinishSignUpArgs) => {
+    finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
       const user: IUser = await userModel.findOne({
         _id: args.id,
         active: false
@@ -138,7 +138,7 @@ const userResolver = {
       );
 
       // Create user root folder for documents
-      const userFolder: IFolder = await FolderModel.create({
+      const userFolder: IFolder = await folderModel.create({
         name: "root",
         user: user._id
       });
@@ -163,7 +163,7 @@ const userResolver = {
       It returns the authorization token with user information.
       args: email and password.
     */
-    login: async ({ email, password }) => {
+    login: async (_, { email, password },__) => {
       const contactFound: IUser = await userModel.findOne({
         email,
         finishedSignUp: true
@@ -190,10 +190,10 @@ const userResolver = {
           const userDocs: IDocument[] = await documentModel.find({
             user: contactFound._id
           });
-          const userFols: IFolder[] = await FolderModel.find({
+          const userFols: IFolder[] = await folderModel.find({
             user: contactFound._id
           });
-          const userFolder: IFolder = await FolderModel.create({
+          const userFolder: IFolder = await folderModel.create({
             name: "root",
             user: contactFound._id,
             documentsID: userDocs.map(i => i._id),
@@ -203,7 +203,7 @@ const userResolver = {
             { user: contactFound._id },
             { $set: { folder: userFolder._id } }
           );
-          await FolderModel.updateMany(
+          await folderModel.updateMany(
             { user: contactFound._id, name: { $ne: "root" } },
             { $set: { parent: userFolder._id } }
           );
@@ -230,7 +230,7 @@ const userResolver = {
     /*
      * renewToken: returns a new token for a logged user
      */
-    renewToken: async (context: any) => {
+    renewToken: async (_, context: any) => {
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
@@ -251,7 +251,7 @@ const userResolver = {
      * reset Password: send a email to the user email with a new token for edit the password.
      * args: email
      */
-    resetPasswordEmail: async ({ email }) => {
+    resetPasswordEmail: async (_, { email }) => {
       const contactFound: IUser = await userModel.findOne({
         email,
         finishedSignUp: true
@@ -286,7 +286,7 @@ const userResolver = {
       return "OK";
     },
 
-    checkResetPasswordToken: async ({ token }) => {
+    checkResetPasswordToken: async (_, { token }) => {
       await getResetPasswordData(token);
       return true;
     },
@@ -296,7 +296,7 @@ const userResolver = {
      * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
      * args: token, new Password
      */
-    updatePassword: async ({ token, newPassword }) => {
+    updatePassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
       const contactFound: IUser = await userModel.findOne({
@@ -340,7 +340,7 @@ const userResolver = {
       It takes the information of the token received and activates the account created before.
       args: sign up token. This token is provided in the email sent.
     */
-    activateAccount: async (args: IMutationActivateAccountArgs) => {
+    activateAccount: async (_, args: IMutationActivateAccountArgs) => {
       if (!args.token) {
         throw new ApolloError(
           "Error with sign up token, no token in args",
@@ -386,6 +386,7 @@ const userResolver = {
      * args: user ID.
      */
     deleteUser: async (
+      _,
       args: IMutationDeleteUserArgs,
       context: { user: IUserInToken }
     ) => {
@@ -398,7 +399,7 @@ const userResolver = {
         await submissionModel.deleteMany({ user: contactFound._id });
         await exerciseModel.deleteMany({ user: contactFound._id });
         await documentModel.deleteMany({ user: contactFound._id });
-        await FolderModel.deleteMany({ user: contactFound._id });
+        await folderModel.deleteMany({ user: contactFound._id });
         return userModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
       } else {
         throw new ApolloError(
@@ -414,6 +415,7 @@ const userResolver = {
       args: user ID, new user information.
     */
     updateUser: async (
+      _,
       args: IMutationUpdateUserArgs,
       context: { user: IUserInToken }
     ) => {
@@ -439,7 +441,7 @@ const userResolver = {
      *  Me: returns the information of the user provided in the authorization token.
      *  args: nothing.
      */
-    me: async (context: { user: IUserInToken }) => {
+    me: async (_, context: { user: IUserInToken }) => {
       const contactFound: IUser = await userModel.findOne({
         email: context.user.email,
         _id: context.user.userID

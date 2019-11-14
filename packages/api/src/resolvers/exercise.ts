@@ -24,6 +24,7 @@ const exerciseResolver = {
      * args: exercise information
      */
     createExercise: async (
+      _,
       args: IMutationCreateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
@@ -71,6 +72,7 @@ const exerciseResolver = {
      * args: exerciseID, new state of acceptSubmissions
      */
     changeSubmissionsState: async (
+      _,
       args: IMutationChangeSubmissionsStateArgs,
       context: { user: IUserInToken }
     ) => {
@@ -96,6 +98,7 @@ const exerciseResolver = {
      * args: exercise ID
      */
     deleteExercise: async (
+      _,
       args: IMutationDeleteExerciseArgs,
       context: { user: IUserInToken }
     ) => {
@@ -121,6 +124,7 @@ const exerciseResolver = {
      * args: exercise ID, new exercise information.
      */
     updateExercise: async (
+      _,
       args: IMutationUpdateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
@@ -145,7 +149,7 @@ const exerciseResolver = {
      * Exercises: returns all the exercises of the user logged.
      * args: nothing.
      */
-    exercises: async (context: { user: IUserInToken }) => {
+    exercises: async (_, context: { user: IUserInToken }) => {
       return exerciseModel.find({ user: context.user.userID });
     },
 
@@ -154,7 +158,7 @@ const exerciseResolver = {
      * It can be asked with the user logged token or the student token.
      * args: exercise ID.
      */
-    exercise: async (args: IQueryExerciseArgs) => {
+    exercise: async (_, args: IQueryExerciseArgs) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
@@ -172,7 +176,7 @@ const exerciseResolver = {
      * It can be asked by anyone. It is the step previous to login in the exercise as student.
      * args: exercise code.
      */
-    exerciseByCode: async (args: IQueryExerciseByCodeArgs) => {
+    exerciseByCode: async (_, args: IQueryExerciseByCodeArgs) => {
       const existExercise: IExercise = await exerciseModel.findOne({
         code: args.code
       });
@@ -187,6 +191,7 @@ const exerciseResolver = {
      * args: document ID.
      */
     exercisesByDocument: async (
+      _,
       args: IQueryExercisesByDocumentArgs,
       context: { user: IUserInToken }
     ) => {

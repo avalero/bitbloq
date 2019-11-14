@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface IUpload extends Document {
   filename: string;
@@ -47,7 +47,7 @@ const uploadMongSchema: Schema = new Schema({
 });
 
 uploadMongSchema.plugin(timestamps);
-export const UploadModel: Model<IUpload> = model<IUpload>(
-  "UploadModel",
+export const uploadModel: Model<IUpload> = model<IUpload>(
+  "uploadModel",
   uploadMongSchema
 );

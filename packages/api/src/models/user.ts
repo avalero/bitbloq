@@ -1,6 +1,6 @@
 import { Document, Model, model, Schema } from "mongoose";
 // import {timestamps} from "mongoose-timestamp";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface IUser extends Document {
   email?: string;
@@ -117,7 +117,7 @@ export const contactSchema: Schema = new Schema({
 
   rootFolder: {
     type: Schema.Types.ObjectId,
-    ref: "FolderModel"
+    ref: "folderModel"
   }
 });
 

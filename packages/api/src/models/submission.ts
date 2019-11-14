@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface ISubmission extends Document {
   user?: string;
