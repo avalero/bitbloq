@@ -77,7 +77,7 @@ const userResolver = {
         imTeacherCheck: args.input.imTeacherCheck,
         centerName: args.input.centerName,
         educationalStage: args.input.educationalStage,
-        province: args.input.province,
+        city: args.input.city,
         postCode: args.input.postCode,
         country: args.input.country,
         lastLogin: new Date(),

@@ -20,7 +20,7 @@ export interface IUser extends Document {
   imTeacherCheck: boolean;
   centerName: string;
   educationalStage: string;
-  province: string;
+  city: string;
   postCode: string;
   country: string;
   rootFolder?: string;
@@ -102,7 +102,7 @@ export const contactSchema: Schema = new Schema({
   imTeacherCheck: { type: Boolean, default: false },
   centerName: { type: String },
   educationalStage: { type: String },
-  province: { type: String },
+  city: { type: String },
   postCode: { type: String },
   country: { type: String },
 
