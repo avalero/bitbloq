@@ -36,14 +36,10 @@ const SIGNUP_MUTATION = gql`
 `;
 
 // TODO
-const CountryAndProvinceOptions = [
-  {
-    name: 'España',
-    provinces: [
-      'Madrid',
-      'Valladolid'
-    ]
-  }
+const CountryOptions = [
+  'España',
+  'Francia',
+  'Portugal',
 ]
 
 const EducationalStageOptions = [
@@ -63,6 +59,7 @@ interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
   centerName?: string,
+  city?: string,
   country?: string,
   day: number;
   educationalStage?: number,
@@ -73,7 +70,6 @@ interface IUserData {
   noNotifications: boolean;
   password: string;
   postCode?: number,
-  province?: string,
   surnames: string;
   year: number;
 }
@@ -91,7 +87,7 @@ interface IStepInput {
 }
 
 const SignupPage: FC = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(2);
   const [error, setError] = useState<ApolloError>();
   const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
@@ -100,9 +96,7 @@ const SignupPage: FC = () => {
     noNotifications: false
   });
   const [userId, setUserId] = useState();
-  const [userPlan, setUserPlan] = useState({
-    userPlan: UserPlanOptions.Member
-  });
+  const [userPlan, setUserPlan] = useState();
 
   const [saveUser, { loading: saving }] = useMutation(SAVE_MUTATION);
   const [signupUser, { loading: signingup }] = useMutation(SIGNUP_MUTATION);
@@ -119,11 +113,13 @@ const SignupPage: FC = () => {
 
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
+    setUserPlan({userPlan: input.imTeacherCheck ? UserPlanOptions.Teacher : UserPlanOptions.Member})
     saveUser({
       variables: {
         input: {
           birthDate: input.birthDate,
           centerName: input.imTeacherCheck ? input.centerName : undefined,
+          province: input.imTeacherCheck ? input.city : undefined, // TODO: need api change
           country: input.imTeacherCheck ? input.country : undefined,
           educationalStage: input.imTeacherCheck ? input.educationalStage : undefined,
           email: input.email,
@@ -132,7 +128,6 @@ const SignupPage: FC = () => {
           notifications: !input.noNotifications,
           password: input.password,
           postCode: input.imTeacherCheck ? input.postCode : undefined,
-          province: input.imTeacherCheck ? input.province : undefined,
           surnames: input.surnames
         }
       }
@@ -251,9 +246,9 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   };
 
   const teacherSubForm = (isShown: boolean) => {
+    register({ name: "city", type: "custom" }, { required: isShown });
     register({ name: "country", type: "custom" }, { required: isShown });
     register({ name: "educationalStage", type: "custom" }, { required: isShown });
-    register({ name: "province", type: "custom" }, { required: isShown });
 
     if (!isShown) return;
 
@@ -262,11 +257,11 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       setValue(name, value);
       if (errors[name]) clearError(name);
     }
-
+  
     return (
       <>
         <FormGroup>
-          <FormField>
+          <FormField style={{ flexGrow: 2 }}>
             <label>Nombre del centro</label>
             <Input
               type="text"
@@ -285,40 +280,27 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             <label>Etapa</label>
             <Select
               name="educationalStage"
-              error={!!errors.educationalStage} // TODO: not working
               onChange={(value: string) => onChangeValue("educationalStage", value)}
               options={EducationalStageOptions.map(o => ({ value: o, label: o }))}
               selectConfig={{
                 isSearchable: false,
-                placeholder: '-', // TODO: not working
               }}
             />
-            {errors.educationalStage && (
-              <ErrorMessage>
-                Debes introducir un curso
-              </ErrorMessage>
-            )}
           </FormField>
         </FormGroup>
         <FormGroup>
           <FormField>
-            <label>Provincia</label>
-            <Select
-              name="province"
-              error={!!errors.province} // TODO: not working
-              onChange={(value: string) => onChangeValue("province", value)}
-              options={
-                CountryAndProvinceOptions.find(o => o.name === getValues().country) ?
-                CountryAndProvinceOptions.find(o => o.name === getValues().country).provinces.map(o => ({ value: o, label: o })) : [{ value: '', label: ''}]}
-              selectConfig={{
-                isSearchable: true,
-                placeholder: 'Madrid', // TODO: not working
-                noOptionsMessage: 'No hay opciones'  // TODO: not working
-              }}
+            <label>Ciudad</label>
+            <Input
+              type="text"
+              name="city"
+              placeholder="Madrid"
+              ref={register({ required: true})}
+              error={!!errors.city}
             />
-            {errors.province && (
+            {errors.city && (
               <ErrorMessage>
-                Debes introducir una provincia
+                Debes introducir una ciudad
               </ErrorMessage>
             )}
           </FormField>
@@ -341,20 +323,14 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             <label>País</label>
             <Select
               name="country"
-              error={!!errors.country} // TODO: not working
               onChange={(value: string) => onChangeValue("country", value)}
-              options={CountryAndProvinceOptions.map(o => ({ value: o.name, label: o.name }))}
+              options={CountryOptions.map(o => ({ value: o, label: o }))}
               selectConfig={{
                 isSearchable: true,
-                placeholder: 'España', // TODO: not working
                 noOptionsMessage: 'No hay opciones' // TODO: not working
               }}
             />
-            {errors.country && (
-              <ErrorMessage>
-                Debes introducir un país
-              </ErrorMessage>
-            )}
+            {/* TODO: España preselected */}
           </FormField>
         </FormGroup>
       </>
@@ -575,28 +551,41 @@ const Step2: FC<IStepInput> = ({
       <Title>Configuración de la cuenta</Title>
       Elije el tipo de cuenta que deseas crear:
       <PlanOption>
-        <Option
-          className={"bullet"}
-          checked={getValues().userPlan === UserPlanOptions.Member}
-          onClick={() => setValue("userPlan", UserPlanOptions.Member)}
-        />
-        <PlanOptionInfo>
-          <span>Miembro</span>
-          <PlanOptionCost>Gratis</PlanOptionCost>
-        </PlanOptionInfo>
+        <PlanOptionHeader>
+          <Option
+            className={"bullet"}
+            checked={getValues().userPlan === UserPlanOptions.Member}
+            onClick={() => setValue("userPlan", UserPlanOptions.Member)}
+          />
+          <PlanOptionTitle>
+            <span>Miembro</span>
+            <PlanOptionCost>Gratis</PlanOptionCost>
+          </PlanOptionTitle>
+        </PlanOptionHeader>
       </PlanOption>
       <PlanOption>
-        <Option
-          className={"bullet"}
-          checked={getValues().userPlan === UserPlanOptions.Teacher}
-          onClick={() => setValue("userPlan", UserPlanOptions.Teacher)}
-        />
+        <PlanOptionHeader>
+          <Option
+            className={"bullet"}
+            checked={getValues().userPlan === UserPlanOptions.Teacher}
+            onClick={() => setValue("userPlan", UserPlanOptions.Teacher)}
+          />
+          <PlanOptionTitle>
+            <span>Profesor</span>
+            <PlanOptionCost>
+              <span>6€ al mes</span>
+              <span>Gratis durante la beta</span>
+            </PlanOptionCost>
+          </PlanOptionTitle>
+        </PlanOptionHeader>
         <PlanOptionInfo>
-          <span>Profesor</span>
-          <PlanOptionCost>
-            <span>6€ al mes</span>
-            <span>Gratis durante la beta</span>
-          </PlanOptionCost>
+          <p>Estas son las ventajas que disfrutarás siendo Profesor en Bitbloq:</p>
+          <ul>
+            <li>Crear ejercicios</li>
+            <li>Corregir ejercicios</li>
+            <li>Acceso de alumnos sin registrar</li>
+          </ul>
+          Incluye Bitbloq Cloud
         </PlanOptionInfo>
       </PlanOption>
       <Buttons>
@@ -726,9 +715,12 @@ const Buttons = styled.div`
 
 const FormGroup = styled.div`
   display: flex;
+  margin-left: -5px;
+  margin-right: -5px;
 
-  > :not(:first-of-type) {
-    margin-left: 10px;
+  > :nth-child(n) {
+    margin-left: 5px;
+    margin-right: 5px;
   }
 `;
 
@@ -761,20 +753,30 @@ const ErrorMessage = styled.div`
 `;
 
 const PlanOption = styled.div`
+  background-color: #fbfbfb;
   border: solid 1px #cfcfcf;
   border-radius: 4px;
-  display: flex;
-  height: 40px;
   margin-top: 10px;
   margin-bottom: 20px;
+  overflow: hidden;
+`;
+
+const PlanOptionHeader = styled.div`
+  background-color: white;
+  display: flex;
+  height: 40px;
 
   .bullet {
     justify-content: center;
     width: 40px;
   }
+
+  &:not(:last-child) {
+    border-bottom: solid 1px #cfcfcf;
+  }
 `;
 
-const PlanOptionInfo = styled.div`
+const PlanOptionTitle = styled.div`
   align-items: center;
   border-left: solid 1px #cfcfcf;
   display: flex;
@@ -789,5 +791,17 @@ const PlanOptionCost = styled.div`
   > :first-of-type {
     color: #e0e0e0;
     text-decoration: line-through;
+  }
+`;
+
+const PlanOptionInfo = styled.div`
+  background-color: white;
+  border: solid 1px #cfcfcf;
+  border-radius: 4px;
+  margin: 20px;
+  padding: 20px;
+
+  > p {
+    font-weight: bold;
   }
 `;
