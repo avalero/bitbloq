@@ -16,19 +16,28 @@ import {
   Switch,
   IMainMenuOption
 } from "@bitbloq/ui";
-import { addShapeGroups as bitbloqShapeGroups } from "../config";
+import {
+  addShapeGroups as bitbloqShapeGroups,
+  resourceGroup,
+  resourceTypes
+} from "../config";
 import ExportSTLModal from "./ExportSTLModal";
 import UploadResourceModal from "./UploadResourceModal";
-import { IEditorProps, IDocument } from "../types";
+import { IEditorProps, IDocument, IResource } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 import { ResourcesTypes } from "../types";
 
-const ThreeDEditor: FC<IEditorProps> = ({
+interface IThreeDEditorProps extends IEditorProps {
+  resources?: IResource[];
+}
+
+const ThreeDEditor: FC<IThreeDEditorProps> = ({
   document,
   onDocumentChange,
   baseTabs,
   baseMenuOptions,
-  children
+  children,
+  resources
 }) => {
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
@@ -48,8 +57,20 @@ const ThreeDEditor: FC<IEditorProps> = ({
   }, [advancedMode]);
 
   const addShapeGroups = useCallback(
-    baseShapeGroups => [...baseShapeGroups, ...bitbloqShapeGroups],
-    [bitbloqShapeGroups]
+    baseShapeGroups => [
+      ...baseShapeGroups,
+      ...bitbloqShapeGroups,
+      {
+        ...resourceGroup,
+        shapes: resources.map(resource => ({
+          type: "STLObject",
+          parameters: { url: resource.file },
+          label: resource.title.replace(/\.\w+$/, ""),
+          icon: <Icon name={resourceTypes[resource.type].icon} />
+        }))
+      }
+    ],
+    [bitbloqShapeGroups, resourceGroup]
   );
 
   const mainTab: IDocumentTab = useMemo(

@@ -81,6 +81,13 @@ export const documentTypes = {
   }
 };
 
+export const resourceGroup = {
+  label: "exercises.resources.title",
+  icon: <Icon name="exercise-resources" />,
+  shapes: [],
+  resources: true
+};
+
 export const resourceTypes = {
   image: {
     id: "image",

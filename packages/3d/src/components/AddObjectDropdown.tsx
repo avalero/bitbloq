@@ -17,23 +17,25 @@ const AddObjectDropdown: FC<IAddObjectDropDownProps> = ({
 
   return (
     <Tabs
-      tabs={shapeGroups.map(group => ({
-        icon: group.icon,
-        bottom: group.resources,
-        content: (
-          <ShapeGroup>
-            <GroupLabel>{t(group.label)}</GroupLabel>
-            <Shapes>
-              {group.shapes.map(shape => (
-                <Shape key={shape.label} onClick={() => onAddObject(shape)}>
-                  <ShapeImage>{shape.icon}</ShapeImage>
-                  <ShapeText>{t(shape.label)}</ShapeText>
-                </Shape>
-              ))}
-            </Shapes>
-          </ShapeGroup>
-        )
-      }))}
+      tabs={shapeGroups
+        .filter(group => group.shapes && group.shapes.length > 0)
+        .map(group => ({
+          icon: group.icon,
+          bottom: group.resources,
+          content: (
+            <ShapeGroup>
+              <GroupLabel>{t(group.label)}</GroupLabel>
+              <Shapes>
+                {group.shapes.map(shape => (
+                  <Shape key={shape.label} onClick={() => onAddObject(shape)}>
+                    <ShapeImage>{shape.icon}</ShapeImage>
+                    <ShapeText>{t(shape.label)}</ShapeText>
+                  </Shape>
+                ))}
+              </Shapes>
+            </ShapeGroup>
+          )
+        }))}
     />
   );
 };
