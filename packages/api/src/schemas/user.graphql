@@ -46,7 +46,7 @@ type User {
   imTeacherCheck: Boolean
   centerName: String
   educationalStage: String
-  province: String
+  city: String
   postCode: String
   country: String
   createdAt: Date
@@ -70,7 +70,7 @@ input UserIn {
   imTeacherCheck: Boolean
   centerName: String
   educationalStage: String
-  province: String
+  city: String
   postCode: String
   country: String
 }

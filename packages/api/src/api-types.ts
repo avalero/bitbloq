@@ -435,7 +435,6 @@ export interface IQuery {
   submission?: Maybe<ISubmission>,
   submissionsByExercise?: Maybe<Array<Maybe<ISubmission>>>,
   uploads?: Maybe<Array<Maybe<IFile>>>,
-  getUserFiles?: Maybe<Array<Maybe<IFile>>>,
   cloudResources?: Maybe<ICloudResourcesResult>,
 }
 
@@ -607,7 +606,7 @@ export interface IUser {
   imTeacherCheck?: Maybe<Scalars['Boolean']>,
   centerName?: Maybe<Scalars['String']>,
   educationalStage?: Maybe<Scalars['String']>,
-  province?: Maybe<Scalars['String']>,
+  city?: Maybe<Scalars['String']>,
   postCode?: Maybe<Scalars['String']>,
   country?: Maybe<Scalars['String']>,
   createdAt?: Maybe<Scalars['Date']>,
@@ -631,7 +630,7 @@ export interface IUserIn {
   imTeacherCheck?: Maybe<Scalars['Boolean']>,
   centerName?: Maybe<Scalars['String']>,
   educationalStage?: Maybe<Scalars['String']>,
-  province?: Maybe<Scalars['String']>,
+  city?: Maybe<Scalars['String']>,
   postCode?: Maybe<Scalars['String']>,
   country?: Maybe<Scalars['String']>,
 }
@@ -953,7 +952,6 @@ export type IQueryResolvers<ContextType = any, ParentType extends IResolversPare
   submission?: Resolver<Maybe<IResolversTypes['Submission']>, ParentType, ContextType, IQuerySubmissionArgs>,
   submissionsByExercise?: Resolver<Maybe<Array<Maybe<IResolversTypes['Submission']>>>, ParentType, ContextType, RequireFields<IQuerySubmissionsByExerciseArgs, 'exercise'>>,
   uploads?: Resolver<Maybe<Array<Maybe<IResolversTypes['File']>>>, ParentType, ContextType>,
-  getUserFiles?: Resolver<Maybe<Array<Maybe<IResolversTypes['File']>>>, ParentType, ContextType>,
   cloudResources?: Resolver<Maybe<IResolversTypes['CloudResourcesResult']>, ParentType, ContextType, IQueryCloudResourcesArgs>,
 }>;
 
@@ -1033,7 +1031,7 @@ export type IUserResolvers<ContextType = any, ParentType extends IResolversParen
   imTeacherCheck?: Resolver<Maybe<IResolversTypes['Boolean']>, ParentType, ContextType>,
   centerName?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>,
   educationalStage?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>,
-  province?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>,
+  city?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>,
   postCode?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>,
   country?: Resolver<Maybe<IResolversTypes['String']>, ParentType, ContextType>,
   createdAt?: Resolver<Maybe<IResolversTypes['Date']>, ParentType, ContextType>,

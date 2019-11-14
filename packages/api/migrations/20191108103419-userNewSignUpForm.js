@@ -16,7 +16,7 @@ module.exports = {
               imTeacherCheck: false,
               centerName: "",
               educationalStage: "",
-              province: "",
+              city: "",
               postCode: 0,
               country: "",
               finishedSignUp: true
@@ -48,7 +48,7 @@ module.exports = {
           imTeacherCheck: 1,
           centerName: 1,
           educationalStage: 1,
-          province: 1,
+          city: 1,
           postCode: 1,
           country: 1,
           finishedSignUp: 1
