@@ -3,13 +3,13 @@ import queryString from "query-string";
 import styled from "@emotion/styled";
 import Router from "next/router";
 import withApollo from "../apollo/withApollo";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/react-hooks";
 import { Input, Button } from "@bitbloq/ui";
 import {
-  ME_QUERY,
   CHECK_RESET_PASSWORD_TOKEN_MUTATION,
   UPDATE_PASSWORD_MUTATION
 } from "../apollo/queries";
+import useUserData from "../lib/useUserData";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
 import ModalLayout from "../components/ModalLayout";
 
@@ -30,10 +30,12 @@ const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
 
   const { token } = queryString.parse(location.search);
 
-  const { data } = useQuery(ME_QUERY);
-  if (data && data.me) {
-    Router.push("/app");
-  }
+  const user = useUserData();
+  useEffect(() => {
+    if (user) {
+      Router.replace("/app");
+    }
+  }, [user]);
 
   const checkTokenValidity = async () => {
     try {

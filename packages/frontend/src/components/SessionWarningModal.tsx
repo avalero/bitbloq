@@ -39,7 +39,7 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
           cuenta en <b>{remainingSeconds} segundos</b>.
         </p>
       }
-      okText="Aceptar"
+      okText="Si, quiero seguir trabajando"
       onOk={() => onContinue()}
     />
   );
