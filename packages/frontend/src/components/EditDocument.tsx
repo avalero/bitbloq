@@ -28,6 +28,7 @@ import Loading from "./Loading";
 import DocumentLoginModal from "./DocumentLoginModal";
 import {
   ADD_RESOURCE_TO_EXERCISES,
+  DELETE_RESOURCE_FROM_EXERCISES,
   DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
@@ -172,6 +173,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const [addResourceToExercises] = useMutation(ADD_RESOURCE_TO_EXERCISES);
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
+  const [deleteResourceFromExercises] = useMutation(
+    DELETE_RESOURCE_FROM_EXERCISES
+  );
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
   const [setDocumentImage] = useMutation(SET_DOCUMENT_IMAGE_MUTATION);
@@ -302,6 +306,16 @@ const EditDocument: FC<IEditDocumentProps> = ({
     refetch();
   };
 
+  const onResourceDeleted = async (id: string) => {
+    await deleteResourceFromExercises({
+      variables: {
+        documentID: document.id,
+        resourceID: id
+      }
+    });
+    refetch();
+  };
+
   const onSaveDocument = () => {
     const documentJSON = {
       type,
@@ -366,6 +380,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         description={description}
         documentId={document.id}
         resourceAdded={onResourceAdded}
+        resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}

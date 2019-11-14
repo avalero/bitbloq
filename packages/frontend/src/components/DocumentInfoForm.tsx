@@ -18,6 +18,7 @@ export interface DocumentInfoFormProps {
   documentId: string;
   image: string;
   resourceAdded: (id: string) => void;
+  resourceDeleted: (id: string) => void;
   resources?: IResource[];
   resourcesTypesAccepted: ResourcesTypes[];
   onChange: (data: any) => void;
@@ -31,6 +32,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   documentId,
   image,
   resourceAdded,
+  resourceDeleted,
   resources = [],
   resourcesTypesAccepted,
   onChange
@@ -130,6 +132,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
               <ResourcesBox
                 documentId={documentId}
                 resourceAdded={resourceAdded}
+                resourceDeleted={resourceDeleted}
                 resources={resources}
                 resourcesTypesAccepted={resourcesTypesAccepted}
               />

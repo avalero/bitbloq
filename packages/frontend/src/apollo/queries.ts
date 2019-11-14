@@ -549,6 +549,17 @@ export const ADD_RESOURCE_TO_EXERCISES = gql`
   }
 `;
 
+export const DELETE_RESOURCE_FROM_EXERCISES = gql`
+  mutation DeleteResourceFromExercises($resourceID: ID!, $documentID: ID!) {
+    deleteResourceFromExercises(
+      resourceID: $resourceID
+      documentID: $documentID
+    ) {
+      id
+    }
+  }
+`;
+
 export const GET_CLOUD_RESOURCES = gql`
   query CloudResources(
     $deleted: Boolean

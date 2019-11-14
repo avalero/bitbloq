@@ -5,7 +5,16 @@ import UploadResourceModal from "./UploadResourceModal";
 import { resourceTypes } from "../config";
 import { IResource, ResourcesTypes } from "../types";
 
-const ResourceItem: FC<IResource> = ({ title, type }) => {
+interface IResourceItemProps extends IResource {
+  onDelete: (id: string) => void;
+}
+
+const ResourceItem: FC<IResourceItemProps> = ({
+  id,
+  onDelete,
+  title,
+  type
+}) => {
   const extTitle = title.split(".").pop();
   const titleName = title
     .replace(new RegExp(`\.${extTitle}$`), "")
@@ -37,7 +46,7 @@ const ResourceItem: FC<IResource> = ({ title, type }) => {
         {firstTitle}
         {secondTitle}
       </ResourceTitle>
-      <TrashIcon>
+      <TrashIcon onClick={() => onDelete(id)}>
         <Icon name="trash" />
       </TrashIcon>
     </ResourceBox>
@@ -47,6 +56,7 @@ const ResourceItem: FC<IResource> = ({ title, type }) => {
 interface IResourcesBoxProps {
   documentId: string;
   resourceAdded: (id: string) => void;
+  resourceDeleted: (id: string) => void;
   resources: IResource[];
   resourcesTypesAccepted: ResourcesTypes[];
 }
@@ -54,6 +64,7 @@ interface IResourcesBoxProps {
 const ResourcesBox: FC<IResourcesBoxProps> = ({
   documentId,
   resourceAdded,
+  resourceDeleted,
   resources,
   resourcesTypesAccepted
 }) => {
@@ -65,7 +76,11 @@ const ResourcesBox: FC<IResourcesBoxProps> = ({
       <Box>
         {resources.length > 0 ? (
           resources.map(resource => (
-            <ResourceItem key={resource.id} {...resource} />
+            <ResourceItem
+              key={resource.id}
+              {...resource}
+              onDelete={resourceDeleted}
+            />
           ))
         ) : (
           <EmptyResources>
