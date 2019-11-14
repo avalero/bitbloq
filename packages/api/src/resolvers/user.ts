@@ -163,7 +163,7 @@ const userResolver = {
       It returns the authorization token with user information.
       args: email and password.
     */
-    login: async (_, { email, password },__) => {
+    login: async (_, { email, password }) => {
       const contactFound: IUser = await userModel.findOne({
         email,
         finishedSignUp: true
