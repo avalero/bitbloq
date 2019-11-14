@@ -278,8 +278,8 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
     return (
       <>
-        <FormGroup>
-          <FormField style={{ flexGrow: 2 }}>
+        <FormGroup style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+          <FormField style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
             <label>Nombre del centro</label>
             <Input
               type="text"
@@ -310,8 +310,6 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               }}
             />
           </FormField>
-        </FormGroup>
-        <FormGroup>
           <FormField>
             <label>Ciudad</label>
             <Input
@@ -760,18 +758,12 @@ const Buttons = styled.div`
 `;
 
 const FormGroup = styled.div`
-  display: flex;
-  margin-left: -5px;
-  margin-right: -5px;
-
-  > :nth-of-type(n) {
-    margin-left: 5px;
-    margin-right: 5px;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-column-gap: 10px;
 `;
 
 const FormField = styled.div`
-  flex: 1;
   margin-bottom: 20px;
 
   label {
