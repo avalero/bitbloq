@@ -252,7 +252,7 @@ const folderResolver = {
      * Folders: returns all the folders of the user logged.
      * args: nothing.
      */
-    folders: async (_, context: { user: IUserInToken }) => {
+    folders: async (_, __, context: { user: IUserInToken }) => {
       return folderModel.find({ user: context.user.userID });
     },
 
@@ -279,7 +279,7 @@ const folderResolver = {
      * Root: returns the root folder of the user logged.
      * args: nothing.
      */
-    rootFolder: async (_, context: { user: IUserInToken }) => {
+    rootFolder: async (_, __, context: { user: IUserInToken }) => {
       return folderModel.findOne({
         name: "root",
         user: context.user.userID

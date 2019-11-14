@@ -394,7 +394,7 @@ const submissionResolver = {
      * args: nothing
      */
     // alumno cancela su propia submission
-    cancelSubmission: async (_, context: { user: IUserInToken }) => {
+    cancelSubmission: async (_, __, context: { user: IUserInToken }) => {
       const existSubmission: ISubmission = await submissionModel.findOne({
         _id: context.user.submissionID,
         exercise: context.user.exerciseID
@@ -523,7 +523,7 @@ const submissionResolver = {
      * args: nothing.
      */
     // devuelve todas las entregas que los alumnos han realizado, necesita usuario logado
-    submissions: async (_, context: { user: IUserInToken }) => {
+    submissions: async (_, __, context: { user: IUserInToken }) => {
       return submissionModel.find({ user: context.user.userID });
     },
 

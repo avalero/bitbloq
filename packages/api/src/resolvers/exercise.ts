@@ -149,7 +149,7 @@ const exerciseResolver = {
      * Exercises: returns all the exercises of the user logged.
      * args: nothing.
      */
-    exercises: async (_, context: { user: IUserInToken }) => {
+    exercises: async (_, __, context: { user: IUserInToken }) => {
       return exerciseModel.find({ user: context.user.userID });
     },
 

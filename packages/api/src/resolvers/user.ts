@@ -230,7 +230,7 @@ const userResolver = {
     /*
      * renewToken: returns a new token for a logged user
      */
-    renewToken: async (_, context: any) => {
+    renewToken: async (_, __, context: any) => {
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
@@ -441,7 +441,7 @@ const userResolver = {
      *  Me: returns the information of the user provided in the authorization token.
      *  args: nothing.
      */
-    me: async (_, context: { user: IUserInToken }) => {
+    me: async (_, __, context: { user: IUserInToken }) => {
       const contactFound: IUser = await userModel.findOne({
         email: context.user.email,
         _id: context.user.userID

@@ -303,7 +303,7 @@ const documentResolver = {
      * Documents: returns all the documents of the user logged.
      * args: nothing.
      */
-    documents: async (_, context: { user: IUserInToken }) => {
+    documents: async (_, __, context: { user: IUserInToken }) => {
       return documentModel.find({ user: context.user.userID });
     },
     /**

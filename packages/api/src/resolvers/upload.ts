@@ -28,7 +28,7 @@ const acceptedFiles = {
   object3D: [".stl"]
 };
 
-const normalize = (() =>{
+const normalize = (() => {
   const from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç";
   const to = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc";
   const mapping = {};
@@ -169,7 +169,7 @@ export async function uploadDocumentImage(
 const uploadResolver = {
   Query: {
     uploads: () => uploadModel.find({}),
-    getUserFiles: async (_, context: { user: IUserInToken }) => {
+    getUserFiles: async (_, __, context: { user: IUserInToken }) => {
       const [files] = await bucket.getFiles({
         prefix: `${context.user.userID}`
       });
