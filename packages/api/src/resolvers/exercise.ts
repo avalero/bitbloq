@@ -17,7 +17,6 @@ import {
   IQueryExercisesByDocumentArgs
 } from "../api-types";
 
-
 const exerciseResolver = {
   Mutation: {
     /**

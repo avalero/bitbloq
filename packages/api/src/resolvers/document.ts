@@ -373,12 +373,13 @@ const documentResolver = {
 
       const currentLocation: string =
         String(args.currentLocation) || String(user.rootFolder);
-      if (
-        !(await FolderModel.findOne({
-          _id: currentLocation
-        }))
-      ) {
+      const location: IFolder = await FolderModel.findOne({
+        _id: currentLocation
+      });
+      if (!location) {
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
+      } else if (location.user !== context.user.userID) {
+        return new AuthenticationError("Not your folder");
       }
       const itemsPerPage: number = args.itemsPerPage || 8;
       const skipN: number = (args.currentPage - 1) * itemsPerPage;
