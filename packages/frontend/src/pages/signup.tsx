@@ -276,12 +276,16 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       { required: isShown }
     );
 
-    if (!isShown) return;
+    if (!isShown) {
+      return;
+    }
 
     // validation is not triggered automatically
     const onChangeValue = (name: string, value: string) => {
       setValue(name, value);
-      if (errors[name]) clearError(name);
+      if (errors[name]) {
+        clearError(name);
+      }
     };
 
     return (
