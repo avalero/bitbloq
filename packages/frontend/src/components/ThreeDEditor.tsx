@@ -28,16 +28,18 @@ import useDocumentContent from "../lib/useDocumentContent";
 import { ResourcesTypes } from "../types";
 
 interface IThreeDEditorProps extends IEditorProps {
+  createDocument?: () => void;
   resources?: IResource[];
 }
 
 const ThreeDEditor: FC<IThreeDEditorProps> = ({
+  createDocument,
   document,
   onDocumentChange,
   baseTabs,
   baseMenuOptions,
   children,
-  resources
+  resources = []
 }) => {
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
@@ -116,7 +118,12 @@ const ThreeDEditor: FC<IThreeDEditorProps> = ({
         id: "import-resource",
         label: t("cloud.upload.import"),
         icon: <Icon name="import-stl" />,
-        onClick: () => setResourceModal(true),
+        onClick: () => {
+          if (!document.id) {
+            createDocument();
+          }
+          setResourceModal(true);
+        },
         type: "option"
       }
     );
@@ -182,7 +189,7 @@ const ThreeDEditor: FC<IThreeDEditorProps> = ({
         />
       )}
       <UploadResourceModal
-        addedCallback={(id, filename, publicUrl) =>
+        addedCallback={(_, filename, publicUrl) =>
           threedRef.current.createObject(
             "STLObject",
             { url: publicUrl },

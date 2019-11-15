@@ -241,20 +241,21 @@ const EditDocument: FC<IEditDocumentProps> = ({
     );
   }, [data]);
 
-  const update = async (document: any) => {
-    setDocument(document);
+  const update = async (newUpdatedDocument?: any) => {
+    const updatedDocument = newUpdatedDocument || document;
+    delete updatedDocument.image;
+    setDocument(updatedDocument);
 
     if (!isLoggedIn) {
       return;
     }
-
     if (isNew) {
       const saveFolder = folder === "local" ? user.rootFolder : folder;
       const result = await createDocument({
         variables: {
-          ...document,
+          ...updatedDocument,
           folder: saveFolder,
-          title: document.title || t("untitled-project")
+          title: updatedDocument.title || t("untitled-project")
         }
       }).catch(e => {
         return setError(e);
@@ -270,7 +271,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         Router.replace(href, as, { shallow: true });
       }
     } else {
-      debouncedUpdate(document);
+      debouncedUpdate(updatedDocument);
     }
   };
   const updateRef = useRef(update);
@@ -416,6 +417,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   return (
     <>
       <EditorComponent
+        createDocument={update}
         document={document}
         onDocumentChange={(document: IDocument) => update(document)}
         baseTabs={[infoTab]}
