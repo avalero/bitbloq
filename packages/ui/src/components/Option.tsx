@@ -26,14 +26,14 @@ const InnerBullet = styled.div`
   background-color: ${colors.gray5};
 `;
 
-export interface OptionsProps {
+export interface IOptionsProps {
   checked?: boolean;
   onClick?: React.MouseEventHandler;
   className?: string;
 }
 
-export default class Option extends React.Component<OptionsProps> {
-  render() {
+export default class Option extends React.Component<IOptionsProps> {
+  public render() {
     const { checked, children, onClick, className } = this.props;
 
     return (

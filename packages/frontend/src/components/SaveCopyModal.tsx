@@ -5,13 +5,13 @@ import { useQuery, useMutation } from "@apollo/react-hooks";
 import { DOCUMENTS_QUERY, CREATE_DOCUMENT_MUTATION } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 
-interface SaveCopyModalProps {
+interface ISaveCopyModalProps {
   onClose: () => any;
   document: any;
   content: any;
 }
 
-const SaveCopyModal: FC<SaveCopyModalProps> = ({
+const SaveCopyModal: FC<ISaveCopyModalProps> = ({
   onClose,
   document,
   content

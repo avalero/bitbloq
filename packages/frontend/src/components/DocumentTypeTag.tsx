@@ -3,12 +3,12 @@ import styled from "@emotion/styled";
 import { Icon } from "@bitbloq/ui";
 import { documentTypes } from "../config";
 
-interface DocumentTypeTagProps {
+interface IDocumentTypeTagProps {
   document: any;
   small?: boolean;
 }
 
-const DocumentTypeTag: React.SFC<DocumentTypeTagProps> = ({
+const DocumentTypeTag: React.SFC<IDocumentTypeTagProps> = ({
   document,
   small
 }) => {
@@ -24,11 +24,7 @@ const DocumentTypeTag: React.SFC<DocumentTypeTagProps> = ({
 
 export default DocumentTypeTag;
 
-interface ContainerProps {
-  color: string;
-  small?: boolean;
-}
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<{ color: string; small?: boolean }>`
   background-color: ${props => props.color};
   color: white;
   display: inline-flex;

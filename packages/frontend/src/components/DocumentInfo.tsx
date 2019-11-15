@@ -67,10 +67,7 @@ const LeftContent = styled.div`
   }
 `;
 
-interface ImageProps {
-  src: string;
-}
-const Image = styled.div<ImageProps>`
+const Image = styled.div<{ src: string }>`
   background-color: ${colors.gray2};
   background-image: url(${props => props.src});
   background-size: cover;

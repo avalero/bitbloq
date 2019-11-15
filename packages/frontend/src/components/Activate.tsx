@@ -31,7 +31,9 @@ const Activate: FC<IActivateProps> = ({ token }) => {
       .catch(e => setError(e));
   }, []);
 
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
   return (
     <Container>
       <Loading />

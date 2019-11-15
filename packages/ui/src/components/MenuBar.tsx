@@ -115,7 +115,7 @@ export interface ISubMenu {
   id: string;
   label: string;
   icon?: React.ReactElement<SVGElement>;
-  children: Array<IMenuItem>;
+  children: IMenuItem[];
   type: "submenu";
 }
 
@@ -128,7 +128,7 @@ type IMenuItem = IMenuOption | ISubMenu | IMenuDivider;
 export interface IMainMenuOption {
   id: string;
   label: string;
-  children: Array<IMenuItem>;
+  children: IMenuItem[];
 }
 
 export interface IMenuBarProps {
@@ -140,23 +140,27 @@ interface IState {
 }
 
 class MenuBar extends React.Component<IMenuBarProps, IState> {
-  state = {
+  public state = {
     disabled: false
   };
 
-  onOptionClick(e: React.MouseEvent, option: IMenuOption) {
-    this.setState({ disabled: true });
+  public render() {
+    const { disabled } = this.state;
+    const { options } = this.props;
 
-    if (option.onClick) {
-      option.onClick(e, option);
-    }
+    return (
+      <Container disabled={disabled} onMouseOver={this.onMouseOver}>
+        {options.map(option => (
+          <MainOption key={option.id}>
+            <OptionText>{option.label}</OptionText>
+            {this.renderSubMenu(option.children, true)}
+          </MainOption>
+        ))}
+      </Container>
+    );
   }
 
-  onMouseOver = () => {
-    this.setState({ disabled: false });
-  };
-
-  renderSubMenu(options: Array<IMenuItem>, isTop?: boolean) {
+  private renderSubMenu(options: IMenuItem[], isTop?: boolean) {
     return (
       <SubMenu isTop={isTop}>
         {options.map((option, i) => {
@@ -196,21 +200,17 @@ class MenuBar extends React.Component<IMenuBarProps, IState> {
     );
   }
 
-  render() {
-    const { disabled } = this.state;
-    const { options } = this.props;
+  private onOptionClick(e: React.MouseEvent, option: IMenuOption) {
+    this.setState({ disabled: true });
 
-    return (
-      <Container disabled={disabled} onMouseOver={this.onMouseOver}>
-        {options.map(option => (
-          <MainOption key={option.id}>
-            <OptionText>{option.label}</OptionText>
-            {this.renderSubMenu(option.children, true)}
-          </MainOption>
-        ))}
-      </Container>
-    );
+    if (option.onClick) {
+      option.onClick(e, option);
+    }
   }
+
+  private onMouseOver = () => {
+    this.setState({ disabled: false });
+  };
 }
 
 export default MenuBar;

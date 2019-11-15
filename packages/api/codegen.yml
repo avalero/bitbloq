@@ -15,4 +15,4 @@ generates:
         EmailAddress: string
         ObjectID: string
         Number: number
-        Upload: File      
+        Upload: File
