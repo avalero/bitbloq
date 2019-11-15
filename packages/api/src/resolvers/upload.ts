@@ -44,6 +44,37 @@ const normalize = (function() {
   };
 })();
 
+const uploadPreviewThumbnail = async (
+  resolve: any,
+  reject: any,
+  createReadStream: any,
+  gcsName: string
+) => {
+  const file = bucket.file(gcsName);
+
+  const opts = {
+    metadata: {
+      cacheControl: "private, max-age=0, no-transform"
+    }
+  };
+  const fileStream = createReadStream();
+  const gStream = file.createWriteStream(opts);
+  gStream
+    .on("error", err => {
+      reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
+    })
+    .on("finish", async err => {
+      if (err) {
+        throw new ApolloError("Error uploading file", "UPLOAD_ERROR");
+      }
+
+      file.makePublic().then(async () => {
+        publicUrl = getPublicUrl(gcsName);
+        resolve(publicUrl);
+      })
+    })
+  };
+
 const processUpload = async (
   resolve: any,
   reject: any,
@@ -54,6 +85,8 @@ const processUpload = async (
   mimetype?: string,
   encoding?: string,
   userID?: string,
+  previewUrl?: string,
+  thumbnailUrl?: string,
   type?: string
 ) => {
   const file = bucket.file(gcsName);
@@ -106,6 +139,8 @@ const processUpload = async (
                 storageName: gcsName,
                 size: fileSize,
                 image: type === "image" ? publicUrl : null,
+                preview: previewUrl ? previewUrl : null,
+                thumbnail: thumbnailUrl ? thumbnailUrl : null,
                 type,
                 deleted: false
               }
@@ -123,6 +158,8 @@ const processUpload = async (
             size: fileSize,
             user: userID,
             image: type === "image" ? publicUrl : null,
+            preview: previewUrl ? previewUrl : null,
+            thumbnail: thumbnailUrl ? thumbnailUrl : null,
             type,
             deleted: false
           });
@@ -233,8 +270,8 @@ const uploadResolver = {
           title: i.filename,
           type: i.type,
           size: i.size,
-          thumbnail: i.image,
-          preview: i.publicUrl,
+          thumbnail: i.thumbnail,
+          preview: i.preview,
           file: i.publicUrl,
           deleted: i.deleted,
           createdAt: i.createdAt
@@ -272,6 +309,54 @@ const uploadResolver = {
       });
     },
     uploadCloudResource: async (root: any, args: any, context: any) => {
+      let previewUrl: Promise<string>;
+      let thumbnailUrl: Promise<string>;
+      if(args.preview){
+        const {
+          createReadStream,
+          filename,
+          mimetype,
+          encoding
+        } = await args.preview;
+        if (!createReadStream || !filename || !mimetype || !encoding) {
+          throw new ApolloError("Upload error with preview, check file type.", "UPLOAD_ERROR");
+        }
+        const uniqueName: string = "preview" + Date.now() + normalize(filename);
+        const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+          uniqueName
+        )}`;
+        previewUrl = new Promise((resolve, reject) => {
+          uploadPreviewThumbnail(
+            resolve,
+            reject,
+            createReadStream,
+            gcsName
+          );
+        });        
+      }
+      if(args.thumbnail){
+        const {
+          createReadStream,
+          filename,
+          mimetype,
+          encoding
+        } = await args.thumbnail;
+        if (!createReadStream || !filename || !mimetype || !encoding) {
+          throw new ApolloError("Upload error with thumbnail, check file type.", "UPLOAD_ERROR");
+        }
+        const uniqueName: string = "thumbnail" + Date.now() + normalize(filename);
+        const gcsName: string = `${context.user.userID}/${encodeURIComponent(
+          uniqueName
+        )}`;
+        thumbnailUrl = new Promise((resolve, reject) => {
+          uploadPreviewThumbnail(
+            resolve,
+            reject,
+            createReadStream,
+            gcsName
+          );
+        });        
+      }      
       const {
         createReadStream,
         filename,
@@ -302,7 +387,7 @@ const uploadResolver = {
       const gcsName: string = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      return new Promise((resolve, reject) => {
+      return new Promise(async (resolve, reject) => {
         processUpload(
           resolve,
           reject,
@@ -313,7 +398,10 @@ const uploadResolver = {
           mimetype,
           encoding,
           context.user.userID,
-          fileType
+          fileType,
+          await thumbnailUrl,
+          await previewUrl,
+          
         );
       });
     },
