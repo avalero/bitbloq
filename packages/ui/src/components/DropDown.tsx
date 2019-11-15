@@ -1,67 +1,52 @@
 import React, { Component } from "react";
 import TetherComponent from "react-tether";
 
-export interface DropDownProps {
+export interface IDropDownProps {
   className?: string;
   closeOnClick?: boolean;
   attachmentPosition: string;
   targetPosition: string;
-  constraints?: {
+  constraints?: Array<{
     attachment?: string;
     outOfBoundsClass?: string;
     pin?: boolean | string[];
     pinnedClass?: string;
-    to?: string | HTMLElement | number[];
-  }[];
+    to?: string | HTMLElement;
+  }>;
   notHidden?: boolean;
   offset?: string;
   targetOffset?: string;
+  children: [(isOpen: boolean) => JSX.Element, JSX.Element];
 }
 
-interface State {
+interface IState {
   isOpen: boolean;
 }
 
-class DropDown extends Component<DropDownProps, State> {
-  static defaultProps = {
+class DropDown extends Component<IDropDownProps, IState> {
+  public static defaultProps = {
     closeOnClick: true,
     attachmentPosition: "top right",
     targetPosition: "bottom right"
   };
+  public state = { isOpen: false };
 
-  toggleEl: HTMLElement | null;
-  attachmentEl: HTMLElement | null;
-  state = { isOpen: false };
+  private toggleEl: HTMLElement | null;
+  private attachmentEl: HTMLElement | null;
 
-  componentDidMount() {
+  public componentDidMount() {
     document.addEventListener("click", this.onBodyClick, false);
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount() {
     document.removeEventListener("click", this.onBodyClick, false);
   }
 
-  close() {
+  public close() {
     this.setState({ isOpen: false });
   }
 
-  onBodyClick = (e: MouseEvent) => {
-    const { closeOnClick } = this.props;
-    const toggle = this.toggleEl;
-    const attachment = this.attachmentEl;
-
-    if (toggle && toggle.contains(e.target as HTMLElement)) {
-      this.setState(state => ({ ...state, isOpen: !state.isOpen }));
-    } else if (attachment && attachment.contains(e.target as HTMLElement)) {
-      if (closeOnClick) {
-        this.setState({ isOpen: false });
-      }
-    } else {
-      this.setState({ isOpen: false });
-    }
-  };
-
-  render() {
+  public render() {
     const { isOpen } = this.state;
     const {
       className,
@@ -72,7 +57,7 @@ class DropDown extends Component<DropDownProps, State> {
       targetPosition,
       targetOffset
     } = this.props;
-    const [element, attachment] = this.props.children as Function[];
+    const [element, attachment] = this.props.children;
 
     return (
       <TetherComponent
@@ -107,6 +92,22 @@ class DropDown extends Component<DropDownProps, State> {
       />
     );
   }
+
+  private onBodyClick = (e: MouseEvent) => {
+    const { closeOnClick } = this.props;
+    const toggle = this.toggleEl;
+    const attachment = this.attachmentEl;
+
+    if (toggle && toggle.contains(e.target as HTMLElement)) {
+      this.setState(state => ({ ...state, isOpen: !state.isOpen }));
+    } else if (attachment && attachment.contains(e.target as HTMLElement)) {
+      if (closeOnClick) {
+        this.setState({ isOpen: false });
+      }
+    } else {
+      this.setState({ isOpen: false });
+    }
+  };
 }
 
 export default DropDown;

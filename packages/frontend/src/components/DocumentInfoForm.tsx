@@ -12,7 +12,7 @@ import ResourcesBox from "./ResourcesBox";
 import { isValidName } from "../util";
 import { IResource, ResourcesTypes } from "../types";
 
-export interface DocumentInfoFormProps {
+export interface IDocumentInfoFormProps {
   title?: string;
   description?: string;
   documentId: string;
@@ -21,12 +21,16 @@ export interface DocumentInfoFormProps {
   resourceDeleted: (id: string) => void;
   resources?: IResource[];
   resourcesTypesAccepted: ResourcesTypes[];
-  onChange: (data: any) => void;
+  onChange: (newValues: {
+    title: string;
+    description: string;
+    image?: File;
+  }) => void;
 }
 
 const maxImageSize = 2097152;
 
-const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
+const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
   title,
   description,
   documentId,
@@ -231,10 +235,7 @@ const FormInput = styled.div`
   max-width: 66%;
 `;
 
-interface ImageProps {
-  src: string;
-}
-const Image = styled.div<ImageProps>`
+const Image = styled.div<{ src: string }>`
   border: 1px solid ${colors.gray3};
   border-radius: 4px;
   width: 250px;

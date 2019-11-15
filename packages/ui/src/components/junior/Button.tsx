@@ -2,12 +2,12 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import colors from "../../colors";
 
-interface ButtonProps {
+export interface IButtonProps {
   secondary?: boolean;
   red?: boolean;
 }
 
-const Button = styled.button<ButtonProps>`
+const Button = styled.button<IButtonProps>`
   border-radius: 3px;
   border: none;
   height: 50px;

@@ -1,12 +1,12 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 
-interface UserInfoProps {
+interface IUserInfoProps {
   name: string;
   img?: string;
 }
 
-const UserInfo: FC<UserInfoProps> = (props: UserInfoProps) => {
+const UserInfo: FC<IUserInfoProps> = props => {
   return (
     <Info>
       <UserName href="/app">{props.name}</UserName>
@@ -25,13 +25,8 @@ const Info = styled.div`
   padding-left: 19px;
 `;
 
-interface UserImgProps {
-  img?: string;
-}
-
-const UserImg = styled.div<UserImgProps>`
-  background: url(${(props: UserImgProps) => props.img}) center/40px 40px,
-    #3b3e45;
+const UserImg = styled.div<{ img?: string }>`
+  background: url(${props => props.img}) center/40px 40px, #3b3e45;
   border-radius: 100%;
   height: 40px;
   width: 40px;

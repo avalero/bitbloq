@@ -4,6 +4,7 @@ import React, {
   SetStateAction,
   useEffect,
   useRef,
+  useMemo,
   useState
 } from "react";
 import styled from "@emotion/styled";
@@ -11,25 +12,23 @@ import styled from "@emotion/styled";
 import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import FolderSelectorMenu from "./FolderSelectorMenu";
 
-export interface BreadcrumbLink {
+export interface IBreadcrumbLink {
   route?: string;
   text: string;
   type: "folder" | "document";
 }
 
-export interface BreadcrumbsProps {
-  links: BreadcrumbLink[];
+export interface IBreadcrumbsProps {
+  links: IBreadcrumbLink[];
   title?: string;
 }
 
-const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links, title }) => {
+const Breadcrumbs: React.FC<IBreadcrumbsProps> = ({ links, title }) => {
   const t = useTranslate();
 
   const breadcrumbTarget = useRef<HTMLLIElement>(null);
   const breadcrumbTargetParent = useRef<HTMLDivElement>(null);
 
-  const [customLinks, setLinks] = useState([links[0]]);
-  const [hideFolders, setHideFolders] = useState<BreadcrumbLink[]>([]);
   const [maxWidth, setMaxWidth] = useState(0);
 
   const setElementMaxWidth = (): void => {
@@ -41,8 +40,8 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links, title }) => {
       const parentLeft = parentElement.offsetLeft;
       const parentWidth = parentElement.offsetWidth;
 
-      const maxWidth = parentLeft + parentWidth - elementLeft;
-      setMaxWidth(maxWidth);
+      const newMaxWidth = parentLeft + parentWidth - elementLeft;
+      setMaxWidth(newMaxWidth);
     }
   };
 
@@ -53,19 +52,13 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ links, title }) => {
     return () => window.removeEventListener("resize", setElementMaxWidth);
   });
 
-  useEffect(() => {
-    let customLinks: BreadcrumbLink[];
-    let hideLinks: BreadcrumbLink[];
+  const [customLinks, hideFolders] = useMemo(() => {
     if (links.length > 4) {
-      customLinks = links.slice(links.length - 3);
-      hideLinks = links.slice(1, links.length - 3);
+      return [links.slice(links.length - 3), links.slice(1, links.length - 3)];
     } else {
-      customLinks = links.slice(1);
-      hideLinks = [];
+      return [links.slice(1), []];
     }
-    setHideFolders(hideLinks);
-    setLinks(customLinks);
-  }, []);
+  }, [links]);
 
   return (
     <Wrap>
@@ -150,10 +143,7 @@ const Breadcrumb = styled.li`
   }
 `;
 
-interface BreadcrumbLinkProps {
-  folders: number;
-}
-const BreadcrumbLink = styled(Breadcrumb)<BreadcrumbLinkProps>`
+const BreadcrumbLink = styled(Breadcrumb)<{ folders: number }>`
   max-width: ${props =>
     props.folders === 1 ? "50" : props.folders === 2 ? "30" : "25"}%;
   font-weight: bold;
@@ -169,10 +159,7 @@ const BreadcrumbRoot = styled(Breadcrumb)`
   font-weight: bold;
 `;
 
-interface BreadcrumbsNoRootProps {
-  isThereHidden: boolean;
-}
-const BreadcrumbsNoRoot = styled.div<BreadcrumbsNoRootProps>`
+const BreadcrumbsNoRoot = styled.div<{ isThereHidden: boolean }>`
   align-items: center;
   display: flex;
   height: 100%;
@@ -180,10 +167,7 @@ const BreadcrumbsNoRoot = styled.div<BreadcrumbsNoRootProps>`
   width: calc(100% - 110px - ${props => (props.isThereHidden ? 65 : 0)}px);
 `;
 
-interface BreadcrumbTargetProps {
-  maxWidth: number;
-}
-const BreadcrumbTarget = styled(Breadcrumb)<BreadcrumbTargetProps>`
+const BreadcrumbTarget = styled(Breadcrumb)<{ maxWidth: number }>`
   max-width: ${props => props.maxWidth}px;
 
   p {
@@ -192,10 +176,7 @@ const BreadcrumbTarget = styled(Breadcrumb)<BreadcrumbTargetProps>`
   }
 `;
 
-interface FoldersMenuProps {
-  isOpen: boolean;
-}
-const FoldersMenu = styled.div<FoldersMenuProps>`
+const FoldersMenu = styled.div<{ isOpen: boolean }>`
   align-items: center;
   background-color: ${props => (props.isOpen ? "#e8e8e8" : "#fff")};
   border: solid 1px #dddddd;

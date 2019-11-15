@@ -158,12 +158,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
     const channel = new BroadcastChannel("bitbloq-documents");
     channel.postMessage({ command: "open-document-ready" });
     channel.onmessage = e => {
-      const { document, command } = e.data;
+      const { document: openDocument, command } = e.data;
       if (command === "open-document") {
-        setType(document.type);
-        const newDocument = { ...document };
-        delete newDocument.image;
-        updateRef.current(newDocument);
+        setType(openDocument.type);
+        delete openDocument.image;
+        updateRef.current(openDocument);
         setOpening(false);
         channel.close();
       }
@@ -197,11 +196,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   };
 
   const updateImage = (
-    id: string,
+    documentId: string,
     imageFile?: Blob,
     isImageSnapshot?: boolean
   ) => {
-    const image = imageFile || imageToUpload.current;
+    const newImage = imageFile || imageToUpload.current;
     const isSnapshot = isImageSnapshot === undefined ? true : isImageSnapshot;
     setImage({ image: "udpated", isSnapshot });
 
@@ -209,11 +208,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
       setImage({ image: "blob", isSnapshot: true });
     }
 
-    if (image.size > 0 && isLoggedIn) {
+    if (newImage.size > 0 && isLoggedIn) {
       setDocumentImage({
         variables: {
-          id,
-          image,
+          documentId,
+          newImage,
           isSnapshot
         }
       }).catch(e => {
@@ -223,9 +222,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
   };
 
   const debouncedUpdate = useCallback(
-    debounce(async (document: any) => {
+    debounce(async (newDocument: any) => {
       saveImage();
-      await updateDocument({ variables: { ...document, id } }).catch(e => {
+      await updateDocument({ variables: { ...newDocument, id } }).catch(e => {
         return setError(e);
       });
       refetch();
@@ -276,11 +275,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const updateRef = useRef(update);
   updateRef.current = update;
 
-  const publish = async (isPublic: boolean, isExample: boolean) => {
+  const publish = async (newIsPublic: boolean, newIsExample: boolean) => {
     if (!isNew) {
-      setDocument({ ...document, public: isPublic, example: isExample });
+      setDocument({ ...document, public: newIsPublic, example: newIsExample });
       await publishDocument({
-        variables: { id, public: isPublic, example: isExample }
+        variables: { id, public: newIsPublic, example: newIsExample }
       });
       refetch();
     }
@@ -292,25 +291,21 @@ const EditDocument: FC<IEditDocumentProps> = ({
     setIsEditTitleVisible(true);
   }, []);
 
-  const onTabChange = useCallback((tabIndex: number) => {
-    setTabIndex(tabIndex);
-  }, []);
-
-  const onResourceAdded = async (id: string) => {
+  const onResourceAdded = async (resourceId: string) => {
     await addResourceToExercises({
       variables: {
         documentID: document.id,
-        resourceID: id
+        resourceID: resourceId
       }
     });
     refetch();
   };
 
-  const onResourceDeleted = async (id: string) => {
+  const onResourceDeleted = async (resourceId: string) => {
     await deleteResourceFromExercises({
       variables: {
         documentID: document.id,
-        resourceID: id
+        resourceID: resourceId
       }
     });
     refetch();
@@ -329,7 +324,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       }
     };
 
-    var blob = new Blob([JSON.stringify(documentJSON)], {
+    const blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
 
@@ -352,22 +347,26 @@ const EditDocument: FC<IEditDocumentProps> = ({
     }
   ];
 
-  if (loading) return <Loading color={documentType.color} />;
-  if (error) return <GraphQLErrorMessage apolloError={error!} />;
+  if (loading) {
+    return <Loading color={documentType.color} />;
+  }
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error!} />;
+  }
 
   const location = window.location;
   const publicUrl = `${location.protocol}//${location.host}/app/public-document/${type}/${id}`;
 
   const EditorComponent = documentType.editorComponent;
 
-  const onSaveTitle = (title: string) => {
-    update({ ...document, title: title || t("untitled-project") });
+  const onSaveTitle = (newTitle: string) => {
+    update({ ...document, title: newTitle || t("untitled-project") });
     setIsEditTitleVisible(false);
   };
 
-  const onChangePublic = (isPublic: boolean, isExample: boolean) => {
+  const onChangePublic = (newIsPublic: boolean, newIsExample: boolean) => {
     if (publish) {
-      publish(isPublic, isExample);
+      publish(newIsPublic, newIsExample);
     }
   };
 
@@ -384,14 +383,18 @@ const EditDocument: FC<IEditDocumentProps> = ({
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
-        onChange={({ title, description, image }) => {
+        onChange={({
+          title: newTitle,
+          description: newDescription,
+          image: newImage
+        }) => {
           const newDocument = {
             ...document,
-            title: title || t("untitled-project"),
-            description: description || t("document-body-description")
+            title: newTitle || t("untitled-project"),
+            description: newDescription || t("document-body-description")
           };
-          if (image) {
-            updateImage(document.id, image, false);
+          if (newImage) {
+            updateImage(document.id, newImage, false);
           }
           update(newDocument);
         }}
@@ -411,14 +414,12 @@ const EditDocument: FC<IEditDocumentProps> = ({
     </HeaderRightContent>
   );
 
-  const onMenuOptionClick = option => {};
-
   return (
     <>
       <EditorComponent
         createDocument={update}
         document={document}
-        onDocumentChange={(document: IDocument) => update(document)}
+        onDocumentChange={update}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}
       >
@@ -429,9 +430,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
             onEditTitle={onEditTitle}
             icon={<Icon name={documentType.icon} />}
             tabIndex={tabIndex}
-            onTabChange={onTabChange}
+            onTabChange={setTabIndex}
             headerRightContent={headerRightContent}
-            onMenuOptionClick={onMenuOptionClick}
             preMenuContent={
               isPublisher && (
                 <PublishBar

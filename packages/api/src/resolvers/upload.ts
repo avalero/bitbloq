@@ -14,9 +14,9 @@ import {
 } from "../api-types";
 
 import * as fs from "fs";
-const { Storage } = require("@google-cloud/storage");
+import { Storage } from "@google-cloud/storage";
 
-const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
+const storage = new Storage({ projectId: process.env.GCLOUD_PROJECT_ID }); // project ID
 const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
@@ -154,7 +154,7 @@ function getPublicUrl(filename) {
 export function getFilesizeInBytes(filename) {
   try {
     const stats = fs.statSync(filename);
-    const fileSizeInBytes: number = stats["size"];
+    const fileSizeInBytes: number = stats.size;
     return fileSizeInBytes;
   } catch (e) {
     return "";

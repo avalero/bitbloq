@@ -5,10 +5,10 @@
   ],
   "scripts": {
     "prettier": "prettier --write \"packages/*/src/**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
-    "tslint:dev": "tslint -c ./tslint-dev.json \"packages/*/src/**/*.ts\"",
-    "tslint:prod": "tslint -c ./tslint-prod.json \"packages/*/src/**/*.ts\"",
-    "tslint:sta": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.ts\"",
-    "tslint:qa": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.ts\""
+    "tslint:dev": "tslint -c ./tslint-dev.json \"packages/*/src/**/*.{ts,tsx}\"",
+    "tslint:prod": "tslint -c ./tslint-prod.json \"packages/*/src/**/*.{ts,tsx}\"",
+    "tslint:sta": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\"",
+    "tslint:qa": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\""
   },
   "devDependencies": {
     "prettier": "^1.18.2",

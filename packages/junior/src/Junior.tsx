@@ -19,7 +19,7 @@ import {
 } from "@bitbloq/bloqs";
 import UploadSpinner from "./UploadSpinner";
 
-export interface JuniorProps {
+export interface IJuniorProps {
   bloqTypes: IBloqType[];
   initialContent?: any;
   onContentChange: (content: any) => any;
@@ -28,7 +28,7 @@ export interface JuniorProps {
   children: (hardware: JSX.Element, software: JSX.Element) => JSX.Element;
 }
 
-const Junior: React.FunctionComponent<JuniorProps> = ({
+const Junior: React.FunctionComponent<IJuniorProps> = ({
   children,
   bloqTypes,
   initialContent,

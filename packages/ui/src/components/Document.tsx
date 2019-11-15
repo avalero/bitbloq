@@ -4,7 +4,11 @@ import { css } from "@emotion/core";
 import MenuBar, { IMainMenuOption } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
-import { IHeaderButton } from "../types";
+
+export interface IHeaderButton {
+  id: string;
+  icon: string;
+}
 
 const Container = styled.div`
   display: flex;
@@ -16,10 +20,7 @@ const Container = styled.div`
   user-select: none;
 `;
 
-interface HeaderWrapProps {
-  collapsed: boolean;
-}
-const HeaderWrap = styled.div<HeaderWrapProps>`
+const HeaderWrap = styled.div<{ collapsed: boolean }>`
   height: 70px;
   overflow: hidden;
   transition: height 150ms ease-out;
@@ -53,18 +54,14 @@ const HeaderButton = styled.div`
   }
 `;
 
-interface DocumentIconProps {
-  color?: string;
-  pointer?: boolean;
-}
-const DocumentIcon = styled.div`
+const DocumentIcon = styled.div<{ color?: string; pointer?: boolean }>`
   width: 70px;
-  background-color: ${(props: DocumentIconProps) => props.color || "#4dc3ff"};
+  background-color: ${props => props.color || "#4dc3ff"};
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: ${(props: DocumentIconProps) => (props.pointer ? "pointer" : "auto")};
+  cursor: ${props => (props.pointer ? "pointer" : "auto")};
 
   .back {
     display: none;
@@ -75,8 +72,7 @@ const DocumentIcon = styled.div`
       display: block;
     }
     .main {
-      display: ${(props: DocumentIconProps) =>
-        props.pointer ? "none" : "block"};
+      display: ${props => (props.pointer ? "none" : "block")};
     }
   }
 
@@ -96,10 +92,7 @@ const EditTitleIcon = styled.div`
   }
 `;
 
-interface TitleProps {
-  canEdit: boolean;
-}
-const Title = styled.div<TitleProps>`
+const Title = styled.div<{ canEdit: boolean }>`
   display: flex;
   align-items: center;
   padding-left: 18px;
@@ -139,10 +132,7 @@ const MenuWrap = styled.div`
   border-bottom: 1px solid #cfcfcf;
 `;
 
-interface CollapsedButtonProps {
-  collapsed: boolean;
-}
-const CollapseButton = styled.div<CollapsedButtonProps>`
+const CollapseButton = styled.div<{ collapsed: boolean }>`
   cursor: pointer;
   svg {
     width: 12px;
@@ -166,10 +156,7 @@ const Tabs = styled.div`
   color: white;
 `;
 
-interface TabIconProps {
-  selected: boolean;
-}
-const TabIcon = styled.div<TabIconProps>`
+const TabIcon = styled.div<{ selected: boolean }>`
   height: 70px;
   border-bottom: 1px solid #797c81;
   display: flex;
@@ -194,10 +181,7 @@ const TabIcon = styled.div<TabIconProps>`
     `};
 `;
 
-interface ContentProps {
-  active: boolean;
-}
-const Content = styled.div<ContentProps>`
+const Content = styled.div<{ active: boolean }>`
   display: none;
   flex: 1;
   overflow: hidden;
@@ -238,18 +222,11 @@ interface IState {
 }
 
 class Document extends React.Component<IDocumentProps, IState> {
-  state = {
+  public state = {
     isHeaderCollapsed: false
   };
 
-  onCollapseButtonClick = () => {
-    this.setState(state => ({
-      ...state,
-      isHeaderCollapsed: !state.isHeaderCollapsed
-    }));
-  };
-
-  render() {
+  public render() {
     const {
       menuOptions = [],
       menuRightContent,
@@ -277,7 +254,9 @@ class Document extends React.Component<IDocumentProps, IState> {
               pointer={!!backCallback}
               color={brandColor}
               onClick={() => {
-                if (backCallback) backCallback();
+                if (backCallback) {
+                  backCallback();
+                }
               }}
             >
               {icon && icon.props ? (
@@ -345,6 +324,13 @@ class Document extends React.Component<IDocumentProps, IState> {
       </Container>
     );
   }
+
+  private onCollapseButtonClick = () => {
+    this.setState(state => ({
+      ...state,
+      isHeaderCollapsed: !state.isHeaderCollapsed
+    }));
+  };
 }
 
 export default Document;

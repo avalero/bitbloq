@@ -1,12 +1,12 @@
 import React from "react";
 import styled from "@emotion/styled";
 
-export interface LoadingBarOverlayProps {
+export interface ILoadingBarOverlayProps {
   isOpen?: boolean;
   percentage?: number;
 }
 
-const LoadingBarOverlay: React.FunctionComponent<LoadingBarOverlayProps> = ({
+const LoadingBarOverlay: React.FunctionComponent<ILoadingBarOverlayProps> = ({
   isOpen,
   percentage = 0
 }) => {
@@ -57,10 +57,7 @@ const BarWrap = styled.div`
   height: 8px;
 `;
 
-interface BarProps {
-  percentage: number;
-}
-const Bar = styled.div<BarProps>`
+const Bar = styled.div<{ percentage: number }>`
   background-color: #59b52e;
   transition: width 150ms ease-out;
   width: ${props => props.percentage}%;

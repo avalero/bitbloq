@@ -3,14 +3,12 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import colors from "../colors";
 
-import { ITab } from "../index.d";
-
-export interface ScrollableTabsProps {
-  tabs: ITab[];
+export interface IScrollableTabsProps {
+  tabs: Array<{ icon: JSX.Element; content: JSX.Element; bottom: boolean }>;
   className?: string;
 }
 
-const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
+const ScrollableTabs: React.FunctionComponent<IScrollableTabsProps> = ({
   className,
   tabs
 }) => {
@@ -18,7 +16,9 @@ const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
   const contentEl = useRef<HTMLDivElement>(null);
 
   const onScroll = () => {
-    if (!contentEl.current) return;
+    if (!contentEl.current) {
+      return;
+    }
     const el = contentEl.current!;
     const scrollTop = el.scrollTop;
     const visibleTab = Array.from(el.children).reduce(
@@ -74,11 +74,7 @@ const Tabs = styled.div`
   position: relative;
 `;
 
-interface TabProps {
-  active: boolean;
-  bottom: boolean;
-}
-const Tab = styled.div<TabProps>`
+const Tab = styled.div<{ active: boolean; bottom: boolean }>`
   border-top: ${props => (props.bottom ? `1px solid ${colors.gray3}` : "")};
   height: 60px;
   width: 60px;

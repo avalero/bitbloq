@@ -3,14 +3,14 @@ import styled from "@emotion/styled";
 import { colors, DropDown, Icon } from "@bitbloq/ui";
 import { documentTypes } from "../config";
 
-export interface NewDocumentDropDownProps {
+export interface INewDocumentDropDownProps {
   onNewDocument: (type: string) => any;
   onOpenDocument: () => any;
   arrowOffset?: number;
   className?: string;
 }
 
-const NewDocumentDropDown: FC<NewDocumentDropDownProps> = ({
+const NewDocumentDropDown: FC<INewDocumentDropDownProps> = ({
   onNewDocument,
   onOpenDocument,
   arrowOffset = 0,
@@ -93,11 +93,6 @@ const NewDocumentOptionIcon = styled.div`
   }
 `;
 
-interface NewDocumentOptionProps {
-  comingSoon: boolean;
-  color: string;
-}
-
 const ComingSoon = styled.div`
   margin-top: 4px;
   font-size: 12px;
@@ -105,7 +100,7 @@ const ComingSoon = styled.div`
   color: ${colors.gray3};
 `;
 
-const NewDocumentOption = styled.div<NewDocumentOptionProps>`
+const NewDocumentOption = styled.div<{ comingSoon: boolean; color: string }>`
   cursor: pointer;
   display: flex;
   margin-bottom: 10px;
