@@ -227,6 +227,22 @@ const userResolver = {
       }
     },
 
+    /**
+     * loginWithGoogle: login into platform with google account
+     * args:
+     */
+    loginWithGoogle: async (_, args: any, context: any) => {
+      return undefined;
+    },
+
+    /**
+     * loginWithMicrosoft: login into platform with microsoft account
+     * args:
+     */
+    loginWithMicrosoft: async (_, args: any, context: any) => {
+      return undefined;
+    },
+
     /*
      * renewToken: returns a new token for a logged user
      */
