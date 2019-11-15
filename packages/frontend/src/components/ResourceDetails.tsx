@@ -1,6 +1,7 @@
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useEffect, useState } from "react";
+import STLViewer from "stl-viewer";
 import { IResource, ResourcesTypes } from "../types";
 
 interface IResourceDetailsProps extends IResource {
@@ -44,9 +45,19 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
               <Icon name="eye-close" />
               <p>{t("cloud.details.no-preview")}</p>
             </PreviewEmpty>
-          ) : type === ResourcesTypes.image ||
-            type === ResourcesTypes.object3D ? (
+          ) : type === ResourcesTypes.image ? (
             <PreviewImage src={preview} />
+          ) : type === ResourcesTypes.object3D ? (
+            <Preview>
+              <PreviewObject
+                backgroundColor="#fff"
+                height="311"
+                model={preview}
+                rotate={false}
+                url={preview}
+                width="340"
+              />
+            </Preview>
           ) : type === ResourcesTypes.video ? (
             <Preview>
               <PreviewVideo controls>
@@ -156,6 +167,7 @@ const Preview = styled.div`
   display: flex;
   height: calc(100% - 26px);
   justify-content: center;
+  overflow: hidden;
   width: 100%;
 `;
 
@@ -191,6 +203,11 @@ const PreviewEmpty = styled(Preview)`
 
 const PreviewImage = styled(Preview)<{ src: string }>`
   background: url(${props => props.src}) center/cover;
+`;
+
+const PreviewObject = styled(STLViewer)`
+  height: 100%;
+  width: 100%;
 `;
 
 const PreviewVideo = styled.video`

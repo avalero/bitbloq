@@ -234,7 +234,7 @@ const uploadResolver = {
           type: i.type,
           size: i.size,
           thumbnail: i.image,
-          preview: i.image,
+          preview: i.publicUrl,
           file: i.publicUrl,
           deleted: i.deleted,
           createdAt: i.createdAt
