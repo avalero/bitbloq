@@ -123,6 +123,16 @@ const CloudModal: FC<ICloudModalProps> = ({
     setSelectedResource(undefined);
   };
 
+  const onCloseModal = () => {
+    setCurrentPage(1);
+    setOrder(OrderType.Creation);
+    setResourceTypeActiveId(cloudResourceTypes[0].id);
+    setSearchQuery("");
+    setSearchText("");
+    setSelectedResource(undefined);
+    onClose();
+  };
+
   const onMoveToTrash = async (id: string) => {
     await moveToTrash({
       variables: {
@@ -166,7 +176,7 @@ const CloudModal: FC<ICloudModalProps> = ({
     <Modal
       iconName="cloud-logo"
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={onCloseModal}
       title="Bitbloq Cloud"
     >
       <CloudModalBody>
