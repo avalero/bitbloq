@@ -44,11 +44,7 @@ const UserName = styled.div`
   font-size: 14px;
 `;
 
-interface ImageProps {
-  src: string;
-}
-
-const UserAvatar = styled.div<ImageProps>`
+const UserAvatar = styled.div<{ src: string }>`
   background-color: ${colors.grayAvatar};
   background-image: url(${props => props.src});
   background-size: cover;

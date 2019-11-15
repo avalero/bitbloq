@@ -94,7 +94,9 @@ export const createClient = (
               .catch(observer.error.bind(observer));
 
             return () => {
-              if (handle) handle.unsubscribe();
+              if (handle) {
+                handle.unsubscribe();
+              }
             };
           })
       ),

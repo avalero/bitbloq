@@ -185,7 +185,7 @@ export default class Scene {
 
       const objects3D: THREE.Object3D[] = await Promise.all(
         this.objectsInScene.map(async object => {
-          const mesh = await object.getMeshAsync() as THREE.Object3D;
+          const mesh = (await object.getMeshAsync()) as THREE.Object3D;
           return mesh;
         })
       );

@@ -39,10 +39,14 @@ const DocumentCard: FC<IDocumentCardProps> = ({
     }),
     canDrag: () => !!draggable,
     begin: () => {
-      beginFunction && beginFunction();
+      if (beginFunction) {
+        beginFunction();
+      }
     },
     end: () => {
-      endFunction && endFunction();
+      if (endFunction) {
+        endFunction();
+      }
     }
   });
 

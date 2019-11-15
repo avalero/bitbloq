@@ -320,7 +320,9 @@ IndexPage.getInitialProps = async (ctx: IContext) => {
     if (data && data.me) {
       redirect(ctx, "/app");
     }
-  } catch (e) {}
+  } catch (e) {
+    return undefined;
+  }
 
   return {};
 };

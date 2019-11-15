@@ -18,12 +18,12 @@ import { OPEN_PUBLIC_DOCUMENT_QUERY } from "../apollo/queries";
 import { documentTypes } from "../config";
 import { IDocument } from "../types";
 
-interface PublicDocumentProps {
+interface IPublicDocumentProps {
   id: string;
   type: string;
 }
 
-const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
+const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
 
@@ -52,8 +52,12 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     }
   }, [document]);
 
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
-  if (loading) return <Loading color={documentType.color} />;
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
+  if (loading) {
+    return <Loading color={documentType.color} />;
+  }
 
   const onSaveCopyClick = () => {
     setIsSaveCopyVisible(true);
@@ -68,7 +72,7 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
       ...document,
       content
     };
-    var blob = new Blob([JSON.stringify(documentJSON)], {
+    const blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
     saveAs(blob, `${document.title}.bitbloq`);
@@ -102,7 +106,9 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     <>
       <EditorComponent
         document={document}
-        onDocumentChange={(document: IDocument) => setContent(document.content)}
+        onDocumentChange={(newDocument: IDocument) =>
+          setContent(newDocument.content)
+        }
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}
         key={restartCount}

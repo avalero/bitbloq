@@ -94,20 +94,20 @@ const CHANGE_SUBMISSIONS_STATE_MUTATION = gql`
 `;
 
 class DocumentState {
-  readonly isCreateExerciseOpen: boolean = false;
-  readonly isUpdateExerciseOpen: boolean = false;
-  readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
-  readonly errorName: boolean = false;
-  readonly newExerciseTitle: string = "";
-  readonly exerciseId: string = "";
-  readonly stateError: ApolloError | null = null;
+  public readonly isCreateExerciseOpen: boolean = false;
+  public readonly isUpdateExerciseOpen: boolean = false;
+  public readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
+  public readonly errorName: boolean = false;
+  public readonly newExerciseTitle: string = "";
+  public readonly exerciseId: string = "";
+  public readonly stateError: ApolloError | null = null;
 }
 
 class Document extends React.Component<any, DocumentState> {
-  readonly state = new DocumentState();
-  newExerciseTitleInput = React.createRef<HTMLInputElement>();
+  public readonly state = new DocumentState();
+  private newExerciseTitleInput = React.createRef<HTMLInputElement>();
 
-  componentDidUpdate(prevProps: any, prevState: DocumentState) {
+  public componentDidUpdate(prevProps: any, prevState: DocumentState) {
     const { isCreateExerciseOpen, isUpdateExerciseOpen } = this.state;
     if (isCreateExerciseOpen && !prevState.isCreateExerciseOpen) {
       const input = this.newExerciseTitleInput.current;
@@ -123,17 +123,15 @@ class Document extends React.Component<any, DocumentState> {
     }
   }
 
-  renderHeader(document) {
-    let breadParents = [];
-    for (let item of document.parentsPath) {
-      breadParents = [
-        ...breadParents,
-        ...[
-          { route: `/app/folder/${item.id}`, text: item.name, type: "folder" }
-        ]
-      ];
-    }
+  public renderHeader(document) {
+    const breadParents = document.parentsPath.map(item => ({
+      route: `/app/folder/${item.id}`,
+      text: item.name,
+      type: "folder"
+    }));
+
     breadParents.push({ route: "", text: document.title, type: "document" });
+
     return (
       <Header>
         <Breadcrumbs links={breadParents} title={document.title} />
@@ -141,7 +139,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderDocumentInfo(document, t) {
+  public renderDocumentInfo(document, t) {
     return (
       <DocumentInfo>
         <DocumentHeader>
@@ -175,7 +173,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderDocumentTeacherInfo(document, t) {
+  public renderDocumentTeacherInfo(document, t) {
     return (
       <DocumentInfo teacher>
         <DocumentHeader>
@@ -209,7 +207,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderExercise = (exercise, refetch) => {
+  public renderExercise = (exercise, refetch) => {
     const { id: documentId } = this.props;
 
     return (
@@ -293,7 +291,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   };
 
-  renderExercises(exercises, refetch, t) {
+  public renderExercises(exercises, refetch, t) {
     return (
       <Exercises>
         <DocumentHeader>
@@ -341,7 +339,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderCreateExerciseModal(document, t) {
+  public renderCreateExerciseModal(document, t) {
     const { id: documentId } = this.props;
     const { errorName, isCreateExerciseOpen, newExerciseTitle } = this.state;
 
@@ -381,7 +379,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderUpdateExerciseModal(t) {
+  public renderUpdateExerciseModal(t) {
     const { id: documentId } = this.props;
     const {
       errorName,
@@ -428,7 +426,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderRemoveExerciseModal(t) {
+  public renderRemoveExerciseModal(t) {
     const { id: documentId } = this.props;
     const { isRemoveExerciseOpen, exerciseId } = this.state;
 
@@ -468,7 +466,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  render() {
+  public render() {
     const { id } = this.props;
     const {
       isCreateExerciseOpen,
@@ -490,7 +488,9 @@ class Document extends React.Component<any, DocumentState> {
                     if (error) {
                       return <GraphQLErrorMessage apolloError={error} />;
                     }
-                    if (loading) return <Loading />;
+                    if (loading) {
+                      return <Loading />;
+                    }
 
                     if (stateError) {
                       return <GraphQLErrorMessage apolloError={stateError} />;
@@ -524,12 +524,9 @@ class Document extends React.Component<any, DocumentState> {
                           subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
                           shouldResubscribe={true}
                           onSubscriptionData={({ subscriptionData }) => {
-                            const { data } = subscriptionData;
-                            if (
-                              data &&
-                              data.documentUpdated &&
-                              data.documentUpdated.id === id
-                            ) {
+                            const { documentUpdated } =
+                              subscriptionData.data || {};
+                            if (documentUpdated && documentUpdated.id === id) {
                               refetch();
                             }
                           }}
@@ -624,15 +621,10 @@ const EmptyExercises = styled.div`
   }
 `;
 
-interface DocumentBodyProps {
-  teacher?: boolean;
-}
-const DocumentBody = styled.div<DocumentBodyProps>`
+const DocumentBody = styled.div<{ teacher?: boolean }>`
   display: flex;
-  flex-flow: ${(props: DocumentBodyProps) =>
-    props.teacher ? "column nowrap" : "row nowrap"};
-  padding: ${(props: DocumentBodyProps) =>
-    props.teacher ? "20px" : "40px 20px"};
+  flex-flow: ${props => (props.teacher ? "column nowrap" : "row nowrap")};
+  padding: ${props => (props.teacher ? "20px" : "40px 20px")};
   width: calc(100% - 40px);
 `;
 
@@ -640,15 +632,11 @@ const ExercisesPanel = styled.div`
   padding: 23px 20px;
 `;
 
-interface DocumentBodyInfoProps {
-  teacher?: boolean;
-}
-const DocumentBodyInfo = styled.div<DocumentBodyInfoProps>`
+const DocumentBodyInfo = styled.div<{ teacher?: boolean }>`
   color: #474749;
   flex-grow: 0;
-  margin-top: ${(props: DocumentBodyInfoProps) => (props.teacher ? 20 : 0)}px;
-  width: ${(props: DocumentBodyInfoProps) =>
-    props.teacher ? "100%" : "calc(100% - 375px)"};
+  margin-top: ${props => (props.teacher ? 20 : 0)}px;
+  width: ${props => (props.teacher ? "100%" : "calc(100% - 375px)")};
 `;
 
 const DocumentHeader = styled.div`
@@ -680,10 +668,7 @@ const DocumentHeaderButton = styled(MyButton)`
   align-self: flex-end;
 `;
 
-interface DocumentHeaderTextProps {
-  exercise?: boolean;
-}
-const DocumentHeaderText = styled.div<DocumentHeaderTextProps>`
+const DocumentHeaderText = styled.div<{ exercise?: boolean }>`
   align-items: center;
   display: flex;
   font-family: Roboto;
@@ -691,10 +676,8 @@ const DocumentHeaderText = styled.div<DocumentHeaderTextProps>`
   font-weight: 500;
 
   svg {
-    height: ${(props: DocumentHeaderTextProps) =>
-      props.exercise ? "24px" : "auto"};
-    width: ${(props: DocumentHeaderTextProps) =>
-      props.exercise ? "24px" : "auto"};
+    height: ${props => (props.exercise ? "24px" : "auto")};
+    width: ${props => (props.exercise ? "24px" : "auto")};
   }
 `;
 
@@ -708,31 +691,23 @@ const DocumentData = styled.div`
   width: 100%;
 `;
 
-interface DocumentInfoProps {
-  teacher?: boolean;
-}
-const DocumentInfo = styled.div<DocumentInfoProps>`
-  border-right: ${(props: DocumentInfoProps) =>
-    props.teacher ? "solid 1px #c0c3c9" : "none"};
+const DocumentInfo = styled.div<{ teacher?: boolean }>`
+  border-right: ${props => (props.teacher ? "solid 1px #c0c3c9" : "none")};
   display: flex;
   flex-flow: column nowrap;
-  width: ${(props: DocumentInfoProps) => (props.teacher ? 34 : 100)}%;
+  width: ${props => (props.teacher ? 34 : 100)}%;
 `;
 
-interface DocumentImageProps {
-  src: string;
-  teacher?: boolean;
-}
-const DocumentImage = styled.div<DocumentImageProps>`
+const DocumentImage = styled.div<{ src: string; teacher?: boolean }>`
   background-color: ${colors.gray2};
-  background-image: url(${(props: DocumentImageProps) => props.src});
+  background-image: url(${props => props.src});
   background-position: center;
   background-size: cover;
   border-radius: 4px;
   flex-shrink: 0;
   height: 215px;
-  margin: ${(props: DocumentImageProps) => (props.teacher ? 0 : "0 20px 0 0")};
-  width: ${(props: DocumentImageProps) => (props.teacher ? "100%" : "360px")};
+  margin: ${props => (props.teacher ? 0 : "0 20px 0 0")};
+  width: ${props => (props.teacher ? "100%" : "360px")};
 `;
 
 const DocumentTitle = styled.div`

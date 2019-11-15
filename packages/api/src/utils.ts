@@ -42,7 +42,9 @@ export const sortByTitleAZ = (a, b) => {
     const aTitle = a && a.title.toLowerCase();
     const bTitle = b && b.title.toLowerCase();
     return aTitle === bTitle ? 0 : aTitle < bTitle ? -1 : 1;
-  } catch (e) {return undefined}
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const sortByTitleZA = (a, b) => {
@@ -50,7 +52,9 @@ export const sortByTitleZA = (a, b) => {
     const aTitle = a && a.title.toLowerCase();
     const bTitle = b && b.title.toLowerCase();
     return aTitle === bTitle ? 0 : aTitle > bTitle ? -1 : 1;
-  } catch (e) {return undefined}
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const orderFunctions = {

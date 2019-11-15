@@ -69,8 +69,8 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
             }
           ]}
         >
-          {(isOpen: boolean) => (
-            <HeaderRight isOpen={isOpen}>
+          {(isMenuOpen: boolean) => (
+            <HeaderRight isOpen={isMenuOpen}>
               <Icon name="ellipsis" />
             </HeaderRight>
           )}
@@ -187,7 +187,7 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
   );
 };
 
-interface SubmissionPanelProps {
+interface ISubmissionPanelProps {
   exerciseId: string;
   onCheckSubmission: any;
   setDeleteModalOpen: (value: boolean) => void;
@@ -197,9 +197,7 @@ interface SubmissionPanelProps {
   t: any;
 }
 
-const SubmissionPanel: FC<SubmissionPanelProps> = (
-  props: SubmissionPanelProps
-) => {
+const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
   const {
     exerciseId,
     onCheckSubmission,
@@ -313,12 +311,11 @@ const Container = styled.div`
   width: 100%;
 `;
 
-interface ExerciseDetailsProps {
+interface IExerciseDetailsProps {
   style: React.CSSProperties;
 }
-const ExerciseDetails = styled.div<ExerciseDetailsProps>`
-  overflow: ${(props: ExerciseDetailsProps) =>
-    props.style.height === "auto" ? "visible" : "hidden"};
+const ExerciseDetails = styled.div<IExerciseDetailsProps>`
+  overflow: ${props => (props.style.height === "auto" ? "visible" : "hidden")};
 `;
 
 const ExerciseInfo = styled.div`
@@ -389,16 +386,13 @@ const HeaderLeft = styled.div`
   max-width: 39px;
 `;
 
-interface ToggleProps {
-  isOpen: boolean;
-}
-const Toggle = styled.div<ToggleProps>`
+const Toggle = styled.div<{ isOpen: boolean }>`
   svg {
     transform: rotate(-90deg);
     width: 16px;
   }
 
-  ${(props: ToggleProps) =>
+  ${props =>
     props.isOpen &&
     css`
       svg {
@@ -407,13 +401,9 @@ const Toggle = styled.div<ToggleProps>`
     `}
 `;
 
-interface HeaderRightProps {
-  isOpen: boolean;
-}
-const HeaderRight = styled.div<HeaderRightProps>`
+const HeaderRight = styled.div<{ isOpen: boolean }>`
   align-items: center;
-  background-color: ${(props: HeaderRightProps) =>
-    props.isOpen ? "#e8e8e8" : "white"};
+  background-color: ${props => (props.isOpen ? "#e8e8e8" : "white")};
   border-left: 1px solid #c0c3c9;
   cursor: pointer;
   display: flex;
@@ -549,13 +539,9 @@ const Table = styled.table`
   }
 `;
 
-interface SubmissionOptionsProps {
-  isOpen?: boolean;
-}
-const SubmissionOptions = styled.div<SubmissionOptionsProps>`
+const SubmissionOptions = styled.div<{ isOpen?: boolean }>`
   align-items: center;
-  background-color: ${(props: SubmissionOptionsProps) =>
-    props.isOpen ? "#e8e8e8" : "#fff"};
+  background-color: ${props => (props.isOpen ? "#e8e8e8" : "#fff")};
   border: solid 1px #dddddd;
   border-radius: 4px;
   cursor: pointer;

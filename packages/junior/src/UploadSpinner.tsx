@@ -1,16 +1,15 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
-import { keyframes } from "@emotion/core";
+import { css, keyframes } from "@emotion/core";
 import { Icon, colors } from "@bitbloq/ui";
 
-export interface UploadSpinnerProps {
+export interface IUploadSpinnerProps {
   uploading: boolean;
   success: boolean;
   onClick: (e: React.MouseEvent) => any;
 }
 
-const UploadSpinner: FC<UploadSpinnerProps> = ({
+const UploadSpinner: FC<IUploadSpinnerProps> = ({
   uploading,
   success,
   onClick

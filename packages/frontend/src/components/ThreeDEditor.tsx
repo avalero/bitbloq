@@ -23,9 +23,8 @@ import {
 } from "../config";
 import ExportSTLModal from "./ExportSTLModal";
 import UploadResourceModal from "./UploadResourceModal";
-import { IEditorProps, IDocument, IResource } from "../types";
+import { IEditorProps, IDocument, IResource, ResourcesTypes } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
-import { ResourcesTypes } from "../types";
 
 interface IThreeDEditorProps extends IEditorProps {
   createDocument?: () => void;

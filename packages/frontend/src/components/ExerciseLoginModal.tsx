@@ -14,12 +14,12 @@ enum Steps {
   Continue
 }
 
-interface ExerciseLoginModalProps {
+interface IExerciseLoginModalProps {
   code: string;
   onSuccess: (teamName: string) => any;
 }
 
-const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
+const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
   code,
   onSuccess
 }) => {
@@ -39,10 +39,10 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
     setPasswordError("");
   }, [step]);
 
-  const gotoStep = (step: Steps) => {
+  const gotoStep = (nextStep: Steps) => {
     setTeamName("");
     setPassword("");
-    setStep(step);
+    setStep(nextStep);
   };
 
   const onStartClick = async () => {
@@ -72,7 +72,9 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
           setToken(token, "exercise-team");
           onSuccess(teamName);
         }
-      } catch (e) {}
+      } catch (e) {
+        return undefined;
+      }
     }
   };
 

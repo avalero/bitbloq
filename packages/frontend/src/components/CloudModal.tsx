@@ -69,14 +69,13 @@ const CloudModal: FC<ICloudModalProps> = ({
   const [moveToTrash] = useMutation(MOVE_RESOURCE_TO_TRASH);
   const [restoreFromTrash] = useMutation(RESTORE_RESOURCE_FROM_TRASH);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [cloudResourceTypes, setCloudResourceTypes] = useState<IResourceType[]>(
-    []
-  );
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
   const [pagesNumber, setPagesNumber] = useState<number>(1);
   const [resources, setResources] = useState<IResource[]>([]);
-  const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>("");
+  const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>(
+    resourceTypes[0].id
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchText, setSearchText] = useState("");
   const [selectedResource, setSelectedResource] = useState<
@@ -95,22 +94,14 @@ const CloudModal: FC<ICloudModalProps> = ({
   const t = useTranslate();
 
   useEffect(() => {
-    for (let r in resourceTypes) {
-      cloudResourceTypes.push(resourceTypes[r]);
-    }
-    setCloudResourceTypes(cloudResourceTypes);
-    setResourceTypeActiveId(cloudResourceTypes[0].id);
-  }, []);
-
-  useEffect(() => {
     onSearchInput(searchText);
   }, [searchText]);
 
   useLayoutEffect(() => {
     if (!loading && data) {
-      const { pagesNumber, resources } = data.cloudResources;
-      setPagesNumber(pagesNumber || 1);
-      setResources(resources || []);
+      const { newPagesNumber, newResources } = data.cloudResources;
+      setPagesNumber(newPagesNumber || 1);
+      setResources(newResources || []);
     }
   }, [data]);
 
@@ -126,7 +117,7 @@ const CloudModal: FC<ICloudModalProps> = ({
   const onCloseModal = () => {
     setCurrentPage(1);
     setOrder(OrderType.Creation);
-    setResourceTypeActiveId(cloudResourceTypes[0].id);
+    setResourceTypeActiveId(resourceTypes[0].id);
     setSearchQuery("");
     setSearchText("");
     setSelectedResource(undefined);
@@ -139,11 +130,11 @@ const CloudModal: FC<ICloudModalProps> = ({
         id
       }
     });
-    const { data } = await refetch();
-    const { pagesNumber } = data.cloudResources;
-    if (currentPage > pagesNumber) {
-      setCurrentPage(pagesNumber);
-      setPagesNumber(pagesNumber);
+    const { data: refetchData } = await refetch();
+    const { newPagesNumber } = refetchData.cloudResources;
+    if (currentPage > newPagesNumber) {
+      setCurrentPage(newPagesNumber);
+      setPagesNumber(newPagesNumber);
     }
   };
 
@@ -153,11 +144,11 @@ const CloudModal: FC<ICloudModalProps> = ({
         id
       }
     });
-    const { data } = await refetch();
-    const { pagesNumber } = data.cloudResources;
-    if (currentPage > pagesNumber) {
-      setCurrentPage(pagesNumber);
-      setPagesNumber(pagesNumber);
+    const { data: refetchData } = await refetch();
+    const { newPagesNumber } = refetchData.cloudResources;
+    if (currentPage > newPagesNumber) {
+      setCurrentPage(newPagesNumber);
+      setPagesNumber(newPagesNumber);
     }
   };
 
@@ -194,7 +185,7 @@ const CloudModal: FC<ICloudModalProps> = ({
               </ImportButton>
             </>
           )}
-          {cloudResourceTypes.map(resourceType => (
+          {resourceTypes.map(resourceType => (
             <ResourceType
               active={resourceTypeActiveId === resourceType.id}
               key={resourceType.id}
