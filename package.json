@@ -11,9 +11,25 @@
     "tslint:qa": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\""
   },
   "devDependencies": {
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.3",
     "prettier": "^1.18.2",
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "tslint"
+    ],
+    "*.{ts,tsx,js,css,json,md}": [
+      "prettier --write",
+      "git add"
+    ]
   }
 }
