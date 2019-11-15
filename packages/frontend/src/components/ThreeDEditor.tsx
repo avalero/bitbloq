@@ -119,7 +119,7 @@ const ThreeDEditor: FC<IThreeDEditorProps> = ({
         icon: <Icon name="import-stl" />,
         onClick: () => {
           if (!document.id) {
-            createDocument();
+            onDocumentChange(document);
           }
           setResourceModal(true);
         },

@@ -74,7 +74,7 @@ const CloudModal: FC<ICloudModalProps> = ({
   const [pagesNumber, setPagesNumber] = useState<number>(1);
   const [resources, setResources] = useState<IResource[]>([]);
   const [resourceTypeActiveId, setResourceTypeActiveId] = useState<string>(
-    resourceTypes[0].id
+    Object.keys(resourceTypes)[0]
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchText, setSearchText] = useState("");
@@ -99,7 +99,10 @@ const CloudModal: FC<ICloudModalProps> = ({
 
   useLayoutEffect(() => {
     if (!loading && data) {
-      const { newPagesNumber, newResources } = data.cloudResources;
+      const {
+        pagesNumber: newPagesNumber,
+        resources: newResources
+      } = data.cloudResources;
       setPagesNumber(newPagesNumber || 1);
       setResources(newResources || []);
     }
@@ -117,7 +120,7 @@ const CloudModal: FC<ICloudModalProps> = ({
   const onCloseModal = () => {
     setCurrentPage(1);
     setOrder(OrderType.Creation);
-    setResourceTypeActiveId(resourceTypes[0].id);
+    setResourceTypeActiveId(Object.keys(resourceTypes)[0]);
     setSearchQuery("");
     setSearchText("");
     setSelectedResource(undefined);
@@ -185,15 +188,18 @@ const CloudModal: FC<ICloudModalProps> = ({
               </ImportButton>
             </>
           )}
-          {resourceTypes.map(resourceType => (
-            <ResourceType
-              active={resourceTypeActiveId === resourceType.id}
-              key={resourceType.id}
-              label={resourceType.label}
-              icon={resourceType.icon}
-              onClick={() => onChangeResourceType(resourceType.id)}
-            />
-          ))}
+          {Object.keys(resourceTypes).map(key => {
+            const resourceType = resourceTypes[key];
+            return (
+              <ResourceType
+                active={resourceTypeActiveId === resourceType.id}
+                key={resourceType.id}
+                label={resourceType.label}
+                icon={resourceType.icon}
+                onClick={() => onChangeResourceType(resourceType.id)}
+              />
+            );
+          })}
         </LateralBar>
         <MainContent>
           {loading ? (
