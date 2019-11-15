@@ -44,7 +44,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
           throw new AuthenticationError("You need to be logged in");
         } else {
           let passed: boolean = false;
-          for (let roleReq of requiredRole) {
+          for (const roleReq of requiredRole) {
             if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
               passed = true;
               return resolve.apply(this, args);

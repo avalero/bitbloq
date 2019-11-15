@@ -112,6 +112,7 @@ export default class Renderer {
       this.threeScene.add(newObjectsGroup);
       this.objectsGroup = newObjectsGroup;
     } catch (e) {
+      // tslint:disable-next-line:no-console
       console.log(e);
     }
   }

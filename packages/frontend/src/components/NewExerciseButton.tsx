@@ -3,13 +3,13 @@ import styled from "@emotion/styled";
 
 import { Button, Input, Icon, DropDown } from "@bitbloq/ui";
 
-export interface NewExerciseDropDownProps {
+export interface INewExerciseDropDownProps {
   onOpenExercise: (exerciseCode: string) => any;
   exerciseError: boolean;
   loadingExercise: boolean;
 }
 
-const NewExerciseButton: FC<NewExerciseDropDownProps> = ({
+const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
   onOpenExercise,
   exerciseError,
   loadingExercise

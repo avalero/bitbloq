@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import colors from "../colors";
 
-export interface HorizontanRuleProps {
+export interface IHorizontanRuleProps {
   small?: boolean;
 }
 
-const HorizontalRule = styled.div<HorizontanRuleProps>`
+const HorizontalRule = styled.div<IHorizontanRuleProps>`
   height: ${props => (props.small ? "1px" : "2px")};
   background-color: #e0e0e0;
   background-image: linear-gradient(

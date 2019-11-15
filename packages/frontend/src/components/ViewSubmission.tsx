@@ -20,8 +20,12 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
     variables: { id }
   });
 
-  if (loading) return <Loading color={documentType.color} />;
-  if (error) return <GraphQLErrorMessage apolloError={error!} />;
+  if (loading) {
+    return <Loading color={documentType.color} />;
+  }
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error!} />;
+  }
 
   const { submission } = data;
   const { title, studentNick } = submission;

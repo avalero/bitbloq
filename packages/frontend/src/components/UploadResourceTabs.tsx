@@ -66,7 +66,10 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
         </Tab>
         <Tab
           active={tab === TabType.add}
-          onClick={() => (getResources(), setTab(TabType.add))}
+          onClick={() => {
+            getResources();
+            setTab(TabType.add);
+          }}
         >
           {t("cloud.upload.add")}
         </Tab>

@@ -124,7 +124,11 @@ const SignupPage: FC = () => {
           birthDate: input.birthDate,
           centerName: input.imTeacherCheck ? input.centerName : undefined,
           city: input.imTeacherCheck ? input.city : undefined,
-          country: input.imTeacherCheck ? Object.keys(t("countries")).find((key: string) => input.countryKey === key) : undefined,
+          country: input.imTeacherCheck
+            ? Object.keys(t("countries")).find(
+                (key: string) => input.countryKey === key
+              )
+            : undefined,
           educationalStage: input.imTeacherCheck
             ? input.educationalStage
             : undefined,
@@ -240,7 +244,9 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   register({ name: "noNotifications", type: "custom" });
 
   useEffect(() => {
-    if (error) setError("email", "existing");
+    if (error) {
+      setError("email", "existing");
+    }
   }, [error]);
 
   const onChangeBirthDate = () => {

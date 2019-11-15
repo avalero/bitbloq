@@ -97,17 +97,17 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     onCloseModal();
   };
 
-  const onSetFile = (file: File) => {
-    const extFile = file.name.split(".").pop();
+  const onSetFile = (newFile: File) => {
+    const extFile = newFile.name.split(".").pop();
     if (!isValidExt(extFile)) {
       setError(Errors.extError);
-    } else if (file.size > 10000000) {
+    } else if (newFile.size > 10000000) {
       setError(Errors.sizeError);
     } else {
       setNameFile(
-        file.name.replace(new RegExp(`\.${extFile}$`), "").substring(0, 64)
+        newFile.name.replace(new RegExp(`\.${extFile}$`), "").substring(0, 64)
       );
-      setFile(file);
+      setFile(newFile);
     }
   };
 
@@ -146,7 +146,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             acceptedTypes={acceptedTypes}
             addCallback={onAddResource}
             setFile={onSetFile}
-            setTab={(tab: TabType) => setTab(tab)}
+            setTab={setTab}
             tab={tab}
           />
         ) : (

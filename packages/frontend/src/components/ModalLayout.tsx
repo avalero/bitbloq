@@ -1,8 +1,13 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { baseStyles, colors, DialogModal, DialogModalProps } from "@bitbloq/ui";
+import {
+  baseStyles,
+  colors,
+  DialogModal,
+  IDialogModalProps
+} from "@bitbloq/ui";
 
-interface IModalLayoutProps extends DialogModalProps {
+interface IModalLayoutProps extends IDialogModalProps {
   title: string;
   modalTitle: string;
 }

@@ -2,11 +2,13 @@ import React, { FC } from "react";
 import { ApolloError } from "apollo-client";
 import ErrorLayout from "./ErrorLayout";
 
-export interface GraphQLErrorMessageProps {
+export interface IGraphQLErrorMessageProps {
   apolloError: ApolloError;
 }
 
-const GraphQLErrorMessage: FC<GraphQLErrorMessageProps> = ({ apolloError }) => {
+const GraphQLErrorMessage: FC<IGraphQLErrorMessageProps> = ({
+  apolloError
+}) => {
   const { graphQLErrors } = apolloError;
   if (graphQLErrors.length === 0) {
     return null;

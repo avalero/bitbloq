@@ -4,7 +4,7 @@ import Router from "next/router";
 import { Button, colors } from "@bitbloq/ui";
 import logoBetaImage from "../images/logo-beta.svg";
 
-export interface ErrorLayoutProps {
+export interface IErrorLayoutProps {
   title?: string;
   code?: string;
   text?: string;
@@ -12,7 +12,7 @@ export interface ErrorLayoutProps {
   onOk?: () => any;
 }
 
-const ErrorLayout: FC<ErrorLayoutProps> = ({
+const ErrorLayout: FC<IErrorLayoutProps> = ({
   title,
   code,
   text,

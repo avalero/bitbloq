@@ -4,8 +4,8 @@
     "exclude": [
       "packages/*/node_modules/**/*",
       "packages/*/src/__tests__/**/*",
-      "packages/lib3d/src/threeCSG.ts",
-      "packages/lib3d/src/Renderer.ts"
+      "packages/api/src/api-types.ts",
+      "packages/lib3d/src/threeCSG.ts"
     ]
   },
   "rules": {
@@ -15,6 +15,8 @@
     "no-any": false,
     "no-unsafe-any": false,
     "no-require-imports": false,
-    "no-implicit-dependencies": [true, "dev"]
+    "no-implicit-dependencies": [true, "dev"],
+    "no-submodule-imports": false,
+    "max-classes-per-file": false
   }
 }

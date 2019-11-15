@@ -2,12 +2,12 @@ import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal, Option } from "@bitbloq/ui";
 
-interface ExportSTLModalProps {
+interface IExportSTLModalProps {
   onSave: (name: string, separate: boolean) => any;
   onCancel: () => any;
 }
 
-const ExportSTLModal: FC<ExportSTLModalProps> = ({ onSave, onCancel }) => {
+const ExportSTLModal: FC<IExportSTLModalProps> = ({ onSave, onCancel }) => {
   const [name, setName] = useState("");
   const [separate, setSeparate] = useState(false);
 

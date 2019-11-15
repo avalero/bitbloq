@@ -160,10 +160,7 @@ const Dots = styled.div`
   justify-content: center;
 `;
 
-interface DotProps {
-  active?: boolean;
-}
-const Dot = styled.div<DotProps>`
+const Dot = styled.div<{ active?: boolean }>`
   width: 14px;
   height: 14px;
   border-radius: 7px;

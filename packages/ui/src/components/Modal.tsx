@@ -4,7 +4,7 @@ import Icon from "./Icon";
 import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
-export interface ModalProps {
+export interface IModalProps {
   isOpen: boolean;
   title?: string;
   showHeader?: boolean;
@@ -14,7 +14,7 @@ export interface ModalProps {
   iconName?: string;
 }
 
-const Modal: FC<ModalProps> = ({
+const Modal: FC<IModalProps> = ({
   isOpen,
   title,
   showHeader,
@@ -35,7 +35,7 @@ const Modal: FC<ModalProps> = ({
       transparent={transparentOverlay}
     >
       <Container
-        onMouseDown={(e: Event) => e.stopPropagation()}
+        onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
         withShadow={transparentOverlay}
       >
         {showHeader && (
@@ -69,32 +69,26 @@ export default Modal;
 
 /* styled components */
 
-interface OverlayProps {
-  transparent?: boolean;
-}
-const Overlay = styled.div<OverlayProps>`
+const Overlay = styled.div<{ transparent?: boolean }>`
   position: fixed;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
   z-index: 20;
-  background: ${(props: OverlayProps) =>
+  background: ${props =>
     props.transparent ? "transparent" : "rgba(0, 0, 0, 0.4)"};
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-interface ContainerProps {
-  withShadow?: boolean;
-}
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<{ withShadow?: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
   background-color: white;
-  box-shadow: ${(props: ContainerProps) =>
+  box-shadow: ${props =>
     props.withShadow ? "0 10px 40px 0 rgba(0, 0, 0, 0.1)" : "none"};
 `;
 
