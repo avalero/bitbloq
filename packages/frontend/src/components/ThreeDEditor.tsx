@@ -16,19 +16,30 @@ import {
   Switch,
   IMainMenuOption
 } from "@bitbloq/ui";
-import { addShapeGroups as bitbloqShapeGroups } from "../config";
+import {
+  addShapeGroups as bitbloqShapeGroups,
+  resourceGroup,
+  resourceTypes
+} from "../config";
 import ExportSTLModal from "./ExportSTLModal";
 import UploadResourceModal from "./UploadResourceModal";
-import { IEditorProps, IDocument } from "../types";
+import { IEditorProps, IDocument, IResource } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 import { ResourcesTypes } from "../types";
 
-const ThreeDEditor: FC<IEditorProps> = ({
+interface IThreeDEditorProps extends IEditorProps {
+  createDocument?: () => void;
+  resources?: IResource[];
+}
+
+const ThreeDEditor: FC<IThreeDEditorProps> = ({
+  createDocument,
   document,
   onDocumentChange,
   baseTabs,
   baseMenuOptions,
-  children
+  children,
+  resources = []
 }) => {
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
@@ -48,8 +59,24 @@ const ThreeDEditor: FC<IEditorProps> = ({
   }, [advancedMode]);
 
   const addShapeGroups = useCallback(
-    baseShapeGroups => [...baseShapeGroups, ...bitbloqShapeGroups],
-    [bitbloqShapeGroups]
+    baseShapeGroups => [
+      ...baseShapeGroups,
+      ...bitbloqShapeGroups,
+      {
+        ...resourceGroup,
+        shapes: resources.map(resource => ({
+          type: "STLObject",
+          parameters: { url: resource.file },
+          label: resource.title.replace(/\.\w+$/, ""),
+          icon: resource.thumbnail ? (
+            <img src={resource.thumbnail} />
+          ) : (
+            <Icon name={resourceTypes[resource.type].icon} />
+          )
+        }))
+      }
+    ],
+    [bitbloqShapeGroups, resourceGroup]
   );
 
   const mainTab: IDocumentTab = useMemo(
@@ -91,7 +118,12 @@ const ThreeDEditor: FC<IEditorProps> = ({
         id: "import-resource",
         label: t("cloud.upload.import"),
         icon: <Icon name="import-stl" />,
-        onClick: () => setResourceModal(true),
+        onClick: () => {
+          if (!document.id) {
+            createDocument();
+          }
+          setResourceModal(true);
+        },
         type: "option"
       }
     );
@@ -157,7 +189,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
         />
       )}
       <UploadResourceModal
-        addedCallback={(id, filename, publicUrl) =>
+        addedCallback={(_, filename, publicUrl) =>
           threedRef.current.createObject(
             "STLObject",
             { url: publicUrl },

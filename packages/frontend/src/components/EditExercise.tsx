@@ -4,7 +4,6 @@ import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
 import {
   colors,
   Button,
@@ -21,8 +20,6 @@ import {
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION,
-  SET_ACTIVESUBMISSION_MUTATION,
-  SUBMISSION_UPDATED_SUBSCRIPTION,
   SUBMISSION_ACTIVE_SUBSCRIPTION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
@@ -32,7 +29,7 @@ import { documentTypes } from "../config";
 import { setToken } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { IDocument } from "../types";
+import { IDocument, IResource } from "../types";
 
 const EditExercise = ({ type, id }) => {
   const t = useTranslate();
@@ -136,7 +133,7 @@ const EditExercise = ({ type, id }) => {
     setIsSubmissionSuccessOpen(true);
   };
 
-  const { title, teacherName } = exercise;
+  const { title, teacherName, resources } = exercise;
 
   const infoTab: IDocumentTab = {
     icon: <Icon name="info" />,
@@ -157,6 +154,7 @@ const EditExercise = ({ type, id }) => {
   return (
     <>
       <EditorComponent
+        resources={resources as IResource[]}
         document={submission || exercise}
         onDocumentChange={debounce((document: IDocument) => {
           if (teamName) {

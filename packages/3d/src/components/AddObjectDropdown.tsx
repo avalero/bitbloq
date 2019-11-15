@@ -17,22 +17,27 @@ const AddObjectDropdown: FC<IAddObjectDropDownProps> = ({
 
   return (
     <Tabs
-      tabs={shapeGroups.map(group => ({
-        icon: group.icon,
-        content: (
-          <ShapeGroup>
-            <GroupLabel>{t(group.label)}</GroupLabel>
-            <Shapes>
-              {group.shapes.map(shape => (
-                <Shape key={shape.label} onClick={() => onAddObject(shape)}>
-                  <ShapeImage>{shape.icon}</ShapeImage>
-                  <ShapeText>{t(shape.label)}</ShapeText>
-                </Shape>
-              ))}
-            </Shapes>
-          </ShapeGroup>
-        )
-      }))}
+      tabs={shapeGroups
+        .filter(group => group.shapes && group.shapes.length > 0)
+        .map(group => ({
+          icon: group.icon,
+          bottom: group.resources,
+          content: (
+            <ShapeGroup>
+              <GroupLabel>{t(group.label)}</GroupLabel>
+              <Shapes>
+                {group.shapes.map(shape => (
+                  <Shape key={shape.label} onClick={() => onAddObject(shape)}>
+                    <ShapeImage isResource={group.resources || false}>
+                      {shape.icon}
+                    </ShapeImage>
+                    <ShapeText>{t(shape.label)}</ShapeText>
+                  </Shape>
+                ))}
+              </Shapes>
+            </ShapeGroup>
+          )
+        }))}
     />
   );
 };
@@ -72,23 +77,31 @@ const Shape = styled.div`
   cursor: pointer;
 `;
 
-const ShapeImage = styled.div`
+const ShapeImage = styled.div<{ isResource: boolean }>`
   width: 80px;
   height: 80px;
   border-radius: 4px;
-  background-color: #def6fb;
+  background-color: ${props => (props.isResource ? "#fff" : "#def6fb")};
   display: flex;
   justify-content: center;
   align-items: center;
 
   svg,
   img {
-    width: 56px;
-    height: 56px;
+    color: ${props => (props.isResource ? "#c0c3c9" : "")};
+    width: ${props => (props.isResource ? 80 : 56)}px;
+    height: ${props => (props.isResource ? 80 : 56)}px;
   }
 `;
 
 const ShapeText = styled.div`
-  margin-top: 4px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
   font-size: 14px;
+  margin-top: 4px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  text-overflow: ellipsis;
+  word-break: break-word;
 `;

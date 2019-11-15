@@ -40,7 +40,12 @@ const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
     <Container className={className}>
       <Tabs>
         {tabs.map((tab, i) => (
-          <Tab key={i} active={i === activeTab} onClick={() => onSelectTab(i)}>
+          <Tab
+            key={i}
+            active={i === activeTab}
+            bottom={tab.bottom}
+            onClick={() => onSelectTab(i)}
+          >
             {tab.icon}
           </Tab>
         ))}
@@ -66,12 +71,15 @@ const Container = styled.div`
 const Tabs = styled.div`
   width: 60px;
   border-right: 1px solid ${colors.gray3};
+  position: relative;
 `;
 
 interface TabProps {
   active: boolean;
+  bottom: boolean;
 }
 const Tab = styled.div<TabProps>`
+  border-top: ${props => (props.bottom ? `1px solid ${colors.gray3}` : "")};
   height: 60px;
   width: 60px;
   border-bottom: 1px solid white;
@@ -81,6 +89,8 @@ const Tab = styled.div<TabProps>`
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  position: ${props => (props.bottom ? "absolute" : "relative")};
+  bottom: 0;
 
   svg {
     width: 24px;

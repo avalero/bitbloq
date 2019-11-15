@@ -28,6 +28,7 @@ import Duplicate from "./icons/Duplicate";
 import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
 import Equal from "./icons/Equal";
+import ExerciseResources from "./icons/ExerciseResources";
 import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
 import EyeClose from "./icons/EyeClose";
@@ -174,6 +175,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Ellipsis className={className} />;
     case "equal":
       return <Equal className={className} />;
+    case "exercise-resources":
+      return <ExerciseResources className={className} />;
     case "export-stl":
       return <ExportSTL className={className} />;
     case "eye":

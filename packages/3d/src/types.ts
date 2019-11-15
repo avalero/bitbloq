@@ -11,6 +11,7 @@ export interface IShapeGroup {
   label: string;
   icon: JSX.Element;
   shapes: IShape[];
+  resources?: boolean;
 }
 
 export interface IObjectParameter {
