@@ -239,8 +239,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     );
   }, [data]);
 
-  const update = async (newUpdatedDocument?: any) => {
-    const updatedDocument = newUpdatedDocument || document;
+  const update = async (updatedDocument: any) => {
     delete updatedDocument.image;
     setDocument(updatedDocument);
 
@@ -417,7 +416,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
   return (
     <>
       <EditorComponent
-        createDocument={update}
         document={document}
         onDocumentChange={update}
         baseTabs={[infoTab]}
