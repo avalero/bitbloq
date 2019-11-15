@@ -378,7 +378,7 @@ const documentResolver = {
       });
       if (!location) {
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
-      } else if (location.user !== context.user.userID) {
+      } else if (String(location.user) !== String(context.user.userID)) {
         return new AuthenticationError("Not your folder");
       }
       const itemsPerPage: number = args.itemsPerPage || 8;
