@@ -2,12 +2,9 @@ import { ApolloError } from "apollo-server-koa";
 import { UploadModel, IUpload, IResource } from "../models/upload";
 import { orderFunctions } from "../utils";
 import { DocumentModel } from "../models/document";
-import { ObjectId, ObjectID } from "bson";
-import { ExerciseModel } from "../models/exercise";
 import { IUserInToken } from "../models/interfaces";
 import {
   IQueryCloudResourcesArgs,
-  IMutationUploadCloudResourceArgs,
   IMutationAddResourceToDocumentArgs,
   IMutationMoveToTrashArgs,
   IMutationRestoreResourceArgs
@@ -18,7 +15,7 @@ import { Storage } from "@google-cloud/storage";
 
 const storage = new Storage({ projectId: process.env.GCLOUD_PROJECT_ID }); // project ID
 const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
-const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
+const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET as string;
 
 let publicUrl: string;
 let fileSize: number;
@@ -40,7 +37,7 @@ const normalize = (() => {
   }
 
   return (str: string) => {
-    const ret = [];
+    const ret: string[] = [];
     for (let i = 0, j = str.length; i < j; i++) {
       const c = str.charAt(i);
       if (mapping.hasOwnProperty(str.charAt(i))) {
@@ -95,7 +92,7 @@ const processUpload = async (
             "UPLOAD_SIZE_ERROR"
           );
         }
-        let uploaded: IUpload;
+        let uploaded: IUpload | null;
         if (
           await UploadModel.findOne({
             document: documentID,
@@ -208,11 +205,11 @@ const uploadResolver = {
       context: { user: IUserInToken }
     ) => {
       const itemsPerPage: number = 8;
-      const skipN: number = (args.currentPage - 1) * itemsPerPage;
+      const skipN: number = (args.currentPage! - 1) * itemsPerPage;
       const limit: number = skipN + itemsPerPage;
-      const text: string = args.searchTitle;
+      const text: string | null | undefined = args.searchTitle;
 
-      const orderFunction = orderFunctions[args.order];
+      const orderFunction = orderFunctions[args.order!];
       let filtedOptions = {};
       args.deleted
         ? (filtedOptions = {
@@ -228,7 +225,7 @@ const uploadResolver = {
         ...filtedOptions
       });
 
-      const resources: IResource[] = userUploads.map(i => {
+      const resources: IResource[] | any = userUploads.map(i => {
         return {
           id: i._id,
           title: i.filename,
@@ -440,13 +437,14 @@ const uploadResolver = {
           }
         });
       }
+      return;
     },
     moveToTrash: async (
       _,
       args: IMutationMoveToTrashArgs,
       context: { user: IUserInToken }
     ) => {
-      const uploaded: IUpload = await UploadModel.findOne({
+      const uploaded: IUpload | null = await UploadModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -464,7 +462,7 @@ const uploadResolver = {
       args: IMutationRestoreResourceArgs,
       context: { user: IUserInToken }
     ) => {
-      const uploaded: IUpload = await UploadModel.findOne({
+      const uploaded: IUpload | null = await UploadModel.findOne({
         _id: args.id,
         user: context.user.userID
       });

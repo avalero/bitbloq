@@ -8,14 +8,12 @@ import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 import {
   ISubscriptionSubmissionUpdatedArgs,
   IMutationStartSubmissionArgs,
-  IMutationLoginArgs,
   IMutationLoginSubmissionArgs,
   IMutationUpdateSubmissionArgs,
   IMutationSetActiveSubmissionArgs,
   IMutationFinishSubmissionArgs,
   IMutationDeleteSubmissionArgs,
   IMutationGradeSubmissionArgs,
-  IMutationUpdatePasswordArgs,
   IMutationUpdatePasswordSubmissionArgs,
   IQuerySubmissionArgs,
   IQuerySubmissionsByExerciseArgs
@@ -86,7 +84,7 @@ const submissionResolver = {
           "NOT_NICKNAME_PROVIDED"
         );
       }
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise | null = await ExerciseModel.findOne({
         code: args.exerciseCode
       });
       if (!exFather) {
@@ -97,17 +95,19 @@ const submissionResolver = {
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
-      if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
+      if (!exFather.acceptSubmissions || timeNow > exFather.expireDate!) {
         throw new ApolloError(
           "This exercise does not accept submissions now",
           "NOT_ACCEPT_SUBMISSIONS"
         );
       }
       // check if there is a submission with this nickname and password. If true, return error.
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        studentNick: args.studentNick.toLowerCase(),
-        exercise: exFather._id
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          studentNick: args.studentNick.toLowerCase(),
+          exercise: exFather._id
+        }
+      );
       if (existSubmission) {
         throw new ApolloError(
           "There is already a submission for that studentNick",
@@ -177,7 +177,7 @@ const submissionResolver = {
           "NOT_NICKNAME_PROVIDED"
         );
       }
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise | null = await ExerciseModel.findOne({
         code: args.exerciseCode
       });
       if (!exFather) {
@@ -188,17 +188,19 @@ const submissionResolver = {
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
-      if (!exFather.acceptSubmissions || timeNow > exFather.expireDate) {
+      if (!exFather.acceptSubmissions || timeNow > exFather.expireDate!) {
         throw new ApolloError(
           "This exercise does not accept submissions now",
           "NOT_ACCEPT_SUBMISSIONS"
         );
       }
       // check if there is a submission with this nickname and password. If true, return it.
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        studentNick: args.studentNick.toLowerCase(),
-        exercise: exFather._id
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          studentNick: args.studentNick.toLowerCase(),
+          exercise: exFather._id
+        }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Can't found submission for that studentNick",
@@ -269,10 +271,12 @@ const submissionResolver = {
       args: IMutationUpdateSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: context.user.submissionID,
-        exercise: context.user.exerciseID
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          _id: context.user.submissionID,
+          exercise: context.user.exerciseID
+        }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error updating submission, it should part of one of your exercises",
@@ -281,13 +285,13 @@ const submissionResolver = {
       }
       if (existSubmission) {
         // importante! no se puede actualizar el nickname
-        if (args.input.studentNick) {
+        if (args.input!.studentNick) {
           throw new ApolloError(
             "Error updating submission, you can not change your nickname",
             "CANT_UPDATE_NICKNAME"
           );
         }
-        const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           { $set: args.input },
           { new: true }
@@ -297,6 +301,7 @@ const submissionResolver = {
         });
         return updatedSubmission;
       }
+      return;
     },
 
     /**
@@ -309,12 +314,14 @@ const submissionResolver = {
       args: IMutationSetActiveSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: args.submissionID,
-        user: context.user.userID
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          _id: args.submissionID,
+          user: context.user.userID
+        }
+      );
       if (existSubmission) {
-        const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+        const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
           {
             $set: {
@@ -344,19 +351,27 @@ const submissionResolver = {
       args: IMutationFinishSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: context.user.submissionID,
-        exercise: context.user.exerciseID
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          _id: context.user.submissionID,
+          exercise: context.user.exerciseID
+        }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error finishing submission, it does not exist",
           "SUBMISSION_NOT_FOUND"
         );
       }
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise | null = await ExerciseModel.findOne({
         _id: existSubmission.exercise
       });
+      if (!exFather) {
+        throw new ApolloError(
+          "This exercise does not hava a father",
+          "EXERCISE_NOT_FOUND"
+        );
+      }
       // check if the exercise accepts submissions
       if (!exFather.acceptSubmissions) {
         throw new ApolloError(
@@ -366,7 +381,7 @@ const submissionResolver = {
       }
       // check if the submission is in time
       const timeNow: Date = new Date();
-      if (timeNow > exFather.expireDate) {
+      if (timeNow > exFather.expireDate!) {
         throw new ApolloError("Your submission is late", "SUBMISSION_LATE");
       }
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
@@ -395,10 +410,12 @@ const submissionResolver = {
      */
     // alumno cancela su propia submission
     cancelSubmission: async (_, __, context: { user: IUserInToken }) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: context.user.submissionID,
-        exercise: context.user.exerciseID
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          _id: context.user.submissionID,
+          exercise: context.user.exerciseID
+        }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error canceling submission, it should part of one of your exercises",
@@ -419,7 +436,7 @@ const submissionResolver = {
       args: IMutationDeleteSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+      const existSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
         {
           _id: args.submissionID,
           user: context.user.userID
@@ -451,10 +468,12 @@ const submissionResolver = {
       args: IMutationGradeSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: args.submissionID,
-        user: context.user.userID
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          _id: args.submissionID,
+          user: context.user.userID
+        }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error grading submission, not found",
@@ -469,7 +488,7 @@ const submissionResolver = {
         );
       }
 
-      const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+      const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -493,10 +512,12 @@ const submissionResolver = {
       args: IMutationUpdatePasswordSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      const existSubmission: ISubmission = await SubmissionModel.findOne({
-        _id: args.submissionID,
-        user: context.user.userID
-      });
+      const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+        {
+          _id: args.submissionID,
+          user: context.user.userID
+        }
+      );
       if (!existSubmission) {
         throw new ApolloError(
           "Error grading submission, not found",
@@ -504,7 +525,7 @@ const submissionResolver = {
         );
       }
       const hash: string = await bcryptHash(args.password, saltRounds);
-      const updatedSubmission: ISubmission = await SubmissionModel.findOneAndUpdate(
+      const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
         { _id: existSubmission._id },
         {
           $set: {
@@ -541,9 +562,11 @@ const submissionResolver = {
     ) => {
       if (context.user.submissionID) {
         // Token de alumno
-        const existSubmission: ISubmission = await SubmissionModel.findOne({
-          _id: context.user.submissionID
-        });
+        const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+          {
+            _id: context.user.submissionID
+          }
+        );
         if (!existSubmission) {
           throw new ApolloError(
             "Submission does not exist",
@@ -553,10 +576,12 @@ const submissionResolver = {
         return existSubmission;
       } else if (context.user.userID) {
         // token de profesor
-        const existSubmission: ISubmission = await SubmissionModel.findOne({
-          _id: args.id,
-          user: context.user.userID
-        });
+        const existSubmission: ISubmission | null = await SubmissionModel.findOne(
+          {
+            _id: args.id,
+            user: context.user.userID
+          }
+        );
         if (!existSubmission) {
           throw new ApolloError(
             "Submission does not exist",
@@ -565,6 +590,7 @@ const submissionResolver = {
         }
         return existSubmission;
       }
+      return;
     },
 
     /**
@@ -574,7 +600,7 @@ const submissionResolver = {
      */
     // user queries:
     submissionsByExercise: async (_, args: IQuerySubmissionsByExerciseArgs) => {
-      const exFather: IExercise = await ExerciseModel.findOne({
+      const exFather: IExercise | null = await ExerciseModel.findOne({
         _id: args.exercise
       });
       if (!exFather) {

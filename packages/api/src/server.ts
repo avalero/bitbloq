@@ -5,7 +5,7 @@ import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
-import * as Koa from "koa";
+import Koa from "koa";
 import { ApolloServer } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
 import { RedisPubSub } from "graphql-redis-subscriptions";
@@ -20,7 +20,7 @@ const USE_REDIS: string = String(process.env.USE_REDIS);
 
 const PORT = process.env.PORT;
 
-const mongoUrl: string = process.env.MONGO_URL;
+const mongoUrl: string = process.env.MONGO_URL as string;
 
 mongooseSet("debug", true);
 mongooseSet("useFindAndModify", false); // ojo con esto al desplegar
@@ -94,6 +94,7 @@ const server = new ApolloServer({
         const user = await contextController.getDataInToken(justToken);
         return { user }; //  add the user to the ctx
       }
+      return undefined;
     }
   }
 });
