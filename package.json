@@ -6,7 +6,9 @@
   "scripts": {
     "prettier": "prettier --write \"packages/*/src/**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
     "tslint": "tslint -c ./tslint.json \"packages/*/src/**/*.{ts,tsx}\"",
-    "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json"
+    "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json",
+    "tsc:back": "cd packages/api && tsc --noEmit --p ./tsconfig.json",
+    "tsc": "tsc:front && tsc:back"
   },
   "devDependencies": {
     "husky": "^3.0.9",
