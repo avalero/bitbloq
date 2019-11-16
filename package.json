@@ -26,7 +26,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "tslint -c ./tslint-sta.json"
+      "tslint -c ./tslint.json"
     ],
     "*.{ts,tsx,js,css,json,md}": [
       "prettier --write",

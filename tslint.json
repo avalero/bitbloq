@@ -9,12 +9,19 @@
     ]
   },
   "rules": {
-    "variable-name": [true, "check-format", "allow-leading-underscore","allow-pascal-case"],
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ],
     "ordered-imports": false,
     "object-literal-sort-keys": false,
     "no-require-imports": false,
     "no-implicit-dependencies": [true, "dev"],
     "no-submodule-imports": false,
-    "max-classes-per-file": false
+    "max-classes-per-file": false,
+    "no-console": false,
+    "no-debugger": true
   }
 }
