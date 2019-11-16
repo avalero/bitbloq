@@ -77,7 +77,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     setFile(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
-    onClose();
+    onClose!();
   };
 
   const onSendResource = async () => {
@@ -99,7 +99,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
 
   const onSetFile = (newFile: File) => {
     const extFile = newFile.name.split(".").pop();
-    if (!isValidExt(extFile)) {
+    if (!isValidExt(extFile!)) {
       setError(Errors.extError);
     } else if (newFile.size > 10000000) {
       setError(Errors.sizeError);

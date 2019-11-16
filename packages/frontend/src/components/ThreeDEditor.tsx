@@ -154,7 +154,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
   }, [advancedMode, baseMenuOptions]);
 
   const documentProps: Partial<IDocumentProps> = {
-    menuOptions,
+    menuOptions: menuOptions as IMainMenuOption[],
     tabs: [mainTab, ...baseTabs],
     menuRightContent: (
       <AdvancedModeWrap>
