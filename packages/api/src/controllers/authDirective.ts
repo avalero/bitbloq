@@ -106,6 +106,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         }
       };
     });
+    return;
   }
 }
 

@@ -28,6 +28,7 @@ const mailerController = {
           "SENDING_MESSAGE_ERROR"
         );
       }
+      return;
     });
   }
 };
