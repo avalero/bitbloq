@@ -124,7 +124,7 @@ const CloudModal: FC<ICloudModalProps> = ({
     setSearchQuery("");
     setSearchText("");
     setSelectedResource(undefined);
-    onClose();
+    onClose!();
   };
 
   const onMoveToTrash = async (id: string) => {
@@ -178,12 +178,12 @@ const CloudModal: FC<ICloudModalProps> = ({
           {addAllow && (
             <>
               <ImportInput
-                accept={acceptedExt.join(", ")}
-                onChange={e => setFile(e.target.files[0])}
+                accept={acceptedExt!.join(", ")}
+                onChange={e => setFile!(e.target.files![0])}
                 ref={inputRef}
                 type="file"
               />
-              <ImportButton onClick={() => inputRef.current.click()}>
+              <ImportButton onClick={() => inputRef.current!.click()}>
                 {t("cloud.buttons.import")}
               </ImportButton>
             </>

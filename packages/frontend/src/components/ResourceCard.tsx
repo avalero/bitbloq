@@ -63,7 +63,9 @@ const ResourceCard: FC<IResourceCardProps> = ({
       importResource={importResource}
       isOpen={true}
       onClick={() =>
-        (importResource || addAllow) && addCallback && addCallback(id, extTitle)
+        (importResource || addAllow) &&
+        addCallback &&
+        addCallback(id, extTitle!)
       }
     >
       <DropDown
@@ -97,7 +99,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
                 : t("cloud.options.trash"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
-                deleted ? restoreFromTrash(id) : moveToTrash(id);
+                deleted ? restoreFromTrash!(id) : moveToTrash!(id);
               }
             }
           ]}

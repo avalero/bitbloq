@@ -83,7 +83,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
           initialContent={initialContent}
           addShapeGroups={addShapeGroups}
           onContentChange={onContentChange}
-          advancedMode={advancedMode}
+          advancedMode={advancedMode!}
         />
       )
     }),
@@ -92,11 +92,11 @@ const ThreeDEditor: FC<IEditorProps> = ({
 
   const menuOptions = useMemo(() => {
     const baseFileMenu = baseMenuOptions.find(o => o.id === "file");
-    const downloadDocumentIndex = baseFileMenu.children.findIndex(
+    const downloadDocumentIndex = baseFileMenu!.children.findIndex(
       o => o.type !== "divider" && o.id === "download-document"
     );
 
-    const fileMenu = { ...baseFileMenu, children: [...baseFileMenu.children] };
+    const fileMenu = { ...baseFileMenu, children: [...baseFileMenu!.children] };
     fileMenu.children.splice(
       Math.max(downloadDocumentIndex, 0),
       0,
@@ -160,7 +160,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
       <AdvancedModeWrap>
         <span>{t("menu-basic-mode")}</span>
         <Switch
-          value={advancedMode}
+          value={advancedMode!}
           onChange={value => setAdvancedMode(value)}
           leftRight={true}
         />
@@ -177,16 +177,16 @@ const ThreeDEditor: FC<IEditorProps> = ({
           onCancel={() => setShowExportModal(false)}
           onSave={(name, separate) => {
             setShowExportModal(false);
-            threedRef.current.exportToSTL(name, separate);
+            threedRef.current!.exportToSTL(name, separate);
           }}
         />
       )}
       <UploadResourceModal
         addedCallback={(_, filename, publicUrl) =>
-          threedRef.current.createObject(
+          threedRef.current!.createObject(
             "STLObject",
             { url: publicUrl },
-            filename
+            filename!
           )
         }
         acceptedTypes={[ResourcesTypes.object3D]}

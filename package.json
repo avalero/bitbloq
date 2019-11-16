@@ -9,7 +9,7 @@
     "tslint:prod": "tslint -c ./tslint-prod.json \"packages/*/src/**/*.{ts,tsx}\"",
     "tslint:sta": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\"",
     "tslint:qa": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\"",
-    "tsc:front": "cd packages/frontend && tsc --noEmit"
+    "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json"
   },
   "devDependencies": {
     "husky": "^3.0.9",
