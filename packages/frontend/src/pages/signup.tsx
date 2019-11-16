@@ -104,7 +104,7 @@ const SignupPage: FC = () => {
   const wrapRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
-    wrapRef.current.scrollIntoView();
+    wrapRef.current!.scrollIntoView();
   }, [currentStep]);
 
   const goToPreviousStep = () => setCurrentStep(currentStep - 1);

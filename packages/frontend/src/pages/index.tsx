@@ -303,7 +303,7 @@ const IndexPage: NextPage = () => {
       <input
         ref={fileInputRef}
         type="file"
-        onChange={e => onFileSelected(e.target.files[0])}
+        onChange={e => onFileSelected(e.target.files![0])}
         style={{ display: "none" }}
       />
     </>

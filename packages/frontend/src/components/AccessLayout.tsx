@@ -64,6 +64,8 @@ const Container = styled.div<IContainerProps>`
         return "500px";
       case AccessLayoutSize.BIG:
         return "800px";
+      default:
+        return "500px";
     }
   }};
   margin: 60px;

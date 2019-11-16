@@ -135,7 +135,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   const onOpenDocumentClick = () => {
-    openFile.current.click();
+    openFile.current!.click();
   };
 
   const onOpenExercise = async exerciseCode => {
@@ -308,7 +308,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <input
         ref={openFile}
         type="file"
-        onChange={e => onFileSelected(e.target.files[0])}
+        onChange={e => onFileSelected(e.target.files![0])}
         style={{ display: "none" }}
       />
       {folderTitleModal && (

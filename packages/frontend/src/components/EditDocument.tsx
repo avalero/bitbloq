@@ -208,7 +208,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       setImage({ image: "blob", isSnapshot: true });
     }
 
-    if (newImage.size > 0 && isLoggedIn) {
+    if (newImage && newImage.size > 0 && isLoggedIn) {
       setDocumentImage({
         variables: {
           documentId,

@@ -74,8 +74,8 @@ export const getToken = async (
   tempSession?: string,
   req?: NextApiRequest
 ): Promise<string | null> => {
-  if (renewTokenPromises[tempSession]) {
-    await renewTokenPromises[tempSession];
+  if (renewTokenPromises[tempSession!]) {
+    await renewTokenPromises[tempSession!];
   }
   const session = getSession(tempSession, req);
   return Promise.resolve(session ? session.token : null);
@@ -90,12 +90,12 @@ export const renewToken = async (
   tokenPromise: Promise<string>,
   tempSession?: string
 ) => {
-  if (renewTokenPromises[tempSession]) {
+  if (renewTokenPromises[tempSession!]) {
     return;
   }
-  renewTokenPromises[tempSession] = tokenPromise;
+  renewTokenPromises[tempSession!] = tokenPromise;
   const token = await tokenPromise;
-  delete renewTokenPromises[tempSession];
+  delete renewTokenPromises[tempSession!];
   setToken(token, tempSession);
 };
 

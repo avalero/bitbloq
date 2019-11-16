@@ -1,5 +1,5 @@
 import Object3D from "./Object3D";
-import * as Scene from "./Scene";
+import * as Lib3DScene from "./Scene";
 import Renderer from "./Renderer";
 import STLLoader from "./STLLoader";
 import STLObject from "./STLObject";
@@ -21,6 +21,7 @@ const isTranslateOperation = Interfaces.isTranslateOperation;
 const isRotationOperation = Interfaces.isRotationOperation;
 const isScaleOperation = Interfaces.isScaleOperation;
 const isMirrorOperation = Interfaces.isMirrorOperation;
+const Scene = Lib3DScene.default;
 
 export {
   Object3D,
@@ -38,6 +39,6 @@ export type IObjectsCommonJSON = Interfaces.IObjectsCommonJSON;
 export type ICompoundObjectJSON = Interfaces.ICompoundObjectJSON;
 export type IPrimitiveObjectJSON = Interfaces.IPrimitiveObjectJSON;
 export type IViewOptions = Interfaces.IViewOptions;
-export type IObjectPosition = Scene.IObjectPosition;
-export type IHelperDescription = Scene.IHelperDescription;
+export type IObjectPosition = Lib3DScene.IObjectPosition;
+export type IHelperDescription = Lib3DScene.IHelperDescription;
 export type Operation = Interfaces.Operation;

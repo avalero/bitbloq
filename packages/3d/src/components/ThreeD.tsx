@@ -14,12 +14,9 @@ import {
   isTranslateOperation,
   isRotationOperation,
   isScaleOperation,
-  isMirrorOperation,
   Scene,
   IObjectsCommonJSON,
-  IViewOptions,
-  IHelperDescription,
-  Renderer
+  IHelperDescription
 } from "@bitbloq/lib3d";
 
 import ObjectTree from "./ObjectTree";

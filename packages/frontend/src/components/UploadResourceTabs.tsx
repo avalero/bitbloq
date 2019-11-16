@@ -52,7 +52,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
   }, [data]);
 
   const onOpenSelect = () => {
-    inputRef.current.click();
+    inputRef.current!.click();
   };
 
   return (
@@ -79,7 +79,7 @@ const UploadResourcTabs: FC<IUploadResourcTabsProps> = ({
           <ResourceInput>
             <input
               accept={acceptedExt.join(", ")}
-              onChange={e => setFile(e.target.files[0])}
+              onChange={e => setFile(e.target.files![0])}
               onClick={e => e.isTrusted && e.preventDefault()}
               ref={inputRef}
               type="file"

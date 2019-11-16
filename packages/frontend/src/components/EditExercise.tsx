@@ -81,6 +81,7 @@ const EditExercise = ({ type, id }) => {
         window.removeEventListener("beforeunload", setActiveToFalse, true);
       };
     }
+    return;
   }, [teamName]);
 
   useEffect(() => {

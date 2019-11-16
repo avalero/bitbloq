@@ -59,7 +59,11 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
     } else if (file.size > maxImageSize) {
       setImageError(t("document-info.errors.image-size"));
     } else {
-      onChange({ title, description, image: file });
+      onChange({
+        title: title || "title",
+        description: description || "description",
+        image: file
+      });
     }
   };
 
@@ -80,7 +84,10 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                   const value: string = e.target.value;
                   if (isValidName(value)) {
                     setTitleError(false);
-                    onChange({ title: value, description });
+                    onChange({
+                      title: value,
+                      description: description || "description"
+                    });
                   } else {
                     setTitleError(true);
                   }
@@ -101,7 +108,10 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                 value={description}
                 placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
-                  onChange({ title, description: e.target.value });
+                  onChange({
+                    title: title || "title",
+                    description: e.target.value
+                  });
                 }}
                 rows={3}
               />

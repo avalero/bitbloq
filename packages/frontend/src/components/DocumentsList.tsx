@@ -243,7 +243,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
           isSnapshot: document.image.indexOf("blob") > -1
         },
         title: newTitle,
-        folder: currentLocation.id
+        folder: currentLocation!.id
       }
     });
     refetchDocsFols();
@@ -510,23 +510,23 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       />
       {editDocTitleModal.id && (
         <EditTitleModal
-          title={editDocTitleModal.title}
+          title={editDocTitleModal.title || "Title"}
           onCancel={() => setEditDocTitleModal({ id: null, title: null })}
           onSave={onUpdateDocTitle}
           modalTitle="Cambiar nombre del documento"
           modalText="Nombre del documento"
-          placeholder={editDocTitleModal.title}
+          placeholder={editDocTitleModal.title || "Placeholder"}
           saveButton="Cambiar"
         />
       )}
       {editFolderNameModal.id && (
         <EditTitleModal
-          title={editFolderNameModal.name}
+          title={editFolderNameModal.name || "Title"}
           onCancel={() => setEditFolderNameModal({ id: null, name: null })}
           onSave={onUpdateFolderName}
           modalTitle="Cambiar nombre de la carpeta"
           modalText="Nombre de la carpeta"
-          placeholder={editFolderNameModal.name}
+          placeholder={editFolderNameModal.name || "Placeholder"}
           saveButton="Cambiar"
         />
       )}
