@@ -4,12 +4,20 @@ import { orderFunctions } from "../utils";
 import { DocumentModel } from "../models/document";
 import { ObjectId, ObjectID } from "bson";
 import { ExerciseModel } from "../models/exercise";
+import { IUserInToken } from "../models/interfaces";
+import {
+  IQueryCloudResourcesArgs,
+  IMutationUploadCloudResourceArgs,
+  IMutationAddResourceToDocumentArgs,
+  IMutationMoveToTrashArgs,
+  IMutationRestoreResourceArgs
+} from "../api-types";
 
-const fs = require("fs"); //Load the filesystem module
-const { Storage } = require("@google-cloud/storage");
+import * as fs from "fs";
+import { Storage } from "@google-cloud/storage";
 
-const storage = new Storage(process.env.GCLOUD_PROJECT_ID); // project ID
-const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
+const storage = new Storage({ projectId: process.env.GCLOUD_PROJECT_ID }); // project ID
+const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
 let publicUrl: string;
@@ -23,20 +31,24 @@ const acceptedFiles = {
   object3D: [".stl"]
 };
 
-const normalize = (function() {
-  let from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç",
-    to = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc",
-    mapping = {};
+const normalize = (() => {
+  const from = "ÃÀÁÄÂÈÉËÊÌÍÏÎÒÓÖÔÙÚÜÛãàáäâèéëêìíïîòóöôùúüûÑñÇç";
+  const to = "AAAAAEEEEIIIIOOOOUUUUaaaaaeeeeiiiioooouuuunncc";
+  const mapping = {};
 
-  for (let i = 0, j = from.length; i < j; i++)
+  for (let i = 0, j = from.length; i < j; i++) {
     mapping[from.charAt(i)] = to.charAt(i);
+  }
 
-  return function(str) {
-    let ret = [];
+  return (str: string) => {
+    const ret = [];
     for (let i = 0, j = str.length; i < j; i++) {
-      let c = str.charAt(i);
-      if (mapping.hasOwnProperty(str.charAt(i))) ret.push(mapping[c]);
-      else ret.push(c);
+      const c = str.charAt(i);
+      if (mapping.hasOwnProperty(str.charAt(i))) {
+        ret.push(mapping[c]);
+      } else {
+        ret.push(c);
+      }
     }
     return ret
       .join("")
@@ -170,24 +182,23 @@ const processUpload = async (input: {
 };
 
 function getPublicUrl(filename) {
-  //const finalName: string = encodeURIComponent(filename);
   return `https://storage.googleapis.com/${bucketName}/${filename}`;
 }
 
 export function getFilesizeInBytes(filename) {
   try {
     const stats = fs.statSync(filename);
-    const fileSizeInBytes: number = stats["size"];
+    const fileSizeInBytes: number = stats.size;
     return fileSizeInBytes;
   } catch (e) {
-    console.log(e);
+    return 0;
   }
 }
 
 export async function uploadDocumentImage(
-  image,
-  documentID,
-  userID
+  image: any,
+  documentID: string,
+  userID: string
 ): Promise<IUpload> {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
@@ -205,7 +216,7 @@ export async function uploadDocumentImage(
   }
   const uniqueName: string = documentID + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
-
+  
   return await new Promise((resolve, reject) => {
     processUpload({
       resolve: resolve,
@@ -225,21 +236,11 @@ export async function uploadDocumentImage(
 const uploadResolver = {
   Query: {
     uploads: () => UploadModel.find({}),
-    getUserFiles: async (root: any, args: any, context: any) => {
-      const [files] = await bucket.getFiles({
-        prefix: `${context.user.userID}`
-      });
-      console.log("Files:");
-      files.forEach(async file => {
-        await file.getMetadata().then(result => {
-          console.log(file.name);
-          console.log(result[0].size);
-        });
-      });
-      return await UploadModel.find({ user: context.user.userID });
-    },
-
-    cloudResources: async (root: any, args: any, context: any) => {
+    cloudResources: async (
+      _,
+      args: IQueryCloudResourcesArgs,
+      context: { user: IUserInToken }
+    ) => {
       const itemsPerPage: number = 8;
       const skipN: number = (args.currentPage - 1) * itemsPerPage;
       const limit: number = skipN + itemsPerPage;
@@ -283,7 +284,7 @@ const uploadResolver = {
     }
   },
   Mutation: {
-    singleUpload: async (file, documentID, userID) => {
+    singleUpload: async (file, documentID: string, userID: string) => {
       const { createReadStream, filename, mimetype, encoding } = await file;
       if (!createReadStream || !filename || !mimetype || !encoding) {
         throw new ApolloError("Upload error, check file type.", "UPLOAD_ERROR");
@@ -305,7 +306,7 @@ const uploadResolver = {
         });
       });
     },
-    uploadCloudResource: async (root: any, args: any, context: any) => {
+    uploadCloudResource: async (_, args: any, context: { user: IUserInToken }) => {
       if (args.thumbnail) {
         const {
           createReadStream,
@@ -372,7 +373,7 @@ const uploadResolver = {
         });
       });
     },
-    uploadSTLFile: async (root: any, args: any, context: any) => {
+    uploadSTLFile: async (_, args: any, context: { user: IUserInToken }) => {
       const {
         createReadStream,
         filename,
@@ -409,7 +410,11 @@ const uploadResolver = {
       });
     },
 
-    addResourceToDocument: async (root: any, args: any, context: any) => {
+    addResourceToDocument: async (
+      _,
+      args: IMutationAddResourceToDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       await DocumentModel.findOneAndUpdate(
         { _id: args.documentID },
         { $push: { resourcesID: args.resourceID } },
@@ -421,7 +426,6 @@ const uploadResolver = {
         { new: true }
       );
     },
-
     addResourceToExercises: async (root: any, args: any, context: any) => {
       await DocumentModel.findOneAndUpdate(
         { _id: args.documentID },
@@ -448,7 +452,7 @@ const uploadResolver = {
       );
     },
 
-    uploadImageFile: async (root: any, args: any, context: any) => {
+    uploadImageFile: async (_, args: any, context: { user: IUserInToken }) => {
       const {
         createReadStream,
         filename,
@@ -477,10 +481,10 @@ const uploadResolver = {
         });
       });
     },
-    deleteUserFile: async (root: any, args: any, context: any) => {
+    deleteUserFile: async (_, args: any, context: { user: IUserInToken }) => {
       if (args.filename) {
         await bucket.file(`${context.user.userID}/${args.filename}`).delete();
-        return await UploadModel.deleteOne({
+        return UploadModel.deleteOne({
           publicUrl: {
             $regex: `${context.user.userID}/${args.filename}`,
             $options: "i"
@@ -488,7 +492,11 @@ const uploadResolver = {
         });
       }
     },
-    moveToTrash: async (root: any, args: any, context: any) => {
+    moveToTrash: async (
+      _,
+      args: IMutationMoveToTrashArgs,
+      context: { user: IUserInToken }
+    ) => {
       const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -496,13 +504,17 @@ const uploadResolver = {
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
       }
-      return await UploadModel.findOneAndUpdate(
+      return UploadModel.findOneAndUpdate(
         { _id: uploaded._id },
         { $set: { deleted: true } },
         { new: true }
       );
     },
-    restoreResource: async (root: any, args: any, context: any) => {
+    restoreResource: async (
+      _,
+      args: IMutationRestoreResourceArgs,
+      context: { user: IUserInToken }
+    ) => {
       const uploaded: IUpload = await UploadModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -510,7 +522,7 @@ const uploadResolver = {
       if (!uploaded) {
         throw new ApolloError("File not found", "FILE_NOT_FOUND");
       }
-      return await UploadModel.findOneAndUpdate(
+      return UploadModel.findOneAndUpdate(
         { _id: uploaded._id },
         { $set: { deleted: false } },
         { new: true }
@@ -518,8 +530,8 @@ const uploadResolver = {
     }
   },
   Upload: {
-    documents: async (upload: IUpload) => {
-      return await DocumentModel.find({ _id: { $in: upload.documentsID } });
+    documents: async (_, upload: IUpload) => {
+      return DocumentModel.find({ _id: { $in: upload.documentsID } });
     }
   }
 };

@@ -8,18 +8,18 @@ enum TabType {
   Score
 }
 
-interface Exercise {
+interface IExercise {
   title: string;
   description: string;
   image: string;
 }
 
-interface ExerciseInfoProps {
-  exercise: Exercise;
+interface IExerciseInfoProps {
+  exercise: IExercise;
   onGotoExercise: () => any;
 }
 
-const ExerciseInfo: React.FunctionComponent<ExerciseInfoProps> = ({
+const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
   exercise: { title, description, image },
   onGotoExercise
 }) => {
@@ -91,10 +91,7 @@ const LeftContent = styled.div`
   }
 `;
 
-interface ImageProps {
-  src: string;
-}
-const Image = styled.div<ImageProps>`
+const Image = styled.div<{ src: string }>`
   background-color: ${colors.gray2};
   background-image: url(${props => props.src});
   background-size: cover;
@@ -122,10 +119,7 @@ const Tabs = styled.div`
   display: flex;
 `;
 
-interface TabProps {
-  selected?: boolean;
-}
-const Tab = styled.div<TabProps>`
+const Tab = styled.div<{ selected?: boolean }>`
   height: 60px;
   border-right: 1px solid ${colors.gray3};
   border-bottom: 1px solid ${colors.gray3};

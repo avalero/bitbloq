@@ -100,7 +100,7 @@ import Cthulhito from "./icons/Cthulhito";
 import NewFolder from "./icons/NewFolder";
 import Folder from "./icons/Folder";
 
-export interface IconProps {
+export interface IIconProps {
   /** Name of the icon to display */
   name: string;
   className?: string;
@@ -109,7 +109,7 @@ export interface IconProps {
 /**
  * Icon component that renders an svg from a catalog of icons
  */
-const Icon: React.SFC<IconProps> = ({ name, className }) => {
+const Icon: React.SFC<IIconProps> = ({ name, className }) => {
   switch (name) {
     case "add-document":
       return <AddDocument className={className} />;

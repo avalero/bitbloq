@@ -12,6 +12,19 @@ import { UserModel, IUser } from "../models/user";
 import { pubsub } from "../server";
 import { uploadDocumentImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
+import { IUserInToken } from "../models/interfaces";
+import {
+  IMutationCreateDocumentArgs,
+  IMutationDeleteDocumentArgs,
+  IMutationUpdateDocumentContentArgs,
+  IMutationUpdateDocumentArgs,
+  IMutationSetDocumentImageArgs,
+  IMutationPublishDocumentArgs,
+  IQueryDocumentArgs,
+  IQueryOpenPublicDocumentArgs,
+  IQueryDocumentsAndFoldersArgs,
+  IQueryHasExercisesArgs
+} from "../api-types";
 
 export const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
 
@@ -40,7 +53,11 @@ const documentResolver = {
       subscribe: withFilter(
         // Filtra para devolver solo los documentos del usuario
         () => pubsub.asyncIterator([DOCUMENT_UPDATED]),
-        (payload, variables, context) => {
+        (
+          payload: { documentUpdated: IDocument },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
           return (
             String(context.user.userID) === String(payload.documentUpdated.user)
           );
@@ -56,7 +73,11 @@ const documentResolver = {
      * it uploads to Google Cloud and stores the public URL.
      * args: document information
      */
-    createDocument: async (root: any, args: any, context: any) => {
+    createDocument: async (
+      _,
+      args: IMutationCreateDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       if (args.input.folder) {
         if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
           throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
@@ -93,7 +114,11 @@ const documentResolver = {
      * This method deletes all the exercises, submissions and uploads related with the document ID.
      * args: document ID
      */
-    deleteDocument: async (root: any, args: any, context: any) => {
+    deleteDocument: async (
+      _,
+      args: IMutationDeleteDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -120,7 +145,11 @@ const documentResolver = {
      *  It updates document content with the new information provided.
      *  args: id, content and cache
      */
-    updateDocumentContent: async (root: any, args: any, context: any) => {
+    updateDocumentContent: async (
+      _,
+      args: IMutationUpdateDocumentContentArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -152,7 +181,11 @@ const documentResolver = {
      * It updates the document with the new information provided.
      * args: document ID, new document information.
      */
-    updateDocument: async (root: any, args: any, context: any) => {
+    updateDocument: async (
+      _,
+      args: IMutationUpdateDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID
@@ -178,7 +211,7 @@ const documentResolver = {
         }
         if (args.input.content || args.input.cache) {
           console.log(
-            "You should use Update document Content Mutation, USE_UPDATECONTENT_MUTATION"
+            "You should use Update document Content IMutation, USE_UPDATECONTENT_MUTATION"
           );
         }
         const updatedDoc: IDocument = await DocumentModel.findOneAndUpdate(
@@ -212,7 +245,11 @@ const documentResolver = {
      * It could be an image uploaded by the user or a snapshot taken by the app.
      * args: imag: Upload and isSnapshot: Boolean
      */
-    setDocumentImage: async (root: any, args: any, context: any) => {
+    setDocumentImage: async (
+      _,
+      args: IMutationSetDocumentImageArgs,
+      context: { user: IUserInToken }
+    ) => {
       const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
@@ -226,7 +263,7 @@ const documentResolver = {
 
       const updatedDoc = await DocumentModel.findOneAndUpdate(
         { _id: docFound._id },
-        { $set: { image: { image: image, isSnapshot: args.isSnapshot } } },
+        { $set: { image: { image, isSnapshot: args.isSnapshot } } },
         { new: true }
       );
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
@@ -239,7 +276,11 @@ const documentResolver = {
      * A public document is an example file. Once the document is public, every user can see it.
      * args: document id, and public value.
      */
-    publishDocument: async (root: any, args: any, context: any) => {
+    publishDocument: async (
+      _,
+      args: IMutationPublishDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
@@ -250,7 +291,7 @@ const documentResolver = {
           "EXAMPLE_DOCUMENT_MUST_BE_PUBLIC"
         );
       }
-      return await DocumentModel.findOneAndUpdate(
+      return DocumentModel.findOneAndUpdate(
         { _id: docFound._id },
         { $set: { public: args.public, example: args.example } },
         { new: true }
@@ -262,14 +303,18 @@ const documentResolver = {
      * Documents: returns all the documents of the user logged.
      * args: nothing.
      */
-    documents: async (root: any, args: any, context: any) => {
+    documents: async (_, __, context: { user: IUserInToken }) => {
       return DocumentModel.find({ user: context.user.userID });
     },
     /**
      * Document: returns the information of the document ID provided in the arguments.
      * args: document ID.
      */
-    document: async (root: any, args: any, context: any) => {
+    document: async (
+      _,
+      args: IQueryDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "DOCUMENT_NOT_FOUND");
       }
@@ -292,7 +337,7 @@ const documentResolver = {
      * open public document: returns the information of the public document ID provided in the arguments.
      * args: public document ID.
      */
-    openPublicDocument: async (root: any, args: any, context: any) => {
+    openPublicDocument: async (_, args: IQueryOpenPublicDocumentArgs) => {
       const existDocument: IDocument = await DocumentModel.findOne({
         _id: args.id,
         public: true
@@ -307,7 +352,7 @@ const documentResolver = {
      * Examples: returns all the examples in the platform.
      * args: nothing.
      */
-    examples: async (root: any, args: any, context: any) => {
+    examples: async () => {
       return DocumentModel.find({ example: true });
     },
 
@@ -316,21 +361,29 @@ const documentResolver = {
      * It also returns the total number of pages, the parent folders path of the current location and the number of folders in the current location.
      * args: itemsPerPage: Number, order: String, searchTitle: String.
      */
-    documentsAndFolders: async (root: any, args: any, context: any) => {
+    documentsAndFolders: async (
+      _,
+      args: IQueryDocumentsAndFoldersArgs,
+      context: { user: IUserInToken }
+    ) => {
       const user: IUser = await UserModel.findOne({ _id: context.user.userID });
-      if (!user) return new AuthenticationError("You need to be logged in");
+      if (!user) {
+        return new AuthenticationError("You need to be logged in");
+      }
 
-      const currentLocation: string = args.currentLocation || user.rootFolder;
-      if (
-        !(await FolderModel.findOne({
-          _id: currentLocation
-        }))
-      )
+      const currentLocation: string =
+        String(args.currentLocation) || String(user.rootFolder);
+      const location: IFolder = await FolderModel.findOne({
+        _id: currentLocation
+      });
+      if (!location) {
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
-
+      } else if (String(location.user) !== String(context.user.userID)) {
+        return new AuthenticationError("Not your folder");
+      }
       const itemsPerPage: number = args.itemsPerPage || 8;
-      let skipN: number = (args.currentPage - 1) * itemsPerPage;
-      let limit: number = skipN + itemsPerPage;
+      const skipN: number = (args.currentPage - 1) * itemsPerPage;
+      const limit: number = skipN + itemsPerPage;
       const text: string = args.searchTitle;
 
       const orderFunction = orderFunctions[args.order];
@@ -338,28 +391,26 @@ const documentResolver = {
       const filterOptionsDoc =
         text === ""
           ? {
-              folder: currentLocation,
-              title: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID
+              folder: currentLocation
             }
-          : {
-              title: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID
-            };
+          : {};
       const filterOptionsFol =
         text === ""
           ? {
-              parent: currentLocation,
-              name: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID
+              parent: currentLocation
             }
-          : {
-              name: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID
-            };
+          : {};
 
-      const docs: IDocument[] = await DocumentModel.find(filterOptionsDoc);
-      const fols: IFolder[] = await FolderModel.find(filterOptionsFol);
+      const docs: IDocument[] = await DocumentModel.find({
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filterOptionsDoc
+      });
+      const fols: IFolder[] = await FolderModel.find({
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filterOptionsFol
+      });
 
       const docsParent = await Promise.all(
         docs.map(
@@ -434,7 +485,11 @@ const documentResolver = {
       };
     },
 
-    hasExercises: async (root: any, args: any, context: any) => {
+    hasExercises: async (
+      _,
+      args: IQueryHasExercisesArgs,
+      context: { user: IUserInToken }
+    ) => {
       let hasChildren: boolean;
       if (args.type === "folder") {
         const fol: IFolder = await FolderModel.findOne({
@@ -459,8 +514,10 @@ const documentResolver = {
     images: async (document: IDocument) =>
       UploadModel.find({ document: document._id }),
     parentsPath: async (document: IDocument) => {
-      const parent = await FolderModel.findOne({ _id: document.folder });
-      const result = await getParentsPath(parent);
+      const parent: IFolder = await FolderModel.findOne({
+        _id: document.folder
+      });
+      const result: IFolder[] = await getParentsPath(parent);
       return result;
     },
     resources: async (document: IDocument) => {

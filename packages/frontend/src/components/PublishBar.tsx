@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Checkbox, Switch } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 
-interface PublishBarProps {
+interface IPublishBarProps {
   isPublic: boolean;
   isExample: boolean;
   onChange: (isPublic: boolean, isExample: boolean) => any;
@@ -10,7 +10,7 @@ interface PublishBarProps {
   url?: string;
 }
 
-const PublishBar: FC<PublishBarProps> = ({
+const PublishBar: FC<IPublishBarProps> = ({
   isPublic,
   isExample,
   onChange,
@@ -83,10 +83,7 @@ const UrlLabel = styled.div`
   border-right: solid 1px #cfcfcf;
 `;
 
-interface UrlProps {
-  hasError: boolean;
-}
-const Url = styled.input<UrlProps>`
+const Url = styled.input<{ hasError: boolean }>`
   border: none;
   background-color: #eee;
   flex: 1;

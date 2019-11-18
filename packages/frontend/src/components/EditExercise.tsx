@@ -80,35 +80,30 @@ const EditExercise = ({ type, id }) => {
         setActiveToFalse();
         window.removeEventListener("beforeunload", setActiveToFalse, true);
       };
-    } else {
-      return () => {};
     }
   }, [teamName]);
 
   useEffect(() => {
     if (exercise && exercise.content) {
-      try {
-        setInitialContent(data.exercise.content);
-      } catch (e) {
-        console.warn("Error parsing exercise content", e);
-      }
+      setInitialContent(data.exercise.content);
     }
   }, [exercise]);
 
-  if (loading) return <Loading />;
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (loading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
 
   const loadSubmission = async () => {
-    const { data } = await client.query({
-      query: STUDENT_SUBMISSION_QUERY
+    const { data: submissionData } = await client.query({
+      query: STUDENT_SUBMISSION_QUERY,
+      errorPolicy: "ignore"
     });
-    try {
-      setSubmission(data.submission);
-      setRestartCount(restartCount + 1);
-      currentContent.current = data.submission.content;
-    } catch (e) {
-      console.warn("Error parsing submission content", e);
-    }
+    setSubmission(submissionData.submission);
+    setRestartCount(restartCount + 1);
+    currentContent.current = submissionData.submission.content;
   };
 
   const restart = () => {
@@ -233,8 +228,8 @@ const EditExercise = ({ type, id }) => {
       {loginVisible && (
         <ExerciseLoginModal
           code={exercise.code}
-          onSuccess={teamName => {
-            setTeamName(teamName);
+          onSuccess={newTeamName => {
+            setTeamName(newTeamName);
             setLoginVisible(false);
             loadSubmission();
           }}
@@ -262,12 +257,8 @@ const EditExercise = ({ type, id }) => {
           subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}
           onSubscriptionData={({ subscriptionData }) => {
-            const { data } = subscriptionData;
-            if (
-              data &&
-              data.submissionActive &&
-              !data.submissionActive.active
-            ) {
+            const { submissionActive } = subscriptionData.data || {};
+            if (submissionActive && !submissionActive.active) {
               setToken("", "exercise-team");
               Router.replace("/");
             }

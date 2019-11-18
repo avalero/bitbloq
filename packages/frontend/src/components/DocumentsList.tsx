@@ -19,18 +19,18 @@ import FolderSelectorMenu from "./FolderSelectorMenu";
 import MenuButton from "./MenuButton";
 import Paginator from "./Paginator";
 
-interface Folder {
+interface IFolder {
   name: string;
   id: string;
 }
 
-export interface DocumentListProps {
+export interface IDocumentListProps {
   currentPage: number;
   docsAndFols?: any;
   pagesNumber: number;
   parentsPath?: any;
   className?: string;
-  currentLocation?: Folder;
+  currentLocation?: IFolder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
@@ -38,7 +38,7 @@ export interface DocumentListProps {
   nFolders: number;
 }
 
-const DocumentListComp: FC<DocumentListProps> = ({
+const DocumentListComp: FC<IDocumentListProps> = ({
   currentPage,
   docsAndFols,
   pagesNumber,
@@ -97,7 +97,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
 
   const [, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: () => {}
+    drop: () => {
+      return undefined;
+    }
   });
 
   const onDocumentMenuClick = (e, document) => {
@@ -140,8 +142,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
   };
 
   const confirmDeleteDoc = () => {
-    if (loadingHasEx || !hasExercisesRes) {
-    }
     if (!errorHasEx && hasExercisesRes !== undefined) {
       if (hasExercisesRes && hasExercisesRes.hasExercises) {
         setDocWithEx(true);
@@ -183,8 +183,6 @@ const DocumentListComp: FC<DocumentListProps> = ({
   };
 
   const confirmDeleteFol = async () => {
-    if (loadingHasEx || !hasExercisesRes) {
-    }
     if (!errorHasEx && hasExercisesRes !== undefined) {
       if (hasExercisesRes && hasExercisesRes.hasExercises) {
         setFolWithChildren(true);
@@ -292,14 +290,18 @@ const DocumentListComp: FC<DocumentListProps> = ({
   };
 
   const onMoveDocument = async (e, folder, documentId?) => {
-    e && e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     await updateDocument({
       variables: { id: documentId || selectedToMove.id, folder: folder.id }
     });
     onMove();
   };
   const onMoveFolder = async (e, folderParent, folderMovedId?) => {
-    e && e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     await updateFolder({
       variables: {
         id: folderMovedId || selectedToMove.id,
@@ -393,9 +395,9 @@ const DocumentListComp: FC<DocumentListProps> = ({
                               e: React.MouseEvent<HTMLDivElement, MouseEvent>
                             ) {
                               setMenuOpenId("");
-                              document.type !== "folder"
-                                ? onDuplicateDocument(e, document)
-                                : null;
+                              if (document.type !== "folder") {
+                                onDuplicateDocument(e, document);
+                              }
                             }
                           },
                           {

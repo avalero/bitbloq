@@ -1,9 +1,8 @@
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
-import { SubmissionModel } from "../models/submission";
-import { UserModel, IUser } from "../models/user";
+import { UserModel } from "../models/user";
 import { IUserInToken } from "../models/interfaces";
-const jsonwebtoken = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
+import { compare as bcryptCompare } from "bcrypt";
 
 import { redisClient } from "../server";
 
@@ -13,11 +12,15 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
     if (user.userID) {
       try {
         reply = await redisClient.getAsync(`authToken-${user.userID}`);
-      } catch (e) {}
+      } catch (e) {
+        return undefined;
+      }
     } else if (user.submissionID) {
       try {
         reply = await redisClient.getAsync(`subToken-${user.submissionID}`);
-      } catch (e) {}
+      } catch (e) {
+        return undefined;
+      }
     }
     if (reply === justToken) {
       return user;
@@ -27,7 +30,9 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
         "ANOTHER_OPEN_SESSION"
       );
     }
-  } else return user;
+  } else {
+    return user;
+  }
 };
 
 const contextController = {
@@ -56,7 +61,7 @@ const contextController = {
       if (justToken) {
         let user: IUserInToken;
         try {
-          user = await jsonwebtoken.verify(justToken, process.env.JWT_SECRET);
+          user = await jwtVerify(justToken, process.env.JWT_SECRET);
         } catch (e) {
           return undefined;
         }
@@ -70,17 +75,11 @@ const contextController = {
       const email: string = data.split(":")[0];
       const pass: string = data.split(":")[1];
       const contactFound = await UserModel.findOne({ email });
-      if (!contactFound) {
-        throw new AuthenticationError("Email or password incorrect");
-      }
-      if (!contactFound.active) {
-        throw new ApolloError(
-          "Not active user, please activate your account",
-          "NOT_ACTIVE_USER"
-        );
+      if (!contactFound || !contactFound.active) {
+        return undefined;
       }
       // Compare passwords from request and database
-      const valid: boolean = await bcrypt.compare(pass, contactFound.password);
+      const valid: boolean = await bcryptCompare(pass, contactFound.password);
       if (valid) {
         const userBas: IUserInToken = {
           email: contactFound.email,
@@ -95,7 +94,7 @@ const contextController = {
   getDataInToken: async inToken => {
     if (inToken) {
       try {
-        return await jsonwebtoken.verify(inToken, process.env.JWT_SECRET);
+        return jwtVerify(inToken, process.env.JWT_SECRET);
       } catch (e) {
         throw new AuthenticationError("Token not value.");
       }
@@ -114,7 +113,8 @@ const contextController = {
   },
 
   generateLoginToken: async user => {
-    let token: string, role: string;
+    let token: string;
+    let role: string;
     let rolePerm: string = "usr-";
     if (user.admin) {
       rolePerm = rolePerm.concat("admin-");
@@ -131,7 +131,7 @@ const contextController = {
     if (user.family) {
       rolePerm = rolePerm.concat("fam-");
     }
-    token = await jsonwebtoken.sign(
+    token = await jwtSign(
       {
         email: user.email,
         userID: user._id,
@@ -148,7 +148,7 @@ const contextController = {
     const data = await contextController.getDataInToken(oldToken);
     await checkOtherSessionOpen(data, oldToken);
     delete data.exp;
-    const token = await jsonwebtoken.sign(data, process.env.JWT_SECRET, {
+    const token = await jwtSign(data, process.env.JWT_SECRET, {
       expiresIn: "1.1h"
     });
     return { data, token };

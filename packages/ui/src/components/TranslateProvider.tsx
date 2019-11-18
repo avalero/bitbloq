@@ -6,13 +6,13 @@ export const TranslateContext = React.createContext<TranslateFn>(
   (id: string) => id
 );
 
-export interface TranslateProviderProps {
+export interface ITranslateProviderProps {
   messages?: any;
   messagesFiles?: any;
   fallback?: React.ReactNode;
 }
 
-const findByString = function(object: any, selector: string) {
+const findByString = (object: any, selector: string) => {
   if (!selector) {
     return;
   }
@@ -31,19 +31,26 @@ const findByString = function(object: any, selector: string) {
   }, object);
 };
 
-class TranslateProvider extends React.Component<TranslateProviderProps> {
-  constructor(props) {
+interface IState {
+  messages?: any;
+}
+
+class TranslateProvider extends React.Component<
+  ITranslateProviderProps,
+  IState
+> {
+  constructor(props: ITranslateProviderProps) {
     super(props);
     this.state = { messages: props.messages };
   }
 
-  componentDidMount() {
+  public componentDidMount() {
     if (this.props.messagesFiles) {
       this.getLanguageMessages();
     }
   }
 
-  async getLanguageMessages() {
+  public async getLanguageMessages() {
     const { messagesFiles } = this.props;
     const language = navigator.language;
     const langCode = language.split("-")[0] || language;
@@ -55,7 +62,7 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
     this.setState({ messages });
   }
 
-  render() {
+  public render() {
     const { fallback } = this.props;
     const messages = this.state.messages || {};
 
@@ -69,7 +76,6 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
         }
         return translation;
       }
-      console.warn(`Missing translation for ${id}`);
       return id;
     };
 
@@ -83,7 +89,7 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 
 export const Translate = TranslateContext.Consumer;
 
-export interface WithTranslateProps {
+export interface IWithTranslateProps {
   t: TranslateFn;
 }
 
@@ -91,7 +97,7 @@ export const withTranslate = <P extends object>(
   Component: React.ComponentType<P>
 ) =>
   class WithTranslate extends React.Component<P> {
-    render() {
+    public render() {
       return <Translate>{t => <Component t={t} {...this.props} />}</Translate>;
     }
   };

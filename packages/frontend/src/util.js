@@ -9,6 +9,16 @@ export const getChromeVersion = userAgent => {
   }
 };
 
+export const isValidDate = date => {
+  const day = date.split("/")[0];
+  const month = date.split("/")[1] - 1;
+  const year = date.split("/")[2];
+  return (
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/i.test(date) &&
+    new Date(year, month, day).getMonth() === month
+  );
+};
+
 export const isValidEmail = email =>
   /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email);
 
@@ -23,7 +33,7 @@ export const isValidName = name => {
   } else {
     return false;
   }
-}
+};
 
 export const sortByCreatedAt = (a, b) => {
   const aCreatedAt = a && a.createdAt;

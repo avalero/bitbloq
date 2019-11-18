@@ -4,14 +4,14 @@ import HTML5Backend from "react-dnd-html5-backend";
 import styled from "@emotion/styled";
 import { Icon } from "@bitbloq/ui";
 
-export interface ArrowProps {
+export interface IArrowProps {
   direction: "decrement" | "increment";
   disabled: boolean;
   page: number;
   onClick: (page: number) => void;
 }
 
-const Arrow: React.FC<ArrowProps> = ({
+const Arrow: React.FC<IArrowProps> = ({
   direction,
   disabled,
   page,
@@ -47,13 +47,13 @@ const Arrow: React.FC<ArrowProps> = ({
   );
 };
 
-export interface PageProps {
+export interface IPageProps {
   page: number;
   onClick: (page: number) => void;
   selected: boolean;
 }
 
-const Page: React.FC<PageProps> = ({ page, selected, onClick }) => {
+const Page: React.FC<IPageProps> = ({ page, selected, onClick }) => {
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
     canDrop: () => false,
@@ -75,22 +75,21 @@ const Page: React.FC<PageProps> = ({ page, selected, onClick }) => {
   );
 };
 
-export interface PaginatorProps {
+export interface IPaginatorProps {
   className?: string;
   currentPage: number;
   pages: number;
   selectPage: (page: number) => void;
 }
 
-const Paginator: React.FC<PaginatorProps> = ({
+const Paginator: React.FC<IPaginatorProps> = ({
   className,
   currentPage,
   pages,
   selectPage
 }) => {
   const preparePagesElements = (): JSX.Element[] => {
-    let pagesElements: JSX.Element[] = [];
-    let numberPages: Set<number> = new Set();
+    const numberPages: Set<number> = new Set();
 
     numberPages.add(currentPage);
 
@@ -108,27 +107,21 @@ const Paginator: React.FC<PaginatorProps> = ({
 
     const pagesArray = Array.from(numberPages).sort((a, b) => a - b);
 
-    for (let i in pagesArray) {
-      const page = pagesArray[i];
-      pagesElements.push(
+    return pagesArray.map((page, i) => (
+      <>
         <Page
           key={i}
           page={page}
           selected={currentPage === page}
           onClick={selectPage}
         />
-      );
-
-      if (pagesArray[+i + 1] && pagesArray[+i + 1] - page > 1) {
-        pagesElements.push(
+        {pagesArray[+i + 1] && pagesArray[+i + 1] - page > 1 && (
           <Ellipsis key={`ellipsis-${page}-${pagesArray[+i + 1]}`}>
             <Icon name="ellipsis" />
           </Ellipsis>
-        );
-      }
-    }
-
-    return pagesElements;
+        )}
+      </>
+    ));
   };
 
   const pagesElements = preparePagesElements();
@@ -156,14 +149,13 @@ const Paginator: React.FC<PaginatorProps> = ({
 
 export default Paginator;
 
-interface AngleIconProps {
+interface IAngleIconProps {
   direction: "decrement" | "increment";
 }
-const AngleIcon = styled(Icon)<AngleIconProps>`
+const AngleIcon = styled(Icon)<IAngleIconProps>`
   height: 12px;
   transform: rotate(
-    ${(props: AngleIconProps) =>
-      props.direction === "decrement" ? "90" : "-90"}deg
+    ${props => (props.direction === "decrement" ? "90" : "-90")}deg
   );
   width: 12px;
 `;
@@ -180,11 +172,11 @@ const Ellipsis = styled.div`
   }
 `;
 
-interface PageItemProps {
+interface IPageItemProps {
   isOver?: boolean;
   selected?: boolean;
 }
-const PageItem = styled.div<PageItemProps>`
+const PageItem = styled.div<IPageItemProps>`
   align-items: center;
   background-color: ${props => (props.selected ? "#eee" : "#fff")};
   border: solid 1px ${props => (props.isOver ? "#373b44" : "#ccc")};

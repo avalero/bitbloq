@@ -10,7 +10,8 @@ import { IUser, UserModel } from "../models/user";
 import {
   IEmailData,
   IResetPasswordToken,
-  ISignUpToken
+  ISignUpToken,
+  IUserInToken
 } from "../models/interfaces";
 
 import * as mjml2html from "mjml";
@@ -19,52 +20,110 @@ import { welcomeTemplate } from "../email/welcomeMail";
 
 import { redisClient } from "../server";
 
-const bcrypt = require("bcrypt");
-const jsonwebtoken = require("jsonwebtoken");
+import { sign as jwtSign } from "jsonwebtoken";
+import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+import {
+  IMutationActivateAccountArgs,
+  IMutationDeleteUserArgs,
+  IMutationUpdateUserArgs,
+  IMutationSaveUserDataArgs,
+  IMutationFinishSignUpArgs
+} from "../api-types";
 
-const saltRounds = 7;
+const saltRounds: number = 7;
 
 const userResolver = {
   Mutation: {
     // Public mutations:
 
     /**
-     * Sign up user: register a new uer.
-     * It sends a e-mail to activate the account and check if the registered account exists.
+     * Save user: register the data of a new uer.
+     * It saves the new user data if the email passed as argument is not registered yet.
      * args: email, password and user information.
      */
-    signUpUser: async (root: any, args: any) => {
+    saveUserData: async (_, args: IMutationSaveUserDataArgs) => {
       const contactFound: IUser = await UserModel.findOne({
         email: args.input.email
       });
       if (contactFound) {
-        throw new ApolloError("This user already exists", "USER_EMAIL_EXISTS");
+        if (contactFound.finishedSignUp) {
+          throw new ApolloError(
+            "This user already exists",
+            "USER_EMAIL_EXISTS"
+          );
+        } else {
+          await UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
+        }
       }
       // Store the password with a hash
-      const hash: string = await bcrypt.hash(args.input.password, saltRounds);
+      const hash: string = await bcryptHash(
+        args.input.password as string,
+        saltRounds as number
+      );
+      const birthDate: string[] = String(args.input.birthDate).split("/");
       const userNew: IUser = new UserModel({
         email: args.input.email,
         password: hash,
         name: args.input.name,
-        center: args.input.center,
+        surnames: args.input.surnames,
+        birthDate: new Date(
+          Number(birthDate[2]),
+          Number(birthDate[1]) - 1,
+          Number(birthDate[0])
+        ),
         active: false,
         authToken: " ",
         notifications: args.input.notifications,
-        signUpSurvey: args.input.signUpSurvey,
+        imTeacherCheck: args.input.imTeacherCheck,
+        centerName: args.input.centerName,
+        educationalStage: args.input.educationalStage,
+        city: args.input.city,
+        postCode: args.input.postCode,
+        country: args.input.country,
         lastLogin: new Date(),
-        teacher: true
+        finishedSignUp: false
       });
       const newUser: IUser = await UserModel.create(userNew);
-      const token: string = jsonwebtoken.sign(
+      return { id: newUser._id, email: newUser.email };
+    },
+
+    /**
+     * Finish sign up: checks if the user id passed as argument is registered in platform
+     * and update the user plan.
+     * It sends a e-mail to activate the account.
+     * args: userID and plan selected("member" or "teacher").
+     */
+    finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
+      const user: IUser = await UserModel.findOne({
+        _id: args.id,
+        active: false
+      });
+      if (!user) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
+      let teacher: boolean = false;
+      switch (args.userPlan) {
+        case "teacher":
+          teacher = true;
+          break;
+        case "member":
+          break;
+        default:
+          throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
+      }
+      const signUpToken: string = jwtSign(
         {
-          signUpUserID: newUser._id
+          signUpUserID: user._id
         },
         process.env.JWT_SECRET
       );
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/activate?token=${token}`
+        url: `${process.env.FRONTEND_URL}/app/activate?token=${signUpToken}`
       };
       const mjml: string = welcomeTemplate(data);
       const htmlMessage: any = mjml2html(mjml, {
@@ -73,7 +132,7 @@ const userResolver = {
         minify: true
       });
       await mailerController.sendEmail(
-        newUser.email,
+        user.email,
         "Bitbloq Sign Up ✔",
         htmlMessage.html
       );
@@ -81,12 +140,19 @@ const userResolver = {
       // Create user root folder for documents
       const userFolder: IFolder = await FolderModel.create({
         name: "root",
-        user: newUser._id
+        user: user._id
       });
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
-        { _id: newUser._id },
-        { $set: { signUpToken: token, rootFolder: userFolder._id } },
+        { _id: user._id },
+        {
+          $set: {
+            signUpToken,
+            teacher,
+            finishedSignUp: true,
+            rootFolder: userFolder._id
+          }
+        },
         { new: true }
       );
       return "OK";
@@ -97,8 +163,11 @@ const userResolver = {
       It returns the authorization token with user information.
       args: email and password.
     */
-    login: async (root: any, { email, password }) => {
-      const contactFound: IUser = await UserModel.findOne({ email });
+    login: async (_, { email, password }) => {
+      const contactFound: IUser = await UserModel.findOne({
+        email,
+        finishedSignUp: true
+      });
       if (!contactFound) {
         throw new AuthenticationError("Email or password incorrect");
       }
@@ -109,7 +178,7 @@ const userResolver = {
         );
       }
       // Compare passwords from request and database
-      const valid: boolean = await bcrypt.compare(
+      const valid: boolean = await bcryptCompare(
         password,
         contactFound.password
       );
@@ -161,7 +230,7 @@ const userResolver = {
     /*
      * renewToken: returns a new token for a logged user
      */
-    renewToken: async (root: any, args: any, context: any) => {
+    renewToken: async (_, __, context: any) => {
       let oldToken = "";
       if (context.headers && context.headers.authorization) {
         oldToken = context.headers.authorization.split(" ")[1];
@@ -182,12 +251,15 @@ const userResolver = {
      * reset Password: send a email to the user email with a new token for edit the password.
      * args: email
      */
-    resetPasswordEmail: async (root: any, { email }) => {
-      const contactFound: IUser = await UserModel.findOne({ email });
+    resetPasswordEmail: async (_, { email }) => {
+      const contactFound: IUser = await UserModel.findOne({
+        email,
+        finishedSignUp: true
+      });
       if (!contactFound) {
         throw new AuthenticationError("The email does not exist.");
       }
-      const token: string = jsonwebtoken.sign(
+      const token: string = jwtSign(
         {
           resetPassUserID: contactFound._id
         },
@@ -214,7 +286,7 @@ const userResolver = {
       return "OK";
     },
 
-    checkResetPasswordToken: async (root: any, { token }) => {
+    checkResetPasswordToken: async (_, { token }) => {
       await getResetPasswordData(token);
       return true;
     },
@@ -224,11 +296,12 @@ const userResolver = {
      * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
      * args: token, new Password
      */
-    updatePassword: async (root: any, { token, newPassword }) => {
+    updatePassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
       const contactFound: IUser = await UserModel.findOne({
-        _id: dataInToken.resetPassUserID
+        _id: dataInToken.resetPassUserID,
+        finishedSignUp: true
       });
 
       if (!contactFound) {
@@ -238,7 +311,7 @@ const userResolver = {
         );
       }
       // Store the password with a hash
-      const hash: string = await bcrypt.hash(newPassword, saltRounds);
+      const hash: string = await bcryptHash(newPassword, saltRounds);
       const {
         token: authToken,
         role
@@ -249,7 +322,7 @@ const userResolver = {
         {
           $set: {
             password: hash,
-            authToken: authToken
+            authToken
           }
         }
       );
@@ -267,7 +340,7 @@ const userResolver = {
       It takes the information of the token received and activates the account created before.
       args: sign up token. This token is provided in the email sent.
     */
-    activateAccount: async (root: any, args: any, context: any) => {
+    activateAccount: async (_, args: IMutationActivateAccountArgs) => {
       if (!args.token) {
         throw new ApolloError(
           "Error with sign up token, no token in args",
@@ -279,7 +352,8 @@ const userResolver = {
       );
 
       const contactFound: IUser = await UserModel.findOne({
-        _id: userInToken.signUpUserID
+        _id: userInToken.signUpUserID,
+        finishedSignUp: true
       });
       if (userInToken.signUpUserID && !contactFound.active) {
         const { token } = await contextController.generateLoginToken(
@@ -311,10 +385,15 @@ const userResolver = {
      * This method deletes all the documents, exercises and submissions related with this user.
      * args: user ID.
      */
-    deleteUser: async (root: any, args: any, context: any) => {
+    deleteUser: async (
+      _,
+      args: IMutationDeleteUserArgs,
+      context: { user: IUserInToken }
+    ) => {
       const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
-        _id: context.user.userID
+        _id: context.user.userID,
+        finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
         await SubmissionModel.deleteMany({ user: contactFound._id });
@@ -335,16 +414,20 @@ const userResolver = {
       It updates the user with the new information provided.
       args: user ID, new user information.
     */
-    updateUser: async (root: any, args: any, context: any, input: any) => {
+    updateUser: async (
+      _,
+      args: IMutationUpdateUserArgs,
+      context: { user: IUserInToken }
+    ) => {
       const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
-        _id: context.user.userID
+        _id: context.user.userID,
+        finishedSignUp: true
       });
       if (String(contactFound._id) === args.id) {
-        const data: IUser = args.input;
-        return await UserModel.findOneAndUpdate(
+        return UserModel.findOneAndUpdate(
           { _id: contactFound._id },
-          { $set: data },
+          { $set: args.input },
           { new: true }
         );
       } else {
@@ -358,7 +441,7 @@ const userResolver = {
      *  Me: returns the information of the user provided in the authorization token.
      *  args: nothing.
      */
-    me: async (root: any, args: any, context: any) => {
+    me: async (_, __, context: { user: IUserInToken }) => {
       const contactFound: IUser = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID
@@ -373,7 +456,7 @@ const userResolver = {
      *  Users: returns all the users in the platform. It can be executed only by admin user.
      *  args: nothing.
      */
-    users(root: any, args: any, context: any) {
+    users() {
       return UserModel.find({});
     }
   },

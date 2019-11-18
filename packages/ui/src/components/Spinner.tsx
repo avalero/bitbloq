@@ -3,12 +3,12 @@ import styled from "@emotion/styled";
 import { keyframes } from "@emotion/core";
 import Icon from "./Icon";
 
-export interface SpinnerProps {
+export interface ISpinnerProps {
   className?: string;
   small?: boolean;
 }
 
-const Spinner: React.SFC<SpinnerProps> = ({ className, small }) => (
+const Spinner: React.SFC<ISpinnerProps> = ({ className, small }) => (
   <Container className={className} small={small}>
     <Icon name="spinner" />
   </Container>

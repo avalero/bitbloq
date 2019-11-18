@@ -5,10 +5,10 @@ import Modal from "./Modal";
 import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
-export interface DialogModalProps {
+export interface IDialogModalProps {
   isOpen: boolean;
   title?: string;
-  text?: string;
+  text?: JSX.Element | string;
   content?: JSX.Element;
   okText?: string;
   cancelText?: string;
@@ -20,7 +20,7 @@ export interface DialogModalProps {
   horizontalRule?: boolean;
 }
 
-const DialogModal: React.SFC<DialogModalProps> = ({
+const DialogModal: React.SFC<IDialogModalProps> = ({
   isOpen,
   title,
   text,
@@ -99,12 +99,9 @@ const Content = styled.div`
   }
 `;
 
-interface HeaderProps {
-  horizontalRule: boolean;
-}
-const Header = styled.div<HeaderProps>`
+const Header = styled.div<{ horizontalRule: boolean }>`
   height: 60px;
-  margin-bottom: ${(props: HeaderProps) => (props.horizontalRule ? 40 : 0)}px;
+  margin-bottom: ${props => (props.horizontalRule ? 40 : 0)}px;
   position: relative;
 `;
 

@@ -45,7 +45,7 @@ const ResourcesList: FC<IResourcesListProps> = ({
         <FilterOptions
           searchText={searchText}
           onChange={(value: string) => setSearchText(value)}
-          onOrderChange={(order: OrderType) => setOrder(order)}
+          onOrderChange={setOrder}
           selectValue={order}
         />
       </FilterContainer>

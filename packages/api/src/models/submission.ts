@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import * as timestamps from "mongoose-timestamp";
 
 export interface ISubmission extends Document {
   user?: string;
@@ -16,7 +16,7 @@ export interface ISubmission extends Document {
   active: boolean;
 }
 
-const SubmissionMongSchema: Schema = new Schema({
+const submissionMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: "UserModel"
@@ -101,8 +101,8 @@ const SubmissionMongSchema: Schema = new Schema({
     type: Date
   }
 });
-SubmissionMongSchema.plugin(timestamps);
+submissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(
   "SubmissionModel",
-  SubmissionMongSchema
+  submissionMongSchema
 );

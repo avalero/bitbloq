@@ -5,7 +5,10 @@ import { IFolder, FolderModel } from "./models/folder";
  * @param folder carpeta de la que se quieren obtener los padres
  * @param path listado de padres
  */
-export const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
+export const getParentsPath = async (
+  folder: IFolder,
+  path: IFolder[] = []
+): Promise<IFolder[]> => {
   if (folder.name === "root") {
     return [folder, ...path];
   } else {
@@ -39,7 +42,9 @@ export const sortByTitleAZ = (a, b) => {
     const aTitle = a && a.title.toLowerCase();
     const bTitle = b && b.title.toLowerCase();
     return aTitle === bTitle ? 0 : aTitle < bTitle ? -1 : 1;
-  } catch (e) {}
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const sortByTitleZA = (a, b) => {
@@ -47,7 +52,9 @@ export const sortByTitleZA = (a, b) => {
     const aTitle = a && a.title.toLowerCase();
     const bTitle = b && b.title.toLowerCase();
     return aTitle === bTitle ? 0 : aTitle > bTitle ? -1 : 1;
-  } catch (e) {}
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const orderFunctions = {

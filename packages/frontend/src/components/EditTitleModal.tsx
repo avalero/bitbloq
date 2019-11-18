@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidName } from "../util";
 
-interface EditTitleModalProps {
+interface IEditTitleModalProps {
   title: string;
   onSave: (title: string) => any;
   onCancel: () => any;
@@ -15,7 +15,7 @@ interface EditTitleModalProps {
   validateInput?: boolean;
 }
 
-const EditTitleModal: FC<EditTitleModalProps> = props => {
+const EditTitleModal: FC<IEditTitleModalProps> = props => {
   const {
     onSave,
     onCancel,

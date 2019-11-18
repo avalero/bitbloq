@@ -4,16 +4,17 @@
     "exclude": [
       "packages/*/node_modules/**/*",
       "packages/*/src/__tests__/**/*",
-      "packages/lib3d/src/threeCSG.ts",
-      "packages/lib3d/src/Renderer.ts"
+      "packages/api/src/api-types.ts",
+      "packages/lib3d/src/threeCSG.ts"
     ]
   },
   "rules": {
-    "variable-name": [true, "check-format", "allow-leading-underscore"],
+    "variable-name": [true, "check-format", "allow-leading-underscore","allow-pascal-case"],
     "ordered-imports": false,
     "object-literal-sort-keys": false,
-    "no-any": false,
-    "no-unsafe-any": true,
-    "no-require-imports": false
+    "no-require-imports": false,
+    "no-implicit-dependencies": [true, "dev"],
+    "no-submodule-imports": false,
+    "max-classes-per-file": false
   }
 }

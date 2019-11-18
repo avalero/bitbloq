@@ -11,11 +11,7 @@ import { flags } from "../config";
 
 const { SHOW_GRAPHQL_LOGS } = flags;
 
-const request = async (
-  operation,
-  client,
-  { getToken, onSessionActivity }
-) => {
+const request = async (operation, client, { getToken, onSessionActivity }) => {
   const context = operation.getContext();
 
   let authHeader = "";
@@ -24,7 +20,7 @@ const request = async (
     const basicAuth = btoa(`${context.email}:${context.password}`);
     authHeader = `Basic ${basicAuth}`;
   } else {
-    const token = context.token || await getToken();
+    const token = context.token || (await getToken());
     authHeader = `Bearer ${token}`;
   }
 
@@ -98,7 +94,9 @@ export const createClient = (
               .catch(observer.error.bind(observer));
 
             return () => {
-              if (handle) handle.unsubscribe();
+              if (handle) {
+                handle.unsubscribe();
+              }
             };
           })
       ),

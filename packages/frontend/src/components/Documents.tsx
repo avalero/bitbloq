@@ -59,7 +59,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   ]);
 
-  let openFile = React.createRef<HTMLInputElement>();
+  const openFile = React.createRef<HTMLInputElement>();
 
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
   const [documentsData, setDocumentsData] = useState<any>({});
@@ -73,8 +73,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   } = useQuery(DOCS_FOLDERS_PAGE_QUERY, {
     variables: {
       currentLocation: currentLocation.id,
-      currentPage: currentPage,
-      order: order,
+      currentPage,
+      order,
       searchTitle: searchQuery,
       itemsPerPage: 8
     },
@@ -95,8 +95,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
-  const onFolderClick = async ({ id, title }) => {
-    Router.push(`/app/folder/${id}`);
+  const onFolderClick = async ({ folderId }) => {
+    Router.push(`/app/folder/${folderId}`);
   };
 
   useEffect(() => {
@@ -105,12 +105,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   }, [pagesNumber]);
 
-  const onDocumentClick = ({ id, type, title }) => {
+  const onDocumentClick = ({ id: documentId, type, title }) => {
     setBreadcrumbsLinks([
       ...breadcrumbLinks,
       { route: id, text: title, type: "document" }
     ]);
-    Router.push(`/app/document/${id}`);
+    Router.push(`/app/document/${documentId}`);
   };
 
   const onCreateFolder = async folderName => {
@@ -129,8 +129,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     window.open(`/app/edit-document/${currentLocation.id}/${type}/new`);
   };
 
-  const onOrderChange = (order: OrderType) => {
-    setOrder(order);
+  const onOrderChange = (newOrder: OrderType) => {
+    setOrder(newOrder);
     refetchDocsFols();
   };
 
@@ -231,9 +231,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
             <FilterOptions
               onOrderChange={onOrderChange}
               searchText={searchText}
-              onChange={(value: string) => (
-                setSearchText(value), onSearchInput(value)
-              )}
+              onChange={(value: string) => {
+                setSearchText(value);
+                onSearchInput(value);
+              }}
             />
           )}
           <HeaderButtons>
