@@ -1,6 +1,5 @@
 import React, { FC, useRef, useEffect, useState, useCallback } from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
 import {
   Checkbox,
   ColorPicker,
@@ -11,7 +10,6 @@ import {
   Tooltip,
   useTranslate
 } from "@bitbloq/ui";
-import { STLLoader } from "@bitbloq/lib3d";
 import { IObjectParameter, IOperationParameter, ISelectOption } from "../types";
 
 import warningIcon from "../assets/images/warning.svg";

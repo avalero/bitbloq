@@ -212,7 +212,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     refetchDocsFols();
     setEditDocTitleModal({ id: null, title: null });
-    setMenuOpenId(null);
+    setMenuOpenId("");
   };
 
   const onUpdateFolderName = async (folderName?: string) => {
@@ -224,7 +224,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     refetchDocsFols();
     setEditFolderNameModal({ id: null, name: null });
-    setMenuOpenId(null);
+    setMenuOpenId("");
   };
 
   const onDuplicateDocument = async (e, document) => {
@@ -275,7 +275,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
 
   const onMove = () => {
     refetchDocsFols();
-    setMenuOpenId(null);
+    setMenuOpenId("");
     setSelectedToMove({
       id: null,
       parent: null
@@ -436,7 +436,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id && (
+                    {selectedToMove.id === document.id ? (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
                         onMove={
@@ -446,6 +446,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                         }
                         currentLocation={currentLocation}
                       />
+                    ) : (
+                      <></>
                     )}
                   </DropDown>
                 </DropDown>

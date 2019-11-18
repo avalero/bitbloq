@@ -89,7 +89,9 @@ const ResourceCard: FC<IResourceCardProps> = ({
               label: t("cloud.options.details"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
-                selectResource && selectResource(id);
+                if (selectResource) {
+                  selectResource(id);
+                }
               }
             },
             {
@@ -99,11 +101,11 @@ const ResourceCard: FC<IResourceCardProps> = ({
                 : t("cloud.options.trash"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
-                deleted && restoreFromTrash
-                  ? restoreFromTrash(id)
-                  : deleted && moveToTrash
-                  ? moveToTrash(id)
-                  : null;
+                if (deleted && restoreFromTrash) {
+                  restoreFromTrash(id);
+                } else if (!deleted && moveToTrash) {
+                  moveToTrash(id);
+                }
               }
             }
           ]}

@@ -124,7 +124,9 @@ const CloudModal: FC<ICloudModalProps> = ({
     setSearchQuery("");
     setSearchText("");
     setSelectedResource(undefined);
-    onClose && onClose();
+    if (onClose) {
+      onClose();
+    }
   };
 
   const onMoveToTrash = async (id: string) => {

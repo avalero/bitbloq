@@ -77,19 +77,21 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     setFile(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
-    onClose && onClose();
+    if (onClose) {
+      onClose();
+    }
   };
 
-  const onSendResource = async (file: File) => {
-    const resourceBlob = file.slice(0, file.size, file.type);
+  const onSendResource = async (fileToSend: File) => {
+    const resourceBlob = fileToSend.slice(0, fileToSend.size, fileToSend.type);
     const resourceFile = new File(
       [resourceBlob],
-      file.name.replace(/.+(\.\w+$)/, `${nameFile}$1`),
-      { type: file.type }
+      fileToSend.name.replace(/.+(\.\w+$)/, `${nameFile}$1`),
+      { type: fileToSend.type }
     );
     const { data } = await uploadResource({
       variables: {
-        file: resourceFile
+        fileToSend: resourceFile
       }
     });
     const { id } = data.uploadCloudResource;
