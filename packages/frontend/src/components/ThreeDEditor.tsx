@@ -106,7 +106,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
       type: "option"
     });
 
-    if (user && user.teacher) {
+    if (user) {
       fileMenu.children.push({
         id: "import-resource",
         label: t("cloud.upload.import"),
