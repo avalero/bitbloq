@@ -420,6 +420,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         onDocumentChange={update}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}
+        user={user}
       >
         {documentProps => (
           <Document

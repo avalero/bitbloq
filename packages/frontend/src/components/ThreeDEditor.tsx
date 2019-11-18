@@ -23,7 +23,7 @@ import {
 } from "../config";
 import ExportSTLModal from "./ExportSTLModal";
 import UploadResourceModal from "./UploadResourceModal";
-import { IEditorProps, IDocument, IResource, ResourcesTypes } from "../types";
+import { IEditorProps, ResourcesTypes } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 
 const ThreeDEditor: FC<IEditorProps> = ({
@@ -32,7 +32,8 @@ const ThreeDEditor: FC<IEditorProps> = ({
   baseTabs,
   baseMenuOptions,
   children,
-  resources = []
+  resources = [],
+  user
 }) => {
   const t = useTranslate();
   const threedRef = useRef<IThreeDRef>(null);
@@ -97,17 +98,16 @@ const ThreeDEditor: FC<IEditorProps> = ({
     );
 
     const fileMenu = { ...baseFileMenu, children: [...baseFileMenu.children] };
-    fileMenu.children.splice(
-      Math.max(downloadDocumentIndex, 0),
-      0,
-      {
-        id: "download-stl",
-        label: t("menu-export-stl"),
-        icon: <Icon name="export-stl" />,
-        onClick: () => setShowExportModal(true),
-        type: "option"
-      },
-      {
+    fileMenu.children.splice(Math.max(downloadDocumentIndex, 0), 0, {
+      id: "download-stl",
+      label: t("menu-export-stl"),
+      icon: <Icon name="export-stl" />,
+      onClick: () => setShowExportModal(true),
+      type: "option"
+    });
+
+    if (user && user.teacher) {
+      fileMenu.children.push({
         id: "import-resource",
         label: t("cloud.upload.import"),
         icon: <Icon name="import-stl" />,
@@ -118,8 +118,8 @@ const ThreeDEditor: FC<IEditorProps> = ({
           setResourceModal(true);
         },
         type: "option"
-      }
-    );
+      });
+    }
 
     const viewMenu: IMainMenuOption = {
       id: "view",
