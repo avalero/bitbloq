@@ -36,6 +36,7 @@ import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
+import Interrogation from "./icons/Interrogation";
 import Intersection from "./icons/Intersection";
 import Loop from "./icons/Loop";
 import Minus from "./icons/Minus";
@@ -191,6 +192,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <ImportSTL className={className} />;
     case "info":
       return <Info className={className} />;
+    case "interrogation":
+      return <Interrogation className={className} />;
     case "intersection":
       return <Intersection className={className} />;
     case "center":
@@ -312,6 +315,7 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
     case "folder-icon":
       return <Folder className={className} />;
     default:
+      // tslint:disable-next-line:no-console
       console.warn("Icon not found");
       return null;
   }

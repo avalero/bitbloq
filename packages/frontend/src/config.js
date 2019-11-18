@@ -116,6 +116,72 @@ export const resourceTypes = {
   }
 };
 
+export const plans = [
+  {
+    name: "unregistered",
+    featureTable: [
+      "create-documents",
+      "download-documents",
+      "open-documents",
+      "create-documents-with-bq-kits",
+      "exercise-access"
+    ]
+  },
+  {
+    name: "member",
+    bitbloqCloud: true,
+    highlightedFeatures: ["save-online-documents"],
+    featureTable: [
+      "create-documents",
+      "download-documents",
+      "open-documents",
+      "create-documents-with-bq-kits",
+      "exercise-access",
+      "bitbloq-cloud",
+      "save-unlimited-documents"
+    ],
+    isFree: true
+  },
+  {
+    name: "teacher",
+    bitbloqCloud: true,
+    highlightedFeatures: [
+      "create-exercises",
+      "correct-exercises",
+      "unregistered-student-access"
+    ],
+    featureTable: [
+      "create-documents",
+      "download-documents",
+      "open-documents",
+      "create-documents-with-bq-kits",
+      "exercise-access",
+      "bitbloq-cloud",
+      "save-unlimited-documents",
+      "exercise-compilation",
+      "online-compilation",
+      "create-exercises",
+      "correct-exercises"
+    ],
+    originalPrice: 6,
+    isBetaFree: true
+  }
+];
+
+export const featureTable = [
+  "create-documents",
+  "download-documents",
+  "open-documents",
+  "create-documents-with-bq-kits",
+  "exercise-access",
+  "bitbloq-cloud",
+  "save-unlimited-documents",
+  "exercise-compilation",
+  "online-compilation",
+  "create-exercises",
+  "correct-exercises"
+];
+
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
   TOKEN_DURATION_MINUTES: 300,

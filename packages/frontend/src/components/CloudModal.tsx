@@ -171,6 +171,7 @@ const CloudModal: FC<ICloudModalProps> = ({
   return (
     <Modal
       iconName="cloud-logo"
+      iconColor="#6878f5"
       isOpen={isOpen}
       onClose={onCloseModal}
       title="Bitbloq Cloud"

@@ -12,6 +12,7 @@ export interface IModalProps {
   transparentOverlay?: boolean;
   className?: string;
   iconName?: string;
+  iconColor?: string;
 }
 
 const Modal: FC<IModalProps> = ({
@@ -22,7 +23,8 @@ const Modal: FC<IModalProps> = ({
   transparentOverlay,
   children,
   className,
-  iconName
+  iconName,
+  iconColor
 }) => {
   if (!isOpen) {
     return null;
@@ -42,7 +44,7 @@ const Modal: FC<IModalProps> = ({
           <>
             <Header>
               <Title>
-                {iconName && <Icon name={iconName} />}
+                {iconName && <HeaderIcon name={iconName} color={iconColor} />}
                 {title}
               </Title>
               {onClose && (
@@ -95,6 +97,10 @@ const Container = styled.div<{ withShadow?: boolean }>`
 const Header = styled.div`
   display: flex;
   height: 60px;
+`;
+
+const HeaderIcon = styled(Icon)<{ color?: string }>`
+  color: ${props => props.color};
 `;
 
 const Title = styled.div`
