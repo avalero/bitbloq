@@ -46,7 +46,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const [error, setError] = useState<Errors>(Errors.noError);
-  const [file, setFile] = useState<File>(undefined);
+  const [file, setFile] = useState<File | undefined>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
   const [openCloud, setOpenCloud] = useState<boolean>(false);
   const [tab, setTab] = useState<TabType>(TabType.import);
@@ -77,10 +77,10 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     setFile(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
-    onClose!();
+    onClose && onClose();
   };
 
-  const onSendResource = async () => {
+  const onSendResource = async (file: File) => {
     const resourceBlob = file.slice(0, file.size, file.type);
     const resourceFile = new File(
       [resourceBlob],
@@ -173,7 +173,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           {file !== undefined && (
             <ResourceModalButton
               disabled={!isValidName(nameFile)}
-              onClick={() => onSendResource()}
+              onClick={() => onSendResource(file)}
             >
               {t("general-add-button")}
             </ResourceModalButton>

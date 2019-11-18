@@ -30,7 +30,7 @@ export interface IDocumentListProps {
   pagesNumber: number;
   parentsPath?: any;
   className?: string;
-  currentLocation?: IFolder;
+  currentLocation: IFolder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
@@ -203,7 +203,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     setDeleteFol({ id: null });
   };
 
-  const onUpdateDocTitle = async docTitle => {
+  const onUpdateDocTitle = async (docTitle?: string) => {
     await updateDocument({
       variables: {
         id: editDocTitleModal.id,
@@ -215,7 +215,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     setMenuOpenId(null);
   };
 
-  const onUpdateFolderName = async folderName => {
+  const onUpdateFolderName = async (folderName?: string) => {
     await updateFolder({
       variables: {
         id: editFolderNameModal.id,
@@ -243,7 +243,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
           isSnapshot: document.image.indexOf("blob") > -1
         },
         title: newTitle,
-        folder: currentLocation!.id
+        folder: currentLocation.id
       }
     });
     refetchDocsFols();
@@ -510,7 +510,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       />
       {editDocTitleModal.id && (
         <EditTitleModal
-          title={editDocTitleModal.title || "Title"}
+          title={editDocTitleModal.title || undefined}
           onCancel={() => setEditDocTitleModal({ id: null, title: null })}
           onSave={onUpdateDocTitle}
           modalTitle="Cambiar nombre del documento"
@@ -521,7 +521,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       )}
       {editFolderNameModal.id && (
         <EditTitleModal
-          title={editFolderNameModal.name || "Title"}
+          title={editFolderNameModal.name || undefined}
           onCancel={() => setEditFolderNameModal({ id: null, name: null })}
           onSave={onUpdateFolderName}
           modalTitle="Cambiar nombre de la carpeta"

@@ -29,12 +29,12 @@ const ResourcesGrid: FC<IResourcesGridProps> = ({
       <ResourceCard
         addAllow={addAllow}
         addCallback={addCallback}
-        importResource={importResource!}
+        importResource={!!importResource}
         key={resource.id}
         moveToTrash={moveToTrash}
         {...resource}
         restoreFromTrash={restoreFromTrash}
-        selectResource={selectResource!}
+        selectResource={selectResource}
       />
     ))}
   </Grid>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import colors from "../colors";
 
@@ -32,15 +32,16 @@ export interface IOptionsProps {
   className?: string;
 }
 
-export default class Option extends React.Component<IOptionsProps> {
-  public render() {
-    const { checked, children, onClick, className } = this.props;
+const Option: FC<IOptionsProps> = ({
+  checked,
+  children,
+  className,
+  onClick
+}) => (
+  <Container onClick={onClick} className={className}>
+    <Bullet>{checked && <InnerBullet />}</Bullet>
+    <div>{children}</div>
+  </Container>
+);
 
-    return (
-      <Container onClick={onClick} className={className}>
-        <Bullet>{checked && <InnerBullet />}</Bullet>
-        <div>{children}</div>
-      </Container>
-    );
-  }
-}
+export default Option;
