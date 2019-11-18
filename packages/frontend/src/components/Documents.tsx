@@ -105,7 +105,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   }, [pagesNumber]);
 
-  const onDocumentClick = ({ documentId, type, title }) => {
+  const onDocumentClick = ({ id: documentId, type, title }) => {
     setBreadcrumbsLinks([
       ...breadcrumbLinks,
       { route: id, text: title, type: "document" }

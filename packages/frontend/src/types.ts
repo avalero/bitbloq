@@ -5,6 +5,7 @@ export interface IEditorProps {
   onDocumentChange: (document: IDocument) => any;
   baseTabs: IDocumentTab[];
   baseMenuOptions: IMainMenuOption[];
+  resources?: IResource[];
   children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
 }
 

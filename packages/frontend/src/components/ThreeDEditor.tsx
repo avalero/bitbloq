@@ -26,13 +26,7 @@ import UploadResourceModal from "./UploadResourceModal";
 import { IEditorProps, IDocument, IResource, ResourcesTypes } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 
-interface IThreeDEditorProps extends IEditorProps {
-  createDocument?: () => void;
-  resources?: IResource[];
-}
-
-const ThreeDEditor: FC<IThreeDEditorProps> = ({
-  createDocument,
+const ThreeDEditor: FC<IEditorProps> = ({
   document,
   onDocumentChange,
   baseTabs,
@@ -119,7 +113,7 @@ const ThreeDEditor: FC<IThreeDEditorProps> = ({
         icon: <Icon name="import-stl" />,
         onClick: () => {
           if (!document.id) {
-            createDocument();
+            onDocumentChange(document);
           }
           setResourceModal(true);
         },

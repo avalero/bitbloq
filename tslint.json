@@ -12,8 +12,6 @@
     "variable-name": [true, "check-format", "allow-leading-underscore","allow-pascal-case"],
     "ordered-imports": false,
     "object-literal-sort-keys": false,
-    "no-any": false,
-    "no-unsafe-any": false,
     "no-require-imports": false,
     "no-implicit-dependencies": [true, "dev"],
     "no-submodule-imports": false,
