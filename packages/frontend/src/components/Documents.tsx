@@ -83,7 +83,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   useEffect(() => {
     if (!loading && !errorQuery) {
-      setError(null);
+      setError(undefined);
       setDocumentsData(resultData);
       setPagesNumber(resultData.documentsAndFolders.pagesNumber);
     }
