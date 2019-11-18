@@ -108,7 +108,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const onDocumentClick = ({ id: documentId, type, title }) => {
     setBreadcrumbsLinks([
       ...breadcrumbLinks,
-      { route: id, text: title, type: "document" }
+      { route: documentId, text: title, type: "document" }
     ]);
     Router.push(`/app/document/${documentId}`);
   };

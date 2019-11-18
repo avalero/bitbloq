@@ -38,7 +38,9 @@ const ThreeDEditor: FC<IEditorProps> = ({
   const threedRef = useRef<IThreeDRef>(null);
   const [resourceModal, setResourceModal] = useState<boolean>(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [advancedMode, setAdvancedMode] = useState(document.advancedMode);
+  const [advancedMode, setAdvancedMode] = useState(
+    document.advancedMode || false
+  );
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
@@ -83,7 +85,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
           initialContent={initialContent}
           addShapeGroups={addShapeGroups}
           onContentChange={onContentChange}
-          advancedMode={advancedMode!}
+          advancedMode={advancedMode}
         />
       )
     }),
@@ -160,7 +162,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
       <AdvancedModeWrap>
         <span>{t("menu-basic-mode")}</span>
         <Switch
-          value={advancedMode!}
+          value={advancedMode}
           onChange={value => setAdvancedMode(value)}
           leftRight={true}
         />
