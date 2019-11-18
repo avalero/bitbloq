@@ -385,6 +385,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
+        isTeacher={user.teacher}
         onChange={({ title, description, image }) => {
           const newDocument = {
             ...document,

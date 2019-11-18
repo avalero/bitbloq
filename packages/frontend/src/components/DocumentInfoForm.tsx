@@ -17,6 +17,7 @@ export interface DocumentInfoFormProps {
   description?: string;
   documentId: string;
   image: string;
+  isTeacher?: boolean;
   resourceAdded: (id: string) => void;
   resourceDeleted: (id: string) => void;
   resources?: IResource[];
@@ -31,6 +32,7 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
   description,
   documentId,
   image,
+  isTeacher,
   resourceAdded,
   resourceDeleted,
   resources = [],
@@ -120,25 +122,27 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
             </FormInput>
           </FormRow>
         </Form>
-        <Form>
-          <FormRow>
-            <FormLabel>
-              <label>{t("document-info.labels.resources")}</label>
-              <FormSubLabel>
-                {t("document-info.sublabels.resources")}
-              </FormSubLabel>
-            </FormLabel>
-            <FormInput>
-              <ResourcesBox
-                documentId={documentId}
-                resourceAdded={resourceAdded}
-                resourceDeleted={resourceDeleted}
-                resources={resources}
-                resourcesTypesAccepted={resourcesTypesAccepted}
-              />
-            </FormInput>
-          </FormRow>
-        </Form>
+        {isTeacher && (
+          <Form>
+            <FormRow>
+              <FormLabel>
+                <label>{t("document-info.labels.resources")}</label>
+                <FormSubLabel>
+                  {t("document-info.sublabels.resources")}
+                </FormSubLabel>
+              </FormLabel>
+              <FormInput>
+                <ResourcesBox
+                  documentId={documentId}
+                  resourceAdded={resourceAdded}
+                  resourceDeleted={resourceDeleted}
+                  resources={resources}
+                  resourcesTypesAccepted={resourcesTypesAccepted}
+                />
+              </FormInput>
+            </FormRow>
+          </Form>
+        )}
       </Panel>
       <DialogModal
         title="Aviso"
