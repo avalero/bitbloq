@@ -12,7 +12,7 @@ interface IResourceCardProps extends IResource {
   importResource: boolean;
   moveToTrash?: (id: string) => void;
   restoreFromTrash?: (id: string) => void;
-  selectResource: (id: string) => void;
+  selectResource?: (id: string) => void;
 }
 
 const ResourceCard: FC<IResourceCardProps> = ({
@@ -89,7 +89,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
               label: t("cloud.options.details"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
-                selectResource(id);
+                selectResource && selectResource(id);
               }
             },
             {
@@ -99,7 +99,11 @@ const ResourceCard: FC<IResourceCardProps> = ({
                 : t("cloud.options.trash"),
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
-                deleted ? restoreFromTrash!(id) : moveToTrash!(id);
+                deleted && restoreFromTrash
+                  ? restoreFromTrash(id)
+                  : deleted && moveToTrash
+                  ? moveToTrash(id)
+                  : null;
               }
             }
           ]}

@@ -4,8 +4,8 @@ import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidName } from "../util";
 
 interface IEditTitleModalProps {
-  title: string;
-  onSave: (title: string) => any;
+  title?: string;
+  onSave: (title?: string) => any;
   onCancel: () => any;
   modalTitle: string;
   modalText: string;
