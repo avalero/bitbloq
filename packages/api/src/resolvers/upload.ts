@@ -13,7 +13,7 @@ const bucket = storage.bucket(process.env.GCLOUD_STORAGE_BUCKET); // bucket name
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET;
 
 let publicUrl: string;
-let thumbnailUrl: any | null;
+let thumbnailUrl: string | null;
 let fileSize: number;
 
 const acceptedFiles = {
@@ -324,7 +324,7 @@ const uploadResolver = {
         const gcsName: string = `${context.user.userID}/${encodeURIComponent(
           uniqueName
         )}`;
-        thumbnailUrl = await uploadThumbnail(createReadStream, gcsName);
+        thumbnailUrl = await uploadThumbnail(createReadStream, gcsName) as string;
       }
       const {
         createReadStream,
