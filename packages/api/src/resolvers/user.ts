@@ -22,6 +22,11 @@ import { redisClient } from "../server";
 
 import { sign as jwtSign } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+
+import { google } from "googleapis";
+//const {google} = require('googleapis');
+const OAuth2 = google.auth.OAuth2;
+
 import {
   IMutationActivateAccountArgs,
   IMutationDeleteUserArgs,
@@ -29,6 +34,7 @@ import {
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs
 } from "../api-types";
+import getAuthMicrosoftUrl from "../controllers/microsoftAuth";
 
 const saltRounds: number = 7;
 
@@ -232,6 +238,19 @@ const userResolver = {
      * args:
      */
     loginWithGoogle: async (_, args: any, context: any) => {
+      const oauth2Client = new OAuth2();
+      oauth2Client.setCredentials({ access_token: "ACCESS TOKEN HERE" });
+      const oauth2 = google.oauth2({
+        auth: oauth2Client,
+        version: "v2"
+      });
+      oauth2.userinfo.get(function(err, res) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(res);
+        }
+      });
       return undefined;
     },
 
@@ -240,6 +259,7 @@ const userResolver = {
      * args:
      */
     loginWithMicrosoft: async (_, args: any, context: any) => {
+      getAuthMicrosoftUrl();
       return undefined;
     },
 
