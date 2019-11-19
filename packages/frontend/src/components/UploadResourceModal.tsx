@@ -127,7 +127,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       );
       if (extFile === "stl") {
         const reader = new FileReader();
-        reader.readAsArrayBuffer(file);
+        reader.readAsArrayBuffer(newFile);
         reader.onload = () => {
           setFileArray(reader.result as ArrayBuffer);
         };
