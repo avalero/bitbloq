@@ -307,6 +307,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
           const object = {
             type,
             parameters,
+            id: "",
             operations: config.defaultOperations(advancedMode),
             viewOptions: {
               name,
