@@ -404,7 +404,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                                   }
                                 }
                               }
-                            : null,
+                            : undefined,
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:

@@ -13,7 +13,7 @@ export interface IOption {
 
 export interface IDocumentCardMenuProps {
   className?: string;
-  options?: IOption[];
+  options: Array<IOption | undefined>;
 }
 
 const DocumentCardMenu: FC<IDocumentCardMenuProps> = ({
