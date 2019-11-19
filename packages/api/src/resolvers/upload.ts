@@ -18,7 +18,7 @@ const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // buc
 const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET as string;
 
 let publicUrl: string;
-let thumbnailUrl: string | null;
+let thumbnailUrl: string | undefined;
 let fileSize: number;
 
 const acceptedFiles = {
@@ -213,7 +213,7 @@ export async function uploadDocumentImage(
   }
   const uniqueName: string = documentID + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
-  
+
   return await new Promise((resolve, reject) => {
     processUpload({
       resolve: resolve,
@@ -303,7 +303,11 @@ const uploadResolver = {
         });
       });
     },
-    uploadCloudResource: async (_, args: any, context: { user: IUserInToken }) => {
+    uploadCloudResource: async (
+      _,
+      args: any,
+      context: { user: IUserInToken }
+    ) => {
       if (args.thumbnail) {
         const {
           createReadStream,
@@ -322,7 +326,10 @@ const uploadResolver = {
         const gcsName: string = `${context.user.userID}/${encodeURIComponent(
           uniqueName
         )}`;
-        thumbnailUrl = await uploadThumbnail(createReadStream, gcsName) as string;
+        thumbnailUrl = (await uploadThumbnail(
+          createReadStream,
+          gcsName
+        )) as string;
       }
       const {
         createReadStream,

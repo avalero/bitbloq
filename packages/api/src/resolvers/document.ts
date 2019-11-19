@@ -410,7 +410,7 @@ const documentResolver = {
       const itemsPerPage: number = args.itemsPerPage || 8;
       const skipN: number = ((args.currentPage || 1) - 1) * itemsPerPage;
       const limit: number = skipN + itemsPerPage;
-      const text: string = args.searchTitle || "title";
+      const text: string = args.searchTitle || "";
 
       const orderFunction = orderFunctions[args.order!];
 
