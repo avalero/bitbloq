@@ -55,7 +55,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const [error, setError] = useState<Errors>(Errors.noError);
   const [file, setFile] = useState<File | undefined>(undefined);
-  const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(undefined);
+  const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(
+    undefined
+  );
   const [nameFile, setNameFile] = useState<string>("");
   const [openCloud, setOpenCloud] = useState<boolean>(false);
   const [tab, setTab] = useState<TabType>(TabType.import);
@@ -90,7 +92,6 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       onClose();
     }
   };
-
 
   const onSendResource = async (fileToSend: File) => {
     let variables = {};
