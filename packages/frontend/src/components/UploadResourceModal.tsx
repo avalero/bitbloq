@@ -1,4 +1,12 @@
-import React, { FC, useMemo, useState, ChangeEvent } from "react";
+import React, {
+  FC,
+  useMemo,
+  useState,
+  ChangeEvent,
+  ReactElement,
+  DOMElement
+} from "react";
+import STLViewer from "stl-viewer";
 import { useMutation } from "@apollo/react-hooks";
 import { Button, DialogModal, Modal, Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -9,7 +17,7 @@ import {
   UPLOAD_CLOUD_RESOURCE
 } from "../apollo/queries";
 import { ResourcesTypes } from "../types";
-import { isValidName } from "../util";
+import { dataURItoBlob, isValidName } from "../util";
 
 const acceptedFiles = {
   image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
@@ -47,6 +55,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const [error, setError] = useState<Errors>(Errors.noError);
   const [file, setFile] = useState<File>(undefined);
+  const [fileArray, setFileArray] = useState<ArrayBuffer>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
   const [openCloud, setOpenCloud] = useState<boolean>(false);
   const [tab, setTab] = useState<TabType>(TabType.import);
@@ -81,16 +90,25 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   };
 
   const onSendResource = async () => {
+    let variables = {};
+    if (fileArray) {
+      const canvasCollection = document.getElementsByTagName("canvas");
+      const canvas = canvasCollection[canvasCollection.length - 1];
+      const thumbnailImage: Blob = dataURItoBlob(
+        canvas.toDataURL("image/jpeg")
+      );
+      variables = { ...variables, thumbnail: thumbnailImage };
+    }
+
     const resourceBlob = file.slice(0, file.size, file.type);
     const resourceFile = new File(
       [resourceBlob],
       file.name.replace(/.+(\.\w+$)/, `${nameFile}$1`),
       { type: file.type }
     );
+    variables = { ...variables, file: resourceFile };
     const { data } = await uploadResource({
-      variables: {
-        file: resourceFile
-      }
+      variables
     });
     const { id } = data.uploadCloudResource;
     onAddResource(id);
@@ -107,6 +125,13 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       setNameFile(
         newFile.name.replace(new RegExp(`\.${extFile}$`), "").substring(0, 64)
       );
+      if (extFile === "stl") {
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(file);
+        reader.onload = () => {
+          setFileArray(reader.result as ArrayBuffer);
+        };
+      }
       setFile(newFile);
     }
   };
@@ -150,16 +175,26 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             tab={tab}
           />
         ) : (
-          <FormGroup>
-            <label>{t("cloud.upload.name")}</label>
-            <Input
-              error={!isValidName(nameFile)}
-              onChange={(e: ChangeEvent) =>
-                setNameFile((e.target as HTMLInputElement).value)
-              }
-              value={nameFile}
-            />
-          </FormGroup>
+          <>
+            <FormGroup>
+              <label>{t("cloud.upload.name")}</label>
+              <Input
+                error={!isValidName(nameFile)}
+                onChange={(e: ChangeEvent) =>
+                  setNameFile((e.target as HTMLInputElement).value)
+                }
+                value={nameFile}
+              />
+            </FormGroup>
+            {fileArray && (
+              <ObjViewer
+                backgroundColor="#fff"
+                height={164}
+                model={fileArray}
+                width={280}
+              />
+            )}
+          </>
         )}
         <Buttons>
           <ResourceModalButton onClick={onCloseModal} tertiary>
@@ -206,6 +241,10 @@ const FormGroup = styled.div`
     font-size: 14px;
     margin-bottom: 10px;
   }
+`;
+
+const ObjViewer = styled(STLViewer)`
+  display: none;
 `;
 
 const ResourceModalButton = styled(Button)<{ tertiary?: boolean }>`
