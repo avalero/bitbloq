@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import React, { FC, useEffect, useState } from "react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { ApolloError } from "apollo-client";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
@@ -99,6 +99,8 @@ const isYoungerThan = (birthDate: string, years: number) =>
 
 const SignupPage: FC = () => {
   const t = useTranslate();
+  const router = useRouter();
+  const { plan: defaultPlan } = router.query;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<ApolloError>();
@@ -108,7 +110,7 @@ const SignupPage: FC = () => {
     birthDate: "",
     countryKey: "ES",
     educationalStage: EducationalStageOptions[0],
-    imTeacherCheck: false,
+    imTeacherCheck: defaultPlan === "teacher",
     noNotifications: false
   });
   const [userId, setUserId] = useState();
@@ -131,7 +133,8 @@ const SignupPage: FC = () => {
     setUserData(input);
     setUserPlan({
       userPlan:
-        input.imTeacherCheck && !isYoungerThan(input.birthDate, 18)
+        (input.imTeacherCheck || defaultPlan === "teacher") &&
+        !isYoungerThan(input.birthDate, 18)
           ? UserPlanOptions.Teacher
           : UserPlanOptions.Member
     });
@@ -201,7 +204,7 @@ const SignupPage: FC = () => {
             </CounterButton>
           }
           cancelText="Volver al inicio"
-          onCancel={() => Router.push("/")}
+          onCancel={() => router.push("/")}
           isOpen={true}
         />
       ) : (
@@ -238,6 +241,8 @@ const SignupPage: FC = () => {
 };
 
 const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
+  const router = useRouter();
+
   const {
     clearError,
     errors,
@@ -405,7 +410,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             href="#"
             onClick={e => {
               e.preventDefault();
-              Router.push("/login");
+              router.push("/login");
             }}
           >
             Entra usando tus credenciales
@@ -591,7 +596,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         </ErrorMessage>
       )}
       <Buttons>
-        <Button secondary onClick={() => Router.push("/")}>
+        <Button secondary onClick={() => router.push("/")}>
           Cancelar
         </Button>
         <Button tertiary type="submit" disabled={loading}>
