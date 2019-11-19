@@ -1,15 +1,12 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
-import Router from "next/router";
 import {
   colors,
   Button,
   DialogModal,
   HorizontalRule,
   Icon,
-  Input,
   Spinner,
-  Modal,
   Translate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -32,6 +29,7 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import EditTitleModal from "./EditTitleModal";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import Layout from "./Layout";
 import UserSession from "./UserSession";
 
 const DOCUMENT_QUERY = gql`
@@ -587,9 +585,10 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const Content = styled.div`
+const Content = styled(Layout)`
   flex: 1;
   padding: 0px 50px;
+  width: 100%;
 `;
 
 const Header = styled.div`
