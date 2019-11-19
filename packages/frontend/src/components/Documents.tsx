@@ -95,7 +95,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
-  const onFolderClick = async ({ folderId }) => {
+  const onFolderClick = async ({ id: folderId }) => {
     Router.push(`/app/folder/${folderId}`);
   };
 
@@ -105,7 +105,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   }, [pagesNumber]);
 
-  const onDocumentClick = ({ id: documentId, type, title }) => {
+  const onDocumentClick = ({ id: documentId, title }) => {
     setBreadcrumbsLinks([
       ...breadcrumbLinks,
       { route: id, text: title, type: "document" }

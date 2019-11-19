@@ -387,19 +387,24 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                                 : onFolderRenameClick(e, document);
                             }
                           },
-                          {
-                            iconName: "duplicate",
-                            label: "Crear una copia",
-                            disabled: document.type === "folder",
-                            onClick(
-                              e: React.MouseEvent<HTMLDivElement, MouseEvent>
-                            ) {
-                              setMenuOpenId("");
-                              if (document.type !== "folder") {
-                                onDuplicateDocument(e, document);
+                          document.type !== "folder"
+                            ? {
+                                iconName: "duplicate",
+                                label: "Crear una copia",
+                                disabled: document.type === "folder",
+                                onClick(
+                                  e: React.MouseEvent<
+                                    HTMLDivElement,
+                                    MouseEvent
+                                  >
+                                ) {
+                                  setMenuOpenId("");
+                                  if (document.type !== "folder") {
+                                    onDuplicateDocument(e, document);
+                                  }
+                                }
                               }
-                            }
-                          },
+                            : null,
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:
