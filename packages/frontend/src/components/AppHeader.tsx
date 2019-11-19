@@ -61,6 +61,7 @@ const Content = styled.div`
 
 const Header = styled.div<IAppHeaderProps>`
   display: flex;
+  position: relative;
   justify-content: space-between;
   min-height: ${props =>
     props.isSticky !== undefined && !props.isSticky ? "80" : "60"}px;
