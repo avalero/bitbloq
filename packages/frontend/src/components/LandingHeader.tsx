@@ -1,5 +1,6 @@
 import React, { FC, useRef, useState, useEffect } from "react";
-import Router from "next/router";
+import { useRouter } from "next/router";
+import Link from "next/link";
 import styled from "@emotion/styled";
 import { Button, DropDown, Icon, Input, useTranslate } from "@bitbloq/ui";
 import AppHeader from "./AppHeader";
@@ -11,6 +12,7 @@ export interface ILandingHeader {
 }
 
 const LandingHeader: FC<ILandingHeader> = ({ fixed }) => {
+  const router = useRouter();
   const t = useTranslate();
   const headerRef = useRef<HTMLDivElement>(null);
   const [isHeaderSticky, setIsHeaderSticky] = useState(false);
@@ -34,6 +36,13 @@ const LandingHeader: FC<ILandingHeader> = ({ fixed }) => {
   return (
     <div ref={headerRef}>
       <AppHeader isSticky={fixed ? undefined : isHeaderSticky}>
+        <MainNavigation>
+          <Link href="/plans">
+            <NavLink active={router.pathname === "/plans"}>
+              {t("plans.link")}
+            </NavLink>
+          </Link>
+        </MainNavigation>
         <DropDown
           attachmentPosition={"top center"}
           targetPosition={"bottom center"}
@@ -50,10 +59,10 @@ const LandingHeader: FC<ILandingHeader> = ({ fixed }) => {
           </ExerciseDropDown>
         </DropDown>
         <NewDocumentButton />
-        <HeaderButton onClick={() => Router.push("/login")}>
+        <HeaderButton onClick={() => router.push("/login")}>
           Entrar
         </HeaderButton>
-        <HeaderButton secondary onClick={() => Router.push("/signup")}>
+        <HeaderButton secondary onClick={() => router.push("/signup")}>
           Crear una cuenta
         </HeaderButton>
       </AppHeader>
@@ -72,6 +81,19 @@ const HeaderButton = styled(Button)`
     height: 20px;
     margin-right: 6px;
   }
+`;
+
+const MainNavigation = styled.nav`
+  position: absolute;
+  display: flex;
+  left: 234px;
+`;
+
+const NavLink = styled.a<{ active?: boolean }>`
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: none;
+  font-weight: ${props => (props.active ? 900 : 400)};
 `;
 
 const ExerciseDropDown = styled.div`

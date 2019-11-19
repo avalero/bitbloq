@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import Router from "next/router";
+import { useRouter } from "next/router";
 import { ApolloError } from "apollo-client";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
@@ -84,6 +84,8 @@ interface IStepInput {
 
 const SignupPage: FC = () => {
   const t = useTranslate();
+  const router = useRouter();
+  const { plan: defaultPlan } = router.query;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState<ApolloError>();
@@ -92,7 +94,7 @@ const SignupPage: FC = () => {
     acceptTerms: false,
     countryKey: "ES",
     educationalStage: EducationalStageOptions[0],
-    imTeacherCheck: false,
+    imTeacherCheck: defaultPlan === "teacher",
     noNotifications: false
   });
   const [userId, setUserId] = useState();
@@ -114,9 +116,10 @@ const SignupPage: FC = () => {
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
     setUserPlan({
-      userPlan: input.imTeacherCheck
-        ? UserPlanOptions.Teacher
-        : UserPlanOptions.Member
+      userPlan:
+        input.imTeacherCheck || defaultPlan === "teacher"
+          ? UserPlanOptions.Teacher
+          : UserPlanOptions.Member
     });
     saveUser({
       variables: {
@@ -183,7 +186,7 @@ const SignupPage: FC = () => {
             </CounterButton>
           }
           cancelText="Volver al inicio"
-          onCancel={() => Router.push("/")}
+          onCancel={() => router.push("/")}
           isOpen={true}
         />
       ) : (
@@ -219,6 +222,8 @@ const SignupPage: FC = () => {
 };
 
 const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
+  const router = useRouter();
+
   const {
     clearError,
     errors,
@@ -380,7 +385,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             href="#"
             onClick={e => {
               e.preventDefault();
-              Router.push("/login");
+              router.push("/login");
             }}
           >
             Entra usando tus credenciales
@@ -561,7 +566,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         </ErrorMessage>
       )}
       <Buttons>
-        <Button secondary onClick={() => Router.push("/")}>
+        <Button secondary onClick={() => router.push("/")}>
           Cancelar
         </Button>
         <Button tertiary type="submit" disabled={loading}>
