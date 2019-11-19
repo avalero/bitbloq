@@ -1,12 +1,10 @@
-import React, { FC, useState, useRef, useEffect } from "react";
+import React, { FC, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
 import Router from "next/router";
-import withApollo, { IContext } from "../apollo/withApollo";
+import withApollo from "../apollo/withApollo";
 import redirect from "../lib/redirect";
-import useUserData from "../lib/useUserData";
 import {
-  baseStyles,
   colors,
   Input,
   Button,
@@ -16,161 +14,38 @@ import {
   Spinner,
   useTranslate
 } from "@bitbloq/ui";
-import { useApolloClient } from "@apollo/react-hooks";
-import { ME_QUERY, EXERCISE_BY_CODE_QUERY } from "../apollo/queries";
-import AppHeader from "../components/AppHeader";
+import LandingFooter from "../components/LandingFooter";
+import LandingHeader from "../components/LandingHeader";
 import LandingExamples from "../components/LandingExamples";
 import Layout from "../components/Layout";
-import NewDocumentDropDown from "../components/NewDocumentDropDown";
+import OpenExerciseForm from "../components/OpenExerciseForm";
+import OpenDocumentInput, {
+  IOpenDocumentInputHandle
+} from "../components/OpenDocumentInput";
 import logoBetaImage from "../images/logo-beta.svg";
 import { documentTypes } from "../config";
-import bqLogo from "../images/bq-logo.svg";
 import studentStep1Image from "../images/student-step-1.svg";
 import studentStep2Image from "../images/student-step-2.svg";
 import heroImage from "../images/home_beta-decoration.svg";
 
 const IndexPage: NextPage = () => {
   const t = useTranslate();
-  const client = useApolloClient();
-
-  const user = useUserData();
-  useEffect(() => {
-    if (user) {
-      Router.replace("/app");
-    }
-  }, [user]);
-
-  const [exerciseCode, setExerciseCode] = useState("");
-  const [loadingExercise, setLoadingExercise] = useState(false);
-  const [exerciseError, setExerciseError] = useState(false);
-  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const headerRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () =>
-      setIsHeaderSticky(
-        headerRef.current !== null
-          ? headerRef.current.getBoundingClientRect().top < -10
-          : false
-      );
-
-    document.addEventListener("scroll", handleScroll);
-    return () => document.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const onNewDocument = (type: string) => {
     window.open(`/app/edit-document/local/${type}/new`);
   };
 
+  const openDocumentRef = useRef<IOpenDocumentInputHandle>(null);
+
   const onOpenDocument = () => {
-    if (fileInputRef.current !== null) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const onFileSelected = (file: File) => {
-    if (file) {
-      window.open(`/app/edit-document/local/open/new`);
-      const reader = new FileReader();
-      reader.onload = e => {
-        const document = JSON.parse(reader.result as string);
-        const channel = new BroadcastChannel("bitbloq-documents");
-        channel.onmessage = event => {
-          if (event.data.command === "open-document-ready") {
-            channel.postMessage({ document, command: "open-document" });
-            channel.close();
-          }
-        };
-      };
-      reader.readAsText(file);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
-  const onOpenExercise = async () => {
-    if (exerciseCode) {
-      try {
-        setLoadingExercise(true);
-        const {
-          data: { exerciseByCode: exercise }
-        } = await client.query({
-          query: EXERCISE_BY_CODE_QUERY,
-          variables: { code: exerciseCode }
-        });
-        setLoadingExercise(false);
-        setExerciseError(false);
-        setExerciseCode("");
-        window.open(`/app/exercise/${exercise.type}/${exercise.id}`);
-      } catch (e) {
-        setLoadingExercise(false);
-        setExerciseError(true);
-      }
+    if (openDocumentRef.current) {
+      openDocumentRef.current.open();
     }
   };
 
   return (
     <>
-      <div ref={headerRef}>
-        <AppHeader isSticky={isHeaderSticky}>
-          <DropDown
-            attachmentPosition={"top center"}
-            targetPosition={"bottom center"}
-            closeOnClick={false}
-          >
-            {(isOpen: boolean) => (
-              <HeaderButton tertiary>
-                <Icon name="airplane-document" />
-                {t("documents.go-to-exercise")}
-              </HeaderButton>
-            )}
-            <ExerciseDropDown>
-              <ExerciseForm>
-                <label>Código del ejercicio</label>
-                <Input
-                  type="text"
-                  placeholder="Código del ejercicio"
-                  value={exerciseCode}
-                  error={exerciseError}
-                  onChange={e => setExerciseCode(e.target.value)}
-                />
-                {exerciseError && <Error>El código no es válido</Error>}
-                <HeaderButton
-                  onClick={() => onOpenExercise()}
-                  disabled={loadingExercise}
-                >
-                  Ir al ejercicio
-                </HeaderButton>
-              </ExerciseForm>
-            </ExerciseDropDown>
-          </DropDown>
-          <DropDown
-            attachmentPosition={"top center"}
-            targetPosition={"bottom center"}
-          >
-            {(isOpen: boolean) => (
-              <HeaderButton tertiary>
-                <Icon name="new-document" />
-                Nuevo documento
-              </HeaderButton>
-            )}
-
-            <NewDocumentDropDown
-              onNewDocument={onNewDocument}
-              onOpenDocument={onOpenDocument}
-            />
-          </DropDown>
-          <HeaderButton onClick={() => Router.push("/login")}>
-            Entrar
-          </HeaderButton>
-          <HeaderButton secondary onClick={() => Router.push("/signup")}>
-            Crear una cuenta
-          </HeaderButton>
-        </AppHeader>
-      </div>
+      <LandingHeader />
       <Layout>
         <Section>
           <Hero>
@@ -254,23 +129,7 @@ const IndexPage: NextPage = () => {
               <OpenExercisePanelTitle>Ir al ejercicio</OpenExercisePanelTitle>
               <HorizontalRule small />
               <OpenExercisePanelContent>
-                <ExerciseForm>
-                  <label>Código del ejercicio</label>
-                  <Input
-                    type="text"
-                    placeholder="Código del ejercicio"
-                    value={exerciseCode}
-                    error={exerciseError}
-                    onChange={e => setExerciseCode(e.target.value)}
-                  />
-                  {exerciseError && <Error>El código no es válido</Error>}
-                  <Button
-                    onClick={() => onOpenExercise()}
-                    disabled={loadingExercise}
-                  >
-                    Empezar
-                  </Button>
-                </ExerciseForm>
+                <OpenExerciseForm openText="Empezar" />
               </OpenExercisePanelContent>
             </OpenExercisePanel>
           </OpenExercise>
@@ -279,55 +138,16 @@ const IndexPage: NextPage = () => {
           <LandingExamples />
         </Section>
       </Layout>
-      <Footer>
-        <FooterContainer>
-          {/* <FooterLeft>
-            <h2>Contacto</h2>
-            <p>Bq Educación</p>
-            <p>900 00 00 00</p>
-            <p>soporte.bitbloq@bq.com</p>
-          </FooterLeft> */}
-          <FooterRight>
-            <p>Bitbloq es un proyecto de:</p>
-            <img src={bqLogo} alt="BQ" />
-          </FooterRight>
-        </FooterContainer>
-        <LegalLinks>
-          <a href="#">Condiciones generales</a>
-          {" | "}
-          <a href="#">Política de privacidad</a>
-          {" | "}
-          <a href="#">Política de cookies</a>
-        </LegalLinks>
-      </Footer>
-      <input
-        ref={fileInputRef}
-        type="file"
-        onChange={e => onFileSelected(e.target.files![0])}
-        style={{ display: "none" }}
-      />
+      <LandingFooter />
+      <OpenDocumentInput ref={openDocumentRef} />
     </>
   );
 };
 
-IndexPage.getInitialProps = async (ctx: IContext) => {
-  const { apolloClient } = ctx;
-  try {
-    const { data } = await apolloClient.query({
-      query: ME_QUERY,
-      errorPolicy: "ignore"
-    });
-    if (data && data.me) {
-      redirect(ctx, "/app");
-    }
-  } catch (e) {
-    return {};
-  }
-
-  return {};
-};
-
-export default withApollo(IndexPage, { requiresSession: false });
+export default withApollo(IndexPage, {
+  requiresSession: false,
+  onlyWithoutSession: true
+});
 
 /* styled components */
 
@@ -343,53 +163,6 @@ const Loading = styled(Spinner)<ILoadingProps>`
     (props.type && documentTypes[props.type].color) || colors.gray1};
   color: ${props => (props.type ? "white" : "inherit")};
   display: flex;
-`;
-
-const HeaderButton = styled(Button)`
-  padding: 0px 20px;
-  svg {
-    width: 20px;
-    height: 20px;
-    margin-right: 6px;
-  }
-`;
-
-const ExerciseDropDown = styled.div`
-  width: 280px;
-  margin-top: 12px;
-  background-color: white;
-  border-radius: 4px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  padding: 20px;
-
-  &::before {
-    content: "";
-    background-color: white;
-    width: 20px;
-    height: 20px;
-    display: block;
-    position: absolute;
-    transform: translate(-50%, 0) rotate(45deg);
-    top: -10px;
-    left: 50%;
-  }
-`;
-
-const ExerciseForm = styled.div`
-  label {
-    font-size: 14px;
-    margin-bottom: 10px;
-    display: block;
-  }
-
-  input {
-    font-family: Roboto Mono;
-  }
-
-  button {
-    margin-top: 30px;
-    width: 100%;
-  }
 `;
 
 const Section = styled.div`
@@ -610,60 +383,4 @@ const OpenExercisePanelTitle = styled.div`
 
 const OpenExercisePanelContent = styled.div`
   padding: 30px;
-`;
-
-const Footer = styled.div`
-  color: white;
-  font-size: 14px;
-  background-color: #5d6069;
-`;
-
-const FooterContainer = styled(Layout)`
-  display: flex;
-  padding: 40px 50px;
-  justify-content: flex-end;
-`;
-
-const FooterLeft = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  p {
-    margin-top: 10px;
-  }
-`;
-
-const FooterRight = styled.div`
-  display: flex;
-  width: 480.56px;
-  align-items: center;
-  p {
-    margin-right: 20px;
-    white-space: nowrap;
-  }
-`;
-
-const LegalLinks = styled.div`
-  background-color: #373b44;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #8c919b;
-
-  a {
-    color: #8c919b;
-    margin: 0px 10px;
-    font-weight: bold;
-    text-decoration: none;
-  }
-`;
-
-const Error = styled.div`
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
-  margin-top: 10px;
 `;
