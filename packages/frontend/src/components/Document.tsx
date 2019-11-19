@@ -745,45 +745,6 @@ const DocumentDescription = styled.div`
   word-wrap: break-word;
 `;
 
-const Buttons = styled.div`
-  display: flex;
-  & > * {
-    margin-right: 10px;
-    svg {
-      width: 11px;
-      height: 11px;
-      margin-right: 6px;
-    }
-  }
-`;
-
-const DocumentButton = styled.div`
-  margin-right: 10px;
-  color: white;
-`;
-
 const Exercises = styled.div`
   width: 66%;
-`;
-
-const ModalContent = styled.div`
-  padding: 30px;
-  width: 500px;
-  box-sizing: border-box;
-
-  p {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-`;
-
-const ModalButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 50px;
-`;
-
-const ModalButton = styled(Button)`
-  height: 40px;
-  padding: 0 20px;
 `;
