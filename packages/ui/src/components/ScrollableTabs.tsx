@@ -4,7 +4,7 @@ import { css } from "@emotion/core";
 import colors from "../colors";
 
 export interface IScrollableTabsProps {
-  tabs: Array<{ icon: JSX.Element; content: JSX.Element; bottom: boolean }>;
+  tabs: Array<{ icon: JSX.Element; content: JSX.Element; bottom?: boolean }>;
   className?: string;
 }
 
@@ -43,7 +43,7 @@ const ScrollableTabs: React.FunctionComponent<IScrollableTabsProps> = ({
           <Tab
             key={i}
             active={i === activeTab}
-            bottom={tab.bottom}
+            bottom={!!tab.bottom}
             onClick={() => onSelectTab(i)}
           >
             {tab.icon}

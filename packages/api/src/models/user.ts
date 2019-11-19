@@ -1,6 +1,6 @@
 import { Document, Model, model, Schema } from "mongoose";
 // import {timestamps} from "mongoose-timestamp";
-import * as timestamps from "mongoose-timestamp";
+import timestamps from "mongoose-timestamp";
 
 export interface IUser extends Document {
   email?: string;

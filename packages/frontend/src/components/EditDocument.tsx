@@ -1,11 +1,5 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo
-} from "react";
+import { ApolloError } from "apollo-client";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
@@ -14,7 +8,6 @@ import {
   Document,
   IDocumentTab,
   Icon,
-  Spinner,
   Button,
   useTranslate
 } from "@bitbloq/ui";
@@ -38,8 +31,7 @@ import {
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage, IResource } from "../types";
-import { ISessionEvent, useSessionEvent } from "../lib/session";
+import { IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
@@ -79,7 +71,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
   const [firstLoad, setFirstLoad] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<ApolloError | null>(null);
   const [document, setDocument] = useState({
     id: "",
     content: "[]",
@@ -210,7 +202,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       setImage({ image: "blob", isSnapshot: true });
     }
 
-    if (newImage.size > 0 && isLoggedIn) {
+    if (newImage && newImage.size > 0 && isLoggedIn) {
       setDocumentImage({
         variables: {
           documentId,

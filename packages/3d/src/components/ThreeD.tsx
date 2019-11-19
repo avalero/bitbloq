@@ -14,12 +14,9 @@ import {
   isTranslateOperation,
   isRotationOperation,
   isScaleOperation,
-  isMirrorOperation,
   Scene,
   IObjectsCommonJSON,
-  IViewOptions,
-  IHelperDescription,
-  Renderer
+  IHelperDescription
 } from "@bitbloq/lib3d";
 
 import ObjectTree from "./ObjectTree";
@@ -310,6 +307,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
           const object = {
             type,
             parameters,
+            id: "",
             operations: config.defaultOperations(advancedMode),
             viewOptions: {
               name,
