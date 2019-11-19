@@ -2,6 +2,7 @@ import Document, { Html, Head, Main, NextScript } from "next/document";
 import { Global, css } from "@emotion/core";
 import { baseStyles } from "@bitbloq/ui";
 import favicon from "../images/favicon.png";
+import { getBrowserEnv } from "../lib/env";
 
 export default class BitbloqDocument extends Document {
   public render() {
@@ -18,6 +19,13 @@ export default class BitbloqDocument extends Document {
         <body>
           <Main />
           <NextScript />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.__BITBLOQ_ENV__ = ${JSON.stringify(
+                getBrowserEnv()
+              )};`
+            }}
+          />
         </body>
       </Html>
     );

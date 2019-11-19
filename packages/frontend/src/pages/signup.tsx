@@ -20,6 +20,7 @@ import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
 import CounterButton from "../components/CounterButton";
 import GraphQLErrorMessage from "../components/GraphQLErrorMessage";
+import LoginWithMicrosoftButton from "../components/LoginWithMicrosoftButton";
 import ModalLayout from "../components/ModalLayout";
 import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
@@ -405,9 +406,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             </LoginWithInfo>
           </div>
           <LoginWithExternalProfile>
-            <Button tertiary onClick={onGotoMicrosoft}>
-              Microsoft
-            </Button>
+            <LoginWithMicrosoftButton />
             <Button tertiary onClick={onGotoGoogle}>
               Google
             </Button>

@@ -8,10 +8,11 @@ import { boards } from "./configurations/hardware/boards";
 import { components } from "./configurations/hardware/components";
 import Loading from "./components/Loading";
 import { ResourcesTypes } from "./types";
+import env from "./lib/env";
 
 export { addShapeGroups, bloqTypes, boards, components };
 
-const ENABLED_TOOLS = process.env.ENABLED_TOOLS || [];
+const ENABLED_TOOLS = env.ENABLED_TOOLS || [];
 
 const CreateDynamicComponent = (fn, loadingColor) =>
   dynamic(fn, { ssr: false, loading: () => <Loading color={loadingColor} /> });
@@ -210,3 +211,7 @@ export const minChromeVersion = 69;
 
 export const supportedLanguages = ["es", "en"];
 export const defaultLanguage = "es";
+
+export const microsoftAuthEndpoint =
+  "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?";
+export const microsoftScopes = "openid profile User.Read Mail.Read";

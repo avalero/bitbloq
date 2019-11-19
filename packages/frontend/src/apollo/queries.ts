@@ -476,6 +476,12 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const LOGIN_WITH_MICROSOFT = gql`
+  mutation LoginWithMicrosoft($token: String!) {
+    loginWithMicrosoft(token: $token)
+  }
+`;
+
 export const RENEW_TOKEN_MUTATION = gql`
   mutation RenewToken {
     renewToken

@@ -7,6 +7,7 @@ import { createUploadLink } from "apollo-upload-client";
 import { WebSocketLink } from "apollo-link-ws";
 import { getMainDefinition } from "apollo-utilities";
 import { flags } from "../config";
+import env from "../lib/env";
 
 const { SHOW_GRAPHQL_LOGS } = flags;
 
@@ -35,9 +36,7 @@ const isBrowser = typeof window !== "undefined";
 
 const httpLink = createUploadLink({
   fetch,
-  uri: isBrowser
-    ? process.env.API_URL
-    : process.env.API_URL_SERVER || process.env.API_URL
+  uri: isBrowser ? env.API_URL : env.API_URL_SERVER || env.API_URL
 });
 
 export const createClient = (
@@ -109,7 +108,7 @@ export const createClient = (
               );
             },
             new WebSocketLink({
-              uri: `${process.env.API_URL!.replace("http", "ws")}`,
+              uri: `${env.API_URL!.replace("http", "ws")}`,
               options: {
                 lazy: true,
                 reconnect: true,
