@@ -9,7 +9,7 @@ import { ApolloServer } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
 import { RedisPubSub } from "graphql-redis-subscriptions";
 
-import * as Redis from "ioredis";
+import Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
 
@@ -27,7 +27,7 @@ mongooseSet("debug", true);
 mongooseSet("useFindAndModify", false); // ojo con esto al desplegar
 mongooseConnect(
   mongoUrl,
-  { useNewUrlParser: true, useCreateIndex: true },
+  { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
   (err: any) => {
     if (err) {
       throw err;
