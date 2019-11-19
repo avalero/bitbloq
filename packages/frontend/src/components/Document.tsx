@@ -587,7 +587,6 @@ const Container = styled.div`
 
 const Content = styled(Layout)`
   flex: 1;
-  padding: 0px 50px;
   width: 100%;
 `;
 
