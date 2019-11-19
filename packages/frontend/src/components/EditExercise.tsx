@@ -53,7 +53,9 @@ const EditExercise = ({ type, id }) => {
   const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
-  const [submission, setSubmission] = useState<IDocument>(null);
+  const [submission, setSubmission] = useState<IDocument | undefined>(
+    undefined
+  );
   const currentContent = useRef([]);
 
   const client = useApolloClient();
@@ -109,7 +111,7 @@ const EditExercise = ({ type, id }) => {
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setSubmission({ ...submission, content: initialContent });
+    setSubmission({ ...submission!, content: initialContent });
     updateSubmission({
       variables: {
         content: initialContent

@@ -60,8 +60,8 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
       setImageError(t("document-info.errors.image-size"));
     } else {
       onChange({
-        title: title,
-        description: description,
+        title,
+        description,
         image: file
       });
     }
