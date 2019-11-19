@@ -303,7 +303,7 @@ const IndexPage: NextPage = () => {
       <input
         ref={fileInputRef}
         type="file"
-        onChange={e => onFileSelected(e.target.files[0])}
+        onChange={e => onFileSelected(e.target.files![0])}
         style={{ display: "none" }}
       />
     </>
@@ -321,7 +321,7 @@ IndexPage.getInitialProps = async (ctx: IContext) => {
       redirect(ctx, "/app");
     }
   } catch (e) {
-    return undefined;
+    return {};
   }
 
   return {};

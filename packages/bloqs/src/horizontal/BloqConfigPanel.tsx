@@ -63,7 +63,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   const addEvent = selectedPlaceholder === 0;
   const addAction = selectedPlaceholder > 0;
 
-  let content = null;
+  let content = <></>;
 
   if (addEvent) {
     const filteredTypes = availableBloqs.filter(

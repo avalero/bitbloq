@@ -1,11 +1,5 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useMemo
-} from "react";
+import { ApolloError } from "apollo-client";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
@@ -14,16 +8,16 @@ import {
   Document,
   IDocumentTab,
   Icon,
-  Spinner,
   Button,
   useTranslate
 } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
+import CloudModal from "./CloudModal";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
-import UserInfo from "./UserInfo";
+import UserSession from "./UserSession";
 import Loading from "./Loading";
 import DocumentLoginModal from "./DocumentLoginModal";
 import {
@@ -37,8 +31,7 @@ import {
 } from "../apollo/queries";
 import { documentTypes } from "../config";
 import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage, IResource } from "../types";
-import { ISessionEvent, useSessionEvent } from "../lib/session";
+import { IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
@@ -70,6 +63,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const isNew = id === "new";
 
+  const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
@@ -77,7 +71,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
   const [firstLoad, setFirstLoad] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<ApolloError | null>(null);
   const [document, setDocument] = useState({
     id: "",
     content: "[]",
@@ -208,7 +202,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       setImage({ image: "blob", isSnapshot: true });
     }
 
-    if (newImage.size > 0 && isLoggedIn) {
+    if (newImage && newImage.size > 0 && isLoggedIn) {
       setDocumentImage({
         variables: {
           documentId,
@@ -382,6 +376,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
+        isTeacher={user.teacher}
         onChange={({
           title: newTitle,
           description: newDescription,
@@ -404,7 +399,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const headerRightContent = (
     <HeaderRightContent>
       {isLoggedIn ? (
-        <UserInfo name={user.name} />
+        <UserSession cloudClick={() => setCloudModalOpen(true)} />
       ) : (
         <EnterButton onClick={() => setShowLoginModal(true)}>
           {t("document-enter-button")}
@@ -459,6 +454,10 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentLoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
+      />
+      <CloudModal
+        isOpen={cloudModalOpen}
+        onClose={() => setCloudModalOpen(false)}
       />
     </>
   );

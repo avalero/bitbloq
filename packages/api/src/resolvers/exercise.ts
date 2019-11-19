@@ -29,7 +29,7 @@ const exerciseResolver = {
       args: IMutationCreateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
-      const docFather: IDocument = await DocumentModel.findOne({
+      const docFather: IDocument | null = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.userID
       });
@@ -39,7 +39,10 @@ const exerciseResolver = {
           "DOCUMENT_NOT_FOUND"
         );
       }
-      const user: IUser = await UserModel.findById(context.user.userID);
+      const user: IUser | null = await UserModel.findById(context.user.userID);
+      if (!user) {
+        throw new ApolloError(" User not found", "USER_NOT_FOUND");
+      }
       let newCode: string = Math.random()
         .toString(36)
         .substr(2, 6);
@@ -61,7 +64,7 @@ const exerciseResolver = {
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        image: docFather.image.image,
+        image: docFather.image!.image,
         resourcesID: docFather.exResourcesID
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
@@ -78,7 +81,7 @@ const exerciseResolver = {
       args: IMutationChangeSubmissionsStateArgs,
       context: { user: IUserInToken }
     ) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -104,7 +107,7 @@ const exerciseResolver = {
       args: IMutationDeleteExerciseArgs,
       context: { user: IUserInToken }
     ) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -130,7 +133,7 @@ const exerciseResolver = {
       args: IMutationUpdateExerciseArgs,
       context: { user: IUserInToken }
     ) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -164,7 +167,7 @@ const exerciseResolver = {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
-      const existExercise: IExercise = await ExerciseModel.findOne({
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id
       });
       if (!existExercise) {
@@ -179,7 +182,7 @@ const exerciseResolver = {
      * args: exercise code.
      */
     exerciseByCode: async (_, args: IQueryExerciseByCodeArgs) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         code: args.code
       });
       if (!existExercise) {
@@ -197,7 +200,7 @@ const exerciseResolver = {
       args: IQueryExercisesByDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      const docFather: IDocument = await DocumentModel.findOne({
+      const docFather: IDocument | null = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.userID
       });
@@ -215,7 +218,7 @@ const exerciseResolver = {
     submissions: async (exercise: IExercise) =>
       SubmissionModel.find({ exercise: exercise._id }),
     resources: async (exercise: IExercise) => {
-      const result: IResource[] = (await UploadModel.find({
+      const result: IResource[] | any = (await UploadModel.find({
         _id: { $in: exercise.resourcesID }
       })).map(i => {
         return {

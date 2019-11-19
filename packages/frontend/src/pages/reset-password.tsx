@@ -71,6 +71,8 @@ const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
     } catch (e) {
       return undefined;
     }
+
+    return;
   };
 
   if (invalidToken) {

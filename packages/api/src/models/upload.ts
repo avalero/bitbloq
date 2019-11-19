@@ -1,5 +1,5 @@
 import { Document, Model, model, Schema } from "mongoose";
-import * as timestamps from "mongoose-timestamp";
+import timestamps from "mongoose-timestamp";
 
 export interface IUpload extends Document {
   filename: string;
@@ -14,6 +14,8 @@ export interface IUpload extends Document {
   type: string;
   image?: string;
   deleted: boolean;
+  thumbnail: string;
+  preview: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -40,6 +42,8 @@ const uploadMongSchema: Schema = new Schema({
     enum: ["image", "video", "sound", "object3D", "docImage"]
   },
   deleted: { type: Boolean, default: false },
+  thumbnail: String,
+  preview: String,
   documentsID: {
     type: [Schema.Types.ObjectId],
     ref: "DocumentModel"

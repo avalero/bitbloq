@@ -13,7 +13,7 @@ export const getParentsPath = async (
     return [folder, ...path];
   } else {
     const parentFolder = await FolderModel.findOne({ _id: folder.parent });
-    const result = await getParentsPath(parentFolder, [folder]);
+    const result = await getParentsPath(parentFolder!, [folder]);
     return [...result, ...path];
   }
 };

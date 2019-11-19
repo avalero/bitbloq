@@ -51,6 +51,7 @@ const UserAvatar = styled.div<{ src: string }>`
   background-position: center;
   border-radius: 50%;
   height: 40px;
+  margin: 0 10px;
   width: 40px;
 `;
 

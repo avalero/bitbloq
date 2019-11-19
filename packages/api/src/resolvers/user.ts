@@ -42,7 +42,7 @@ const userResolver = {
      * args: email, password and user information.
      */
     saveUserData: async (_, args: IMutationSaveUserDataArgs) => {
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         email: args.input.email
       });
       if (contactFound) {
@@ -94,7 +94,7 @@ const userResolver = {
      * args: userID and plan selected("member" or "teacher").
      */
     finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
-      const user: IUser = await UserModel.findOne({
+      const user: IUser | null = await UserModel.findOne({
         _id: args.id,
         active: false
       });
@@ -132,7 +132,7 @@ const userResolver = {
         minify: true
       });
       await mailerController.sendEmail(
-        user.email,
+        user.email!,
         "Bitbloq Sign Up ✔",
         htmlMessage.html
       );
@@ -164,7 +164,7 @@ const userResolver = {
       args: email and password.
     */
     login: async (_, { email, password }) => {
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         email,
         finishedSignUp: true
       });
@@ -252,7 +252,7 @@ const userResolver = {
      * args: email
      */
     resetPasswordEmail: async (_, { email }) => {
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         email,
         finishedSignUp: true
       });
@@ -279,7 +279,7 @@ const userResolver = {
         minify: true
       });
       await mailerController.sendEmail(
-        contactFound.email,
+        contactFound.email!,
         "Cambiar contraseña Bitbloq",
         htmlMessage.html
       );
@@ -299,7 +299,7 @@ const userResolver = {
     updatePassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         _id: dataInToken.resetPassUserID,
         finishedSignUp: true
       });
@@ -312,10 +312,9 @@ const userResolver = {
       }
       // Store the password with a hash
       const hash: string = await bcryptHash(newPassword, saltRounds);
-      const {
-        token: authToken,
-        role
-      } = await contextController.generateLoginToken(contactFound);
+      const { token: authToken } = await contextController.generateLoginToken(
+        contactFound
+      );
 
       await UserModel.findOneAndUpdate(
         { _id: contactFound._id },
@@ -351,10 +350,15 @@ const userResolver = {
         args.token
       );
 
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         _id: userInToken.signUpUserID,
         finishedSignUp: true
       });
+
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+
       if (userInToken.signUpUserID && !contactFound.active) {
         const { token } = await contextController.generateLoginToken(
           contactFound
@@ -390,11 +394,16 @@ const userResolver = {
       args: IMutationDeleteUserArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
         finishedSignUp: true
       });
+
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+
       if (String(contactFound._id) === args.id) {
         await SubmissionModel.deleteMany({ user: contactFound._id });
         await ExerciseModel.deleteMany({ user: contactFound._id });
@@ -403,7 +412,7 @@ const userResolver = {
         return UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
       } else {
         throw new ApolloError(
-          "Can not delete a user that is not yours",
+          "Cannot delete a user that is not yours",
           "DELETE_USER_ERROR"
         );
       }
@@ -419,11 +428,16 @@ const userResolver = {
       args: IMutationUpdateUserArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID,
         finishedSignUp: true
       });
+
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+
       if (String(contactFound._id) === args.id) {
         return UserModel.findOneAndUpdate(
           { _id: contactFound._id },
@@ -442,7 +456,7 @@ const userResolver = {
      *  args: nothing.
      */
     me: async (_, __, context: { user: IUserInToken }) => {
-      const contactFound: IUser = await UserModel.findOne({
+      const contactFound: IUser | null = await UserModel.findOne({
         email: context.user.email,
         _id: context.user.userID
       });

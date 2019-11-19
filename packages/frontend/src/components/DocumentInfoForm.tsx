@@ -17,13 +17,14 @@ export interface IDocumentInfoFormProps {
   description?: string;
   documentId: string;
   image: string;
+  isTeacher?: boolean;
   resourceAdded: (id: string) => void;
   resourceDeleted: (id: string) => void;
   resources?: IResource[];
   resourcesTypesAccepted: ResourcesTypes[];
   onChange: (newValues: {
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     image?: File;
   }) => void;
 }
@@ -35,6 +36,7 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
   description,
   documentId,
   image,
+  isTeacher,
   resourceAdded,
   resourceDeleted,
   resources = [],
@@ -59,7 +61,11 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
     } else if (file.size > maxImageSize) {
       setImageError(t("document-info.errors.image-size"));
     } else {
-      onChange({ title, description, image: file });
+      onChange({
+        title,
+        description,
+        image: file
+      });
     }
   };
 
@@ -80,7 +86,10 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                   const value: string = e.target.value;
                   if (isValidName(value)) {
                     setTitleError(false);
-                    onChange({ title: value, description });
+                    onChange({
+                      title: value,
+                      description
+                    });
                   } else {
                     setTitleError(true);
                   }
@@ -101,7 +110,10 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                 value={description}
                 placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
-                  onChange({ title, description: e.target.value });
+                  onChange({
+                    title,
+                    description: e.target.value
+                  });
                 }}
                 rows={3}
               />
@@ -124,25 +136,27 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
             </FormInput>
           </FormRow>
         </Form>
-        <Form>
-          <FormRow>
-            <FormLabel>
-              <label>{t("document-info.labels.resources")}</label>
-              <FormSubLabel>
-                {t("document-info.sublabels.resources")}
-              </FormSubLabel>
-            </FormLabel>
-            <FormInput>
-              <ResourcesBox
-                documentId={documentId}
-                resourceAdded={resourceAdded}
-                resourceDeleted={resourceDeleted}
-                resources={resources}
-                resourcesTypesAccepted={resourcesTypesAccepted}
-              />
-            </FormInput>
-          </FormRow>
-        </Form>
+        {isTeacher && (
+          <Form>
+            <FormRow>
+              <FormLabel>
+                <label>{t("document-info.labels.resources")}</label>
+                <FormSubLabel>
+                  {t("document-info.sublabels.resources")}
+                </FormSubLabel>
+              </FormLabel>
+              <FormInput>
+                <ResourcesBox
+                  documentId={documentId}
+                  resourceAdded={resourceAdded}
+                  resourceDeleted={resourceDeleted}
+                  resources={resources}
+                  resourcesTypesAccepted={resourcesTypesAccepted}
+                />
+              </FormInput>
+            </FormRow>
+          </Form>
+        )}
       </Panel>
       <DialogModal
         title="Aviso"
