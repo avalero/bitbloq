@@ -406,9 +406,8 @@
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
     },
-    "step-text-1": "Paso",
-    "step-text-2": "de 2",
-    "step1": {
+    "step": "Paso %v% de 2",
+    "form": {
       "cancel": "Cancelar",
       "errors": {
         "accept-terms": "Debes leer y aceptar las condiciones generales y la política de privacidad",
@@ -464,21 +463,15 @@
       },
       "title": "Datos de usuario"
     },
-    "step2": {
+    "plans": {
+      "advantages": "Estas son las ventajas que disfrutarás siendo %v% en Bitbloq:",
       "cancel": "Anterior",
-      "sub-title": "Elije el tipo de cuenta que deseas crear:",
-      "title": "Configuración de la cuenta",
-      "member": {
-        "cost": "Gratis",
-        "title": "Miembro"
-      },
+      "free": "Gratis",
+      "free-beta": "Gratis durante la beta",
+      "monthly-price": "%v%€ al mes",
       "ok": "¡Unirme a Bitbloq ya!",
-      "teacher": {
-        "advantages": "Estas son las ventajas que disfrutarás siendo Profesor en Bitbloq:",
-        "cost": "Gratis durante la beta",
-        "cost-strikethrough": "6€ al mes",
-        "title": "Profesor"
-      }
+      "sub-title": "Elije el tipo de cuenta que deseas crear:",
+      "title": "Configuración de la cuenta"
     },
     "title": "Crear una cuenta"
   }

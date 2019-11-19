@@ -15,6 +15,7 @@ import {
   Panel,
   Option,
   Select,
+  Tooltip,
   useTranslate
 } from "@bitbloq/ui";
 import { css } from "@emotion/core";
@@ -24,7 +25,8 @@ import CounterButton from "../components/CounterButton";
 import GraphQLErrorMessage from "../components/GraphQLErrorMessage";
 import ModalLayout from "../components/ModalLayout";
 import logoBetaImage from "../images/logo-beta.svg";
-import { plans, featureTable } from "../config";
+import { plans } from "../config";
+import { IPlan } from "../types";
 import { isValidDate, isValidEmail } from "../util";
 
 const SAVE_MUTATION = gql`
@@ -70,9 +72,7 @@ interface IUserData {
 }
 
 interface IUserPlan {
-  userPlan: {
-    name: string;
-  };
+  userPlan: IPlan;
 }
 
 interface IStepInput {
@@ -215,8 +215,7 @@ const SignupPage: FC = () => {
             <HorizontalRule small />
             <Content>
               <Counter>
-                {t("signup.step-text-1")} {currentStep}{" "}
-                {t("signup.step-text-2")}
+                {t("signup.step", [currentStep.toLocaleString()])}
               </Counter>
               {currentStep === 1 && (
                 <Step1
@@ -325,22 +324,20 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       <>
         <FormGroup style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
           <FormField style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
-            <label>{t("signup.step1.labels.center-name")}</label>
+            <label>{t("signup.form.labels.center-name")}</label>
             <Input
               type="text"
               name="centerName"
-              placeholder={t("signup.step1.placeholders.center-name")}
+              placeholder={t("signup.form.placeholders.center-name")}
               ref={register({ required: true })}
               error={!!errors.centerName}
             />
             {errors.centerName && (
-              <ErrorMessage>
-                {t("signup.step1.errors.center-name")}
-              </ErrorMessage>
+              <ErrorMessage>{t("signup.form.errors.center-name")}</ErrorMessage>
             )}
           </FormField>
           <FormField>
-            <label>{t("signup.step1.labels.educational-stage")}</label>
+            <label>{t("signup.form.labels.educational-stage")}</label>
             <Select
               name="educationalStage"
               onChange={(value: string) =>
@@ -357,33 +354,33 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             />
           </FormField>
           <FormField>
-            <label>{t("signup.step1.labels.city")}</label>
+            <label>{t("signup.form.labels.city")}</label>
             <Input
               type="text"
               name="city"
-              placeholder={t("signup.step1.placeholders.city")}
+              placeholder={t("signup.form.placeholders.city")}
               ref={register({ required: true })}
               error={!!errors.city}
             />
             {errors.city && (
-              <ErrorMessage>{t("signup.step1.errors.city")}</ErrorMessage>
+              <ErrorMessage>{t("signup.form.errors.city")}</ErrorMessage>
             )}
           </FormField>
           <FormField>
-            <label>{t("signup.step1.labels.post-code")}</label>
+            <label>{t("signup.form.labels.post-code")}</label>
             <Input
               type="number"
               name="postCode"
-              placeholder={t("signup.step1.placeholders.post-code")}
+              placeholder={t("signup.form.placeholders.post-code")}
               ref={register({ required: true })}
               error={!!errors.postCode}
             />
             {errors.postCode && (
-              <ErrorMessage>{t("signup.step1.errors.post-code")}</ErrorMessage>
+              <ErrorMessage>{t("signup.form.errors.post-code")}</ErrorMessage>
             )}
           </FormField>
           <FormField>
-            <label>{t("signup.step1.labels.country")}</label>
+            <label>{t("signup.form.labels.country")}</label>
             <Select
               name="countryKey"
               onChange={(value: string) => onChangeValue("countryKey", value)}
@@ -405,10 +402,10 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Title>{t("signup.step1.title")}</Title>
+      <Title>{t("signup.form.title")}</Title>
       <Login>
         <p>
-          {t("signup.step1.login.account-text")}{" "}
+          {t("signup.form.login.account-text")}{" "}
           <a
             href="#"
             onClick={e => {
@@ -416,22 +413,22 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               router.push("/login");
             }}
           >
-            {t("signup.step1.login.account-link")}
+            {t("signup.form.login.account-link")}
           </a>
           .
         </p>
         <LoginWith>
           <div>
-            <p>{t("signup.step1.login.with-text")}</p>
+            <p>{t("signup.form.login.with-text")}</p>
             <LoginWithInfo>
               <p>
-                {t("signup.step1.login.with-sub-text-1")}{" "}
+                {t("signup.form.login.with-sub-text-1")}{" "}
                 <a target="_blank" href="https://bitbloq.bq.com/#">
-                  {t("signup.step1.link-general-conditions")}
+                  {t("signup.form.link-general-conditions")}
                 </a>{" "}
-                {t("signup.step1.login.with-sub-text-2")}{" "}
+                {t("signup.form.login.with-sub-text-2")}{" "}
                 <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-                  {t("signup.step1.link-privacy-policy")}
+                  {t("signup.form.link-privacy-policy")}
                 </a>
                 .
               </p>
@@ -449,55 +446,55 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
       </Login>
       <FormGroup>
         <FormField>
-          <label>{t("signup.step1.labels.name")}</label>
+          <label>{t("signup.form.labels.name")}</label>
           <Input
             type="text"
             name="name"
-            placeholder={t("signup.step1.placeholders.name")}
+            placeholder={t("signup.form.placeholders.name")}
             ref={register({ required: true })}
             error={!!errors.name}
           />
           {errors.name && (
-            <ErrorMessage>{t("signup.step1.errors.name")}</ErrorMessage>
+            <ErrorMessage>{t("signup.form.errors.name")}</ErrorMessage>
           )}
         </FormField>
         <FormField>
-          <label>{t("signup.step1.labels.surnames")}</label>
+          <label>{t("signup.form.labels.surnames")}</label>
           <Input
             type="text"
             name="surnames"
-            placeholder={t("signup.step1.placeholders.surnames")}
+            placeholder={t("signup.form.placeholders.surnames")}
             ref={register({ required: true })}
             error={!!errors.surnames}
           />
           {errors.surnames && (
-            <ErrorMessage>{t("signup.step1.errors.surnames")}</ErrorMessage>
+            <ErrorMessage>{t("signup.form.errors.surnames")}</ErrorMessage>
           )}
         </FormField>
       </FormGroup>
       <FormField>
-        <label>{t("signup.step1.labels.email")}</label>
+        <label>{t("signup.form.labels.email")}</label>
         <Input
           type="text"
           name="email"
-          placeholder={t("signup.step1.placeholders.email")}
+          placeholder={t("signup.form.placeholders.email")}
           onChange={() => clearError("email")}
           ref={register({ validate: isValidEmail })}
           error={!!errors.email}
         />
         {errors.email && (
           <ErrorMessage>
-            {t(`signup.step1.errors.email-${errors.email.type}`)}
+            {t(`signup.form.errors.email-${errors.email.type}`)}
           </ErrorMessage>
         )}
       </FormField>
       <FormField>
-        <label>{t("signup.step1.labels.password")}</label>
+        <label>{t("signup.form.labels.password")}</label>
         <InputPassword>
           <Input
             type={passwordIsMasked ? "password" : "text"}
             name="password"
-            placeholder={t("signup.step1.placeholders.password")}
+            placeholder={t("signup.form.placeholders.password")}
             ref={register({ required: true })}
             error={!!errors.password}
           />
@@ -507,37 +504,37 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         </InputPassword>
         {/* TODO: remove eye-close background */}
         {errors.password && (
-          <ErrorMessage>{t("signup.step1.errors.password")}</ErrorMessage>
+          <ErrorMessage>{t("signup.form.errors.password")}</ErrorMessage>
         )}
       </FormField>
       <FormField>
-        <label>{t("signup.step1.labels.birth-date")}</label>
+        <label>{t("signup.form.labels.birth-date")}</label>
         <FormGroup onChange={onChangeBirthDate}>
           <Input
             type="number"
             name="day"
-            placeholder={t("signup.step1.placeholders.birth-date-day")}
+            placeholder={t("signup.form.placeholders.birth-date-day")}
             ref={register}
             error={!!errors.birthDate}
           />
           <Input
             type="number"
             name="month"
-            placeholder={t("signup.step1.placeholders.birth-date-month")}
+            placeholder={t("signup.form.placeholders.birth-date-month")}
             ref={register}
             error={!!errors.birthDate}
           />
           <Input
             type="number"
             name="year"
-            placeholder={t("signup.step1.placeholders.birth-date-year")}
+            placeholder={t("signup.form.placeholders.birth-date-year")}
             ref={register}
             error={!!errors.birthDate}
           />
         </FormGroup>
         {errors.birthDate && (
           <ErrorMessage>
-            {t(`signup.step1.errors.birth-date-${errors.birthDate.type}`)}
+            {t(`signup.form.errors.birth-date-${errors.birthDate.type}`)}
           </ErrorMessage>
         )}
       </FormField>
@@ -545,7 +542,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         onClick={() => setValue("imTeacherCheck", !getValues().imTeacherCheck)}
       >
         <Checkbox checked={getValues().imTeacherCheck} />
-        <span>{t("signup.step1.labels.im-teacher")}</span>
+        <span>{t("signup.form.labels.im-teacher")}</span>
       </CheckOption>
       {teacherSubForm(getValues().imTeacherCheck)}
       <CheckOption
@@ -554,7 +551,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
         }
       >
         <Checkbox checked={getValues().noNotifications} />
-        <span>{t("signup.step1.labels.no-notifications")}</span>
+        <span>{t("signup.form.labels.no-notifications")}</span>
       </CheckOption>
       <CheckOption
         onClick={() => {
@@ -567,26 +564,26 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
           error={!!errors.acceptTerms}
         />
         <span>
-          {t("signup.step1.labels.accept-terms-1")}{" "}
+          {t("signup.form.labels.accept-terms-1")}{" "}
           <a target="_blank" href="https://bitbloq.bq.com/#">
-            {t("signup.step1.link-general-conditions")}
+            {t("signup.form.link-general-conditions")}
           </a>{" "}
-          {t("signup.step1.labels.accept-terms-2")}{" "}
+          {t("signup.form.labels.accept-terms-2")}{" "}
           <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-            {t("signup.step1.link-privacy-policy")}
+            {t("signup.form.link-privacy-policy")}
           </a>
           .
         </span>
       </CheckOption>
       {errors.acceptTerms && (
-        <ErrorMessage>{t("signup.step1.errors.accept-terms")}</ErrorMessage>
+        <ErrorMessage>{t("signup.form.errors.accept-terms")}</ErrorMessage>
       )}
       <Buttons>
         <Button secondary onClick={() => router.push("/")}>
-          {t("signup.step1.cancel")}
+          {t("signup.form.cancel")}
         </Button>
         <Button tertiary type="submit" disabled={loading}>
-          {t("signup.step1.ok")}
+          {t("signup.form.ok")}
         </Button>
       </Buttons>
     </form>
@@ -612,52 +609,102 @@ const Step2: FC<IStepInput> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Title>{t("signup.step2.title")}</Title>
-      {t("signup.step2.sub-title")}
-      <PlanOption>
-        <PlanOptionHeader>
-          <Option
-            className={"bullet"}
-            checked={getValues().userPlan === memberPlan}
-            onClick={() => setValue("userPlan", memberPlan)}
-          />
-          <PlanOptionTitle>
-            <span>{t("signup.step2.member.title")}</span>
-            <PlanOptionCost>{t("signup.step2.member.cost")}</PlanOptionCost>
-          </PlanOptionTitle>
-        </PlanOptionHeader>
-      </PlanOption>
-      <PlanOption disabled={isAMinor}>
-        <PlanOptionHeader>
-          <Option
-            className={"bullet"}
-            checked={getValues().userPlan === teacherPlan}
-            disabled={isAMinor}
-            onClick={() => setValue("userPlan", teacherPlan)}
-          />
-          <PlanOptionTitle>
-            <span>{t("signup.step2.teacher.title")}</span>
+      <Title>{t("signup.plans.title")}</Title>
+      {t("signup.plans.sub-title")}
+      {memberPlan && (
+        <Plan
+          checked={getValues().userPlan === memberPlan}
+          onClick={() => setValue("userPlan", memberPlan)}
+          plan={memberPlan}
+        />
+      )}
+      {teacherPlan && (
+        <Plan
+          checked={getValues().userPlan === teacherPlan}
+          onClick={() => setValue("userPlan", teacherPlan)}
+          plan={teacherPlan}
+          showFeatures={true}
+        />
+      )}
+      <Buttons>
+        <Button tertiary onClick={goToPreviousStep}>
+          {t("signup.plans.cancel")}
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {t("signup.plans.ok")}
+        </Button>
+      </Buttons>
+    </form>
+  );
+};
+
+interface IPlanProps {
+  checked: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  plan: IPlan;
+  showFeatures?: boolean;
+}
+
+const Plan: FC<IPlanProps> = ({
+  checked,
+  disabled,
+  onClick,
+  plan,
+  showFeatures
+}) => {
+  const t = useTranslate();
+
+  return (
+    <PlanOption disabled={disabled}>
+      <PlanOptionHeader>
+        <Option
+          className={"bullet"}
+          checked={checked}
+          disabled={disabled}
+          onClick={onClick}
+        />
+        <PlanOptionTitle>
+          <span>{t(`plans.${plan.name}`)}</span>
+          {plan.isFree ? (
+            <PlanOptionCost>{t(`signup.plans.free`)}</PlanOptionCost>
+          ) : plan.isBetaFree && plan.originalPrice ? (
             <PlanOptionCost>
-              <span>{t("signup.step2.teacher.cost-strikethrough")}</span>{" "}
-              <span>{t("signup.step2.teacher.cost")}</span>
+              <span>
+                {t("signup.plans.monthly-price", [
+                  plan.originalPrice.toLocaleString()
+                ])}
+              </span>
+              <span> {t(`signup.plans.free-beta`)}</span>
             </PlanOptionCost>
-          </PlanOptionTitle>
-        </PlanOptionHeader>
-        <PlanOptionInfo>
-          <p>{t("signup.step2.teacher.advantages")}</p>
-          {/* <FeatureList>
-            {(plan.highlightedFeatures || []).map(feature => (
-              <Feature key={feature}>
-                <Tick name="tick" />
-                {t(`plans.features.${feature}`)}
-              </Feature>
-            ))}
-          </FeatureList>
+          ) : (
+            plan.originalPrice && (
+              <PlanOptionCost>
+                {t("signup.plans.monthly-price", [
+                  plan.originalPrice.toLocaleString()
+                ])}
+              </PlanOptionCost>
+            )
+          )}
+        </PlanOptionTitle>
+      </PlanOptionHeader>
+      {showFeatures && (
+        <PlanFeatures>
+          <p>{t(`signup.plans.advantages`, [t(`plans.${plan.name}`)])}</p>
+          {(plan.highlightedFeatures || []).map(feature => (
+            <Feature key={feature}>
+              <Tick name="tick" />
+              {t(`plans.features.${feature}`)}
+            </Feature>
+          ))}
           {plan.bitbloqCloud && (
             <BitbloqCloud>
               <BitbloqCloudLogo name="cloud-logo" />
               {t("plans.includes-bitbloq-cloud")}
-              <Tooltip position="bottom" content={t("plans.bitbloq-cloud-info")}>
+              <Tooltip
+                position="bottom"
+                content={t("plans.bitbloq-cloud-info")}
+              >
                 {tooltipProps => (
                   <div {...tooltipProps}>
                     <QuestionIcon name="interrogation" />
@@ -665,24 +712,10 @@ const Step2: FC<IStepInput> = ({
                 )}
               </Tooltip>
             </BitbloqCloud>
-          )} */}
-          <ul>
-            <li>Crear ejercicios</li>
-            <li>Corregir ejercicios</li>
-            <li>Acceso de alumnos sin registrar</li>
-          </ul>
-          Incluye Bitbloq Cloud
-        </PlanOptionInfo>
-      </PlanOption>
-      <Buttons>
-        <Button tertiary onClick={goToPreviousStep}>
-          {t("signup.step2.cancel")}
-        </Button>
-        <Button type="submit" disabled={loading}>
-          {t("signup.step2.ok")}
-        </Button>
-      </Buttons>
-    </form>
+          )}
+        </PlanFeatures>
+      )}
+    </PlanOption>
   );
 };
 
@@ -906,7 +939,7 @@ const PlanOptionCost = styled.div`
   }
 `;
 
-const PlanOptionInfo = styled.div`
+const PlanFeatures = styled.div`
   background-color: white;
   border: solid 1px #cfcfcf;
   border-radius: 4px;
@@ -916,4 +949,36 @@ const PlanOptionInfo = styled.div`
   > p {
     font-weight: bold;
   }
+`;
+
+const Feature = styled.li`
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+`;
+
+const BitbloqCloud = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const BitbloqCloudLogo = styled(Icon)`
+  width: 24px;
+  height: 24px;
+  margin-right: 6px;
+`;
+
+const Tick = styled(Icon)`
+  color: ${colors.green};
+  margin-right: 5px;
+  svg {
+    width: 14px;
+  }
+`;
+
+const QuestionIcon = styled(Icon)`
+  width: 16px;
+  height: 16px;
+  margin-left: 6px;
+  cursor: pointer;
 `;
