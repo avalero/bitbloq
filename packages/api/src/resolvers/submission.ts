@@ -45,7 +45,7 @@ const submissionResolver = {
               String(variables.exercise)
             );
           } else {
-            return undefined;
+            return false;
           }
         }
       )

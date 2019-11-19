@@ -89,9 +89,9 @@ const contextController = {
       if (valid) {
         const userBas: IUserInToken = {
           email: contactFound.email as string,
-          userID: contactFound._id as string,
+          userID: contactFound.id as string,
           role: "usr-",
-          submissionID: null
+          submissionID: ""
         };
         return userBas;
       }
