@@ -409,6 +409,13 @@
     "step": "Paso %v% de 2",
     "form": {
       "cancel": "Cancelar",
+      "educational-stages": {
+        "preschool": "Preescolar",
+        "primary": "Primaria",
+        "high-school": "Secundaria",
+        "bachelor": "Bachiller",
+        "college": "Universidad"
+      },
       "errors": {
         "accept-terms": "Debes leer y aceptar las condiciones generales y la política de privacidad",
         "birth-date-required": "Debes introducir una fecha válida",

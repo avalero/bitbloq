@@ -43,14 +43,13 @@ const SIGNUP_MUTATION = gql`
   }
 `;
 
-// TODO: translate
-const EducationalStageOptions = [
-  "Preescolar",
-  "Primaria",
-  "Secundaria",
-  "Bachiller",
-  "Universidad"
-];
+enum EducationalStages {
+  Preschool = "preschool",
+  Primary = "primary",
+  HighSchool = "high-school",
+  Bachelor = "bachelor",
+  College = "college"
+}
 
 interface IUserData {
   acceptTerms: boolean;
@@ -59,7 +58,7 @@ interface IUserData {
   city: string;
   countryKey: string;
   day: number;
-  educationalStage: string;
+  educationalStage: EducationalStages;
   email: string;
   imTeacherCheck: boolean;
   month: number;
@@ -111,7 +110,7 @@ const SignupPage: FC = () => {
     acceptTerms: false,
     birthDate: "",
     countryKey: "ES",
-    educationalStage: EducationalStageOptions[0],
+    educationalStage: EducationalStages.Primary,
     imTeacherCheck: teacherPlan && defaultPlan === teacherPlan.name,
     noNotifications: false
   });
@@ -343,10 +342,14 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               onChange={(value: string) =>
                 onChangeValue("educationalStage", value)
               }
-              options={EducationalStageOptions.map(o => ({
-                value: o,
-                label: o
-              }))}
+              options={Object.keys(EducationalStages).map(key => {
+                return {
+                  value: EducationalStages[key],
+                  label: t(
+                    `signup.form.educational-stages.${EducationalStages[key]}`
+                  )
+                };
+              })}
               selectConfig={{
                 isSearchable: false
               }}
