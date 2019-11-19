@@ -10,4 +10,4 @@ COPY migrations ./migrations
 
 RUN npm install --yes
 
-CMD npm run migrate-db && npm run dev-inspect
+CMD npm run migrate-db:up && npm run dev-inspect

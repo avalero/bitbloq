@@ -96,7 +96,9 @@
     "dev-inspect": "nodemon --exec npm run start-inspect",
     "prod": "npm run build && npm run start",
     "test": "jest",
-    "migrate-db": "migrate-mongo up",
+    "migrate-db:up": "migrate-mongo up",
+    "migrate-db:down": "migrate-mongo down",
+    "migrate-db:create": "migrate-mongo create",
     "generate-types": "graphql-codegen --config codegen.yml"
   },
   "keywords": [],
