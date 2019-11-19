@@ -30,7 +30,7 @@ export interface IDocumentListProps {
   pagesNumber: number;
   parentsPath?: any;
   className?: string;
-  currentLocation?: IFolder;
+  currentLocation: IFolder;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
@@ -203,7 +203,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     setDeleteFol({ id: null });
   };
 
-  const onUpdateDocTitle = async docTitle => {
+  const onUpdateDocTitle = async (docTitle?: string) => {
     await updateDocument({
       variables: {
         id: editDocTitleModal.id,
@@ -212,10 +212,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     refetchDocsFols();
     setEditDocTitleModal({ id: null, title: null });
-    setMenuOpenId(null);
+    setMenuOpenId("");
   };
 
-  const onUpdateFolderName = async folderName => {
+  const onUpdateFolderName = async (folderName?: string) => {
     await updateFolder({
       variables: {
         id: editFolderNameModal.id,
@@ -224,7 +224,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     refetchDocsFols();
     setEditFolderNameModal({ id: null, name: null });
-    setMenuOpenId(null);
+    setMenuOpenId("");
   };
 
   const onDuplicateDocument = async (e, document) => {
@@ -275,7 +275,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
 
   const onMove = () => {
     refetchDocsFols();
-    setMenuOpenId(null);
+    setMenuOpenId("");
     setSelectedToMove({
       id: null,
       parent: null
@@ -404,7 +404,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                                   }
                                 }
                               }
-                            : null,
+                            : undefined,
                           {
                             selected: document.id === selectedToMove.id,
                             disabled:
@@ -441,7 +441,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                         ]}
                       />
                     )}
-                    {selectedToMove.id === document.id && (
+                    {selectedToMove.id === document.id ? (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
                         onMove={
@@ -451,6 +451,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                         }
                         currentLocation={currentLocation}
                       />
+                    ) : (
+                      <></>
                     )}
                   </DropDown>
                 </DropDown>
@@ -515,23 +517,23 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       />
       {editDocTitleModal.id && (
         <EditTitleModal
-          title={editDocTitleModal.title}
+          title={editDocTitleModal.title || undefined}
           onCancel={() => setEditDocTitleModal({ id: null, title: null })}
           onSave={onUpdateDocTitle}
           modalTitle="Cambiar nombre del documento"
           modalText="Nombre del documento"
-          placeholder={editDocTitleModal.title}
+          placeholder={editDocTitleModal.title || "Placeholder"}
           saveButton="Cambiar"
         />
       )}
       {editFolderNameModal.id && (
         <EditTitleModal
-          title={editFolderNameModal.name}
+          title={editFolderNameModal.name || undefined}
           onCancel={() => setEditFolderNameModal({ id: null, name: null })}
           onSave={onUpdateFolderName}
           modalTitle="Cambiar nombre de la carpeta"
           modalText="Nombre de la carpeta"
-          placeholder={editFolderNameModal.name}
+          placeholder={editFolderNameModal.name || "Placeholder"}
           saveButton="Cambiar"
         />
       )}

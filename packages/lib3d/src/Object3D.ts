@@ -22,7 +22,6 @@ import {
   ITranslateOperation,
   IViewOptions,
   OperationsArray,
-  IObjectsCommonJSON,
   IGeometry
 } from "./Interfaces";
 
@@ -74,7 +73,7 @@ export default class Object3D extends ObjectsCommon {
 
   public async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
-    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
 
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;
@@ -117,7 +116,7 @@ export default class Object3D extends ObjectsCommon {
 
   protected applyOperations(): void {
     this.mesh.position.set(0, 0, 0);
-    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
 
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;

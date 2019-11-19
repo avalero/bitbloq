@@ -59,7 +59,7 @@ export interface ICloudModalProps {
 }
 
 const CloudModal: FC<ICloudModalProps> = ({
-  acceptedExt,
+  acceptedExt = [],
   addAllow,
   addCallback,
   isOpen,
@@ -124,7 +124,9 @@ const CloudModal: FC<ICloudModalProps> = ({
     setSearchQuery("");
     setSearchText("");
     setSelectedResource(undefined);
-    onClose();
+    if (onClose) {
+      onClose();
+    }
   };
 
   const onMoveToTrash = async (id: string) => {
@@ -179,11 +181,11 @@ const CloudModal: FC<ICloudModalProps> = ({
             <>
               <ImportInput
                 accept={acceptedExt.join(", ")}
-                onChange={e => setFile(e.target.files[0])}
+                onChange={e => setFile && setFile!(e.target.files![0])}
                 ref={inputRef}
                 type="file"
               />
-              <ImportButton onClick={() => inputRef.current.click()}>
+              <ImportButton onClick={() => inputRef.current!.click()}>
                 {t("cloud.buttons.import")}
               </ImportButton>
             </>

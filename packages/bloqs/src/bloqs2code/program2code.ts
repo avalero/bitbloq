@@ -387,7 +387,7 @@ const program2code = (
         Object.keys(arduinoCode).forEach(key => {
           if (bloqDefinition.code![key]) {
             (arduinoCode[key] as string[]).push(
-              ...(bloqDefinition.code![key] as string)
+              ...(bloqDefinition.code![key] as string[])
             );
           }
         });

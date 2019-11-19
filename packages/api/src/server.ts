@@ -1,18 +1,19 @@
 import { config } from "dotenv";
-config();
 
 import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
-import * as Koa from "koa";
+import koa from "koa";
 import { ApolloServer } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
 import { RedisPubSub } from "graphql-redis-subscriptions";
 
-import * as Redis from "ioredis";
+import Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
+
+config();
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
@@ -20,13 +21,13 @@ const USE_REDIS: string = String(process.env.USE_REDIS);
 
 const PORT = process.env.PORT;
 
-const mongoUrl: string = process.env.MONGO_URL;
+const mongoUrl: string = process.env.MONGO_URL as string;
 
 mongooseSet("debug", true);
 mongooseSet("useFindAndModify", false); // ojo con esto al desplegar
 mongooseConnect(
   mongoUrl,
-  { useNewUrlParser: true, useCreateIndex: true },
+  { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
   (err: any) => {
     if (err) {
       throw err;
@@ -71,7 +72,7 @@ if (USE_REDIS === "true") {
   pubsub = new PubSub();
 }
 
-const app = new Koa();
+const app = new koa();
 const httpServer = app.listen(PORT, () =>
   console.log(`🚀 Server ready at http://localhost:${PORT}`)
 );
@@ -94,6 +95,7 @@ const server = new ApolloServer({
         const user = await contextController.getDataInToken(justToken);
         return { user }; //  add the user to the ctx
       }
+      return undefined;
     }
   }
 });

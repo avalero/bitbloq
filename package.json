@@ -5,10 +5,10 @@
   ],
   "scripts": {
     "prettier": "prettier --write \"packages/*/src/**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
-    "tslint:dev": "tslint -c ./tslint-dev.json \"packages/*/src/**/*.{ts,tsx}\"",
-    "tslint:prod": "tslint -c ./tslint-prod.json \"packages/*/src/**/*.{ts,tsx}\"",
-    "tslint:sta": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\"",
-    "tslint:qa": "tslint -c ./tslint-sta.json \"packages/*/src/**/*.{ts,tsx}\""
+    "tslint": "tslint -c ./tslint.json \"packages/*/src/**/*.{ts,tsx}\"",
+    "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json",
+    "tsc:back": "cd packages/api && tsc --noEmit --p ./tsconfig.json",
+    "tsc": "tsc:front && tsc:back"
   },
   "devDependencies": {
     "husky": "^3.0.9",
@@ -25,7 +25,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "tslint"
+      "tslint -c ./tslint.json"
     ],
     "*.{ts,tsx,js,css,json,md}": [
       "prettier --write",

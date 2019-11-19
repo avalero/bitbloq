@@ -89,7 +89,8 @@ const documentResolver = {
         type: args.input.type,
         folder:
           args.input.folder ||
-          (await UserModel.findOne({ _id: context.user.userID })).rootFolder,
+          ((await UserModel.findOne({ _id: context.user.userID })) as IUser)
+            .rootFolder,
         content: args.input.content,
         advancedMode: args.input.advancedMode,
         cache: args.input.cache,
@@ -119,7 +120,7 @@ const documentResolver = {
       args: IMutationDeleteDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      const existDocument: IDocument = await DocumentModel.findOne({
+      const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -150,12 +151,12 @@ const documentResolver = {
       args: IMutationUpdateDocumentContentArgs,
       context: { user: IUserInToken }
     ) => {
-      const existDocument: IDocument = await DocumentModel.findOne({
+      const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
       if (existDocument) {
-        const updatedDoc: IDocument = await DocumentModel.findOneAndUpdate(
+        const updatedDoc: IDocument | null = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
           {
             $set: {
@@ -186,18 +187,20 @@ const documentResolver = {
       args: IMutationUpdateDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      const existDocument: IDocument = await DocumentModel.findOne({
+      const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
-      if (args.input.folder) {
+      if (args.input && args.input!.folder) {
         if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
           throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
         }
       }
       if (existDocument) {
         if (
+          args.input &&
           args.input.folder &&
+          args.input &&
           args.input.folder !== String(existDocument.folder)
         ) {
           await FolderModel.updateOne(
@@ -209,26 +212,43 @@ const documentResolver = {
             { $pull: { documentsID: existDocument._id } }
           );
         }
-        if (args.input.content || args.input.cache) {
+        if (
+          (args.input && args.input.content) ||
+          (args.input && args.input.cache)
+        ) {
           console.log(
             "You should use Update document Content IMutation, USE_UPDATECONTENT_MUTATION"
           );
         }
-        const updatedDoc: IDocument = await DocumentModel.findOneAndUpdate(
+        const updatedDoc: IDocument | null = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
           {
             $set: {
-              title: args.input.title || existDocument.title,
-              type: args.input.type || existDocument.type,
-              folder: args.input.folder || existDocument.folder,
-              content: args.input.content || existDocument.content,
+              title: args.input
+                ? args.input.title || existDocument.title
+                : existDocument.title,
+              type: args.input
+                ? args.input.type || existDocument.type
+                : existDocument.type,
+              folder: args.input
+                ? args.input.folder || existDocument.folder
+                : existDocument.folder,
+              content: args.input
+                ? args.input.content || existDocument.content
+                : existDocument.content,
               advancedMode:
-                args.input.advancedMode !== undefined
+                args.input && args.input.advancedMode
                   ? args.input.advancedMode
                   : existDocument.advancedMode,
-              cache: args.input.cache || existDocument.cache,
-              description: args.input.description || existDocument.description,
-              version: args.input.version || existDocument.version
+              cache: args.input
+                ? args.input.cache || existDocument.cache
+                : existDocument.cache,
+              description: args.input
+                ? args.input.description || existDocument.description
+                : existDocument.description,
+              version: args.input
+                ? args.input.version || existDocument.version
+                : existDocument.version
             }
           },
           { new: true }
@@ -250,7 +270,9 @@ const documentResolver = {
       args: IMutationSetDocumentImageArgs,
       context: { user: IUserInToken }
     ) => {
-      const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
+      const docFound: IDocument | null = await DocumentModel.findOne({
+        _id: args.id
+      });
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
@@ -281,7 +303,9 @@ const documentResolver = {
       args: IMutationPublishDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      const docFound: IDocument = await DocumentModel.findOne({ _id: args.id });
+      const docFound: IDocument | null = await DocumentModel.findOne({
+        _id: args.id
+      });
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
@@ -318,7 +342,7 @@ const documentResolver = {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "DOCUMENT_NOT_FOUND");
       }
-      const existDocument: IDocument = await DocumentModel.findOne({
+      const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id
       });
       if (!existDocument) {
@@ -338,7 +362,7 @@ const documentResolver = {
      * args: public document ID.
      */
     openPublicDocument: async (_, args: IQueryOpenPublicDocumentArgs) => {
-      const existDocument: IDocument = await DocumentModel.findOne({
+      const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
         public: true
       });
@@ -366,14 +390,16 @@ const documentResolver = {
       args: IQueryDocumentsAndFoldersArgs,
       context: { user: IUserInToken }
     ) => {
-      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
+      const user: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
       if (!user) {
         return new AuthenticationError("You need to be logged in");
       }
 
       const currentLocation: string =
         String(args.currentLocation) || String(user.rootFolder);
-      const location: IFolder = await FolderModel.findOne({
+      const location: IFolder | null = await FolderModel.findOne({
         _id: currentLocation
       });
       if (!location) {
@@ -382,11 +408,11 @@ const documentResolver = {
         return new AuthenticationError("Not your folder");
       }
       const itemsPerPage: number = args.itemsPerPage || 8;
-      const skipN: number = (args.currentPage - 1) * itemsPerPage;
+      const skipN: number = ((args.currentPage || 1) - 1) * itemsPerPage;
       const limit: number = skipN + itemsPerPage;
-      const text: string = args.searchTitle;
+      const text: string = args.searchTitle || "title";
 
-      const orderFunction = orderFunctions[args.order];
+      const orderFunction = orderFunctions[args.order!];
 
       const filterOptionsDoc =
         text === ""
@@ -431,7 +457,7 @@ const documentResolver = {
               updatedAt,
               type,
               parent,
-              image: image.image,
+              image: image!.image,
               ...op
             };
           }
@@ -474,7 +500,12 @@ const documentResolver = {
         user: context.user.userID,
         parent: currentLocation
       });
-      const folderLoc = await FolderModel.findOne({ _id: currentLocation });
+      const folderLoc: IFolder | null = await FolderModel.findOne({
+        _id: currentLocation
+      });
+      if (!folderLoc) {
+        throw new ApolloError("Folder not found");
+      }
       const parentsPath = getParentsPath(folderLoc);
       const result = allDataSorted.slice(skipN, limit);
       return {
@@ -492,10 +523,13 @@ const documentResolver = {
     ) => {
       let hasChildren: boolean;
       if (args.type === "folder") {
-        const fol: IFolder = await FolderModel.findOne({
+        const fol: IFolder | null = await FolderModel.findOne({
           _id: args.id,
           user: context.user.userID
         });
+        if (!fol) {
+          throw new ApolloError("Folder not found");
+        }
         hasChildren = await hasDocsWithEx(fol);
       } else {
         hasChildren =
@@ -514,14 +548,17 @@ const documentResolver = {
     images: async (document: IDocument) =>
       UploadModel.find({ document: document._id }),
     parentsPath: async (document: IDocument) => {
-      const parent: IFolder = await FolderModel.findOne({
+      const parent: IFolder | null = await FolderModel.findOne({
         _id: document.folder
       });
+      if (!parent) {
+        throw new ApolloError("Folder has no parent");
+      }
       const result: IFolder[] = await getParentsPath(parent);
       return result;
     },
     resources: async (document: IDocument) => {
-      const result: IResource[] = (await UploadModel.find({
+      const result: IResource[] | any = (await UploadModel.find({
         _id: { $in: document.resourcesID }
       })).map(i => {
         return {
@@ -539,7 +576,7 @@ const documentResolver = {
       return result;
     },
     exercisesResources: async (document: IDocument) => {
-      const result: IResource[] = (await UploadModel.find({
+      const result: IResource[] | any = (await UploadModel.find({
         _id: { $in: document.exResourcesID }
       })).map(i => {
         return {

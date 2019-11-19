@@ -23,8 +23,8 @@ export interface IDocumentInfoFormProps {
   resources?: IResource[];
   resourcesTypesAccepted: ResourcesTypes[];
   onChange: (newValues: {
-    title: string;
-    description: string;
+    title?: string;
+    description?: string;
     image?: File;
   }) => void;
 }
@@ -61,7 +61,11 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
     } else if (file.size > maxImageSize) {
       setImageError(t("document-info.errors.image-size"));
     } else {
-      onChange({ title, description, image: file });
+      onChange({
+        title,
+        description,
+        image: file
+      });
     }
   };
 
@@ -82,7 +86,10 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                   const value: string = e.target.value;
                   if (isValidName(value)) {
                     setTitleError(false);
-                    onChange({ title: value, description });
+                    onChange({
+                      title: value,
+                      description
+                    });
                   } else {
                     setTitleError(true);
                   }
@@ -103,7 +110,10 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                 value={description}
                 placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
-                  onChange({ title, description: e.target.value });
+                  onChange({
+                    title,
+                    description: e.target.value
+                  });
                 }}
                 rows={3}
               />

@@ -198,5 +198,4 @@ export default class PositionCalculator {
 import { MeshOperations } from "./Bitbloq";
 import CompoundObject from "./CompoundObject";
 import ObjectsGroup from "./ObjectsGroup";
-import PrimitiveObject from "./PrimitiveObject";
 import RepetitionObject from "./RepetitionObject";

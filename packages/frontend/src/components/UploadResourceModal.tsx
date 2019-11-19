@@ -54,8 +54,8 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const [error, setError] = useState<Errors>(Errors.noError);
-  const [file, setFile] = useState<File>(undefined);
-  const [fileArray, setFileArray] = useState<ArrayBuffer>(undefined);
+  const [file, setFile] = useState<File | undefined>(undefined);
+  const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(undefined);
   const [nameFile, setNameFile] = useState<string>("");
   const [openCloud, setOpenCloud] = useState<boolean>(false);
   const [tab, setTab] = useState<TabType>(TabType.import);
@@ -86,10 +86,13 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     setFile(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
-    onClose();
+    if (onClose) {
+      onClose();
+    }
   };
 
-  const onSendResource = async () => {
+
+  const onSendResource = async (fileToSend: File) => {
     let variables = {};
     if (fileArray) {
       const canvasCollection = document.getElementsByTagName("canvas");
@@ -100,11 +103,11 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       variables = { ...variables, thumbnail: thumbnailImage };
     }
 
-    const resourceBlob = file.slice(0, file.size, file.type);
+    const resourceBlob = fileToSend.slice(0, fileToSend.size, fileToSend.type);
     const resourceFile = new File(
       [resourceBlob],
-      file.name.replace(/.+(\.\w+$)/, `${nameFile}$1`),
-      { type: file.type }
+      fileToSend.name.replace(/.+(\.\w+$)/, `${nameFile}$1`),
+      { type: fileToSend.type }
     );
     variables = { ...variables, file: resourceFile };
     const { data } = await uploadResource({
@@ -117,7 +120,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
 
   const onSetFile = (newFile: File) => {
     const extFile = newFile.name.split(".").pop();
-    if (!isValidExt(extFile)) {
+    if (!isValidExt(extFile!)) {
       setError(Errors.extError);
     } else if (newFile.size > 10000000) {
       setError(Errors.sizeError);
@@ -208,7 +211,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           {file !== undefined && (
             <ResourceModalButton
               disabled={!isValidName(nameFile)}
-              onClick={() => onSendResource()}
+              onClick={() => onSendResource(file)}
             >
               {t("general-add-button")}
             </ResourceModalButton>

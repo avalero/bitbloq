@@ -5,9 +5,10 @@ import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
 import { redisClient } from "../server";
+import { IUser } from "../api-types";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
-  let reply: string;
+  let reply: string | undefined;
   if (String(process.env.USE_REDIS) === "true") {
     if (user.userID) {
       try {
@@ -71,10 +72,15 @@ const contextController = {
         }
       }
     } else if (type === "Basic") {
-      const data = await contextController.getDataInBasicAuth(justToken);
+      const data:
+        | string
+        | undefined = await contextController.getDataInBasicAuth(justToken);
+      if (!data) {
+        throw new Error("No data");
+      }
       const email: string = data.split(":")[0];
       const pass: string = data.split(":")[1];
-      const contactFound = await UserModel.findOne({ email });
+      const contactFound: IUser | null = await UserModel.findOne({ email });
       if (!contactFound || !contactFound.active) {
         return undefined;
       }
@@ -82,14 +88,15 @@ const contextController = {
       const valid: boolean = await bcryptCompare(pass, contactFound.password);
       if (valid) {
         const userBas: IUserInToken = {
-          email: contactFound.email,
-          userID: contactFound._id,
+          email: contactFound.email as string,
+          userID: contactFound.id as string,
           role: "usr-",
-          submissionID: null
+          submissionID: ""
         };
         return userBas;
       }
     }
+    return;
   },
   getDataInToken: async inToken => {
     if (inToken) {
@@ -110,6 +117,7 @@ const contextController = {
         throw new AuthenticationError("Token not value.");
       }
     }
+    return;
   },
 
   generateLoginToken: async user => {
