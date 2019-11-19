@@ -32,9 +32,10 @@ import {
   IMutationDeleteUserArgs,
   IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
-  IMutationFinishSignUpArgs
+  IMutationFinishSignUpArgs,
+  IMutationGetMicrosoftTokenArgs
 } from "../api-types";
-import getAuthMicrosoftUrl from "../controllers/microsoftAuth";
+import {getAuthMicrosoftUrl, getTokenFromCode} from "../controllers/microsoftAuth";
 
 const saltRounds: number = 7;
 
@@ -255,12 +256,19 @@ const userResolver = {
     },
 
     /**
-     * loginWithMicrosoft: login into platform with microsoft account
+     * loginWithMicrosoft: redirect to microsoft login page
+     * args: none
+     */
+    loginWithMicrosoft: async (_, __, ___) => {
+      return getAuthMicrosoftUrl();
+    },
+
+    /**
+     * getMicrosoftToken: generates microsoft token
      * args:
      */
-    loginWithMicrosoft: async (_, args: any, context: any) => {
-      getAuthMicrosoftUrl();
-      return undefined;
+    getMicrosoftToken: async (_, args: IMutationGetMicrosoftTokenArgs,___) =>{
+      return getTokenFromCode(args.code);
     },
 
     /*

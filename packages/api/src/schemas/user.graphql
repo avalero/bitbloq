@@ -14,7 +14,8 @@ type Mutation {
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
   loginWithGoogle(email: EmailAddress!, password: String!): String
-  loginWithMicrosoft(email: EmailAddress!, password: String!): String
+  loginWithMicrosoft: String
+  getMicrosoftToken(code: String): String
   renewToken: String
   resetPasswordEmail(email: EmailAddress!): String
   checkResetPasswordToken(token: String): Boolean
