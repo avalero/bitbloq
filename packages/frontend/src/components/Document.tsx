@@ -1,15 +1,12 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
-import Router from "next/router";
 import {
   colors,
   Button,
   DialogModal,
   HorizontalRule,
   Icon,
-  Input,
   Spinner,
-  Modal,
   Translate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -32,6 +29,7 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import EditTitleModal from "./EditTitleModal";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import Layout from "./Layout";
 import UserSession from "./UserSession";
 
 const DOCUMENT_QUERY = gql`
@@ -587,9 +585,9 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const Content = styled.div`
+const Content = styled(Layout)`
   flex: 1;
-  padding: 0px 50px;
+  width: 100%;
 `;
 
 const Header = styled.div`
@@ -746,45 +744,6 @@ const DocumentDescription = styled.div`
   word-wrap: break-word;
 `;
 
-const Buttons = styled.div`
-  display: flex;
-  & > * {
-    margin-right: 10px;
-    svg {
-      width: 11px;
-      height: 11px;
-      margin-right: 6px;
-    }
-  }
-`;
-
-const DocumentButton = styled.div`
-  margin-right: 10px;
-  color: white;
-`;
-
 const Exercises = styled.div`
   width: 66%;
-`;
-
-const ModalContent = styled.div`
-  padding: 30px;
-  width: 500px;
-  box-sizing: border-box;
-
-  p {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-`;
-
-const ModalButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 50px;
-`;
-
-const ModalButton = styled(Button)`
-  height: 40px;
-  padding: 0 20px;
 `;
