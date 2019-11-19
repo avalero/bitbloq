@@ -65,7 +65,8 @@ ctx.addEventListener(
   "message",
   e => {
     const geometries: THREE.Geometry[] = [];
-    const bufferArray: ArrayLike<number> = (e.data as IMessageData).bufferArray;
+    const bufferArray: ArrayLike<ArrayBuffer> = (e.data as IMessageData)
+      .bufferArray;
     if (!bufferArray) {
       return;
     }
@@ -124,10 +125,14 @@ ctx.addEventListener(
         );
 
         const matrixWorld: THREE.Matrix4 = new THREE.Matrix4();
-        matrixWorld.elements = new Float32Array(_positions);
+        matrixWorld.elements = Array.prototype.slice.call(
+          new Float32Array(_positions)
+        );
 
         const matrix: THREE.Matrix4 = new THREE.Matrix4();
-        matrix.elements = new Float32Array(_localPositions);
+        matrix.elements = Array.prototype.slice.call(
+          new Float32Array(_localPositions)
+        );
 
         if (first) {
           firstGeomMatrix = matrixWorld.clone();

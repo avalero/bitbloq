@@ -1,5 +1,4 @@
 import fetch from "isomorphic-fetch";
-import throttle from "lodash/throttle";
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { onError } from "apollo-link-error";
@@ -63,14 +62,14 @@ export const createClient = (
 
           if (SHOW_GRAPHQL_LOGS) {
             graphQLErrors.map(({ message, locations, path }) =>
-              console.log(
+              console.error(
                 `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
               )
             );
           }
         }
         if (networkError && SHOW_GRAPHQL_LOGS) {
-          console.log(`[Network error]: ${JSON.stringify(networkError)}`);
+          console.error(`[Network error]: ${JSON.stringify(networkError)}`);
         }
       }),
       new ApolloLink(
@@ -110,7 +109,7 @@ export const createClient = (
               );
             },
             new WebSocketLink({
-              uri: `${process.env.API_URL.replace("http", "ws")}`,
+              uri: `${process.env.API_URL!.replace("http", "ws")}`,
               options: {
                 lazy: true,
                 reconnect: true,

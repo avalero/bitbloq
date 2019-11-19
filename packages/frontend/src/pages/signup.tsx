@@ -54,18 +54,18 @@ enum UserPlanOptions {
 interface IUserData {
   acceptTerms: boolean;
   birthDate: Date;
-  centerName: string | undefined;
-  city: string | undefined;
-  countryKey: string | undefined;
+  centerName: string;
+  city: string;
+  countryKey: string;
   day: number;
-  educationalStage: string | undefined;
+  educationalStage: string;
   email: string;
   imTeacherCheck: boolean;
   month: number;
   name: string;
   noNotifications: boolean;
   password: string;
-  postCode: number | undefined;
+  postCode: number;
   surnames: string;
   year: number;
 }
@@ -104,7 +104,7 @@ const SignupPage: FC = () => {
   const wrapRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
-    wrapRef.current.scrollIntoView();
+    wrapRef.current!.scrollIntoView();
   }, [currentStep]);
 
   const goToPreviousStep = () => setCurrentStep(currentStep - 1);

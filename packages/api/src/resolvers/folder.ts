@@ -45,9 +45,11 @@ const folderResolver = {
       args: IMutationCreateFolderArgs,
       context: { user: IUserInToken }
     ) => {
-      const user: IUser = await UserModel.findOne({ _id: context.user.userID });
-      if (args.input.parent) {
-        if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
+      const user: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
+      if (args.input!.parent) {
+        if (!(await FolderModel.findOne({ _id: args.input!.parent }))) {
           throw new ApolloError(
             "Parent folder does not exist",
             "PARENT_NOT_FOUND"
@@ -55,9 +57,9 @@ const folderResolver = {
         }
       }
       const folderNew: IFolder = new FolderModel({
-        name: args.input.name,
+        name: args.input!.name,
         user: context.user.userID,
-        parent: args.input.parent || user.rootFolder
+        parent: args.input!.parent || user!.rootFolder
       });
       const newFolder: IFolder = await FolderModel.create(folderNew);
       await FolderModel.findOneAndUpdate(
@@ -80,7 +82,7 @@ const folderResolver = {
       args: IMutationDeleteFolderArgs,
       context: { user: IUserInToken }
     ) => {
-      const existFolder: IFolder = await FolderModel.findOne({
+      const existFolder: IFolder | null = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -94,8 +96,8 @@ const folderResolver = {
         );
       }
       if (existFolder) {
-        if (existFolder.documentsID.length > 0) {
-          for (const document of existFolder.documentsID) {
+        if (existFolder.documentsID!.length > 0) {
+          for (const document of existFolder.documentsID!) {
             await documentResolver.Mutation.deleteDocument(
               _,
               { id: document },
@@ -108,8 +110,8 @@ const folderResolver = {
             );
           }
         }
-        if (existFolder.foldersID.length > 0) {
-          for (const folder of existFolder.foldersID) {
+        if (existFolder.foldersID!.length > 0) {
+          for (const folder of existFolder.foldersID!) {
             await folderResolver.Mutation.deleteFolder(
               _,
               { id: folder },
@@ -138,12 +140,12 @@ const folderResolver = {
       args: IMutationUpdateFolderArgs,
       context: { user: IUserInToken }
     ) => {
-      const existFolder: IFolder = await FolderModel.findOne({
+      const existFolder: IFolder | null = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
-      if (args.input.parent) {
-        if (!(await FolderModel.findOne({ _id: args.input.parent }))) {
+      if (args.input!.parent) {
+        if (!(await FolderModel.findOne({ _id: args.input!.parent }))) {
           throw new ApolloError(
             "Parent folder does not exist",
             "PARENT_NOT_FOUND"
@@ -154,10 +156,12 @@ const folderResolver = {
         throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
       }
       if (existFolder) {
-        if (args.input.foldersID) {
+        if (args.input!.foldersID) {
           // si se pasa lista de carpetas hay que modificarlas para añadirlas el parent
-          for (const folder of args.input.foldersID) {
-            const fol: IFolder = await FolderModel.findOne({ _id: folder });
+          for (const folder of args.input!.foldersID) {
+            const fol: IFolder | null = await FolderModel.findOne({
+              _id: folder
+            });
             if (!fol) {
               throw new ApolloError(
                 "Folder ID does not exist",
@@ -182,10 +186,10 @@ const folderResolver = {
             );
           }
         }
-        if (args.input.documentsID) {
+        if (args.input!.documentsID) {
           // si se pasa lista de documentos hay que modificarlos para añadir la carpeta
-          for (const document of args.input.documentsID) {
-            const doc: IDocument = await DocumentModel.findOne({
+          for (const document of args.input!.documentsID) {
+            const doc: IDocument | null = await DocumentModel.findOne({
               _id: document
             });
             if (!doc) {
@@ -212,10 +216,10 @@ const folderResolver = {
             );
           }
         }
-        if (args.input.parent && args.input.parent !== existFolder.parent) {
+        if (args.input!.parent && args.input!.parent !== existFolder.parent) {
           // si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
           await FolderModel.updateOne(
-            { _id: args.input.parent },
+            { _id: args.input!.parent },
             { $push: { foldersID: existFolder._id } }
           );
           await FolderModel.updateOne(
@@ -223,18 +227,18 @@ const folderResolver = {
             { $pull: { foldersID: existFolder._id } }
           );
         }
-        if (existFolder.name === "root" && args.input.name) {
+        if (existFolder.name === "root" && args.input!.name) {
           throw new ApolloError(
             "You can not update your Root folder name",
             "CANT_UPDATE_ROOT"
           );
         }
-        const updatedFolder: IFolder = await FolderModel.findOneAndUpdate(
+        const updatedFolder: IFolder | null = await FolderModel.findOneAndUpdate(
           { _id: existFolder._id },
           {
             $set: {
-              name: args.input.name || existFolder.name,
-              parent: args.input.parent || existFolder.parent
+              name: args.input!.name || existFolder.name,
+              parent: args.input!.parent || existFolder.parent
             }
           },
           { new: true }
@@ -265,7 +269,7 @@ const folderResolver = {
       args: IQueryFolderArgs,
       context: { user: IUserInToken }
     ) => {
-      const existFolder: IFolder = await FolderModel.findOne({
+      const existFolder: IFolder | null = await FolderModel.findOne({
         _id: args.id,
         user: context.user.userID
       });

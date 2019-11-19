@@ -1,6 +1,5 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import Icon from "../Icon";
 import colors from "../../colors";
 
 export interface ISwitchButtonDefinition {

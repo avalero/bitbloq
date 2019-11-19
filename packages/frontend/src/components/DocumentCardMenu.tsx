@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { Icon, colors } from "@bitbloq/ui";
 
@@ -13,32 +13,34 @@ export interface IOption {
 
 export interface IDocumentCardMenuProps {
   className?: string;
-  options?: IOption[];
+  options: Array<IOption | undefined>;
 }
 
 const DocumentCardMenu: FC<IDocumentCardMenuProps> = ({
   className,
-  options
+  options = []
 }) => {
   return (
     <DocumentMenu className={className}>
-      {options &&
-        options.map((option: IOption, index: number) => (
-          <DocumentMenuOption
-            key={index}
-            onClick={e =>
-              option.disabled ? e.stopPropagation() : option.onClick(e)
-            }
-            disabled={option.disabled}
-            red={option.red}
-            selected={option.selected}
-          >
-            <p>
-              {option.iconName && <MenuIcon name={option.iconName} />}
-              {option.label}
-            </p>
-          </DocumentMenuOption>
-        ))}
+      {options.map(
+        (option: IOption, index: number) =>
+          option && (
+            <DocumentMenuOption
+              key={index}
+              onClick={e =>
+                option.disabled ? e.stopPropagation() : option.onClick(e)
+              }
+              disabled={option.disabled}
+              red={option.red}
+              selected={option.selected}
+            >
+              <p>
+                {option.iconName && <MenuIcon name={option.iconName} />}
+                {option.label}
+              </p>
+            </DocumentMenuOption>
+          )
+      )}
     </DocumentMenu>
   );
 };

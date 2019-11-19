@@ -76,6 +76,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
         return undefined;
       }
     }
+    return;
   };
 
   const onContinueClick = async () => {

@@ -120,7 +120,6 @@ export default class Scene {
   private selectedMaterial: object;
   private secondaryMaterial: object;
   private normalMaterial: object;
-  private transitionMaterial: object;
 
   constructor() {
     this.anySelectedObjects = false;
@@ -485,7 +484,7 @@ export default class Scene {
       if (foundObj) {
         this.objectsInScene.push(foundObj);
       } else {
-        console.info("Object not found. This SHOULD NOT HAPPEN");
+        throw new Error("Object not found. This SHOULD NOT HAPPEN");
       }
     });
 
@@ -916,11 +915,6 @@ export default class Scene {
     this.normalMaterial = {
       opacity: 1,
       transparent: false
-    };
-
-    this.transitionMaterial = {
-      opacity: 0.8,
-      transparent: true
     };
   }
   /**

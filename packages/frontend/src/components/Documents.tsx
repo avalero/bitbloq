@@ -83,7 +83,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   useEffect(() => {
     if (!loading && !errorQuery) {
-      setError(null);
+      setError(undefined);
       setDocumentsData(resultData);
       setPagesNumber(resultData.documentsAndFolders.pagesNumber);
     }
@@ -95,7 +95,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
-  const onFolderClick = async ({ folderId }) => {
+  const onFolderClick = async ({ id: folderId }) => {
     Router.push(`/app/folder/${folderId}`);
   };
 
@@ -105,10 +105,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   }, [pagesNumber]);
 
-  const onDocumentClick = ({ id: documentId, type, title }) => {
+  const onDocumentClick = ({ id: documentId, title }) => {
     setBreadcrumbsLinks([
       ...breadcrumbLinks,
-      { route: id, text: title, type: "document" }
+      { route: documentId, text: title, type: "document" }
     ]);
     Router.push(`/app/document/${documentId}`);
   };
@@ -135,7 +135,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   const onOpenDocumentClick = () => {
-    openFile.current.click();
+    openFile.current!.click();
   };
 
   const onOpenExercise = async exerciseCode => {
@@ -308,7 +308,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       <input
         ref={openFile}
         type="file"
-        onChange={e => onFileSelected(e.target.files[0])}
+        onChange={e => onFileSelected(e.target.files![0])}
         style={{ display: "none" }}
       />
       {folderTitleModal && (
