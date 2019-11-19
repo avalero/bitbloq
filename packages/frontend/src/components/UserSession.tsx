@@ -23,7 +23,7 @@ const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
         <ContextMenu>
           {cloudClick && (
             <ContextMenuOption onClick={cloudClick}>
-              <Icon name="cloud-logo" />
+              <CloudIcon name="cloud-logo" />
               <p>{t("user.cloud.access")}</p>
             </ContextMenuOption>
           )}
@@ -86,4 +86,8 @@ const ContextMenuOption = styled.div`
   &:last-child {
     border: none;
   }
+`;
+
+const CloudIcon = styled(Icon)`
+  color: #6878f5;
 `;

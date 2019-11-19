@@ -32,7 +32,7 @@ import EditTitleModal from "./EditTitleModal";
 import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import Layout from "./Layout";
-import NewDocumentDropDown from "./NewDocumentDropDown";
+import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
 import UserSession from "./UserSession";
 
@@ -125,17 +125,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     setFolderTitleModal(false);
   };
 
-  const onNewDocument = type => {
-    window.open(`/app/edit-document/${currentLocation.id}/${type}/new`);
-  };
-
   const onOrderChange = (newOrder: OrderType) => {
     setOrder(newOrder);
     refetchDocsFols();
-  };
-
-  const onOpenDocumentClick = () => {
-    openFile.current!.click();
   };
 
   const onOpenExercise = async exerciseCode => {
@@ -252,22 +244,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               exerciseError={exerciseError}
               loadingExercise={loadingExercise}
             />
-            <DropDown
-              attachmentPosition={"top center"}
-              targetPosition={"bottom center"}
-            >
-              {(isOpen: boolean) => (
-                <NewDocumentButton tertiary isOpen={isOpen}>
-                  <Icon name="new-document" />
-                  Nuevo documento
-                </NewDocumentButton>
-              )}
-              <NewDocumentDropDown
-                onNewDocument={onNewDocument}
-                onOpenDocument={onOpenDocumentClick}
-                arrowOffset={10}
-              />
-            </DropDown>
+            <NewDocumentButton arrowOffset={10} />
           </HeaderButtons>
         </DocumentListHeader>
         {docsAndFols.length > 0 ? (
@@ -386,24 +363,6 @@ const HeaderButtons = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
-`;
-
-interface INewDocumentButtonProps {
-  isOpen: boolean;
-}
-const NewDocumentButton = styled(Button)<INewDocumentButtonProps>`
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 0px 20px;
-  display: flex;
-  align-items: center;
-  height: 40px;
-  cursor: pointer;
-
-  svg {
-    height: 20px;
-    margin-right: 8px;
-  }
 `;
 
 const NoDocuments = styled.div`

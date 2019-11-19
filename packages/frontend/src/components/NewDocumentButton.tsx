@@ -1,56 +1,95 @@
-import React, { FC } from "react";
+import React, { FC, useRef } from "react";
 import styled from "@emotion/styled";
-import { colors, DropDown, Icon } from "@bitbloq/ui";
+import { colors, Button, DropDown, Icon } from "@bitbloq/ui";
 import { documentTypes } from "../config";
+import OpenDocumentInput, {
+  IOpenDocumentInputHandle
+} from "./OpenDocumentInput";
 
-export interface INewDocumentDropDownProps {
-  onNewDocument: (type: string) => any;
-  onOpenDocument: () => any;
+export interface INewDocumentButtonProps {
   arrowOffset?: number;
   className?: string;
+  quaternary?: boolean;
+  attachmentPosition?: string;
+  targetPosition?: string;
 }
 
-const NewDocumentDropDown: FC<INewDocumentDropDownProps> = ({
-  onNewDocument,
-  onOpenDocument,
+const NewDocumentButton: FC<INewDocumentButtonProps> = ({
   arrowOffset = 0,
-  className
+  quaternary,
+  attachmentPosition = "top center",
+  targetPosition = "bottom center"
 }) => {
+  const onNewDocument = (type: string) => {
+    window.open(`/app/edit-document/local/${type}/new`);
+  };
+
+  const openDocumentRef = useRef<IOpenDocumentInputHandle>(null);
+
+  const onOpenDocument = () => {
+    if (openDocumentRef.current) {
+      openDocumentRef.current.open();
+    }
+  };
+
   return (
-    <DropDownContainer arrowOffset={arrowOffset} className={className}>
-      <NewDocumentOptions>
-        {Object.keys(documentTypes).map(type => (
-          <NewDocumentOption
-            key={type}
-            comingSoon={!documentTypes[type].supported}
-            color={documentTypes[type].color}
-            onClick={() => documentTypes[type].supported && onNewDocument(type)}
-          >
+    <>
+      <DropDown
+        attachmentPosition={attachmentPosition}
+        targetPosition={targetPosition}
+      >
+        {(isOpen: boolean) => (
+          <StyledButton tertiary={!quaternary} quaternary={quaternary}>
+            <Icon name="new-document" />
+            Nuevo documento
+          </StyledButton>
+        )}
+        <Container arrowOffset={arrowOffset}>
+          <NewDocumentOptions>
+            {Object.keys(documentTypes).map(type => (
+              <NewDocumentOption
+                key={type}
+                comingSoon={!documentTypes[type].supported}
+                color={documentTypes[type].color}
+                onClick={() =>
+                  documentTypes[type].supported && onNewDocument(type)
+                }
+              >
+                <NewDocumentOptionIcon>
+                  <Icon name={documentTypes[type].icon} />
+                </NewDocumentOptionIcon>
+                <NewDocumentLabel>
+                  {documentTypes[type].label}
+                  {!documentTypes[type].supported && (
+                    <ComingSoon>Próximamente</ComingSoon>
+                  )}
+                </NewDocumentLabel>
+              </NewDocumentOption>
+            ))}
+          </NewDocumentOptions>
+          <OpenDocumentButton onClick={() => onOpenDocument()}>
             <NewDocumentOptionIcon>
-              <Icon name={documentTypes[type].icon} />
+              <Icon name="open-document" />
             </NewDocumentOptionIcon>
-            <NewDocumentLabel>
-              {documentTypes[type].label}
-              {!documentTypes[type].supported && (
-                <ComingSoon>Próximamente</ComingSoon>
-              )}
-            </NewDocumentLabel>
-          </NewDocumentOption>
-        ))}
-      </NewDocumentOptions>
-      <OpenDocumentButton onClick={() => onOpenDocument()}>
-        <NewDocumentOptionIcon>
-          <Icon name="open-document" />
-        </NewDocumentOptionIcon>
-        Abrir documento
-      </OpenDocumentButton>
-    </DropDownContainer>
+            Abrir documento
+          </OpenDocumentButton>
+        </Container>
+      </DropDown>
+      <OpenDocumentInput ref={openDocumentRef} />
+    </>
   );
 };
 
-export default NewDocumentDropDown;
+export default NewDocumentButton;
 
-const DropDownContainer = styled.div<{ arrowOffset }>`
+const StyledButton = styled(Button)`
+  svg {
+    height: 20px;
+    margin-right: 8px;
+  }
+`;
+
+const Container = styled.div<{ arrowOffset }>`
   margin-top: 12px;
   margin-right: ${props => (props.arrowOffset ? -50 : 0)}px;
   transform: translateX(${props => (props.arrowOffset ? -50 : 0)}px);

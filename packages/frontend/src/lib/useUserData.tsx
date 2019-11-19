@@ -1,4 +1,10 @@
-import React, { FC, createContext, useContext, useState } from "react";
+import React, {
+  FC,
+  createContext,
+  useContext,
+  useState,
+  useEffect
+} from "react";
 import { useApolloClient } from "@apollo/react-hooks";
 import { ME_QUERY } from "../apollo/queries";
 import Loading from "../components/Loading";
@@ -10,16 +16,22 @@ export const UserDataContext = createContext<any>(null);
 interface IUserDataProvider {
   initialUserData: any;
   requiresSession: boolean;
+  onChange: (user: any) => any;
 }
 export const UserDataProvider: FC<IUserDataProvider> = ({
   initialUserData,
   requiresSession,
+  onChange,
   children
 }) => {
   const logout = useLogout();
   const [userData, setUserData] = useState(initialUserData);
   const [sessionExpired, setSessionExpired] = useState(false);
   const client = useApolloClient();
+
+  useEffect(() => {
+    onChange(userData);
+  }, [userData]);
 
   useSessionEvent("new-token", async event => {
     const token = event.data;

@@ -96,7 +96,12 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
 
 export default function withApollo(
   PageComponent,
-  { ssr = true, tempSession = "", requiresSession = true } = {}
+  {
+    ssr = true,
+    tempSession = "",
+    requiresSession = true,
+    onlyWithoutSession = false
+  } = {}
 ) {
   const WithApollo = ({
     apolloClient,
@@ -105,6 +110,12 @@ export default function withApollo(
     ...pageProps
   }) => {
     const client = apolloClient || initApolloClient(apolloState, tempSession);
+
+    const onChangeUserData = user => {
+      if (user && onlyWithoutSession) {
+        redirect({}, "/app");
+      }
+    };
 
     return (
       <ApolloProvider client={client}>
@@ -117,6 +128,7 @@ export default function withApollo(
           <UserDataProvider
             initialUserData={userData}
             requiresSession={requiresSession}
+            onChange={onChangeUserData}
           >
             <PageComponent {...pageProps} />
             <SessionWatcher client={client} />
@@ -183,6 +195,10 @@ export default function withApollo(
           query: ME_QUERY,
           errorPolicy: "ignore"
         });
+
+        if (onlyWithoutSession && data && data.me) {
+          redirect(ctx, "/app");
+        }
 
         if (requiresSession && !(data && data.me)) {
           redirect(ctx, "/");

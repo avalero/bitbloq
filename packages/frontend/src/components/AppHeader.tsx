@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import Link from "next/link";
 import styled from "@emotion/styled";
 import { colors } from "@bitbloq/ui";
 import { css } from "@emotion/core";
@@ -14,7 +15,11 @@ const AppHeader: FC<IAppHeaderProps> = ({ children, isSticky }) => {
     <Container isSticky={isSticky}>
       <Layout>
         <Header isSticky={isSticky}>
-          <Logo isSticky={isSticky} src={logoBetaImage} alt="Bitbloq" />
+          <Link href="/">
+            <a>
+              <Logo isSticky={isSticky} src={logoBetaImage} alt="Bitbloq" />
+            </a>
+          </Link>
           <Content>{children}</Content>
         </Header>
       </Layout>

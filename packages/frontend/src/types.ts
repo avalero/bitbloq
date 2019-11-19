@@ -48,3 +48,14 @@ export interface IResource {
   title: string;
   type: ResourcesTypes;
 }
+
+export interface IPlan {
+  name: string;
+  bitbloqCloud?: boolean;
+  highlightedFeatures?: string[];
+  featureTable: string[];
+  isFree?: boolean;
+  originalPrice?: number;
+  price?: number;
+  isBetaFree?: boolean;
+}
