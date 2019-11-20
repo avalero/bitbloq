@@ -90,6 +90,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const onCloseModal = () => {
     setError(Errors.noError);
     setFile(undefined);
+    setFileArray(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
     if (onClose) {
@@ -146,23 +147,10 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
 
   useEffect(() => {
     if (fileArray && canvasRef && canvasRef.current) {
-      setCameraX(
-        -4 *
-          Math.max(
-            canvasRef.current.paint.xDims,
-            canvasRef.current.paint.yDims,
-            canvasRef.current.paint.zDims
-          )
-      );
-      setCameraY(
-        -2 *
-          Math.max(
-            canvasRef.current.paint.xDims,
-            canvasRef.current.paint.yDims,
-            canvasRef.current.paint.zDims
-          )
-      );
-      setCameraZ(canvasRef.current.paint.zDims / 2);
+      const { xDims, yDims, zDims } = canvasRef.current.paint;
+      setCameraX(-4 * Math.max(xDims, yDims, zDims));
+      setCameraY(-2 * Math.max(xDims, yDims, zDims));
+      setCameraZ(zDims / 2);
     }
   }, [canvasRef, fileArray]);
 
@@ -280,7 +268,7 @@ const FormGroup = styled.div`
 `;
 
 const ObjViewer = styled(STLViewer)`
-  /*display: none;*/
+  display: none;
   transform: rotate(-90deg);
 `;
 
