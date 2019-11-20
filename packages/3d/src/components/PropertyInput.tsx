@@ -175,7 +175,7 @@ const SelectProperty: FC<ISelectPropertyProps> = ({
             ...o,
             label: o.labelId ? t(o.labelId) : o.label
           }))}
-          selectConfig={{ isSearchable: false }}
+          selectConfig={{ isSearchable: false, blurInputOnSelect: false }}
           onChange={onChange}
           onFocus={onFocus}
           onBlur={onBlur}

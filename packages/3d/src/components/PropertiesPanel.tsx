@@ -141,13 +141,16 @@ const PropertiesPanel: FC<IPropertiesPanelProps> = ({
   };
 
   const onOperationChange = useCallback(
-    (operation: Lib3DOperation) => {
+    (operation: Lib3DOperation, parameter?: IOperationParameter) => {
       onUpdateObject(
         update(object, {
           operations: operations =>
             operations.map(o => (o.id === operation.id ? operation : o))
         })
       );
+      if (parameter && parameter.activeOperation) {
+        onSetActiveOperation(parameter.activeOperation(object, operation));
+      }
     },
     [object, onUpdateObject]
   );
