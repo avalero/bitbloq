@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React, { FC, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { ApolloError } from "apollo-client";
@@ -16,10 +17,12 @@ import {
   Select,
   useTranslate
 } from "@bitbloq/ui";
+import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import withApollo from "../apollo/withApollo";
 import CounterButton from "../components/CounterButton";
 import GraphQLErrorMessage from "../components/GraphQLErrorMessage";
+import LoginWithMicrosoftButton from "../components/LoginWithMicrosoftButton";
 import ModalLayout from "../components/ModalLayout";
 import logoBetaImage from "../images/logo-beta.svg";
 import { isValidDate, isValidEmail } from "../util";
@@ -53,7 +56,7 @@ enum UserPlanOptions {
 
 interface IUserData {
   acceptTerms: boolean;
-  birthDate: Date;
+  birthDate: string;
   centerName: string;
   city: string;
   countryKey: string;
@@ -77,10 +80,23 @@ interface IUserPlan {
 interface IStepInput {
   defaultValues: {};
   error?: ApolloError;
+  isAMinor?: boolean;
   goToPreviousStep?: () => void;
   loading: boolean;
   onSubmit: (userInputs: IUserData | IUserPlan) => void;
 }
+
+const isYoungerThan = (birthDate: string, years: number) =>
+  dayjs().diff(
+    dayjs(
+      new Date(
+        parseInt(birthDate.split("/")[2], 10),
+        parseInt(birthDate.split("/")[1], 10) - 1,
+        parseInt(birthDate.split("/")[0], 10)
+      )
+    ),
+    "year"
+  ) < years;
 
 const SignupPage: FC = () => {
   const t = useTranslate();
@@ -92,6 +108,7 @@ const SignupPage: FC = () => {
   const [userError, setUserError] = useState<ApolloError>();
   const [userData, setUserData] = useState({
     acceptTerms: false,
+    birthDate: "",
     countryKey: "ES",
     educationalStage: EducationalStageOptions[0],
     imTeacherCheck: defaultPlan === "teacher",
@@ -117,7 +134,8 @@ const SignupPage: FC = () => {
     setUserData(input);
     setUserPlan({
       userPlan:
-        input.imTeacherCheck || defaultPlan === "teacher"
+        (input.imTeacherCheck || defaultPlan === "teacher") &&
+        !isYoungerThan(input.birthDate, 18)
           ? UserPlanOptions.Teacher
           : UserPlanOptions.Member
     });
@@ -146,6 +164,7 @@ const SignupPage: FC = () => {
       }
     })
       .then(result => {
+        setUserError(undefined);
         setUserId(result.data.saveUserData.id);
         goToNextStep();
       })
@@ -208,6 +227,7 @@ const SignupPage: FC = () => {
               {currentStep === 2 && (
                 <Step2
                   defaultValues={userPlan}
+                  isAMinor={isYoungerThan(userData.birthDate, 18)}
                   goToPreviousStep={goToPreviousStep}
                   loading={signingup}
                   onSubmit={onSignupUser}
@@ -243,7 +263,13 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   );
   register(
     { name: "birthDate", type: "custom" },
-    { required: true, validate: isValidDate }
+    {
+      required: true,
+      validate: {
+        validDate: isValidDate,
+        validAge: () => !isYoungerThan(getValues().birthDate, 14)
+      }
+    }
   );
   register({ name: "imTeacherCheck", type: "custom" });
   register({ name: "noNotifications", type: "custom" });
@@ -410,9 +436,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             </LoginWithInfo>
           </div>
           <LoginWithExternalProfile>
-            <Button tertiary onClick={onGotoMicrosoft}>
-              Microsoft
-            </Button>
+            <LoginWithMicrosoftButton />
             <Button tertiary onClick={onGotoGoogle}>
               Google
             </Button>
@@ -516,8 +540,13 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
             error={!!errors.birthDate}
           />
         </FormGroup>
-        {errors.birthDate && (
+        {errors.birthDate && errors.birthDate.type === "validDate" && (
           <ErrorMessage>Debes introducir una fecha válida</ErrorMessage>
+        )}
+        {errors.birthDate && errors.birthDate.type === "validAge" && (
+          <ErrorMessage>
+            Debes ser mayor de 14 años para crear una cuenta en Bitbloq.
+          </ErrorMessage>
         )}
       </FormField>
       <CheckOption
@@ -579,6 +608,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
 
 const Step2: FC<IStepInput> = ({
   defaultValues,
+  isAMinor,
   goToPreviousStep,
   loading,
   onSubmit
@@ -606,18 +636,19 @@ const Step2: FC<IStepInput> = ({
           </PlanOptionTitle>
         </PlanOptionHeader>
       </PlanOption>
-      <PlanOption>
+      <PlanOption disabled={isAMinor}>
         <PlanOptionHeader>
           <Option
             className={"bullet"}
             checked={getValues().userPlan === UserPlanOptions.Teacher}
+            disabled={isAMinor}
             onClick={() => setValue("userPlan", UserPlanOptions.Teacher)}
           />
           <PlanOptionTitle>
             <span>Profesor</span>
             <PlanOptionCost>
               <span>6€ al mes</span>
-              <span>Gratis durante la beta</span>
+              <span> Gratis durante la beta</span>
             </PlanOptionCost>
           </PlanOptionTitle>
         </PlanOptionHeader>
@@ -811,13 +842,25 @@ const ErrorMessage = styled.div`
   color: #d82b32;
 `;
 
-const PlanOption = styled.div`
+interface IPlanOptionProps {
+  disabled?: boolean;
+}
+
+const PlanOption = styled.div<IPlanOptionProps>`
   background-color: #fbfbfb;
   border: solid 1px #cfcfcf;
   border-radius: 4px;
   margin-top: 10px;
   margin-bottom: 20px;
   overflow: hidden;
+
+  ${props =>
+    props.disabled &&
+    css`
+      * {
+        color: ${colors.disabledColor} !important;
+      }
+    `};
 `;
 
 const PlanOptionHeader = styled.div`

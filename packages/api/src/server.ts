@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+config();
 
 import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 import { contextController } from "./controllers/context";
@@ -12,8 +13,6 @@ import { RedisPubSub } from "graphql-redis-subscriptions";
 import Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
-
-config();
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
