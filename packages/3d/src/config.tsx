@@ -816,6 +816,13 @@ const config: IConfig = {
           label: "param-rotation-relative",
           type: "select",
           advancedMode: true,
+          activeOperation: (object, { x, y, z, relative, id, axis = "x" }) => ({
+            object,
+            type: "rotation",
+            axis,
+            relative,
+            id
+          }),
           options: [
             {
               labelId: "param-relative-axis",
@@ -832,6 +839,13 @@ const config: IConfig = {
           label: "param-axis",
           type: "select",
           advancedMode: true,
+          activeOperation: (object, { x, y, z, relative, id, axis = "x" }) => ({
+            object,
+            type: "rotation",
+            axis,
+            relative,
+            id
+          }),
           options: [
             {
               labelId: "param-x",
