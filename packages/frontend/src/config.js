@@ -183,6 +183,14 @@ export const featureTable = [
   "correct-exercises"
 ];
 
+export const educationalStages = [
+  "preschool",
+  "primary",
+  "high-school",
+  "bachelor",
+  "college"
+];
+
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
   TOKEN_DURATION_MINUTES: 300,
