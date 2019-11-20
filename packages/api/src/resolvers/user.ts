@@ -14,7 +14,7 @@ import {
   IUserInToken
 } from "../models/interfaces";
 
-import * as mjml2html from "mjml";
+import mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
 
