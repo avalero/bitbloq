@@ -14,8 +14,8 @@ type Mutation {
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
   loginWithGoogle(email: EmailAddress!, password: String!): String
-  loginWithMicrosoft: String
-  getMicrosoftToken(code: String): String
+  redirectMicrosoftLogin: String
+  loginWithMicrosoft(code: String): MSLogin
   renewToken: String
   resetPasswordEmail(email: EmailAddress!): String
   checkResetPasswordToken(token: String): Boolean
@@ -28,6 +28,12 @@ type Mutation {
 type UserStep1 {
   id: ObjectID
   email: EmailAddress
+}
+
+type MSLogin {
+  id: ObjectID
+  finishedSignUp: Boolean
+  token: String
 }
 
 type User {

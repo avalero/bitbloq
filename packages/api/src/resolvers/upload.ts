@@ -11,11 +11,11 @@ import {
 } from "../api-types";
 
 import * as fs from "fs";
-import { Storage } from "@google-cloud/storage";
+import { Storage, Bucket } from "@google-cloud/storage";
 
-const storage = new Storage({ projectId: process.env.GCLOUD_PROJECT_ID }); // project ID
-const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
-const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET as string;
+const storage: Storage = new Storage({ projectId: process.env.GCLOUD_PROJECT_ID }); // project ID
+const bucket: Bucket = new Bucket(storage, String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
+const bucketName: string = String(process.env.GCLOUD_STORAGE_BUCKET);
 
 let publicUrl: string;
 let thumbnailUrl: string | undefined;
@@ -67,6 +67,7 @@ const uploadThumbnail = async (createReadStream: any, gcsName: string) => {
     const gStream = file.createWriteStream(opts);
     gStream
       .on("error", err => {
+        console.log(1, err);
         reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
       })
       .on("finish", async err => {
@@ -106,6 +107,7 @@ const processUpload = async (input: {
   const gStream = file.createWriteStream(opts);
   gStream
     .on("error", err => {
+      console.log(2, err)
       input.reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
     })
     .on("finish", async err => {

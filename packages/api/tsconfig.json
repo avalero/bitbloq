@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "esnext",
     "lib": ["esnext", "dom"],
+    "baseUrl": "./lib",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,

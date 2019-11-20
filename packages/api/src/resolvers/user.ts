@@ -1,6 +1,10 @@
+import { config } from "dotenv";
+config();
+
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
+import { getUser } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -23,6 +27,7 @@ import { redisClient } from "../server";
 import { sign as jwtSign } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
+import { create as OAuthCreate } from "simple-oauth2";
 import { google } from "googleapis";
 //const {google} = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
@@ -35,7 +40,10 @@ import {
   IMutationFinishSignUpArgs,
   IMutationGetMicrosoftTokenArgs
 } from "../api-types";
-import {getAuthMicrosoftUrl, getTokenFromCode} from "../controllers/microsoftAuth";
+import {
+  getAuthMicrosoftUrl,
+  getTokenFromCode
+} from "../controllers/microsoftAuth";
 
 const saltRounds: number = 7;
 
@@ -256,19 +264,41 @@ const userResolver = {
     },
 
     /**
-     * loginWithMicrosoft: redirect to microsoft login page
+     * redirectMicrosoftLogin: redirect to microsoft login page
      * args: none
      */
-    loginWithMicrosoft: async (_, __, ___) => {
+    redirectMicrosoftLogin: async (_, __, ___) => {
       return getAuthMicrosoftUrl();
     },
 
     /**
-     * getMicrosoftToken: generates microsoft token
+     * loginWithMicrosoft: generates microsoft token
      * args:
      */
-    getMicrosoftToken: async (_, args: IMutationGetMicrosoftTokenArgs,___) =>{
-      return getTokenFromCode(args.code);
+    loginWithMicrosoft: async (_, args: any, ___) => {
+      const credentials = {
+        client: {
+          id: process.env.APP_ID,
+          secret: process.env.APP_PASSWORD
+        },
+        auth: {
+          tokenHost: "https://login.microsoftonline.com",
+          authorizePath: "common/oauth2/v2.0/authorize",
+          tokenPath: "common/oauth2/v2.0/token"
+        }
+      };
+      const oauthMicrosoft = OAuthCreate(credentials);
+      let result = await oauthMicrosoft.authorizationCode.getToken({
+        code: args.code,
+        redirect_uri: process.env.REDIRECT_URI,
+        scope: process.env.APP_SCOPES
+      });
+      console.log(result);
+      const token = oauthMicrosoft.accessToken.create(result);
+      console.log({ token });
+      console.log("Token created: ", token.token);
+      getUser(token);
+      return token.token.access_token;
     },
 
     /*
