@@ -793,14 +793,10 @@ const TooglePassword = styled.div`
   bottom: 0;
   cursor: pointer;
   display: flex;
-  height: 35px;
+  height: 100%;
   position: absolute;
   right: 0;
   padding: 0 10px;
-
-  svg {
-    width: 13px;
-  }
 `;
 
 const Buttons = styled.div`
