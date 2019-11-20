@@ -210,12 +210,12 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
                 cameraX={cameraX}
                 cameraY={cameraY}
                 cameraZ={cameraZ}
-                height={280}
+                height={320}
                 lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
                 model={fileArray}
                 ref={canvasRef}
                 rotate={false}
-                width={164}
+                width={190}
               />
             )}
           </>
@@ -269,7 +269,6 @@ const FormGroup = styled.div`
 
 const ObjViewer = styled(STLViewer)`
   display: none;
-  transform: rotate(-90deg);
 `;
 
 const ResourceModalButton = styled(Button)<{ tertiary?: boolean }>`

@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import DocumentCardMenu from "./DocumentCardMenu";
 import MenuButton from "./MenuButton";
-import { IResource } from "../types";
+import { IResource, ResourcesTypes } from "../types";
 
 interface IResourceCardProps extends IResource {
   addAllow?: boolean;
@@ -35,6 +35,8 @@ const ResourceCard: FC<IResourceCardProps> = ({
     .replace(new RegExp(`\.${extTitle}$`), "")
     .substring(0, 64);
 
+  const [imageHeight, setImageHeight] = useState<number>(0);
+  const [imageWidth, setImageWidth] = useState<number>(0);
   const [firstTitle, setFirsTitle] = useState<string>(
     titleName.substring(0, titleName.length - 3)
   );
@@ -42,6 +44,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
     `${titleName.substring(titleName.length - 3)}.${extTitle}`
   );
 
+  const imageRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -54,6 +57,8 @@ const ResourceCard: FC<IResourceCardProps> = ({
     if (titleRef.current!.clientHeight > 50) {
       setSecondTitle(`...${secondTitle}`);
     }
+    setImageHeight(imageRef.current!.clientHeight);
+    setImageWidth(imageRef.current!.clientWidth);
   }, []);
 
   return (
@@ -111,9 +116,18 @@ const ResourceCard: FC<IResourceCardProps> = ({
           ]}
         />
       </DropDown>
-      <Image imageUrl={thumbnail}>
-        {!thumbnail && <Icon name={`resource-${type}`} />}
-      </Image>
+      <ImageContainer ref={imageRef}>
+        {thumbnail ? (
+          <Image
+            height={imageHeight}
+            imageUrl={thumbnail}
+            type={type}
+            width={imageWidth}
+          />
+        ) : (
+          <Icon name={`resource-${type}`} />
+        )}
+      </ImageContainer>
       <Title ref={titleRef}>
         {firstTitle}
         {secondTitle}
@@ -133,14 +147,30 @@ const CardMenuButton = styled(MenuButton)`
   width: 32px;
 `;
 
-const Image = styled.div<{ imageUrl?: string }>`
-  align-items: center;
+const Image = styled.div<{
+  height: number;
+  imageUrl?: string;
+  type: ResourcesTypes;
+  width: number;
+}>`
   background: url(${props => props.imageUrl}) center/cover;
+  height: ${props =>
+    props.type === ResourcesTypes.object3D ? props.width || 0 : props.height}px;
+  transform: rotate(
+    ${props => (props.type === ResourcesTypes.object3D ? -90 : 0)}deg
+  );
+  width: ${props =>
+    props.type === ResourcesTypes.object3D ? props.height || 0 : props.width}px;
+`;
+
+const ImageContainer = styled.div`
+  align-items: center;
   border-bottom: solid 1px #ccc;
   display: flex;
   flex: 1;
   height: 100%;
   justify-content: center;
+  overflow: hidden;
 
   svg {
     color: #c0c3c9;
@@ -180,7 +210,7 @@ const ResourceContainer = styled.div<{
         props.isOpen && !props.importResource ? "visible" : "hidden"};
     }
 
-    ${Image} {
+    ${ImageContainer} {
       border-bottom: solid 1px #373b44;
 
       svg {
