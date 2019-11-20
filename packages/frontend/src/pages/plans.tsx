@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
+import { useRouter } from "next/router";
 import {
   colors,
   Button,
@@ -23,6 +24,7 @@ import teacherPlanImage from "../images/teacher-plan.svg";
 
 const PlansPage: NextPage = () => {
   const t = useTranslate();
+  const router = useRouter();
   const unregisteredPlan = plans.find(p => p.name === "unregistered");
   const memberPlan = plans.find(p => p.name === "member");
   const teacherPlan = plans.find(p => p.name === "teacher");
@@ -89,12 +91,16 @@ const PlansPage: NextPage = () => {
             </FeaturePlan>
             {memberPlan && (
               <FeaturePlan>
-                <PlanButton>{t(`plans.${memberPlan.name}-signup`)}</PlanButton>
+                <PlanButton onClick={() => router.push("/signup?plan=member")}>
+                  {t(`plans.member-signup`)}
+                </PlanButton>
               </FeaturePlan>
             )}
             {teacherPlan && (
               <FeaturePlan>
-                <PlanButton>{t(`plans.${teacherPlan.name}-signup`)}</PlanButton>
+                <PlanButton onClick={() => router.push("/signup?plan=teacher")}>
+                  {t(`plans.teacher-signup`)}
+                </PlanButton>
               </FeaturePlan>
             )}
           </ButtonRow>
@@ -118,6 +124,8 @@ interface IPlanProps {
 }
 const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
   const t = useTranslate();
+  const router = useRouter();
+
   return (
     <PlanContainer big={big}>
       <PlanHeader>
@@ -173,7 +181,9 @@ const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
             </Tooltip>
           </BitbloqCloud>
         )}
-        <PlanButton>{t(`plans.${plan.name}-signup`)}</PlanButton>
+        <PlanButton onClick={() => router.push(`/signup?plan=${plan.name}`)}>
+          {t(`plans.${plan.name}-signup`)}
+        </PlanButton>
       </PlanContent>
     </PlanContainer>
   );
@@ -337,7 +347,7 @@ const PlanButton = styled(Button)`
 
 const TryContent = styled.div`
   flex: 1;
-  padding: 30px;
+  padding: 30px 0px 30px 30px;
   h2 {
     margin: 20px 0px 10px 0px;
     font-size: 40px;
@@ -350,7 +360,7 @@ const TryContent = styled.div`
 `;
 
 const FeatureTable = styled.div`
-  margin-bottom: 60px;
+  margin-bottom: 160px;
 `;
 
 const FeatureRow = styled.div`

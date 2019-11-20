@@ -1,12 +1,31 @@
 import React, { FC } from "react";
+import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import colors from "../colors";
 
-const Container = styled.div`
+interface IContainerProps {
+  disabled?: boolean;
+}
+
+const Container = styled.div<IContainerProps>`
   display: flex;
   align-items: center;
   font-size: 14px;
   cursor: pointer;
+
+  ${props =>
+    props.disabled &&
+    css`
+      color: ${colors.disabledColor};
+      pointer-events: none;
+
+      ${Bullet} {
+        border-color: ${colors.disabledColor};
+      }
+      ${InnerBullet} {
+        background-color: ${colors.disabledColor};
+      }
+    `};
 `;
 
 const Bullet = styled.div`
@@ -29,6 +48,7 @@ const InnerBullet = styled.div`
 export interface IOptionsProps {
   checked?: boolean;
   onClick?: React.MouseEventHandler;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -36,10 +56,11 @@ const Option: FC<IOptionsProps> = ({
   checked,
   children,
   className,
+  disabled,
   onClick
 }) => (
-  <Container onClick={onClick} className={className}>
-    <Bullet>{checked && <InnerBullet />}</Bullet>
+  <Container disabled={disabled} onClick={onClick} className={className}>
+    <Bullet>{(checked || disabled) && <InnerBullet />}</Bullet>
     <div>{children}</div>
   </Container>
 );

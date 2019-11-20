@@ -389,6 +389,7 @@
     },
     "free": "Gratis",
     "includes-bitbloq-cloud": "Incluye Bitbloq Cloud",
+    "link": "Planes",
     "member": "Miembro",
     "member-signup": "¡Quiero jugar con Bitbloq!",
     "member-subtitle": "Todo lo que necesitas para empezar a diseñar gratis",
@@ -397,5 +398,88 @@
     "teacher-signup": "¡Quiero enseñar con Bitbloq!",
     "teacher-subtitle": "Además del plan gratuíto podrás …",
     "unregistered": "Sin registro"
+  },
+  "signup": {
+    "modal-account": {
+      "title": "Cuenta creada",
+      "content": "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam.",
+      "ok": "Volver a enviar email",
+      "cancel": "Volver al inicio"
+    },
+    "step": "Paso %v% de 2",
+    "form": {
+      "cancel": "Cancelar",
+      "educational-stages": {
+        "preschool": "Preescolar",
+        "primary": "Primaria",
+        "high-school": "Secundaria",
+        "bachelor": "Bachiller",
+        "college": "Universidad"
+      },
+      "errors": {
+        "accept-terms": "Debes leer y aceptar las condiciones generales y la política de privacidad",
+        "birth-date-required": "Debes introducir una fecha válida",
+        "birth-date-validAge": "Debes ser mayor de 14 años para crear una cuenta en Bitbloq",
+        "birth-date-validDate": "Debes introducir una fecha válida",
+        "center-name": "El nombre que has introducido no es válido",
+        "city": "Debes introducir una ciudad",
+        "email-existing": "Ya hay un usuario registrado con este correo electrónico",
+        "email-validate": "Debes introducir una dirección de correo electrónico válida",
+        "name": "El nombre que has introducido no es válido",
+        "password": "Debes introducir una contraseña",
+        "post-code": "Debes introducir un código postal",
+        "surnames": "Los apellidos que has introducido no son válidos"
+      },
+      "labels": {
+        "accept-terms-1": "He leido y acepto las",
+        "accept-terms-2": "y la",
+        "birth-date": "Fecha de nacimiento",
+        "center-name": "El nombre que has introducido no es válido",
+        "city": "Ciudad",
+        "country": "País",
+        "educational-stage": "Etapa",
+        "email": "Correo electrónico",
+        "im-teacher": "Soy profesor",
+        "name": "Nombre",
+        "no-notifications": "No quiero recibir noticias y novedades en mi correo electrónico.",
+        "password": "Contraseña",
+        "post-code": "Código postal",
+        "surnames": "Apellidos"
+      },
+      "link-general-conditions": "condiciones generales",
+      "link-privacy-policy": "política de privacidad",
+      "login": {
+        "account-text": "¿Ya tienes cuenta con esta versión de Bitbloq?",
+        "account-link": "Entra usando tus credenciales",
+        "with-sub-text-1": "Registrándote con una cuenta, estás aceptando las",
+        "with-sub-text-2": "y la",
+        "with-text": "Crear la cuenta con mi perfil de:"
+      },
+      "ok": "Guardar",
+      "placeholders": {
+        "birth-date-day": "DD",
+        "birth-date-month": "MM",
+        "birth-date-year": "AAAA",
+        "center-name": "Nombre del Centro",
+        "city": "Ciudad",
+        "email": "Correo electrónico",
+        "name": "Nombre",
+        "password": "Contraseña",
+        "post-code": "00000",
+        "surnames": "Apellidos"
+      },
+      "title": "Datos de usuario"
+    },
+    "plans": {
+      "advantages": "Estas son las ventajas que disfrutarás siendo %v% en Bitbloq:",
+      "cancel": "Anterior",
+      "free": "Gratis",
+      "free-beta": "Gratis durante la beta",
+      "monthly-price": "%v%€ al mes",
+      "ok": "¡Unirme a Bitbloq ya!",
+      "sub-title": "Elije el tipo de cuenta que deseas crear:",
+      "title": "Configuración de la cuenta"
+    },
+    "title": "Crear una cuenta"
   }
 }
