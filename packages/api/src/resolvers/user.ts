@@ -24,7 +24,7 @@ import { welcomeTemplate } from "../email/welcomeMail";
 
 import { redisClient } from "../server";
 
-import { sign as jwtSign } from "jsonwebtoken";
+import { sign as jwtSign, decode } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
 import { create as OAuthCreate } from "simple-oauth2";
@@ -47,6 +47,10 @@ import {
 
 const saltRounds: number = 7;
 
+interface IMSUser {
+  name: string;
+  surnames: string;
+}
 const userResolver = {
   Mutation: {
     // Public mutations:
@@ -278,7 +282,7 @@ const userResolver = {
     loginWithMicrosoft: async (_, args: any, ___) => {
       const credentials = {
         client: {
-          id: process.env.APP_ID,
+          id: process.env.MICROSOFT_APP_ID,
           secret: process.env.APP_PASSWORD
         },
         auth: {
@@ -287,18 +291,10 @@ const userResolver = {
           tokenPath: "common/oauth2/v2.0/token"
         }
       };
-      const oauthMicrosoft = OAuthCreate(credentials);
-      let result = await oauthMicrosoft.authorizationCode.getToken({
-        code: args.code,
-        redirect_uri: process.env.REDIRECT_URI,
-        scope: process.env.APP_SCOPES
-      });
-      console.log(result);
-      const token = oauthMicrosoft.accessToken.create(result);
-      console.log({ token });
-      console.log("Token created: ", token.token);
-      getUser(token);
-      return token.token.access_token;
+
+      const dataUser: IMSUser | void = await getUser(args.token);
+      console.log({ dataUser });
+      return dataUser;
     },
 
     /*

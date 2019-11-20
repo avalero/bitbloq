@@ -3,6 +3,7 @@ config();
 
 var querystring = require("querystring");
 var http = require("http");
+const https = require("https");
 var fs = require("fs");
 
 const credentials = {
@@ -41,67 +42,33 @@ export async function getTokenFromCode(auth_code) {
 }
 
 export function getUser(token) {
-  const get_data = querystring.stringify({
-    compilation_level: "ADVANCED_OPTIMIZATIONS",
-    output_format: "json",
-    output_info: "compiled_code",
-    warning_level: "QUIET"
-  });
-  const get_options = {
+  const getOptions = {
     host: "graph.microsoft.com",
-    port: "80",
     path: "/v1.0/me",
     method: "GET",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: token
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
     }
   };
-
+  let userData;
   // Set up the request
-  const get_req = http.request(get_options, function(res) {
+  const hello = https.request(getOptions, res => {
+    res.on("error", e => {
+      console.log("error", e);
+      return e;
+    });
     res.setEncoding("utf8");
-    res.on("data", function(chunk) {
-      console.log("Response: " + chunk);
+    res.on("data", data => {
+      userData = JSON.parse(data);
+      console.log(userData.displayName, userData.surname, userData.givenName);
+      console.log("Response: " + data);
+    });
+    res.on("end", () => {
+      console.log("No more data in response.");
+      return { name: userData.givenName, surnames: userData.surname };
     });
   });
-
-  // post the data
-  get_req.write(get_data);
-  get_req.end();
-}
-
-function PostCode(codestring) {
-  // Build the post string from an object
-  var post_data = querystring.stringify({
-    compilation_level: "ADVANCED_OPTIMIZATIONS",
-    output_format: "json",
-    output_info: "compiled_code",
-    warning_level: "QUIET",
-    js_code: codestring
-  });
-
-  // An object of options to indicate where to post to
-  var post_options = {
-    host: "closure-compiler.appspot.com",
-    port: "80",
-    path: "/compile",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Content-Length": Buffer.byteLength(post_data)
-    }
-  };
-
-  // Set up the request
-  var post_req = http.request(post_options, function(res) {
-    res.setEncoding("utf8");
-    res.on("data", function(chunk) {
-      console.log("Response: " + chunk);
-    });
-  });
-
-  // post the data
-  post_req.write(post_data);
-  post_req.end();
+  // hello.on("error", e => console.log("error", e));
+  hello.end();
 }
