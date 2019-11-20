@@ -1,10 +1,10 @@
 import React, {
   FC,
+  useEffect,
   useMemo,
+  useRef,
   useState,
-  ChangeEvent,
-  ReactElement,
-  DOMElement
+  ChangeEvent
 } from "react";
 import STLViewer from "stl-viewer";
 import { useMutation } from "@apollo/react-hooks";
@@ -53,9 +53,15 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   );
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
+  const canvasRef = useRef<STLViewer>(null);
+  const [cameraX, setCameraX] = useState<number>(0);
+  const [cameraY, setCameraY] = useState<number>(0);
+  const [cameraZ, setCameraZ] = useState<number | null>(null);
   const [error, setError] = useState<Errors>(Errors.noError);
   const [file, setFile] = useState<File | undefined>(undefined);
-  const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(undefined);
+  const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(
+    undefined
+  );
   const [nameFile, setNameFile] = useState<string>("");
   const [openCloud, setOpenCloud] = useState<boolean>(false);
   const [tab, setTab] = useState<TabType>(TabType.import);
@@ -90,7 +96,6 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       onClose();
     }
   };
-
 
   const onSendResource = async (fileToSend: File) => {
     let variables = {};
@@ -138,6 +143,28 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       setFile(newFile);
     }
   };
+
+  useEffect(() => {
+    if (fileArray && canvasRef && canvasRef.current) {
+      setCameraX(
+        -4 *
+          Math.max(
+            canvasRef.current.paint.xDims,
+            canvasRef.current.paint.yDims,
+            canvasRef.current.paint.zDims
+          )
+      );
+      setCameraY(
+        -2 *
+          Math.max(
+            canvasRef.current.paint.xDims,
+            canvasRef.current.paint.yDims,
+            canvasRef.current.paint.zDims
+          )
+      );
+      setCameraZ(canvasRef.current.paint.zDims / 2);
+    }
+  }, [canvasRef, fileArray]);
 
   return openCloud && file === undefined && error === Errors.noError ? (
     <CloudModal
@@ -192,9 +219,15 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             {fileArray && (
               <ObjViewer
                 backgroundColor="#fff"
-                height={164}
+                cameraX={cameraX}
+                cameraY={cameraY}
+                cameraZ={cameraZ}
+                height={280}
+                lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
                 model={fileArray}
-                width={280}
+                ref={canvasRef}
+                rotate={false}
+                width={164}
               />
             )}
           </>
@@ -247,7 +280,8 @@ const FormGroup = styled.div`
 `;
 
 const ObjViewer = styled(STLViewer)`
-  display: none;
+  /*display: none;*/
+  transform: rotate(-90deg);
 `;
 
 const ResourceModalButton = styled(Button)<{ tertiary?: boolean }>`
