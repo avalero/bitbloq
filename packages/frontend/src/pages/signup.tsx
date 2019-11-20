@@ -56,7 +56,7 @@ interface IUserData {
   birthDate: string;
   centerName: string;
   city: string;
-  countryKey: string;
+  country: string;
   day: number;
   educationalStage: EducationalStages;
   email: string;
@@ -109,7 +109,7 @@ const SignupPage: FC = () => {
   const [userData, setUserData] = useState({
     acceptTerms: false,
     birthDate: "",
-    countryKey: "ES",
+    country: "ES",
     educationalStage: EducationalStages.Primary,
     imTeacherCheck: teacherPlan && defaultPlan === teacherPlan.name,
     noNotifications: false
@@ -146,11 +146,7 @@ const SignupPage: FC = () => {
           birthDate: input.birthDate,
           centerName: input.imTeacherCheck ? input.centerName : undefined,
           city: input.imTeacherCheck ? input.city : undefined,
-          country: input.imTeacherCheck
-            ? Object.keys(t("countries")).find(
-                (key: string) => input.countryKey === key
-              )
-            : undefined,
+          country: input.imTeacherCheck ? input.country : undefined,
           educationalStage: input.imTeacherCheck
             ? input.educationalStage
             : undefined,
@@ -301,7 +297,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
   };
 
   const teacherSubForm = (isShown: boolean) => {
-    register({ name: "countryKey", type: "custom" }, { required: isShown });
+    register({ name: "country", type: "custom" }, { required: isShown });
     register(
       { name: "educationalStage", type: "custom" },
       { required: isShown }
@@ -342,7 +338,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               onChange={(value: string) =>
                 onChangeValue("educationalStage", value)
               }
-              options={Object.keys(EducationalStages).map(key => {
+              options={Object.keys(EducationalStages).map((key: string) => {
                 return {
                   value: EducationalStages[key],
                   label: t(
@@ -385,8 +381,8 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
           <FormField>
             <label>{t("signup.form.labels.country")}</label>
             <Select
-              name="countryKey"
-              onChange={(value: string) => onChangeValue("countryKey", value)}
+              name="country"
+              onChange={(value: string) => onChangeValue("country", value)}
               options={Object.keys(t("countries")).map((key: string) => ({
                 value: key,
                 label: t("countries")[key]
@@ -394,7 +390,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
               selectConfig={{
                 isSearchable: true
               }}
-              value={getValues().countryKey}
+              value={getValues().country}
             />
             {/* TODO: translate NO OPTIONS message */}
           </FormField>
@@ -624,6 +620,7 @@ const Step2: FC<IStepInput> = ({
       {teacherPlan && (
         <Plan
           checked={getValues().userPlan === teacherPlan}
+          disabled={isAMinor}
           onClick={() => setValue("userPlan", teacherPlan)}
           plan={teacherPlan}
           showFeatures={true}
