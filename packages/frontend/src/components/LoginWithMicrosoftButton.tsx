@@ -8,8 +8,6 @@ const uuid = v1;
 
 const appID: string = String(env.MICROSOFT_APP_ID);
 
-console.log(appID)
-
 const LoginWithMicrosoftButton: FC = () => {
   const onClick = (e: React.MouseEvent) => {
     e.preventDefault();

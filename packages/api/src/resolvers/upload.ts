@@ -67,7 +67,6 @@ const uploadThumbnail = async (createReadStream: any, gcsName: string) => {
     const gStream = file.createWriteStream(opts);
     gStream
       .on("error", err => {
-        console.log(1, err);
         reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
       })
       .on("finish", async err => {
@@ -107,7 +106,6 @@ const processUpload = async (input: {
   const gStream = file.createWriteStream(opts);
   gStream
     .on("error", err => {
-      console.log(2, err)
       input.reject(new ApolloError("Error uploading file", "UPLOAD_ERROR"));
     })
     .on("finish", async err => {
