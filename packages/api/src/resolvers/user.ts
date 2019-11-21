@@ -4,7 +4,7 @@ config();
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
-import { getUser, getAuthMicrosoftUrl } from "../controllers/microsoftAuth";
+import { getUser } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -27,9 +27,7 @@ import { redisClient } from "../server";
 import { sign as jwtSign, decode } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
-import { create as OAuthCreate } from "simple-oauth2";
 import { google } from "googleapis";
-//const {google} = require('googleapis');
 const OAuth2 = google.auth.OAuth2;
 
 import {
@@ -278,16 +276,8 @@ const userResolver = {
     },
 
     /**
-     * redirectMicrosoftLogin: redirect to microsoft login page
-     * args: none
-     */
-    redirectMicrosoftLogin: async (_, __, ___) => {
-      return getAuthMicrosoftUrl();
-    },
-
-    /**
-     * loginWithMicrosoft: generates microsoft token
-     * args:
+     * loginWithMicrosoft: ask microsoft for user data and logs him
+     * args: microsoft token
      */
     loginWithMicrosoft: async (
       _,
