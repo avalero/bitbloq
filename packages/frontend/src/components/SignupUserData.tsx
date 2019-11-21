@@ -128,20 +128,22 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
       <>
         <FormGroup style={{ gridTemplateColumns: "1fr 1fr 1fr" }}>
           <FormField style={{ gridColumnStart: 1, gridColumnEnd: 3 }}>
-            <label>{t("signup.form.labels.center-name")}</label>
+            <label>{t("signup.user-data.labels.center-name")}</label>
             <Input
               type="text"
               name="centerName"
-              placeholder={t("signup.form.placeholders.center-name")}
+              placeholder={t("signup.user-data.placeholders.center-name")}
               ref={register({ required: true })}
               error={!!errors.centerName}
             />
             {errors.centerName && (
-              <ErrorMessage>{t("signup.form.errors.center-name")}</ErrorMessage>
+              <ErrorMessage>
+                {t("signup.user-data.errors.center-name")}
+              </ErrorMessage>
             )}
           </FormField>
           <FormField>
-            <label>{t("signup.form.labels.educational-stage")}</label>
+            <label>{t("signup.user-data.labels.educational-stage")}</label>
             <Select
               name="educationalStage"
               onChange={(value: string) =>
@@ -150,7 +152,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               options={educationalStages.map((educationalStage: string) => {
                 return {
                   value: educationalStage,
-                  label: t(`signup.form.educational-stages.${educationalStage}`)
+                  label: t(
+                    `signup.user-data.educational-stages.${educationalStage}`
+                  )
                 };
               })}
               selectConfig={{
@@ -160,33 +164,35 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             />
           </FormField>
           <FormField>
-            <label>{t("signup.form.labels.city")}</label>
+            <label>{t("signup.user-data.labels.city")}</label>
             <Input
               type="text"
               name="city"
-              placeholder={t("signup.form.placeholders.city")}
+              placeholder={t("signup.user-data.placeholders.city")}
               ref={register({ required: true })}
               error={!!errors.city}
             />
             {errors.city && (
-              <ErrorMessage>{t("signup.form.errors.city")}</ErrorMessage>
+              <ErrorMessage>{t("signup.user-data.errors.city")}</ErrorMessage>
             )}
           </FormField>
           <FormField>
-            <label>{t("signup.form.labels.post-code")}</label>
+            <label>{t("signup.user-data.labels.post-code")}</label>
             <Input
               type="number"
               name="postCode"
-              placeholder={t("signup.form.placeholders.post-code")}
+              placeholder={t("signup.user-data.placeholders.post-code")}
               ref={register({ required: true })}
               error={!!errors.postCode}
             />
             {errors.postCode && (
-              <ErrorMessage>{t("signup.form.errors.post-code")}</ErrorMessage>
+              <ErrorMessage>
+                {t("signup.user-data.errors.post-code")}
+              </ErrorMessage>
             )}
           </FormField>
           <FormField>
-            <label>{t("signup.form.labels.country")}</label>
+            <label>{t("signup.user-data.labels.country")}</label>
             <Select
               name="country"
               onChange={(value: string) => onChangeValue("country", value)}
@@ -208,10 +214,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Title>{t("signup.form.title")}</Title>
       <Login>
         <p>
-          {t("signup.form.login.account-text")}{" "}
+          {t("signup.user-data.login.account-text")}{" "}
           <a
             href="#"
             onClick={e => {
@@ -219,22 +224,22 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               router.push("/login");
             }}
           >
-            {t("signup.form.login.account-link")}
+            {t("signup.user-data.login.account-link")}
           </a>
           .
         </p>
         <LoginWith>
           <div>
-            <p>{t("signup.form.login.with-text")}</p>
+            <p>{t("signup.user-data.login.with-text")}</p>
             <LoginWithInfo>
               <p>
-                {t("signup.form.login.with-sub-text-1")}{" "}
+                {t("signup.user-data.login.with-sub-text-1")}{" "}
                 <a target="_blank" href="https://bitbloq.bq.com/#">
-                  {t("signup.form.link-general-conditions")}
+                  {t("signup.user-data.link-general-conditions")}
                 </a>{" "}
-                {t("signup.form.login.with-sub-text-2")}{" "}
+                {t("signup.user-data.login.with-sub-text-2")}{" "}
                 <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-                  {t("signup.form.link-privacy-policy")}
+                  {t("signup.user-data.link-privacy-policy")}
                 </a>
                 .
               </p>
@@ -250,55 +255,55 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
       </Login>
       <FormGroup>
         <FormField>
-          <label>{t("signup.form.labels.name")}</label>
+          <label>{t("signup.user-data.labels.name")}</label>
           <Input
             type="text"
             name="name"
-            placeholder={t("signup.form.placeholders.name")}
+            placeholder={t("signup.user-data.placeholders.name")}
             ref={register({ required: true })}
             error={!!errors.name}
           />
           {errors.name && (
-            <ErrorMessage>{t("signup.form.errors.name")}</ErrorMessage>
+            <ErrorMessage>{t("signup.user-data.errors.name")}</ErrorMessage>
           )}
         </FormField>
         <FormField>
-          <label>{t("signup.form.labels.surnames")}</label>
+          <label>{t("signup.user-data.labels.surnames")}</label>
           <Input
             type="text"
             name="surnames"
-            placeholder={t("signup.form.placeholders.surnames")}
+            placeholder={t("signup.user-data.placeholders.surnames")}
             ref={register({ required: true })}
             error={!!errors.surnames}
           />
           {errors.surnames && (
-            <ErrorMessage>{t("signup.form.errors.surnames")}</ErrorMessage>
+            <ErrorMessage>{t("signup.user-data.errors.surnames")}</ErrorMessage>
           )}
         </FormField>
       </FormGroup>
       <FormField>
-        <label>{t("signup.form.labels.email")}</label>
+        <label>{t("signup.user-data.labels.email")}</label>
         <Input
           type="text"
           name="email"
-          placeholder={t("signup.form.placeholders.email")}
+          placeholder={t("signup.user-data.placeholders.email")}
           onChange={() => clearError("email")}
           ref={register({ validate: isValidEmail })}
           error={!!errors.email}
         />
         {errors.email && (
           <ErrorMessage>
-            {t(`signup.form.errors.email-${errors.email.type}`)}
+            {t(`signup.user-data.errors.email-${errors.email.type}`)}
           </ErrorMessage>
         )}
       </FormField>
       <FormField>
-        <label>{t("signup.form.labels.password")}</label>
+        <label>{t("signup.user-data.labels.password")}</label>
         <InputPassword>
           <Input
             type={passwordIsMasked ? "password" : "text"}
             name="password"
-            placeholder={t("signup.form.placeholders.password")}
+            placeholder={t("signup.user-data.placeholders.password")}
             ref={register({ required: true })}
             error={!!errors.password}
           />
@@ -308,37 +313,37 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         </InputPassword>
         {/* TODO: remove eye-close background */}
         {errors.password && (
-          <ErrorMessage>{t("signup.form.errors.password")}</ErrorMessage>
+          <ErrorMessage>{t("signup.user-data.errors.password")}</ErrorMessage>
         )}
       </FormField>
       <FormField>
-        <label>{t("signup.form.labels.birth-date")}</label>
+        <label>{t("signup.user-data.labels.birth-date")}</label>
         <FormGroup onChange={onChangeBirthDate}>
           <Input
             type="number"
             name="day"
-            placeholder={t("signup.form.placeholders.birth-date-day")}
+            placeholder={t("signup.user-data.placeholders.birth-date-day")}
             ref={register}
             error={!!errors.birthDate}
           />
           <Input
             type="number"
             name="month"
-            placeholder={t("signup.form.placeholders.birth-date-month")}
+            placeholder={t("signup.user-data.placeholders.birth-date-month")}
             ref={register}
             error={!!errors.birthDate}
           />
           <Input
             type="number"
             name="year"
-            placeholder={t("signup.form.placeholders.birth-date-year")}
+            placeholder={t("signup.user-data.placeholders.birth-date-year")}
             ref={register}
             error={!!errors.birthDate}
           />
         </FormGroup>
         {errors.birthDate && (
           <ErrorMessage>
-            {t(`signup.form.errors.birth-date-${errors.birthDate.type}`)}
+            {t(`signup.user-data.errors.birth-date-${errors.birthDate.type}`)}
           </ErrorMessage>
         )}
       </FormField>
@@ -346,7 +351,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         onClick={() => setValue("imTeacherCheck", !getValues().imTeacherCheck)}
       >
         <Checkbox checked={getValues().imTeacherCheck} />
-        <span>{t("signup.form.labels.im-teacher")}</span>
+        <span>{t("signup.user-data.labels.im-teacher")}</span>
       </CheckOption>
       {teacherSubForm(getValues().imTeacherCheck)}
       <CheckOption
@@ -355,7 +360,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         }
       >
         <Checkbox checked={getValues().noNotifications} />
-        <span>{t("signup.form.labels.no-notifications")}</span>
+        <span>{t("signup.user-data.labels.no-notifications")}</span>
       </CheckOption>
       <CheckOption
         onClick={() => {
@@ -368,19 +373,19 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           error={!!errors.acceptTerms}
         />
         <span>
-          {t("signup.form.labels.accept-terms-1")}{" "}
+          {t("signup.user-data.labels.accept-terms-1")}{" "}
           <a target="_blank" href="https://bitbloq.bq.com/#">
-            {t("signup.form.link-general-conditions")}
+            {t("signup.user-data.link-general-conditions")}
           </a>{" "}
-          {t("signup.form.labels.accept-terms-2")}{" "}
+          {t("signup.user-data.labels.accept-terms-2")}{" "}
           <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-            {t("signup.form.link-privacy-policy")}
+            {t("signup.user-data.link-privacy-policy")}
           </a>
           .
         </span>
       </CheckOption>
       {errors.acceptTerms && (
-        <ErrorMessage>{t("signup.form.errors.accept-terms")}</ErrorMessage>
+        <ErrorMessage>{t("signup.user-data.errors.accept-terms")}</ErrorMessage>
       )}
       <Buttons>
         <Button
@@ -390,10 +395,10 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             router.push("/");
           }}
         >
-          {t("signup.form.cancel")}
+          {t("signup.user-data.cancel")}
         </Button>
         <Button tertiary type="submit" disabled={loading}>
-          {t("signup.form.ok")}
+          {t("signup.user-data.ok")}
         </Button>
       </Buttons>
     </form>
@@ -403,12 +408,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 export default SignupUserData;
 
 /* Styled components */
-
-const Title = styled.div`
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 40px;
-`;
 
 const Login = styled.div`
   color: #474749;

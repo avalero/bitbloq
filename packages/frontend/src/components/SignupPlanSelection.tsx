@@ -28,37 +28,32 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
 }) => {
   const router = useRouter();
   const t = useTranslate();
-  const memberPlan = plans.find(p => p.name === "member");
-  const teacherPlan = plans.find(p => p.name === "teacher");
+  const memberPlan = plans.filter(p => p.name === "member")[0];
+  const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [plan, setPlan] = useState(defaultValues);
 
   return (
     <>
-      <Title>{t("signup.plans.title")}</Title>
-      {t("signup.plans.sub-title")}
-      {memberPlan && (
-        <PlanOption
-          checked={plan === memberPlan}
-          onClick={() => setPlan(memberPlan)}
-          plan={memberPlan}
-        />
-      )}
-      {teacherPlan && (
-        <PlanOption
-          checked={plan === teacherPlan}
-          disabled={isAMinor}
-          onClick={() => setPlan(teacherPlan)}
-          plan={teacherPlan}
-          showFeatures={true}
-        />
-      )}
+      {t("signup.plan-selection.sub-title")}
+      <PlanOption
+        checked={plan === memberPlan}
+        onClick={() => setPlan(memberPlan)}
+        plan={memberPlan}
+      />
+      <PlanOption
+        checked={plan === teacherPlan}
+        disabled={isAMinor}
+        onClick={() => setPlan(teacherPlan)}
+        plan={teacherPlan}
+        showFeatures={true}
+      />
       <Buttons>
         <Button tertiary onClick={() => router.back()}>
-          {t("signup.plans.cancel")}
+          {t("signup.plan-selection.cancel")}
         </Button>
         <Button disabled={loading} onClick={() => onSubmit(plan)}>
-          {t("signup.plans.ok")}
+          {t("signup.plan-selection.ok")}
         </Button>
       </Buttons>
     </>
@@ -94,20 +89,20 @@ const PlanOption: FC<IPlanOptionProps> = ({
         <PlanTitle>
           <span>{t(`plans.${plan.name}`)}</span>
           {plan.isFree ? (
-            <PlanCost>{t(`signup.plans.free`)}</PlanCost>
+            <PlanCost>{t(`signup.plan-selection.free`)}</PlanCost>
           ) : plan.isBetaFree && plan.originalPrice ? (
             <PlanCost>
               <span>
-                {t("signup.plans.monthly-price", [
+                {t("signup.plan-selection.monthly-price", [
                   plan.originalPrice.toLocaleString()
                 ])}
               </span>
-              <span> {t(`signup.plans.free-beta`)}</span>
+              <span> {t(`signup.plan-selection.free-beta`)}</span>
             </PlanCost>
           ) : (
             plan.originalPrice && (
               <PlanCost>
-                {t("signup.plans.monthly-price", [
+                {t("signup.plan-selection.monthly-price", [
                   plan.originalPrice.toLocaleString()
                 ])}
               </PlanCost>
@@ -117,7 +112,9 @@ const PlanOption: FC<IPlanOptionProps> = ({
       </PlanHeader>
       {showFeatures && (
         <PlanFeatures>
-          <p>{t(`signup.plans.advantages`, [t(`plans.${plan.name}`)])}</p>
+          <p>
+            {t(`signup.plan-selection.advantages`, [t(`plans.${plan.name}`)])}
+          </p>
           {(plan.highlightedFeatures || []).map(feature => (
             <Feature key={feature}>
               <Tick name="tick" />
@@ -149,12 +146,6 @@ const PlanOption: FC<IPlanOptionProps> = ({
 export default SignupPlanSelection;
 
 /* Styled components */
-
-const Title = styled.div`
-  font-weight: bold;
-  font-size: 16px;
-  margin-bottom: 40px;
-`;
 
 const Buttons = styled.div`
   display: flex;

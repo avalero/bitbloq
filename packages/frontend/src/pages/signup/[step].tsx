@@ -47,15 +47,21 @@ const SignupPage: FC = () => {
   const router = useRouter();
   const t = useTranslate();
 
+  const wrapRef = React.createRef<HTMLDivElement>();
+
   const { step, plan: defaultPlan } = router.query;
 
   useEffect(() => {
-    wrapRef.current!.scrollIntoView();
+    if (wrapRef && wrapRef.current) wrapRef.current.scrollIntoView();
     if (!Steps.includes(step as string)) router.push('/signup/[step]', `/signup/${_.first(Steps)}`, { shallow: true });
+    if (step === _.last(Steps)) router.beforePopState(() => {
+      router.push("/");
+      return false;
+    });
   }, [step]);
 
-  const memberPlan = plans.find(p => p.name === "member");
-  const teacherPlan = plans.find(p => p.name === "teacher");
+  const memberPlan = plans.filter(p => p.name === "member")[0];
+  const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [error, setError] = useState<ApolloError>();
   const [userError, setUserError] = useState<ApolloError>();
@@ -64,7 +70,7 @@ const SignupPage: FC = () => {
     birthDate: "",
     country: "ES",
     educationalStage: _.first(educationalStages),
-    imTeacherCheck: teacherPlan && defaultPlan === teacherPlan.name,
+    imTeacherCheck: defaultPlan === teacherPlan.name,
     noNotifications: false
   });
   const [userId, setUserId] = useState();
@@ -73,13 +79,10 @@ const SignupPage: FC = () => {
   const [saveUser, { loading: saving }] = useMutation(SAVE_MUTATION);
   const [signupUser, { loading: signingup }] = useMutation(SIGNUP_MUTATION);
 
-  const wrapRef = React.createRef<HTMLDivElement>();
-
   const onSaveUser = (input: IUserData) => {
     setUserData(input);
     setUserPlan(
-      (input.imTeacherCheck ||
-        (teacherPlan && defaultPlan === teacherPlan.name)) &&
+      (input.imTeacherCheck || defaultPlan === teacherPlan.name) &&
       getAge(input.birthDate) >= 18
         ? teacherPlan
         : memberPlan
@@ -128,55 +131,55 @@ const SignupPage: FC = () => {
       .catch(e => setError(e));
   };
 
+  if (error) return <GraphQLErrorMessage apolloError={error} />;
+
+  if (step === _.last(Steps)) return (
+    <ModalLayout
+      title={t("signup.account-created.title")}
+      modalTitle={t("signup.account-created.title")}
+      text={t("signup.account-created.content")}
+      okButton={
+        <CounterButton onClick={() => onSignupUser(userPlan)}>
+          {t("signup.account-created.ok")}
+        </CounterButton>
+      }
+      cancelText={t("signup.account-created.cancel")}
+      onCancel={() => router.push("/")}
+      isOpen={true}
+    />
+  );
+
   return (
     <Wrap ref={wrapRef}>
-      {error ? (
-        <GraphQLErrorMessage apolloError={error} />
-      ) : step === _.last(Steps) ? (
-        <ModalLayout
-          title={t("signup.modal-account.title")}
-          modalTitle={t("signup.modal-account.title")}
-          text={t("signup.modal-account.content")}
-          okButton={
-            <CounterButton onClick={() => onSignupUser(userPlan)}>
-              {t("signup.modal-account.ok")}
-            </CounterButton>
-          }
-          cancelText={t("signup.modal-account.cancel")}
-          onCancel={() => router.push("/")}
-          isOpen={true}
-        />
-        // TODO: goBack history button
-      ) : (
-        <Container>
-          <Logo src={logoBetaImage} alt="Bitbloq Beta" />
-          <SignupPanel>
-            <SignupHeader>{t("signup.title")}</SignupHeader>
-            <HorizontalRule small />
-            <Content>
-              <StepCounter>
-                {t("signup.step", [(Steps.findIndex(s => s === step) + 1).toLocaleString()])}
-              </StepCounter>
-              {step === Steps[0] && (
-                <SignupUserData
-                  defaultValues={userData}
-                  error={userError}
-                  loading={saving}
-                  onSubmit={onSaveUser}
-                />
-              )}
-              {step === Steps[1] && (
-                <SignupPlanSelection
-                  defaultValues={userPlan}
-                  isAMinor={getAge(userData.birthDate) < 18}
-                  loading={signingup}
-                  onSubmit={onSignupUser}
-                />
-              )}
-            </Content>
-          </SignupPanel>
-        </Container>
-      )}
+      <Container>
+        <Logo src={logoBetaImage} alt="Bitbloq Beta" />
+        <SignupPanel>
+          <Header>{t("signup.title")}</Header>
+          <HorizontalRule small />
+          <Content>
+            <StepCounter>
+              {t("signup.step", [(Steps.findIndex(s => s === step) + 1).toLocaleString()])}
+            </StepCounter>
+            <Title>{t(`signup.${step}.title`)}</Title>
+            {step === Steps[0] && (
+              <SignupUserData
+                defaultValues={userData}
+                error={userError}
+                loading={saving}
+                onSubmit={onSaveUser}
+              />
+            )}
+            {step === Steps[1] && (
+              <SignupPlanSelection
+                defaultValues={userPlan ? userPlan : memberPlan}
+                isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
+                loading={signingup}
+                onSubmit={onSignupUser}
+              />
+            )}
+          </Content>
+        </SignupPanel>
+      </Container>
     </Wrap>
   );
 };
@@ -222,7 +225,7 @@ const SignupPanel = styled(Panel)`
   width: 100%;
 `;
 
-const SignupHeader = styled.div`
+const Header = styled.div`
   text-align: center;
   height: 105px;
   display: flex;
@@ -249,4 +252,10 @@ const StepCounter = styled.div`
   color: ${colors.gray4};
   text-transform: uppercase;
   margin-bottom: 8px;
+`;
+
+const Title = styled.div`
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 40px;
 `;
