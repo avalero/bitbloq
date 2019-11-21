@@ -5,8 +5,3 @@ WORKDIR /usr/src/app/
 
 COPY . ./
 
-RUN yarn install
-
-WORKDIR /usr/src/app/packages/frontend
-
-CMD yarn run dev

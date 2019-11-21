@@ -205,8 +205,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
     if (newImage && newImage.size > 0 && isLoggedIn) {
       setDocumentImage({
         variables: {
-          documentId,
-          newImage,
+          id: documentId,
+          image: newImage,
           isSnapshot
         }
       }).catch(e => {
