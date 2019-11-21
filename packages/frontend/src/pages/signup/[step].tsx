@@ -3,12 +3,7 @@ import _ from "lodash";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
 import { useMutation } from "react-apollo";
-import {
-  colors,
-  HorizontalRule,
-  Panel,
-  useTranslate
-} from "@bitbloq/ui";
+import { colors, HorizontalRule, Panel, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { SAVE_MUTATION, SIGNUP_MUTATION } from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
@@ -46,18 +41,25 @@ interface IUserData {
 const SignupPage: FC = () => {
   const router = useRouter();
   const t = useTranslate();
-
   const wrapRef = React.createRef<HTMLDivElement>();
 
   const { step, plan: defaultPlan } = router.query;
 
   useEffect(() => {
-    if (wrapRef && wrapRef.current) wrapRef.current.scrollIntoView();
-    if (!Steps.includes(step as string)) router.push('/signup/[step]', `/signup/${_.first(Steps)}`, { shallow: true });
-    if (step === _.last(Steps)) router.beforePopState(() => {
-      router.push("/");
-      return false;
-    });
+    if (wrapRef && wrapRef.current) {
+      wrapRef.current.scrollIntoView();
+    }
+    if (!Steps.includes(step as string)) {
+      router.push("/signup/[step]", `/signup/${_.first(Steps)}`, {
+        shallow: true
+      });
+    }
+    if (step === _.last(Steps)) {
+      router.beforePopState(() => {
+        router.push("/");
+        return false;
+      });
+    }
   }, [step]);
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
@@ -83,7 +85,7 @@ const SignupPage: FC = () => {
     setUserData(input);
     setUserPlan(
       (input.imTeacherCheck || defaultPlan === teacherPlan.name) &&
-      getAge(input.birthDate) >= 18
+        getAge(input.birthDate) >= 18
         ? teacherPlan
         : memberPlan
     );
@@ -110,7 +112,7 @@ const SignupPage: FC = () => {
       .then(result => {
         setUserError(undefined);
         setUserId(result.data.saveUserData.id);
-        router.push('/signup/[step]', `/signup/${Steps[1]}`, { shallow: true });
+        router.push("/signup/[step]", `/signup/${Steps[1]}`, { shallow: true });
       })
       .catch(e =>
         e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
@@ -127,27 +129,33 @@ const SignupPage: FC = () => {
         userPlan: input.name
       }
     })
-      .then(() => router.push('/signup/[step]', `/signup/${Steps[2]}`, { shallow: true }))
+      .then(() =>
+        router.push("/signup/[step]", `/signup/${Steps[2]}`, { shallow: true })
+      )
       .catch(e => setError(e));
   };
 
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
 
-  if (step === _.last(Steps)) return (
-    <ModalLayout
-      title={t("signup.account-created.title")}
-      modalTitle={t("signup.account-created.title")}
-      text={t("signup.account-created.content")}
-      okButton={
-        <CounterButton onClick={() => onSignupUser(userPlan)}>
-          {t("signup.account-created.ok")}
-        </CounterButton>
-      }
-      cancelText={t("signup.account-created.cancel")}
-      onCancel={() => router.push("/")}
-      isOpen={true}
-    />
-  );
+  if (step === _.last(Steps)) {
+    return (
+      <ModalLayout
+        title={t("signup.account-created.title")}
+        modalTitle={t("signup.account-created.title")}
+        text={t("signup.account-created.content")}
+        okButton={
+          <CounterButton onClick={() => onSignupUser(userPlan)}>
+            {t("signup.account-created.ok")}
+          </CounterButton>
+        }
+        cancelText={t("signup.account-created.cancel")}
+        onCancel={() => router.push("/")}
+        isOpen={true}
+      />
+    );
+  }
 
   return (
     <Wrap ref={wrapRef}>
@@ -158,7 +166,9 @@ const SignupPage: FC = () => {
           <HorizontalRule small />
           <Content>
             <StepCounter>
-              {t("signup.step", [(Steps.findIndex(s => s === step) + 1).toLocaleString()])}
+              {t("signup.step", [
+                (Steps.findIndex(s => s === step) + 1).toLocaleString()
+              ])}
             </StepCounter>
             <Title>{t(`signup.${step}.title`)}</Title>
             {step === Steps[0] && (
