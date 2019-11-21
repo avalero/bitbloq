@@ -83,6 +83,8 @@ class Select extends React.Component {
       options,
       value,
       onChange,
+      onFocus,
+      onBlur,
       onMouseDown,
       selectConfig,
       components = {},
@@ -100,6 +102,8 @@ class Select extends React.Component {
           options={options}
           styles={customStyles(height)}
           onChange={({ value }) => onChange && onChange(value)}
+          onFocus={onFocus}
+          onBlur={onBlur}
         />
       </div>
     );

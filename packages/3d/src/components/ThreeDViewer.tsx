@@ -154,7 +154,8 @@ const ThreeDViewer: FC<IThreeDViewerProps> = ({
   }, [activeOperation]);
 
   return (
-    <Container ref={containerRef}>
+    <Container>
+      <RendererContainer ref={containerRef} />
       <CameraButtons>
         <Tooltip position="right" content={t("tooltip-center-view")}>
           {tooltipProps => (
@@ -240,6 +241,14 @@ const Container = styled.div`
   position: relative;
   display: flex;
   overflow: hidden;
+`;
+
+const RendererContainer = styled.div`
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  width: 100%;
+  height: 100%;
 `;
 
 const StatusBar = styled.div`

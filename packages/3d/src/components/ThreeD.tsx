@@ -80,6 +80,12 @@ const ThreeD: React.FC<IThreeDProps> = ({
     setActiveOperation
   ] = useState<IHelperDescription | null>(null);
 
+  useEffect(() => {
+    if (selectedIds.length === 0) {
+      setActiveOperation(null);
+    }
+  }, [selectedIds]);
+
   const onCreateObject = useCallback(
     (object: IObjectsCommonJSON) => {
       const newObjects = scene.addNewObjectFromJSON(
@@ -260,14 +266,6 @@ const ThreeD: React.FC<IThreeDProps> = ({
       document.removeEventListener("keyup", onKeyUp);
     };
   }, [scene]);
-
-  const onSelectObject = (object: IObjectsCommonJSON) => {
-    if (controlPressed || shiftPressed) {
-      setSelectedIds([...selectedIds, object.id]);
-    } else {
-      setSelectedIds([]);
-    }
-  };
 
   const onObjectClick = (object: IObjectsCommonJSON) => {
     const isTop = objects.includes(object);

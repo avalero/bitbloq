@@ -8,6 +8,3 @@ COPY .env package.json package-lock.json tsconfig.json docker-entrypoint.sh migr
 COPY src ./src
 COPY migrations ./migrations
 
-RUN npm install --yes
-
-CMD npm run migrate-db:up && npm run dev-inspect

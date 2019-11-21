@@ -228,7 +228,7 @@ const EditExercise = ({ type, id }) => {
           </ModalButtons>
         </ModalContent>
       </Modal>
-      {loginVisible && (
+      {loginVisible && !loading && (
         <ExerciseLoginModal
           code={exercise.code}
           onSuccess={newTeamName => {

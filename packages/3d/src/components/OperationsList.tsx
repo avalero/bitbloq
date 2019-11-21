@@ -9,7 +9,10 @@ import { IOperationParameter } from "../types";
 export interface IOperationsListProps {
   operations: Lib3DOperation[];
   advancedMode: boolean;
-  onOperationChange: (operation: Lib3DOperation) => any;
+  onOperationChange: (
+    operation: Lib3DOperation,
+    parameter?: IOperationParameter
+  ) => any;
   onParameterFocus: (
     operation: Lib3DOperation,
     parameter: IOperationParameter
@@ -73,7 +76,8 @@ const OperationsList: FC<IOperationsListProps> = ({
       onOperationChange(
         parameter.setValue
           ? parameter.setValue(operation, value)
-          : { ...operation, [parameter.name!]: value }
+          : { ...operation, [parameter.name!]: value },
+        parameter
       );
     },
     [onOperationChange]

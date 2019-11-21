@@ -12,7 +12,7 @@ const SubMenu = styled.div<ISubMenuProps>`
   top: 0px;
   right: 1px;
   background: white;
-  z-index: 10;
+  z-index: 30;
   flex-direction: column;
   transform: translate(100%, 0);
   box-shadow: 0 12px 15px 1px rgba(0, 0, 0, 0.5);
@@ -72,7 +72,7 @@ const MainOption = styled(Option)`
 
   &:hover {
     box-shadow: 0 12px 15px 1px rgba(0, 0, 0, 0.5);
-    z-index: 10;
+    z-index: 30;
     background-color: white;
   }
 `;
