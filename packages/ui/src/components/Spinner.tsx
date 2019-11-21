@@ -31,6 +31,7 @@ const Container = styled.div<{ small?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 25;
 
   svg {
     animation: ${rotation} 2s ease infinite;
