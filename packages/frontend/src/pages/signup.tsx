@@ -29,6 +29,7 @@ import logoBetaImage from "../images/logo-beta.svg";
 import { plans } from "../config";
 import { IPlan } from "../types";
 import { isValidDate, isValidEmail } from "../util";
+import LoginWithGoogleButton from "../components/LoginWithGoogleButton";
 
 const SAVE_MUTATION = gql`
   mutation SaveUserData($input: UserIn!) {
@@ -436,9 +437,7 @@ const Step1: FC<IStepInput> = ({ defaultValues, error, loading, onSubmit }) => {
           </div>
           <LoginWithExternalProfile>
             <LoginWithMicrosoftButton />
-            <Button tertiary onClick={onGotoGoogle}>
-              Google
-            </Button>
+            <LoginWithGoogleButton />
           </LoginWithExternalProfile>
         </LoginWith>
       </Login>

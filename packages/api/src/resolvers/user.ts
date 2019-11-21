@@ -259,19 +259,22 @@ const userResolver = {
      * args:
      */
     loginWithGoogle: async (_, args: any, context: any) => {
+      console.log(args);
       const oauth2Client = new OAuth2();
       oauth2Client.setCredentials({ access_token: "ACCESS TOKEN HERE" });
       const oauth2 = google.oauth2({
         auth: oauth2Client,
         version: "v2"
       });
-      oauth2.userinfo.get(function(err, res) {
+      oauth2.userinfo.get((err, res) => {
         if (err) {
           console.log(err);
         } else {
           console.log(res);
         }
       });
+      // https://www.googleapis.com/oauth2/v1/userinfo?alt=json
+      // dirección donde se piden los datos de usuario
       return undefined;
     },
 

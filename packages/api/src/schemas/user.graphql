@@ -13,7 +13,7 @@ type Mutation {
   finishSignUp(id: ObjectID!, userPlan: String!): String
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
-  loginWithGoogle(email: EmailAddress!, password: String!): String
+  loginWithGoogle(token: String!): String
   loginWithMicrosoft(token: String!): MSLogin
   renewToken: String
   resetPasswordEmail(email: EmailAddress!): String
