@@ -1,10 +1,22 @@
 import { config } from "dotenv";
 config();
 
-var querystring = require("querystring");
-var http = require("http");
-const https = require("https");
-var fs = require("fs");
+import { create } from "simple-oauth2";
+import { request } from "https";
+
+interface IMSData {
+  displayName: string;
+  surname: string;
+  givenName: string;
+  id: string;
+  userPrincipalName: string;
+  businessPhones: string[];
+  jobTitle: string;
+  mail: string;
+  mobilePhone: string;
+  officeLocation: string;
+  preferredLanguage: string;
+}
 
 const credentials = {
   client: {
@@ -17,7 +29,7 @@ const credentials = {
     tokenPath: "common/oauth2/v2.0/token"
   }
 };
-const oauth2 = require("simple-oauth2").create(credentials);
+const oauth2 = create(credentials);
 
 export function getAuthMicrosoftUrl() {
   const returnVal = oauth2.authorizationCode.authorizeURL({
@@ -28,20 +40,7 @@ export function getAuthMicrosoftUrl() {
   return returnVal;
 }
 
-export async function getTokenFromCode(auth_code) {
-  let result = await oauth2.authorizationCode.getToken({
-    code: auth_code,
-    redirect_uri: process.env.REDIRECT_URI,
-    scope: process.env.APP_SCOPES
-  });
-
-  const token = oauth2.accessToken.create(result);
-  console.log("Token created: ", token.token);
-  //
-  return token.token.access_token;
-}
-
-export function getUser(token) {
+export const getUser = (token): Promise<IMSData> => {
   const getOptions = {
     host: "graph.microsoft.com",
     path: "/v1.0/me",
@@ -51,24 +50,23 @@ export function getUser(token) {
       Authorization: `Bearer ${token}`
     }
   };
-  let userData;
   // Set up the request
-  const hello = https.request(getOptions, res => {
-    res.on("error", e => {
-      console.log("error", e);
-      return e;
+  return new Promise((resolve, reject) => {
+    let userData: IMSData;
+    const req = request(getOptions);
+
+    req.on("response", res => {
+      res.setEncoding("utf8");
+      res.on("data", data => {
+        userData = JSON.parse(data);
+        resolve(userData);
+      });
     });
-    res.setEncoding("utf8");
-    res.on("data", data => {
-      userData = JSON.parse(data);
-      console.log(userData.displayName, userData.surname, userData.givenName);
-      console.log("Response: " + data);
+
+    req.on("error", err => {
+      console.log("err");
+      reject(err);
     });
-    res.on("end", () => {
-      console.log("No more data in response.");
-      return { name: userData.givenName, surnames: userData.surname };
-    });
+    req.end();
   });
-  // hello.on("error", e => console.log("error", e));
-  hello.end();
-}
+};

@@ -4,7 +4,7 @@ config();
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
-import { getUser } from "../controllers/microsoftAuth";
+import { getUser, getAuthMicrosoftUrl } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -38,19 +38,16 @@ import {
   IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
-  IMutationGetMicrosoftTokenArgs
+  IMutationLoginWithMicrosoftArgs
 } from "../api-types";
-import {
-  getAuthMicrosoftUrl,
-  getTokenFromCode
-} from "../controllers/microsoftAuth";
 
 const saltRounds: number = 7;
 
-interface IMSUser {
+export interface IMSUser {
   name: string;
   surnames: string;
 }
+
 const userResolver = {
   Mutation: {
     // Public mutations:
@@ -133,48 +130,61 @@ const userResolver = {
         default:
           throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
-      const signUpToken: string = jwtSign(
-        {
-          signUpUserID: user._id
-        },
-        process.env.JWT_SECRET
-      );
-
-      // Generate the email with the activation link and send it
-      const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/activate?token=${signUpToken}`
-      };
-      const mjml: string = welcomeTemplate(data);
-      const htmlMessage: any = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        user.email!,
-        "Bitbloq Sign Up ✔",
-        htmlMessage.html
-      );
-
       // Create user root folder for documents
       const userFolder: IFolder = await FolderModel.create({
         name: "root",
         user: user._id
       });
+
+      let activeUser: boolean = false;
+      let logOrSignToken: string = "";
+      if (user.microsoftID) {
+        activeUser = true;
+        const { token, role } = await contextController.generateLoginToken(
+          user
+        );
+        logOrSignToken = token;
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+      } else {
+        logOrSignToken = jwtSign(
+          {
+            signUpUserID: user._id
+          },
+          process.env.JWT_SECRET
+        );
+        // Generate the email with the activation link and send it
+        const data: IEmailData = {
+          url: `${process.env.FRONTEND_URL}/app/activate?token=${logOrSignToken}`
+        };
+        const mjml: string = welcomeTemplate(data);
+        const htmlMessage: any = mjml2html(mjml, {
+          keepComments: false,
+          beautify: true,
+          minify: true
+        });
+        await mailerController.sendEmail(
+          user.email!,
+          "Bitbloq Sign Up ✔",
+          htmlMessage.html
+        );
+      }
+
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
-            signUpToken,
+            signUpToken: user.microsoftID ? "" : logOrSignToken,
+            authToken: user.microsoftID ? logOrSignToken : "",
             teacher,
             finishedSignUp: true,
-            rootFolder: userFolder._id
+            rootFolder: userFolder._id,
+            active: activeUser
           }
         },
         { new: true }
       );
-      return "OK";
+      return user.microsoftID ? logOrSignToken : "OK";
     },
 
     /*
@@ -279,22 +289,54 @@ const userResolver = {
      * loginWithMicrosoft: generates microsoft token
      * args:
      */
-    loginWithMicrosoft: async (_, args: any, ___) => {
-      const credentials = {
-        client: {
-          id: process.env.MICROSOFT_APP_ID,
-          secret: process.env.APP_PASSWORD
-        },
-        auth: {
-          tokenHost: "https://login.microsoftonline.com",
-          authorizePath: "common/oauth2/v2.0/authorize",
-          tokenPath: "common/oauth2/v2.0/token"
-        }
-      };
-
-      const dataUser: IMSUser | void = await getUser(args.token);
-      console.log({ dataUser });
-      return dataUser;
+    loginWithMicrosoft: async (
+      _,
+      args: IMutationLoginWithMicrosoftArgs,
+      ___
+    ) => {
+      let userID: string = "";
+      let finishedSignUp: boolean | undefined;
+      let token: string = "";
+      const userData = await getUser(args.token);
+      let user: IUser | null = await UserModel.findOne({
+        microsoftID: userData.id,
+        email: userData.userPrincipalName
+      });
+      console.log({ userData });
+      if (user && (!user.finishedSignUp || !user.active)) {
+        await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
+        user = null;
+      }
+      if (!user) {
+        // guardar datos de usuario
+        user = await UserModel.create({
+          password: "microsoft",
+          microsoftID: userData.id,
+          name: userData.givenName,
+          surnames: userData.surname,
+          email: userData.userPrincipalName,
+          active: false,
+          authToken: " ",
+          notifications: false,
+          imTeacherCheck: false,
+          lastLogin: new Date(),
+          finishedSignUp: false
+        });
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+      } else {
+        // usuario se logea sin más
+        token = (await contextController.generateLoginToken(user)).token;
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+        await UserModel.updateOne(
+          { _id: user._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+      }
+      return { id: userID, finishedSignUp, token };
     },
 
     /*

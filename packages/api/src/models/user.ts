@@ -3,6 +3,7 @@ import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
 
 export interface IUser extends Document {
+  _id: string;
   email?: string;
   password?: string;
   admin?: boolean;
@@ -26,6 +27,7 @@ export interface IUser extends Document {
   rootFolder?: string;
   lastLogin?: Date;
   finishedSignUp?: boolean;
+  microsoftID?: string;
 }
 
 export const contactSchema: Schema = new Schema({
@@ -118,6 +120,10 @@ export const contactSchema: Schema = new Schema({
   rootFolder: {
     type: Schema.Types.ObjectId,
     ref: "FolderModel"
+  },
+
+  microsoftID: {
+    type: String
   }
 });
 
