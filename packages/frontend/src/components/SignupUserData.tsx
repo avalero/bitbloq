@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages } from "../config";
+import LoginWithGoogleButton from "./LoginWithGoogleButton";
 
 interface IUserData {
   acceptTerms: boolean;
@@ -247,9 +248,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           </div>
           <LoginWithExternalProfile>
             <LoginWithMicrosoftButton />
-            <Button tertiary onClick={onGotoGoogle}>
-              Google
-            </Button>
+            <LoginWithGoogleButton />
           </LoginWithExternalProfile>
         </LoginWith>
       </Login>
