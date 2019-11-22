@@ -78,7 +78,7 @@ const ObjectTree: FC<IObjectTreeProps> = ({
 
       onCreateObject(object);
     },
-    [onCreateObject]
+    [onCreateObject, advancedMode]
   );
 
   const onDeleteClick = (object: IObjectsCommonJSON) => {
