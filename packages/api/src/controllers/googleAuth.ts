@@ -1,6 +1,3 @@
-import { config } from "dotenv";
-config();
-
 import { request } from "https";
 import { ApolloError } from "apollo-server";
 
