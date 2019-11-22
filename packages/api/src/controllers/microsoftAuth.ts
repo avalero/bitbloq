@@ -2,8 +2,9 @@ import { config } from "dotenv";
 config();
 
 import { request } from "https";
+import { ApolloError } from "apollo-server";
 
-interface IMSData {
+export interface IMSData {
   displayName: string;
   surname: string;
   givenName: string;
@@ -17,7 +18,7 @@ interface IMSData {
   preferredLanguage: string;
 }
 
-export const getUserMiscrosoft = (token): Promise<IMSData> => {
+export const getMicrosoftUser = (token): Promise<IMSData> => {
   const getOptions = {
     host: "graph.microsoft.com",
     path: "/v1.0/me",
@@ -41,8 +42,8 @@ export const getUserMiscrosoft = (token): Promise<IMSData> => {
     });
 
     req.on("error", err => {
-      console.log("err");
       reject(err);
+      throw new ApolloError("Error getting user data", "SOCIAL_DATA_ERROR");
     });
     req.end();
   });

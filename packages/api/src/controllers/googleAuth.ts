@@ -2,6 +2,7 @@ import { config } from "dotenv";
 config();
 
 import { request } from "https";
+import { ApolloError } from "apollo-server";
 
 export interface IGoogleData {
   name: string;
@@ -13,7 +14,7 @@ export interface IGoogleData {
   birthDate: string;
 }
 
-export const getUserGoogle = (token): Promise<any> => {
+export const getGoogleUser = (token): Promise<any> => {
   const getOptions = {
     hostname: "www.googleapis.com",
     path: "/oauth2/v2/userinfo",
@@ -27,19 +28,17 @@ export const getUserGoogle = (token): Promise<any> => {
   return new Promise((resolve, reject) => {
     let userData: IGoogleData;
     const req = request(getOptions);
-
     req.on("response", res => {
       res.setEncoding("utf8");
       res.on("data", data => {
         userData = JSON.parse(data);
-        console.log(userData);
         resolve(userData);
       });
     });
 
     req.on("error", err => {
-      console.log("err", err);
       reject(err);
+      throw new ApolloError("Error getting user data", "SOCIAL_DATA_ERROR");
     });
     req.end();
   });

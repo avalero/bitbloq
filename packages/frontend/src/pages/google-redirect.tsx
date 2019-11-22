@@ -13,7 +13,8 @@ const GoogleRedirectPage: NextPage = () => {
     console.log("DATA", data);
   };
   useEffect(() => {
-    const token = window.location.hash.split("#access_token=")[1];
+    const token1 = window.location.href.split("&access_token=")[1];
+    const token = token1.split("&token_type=")[0];
     callLogin(token);
   }, []);
 

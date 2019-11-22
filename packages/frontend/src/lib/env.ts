@@ -1,4 +1,9 @@
-const BROWSER_ENV_VARS = ["ENABLED_TOOLS", "API_URL", "MICROSOFT_APP_ID"];
+const BROWSER_ENV_VARS = [
+  "ENABLED_TOOLS",
+  "API_URL",
+  "MICROSOFT_APP_ID",
+  "GOOGLE_CLIENT_ID"
+];
 
 export const getBrowserEnv = () =>
   BROWSER_ENV_VARS.reduce((e, v) => ({ ...e, [v]: process.env[v] }), {});

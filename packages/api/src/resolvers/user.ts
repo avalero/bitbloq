@@ -4,7 +4,7 @@ config();
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
-import { getUserMiscrosoft } from "../controllers/microsoftAuth";
+import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -36,7 +36,7 @@ import {
   IMutationLoginWithMicrosoftArgs,
   IMutationLoginWithGoogleArgs
 } from "../api-types";
-import { getUserGoogle, IGoogleData } from "../controllers/googleAuth";
+import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 
 const saltRounds: number = 7;
 
@@ -142,6 +142,13 @@ const userResolver = {
         );
         logOrSignToken = token;
         await storeTokenInRedis(`authToken-${user._id}`, token);
+      } else if (user.googleID) {
+        activeUser = true;
+        const { token, role } = await contextController.generateLoginToken(
+          user
+        );
+        logOrSignToken = token;
+        await storeTokenInRedis(`authToken-${user._id}`, token);
       } else {
         logOrSignToken = jwtSign(
           {
@@ -171,8 +178,9 @@ const userResolver = {
         { _id: user._id },
         {
           $set: {
-            signUpToken: user.microsoftID ? "" : logOrSignToken,
-            authToken: user.microsoftID ? logOrSignToken : "",
+            signUpToken:
+              user.microsoftID || user.googleID ? "" : logOrSignToken,
+            authToken: user.microsoftID || user.googleID ? logOrSignToken : "",
             teacher,
             finishedSignUp: true,
             rootFolder: userFolder._id,
@@ -181,7 +189,7 @@ const userResolver = {
         },
         { new: true }
       );
-      return user.microsoftID ? logOrSignToken : "";
+      return user.microsoftID || user.googleID ? logOrSignToken : "";
     },
 
     /*
@@ -254,8 +262,8 @@ const userResolver = {
     },
 
     /**
-     * loginWithGoogle: login into platform with google account
-     * args:
+     * loginWithGoogle: login into platform with google account. If it is the first time, stores user data. If not, just login user.
+     * args: google token
      */
     loginWithGoogle: async (
       _,
@@ -265,9 +273,7 @@ const userResolver = {
       let userID: string = "";
       let finishedSignUp: boolean | undefined;
       let token: string = "";
-      console.log(args);
-      const userData: IGoogleData = await getUserGoogle(args.token);
-      console.log({ userData });
+      const userData: IGoogleData = await getGoogleUser(args.token);
       let user: IUser | null = await UserModel.findOne({
         googleID: userData.id,
         email: userData.email
@@ -321,12 +327,11 @@ const userResolver = {
       let userID: string = "";
       let finishedSignUp: boolean | undefined;
       let token: string = "";
-      const userData = await getUserMiscrosoft(args.token);
+      const userData: IMSData = await getMicrosoftUser(args.token);
       let user: IUser | null = await UserModel.findOne({
         microsoftID: userData.id,
         email: userData.userPrincipalName
       });
-      console.log({ userData });
       if (user && (!user.finishedSignUp || !user.active)) {
         await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
         user = null;

@@ -218,6 +218,6 @@ export const microsoftScopes = "openid profile User.Read Mail.Read";
 
 export const googleAuthEndpoint =
   "https://accounts.google.com/o/oauth2/v2/auth";
-//"https://www.googleapis.com/auth/";
 
-export const googleScopes = "https://www.googleapis.com/auth/userinfo.profile";
+export const googleScopes =
+  "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/userinfo.email";

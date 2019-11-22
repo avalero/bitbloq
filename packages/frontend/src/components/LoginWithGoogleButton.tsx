@@ -7,8 +7,7 @@ import { v1 } from "uuid";
 
 const uuid = v1;
 
-const appID: string =
-  "950738575520-rcvmb9omvrhigb7nepgekjl3hlurslgg.apps.googleusercontent.com";
+const appID: string = String(env.GOOGLE_CLIENT_ID);
 
 const LoginWithGoogleButton: FC = () => {
   const onClick = (e: React.MouseEvent) => {
@@ -18,9 +17,8 @@ const LoginWithGoogleButton: FC = () => {
     sessionStorage.setItem("googleAuthNonce", uuid());
 
     const location = window.location;
-    console.log(appID);
     const authParams = {
-      response_type: "code",
+      response_type: "code token",
       client_id: appID,
       redirect_uri: `${location.protocol}//${location.host}/google-redirect`,
       scope: googleScopes,

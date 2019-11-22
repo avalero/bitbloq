@@ -28,6 +28,7 @@ export interface IUser extends Document {
   lastLogin?: Date;
   finishedSignUp?: boolean;
   microsoftID?: string;
+  googleID?: string;
 }
 
 export const contactSchema: Schema = new Schema({
@@ -123,6 +124,9 @@ export const contactSchema: Schema = new Schema({
   },
 
   microsoftID: {
+    type: String
+  },
+  googleID: {
     type: String
   }
 });
