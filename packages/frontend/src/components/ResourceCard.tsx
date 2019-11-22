@@ -149,7 +149,7 @@ const CardMenuButton = styled(MenuButton)`
 
 const Image = styled.div<{
   height: number;
-  imageUrl?: string;
+  imageUrl: string;
   type: ResourcesTypes;
   width: number;
 }>`
