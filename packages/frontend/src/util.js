@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const getChromeVersion = userAgent => {
   if (userAgent) {
     const pieces = userAgent.match(
@@ -8,6 +10,18 @@ export const getChromeVersion = userAgent => {
     return 0;
   }
 };
+
+export const getAge = birthDate =>
+  dayjs().diff(
+    dayjs(
+      new Date(
+        parseInt(birthDate.split("/")[2], 10),
+        parseInt(birthDate.split("/")[1], 10) - 1,
+        parseInt(birthDate.split("/")[0], 10)
+      )
+    ),
+    "year"
+  );
 
 export const isValidDate = date =>
   /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/i.test(date) &&

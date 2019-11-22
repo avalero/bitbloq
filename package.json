@@ -22,14 +22,5 @@
     "hooks": {
       "pre-commit": "lint-staged && yarn run tsc"
     }
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "tslint -c ./tslint.json"
-    ],
-    "*.{ts,tsx,js,css,json,md}": [
-      "prettier --write",
-      "git add"
-    ]
   }
 }
