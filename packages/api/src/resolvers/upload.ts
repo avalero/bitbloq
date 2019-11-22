@@ -315,25 +315,30 @@ const uploadResolver = {
     ) => {
       if (args.thumbnail) {
         const {
-          createReadStream: createReadStream2,
-          filename: filename2,
-          mimetype: mimetype2,
-          encoding: encoding2
+          createReadStream: createReadStreamUploadRsc,
+          filename: filenameUploadRsc,
+          mimetype: mimetypeUploadRsc,
+          encoding: encodingUloadRsc
         } = await args.thumbnail;
-        if (!createReadStream2 || !filename2 || !mimetype2 || !encoding2) {
+        if (
+          !createReadStreamUploadRsc ||
+          !filenameUploadRsc ||
+          !mimetypeUploadRsc ||
+          !encodingUloadRsc
+        ) {
           throw new ApolloError(
             "Upload error with thumbnail, check file type.",
             "UPLOAD_ERROR"
           );
         }
-        const uniqueName2: string =
-          "thumbnail" + Date.now() + normalize(filename2);
-        const gcsName2: string = `${context.user.userID}/${encodeURIComponent(
-          uniqueName2
-        )}`;
+        const uniqueNameUploadRsc: string =
+          "thumbnail" + Date.now() + normalize(filenameUploadRsc);
+        const gcsNameUloadRsc: string = `${
+          context.user.userID
+        }/${encodeURIComponent(uniqueNameUploadRsc)}`;
         thumbnailUrl = (await uploadThumbnail(
-          createReadStream2,
-          gcsName2
+          createReadStreamUploadRsc,
+          gcsNameUloadRsc
         )) as string;
       }
       const {

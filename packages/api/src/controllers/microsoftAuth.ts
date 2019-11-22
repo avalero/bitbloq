@@ -2,6 +2,7 @@ import { request } from "https";
 import { ApolloError } from "apollo-server";
 
 export interface IMSData {
+  error?: JSON;
   displayName: string;
   surname: string;
   givenName: string;
@@ -27,13 +28,16 @@ export const getMicrosoftUser = (token): Promise<IMSData> => {
   };
   // Set up the request
   return new Promise((resolve, reject) => {
-    let userData: IMSData;
+    let userData: IMSData | undefined;
     const req = request(getOptions);
 
     req.on("response", res => {
       res.setEncoding("utf8");
       res.on("data", data => {
         userData = JSON.parse(data);
+        if (userData && userData.error) {
+          userData = undefined;
+        }
         resolve(userData);
       });
     });
