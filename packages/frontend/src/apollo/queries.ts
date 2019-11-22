@@ -478,7 +478,17 @@ export const LOGIN_MUTATION = gql`
 
 export const LOGIN_WITH_MICROSOFT = gql`
   mutation LoginWithMicrosoft($token: String!) {
-    loginWithMicrosoft(token: $token)
+    loginWithMicrosoft(token: $token) {
+      id
+    }
+  }
+`;
+
+export const LOGIN_WITH_GOOGLE = gql`
+  mutation LoginWithGoogle($token: String!) {
+    loginWithGoogle(token: $token) {
+      id
+    }
   }
 `;
 

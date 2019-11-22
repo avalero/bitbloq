@@ -1,6 +1,7 @@
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
+import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -20,15 +21,19 @@ import { welcomeTemplate } from "../email/welcomeMail";
 
 import { redisClient } from "../server";
 
-import { sign as jwtSign } from "jsonwebtoken";
+import { sign as jwtSign, decode } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
+
 import {
   IMutationActivateAccountArgs,
   IMutationDeleteUserArgs,
   IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
-  IMutationFinishSignUpArgs
+  IMutationFinishSignUpArgs,
+  IMutationLoginWithMicrosoftArgs,
+  IMutationLoginWithGoogleArgs
 } from "../api-types";
+import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 
 const saltRounds: number = 7;
 
@@ -114,48 +119,62 @@ const userResolver = {
         default:
           throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
-      const signUpToken: string = jwtSign(
-        {
-          signUpUserID: user._id
-        },
-        process.env.JWT_SECRET
-      );
-
-      // Generate the email with the activation link and send it
-      const data: IEmailData = {
-        url: `${process.env.FRONTEND_URL}/app/activate?token=${signUpToken}`
-      };
-      const mjml: string = welcomeTemplate(data);
-      const htmlMessage: any = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        user.email!,
-        "Bitbloq Sign Up ✔",
-        htmlMessage.html
-      );
-
       // Create user root folder for documents
       const userFolder: IFolder = await FolderModel.create({
         name: "root",
         user: user._id
       });
+
+      let activeUser: boolean = false;
+      let logOrSignToken: string = "";
+      if (user.microsoftID || user.googleID) {
+        activeUser = true;
+        const { token, role } = await contextController.generateLoginToken(
+          user
+        );
+        logOrSignToken = token;
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+      } else {
+        logOrSignToken = jwtSign(
+          {
+            signUpUserID: user._id
+          },
+          process.env.JWT_SECRET
+        );
+        // Generate the email with the activation link and send it
+        const data: IEmailData = {
+          url: `${process.env.FRONTEND_URL}/app/activate?token=${logOrSignToken}`
+        };
+        const mjml: string = welcomeTemplate(data);
+        const htmlMessage: any = mjml2html(mjml, {
+          keepComments: false,
+          beautify: true,
+          minify: true
+        });
+        await mailerController.sendEmail(
+          user.email!,
+          "Bitbloq Sign Up ✔",
+          htmlMessage.html
+        );
+      }
+
       // Update the user information in the database
       await UserModel.findOneAndUpdate(
         { _id: user._id },
         {
           $set: {
-            signUpToken,
+            signUpToken:
+              user.microsoftID || user.googleID ? "" : logOrSignToken,
+            authToken: user.microsoftID || user.googleID ? logOrSignToken : "",
             teacher,
             finishedSignUp: true,
-            rootFolder: userFolder._id
+            rootFolder: userFolder._id,
+            active: activeUser
           }
         },
         { new: true }
       );
-      return "OK";
+      return user.microsoftID || user.googleID ? logOrSignToken : "";
     },
 
     /*
@@ -225,6 +244,113 @@ const userResolver = {
       } else {
         throw new AuthenticationError("Email or password incorrect");
       }
+    },
+
+    /**
+     * loginWithGoogle: login into platform with google account. If it is the first time, stores user data. If not, just login user.
+     * args: google token
+     */
+    loginWithGoogle: async (
+      _,
+      args: IMutationLoginWithGoogleArgs,
+      context: any
+    ) => {
+      let userID: string = "";
+      let finishedSignUp: boolean | undefined;
+      let token: string = "";
+      const userData: IGoogleData = await getGoogleUser(args.token);
+      let user: IUser | null = await UserModel.findOne({
+        googleID: userData.id,
+        email: userData.email
+      });
+      if (user && (!user.finishedSignUp || !user.active)) {
+        await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
+        user = null;
+      }
+      if (!user) {
+        // guardar datos de usuario
+        user = await UserModel.create({
+          password: "google",
+          googleID: userData.id,
+          name: userData.given_name,
+          surnames: userData.family_name,
+          email: userData.email,
+          active: false,
+          authToken: " ",
+          notifications: false,
+          imTeacherCheck: false,
+          lastLogin: new Date(),
+          finishedSignUp: false,
+          birthDate: userData.birthDate
+        });
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+      } else {
+        // usuario se logea sin más
+        token = (await contextController.generateLoginToken(user)).token;
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+        await UserModel.updateOne(
+          { _id: user._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+      }
+      return { id: userID, finishedSignUp, token };
+    },
+
+    /**
+     * loginWithMicrosoft: ask microsoft for user data and logs him
+     * args: microsoft token
+     */
+    loginWithMicrosoft: async (
+      _,
+      args: IMutationLoginWithMicrosoftArgs,
+      ___
+    ) => {
+      let userID: string = "";
+      let finishedSignUp: boolean | undefined;
+      let token: string = "";
+      const userData: IMSData = await getMicrosoftUser(args.token);
+      let user: IUser | null = await UserModel.findOne({
+        microsoftID: userData.id,
+        email: userData.userPrincipalName
+      });
+      if (user && (!user.finishedSignUp || !user.active)) {
+        await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
+        user = null;
+      }
+      if (!user) {
+        // guardar datos de usuario
+        user = await UserModel.create({
+          password: "microsoft",
+          microsoftID: userData.id,
+          name: userData.givenName,
+          surnames: userData.surname,
+          email: userData.userPrincipalName,
+          active: false,
+          authToken: " ",
+          notifications: false,
+          imTeacherCheck: false,
+          lastLogin: new Date(),
+          finishedSignUp: false
+        });
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+      } else {
+        // usuario se logea sin más
+        token = (await contextController.generateLoginToken(user)).token;
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+        await UserModel.updateOne(
+          { _id: user._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+      }
+      return { id: userID, finishedSignUp, token };
     },
 
     /*

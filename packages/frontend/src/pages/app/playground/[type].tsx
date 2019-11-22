@@ -5,7 +5,7 @@ const PlaygroundPage: NextPage = () => {
   return null;
 };
 
-PlaygroundPage.getInitialProps = async (ctx) => {
+PlaygroundPage.getInitialProps = async ctx => {
   const { query } = ctx;
   redirect(ctx, `/app/edit-document/local/${query.type}/new`);
   return {};

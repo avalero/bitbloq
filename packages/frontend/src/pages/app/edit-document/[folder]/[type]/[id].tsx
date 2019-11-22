@@ -13,7 +13,7 @@ const EditDocumentPage: NextPage = () => {
 
   const documentType = documentTypes[type];
   if (!documentType || !documentType.supported) {
-    return <ErrorPage statusCode={404} />
+    return <ErrorPage statusCode={404} />;
   }
 
   return (
