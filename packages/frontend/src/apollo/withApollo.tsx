@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
+import Router from "next/router";
 import cookie from "cookie";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
@@ -14,11 +15,11 @@ import {
   onSessionError,
   onSessionActivity,
   watchSession,
+  logout,
   useSessionEvent
 } from "../lib/session";
 import { UserDataProvider } from "../lib/useUserData";
 import redirect from "../lib/redirect";
-import useLogout from "../lib/useLogout";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
 
@@ -32,7 +33,6 @@ interface ISessionWatcherProps {
 }
 const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
   const [anotherSession, setAnotherSession] = useState(false);
-  const logout = useLogout();
 
   useEffect(() => {
     const interval = watchSession(tempSession);
@@ -60,6 +60,11 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
     },
     tempSession
   );
+
+  useSessionEvent("logout", async () => {
+    await client.resetStore();
+    Router.push("/");
+  });
 
   useSessionEvent(
     "activity",
@@ -120,10 +125,7 @@ export default function withApollo(
     return (
       <ApolloProvider client={client}>
         {tempSession ? (
-          <>
-            <PageComponent {...pageProps} />
-            <SessionWatcher tempSession={tempSession} client={client} />
-          </>
+          <PageComponent {...pageProps} />
         ) : (
           <UserDataProvider
             initialUserData={userData}
@@ -131,9 +133,9 @@ export default function withApollo(
             onChange={onChangeUserData}
           >
             <PageComponent {...pageProps} />
-            <SessionWatcher client={client} />
           </UserDataProvider>
         )}
+        <SessionWatcher tempSession={tempSession} client={client} />
       </ApolloProvider>
     );
   };

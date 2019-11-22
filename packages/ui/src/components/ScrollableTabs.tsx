@@ -101,6 +101,8 @@ const Tab = styled.div<{ active: boolean; bottom: boolean }>`
       border-right: 1px solid white;
       border-bottom: 1px solid ${colors.gray3};
     `}
+
+  border-bottom-width: ${props => (props.bottom ? 0 : 1)}px;
 `;
 
 const Content = styled.div`
