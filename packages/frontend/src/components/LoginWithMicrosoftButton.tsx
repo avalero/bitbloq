@@ -1,9 +1,12 @@
-import React, { FC } from "react";
-import { Button } from "@bitbloq/ui";
 import queryString from "query-string";
-import env from "../lib/env";
-import { microsoftAuthEndpoint, microsoftScopes } from "../config";
+import React, { FC } from "react";
 import { v1 } from "uuid";
+import styled from "@emotion/styled";
+import { Button } from "@bitbloq/ui";
+import { microsoftAuthEndpoint, microsoftScopes } from "../config";
+import logoMicrosoftImage from "../images/logo-microsoft.svg";
+import env from "../lib/env";
+
 const uuid = v1;
 
 const LoginWithMicrosoftButton: FC = () => {
@@ -29,9 +32,15 @@ const LoginWithMicrosoftButton: FC = () => {
 
   return (
     <Button tertiary onClick={onClick}>
-      Microsoft
+      <Logo src={logoMicrosoftImage} alt="Microsoft" />
     </Button>
   );
 };
 
 export default LoginWithMicrosoftButton;
+
+/* Styled components */
+
+const Logo = styled.img`
+  height: 40px;
+`;

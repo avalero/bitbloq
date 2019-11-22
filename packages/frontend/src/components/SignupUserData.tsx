@@ -14,6 +14,7 @@ import styled from "@emotion/styled";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages } from "../config";
+import logoGoogleImage from "../images/logo-google.svg";
 
 interface IUserData {
   acceptTerms: boolean;
@@ -248,7 +249,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           <LoginWithExternalProfile>
             <LoginWithMicrosoftButton />
             <Button tertiary onClick={onGotoGoogle}>
-              Google
+              <Logo src={logoGoogleImage} alt="Google" />
             </Button>
           </LoginWithExternalProfile>
         </LoginWith>
@@ -493,4 +494,8 @@ const ErrorMessage = styled.div`
   font-size: 12px;
   font-style: italic;
   color: #d82b32;
+`;
+
+const Logo = styled.img`
+  height: 40px;
 `;
