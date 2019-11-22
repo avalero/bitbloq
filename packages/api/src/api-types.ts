@@ -155,12 +155,21 @@ export interface ILoginOut {
   type?: Maybe<Scalars["String"]>;
 }
 
+export interface IMsLogin {
+  __typename?: "MSLogin";
+  id?: Maybe<Scalars["ObjectID"]>;
+  finishedSignUp?: Maybe<Scalars["Boolean"]>;
+  token?: Maybe<Scalars["String"]>;
+}
+
 export interface IMutation {
   __typename?: "Mutation";
   saveUserData?: Maybe<IUserStep1>;
   finishSignUp?: Maybe<Scalars["String"]>;
   activateAccount?: Maybe<Scalars["String"]>;
   login?: Maybe<Scalars["String"]>;
+  loginWithGoogle?: Maybe<IMsLogin>;
+  loginWithMicrosoft?: Maybe<IMsLogin>;
   renewToken?: Maybe<Scalars["String"]>;
   resetPasswordEmail?: Maybe<Scalars["String"]>;
   checkResetPasswordToken?: Maybe<Scalars["Boolean"]>;
@@ -217,6 +226,14 @@ export interface IMutationActivateAccountArgs {
 export interface IMutationLoginArgs {
   email: Scalars["EmailAddress"];
   password: Scalars["String"];
+}
+
+export interface IMutationLoginWithGoogleArgs {
+  token: Scalars["String"];
+}
+
+export interface IMutationLoginWithMicrosoftArgs {
+  token: Scalars["String"];
 }
 
 export interface IMutationResetPasswordEmailArgs {
@@ -353,6 +370,7 @@ export interface IMutationSingleUploadArgs {
 
 export interface IMutationUploadCloudResourceArgs {
   file: Scalars["Upload"];
+  thumbnail?: Maybe<Scalars["Upload"]>;
 }
 
 export interface IMutationAddResourceToDocumentArgs {
@@ -735,6 +753,7 @@ export type IResolversTypes = ResolversObject<{
   Mutation: ResolverTypeWrapper<{}>;
   UserIn: IUserIn;
   UserStep1: ResolverTypeWrapper<IUserStep1>;
+  MSLogin: ResolverTypeWrapper<IMsLogin>;
   DocumentIn: IDocumentIn;
   DocImageIn: IDocImageIn;
   Upload: ResolverTypeWrapper<Scalars["Upload"]>;
@@ -771,6 +790,7 @@ export type IResolversParentTypes = ResolversObject<{
   Mutation: {};
   UserIn: IUserIn;
   UserStep1: IUserStep1;
+  MSLogin: IMsLogin;
   DocumentIn: IDocumentIn;
   DocImageIn: IDocImageIn;
   Upload: Scalars["Upload"];
@@ -1053,6 +1073,19 @@ export type ILoginOutResolvers<
   type?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
 }>;
 
+export type IMsLoginResolvers<
+  ContextType = any,
+  ParentType extends IResolversParentTypes["MSLogin"] = IResolversParentTypes["MSLogin"]
+> = ResolversObject<{
+  id?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
+  finishedSignUp?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType
+  >;
+  token?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+}>;
+
 export type IMutationResolvers<
   ContextType = any,
   ParentType extends IResolversParentTypes["Mutation"] = IResolversParentTypes["Mutation"]
@@ -1080,6 +1113,18 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationLoginArgs, "email" | "password">
+  >;
+  loginWithGoogle?: Resolver<
+    Maybe<IResolversTypes["MSLogin"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationLoginWithGoogleArgs, "token">
+  >;
+  loginWithMicrosoft?: Resolver<
+    Maybe<IResolversTypes["MSLogin"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationLoginWithMicrosoftArgs, "token">
   >;
   renewToken?: Resolver<
     Maybe<IResolversTypes["String"]>,
@@ -1713,6 +1758,7 @@ export type IResolvers<ContextType = any> = ResolversObject<{
   File?: IFileResolvers<ContextType>;
   Folder?: IFolderResolvers<ContextType>;
   loginOut?: ILoginOutResolvers<ContextType>;
+  MSLogin?: IMsLoginResolvers<ContextType>;
   Mutation?: IMutationResolvers<ContextType>;
   Number?: GraphQLScalarType;
   ObjectID?: GraphQLScalarType;

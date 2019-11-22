@@ -9,6 +9,8 @@ import env from "../lib/env";
 
 const uuid = v1;
 
+const appID: string = String(env.MICROSOFT_APP_ID);
+
 const LoginWithMicrosoftButton: FC = () => {
   const onClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -17,9 +19,10 @@ const LoginWithMicrosoftButton: FC = () => {
     sessionStorage.setItem("microsoftAuthNonce", uuid());
 
     const location = window.location;
+
     const authParams = {
       response_type: "id_token token",
-      client_id: env("MICROSOFT_APP_ID"),
+      client_id: appID,
       redirect_uri: `${location.protocol}//${location.host}/microsoft-redirect`,
       scope: microsoftScopes,
       state: sessionStorage.getItem("microsoftAuthState"),

@@ -12,7 +12,7 @@ const EditExercisePage = () => {
 
   const documentType = documentTypes[type];
   if (!documentType || !documentType.supported) {
-    return <ErrorPage statusCode={404} />
+    return <ErrorPage statusCode={404} />;
   }
 
   return <EditExercise id={id as string} type={type as string} />;

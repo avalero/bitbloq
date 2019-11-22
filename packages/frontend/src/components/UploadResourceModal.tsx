@@ -1,10 +1,10 @@
 import React, {
   FC,
+  useEffect,
   useMemo,
+  useRef,
   useState,
-  ChangeEvent,
-  ReactElement,
-  DOMElement
+  ChangeEvent
 } from "react";
 import STLViewer from "stl-viewer";
 import { useMutation } from "@apollo/react-hooks";
@@ -53,6 +53,10 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   );
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
+  const canvasRef = useRef<STLViewer>(null);
+  const [cameraX, setCameraX] = useState<number>(0);
+  const [cameraY, setCameraY] = useState<number>(0);
+  const [cameraZ, setCameraZ] = useState<number | null>(null);
   const [error, setError] = useState<Errors>(Errors.noError);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(
@@ -86,6 +90,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const onCloseModal = () => {
     setError(Errors.noError);
     setFile(undefined);
+    setFileArray(undefined);
     setOpenCloud(false);
     setTab(TabType.import);
     if (onClose) {
@@ -140,6 +145,15 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (fileArray && canvasRef && canvasRef.current) {
+      const { xDims, yDims, zDims } = canvasRef.current.paint;
+      setCameraX(-4 * Math.max(xDims, yDims, zDims));
+      setCameraY(-2 * Math.max(xDims, yDims, zDims));
+      setCameraZ(zDims / 2);
+    }
+  }, [canvasRef, fileArray]);
+
   return openCloud && file === undefined && error === Errors.noError ? (
     <CloudModal
       acceptedExt={accept}
@@ -193,9 +207,15 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             {fileArray && (
               <ObjViewer
                 backgroundColor="#fff"
-                height={164}
+                cameraX={cameraX}
+                cameraY={cameraY}
+                cameraZ={cameraZ}
+                height={320}
+                lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
                 model={fileArray}
-                width={280}
+                ref={canvasRef}
+                rotate={false}
+                width={190}
               />
             )}
           </>

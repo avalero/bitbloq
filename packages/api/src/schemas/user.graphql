@@ -13,6 +13,8 @@ type Mutation {
   finishSignUp(id: ObjectID!, userPlan: String!): String
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
+  loginWithGoogle(token: String!): SocialLogin
+  loginWithMicrosoft(token: String!): SocialLogin
   renewToken: String
   resetPasswordEmail(email: EmailAddress!): String
   checkResetPasswordToken(token: String): Boolean
@@ -25,6 +27,12 @@ type Mutation {
 type UserStep1 {
   id: ObjectID
   email: EmailAddress
+}
+
+type SocialLogin {
+  id: ObjectID
+  finishedSignUp: Boolean
+  token: String
 }
 
 type User {

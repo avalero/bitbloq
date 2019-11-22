@@ -11,10 +11,10 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import LoginWithGoogleButton from "./LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages } from "../config";
-import logoGoogleImage from "../images/logo-google.svg";
 
 interface IUserData {
   acceptTerms: boolean;
@@ -96,14 +96,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 
   const togglePasswordMask = () => {
     setPasswordIsMasked(!passwordIsMasked);
-  };
-
-  const onGotoMicrosoft = () => {
-    // TODO
-  };
-
-  const onGotoGoogle = () => {
-    // TODO
   };
 
   const teacherSubForm = (isShown: boolean) => {
@@ -248,9 +240,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           </div>
           <LoginWithExternalProfile>
             <LoginWithMicrosoftButton />
-            <Button tertiary onClick={onGotoGoogle}>
-              <Logo src={logoGoogleImage} alt="Google" />
-            </Button>
+            <LoginWithGoogleButton />
           </LoginWithExternalProfile>
         </LoginWith>
       </Login>
@@ -494,8 +484,4 @@ const ErrorMessage = styled.div`
   font-size: 12px;
   font-style: italic;
   color: #d82b32;
-`;
-
-const Logo = styled.img`
-  height: 40px;
 `;

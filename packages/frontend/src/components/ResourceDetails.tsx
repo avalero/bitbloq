@@ -1,6 +1,6 @@
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import STLViewer from "stl-viewer";
 import { IResource, ResourcesTypes } from "../types";
 
@@ -21,7 +21,20 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
   const t = useTranslate();
   const titleExt = title.split(".").pop();
   const titleName = title.replace(new RegExp(`\.${titleExt}$`), "");
+  const canvasRef = useRef<STLViewer>(null);
+  const [cameraX, setCameraX] = useState<number>(0);
+  const [cameraY, setCameraY] = useState<number>(0);
+  const [cameraZ, setCameraZ] = useState<number | null>(null);
   const [sizeStr, setSizeStr] = useState<string>("");
+
+  const onClickSTL = () => {
+    if (canvasRef && canvasRef.current) {
+      const { xDims, yDims, zDims } = canvasRef.current.paint;
+      setCameraX(-3 * Math.max(xDims, yDims, zDims));
+      setCameraY(-Math.max(xDims, yDims, zDims));
+      setCameraZ(zDims / 2);
+    }
+  };
 
   useEffect(() => {
     if (!size) {
@@ -48,14 +61,19 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
           ) : type === ResourcesTypes.image ? (
             <PreviewImage src={preview} />
           ) : type === ResourcesTypes.object3D ? (
-            <Preview>
+            <Preview onMouseDown={onClickSTL}>
               <PreviewObject
                 backgroundColor="#fff"
-                height="311"
+                cameraX={cameraX}
+                cameraY={cameraY}
+                cameraZ={cameraZ}
+                height={340}
+                lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
                 model={preview}
+                ref={canvasRef}
                 rotate={false}
                 url={preview}
-                width="340"
+                width={311}
               />
             </Preview>
           ) : type === ResourcesTypes.video ? (
@@ -207,6 +225,7 @@ const PreviewImage = styled(Preview)<{ src: string }>`
 
 const PreviewObject = styled(STLViewer)`
   height: 100%;
+  transform: rotate(-90deg);
   width: 100%;
 `;
 

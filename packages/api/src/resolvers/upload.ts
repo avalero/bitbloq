@@ -11,11 +11,16 @@ import {
 } from "../api-types";
 
 import * as fs from "fs";
-import { Storage } from "@google-cloud/storage";
+import { Storage, Bucket } from "@google-cloud/storage";
 
-const storage = new Storage({ projectId: process.env.GCLOUD_PROJECT_ID }); // project ID
-const bucket = storage.bucket(String(process.env.GCLOUD_STORAGE_BUCKET)); // bucket name
-const bucketName: string = process.env.GCLOUD_STORAGE_BUCKET as string;
+const storage: Storage = new Storage({
+  projectId: process.env.GCLOUD_PROJECT_ID
+}); // project ID
+const bucket: Bucket = new Bucket(
+  storage,
+  String(process.env.GCLOUD_STORAGE_BUCKET)
+); // bucket name
+const bucketName: string = String(process.env.GCLOUD_STORAGE_BUCKET);
 
 let publicUrl: string;
 let thumbnailUrl: string | undefined;
@@ -143,7 +148,7 @@ const processUpload = async (input: {
                 encoding: input.encoding,
                 storageName: input.gcsName,
                 size: fileSize,
-                publicUrl: publicUrl,
+                publicUrl,
                 image: input.type === "image" ? publicUrl : null,
                 preview: publicUrl,
                 thumbnail: input.thumbnailUrl ? input.thumbnailUrl : publicUrl,
@@ -159,7 +164,7 @@ const processUpload = async (input: {
             filename: input.filename,
             mimetype: input.mimetype,
             encoding: input.encoding,
-            publicUrl: publicUrl,
+            publicUrl,
             storageName: input.gcsName,
             size: fileSize,
             user: input.userID,
@@ -214,17 +219,17 @@ export async function uploadDocumentImage(
   const uniqueName: string = documentID + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
 
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     processUpload({
-      resolve: resolve,
-      reject: reject,
-      createReadStream: createReadStream,
-      gcsName: gcsName,
-      documentID: documentID,
-      filename: filename,
-      mimetype: mimetype,
-      encoding: encoding,
-      userID: userID,
+      resolve,
+      reject,
+      createReadStream,
+      gcsName,
+      documentID,
+      filename,
+      mimetype,
+      encoding,
+      userID,
       type: "docImage"
     });
   });
@@ -288,17 +293,17 @@ const uploadResolver = {
       }
       const uniqueName: string = Date.now() + normalize(filename);
       const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
-      return await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         processUpload({
-          resolve: resolve,
-          reject: reject,
-          createReadStream: createReadStream,
-          gcsName: gcsName,
-          documentID: documentID,
-          filename: filename,
-          mimetype: mimetype,
-          encoding: encoding,
-          userID: userID,
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
+          documentID,
+          filename,
+          mimetype,
+          encoding,
+          userID,
           type: ""
         });
       });
@@ -310,25 +315,25 @@ const uploadResolver = {
     ) => {
       if (args.thumbnail) {
         const {
-          createReadStream,
-          filename,
-          mimetype,
-          encoding
+          createReadStream: createReadStream2,
+          filename: filename2,
+          mimetype: mimetype2,
+          encoding: encoding2
         } = await args.thumbnail;
-        if (!createReadStream || !filename || !mimetype || !encoding) {
+        if (!createReadStream2 || !filename2 || !mimetype2 || !encoding2) {
           throw new ApolloError(
             "Upload error with thumbnail, check file type.",
             "UPLOAD_ERROR"
           );
         }
-        const uniqueName: string =
-          "thumbnail" + Date.now() + normalize(filename);
-        const gcsName: string = `${context.user.userID}/${encodeURIComponent(
-          uniqueName
+        const uniqueName2: string =
+          "thumbnail" + Date.now() + normalize(filename2);
+        const gcsName2: string = `${context.user.userID}/${encodeURIComponent(
+          uniqueName2
         )}`;
         thumbnailUrl = (await uploadThumbnail(
-          createReadStream,
-          gcsName
+          createReadStream2,
+          gcsName2
         )) as string;
       }
       const {
@@ -363,14 +368,14 @@ const uploadResolver = {
       )}`;
       return new Promise(async (resolve, reject) => {
         processUpload({
-          resolve: resolve,
-          reject: reject,
-          createReadStream: createReadStream,
-          gcsName: gcsName,
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
           documentID: undefined,
-          filename: filename,
-          mimetype: mimetype,
-          encoding: encoding,
+          filename,
+          mimetype,
+          encoding,
           userID: context.user.userID,
           thumbnailUrl: await thumbnailUrl,
           type: fileType
@@ -400,14 +405,14 @@ const uploadResolver = {
       )}`;
       return new Promise((resolve, reject) => {
         processUpload({
-          resolve: resolve,
-          reject: reject,
-          createReadStream: createReadStream,
-          gcsName: gcsName,
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
           documentID: args.documentID,
-          filename: filename,
-          mimetype: mimetype,
-          encoding: encoding,
+          filename,
+          mimetype,
+          encoding,
           userID: context.user.userID,
           type: "object3D"
         });
@@ -470,16 +475,16 @@ const uploadResolver = {
       const gcsName: string = `${context.user.userID}/${encodeURIComponent(
         uniqueName
       )}`;
-      return await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         processUpload({
-          resolve: resolve,
-          reject: reject,
-          createReadStream: createReadStream,
-          gcsName: gcsName,
+          resolve,
+          reject,
+          createReadStream,
+          gcsName,
           documentID: args.documentID,
-          filename: filename,
-          mimetype: mimetype,
-          encoding: encoding,
+          filename,
+          mimetype,
+          encoding,
           userID: context.user.userID,
           type: "image"
         });
