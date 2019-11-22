@@ -135,14 +135,7 @@ const userResolver = {
 
       let activeUser: boolean = false;
       let logOrSignToken: string = "";
-      if (user.microsoftID) {
-        activeUser = true;
-        const { token, role } = await contextController.generateLoginToken(
-          user
-        );
-        logOrSignToken = token;
-        await storeTokenInRedis(`authToken-${user._id}`, token);
-      } else if (user.googleID) {
+      if (user.microsoftID || user.googleID) {
         activeUser = true;
         const { token, role } = await contextController.generateLoginToken(
           user
