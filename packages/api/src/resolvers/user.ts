@@ -1,6 +1,3 @@
-import { config } from "dotenv";
-config();
-
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
@@ -39,11 +36,6 @@ import {
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 
 const saltRounds: number = 7;
-
-export interface IMSUser {
-  name: string;
-  surnames: string;
-}
 
 const userResolver = {
   Mutation: {
