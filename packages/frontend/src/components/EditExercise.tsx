@@ -26,7 +26,7 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { setToken } from "../lib/session";
+import { setToken, useSessionEvent } from "../lib/session";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { IDocument, IResource } from "../types";
@@ -50,7 +50,9 @@ const EditExercise = ({ type, id }) => {
   const { data, loading, error } = useQuery(EXERCISE_QUERY, {
     variables: { id }
   });
-  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION);
+  const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION, {
+    errorPolicy: "ignore"
+  });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
   const [submission, setSubmission] = useState<IDocument | undefined>(
@@ -65,6 +67,16 @@ const EditExercise = ({ type, id }) => {
   useEffect(() => {
     setToken("", "exercise-team");
   }, []);
+
+  const [sessionExpired, setSessionExpired] = useState(false);
+  useSessionEvent(
+    "expired",
+    () => {
+      setTeamName("");
+      setSessionExpired(true);
+    },
+    "exercise-team"
+  );
 
   useEffect(() => {
     if (exercise && teamName) {
@@ -97,6 +109,9 @@ const EditExercise = ({ type, id }) => {
   }
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
+  }
+  if (sessionExpired) {
+    return null;
   }
 
   const loadSubmission = async () => {

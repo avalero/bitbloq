@@ -8,7 +8,7 @@
     "tslint": "tslint -c ./tslint.json \"packages/*/src/**/*.{ts,tsx}\"",
     "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json",
     "tsc:back": "cd packages/api && tsc --noEmit --p ./tsconfig.json",
-    "tsc": "tsc:front && tsc:back"
+    "tsc": "yarn run tsc:front && yarn run tsc:back"
   },
   "devDependencies": {
     "husky": "^3.0.9",
@@ -20,16 +20,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && yarn run tsc"
     }
-  },
-  "lint-staged": {
-    "*.{ts,tsx}": [
-      "tslint -c ./tslint.json"
-    ],
-    "*.{ts,tsx,js,css,json,md}": [
-      "prettier --write",
-      "git add"
-    ]
   }
 }

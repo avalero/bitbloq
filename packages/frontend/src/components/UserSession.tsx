@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
-import useLogout from "../lib/useLogout";
+import { logout } from "../lib/session";
 import MenuButton from "./MenuButton";
 
 interface IUserSessionProps {
@@ -10,7 +10,6 @@ interface IUserSessionProps {
 }
 
 const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
-  const logout = useLogout();
   const userData = useUserData();
   const t = useTranslate();
 

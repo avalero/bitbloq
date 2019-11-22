@@ -400,14 +400,14 @@
     "unregistered": "Sin registro"
   },
   "signup": {
-    "modal-account": {
+    "account-created": {
       "title": "Cuenta creada",
       "content": "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam.",
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
     },
     "step": "Paso %v% de 2",
-    "form": {
+    "user-data": {
       "cancel": "Cancelar",
       "educational-stages": {
         "preschool": "Preescolar",
@@ -470,7 +470,7 @@
       },
       "title": "Datos de usuario"
     },
-    "plans": {
+    "plan-selection": {
       "advantages": "Estas son las ventajas que disfrutarás siendo %v% en Bitbloq:",
       "cancel": "Anterior",
       "free": "Gratis",
@@ -481,5 +481,10 @@
       "title": "Configuración de la cuenta"
     },
     "title": "Crear una cuenta"
+  },
+  "page-error-text": {
+    "403": "Lo sentimos, no tienes permisos para poder ver este contenido.",
+    "404": "¡Vaya! La página web a la que intentas acceder no existe.",
+    "500": "¡Uy! Ha ocurrido un error inesperado, vuelve a intentarlo más tarde."
   }
 }

@@ -36,7 +36,7 @@ const getSession = (
   if (Date.now() - session.time > TOKEN_DURATION_MINUTES * 60000) {
     if (session.token) {
       triggerEvent({ tempSession, event: "expired" });
-      setSession({ token: "", time: 0 }, tempSession);
+      setToken("", tempSession);
     }
     return null;
   }
@@ -84,6 +84,11 @@ export const getToken = async (
 export const setToken = (token: string, tempSession?: string) => {
   setSession({ token, time: token ? Date.now() : 0 }, tempSession);
   triggerEvent({ tempSession, event: "new-token", data: token });
+};
+
+export const logout = () => {
+  setToken("");
+  triggerEvent({ event: "logout" });
 };
 
 export const renewToken = async (

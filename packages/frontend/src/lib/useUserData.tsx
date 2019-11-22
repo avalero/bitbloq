@@ -9,7 +9,6 @@ import { useApolloClient } from "@apollo/react-hooks";
 import { ME_QUERY } from "../apollo/queries";
 import Loading from "../components/Loading";
 import { useSessionEvent } from "../lib/session";
-import useLogout from "../lib/useLogout";
 
 export const UserDataContext = createContext<any>(null);
 
@@ -24,9 +23,7 @@ export const UserDataProvider: FC<IUserDataProvider> = ({
   onChange,
   children
 }) => {
-  const logout = useLogout();
   const [userData, setUserData] = useState(initialUserData);
-  const [sessionExpired, setSessionExpired] = useState(false);
   const client = useApolloClient();
 
   useEffect(() => {
@@ -37,9 +34,6 @@ export const UserDataProvider: FC<IUserDataProvider> = ({
     const token = event.data;
     if (!token) {
       setUserData(null);
-      if (userData) {
-        setSessionExpired(true);
-      }
     } else if (!userData) {
       const { data } = await client.query({
         query: ME_QUERY,
@@ -49,8 +43,7 @@ export const UserDataProvider: FC<IUserDataProvider> = ({
     }
   });
 
-  if ((!userData && requiresSession) || sessionExpired) {
-    logout();
+  if (!userData && requiresSession) {
     return null;
   }
 

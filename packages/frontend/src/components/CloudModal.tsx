@@ -214,7 +214,7 @@ const CloudModal: FC<ICloudModalProps> = ({
             />
           ) : resources.length === 0 && !searchQuery ? (
             <EmptyResources>
-              {resourceTypeActiveId === "resource-deleted"
+              {resourceTypeActiveId === resourceTypes.deleted.id
                 ? t("cloud.text.trash")
                 : t("cloud.text.empty")}
             </EmptyResources>
