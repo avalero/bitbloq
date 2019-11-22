@@ -4,7 +4,7 @@ config();
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { contextController } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
-import { getUser } from "../controllers/microsoftAuth";
+import { getUserMiscrosoft } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
 import { ExerciseModel } from "../models/exercise";
 import { FolderModel, IFolder } from "../models/folder";
@@ -27,17 +27,16 @@ import { redisClient } from "../server";
 import { sign as jwtSign, decode } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
-import { google } from "googleapis";
-const OAuth2 = google.auth.OAuth2;
-
 import {
   IMutationActivateAccountArgs,
   IMutationDeleteUserArgs,
   IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
-  IMutationLoginWithMicrosoftArgs
+  IMutationLoginWithMicrosoftArgs,
+  IMutationLoginWithGoogleArgs
 } from "../api-types";
+import { getUserGoogle, IGoogleData } from "../controllers/googleAuth";
 
 const saltRounds: number = 7;
 
@@ -182,7 +181,7 @@ const userResolver = {
         },
         { new: true }
       );
-      return user.microsoftID ? logOrSignToken : "OK";
+      return user.microsoftID ? logOrSignToken : "";
     },
 
     /*
@@ -258,24 +257,56 @@ const userResolver = {
      * loginWithGoogle: login into platform with google account
      * args:
      */
-    loginWithGoogle: async (_, args: any, context: any) => {
+    loginWithGoogle: async (
+      _,
+      args: IMutationLoginWithGoogleArgs,
+      context: any
+    ) => {
+      let userID: string = "";
+      let finishedSignUp: boolean | undefined;
+      let token: string = "";
       console.log(args);
-      const oauth2Client = new OAuth2();
-      oauth2Client.setCredentials({ access_token: "ACCESS TOKEN HERE" });
-      const oauth2 = google.oauth2({
-        auth: oauth2Client,
-        version: "v2"
+      const userData: IGoogleData = await getUserGoogle(args.token);
+      console.log({ userData });
+      let user: IUser | null = await UserModel.findOne({
+        googleID: userData.id,
+        email: userData.email
       });
-      oauth2.userinfo.get((err, res) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(res);
-        }
-      });
-      // https://www.googleapis.com/oauth2/v1/userinfo?alt=json
-      // dirección donde se piden los datos de usuario
-      return undefined;
+      if (user && (!user.finishedSignUp || !user.active)) {
+        await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
+        user = null;
+      }
+      if (!user) {
+        // guardar datos de usuario
+        user = await UserModel.create({
+          password: "google",
+          googleID: userData.id,
+          name: userData.given_name,
+          surnames: userData.family_name,
+          email: userData.email,
+          active: false,
+          authToken: " ",
+          notifications: false,
+          imTeacherCheck: false,
+          lastLogin: new Date(),
+          finishedSignUp: false,
+          birthDate: userData.birthDate
+        });
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+      } else {
+        // usuario se logea sin más
+        token = (await contextController.generateLoginToken(user)).token;
+        finishedSignUp = user.finishedSignUp;
+        userID = user._id;
+        await UserModel.updateOne(
+          { _id: user._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+      }
+      return { id: userID, finishedSignUp, token };
     },
 
     /**
@@ -290,7 +321,7 @@ const userResolver = {
       let userID: string = "";
       let finishedSignUp: boolean | undefined;
       let token: string = "";
-      const userData = await getUser(args.token);
+      const userData = await getUserMiscrosoft(args.token);
       let user: IUser | null = await UserModel.findOne({
         microsoftID: userData.id,
         email: userData.userPrincipalName

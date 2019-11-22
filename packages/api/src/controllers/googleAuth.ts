@@ -3,45 +3,42 @@ config();
 
 import { request } from "https";
 
-interface IMSData {
-  displayName: string;
-  surname: string;
-  givenName: string;
+export interface IGoogleData {
+  name: string;
+  family_name: string;
+  given_name: string;
   id: string;
-  userPrincipalName: string;
-  businessPhones: string[];
-  jobTitle: string;
-  mail: string;
-  mobilePhone: string;
-  officeLocation: string;
-  preferredLanguage: string;
+  email: string;
+  picture: string;
+  birthDate: string;
 }
 
-export const getUserMiscrosoft = (token): Promise<IMSData> => {
+export const getUserGoogle = (token): Promise<any> => {
   const getOptions = {
-    host: "graph.microsoft.com",
-    path: "/v1.0/me",
+    hostname: "www.googleapis.com",
+    path: "/oauth2/v2/userinfo",
     method: "GET",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     }
   };
-  // Set up the request
+  //   // Set up the request
   return new Promise((resolve, reject) => {
-    let userData: IMSData;
+    let userData: IGoogleData;
     const req = request(getOptions);
 
     req.on("response", res => {
       res.setEncoding("utf8");
       res.on("data", data => {
         userData = JSON.parse(data);
+        console.log(userData);
         resolve(userData);
       });
     });
 
     req.on("error", err => {
-      console.log("err");
+      console.log("err", err);
       reject(err);
     });
     req.end();
