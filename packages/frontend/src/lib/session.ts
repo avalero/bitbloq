@@ -86,6 +86,11 @@ export const setToken = (token: string, tempSession?: string) => {
   triggerEvent({ tempSession, event: "new-token", data: token });
 };
 
+export const logout = () => {
+  setToken("");
+  triggerEvent({ event: "logout" });
+};
+
 export const renewToken = async (
   tokenPromise: Promise<string>,
   tempSession?: string

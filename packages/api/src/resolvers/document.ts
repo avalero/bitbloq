@@ -362,6 +362,9 @@ const documentResolver = {
      * args: public document ID.
      */
     openPublicDocument: async (_, args: IQueryOpenPublicDocumentArgs) => {
+      if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new ApolloError("Invalid or missing id", "DOCUMENT_NOT_FOUND");
+      }
       const existDocument: IDocument | null = await DocumentModel.findOne({
         _id: args.id,
         public: true
