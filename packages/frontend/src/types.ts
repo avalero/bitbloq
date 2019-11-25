@@ -1,11 +1,22 @@
 import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
 
+export interface IUser {
+  admin: boolean;
+  email: string;
+  id: string;
+  name: string;
+  publisher: boolean;
+  rootFolder: string;
+  teacher: boolean;
+}
+
 export interface IEditorProps {
   document: IDocument;
   onDocumentChange: (document: IDocument) => any;
   baseTabs: IDocumentTab[];
   baseMenuOptions: IMainMenuOption[];
   resources?: IResource[];
+  user?: IUser;
   children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
 }
 
