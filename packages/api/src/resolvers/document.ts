@@ -400,8 +400,9 @@ const documentResolver = {
         return new AuthenticationError("You need to be logged in");
       }
 
-      const currentLocation: string =
-        String(args.currentLocation) || String(user.rootFolder);
+      const currentLocation: string = args.currentLocation
+        ? String(args.currentLocation)
+        : String(user.rootFolder);
       const location: IFolder | null = await FolderModel.findOne({
         _id: currentLocation
       });
@@ -494,11 +495,8 @@ const documentResolver = {
       const allData = [...docsParent, ...folsTitle];
       const allDataSorted = allData.sort(orderFunction);
       const pagesNumber: number = Math.ceil(
-        ((await DocumentModel.countDocuments(filterOptionsDoc)) +
-          (await FolderModel.countDocuments(filterOptionsFol))) /
-          itemsPerPage
+        allDataSorted.length / itemsPerPage
       );
-
       const nFolders: number = await FolderModel.countDocuments({
         user: context.user.userID,
         parent: currentLocation
@@ -517,6 +515,117 @@ const documentResolver = {
         nFolders,
         parentsPath
       };
+    },
+
+    documentPageWithFilters: async (
+      _,
+      args: any,
+      context: { user: IUserInToken }
+    ) => {
+      console.log("llama funcion", args);
+      const user: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
+      if (!user) {
+        return new AuthenticationError("You need to be logged in");
+      }
+      const currentLocation: string = args.currentLocation
+        ? String(args.currentLocation)
+        : String(user.rootFolder);
+      const location: IFolder | null = await FolderModel.findOne({
+        _id: currentLocation
+      });
+      if (!location) {
+        return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
+      } else if (String(location.user) !== String(context.user.userID)) {
+        return new AuthenticationError("Not your folder");
+      }
+      const itemsPerPage: number = args.itemsPerPage || 8;
+      const text: string = args.searchTitle || "";
+
+      const orderFunction = orderFunctions[args.order!];
+
+      const filterOptionsDoc =
+        text === ""
+          ? {
+              folder: currentLocation
+            }
+          : {};
+      const filterOptionsFol =
+        text === ""
+          ? {
+              parent: currentLocation
+            }
+          : {};
+
+      const docs: IDocument[] = await DocumentModel.find({
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filterOptionsDoc
+      });
+      const fols: IFolder[] = await FolderModel.find({
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filterOptionsFol
+      });
+
+      const docsParent = await Promise.all(
+        docs.map(
+          async ({
+            title,
+            _id: id,
+            createdAt,
+            updatedAt,
+            type,
+            folder: parent,
+            image,
+            ...op
+          }) => {
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type,
+              parent,
+              image: image!.image,
+              ...op
+            };
+          }
+        )
+      );
+      const folsTitle = await Promise.all(
+        fols.map(
+          async ({
+            name: title,
+            _id: id,
+            createdAt,
+            updatedAt,
+            parent,
+            documentsID,
+            foldersID,
+            ...op
+          }) => {
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type: "folder",
+              parent,
+              ...op
+            };
+          }
+        )
+      );
+
+      const allData = [...docsParent, ...folsTitle];
+      const allDataSorted = allData.sort(orderFunction);
+      const docIndex: number = allDataSorted.findIndex(element => {
+        return String(element.id) === String(args.documentID);
+      });
+      const page: number = Math.ceil(docIndex / itemsPerPage);
+      return page;
     },
 
     hasExercises: async (

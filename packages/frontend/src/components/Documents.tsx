@@ -256,6 +256,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               refetchDocsFols={refetchDocsFols}
               docsAndFols={docsAndFols}
               currentLocation={currentLocation}
+              order={order}
+              searchText={searchText}
               onFolderClick={onFolderClick}
               onDocumentClick={onDocumentClick}
               selectPage={(page: number) => setCurrentPage(page)}

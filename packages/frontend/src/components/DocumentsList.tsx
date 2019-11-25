@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { useMutation, useLazyQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { DialogModal, DropDown } from "@bitbloq/ui";
@@ -10,7 +10,8 @@ import {
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
   CREATE_DOCUMENT_MUTATION,
-  HAS_EXERCISES_QUERY
+  HAS_EXERCISES_QUERY,
+  DOC_PAGE_WITH_FILTERS
 } from "../apollo/queries";
 import DocumentCard from "./DocumentCard";
 import DocumentCardMenu from "./DocumentCardMenu";
@@ -31,6 +32,8 @@ export interface IDocumentListProps {
   parentsPath?: any;
   className?: string;
   currentLocation: IFolder;
+  order?: string;
+  searchText?: string;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
@@ -44,6 +47,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   pagesNumber,
   parentsPath,
   currentLocation,
+  order,
+  searchText,
   className,
   onFolderClick,
   onDocumentClick,
@@ -51,6 +56,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   selectPage,
   nFolders
 }) => {
+  const [documentCopyID, setDocumentCopyID] = useState("");
+  const [duplicateDoc, setDuplicateDoc] = useState(false);
   const [deleteDoc, setDeleteDoc] = useState({
     id: null
   });
@@ -94,6 +101,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       type: selectedToDel.type
     }
   });
+
+  const [documentPageWithFilters] = useLazyQuery(DOC_PAGE_WITH_FILTERS);
 
   const [, drop] = useDrop({
     accept: ["document", "folder"],
@@ -234,8 +243,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     if (newTitle.length >= 64) {
       newTitle = newTitle.slice(0, 63);
     }
-
-    await createDocument({
+    const result = await createDocument({
       variables: {
         ...document,
         image: {
@@ -245,9 +253,20 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         title: newTitle,
         folder: currentLocation.id
       }
+    }).catch(catchError => {
+      console.log(catchError);
+      return e;
     });
-    refetchDocsFols();
-    setMenuOpenId("");
+    if (result) {
+      const page = await documentPageWithFilters({
+        variables: {
+          documentID: result.data.createDocument.id,
+          currentLocation: currentLocation.id,
+          order,
+          searchTitle: searchText
+        }
+      });
+    }
   };
 
   const onMoveDocumentClick = async (e, document) => {
@@ -310,6 +329,20 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     onMove();
   };
+
+  // useEffect(() => {
+  //   console.log(called, docCopyLoading, docCopyPage);
+  //   if (called && !docCopyLoading && docCopyPage) {
+  //     console.log(docCopyPage);
+
+  //     setMenuOpenId("");
+  //   }
+  // }, [docCopyLoading]);
+
+  // useEffect(() => {
+  //   console.log({ documentCopyID });
+  //   //documentPageWithFilters();
+  // }, [documentCopyID]);
 
   return (
     <>
@@ -398,7 +431,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                                     MouseEvent
                                   >
                                 ) {
-                                  setMenuOpenId("");
                                   if (document.type !== "folder") {
                                     onDuplicateDocument(e, document);
                                   }

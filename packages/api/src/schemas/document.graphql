@@ -16,6 +16,13 @@ type Query {
     order: String
     searchTitle: String
   ): DocsAndFolders @authRequired(requires: [USER])
+  documentPageWithFilters(
+    documentID: ObjectID
+    currentLocation: ObjectID
+    itemsPerPage: Number
+    order: String
+    searchTitle: String
+  ): Number @authRequired(requires: [USER])
   hasExercises(id: ObjectID!, type: String): Boolean
     @authRequired(requires: [USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
