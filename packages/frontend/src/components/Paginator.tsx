@@ -108,19 +108,18 @@ const Paginator: React.FC<IPaginatorProps> = ({
     const pagesArray = Array.from(numberPages).sort((a, b) => a - b);
 
     return pagesArray.map((page, i) => (
-      <>
+      <React.Fragment key={i}>
         <Page
-          key={i}
           page={page}
           selected={currentPage === page}
           onClick={selectPage}
         />
         {pagesArray[+i + 1] && pagesArray[+i + 1] - page > 1 && (
-          <Ellipsis key={`ellipsis-${page}-${pagesArray[+i + 1]}`}>
+          <Ellipsis>
             <Icon name="ellipsis" />
           </Ellipsis>
         )}
-      </>
+      </React.Fragment>
     ));
   };
 
