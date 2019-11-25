@@ -5,7 +5,10 @@ import React, { FC, useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
 import { colors, HorizontalRule, Panel, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { SAVE_MUTATION, SIGNUP_MUTATION } from "../../apollo/queries";
+import {
+  FINISH_SIGNUP_MUTATION,
+  SAVE_USER_DATA_MUTATION
+} from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
 import CounterButton from "../../components/CounterButton";
 import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
@@ -89,19 +92,17 @@ const SignupPage: FC = () => {
   const [userId, setUserId] = useState();
   const [userPlan, setUserPlan] = useState();
 
-  const [saveUser, { loading: saving }] = useMutation(SAVE_MUTATION);
-  const [signupUser, { loading: signingup }] = useMutation(SIGNUP_MUTATION);
+  const [finishSignup, { loading: finishingSignup }] = useMutation(
+    FINISH_SIGNUP_MUTATION
+  );
+  const [saveUserData, { loading: savingUserData }] = useMutation(
+    SAVE_USER_DATA_MUTATION
+  );
 
   const onSaveUser = async (input: IUserData) => {
     setUserData(input);
-    setUserPlan(
-      (input.imTeacherCheck || defaultPlan === teacherPlan.name) &&
-        getAge(input.birthDate) >= 18
-        ? teacherPlan
-        : memberPlan
-    );
     try {
-      const { data }: ExecutionResult<ISaveUserResult> = await saveUser({
+      const { data }: ExecutionResult<ISaveUserResult> = await saveUserData({
         variables: {
           input: {
             birthDate: input.birthDate,
@@ -122,6 +123,12 @@ const SignupPage: FC = () => {
         }
       });
       setUserError(undefined);
+      setUserPlan(
+        (input.imTeacherCheck || defaultPlan === teacherPlan.name) &&
+          getAge(input.birthDate) >= 18
+          ? teacherPlan
+          : memberPlan
+      );
       setUserId(data!.saveUserData!.id);
       router.push("/signup/[step]", `/signup/${Steps[1]}`, { shallow: true });
     } catch (e) {
@@ -134,19 +141,19 @@ const SignupPage: FC = () => {
   const onSignupUser = async (input: IPlan) => {
     setUserPlan(input);
     try {
-      const { data }: ExecutionResult<ISignupUserResult> = await signupUser({
+      const { data }: ExecutionResult<ISignupUserResult> = await finishSignup({
         variables: {
           id: externalProfileId || userId,
           userPlan: input.name
         }
       });
       const token = data!.finishSignUp;
-      if (!token) {
-        router.push("/signup/[step]", `/signup/${Steps[2]}`, { shallow: true });
-      } else {
+      if (token) {
         client.resetStore();
         setToken(token);
         router.push("/app");
+      } else {
+        router.push("/signup/[step]", `/signup/${Steps[2]}`, { shallow: true });
       }
     } catch (e) {
       setError(e);
@@ -193,7 +200,7 @@ const SignupPage: FC = () => {
               <SignupUserData
                 defaultValues={userData}
                 error={userError}
-                loading={saving}
+                loading={savingUserData}
                 onSubmit={onSaveUser}
               />
             )}
@@ -201,7 +208,7 @@ const SignupPage: FC = () => {
               <SignupPlanSelection
                 defaultValues={userPlan ? userPlan : memberPlan}
                 isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
-                loading={signingup}
+                loading={finishingSignup}
                 onSubmit={onSignupUser}
               />
             )}

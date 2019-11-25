@@ -642,7 +642,7 @@ export const UPLOAD_CLOUD_RESOURCE = gql`
   }
 `;
 
-export const SAVE_MUTATION = gql`
+export const SAVE_USER_DATA_MUTATION = gql`
   mutation SaveUserData($input: UserIn!) {
     saveUserData(input: $input) {
       id
@@ -650,7 +650,7 @@ export const SAVE_MUTATION = gql`
   }
 `;
 
-export const SIGNUP_MUTATION = gql`
+export const FINISH_SIGNUP_MUTATION = gql`
   mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
     finishSignUp(id: $id, userPlan: $userPlan)
   }
