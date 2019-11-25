@@ -148,7 +148,6 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   useEffect(() => {
     if (fileArray && canvasRef && canvasRef.current) {
       const { xDims, yDims, zDims } = canvasRef.current.paint;
-      setCameraX(-4 * Math.max(xDims, yDims, zDims));
       setCameraY(-2 * Math.max(xDims, yDims, zDims));
       setCameraZ(zDims / 2);
     }
@@ -210,12 +209,12 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
                 cameraX={cameraX}
                 cameraY={cameraY}
                 cameraZ={cameraZ}
-                height={320}
+                height={190}
                 lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
                 model={fileArray}
                 ref={canvasRef}
                 rotate={false}
-                width={190}
+                width={320}
               />
             )}
           </>
