@@ -3,6 +3,8 @@ import styled from "@emotion/styled";
 import Link from "next/link";
 import { Button } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
+import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
+import LoginWithGoogleButton from "./LoginWithGoogleButton";
 
 interface ILoginPanelProps {
   className?: string;
@@ -35,6 +37,12 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
       className={className}
       onSubmit={(event: React.FormEvent) => event.preventDefault()}
     >
+      Con mi perfil de:
+      <LoginWith>
+        <LoginWithMicrosoftButton />
+        <LoginWithGoogleButton />
+      </LoginWith>
+      <Divider>o</Divider>
       <LoginForm
         email={email}
         loginError={loginError}
@@ -42,12 +50,16 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
         setEmail={setEmail}
         setPassword={setPassword}
       />
-      <Button type="submit" onClick={() => onLoginClick()} disabled={loginIn}>
+      <StyledButton
+        type="submit"
+        onClick={() => onLoginClick()}
+        disabled={loginIn}
+      >
         Entrar
-      </Button>
-      <Button secondary onClick={secondaryButtonCallback}>
+      </StyledButton>
+      <StyledButton secondary onClick={secondaryButtonCallback}>
         {secondaryButtonText}
-      </Button>
+      </StyledButton>
       <Link href="/forgot-password">
         <a>No recuerdo mi contraseña</a>
       </Link>
@@ -56,6 +68,29 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
 };
 
 export default LoginPanel;
+
+const Divider = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  &::after,
+  &::before {
+    border-bottom: 1px solid grey;
+    content: "";
+    display: inline-block;
+    height: 0;
+    margin: 10px 0;
+    width: calc(50% - 14px);
+  }
+`;
+
+const LoginWith = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+`;
 
 const Panel = styled.form`
   font-family: Roboto;
@@ -70,9 +105,9 @@ const Panel = styled.form`
     text-align: center;
     text-decoration: none;
   }
+`;
 
-  button {
-    margin-bottom: 10px;
-    width: 100%;
-  }
+const StyledButton = styled(Button)`
+  margin-bottom: 10px;
+  width: 100%;
 `;

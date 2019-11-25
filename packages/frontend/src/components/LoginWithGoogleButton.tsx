@@ -35,9 +35,9 @@ const LoginWithGoogleButton: FC = () => {
   };
 
   return (
-    <Button tertiary onClick={onClick}>
+    <StyledButton tertiary onClick={onClick}>
       <Logo src={logoGoogleImage} alt="Microsoft" />
-    </Button>
+    </StyledButton>
   );
 };
 
@@ -47,4 +47,8 @@ export default LoginWithGoogleButton;
 
 const Logo = styled.img`
   height: 40px;
+`;
+
+const StyledButton = styled(Button)`
+  width: 145px;
 `;

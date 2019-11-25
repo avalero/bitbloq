@@ -34,9 +34,9 @@ const LoginWithMicrosoftButton: FC = () => {
   };
 
   return (
-    <Button tertiary onClick={onClick}>
+    <StyledButton tertiary onClick={onClick}>
       <Logo src={logoMicrosoftImage} alt="Microsoft" />
-    </Button>
+    </StyledButton>
   );
 };
 
@@ -46,4 +46,8 @@ export default LoginWithMicrosoftButton;
 
 const Logo = styled.img`
   height: 40px;
+`;
+
+const StyledButton = styled(Button)`
+  width: 145px;
 `;
