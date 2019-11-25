@@ -49,7 +49,14 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
         showFeatures={true}
       />
       <Buttons>
-        <Button tertiary onClick={() => router.back()}>
+        <Button
+          tertiary
+          onClick={() =>
+            router.push("/signup/[step]", "/signup/user-data", {
+              shallow: true
+            })
+          }
+        >
           {t("signup.plan-selection.cancel")}
         </Button>
         <Button disabled={loading} onClick={() => onSubmit(plan)}>
