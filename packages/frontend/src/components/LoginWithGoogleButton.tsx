@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import queryString from "query-string";
 import React, { FC } from "react";
 import { v1 } from "uuid";
@@ -12,11 +13,14 @@ const uuid = v1;
 const appID: string = String(env.GOOGLE_CLIENT_ID);
 
 const LoginWithGoogleButton: FC = () => {
+  const router = useRouter();
+
   const onClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
     sessionStorage.setItem("googleAuthState", uuid());
     sessionStorage.setItem("googleAuthNonce", uuid());
+    sessionStorage.setItem("googlePrevPathname", router.pathname);
 
     const location = window.location;
     const authParams = {
@@ -36,7 +40,7 @@ const LoginWithGoogleButton: FC = () => {
 
   return (
     <StyledButton quaternary onClick={onClick}>
-      <Logo src={logoGoogleImage} alt="Microsoft" />
+      <Logo src={logoGoogleImage} alt="Google" />
     </StyledButton>
   );
 };

@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import queryString from "query-string";
 import React, { FC } from "react";
 import { v1 } from "uuid";
@@ -12,11 +13,14 @@ const uuid = v1;
 const appID: string = String(env.MICROSOFT_APP_ID);
 
 const LoginWithMicrosoftButton: FC = () => {
+  const router = useRouter();
+
   const onClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
     sessionStorage.setItem("microsoftAuthState", uuid());
     sessionStorage.setItem("microsoftAuthNonce", uuid());
+    sessionStorage.setItem("microsoftPrevPathname", router.pathname);
 
     const location = window.location;
     const authParams = {

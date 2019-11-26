@@ -27,7 +27,10 @@ const MicrosoftRedirectPage: NextPage = () => {
   const onPlanSelection = (id: string) =>
     router.push(`/signup/plan-selection?id=${id}`);
 
-  const onLeaveProcess = () => router.push(`/login`);
+  const onLeaveProcess = () => {
+    router.push(sessionStorage.getItem("microsoftPrevPathname") || "/");
+    sessionStorage.removeItem("microsoftPrevPathname");
+  };
 
   useEffect(() => {
     try {
