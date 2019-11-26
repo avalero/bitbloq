@@ -42,7 +42,7 @@ interface IUserData {
 }
 
 interface ISaveUserResult {
-  saveUserData?: IUserStep1;
+  saveUserData: IUserStep1;
 }
 
 interface ISignupUserResult {
@@ -127,7 +127,7 @@ const SignupStepPage: FC = () => {
           ? teacherPlan
           : memberPlan
       );
-      setUserId(data!.saveUserData!.id);
+      setUserId(data!.saveUserData.id);
       router.push("/signup/[step]", `/signup/${signupSteps[1]}`, {
         shallow: true
       });

@@ -1,7 +1,7 @@
 import { ApolloError } from "apollo-client";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
-import { useMutation } from "react-apollo";
+import { useMutation, ExecutionResult } from "react-apollo";
 import { Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { ACTIVATE_ACCOUNT_MUTATION } from "../apollo/queries";
@@ -11,6 +11,10 @@ import ModalLayout from "./ModalLayout";
 
 interface IActivateProps {
   token: string;
+}
+
+interface IActivateAccountResult {
+  activateAccount: string;
 }
 
 const Activate: FC<IActivateProps> = ({ token }) => {
@@ -23,8 +27,8 @@ const Activate: FC<IActivateProps> = ({ token }) => {
 
   useEffect(() => {
     activateAccount({ variables: { token } })
-      .then(({ data }) => {
-        setToken(data.activateAccount);
+      .then(({ data }: ExecutionResult<IActivateAccountResult>) => {
+        setToken(data!.activateAccount);
         setActivate(true);
       })
       .catch(e => setError(e));
