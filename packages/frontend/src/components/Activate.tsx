@@ -2,7 +2,7 @@ import { ApolloError } from "apollo-client";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
 import { useMutation } from "react-apollo";
-import { Spinner } from "@bitbloq/ui";
+import { Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { ACTIVATE_ACCOUNT_MUTATION } from "../apollo/queries";
 import { setToken } from "../lib/session";
@@ -14,6 +14,7 @@ interface IActivateProps {
 }
 
 const Activate: FC<IActivateProps> = ({ token }) => {
+  const t = useTranslate();
   const router = useRouter();
 
   const [activateAccount] = useMutation(ACTIVATE_ACCOUNT_MUTATION);
@@ -36,12 +37,10 @@ const Activate: FC<IActivateProps> = ({ token }) => {
   if (activate) {
     return (
       <ModalLayout
-        title="Cuenta validada"
-        modalTitle="Cuenta validada"
-        text={
-          "Tu cuenta ha sido validada con éxito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!"
-        }
-        okText="¡Entrar en Bitbloq!"
+        title={t("signup.activate.title")}
+        modalTitle={t("signup.activate.title")}
+        text={t("signup.activate.content")}
+        okText={t("signup.activate.ok")}
         onOk={() => router.push("/app")}
         isOpen={true}
       />

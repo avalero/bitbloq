@@ -423,6 +423,11 @@
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
     },
+    "activate": {
+      "title": "Cuenta validada",
+      "content": "Tu cuenta ha sido validada con exito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
+      "ok": "¡Entrar a Bitbloq!"
+    },
     "step": "Paso %v% de 2",
     "user-data": {
       "cancel": "Cancelar",
