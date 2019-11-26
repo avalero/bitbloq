@@ -120,6 +120,7 @@ export default class Scene {
   private selectedMaterial: object;
   private secondaryMaterial: object;
   private normalMaterial: object;
+  private computingMeshesPromise: Array<Promise<THREE.Object3D>>;
 
   constructor() {
     this.anySelectedObjects = false;
@@ -291,39 +292,41 @@ export default class Scene {
 
     this.objectsGroup = new THREE.Group();
 
-    const meshes: THREE.Object3D[] = await Promise.all(
-      this.objectsInScene.map(async object => {
-        const mesh = await object.getMeshAsync();
+    this.computingMeshesPromise = this.objectsInScene.map(async object => {
+      const mesh = await object.getMeshAsync();
 
-        if (this.anySelectedObjects) {
-          // if object is selected highlight
-          if (object.getViewOptions().selected) {
-            if (mesh instanceof THREE.Mesh) {
-              if (mesh.material instanceof THREE.MeshLambertMaterial) {
-                mesh.material.setValues(this.selectedMaterial);
-              }
-            }
-          } else {
-            if (mesh instanceof THREE.Mesh) {
-              if (mesh.material instanceof THREE.MeshLambertMaterial) {
-                mesh.material.setValues(this.secondaryMaterial);
-              }
+      if (this.anySelectedObjects) {
+        // if object is selected highlight
+        if (object.getViewOptions().selected) {
+          if (mesh instanceof THREE.Mesh) {
+            if (mesh.material instanceof THREE.MeshLambertMaterial) {
+              mesh.material.setValues(this.selectedMaterial);
             }
           }
         } else {
           if (mesh instanceof THREE.Mesh) {
             if (mesh.material instanceof THREE.MeshLambertMaterial) {
-              mesh.material.setValues(this.normalMaterial);
+              mesh.material.setValues(this.secondaryMaterial);
             }
           }
         }
+      } else {
+        if (mesh instanceof THREE.Mesh) {
+          if (mesh.material instanceof THREE.MeshLambertMaterial) {
+            mesh.material.setValues(this.normalMaterial);
+          }
+        }
+      }
 
-        mesh.userData = {
-          ...mesh.userData,
-          ...object.toJSON()
-        };
-        return mesh;
-      })
+      mesh.userData = {
+        ...mesh.userData,
+        ...object.toJSON()
+      };
+      return mesh;
+    });
+
+    const meshes: THREE.Object3D[] = await Promise.all(
+      this.computingMeshesPromise
     );
 
     meshes.forEach(mesh => {
@@ -634,10 +637,14 @@ export default class Scene {
    * @param json object descriptor
    */
   public async getPositionAsync(
-    json: IObjectsCommonJSON
+    json: IObjectsCommonJSON,
+    waitScene: boolean = false
   ): Promise<IObjectPosition> {
     try {
       const obj = this.getObject(json);
+      if (waitScene) {
+        await Promise.all(this.computingMeshesPromise);
+      }
       return new PositionCalculator(obj).getPositionAsync();
     } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
