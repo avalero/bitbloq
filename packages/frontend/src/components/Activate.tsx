@@ -37,10 +37,10 @@ const Activate: FC<IActivateProps> = ({ token }) => {
   if (activate) {
     return (
       <ModalLayout
-        title={t("signup.activate.title")}
-        modalTitle={t("signup.activate.title")}
-        text={t("signup.activate.content")}
-        okText={t("signup.activate.ok")}
+        title={t("signup.activate-modal.title")}
+        modalTitle={t("signup.activate-modal.title")}
+        text={t("signup.activate-modal.content")}
+        okText={t("signup.activate-modal.ok")}
         onOk={() => router.push("/app")}
         isOpen={true}
       />

@@ -5,6 +5,7 @@ import { useMutation, useApolloClient, ExecutionResult } from "react-apollo";
 import { LOGIN_WITH_GOOGLE } from "../apollo/queries";
 import withApollo from "../apollo/withApollo";
 import Loading from "../components/Loading";
+import { signupSteps } from "../config";
 import { setToken } from "../lib/session";
 import { IMsLogin } from "../../../api/src/api-types";
 
@@ -25,7 +26,7 @@ const GoogleRedirectPage: NextPage = () => {
   };
 
   const onPlanSelection = (id: string) =>
-    router.push(`/signup/plan-selection?id=${id}`);
+    router.push(`/signup/${signupSteps[1]}?id=${id}`);
 
   const onLeaveProcess = () => {
     router.push(sessionStorage.getItem("googlePrevPathname") || "/");
