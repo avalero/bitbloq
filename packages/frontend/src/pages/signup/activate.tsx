@@ -1,7 +1,7 @@
-import React from "react";
-import Activate from "../../components/Activate";
-import withApollo from "../../apollo/withApollo";
 import { NextPage } from "next";
+import React from "react";
+import withApollo from "../../apollo/withApollo";
+import Activate from "../../components/Activate";
 
 interface IActivatePageProps {
   token: string;
