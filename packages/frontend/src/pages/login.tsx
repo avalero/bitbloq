@@ -1,14 +1,15 @@
 import React, { FC, useState } from "react";
 import Router from "next/router";
 import { useMutation, useApolloClient } from "@apollo/react-hooks";
+import { useTranslate } from "@bitbloq/ui";
 import withApollo from "../apollo/withApollo";
 import AccessLayout from "../components/AccessLayout";
-import BrowserVersionWarning from "../components/BrowserVersionWarning";
 import LoginPanel from "../components/LoginPanel";
 import { LOGIN_MUTATION } from "../apollo/queries";
 import { setToken } from "../lib/session";
 
 const LoginPage: FC = () => {
+  const t = useTranslate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLogingError] = useState(false);
@@ -36,7 +37,7 @@ const LoginPage: FC = () => {
   };
 
   return (
-    <AccessLayout panelTitle="Entrar">
+    <AccessLayout panelTitle={t("login.title")}>
       <LoginPanel
         email={email}
         loginError={loginError}
@@ -44,7 +45,7 @@ const LoginPage: FC = () => {
         password={password}
         onLoginClick={onLoginClick}
         secondaryButtonCallback={() => Router.push("/signup")}
-        secondaryButtonText="Crear una cuenta"
+        secondaryButtonText={t("login.signup")}
         setEmail={setEmail}
         setPassword={setPassword}
       />

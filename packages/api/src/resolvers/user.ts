@@ -263,7 +263,6 @@ const userResolver = {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
       }
       let user: IUser | null = await UserModel.findOne({
-        googleID: userData.id,
         email: userData.email
       });
       if (user && (!user.finishedSignUp || !user.active)) {
@@ -320,7 +319,6 @@ const userResolver = {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
       }
       let user: IUser | null = await UserModel.findOne({
-        microsoftID: userData.id,
         email: userData.userPrincipalName
       });
       if (user && (!user.finishedSignUp || !user.active)) {

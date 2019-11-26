@@ -11,10 +11,10 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import LoginWithGoogleButton from "./LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages } from "../config";
-import LoginWithGoogleButton from "./LoginWithGoogleButton";
 
 interface IUserData {
   acceptTerms: boolean;
@@ -96,14 +96,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 
   const togglePasswordMask = () => {
     setPasswordIsMasked(!passwordIsMasked);
-  };
-
-  const onGotoMicrosoft = () => {
-    // TODO
-  };
-
-  const onGotoGoogle = () => {
-    // TODO
   };
 
   const teacherSubForm = (isShown: boolean) => {
@@ -428,15 +420,6 @@ const LoginWithExternalProfile = styled.div`
   justify-content: space-between;
   flex-direction: column;
   margin-left: 15px;
-
-  button {
-    background-color: white;
-    border: solid 1px #dddddd;
-    border-radius: 4px;
-    cursor: pointer;
-    height 40px;
-    width: 145px;
-  }
 `;
 
 const InputPassword = styled.div`

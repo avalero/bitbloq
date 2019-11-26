@@ -2,10 +2,13 @@ import { ApolloError } from "apollo-client";
 import _ from "lodash";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
-import { useMutation } from "react-apollo";
+import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
 import { colors, HorizontalRule, Panel, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { SAVE_MUTATION, SIGNUP_MUTATION } from "../../apollo/queries";
+import {
+  FINISH_SIGNUP_MUTATION,
+  SAVE_USER_DATA_MUTATION
+} from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
 import CounterButton from "../../components/CounterButton";
 import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
@@ -14,8 +17,10 @@ import SignupPlanSelection from "../../components/SignupPlanSelection";
 import SignupUserData from "../../components/SignupUserData";
 import logoBetaImage from "../../images/logo-beta.svg";
 import { plans, educationalStages } from "../../config";
+import { setToken } from "../../lib/session";
 import { IPlan } from "../../types";
 import { getAge } from "../../util";
+import { IUserStep1 } from "../../../../api/src/api-types";
 
 const Steps = ["user-data", "plan-selection", "account-created"];
 
@@ -38,12 +43,21 @@ interface IUserData {
   year: number;
 }
 
+interface ISaveUserResult {
+  saveUserData?: IUserStep1;
+}
+
+interface ISignupUserResult {
+  finishSignUp?: string;
+}
+
 const SignupPage: FC = () => {
+  const client = useApolloClient();
   const router = useRouter();
   const t = useTranslate();
   const wrapRef = React.createRef<HTMLDivElement>();
 
-  const { step, plan: defaultPlan } = router.query;
+  const { id: externalProfileId, plan: defaultPlan, step } = router.query;
 
   useEffect(() => {
     if (wrapRef && wrapRef.current) {
@@ -78,61 +92,72 @@ const SignupPage: FC = () => {
   const [userId, setUserId] = useState();
   const [userPlan, setUserPlan] = useState();
 
-  const [saveUser, { loading: saving }] = useMutation(SAVE_MUTATION);
-  const [signupUser, { loading: signingup }] = useMutation(SIGNUP_MUTATION);
+  const [finishSignup, { loading: finishingSignup }] = useMutation(
+    FINISH_SIGNUP_MUTATION
+  );
+  const [saveUserData, { loading: savingUserData }] = useMutation(
+    SAVE_USER_DATA_MUTATION
+  );
 
-  const onSaveUser = (input: IUserData) => {
+  const onSaveUser = async (input: IUserData) => {
     setUserData(input);
-    setUserPlan(
-      (input.imTeacherCheck || defaultPlan === teacherPlan.name) &&
-        getAge(input.birthDate) >= 18
-        ? teacherPlan
-        : memberPlan
-    );
-    saveUser({
-      variables: {
-        input: {
-          birthDate: input.birthDate,
-          centerName: input.imTeacherCheck ? input.centerName : undefined,
-          city: input.imTeacherCheck ? input.city : undefined,
-          country: input.imTeacherCheck ? input.country : undefined,
-          educationalStage: input.imTeacherCheck
-            ? input.educationalStage
-            : undefined,
-          email: input.email,
-          imTeacherCheck: input.imTeacherCheck,
-          name: input.name,
-          notifications: !input.noNotifications,
-          password: input.password,
-          postCode: input.imTeacherCheck ? input.postCode : undefined,
-          surnames: input.surnames
+    try {
+      const { data }: ExecutionResult<ISaveUserResult> = await saveUserData({
+        variables: {
+          input: {
+            birthDate: input.birthDate,
+            centerName: input.imTeacherCheck ? input.centerName : undefined,
+            city: input.imTeacherCheck ? input.city : undefined,
+            country: input.imTeacherCheck ? input.country : undefined,
+            educationalStage: input.imTeacherCheck
+              ? input.educationalStage
+              : undefined,
+            email: input.email,
+            imTeacherCheck: input.imTeacherCheck,
+            name: input.name,
+            notifications: !input.noNotifications,
+            password: input.password,
+            postCode: input.imTeacherCheck ? input.postCode : undefined,
+            surnames: input.surnames
+          }
         }
-      }
-    })
-      .then(result => {
-        setUserError(undefined);
-        setUserId(result.data.saveUserData.id);
-        router.push("/signup/[step]", `/signup/${Steps[1]}`, { shallow: true });
-      })
-      .catch(e =>
-        e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
-          ? setUserError(e)
-          : setError(e)
+      });
+      setUserError(undefined);
+      setUserPlan(
+        (input.imTeacherCheck || defaultPlan === teacherPlan.name) &&
+          getAge(input.birthDate) >= 18
+          ? teacherPlan
+          : memberPlan
       );
+      setUserId(data!.saveUserData!.id);
+      router.push("/signup/[step]", `/signup/${Steps[1]}`, { shallow: true });
+    } catch (e) {
+      e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
+        ? setUserError(e)
+        : setError(e);
+    }
   };
 
-  const onSignupUser = (input: IPlan) => {
+  const onSignupUser = async (input: IPlan) => {
     setUserPlan(input);
-    signupUser({
-      variables: {
-        id: userId,
-        userPlan: input.name
+    try {
+      const { data }: ExecutionResult<ISignupUserResult> = await finishSignup({
+        variables: {
+          id: externalProfileId || userId,
+          userPlan: input.name
+        }
+      });
+      const token = data!.finishSignUp;
+      if (token) {
+        client.resetStore();
+        setToken(token);
+        router.push("/app");
+      } else {
+        router.push("/signup/[step]", `/signup/${Steps[2]}`, { shallow: true });
       }
-    })
-      .then(() =>
-        router.push("/signup/[step]", `/signup/${Steps[2]}`, { shallow: true })
-      )
-      .catch(e => setError(e));
+    } catch (e) {
+      setError(e);
+    }
   };
 
   if (error) {
@@ -175,7 +200,7 @@ const SignupPage: FC = () => {
               <SignupUserData
                 defaultValues={userData}
                 error={userError}
-                loading={saving}
+                loading={savingUserData}
                 onSubmit={onSaveUser}
               />
             )}
@@ -183,7 +208,7 @@ const SignupPage: FC = () => {
               <SignupPlanSelection
                 defaultValues={userPlan ? userPlan : memberPlan}
                 isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
-                loading={signingup}
+                loading={finishingSignup}
                 onSubmit={onSignupUser}
               />
             )}

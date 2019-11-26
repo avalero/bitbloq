@@ -1,8 +1,10 @@
+import Link from "next/link";
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import Link from "next/link";
-import { Button } from "@bitbloq/ui";
+import { Button, useTranslate } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
+import LoginWithGoogleButton from "./LoginWithGoogleButton";
+import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 
 interface ILoginPanelProps {
   className?: string;
@@ -18,6 +20,7 @@ interface ILoginPanelProps {
 }
 
 const LoginPanel: FC<ILoginPanelProps> = props => {
+  const t = useTranslate();
   const {
     className,
     email,
@@ -35,6 +38,12 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
       className={className}
       onSubmit={(event: React.FormEvent) => event.preventDefault()}
     >
+      {t("login.with")}
+      <LoginWith>
+        <LoginWithMicrosoftButton />
+        <LoginWithGoogleButton />
+      </LoginWith>
+      <Divider>{t("login.divider")}</Divider>
       <LoginForm
         email={email}
         loginError={loginError}
@@ -42,20 +51,47 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
         setEmail={setEmail}
         setPassword={setPassword}
       />
-      <Button type="submit" onClick={() => onLoginClick()} disabled={loginIn}>
-        Entrar
-      </Button>
-      <Button secondary onClick={secondaryButtonCallback}>
+      <StyledButton
+        type="submit"
+        onClick={() => onLoginClick()}
+        disabled={loginIn}
+      >
+        {t("login.ok")}
+      </StyledButton>
+      <StyledButton secondary onClick={secondaryButtonCallback}>
         {secondaryButtonText}
-      </Button>
+      </StyledButton>
       <Link href="/forgot-password">
-        <a>No recuerdo mi contraseña</a>
+        <a>{t("login.forgot-password")}</a>
       </Link>
     </Panel>
   );
 };
 
 export default LoginPanel;
+
+const Divider = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  &::after,
+  &::before {
+    border-bottom: 1px solid grey;
+    content: "";
+    display: inline-block;
+    height: 0;
+    margin: 10px 0;
+    width: calc(50% - 14px);
+  }
+`;
+
+const LoginWith = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+`;
 
 const Panel = styled.form`
   font-family: Roboto;
@@ -70,9 +106,9 @@ const Panel = styled.form`
     text-align: center;
     text-decoration: none;
   }
+`;
 
-  button {
-    margin-bottom: 10px;
-    width: 100%;
-  }
+const StyledButton = styled(Button)`
+  margin-bottom: 10px;
+  width: 100%;
 `;

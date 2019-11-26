@@ -368,6 +368,23 @@
   "documents": {
     "go-to-exercise": "Ir al ejercicio"
   },
+  "login": {
+    "divider": "o",
+    "error": "Correo electrónico o contraseña no válidos",
+    "forgot-password": "No recuerdo mi contraseña",
+    "labels": {
+      "email": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "placeholders": {
+      "email": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "ok": "Entrar",
+    "signup": "Crear una cuenta",
+    "title": "Entrar",
+    "with": "Con mi perfil de:"
+  },
   "plans": {
     "bitbloq-cloud-info": "Contratando Bitbloq Cloud tendrás espacio en la nube para almacenar fotografías, videos, STLs, etc. poder importarlos en tus documentos.",
     "choose-plan": "Elije el plan que más se ajuste a tus necesidades",
