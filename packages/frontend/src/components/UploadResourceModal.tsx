@@ -54,9 +54,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const canvasRef = useRef<STLViewer>(null);
-  const [cameraX, setCameraX] = useState<number>(0);
   const [cameraY, setCameraY] = useState<number>(0);
   const [cameraZ, setCameraZ] = useState<number | null>(null);
+  const [disabledButton, setDisabledButton] = useState<boolean>(false);
   const [error, setError] = useState<Errors>(Errors.noError);
   const [file, setFile] = useState<File | undefined>(undefined);
   const [fileArray, setFileArray] = useState<ArrayBuffer | undefined>(
@@ -88,6 +88,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   };
 
   const onCloseModal = () => {
+    setDisabledButton(false);
     setError(Errors.noError);
     setFile(undefined);
     setFileArray(undefined);
@@ -116,6 +117,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       { type: fileToSend.type }
     );
     variables = { ...variables, file: resourceFile };
+    setDisabledButton(true);
     const { data } = await uploadResource({
       variables
     });
@@ -206,7 +208,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             {fileArray && (
               <ObjViewer
                 backgroundColor="#fff"
-                cameraX={cameraX}
+                cameraX={0}
                 cameraY={cameraY}
                 cameraZ={cameraZ}
                 height={190}
@@ -230,7 +232,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
           )}
           {file !== undefined && (
             <ResourceModalButton
-              disabled={!isValidName(nameFile)}
+              disabled={disabledButton || !isValidName(nameFile)}
               onClick={() => onSendResource(file)}
             >
               {t("general-add-button")}
