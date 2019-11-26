@@ -15,6 +15,7 @@ import { getParentsPath, orderFunctions } from "../utils";
 import { IUserInToken } from "../models/interfaces";
 import {
   IMutationCreateDocumentArgs,
+  IMutationDuplicateDocumentArgs,
   IMutationDeleteDocumentArgs,
   IMutationUpdateDocumentContentArgs,
   IMutationUpdateDocumentArgs,
@@ -107,6 +108,156 @@ const documentResolver = {
       );
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: newDocument });
       return newDocument;
+    },
+
+    /**
+     * Duplicate document: duplicate a document
+     * args: old document id, new document title, filter options.
+     */
+    duplicateDocument: async (
+      _,
+      args: IMutationDuplicateDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const user: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
+      if (!user) {
+        return new AuthenticationError("You need to be logged in");
+      }
+
+      // Create a new document
+      const document = await DocumentModel.findOne({ _id: args.documentID });
+
+      if (!document) {
+        throw new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
+      }
+      const documentNew = {
+        advancedMode: document.advancedMode,
+        cache: document.cache,
+        content: document.content,
+        description: document.description,
+        example: document.example,
+        exResourcesID: document.exResourcesID,
+        folder: document.folder,
+        image: document.image,
+        public: document.public,
+        resourcesID: document.resourcesID,
+        title: args.title,
+        type: document.type,
+        user: user._id,
+        version: document.version
+      };
+      const newDocument: IDocument = await DocumentModel.create(documentNew);
+
+      if (!newDocument) {
+        throw new ApolloError(
+          "Document does not duplicate",
+          "DOCUMENT_NOT_DUPLICATE"
+        );
+      }
+
+      await FolderModel.updateOne(
+        { _id: documentNew.folder },
+        { $push: { documentsID: newDocument._id } },
+        { new: true }
+      );
+
+      // Get new document page
+      const location: IFolder | null = await FolderModel.findOne({
+        _id: newDocument.folder
+      });
+      if (!location) {
+        return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
+      } else if (String(location.user) !== String(context.user.userID)) {
+        return new AuthenticationError("Not your folder");
+      }
+      const itemsPerPage: number = (args.itemsPerPage as number) || 8;
+      const text: string = (args.searchTitle as string) || "";
+
+      const orderFunction = orderFunctions[args.order! as string];
+
+      const filterOptionsDoc =
+        text === ""
+          ? {
+              folder: location.id
+            }
+          : {};
+      const filterOptionsFol =
+        text === ""
+          ? {
+              parent: location.id
+            }
+          : {};
+
+      const docs: IDocument[] = await DocumentModel.find({
+        title: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filterOptionsDoc
+      });
+      const fols: IFolder[] = await FolderModel.find({
+        name: { $regex: `.*${text}.*`, $options: "i" },
+        user: context.user.userID,
+        ...filterOptionsFol
+      });
+
+      const docsParent = await Promise.all(
+        docs.map(
+          async ({
+            title,
+            _id: id,
+            createdAt,
+            updatedAt,
+            type,
+            folder: parent,
+            image,
+            ...op
+          }) => {
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type,
+              parent,
+              image: image!.image,
+              ...op
+            };
+          }
+        )
+      );
+      const folsTitle = await Promise.all(
+        fols.map(
+          async ({
+            name: title,
+            _id: id,
+            createdAt,
+            updatedAt,
+            parent,
+            documentsID,
+            foldersID,
+            ...op
+          }) => {
+            return {
+              title,
+              id,
+              createdAt,
+              updatedAt,
+              type: "folder",
+              parent,
+              ...op
+            };
+          }
+        )
+      );
+
+      const allData = [...docsParent, ...folsTitle];
+      const allDataSorted = allData.sort(orderFunction);
+      const docIndex: number = allDataSorted.findIndex(element => {
+        return String(element.id) === String(newDocument._id);
+      });
+      const page: number = Math.ceil(docIndex / itemsPerPage) || 1;
+      return { document: newDocument, page };
     },
 
     /**
@@ -330,6 +481,7 @@ const documentResolver = {
     documents: async (_, __, context: { user: IUserInToken }) => {
       return DocumentModel.find({ user: context.user.userID });
     },
+
     /**
      * Document: returns the information of the document ID provided in the arguments.
      * args: document ID.
@@ -400,8 +552,9 @@ const documentResolver = {
         return new AuthenticationError("You need to be logged in");
       }
 
-      const currentLocation: string =
-        String(args.currentLocation) || String(user.rootFolder);
+      const currentLocation: string = args.currentLocation
+        ? String(args.currentLocation)
+        : String(user.rootFolder);
       const location: IFolder | null = await FolderModel.findOne({
         _id: currentLocation
       });
@@ -494,11 +647,8 @@ const documentResolver = {
       const allData = [...docsParent, ...folsTitle];
       const allDataSorted = allData.sort(orderFunction);
       const pagesNumber: number = Math.ceil(
-        ((await DocumentModel.countDocuments(filterOptionsDoc)) +
-          (await FolderModel.countDocuments(filterOptionsFol))) /
-          itemsPerPage
+        allDataSorted.length / itemsPerPage
       );
-
       const nFolders: number = await FolderModel.countDocuments({
         user: context.user.userID,
         parent: currentLocation

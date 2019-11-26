@@ -223,6 +223,31 @@ export const CREATE_DOCUMENT_MUTATION = gql`
   }
 `;
 
+export const DUPLICATE_DOCUMENT_MUTATION = gql`
+  mutation DuplicateDocument(
+    $currentLocation: ObjectID
+    $documentID: ObjectID!
+    $itemsPerPage: Number
+    $order: String
+    $searchTitle: String
+    $title: String!
+  ) {
+    duplicateDocument(
+      currentLocation: $currentLocation
+      documentID: $documentID
+      itemsPerPage: $itemsPerPage
+      order: $order
+      searchTitle: $searchTitle
+      title: $title
+    ) {
+      document {
+        id
+      }
+      page
+    }
+  }
+`;
+
 export const CREATE_FOLDER_MUTATION = gql`
   mutation createFolder($input: FolderIn) {
     createFolder(input: $input) {
