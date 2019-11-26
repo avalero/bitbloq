@@ -48,7 +48,7 @@ export default LoginWithMicrosoftButton;
 /* Styled components */
 
 const Logo = styled.img`
-  height: 40px;
+  height: 38px;
 `;
 
 const StyledButton = styled(Button)`

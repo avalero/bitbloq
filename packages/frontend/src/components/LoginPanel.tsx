@@ -3,8 +3,8 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { Button, useTranslate } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
-import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import LoginWithGoogleButton from "./LoginWithGoogleButton";
+import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 
 interface ILoginPanelProps {
   className?: string;

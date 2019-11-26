@@ -420,15 +420,6 @@ const LoginWithExternalProfile = styled.div`
   justify-content: space-between;
   flex-direction: column;
   margin-left: 15px;
-
-  button {
-    background-color: white;
-    border: solid 1px #dddddd;
-    border-radius: 4px;
-    cursor: pointer;
-    height 40px;
-    width: 145px;
-  }
 `;
 
 const InputPassword = styled.div`
