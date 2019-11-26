@@ -51,7 +51,7 @@ interface ISignupUserResult {
   finishSignUp?: string;
 }
 
-const SignupPage: FC = () => {
+const SignupStepPage: FC = () => {
   const client = useApolloClient();
   const router = useRouter();
   const t = useTranslate();
@@ -219,7 +219,7 @@ const SignupPage: FC = () => {
   );
 };
 
-export default withApollo(SignupPage, { requiresSession: false });
+export default withApollo(SignupStepPage, { requiresSession: false });
 
 /* Styled components */
 
