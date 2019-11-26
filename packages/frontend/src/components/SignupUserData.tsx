@@ -365,11 +365,19 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         />
         <span>
           {t("signup.user-data.labels.accept-terms-1")}{" "}
-          <a target="_blank" href="https://bitbloq.bq.com/#">
+          <a
+            target="_blank"
+            href="https://bitbloq.bq.com/#"
+            onClick={e => e.stopPropagation()}
+          >
             {t("signup.user-data.link-general-conditions")}
           </a>{" "}
           {t("signup.user-data.labels.accept-terms-2")}{" "}
-          <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
+          <a
+            target="_blank"
+            href="https://bitbloq.bq.com/#/cookies"
+            onClick={e => e.stopPropagation()}
+          >
             {t("signup.user-data.link-privacy-policy")}
           </a>
           .
@@ -464,6 +472,7 @@ const CheckOption = styled.div`
   align-items: center;
   margin-bottom: 14px;
   cursor: pointer;
+  width: fit-content;
 
   span {
     margin-left: 10px;
