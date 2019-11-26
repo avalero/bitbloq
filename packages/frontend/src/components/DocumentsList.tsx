@@ -11,7 +11,7 @@ import {
   DELETE_FOLDER_MUTATION,
   CREATE_DOCUMENT_MUTATION,
   HAS_EXERCISES_QUERY,
-  DOC_PAGE_WITH_FILTERS
+  DUPLICATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
 import DocumentCard from "./DocumentCard";
 import DocumentCardMenu from "./DocumentCardMenu";
@@ -56,8 +56,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   selectPage,
   nFolders
 }) => {
-  const [documentCopyID, setDocumentCopyID] = useState("");
-  const [duplicateDoc, setDuplicateDoc] = useState(false);
   const [deleteDoc, setDeleteDoc] = useState({
     id: null
   });
@@ -89,6 +87,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
+  const [duplicateDocument] = useMutation(DUPLICATE_DOCUMENT_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
 
@@ -101,8 +100,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       type: selectedToDel.type
     }
   });
-
-  const [documentPageWithFilters] = useLazyQuery(DOC_PAGE_WITH_FILTERS);
 
   const [, drop] = useDrop({
     accept: ["document", "folder"],
@@ -243,29 +240,23 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     if (newTitle.length >= 64) {
       newTitle = newTitle.slice(0, 63);
     }
-    const result = await createDocument({
+    const result = await duplicateDocument({
       variables: {
-        ...document,
-        image: {
-          image: document.image,
-          isSnapshot: document.image.indexOf("blob") > -1
-        },
-        title: newTitle,
-        folder: currentLocation.id
+        currentLocation,
+        documentID: document.id,
+        order,
+        searchTitle: searchText,
+        title: newTitle
       }
     }).catch(catchError => {
       console.log(catchError);
       return e;
     });
-    if (result) {
-      const page = await documentPageWithFilters({
-        variables: {
-          documentID: result.data.createDocument.id,
-          currentLocation: currentLocation.id,
-          order,
-          searchTitle: searchText
-        }
-      });
+
+    const { page } = result.data.duplicateDocument;
+
+    if (page) {
+      selectPage(page);
     }
   };
 
@@ -329,20 +320,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     onMove();
   };
-
-  // useEffect(() => {
-  //   console.log(called, docCopyLoading, docCopyPage);
-  //   if (called && !docCopyLoading && docCopyPage) {
-  //     console.log(docCopyPage);
-
-  //     setMenuOpenId("");
-  //   }
-  // }, [docCopyLoading]);
-
-  // useEffect(() => {
-  //   console.log({ documentCopyID });
-  //   //documentPageWithFilters();
-  // }, [documentCopyID]);
 
   return (
     <>
