@@ -448,10 +448,10 @@
         "surnames": "Los apellidos que has introducido no son válidos"
       },
       "labels": {
-        "accept-terms-1": "He leido y acepto las",
+        "accept-terms-1": "He leído y acepto las",
         "accept-terms-2": "y la",
         "birth-date": "Fecha de nacimiento",
-        "center-name": "El nombre que has introducido no es válido",
+        "center-name": "Nombre del centro",
         "city": "Ciudad",
         "country": "País",
         "educational-stage": "Etapa",
@@ -477,7 +477,7 @@
         "birth-date-day": "DD",
         "birth-date-month": "MM",
         "birth-date-year": "AAAA",
-        "center-name": "Nombre del Centro",
+        "center-name": "Nombre del centro",
         "city": "Ciudad",
         "email": "Correo electrónico",
         "name": "Nombre",
