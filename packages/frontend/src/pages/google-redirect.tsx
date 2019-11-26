@@ -27,7 +27,7 @@ const GoogleRedirectPage: NextPage = () => {
   const onPlanSelection = (id: string) =>
     router.push(`/signup/plan-selection?id=${id}`);
 
-  const onLeaveProcess = () => router.push(`/signup/user-data`);
+  const onLeaveProcess = () => router.push(`/login`);
 
   useEffect(() => {
     try {

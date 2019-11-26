@@ -4,7 +4,7 @@ import { v1 } from "uuid";
 import styled from "@emotion/styled";
 import { Button } from "@bitbloq/ui";
 import { microsoftAuthEndpoint, microsoftScopes } from "../config";
-import logoMicrosoftImage from "../images/logo-microsoft.svg";
+import logoMicrosoftImage from "../images/logo-microsoft.png";
 import env from "../lib/env";
 
 const uuid = v1;
@@ -19,7 +19,6 @@ const LoginWithMicrosoftButton: FC = () => {
     sessionStorage.setItem("microsoftAuthNonce", uuid());
 
     const location = window.location;
-
     const authParams = {
       response_type: "id_token token",
       client_id: appID,
@@ -34,7 +33,7 @@ const LoginWithMicrosoftButton: FC = () => {
   };
 
   return (
-    <StyledButton tertiary onClick={onClick}>
+    <StyledButton quaternary onClick={onClick}>
       <Logo src={logoMicrosoftImage} alt="Microsoft" />
     </StyledButton>
   );
