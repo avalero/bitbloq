@@ -472,6 +472,7 @@ const CheckOption = styled.div`
   align-items: center;
   margin-bottom: 14px;
   cursor: pointer;
+  width: fit-content;
 
   span {
     margin-left: 10px;
