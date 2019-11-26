@@ -35,8 +35,6 @@ const ResourceCard: FC<IResourceCardProps> = ({
     .replace(new RegExp(`\.${extTitle}$`), "")
     .substring(0, 64);
 
-  const [imageHeight, setImageHeight] = useState<number>(0);
-  const [imageWidth, setImageWidth] = useState<number>(0);
   const [firstTitle, setFirsTitle] = useState<string>(
     titleName.substring(0, titleName.length - 3)
   );
@@ -44,7 +42,6 @@ const ResourceCard: FC<IResourceCardProps> = ({
     `${titleName.substring(titleName.length - 3)}.${extTitle}`
   );
 
-  const imageRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
@@ -57,8 +54,6 @@ const ResourceCard: FC<IResourceCardProps> = ({
     if (titleRef.current!.clientHeight > 50) {
       setSecondTitle(`...${secondTitle}`);
     }
-    setImageHeight(imageRef.current!.clientHeight);
-    setImageWidth(imageRef.current!.clientWidth);
   }, []);
 
   return (
@@ -116,14 +111,9 @@ const ResourceCard: FC<IResourceCardProps> = ({
           ]}
         />
       </DropDown>
-      <ImageContainer ref={imageRef}>
+      <ImageContainer>
         {thumbnail ? (
-          <Image
-            height={imageHeight}
-            imageUrl={thumbnail}
-            type={type}
-            width={imageWidth}
-          />
+          <Image imageUrl={thumbnail} />
         ) : (
           <Icon name={`resource-${type}`} />
         )}
@@ -147,20 +137,10 @@ const CardMenuButton = styled(MenuButton)`
   width: 32px;
 `;
 
-const Image = styled.div<{
-  height: number;
-  imageUrl: string;
-  type: ResourcesTypes;
-  width: number;
-}>`
+const Image = styled.div<{ imageUrl: string }>`
   background: url(${props => props.imageUrl}) center/cover;
-  height: ${props =>
-    props.type === ResourcesTypes.object3D ? props.width || 0 : props.height}px;
-  transform: rotate(
-    ${props => (props.type === ResourcesTypes.object3D ? -90 : 0)}deg
-  );
-  width: ${props =>
-    props.type === ResourcesTypes.object3D ? props.height || 0 : props.width}px;
+  height: 100%;
+  width: 100%;
 `;
 
 const ImageContainer = styled.div`
