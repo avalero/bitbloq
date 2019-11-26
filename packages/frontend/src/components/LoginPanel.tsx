@@ -1,7 +1,7 @@
+import Link from "next/link";
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import Link from "next/link";
-import { Button } from "@bitbloq/ui";
+import { Button, useTranslate } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import LoginWithGoogleButton from "./LoginWithGoogleButton";
@@ -20,6 +20,7 @@ interface ILoginPanelProps {
 }
 
 const LoginPanel: FC<ILoginPanelProps> = props => {
+  const t = useTranslate();
   const {
     className,
     email,
@@ -37,12 +38,12 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
       className={className}
       onSubmit={(event: React.FormEvent) => event.preventDefault()}
     >
-      Con mi perfil de:
+      {t("login.with")}
       <LoginWith>
         <LoginWithMicrosoftButton />
         <LoginWithGoogleButton />
       </LoginWith>
-      <Divider>o</Divider>
+      <Divider>{t("login.divider")}</Divider>
       <LoginForm
         email={email}
         loginError={loginError}
@@ -55,13 +56,13 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
         onClick={() => onLoginClick()}
         disabled={loginIn}
       >
-        Entrar
+        {t("login.ok")}
       </StyledButton>
       <StyledButton secondary onClick={secondaryButtonCallback}>
         {secondaryButtonText}
       </StyledButton>
       <Link href="/forgot-password">
-        <a>No recuerdo mi contraseña</a>
+        <a>{t("login.forgot-password")}</a>
       </Link>
     </Panel>
   );
