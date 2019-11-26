@@ -1,32 +1,30 @@
+import { ApolloError } from "apollo-client";
+import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
-import Router from "next/router";
-import styled from "@emotion/styled";
 import { useMutation } from "react-apollo";
 import { Spinner } from "@bitbloq/ui";
-import gql from "graphql-tag";
+import styled from "@emotion/styled";
+import { ACTIVATE_ACCOUNT_MUTATION } from "../apollo/queries";
 import { setToken } from "../lib/session";
-import { ApolloError } from "apollo-client";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-
-const ACTIVATE_ACCOUNT_MUTATION = gql`
-  mutation ActivateAccount($token: String!) {
-    activateAccount(token: $token)
-  }
-`;
+import ModalLayout from "./ModalLayout";
 
 interface IActivateProps {
   token: string;
 }
 
 const Activate: FC<IActivateProps> = ({ token }) => {
+  const router = useRouter();
+
   const [activateAccount] = useMutation(ACTIVATE_ACCOUNT_MUTATION);
+  const [activate, setActivate] = useState<boolean>(false);
   const [error, setError] = useState<ApolloError>();
 
   useEffect(() => {
     activateAccount({ variables: { token } })
       .then(({ data }) => {
         setToken(data.activateAccount);
-        Router.push("/app");
+        setActivate(true);
       })
       .catch(e => setError(e));
   }, []);
@@ -34,6 +32,22 @@ const Activate: FC<IActivateProps> = ({ token }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
+
+  if (activate) {
+    return (
+      <ModalLayout
+        title="Cuenta validada"
+        modalTitle="Cuenta validada"
+        text={
+          "Tu cuenta ha sido validada con éxito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!"
+        }
+        okText="¡Entrar en Bitbloq!"
+        onOk={() => router.push("/app")}
+        isOpen={true}
+      />
+    );
+  }
+
   return (
     <Container>
       <Loading />

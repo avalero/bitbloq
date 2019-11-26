@@ -1,14 +1,19 @@
-import React, { FC } from "react";
+import React from "react";
 import Activate from "../../components/Activate";
 import withApollo from "../../apollo/withApollo";
+import { NextPage } from "next";
 
-const ActivatePage = ({ token }) => {
+interface IActivatePageProps {
+  token: string;
+}
+
+const ActivatePage: NextPage<IActivatePageProps> = ({ token }) => {
   return <Activate token={token} />;
 };
 
 ActivatePage.getInitialProps = async ({ query }) => {
   return {
-    token: query.token
+    token: query.token.toString()
   };
 };
 
