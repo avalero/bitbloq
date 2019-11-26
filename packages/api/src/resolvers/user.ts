@@ -260,7 +260,6 @@ const userResolver = {
       let token: string = "";
       const userData: IGoogleData = await getGoogleUser(args.token);
       let user: IUser | null = await UserModel.findOne({
-        googleID: userData.id,
         email: userData.email
       });
       if (user && (!user.finishedSignUp || !user.active)) {
@@ -314,7 +313,6 @@ const userResolver = {
       let token: string = "";
       const userData: IMSData = await getMicrosoftUser(args.token);
       let user: IUser | null = await UserModel.findOne({
-        microsoftID: userData.id,
         email: userData.userPrincipalName
       });
       if (user && (!user.finishedSignUp || !user.active)) {
