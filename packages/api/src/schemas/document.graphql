@@ -16,13 +16,6 @@ type Query {
     order: String
     searchTitle: String
   ): DocsAndFolders @authRequired(requires: [USER])
-  documentPageWithFilters(
-    documentID: ObjectID
-    currentLocation: ObjectID
-    itemsPerPage: Number
-    order: String
-    searchTitle: String
-  ): Number @authRequired(requires: [USER])
   hasExercises(id: ObjectID!, type: String): Boolean
     @authRequired(requires: [USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
@@ -31,6 +24,14 @@ type Query {
 type Mutation {
   createDocument(input: DocumentIn!): Document @authRequired(requires: [USER])
   deleteDocument(id: ObjectID!): Document @authRequired(requires: [USER])
+  duplicateDocument(
+    currentLocation: ObjectID
+    documentID: ObjectID!
+    itemsPerPage: Number
+    order: String
+    searchTitle: String
+    title: String!
+  ): DuplicateDocument @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
     @authRequired(requires: [USER])
   setDocumentImage(id: ObjectID, image: Upload, isSnapshot: Boolean): Document
@@ -91,6 +92,11 @@ type Document {
   parentsPath: [Folder]
   resources: [Resource]
   exercisesResources: [Resource]
+}
+
+type DuplicateDocument {
+  document: Document
+  page: Number
 }
 
 input DocImageIn {

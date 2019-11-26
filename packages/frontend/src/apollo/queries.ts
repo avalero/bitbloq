@@ -93,24 +93,6 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
   }
 `;
 
-export const DOC_PAGE_WITH_FILTERS = gql`
-  query documentPageWithFilters(
-    $documentID: ObjectID
-    $currentLocation: ObjectID
-    $itemsPerPage: Number
-    $order: String
-    $searchTitle: String
-  ) {
-    documentPageWithFilters(
-      documentID: $documentID
-      currentLocation: $currentLocation
-      itemsPerPage: $itemsPerPage
-      order: $order
-      searchTitle: $searchTitle
-    )
-  }
-`;
-
 export const HAS_EXERCISES_QUERY = gql`
   query HasExercises($id: ObjectID!, $type: String) {
     hasExercises(id: $id, type: $type)
@@ -237,6 +219,31 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     ) {
       id
       type
+    }
+  }
+`;
+
+export const DUPLICATE_DOCUMENT_MUTATION = gql`
+  mutation DuplicateDocument(
+    $currentLocation: ObjectID
+    $documentID: ObjectID!
+    $itemsPerPage: Number
+    $order: String
+    $searchTitle: String
+    $title: String!
+  ) {
+    duplicateDocument(
+      currentLocation: $currentLocation
+      documentID: $documentID
+      itemsPerPage: $itemsPerPage
+      order: $order
+      searchTitle: $searchTitle
+      title: $title
+    ) {
+      document {
+        id
+      }
+      page
     }
   }
 `;

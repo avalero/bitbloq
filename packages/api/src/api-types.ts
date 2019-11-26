@@ -262,6 +262,15 @@ export interface IMutationCreateDocumentArgs {
   input: IDocumentIn;
 }
 
+export interface IMutationDuplicateDocumentArgs {
+  currentLocation: Scalars["ObjectID"];
+  documentID: Scalars["ObjectID"];
+  itemsPerPage: Number;
+  order: String;
+  searchTitle: String;
+  title: String;
+}
+
 export interface IMutationDeleteDocumentArgs {
   id: Scalars["ObjectID"];
 }

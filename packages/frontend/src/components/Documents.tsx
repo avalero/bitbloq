@@ -260,7 +260,10 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               searchText={searchText}
               onFolderClick={onFolderClick}
               onDocumentClick={onDocumentClick}
-              selectPage={(page: number) => setCurrentPage(page)}
+              selectPage={(page: number) => {
+                setCurrentPage(page);
+                refetchDocsFols();
+              }}
               nFolders={nFolders}
             />
           </DndProvider>
