@@ -1,5 +1,6 @@
 import { ApolloError } from "apollo-client";
 import _ from "lodash";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
@@ -12,6 +13,8 @@ import {
 import withApollo from "../../apollo/withApollo";
 import CounterButton from "../../components/CounterButton";
 import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
+import LoginWithGoogleButton from "../../components/LoginWithGoogleButton";
+import LoginWithMicrosoftButton from "../../components/LoginWithMicrosoftButton";
 import ModalLayout from "../../components/ModalLayout";
 import SignupPlanSelection from "../../components/SignupPlanSelection";
 import SignupUserData from "../../components/SignupUserData";
@@ -199,12 +202,42 @@ const SignupStepPage: FC = () => {
             </StepCounter>
             <Title>{t(`signup.${step}.title`)}</Title>
             {step === signupSteps[0] && (
-              <SignupUserData
-                defaultValues={userData}
-                error={userError}
-                loading={savingUserData}
-                onSubmit={onSaveUser}
-              />
+              <>
+                {t("signup.login.account-text")}{" "}
+                <Link href="/login">
+                  <a>{t("signup.login.account-link")}</a>
+                </Link>
+                .
+                <LoginWith>
+                  <div>
+                    {t("signup.login.with-text")}
+                    <LoginWithLegalInformation>
+                      {t("signup.login.with-sub-text-1")}{" "}
+                      <a target="_blank" href="https://bitbloq.bq.com/#">
+                        {t("signup.login.general-conditions-link")}
+                      </a>{" "}
+                      {t("signup.login.with-sub-text-2")}{" "}
+                      <a
+                        target="_blank"
+                        href="https://bitbloq.bq.com/#/cookies"
+                      >
+                        {t("signup.login.privacy-policy-link")}
+                      </a>
+                      .
+                    </LoginWithLegalInformation>
+                  </div>
+                  <LoginWithButtons>
+                    <LoginWithMicrosoftButton />
+                    <LoginWithGoogleButton />
+                  </LoginWithButtons>
+                </LoginWith>
+                <SignupUserData
+                  defaultValues={userData}
+                  error={userError}
+                  loading={savingUserData}
+                  onSubmit={onSaveUser}
+                />
+              </>
             )}
             {step === signupSteps[1] && (
               <SignupPlanSelection
@@ -242,6 +275,13 @@ const Wrap = styled.div`
   input[type="number"] {
     -moz-appearance: textfield;
   }
+
+  a {
+    color: ${colors.brandBlue};
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: none;
+  }
 `;
 
 const Container = styled.div`
@@ -276,13 +316,6 @@ const Content = styled.div`
   font-size: 14px;
   line-height: 22px;
   padding: 40px;
-
-  a {
-    color: ${colors.brandBlue};
-    font-style: italic;
-    font-weight: bold;
-    text-decoration: none;
-  }
 `;
 
 const StepCounter = styled.div`
@@ -295,4 +328,23 @@ const Title = styled.div`
   font-weight: bold;
   font-size: 16px;
   margin-bottom: 40px;
+`;
+
+const LoginWith = styled.div`
+  display: flex;
+  padding: 20px 0;
+  width: 50%;
+`;
+
+const LoginWithLegalInformation = styled.div`
+  font-size: 12px;
+  line-height: 18px;
+  padding-top: 10px;
+`;
+
+const LoginWithButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  margin-left: 15px;
 `;
