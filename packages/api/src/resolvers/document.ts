@@ -256,7 +256,7 @@ const documentResolver = {
       const docIndex: number = allDataSorted.findIndex(element => {
         return String(element.id) === String(newDocument._id);
       });
-      const page: number = Math.ceil(docIndex / itemsPerPage) || 1;
+      const page: number = Math.ceil((docIndex + 1) / itemsPerPage);
       return { document: newDocument, page };
     },
 
