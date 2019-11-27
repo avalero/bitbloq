@@ -16,13 +16,11 @@ import ModalLayout from "../../components/ModalLayout";
 import SignupPlanSelection from "../../components/SignupPlanSelection";
 import SignupUserData from "../../components/SignupUserData";
 import logoBetaImage from "../../images/logo-beta.svg";
-import { plans, educationalStages } from "../../config";
+import { educationalStages, plans, signupSteps } from "../../config";
 import { setToken } from "../../lib/session";
 import { IPlan } from "../../types";
 import { getAge } from "../../util";
 import { IUserStep1 } from "../../../../api/src/api-types";
-
-const Steps = ["user-data", "plan-selection", "account-created"];
 
 interface IUserData {
   acceptTerms: boolean;
@@ -44,14 +42,14 @@ interface IUserData {
 }
 
 interface ISaveUserResult {
-  saveUserData?: IUserStep1;
+  saveUserData: IUserStep1;
 }
 
 interface ISignupUserResult {
   finishSignUp?: string;
 }
 
-const SignupPage: FC = () => {
+const SignupStepPage: FC = () => {
   const client = useApolloClient();
   const router = useRouter();
   const t = useTranslate();
@@ -63,12 +61,12 @@ const SignupPage: FC = () => {
     if (wrapRef && wrapRef.current) {
       wrapRef.current.scrollIntoView();
     }
-    if (!Steps.includes(step as string)) {
-      router.push("/signup/[step]", `/signup/${_.first(Steps)}`, {
+    if (!signupSteps.includes(step as string)) {
+      router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
         shallow: true
       });
     }
-    if (step === _.last(Steps)) {
+    if (step === _.last(signupSteps)) {
       router.beforePopState(() => {
         router.push("/");
         return false;
@@ -129,8 +127,10 @@ const SignupPage: FC = () => {
           ? teacherPlan
           : memberPlan
       );
-      setUserId(data!.saveUserData!.id);
-      router.push("/signup/[step]", `/signup/${Steps[1]}`, { shallow: true });
+      setUserId(data!.saveUserData.id);
+      router.push("/signup/[step]", `/signup/${signupSteps[1]}`, {
+        shallow: true
+      });
     } catch (e) {
       e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
         ? setUserError(e)
@@ -153,7 +153,9 @@ const SignupPage: FC = () => {
         setToken(token);
         router.push("/app");
       } else {
-        router.push("/signup/[step]", `/signup/${Steps[2]}`, { shallow: true });
+        router.push("/signup/[step]", `/signup/${signupSteps[2]}`, {
+          shallow: true
+        });
       }
     } catch (e) {
       setError(e);
@@ -164,18 +166,18 @@ const SignupPage: FC = () => {
     return <GraphQLErrorMessage apolloError={error} />;
   }
 
-  if (step === _.last(Steps)) {
+  if (step === _.last(signupSteps)) {
     return (
       <ModalLayout
-        title={t("signup.account-created.title")}
-        modalTitle={t("signup.account-created.title")}
-        text={t("signup.account-created.content")}
+        title={t("signup.create-modal.title")}
+        modalTitle={t("signup.create-modal.title")}
+        text={t("signup.create-modal.content")}
         okButton={
           <CounterButton onClick={() => onSignupUser(userPlan)}>
-            {t("signup.account-created.ok")}
+            {t("signup.create-modal.ok")}
           </CounterButton>
         }
-        cancelText={t("signup.account-created.cancel")}
+        cancelText={t("signup.create-modal.cancel")}
         onCancel={() => router.push("/")}
         isOpen={true}
       />
@@ -192,11 +194,11 @@ const SignupPage: FC = () => {
           <Content>
             <StepCounter>
               {t("signup.step", [
-                (Steps.findIndex(s => s === step) + 1).toLocaleString()
+                (signupSteps.findIndex(s => s === step) + 1).toLocaleString()
               ])}
             </StepCounter>
             <Title>{t(`signup.${step}.title`)}</Title>
-            {step === Steps[0] && (
+            {step === signupSteps[0] && (
               <SignupUserData
                 defaultValues={userData}
                 error={userError}
@@ -204,7 +206,7 @@ const SignupPage: FC = () => {
                 onSubmit={onSaveUser}
               />
             )}
-            {step === Steps[1] && (
+            {step === signupSteps[1] && (
               <SignupPlanSelection
                 defaultValues={userPlan ? userPlan : memberPlan}
                 isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
@@ -219,7 +221,7 @@ const SignupPage: FC = () => {
   );
 };
 
-export default withApollo(SignupPage, { requiresSession: false });
+export default withApollo(SignupStepPage, { requiresSession: false });
 
 /* Styled components */
 

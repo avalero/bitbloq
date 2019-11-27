@@ -417,11 +417,16 @@
     "unregistered": "Sin registro"
   },
   "signup": {
-    "account-created": {
+    "create-modal": {
       "title": "Cuenta creada",
       "content": "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam.",
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
+    },
+    "activate-modal": {
+      "title": "Cuenta validada",
+      "content": "Tu cuenta ha sido validada con exito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
+      "ok": "¡Entrar a Bitbloq!"
     },
     "step": "Paso %v% de 2",
     "user-data": {
