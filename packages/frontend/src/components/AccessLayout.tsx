@@ -23,7 +23,7 @@ const AccessLayout: FC<IAccessLayoutProps> = ({
     <Wrap>
       <Container size={size}>
         <Logo src={logoBetaImage} alt="Bitbloq Beta" />
-        <MainPanel>
+        <MainPanel size={size}>
           <Title>{panelTitle}</Title>
           <HorizontalRule small={true} />
           <PanelContent>{children}</PanelContent>
@@ -81,8 +81,18 @@ const Logo = styled.img`
   margin-bottom: 40px;
 `;
 
-const MainPanel = styled.div`
-  border-radius: 10px;
+interface IMainPanelProps {
+  size?: AccessLayoutSize;
+}
+const MainPanel = styled.div<IMainPanelProps>`
+  border-radius: ${props => {
+    switch (props.size) {
+      case AccessLayoutSize.BIG:
+        return "4px";
+      default:
+        return "10px";
+    }
+  }};
   box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
 `;
@@ -98,6 +108,7 @@ const Title = styled.div`
 `;
 
 const PanelContent = styled.div`
-  padding: 40px;
   font-size: 14px;
+  line-height: 22px;
+  padding: 40px;
 `;

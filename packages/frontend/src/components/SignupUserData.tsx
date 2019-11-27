@@ -331,7 +331,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             href="https://bitbloq.bq.com/#"
             onClick={e => e.stopPropagation()}
           >
-            {t("signup.user-data.link-general-conditions")}
+            {t("signup.link-general-conditions")}
           </a>{" "}
           {t("signup.user-data.labels.accept-terms-2")}{" "}
           <a
@@ -339,7 +339,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             href="https://bitbloq.bq.com/#/cookies"
             onClick={e => e.stopPropagation()}
           >
-            {t("signup.user-data.link-privacy-policy")}
+            {t("signup.link-privacy-policy")}
           </a>
           .
         </span>
@@ -403,6 +403,14 @@ const FormField = styled.div`
   label {
     display: block;
     margin-bottom: 10px;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
   }
 `;
 
