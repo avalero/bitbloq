@@ -3,6 +3,7 @@ import { Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 
 interface IFormProps {
+  className?: string;
   email: string;
   loginError: boolean;
   password: string;
@@ -11,6 +12,7 @@ interface IFormProps {
 }
 
 const LoginForm: FC<IFormProps> = ({
+  className,
   email,
   loginError,
   password,
@@ -20,7 +22,7 @@ const LoginForm: FC<IFormProps> = ({
   const t = useTranslate();
 
   return (
-    <>
+    <div className={className}>
       <FormGroup>
         <label>{t("login.labels.email")}</label>
         <Input
@@ -45,7 +47,7 @@ const LoginForm: FC<IFormProps> = ({
         />
       </FormGroup>
       {loginError && <ErrorMessage>{t("login.error")}</ErrorMessage>}
-    </>
+    </div>
   );
 };
 
