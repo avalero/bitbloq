@@ -223,6 +223,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
             <FilterOptions
               onOrderChange={onOrderChange}
               searchText={searchText}
+              selectValue={order}
               onChange={(value: string) => {
                 setSearchText(value);
                 onSearchInput(value);
