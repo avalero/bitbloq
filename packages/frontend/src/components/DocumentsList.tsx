@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState } from "react";
 import { useMutation, useLazyQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { DialogModal, DropDown } from "@bitbloq/ui";
@@ -9,7 +9,6 @@ import {
   DELETE_DOCUMENT_MUTATION,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION,
   HAS_EXERCISES_QUERY,
   DUPLICATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
@@ -84,7 +83,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   const [draggingItemId, setDraggingItemId] = useState("");
   const [droppedItemId, setDroppedItemId] = useState("");
 
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
   const [duplicateDocument] = useMutation(DUPLICATE_DOCUMENT_MUTATION);
