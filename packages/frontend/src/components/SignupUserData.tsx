@@ -330,7 +330,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             href="/legal/general-conditions"
             onClick={e => e.stopPropagation()}
           >
-            {t("legal-links.general-conditions").toLowerCase()}
+            {t("legal.general-conditions").toLowerCase()}
           </a>{" "}
           {t("signup.user-data.labels.accept-terms-2")}{" "}
           <a
@@ -338,7 +338,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             href={privacyPolicyUrl}
             onClick={e => e.stopPropagation()}
           >
-            {t("legal-links.privacy-policy").toLowerCase()}
+            {t("legal.privacy-policy").toLowerCase()}
           </a>
           .
         </span>

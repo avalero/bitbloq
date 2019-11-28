@@ -9,15 +9,15 @@ const AppFooter = () => {
   return (
     <Container>
       <a target="_blank" href="/legal/general-conditions">
-        {t("legal-links.general-conditions")}
+        {t("legal.general-conditions")}
       </a>
       |
       <a target="_blank" href={privacyPolicyUrl}>
-        {t("legal-links.privacy-policy")}
+        {t("legal.privacy-policy")}
       </a>
       |
       <a target="_blank" href="/legal/cookies-policy">
-        {t("legal-links.cookies-policy")}
+        {t("legal.cookies-policy")}
       </a>
     </Container>
   );
