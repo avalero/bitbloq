@@ -327,7 +327,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           {t("signup.user-data.labels.accept-terms-1")}{" "}
           <a
             target="_blank"
-            href="/general-conditions"
+            href="/legal/general-conditions"
             onClick={e => e.stopPropagation()}
           >
             {t("legal-links.general-conditions").toLowerCase()}

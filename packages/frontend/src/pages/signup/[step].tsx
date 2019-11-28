@@ -213,7 +213,7 @@ const SignupStepPage: FC = () => {
                 {t("signup.login.with-text")}
                 <LoginWithLegalInformation>
                   {t("signup.login.with-sub-text-1")}{" "}
-                  <a target="_blank" href="/general-conditions">
+                  <a target="_blank" href="/legal/general-conditions">
                     {t("legal-links.general-conditions").toLowerCase()}
                   </a>{" "}
                   {t("signup.login.with-sub-text-2")}{" "}

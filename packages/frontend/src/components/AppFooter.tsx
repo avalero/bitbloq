@@ -8,14 +8,17 @@ const AppFooter = () => {
 
   return (
     <Container>
-      <a target="_blank" href="/general-conditions">
+      <a target="_blank" href="/legal/general-conditions">
         {t("legal-links.general-conditions")}
       </a>
       |
       <a target="_blank" href={privacyPolicyUrl}>
         {t("legal-links.privacy-policy")}
       </a>
-      |<a href="#">{t("legal-links.cookies-policy")}</a>
+      |
+      <a target="_blank" href="/legal/cookies-policy">
+        {t("legal-links.cookies-policy")}
+      </a>
     </Container>
   );
 };
