@@ -35,9 +35,8 @@ export default Switch;
 /* Styled components */
 
 const Container = styled.div`
-  border: 6px solid #979797;
-  background-color: #979797;
-  border-radius: 10px;
+  background-color: ${colors.gray2};
+  padding: 10px;
   display: inline-flex;
 `;
 
@@ -48,23 +47,18 @@ const Button = styled.button<IButtonProps>`
   border: none;
   width: 60px;
   height: 60px;
-  background-color: #eee;
-  margin-right: 4px;
+  background-color: ${props => (props.selected ? "#c0c3c9" : "#fff")};
+  margin-right: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 ${props => (props.selected ? 2 : 14)}px 0 0 #ddd;
-  transform: translate(0, ${props => (props.selected ? -2 : -14)}px);
+  box-shadow: 0 ${props => (props.selected ? 0 : 4)}px 0 0 #c0c3c9;
+  transform: translate(0, ${props => (props.selected ? 0 : -4)}px);
   color: ${colors.black};
 
   &:focus {
     outline: none;
-  }
-
-  &:active {
-    box-shadow: 0 ${props => (props.selected ? 2 : 12)}px 0 0 #ddd;
-    transform: translate(0, ${props => (props.selected ? -2 : -12)}px);
   }
 
   &:first-of-type {
@@ -79,7 +73,7 @@ const Button = styled.button<IButtonProps>`
   }
 
   svg {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
   }
 `;

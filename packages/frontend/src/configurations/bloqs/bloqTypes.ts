@@ -365,11 +365,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "OnDetectColor",
     label: "bloq-on-detect-color",
     iconSwitch: {
+      "detect === 'true' and color === 'red'": viewColorRed,
       "detect === 'true' and color === 'black'": viewColorBlack,
       "detect === 'true' and color === 'white'": viewColorWhite,
       "detect === 'true' and color === 'blue'": viewColorBlue,
       "detect === 'true' and color === 'green'": viewColorGreen,
-      "detect === 'true' and color === 'red'": viewColorRed,
       "detect === 'false' and color === 'black'": notViewColorBlack,
       "detect === 'false' and color === 'white'": notViewColorWhite,
       "detect === 'false' and color === 'blue'": notViewColorBlue,
@@ -413,14 +413,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-black",
-            value: "black"
-          },
-          {
-            label: "bloq-parameter-white",
-            value: "white"
-          },
-          {
             label: "bloq-parameter-red",
             value: "red"
           },
@@ -431,6 +423,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
           {
             label: "bloq-parameter-blue",
             value: "blue"
+          },
+          {
+            label: "bloq-parameter-white",
+            value: "white"
+          },
+          {
+            label: "bloq-parameter-black",
+            value: "black"
           }
         ]
       },

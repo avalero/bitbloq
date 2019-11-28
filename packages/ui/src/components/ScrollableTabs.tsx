@@ -107,6 +107,7 @@ const Tab = styled.div<{ active: boolean; bottom: boolean }>`
 
 const Content = styled.div`
   overflow-y: auto;
+  scroll-behavior: smooth;
   &::-webkit-scrollbar {
     display: none;
   }

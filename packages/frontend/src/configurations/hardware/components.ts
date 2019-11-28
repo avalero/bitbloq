@@ -213,8 +213,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: ServoImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
     }
   },
   {
@@ -325,8 +325,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: ButtonImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
     }
   },
   {
@@ -369,8 +369,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: DoubleLedImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
     }
   },
   {
@@ -406,8 +406,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: SliderImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
     }
   },
   {
@@ -438,8 +438,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: SevenSegmentImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
     },
     code: {
       includes: ["<BQZUMI2C7SegmentDisplay.h>"],
@@ -514,8 +514,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: MiniservoImage,
-      width: 88,
-      height: 95
+      width: 80,
+      height: 80
     }
   },
   {
@@ -543,8 +543,8 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: SensorsImage,
-      width: 123,
-      height: 124
+      width: 80,
+      height: 80
     },
     code: {
       includes: [
