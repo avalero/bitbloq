@@ -41,11 +41,6 @@ interface IEditDocumentProps {
   type: string;
 }
 
-let html2canvas;
-if (typeof window !== undefined) {
-  import("html2canvas").then(module => (html2canvas = module.default));
-}
-
 const EditDocument: FC<IEditDocumentProps> = ({
   folder,
   id,
@@ -70,7 +65,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
-  const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState<ApolloError | null>(null);
   const [document, setDocument] = useState({
     id: "",
@@ -85,6 +79,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
   const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
+  const serviceWorkerRef = useRef<ServiceWorker | null>(null);
 
   const {
     loading: loadingDocument,
@@ -105,6 +100,22 @@ const EditDocument: FC<IEditDocumentProps> = ({
     example: isExample
   } = document || {};
 
+  const onBeforeUnload = useCallback(() => {
+    console.log("beforeunload");
+    if (
+      imageToUpload.current &&
+      imageToUpload.current.size > 0 &&
+      serviceWorkerRef.current
+    ) {
+      console.log("Envía mensaje");
+      serviceWorkerRef.current.postMessage({
+        documentId: document.id,
+        image: imageToUpload.current,
+        type: "upload-image"
+      });
+    }
+  }, [imageToUpload.current, serviceWorkerRef.current]);
+
   useEffect(() => {
     if (isLoggedIn && !prevIsLoggedIn.current) {
       update({ content, title, description, type, advancedMode });
@@ -113,22 +124,27 @@ const EditDocument: FC<IEditDocumentProps> = ({
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (firstLoad) {
-      saveImage();
-      if (
-        document &&
-        document.id &&
-        image &&
-        image.isSnapshot &&
-        imageToUpload.current &&
-        imageToUpload.current.size > 0
-      ) {
-        updateImage(document.id);
-        setFirstLoad(false);
-        setInterval(updateImage, 10 * 60 * 1000, document.id);
-      }
+    if ("serviceWorker" in navigator && !serviceWorkerRef.current) {
+      navigator.serviceWorker
+        .register("/service-worker.js", { scope: "/" })
+        .then(registration => {
+          if (registration.active) {
+            console.log("activado");
+            serviceWorkerRef.current = registration.active;
+          }
+        })
+        .catch(registrationError => {
+          console.log("SW registration failed: ", registrationError);
+        });
     }
-  }, [imageToUpload.current]);
+  });
+
+  useEffect(() => {
+    window.removeEventListener("beforeunload", onBeforeUnload);
+    window.addEventListener("beforeunload", onBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [onBeforeUnload]);
 
   useEffect(() => {
     if (type === "open") {
@@ -174,11 +190,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const saveImage = async () => {
     if (!image || image.isSnapshot) {
-      const picture: HTMLElement | null = window.document.querySelector(
-        ".image-snapshot"
-      );
-      if (picture && html2canvas) {
-        const canvas: HTMLCanvasElement = await html2canvas(picture);
+      const canvasCollection = window.document.getElementsByTagName("canvas");
+      const canvas = canvasCollection[0];
+      if (canvas) {
         const imgData: string = canvas.toDataURL("image/jpeg");
 
         if (imgData !== "data:,") {
