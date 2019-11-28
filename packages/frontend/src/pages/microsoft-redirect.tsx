@@ -17,7 +17,9 @@ const MicrosoftRedirectPage: NextPage = () => {
   const callLogin = async (
     token: string
   ): Promise<ExecutionResult<{ loginWithMicrosoft: IMsLogin }>> =>
-    loginWithMicrosoft({ variables: { token } });
+    loginWithMicrosoft({ variables: { token } }).catch(e => {
+      throw e;
+    });
 
   const onLogin = (token: string) => {
     client.resetStore();
@@ -35,7 +37,7 @@ const MicrosoftRedirectPage: NextPage = () => {
 
   useEffect(() => {
     try {
-      const token = window.location.hash.split("#access_token=")[1];
+      const token = window.location.hash.split("#access_token=")[1].toString();
       (async () => {
         const { data } = await callLogin(token);
         data!.loginWithMicrosoft.finishedSignUp

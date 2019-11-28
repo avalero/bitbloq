@@ -420,16 +420,25 @@
     "unregistered": "Sin registro"
   },
   "signup": {
+    "activate-modal": {
+      "title": "Cuenta validada",
+      "content": "Tu cuenta ha sido validada con exito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
+      "ok": "¡Entrar a Bitbloq!"
+    },
     "create-modal": {
       "title": "Cuenta creada",
       "content": "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam.",
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
     },
-    "activate-modal": {
-      "title": "Cuenta validada",
-      "content": "Tu cuenta ha sido validada con exito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
-      "ok": "¡Entrar a Bitbloq!"
+    "link-general-conditions": "condiciones generales",
+    "link-privacy-policy": "política de privacidad",
+    "login": {
+      "account-text": "¿Ya tienes cuenta con esta versión de Bitbloq?",
+      "account-link": "Entra usando tus credenciales",
+      "with-sub-text-1": "Registrándote con una cuenta, estás aceptando las",
+      "with-sub-text-2": "y la",
+      "with-text": "Crear la cuenta con mi perfil de:"
     },
     "step": "Paso %v% de 2",
     "user-data": {
@@ -470,15 +479,6 @@
         "password": "Contraseña",
         "post-code": "Código postal",
         "surnames": "Apellidos"
-      },
-      "link-general-conditions": "condiciones generales",
-      "link-privacy-policy": "política de privacidad",
-      "login": {
-        "account-text": "¿Ya tienes cuenta con esta versión de Bitbloq?",
-        "account-link": "Entra usando tus credenciales",
-        "with-sub-text-1": "Registrándote con una cuenta, estás aceptando las",
-        "with-sub-text-2": "y la",
-        "with-text": "Crear la cuenta con mi perfil de:"
       },
       "ok": "Guardar",
       "placeholders": {
