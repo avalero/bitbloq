@@ -368,6 +368,9 @@
   "documents": {
     "go-to-exercise": "Ir al ejercicio"
   },
+  "general-conditions": {
+    "title": "Condiciones generales"
+  },
   "login": {
     "divider": "o",
     "error": "Correo electrónico o contraseña no válidos",
