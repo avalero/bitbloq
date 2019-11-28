@@ -26,6 +26,7 @@ const LoginForm: FC<IFormProps> = ({
       <FormGroup>
         <label>{t("login.labels.email")}</label>
         <Input
+          autoFocus
           name="email"
           type="text"
           placeholder={t("login.placeholders.email")}
