@@ -1,21 +1,21 @@
 import React from "react";
+import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { privacyPolicyUrl } from "../config";
 
 const AppFooter = () => {
+  const t = useTranslate();
+
   return (
     <Container>
-      <a href="#" target="_blank">
-        Condiciones generales
+      <a target="_blank" href="/general-conditions">
+        {t("legal-links.general-conditions")}
       </a>
       |
-      <a href="#" target="_blank">
-        Política de Privacidad
+      <a target="_blank" href={privacyPolicyUrl}>
+        {t("legal-links.privacy-policy")}
       </a>
-      |
-      <a href="#" target="_blank">
-        Política de cookies
-      </a>
+      |<a href="#">{t("legal-links.cookies-policy")}</a>
     </Container>
   );
 };

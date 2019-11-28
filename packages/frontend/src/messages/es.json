@@ -371,6 +371,11 @@
   "general-conditions": {
     "title": "Condiciones generales"
   },
+  "legal-links": {
+    "cookies-policy": "Política de cookies",
+    "general-conditions": "Condiciones generales",
+    "privacy-policy": "Política de privacidad"
+  },
   "login": {
     "divider": "o",
     "error": "Correo electrónico o contraseña no válidos",
@@ -431,8 +436,6 @@
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
     },
-    "link-general-conditions": "condiciones generales",
-    "link-privacy-policy": "política de privacidad",
     "login": {
       "account-text": "¿Ya tienes cuenta con esta versión de Bitbloq?",
       "account-link": "Entra usando tus credenciales",

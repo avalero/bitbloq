@@ -19,7 +19,12 @@ import LoginWithMicrosoftButton from "../../components/LoginWithMicrosoftButton"
 import ModalLayout from "../../components/ModalLayout";
 import SignupPlanSelection from "../../components/SignupPlanSelection";
 import SignupUserData from "../../components/SignupUserData";
-import { educationalStages, plans, signupSteps } from "../../config";
+import {
+  educationalStages,
+  plans,
+  privacyPolicyUrl,
+  signupSteps
+} from "../../config";
 import { setToken } from "../../lib/session";
 import { IPlan } from "../../types";
 import { getAge } from "../../util";
@@ -208,12 +213,12 @@ const SignupStepPage: FC = () => {
                 {t("signup.login.with-text")}
                 <LoginWithLegalInformation>
                   {t("signup.login.with-sub-text-1")}{" "}
-                  <a target="_blank" href="https://bitbloq.bq.com/#">
-                    {t("signup.link-general-conditions")}
+                  <a target="_blank" href="/general-conditions">
+                    {t("legal-links.general-conditions").toLowerCase()}
                   </a>{" "}
                   {t("signup.login.with-sub-text-2")}{" "}
-                  <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-                    {t("signup.link-privacy-policy")}
+                  <a target="_blank" href={privacyPolicyUrl}>
+                    {t("legal-links.privacy-policy").toLowerCase()}
                   </a>
                   .
                 </LoginWithLegalInformation>
