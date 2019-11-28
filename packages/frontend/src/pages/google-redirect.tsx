@@ -17,7 +17,9 @@ const GoogleRedirectPage: NextPage = () => {
   const callLogin = async (
     token: string
   ): Promise<ExecutionResult<{ loginWithGoogle: IMsLogin }>> =>
-    loginWithGoogle({ variables: { token } });
+    loginWithGoogle({ variables: { token } }).catch(e => {
+      throw e;
+    });
 
   const onLogin = (token: string) => {
     client.resetStore();
@@ -36,7 +38,7 @@ const GoogleRedirectPage: NextPage = () => {
   useEffect(() => {
     try {
       const token1 = window.location.href.split("&access_token=")[1];
-      const token = token1.split("&token_type=")[0];
+      const token = token1.split("&token_type=")[0].toString();
       (async () => {
         const { data } = await callLogin(token);
         data!.loginWithGoogle.finishedSignUp
