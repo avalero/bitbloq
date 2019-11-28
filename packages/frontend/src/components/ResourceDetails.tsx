@@ -1,6 +1,6 @@
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import STLViewer from "stl-viewer";
 import { IResource, ResourcesTypes } from "../types";
 
@@ -14,6 +14,7 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
   createdAt,
   preview,
   size,
+  thumbnail,
   title,
   type,
   returnCallback
@@ -22,17 +23,17 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
   const titleExt = title.split(".").pop();
   const titleName = title.replace(new RegExp(`\.${titleExt}$`), "");
   const canvasRef = useRef<STLViewer>(null);
-  const [cameraX, setCameraX] = useState<number>(0);
   const [cameraY, setCameraY] = useState<number>(0);
   const [cameraZ, setCameraZ] = useState<number | null>(null);
+  const [showSTL, setShowSTL] = useState<boolean>(false);
   const [sizeStr, setSizeStr] = useState<string>("");
 
   const onClickSTL = () => {
     if (canvasRef && canvasRef.current) {
       const { xDims, yDims, zDims } = canvasRef.current.paint;
-      setCameraX(-3 * Math.max(xDims, yDims, zDims));
-      setCameraY(-Math.max(xDims, yDims, zDims));
+      setCameraY(-2 * Math.max(xDims, yDims, zDims));
       setCameraZ(zDims / 2);
+      setTimeout(() => setShowSTL(true), 300);
     }
   };
 
@@ -59,21 +60,31 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
               <p>{t("cloud.details.no-preview")}</p>
             </PreviewEmpty>
           ) : type === ResourcesTypes.image ? (
-            <PreviewImage src={preview} />
+            <Preview>
+              <PreviewImage show={true} src={preview} />
+            </Preview>
           ) : type === ResourcesTypes.object3D ? (
-            <Preview onMouseDown={onClickSTL}>
+            <Preview>
+              <PreviewImage
+                onMouseDown={onClickSTL}
+                show={!showSTL}
+                src={thumbnail!}
+              >
+                <Icon name="threed" />
+              </PreviewImage>
               <PreviewObject
                 backgroundColor="#fff"
-                cameraX={cameraX}
+                cameraX={0}
                 cameraY={cameraY}
                 cameraZ={cameraZ}
-                height={340}
+                height={311}
                 lights={[[0, 1, 0], [-1, -1, -1], [1, 1, 1]]}
                 model={preview}
                 ref={canvasRef}
-                rotate={false}
+                rotate={true}
+                show={showSTL}
                 url={preview}
-                width={311}
+                width={340}
               />
             </Preview>
           ) : type === ResourcesTypes.video ? (
@@ -219,13 +230,30 @@ const PreviewEmpty = styled(Preview)`
   }
 `;
 
-const PreviewImage = styled(Preview)<{ src: string }>`
+const PreviewImage = styled(Preview)<{ show: boolean; src: string }>`
   background: url(${props => props.src}) center/cover;
+  border: none;
+  cursor: pointer;
+  display: ${props => (props.show ? "inherit" : "none")};
+  height: 100%;
+
+  &:hover {
+    svg {
+      color: #eee;
+    }
+  }
+
+  svg {
+    color: rgba(238, 238, 238, 0.7);
+    height: 60px;
+    width: 60px;
+  }
 `;
 
-const PreviewObject = styled(STLViewer)`
+const PreviewObject = styled(STLViewer)<{ show: boolean }>`
+  cursor: all-scroll;
+  display: ${props => (props.show ? "initial" : "none")};
   height: 100%;
-  transform: rotate(-90deg);
   width: 100%;
 `;
 
