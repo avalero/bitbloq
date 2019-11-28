@@ -1,21 +1,24 @@
 import { ApolloError } from "apollo-client";
 import _ from "lodash";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
-import { colors, HorizontalRule, Panel, useTranslate } from "@bitbloq/ui";
+import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
   FINISH_SIGNUP_MUTATION,
   SAVE_USER_DATA_MUTATION
 } from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
+import AccessLayout, { AccessLayoutSize } from "../../components/AccessLayout";
 import CounterButton from "../../components/CounterButton";
 import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
+import LoginWithGoogleButton from "../../components/LoginWithGoogleButton";
+import LoginWithMicrosoftButton from "../../components/LoginWithMicrosoftButton";
 import ModalLayout from "../../components/ModalLayout";
 import SignupPlanSelection from "../../components/SignupPlanSelection";
 import SignupUserData from "../../components/SignupUserData";
-import logoBetaImage from "../../images/logo-beta.svg";
 import { educationalStages, plans, signupSteps } from "../../config";
 import { setToken } from "../../lib/session";
 import { IPlan } from "../../types";
@@ -186,37 +189,57 @@ const SignupStepPage: FC = () => {
 
   return (
     <Wrap ref={wrapRef}>
-      <Container>
-        <Logo src={logoBetaImage} alt="Bitbloq Beta" />
-        <SignupPanel>
-          <Header>{t("signup.title")}</Header>
-          <HorizontalRule small />
-          <Content>
-            <StepCounter>
-              {t("signup.step", [
-                (signupSteps.findIndex(s => s === step) + 1).toLocaleString()
-              ])}
-            </StepCounter>
-            <Title>{t(`signup.${step}.title`)}</Title>
-            {step === signupSteps[0] && (
-              <SignupUserData
-                defaultValues={userData}
-                error={userError}
-                loading={savingUserData}
-                onSubmit={onSaveUser}
-              />
-            )}
-            {step === signupSteps[1] && (
-              <SignupPlanSelection
-                defaultValues={userPlan ? userPlan : memberPlan}
-                isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
-                loading={finishingSignup}
-                onSubmit={onSignupUser}
-              />
-            )}
-          </Content>
-        </SignupPanel>
-      </Container>
+      <AccessLayout panelTitle={t("signup.title")} size={AccessLayoutSize.BIG}>
+        <StepCounter>
+          {t("signup.step", [
+            (signupSteps.findIndex(s => s === step) + 1).toLocaleString()
+          ])}
+        </StepCounter>
+        <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
+        {step === signupSteps[0] && (
+          <>
+            {t("signup.login.account-text")}{" "}
+            <Link href="/login">
+              <a>{t("signup.login.account-link")}</a>
+            </Link>
+            .
+            <LoginWith>
+              <div>
+                {t("signup.login.with-text")}
+                <LoginWithLegalInformation>
+                  {t("signup.login.with-sub-text-1")}{" "}
+                  <a target="_blank" href="https://bitbloq.bq.com/#">
+                    {t("signup.link-general-conditions")}
+                  </a>{" "}
+                  {t("signup.login.with-sub-text-2")}{" "}
+                  <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
+                    {t("signup.link-privacy-policy")}
+                  </a>
+                  .
+                </LoginWithLegalInformation>
+              </div>
+              <LoginWithButtons>
+                <LoginWithMicrosoftButton />
+                <LoginWithGoogleButton />
+              </LoginWithButtons>
+            </LoginWith>
+            <SignupUserData
+              defaultValues={userData}
+              error={userError}
+              loading={savingUserData}
+              onSubmit={onSaveUser}
+            />
+          </>
+        )}
+        {step === signupSteps[1] && (
+          <SignupPlanSelection
+            defaultValues={userPlan ? userPlan : memberPlan}
+            isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
+            loading={finishingSignup}
+            onSubmit={onSignupUser}
+          />
+        )}
+      </AccessLayout>
     </Wrap>
   );
 };
@@ -226,57 +249,6 @@ export default withApollo(SignupStepPage, { requiresSession: false });
 /* Styled components */
 
 const Wrap = styled.div`
-  display: flex;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  min-height: 100%;
-  justify-content: center;
-  background-color: ${colors.gray1};
-
-  input[type="number"]::-webkit-outer-spin-button,
-  input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-  }
-  input[type="number"] {
-    -moz-appearance: textfield;
-  }
-`;
-
-const Container = styled.div`
-  max-width: 800px;
-  margin: 60px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-
-const Logo = styled.img`
-  width: 180px;
-  margin-bottom: 40px;
-`;
-
-const SignupPanel = styled(Panel)`
-  width: 100%;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  height: 105px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: bold;
-`;
-
-const Content = styled.div`
-  font-size: 14px;
-  line-height: 22px;
-  padding: 40px;
-
   a {
     color: ${colors.brandBlue};
     font-style: italic;
@@ -285,13 +257,32 @@ const Content = styled.div`
   }
 `;
 
+const LoginWith = styled.div`
+  display: flex;
+  padding: 20px 0;
+  width: 50%;
+`;
+
+const LoginWithLegalInformation = styled.div`
+  font-size: 12px;
+  line-height: 18px;
+  padding-top: 10px;
+`;
+
+const LoginWithButtons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  margin-left: 15px;
+`;
+
 const StepCounter = styled.div`
   color: ${colors.gray4};
   text-transform: uppercase;
   margin-bottom: 8px;
 `;
 
-const Title = styled.div`
+const StepTitle = styled.div`
   font-weight: bold;
   font-size: 16px;
   margin-bottom: 40px;

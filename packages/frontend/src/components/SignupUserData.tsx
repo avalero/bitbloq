@@ -11,8 +11,6 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import LoginWithGoogleButton from "./LoginWithGoogleButton";
-import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages } from "../config";
 
@@ -207,43 +205,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Login>
-        <p>
-          {t("signup.user-data.login.account-text")}{" "}
-          <a
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              router.push("/login");
-            }}
-          >
-            {t("signup.user-data.login.account-link")}
-          </a>
-          .
-        </p>
-        <LoginWith>
-          <div>
-            <p>{t("signup.user-data.login.with-text")}</p>
-            <LoginWithInfo>
-              <p>
-                {t("signup.user-data.login.with-sub-text-1")}{" "}
-                <a target="_blank" href="https://bitbloq.bq.com/#">
-                  {t("signup.user-data.link-general-conditions")}
-                </a>{" "}
-                {t("signup.user-data.login.with-sub-text-2")}{" "}
-                <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-                  {t("signup.user-data.link-privacy-policy")}
-                </a>
-                .
-              </p>
-            </LoginWithInfo>
-          </div>
-          <LoginWithExternalProfile>
-            <LoginWithMicrosoftButton />
-            <LoginWithGoogleButton />
-          </LoginWithExternalProfile>
-        </LoginWith>
-      </Login>
       <FormGroup>
         <FormField>
           <label>{t("signup.user-data.labels.name")}</label>
@@ -370,7 +331,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             href="https://bitbloq.bq.com/#"
             onClick={e => e.stopPropagation()}
           >
-            {t("signup.user-data.link-general-conditions")}
+            {t("signup.link-general-conditions")}
           </a>{" "}
           {t("signup.user-data.labels.accept-terms-2")}{" "}
           <a
@@ -378,7 +339,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             href="https://bitbloq.bq.com/#/cookies"
             onClick={e => e.stopPropagation()}
           >
-            {t("signup.user-data.link-privacy-policy")}
+            {t("signup.link-privacy-policy")}
           </a>
           .
         </span>
@@ -407,28 +368,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 export default SignupUserData;
 
 /* Styled components */
-
-const Login = styled.div`
-  color: #474749;
-`;
-
-const LoginWith = styled.div`
-  display: flex;
-  padding: 20px 0;
-  width: 50%;
-`;
-
-const LoginWithInfo = styled.div`
-  font-size: 12px;
-  padding-top: 10px;
-`;
-
-const LoginWithExternalProfile = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  margin-left: 15px;
-`;
 
 const InputPassword = styled.div`
   position: relative;
@@ -464,6 +403,14 @@ const FormField = styled.div`
   label {
     display: block;
     margin-bottom: 10px;
+  }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
   }
 `;
 
