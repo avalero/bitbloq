@@ -1,6 +1,8 @@
 const CACHE_NAME = "bitbloq-service-worker";
 const urlsToCache = ["/"];
 
+const path = require("path");
+
 self.importScripts("/uploadImage.js");
 
 self.addEventListener("install", event => {

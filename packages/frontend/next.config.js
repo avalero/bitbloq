@@ -36,18 +36,6 @@ module.exports = withOffline(
       webpack(config, options) {
         const { isServer } = options;
 
-        const { dir, defaultLoaders } = options;
-        config.resolve.extensions.push(".ts", ".tsx");
-        config.module.rules.push({
-          test: /\\.+(ts|tsx)$/,
-          include: [`${dir}/src/scripts`],
-          exclude: /node_modules/,
-          use: [
-            defaultLoaders.babel,
-            { loader: "ts-loader", options: { transpileOnly: true } }
-          ]
-        });
-
         config.output = {
           ...config.output,
           globalObject: "this"
