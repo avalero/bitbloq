@@ -232,14 +232,13 @@ const userResolver = {
             { new: true }
           );
         }
-
+        const res = await storeTokenInRedis(contactFound._id, token);
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
         throw new AuthenticationError("Email or password incorrect");
@@ -610,16 +609,12 @@ const userResolver = {
   }
 };
 
-const storeTokenInRedis = (id: string, token: string) => {
+const storeTokenInRedis = async (id: string, token: string) => {
+  const date = new Date();
+  const expireTime = `${date.getHours() +
+    2}:${date.getMinutes()}:${date.getSeconds()}`;
   if (process.env.USE_REDIS === "true") {
-    return redisClient.set(String(id), token, (err, reply) => {
-      if (err) {
-        throw new ApolloError(
-          "Error storing auth token in redis",
-          "REDIS_TOKEN_ERROR"
-        );
-      }
-    });
+    return redisClient.hmset(String(id), "authToken", String(token));
   }
 };
 
@@ -642,7 +637,7 @@ const getResetPasswordData = async (token: string) => {
   }
 
   if (process.env.USE_REDIS === "true") {
-    const storedToken = await redisClient.getAsync(
+    const storedToken = await redisClient.hgetallAsync(
       `resetPasswordToken-${dataInToken.resetPassUserID}`
     );
     if (storedToken !== token) {

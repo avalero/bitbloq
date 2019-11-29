@@ -11,14 +11,19 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
   if (String(process.env.USE_REDIS) === "true") {
     if (user.userID) {
+      const index: string = `authToken-${user.userID}`;
       try {
-        reply = await redisClient.getAsync(`authToken-${user.userID}`);
+        const result = await redisClient.hgetallAsync(String(user.userID));
+        reply = result.authToken;
       } catch (e) {
         return undefined;
       }
     } else if (user.submissionID) {
       try {
-        reply = await redisClient.getAsync(`subToken-${user.submissionID}`);
+        const result = await redisClient.hgetallAsync(
+          `subToken-${user.submissionID}`
+        );
+        reply = result.subToken;
       } catch (e) {
         return undefined;
       }
@@ -33,6 +38,23 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
     }
   } else {
     return user;
+  }
+};
+
+export const renewSession = async (user: IUserInToken | undefined) => {
+  if (user) {
+    const setRes = await redisClient.hmset([
+      String(user.userID),
+      "patata1",
+      String(user.role),
+      "patata3",
+      "patata4"
+    ]);
+
+    const result = await redisClient.hgetallAsync(String(user.userID));
+  } else {
+    // const setRes = await redisClient.hmset([String("user-test"), "token", String("teacher"), "expiresAt", "patata4"]);
+    // const result = await redisClient.hgetallAsync(String("user-test"));
   }
 };
 
@@ -145,8 +167,8 @@ const contextController = {
         userID: user._id,
         role: rolePerm
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "1.1h" }
+      process.env.JWT_SECRET
+      // { expiresIn: "1.1h" }
     );
     role = rolePerm;
     return { token, role };
@@ -156,9 +178,11 @@ const contextController = {
     const data = await contextController.getDataInToken(oldToken);
     await checkOtherSessionOpen(data, oldToken);
     delete data.exp;
-    const token = await jwtSign(data, process.env.JWT_SECRET, {
-      expiresIn: "1.1h"
-    });
+    const token = await jwtSign(
+      data,
+      process.env.JWT_SECRET
+      // { expiresIn: "1.1h" }
+    );
     return { data, token };
   }
 };

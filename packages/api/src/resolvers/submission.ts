@@ -135,8 +135,8 @@ const submissionResolver = {
           submissionID: newSub._id,
           role: "stu-"
         },
-        process.env.JWT_SECRET,
-        { expiresIn: "3h" }
+        process.env.JWT_SECRET
+        // { expiresIn: "3h" }
       );
       await SubmissionModel.findOneAndUpdate(
         { _id: newSub._id },
@@ -144,8 +144,9 @@ const submissionResolver = {
         { new: true }
       );
       if (process.env.USE_REDIS === "true") {
-        await redisClient.set(
+        await redisClient.hmset(
           String("subToken-" + newSub._id),
+          "subToken",
           token,
           (err, reply) => {
             if (err) {
@@ -220,8 +221,8 @@ const submissionResolver = {
             submissionID: existSubmission._id,
             role: "stu-"
           },
-          process.env.JWT_SECRET,
-          { expiresIn: "3h" }
+          process.env.JWT_SECRET
+          // { expiresIn: "3h" }
         );
         await SubmissionModel.findOneAndUpdate(
           { _id: existSubmission._id },
@@ -232,8 +233,9 @@ const submissionResolver = {
           submissionUpdated: existSubmission
         });
         if (process.env.USE_REDIS === "true") {
-          await redisClient.set(
+          await redisClient.hmset(
             String("subToken-" + existSubmission._id),
+            "subToken",
             token,
             (err, reply) => {
               if (err) {
