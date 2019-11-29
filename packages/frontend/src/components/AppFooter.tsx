@@ -1,20 +1,23 @@
-import * as React from "react";
+import React from "react";
+import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { privacyPolicyUrl } from "../config";
 
 const AppFooter = () => {
+  const t = useTranslate();
+
   return (
     <Container>
-      <a href="#" target="_blank">
-        Condiciones generales
+      <a target="_blank" href="/legal/general-conditions">
+        {t("legal.general-conditions")}
       </a>
       |
-      <a href="#" target="_blank">
-        Política de Privacidad
+      <a target="_blank" href={privacyPolicyUrl}>
+        {t("legal.privacy-policy")}
       </a>
       |
-      <a href="#" target="_blank">
-        Política de cookies
+      <a target="_blank" href="/legal/cookies-policy">
+        {t("legal.cookies-policy")}
       </a>
     </Container>
   );
@@ -26,21 +29,18 @@ export default AppFooter;
 
 const Container = styled.div`
   display: flex;
-  width: 100%;
-  min-height: 54px;
-  height: 54px;
+  min-height: 60px;
+  height: 60px;
   justify-content: center;
   align-items: center;
   background-color: ${colors.grayFooter};
   color: ${colors.gray4};
+
   a {
     margin: 0px 10px;
     font-weight: bold;
     font-size: 14px;
     color: ${colors.gray4};
     text-decoration: none;
-    &:hover {
-      cursor: pointer;
-    }
   }
 `;

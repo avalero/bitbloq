@@ -23,7 +23,7 @@ import {
 } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 import { OrderType } from "../types";
-import AppFooter from "./Footer";
+import AppFooter from "./AppFooter";
 import AppHeader from "./AppHeader";
 import Breadcrumbs from "./Breadcrumbs";
 import CloudModal from "./CloudModal";

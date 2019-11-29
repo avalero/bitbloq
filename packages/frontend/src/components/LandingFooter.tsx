@@ -1,5 +1,6 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
+import AppFooter from "./AppFooter";
 import Layout from "../components/Layout";
 import bqLogo from "../images/bq-logo.svg";
 
@@ -18,13 +19,7 @@ const LandingFooter: FC = () => {
           <img src={bqLogo} alt="BQ" />
         </Right>
       </Main>
-      <LegalLinks>
-        <a href="#">Condiciones generales</a>
-        {" | "}
-        <a href="#">Política de privacidad</a>
-        {" | "}
-        <a href="#">Política de cookies</a>
-      </LegalLinks>
+      <AppFooter />
     </Container>
   );
 };
@@ -63,21 +58,5 @@ const Right = styled.div`
   p {
     margin-right: 20px;
     white-space: nowrap;
-  }
-`;
-
-const LegalLinks = styled.div`
-  background-color: #373b44;
-  height: 60px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #8c919b;
-
-  a {
-    color: #8c919b;
-    margin: 0px 10px;
-    font-weight: bold;
-    text-decoration: none;
   }
 `;

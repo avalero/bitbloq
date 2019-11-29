@@ -12,7 +12,7 @@ import {
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { isValidDate, isValidEmail, getAge } from "../util";
-import { educationalStages } from "../config";
+import { educationalStages, privacyPolicyUrl } from "../config";
 
 interface IUserData {
   acceptTerms: boolean;
@@ -263,7 +263,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             <Icon name={passwordIsMasked ? "eye" : "eye-close"} />
           </TooglePassword>
         </InputPassword>
-        {/* TODO: remove eye-close background */}
         {errors.password && (
           <ErrorMessage>{t("signup.user-data.errors.password")}</ErrorMessage>
         )}
@@ -328,18 +327,18 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           {t("signup.user-data.labels.accept-terms-1")}{" "}
           <a
             target="_blank"
-            href="https://bitbloq.bq.com/#"
+            href="/legal/general-conditions"
             onClick={e => e.stopPropagation()}
           >
-            {t("signup.link-general-conditions")}
+            {t("legal.general-conditions").toLowerCase()}
           </a>{" "}
           {t("signup.user-data.labels.accept-terms-2")}{" "}
           <a
             target="_blank"
-            href="https://bitbloq.bq.com/#/cookies"
+            href={privacyPolicyUrl}
             onClick={e => e.stopPropagation()}
           >
-            {t("signup.link-privacy-policy")}
+            {t("legal.privacy-policy").toLowerCase()}
           </a>
           .
         </span>
