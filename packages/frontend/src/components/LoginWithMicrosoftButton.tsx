@@ -5,7 +5,7 @@ import { v1 } from "uuid";
 import styled from "@emotion/styled";
 import { Button } from "@bitbloq/ui";
 import { microsoftAuthEndpoint, microsoftScopes } from "../config";
-import logoMicrosoftImage from "../images/logo-microsoft.png";
+import logoMicrosoftImage from "../images/logo-microsoft.svg";
 import env from "../lib/env";
 
 const uuid = v1;
