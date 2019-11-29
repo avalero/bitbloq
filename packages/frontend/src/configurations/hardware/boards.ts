@@ -1,6 +1,7 @@
 import { IBoard, IPortDirection } from "@bitbloq/bloqs";
 
 import BoardImage from "../../images/hardware/zumjunior-board.svg";
+import MiniBoardImage from "../../images/hardware/zumjunior-mini-board.svg";
 
 export const boards: IBoard[] = [
   {
@@ -31,17 +32,26 @@ export const boards: IBoard[] = [
     image: {
       url: BoardImage,
       width: 300,
-      height: 300
+      height: 300,
+      tablet: {
+        width: 200,
+        height: 200
+      }
     },
     schematicCenter: {
       x: 0,
       y: -0.23
     },
+    schematicImage: {
+      url: MiniBoardImage,
+      width: 80,
+      height: 80
+    },
     ports: [
       {
         name: "1",
         position: {
-          x: -0.9,
+          x: -1,
           y: 0.15
         },
         connectorTypes: ["zumjunior-digital", "zumjunior-analog"],
@@ -56,8 +66,12 @@ export const boards: IBoard[] = [
           }
         ],
         placeholderPosition: {
-          x: -1.5,
-          y: 0.8
+          x: -1.6,
+          y: 0.8,
+          tablet: {
+            x: -1.95,
+            y: 0.9
+          }
         },
         direction: IPortDirection.West,
         schematicPosition: {
@@ -72,8 +86,8 @@ export const boards: IBoard[] = [
       {
         name: "2",
         position: {
-          x: -0.9,
-          y: -0.29
+          x: -1,
+          y: -0.15
         },
         connectorTypes: ["zumjunior-digital", "zumjunior-analog"],
         pins: [
@@ -87,8 +101,12 @@ export const boards: IBoard[] = [
           }
         ],
         placeholderPosition: {
-          x: -1.5,
-          y: -0.8
+          x: -1.6,
+          y: -0.8,
+          tablet: {
+            x: -1.95,
+            y: -0.9
+          }
         },
         direction: IPortDirection.West,
         schematicPosition: {
@@ -103,7 +121,7 @@ export const boards: IBoard[] = [
       {
         name: "3",
         position: {
-          x: 0.9,
+          x: 1,
           y: -0.15
         },
         connectorTypes: ["zumjunior-digital", "zumjunior-analog"],
@@ -118,8 +136,12 @@ export const boards: IBoard[] = [
           }
         ],
         placeholderPosition: {
-          x: 1.5,
-          y: -0.8
+          x: 1.6,
+          y: -0.8,
+          tablet: {
+            x: 1.95,
+            y: -0.9
+          }
         },
         direction: IPortDirection.East,
         schematicPosition: {
@@ -134,7 +156,7 @@ export const boards: IBoard[] = [
       {
         name: "4",
         position: {
-          x: 0.9,
+          x: 1,
           y: 0.15
         },
         connectorTypes: ["zumjunior-digital", "zumjunior-analog"],
@@ -149,8 +171,12 @@ export const boards: IBoard[] = [
           }
         ],
         placeholderPosition: {
-          x: 1.5,
-          y: 0.8
+          x: 1.6,
+          y: 0.8,
+          tablet: {
+            x: 1.95,
+            y: 0.9
+          }
         },
         direction: IPortDirection.East,
         schematicPosition: {
@@ -166,7 +192,7 @@ export const boards: IBoard[] = [
         name: "A",
         position: {
           x: 0.15,
-          y: 0.9
+          y: 1
         },
         connectorTypes: [
           "zumjunior-digital",
@@ -189,7 +215,11 @@ export const boards: IBoard[] = [
         ],
         placeholderPosition: {
           x: 0.8,
-          y: 1.5
+          y: 1.6,
+          tablet: {
+            x: 0.8,
+            y: 1.95
+          }
         },
         direction: IPortDirection.North,
         schematicPosition: {
@@ -205,7 +235,7 @@ export const boards: IBoard[] = [
         name: "B",
         position: {
           x: -0.15,
-          y: 0.9
+          y: 1
         },
         connectorTypes: [
           "zumjunior-digital",
@@ -228,7 +258,11 @@ export const boards: IBoard[] = [
         ],
         placeholderPosition: {
           x: -0.8,
-          y: 1.5
+          y: 1.6,
+          tablet: {
+            x: -0.8,
+            y: 1.95
+          }
         },
         direction: IPortDirection.North,
         schematicPosition: {

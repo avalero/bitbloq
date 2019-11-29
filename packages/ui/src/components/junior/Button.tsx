@@ -5,6 +5,7 @@ import colors from "../../colors";
 export interface IButtonProps {
   secondary?: boolean;
   red?: boolean;
+  active?: boolean;
 }
 
 const Button = styled.button<IButtonProps>`
@@ -39,8 +40,11 @@ const Button = styled.button<IButtonProps>`
 
     return css`
       color: ${color};
-      background-color: ${bgColor};
-      box-shadow: 0 2px 0 0 ${darkColor};
+      background-color: ${props.active ? darkColor : bgColor};
+      box-shadow: 0 ${props.active ? -3 : 3}px 0 0
+        ${props.active ? bgColor : darkColor};
+      margin-bottom: ${props.active ? 0 : 3}px;
+      margin-top: ${props.active ? 3 : 0}px;
     `;
   }}
 

@@ -33,10 +33,10 @@ const IconComponent: FC<IIconComponentProps> = ({ bloq, component }) => {
 export default IconComponent;
 
 const Wrap = styled.div`
-  margin-left: 4px;
+  margin-left: -4px;
   z-index: 1;
   svg {
-    width: 44px;
-    height: 44px;
+    width: 54px;
+    height: 54px;
   }
 `;

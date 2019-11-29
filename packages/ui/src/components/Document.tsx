@@ -4,6 +4,10 @@ import { css } from "@emotion/core";
 import MenuBar, { IMainMenuOption } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
+import breakpoints from "../breakpoints";
+
+const TABLET_FRAME_WIDTH = 50;
+const DESKTOP_FRAME_WIDTH = 70;
 
 export interface IHeaderButton {
   id: string;
@@ -21,22 +25,24 @@ const Container = styled.div`
 `;
 
 const HeaderWrap = styled.div<{ collapsed: boolean }>`
-  height: 70px;
+  height: ${props => (props.collapsed ? 0 : TABLET_FRAME_WIDTH)}px;
   overflow: hidden;
   transition: height 150ms ease-out;
 
-  ${props =>
-    props.collapsed &&
-    css`
-      height: 0px;
-    `};
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: ${props => (props.collapsed ? 0 : DESKTOP_FRAME_WIDTH)}px;
+  }
 `;
 
 const Header = styled.div`
   background-color: #ebebeb;
-  height: 69px;
+  height: ${TABLET_FRAME_WIDTH - 1}px;
   display: flex;
   border-bottom: 1px solid #dadada;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: ${DESKTOP_FRAME_WIDTH - 1}px;
+  }
 `;
 
 const HeaderButton = styled.div`
@@ -44,7 +50,7 @@ const HeaderButton = styled.div`
   align-items: center;
   background-color: #fcfcfc;
   justify-content: center;
-  width: 76px;
+  width: ${TABLET_FRAME_WIDTH}px;
   border-left: 1px solid #dadada;
   cursor: pointer;
 
@@ -52,10 +58,14 @@ const HeaderButton = styled.div`
     width: 24px;
     height: 24px;
   }
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: ${DESKTOP_FRAME_WIDTH}px;
+  }
 `;
 
 const DocumentIcon = styled.div<{ color?: string; pointer?: boolean }>`
-  width: 70px;
+  width: ${TABLET_FRAME_WIDTH}px;
   background-color: ${props => props.color || "#4dc3ff"};
   color: white;
   display: flex;
@@ -77,8 +87,16 @@ const DocumentIcon = styled.div<{ color?: string; pointer?: boolean }>`
   }
 
   svg {
-    width: 46px;
-    height: 46px;
+    width: 33px;
+    height: 33px;
+  }
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: ${DESKTOP_FRAME_WIDTH}px;
+    svg {
+      width: 46px;
+      height: 46px;
+    }
   }
 `;
 
@@ -150,19 +168,28 @@ const CollapseButton = styled.div<{ collapsed: boolean }>`
 `;
 
 const Tabs = styled.div`
-  width: 70px;
-  min-width: 70px;
+  width: ${TABLET_FRAME_WIDTH}px;
+  min-width: ${TABLET_FRAME_WIDTH}px;
   background-color: #3b3e45;
   color: white;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: ${DESKTOP_FRAME_WIDTH}px;
+    min-width: ${DESKTOP_FRAME_WIDTH}px;
+  }
 `;
 
 const TabIcon = styled.div<{ selected: boolean }>`
-  height: 70px;
+  height: ${TABLET_FRAME_WIDTH}px;
   border-bottom: 1px solid #797c81;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: ${DESKTOP_FRAME_WIDTH}px;
+  }
 
   svg {
     width: 24px;

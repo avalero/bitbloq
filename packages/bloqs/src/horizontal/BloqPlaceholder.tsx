@@ -1,10 +1,8 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { colors, Icon } from "@bitbloq/ui";
+import { colors } from "@bitbloq/ui";
 
 import { BloqCategory } from "../enums";
-
-import { horizontalShapes, halfHorizontalShapes } from "../config";
 
 interface IBloqPlaceholderProps {
   category: BloqCategory;
@@ -19,28 +17,25 @@ const BloqPlaceholder: React.FunctionComponent<IBloqPlaceholderProps> = ({
   selected,
   half
 }) => {
-  const ShapeComponent = half
-    ? halfHorizontalShapes[category]
-    : horizontalShapes[category];
-
   return (
-    <Container
-      onClick={onClick}
-      selected={selected}
-      half={half}
-      category={category}
-    >
-      <Icon name="plus" />
-      <SVG>
-        <g transform="translate(2,2)">
-          <ShapeComponent
-            fill="none"
-            stroke={selected ? colors.brandOrange : "#bbb"}
-            strokeWidth={2}
-            strokeDasharray="7 3"
+    <Container onClick={onClick} selected={selected} category={category}>
+      {category === BloqCategory.Event ? (
+        <svg width={86} height={83}>
+          <path
+            fill="currentColor"
+            fillRule="evenodd"
+            d="M78 33.803v-5.775h2v4.224a7.956 7.956 0 014.047 2.507l-1.512 1.309a5.95 5.95 0 00-3.033-1.878L78 33.803zm7.83 4.55c.112.54.17 1.096.17 1.646v3a8.01 8.01 0 01-.17 1.646l-1.957-.41A6.07 6.07 0 0084 43v-3c0-.413-.043-.83-.128-1.236l1.957-.41zM79.501 48.81a5.956 5.956 0 003.033-1.878l1.512 1.31A7.95 7.95 0 0180 50.748v4.224h-2v-5.775l1.502-.387zM0 54.904V44.616h2v10.288H0zM17.076 3.116a22.144 22.144 0 00-8.344 5.06l-1.388-1.44a24.178 24.178 0 019.101-5.518l.631 1.898zM.096 61.162l1.993-.178a21.689 21.689 0 003.017 9.275l-1.717 1.027A23.685 23.685 0 01.097 61.162zM0 38.443V28.155h2v10.288H0zM5.077 12.79a21.69 21.69 0 00-2.993 9.283l-1.992-.174a23.67 23.67 0 013.266-10.132l1.72 1.023zM78 21.796V11.508h2v10.288h-2zM39.268 2V0h10.288v2H39.268zM7.388 76.306l1.385-1.441a22.156 22.156 0 008.356 5.037l-.625 1.9a24.145 24.145 0 01-9.116-5.496zM55.786 83v-2h10.288v2H55.786zm-.057-81V0h10.288v2H55.729zM78 80v-2.394h2V80c0 1.654-1.346 3-3 3h-4.753v-2H77a1 1 0 001-1zM24 2c-.383 0-.764.011-1.142.03L22.755.032C23.168.011 23.582 0 24 0h9.095v2H24zm54 69.434V61.146h2v10.288h-2zM78 3a1 1 0 00-1-1h-4.811V0H77c1.654 0 3 1.346 3 3v2.335h-2V3zM22.915 80.974c.36.018.722.026 1.085.026h9.152v2H24c-.397 0-.791-.008-1.183-.028l.098-1.998zM39.325 83v-2h10.288v2H39.325zm11.899-44.293c.347 0 .628.281.628.626v4.275a.628.628 0 01-.628.628h-6.67v6.669a.628.628 0 01-.627.628H39.71a.628.628 0 01-.628-.628v-6.669h-6.67a.628.628 0 01-.626-.628v-4.275c0-.345.28-.626.627-.626h6.669v-6.612c0-.347.282-.628.628-.628h4.217c.347 0 .628.281.628.628v6.612h6.669z"
           />
-        </g>
-      </SVG>
+        </svg>
+      ) : (
+        <svg width={86} height={83}>
+          <path
+            fill="currentColor"
+            fillRule="evenodd"
+            d="M2 50.957v4.437H0v-5.577l.5-.289a10.936 10.936 0 003.386-3.043l1.615 1.18a12.91 12.91 0 01-3.5 3.292zm5.192-12.473c.328.884.56 1.807.687 2.746l.036.27-.036.263a12.88 12.88 0 01-.688 2.755l-1.875-.695c.278-.75.474-1.532.58-2.323v-.006a10.857 10.857 0 00-.58-2.313l1.876-.697zm-3.306-1.968A10.936 10.936 0 00.5 33.473l-.5-.29v-5.576h2v4.437a12.91 12.91 0 013.501 3.292l-1.615 1.18zM0 21.79v-9.694h2v9.694H0zM12.091 2V0h9.694v2h-9.694zM2.001 3v3.279H0V3c0-1.654 1.345-3 3-3h3.272v2H3a1 1 0 00-1 1zm25.601-1V0h9.694v2h-9.694zM78 22.198v-9.694h2v9.694h-2zM58.624 2V0h9.694v2h-9.694zM78 3a1 1 0 00-1-1h-2.865V0H77c1.654 0 3 1.346 3 3v3.688h-2V3zM43.113 2V0h9.695v2h-9.695zM78 33.803v-5.775h2v4.224a7.956 7.956 0 014.047 2.507l-1.512 1.309a5.95 5.95 0 00-3.033-1.878L78 33.803zm7.83 4.549c.112.538.17 1.093.17 1.648v3c0 .557-.058 1.112-.17 1.648l-1.958-.414A5.96 5.96 0 0084 43v-3c0-.418-.043-.834-.128-1.236l1.957-.412zM79.501 48.81a5.956 5.956 0 003.033-1.879l1.512 1.31A7.95 7.95 0 0180 50.748v4.224h-2v-5.775l1.502-.387zM0 70.917v-9.695h2v9.695H0zM12.104 83v-2h9.694v2h-9.694zM78 80v-3.7h2V80c0 1.654-1.346 3-3 3h-2.853v-2H77a1 1 0 001-1zm0-9.517v-9.694h2v9.694h-2zM58.637 83v-2h9.694v2h-9.694zM2 80a1 1 0 001 1h3.286v2H3c-1.654 0-3-1.346-3-3v-3.266h2V80zm41.125 3v-2h9.694v2h-9.694zm-15.51 0v-2h9.693v2h-9.694zm22.753-39.24a.627.627 0 01-.628.628h-6.67v6.67c0 .347-.28.627-.627.627h-4.218a.628.628 0 01-.628-.627v-6.67H30.93a.626.626 0 01-.627-.627v-4.276c0-.345.28-.625.628-.625h6.667v-6.614c0-.346.282-.627.628-.627h4.218c.348 0 .628.28.628.627v6.614h6.67c.346 0 .627.28.627.625v4.276z"
+          />
+        </svg>
+      )}
     </Container>
   );
 };
@@ -60,15 +55,7 @@ const Container = styled.div<IContainerProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => (props.selected ? colors.brandOrange : "#bbb")};
-  width: ${props => (props.half ? 34 : 60)}px;
-  height: 60px;
-`;
-
-const SVG = styled.svg`
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 68px;
-  height: 64px;
+  color: ${props => (props.selected ? colors.brandOrange : "#bcbcbc")};
+  width: 86px;
+  height: 83px;
 `;

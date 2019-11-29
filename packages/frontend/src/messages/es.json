@@ -338,8 +338,7 @@
   },
   "junior": {
     "hardware": "Hardware",
-    "software": "Software",
-    "component-not-found": "Componente no encontrado"
+    "software": "Software"
   },
   "hardware": {
     "component": {

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { colors, Icon } from "@bitbloq/ui";
+import { breakpoints, colors, Icon } from "@bitbloq/ui";
 
 export interface IComponentPlaceholderProps {
   top: number;
@@ -14,7 +14,7 @@ const ComponentPlaceholder: React.FunctionComponent<
 > = ({ selected, top, left, onClick }) => {
   return (
     <Container selected={selected} top={top} left={left} onClick={onClick}>
-      <SVG>
+      <SVG viewBox="0 0 64 64">
         <circle
           cx={32}
           cy={32}
@@ -53,6 +53,11 @@ const Container = styled.div<IContainerProps>`
   transform: translate(-50%, -50%);
   cursor: pointer;
 
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: 80px;
+    height: 80px;
+  }
+
   svg {
     z-index: 10;
   }
@@ -60,9 +65,12 @@ const Container = styled.div<IContainerProps>`
 
 const SVG = styled.svg`
   position: absolute;
-  top: -2px;
-  left: -2px;
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   z-index: 0;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: 80px;
+    height: 80px;
+  }
 `;
