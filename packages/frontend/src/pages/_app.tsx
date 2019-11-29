@@ -7,6 +7,7 @@ import esCountries from "../messages/countries_es.json";
 import enMessages from "../messages/en.json";
 import esMessages from "../messages/es.json";
 import redirect from "../lib/redirect";
+import { ServiceWorkerProvider } from "../lib/useServiceWorker";
 import {
   minChromeVersion,
   supportedLanguages,
@@ -57,10 +58,12 @@ class BitbloqApp extends App<IBitbloqAppProps> {
     const { Component, pageProps, language } = this.props;
 
     return (
-      <TranslateProvider messages={messages[language]}>
-        <Component {...pageProps} />
-        <FlagsModal />
-      </TranslateProvider>
+      <ServiceWorkerProvider>
+        <TranslateProvider messages={messages[language]}>
+          <Component {...pageProps} />
+          <FlagsModal />
+        </TranslateProvider>
+      </ServiceWorkerProvider>
     );
   }
 }
