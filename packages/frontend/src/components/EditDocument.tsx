@@ -12,6 +12,7 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
+import useServiceWorker from "../lib/useServiceWorker";
 import CloudModal from "./CloudModal";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
@@ -79,7 +80,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
   const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
-  const serviceWorkerRef = useRef<ServiceWorker | null>(null);
+  const serviceWorker = useServiceWorker();
 
   const {
     loading: loadingDocument,
@@ -105,16 +106,16 @@ const EditDocument: FC<IEditDocumentProps> = ({
     if (
       imageToUpload.current &&
       imageToUpload.current.size > 0 &&
-      serviceWorkerRef.current
+      serviceWorker
     ) {
       console.log("Envía mensaje");
-      serviceWorkerRef.current.postMessage({
+      serviceWorker.postMessage({
         documentId: document.id,
         image: imageToUpload.current,
         type: "upload-image"
       });
     }
-  }, [imageToUpload.current, serviceWorkerRef.current]);
+  }, [imageToUpload.current, serviceWorker]);
 
   useEffect(() => {
     if (isLoggedIn && !prevIsLoggedIn.current) {
@@ -122,22 +123,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
     }
     prevIsLoggedIn.current = isLoggedIn;
   }, [isLoggedIn]);
-
-  useEffect(() => {
-    if ("serviceWorker" in navigator && !serviceWorkerRef.current) {
-      navigator.serviceWorker
-        .register("/service-worker.js", { scope: "/" })
-        .then(registration => {
-          if (registration.active) {
-            console.log("activado");
-            serviceWorkerRef.current = registration.active;
-          }
-        })
-        .catch(registrationError => {
-          console.log("SW registration failed: ", registrationError);
-        });
-    }
-  });
 
   useEffect(() => {
     window.removeEventListener("beforeunload", onBeforeUnload);

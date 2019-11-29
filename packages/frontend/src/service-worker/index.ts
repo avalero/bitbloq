@@ -1,18 +1,28 @@
+import { debounce } from "lodash";
+
+/*import { createClient } from "../apollo/client";
+import {
+  getToken,
+  onSessionError,
+  onSessionActivity
+} from "../lib/session";*/
+
 const CACHE_NAME = "bitbloq-service-worker";
 const urlsToCache = ["/"];
 
-const path = require("path");
+// const client = createClient({}, { getToken, onSessionError, onSessionActivity });
 
-self.importScripts("/uploadImage.js");
+const ctx: ServiceWorkerGlobalScope = self as any;
 
-self.addEventListener("install", event => {
-  self.skipWaiting();
+ctx.addEventListener("install", event => {
+  ctx.skipWaiting();
   console.log("instalado");
+  console.log("test importing something works", debounce);
   const preLoaded = caches
     .open(CACHE_NAME)
     .then(cache => cache.addAll(urlsToCache));
   event.waitUntil(preLoaded);
-  console.log(self);
+  console.log(ctx);
 });
 
 // self.addEventListener("fetch", event => {
@@ -22,10 +32,10 @@ self.addEventListener("install", event => {
 //   event.respondWith(response);
 // });
 
-self.addEventListener("message", message => {
+ctx.addEventListener("message", message => {
   console.log("Mensaje recibido");
   // importScripts("/uploadImage.js")
-  func();
+  // func();
   console.log("No hay error");
   console.log(1, message.data);
 });
