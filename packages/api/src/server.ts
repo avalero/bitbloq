@@ -2,7 +2,7 @@ import { config } from "dotenv";
 config();
 
 import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
-import { contextController, renewSession } from "./controllers/context";
+import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
 import koa from "koa";
@@ -86,7 +86,6 @@ const server = new ApolloServer({
       const user: IUserInToken | undefined = await contextController.getMyUser(
         ctx
       );
-      renewSession(user);
       return { user, headers: ctx.headers }; //  add the user to the ctx
     }
   },

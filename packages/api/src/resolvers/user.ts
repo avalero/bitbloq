@@ -1,5 +1,5 @@
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
-import { contextController } from "../controllers/context";
+import { contextController, storeTokenInRedis } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
@@ -371,7 +371,7 @@ const userResolver = {
       if (data.userID) {
         await storeTokenInRedis(data.userID, token);
       } else if (data.submissionID) {
-        await storeTokenInRedis(data.submissionID, token);
+        await storeTokenInRedis(data.submissionID, token, true);
       }
       return token;
     },
@@ -606,15 +606,6 @@ const userResolver = {
 
   User: {
     documents: async (user: IUser) => DocumentModel.find({ user: user._id })
-  }
-};
-
-const storeTokenInRedis = async (id: string, token: string) => {
-  const date = new Date();
-  const expireTime = `${date.getHours() +
-    2}:${date.getMinutes()}:${date.getSeconds()}`;
-  if (process.env.USE_REDIS === "true") {
-    return redisClient.hmset(String(id), "authToken", String(token));
   }
 };
 

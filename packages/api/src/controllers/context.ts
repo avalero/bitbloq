@@ -10,10 +10,14 @@ import { IUser } from "../api-types";
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
   if (String(process.env.USE_REDIS) === "true") {
+    const now: Date = new Date();
+    let expiresAt: Date;
+    now.setHours(now.getHours() + 1);
     if (user.userID) {
       try {
         const result = await redisClient.hgetallAsync(String(user.userID));
         reply = result.authToken;
+        expiresAt = new Date(result.expiresAt);
       } catch (e) {
         return undefined;
       }
@@ -23,11 +27,23 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
           String(user.submissionID)
         );
         reply = result.subToken;
+        expiresAt = new Date(result.expiresAt);
       } catch (e) {
         return undefined;
       }
+    } else {
+      reply = "";
+      expiresAt = new Date();
     }
     if (reply === justToken) {
+      if (now.getTime() > expiresAt.getTime()) {
+        throw new ApolloError("Session expired", "SESSION_EXPIRED");
+      }
+      if (user.userID) {
+        await storeTokenInRedis(user.userID, justToken);
+      } else if (user.submissionID) {
+        await storeTokenInRedis(user.userID, justToken, true);
+      }
       return user;
     } else {
       throw new ApolloError(
@@ -40,20 +56,31 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   }
 };
 
-export const renewSession = async (user: IUserInToken | undefined) => {
-  if (user) {
-    const setRes = await redisClient.hmset([
-      String(user.userID),
-      "patata1",
-      String(user.role),
-      "patata3",
-      "patata4"
-    ]);
-
-    const result = await redisClient.hgetallAsync(String(user.userID));
-  } else {
-    // const setRes = await redisClient.hmset([String("user-test"), "token", String("teacher"), "expiresAt", "patata4"]);
-    // const result = await redisClient.hgetallAsync(String("user-test"));
+export const storeTokenInRedis = async (
+  id: string,
+  token: string,
+  subToken?: boolean
+) => {
+  const date = new Date();
+  date.setHours(date.getHours() + 2);
+  if (process.env.USE_REDIS === "true") {
+    if (subToken) {
+      return redisClient.hmset(
+        String(id),
+        "subToken",
+        String(token),
+        "expiresAt",
+        date
+      );
+    } else {
+      return redisClient.hmset(
+        String(id),
+        "authToken",
+        String(token),
+        "expiresAt",
+        date
+      );
+    }
   }
 };
 
