@@ -1,6 +1,6 @@
 import React from "react";
 import { NextPage } from "next";
-import { useTranslate } from "@bitbloq/ui";
+import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../../apollo/withApollo";
 import LandingHeader from "../../components/LandingHeader";
@@ -41,6 +41,29 @@ const Content = styled.div`
   line-height: 22px;
   margin: 0 auto 80px auto;
   max-width: 980px;
+
+  a {
+    color: ${colors.brandBlue};
+    font-style: italic;
+    font-weight: bold;
+    text-decoration: none;
+  }
+
+  td {
+    background-color: ${colors.gray1};
+    border: 1px solid white;
+    padding: 10px;
+    width: 40%;
+
+    &:first-of-type {
+      width: 20%;
+    }
+  }
+
+  ul {
+    padding-inline-start: 40px;
+    list-style-type: disc;
+  }
 `;
 
 const Header = styled.h1`
