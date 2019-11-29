@@ -133,7 +133,7 @@ const userResolver = {
           user
         );
         logOrSignToken = token;
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       } else {
         logOrSignToken = jwtSign(
           {
@@ -296,7 +296,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
     },
@@ -351,7 +351,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
     },
@@ -369,9 +369,9 @@ const userResolver = {
         oldToken
       );
       if (data.userID) {
-        await storeTokenInRedis(`authToken-${data.userID}`, token);
+        await storeTokenInRedis(data.userID, token);
       } else if (data.submissionID) {
-        await storeTokenInRedis(`subToken-${data.submissionID}`, token);
+        await storeTokenInRedis(data.submissionID, token);
       }
       return token;
     },
@@ -459,7 +459,7 @@ const userResolver = {
         redisClient.del(`resetPasswordToken-${contactFound._id}`);
       }
 
-      await storeTokenInRedis(`authToken-${contactFound._id}`, authToken);
+      await storeTokenInRedis(contactFound._id, authToken);
       return authToken;
     },
 
@@ -502,7 +502,7 @@ const userResolver = {
             }
           }
         );
-        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
+        await storeTokenInRedis(contactFound._id, token);
         return token;
       } else {
         return new ApolloError(

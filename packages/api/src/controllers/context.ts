@@ -11,7 +11,6 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
   if (String(process.env.USE_REDIS) === "true") {
     if (user.userID) {
-      const index: string = `authToken-${user.userID}`;
       try {
         const result = await redisClient.hgetallAsync(String(user.userID));
         reply = result.authToken;
@@ -21,7 +20,7 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
     } else if (user.submissionID) {
       try {
         const result = await redisClient.hgetallAsync(
-          `subToken-${user.submissionID}`
+          String(user.submissionID)
         );
         reply = result.subToken;
       } catch (e) {

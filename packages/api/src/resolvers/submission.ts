@@ -145,9 +145,9 @@ const submissionResolver = {
       );
       if (process.env.USE_REDIS === "true") {
         await redisClient.hmset(
-          String("subToken-" + newSub._id),
+          String(newSub._id),
           "subToken",
-          token,
+          String(token),
           (err, reply) => {
             if (err) {
               throw new ApolloError(
@@ -234,9 +234,9 @@ const submissionResolver = {
         });
         if (process.env.USE_REDIS === "true") {
           await redisClient.hmset(
-            String("subToken-" + existSubmission._id),
+            String(existSubmission._id),
             "subToken",
-            token,
+            String(token),
             (err, reply) => {
               if (err) {
                 throw new ApolloError(
