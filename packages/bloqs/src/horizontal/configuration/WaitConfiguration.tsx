@@ -5,8 +5,6 @@ import { JuniorNumberInput } from "@bitbloq/ui";
 
 import { IBloq } from "../../index";
 
-import LoopImage from "./images/LoopImage";
-
 export interface IStartConfigurationProps {
   bloq: IBloq;
   onChange: (newBloq: IBloq) => any;

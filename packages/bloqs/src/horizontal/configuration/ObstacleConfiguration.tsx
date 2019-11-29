@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
 import { JuniorSwitch } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
@@ -49,14 +50,17 @@ const ObstacleConfiguration: FC<IObstacleConfigurationProps> = ({
 
 export default ObstacleConfiguration;
 
-const Container = styled.div``;
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
 
-const ImageWrap = styled.div`
-  margin-bottom: 20px;
-  svg {
-    width: 484px;
-    height: 200px;
-  }
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 33px;
+  display: flex;
+  align-items: center;
 `;
 
 const SwitchWrap = styled.div`

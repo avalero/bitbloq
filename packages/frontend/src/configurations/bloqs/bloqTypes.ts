@@ -1,6 +1,8 @@
-import flagIcon from "../../images/bloqs/flag.svg";
-import flagLoopIcon from "../../images/bloqs/flag-loop.svg";
-import flagTimesIcon from "../../images/bloqs/flag-times.svg";
+import startLoopIcon from "../../images/bloqs/start-loop.svg";
+import start1TimeIcon from "../../images/bloqs/start-1-time.svg";
+import start2TimesIcon from "../../images/bloqs/start-2-times.svg";
+import start5TimesIcon from "../../images/bloqs/start-5-times.svg";
+import start10TimesIcon from "../../images/bloqs/start-10-times.svg";
 import switch1OnIcon from "../../images/bloqs/switch-1on.svg";
 import switch1OffIcon from "../../images/bloqs/switch-1off.svg";
 import switch2OnIcon from "../../images/bloqs/switch-2on.svg";
@@ -46,6 +48,10 @@ import led2OnIcon from "../../images/bloqs/led2-on.svg";
 import led2OffIcon from "../../images/bloqs/led2-off.svg";
 import boardLedOnIcon from "../../images/bloqs/board-led-on.svg";
 import boardLedOffIcon from "../../images/bloqs/board-led-off.svg";
+import boardLedRedIcon from "../../images/bloqs/board-led-red.svg";
+import boardLedGreenIcon from "../../images/bloqs/board-led-green.svg";
+import boardLedBlueIcon from "../../images/bloqs/board-led-blue.svg";
+import boardLedWhiteIcon from "../../images/bloqs/board-led-white.svg";
 import servoIcon from "../../images/bloqs/servo.svg";
 import servoClockwiseSlowIcon from "../../images/bloqs/servo-clockwise-slow.svg";
 import servoClockwiseMediumIcon from "../../images/bloqs/servo-clockwise-medium.svg";
@@ -62,11 +68,13 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     category: BloqCategory.Event,
     name: "OnStart",
     label: "bloq-on-start",
-    icon: flagIcon,
+    icon: startLoopIcon,
     iconSwitch: {
-      "type === 'loop'": flagLoopIcon,
-      "type === 'times'": flagTimesIcon,
-      true: flagIcon
+      "type === 'loop'": startLoopIcon,
+      "type === 'times' and times === 1": start1TimeIcon,
+      "type === 'times' and times === 2": start2TimesIcon,
+      "type === 'times' and times === 5": start5TimesIcon,
+      "type === 'times' and times === 10": start10TimesIcon
     },
     configurationComponent: "StartConfiguration",
     parameters: [
@@ -95,22 +103,24 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Event,
-    name: "OnSwitch1OnOff",
+    name: "OnDoubleSwitchOnOff",
     label: "bloq-on-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
-      "value === 'pos2'": switch1OffIcon,
-      "value === 'pos1'": switch1OnIcon
+      "value === 'pos2' and switch === '0'": switch1OffIcon,
+      "value === 'pos1' and switch === '0'": switch1OnIcon,
+      "value === 'pos2' and switch === '1'": switch2OffIcon,
+      "value === 'pos1' and switch === '1'": switch2OnIcon
     },
     actions: [
       {
         name: "read",
         parameters: {
-          pinVarName: "{{component}}Pin0"
+          pinVarName: "{{component}}Pin{{switch}}"
         }
       }
     ],
-    configurationComponent: "SwitchConfiguration",
+    configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
         name: "component",
@@ -131,46 +141,19 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
             value: "pos1"
           }
         ]
-      }
-    ],
-    code: {}
-  },
-  {
-    category: BloqCategory.Event,
-    name: "OnSwitch2OnOff",
-    label: "bloq-on-switch",
-    components: ["ZumjuniorDoubleSwitch"],
-    iconSwitch: {
-      "value === 'pos2'": switch2OffIcon,
-      "value === 'pos1'": switch2OnIcon
-    },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin1"
-        }
-      }
-    ],
-    configurationComponent: "SwitchConfiguration",
-    parameters: [
-      {
-        name: "component",
-        label: "bloq-parameter-component",
-        type: BloqParameterType.SelectComponent
       },
       {
-        name: "value",
-        label: "bloq-parameter-value",
+        name: "switch",
+        label: "bloq-parameter-switch",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-off",
-            value: "pos2"
+            label: "bloq-parameter-switch-1",
+            value: "0"
           },
           {
-            label: "bloq-parameter-on",
-            value: "pos1"
+            label: "bloq-parameter-switch-2",
+            value: "1"
           }
         ]
       }
@@ -722,9 +705,13 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     components: ["DigitalRGBLED"],
     iconSwitch: {
       "value === 'off'": boardLedOffIcon,
+      "value === 'red'": boardLedRedIcon,
+      "value === 'green'": boardLedGreenIcon,
+      "value === 'blue'": boardLedBlueIcon,
+      "value === 'white'": boardLedWhiteIcon,
       true: boardLedOnIcon
     },
-    configurationComponent: "TurnOnColorConfiguration",
+    configurationComponent: "ColorLedConfiguration",
     parameters: [
       {
         name: "component",
@@ -737,10 +724,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "white",
-            value: "white"
-          },
-          {
             label: "red",
             value: "red"
           },
@@ -751,6 +734,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
           {
             label: "blue",
             value: "blue"
+          },
+          {
+            label: "white",
+            value: "white"
           },
           {
             label: "off",
@@ -1022,11 +1009,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "WaitDetectColor",
     label: "bloq-wait-detect-color",
     iconSwitch: {
+      "detect === 'true' and color === 'red'": viewColorRed,
       "detect === 'true' and color === 'black'": viewColorBlack,
       "detect === 'true' and color === 'white'": viewColorWhite,
       "detect === 'true' and color === 'blue'": viewColorBlue,
       "detect === 'true' and color === 'green'": viewColorGreen,
-      "detect === 'true' and color === 'red'": viewColorRed,
       "detect === 'false' and color === 'black'": notViewColorBlack,
       "detect === 'false' and color === 'white'": notViewColorWhite,
       "detect === 'false' and color === 'blue'": notViewColorBlue,
@@ -1070,14 +1057,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-black",
-            value: "black"
-          },
-          {
-            label: "bloq-parameter-white",
-            value: "white"
-          },
-          {
             label: "bloq-parameter-red",
             value: "red"
           },
@@ -1088,6 +1067,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
           {
             label: "bloq-parameter-blue",
             value: "blue"
+          },
+          {
+            label: "bloq-parameter-black",
+            value: "black"
+          },
+          {
+            label: "bloq-parameter-white",
+            value: "white"
           }
         ]
       },
@@ -1258,23 +1245,24 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Wait,
-    name: "WainSwitch1OnOff",
+    name: "WaitDoubleSwitchOnOff",
     label: "bloq-wait-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
-      "value === 'pos2'": switch1OffIcon,
-      "value === 'pos1'": switch1OnIcon
+      "value === 'pos2' and switch === '0'": switch1OffIcon,
+      "value === 'pos1' and switch === '0'": switch1OnIcon,
+      "value === 'pos2' and switch === '1'": switch2OffIcon,
+      "value === 'pos1' and switch === '1'": switch2OnIcon
     },
     actions: [
       {
         name: "read",
         parameters: {
-          pinVarName: "{{component}}Pin0",
-          value: "{{value}}"
+          pinVarName: "{{component}}Pin{{switch}}"
         }
       }
     ],
-    configurationComponent: "SwitchConfiguration",
+    configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
         name: "component",
@@ -1295,47 +1283,19 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
             value: "pos1"
           }
         ]
-      }
-    ],
-    code: {}
-  },
-  {
-    category: BloqCategory.Wait,
-    name: "WainSwitch2OnOff",
-    label: "bloq-wait-switch",
-    components: ["ZumjuniorDoubleSwitch"],
-    iconSwitch: {
-      "value === 'pos2'": switch2OffIcon,
-      "value === 'pos1'": switch2OnIcon
-    },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin1",
-          value: "{{value}}"
-        }
-      }
-    ],
-    configurationComponent: "SwitchConfiguration",
-    parameters: [
-      {
-        name: "component",
-        label: "bloq-parameter-component",
-        type: BloqParameterType.SelectComponent
       },
       {
-        name: "value",
-        label: "bloq-parameter-value",
+        name: "switch",
+        label: "bloq-parameter-switch",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-off",
-            value: "pos2"
+            label: "bloq-parameter-switch-1",
+            value: "0"
           },
           {
-            label: "bloq-parameter-on",
-            value: "pos1"
+            label: "bloq-parameter-switch-2",
+            value: "1"
           }
         ]
       }

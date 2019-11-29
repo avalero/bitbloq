@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 
 import StartConfiguration from "./configuration/StartConfiguration";
-import SwitchConfiguration from "./configuration/SwitchConfiguration";
+import DoubleSwitchConfiguration from "./configuration/DoubleSwitchConfiguration";
 import ButtonConfiguration from "./configuration/ButtonConfiguration";
 import ViewColorConfiguration from "./configuration/ViewColorConfiguration";
 import DetectLightConfiguration from "./configuration/DetectLightConfiguration";
@@ -12,7 +12,7 @@ import SendMessageConfiguration from "./configuration/SendMessageConfiguration";
 import GetNumberConfiguration from "./configuration/GetNumberConfiguration";
 import SetNumberConfiguration from "./configuration/SetNumberConfiguration";
 import TurnOnConfiguration from "./configuration/TurnOnConfiguration";
-import TurnOnColorConfiguration from "./configuration/TurnOnColorConfiguration";
+import ColorLedConfiguration from "./configuration/ColorLedConfiguration";
 import ServoConfiguration from "./configuration/ServoConfiguration";
 import WaitConfiguration from "./configuration/WaitConfiguration";
 import MusicConfiguration from "./configuration/MusicConfiguration";
@@ -22,7 +22,7 @@ import { IBloq, IBloqType } from "../index";
 
 const configurationComponents = {
   StartConfiguration,
-  SwitchConfiguration,
+  DoubleSwitchConfiguration,
   ButtonConfiguration,
   ViewColorConfiguration,
   DetectLightConfiguration,
@@ -33,7 +33,7 @@ const configurationComponents = {
   GetNumberConfiguration,
   SetNumberConfiguration,
   TurnOnConfiguration,
-  TurnOnColorConfiguration,
+  ColorLedConfiguration,
   ServoConfiguration,
   WaitConfiguration,
   MusicConfiguration,
