@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { FC, useRef, useState, useEffect } from "react";
-import { useTranslate, DropDown, Icon, Button } from "@bitbloq/ui";
+import { useTranslate, DropDown, Icon, Button, Layout } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import AppFooter from "./AppFooter";
 import AppHeader from "./AppHeader";
-import Layout from "./Layout";
 import NewDocumentButton from "./NewDocumentButton";
 import OpenExerciseForm from "./OpenExerciseForm";
 import bqLogo from "../images/bq-logo.svg";
@@ -71,9 +70,7 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
           </HeaderButton>
         </AppHeader>
       </div>
-
       <Layout>{children}</Layout>
-
       <Footer>
         <FooterContent>
           {/* <FooterContentLeft>

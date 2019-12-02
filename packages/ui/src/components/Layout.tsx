@@ -1,11 +1,12 @@
-import { FC } from "react";
 import styled from "@emotion/styled";
+import breakpoints from "../breakpoints";
 
-const Layout: FC = styled.div`
-  max-width: 1280px;
+const Layout = styled.div`
+  max-width: ${breakpoints.desktop}px;
   box-sizing: border-box;
   margin: 0 auto;
   padding: 0 50px;
 `;
 
+/** @component */
 export default Layout;

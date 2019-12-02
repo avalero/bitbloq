@@ -1,9 +1,8 @@
 import React, { FC, useState } from "react";
-import { colors } from "@bitbloq/ui";
+import { colors, Layout } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import AppFooter from "./AppFooter";
 import AppHeader from "./AppHeader";
-import Layout from "./Layout";
 import UserSession from "./UserSession";
 import CloudModal from "./CloudModal";
 
