@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import Router from "next/router";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { Subscription } from "react-apollo";
@@ -26,12 +26,14 @@ import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { setToken, useSessionEvent } from "../lib/session";
+import { getToken, setToken, useSessionEvent } from "../lib/session";
+import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { IDocument, IResource } from "../types";
 
 const EditExercise = ({ type, id }) => {
+  const serviceWorker = useServiceWorker();
   const t = useTranslate();
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
@@ -78,25 +80,27 @@ const EditExercise = ({ type, id }) => {
     "exercise-team"
   );
 
+  const setActiveToFalse = useCallback(async () => {
+    if (exercise && teamName && serviceWorker && submission) {
+      const token = await getToken("exercise-team");
+      serviceWorker.postMessage({
+        exerciseID: exercise.id,
+        token,
+        type: "leave-exercise",
+        submissionID: submission.id
+      });
+    }
+  }, [exercise, submission, teamName]);
+
   useEffect(() => {
     if (exercise && teamName) {
-      const setActiveToFalse = () => {
-        updateSubmission({
-          variables: {
-            active: false
-          }
-        });
-      };
+      window.removeEventListener("beforeunload", setActiveToFalse);
+      window.addEventListener("beforeunload", setActiveToFalse);
 
-      window.addEventListener("beforeunload", setActiveToFalse, true);
-
-      return () => {
-        setActiveToFalse();
-        window.removeEventListener("beforeunload", setActiveToFalse, true);
-      };
+      return () => window.removeEventListener("beforeunload", setActiveToFalse);
     }
     return;
-  }, [teamName]);
+  }, [exercise, submission, teamName]);
 
   useEffect(() => {
     if (exercise && exercise.content) {

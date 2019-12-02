@@ -12,6 +12,7 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
+import useServiceWorker from "../lib/useServiceWorker";
 import CloudModal from "./CloudModal";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
@@ -34,16 +35,12 @@ import { dataURItoBlob } from "../util";
 import { IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import { getToken } from "../lib/session";
 
 interface IEditDocumentProps {
   folder?: string;
   id: string;
   type: string;
-}
-
-let html2canvas;
-if (typeof window !== undefined) {
-  import("html2canvas").then(module => (html2canvas = module.default));
 }
 
 const EditDocument: FC<IEditDocumentProps> = ({
@@ -63,6 +60,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const isNew = id === "new";
 
+  const [previousId, setPreviousId] = useState(id);
+
   const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -70,7 +69,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
-  const [firstLoad, setFirstLoad] = useState(true);
   const [error, setError] = useState<ApolloError | null>(null);
   const [document, setDocument] = useState({
     id: "",
@@ -85,6 +83,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
   const [image, setImage] = useState<IDocumentImage>();
   const imageToUpload = useRef<Blob | null>(null);
+  const serviceWorker = useServiceWorker();
 
   const {
     loading: loadingDocument,
@@ -105,6 +104,23 @@ const EditDocument: FC<IEditDocumentProps> = ({
     example: isExample
   } = document || {};
 
+  const onPostImage = useCallback(async () => {
+    if (
+      imageToUpload.current &&
+      imageToUpload.current.size > 0 &&
+      serviceWorker
+    ) {
+      const token = await getToken();
+      serviceWorker.postMessage({
+        documentId: id,
+        image: imageToUpload.current,
+        token,
+        type: "upload-image",
+        userID: user.id
+      });
+    }
+  }, [imageToUpload.current, serviceWorker]);
+
   useEffect(() => {
     if (isLoggedIn && !prevIsLoggedIn.current) {
       update({ content, title, description, type, advancedMode });
@@ -113,22 +129,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (firstLoad) {
-      saveImage();
-      if (
-        document &&
-        document.id &&
-        image &&
-        image.isSnapshot &&
-        imageToUpload.current &&
-        imageToUpload.current.size > 0
-      ) {
-        updateImage(document.id);
-        setFirstLoad(false);
-        setInterval(updateImage, 10 * 60 * 1000, document.id);
-      }
-    }
-  }, [imageToUpload.current]);
+    window.removeEventListener("beforeunload", onPostImage);
+    window.addEventListener("beforeunload", onPostImage);
+
+    return () => window.removeEventListener("beforeunload", onPostImage);
+  }, [onPostImage]);
 
   useEffect(() => {
     if (type === "open") {
@@ -163,6 +168,13 @@ const EditDocument: FC<IEditDocumentProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (id !== "new" && previousId !== id) {
+      onPostImage();
+    }
+    setPreviousId(id);
+  }, [id]);
+
   const [addResourceToExercises] = useMutation(ADD_RESOURCE_TO_EXERCISES);
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [deleteResourceFromExercises] = useMutation(
@@ -172,13 +184,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
   const [setDocumentImage] = useMutation(SET_DOCUMENT_IMAGE_MUTATION);
 
-  const saveImage = async () => {
+  const saveImage = () => {
     if (!image || image.isSnapshot) {
-      const picture: HTMLElement | null = window.document.querySelector(
-        ".image-snapshot"
-      );
-      if (picture && html2canvas) {
-        const canvas: HTMLCanvasElement = await html2canvas(picture);
+      const canvasCollection = window.document.getElementsByTagName("canvas");
+      const canvas = canvasCollection[0];
+      if (canvas) {
         const imgData: string = canvas.toDataURL("image/jpeg");
 
         if (imgData !== "data:,") {
@@ -259,6 +269,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         } = result;
         const href = "/app/edit-document/[folder]/[type]/[id]";
         const as = `/app/edit-document/${saveFolder}/${type}/${newId}`;
+        saveImage();
         Router.replace(href, as, { shallow: true });
       }
     } else {

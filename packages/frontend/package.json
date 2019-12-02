@@ -44,7 +44,6 @@
     "dayjs": "^1.8.0",
     "file-saver": "^2.0.1",
     "graphql-tag": "^2.10.1",
-    "html2canvas": "^1.0.0-rc.5",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.15",
     "next": "^9.1.1",
@@ -70,9 +69,9 @@
     "bitbloq"
   ],
   "scripts": {
-    "dev": "next",
+    "dev": "node server.js",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node server.js",
     "test": "echo \"Write tests!\""
   },
   "devDependencies": {
