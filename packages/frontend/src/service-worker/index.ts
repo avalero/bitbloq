@@ -1,5 +1,8 @@
 import { execute, GraphQLRequest, makePromise } from "apollo-link";
-import { SET_DOCUMENT_IMAGE_MUTATION } from "../apollo/queries";
+import {
+  SET_DOCUMENT_IMAGE_MUTATION,
+  UPDATE_SUBMISSION_MUTATION
+} from "../apollo/queries";
 import { createUploadLink } from "apollo-upload-client";
 
 interface IContext {
@@ -43,22 +46,28 @@ self.addEventListener("fetch", event => {
 });
 
 ctx.addEventListener("message", async message => {
-  const { documentId, image, token, type, userID } = message.data;
+  const {
+    exerciseID,
+    documentId,
+    image,
+    submissionID,
+    token,
+    type,
+    userID
+  } = message.data;
 
-  let operation: IOperation = {
-    context: {
-      headers: {
-        authorization: `Bearer ${token}`
-      },
-      user: {
-        userID
-      }
-    }
-  };
+  let operation: GraphQLRequest | undefined;
 
   if (type === "upload-image") {
     operation = {
-      ...operation,
+      context: {
+        headers: {
+          authorization: `Bearer ${token}`
+        },
+        user: {
+          userID
+        }
+      },
       query: SET_DOCUMENT_IMAGE_MUTATION,
       variables: {
         id: documentId,
@@ -66,7 +75,25 @@ ctx.addEventListener("message", async message => {
         isSnapshot: true
       }
     };
+  } else if (type === "leave-exercise") {
+    operation = {
+      context: {
+        headers: {
+          authorization: `Bearer ${token}`
+        },
+        user: {
+          exerciseID,
+          submissionID
+        }
+      },
+      query: UPDATE_SUBMISSION_MUTATION,
+      variables: {
+        active: false
+      }
+    };
   }
 
-  makePromise(execute(link, operation as GraphQLRequest));
+  if (operation) {
+    makePromise(execute(link, operation));
+  }
 });
