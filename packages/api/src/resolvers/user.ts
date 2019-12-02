@@ -3,7 +3,11 @@ import {
   AuthenticationError,
   withFilter
 } from "apollo-server-koa";
-import { contextController, storeTokenInRedis } from "../controllers/context";
+import {
+  contextController,
+  storeTokenInRedis,
+  updateExpireDateInRedis
+} from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
@@ -58,7 +62,6 @@ const userResolver = {
           variables,
           context: { user: IUserInToken }
         ) => {
-          console.log(context, payload);
           return (
             String(context.user.userID) ===
             String(payload.userSessionExpires.key)
@@ -384,6 +387,28 @@ const userResolver = {
         await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
+    },
+
+    /*
+     * renewUserSession: updates expire date token in redis
+     */
+    renewUserSession: async (_, __, context: any) => {
+      // authorization for queries and mutations
+      const token1: string = context.headers.authorization || "";
+      const type: string = token1.split(" ")[0];
+      const justToken: string = token1.split(" ")[1];
+      const data:
+        | IUserInToken
+        | undefined = await contextController.getDataInToken(justToken);
+      if (data) {
+        if (data.userID) {
+          await updateExpireDateInRedis(data.userID, false);
+        } else if (data.submissionID) {
+          await updateExpireDateInRedis(data.submissionID, true);
+        }
+        return "OK";
+      }
+      throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
     },
 
     /*

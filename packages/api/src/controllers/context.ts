@@ -90,6 +90,16 @@ export const storeTokenInRedis = async (
   }
 };
 
+export const updateExpireDateInRedis = async (
+  id: string,
+  submission: boolean
+) => {
+  const token: string = submission
+    ? (await redisClient.hgetallAsync(id)).subToken
+    : (await redisClient.hgetallAsync(id)).authToken;
+  return storeTokenInRedis(id, token, submission);
+};
+
 const checksSessionExpires = async () => {
   const allKeys: string[] = await redisClient.keysAsync("*");
   const now: Date = new Date();
