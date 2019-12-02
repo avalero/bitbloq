@@ -1,13 +1,6 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
-import {
-  colors,
-  Button,
-  DialogModal,
-  Icon,
-  Spinner,
-  Translate
-} from "@bitbloq/ui";
+import { colors, Button, DialogModal, Icon, Translate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import gql from "graphql-tag";
 import { ApolloError } from "apollo-client";
@@ -476,11 +469,7 @@ class Document extends React.Component<any, DocumentState> {
                       return <GraphQLErrorMessage apolloError={error} />;
                     }
                     if (loading) {
-                      return (
-                        <AppLayout>
-                          <Loading />
-                        </AppLayout>
-                      );
+                      return <AppLayout loading />;
                     }
 
                     if (stateError) {
@@ -545,10 +534,6 @@ const withCreateExercise = Component => props => (
 export default Document;
 
 /* styled components */
-
-const Loading = styled(Spinner)`
-  flex: 1;
-`;
 
 const EmptyExercises = styled.div`
   align-items: center;
@@ -641,7 +626,6 @@ const DocumentData = styled.div`
   border-radius: 4px;
   display: flex;
   flex-flow: row nowrap;
-  margin-top: 23px;
   width: 100%;
 `;
 

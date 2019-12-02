@@ -6,6 +6,7 @@ const Layout = styled.div`
   box-sizing: border-box;
   margin: 0 auto;
   padding: 0 50px;
+  width: 100%;
 `;
 
 /** @component */

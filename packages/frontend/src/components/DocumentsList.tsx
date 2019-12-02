@@ -593,7 +593,7 @@ const DocumentsAndPaginator = styled.div`
 `;
 
 const DocumentsPaginator = styled(Paginator)`
-  margin: 40px 0 60px;
+  margin-top: 40px;
 `;
 
 const StyledDocumentCard = styled(DocumentCard)`

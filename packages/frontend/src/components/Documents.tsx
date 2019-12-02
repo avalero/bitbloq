@@ -3,7 +3,7 @@ import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import { Button, Icon, Spinner } from "@bitbloq/ui";
+import { Button, Icon } from "@bitbloq/ui";
 import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
@@ -167,11 +167,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   } else if (loading || !documentsData.documentsAndFolders) {
-    return (
-      <AppLayout>
-        <Loading />
-      </AppLayout>
-    );
+    return <AppLayout loading />;
   }
 
   const {
@@ -290,14 +286,10 @@ export default DocumentsWithDelete;
 
 /* styled components */
 
-const Loading = styled(Spinner)`
-  height: 100%;
-`;
-
 const DocumentListHeader = styled.div`
   align-items: center;
   display: flex;
-  margin: 20px 0 40px;
+  margin-bottom: 40px;
 `;
 
 const HeaderButtons = styled.div`
