@@ -71,21 +71,20 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
         </AppHeader>
       </div>
       <Layout>{children}</Layout>
-      <Footer>
-        <FooterContent>
-          {/* <FooterContentLeft>
+      <AppFooter>
+        <Footer>
+          {/* <FooterLeft>
               <h2>Contacto</h2>
               <p>Bq Educación</p>
               <p>900 00 00 00</p>
               <p>soporte.bitbloq@bq.com</p>
-            </FooterContentLeft> */}
-          <FooterContentRight>
+            </FooterLeft> */}
+          <FooterRight>
             <p>Bitbloq es un proyecto de:</p>
             <img src={bqLogo} alt="BQ" />
-          </FooterContentRight>
-        </FooterContent>
-        <AppFooter />
-      </Footer>
+          </FooterRight>
+        </Footer>
+      </AppFooter>
     </>
   );
 };
@@ -138,18 +137,13 @@ const ExerciseDropDown = styled.div`
 `;
 
 const Footer = styled.div`
-  color: white;
-  font-size: 14px;
-  background-color: #5d6069;
-`;
-
-const FooterContent = styled(Layout)`
   display: flex;
-  padding: 40px 50px;
+  padding-bottom: 40px;
+  padding-top: 40px;
   justify-content: flex-end;
 `;
 
-const FooterContentLeft = styled.div`
+const FooterLeft = styled.div`
   h2 {
     font-size: 16px;
     font-weight: bold;
@@ -160,7 +154,7 @@ const FooterContentLeft = styled.div`
   }
 `;
 
-const FooterContentRight = styled.div`
+const FooterRight = styled.div`
   display: flex;
   width: 480.56px;
   align-items: center;
