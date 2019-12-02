@@ -7,7 +7,6 @@ import AngleDouble from "./icons/AngleDouble";
 import Arrow from "./icons/Arrow";
 import ArrowLeft from "./icons/ArrowLeft";
 import BasicShapes from "./icons/BasicShapes";
-import Brain from "./icons/Brain";
 import Brush from "./icons/Brush";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
@@ -34,6 +33,7 @@ import Eye from "./icons/Eye";
 import EyeClose from "./icons/EyeClose";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
+import HardwareQuestion from "./icons/HardwareQuestion";
 import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Interrogation from "./icons/Interrogation";
@@ -56,6 +56,10 @@ import People from "./icons/People";
 import Programming from "./icons/Programming";
 import Programming2 from "./icons/Programming2";
 import Programming3 from "./icons/Programming3";
+import ProgrammingBoard from "./icons/ProgrammingBoard";
+import ProgrammingDuplicate from "./icons/ProgrammingDuplicate";
+import ProgrammingQuestion from "./icons/ProgrammingQuestion";
+import ProgrammingUpload from "./icons/ProgrammingUpload";
 import Pyramid from "./icons/Pyramid";
 import Publish from "./icons/Publish";
 import Redo from "./icons/Redo";
@@ -124,8 +128,6 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Angle className={className} />;
     case "angle-double":
       return <AngleDouble className={className} />;
-    case "brain":
-      return <Brain className={className} />;
     case "heart":
       return <Heart className={className} />;
     case "tube":
@@ -188,6 +190,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Group className={className} />;
     case "hardware":
       return <Hardware className={className} />;
+    case "hardware-question":
+      return <HardwareQuestion className={className} />;
     case "import-stl":
       return <ImportSTL className={className} />;
     case "info":
@@ -240,6 +244,14 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Programming2 className={className} />;
     case "programming3":
       return <Programming3 className={className} />;
+    case "programming-board":
+      return <ProgrammingBoard className={className} />;
+    case "programming-duplicate":
+      return <ProgrammingDuplicate className={className} />;
+    case "programming-question":
+      return <ProgrammingQuestion className={className} />;
+    case "programming-upload":
+      return <ProgrammingUpload className={className} />;
     case "text":
       return <Text className={className} />;
     case "pyramid":

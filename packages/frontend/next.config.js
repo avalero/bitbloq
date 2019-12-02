@@ -23,15 +23,21 @@ module.exports = withTM(
         globalObject: "this"
       };
 
-      config.module.rules.push({
-        test: /\.(stl|svg|mp3|png)$/,
-        loader: "file-loader",
-        options: {
-          publicPath: `/_next/static/images/`,
-          outputPath: `${isServer ? "../" : ""}static/images/`,
-          name: "[name]-[hash].[ext]"
+      config.module.rules.push(
+        {
+          test: /\.(stl|svg|mp3|png)$/,
+          loader: "file-loader",
+          options: {
+            publicPath: `/_next/static/images/`,
+            outputPath: `${isServer ? "../" : ""}static/images/`,
+            name: "[name]-[hash].[ext]"
+          }
+        },
+        {
+          test: /\.html$/,
+          loader: "raw-loader"
         }
-      });
+      );
 
       config.plugins.push(
         new webpack.EnvironmentPlugin({

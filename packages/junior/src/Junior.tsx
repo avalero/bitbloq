@@ -8,6 +8,7 @@ import {
   getBoardDefinition,
   Web2Board,
   IBloq,
+  IBloqLine,
   IBloqType,
   IBloqTypeGroup,
   IBoard,
@@ -39,7 +40,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   const t = useTranslate();
 
   const [content, setContent] = useState(initialContent);
-  const program = content.program || [];
+  const program: IBloqLine[] = content.program || [];
   const hardware: IHardware = content.hardware || {
     board: "zumjunior",
     components: []
@@ -148,7 +149,16 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   const upload = async (timeout: number): Promise<void> => {
     setUploading(true);
     const web2Board = web2BoardRef.current;
-    const code = bloqs2code(boards, components, bloqTypes, hardware, program);
+    const programBloqs = program
+      .filter(line => !line.disabled)
+      .map(line => line.bloqs);
+    const code = bloqs2code(
+      boards,
+      components,
+      bloqTypes,
+      hardware,
+      programBloqs
+    );
 
     if (!web2Board) {
       return;
@@ -208,13 +218,13 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     />,
     <>
       <HorizontalBloqEditor
-        bloqs={program}
+        lines={program}
         components={components}
         getComponents={getComponents}
         getBloqPort={getBloqPort}
         bloqTypes={bloqTypes}
         availableBloqs={availableBloqs}
-        onBloqsChange={(newProgram: IBloq[][]) =>
+        onLinesChange={(newProgram: IBloqLine[]) =>
           setContent({ program: newProgram, hardware })
         }
         onUpload={() => upload(10000)}

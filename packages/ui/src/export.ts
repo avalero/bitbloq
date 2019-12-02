@@ -28,6 +28,7 @@ import TranslateProvider, {
 import useKeyPressed from "./hooks/useKeyPressed";
 import baseStyles from "./base-styles";
 import colors from "./colors";
+import breakpoints from "./breakpoints";
 
 import JuniorButton from "./components/junior/Button";
 import JuniorSwitch from "./components/junior/Switch";
@@ -62,6 +63,7 @@ export {
   useKeyPressed,
   baseStyles,
   colors,
+  breakpoints,
   JuniorButton,
   JuniorSwitch,
   JuniorNumberInput

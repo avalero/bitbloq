@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
+import { v1 as uuid } from "uuid";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import BloqsLine from "./BloqsLine";
 import BloqConfigPanel from "./BloqConfigPanel";
 import AddBloqPanel from "./AddBloqPanel";
-import BloqPropertiesPanel from "./BloqPropertiesPanel";
 
 import { BloqCategory } from "../enums";
 import {
   IBloq,
+  IBloqLine,
   IBloqType,
   IBloqTypeGroup,
   IBoard,
@@ -21,10 +22,10 @@ import {
 } from "../index";
 
 interface IHorizontalBloqEditorProps {
-  bloqs: IBloq[][];
+  lines: IBloqLine[];
   bloqTypes: IBloqType[];
   availableBloqs: IBloqType[];
-  onBloqsChange: (bloqs: IBloq[][]) => any;
+  onLinesChange: (lines: IBloqLine[]) => any;
   onUpload: () => any;
   getComponents: (types: string[]) => IComponentInstance[];
   getBloqPort: (bloq: IBloq) => string | undefined;
@@ -35,10 +36,10 @@ interface IHorizontalBloqEditorProps {
 const HorizontalBloqEditor: React.FunctionComponent<
   IHorizontalBloqEditorProps
 > = ({
-  bloqs,
+  lines,
   bloqTypes,
   availableBloqs,
-  onBloqsChange,
+  onLinesChange,
   onUpload,
   getComponents,
   getBloqPort,
@@ -50,35 +51,12 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
   const [linesScrollLeft, setLinesScrollLeft] = useState(0);
-  const linesRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (linesRef.current) {
-      let bloqIndex = -1;
-      if (selectedBloqIndex >= 0) {
-        bloqIndex = selectedBloqIndex;
-      }
-      if (selectedPlaceholder >= 0) {
-        bloqIndex = selectedPlaceholder;
-      }
+  const [undoPast, setUndoPast] = useState<IBloqLine[][]>([]);
+  const [undoFuture, setUndoFuture] = useState<IBloqLine[][]>([]);
 
-      if (bloqIndex >= 0) {
-        const bloqPosition = 65 + bloqIndex * 65;
-        const width = linesRef.current.clientWidth;
-        if (bloqPosition - linesScrollLeft < 0) {
-          linesRef.current.scrollLeft = bloqPosition;
-        } else if (bloqPosition - linesScrollLeft > width - 160) {
-          linesRef.current.scrollLeft = bloqPosition - width + 160;
-        }
-      }
-    }
-  }, [linesScrollLeft, selectedBloqIndex, selectedPlaceholder]);
-
-  const [undoPast, setUndoPast] = useState<IBloq[][][]>([]);
-  const [undoFuture, setUndoFuture] = useState<IBloq[][][]>([]);
-
-  const selectedLine = bloqs[selectedLineIndex] || [];
-  const selectedBloq = selectedLine[selectedBloqIndex];
+  const selectedLine: IBloqLine = lines[selectedLineIndex];
+  const selectedBloq = selectedLine && selectedLine.bloqs[selectedBloqIndex];
 
   const t = useTranslate();
 
@@ -140,74 +118,115 @@ const HorizontalBloqEditor: React.FunctionComponent<
       }, {})
     };
 
-    if (selectedLineIndex < bloqs.length) {
-      onBloqsChange(
-        update(bloqs, {
-          [selectedLineIndex]: { $splice: [[selectedPlaceholder, 0, newBloq]] }
+    if (selectedLineIndex < lines.length) {
+      onLinesChange(
+        update(lines, {
+          [selectedLineIndex]: {
+            bloqs: { $splice: [[selectedPlaceholder, 0, newBloq]] }
+          }
         })
       );
     } else {
-      onBloqsChange(update(bloqs, { $push: [[newBloq]] }));
+      onLinesChange(
+        update(lines, { $push: [{ id: uuid(), bloqs: [newBloq] }] })
+      );
     }
-    setUndoPast([...undoPast, bloqs]);
+    setUndoPast([...undoPast, lines]);
     setUndoFuture([]);
     setSelectedBloq(selectedPlaceholder);
     setSelectedPlaceholder(-1);
   };
 
   const onUpdateBloq = (newBloq: IBloq) => {
-    onBloqsChange(
-      update(bloqs, {
-        [selectedLineIndex]: { [selectedBloqIndex]: { $set: newBloq } }
+    onLinesChange(
+      update(lines, {
+        [selectedLineIndex]: {
+          bloqs: { [selectedBloqIndex]: { $set: newBloq } }
+        }
       })
     );
   };
 
   const onDeleteBloq = () => {
-    onBloqsChange(
-      update(bloqs, {
-        [selectedLineIndex]: { $splice: [[selectedBloqIndex, 1]] }
+    onLinesChange(
+      update(lines, {
+        [selectedLineIndex]: { bloqs: { $splice: [[selectedBloqIndex, 1]] } }
       })
     );
-    setUndoPast([...undoPast, bloqs]);
+    setUndoPast([...undoPast, lines]);
     setUndoFuture([]);
     deselectEverything();
   };
 
   const onUndo = () => {
-    onBloqsChange(undoPast[undoPast.length - 1]);
+    onLinesChange(undoPast[undoPast.length - 1]);
     setUndoPast(undoPast.slice(0, undoPast.length - 1));
-    setUndoFuture([bloqs, ...undoFuture]);
+    setUndoFuture([lines, ...undoFuture]);
   };
 
   const onRedo = () => {
-    onBloqsChange(undoFuture[0]);
-    setUndoPast([...undoPast, bloqs]);
+    onLinesChange(undoFuture[0]);
+    setUndoPast([...undoPast, lines]);
     setUndoFuture(undoFuture.slice(1));
   };
 
-  const onLinesScroll = (e: React.UIEvent) => {
-    if (linesRef.current) {
-      setLinesScrollLeft(linesRef.current.scrollLeft);
-    }
+  const onMoveLineUp = (line: IBloqLine) => {
+    const index = lines.indexOf(line);
+    onLinesChange(
+      update(lines, { $splice: [[index, 1], [index - 1, 0, line]] })
+    );
+  };
+
+  const onMoveLineDown = (line: IBloqLine) => {
+    const index = lines.indexOf(line);
+    onLinesChange(
+      update(lines, { $splice: [[index, 1], [index + 1, 0, line]] })
+    );
+  };
+
+  const onDuplicateLine = (line: IBloqLine) => {
+    const index = lines.indexOf(line);
+    onLinesChange(
+      update(lines, { $splice: [[index + 1, 0, { ...line, id: uuid() }]] })
+    );
+  };
+
+  const onToggleLine = (line: IBloqLine) => {
+    const index = lines.indexOf(line);
+    onLinesChange(
+      update(lines, {
+        [index]: { disabled: { $set: !line.disabled } }
+      })
+    );
+  };
+
+  const onDeleteLine = (line: IBloqLine) => {
+    const index = lines.indexOf(line);
+    onLinesChange(update(lines, { $splice: [[index, 1]] }));
+  };
+
+  const onLinesScroll = (scrollLeft: number) => {
+    setLinesScrollLeft(scrollLeft);
   };
 
   return (
     <Container>
-      <Lines
-        selectedLine={selectedLineIndex}
-        onClick={deselectEverything}
-        ref={linesRef}
-        onScroll={onLinesScroll}
-      >
-        {[...bloqs, []].map((line, i) => (
-          <Line key={i}>
-            <Number>{i + 1}</Number>
+      <Lines selectedLine={selectedLineIndex} onClick={deselectEverything}>
+        {[...lines, { id: uuid(), bloqs: [] }].map((line, i) => (
+          <Line key={line.id}>
+            {!line.disabled && <LineBullet />}
+            {line.disabled && (
+              <DisabledIcon>
+                <Icon name="eye-close" />
+              </DisabledIcon>
+            )}
             <BloqsLine
-              bloqs={line}
+              line={line}
               bloqTypes={bloqTypes}
               getBloqPort={getBloqPort}
               selectedBloq={selectedLineIndex === i ? selectedBloqIndex : -1}
+              isFirst={i === 0}
+              isLast={i === lines.length - 1}
               selectedPlaceholder={
                 selectedLineIndex === i ? selectedPlaceholder : -1
               }
@@ -223,6 +242,12 @@ const HorizontalBloqEditor: React.FunctionComponent<
                 setSelectedBloq(-1);
                 setSelectedPlaceholder(j);
               }}
+              onMoveUp={onMoveLineUp}
+              onMoveDown={onMoveLineDown}
+              onDuplicate={onDuplicateLine}
+              onToggle={onToggleLine}
+              onDelete={onDeleteLine}
+              onScrollChange={onLinesScroll}
             />
           </Line>
         ))}
@@ -245,7 +270,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
           </JuniorButton>
         </ToolbarLeft>
         <UploadButton onClick={onUpload}>
-          <Icon name="brain" />
+          <Icon name="programming-upload" />
         </UploadButton>
       </Toolbar>
       <BloqConfigPanel
@@ -292,28 +317,32 @@ const Lines = styled.div<ILinesProps>`
   flex: 1;
   transform: translate(
     0,
-    ${props => (props.selectedLine > 0 ? props.selectedLine * -100 : 0)}px
+    ${props => (props.selectedLine > 0 ? props.selectedLine * -123 : 0)}px
   );
 `;
 
 const Line = styled.div`
   display: flex;
   align-items: center;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
 `;
 
-const Number = styled.div`
-  min-width: 40px;
-  height: 40px;
-  border-radius: 20px;
+const LineBullet = styled.div`
+  min-width: 32px;
+  height: 32px;
+  border-radius: 16px;
   background-color: #3b3e45;
-  font-weight: bold;
-  font-size: 32px;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 12px;
+  margin-right: 10px;
+`;
+
+const DisabledIcon = styled.div`
+  min-width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  svg {
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 const Toolbar = styled.div`

@@ -1,6 +1,6 @@
 import React, { FC } from "react";
+import { Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { Input } from "@bitbloq/ui";
 
 interface IFormProps {
   className?: string;
@@ -19,33 +19,34 @@ const LoginForm: FC<IFormProps> = ({
   setEmail,
   setPassword
 }) => {
+  const t = useTranslate();
+
   return (
     <div className={className}>
       <FormGroup>
-        <label>Correo electrónico</label>
+        <label>{t("login.labels.email")}</label>
         <Input
+          autoFocus
           name="email"
           type="text"
-          placeholder="Correo electrónico"
+          placeholder={t("login.placeholders.email")}
           value={email}
           error={loginError}
           onChange={e => setEmail(e.target.value)}
         />
       </FormGroup>
       <FormGroup>
-        <label>Contraseña</label>
+        <label>{t("login.labels.password")}</label>
         <Input
           name="email"
           type="password"
-          placeholder="Contraseña"
+          placeholder={t("login.placeholders.password")}
           value={password}
           error={loginError}
           onChange={e => setPassword(e.target.value)}
         />
       </FormGroup>
-      {loginError && (
-        <ErrorMessage>Correo electrónico o contraseña no válidos</ErrorMessage>
-      )}
+      {loginError && <ErrorMessage>{t("login.error")}</ErrorMessage>}
     </div>
   );
 };

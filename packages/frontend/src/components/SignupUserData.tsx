@@ -11,10 +11,8 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 import { isValidDate, isValidEmail, getAge } from "../util";
-import { educationalStages } from "../config";
-import LoginWithGoogleButton from "./LoginWithGoogleButton";
+import { educationalStages, privacyPolicyUrl } from "../config";
 
 interface IUserData {
   acceptTerms: boolean;
@@ -96,14 +94,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 
   const togglePasswordMask = () => {
     setPasswordIsMasked(!passwordIsMasked);
-  };
-
-  const onGotoMicrosoft = () => {
-    // TODO
-  };
-
-  const onGotoGoogle = () => {
-    // TODO
   };
 
   const teacherSubForm = (isShown: boolean) => {
@@ -215,43 +205,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <Login>
-        <p>
-          {t("signup.user-data.login.account-text")}{" "}
-          <a
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              router.push("/login");
-            }}
-          >
-            {t("signup.user-data.login.account-link")}
-          </a>
-          .
-        </p>
-        <LoginWith>
-          <div>
-            <p>{t("signup.user-data.login.with-text")}</p>
-            <LoginWithInfo>
-              <p>
-                {t("signup.user-data.login.with-sub-text-1")}{" "}
-                <a target="_blank" href="https://bitbloq.bq.com/#">
-                  {t("signup.user-data.link-general-conditions")}
-                </a>{" "}
-                {t("signup.user-data.login.with-sub-text-2")}{" "}
-                <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-                  {t("signup.user-data.link-privacy-policy")}
-                </a>
-                .
-              </p>
-            </LoginWithInfo>
-          </div>
-          <LoginWithExternalProfile>
-            <LoginWithMicrosoftButton />
-            <LoginWithGoogleButton />
-          </LoginWithExternalProfile>
-        </LoginWith>
-      </Login>
       <FormGroup>
         <FormField>
           <label>{t("signup.user-data.labels.name")}</label>
@@ -310,7 +263,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             <Icon name={passwordIsMasked ? "eye" : "eye-close"} />
           </TooglePassword>
         </InputPassword>
-        {/* TODO: remove eye-close background */}
         {errors.password && (
           <ErrorMessage>{t("signup.user-data.errors.password")}</ErrorMessage>
         )}
@@ -373,12 +325,20 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         />
         <span>
           {t("signup.user-data.labels.accept-terms-1")}{" "}
-          <a target="_blank" href="https://bitbloq.bq.com/#">
-            {t("signup.user-data.link-general-conditions")}
+          <a
+            target="_blank"
+            href="/legal/general-conditions"
+            onClick={e => e.stopPropagation()}
+          >
+            {t("legal.general-conditions").toLowerCase()}
           </a>{" "}
           {t("signup.user-data.labels.accept-terms-2")}{" "}
-          <a target="_blank" href="https://bitbloq.bq.com/#/cookies">
-            {t("signup.user-data.link-privacy-policy")}
+          <a
+            target="_blank"
+            href={privacyPolicyUrl}
+            onClick={e => e.stopPropagation()}
+          >
+            {t("legal.privacy-policy").toLowerCase()}
           </a>
           .
         </span>
@@ -407,37 +367,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
 export default SignupUserData;
 
 /* Styled components */
-
-const Login = styled.div`
-  color: #474749;
-`;
-
-const LoginWith = styled.div`
-  display: flex;
-  padding: 20px 0;
-  width: 50%;
-`;
-
-const LoginWithInfo = styled.div`
-  font-size: 12px;
-  padding-top: 10px;
-`;
-
-const LoginWithExternalProfile = styled.div`
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  margin-left: 15px;
-
-  button {
-    background-color: white;
-    border: solid 1px #dddddd;
-    border-radius: 4px;
-    cursor: pointer;
-    height 40px;
-    width: 145px;
-  }
-`;
 
 const InputPassword = styled.div`
   position: relative;
@@ -474,6 +403,14 @@ const FormField = styled.div`
     display: block;
     margin-bottom: 10px;
   }
+
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
 `;
 
 const CheckOption = styled.div`
@@ -481,6 +418,7 @@ const CheckOption = styled.div`
   align-items: center;
   margin-bottom: 14px;
   cursor: pointer;
+  width: fit-content;
 
   span {
     margin-left: 10px;

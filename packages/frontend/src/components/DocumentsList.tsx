@@ -9,8 +9,8 @@ import {
   DELETE_DOCUMENT_MUTATION,
   UPDATE_FOLDER_MUTATION,
   DELETE_FOLDER_MUTATION,
-  CREATE_DOCUMENT_MUTATION,
-  HAS_EXERCISES_QUERY
+  HAS_EXERCISES_QUERY,
+  DUPLICATE_DOCUMENT_MUTATION
 } from "../apollo/queries";
 import DocumentCard from "./DocumentCard";
 import DocumentCardMenu from "./DocumentCardMenu";
@@ -31,6 +31,8 @@ export interface IDocumentListProps {
   parentsPath?: any;
   className?: string;
   currentLocation: IFolder;
+  order?: string;
+  searchText?: string;
   onFolderClick?: (e) => any;
   onDocumentClick?: (e) => any;
   refetchDocsFols: () => any;
@@ -44,6 +46,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   pagesNumber,
   parentsPath,
   currentLocation,
+  order,
+  searchText,
   className,
   onFolderClick,
   onDocumentClick,
@@ -79,9 +83,9 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   const [draggingItemId, setDraggingItemId] = useState("");
   const [droppedItemId, setDroppedItemId] = useState("");
 
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
+  const [duplicateDocument] = useMutation(DUPLICATE_DOCUMENT_MUTATION);
   const [updateFolder] = useMutation(UPDATE_FOLDER_MUTATION);
   const [deleteFolder] = useMutation(DELETE_FOLDER_MUTATION);
 
@@ -234,20 +238,24 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     if (newTitle.length >= 64) {
       newTitle = newTitle.slice(0, 63);
     }
-
-    await createDocument({
+    const result = await duplicateDocument({
       variables: {
-        ...document,
-        image: {
-          image: document.image,
-          isSnapshot: document.image.indexOf("blob") > -1
-        },
-        title: newTitle,
-        folder: currentLocation.id
+        currentLocation,
+        documentID: document.id,
+        order,
+        searchTitle: searchText,
+        title: newTitle
       }
+    }).catch(catchError => {
+      console.log(catchError);
+      return e;
     });
-    refetchDocsFols();
-    setMenuOpenId("");
+
+    const { page } = result.data.duplicateDocument;
+
+    if (page) {
+      selectPage(page);
+    }
   };
 
   const onMoveDocumentClick = async (e, document) => {
@@ -398,7 +406,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                                     MouseEvent
                                   >
                                 ) {
-                                  setMenuOpenId("");
                                   if (document.type !== "folder") {
                                     onDuplicateDocument(e, document);
                                   }

@@ -74,7 +74,9 @@ const ThreeDViewer: FC<IThreeDViewerProps> = ({
   const updateStatusBar = async () => {
     setSelectedPosition(null);
     if (selectedObjects && selectedObjects.length === 1) {
-      setSelectedPosition(await scene.getPositionAsync(selectedObjects[0]));
+      setSelectedPosition(
+        await scene.getPositionAsync(selectedObjects[0], true)
+      );
     }
   };
 

@@ -408,7 +408,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   };
 
   const headerRightContent = (
-    <HeaderRightContent>
+    <HeaderRightContent hideBorder={!isLoggedIn}>
       {isLoggedIn ? (
         <UserSession cloudClick={() => setCloudModalOpen(true)} />
       ) : (

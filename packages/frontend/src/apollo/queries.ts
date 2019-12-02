@@ -223,6 +223,31 @@ export const CREATE_DOCUMENT_MUTATION = gql`
   }
 `;
 
+export const DUPLICATE_DOCUMENT_MUTATION = gql`
+  mutation DuplicateDocument(
+    $currentLocation: ObjectID
+    $documentID: ObjectID!
+    $itemsPerPage: Number
+    $order: String
+    $searchTitle: String
+    $title: String!
+  ) {
+    duplicateDocument(
+      currentLocation: $currentLocation
+      documentID: $documentID
+      itemsPerPage: $itemsPerPage
+      order: $order
+      searchTitle: $searchTitle
+      title: $title
+    ) {
+      document {
+        id
+      }
+      page
+    }
+  }
+`;
+
 export const CREATE_FOLDER_MUTATION = gql`
   mutation createFolder($input: FolderIn) {
     createFolder(input: $input) {
@@ -480,6 +505,8 @@ export const LOGIN_WITH_MICROSOFT = gql`
   mutation LoginWithMicrosoft($token: String!) {
     loginWithMicrosoft(token: $token) {
       id
+      token
+      finishedSignUp
     }
   }
 `;
@@ -488,6 +515,8 @@ export const LOGIN_WITH_GOOGLE = gql`
   mutation LoginWithGoogle($token: String!) {
     loginWithGoogle(token: $token) {
       id
+      token
+      finishedSignUp
     }
   }
 `;
@@ -638,16 +667,24 @@ export const UPLOAD_CLOUD_RESOURCE = gql`
   }
 `;
 
-export const SAVE_MUTATION = gql`
+/* Signup */
+
+export const ACTIVATE_ACCOUNT_MUTATION = gql`
+  mutation ActivateAccount($token: String!) {
+    activateAccount(token: $token)
+  }
+`;
+
+export const FINISH_SIGNUP_MUTATION = gql`
+  mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
+    finishSignUp(id: $id, userPlan: $userPlan)
+  }
+`;
+
+export const SAVE_USER_DATA_MUTATION = gql`
   mutation SaveUserData($input: UserIn!) {
     saveUserData(input: $input) {
       id
     }
-  }
-`;
-
-export const SIGNUP_MUTATION = gql`
-  mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
-    finishSignUp(id: $id, userPlan: $userPlan)
   }
 `;

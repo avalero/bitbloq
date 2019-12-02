@@ -64,6 +64,7 @@
     "chroma-js": "^2.0.6",
     "clone-deep": "^4.0.1",
     "deepmerge": "^3.2.0",
+    "framer-motion": "^1.6.17",
     "immutability-helper": "^3.0.0",
     "lodash": "^4.17.11",
     "nunjucks": "^3.2.0",
