@@ -1,21 +1,26 @@
 import { ApolloError, AuthenticationError } from "apollo-server-koa";
 import { UserModel } from "../models/user";
-import { IUserInToken } from "../models/interfaces";
+import { IUserInToken, IDataInRedis } from "../models/interfaces";
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
-import { redisClient } from "../server";
+import { redisClient, pubsub } from "../server";
 import { IUser } from "../api-types";
+
+import { USER_SESSION_EXPIRES } from "../resolvers/user";
+import { SUBMISSION_SESSION_EXPIRES } from "../resolvers/submission";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
   if (String(process.env.USE_REDIS) === "true") {
     const now: Date = new Date();
     let expiresAt: Date;
-    now.setHours(now.getHours() + 1);
+    // now.setHours(now.getHours() + 1);
     if (user.userID) {
       try {
-        const result = await redisClient.hgetallAsync(String(user.userID));
+        const result: IDataInRedis = await redisClient.hgetallAsync(
+          String(user.userID)
+        );
         reply = result.authToken;
         expiresAt = new Date(result.expiresAt);
       } catch (e) {
@@ -23,7 +28,7 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
       }
     } else if (user.submissionID) {
       try {
-        const result = await redisClient.hgetallAsync(
+        const result: IDataInRedis = await redisClient.hgetallAsync(
           String(user.submissionID)
         );
         reply = result.subToken;
@@ -62,7 +67,8 @@ export const storeTokenInRedis = async (
   subToken?: boolean
 ) => {
   const date = new Date();
-  date.setHours(date.getHours() + 2);
+  date.setHours(date.getHours() + 1); // debería ser el tiempo que queramos que tarde en caducar la sesión
+  // date.setMinutes(date.getMinutes() + 20);
   if (process.env.USE_REDIS === "true") {
     if (subToken) {
       return redisClient.hmset(
@@ -83,6 +89,35 @@ export const storeTokenInRedis = async (
     }
   }
 };
+
+const checksSessionExpires = async () => {
+  const allKeys: string[] = await redisClient.keysAsync("*");
+  const now: Date = new Date();
+  allKeys.map(async key => {
+    const result: IDataInRedis = await redisClient.hgetallAsync(key);
+    if (result && result.expiresAt) {
+      const expiresAt: Date = new Date(result.expiresAt);
+      if (expiresAt > now) {
+        const secondsRemaining: number =
+          (expiresAt.getTime() - now.getTime()) / 1000;
+        if (secondsRemaining / 60 < 5) {
+          console.log("subscription published");
+          result.authToken
+            ? pubsub.publish(USER_SESSION_EXPIRES, {
+                userSessionExpires: { ...result, key, secondsRemaining }
+              })
+            : pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
+                submissionSessionExpires: { ...result, key, secondsRemaining }
+              });
+        }
+      } else {
+        redisClient.del(key);
+      }
+    }
+  });
+};
+
+setInterval(checksSessionExpires, 5000);
 
 const contextController = {
   getMyUser: async context => {

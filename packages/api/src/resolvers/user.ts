@@ -1,4 +1,8 @@
-import { ApolloError, AuthenticationError } from "apollo-server-koa";
+import {
+  ApolloError,
+  AuthenticationError,
+  withFilter
+} from "apollo-server-koa";
 import { contextController, storeTokenInRedis } from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
@@ -12,14 +16,16 @@ import {
   IEmailData,
   IResetPasswordToken,
   ISignUpToken,
-  IUserInToken
+  IUserInToken,
+  IDataInRedis,
+  ISessionSubsData
 } from "../models/interfaces";
 
 import mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
 
-import { redisClient } from "../server";
+import { redisClient, pubsub } from "../server";
 
 import { sign as jwtSign, decode } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
@@ -37,7 +43,31 @@ import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 
 const saltRounds: number = 7;
 
+export const USER_SESSION_EXPIRES: string = "USER_SESSION_EXPIRES";
+
 const userResolver = {
+  Subscription: {
+    userSessionExpires: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([USER_SESSION_EXPIRES]),
+        (
+          payload: {
+            userSessionExpires: ISessionSubsData;
+          },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
+          console.log(context, payload);
+          return (
+            String(context.user.userID) ===
+            String(payload.userSessionExpires.key)
+          );
+        }
+      )
+    }
+  },
+
   Mutation: {
     // Public mutations:
 

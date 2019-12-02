@@ -18,12 +18,13 @@ import {
   IQuerySubmissionArgs,
   IQuerySubmissionsByExerciseArgs
 } from "../api-types";
-import { IUserInToken } from "../models/interfaces";
+import { IUserInToken, ISessionSubsData } from "../models/interfaces";
 
 const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
 const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
+export const SUBMISSION_SESSION_EXPIRES: string = "SUBMISSION_SESSION_EXPIRES";
 
 const submissionResolver = {
   Subscription: {
@@ -61,6 +62,22 @@ const submissionResolver = {
           return (
             String(payload.submissionActive._id) ===
             String(context.user.submissionID)
+          );
+        }
+      )
+    },
+    submissionSessionExpires: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([SUBMISSION_SESSION_EXPIRES]),
+        (
+          payload: { submissionSessionExpires: ISessionSubsData },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
+          return (
+            String(context.user.submissionID) ===
+            String(payload.submissionSessionExpires.key)
           );
         }
       )
