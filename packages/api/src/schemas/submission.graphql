@@ -1,4 +1,4 @@
-# import Date, ObjectID, Role from "./scalars.graphql"
+# import Date, ObjectID, Role, SessionExpires from "./scalars.graphql"
 # import Exercise from "./exercise.graphql"
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
@@ -47,7 +47,7 @@ type Mutation {
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission
     @authRequired(requires: [TEACHER])
-  submissionSessionExpires: Submission @authRequired(requires: [STUDENT])
+  submissionSessionExpires: SessionExpires @authRequired(requires: [STUDENT])
   submissionActive: Submission
 }
 

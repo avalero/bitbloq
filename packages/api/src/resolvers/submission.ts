@@ -19,6 +19,7 @@ import {
   IQuerySubmissionsByExerciseArgs
 } from "../api-types";
 import { IUserInToken, ISessionSubsData } from "../models/interfaces";
+import { storeTokenInRedis } from "../controllers/context";
 
 const saltRounds = 7;
 
@@ -75,6 +76,7 @@ const submissionResolver = {
           variables,
           context: { user: IUserInToken }
         ) => {
+          console.log({ payload, context });
           return (
             String(context.user.submissionID) ===
             String(payload.submissionSessionExpires.key)
@@ -161,19 +163,7 @@ const submissionResolver = {
         { new: true }
       );
       if (process.env.USE_REDIS === "true") {
-        await redisClient.hmset(
-          String(newSub._id),
-          "subToken",
-          String(token),
-          (err, reply) => {
-            if (err) {
-              throw new ApolloError(
-                "Error storing auth token in redis",
-                "REDIS_TOKEN_ERROR"
-              );
-            }
-          }
-        );
+        await storeTokenInRedis(newSub._id, token, true);
       }
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
       return {

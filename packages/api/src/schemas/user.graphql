@@ -1,4 +1,4 @@
-# import Date, ObjectID, EmailAddress, Role from "./scalars.graphql"
+# import Date, ObjectID, EmailAddress, Role, SessionExpires from "./scalars.graphql"
 # import Document from "./document.graphql"
 # import Folder from "./folder.graphql"
 
@@ -25,15 +25,7 @@ type Mutation {
     @authRequired(requires: [USER])
 }
 type Subscription {
-  userSessionExpires: sessionExpires @authRequired(requires: [USER])
-}
-
-type sessionExpires {
-  key: ObjectID
-  authToken: String
-  subToken: String
-  expiresAt: Date
-  secondsRemaining: Number
+  userSessionExpires: SessionExpires @authRequired(requires: [USER])
 }
 
 type UserStep1 {
