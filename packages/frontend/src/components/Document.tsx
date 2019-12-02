@@ -4,7 +4,6 @@ import {
   colors,
   Button,
   DialogModal,
-  HorizontalRule,
   Icon,
   Spinner,
   Translate
@@ -22,7 +21,6 @@ import {
 import { UserDataContext } from "../lib/useUserData";
 import { sortByCreatedAt } from "../util";
 import AppLayout from "./AppLayout";
-import CloudModal from "./CloudModal";
 import Breadcrumbs from "./Breadcrumbs";
 import DocumentTypeTag from "./DocumentTypeTag";
 import EditTitleModal from "./EditTitleModal";
@@ -128,11 +126,7 @@ class Document extends React.Component<any, DocumentState> {
 
     breadParents.push({ route: "", text: document.title, type: "document" });
 
-    return (
-      <Header>
-        <Breadcrumbs links={breadParents} title={document.title} />
-      </Header>
-    );
+    return <Breadcrumbs links={breadParents} title={document.title} />;
   }
 
   public renderDocumentInfo(document, t) {
@@ -482,7 +476,11 @@ class Document extends React.Component<any, DocumentState> {
                       return <GraphQLErrorMessage apolloError={error} />;
                     }
                     if (loading) {
-                      return <Loading />;
+                      return (
+                        <AppLayout>
+                          <Loading />
+                        </AppLayout>
+                      );
                     }
 
                     if (stateError) {
@@ -496,9 +494,7 @@ class Document extends React.Component<any, DocumentState> {
                     }
 
                     return (
-                      <AppLayout>
-                        {this.renderHeader(document)}
-                        <Rule />
+                      <AppLayout header={this.renderHeader(document)}>
                         <DocumentData>
                           {user && user.teacher
                             ? this.renderDocumentTeacherInfo(document, t)
@@ -550,26 +546,8 @@ export default Document;
 
 /* styled components */
 
-const Header = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-
-  a {
-    font-weight: bold;
-    color: inherit;
-    text-decoration: none;
-    margin-right: 6px;
-  }
-`;
-
 const Loading = styled(Spinner)`
   flex: 1;
-`;
-
-const Rule = styled(HorizontalRule)`
-  margin: 0px -10px;
 `;
 
 const EmptyExercises = styled.div`

@@ -3,7 +3,7 @@ import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import { Button, Icon, Spinner, HorizontalRule } from "@bitbloq/ui";
+import { Button, Icon, Spinner } from "@bitbloq/ui";
 import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
@@ -187,15 +187,15 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   }));
 
   return (
-    <AppLayout>
-      <Header>
-        {currentLocation.id === (userData && userData.rootFolder) ? (
-          <h1>Mis documentos</h1>
+    <AppLayout
+      header={
+        currentLocation.id === (userData && userData.rootFolder) ? (
+          "Mis documentos"
         ) : (
           <Breadcrumbs links={breadParents} />
-        )}
-      </Header>
-      <Rule />
+        )
+      }
+    >
       <DocumentListHeader>
         {(docsAndFols.length > 0 || searchQuery) && (
           <FilterOptions
@@ -290,29 +290,8 @@ export default DocumentsWithDelete;
 
 /* styled components */
 
-const Header = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  h1 {
-    flex: 1;
-    font-weight: bold;
-    font-size: 24px;
-  }
-`;
-
 const Loading = styled(Spinner)`
   height: 100%;
-`;
-
-const Rule = styled(HorizontalRule)`
-  margin: 0px -10px;
 `;
 
 const DocumentListHeader = styled.div`
