@@ -24,7 +24,6 @@ export const ServiceWorkerProvider: FC = ({ children }) => {
         .register("/service-worker.js", { scope: "/" })
         .then(registration => {
           if (registration.active) {
-            console.log("activado");
             setServiceWorker(registration.active);
           }
         })

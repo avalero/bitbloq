@@ -35,6 +35,7 @@ import { dataURItoBlob } from "../util";
 import { IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import { getToken } from "../lib/session";
 
 interface IEditDocumentProps {
   folder?: string;
@@ -58,6 +59,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const isPublisher = user && user.publisher;
 
   const isNew = id === "new";
+
+  const [previousId, setPreviousId] = useState(id);
 
   const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -101,18 +104,19 @@ const EditDocument: FC<IEditDocumentProps> = ({
     example: isExample
   } = document || {};
 
-  const onBeforeUnload = useCallback(() => {
-    console.log("beforeunload");
+  const onPostImage = useCallback(async () => {
     if (
       imageToUpload.current &&
       imageToUpload.current.size > 0 &&
       serviceWorker
     ) {
-      console.log("Envía mensaje");
+      const token = await getToken();
       serviceWorker.postMessage({
-        documentId: document.id,
+        documentId: id,
         image: imageToUpload.current,
-        type: "upload-image"
+        token,
+        type: "upload-image",
+        userID: user.id
       });
     }
   }, [imageToUpload.current, serviceWorker]);
@@ -125,11 +129,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   }, [isLoggedIn]);
 
   useEffect(() => {
-    window.removeEventListener("beforeunload", onBeforeUnload);
-    window.addEventListener("beforeunload", onBeforeUnload);
+    window.removeEventListener("beforeunload", onPostImage);
+    window.addEventListener("beforeunload", onPostImage);
 
-    return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [onBeforeUnload]);
+    return () => window.removeEventListener("beforeunload", onPostImage);
+  }, [onPostImage]);
 
   useEffect(() => {
     if (type === "open") {
@@ -164,6 +168,13 @@ const EditDocument: FC<IEditDocumentProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (id !== "new" && previousId !== id) {
+      onPostImage();
+    }
+    setPreviousId(id);
+  }, [id]);
+
   const [addResourceToExercises] = useMutation(ADD_RESOURCE_TO_EXERCISES);
   const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [deleteResourceFromExercises] = useMutation(
@@ -173,7 +184,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
   const [setDocumentImage] = useMutation(SET_DOCUMENT_IMAGE_MUTATION);
 
-  const saveImage = async () => {
+  const saveImage = () => {
     if (!image || image.isSnapshot) {
       const canvasCollection = window.document.getElementsByTagName("canvas");
       const canvas = canvasCollection[0];
@@ -258,6 +269,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         } = result;
         const href = "/app/edit-document/[folder]/[type]/[id]";
         const as = `/app/edit-document/${saveFolder}/${type}/${newId}`;
+        saveImage();
         Router.replace(href, as, { shallow: true });
       }
     } else {

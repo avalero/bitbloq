@@ -1,41 +1,72 @@
-import { debounce } from "lodash";
+import { execute, GraphQLRequest, makePromise } from "apollo-link";
+import { SET_DOCUMENT_IMAGE_MUTATION } from "../apollo/queries";
+import { createUploadLink } from "apollo-upload-client";
 
-/*import { createClient } from "../apollo/client";
-import {
-  getToken,
-  onSessionError,
-  onSessionActivity
-} from "../lib/session";*/
+interface IContext {
+  headers: {
+    authorization: string;
+  };
+  user: {
+    userID: string;
+  };
+}
+
+interface IOperation {
+  context: IContext;
+  query?: any;
+  variables?: {
+    [key: string]: any;
+  };
+}
+
+const uri = process.env.API_URL_SERVER || process.env.API_URL;
+const link = createUploadLink({ uri });
 
 const CACHE_NAME = "bitbloq-service-worker";
-const urlsToCache = ["/"];
-
-// const client = createClient({}, { getToken, onSessionError, onSessionActivity });
+const urlsToCache = ["/index", "/plans"];
 
 const ctx: ServiceWorkerGlobalScope = self as any;
 
 ctx.addEventListener("install", event => {
   ctx.skipWaiting();
-  console.log("instalado");
-  console.log("test importing something works", debounce);
   const preLoaded = caches
     .open(CACHE_NAME)
     .then(cache => cache.addAll(urlsToCache));
   event.waitUntil(preLoaded);
-  console.log(ctx);
 });
 
-// self.addEventListener("fetch", event => {
-//   const response = caches
-//     .match(event.request)
-//     .then(match => match || fetch(event.request));
-//   event.respondWith(response);
-// });
+self.addEventListener("fetch", event => {
+  const response = caches
+    .match(event.request)
+    .then(match => match || fetch(event.request));
+  event.respondWith(response);
+});
 
-ctx.addEventListener("message", message => {
-  console.log("Mensaje recibido");
-  // importScripts("/uploadImage.js")
-  // func();
-  console.log("No hay error");
-  console.log(1, message.data);
+ctx.addEventListener("message", async message => {
+  const { documentId, image, token, type, userID } = message.data;
+
+  let operation: IOperation = {
+    context: {
+      headers: {
+        authorization: `Bearer ${token}`
+      },
+      user: {
+        userID
+      }
+    }
+  };
+
+  if (type === "upload-image") {
+    operation = {
+      ...operation,
+      query: SET_DOCUMENT_IMAGE_MUTATION,
+      variables: {
+        id: documentId,
+        image,
+        isSnapshot: true
+      }
+    };
+  }
+
+  makePromise(execute(link, operation as GraphQLRequest));
 });
