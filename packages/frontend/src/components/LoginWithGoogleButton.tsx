@@ -5,7 +5,7 @@ import { v1 } from "uuid";
 import styled from "@emotion/styled";
 import { Button } from "@bitbloq/ui";
 import { googleAuthEndpoint, googleScopes } from "../config";
-import logoGoogleImage from "../images/logo-google.png";
+import logoGoogleImage from "../images/logo-google.svg";
 import env from "../lib/env";
 
 const uuid = v1;

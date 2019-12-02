@@ -191,6 +191,8 @@ export const educationalStages = [
   "college"
 ];
 
+export const signupSteps = ["user-data", "plan-selection", "create"];
+
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
   TOKEN_DURATION_MINUTES: 60,
@@ -229,3 +231,6 @@ export const googleAuthEndpoint =
 
 export const googleScopes =
   "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/userinfo.email";
+
+export const privacyPolicyUrl =
+  "https://storage.googleapis.com/webstatic.bq.com/Pol%C3%ADtica%20Privacidad/Politica%20privacidad_ES.pdf";

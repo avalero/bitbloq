@@ -7,7 +7,6 @@ import LoginWithGoogleButton from "./LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 
 interface ILoginPanelProps {
-  className?: string;
   email: string;
   loginError: boolean;
   loginIn: boolean;
@@ -22,7 +21,6 @@ interface ILoginPanelProps {
 const LoginPanel: FC<ILoginPanelProps> = props => {
   const t = useTranslate();
   const {
-    className,
     email,
     loginError,
     loginIn,
@@ -34,37 +32,32 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
     setPassword
   } = props;
   return (
-    <Panel
-      className={className}
-      onSubmit={(event: React.FormEvent) => event.preventDefault()}
-    >
+    <>
       {t("login.with")}
       <LoginWith>
         <LoginWithMicrosoftButton />
         <LoginWithGoogleButton />
       </LoginWith>
       <Divider>{t("login.divider")}</Divider>
-      <LoginForm
-        email={email}
-        loginError={loginError}
-        password={password}
-        setEmail={setEmail}
-        setPassword={setPassword}
-      />
-      <StyledButton
-        type="submit"
-        onClick={() => onLoginClick()}
-        disabled={loginIn}
-      >
-        {t("login.ok")}
-      </StyledButton>
-      <StyledButton secondary onClick={secondaryButtonCallback}>
-        {secondaryButtonText}
-      </StyledButton>
-      <Link href="/forgot-password">
-        <a>{t("login.forgot-password")}</a>
-      </Link>
-    </Panel>
+      <Form onSubmit={(event: React.FormEvent) => event.preventDefault()}>
+        <LoginForm
+          email={email}
+          loginError={loginError}
+          password={password}
+          setEmail={setEmail}
+          setPassword={setPassword}
+        />
+        <StyledButton type="submit" onClick={onLoginClick} disabled={loginIn}>
+          {t("login.ok")}
+        </StyledButton>
+        <StyledButton secondary onClick={secondaryButtonCallback}>
+          {secondaryButtonText}
+        </StyledButton>
+        <Link href="/forgot-password">
+          <a>{t("login.forgot-password")}</a>
+        </Link>
+      </Form>
+    </>
   );
 };
 
@@ -93,9 +86,7 @@ const LoginWith = styled.div`
   padding: 10px 0;
 `;
 
-const Panel = styled.form`
-  font-family: Roboto;
-
+const Form = styled.form`
   a {
     color: #00ade5;
     display: block;

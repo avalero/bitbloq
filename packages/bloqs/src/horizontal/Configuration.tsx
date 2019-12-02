@@ -1,5 +1,4 @@
 import React, { FC } from "react";
-import styled from "@emotion/styled";
 
 import StartConfiguration from "./configuration/StartConfiguration";
 import SwitchConfiguration from "./configuration/SwitchConfiguration";
@@ -62,16 +61,7 @@ const Configuration: FC<IConfigurationProps> = ({
     return null;
   }
 
-  return (
-    <Wrap>
-      <ConfigurationComponent bloq={bloq} onChange={onChange} />
-    </Wrap>
-  );
+  return <ConfigurationComponent bloq={bloq} onChange={onChange} />;
 };
 
 export default Configuration;
-
-const Wrap = styled.div`
-  border: 1px dashed;
-  padding: 10px;
-`;

@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { useRouter } from "next/router";
 import React, { FC, useState } from "react";
 import {
@@ -10,7 +11,7 @@ import {
 } from "@bitbloq/ui";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
-import { plans } from "../config";
+import { plans, signupSteps } from "../config";
 import { IPlan } from "../types";
 
 interface ISignupPlanSelectionProps {
@@ -52,7 +53,7 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
         <Button
           tertiary
           onClick={() =>
-            router.push("/signup/[step]", "/signup/user-data", {
+            router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
               shallow: true
             })
           }

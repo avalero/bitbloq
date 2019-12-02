@@ -5,6 +5,7 @@ import { Icon, JuniorSwitch } from "@bitbloq/ui";
 
 import { IBloq } from "../../index";
 
+import BalloonPanel from "../BalloonPanel";
 import ReceiveMessage from "./images/ReceiveMessage";
 
 interface IReceiveMessageConfigurationProps {
@@ -45,10 +46,11 @@ export default ReceiveMessageConfiguration;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  flex-direction: column;
 `;
 
-const ImageWrap = styled.div`
-  margin-right: 20px;
+const ImageWrap = styled(BalloonPanel)`
+  padding: 30px 55px;
   svg {
     width: 200px;
     height: 200px;

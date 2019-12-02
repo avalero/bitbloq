@@ -87,6 +87,12 @@ export interface IBloq {
   parameters: { [name: string]: string | number };
 }
 
+export interface IBloqLine {
+  id: string;
+  bloqs: IBloq[];
+  disabled?: boolean;
+}
+
 export interface IBloqTypeGroup {
   types: string[];
   category?: BloqCategory;
@@ -116,9 +122,15 @@ export interface IPortPin {
   value: string;
 }
 
-export interface IConnectorPosition {
+interface IPosition {
   x: number;
   y: number;
+}
+
+export interface IConnectorPosition extends IPosition {
+  x: number;
+  y: number;
+  tablet?: IPosition;
 }
 
 export enum IPortDirection {
@@ -139,10 +151,14 @@ export interface IPort {
   schematicPlaceholderPosition: IConnectorPosition;
 }
 
-export interface IComponentImage {
-  url: string;
+interface ISize {
   width: number;
   height: number;
+}
+
+export interface IComponentImage extends ISize {
+  url: string;
+  tablet?: ISize;
 }
 
 export interface IIntegratedComponent {
@@ -158,6 +174,7 @@ export interface IBoard {
   image: IComponentImage;
   ports: IPort[];
   schematicCenter: IConnectorPosition;
+  schematicImage: IComponentImage;
 }
 
 export enum ConnectorPinMode {

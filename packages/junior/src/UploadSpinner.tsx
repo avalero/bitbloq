@@ -16,7 +16,7 @@ const UploadSpinner: FC<IUploadSpinnerProps> = ({
 }) => {
   let icon = "";
   if (uploading) {
-    icon = "brain";
+    icon = "programming-board";
   } else if (success) {
     icon = "tick";
   } else if (!success) {

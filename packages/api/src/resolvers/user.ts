@@ -143,7 +143,7 @@ const userResolver = {
         );
         // Generate the email with the activation link and send it
         const data: IEmailData = {
-          url: `${process.env.FRONTEND_URL}/app/activate?token=${logOrSignToken}`
+          url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
         };
         const mjml: string = welcomeTemplate(data);
         const htmlMessage: any = mjml2html(mjml, {

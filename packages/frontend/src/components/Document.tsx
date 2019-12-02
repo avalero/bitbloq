@@ -21,7 +21,7 @@ import {
 } from "../apollo/queries";
 import { UserDataContext } from "../lib/useUserData";
 import { sortByCreatedAt } from "../util";
-import AppFooter from "./Footer";
+import AppFooter from "./AppFooter";
 import AppHeader from "./AppHeader";
 import CloudModal from "./CloudModal";
 import Breadcrumbs from "./Breadcrumbs";
