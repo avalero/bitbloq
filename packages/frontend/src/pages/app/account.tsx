@@ -3,10 +3,11 @@ import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useTranslate, Button, Icon } from "@bitbloq/ui";
+import { useTranslate, Button, Icon, colors } from "@bitbloq/ui";
 import withApollo from "../../apollo/withApollo";
 import AppLayout from "../../components/AppLayout";
 import { plans } from "../../config.js";
+import useUserData from "../../lib/useUserData";
 
 enum TabType {
   UserData,
@@ -16,13 +17,15 @@ enum TabType {
 const AccountPage: NextPage = () => {
   const t = useTranslate();
   const router = useRouter();
+  const userData = useUserData();
+
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [currentTab, setCurrentTab] = useState(TabType.UserData);
   const [personalDataCollapsed, setPersonalDataCollapsed] = useState(true);
 
-  const plan = "member";
+  const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
 
   return (
     <AppLayout header="Mi cuenta">
@@ -30,84 +33,95 @@ const AccountPage: NextPage = () => {
         <Tabs>
           <Tab
             selected={currentTab === TabType.UserData}
-            // onClick={() => setCurrentTab(TabType.UserData)}
+            onClick={() => setCurrentTab(TabType.UserData)}
           >
             {t("account.user-data.title")}
           </Tab>
-          {/* <Tab selected={currentTab === TabType.PurchasedItems}
+          <Tab
+            selected={currentTab === TabType.PurchasedItems}
             onClick={() => setCurrentTab(TabType.PurchasedItems)}
-          >{t("account.purchased-items.title")}</Tab> */}
-        </Tabs>
-        <Content>
-          <Panel
-            title={t("account.user-data.personal-data.title")}
-            icon="description"
-            buttons={
-              personalDataCollapsed ? (
-                <Button
-                  tertiary
-                  onClick={() => setPersonalDataCollapsed(false)}
-                >
-                  {t("account.user-data.personal-data.button")}
-                </Button>
-              ) : (
-                <>
-                  <Button onClick={() => setPersonalDataCollapsed(true)}>
-                    {t("account.user-data.personal-data.button-save")}
-                  </Button>
-                  <Button
-                    secondary
-                    onClick={() => setPersonalDataCollapsed(true)}
-                  >
-                    {t("account.user-data.personal-data.button-cancel")}
-                  </Button>
-                </>
-              )
-            }
-          />
-          <Panel
-            title={t("account.user-data.email.title")}
-            icon="at"
-            buttons={
-              <Button tertiary>{t("account.user-data.email.button")}</Button>
-            }
-          />
-          <Panel
-            title={t("account.user-data.password.title")}
-            icon="padlock-close"
-            buttons={
-              <Button tertiary>{t("account.user-data.password.button")}</Button>
-            }
-          />
-          <Panel
-            title={t("account.user-data.plan.title")}
-            icon="user"
-            buttons={
-              plan === memberPlan.name ? (
-                <Button>{t("account.user-data.plan.button")}</Button>
-              ) : (
-                undefined
-              )
-            }
           >
-            <>
-              <h1>{t(`plans.${plan}`)}</h1>
-              <br />
-              <p>{t(`plans.${plan}-description`)}</p>
-              {/* { plan === teacherPlan.name && <>
+            {t("account.purchased-items.title")}
+          </Tab>
+        </Tabs>
+        {currentTab === TabType.UserData && (
+          <Content>
+            <Panel
+              title={t("account.user-data.personal-data.title")}
+              icon="description"
+              buttons={
+                personalDataCollapsed ? (
+                  <Button
+                    tertiary
+                    onClick={() => setPersonalDataCollapsed(false)}
+                  >
+                    {t("account.user-data.personal-data.button")}
+                  </Button>
+                ) : (
+                  <>
+                    <Button onClick={() => setPersonalDataCollapsed(true)}>
+                      {t("account.user-data.personal-data.button-save")}
+                    </Button>
+                    <Button
+                      secondary
+                      onClick={() => setPersonalDataCollapsed(true)}
+                    >
+                      {t("account.user-data.personal-data.button-cancel")}
+                    </Button>
+                  </>
+                )
+              }
+            />
+            <Panel
+              title={t("account.user-data.email.title")}
+              icon="at"
+              buttons={
+                <Button tertiary>{t("account.user-data.email.button")}</Button>
+              }
+            >
+              {userData.email}
+            </Panel>
+            <Panel
+              title={t("account.user-data.password.title")}
+              icon="padlock-close"
+              buttons={
+                <Button tertiary>
+                  {t("account.user-data.password.button")}
+                </Button>
+              }
+            />
+            <Panel
+              title={t("account.user-data.plan.title")}
+              icon="user"
+              buttons={
+                plan === memberPlan ? (
+                  <Button>{t("account.user-data.plan.button")}</Button>
+                ) : (
+                  undefined
+                )
+              }
+            >
+              <>
+                <h1>{t(`plans.${plan.name}`)}</h1>
                 <br />
-                <p style={{fontStyle: "italic"}}>Fecha de próxima renovación: 00/00/0000</p>
-              </>} */}
-            </>
-          </Panel>
-          <Panel
-            title={t("account.user-data.delete.title")}
-            icon="trash"
-            buttons={
-              <Button secondary>{t("account.user-data.delete.button")}</Button>
-            }
-          />
-        </Content>
+                <p>{t(`plans.${plan.name}-description`)}</p>
+                {/* { plan === teacherPlan && <>
+                  <br />
+                  <p style={{fontStyle: "italic"}}>Fecha de próxima renovación: 00/00/0000</p>
+                </>} */}
+              </>
+            </Panel>
+            <Panel
+              title={t("account.user-data.delete.title")}
+              icon="trash"
+              buttons={
+                <Button secondary>
+                  {t("account.user-data.delete.button")}
+                </Button>
+              }
+            />
+          </Content>
+        )}
       </Container>
     </AppLayout>
   );
@@ -139,14 +153,12 @@ const Panel: FC<IPanelProps> = ({ icon, title, buttons, children }) => (
 const Container = styled.div`
   background-color: white;
   border-radius: 4px;
-  box-shadow: 0 2px 3px 0 #c7c7c7;
+  box-shadow: 0 2px 3px 0 ${colors.gray3};
   display: flex;
 `;
 
 const Content = styled.div`
-  color: #373b44;
-  flex: 1;
-  margin: 0 20px;
+  margin: 30px 20px;
 `;
 
 const Tabs = styled.div`
@@ -159,15 +171,16 @@ const Tabs = styled.div`
   &:after {
     content: "";
     background-color: white;
-    border-right: 1px solid #c0c3c9;
+    border-right: 1px solid ${colors.gray3};
     flex: 1;
+    min-height: 40px;
   }
 `;
 
 const Tab = styled.div<{ selected?: boolean }>`
   align-items: center;
-  background-color: #eeeeee;
-  border: solid #c0c3c9;
+  background-color: ${colors.gray2};
+  border: solid ${colors.gray3};
   border-width: 0 1px 1px 0;
   cursor: pointer;
   display: flex;
@@ -185,8 +198,12 @@ const Tab = styled.div<{ selected?: boolean }>`
 
 const PanelContainer = styled.div`
   border-radius: 4px;
-  border: solid 1px #c0c3c9;
-  margin: 30px 0;
+  border: solid 1px ${colors.gray3};
+  margin-bottom: 30px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const PanelHeader = styled.div`
@@ -219,8 +236,9 @@ const PanelHeaderTitle = styled.div`
 `;
 
 const PanelContent = styled.div`
-  border-top: solid 1px #c0c3c9;
+  border-top: solid 1px ${colors.gray3};
   font-size: 14px;
+  line-height: normal;
   padding: 20px;
 
   h1 {
