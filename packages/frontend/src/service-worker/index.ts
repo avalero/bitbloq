@@ -5,24 +5,7 @@ import {
 } from "../apollo/queries";
 import { createUploadLink } from "apollo-upload-client";
 
-interface IContext {
-  headers: {
-    authorization: string;
-  };
-  user: {
-    userID: string;
-  };
-}
-
-interface IOperation {
-  context: IContext;
-  query?: any;
-  variables?: {
-    [key: string]: any;
-  };
-}
-
-const uri = process.env.API_URL_SERVER || process.env.API_URL;
+const uri = process.env.API_URL;
 const link = createUploadLink({ uri });
 
 const CACHE_NAME = "bitbloq-service-worker";
@@ -36,13 +19,6 @@ ctx.addEventListener("install", event => {
     .open(CACHE_NAME)
     .then(cache => cache.addAll(urlsToCache));
   event.waitUntil(preLoaded);
-});
-
-self.addEventListener("fetch", event => {
-  const response = caches
-    .match(event.request)
-    .then(match => match || fetch(event.request));
-  event.respondWith(response);
 });
 
 ctx.addEventListener("message", async message => {

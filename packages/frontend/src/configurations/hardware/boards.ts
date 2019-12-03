@@ -2,6 +2,7 @@ import { IBoard, IPortDirection } from "@bitbloq/bloqs";
 
 import BoardImage from "../../images/hardware/zumjunior-board.svg";
 import MiniBoardImage from "../../images/hardware/zumjunior-mini-board.svg";
+import BoardSnapshotImage from "../../images/hardware/zumjunior-board-snapshot.svg";
 
 export const boards: IBoard[] = [
   {
@@ -46,6 +47,15 @@ export const boards: IBoard[] = [
       url: MiniBoardImage,
       width: 80,
       height: 80
+    },
+    snapshotImage: {
+      url: BoardSnapshotImage,
+      width: 300,
+      height: 300,
+      tablet: {
+        width: 200,
+        height: 200
+      }
     },
     ports: [
       {
