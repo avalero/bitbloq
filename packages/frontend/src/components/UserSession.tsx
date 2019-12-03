@@ -1,17 +1,15 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import { logout } from "../lib/session";
+import CloudModal from "./CloudModal";
 import MenuButton from "./MenuButton";
 
-interface IUserSessionProps {
-  cloudClick?: () => void;
-}
-
-const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
+const UserSession: FC = () => {
   const userData = useUserData();
   const t = useTranslate();
+  const [cloudModalOpen, setCloudModalOpen] = useState(false);
 
   return (
     <>
@@ -20,17 +18,19 @@ const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
       <DropDown>
         {(isOpen: boolean) => <MenuButton isOpen={isOpen} />}
         <ContextMenu>
-          {cloudClick && (
-            <ContextMenuOption onClick={cloudClick}>
-              <CloudIcon name="cloud-logo" />
-              <p>{t("user.cloud.access")}</p>
-            </ContextMenuOption>
-          )}
-          <ContextMenuOption onClick={() => logout()}>
+          <ContextMenuOption onClick={() => setCloudModalOpen(true)}>
+            <CloudIcon name="cloud-logo" />
+            <p>{t("user.cloud.access")}</p>
+          </ContextMenuOption>
+          <ContextMenuOption onClick={logout}>
             <p>{t("user.session.logout")}</p>
           </ContextMenuOption>
         </ContextMenu>
       </DropDown>
+      <CloudModal
+        isOpen={cloudModalOpen}
+        onClose={() => setCloudModalOpen(false)}
+      />
     </>
   );
 };
