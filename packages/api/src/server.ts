@@ -86,14 +86,12 @@ const server = new ApolloServer({
       const user: IUserInToken | undefined = await contextController.getMyUser(
         ctx
       );
-      console.log("user context", user);
       return { user, headers: ctx.headers }; //  add the user to the ctx
     }
   },
   schema: exSchema,
   subscriptions: {
     onConnect: async (connectionParams: any) => {
-      console.log({ connectionParams });
       if (connectionParams.authorization) {
         const justToken = connectionParams.authorization.split(" ")[1];
         const user = await contextController.getDataInToken(justToken);

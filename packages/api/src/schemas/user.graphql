@@ -16,7 +16,7 @@ type Mutation {
   loginWithGoogle(token: String!): SocialLogin
   loginWithMicrosoft(token: String!): SocialLogin
   renewToken: String
-  renewUserSession: String
+  renewSession: String
   resetPasswordEmail(email: EmailAddress!): String
   checkResetPasswordToken(token: String): Boolean
   updatePassword(token: String, newPassword: String): String

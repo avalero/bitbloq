@@ -22,7 +22,8 @@ import {
 import { IUserInToken } from "../models/interfaces";
 import {
   storeTokenInRedis,
-  updateExpireDateInRedis
+  updateExpireDateInRedis,
+  contextController
 } from "../controllers/context";
 
 const saltRounds = 7;
@@ -59,13 +60,10 @@ const submissionResolver = {
     submissionActive: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
-        (
-          payload: { submissionActive: ISubmission },
-          variables,
-          context: { user: IUserInToken }
-        ) => {
+        (payload, variables, context) => {
+          console.log("subAct", { payload, context });
           return (
-            String(payload.submissionActive._id) ===
+            String(payload.submissionActive.id) ===
             String(context.user.submissionID)
           );
         }
@@ -321,6 +319,7 @@ const submissionResolver = {
       args: IMutationSetActiveSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
+      console.log("ENTRA SETACTIVE FALSE");
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
           _id: args.submissionID,

@@ -42,7 +42,6 @@ type Mutation {
   ): Submission @authRequired(requires: [TEACHER])
   setActiveSubmission(submissionID: ObjectID!, active: Boolean!): Submission
     @authRequired(requires: [TEACHER])
-  renewSubmissionSession: String @authRequired(requires: [STUDENT])
 }
 type Subscription {
   submissionUpdated(exercise: ObjectID!): Submission

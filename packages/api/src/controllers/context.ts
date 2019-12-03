@@ -105,7 +105,7 @@ export const updateExpireDateInRedis = async (
 
 const checksSessionExpires = async () => {
   const allKeys: string[] = await redisClient.keysAsync("*");
-  console.log({ allKeys });
+  // console.log({ allKeys });
 
   const now: Date = new Date();
   allKeys.map(async key => {
@@ -123,7 +123,7 @@ const checksSessionExpires = async () => {
               userSessionExpires: { ...result, key, secondsRemaining }
             });
           } else if (result.subToken) {
-            console.log("subscription published submission", result, key);
+            console.log("subscription published submission");
             pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
               submissionSessionExpires: { ...result, key, secondsRemaining }
             });

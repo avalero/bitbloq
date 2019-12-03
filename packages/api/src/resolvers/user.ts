@@ -390,9 +390,9 @@ const userResolver = {
     },
 
     /*
-     * renewUserSession: updates expire date token in redis
+     * renewSession: updates expire date token in redis
      */
-    renewUserSession: async (_, __, context: any) => {
+    renewSession: async (_, __, context: any) => {
       // authorization for queries and mutations
       const token1: string = context.headers.authorization || "";
       const type: string = token1.split(" ")[0];

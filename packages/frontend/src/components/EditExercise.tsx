@@ -20,7 +20,9 @@ import {
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION,
-  SUBMISSION_ACTIVE_SUBSCRIPTION
+  SUBMISSION_ACTIVE_SUBSCRIPTION,
+  SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION,
+  RENEW_SESSION_MUTATION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
@@ -57,6 +59,8 @@ const EditExercise = ({ type, id }) => {
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
+  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
+
   const [submission, setSubmission] = useState<IDocument | undefined>(
     undefined
   );
@@ -71,14 +75,15 @@ const EditExercise = ({ type, id }) => {
   }, []);
 
   const [sessionExpired, setSessionExpired] = useState(false);
-  useSessionEvent(
-    "expired",
-    () => {
-      setTeamName("");
-      setSessionExpired(true);
-    },
-    "exercise-team"
-  );
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  // useSessionEvent(
+  //   "expired",
+  //   () => {
+  //     setTeamName("");
+  //     setSessionExpired(true);
+  //   },
+  //   "exercise-team"
+  // );
 
   const setActiveToFalse = useCallback(async () => {
     if (exercise && teamName && serviceWorker && submission) {
@@ -114,9 +119,9 @@ const EditExercise = ({ type, id }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
-  if (sessionExpired) {
-    return null;
-  }
+  // if (sessionExpired) {
+  //   return null;
+  // }
 
   const loadSubmission = async () => {
     const { data: submissionData } = await client.query({
@@ -273,19 +278,49 @@ const EditExercise = ({ type, id }) => {
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />
-      <SessionWarningModal tempSession="exercise-team" />
+      {/* <SessionWarningModal tempSession="exercise-team" isOpenInit={sessionExpired}/> */}
+      <DialogModal
+        isOpen={sessionExpired}
+        title="¿Sigues ahí?"
+        content={
+          <p>
+            Parece que te has ido, si no quieres seguir trabajando saldrás de tu
+            cuenta en <b>{secondsRemaining} segundos</b>.
+          </p>
+        }
+        okText="Si, quiero seguir trabajando"
+        onOk={async () => {
+          await renewSession();
+          setSessionExpired(false);
+        }}
+      />
       {teamName && (
-        <Subscription
-          subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
-          shouldResubscribe={true}
-          onSubscriptionData={({ subscriptionData }) => {
-            const { submissionActive } = subscriptionData.data || {};
-            if (submissionActive && !submissionActive.active) {
-              setToken("", "exercise-team");
-              Router.replace("/");
-            }
-          }}
-        />
+        <>
+          <Subscription
+            subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
+            shouldResubscribe={true}
+            onSubscriptionData={({ subscriptionData }) => {
+              const { submissionActive } = subscriptionData.data || {};
+              if (submissionActive && !submissionActive.active) {
+                setToken("", "exercise-team");
+                Router.replace("/");
+              }
+            }}
+          />
+          <Subscription
+            subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
+            shouldResubscribe={true}
+            onSubscriptionData={({ subscriptionData }) => {
+              const { submissionSessionExpires } = subscriptionData.data || {};
+              if (Number(submissionSessionExpires.secondsRemaining) < 350) {
+                setSessionExpired(true);
+                setSecondsRemaining(
+                  Number(submissionSessionExpires.secondsRemaining)
+                );
+              }
+            }}
+          />
+        </>
       )}
     </>
   );

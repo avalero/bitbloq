@@ -581,6 +581,22 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
   }
 `;
 
+export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
+  subscription SubmissionSessionExpires {
+    submissionSessionExpires {
+      key
+      secondsRemaining
+      subToken
+    }
+  }
+`;
+
+export const RENEW_SESSION_MUTATION = gql`
+  mutation renewSession {
+    renewSession
+  }
+`;
+
 /* Cloud */
 
 export const ADD_RESOURCE_TO_DOCUMENT = gql`
