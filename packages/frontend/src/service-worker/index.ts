@@ -5,15 +5,6 @@ import {
 } from "../apollo/queries";
 import { createUploadLink } from "apollo-upload-client";
 
-interface IContext {
-  headers: {
-    authorization: string;
-  };
-  user: {
-    userID: string;
-  };
-}
-
 const uri = process.env.API_URL_SERVER || process.env.API_URL;
 const link = createUploadLink({ uri });
 
@@ -30,12 +21,12 @@ ctx.addEventListener("install", event => {
   event.waitUntil(preLoaded);
 });
 
-self.addEventListener("fetch", event => {
-  const response = caches
-    .match(event.request)
-    .then(match => match || fetch(event.request));
-  event.respondWith(response);
-});
+// self.addEventListener("fetch", event => {
+//   const response = caches
+//     .match(event.request)
+//     .then(match => match || fetch(event.request));
+//   event.respondWith(response);
+// });
 
 ctx.addEventListener("message", async message => {
   const {

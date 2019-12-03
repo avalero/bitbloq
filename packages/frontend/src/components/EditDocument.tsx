@@ -111,6 +111,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const onPostImage = useCallback(async () => {
     if (
+      (!image || image.isSnapshot) &&
       imageToUpload.current &&
       imageToUpload.current.size > 0 &&
       serviceWorker &&
@@ -125,7 +126,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         userID: user.id
       });
     }
-  }, [imageToUpload.current, serviceWorker]);
+  }, [image, imageToUpload.current, serviceWorker]);
 
   useEffect(() => {
     if (isLoggedIn && !prevIsLoggedIn.current) {
