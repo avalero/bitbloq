@@ -130,6 +130,7 @@ const Breadcrumb = styled.li`
   color: #373b44;
   display: flex;
   font-size: 14px;
+  font-weight: normal;
   justify-content: flex-start;
 
   a,
@@ -141,12 +142,16 @@ const Breadcrumb = styled.li`
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  a {
+    color: inherit;
+    font-weight: bold;
+  }
 `;
 
 const BreadcrumbLink = styled(Breadcrumb)<{ folders: number }>`
   max-width: ${props =>
     props.folders === 1 ? "50" : props.folders === 2 ? "30" : "25"}%;
-  font-weight: bold;
 
   a {
     height: 16px;
@@ -156,7 +161,6 @@ const BreadcrumbLink = styled(Breadcrumb)<{ folders: number }>`
 
 const BreadcrumbRoot = styled(Breadcrumb)`
   flex: 0 0;
-  font-weight: bold;
 `;
 
 const BreadcrumbsNoRoot = styled.div<{ isThereHidden: boolean }>`

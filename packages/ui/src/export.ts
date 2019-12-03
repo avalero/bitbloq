@@ -25,14 +25,14 @@ import TranslateProvider, {
   withTranslate,
   useTranslate
 } from "./components/TranslateProvider";
+import Layout from "./components/Layout";
+import JuniorButton from "./components/junior/Button";
+import JuniorSwitch from "./components/junior/Switch";
+import JuniorNumberInput from "./components/junior/NumberInput";
 import useKeyPressed from "./hooks/useKeyPressed";
 import baseStyles from "./base-styles";
 import colors from "./colors";
 import breakpoints from "./breakpoints";
-
-import JuniorButton from "./components/junior/Button";
-import JuniorSwitch from "./components/junior/Switch";
-import JuniorNumberInput from "./components/junior/NumberInput";
 
 export {
   Button,
@@ -60,6 +60,7 @@ export {
   ScrollableTabs,
   withTranslate,
   useTranslate,
+  Layout,
   useKeyPressed,
   baseStyles,
   colors,

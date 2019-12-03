@@ -1,23 +1,10 @@
-import React, { FC, useRef, useEffect } from "react";
+import React, { useRef } from "react";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
-import Router from "next/router";
 import withApollo from "../apollo/withApollo";
-import redirect from "../lib/redirect";
-import {
-  colors,
-  Input,
-  Button,
-  Icon,
-  DropDown,
-  HorizontalRule,
-  Spinner,
-  useTranslate
-} from "@bitbloq/ui";
-import LandingFooter from "../components/LandingFooter";
-import LandingHeader from "../components/LandingHeader";
+import { Button, Icon, HorizontalRule, useTranslate } from "@bitbloq/ui";
+import LandingLayout from "../components/LandingLayout";
 import LandingExamples from "../components/LandingExamples";
-import Layout from "../components/Layout";
 import OpenExerciseForm from "../components/OpenExerciseForm";
 import OpenDocumentInput, {
   IOpenDocumentInputHandle
@@ -45,8 +32,7 @@ const IndexPage: NextPage = () => {
 
   return (
     <>
-      <LandingHeader />
-      <Layout>
+      <LandingLayout>
         <Section>
           <Hero>
             <h1>
@@ -137,8 +123,7 @@ const IndexPage: NextPage = () => {
         <Section>
           <LandingExamples />
         </Section>
-      </Layout>
-      <LandingFooter />
+      </LandingLayout>
       <OpenDocumentInput ref={openDocumentRef} />
     </>
   );
@@ -150,20 +135,6 @@ export default withApollo(IndexPage, {
 });
 
 /* styled components */
-
-interface ILoadingProps {
-  type?: string;
-}
-
-const Loading = styled(Spinner)<ILoadingProps>`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: ${props =>
-    (props.type && documentTypes[props.type].color) || colors.gray1};
-  color: ${props => (props.type ? "white" : "inherit")};
-  display: flex;
-`;
 
 const Section = styled.div`
   :not(:last-of-type):after {

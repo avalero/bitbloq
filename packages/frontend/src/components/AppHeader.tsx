@@ -1,10 +1,9 @@
 import React, { FC } from "react";
 import Link from "next/link";
 import styled from "@emotion/styled";
-import { colors } from "@bitbloq/ui";
+import { colors, Layout } from "@bitbloq/ui";
 import { css } from "@emotion/core";
 import logoBetaImage from "../images/logo-beta.svg";
-import Layout from "./Layout";
 
 export interface IAppHeaderProps {
   isSticky?: boolean;
