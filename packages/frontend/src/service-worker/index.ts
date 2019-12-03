@@ -5,7 +5,7 @@ import {
 } from "../apollo/queries";
 import { createUploadLink } from "apollo-upload-client";
 
-const uri = process.env.API_URL_SERVER || process.env.API_URL;
+const uri = process.env.API_URL;
 const link = createUploadLink({ uri });
 
 const CACHE_NAME = "bitbloq-service-worker";
