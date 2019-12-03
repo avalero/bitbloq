@@ -255,6 +255,7 @@
   "general-accept-button": "Aceptar",
   "general-add-button": "Añadir",
   "account": {
+    "title": "Mi cuenta",
     "user-data": {
       "delete": {
         "title": "Eliminar mi cuenta",
@@ -280,7 +281,7 @@
       },
       "title": "Datos de usuario"
     },
-    "purchased-items": {
+    "purchases": {
       "title": "Elementos comprados"
     }
   },
