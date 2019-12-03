@@ -27,8 +27,3 @@ export interface IDataInRedis {
   authToken?: string;
   subToken?: string;
 }
-
-export interface ISessionSubsData extends IDataInRedis {
-  key: string;
-  secondsRemaining: number;
-}

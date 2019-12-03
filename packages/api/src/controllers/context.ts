@@ -66,6 +66,9 @@ export const storeTokenInRedis = async (
   token: string,
   subToken?: boolean
 ) => {
+  if (id === undefined) {
+    return undefined;
+  }
   const date = new Date();
   // date.setHours(date.getHours() + 1); // debería ser el tiempo que queramos que tarde en caducar la sesión
   date.setMinutes(date.getMinutes() + 6);
@@ -102,6 +105,8 @@ export const updateExpireDateInRedis = async (
 
 const checksSessionExpires = async () => {
   const allKeys: string[] = await redisClient.keysAsync("*");
+  console.log({ allKeys });
+
   const now: Date = new Date();
   allKeys.map(async key => {
     const result: IDataInRedis = await redisClient.hgetallAsync(key);
@@ -110,15 +115,15 @@ const checksSessionExpires = async () => {
       if (expiresAt > now) {
         const secondsRemaining: number =
           (expiresAt.getTime() - now.getTime()) / 1000;
+        console.log(secondsRemaining / 60);
         if (secondsRemaining / 60 < 5) {
-          console.log("subscription published");
           if (result.authToken) {
             console.log("subscription published user");
             pubsub.publish(USER_SESSION_EXPIRES, {
               userSessionExpires: { ...result, key, secondsRemaining }
             });
           } else if (result.subToken) {
-            console.log("subscription published submission");
+            console.log("subscription published submission", result, key);
             pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
               submissionSessionExpires: { ...result, key, secondsRemaining }
             });

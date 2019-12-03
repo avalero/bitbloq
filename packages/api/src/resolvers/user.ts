@@ -21,8 +21,7 @@ import {
   IResetPasswordToken,
   ISignUpToken,
   IUserInToken,
-  IDataInRedis,
-  ISessionSubsData
+  IDataInRedis
 } from "../models/interfaces";
 
 import mjml2html from "mjml";
@@ -41,7 +40,8 @@ import {
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
-  IMutationLoginWithGoogleArgs
+  IMutationLoginWithGoogleArgs,
+  ISessionExpires
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 
@@ -57,7 +57,7 @@ const userResolver = {
         () => pubsub.asyncIterator([USER_SESSION_EXPIRES]),
         (
           payload: {
-            userSessionExpires: ISessionSubsData;
+            userSessionExpires: ISessionExpires;
           },
           variables,
           context: { user: IUserInToken }
