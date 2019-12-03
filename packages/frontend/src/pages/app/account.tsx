@@ -2,7 +2,6 @@ import React, { FC, useState } from "react";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
-import { useRouter } from "next/router";
 import { useTranslate, Button, Icon, colors } from "@bitbloq/ui";
 import withApollo from "../../apollo/withApollo";
 import AppLayout from "../../components/AppLayout";
@@ -16,15 +15,13 @@ enum TabType {
 
 const AccountPage: NextPage = () => {
   const t = useTranslate();
-  const router = useRouter();
   const userData = useUserData();
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [currentTab, setCurrentTab] = useState(TabType.UserData);
-  const [personalDataCollapsed, setPersonalDataCollapsed] = useState(true);
-
+  const [personalDataEditable, setPersonalDataEditable] = useState(false);
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
 
   return (
@@ -50,29 +47,29 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.personal-data.title")}
               icon="description"
               buttons={
-                personalDataCollapsed ? (
-                  <Button
-                    tertiary
-                    onClick={() => setPersonalDataCollapsed(false)}
-                  >
-                    {t("account.user-data.personal-data.button")}
-                  </Button>
-                ) : (
+                personalDataEditable ? (
                   <>
-                    <Button onClick={() => setPersonalDataCollapsed(true)}>
+                    <Button onClick={() => setPersonalDataEditable(true)}>
                       {t("account.user-data.personal-data.button-save")}
                     </Button>
                     <Button
                       secondary
-                      onClick={() => setPersonalDataCollapsed(true)}
+                      onClick={() => setPersonalDataEditable(true)}
                     >
                       {t("account.user-data.personal-data.button-cancel")}
                     </Button>
                   </>
+                ) : (
+                  <Button
+                    tertiary
+                    onClick={() => setPersonalDataEditable(false)}
+                  >
+                    {t("account.user-data.personal-data.button")}
+                  </Button>
                 )
               }
             >
-              {personalDataCollapsed && (
+              {!personalDataEditable && (
                 <>
                   <Field>
                     <div>Nombre</div>
