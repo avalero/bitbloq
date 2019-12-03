@@ -6,16 +6,12 @@ import {
   colors,
   Button,
   Icon,
-  DropDown,
   HorizontalRule,
-  Spinner,
   Tooltip,
   useTranslate
 } from "@bitbloq/ui";
 import withApollo from "../apollo/withApollo";
-import LandingFooter from "../components/LandingFooter";
-import LandingHeader from "../components/LandingHeader";
-import Layout from "../components/Layout";
+import LandingLayout from "../components/LandingLayout";
 import NewDocumentButton from "../components/NewDocumentButton";
 import { documentTypes, plans, featureTable } from "../config.js";
 import { IPlan } from "../types";
@@ -32,82 +28,74 @@ const PlansPage: NextPage = () => {
   const tablePlans = [unregisteredPlan, memberPlan, teacherPlan];
 
   return (
-    <>
-      <LandingHeader fixed={true} />
-      <Layout>
-        <Header>{t("plans.choose-plan")}</Header>
-        <Plans>
-          {memberPlan && (
-            <Plan
-              plan={memberPlan}
-              image={memberPlanImage}
-              showAppList={true}
-            />
+    <LandingLayout headerFixed={true}>
+      <Header>{t("plans.choose-plan")}</Header>
+      <Plans>
+        {memberPlan && (
+          <Plan plan={memberPlan} image={memberPlanImage} showAppList={true} />
+        )}
+        {teacherPlan && (
+          <Plan plan={teacherPlan} image={teacherPlanImage} big={true} />
+        )}
+        <TryContent>
+          <h2>O pruébala sin compromisos</h2>
+          <h3>Utiliza Bitbloq sin registro previo</h3>
+          <NewDocumentButton
+            quaternary
+            attachmentPosition="top left"
+            targetPosition="bottom left"
+          />
+        </TryContent>
+      </Plans>
+      <FeatureTable>
+        <FeatureHeader>
+          <FeatureName />
+          {tablePlans.map(
+            plan =>
+              plan && (
+                <FeaturePlan key={plan.name}>
+                  {t(`plans.${plan.name}`)}
+                </FeaturePlan>
+              )
           )}
-          {teacherPlan && (
-            <Plan plan={teacherPlan} image={teacherPlanImage} big={true} />
-          )}
-          <TryContent>
-            <h2>O pruébala sin compromisos</h2>
-            <h3>Utiliza Bitbloq sin registro previo</h3>
-            <NewDocumentButton
-              quaternary
-              attachmentPosition="top left"
-              targetPosition="bottom left"
-            />
-          </TryContent>
-        </Plans>
-        <FeatureTable>
-          <FeatureHeader>
-            <FeatureName />
+        </FeatureHeader>
+        {featureTable.map(row => (
+          <FeatureRow key={row}>
+            <FeatureName>{t(`plans.features.${row}`)}</FeatureName>
             {tablePlans.map(
               plan =>
                 plan && (
-                  <FeaturePlan key={plan.name}>
-                    {t(`plans.${plan.name}`)}
+                  <FeaturePlan key={`${row} ${plan.name}`}>
+                    {plan.featureTable.indexOf(row) >= 0 && (
+                      <Tick name="tick" />
+                    )}
                   </FeaturePlan>
                 )
             )}
-          </FeatureHeader>
-          {featureTable.map(row => (
-            <FeatureRow key={row}>
-              <FeatureName>{t(`plans.features.${row}`)}</FeatureName>
-              {tablePlans.map(
-                plan =>
-                  plan && (
-                    <FeaturePlan key={`${row} ${plan.name}`}>
-                      {plan.featureTable.indexOf(row) >= 0 && (
-                        <Tick name="tick" />
-                      )}
-                    </FeaturePlan>
-                  )
-              )}
-            </FeatureRow>
-          ))}
-          <ButtonRow>
-            <FeatureName />
+          </FeatureRow>
+        ))}
+        <ButtonRow>
+          <FeatureName />
+          <FeaturePlan>
+            <NewDocumentButton />
+          </FeaturePlan>
+          {memberPlan && (
             <FeaturePlan>
-              <NewDocumentButton />
+              <PlanButton onClick={() => router.push("/signup?plan=member")}>
+                {t(`plans.member-signup`)}
+              </PlanButton>
             </FeaturePlan>
-            {memberPlan && (
-              <FeaturePlan>
-                <PlanButton onClick={() => router.push("/signup?plan=member")}>
-                  {t(`plans.member-signup`)}
-                </PlanButton>
-              </FeaturePlan>
-            )}
-            {teacherPlan && (
-              <FeaturePlan>
-                <PlanButton onClick={() => router.push("/signup?plan=teacher")}>
-                  {t(`plans.teacher-signup`)}
-                </PlanButton>
-              </FeaturePlan>
-            )}
-          </ButtonRow>
-        </FeatureTable>
-      </Layout>
-      <LandingFooter />
-    </>
+          )}
+          {teacherPlan && (
+            <FeaturePlan>
+              <PlanButton onClick={() => router.push("/signup?plan=teacher")}>
+                {t(`plans.teacher-signup`)}
+              </PlanButton>
+            </FeaturePlan>
+          )}
+        </ButtonRow>
+      </FeatureTable>
+    </LandingLayout>
   );
 };
 

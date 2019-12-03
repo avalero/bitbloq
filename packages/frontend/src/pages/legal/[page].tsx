@@ -3,9 +3,7 @@ import { NextPage } from "next";
 import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import withApollo from "../../apollo/withApollo";
-import LandingHeader from "../../components/LandingHeader";
-import LandingFooter from "../../components/LandingFooter";
-import Layout from "../../components/Layout";
+import LandingLayout from "../../components/LandingLayout";
 
 interface ILegalPageProps {
   page: string;
@@ -15,14 +13,10 @@ const LegalPage: NextPage<ILegalPageProps> = ({ page }) => {
   const t = useTranslate();
 
   return (
-    <>
-      <LandingHeader fixed={true} />
-      <Layout>
-        <Header>{t(`legal.${page}`)}</Header>
-        <Content dangerouslySetInnerHTML={{ __html: t(page) }} />
-      </Layout>
-      <LandingFooter />
-    </>
+    <LandingLayout headerFixed={true}>
+      <Header>{t(`legal.${page}`)}</Header>
+      <Content dangerouslySetInnerHTML={{ __html: t(page) }} />
+    </LandingLayout>
   );
 };
 

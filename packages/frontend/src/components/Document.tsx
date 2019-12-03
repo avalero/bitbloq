@@ -1,14 +1,6 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
-import {
-  colors,
-  Button,
-  DialogModal,
-  HorizontalRule,
-  Icon,
-  Spinner,
-  Translate
-} from "@bitbloq/ui";
+import { colors, Button, DialogModal, Icon, Translate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import gql from "graphql-tag";
 import { ApolloError } from "apollo-client";
@@ -21,16 +13,12 @@ import {
 } from "../apollo/queries";
 import { UserDataContext } from "../lib/useUserData";
 import { sortByCreatedAt } from "../util";
-import AppFooter from "./AppFooter";
-import AppHeader from "./AppHeader";
-import CloudModal from "./CloudModal";
+import AppLayout from "./AppLayout";
 import Breadcrumbs from "./Breadcrumbs";
 import DocumentTypeTag from "./DocumentTypeTag";
 import EditTitleModal from "./EditTitleModal";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import Layout from "./Layout";
-import UserSession from "./UserSession";
 
 const DOCUMENT_QUERY = gql`
   query Document($id: ObjectID!) {
@@ -93,7 +81,6 @@ const CHANGE_SUBMISSIONS_STATE_MUTATION = gql`
 `;
 
 class DocumentState {
-  public readonly isCloudModalOpen: boolean = false;
   public readonly isCreateExerciseOpen: boolean = false;
   public readonly isUpdateExerciseOpen: boolean = false;
   public readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
@@ -132,11 +119,7 @@ class Document extends React.Component<any, DocumentState> {
 
     breadParents.push({ route: "", text: document.title, type: "document" });
 
-    return (
-      <Header>
-        <Breadcrumbs links={breadParents} title={document.title} />
-      </Header>
-    );
+    return <Breadcrumbs links={breadParents} title={document.title} />;
   }
 
   public renderDocumentInfo(document, t) {
@@ -469,99 +452,75 @@ class Document extends React.Component<any, DocumentState> {
   public render() {
     const { id } = this.props;
     const {
-      isCloudModalOpen,
       isCreateExerciseOpen,
       isUpdateExerciseOpen,
       stateError
     } = this.state;
 
     return (
-      <>
-        <UserDataContext.Consumer>
-          {user => (
-            <Translate>
-              {t => (
-                <Container>
-                  <AppHeader>
-                    <UserSession
-                      cloudClick={() =>
-                        this.setState({ isCloudModalOpen: true })
-                      }
-                    />
-                  </AppHeader>
-                  <Query query={DOCUMENT_QUERY} variables={{ id }}>
-                    {({ loading, error, data, refetch }) => {
-                      if (error) {
-                        return <GraphQLErrorMessage apolloError={error} />;
-                      }
-                      if (loading) {
-                        return <Loading />;
-                      }
+      <UserDataContext.Consumer>
+        {user => (
+          <Translate>
+            {t => (
+              <>
+                <Query query={DOCUMENT_QUERY} variables={{ id }}>
+                  {({ loading, error, data, refetch }) => {
+                    if (error) {
+                      return <GraphQLErrorMessage apolloError={error} />;
+                    }
+                    if (loading) {
+                      return <AppLayout loading />;
+                    }
 
-                      if (stateError) {
-                        return <GraphQLErrorMessage apolloError={stateError} />;
-                      }
+                    if (stateError) {
+                      return <GraphQLErrorMessage apolloError={stateError} />;
+                    }
 
-                      const { document } = data;
+                    const { document } = data;
 
-                      if (!document) {
-                        return null;
-                      }
+                    if (!document) {
+                      return null;
+                    }
 
-                      return (
-                        <>
-                          <Content>
-                            {this.renderHeader(document)}
-                            <Rule />
-                            <DocumentData>
-                              {user && user.teacher
-                                ? this.renderDocumentTeacherInfo(document, t)
-                                : this.renderDocumentInfo(document, t)}
-                              {user && user.teacher
-                                ? this.renderExercises(
-                                    document.exercises,
-                                    refetch,
-                                    t
-                                  )
-                                : ""}
-                            </DocumentData>
-                          </Content>
-                          <Subscription
-                            subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-                            shouldResubscribe={true}
-                            onSubscriptionData={({ subscriptionData }) => {
-                              const { documentUpdated } =
-                                subscriptionData.data || {};
-                              if (
-                                documentUpdated &&
-                                documentUpdated.id === id
-                              ) {
-                                refetch();
-                              }
-                            }}
-                          />
-                        </>
-                      );
-                    }}
-                  </Query>
-                  {isCreateExerciseOpen
-                    ? this.renderCreateExerciseModal(document, t)
-                    : ""}
-                  {isUpdateExerciseOpen
-                    ? this.renderUpdateExerciseModal(t)
-                    : ""}
-                  {this.renderRemoveExerciseModal(t)}
-                  <AppFooter />
-                </Container>
-              )}
-            </Translate>
-          )}
-        </UserDataContext.Consumer>
-        <CloudModal
-          isOpen={isCloudModalOpen}
-          onClose={() => this.setState({ isCloudModalOpen: false })}
-        />
-      </>
+                    return (
+                      <AppLayout header={this.renderHeader(document)}>
+                        <DocumentData>
+                          {user && user.teacher
+                            ? this.renderDocumentTeacherInfo(document, t)
+                            : this.renderDocumentInfo(document, t)}
+                          {user && user.teacher
+                            ? this.renderExercises(
+                                document.exercises,
+                                refetch,
+                                t
+                              )
+                            : ""}
+                        </DocumentData>
+                        <Subscription
+                          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+                          shouldResubscribe={true}
+                          onSubscriptionData={({ subscriptionData }) => {
+                            const { documentUpdated } =
+                              subscriptionData.data || {};
+                            if (documentUpdated && documentUpdated.id === id) {
+                              refetch();
+                            }
+                          }}
+                        />
+                      </AppLayout>
+                    );
+                  }}
+                </Query>
+                {isCreateExerciseOpen
+                  ? this.renderCreateExerciseModal(document, t)
+                  : ""}
+                {isUpdateExerciseOpen ? this.renderUpdateExerciseModal(t) : ""}
+                {this.renderRemoveExerciseModal(t)}
+              </>
+            )}
+          </Translate>
+        )}
+      </UserDataContext.Consumer>
     );
   }
 }
@@ -575,42 +534,6 @@ const withCreateExercise = Component => props => (
 export default Document;
 
 /* styled components */
-
-const Container = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: ${colors.gray1};
-  display: flex;
-  flex-direction: column;
-`;
-
-const Content = styled(Layout)`
-  flex: 1;
-  width: 100%;
-`;
-
-const Header = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-
-  a {
-    font-weight: bold;
-    color: inherit;
-    text-decoration: none;
-    margin-right: 6px;
-  }
-`;
-
-const Loading = styled(Spinner)`
-  flex: 1;
-`;
-
-const Rule = styled(HorizontalRule)`
-  margin: 0px -10px;
-`;
 
 const EmptyExercises = styled.div`
   align-items: center;
@@ -703,7 +626,6 @@ const DocumentData = styled.div`
   border-radius: 4px;
   display: flex;
   flex-flow: row nowrap;
-  margin-top: 23px;
   width: 100%;
 `;
 

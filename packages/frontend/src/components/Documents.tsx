@@ -3,14 +3,7 @@ import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import {
-  Button,
-  colors,
-  Icon,
-  DropDown,
-  Spinner,
-  HorizontalRule
-} from "@bitbloq/ui";
+import { Button, Icon } from "@bitbloq/ui";
 import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
@@ -23,24 +16,19 @@ import {
 } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 import { OrderType } from "../types";
-import AppFooter from "./AppFooter";
-import AppHeader from "./AppHeader";
+import AppLayout from "./AppLayout";
 import Breadcrumbs from "./Breadcrumbs";
-import CloudModal from "./CloudModal";
 import DocumentList from "./DocumentsList";
 import EditTitleModal from "./EditTitleModal";
 import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import Layout from "./Layout";
 import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
-import UserSession from "./UserSession";
 
 const Documents: FC<{ id?: string }> = ({ id }) => {
   const userData = useUserData();
   const client = useApolloClient();
 
-  const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -179,17 +167,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   } else if (loading || !documentsData.documentsAndFolders) {
-    return (
-      <Container>
-        <AppHeader>
-          <UserSession />
-        </AppHeader>
-        <Content>
-          <Loading />
-        </Content>
-        <AppFooter />
-      </Container>
-    );
+    return <AppLayout loading />;
   }
 
   const {
@@ -205,89 +183,82 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   }));
 
   return (
-    <Container>
-      <AppHeader>
-        <UserSession cloudClick={() => setCloudModalOpen(true)} />
-      </AppHeader>
-      <Content>
-        <Header>
-          {currentLocation.id === (userData && userData.rootFolder) ? (
-            <h1>Mis documentos</h1>
-          ) : (
-            <Breadcrumbs links={breadParents} />
-          )}
-        </Header>
-        <Rule />
-        <DocumentListHeader>
-          {(docsAndFols.length > 0 || searchQuery) && (
-            <FilterOptions
-              onOrderChange={onOrderChange}
-              searchText={searchText}
-              selectValue={order}
-              onChange={(value: string) => {
-                setSearchText(value);
-                onSearchInput(value);
-              }}
-            />
-          )}
-          <HeaderButtons>
-            <NewFolderButton
-              tertiary
-              onClick={() => {
-                setFolderTitleModal(true);
-              }}
-            >
-              <Icon name="new-folder" />
-              Nueva carpeta
-            </NewFolderButton>
-            <NewExerciseButton
-              onOpenExercise={onOpenExercise}
-              exerciseError={exerciseError}
-              loadingExercise={loadingExercise}
-            />
-            <NewDocumentButton arrowOffset={10} />
-          </HeaderButtons>
-        </DocumentListHeader>
-        {docsAndFols.length > 0 ? (
-          <DndProvider backend={HTML5Backend}>
-            <DocumentList
-              currentPage={currentPage}
-              parentsPath={parentsPath}
-              pagesNumber={pagesNumber}
-              refetchDocsFols={refetchDocsFols}
-              docsAndFols={docsAndFols}
-              currentLocation={currentLocation}
-              order={order}
-              searchText={searchText}
-              onFolderClick={onFolderClick}
-              onDocumentClick={onDocumentClick}
-              selectPage={(page: number) => {
-                setCurrentPage(page);
-                refetchDocsFols();
-              }}
-              nFolders={nFolders}
-            />
-          </DndProvider>
-        ) : searchQuery ? (
-          <NoDocuments>
-            <h1>No hay resultados para tu búsqueda</h1>
-          </NoDocuments>
+    <AppLayout
+      header={
+        currentLocation.id === (userData && userData.rootFolder) ? (
+          "Mis documentos"
         ) : (
-          <NoDocuments>
-            <h1>No tienes ningún documento</h1>
-            <p>
-              Puedes crear un documento nuevo o subir uno desde tu ordenador.
-            </p>
-          </NoDocuments>
+          <Breadcrumbs links={breadParents} />
+        )
+      }
+    >
+      <DocumentListHeader>
+        {(docsAndFols.length > 0 || searchQuery) && (
+          <FilterOptions
+            onOrderChange={onOrderChange}
+            searchText={searchText}
+            selectValue={order}
+            onChange={(value: string) => {
+              setSearchText(value);
+              onSearchInput(value);
+            }}
+          />
         )}
-        <Subscription
-          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-          shouldResubscribe={true}
-          onSubscriptionData={() => {
-            refetchDocsFols();
-          }}
-        />
-      </Content>
+        <HeaderButtons>
+          <NewFolderButton
+            tertiary
+            onClick={() => {
+              setFolderTitleModal(true);
+            }}
+          >
+            <Icon name="new-folder" />
+            Nueva carpeta
+          </NewFolderButton>
+          <NewExerciseButton
+            onOpenExercise={onOpenExercise}
+            exerciseError={exerciseError}
+            loadingExercise={loadingExercise}
+          />
+          <NewDocumentButton arrowOffset={10} />
+        </HeaderButtons>
+      </DocumentListHeader>
+      {docsAndFols.length > 0 ? (
+        <DndProvider backend={HTML5Backend}>
+          <DocumentList
+            currentPage={currentPage}
+            parentsPath={parentsPath}
+            pagesNumber={pagesNumber}
+            refetchDocsFols={refetchDocsFols}
+            docsAndFols={docsAndFols}
+            currentLocation={currentLocation}
+            order={order}
+            searchText={searchText}
+            onFolderClick={onFolderClick}
+            onDocumentClick={onDocumentClick}
+            selectPage={(page: number) => {
+              setCurrentPage(page);
+              refetchDocsFols();
+            }}
+            nFolders={nFolders}
+          />
+        </DndProvider>
+      ) : searchQuery ? (
+        <NoDocuments>
+          <h1>No hay resultados para tu búsqueda</h1>
+        </NoDocuments>
+      ) : (
+        <NoDocuments>
+          <h1>No tienes ningún documento</h1>
+          <p>Puedes crear un documento nuevo o subir uno desde tu ordenador.</p>
+        </NoDocuments>
+      )}
+      <Subscription
+        subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+        shouldResubscribe={true}
+        onSubscriptionData={() => {
+          refetchDocsFols();
+        }}
+      />
       <input
         ref={openFile}
         type="file"
@@ -305,12 +276,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           saveButton="Crear"
         />
       )}
-      <AppFooter />
-      <CloudModal
-        isOpen={cloudModalOpen}
-        onClose={() => setCloudModalOpen(false)}
-      />
-    </Container>
+    </AppLayout>
   );
 };
 
@@ -320,49 +286,10 @@ export default DocumentsWithDelete;
 
 /* styled components */
 
-const Container = styled.div`
-  background-color: ${colors.gray1};
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-`;
-
-const Content = styled(Layout)`
-  display: flex;
-  flex: 1;
-  flex-flow: column nowrap;
-  width: 100%;
-`;
-
-const Header = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  h1 {
-    flex: 1;
-    font-weight: bold;
-    font-size: 24px;
-  }
-`;
-
-const Loading = styled(Spinner)`
-  height: 100%;
-`;
-
-const Rule = styled(HorizontalRule)`
-  margin: 0px -10px;
-`;
-
 const DocumentListHeader = styled.div`
   align-items: center;
   display: flex;
-  margin: 20px 0 40px;
+  margin-bottom: 40px;
 `;
 
 const HeaderButtons = styled.div`
