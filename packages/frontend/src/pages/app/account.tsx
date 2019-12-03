@@ -30,13 +30,13 @@ const AccountPage: NextPage = () => {
         <Tabs>
           <Tab
             selected={currentTab === TabType.UserData}
-            //  onClick={() => setCurrentTab(TabType.UserData)}
+            // onClick={() => setCurrentTab(TabType.UserData)}
           >
             {t("account.user-data.title")}
           </Tab>
           {/* <Tab selected={currentTab === TabType.PurchasedItems}
-               onClick={() => setCurrentTab(TabType.PurchasedItems)}
-            >{t("account.purchased-items.title")}</Tab> */}
+            onClick={() => setCurrentTab(TabType.PurchasedItems)}
+          >{t("account.purchased-items.title")}</Tab> */}
         </Tabs>
         <Content>
           <Panel
