@@ -21,13 +21,6 @@ ctx.addEventListener("install", event => {
   event.waitUntil(preLoaded);
 });
 
-// self.addEventListener("fetch", event => {
-//   const response = caches
-//     .match(event.request)
-//     .then(match => match || fetch(event.request));
-//   event.respondWith(response);
-// });
-
 ctx.addEventListener("message", async message => {
   const {
     exerciseID,
