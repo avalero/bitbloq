@@ -71,7 +71,24 @@ const AccountPage: NextPage = () => {
                   </>
                 )
               }
-            />
+            >
+              {personalDataCollapsed && (
+                <>
+                  <Field>
+                    <div>Nombre</div>
+                    <div>{userData.name}</div>
+                  </Field>
+                  <Field>
+                    <div>Apellidos</div>
+                    <div>{userData.surnames}</div>
+                  </Field>
+                  <Field>
+                    <div>Fecha de nacimiento</div>
+                    <div>{userData.birthDate}</div>
+                  </Field>
+                </>
+              )}
+            </Panel>
             <Panel
               title={t("account.user-data.email.title")}
               icon="at"
@@ -159,6 +176,19 @@ const Container = styled.div`
 
 const Content = styled.div`
   margin: 30px 20px;
+`;
+
+const Field = styled.div`
+  align-items: center;
+  height: 36px;
+  display: flex;
+  justify-content: space-between;
+  border: 0px solid #8c919b;
+  border-top-width: 1px;
+
+  &:last-of-type {
+    border-bottom-width: 1px;
+  }
 `;
 
 const Tabs = styled.div`
