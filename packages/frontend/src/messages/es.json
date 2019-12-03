@@ -254,6 +254,36 @@
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
   "general-add-button": "Añadir",
+  "account": {
+    "user-data": {
+      "delete": {
+        "title": "Eliminar mi cuenta",
+        "button": "Eliminar cuenta"
+      },
+      "email": {
+        "title": "Mi correo electrónico",
+        "button": "Cambiar correo electrónico"
+      },
+      "password": {
+        "title": "Mi contraseña",
+        "button": "Cambiar contraseña"
+      },
+      "plan": {
+        "title": "Mi plan",
+        "button": "Mejorar mi plan"
+      },
+      "personal-data": {
+        "title": "Datos personales",
+        "button": "Editar datos pesonales",
+        "button-cancel": "Cancelar",
+        "button-save": "Guardar"
+      },
+      "title": "Datos de usuario"
+    },
+    "purchased-items": {
+      "title": "Elementos comprados"
+    }
+  },
   "cloud": {
     "buttons": {
       "import": "Importar nuevo recurso",
@@ -412,10 +442,12 @@
     "includes-bitbloq-cloud": "Incluye Bitbloq Cloud",
     "link": "Planes",
     "member": "Miembro",
+    "member-description": "Con este plan gratuito simplemente puedes guardar tus documentos en la nube.",
     "member-signup": "¡Quiero jugar con Bitbloq!",
     "member-subtitle": "Todo lo que necesitas para empezar a diseñar gratis",
     "monthly-price": "%v%€ / mes",
     "teacher": "Docente",
+    "teacher-description": "Este plan te permite crear ejercicios y corregirlos, acceso para tus alumnos a los ejercicios sin necesidad de tener que registrarse y la herramienta de Bitbloq Cloud.",
     "teacher-signup": "¡Quiero enseñar con Bitbloq!",
     "teacher-subtitle": "Además del plan gratuíto podrás …",
     "unregistered": "Sin registro"

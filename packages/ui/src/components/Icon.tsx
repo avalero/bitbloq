@@ -6,19 +6,23 @@ import Angle from "./icons/Angle";
 import AngleDouble from "./icons/AngleDouble";
 import Arrow from "./icons/Arrow";
 import ArrowLeft from "./icons/ArrowLeft";
+import At from "./icons/At";
 import BasicShapes from "./icons/BasicShapes";
 import Brush from "./icons/Brush";
+import Center from "./icons/Center";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
 import CloudLogo from "./icons/CloudLogo";
+import Cone from "./icons/Cone";
+import Cthulhito from "./icons/Cthulhito";
 import Cube from "./icons/Cube";
 import CurveAngle from "./icons/CurveAngle";
 import Cylinder from "./icons/Cylinder";
 import Description from "./icons/Description";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
-import Download from "./icons/Download";
 import Document from "./icons/Document";
+import Download from "./icons/Download";
 import DownloadDocument from "./icons/DownloadDocument";
 import Drag from "./icons/Drag";
 import DragFile from "./icons/DragFile";
@@ -31,28 +35,36 @@ import ExerciseResources from "./icons/ExerciseResources";
 import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
 import EyeClose from "./icons/EyeClose";
+import Folder from "./icons/Folder";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import HardwareQuestion from "./icons/HardwareQuestion";
+import Heart from "./icons/Heart";
+import HollowCylinder from "./icons/HollowCylinder";
 import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
 import Interrogation from "./icons/Interrogation";
 import Intersection from "./icons/Intersection";
+import Logo3D from "./icons/Logo3D";
+import LogoApps from "./icons/LogoApps";
+import LogoBloqs from "./icons/LogoBloqs";
+import LogoCode from "./icons/LogoCode";
+import LogoJunior from "./icons/LogoJunior";
 import Loop from "./icons/Loop";
 import Minus from "./icons/Minus";
-import Center from "./icons/Center";
-import NewDocument from "./icons/NewDocument";
-import OpenDocument from "./icons/OpenDocument";
 import MoveDocument from "./icons/MoveDocument";
+import NewDocument from "./icons/NewDocument";
+import NewFolder from "./icons/NewFolder";
+import Octahedron from "./icons/Octahedron";
+import OpenDocument from "./icons/OpenDocument";
 import Orthographic from "./icons/Orthographic";
 import PadlockClose from "./icons/PadlockClose";
 import PadlockOpen from "./icons/PadlockOpen";
 import Pencil from "./icons/Pencil";
+import People from "./icons/People";
 import Perspective from "./icons/Perspective";
 import Plus from "./icons/Plus";
 import Prism from "./icons/Prism";
-import Text from "./icons/Text";
-import People from "./icons/People";
 import Programming from "./icons/Programming";
 import Programming2 from "./icons/Programming2";
 import Programming3 from "./icons/Programming3";
@@ -60,8 +72,9 @@ import ProgrammingBoard from "./icons/ProgrammingBoard";
 import ProgrammingDuplicate from "./icons/ProgrammingDuplicate";
 import ProgrammingQuestion from "./icons/ProgrammingQuestion";
 import ProgrammingUpload from "./icons/ProgrammingUpload";
-import Pyramid from "./icons/Pyramid";
 import Publish from "./icons/Publish";
+import Pyramid from "./icons/Pyramid";
+import RectangularPrism from "./icons/RectangularPrism";
 import Redo from "./icons/Redo";
 import Reflection from "./icons/Reflection";
 import Reload from "./icons/Reload";
@@ -74,36 +87,25 @@ import ResourceSound from "./icons/ResourceSound";
 import ResourceVideo from "./icons/ResourceVideo";
 import Rotation from "./icons/Rotation";
 import Scale from "./icons/Scale";
+import SemiCylinder from "./icons/SemiCylinder";
 import Sphere from "./icons/Sphere";
 import Spinner from "./icons/Spinner";
+import Star from "./icons/Star";
 import STL from "./icons/STL";
+import Text from "./icons/Text";
 import ThreeD from "./icons/ThreeD";
 import Tick from "./icons/Tick";
 import Times from "./icons/Times";
+import Torus from "./icons/Torus";
 import Translation from "./icons/Translation";
 import Trash from "./icons/Trash";
 import Triangle from "./icons/Triangle";
+import TruncatedCone from "./icons/TruncatedCone";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
+import User from "./icons/User";
 import ViewDocument from "./icons/ViewDocument";
-import Torus from "./icons/Torus";
-import RectangularPrism from "./icons/RectangularPrism";
-import Cone from "./icons/Cone";
-import TruncatedCone from "./icons/TruncatedCone";
-import Star from "./icons/Star";
-import SemiCylinder from "./icons/SemiCylinder";
-import Octahedron from "./icons/Octahedron";
-import Heart from "./icons/Heart";
-import Logo3D from "./icons/Logo3D";
-import LogoBloqs from "./icons/LogoBloqs";
-import LogoJunior from "./icons/LogoJunior";
-import LogoApps from "./icons/LogoApps";
-import LogoCode from "./icons/LogoCode";
-import HollowCylinder from "./icons/HollowCylinder";
-import Cthulhito from "./icons/Cthulhito";
-import NewFolder from "./icons/NewFolder";
-import Folder from "./icons/Folder";
 
 export interface IIconProps {
   /** Name of the icon to display */
@@ -136,6 +138,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Arrow className={className} />;
     case "arrow-left":
       return <ArrowLeft className={className} />;
+    case "at":
+      return <At className={className} />;
     case "basic-shapes":
       return <BasicShapes className={className} />;
     case "brush":
@@ -308,6 +312,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Ungroup className={className} />;
     case "union":
       return <Union className={className} />;
+    case "user":
+      return <User className={className} />;
     case "view-document":
       return <ViewDocument className={className} />;
     case "logo-3d":
