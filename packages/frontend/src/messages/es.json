@@ -391,6 +391,7 @@
       "access": "Ver mi Bitbloq Cloud"
     },
     "session": {
+      "account": "Mi cuenta",
       "logout": "Salir"
     }
   },
