@@ -14,14 +14,6 @@ interface IContext {
   };
 }
 
-interface IOperation {
-  context: IContext;
-  query?: any;
-  variables?: {
-    [key: string]: any;
-  };
-}
-
 const uri = process.env.API_URL_SERVER || process.env.API_URL;
 const link = createUploadLink({ uri });
 
