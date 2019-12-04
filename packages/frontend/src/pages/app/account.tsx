@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import React, { FC, useState } from "react";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
@@ -30,16 +31,16 @@ const AccountPage: NextPage = () => {
         <Tabs>
           <Tab
             selected={currentTab === TabType.UserData}
-            onClick={() => setCurrentTab(TabType.UserData)}
+            // onClick={() => setCurrentTab(TabType.UserData)}
           >
             {t("account.user-data.title")}
           </Tab>
-          <Tab
+          {/* <Tab
             selected={currentTab === TabType.PurchasedItems}
             onClick={() => setCurrentTab(TabType.PurchasedItems)}
           >
             {t("account.purchased-items.title")}
-          </Tab>
+          </Tab> */}
         </Tabs>
         {currentTab === TabType.UserData && (
           <Content>
@@ -81,7 +82,12 @@ const AccountPage: NextPage = () => {
                   </Field>
                   <Field>
                     <div>Fecha de nacimiento</div>
-                    <div>{userData.birthDate}</div>
+                    <div>
+                      {userData.birthDate &&
+                        dayjs(new Date(userData.birthDate)).format(
+                          "DD/MM/YYYY"
+                        )}
+                    </div>
                   </Field>
                 </>
               )}
@@ -172,6 +178,7 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
+  flex: 1;
   margin: 30px 20px;
 `;
 
