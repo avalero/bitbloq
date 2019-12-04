@@ -175,6 +175,7 @@ export interface IBoard {
   ports: IPort[];
   schematicCenter: IConnectorPosition;
   schematicImage: IComponentImage;
+  snapshotImage: IComponentImage;
 }
 
 export enum ConnectorPinMode {

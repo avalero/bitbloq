@@ -1,29 +1,16 @@
 import { execute, GraphQLRequest, makePromise } from "apollo-link";
+import { createUploadLink } from "apollo-upload-client";
+import fetch from "isomorphic-fetch";
 import {
   SET_DOCUMENT_IMAGE_MUTATION,
   UPDATE_SUBMISSION_MUTATION
 } from "../apollo/queries";
-import { createUploadLink } from "apollo-upload-client";
 
-interface IContext {
-  headers: {
-    authorization: string;
-  };
-  user: {
-    userID: string;
-  };
-}
-
-interface IOperation {
-  context: IContext;
-  query?: any;
-  variables?: {
-    [key: string]: any;
-  };
-}
-
-const uri = process.env.API_URL_SERVER || process.env.API_URL;
-const link = createUploadLink({ uri });
+const uri =
+  typeof window !== "undefined"
+    ? process.env.API_URL
+    : process.env.API_URL_SERVER || process.env.API_URL;
+const link = createUploadLink({ fetch, uri });
 
 const CACHE_NAME = "bitbloq-service-worker";
 const urlsToCache = ["/index", "/plans"];
@@ -36,13 +23,6 @@ ctx.addEventListener("install", event => {
     .open(CACHE_NAME)
     .then(cache => cache.addAll(urlsToCache));
   event.waitUntil(preLoaded);
-});
-
-self.addEventListener("fetch", event => {
-  const response = caches
-    .match(event.request)
-    .then(match => match || fetch(event.request));
-  event.respondWith(response);
 });
 
 ctx.addEventListener("message", async message => {

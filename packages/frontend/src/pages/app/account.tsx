@@ -43,16 +43,16 @@ const AccountPage: NextPage = () => {
         <Tabs>
           <Tab
             selected={currentTab === TabType.UserData}
-            onClick={() => setCurrentTab(TabType.UserData)}
+            // onClick={() => setCurrentTab(TabType.UserData)}
           >
             {t("account.user-data.title")}
           </Tab>
-          <Tab
+          {/* <Tab
             selected={currentTab === TabType.Purchases}
             onClick={() => setCurrentTab(TabType.Purchases)}
           >
             {t("account.purchases.title")}
-          </Tab>
+          </Tab> */}
         </Tabs>
         {currentTab === TabType.UserData && (
           <Content>
@@ -169,6 +169,7 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
+  flex: 1;
   margin: 30px 20px;
 `;
 

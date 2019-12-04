@@ -1,4 +1,5 @@
 import { ApolloError } from "apollo-client";
+import dayjs from "dayjs";
 import React, { FC, useEffect } from "react";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
@@ -99,7 +100,10 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
       </FormFieldNotEditable>
       <FormFieldNotEditable>
         <div>{t("signup.user-data.labels.birth-date")}</div>
-        <div>{defaultValues.birthDate}</div>
+        <div>
+          {defaultValues.birthDate &&
+            dayjs(new Date(defaultValues.birthDate)).format("DD/MM/YYYY")}
+        </div>
       </FormFieldNotEditable>
     </>
   );
