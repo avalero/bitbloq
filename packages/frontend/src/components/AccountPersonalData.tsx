@@ -7,7 +7,6 @@ import { Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { isValidDate, getAge } from "../util";
 import { SAVE_USER_DATA_MUTATION } from "../apollo/queries";
-import { IUserIn } from "../../../api/src/api-types";
 
 interface IUserData {
   birthDate: string;
@@ -40,7 +39,6 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     getValues,
     handleSubmit,
     register,
-    reset,
     setValue
   } = useForm({ defaultValues });
 
@@ -51,7 +49,13 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   }, [error]);
 
   useEffect(() => {
-    reset(defaultValues);
+    if (isEditable && defaultValues.birthDate) {
+      const birthDate = dayjs(new Date(defaultValues.birthDate));
+      setValue("day", birthDate.date());
+      setValue("month", birthDate.month() + 1);
+      setValue("year", birthDate.year());
+      onChangeBirthDate();
+    }
   }, [isEditable]);
 
   register(
