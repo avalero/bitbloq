@@ -7,7 +7,7 @@ import withApollo from "../apollo/withApollo";
 import Loading from "../components/Loading";
 import { signupSteps } from "../config";
 import { setToken } from "../lib/session";
-import { IMsLogin } from "../../../api/src/api-types";
+import { ISocialLogin } from "../../../api/src/api-types";
 
 const GoogleRedirectPage: NextPage = () => {
   const client = useApolloClient();
@@ -16,7 +16,7 @@ const GoogleRedirectPage: NextPage = () => {
 
   const callLogin = async (
     token: string
-  ): Promise<ExecutionResult<{ loginWithGoogle: IMsLogin }>> =>
+  ): Promise<ExecutionResult<{ loginWithGoogle: ISocialLogin }>> =>
     loginWithGoogle({ variables: { token } }).catch(e => {
       throw e;
     });

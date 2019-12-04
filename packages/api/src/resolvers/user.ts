@@ -31,9 +31,12 @@ import {
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
-  IMutationLoginWithGoogleArgs
+  IMutationLoginWithGoogleArgs,
+  IMutationUpdateUserDataArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
+import { IUpload } from "../models/upload";
+import { uploadDocumentImage } from "./upload";
 
 const saltRounds: number = 7;
 
@@ -577,6 +580,50 @@ const userResolver = {
       } else {
         return new ApolloError("User does not exist", "USER_NOT_FOUND");
       }
+    },
+
+    /*
+      Update user data: update existing user data.
+      It updates the user with the new information provided.
+      args: user ID, new user information: name, surnames, birthDate and avatar file.
+    */
+    updateUserData: async (
+      _,
+      args: IMutationUpdateUserDataArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: args.id,
+        finishedSignUp: true
+      });
+
+      if (
+        !contactFound ||
+        String(contactFound._id) !== String(context.user.userID)
+      ) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+
+      let image: string | undefined;
+      if (args.input.avatar) {
+        const imageUploaded: IUpload = await uploadDocumentImage(
+          args.input.avatar,
+          context.user.userID
+        );
+        image = imageUploaded.publicUrl;
+      }
+      return UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        {
+          $set: {
+            name: args.input.name || contactFound.name,
+            surnames: args.input.surnames || contactFound.surnames,
+            birthDate: args.input.birthDate || contactFound.birthDate,
+            avatar: image || contactFound.avatar
+          }
+        },
+        { new: true }
+      );
     }
   },
 
