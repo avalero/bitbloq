@@ -22,6 +22,8 @@ type Mutation {
   deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
   updateUserData(id: ObjectID!, input: UpdateUserData!): User
     @authRequired(requires: [USER])
+  updateMyPassword(currentPassword: String!, newPassword: String!): User
+    @authRequired(requires: [USER])
 }
 
 type UserStep1 {

@@ -31,7 +31,8 @@ import {
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
   IMutationLoginWithGoogleArgs,
-  IMutationUpdateUserDataArgs
+  IMutationUpdateUserDataArgs,
+  IMutationUpdateMyPasswordArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -550,11 +551,11 @@ const userResolver = {
       }
     },
 
-    /*
-      Update user data: update existing user data.
-      It updates the user with the new information provided.
-      args: user ID, new user information: name, surnames, birthDate and avatar file.
-    */
+    /**
+     * Update user data: update existing user data.
+     * It updates the user with the new information provided.
+     * args: user ID, new user information: name, surnames, birthDate and avatar file.
+     */
     updateUserData: async (
       _,
       args: IMutationUpdateUserDataArgs,
@@ -592,6 +593,41 @@ const userResolver = {
         },
         { new: true }
       );
+    },
+
+    /**
+     * updateMyPassword: updates my own password with user logged.
+     * args: currentPassword and newPassword
+     */
+    updateMyPassword: async (
+      _,
+      args: IMutationUpdateMyPasswordArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const valid: boolean = await bcryptCompare(
+        args.currentPassword,
+        contactFound.password
+      );
+      if (valid) {
+        // Store the password with a hash
+        const hash: string = await bcryptHash(
+          args.newPassword as string,
+          saltRounds as number
+        );
+        return UserModel.findOneAndUpdate(
+          { _id: contactFound._id },
+          { $set: { password: hash } },
+          { new: true }
+        );
+      } else {
+        throw new AuthenticationError("Password incorrect");
+      }
     }
   },
 
