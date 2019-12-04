@@ -174,8 +174,12 @@ export interface IMutation {
   resetPasswordEmail?: Maybe<Scalars["String"]>;
   checkResetPasswordToken?: Maybe<Scalars["Boolean"]>;
   updatePassword?: Maybe<Scalars["String"]>;
+  sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
+  checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
+  updateForgotPassword?: Maybe<Scalars["String"]>;
   deleteUser?: Maybe<IUser>;
-  updateUser?: Maybe<IUser>;
+  updateUserData?: Maybe<IUser>;
+  updateMyPassword?: Maybe<IUser>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
   duplicateDocument?: Maybe<IDuplicateDocument>;
@@ -237,15 +241,15 @@ export interface IMutationLoginWithMicrosoftArgs {
   token: Scalars["String"];
 }
 
-export interface IMutationResetPasswordEmailArgs {
+export interface IMutationSendForgotPasswordEmailArgs {
   email: Scalars["EmailAddress"];
 }
 
-export interface IMutationCheckResetPasswordTokenArgs {
+export interface IMutationCheckForgotPasswordTokenArgs {
   token?: Maybe<Scalars["String"]>;
 }
 
-export interface IMutationUpdatePasswordArgs {
+export interface IMutationUpdateForgotPasswordArgs {
   token?: Maybe<Scalars["String"]>;
   newPassword?: Maybe<Scalars["String"]>;
 }
@@ -254,9 +258,14 @@ export interface IMutationDeleteUserArgs {
   id: Scalars["ObjectID"];
 }
 
-export interface IMutationUpdateUserArgs {
+export interface IMutationUpdateUserDataArgs {
   id: Scalars["ObjectID"];
-  input: IUserIn;
+  input: IUpdateUserData;
+}
+
+export interface IMutationUpdateMyPasswordArgs {
+  currentPassword: Scalars["String"];
+  newPassword: Scalars["String"];
 }
 
 export interface IMutationCreateDocumentArgs {
@@ -598,6 +607,13 @@ export interface ISubscriptionSubmissionUpdatedArgs {
   exercise: Scalars["ObjectID"];
 }
 
+export interface IUpdateUserData {
+  name?: Maybe<Scalars["String"]>;
+  surnames?: Maybe<Scalars["String"]>;
+  birthDate?: Maybe<Scalars["Date"]>;
+  avatar?: Maybe<Scalars["Upload"]>;
+}
+
 export interface IUser {
   __typename?: "User";
   id?: Maybe<Scalars["ObjectID"]>;
@@ -610,6 +626,7 @@ export interface IUser {
   family?: Maybe<Scalars["Boolean"]>;
   name?: Maybe<Scalars["String"]>;
   surnames?: Maybe<Scalars["String"]>;
+  avatar?: Maybe<Scalars["String"]>;
   birthDate?: Maybe<Scalars["Date"]>;
   active?: Maybe<Scalars["Boolean"]>;
   signUpToken?: Maybe<Scalars["String"]>;
@@ -784,9 +801,9 @@ export type IResolversTypes = ResolversObject<{
   UserStep1: ResolverTypeWrapper<IUserStep1>;
   SocialLogin: ResolverTypeWrapper<ISocialLogin>;
   DocumentIn: IDocumentIn;
-  DocImageIn: IDocImageIn;
-  DuplicateDocument: ResolverTypeWrapper<IDuplicateDocument>;
+  UpdateUserData: IUpdateUserData;
   Upload: ResolverTypeWrapper<Scalars["Upload"]>;
+  DuplicateDocument: ResolverTypeWrapper<IDuplicateDocument>;
   ExerciseIn: IExerciseIn;
   FolderIn: IFolderIn;
   loginOut: ResolverTypeWrapper<ILoginOut>;
@@ -822,10 +839,11 @@ export type IResolversParentTypes = ResolversObject<{
   UserIn: IUserIn;
   UserStep1: IUserStep1;
   SocialLogin: ISocialLogin;
+  UpdateUserData: IUpdateUserData;
+  Upload: Scalars["Upload"];
   DocumentIn: IDocumentIn;
   DocImageIn: IDocImageIn;
   DuplicateDocument: IDuplicateDocument;
-  Upload: Scalars["Upload"];
   ExerciseIn: IExerciseIn;
   FolderIn: IFolderIn;
   loginOut: ILoginOut;
@@ -1163,28 +1181,23 @@ export type IMutationResolvers<
     ParentType,
     ContextType
   >;
-  renewSession?: Resolver<
-    Maybe<IResolversTypes["String"]>,
-    ParentType,
-    ContextType
-  >;
-  resetPasswordEmail?: Resolver<
+  sendForgotPasswordEmail?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
-    RequireFields<IMutationResetPasswordEmailArgs, "email">
+    RequireFields<IMutationSendForgotPasswordEmailArgs, "email">
   >;
-  checkResetPasswordToken?: Resolver<
+  checkForgotPasswordToken?: Resolver<
     Maybe<IResolversTypes["Boolean"]>,
     ParentType,
     ContextType,
-    IMutationCheckResetPasswordTokenArgs
+    IMutationCheckForgotPasswordTokenArgs
   >;
-  updatePassword?: Resolver<
+  updateForgotPassword?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
-    IMutationUpdatePasswordArgs
+    IMutationUpdateForgotPasswordArgs
   >;
   deleteUser?: Resolver<
     Maybe<IResolversTypes["User"]>,
@@ -1192,11 +1205,20 @@ export type IMutationResolvers<
     ContextType,
     RequireFields<IMutationDeleteUserArgs, "id">
   >;
-  updateUser?: Resolver<
+  updateUserData?: Resolver<
     Maybe<IResolversTypes["User"]>,
     ParentType,
     ContextType,
-    RequireFields<IMutationUpdateUserArgs, "id" | "input">
+    RequireFields<IMutationUpdateUserDataArgs, "id" | "input">
+  >;
+  updateMyPassword?: Resolver<
+    Maybe<IResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<
+      IMutationUpdateMyPasswordArgs,
+      "currentPassword" | "newPassword"
+    >
   >;
   createDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,
@@ -1772,6 +1794,7 @@ export type IUserResolvers<
     ParentType,
     ContextType
   >;
+  avatar?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   birthDate?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
   active?: Resolver<Maybe<IResolversTypes["Boolean"]>, ParentType, ContextType>;
   signUpToken?: Resolver<

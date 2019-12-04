@@ -1,10 +1,9 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { colors, Layout, HorizontalRule, Spinner } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import AppFooter from "./AppFooter";
 import AppHeader from "./AppHeader";
 import UserSession from "./UserSession";
-import CloudModal from "./CloudModal";
 
 interface IAppLayoutProps {
   header?: JSX.Element | string;
@@ -12,12 +11,10 @@ interface IAppLayoutProps {
 }
 
 const AppLayout: FC<IAppLayoutProps> = ({ header, loading, children }) => {
-  const [cloudModalOpen, setCloudModalOpen] = useState(false);
-
   return (
     <Container>
       <AppHeader>
-        <UserSession cloudClick={() => setCloudModalOpen(true)} />
+        <UserSession />
       </AppHeader>
       <Wrapper>
         {loading ? (
@@ -35,10 +32,6 @@ const AppLayout: FC<IAppLayoutProps> = ({ header, loading, children }) => {
         )}
       </Wrapper>
       <AppFooter />
-      <CloudModal
-        isOpen={cloudModalOpen}
-        onClose={() => setCloudModalOpen(false)}
-      />
     </Container>
   );
 };

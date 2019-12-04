@@ -199,8 +199,8 @@ export function getFilesizeInBytes(filename) {
 
 export async function uploadDocumentImage(
   image: any,
-  documentID: string,
-  userID: string
+  userID: string,
+  documentID?: string
 ): Promise<IUpload> {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
@@ -216,7 +216,9 @@ export async function uploadDocumentImage(
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
-  const uniqueName: string = documentID + normalize(filename);
+  const uniqueName: string = documentID
+    ? documentID + normalize(filename)
+    : "profilePhoto" + normalize(filename);
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
 
   return new Promise((resolve, reject) => {
@@ -230,7 +232,7 @@ export async function uploadDocumentImage(
       mimetype,
       encoding,
       userID,
-      type: "docImage"
+      type: documentID ? "docImage" : "profilePhoto"
     });
   });
 }

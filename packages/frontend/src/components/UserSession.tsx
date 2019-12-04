@@ -1,17 +1,17 @@
-import React, { FC } from "react";
+import { useRouter } from "next/router";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import { logout } from "../lib/session";
+import CloudModal from "./CloudModal";
 import MenuButton from "./MenuButton";
 
-interface IUserSessionProps {
-  cloudClick?: () => void;
-}
-
-const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
+const UserSession: FC = () => {
   const userData = useUserData();
+  const router = useRouter();
   const t = useTranslate();
+  const [cloudModalOpen, setCloudModalOpen] = useState(false);
 
   return (
     <>
@@ -20,17 +20,22 @@ const UserSession: FC<IUserSessionProps> = ({ cloudClick }) => {
       <DropDown>
         {(isOpen: boolean) => <MenuButton isOpen={isOpen} />}
         <ContextMenu>
-          {cloudClick && (
-            <ContextMenuOption onClick={cloudClick}>
-              <CloudIcon name="cloud-logo" />
-              <p>{t("user.cloud.access")}</p>
-            </ContextMenuOption>
-          )}
-          <ContextMenuOption onClick={() => logout()}>
-            <p>{t("user.session.logout")}</p>
+          <ContextMenuOption onClick={() => setCloudModalOpen(true)}>
+            <CloudIcon name="cloud-logo" />
+            {t("user.cloud.access")}
+          </ContextMenuOption>
+          <ContextMenuOption onClick={() => router.push("/app/account")}>
+            {t("user.session.account")}
+          </ContextMenuOption>
+          <ContextMenuOption onClick={logout}>
+            {t("user.session.logout")}
           </ContextMenuOption>
         </ContextMenu>
       </DropDown>
+      <CloudModal
+        isOpen={cloudModalOpen}
+        onClose={() => setCloudModalOpen(false)}
+      />
     </>
   );
 };
@@ -67,12 +72,8 @@ const ContextMenuOption = styled.div`
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
   display: flex;
-  padding: 10px 14px 9px;
-
-  p {
-    font-size: 14px;
-    height: 16px;
-  }
+  font-size: 14px;
+  padding: 10px 14px;
 
   svg {
     margin-right: 10px;
