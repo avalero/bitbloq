@@ -28,8 +28,10 @@ const AccountPage: NextPage = () => {
   const [personalDataEditable, setPersonalDataEditable] = useState(false);
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
 
-  const togglePersonalDataEditable = () =>
+  const togglePersonalDataEditable = (e: React.MouseEvent) => {
+    e.preventDefault();
     setPersonalDataEditable(!personalDataEditable);
+  };
 
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;

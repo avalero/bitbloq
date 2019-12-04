@@ -15,7 +15,7 @@ interface IUserData {
 }
 
 interface IAccountPersonalDataProps {
-  defaultValues: IUserIn;
+  defaultValues: IUserData;
   formId: string;
   isEditable: boolean;
   setError: (error: ApolloError) => void;
@@ -39,6 +39,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     getValues,
     handleSubmit,
     register,
+    reset,
     setValue
   } = useForm({ defaultValues });
 
@@ -47,6 +48,10 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
       setError(error);
     }
   }, [error]);
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [isEditable]);
 
   register(
     { name: "birthDate", type: "custom" },
@@ -86,15 +91,15 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     <>
       <FormFieldNotEditable>
         <div>{t("signup.user-data.labels.name")}</div>
-        <div>{getValues().name}</div>
+        <div>{defaultValues.name}</div>
       </FormFieldNotEditable>
       <FormFieldNotEditable>
         <div>{t("signup.user-data.labels.surnames")}</div>
-        <div>{getValues().surnames}</div>
+        <div>{defaultValues.surnames}</div>
       </FormFieldNotEditable>
       <FormFieldNotEditable>
         <div>{t("signup.user-data.labels.birth-date")}</div>
-        <div>{getValues().birthDate}</div>
+        <div>{defaultValues.birthDate}</div>
       </FormFieldNotEditable>
     </>
   );
@@ -114,10 +119,12 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
               ref={register({ required: true })}
               error={!!errors.name}
             />
+          </FormField>
+          <FormError>
             {errors.name && (
               <ErrorMessage>{t("signup.user-data.errors.name")}</ErrorMessage>
             )}
-          </FormField>
+          </FormError>
           <FormField>
             <label>{t("signup.user-data.labels.surnames")}</label>
             <Input
@@ -127,12 +134,14 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
               ref={register({ required: true })}
               error={!!errors.surnames}
             />
+          </FormField>
+          <FormError>
             {errors.surnames && (
               <ErrorMessage>
                 {t("signup.user-data.errors.surnames")}
               </ErrorMessage>
             )}
-          </FormField>
+          </FormError>
           <FormField>
             <label>{t("signup.user-data.labels.birth-date")}</label>
             <FormGroup onChange={onChangeBirthDate}>
@@ -160,6 +169,8 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
                 error={!!errors.birthDate}
               />
             </FormGroup>
+          </FormField>
+          <FormError>
             {errors.birthDate && (
               <ErrorMessage>
                 {t(
@@ -167,7 +178,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
                 )}
               </ErrorMessage>
             )}
-          </FormField>
+          </FormError>
         </form>
       )}
     </>
@@ -178,18 +189,22 @@ export default AccountPersonalData;
 
 /* Styled components */
 
-const FormGroup = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-  grid-column-gap: 10px;
+const FormError = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 24%;
+
+  &:not(:last-of-type) {
+    margin-bottom: 20px;
+  }
 `;
 
 const FormField = styled.div`
   align-items: center;
   display: flex;
-  margin-bottom: 20px;
 
   label {
+    width: 24%;
   }
 
   input[type="number"]::-webkit-outer-spin-button,
@@ -212,6 +227,13 @@ const FormFieldNotEditable = styled.div`
   &:last-of-type {
     border-bottom-width: 1px;
   }
+`;
+
+const FormGroup = styled.div`
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  grid-column-gap: 10px;
 `;
 
 const ErrorMessage = styled.div`
