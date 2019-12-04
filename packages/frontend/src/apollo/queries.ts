@@ -529,21 +529,21 @@ export const RENEW_TOKEN_MUTATION = gql`
   }
 `;
 
-export const CHECK_RESET_PASSWORD_TOKEN_MUTATION = gql`
+export const CHECK_UPDATE_PASSWORD_TOKEN_MUTATION = gql`
   mutation CheckResetPasswordToken($token: String) {
-    checkResetPasswordToken(token: $token)
+    checkForgotPasswordToken(token: $token)
   }
 `;
 
 export const RESET_PASSWORD_MUTATION = gql`
   mutation ResetPassword($email: EmailAddress!) {
-    resetPasswordEmail(email: $email)
+    sendForgotPasswordEmail(email: $email)
   }
 `;
 
-export const UPDATE_PASSWORD_MUTATION = gql`
+export const UPDATE_FORGOT_PASSWORD_MUTATION = gql`
   mutation UpdatePassword($token: String, $newPassword: String) {
-    updatePassword(token: $token, newPassword: $newPassword)
+    updateForgotPassword(token: $token, newPassword: $newPassword)
   }
 `;
 

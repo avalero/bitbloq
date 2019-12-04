@@ -16,11 +16,13 @@ type Mutation {
   loginWithGoogle(token: String!): SocialLogin
   loginWithMicrosoft(token: String!): SocialLogin
   renewToken: String
-  resetPasswordEmail(email: EmailAddress!): String
-  checkResetPasswordToken(token: String): Boolean
-  updatePassword(token: String, newPassword: String): String
+  sendForgotPasswordEmail(email: EmailAddress!): String
+  checkForgotPasswordToken(token: String): Boolean
+  updateForgotPassword(token: String, newPassword: String): String
   deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
   updateUserData(id: ObjectID!, input: UpdateUserData!): User
+    @authRequired(requires: [USER])
+  updateMyPassword(currentPassword: String!, newPassword: String!): User
     @authRequired(requires: [USER])
 }
 
