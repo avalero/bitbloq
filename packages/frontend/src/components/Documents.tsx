@@ -17,7 +17,7 @@ import {
 import useUserData from "../lib/useUserData";
 import { OrderType } from "../types";
 import AppLayout from "./AppLayout";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs, { IBreadcrumbLink } from "./Breadcrumbs";
 import DocumentList from "./DocumentsList";
 import EditTitleModal from "./EditTitleModal";
 import FilterOptions from "./FilterOptions";
@@ -46,11 +46,14 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
       type: ""
     }
   ]);
+  const [breadParents, setBreadParents] = useState<IBreadcrumbLink[]>([]);
+  const [docsAndFols, setDocsAndFols] = useState<any[]>([]);
+  const [parentsPath, setParentsPath] = useState<any[]>([]);
+  const [nFolders, setNFolders] = useState<number>(0);
 
   const openFile = React.createRef<HTMLInputElement>();
 
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
-  const [documentsData, setDocumentsData] = useState<any>({});
   const [error, setError] = useState<ApolloError>();
 
   const {
@@ -71,9 +74,24 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   useEffect(() => {
     if (!loading && !errorQuery) {
+      const {
+        nFolders: foldersNumber,
+        pagesNumber: numberOfPages,
+        parentsPath: pathOfParent,
+        result: docsAndFolsItems
+      } = resultData.documentsAndFolders;
+      setBreadParents(
+        pathOfParent.map(item => ({
+          route: `/app/folder/${item.id}`,
+          text: item.name,
+          type: "folder"
+        }))
+      );
+      setDocsAndFols(docsAndFolsItems || []);
+      setNFolders(foldersNumber);
+      setPagesNumber(numberOfPages);
+      setParentsPath(pathOfParent);
       setError(undefined);
-      setDocumentsData(resultData);
-      setPagesNumber(resultData.documentsAndFolders.pagesNumber);
     }
     if (errorQuery) {
       setError(errorQuery);
@@ -166,117 +184,108 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
-  } else if (loading || !documentsData.documentsAndFolders) {
-    return <AppLayout loading />;
   }
 
-  const {
-    result: docsAndFols,
-    parentsPath,
-    nFolders
-  } = documentsData.documentsAndFolders;
-
-  const breadParents = parentsPath.map(item => ({
-    route: `/app/folder/${item.id}`,
-    text: item.name,
-    type: "folder"
-  }));
-
   return (
-    <AppLayout
-      header={
-        currentLocation.id === (userData && userData.rootFolder) ? (
-          "Mis documentos"
+    <>
+      {loading && <AppLayout loading />}
+      <AppLayout
+        header={
+          currentLocation.id === (userData && userData.rootFolder) ? (
+            "Mis documentos"
+          ) : (
+            <Breadcrumbs links={breadParents} />
+          )
+        }
+      >
+        <DocumentListHeader>
+          {(docsAndFols.length > 0 || searchQuery) && (
+            <FilterOptions
+              onOrderChange={onOrderChange}
+              searchText={searchText}
+              selectValue={order}
+              onChange={(value: string) => {
+                setSearchText(value);
+                onSearchInput(value);
+              }}
+            />
+          )}
+          <HeaderButtons>
+            <NewFolderButton
+              tertiary
+              onClick={() => {
+                setFolderTitleModal(true);
+              }}
+            >
+              <Icon name="new-folder" />
+              Nueva carpeta
+            </NewFolderButton>
+            <NewExerciseButton
+              onOpenExercise={onOpenExercise}
+              exerciseError={exerciseError}
+              loadingExercise={loadingExercise}
+            />
+            <NewDocumentButton arrowOffset={10} />
+          </HeaderButtons>
+        </DocumentListHeader>
+        {docsAndFols.length > 0 ? (
+          <DndProvider backend={HTML5Backend}>
+            <DocumentList
+              currentPage={currentPage}
+              parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
+              refetchDocsFols={refetchDocsFols}
+              docsAndFols={docsAndFols}
+              currentLocation={currentLocation}
+              order={order}
+              searchText={searchText}
+              onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
+              selectPage={(page: number) => {
+                setCurrentPage(page);
+                refetchDocsFols();
+              }}
+              nFolders={nFolders}
+            />
+          </DndProvider>
+        ) : searchQuery ? (
+          <NoDocuments>
+            <h1>No hay resultados para tu búsqueda</h1>
+          </NoDocuments>
         ) : (
-          <Breadcrumbs links={breadParents} />
-        )
-      }
-    >
-      <DocumentListHeader>
-        {(docsAndFols.length > 0 || searchQuery) && (
-          <FilterOptions
-            onOrderChange={onOrderChange}
-            searchText={searchText}
-            selectValue={order}
-            onChange={(value: string) => {
-              setSearchText(value);
-              onSearchInput(value);
-            }}
+          <NoDocuments>
+            <h1>No tienes ningún documento</h1>
+            <p>
+              Puedes crear un documento nuevo o subir uno desde tu ordenador.
+            </p>
+          </NoDocuments>
+        )}
+        <Subscription
+          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={() => {
+            refetchDocsFols();
+          }}
+        />
+        <input
+          ref={openFile}
+          type="file"
+          onChange={e => onFileSelected(e.target.files![0])}
+          style={{ display: "none" }}
+        />
+        {folderTitleModal && (
+          <EditTitleModal
+            title={"Carpeta sin título"}
+            onCancel={() => setFolderTitleModal(false)}
+            onSave={onCreateFolder}
+            modalTitle="Crear carpeta"
+            modalText="Nombre de la carpeta"
+            placeholder="Carpeta sin título"
+            saveButton="Crear"
           />
         )}
-        <HeaderButtons>
-          <NewFolderButton
-            tertiary
-            onClick={() => {
-              setFolderTitleModal(true);
-            }}
-          >
-            <Icon name="new-folder" />
-            Nueva carpeta
-          </NewFolderButton>
-          <NewExerciseButton
-            onOpenExercise={onOpenExercise}
-            exerciseError={exerciseError}
-            loadingExercise={loadingExercise}
-          />
-          <NewDocumentButton arrowOffset={10} />
-        </HeaderButtons>
-      </DocumentListHeader>
-      {docsAndFols.length > 0 ? (
-        <DndProvider backend={HTML5Backend}>
-          <DocumentList
-            currentPage={currentPage}
-            parentsPath={parentsPath}
-            pagesNumber={pagesNumber}
-            refetchDocsFols={refetchDocsFols}
-            docsAndFols={docsAndFols}
-            currentLocation={currentLocation}
-            order={order}
-            searchText={searchText}
-            onFolderClick={onFolderClick}
-            onDocumentClick={onDocumentClick}
-            selectPage={(page: number) => {
-              setCurrentPage(page);
-              refetchDocsFols();
-            }}
-            nFolders={nFolders}
-          />
-        </DndProvider>
-      ) : searchQuery ? (
-        <NoDocuments>
-          <h1>No hay resultados para tu búsqueda</h1>
-        </NoDocuments>
-      ) : (
-        <NoDocuments>
-          <h1>No tienes ningún documento</h1>
-          <p>Puedes crear un documento nuevo o subir uno desde tu ordenador.</p>
-        </NoDocuments>
-      )}
-      <Subscription
-        subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-        shouldResubscribe={true}
-        onSubscriptionData={() => {
-          refetchDocsFols();
-        }}
-      />
-      <input
-        ref={openFile}
-        type="file"
-        onChange={e => onFileSelected(e.target.files![0])}
-        style={{ display: "none" }}
-      />
-      {folderTitleModal && (
-        <EditTitleModal
-          title={"Carpeta sin título"}
-          onCancel={() => setFolderTitleModal(false)}
-          onSave={onCreateFolder}
-          modalTitle="Crear carpeta"
-          modalText="Nombre de la carpeta"
-          placeholder="Carpeta sin título"
-          saveButton="Crear"
-        />
-      )}
-    </AppLayout>
+      </AppLayout>
+    </>
   );
 };
 
@@ -296,6 +305,10 @@ const HeaderButtons = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
+`;
+
+const HiddenDocumentList = styled(DocumentList)`
+  display: none;
 `;
 
 const NoDocuments = styled.div`
