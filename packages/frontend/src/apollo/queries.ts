@@ -3,12 +3,14 @@ import gql from "graphql-tag";
 export const ME_QUERY = gql`
   query Me {
     me {
-      id
-      rootFolder
-      email
-      name
       admin
+      birthDate
+      email
+      id
+      name
       publisher
+      rootFolder
+      surnames
       teacher
     }
   }

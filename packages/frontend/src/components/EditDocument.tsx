@@ -14,7 +14,6 @@ import {
 } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
-import CloudModal from "./CloudModal";
 import DocumentInfoForm from "./DocumentInfoForm";
 import EditTitleModal from "./EditTitleModal";
 import PublishBar from "./PublishBar";
@@ -63,9 +62,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const [previousId, setPreviousId] = useState(id);
 
-  const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -507,7 +504,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const headerRightContent = (
     <HeaderRightContent hideBorder={!isLoggedIn}>
       {isLoggedIn ? (
-        <UserSession cloudClick={() => setCloudModalOpen(true)} />
+        <UserSession />
       ) : (
         <EnterButton onClick={() => setShowLoginModal(true)}>
           {t("document-enter-button")}
@@ -563,10 +560,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentLoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-      />
-      <CloudModal
-        isOpen={cloudModalOpen}
-        onClose={() => setCloudModalOpen(false)}
       />
     </>
   );
