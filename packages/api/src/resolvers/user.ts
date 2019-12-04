@@ -552,37 +552,6 @@ const userResolver = {
     },
 
     /*
-      Update user: update existing user.
-      It updates the user with the new information provided.
-      args: user ID, new user information.
-    */
-    updateUser: async (
-      _,
-      args: IMutationUpdateUserArgs,
-      context: { user: IUserInToken }
-    ) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        email: context.user.email,
-        _id: context.user.userID,
-        finishedSignUp: true
-      });
-
-      if (!contactFound) {
-        throw new ApolloError("User not found", "USER_NOT_FOUND");
-      }
-
-      if (String(contactFound._id) === args.id) {
-        return UserModel.findOneAndUpdate(
-          { _id: contactFound._id },
-          { $set: args.input },
-          { new: true }
-        );
-      } else {
-        return new ApolloError("User does not exist", "USER_NOT_FOUND");
-      }
-    },
-
-    /*
       Update user data: update existing user data.
       It updates the user with the new information provided.
       args: user ID, new user information: name, surnames, birthDate and avatar file.

@@ -20,8 +20,6 @@ type Mutation {
   checkResetPasswordToken(token: String): Boolean
   updatePassword(token: String, newPassword: String): String
   deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
-  updateUser(id: ObjectID!, input: UserIn!): User
-    @authRequired(requires: [USER])
   updateUserData(id: ObjectID!, input: UpdateUserData!): User
     @authRequired(requires: [USER])
 }
