@@ -307,10 +307,6 @@ const HeaderButtons = styled.div`
   justify-content: flex-end;
 `;
 
-const HiddenDocumentList = styled(DocumentList)`
-  display: none;
-`;
-
 const NoDocuments = styled.div`
   display: flex;
   flex-direction: column;
