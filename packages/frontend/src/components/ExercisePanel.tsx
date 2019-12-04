@@ -148,12 +148,12 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
       </Spring>
       {passwordModalOpen && (
         <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
-          {updatePassword => (
+          {updateForgotPassword => (
             <EditTitleModal
               title=""
               onCancel={() => setPasswordModalOpen(false)}
               onSave={(value: string) => {
-                updatePassword({
+                updateForgotPassword({
                   variables: {
                     id: submissionIdModal,
                     password: value

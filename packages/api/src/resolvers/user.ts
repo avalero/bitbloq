@@ -27,13 +27,16 @@ import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 import {
   IMutationActivateAccountArgs,
   IMutationDeleteUserArgs,
-  IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
-  IMutationLoginWithGoogleArgs
+  IMutationLoginWithGoogleArgs,
+  IMutationUpdateUserDataArgs,
+  IMutationUpdateMyPasswordArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
+import { IUpload } from "../models/upload";
+import { uploadDocumentImage } from "./upload";
 
 const saltRounds: number = 7;
 
@@ -381,7 +384,7 @@ const userResolver = {
      * reset Password: send a email to the user email with a new token for edit the password.
      * args: email
      */
-    resetPasswordEmail: async (_, { email }) => {
+    sendForgotPasswordEmail: async (_, { email }) => {
       const contactFound: IUser | null = await UserModel.findOne({
         email,
         finishedSignUp: true
@@ -416,17 +419,17 @@ const userResolver = {
       return "OK";
     },
 
-    checkResetPasswordToken: async (_, { token }) => {
+    checkForgotPasswordToken: async (_, { token }) => {
       await getResetPasswordData(token);
       return true;
     },
 
     /**
      * edit Password: stores the new password passed as argument in the database
-     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
+     * You can only use this method if the token provided is the one created in the sendForgotPasswordEmail mutation
      * args: token, new Password
      */
-    updatePassword: async (_, { token, newPassword }) => {
+    updateForgotPassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
       const contactFound: IUser | null = await UserModel.findOne({
@@ -548,34 +551,82 @@ const userResolver = {
       }
     },
 
-    /*
-      Update user: update existing user.
-      It updates the user with the new information provided.
-      args: user ID, new user information.
-    */
-    updateUser: async (
+    /**
+     * Update user data: update existing user data.
+     * It updates the user with the new information provided.
+     * args: user ID, new user information: name, surnames, birthDate and avatar file.
+     */
+    updateUserData: async (
       _,
-      args: IMutationUpdateUserArgs,
+      args: IMutationUpdateUserDataArgs,
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser | null = await UserModel.findOne({
-        email: context.user.email,
-        _id: context.user.userID,
+        _id: args.id,
         finishedSignUp: true
       });
 
-      if (!contactFound) {
+      if (
+        !contactFound ||
+        String(contactFound._id) !== String(context.user.userID)
+      ) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
 
-      if (String(contactFound._id) === args.id) {
+      let image: string | undefined;
+      if (args.input.avatar) {
+        const imageUploaded: IUpload = await uploadDocumentImage(
+          args.input.avatar,
+          context.user.userID
+        );
+        image = imageUploaded.publicUrl;
+      }
+      return UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        {
+          $set: {
+            name: args.input.name || contactFound.name,
+            surnames: args.input.surnames || contactFound.surnames,
+            birthDate: args.input.birthDate || contactFound.birthDate,
+            avatar: image || contactFound.avatar
+          }
+        },
+        { new: true }
+      );
+    },
+
+    /**
+     * updateMyPassword: updates my own password with user logged.
+     * args: currentPassword and newPassword
+     */
+    updateMyPassword: async (
+      _,
+      args: IMutationUpdateMyPasswordArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const valid: boolean = await bcryptCompare(
+        args.currentPassword,
+        contactFound.password
+      );
+      if (valid) {
+        // Store the password with a hash
+        const hash: string = await bcryptHash(
+          args.newPassword as string,
+          saltRounds as number
+        );
         return UserModel.findOneAndUpdate(
           { _id: contactFound._id },
-          { $set: args.input },
+          { $set: { password: hash } },
           { new: true }
         );
       } else {
-        return new ApolloError("User does not exist", "USER_NOT_FOUND");
+        throw new AuthenticationError("Password incorrect");
       }
     }
   },

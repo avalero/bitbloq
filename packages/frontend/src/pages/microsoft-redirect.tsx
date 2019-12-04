@@ -7,7 +7,7 @@ import withApollo from "../apollo/withApollo";
 import Loading from "../components/Loading";
 import { signupSteps } from "../config";
 import { setToken } from "../lib/session";
-import { IMsLogin } from "../../../api/src/api-types";
+import { ISocialLogin } from "../../../api/src/api-types";
 
 const MicrosoftRedirectPage: NextPage = () => {
   const client = useApolloClient();
@@ -16,7 +16,7 @@ const MicrosoftRedirectPage: NextPage = () => {
 
   const callLogin = async (
     token: string
-  ): Promise<ExecutionResult<{ loginWithMicrosoft: IMsLogin }>> =>
+  ): Promise<ExecutionResult<{ loginWithMicrosoft: ISocialLogin }>> =>
     loginWithMicrosoft({ variables: { token } }).catch(e => {
       throw e;
     });
