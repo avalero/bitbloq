@@ -384,7 +384,7 @@ const userResolver = {
      * reset Password: send a email to the user email with a new token for edit the password.
      * args: email
      */
-    resetPasswordEmail: async (_, { email }) => {
+    sendForgotPasswordEmail: async (_, { email }) => {
       const contactFound: IUser | null = await UserModel.findOne({
         email,
         finishedSignUp: true
@@ -419,17 +419,17 @@ const userResolver = {
       return "OK";
     },
 
-    checkResetPasswordToken: async (_, { token }) => {
+    checkForgotPasswordToken: async (_, { token }) => {
       await getResetPasswordData(token);
       return true;
     },
 
     /**
      * edit Password: stores the new password passed as argument in the database
-     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
+     * You can only use this method if the token provided is the one created in the sendForgotPasswordEmail mutation
      * args: token, new Password
      */
-    updatePassword: async (_, { token, newPassword }) => {
+    updateForgotPassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
       const contactFound: IUser | null = await UserModel.findOne({

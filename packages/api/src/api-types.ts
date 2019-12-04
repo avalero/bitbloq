@@ -5,7 +5,7 @@ import {
 } from "graphql";
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = {
-  [X in Exclude<keyof T, K>]?: T[X]
+  [X in Exclude<keyof T, K>]?: T[X];
 } &
   { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -170,9 +170,9 @@ export interface IMutation {
   loginWithGoogle?: Maybe<ISocialLogin>;
   loginWithMicrosoft?: Maybe<ISocialLogin>;
   renewToken?: Maybe<Scalars["String"]>;
-  resetPasswordEmail?: Maybe<Scalars["String"]>;
-  checkResetPasswordToken?: Maybe<Scalars["Boolean"]>;
-  updatePassword?: Maybe<Scalars["String"]>;
+  sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
+  checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
+  updateForgotPassword?: Maybe<Scalars["String"]>;
   deleteUser?: Maybe<IUser>;
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
@@ -237,15 +237,15 @@ export interface IMutationLoginWithMicrosoftArgs {
   token: Scalars["String"];
 }
 
-export interface IMutationResetPasswordEmailArgs {
+export interface IMutationSendForgotPasswordEmailArgs {
   email: Scalars["EmailAddress"];
 }
 
-export interface IMutationCheckResetPasswordTokenArgs {
+export interface IMutationCheckForgotPasswordTokenArgs {
   token?: Maybe<Scalars["String"]>;
 }
 
-export interface IMutationUpdatePasswordArgs {
+export interface IMutationUpdateForgotPasswordArgs {
   token?: Maybe<Scalars["String"]>;
   newPassword?: Maybe<Scalars["String"]>;
 }
@@ -1164,23 +1164,23 @@ export type IMutationResolvers<
     ParentType,
     ContextType
   >;
-  resetPasswordEmail?: Resolver<
+  sendForgotPasswordEmail?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
-    RequireFields<IMutationResetPasswordEmailArgs, "email">
+    RequireFields<IMutationSendForgotPasswordEmailArgs, "email">
   >;
-  checkResetPasswordToken?: Resolver<
+  checkForgotPasswordToken?: Resolver<
     Maybe<IResolversTypes["Boolean"]>,
     ParentType,
     ContextType,
-    IMutationCheckResetPasswordTokenArgs
+    IMutationCheckForgotPasswordTokenArgs
   >;
-  updatePassword?: Resolver<
+  updateForgotPassword?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
-    IMutationUpdatePasswordArgs
+    IMutationUpdateForgotPasswordArgs
   >;
   deleteUser?: Resolver<
     Maybe<IResolversTypes["User"]>,
