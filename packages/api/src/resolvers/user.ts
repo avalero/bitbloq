@@ -47,6 +47,7 @@ import {
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
 import { uploadDocumentImage } from "./upload";
+import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 
 const saltRounds: number = 7;
 
@@ -65,6 +66,7 @@ const userResolver = {
           variables,
           context: { user: IUserInToken }
         ) => {
+          console.log({ payload, context });
           return (
             String(context.user.userID) ===
             String(payload.userSessionExpires.key)
@@ -403,11 +405,40 @@ const userResolver = {
       const data:
         | IUserInToken
         | undefined = await contextController.getDataInToken(justToken);
+
       if (data) {
+        const now: Date = new Date();
+        let secondsRemaining: number = 0;
         if (data.userID) {
           await updateExpireDateInRedis(data.userID, false);
+          const result: IDataInRedis = await redisClient.hgetallAsync(
+            data.userID
+          );
+          const expiresAt: Date = new Date(result.expiresAt);
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          pubsub.publish(USER_SESSION_EXPIRES, {
+            userSessionExpires: {
+              ...result,
+              key: data.userID,
+              secondsRemaining,
+              expiredSession: false
+            }
+          });
         } else if (data.submissionID) {
           await updateExpireDateInRedis(data.submissionID, true);
+          const result: IDataInRedis = await redisClient.hgetallAsync(
+            data.submissionID
+          );
+          const expiresAt: Date = new Date(result.expiresAt);
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
+            userSessionExpires: {
+              ...result,
+              key: data.submissionID,
+              secondsRemaining,
+              expiredSession: false
+            }
+          });
         }
         return "OK";
       }

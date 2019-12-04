@@ -4,9 +4,14 @@ import cookie from "cookie";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
 import { ApolloClient } from "apollo-client";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider, useMutation } from "@apollo/react-hooks";
 import { createClient } from "./client";
-import { ME_QUERY, RENEW_TOKEN_MUTATION } from "./queries";
+import {
+  ME_QUERY,
+  RENEW_TOKEN_MUTATION,
+  USER_SESSION_EXPIRES_SUBSCRIPTION,
+  RENEW_SESSION_MUTATION
+} from "./queries";
 import {
   getToken,
   setToken,
@@ -22,6 +27,9 @@ import { UserDataProvider } from "../lib/useUserData";
 import redirect from "../lib/redirect";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
+import { Subscription } from "react-apollo";
+import { ISessionExpires } from "../../../api/src/api-types";
+import { DialogModal } from "@bitbloq/ui";
 
 export interface IContext extends NextPageContext {
   apolloClient: ApolloClient<any>;
@@ -63,6 +71,7 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
 
   useSessionEvent("logout", async () => {
     await client.resetStore();
+    setToken("");
     Router.push("/");
   });
 
@@ -97,6 +106,116 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
   }
 
   return <SessionWarningModal tempSession={tempSession} />;
+};
+
+const SessionWatcherAlda: FC<ISessionWatcherProps> = ({
+  tempSession,
+  client
+}) => {
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [anotherSession, setAnotherSession] = useState(false);
+
+  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
+
+  useSessionEvent(
+    "error",
+    ({ error }) => {
+      const code = error && error.extensions && error.extensions.code;
+      if (code === "ANOTHER_OPEN_SESSION") {
+        setAnotherSession(true);
+        setToken("");
+      }
+    },
+    tempSession
+  );
+
+  useSessionEvent("logout", async () => {
+    console.log("LOGOUT");
+    setToken("");
+    // if(client)
+    // {await client.resetStore();}
+    // Router.push("/");
+    client.cache.reset();
+    await client.reFetchObservableQueries();
+    Router.replace("/");
+  });
+
+  useSessionEvent(
+    "activity",
+    () => {
+      console.log("activity");
+      // if (shouldRenewToken(tempSession)) {
+      //   renewToken(
+      //     getToken(tempSession)
+      //       .then(currentToken =>
+      //         client.mutate({
+      //           mutation: RENEW_TOKEN_MUTATION,
+      //           context: { token: currentToken }
+      //         })
+      //       )
+      //       .then(({ data }) => data.renewToken),
+      //     tempSession
+      //   );
+      // }
+    },
+    tempSession
+  );
+
+  if (anotherSession) {
+    return (
+      <ErrorLayout
+        title="Has iniciado sesión en otro dispositivo"
+        text="Solo se puede tener una sesión abierta al mismo tiempo"
+        onOk={() => logout()}
+      />
+    );
+  }
+  return (
+    <>
+      <DialogModal
+        isOpen={sessionExpired}
+        title="¿Sigues ahí?"
+        content={
+          <p>
+            Parece que te has ido, si no quieres seguir trabajando saldrás de tu
+            cuenta en <b>{secondsRemaining} segundos</b>.
+          </p>
+        }
+        okText="Si, quiero seguir trabajando"
+        onOk={async () => {
+          await renewSession();
+          setSessionExpired(false);
+        }}
+      />
+      <Subscription
+        subscription={USER_SESSION_EXPIRES_SUBSCRIPTION}
+        shouldResubscribe={true}
+        onSubscriptionData={({ subscriptionData }) => {
+          const userSessionExpires: ISessionExpires =
+            (subscriptionData.data &&
+              subscriptionData.data.userSessionExpires) ||
+            {};
+          console.log(userSessionExpires);
+          if (userSessionExpires.expiredSession) {
+            logout();
+          }
+          if (Number(userSessionExpires.secondsRemaining) < 350) {
+            console.log("Caduca sesión");
+            setSessionExpired(true);
+            setSecondsRemaining(Number(userSessionExpires.secondsRemaining));
+          }
+          console.log(userSessionExpires.secondsRemaining);
+          if (
+            !userSessionExpires.expiredSession &&
+            Number(userSessionExpires.secondsRemaining) > 350
+          ) {
+            setSessionExpired(false);
+          }
+        }}
+      />
+    </>
+  );
 };
 
 export default function withApollo(
@@ -135,7 +254,8 @@ export default function withApollo(
             <PageComponent {...pageProps} />
           </UserDataProvider>
         )}
-        <SessionWatcher tempSession={tempSession} client={client} />
+        {/* <SessionWatcher tempSession={tempSession} client={client} /> */}
+        <SessionWatcherAlda tempSession={tempSession} client={client} />
       </ApolloProvider>
     );
   };

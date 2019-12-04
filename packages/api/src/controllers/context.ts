@@ -71,7 +71,7 @@ export const storeTokenInRedis = async (
   }
   const date = new Date();
   // date.setHours(date.getHours() + 1); // debería ser el tiempo que queramos que tarde en caducar la sesión
-  date.setMinutes(date.getMinutes() + 6);
+  date.setMinutes(date.getMinutes() + 1);
   if (process.env.USE_REDIS === "true") {
     if (subToken) {
       return redisClient.hmset(
@@ -109,6 +109,7 @@ const checksSessionExpires = async () => {
 
   const now: Date = new Date();
   allKeys.map(async key => {
+    // redisClient.del(key);
     const result: IDataInRedis = await redisClient.hgetallAsync(key);
     if (result && result.expiresAt) {
       const expiresAt: Date = new Date(result.expiresAt);

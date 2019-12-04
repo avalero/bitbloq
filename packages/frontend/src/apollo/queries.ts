@@ -594,6 +594,17 @@ export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
   }
 `;
 
+export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
+  subscription UserSessionExpires {
+    userSessionExpires {
+      key
+      secondsRemaining
+      authToken
+      expiredSession
+    }
+  }
+`;
+
 export const RENEW_SESSION_MUTATION = gql`
   mutation renewSession {
     renewSession

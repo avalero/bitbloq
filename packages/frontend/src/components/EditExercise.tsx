@@ -325,6 +325,8 @@ const EditExercise = ({ type, id }) => {
                 setSecondsRemaining(
                   Number(submissionSessionExpires.secondsRemaining)
                 );
+              } else {
+                setSessionExpired(false);
               }
             }}
           />
