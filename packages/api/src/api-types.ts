@@ -174,7 +174,6 @@ export interface IMutation {
   checkResetPasswordToken?: Maybe<Scalars["Boolean"]>;
   updatePassword?: Maybe<Scalars["String"]>;
   deleteUser?: Maybe<IUser>;
-  updateUser?: Maybe<IUser>;
   updateUserData?: Maybe<IUser>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
@@ -252,11 +251,6 @@ export interface IMutationUpdatePasswordArgs {
 
 export interface IMutationDeleteUserArgs {
   id: Scalars["ObjectID"];
-}
-
-export interface IMutationUpdateUserArgs {
-  id: Scalars["ObjectID"];
-  input: IUserIn;
 }
 
 export interface IMutationUpdateUserDataArgs {
@@ -1187,12 +1181,6 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationDeleteUserArgs, "id">
-  >;
-  updateUser?: Resolver<
-    Maybe<IResolversTypes["User"]>,
-    ParentType,
-    ContextType,
-    RequireFields<IMutationUpdateUserArgs, "id" | "input">
   >;
   updateUserData?: Resolver<
     Maybe<IResolversTypes["User"]>,

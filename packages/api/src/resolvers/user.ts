@@ -27,7 +27,6 @@ import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 import {
   IMutationActivateAccountArgs,
   IMutationDeleteUserArgs,
-  IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
