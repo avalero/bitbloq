@@ -12,6 +12,7 @@ export interface IUser extends Document {
   teacherPro?: boolean;
   family?: boolean;
   name?: string;
+  avatar?: string;
   surnames?: string;
   birthDate?: Date;
   active?: boolean;
@@ -80,6 +81,7 @@ export const contactSchema: Schema = new Schema({
     type: String
   },
 
+  avatar: { type: String },
   birthDate: {
     type: Date
   },

@@ -20,7 +20,7 @@ type Mutation {
   checkResetPasswordToken(token: String): Boolean
   updatePassword(token: String, newPassword: String): String
   deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
-  updateUser(id: ObjectID!, input: UserIn!): User
+  updateUserData(id: ObjectID!, input: UpdateUserData!): User
     @authRequired(requires: [USER])
 }
 
@@ -35,6 +35,13 @@ type SocialLogin {
   token: String
 }
 
+input UpdateUserData {
+  name: String
+  surnames: String
+  birthDate: Date
+  avatar: Upload
+}
+
 type User {
   id: ObjectID
   email: EmailAddress
@@ -46,6 +53,7 @@ type User {
   family: Boolean
   name: String
   surnames: String
+  avatar: String
   birthDate: Date
   active: Boolean
   signUpToken: String
