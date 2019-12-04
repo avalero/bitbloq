@@ -20,4 +20,5 @@ type SessionExpires {
   subToken: String
   expiresAt: Date
   secondsRemaining: Number
+  expiredSession: Boolean
 }

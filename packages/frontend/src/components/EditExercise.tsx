@@ -33,6 +33,7 @@ import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { IDocument, IResource } from "../types";
+import { ISessionExpires } from "../../../api/src/api-types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -311,7 +312,14 @@ const EditExercise = ({ type, id }) => {
             subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
             shouldResubscribe={true}
             onSubscriptionData={({ subscriptionData }) => {
-              const { submissionSessionExpires } = subscriptionData.data || {};
+              const submissionSessionExpires: ISessionExpires =
+                (subscriptionData.data &&
+                  subscriptionData.data.submissionSessionExpires) ||
+                {};
+              if (submissionSessionExpires.expiredSession) {
+                setToken("", "exercise-team");
+                Router.replace("/");
+              }
               if (Number(submissionSessionExpires.secondsRemaining) < 350) {
                 setSessionExpired(true);
                 setSecondsRemaining(

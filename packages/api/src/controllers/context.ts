@@ -112,24 +112,55 @@ const checksSessionExpires = async () => {
     const result: IDataInRedis = await redisClient.hgetallAsync(key);
     if (result && result.expiresAt) {
       const expiresAt: Date = new Date(result.expiresAt);
+      let secondsRemaining: number = 0;
       if (expiresAt > now) {
-        const secondsRemaining: number =
-          (expiresAt.getTime() - now.getTime()) / 1000;
+        secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
         console.log(secondsRemaining / 60);
         if (secondsRemaining / 60 < 5) {
           if (result.authToken) {
             console.log("subscription published user");
             pubsub.publish(USER_SESSION_EXPIRES, {
-              userSessionExpires: { ...result, key, secondsRemaining }
+              userSessionExpires: {
+                ...result,
+                key,
+                secondsRemaining,
+                expiredSession: false
+              }
             });
           } else if (result.subToken) {
             console.log("subscription published submission");
             pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
-              submissionSessionExpires: { ...result, key, secondsRemaining }
+              submissionSessionExpires: {
+                ...result,
+                key,
+                secondsRemaining,
+                expiredSession: false
+              }
             });
           }
         }
       } else {
+        if (result.authToken) {
+          console.log("subscription published user expired session");
+          pubsub.publish(USER_SESSION_EXPIRES, {
+            userSessionExpires: {
+              ...result,
+              key,
+              secondsRemaining,
+              expiredSession: true
+            }
+          });
+        } else if (result.subToken) {
+          console.log("subscription published submission expired session");
+          pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
+            submissionSessionExpires: {
+              ...result,
+              key,
+              secondsRemaining,
+              expiredSession: true
+            }
+          });
+        }
         redisClient.del(key);
       }
     }

@@ -170,7 +170,7 @@ export interface IMutation {
   loginWithGoogle?: Maybe<ISocialLogin>;
   loginWithMicrosoft?: Maybe<ISocialLogin>;
   renewToken?: Maybe<Scalars["String"]>;
-  renewUserSession?: Maybe<Scalars["String"]>;
+  renewSession?: Maybe<Scalars["String"]>;
   resetPasswordEmail?: Maybe<Scalars["String"]>;
   checkResetPasswordToken?: Maybe<Scalars["Boolean"]>;
   updatePassword?: Maybe<Scalars["String"]>;
@@ -199,7 +199,6 @@ export interface IMutation {
   gradeSubmission?: Maybe<ISubmission>;
   updatePasswordSubmission?: Maybe<ISubmission>;
   setActiveSubmission?: Maybe<ISubmission>;
-  renewSubmissionSession?: Maybe<Scalars["String"]>;
   singleUpload?: Maybe<IFile>;
   uploadCloudResource?: Maybe<IFile>;
   addResourceToDocument?: Maybe<IFile>;
@@ -540,6 +539,7 @@ export interface ISessionExpires {
   subToken?: Maybe<Scalars["String"]>;
   expiresAt?: Maybe<Scalars["Date"]>;
   secondsRemaining?: Maybe<Scalars["Number"]>;
+  expiredSession?: Maybe<Scalars["Boolean"]>;
 }
 
 export interface ISocialLogin {
@@ -1163,7 +1163,7 @@ export type IMutationResolvers<
     ParentType,
     ContextType
   >;
-  renewUserSession?: Resolver<
+  renewSession?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType
@@ -1343,11 +1343,6 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationSetActiveSubmissionArgs, "submissionID" | "active">
-  >;
-  renewSubmissionSession?: Resolver<
-    Maybe<IResolversTypes["String"]>,
-    ParentType,
-    ContextType
   >;
   singleUpload?: Resolver<
     Maybe<IResolversTypes["File"]>,
@@ -1606,6 +1601,11 @@ export type ISessionExpiresResolvers<
   expiresAt?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
   secondsRemaining?: Resolver<
     Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
+  expiredSession?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
     ParentType,
     ContextType
   >;

@@ -587,6 +587,7 @@ export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
       key
       secondsRemaining
       subToken
+      expiredSession
     }
   }
 `;
