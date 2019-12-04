@@ -5,7 +5,7 @@ import {
 } from "graphql";
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = {
-  [X in Exclude<keyof T, K>]?: T[X];
+  [X in Exclude<keyof T, K>]?: T[X]
 } &
   { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -171,9 +171,6 @@ export interface IMutation {
   loginWithMicrosoft?: Maybe<ISocialLogin>;
   renewToken?: Maybe<Scalars["String"]>;
   renewSession?: Maybe<Scalars["String"]>;
-  resetPasswordEmail?: Maybe<Scalars["String"]>;
-  checkResetPasswordToken?: Maybe<Scalars["Boolean"]>;
-  updatePassword?: Maybe<Scalars["String"]>;
   sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
   checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
   updateForgotPassword?: Maybe<Scalars["String"]>;
@@ -800,9 +797,10 @@ export type IResolversTypes = ResolversObject<{
   UserIn: IUserIn;
   UserStep1: ResolverTypeWrapper<IUserStep1>;
   SocialLogin: ResolverTypeWrapper<ISocialLogin>;
-  DocumentIn: IDocumentIn;
   UpdateUserData: IUpdateUserData;
   Upload: ResolverTypeWrapper<Scalars["Upload"]>;
+  DocumentIn: IDocumentIn;
+  DocImageIn: IDocImageIn;
   DuplicateDocument: ResolverTypeWrapper<IDuplicateDocument>;
   ExerciseIn: IExerciseIn;
   FolderIn: IFolderIn;
@@ -1177,6 +1175,11 @@ export type IMutationResolvers<
     RequireFields<IMutationLoginWithMicrosoftArgs, "token">
   >;
   renewToken?: Resolver<
+    Maybe<IResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  renewSession?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType
