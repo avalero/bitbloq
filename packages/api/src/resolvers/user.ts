@@ -33,7 +33,7 @@ import {
   IMutationLoginWithGoogleArgs,
   IMutationUpdateUserDataArgs,
   IMutationUpdateMyPasswordArgs,
-  IMutationUpgradeMyPlanArgs
+  IMutationUpdateMyPlanArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -632,12 +632,12 @@ const userResolver = {
     },
 
     /**
-     * upgradeMyPlan: mutation to upgrade my user plan in accounts page.
+     * updateMyPlan: mutation to update my user plan in accounts page.
      * args: new User Plan
      */
-    upgradeMyPlan: async (
+    updateMyPlan: async (
       _,
-      args: IMutationUpgradeMyPlanArgs,
+      args: IMutationUpdateMyPlanArgs,
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser | null = await UserModel.findOne({
