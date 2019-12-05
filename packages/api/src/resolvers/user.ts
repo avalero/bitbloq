@@ -32,7 +32,8 @@ import {
   IMutationLoginWithMicrosoftArgs,
   IMutationLoginWithGoogleArgs,
   IMutationUpdateUserDataArgs,
-  IMutationUpdateMyPasswordArgs
+  IMutationUpdateMyPasswordArgs,
+  IMutationUpdateMyPlanArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -628,6 +629,39 @@ const userResolver = {
       } else {
         throw new AuthenticationError("Password incorrect");
       }
+    },
+
+    /**
+     * updateMyPlan: mutation to update my user plan in accounts page.
+     * args: new User Plan
+     */
+    updateMyPlan: async (
+      _,
+      args: IMutationUpdateMyPlanArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID,
+        finishedSignUp: true
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      let teacher: boolean = false;
+      switch (args.userPlan) {
+        case "teacher":
+          teacher = true;
+          break;
+        case "member":
+          break;
+        default:
+          throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
+      }
+      return UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        { $set: { teacher } },
+        { new: true }
+      );
     }
   },
 

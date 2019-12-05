@@ -24,6 +24,7 @@ type Mutation {
     @authRequired(requires: [USER])
   updateMyPassword(currentPassword: String!, newPassword: String!): User
     @authRequired(requires: [USER])
+  updateMyPlan(userPlan: String!): User @authRequired(requires: [USER])
 }
 
 type UserStep1 {
