@@ -277,7 +277,26 @@
         "title": "Datos personales",
         "button": "Editar datos personales",
         "button-cancel": "Cancelar",
-        "button-save": "Guardar"
+        "button-save": "Guardar",
+        "errors": {
+          "birth-date-required": "Debes introducir una fecha válida",
+          "birth-date-validAge": "Debes ser mayor de %v% años",
+          "birth-date-validDate": "Debes introducir una fecha válida",
+          "name": "Debes introducir un nombre",
+          "surnames": "Debes introducir unos apellidos"
+        },
+        "labels": {
+          "birth-date": "Fecha de nacimiento",
+          "name": "Nombre",
+          "surnames": "Apellidos"
+        },
+        "placeholders": {
+          "birth-date-day": "DD",
+          "birth-date-month": "MM",
+          "birth-date-year": "AAAA",
+          "name": "Nombre",
+          "surnames": "Apellidos"
+        }
       },
       "title": "Datos de usuario"
     },

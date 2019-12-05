@@ -32,6 +32,8 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   const t = useTranslate();
   const [userData, setUserData] = useState<IUser>(useUserData());
 
+  const ageLimit = userData.teacher ? 18 : 14;
+
   const [updateUserData, { error, loading }] = useMutation(
     UPDATE_USER_DATA_MUTATION
   );
@@ -65,7 +67,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
       required: true,
       validate: {
         validDate: isValidDate,
-        validAge: () => getAge(getValues().birthDate) >= 14
+        validAge: () => getAge(getValues().birthDate) >= ageLimit
       }
     }
   );
@@ -106,15 +108,15 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
       {!editable ? (
         <>
           <FormFieldNotEditable>
-            <div>{t("signup.user-data.labels.name")}</div>
+            <div>{t("account.user-data.personal-data.labels.name")}</div>
             <div>{userData.name}</div>
           </FormFieldNotEditable>
           <FormFieldNotEditable>
-            <div>{t("signup.user-data.labels.surnames")}</div>
+            <div>{t("account.user-data.personal-data.labels.surnames")}</div>
             <div>{userData.surnames}</div>
           </FormFieldNotEditable>
           <FormFieldNotEditable>
-            <div>{t("signup.user-data.labels.birth-date")}</div>
+            <div>{t("account.user-data.personal-data.labels.birth-date")}</div>
             <div>
               {userData.birthDate &&
                 new Date(userData.birthDate).toLocaleDateString()}
@@ -124,26 +126,34 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
       ) : (
         <form id={id} onSubmit={handleSubmit(onUpdateUserData)}>
           <FormField>
-            <label>{t("signup.user-data.labels.name")}</label>
+            <label>{t("account.user-data.personal-data.labels.name")}</label>
             <Input
               type="text"
               name="name"
-              placeholder={t("signup.user-data.placeholders.name")}
+              placeholder={t(
+                "account.user-data.personal-data.placeholders.name"
+              )}
               ref={register({ required: true })}
               error={!!errors.name}
             />
           </FormField>
           <FormError>
             {errors.name && (
-              <ErrorMessage>{t("signup.user-data.errors.name")}</ErrorMessage>
+              <ErrorMessage>
+                {t("account.user-data.personal-data.errors.name")}
+              </ErrorMessage>
             )}
           </FormError>
           <FormField>
-            <label>{t("signup.user-data.labels.surnames")}</label>
+            <label>
+              {t("account.user-data.personal-data.labels.surnames")}
+            </label>
             <Input
               type="text"
               name="surnames"
-              placeholder={t("signup.user-data.placeholders.surnames")}
+              placeholder={t(
+                "account.user-data.personal-data.placeholders.surnames"
+              )}
               ref={register({ required: true })}
               error={!!errors.surnames}
             />
@@ -151,17 +161,21 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
           <FormError>
             {errors.surnames && (
               <ErrorMessage>
-                {t("signup.user-data.errors.surnames")}
+                {t("account.user-data.personal-data.errors.surnames")}
               </ErrorMessage>
             )}
           </FormError>
           <FormField>
-            <label>{t("signup.user-data.labels.birth-date")}</label>
+            <label>
+              {t("account.user-data.personal-data.labels.birth-date")}
+            </label>
             <FormGroup onChange={onChangeBirthDate}>
               <Input
                 type="number"
                 name="day"
-                placeholder={t("signup.user-data.placeholders.birth-date-day")}
+                placeholder={t(
+                  "account.user-data.personal-data.placeholders.birth-date-day"
+                )}
                 ref={register}
                 error={!!errors.birthDate}
               />
@@ -169,7 +183,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
                 type="number"
                 name="month"
                 placeholder={t(
-                  "signup.user-data.placeholders.birth-date-month"
+                  "account.user-data.personal-data.placeholders.birth-date-month"
                 )}
                 ref={register}
                 error={!!errors.birthDate}
@@ -177,7 +191,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
               <Input
                 type="number"
                 name="year"
-                placeholder={t("signup.user-data.placeholders.birth-date-year")}
+                placeholder={t(
+                  "account.user-data.personal-data.placeholders.birth-date-year"
+                )}
                 ref={register}
                 error={!!errors.birthDate}
               />
@@ -186,9 +202,14 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
           <FormError>
             {errors.birthDate && (
               <ErrorMessage>
-                {t(
-                  `signup.user-data.errors.birth-date-${errors.birthDate.type}`
-                )}
+                {errors.birthDate.type === "validAge"
+                  ? t(
+                      `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`,
+                      [ageLimit.toString()]
+                    )
+                  : t(
+                      `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`
+                    )}
               </ErrorMessage>
             )}
           </FormError>
