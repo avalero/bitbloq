@@ -55,7 +55,7 @@ const Breadcrumbs: React.FC<IBreadcrumbsProps> = ({ links, title }) => {
     <Wrap>
       <Links aria-label="Migas de pan">
         <BreadcrumbRoot>
-          <a href={(links && links[0] && links[0].route) || ""}>
+          <a href={(links[0] && links[0].route) || ""}>
             {t("breadcrumbs-root")}
           </a>
         </BreadcrumbRoot>
