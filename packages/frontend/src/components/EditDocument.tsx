@@ -50,13 +50,13 @@ const EditDocument: FC<IEditDocumentProps> = ({
 }) => {
   const t = useTranslate();
 
-  const user = useUserData();
-  const isLoggedIn = !!user;
+  const { userData } = useUserData();
+  const isLoggedIn = !!userData;
   const prevIsLoggedIn = useRef(isLoggedIn);
 
   const [type, setType] = useState(initialType);
 
-  const isPublisher = user && user.publisher;
+  const isPublisher = userData && userData.publisher;
 
   const isNew = id === "new";
 
@@ -112,7 +112,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       imageToUpload.current &&
       imageToUpload.current.size > 0 &&
       serviceWorker &&
-      user
+      userData
     ) {
       const token = await getToken();
       serviceWorker.postMessage({
@@ -120,7 +120,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         image: imageToUpload.current,
         token,
         type: "upload-image",
-        userID: user.id
+        userID: userData.id
       });
     }
   }, [image, imageToUpload.current, serviceWorker]);
@@ -345,7 +345,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       return;
     }
     if (isNew) {
-      const saveFolder = folder === "local" ? user.rootFolder : folder;
+      const saveFolder = folder === "local" ? userData.rootFolder : folder;
       const result = await createDocument({
         variables: {
           ...updatedDocument,
@@ -481,7 +481,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
-        isTeacher={user && user.teacher}
+        isTeacher={userData && userData.teacher}
         onChange={({
           title: newTitle,
           description: newDescription,
@@ -520,7 +520,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         onDocumentChange={update}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}
-        user={user}
+        user={userData}
       >
         {documentProps => (
           <Document

@@ -8,7 +8,7 @@ import CloudModal from "./CloudModal";
 import MenuButton from "./MenuButton";
 
 const UserSession: FC = () => {
-  const userData = useUserData();
+  const { userData } = useUserData();
   const router = useRouter();
   const t = useTranslate();
   const [cloudModalOpen, setCloudModalOpen] = useState(false);

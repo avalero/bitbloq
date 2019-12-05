@@ -16,7 +16,7 @@ const SaveCopyModal: FC<ISaveCopyModalProps> = ({
   document,
   content
 }) => {
-  const userData = useUserData();
+  const { userData } = useUserData();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

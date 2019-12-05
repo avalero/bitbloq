@@ -7,8 +7,8 @@ import React, {
 } from "react";
 import { useApolloClient } from "@apollo/react-hooks";
 import { ME_QUERY } from "../apollo/queries";
-import Loading from "../components/Loading";
 import { useSessionEvent } from "../lib/session";
+import { IUser } from "../types";
 
 export const UserDataContext = createContext<any>(null);
 
@@ -23,7 +23,7 @@ export const UserDataProvider: FC<IUserDataProvider> = ({
   onChange,
   children
 }) => {
-  const [userData, setUserData] = useState(initialUserData);
+  const [userData, setUserData] = useState<IUser | null>(initialUserData);
   const client = useApolloClient();
 
   useEffect(() => {
@@ -35,20 +35,24 @@ export const UserDataProvider: FC<IUserDataProvider> = ({
     if (!token) {
       setUserData(null);
     } else if (!userData) {
-      const { data } = await client.query({
-        query: ME_QUERY,
-        fetchPolicy: "network-only"
-      });
-      setUserData(data && data.me);
+      fetchUserData();
     }
   });
+
+  const fetchUserData = async () => {
+    const { data } = await client.query({
+      query: ME_QUERY,
+      fetchPolicy: "network-only"
+    });
+    setUserData(data && data.me);
+  };
 
   if (!userData && requiresSession) {
     return null;
   }
 
   return (
-    <UserDataContext.Provider value={userData}>
+    <UserDataContext.Provider value={{ userData, fetchUserData }}>
       {children}
     </UserDataContext.Provider>
   );

@@ -22,7 +22,7 @@ enum TabType {
 const AccountPage: NextPage = () => {
   const personalDataFormId = "personal-data-form";
   const t = useTranslate();
-  const [userData, setUserData] = useState<IUser>(useUserData());
+  const { userData, fetchUserData } = useUserData();
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
@@ -53,15 +53,8 @@ const AccountPage: NextPage = () => {
         }
       }
     });
-    updateUserData(input);
+    fetchUserData();
     setPersonalDataEditable(false);
-  };
-
-  const updateUserData = (input: IUser) => {
-    setUserData({
-      ...userData,
-      ...input
-    });
   };
 
   if (error) {
@@ -115,7 +108,6 @@ const AccountPage: NextPage = () => {
                 editable={personalDataEditable}
                 formId={personalDataFormId}
                 onSubmit={onUpdatePersonalData}
-                userData={userData}
               />
             </Panel>
             <Panel
