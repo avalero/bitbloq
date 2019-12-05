@@ -1,6 +1,6 @@
 import { ApolloError } from "apollo-client";
 import { useRouter } from "next/router";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import useForm from "react-hook-form";
 import {
   Button,
@@ -60,6 +60,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
   } = useForm({ defaultValues });
 
   const [passwordIsMasked, setPasswordIsMasked] = useState(true);
+  const submitRef = useRef<HTMLButtonElement | null>(null);
 
   register(
     { name: "acceptTerms", type: "custom" },
@@ -83,6 +84,17 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
       setError("email", "existing");
     }
   }, [error]);
+
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        submitRef.current!.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
 
   const onChangeBirthDate = () => {
     clearError("birthDate");
@@ -356,7 +368,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         >
           {t("signup.user-data.cancel")}
         </Button>
-        <Button tertiary type="submit" disabled={loading}>
+        <Button ref={submitRef} tertiary type="submit" disabled={loading}>
           {t("signup.user-data.ok")}
         </Button>
       </Buttons>
