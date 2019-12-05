@@ -5,7 +5,7 @@ import {
 } from "graphql";
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = {
-  [X in Exclude<keyof T, K>]?: T[X];
+  [X in Exclude<keyof T, K>]?: T[X]
 } &
   { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -176,6 +176,7 @@ export interface IMutation {
   deleteUser?: Maybe<IUser>;
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
+  upgradeMyPlan?: Maybe<IUser>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
   duplicateDocument?: Maybe<IDuplicateDocument>;
@@ -262,6 +263,10 @@ export interface IMutationUpdateUserDataArgs {
 export interface IMutationUpdateMyPasswordArgs {
   currentPassword: Scalars["String"];
   newPassword: Scalars["String"];
+}
+
+export interface IMutationUpgradeMyPlanArgs {
+  userPlan: Scalars["String"];
 }
 
 export interface IMutationCreateDocumentArgs {
@@ -1202,6 +1207,12 @@ export type IMutationResolvers<
       IMutationUpdateMyPasswordArgs,
       "currentPassword" | "newPassword"
     >
+  >;
+  upgradeMyPlan?: Resolver<
+    Maybe<IResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationUpgradeMyPlanArgs, "userPlan">
   >;
   createDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,
