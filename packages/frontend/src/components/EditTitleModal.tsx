@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidName } from "../util";
@@ -28,6 +28,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   } = props;
   const [title, setTitle] = useState(props.title);
   const [error, setError] = useState(false);
+  const submitRef = useRef<HTMLButtonElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -35,6 +36,17 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
       titleInputRef.current.focus();
     }
   });
+
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        submitRef.current!.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
 
   return (
     <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
@@ -73,7 +85,9 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button disabled={error}>{saveButton}</Button>
+            <Button ref={submitRef} disabled={error}>
+              {saveButton}
+            </Button>
           </Buttons>
         </form>
       </Content>
