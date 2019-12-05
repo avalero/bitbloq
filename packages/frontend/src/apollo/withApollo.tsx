@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
 import Router from "next/router";
-import cookie from "cookie";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
 import { ApolloClient } from "apollo-client";

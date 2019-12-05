@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
