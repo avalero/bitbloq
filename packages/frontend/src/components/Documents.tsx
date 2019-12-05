@@ -39,14 +39,9 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
   });
-  const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
-    {
-      route: userData ? "/" : "",
-      text: userData ? "Mis documentos" : "",
-      type: ""
-    }
-  ]);
-  const [breadParents, setBreadParents] = useState<IBreadcrumbLink[]>([]);
+  const [breadcrumbsLinks, setBreadcrumbsLinks] = useState<IBreadcrumbLink[]>(
+    []
+  );
   const [docsAndFols, setDocsAndFols] = useState<any[]>([]);
   const [parentsPath, setParentsPath] = useState<any[]>([]);
   const [nFolders, setNFolders] = useState<number>(0);
@@ -80,7 +75,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         parentsPath: pathOfParent,
         result: docsAndFolsItems
       } = resultData.documentsAndFolders;
-      setBreadParents(
+      setBreadcrumbsLinks(
         pathOfParent.map(item => ({
           route: `/app/folder/${item.id}`,
           text: item.name,
@@ -112,10 +107,6 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   }, [pagesNumber]);
 
   const onDocumentClick = ({ id: documentId, title }) => {
-    setBreadcrumbsLinks([
-      ...breadcrumbLinks,
-      { route: documentId, text: title, type: "document" }
-    ]);
     Router.push(`/app/document/${documentId}`);
   };
 
@@ -194,7 +185,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           currentLocation.id === (userData && userData.rootFolder) ? (
             "Mis documentos"
           ) : (
-            <Breadcrumbs links={breadParents} />
+            <Breadcrumbs links={breadcrumbsLinks} />
           )
         }
       >
