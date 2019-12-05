@@ -1,13 +1,9 @@
 import gql from "graphql-tag";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
-import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
-import { Icon, colors } from "@bitbloq/ui";
-
-interface IFolder {
-  name: string;
-  id: string;
-}
+import { Icon } from "@bitbloq/ui";
+import { IFolder } from "../../../api/src/api-types";
 
 const FOLDER_QUERY = gql`
   query folder($id: ObjectID!) {
@@ -64,7 +60,7 @@ const SelectorOption: FC<ISelectorOptionProps> = ({
 export interface IFolderSelectorMenuProps {
   className?: string;
   currentLocation?: IFolder;
-  selectedToMove: { id: string | null; parent: string | null };
+  selectedToMove: { id: string | null; parent?: string | null };
   onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     selectedFolder: IFolder
@@ -78,7 +74,7 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
   onMove
 }) => {
   const [selectedFolder, setSelectedFolder] = useState(currentLocation);
-  const { data, loading, error } = useQuery(FOLDER_QUERY, {
+  const { data, loading } = useQuery(FOLDER_QUERY, {
     variables: {
       id: selectedFolder!.id
     }

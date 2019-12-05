@@ -5,6 +5,11 @@ import { DialogModal, DropDown } from "@bitbloq/ui";
 import { useDrop } from "react-dnd";
 import { css } from "@emotion/core";
 import {
+  IDocument,
+  IFolder,
+  IResult as IDocsAndFols
+} from "../../../api/src/api-types";
+import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
   UPDATE_FOLDER_MUTATION,
@@ -19,22 +24,17 @@ import FolderSelectorMenu from "./FolderSelectorMenu";
 import MenuButton from "./MenuButton";
 import Paginator from "./Paginator";
 
-interface IFolder {
-  name: string;
-  id: string;
-}
-
 export interface IDocumentListProps {
   currentPage: number;
-  docsAndFols?: any;
+  docsAndFols?: IDocsAndFols[];
   pagesNumber: number;
-  parentsPath?: any;
+  parentsPath?: IFolder[];
   className?: string;
   currentLocation: IFolder;
   order?: string;
   searchText?: string;
-  onFolderClick?: (e) => any;
-  onDocumentClick?: (e) => any;
+  onFolderClick?: (e) => void;
+  onDocumentClick?: (e) => void;
   refetchDocsFols: () => any;
   selectPage: (page: number) => void;
   nFolders: number;
@@ -42,9 +42,9 @@ export interface IDocumentListProps {
 
 const DocumentListComp: FC<IDocumentListProps> = ({
   currentPage,
-  docsAndFols,
+  docsAndFols = [],
   pagesNumber,
-  parentsPath,
+  parentsPath = [],
   currentLocation,
   order,
   searchText,
@@ -55,28 +55,35 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   selectPage,
   nFolders
 }) => {
-  const [deleteDoc, setDeleteDoc] = useState({
+  interface IState {
+    id: string | null;
+    name?: string | null;
+    parent?: string | undefined | null;
+    title?: string | null;
+    type?: string | null;
+  }
+  const [deleteDoc, setDeleteDoc] = useState<IState>({
     id: null
   });
-  const [deleteFol, setDeleteFol] = useState({
+  const [deleteFol, setDeleteFol] = useState<IState>({
     id: null
   });
-  const [selectedToDel, setSelectedToDel] = useState({
+  const [selectedToDel, setSelectedToDel] = useState<IState>({
     id: null,
     type: null
   });
-  const [editDocTitleModal, setEditDocTitleModal] = useState({
+  const [editDocTitleModal, setEditDocTitleModal] = useState<IState>({
     id: null,
     title: null
   });
-  const [editFolderNameModal, setEditFolderNameModal] = useState({
+  const [editFolderNameModal, setEditFolderNameModal] = useState<IState>({
     id: null,
     name: null
   });
   const [menuOpenId, setMenuOpenId] = useState("");
   const [docWithEx, setDocWithEx] = useState(false);
   const [folWithChildren, setFolWithChildren] = useState(false);
-  const [selectedToMove, setSelectedToMove] = useState({
+  const [selectedToMove, setSelectedToMove] = useState<IState>({
     id: null,
     parent: null
   });
@@ -106,7 +113,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     }
   });
 
-  const onDocumentMenuClick = (e, document) => {
+  const onDocumentMenuClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    document: IDocument
+  ) => {
     e.stopPropagation();
     if (menuOpenId === document.id) {
       setMenuOpenId("");
@@ -115,7 +125,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         parent: null
       });
     } else {
-      setMenuOpenId(document.id);
+      setMenuOpenId(document.id!);
       setSelectedToMove({
         id: null,
         parent: null
@@ -123,24 +133,30 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     }
   };
 
-  const onDocumentRenameClick = (e, document) => {
+  const onDocumentRenameClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    document: IDocument
+  ) => {
     e.stopPropagation();
     setSelectedToMove({
       id: null,
       parent: null
     });
-    setEditDocTitleModal({ id: document.id, title: document.title });
+    setEditDocTitleModal({ id: document.id!, title: document.title });
   };
 
-  const onDocumentDeleteClick = (e, document) => {
+  const onDocumentDeleteClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    document: IDocument
+  ) => {
     e.stopPropagation();
     setSelectedToMove({
       id: null,
       parent: null
     });
-    setSelectedToDel({ id: document.id, type: document.type });
+    setSelectedToDel({ id: document.id!, type: document.type! });
     setDeleteDoc({
-      id: document.id
+      id: document.id!
     });
     hasExercises();
   };
@@ -166,23 +182,29 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     setDocWithEx(false);
   };
 
-  const onFolderRenameClick = (e, folder) => {
+  const onFolderRenameClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    folder: IFolder
+  ) => {
     e.stopPropagation();
     setSelectedToMove({
       id: null,
       parent: null
     });
-    setEditFolderNameModal({ id: folder.id, name: folder.name });
+    setEditFolderNameModal({ id: folder.id!, name: folder.name! });
   };
 
-  const onFolderDeleteClick = (e, folder) => {
+  const onFolderDeleteClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    folder: IFolder
+  ) => {
     e.stopPropagation();
     setSelectedToMove({
       id: null,
       parent: null
     });
-    setSelectedToDel({ id: folder.id, type: folder.type });
-    setDeleteFol({ id: folder.id });
+    setSelectedToDel({ id: folder.id!, type: "folder" });
+    setDeleteFol({ id: folder.id! });
     hasExercises();
   };
 
@@ -231,7 +253,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     setMenuOpenId("");
   };
 
-  const onDuplicateDocument = async (e, document) => {
+  const onDuplicateDocument = async (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    document: IDocument
+  ) => {
     e.stopPropagation();
     let newTitle: string = `${document.title} copia`;
 
@@ -248,7 +273,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       }
     }).catch(catchError => {
       console.log(catchError);
-      return e;
+      return catchError;
     });
 
     const { page } = result.data.duplicateDocument;
@@ -258,7 +283,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     }
   };
 
-  const onMoveDocumentClick = async (e, document) => {
+  const onMoveDocumentClick = async (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    document: IDocsAndFols
+  ) => {
     e.stopPropagation();
     if (selectedToMove.id) {
       setSelectedToMove({
@@ -266,10 +294,13 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         parent: null
       });
     } else {
-      setSelectedToMove({ id: document.id, parent: document.parent });
+      setSelectedToMove({ id: document.id!, parent: document.parent });
     }
   };
-  const onMoveFolderClick = async (e, folder) => {
+  const onMoveFolderClick = async (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    folder: IFolder
+  ) => {
     e.stopPropagation();
     if (selectedToMove.id) {
       setSelectedToMove({
@@ -277,7 +308,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         parent: null
       });
     } else {
-      setSelectedToMove({ id: folder.id, parent: folder.parent });
+      setSelectedToMove({ id: folder.id!, parent: folder.parent });
     }
   };
 
@@ -297,7 +328,11 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     }
   };
 
-  const onMoveDocument = async (e, folder, documentId?) => {
+  const onMoveDocument = async (
+    folder: IFolder,
+    documentId?: string,
+    e?: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
     if (e) {
       e.stopPropagation();
     }
@@ -306,7 +341,11 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     onMove();
   };
-  const onMoveFolder = async (e, folderParent, folderMovedId?) => {
+  const onMoveFolder = async (
+    folderParent: IFolder,
+    folderMovedId?: string,
+    e?: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
     if (e) {
       e.stopPropagation();
     }
@@ -324,29 +363,29 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       <DocumentsAndPaginator ref={drop}>
         <DocumentList className={className}>
           {docsAndFols &&
-            docsAndFols.map((document: any) => (
+            docsAndFols.map(document => (
               <StyledDocumentCard
                 isOpen={true}
-                beginFunction={() => setDraggingItemId(document.id)}
+                beginFunction={() => setDraggingItemId(document.id!)}
                 endFunction={() => setDraggingItemId("")}
                 draggable={
                   (document.type === "folder" && nFolders > 1) ||
                   (document.type !== "folder" && nFolders > 0)
                 }
                 dropDocumentCallback={() => {
-                  onMoveDocument(undefined, document, draggingItemId);
+                  onMoveDocument(document as IFolder, draggingItemId);
                 }}
                 dropFolderCallback={() => {
                   setDroppedItemId(draggingItemId);
-                  onMoveFolder(undefined, document, draggingItemId);
+                  onMoveFolder(document as IFolder, draggingItemId);
                 }}
                 hidden={document.id === droppedItemId}
-                key={document.id}
+                key={document.id!}
                 document={document}
                 onClick={() =>
                   document.type === "folder"
-                    ? onFolderClick && onFolderClick(document)
-                    : onDocumentClick && onDocumentClick(document)
+                    ? onFolderClick && onFolderClick(document as IFolder)
+                    : onDocumentClick && onDocumentClick(document as IDocument)
                 }
               >
                 <DropDown
@@ -363,7 +402,9 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                   {(isOpen: boolean) => (
                     <MenuButtonContainer
                       isOpen={isOpen}
-                      onClick={e => onDocumentMenuClick(e, document)}
+                      onClick={e =>
+                        onDocumentMenuClick(e, document as IDocument)
+                      }
                     >
                       <MenuButton isOpen={isOpen} />
                     </MenuButtonContainer>
@@ -391,8 +432,11 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                             ) {
                               setMenuOpenId("");
                               document.type !== "folder"
-                                ? onDocumentRenameClick(e, document)
-                                : onFolderRenameClick(e, document);
+                                ? onDocumentRenameClick(
+                                    e,
+                                    document as IDocument
+                                  )
+                                : onFolderRenameClick(e, document as IFolder);
                             }
                           },
                           document.type !== "folder"
@@ -407,7 +451,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                                   >
                                 ) {
                                   if (document.type !== "folder") {
-                                    onDuplicateDocument(e, document);
+                                    onDuplicateDocument(
+                                      e,
+                                      document as IDocument
+                                    );
                                   }
                                 }
                               }
@@ -426,7 +473,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                             ) {
                               document.type !== "folder"
                                 ? onMoveDocumentClick(e, document)
-                                : onMoveFolderClick(e, document);
+                                : onMoveFolderClick(e, document as IFolder);
                             }
                           },
                           {
@@ -440,8 +487,11 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                             ) {
                               setMenuOpenId("");
                               document.type !== "folder"
-                                ? onDocumentDeleteClick(e, document)
-                                : onFolderDeleteClick(e, document);
+                                ? onDocumentDeleteClick(
+                                    e,
+                                    document as IDocument
+                                  )
+                                : onFolderDeleteClick(e, document as IFolder);
                             },
                             red: true
                           }
@@ -451,10 +501,13 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                     {selectedToMove.id === document.id ? (
                       <FolderSelectorMenu
                         selectedToMove={selectedToMove}
-                        onMove={
+                        onMove={(
+                          event: React.MouseEvent<HTMLDivElement, MouseEvent>,
+                          selectedFolder: IFolder
+                        ) =>
                           document.type !== "folder"
-                            ? onMoveDocument
-                            : onMoveFolder
+                            ? onMoveDocument(selectedFolder, undefined, event)
+                            : onMoveFolder(selectedFolder, undefined, event)
                         }
                         currentLocation={currentLocation}
                       />
