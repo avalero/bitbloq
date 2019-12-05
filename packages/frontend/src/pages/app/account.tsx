@@ -1,5 +1,5 @@
 import { ApolloError } from "apollo-client";
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect, useRef } from "react";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
@@ -17,15 +17,18 @@ enum TabType {
 }
 
 const AccountPage: NextPage = () => {
+  const personalDataFormId = "personal-data-form";
   const t = useTranslate();
   const userData = useUserData();
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
-  const [currentTab, setCurrentTab] = useState(TabType.UserData);
+  const [currentTab, setCurrentTab] = useState<TabType>(TabType.UserData);
   const [error, setError] = useState<ApolloError>();
-  const [personalDataEditable, setPersonalDataEditable] = useState(false);
+  const [personalDataEditable, setPersonalDataEditable] = useState<boolean>(
+    false
+  );
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
 
   const togglePersonalDataEditable = (e: React.MouseEvent) => {
@@ -62,7 +65,7 @@ const AccountPage: NextPage = () => {
               buttons={
                 personalDataEditable ? (
                   <>
-                    <Button form="personal-data-form" type="submit">
+                    <Button form={personalDataFormId} type="submit">
                       {t("account.user-data.personal-data.button-save")}
                     </Button>
                     <Button secondary onClick={togglePersonalDataEditable}>
@@ -77,9 +80,9 @@ const AccountPage: NextPage = () => {
               }
             >
               <AccountPersonalData
-                defaultValues={userData}
-                formId="personal-data-form"
-                isEditable={personalDataEditable}
+                id={personalDataFormId}
+                editable={personalDataEditable}
+                setEditable={setPersonalDataEditable}
                 setError={setError}
               />
             </Panel>

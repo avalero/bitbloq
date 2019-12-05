@@ -583,6 +583,16 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
   }
 `;
 
+/* Account */
+
+export const UPDATE_USER_DATA_MUTATION = gql`
+  mutation UpdateUserData($id: ObjectID!, $input: UpdateUserData!) {
+    updateUserData(id: $id, input: $input) {
+      id
+    }
+  }
+`;
+
 /* Cloud */
 
 export const ADD_RESOURCE_TO_DOCUMENT = gql`

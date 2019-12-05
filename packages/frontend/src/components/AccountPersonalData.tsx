@@ -1,46 +1,40 @@
 import { ApolloError } from "apollo-client";
 import dayjs from "dayjs";
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
 import { Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import { UPDATE_USER_DATA_MUTATION } from "../apollo/queries";
+import useUserData from "../lib/useUserData";
 import { isValidDate, getAge } from "../util";
-import { SAVE_USER_DATA_MUTATION } from "../apollo/queries";
+import { IUpdateUserData, IUser } from "../../../api/src/api-types";
 
-interface IUserData {
-  birthDate: string;
-  name: string;
-  surnames: string;
+interface IUserData extends IUpdateUserData {
+  day: number;
+  month: number;
+  year: number;
 }
 
 interface IAccountPersonalDataProps {
-  defaultValues: IUserData;
-  formId: string;
-  isEditable: boolean;
+  id: string;
+  editable: boolean;
+  setEditable: (editable: boolean) => void;
   setError: (error: ApolloError) => void;
 }
 
 const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
-  defaultValues,
-  formId,
-  isEditable,
+  id,
+  editable,
+  setEditable,
   setError
 }) => {
   const t = useTranslate();
+  const [userData, setUserData] = useState<IUser>(useUserData());
 
-  const [saveUserData, { error, loading }] = useMutation(
-    SAVE_USER_DATA_MUTATION
+  const [updateUserData, { error, loading }] = useMutation(
+    UPDATE_USER_DATA_MUTATION
   );
-
-  const {
-    clearError,
-    errors,
-    getValues,
-    handleSubmit,
-    register,
-    setValue
-  } = useForm({ defaultValues });
 
   useEffect(() => {
     if (error) {
@@ -49,14 +43,21 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   }, [error]);
 
   useEffect(() => {
-    if (isEditable && defaultValues.birthDate) {
-      const birthDate = dayjs(new Date(defaultValues.birthDate));
-      setValue("day", birthDate.date());
-      setValue("month", birthDate.month() + 1);
-      setValue("year", birthDate.year());
-      onChangeBirthDate();
+    if (editable && userData.birthDate) {
+      setValue("day", dayjs(userData.birthDate).date());
+      setValue("month", dayjs(userData.birthDate).month() + 1);
+      setValue("year", dayjs(userData.birthDate).year());
     }
-  }, [isEditable]);
+  }, [editable]);
+
+  const {
+    clearError,
+    errors,
+    getValues,
+    handleSubmit,
+    register,
+    setValue
+  } = useForm({ defaultValues: userData });
 
   register(
     { name: "birthDate", type: "custom" },
@@ -77,47 +78,51 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     );
   };
 
-  const onSaveUser = (input: IUserData) => {
+  const onUpdateUserData = async (input: IUserData) => {
     if (loading) {
       return;
     }
-    saveUserData({
+    await updateUserData({
       variables: {
+        id: userData.id,
         input: {
-          birthDate: input.birthDate,
           name: input.name,
-          surnames: input.surnames
+          surnames: input.surnames,
+          birthDate: new Date(input.year, input.month - 1, input.day)
         }
       }
     });
+    setUserData({
+      ...userData,
+      name: input.name,
+      surnames: input.surnames,
+      birthDate: new Date(input.year, input.month - 1, input.day)
+    });
+    setEditable(false);
   };
-
-  const notEditableForm = () => (
-    <>
-      <FormFieldNotEditable>
-        <div>{t("signup.user-data.labels.name")}</div>
-        <div>{defaultValues.name}</div>
-      </FormFieldNotEditable>
-      <FormFieldNotEditable>
-        <div>{t("signup.user-data.labels.surnames")}</div>
-        <div>{defaultValues.surnames}</div>
-      </FormFieldNotEditable>
-      <FormFieldNotEditable>
-        <div>{t("signup.user-data.labels.birth-date")}</div>
-        <div>
-          {defaultValues.birthDate &&
-            dayjs(new Date(defaultValues.birthDate)).format("DD/MM/YYYY")}
-        </div>
-      </FormFieldNotEditable>
-    </>
-  );
 
   return (
     <>
-      {!isEditable ? (
-        notEditableForm()
+      {!editable ? (
+        <>
+          <FormFieldNotEditable>
+            <div>{t("signup.user-data.labels.name")}</div>
+            <div>{userData.name}</div>
+          </FormFieldNotEditable>
+          <FormFieldNotEditable>
+            <div>{t("signup.user-data.labels.surnames")}</div>
+            <div>{userData.surnames}</div>
+          </FormFieldNotEditable>
+          <FormFieldNotEditable>
+            <div>{t("signup.user-data.labels.birth-date")}</div>
+            <div>
+              {userData.birthDate &&
+                new Date(userData.birthDate).toLocaleDateString()}
+            </div>
+          </FormFieldNotEditable>
+        </>
       ) : (
-        <form id={formId} onSubmit={handleSubmit(onSaveUser)}>
+        <form id={id} onSubmit={handleSubmit(onUpdateUserData)}>
           <FormField>
             <label>{t("signup.user-data.labels.name")}</label>
             <Input
