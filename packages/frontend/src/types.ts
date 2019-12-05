@@ -2,11 +2,15 @@ import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
 
 export interface IUser {
   admin: boolean;
+  avatar: string;
+  birthDate: Date;
   email: string;
   id: string;
   name: string;
+  password: string;
   publisher: boolean;
   rootFolder: string;
+  surnames: string;
   teacher: boolean;
 }
 

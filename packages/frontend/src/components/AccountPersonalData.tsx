@@ -1,54 +1,39 @@
-import { ApolloError } from "apollo-client";
 import dayjs from "dayjs";
-import React, { FC, useEffect, useState } from "react";
-import { useMutation } from "react-apollo";
+import React, { FC, useEffect } from "react";
 import useForm from "react-hook-form";
 import { Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { UPDATE_USER_DATA_MUTATION } from "../apollo/queries";
-import useUserData from "../lib/useUserData";
 import { isValidDate, getAge } from "../util";
-import { IUpdateUserData, IUser } from "../../../api/src/api-types";
+import { IUser } from "../types";
 
-interface IUserData extends IUpdateUserData {
+interface IPersonalData extends IUser {
   day: number;
   month: number;
   year: number;
 }
 
 interface IAccountPersonalDataProps {
-  id: string;
   editable: boolean;
-  setEditable: (editable: boolean) => void;
-  setError: (error: ApolloError) => void;
+  formId: string;
+  onSubmit: (input: IUser) => void;
+  userData: IUser;
 }
 
 const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
-  id,
   editable,
-  setEditable,
-  setError
+  formId,
+  onSubmit,
+  userData
 }) => {
   const t = useTranslate();
-  const [userData, setUserData] = useState<IUser>(useUserData());
-
   const ageLimit = userData.teacher ? 18 : 14;
-
-  const [updateUserData, { error, loading }] = useMutation(
-    UPDATE_USER_DATA_MUTATION
-  );
-
-  useEffect(() => {
-    if (error) {
-      setError(error);
-    }
-  }, [error]);
 
   useEffect(() => {
     if (editable && userData.birthDate) {
       setValue("day", dayjs(userData.birthDate).date());
       setValue("month", dayjs(userData.birthDate).month() + 1);
       setValue("year", dayjs(userData.birthDate).year());
+      onChangeBirthDate();
     }
   }, [editable]);
 
@@ -72,35 +57,21 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     }
   );
 
+  const handler = (input: IPersonalData) => {
+    onSubmit({
+      ...userData,
+      name: input.name,
+      surnames: input.surnames,
+      birthDate: new Date(input.year, input.month - 1, input.day)
+    });
+  };
+
   const onChangeBirthDate = () => {
     clearError("birthDate");
     setValue(
       "birthDate",
       [getValues().day, getValues().month, getValues().year].join("/")
     );
-  };
-
-  const onUpdateUserData = async (input: IUserData) => {
-    if (loading) {
-      return;
-    }
-    await updateUserData({
-      variables: {
-        id: userData.id,
-        input: {
-          name: input.name,
-          surnames: input.surnames,
-          birthDate: new Date(input.year, input.month - 1, input.day)
-        }
-      }
-    });
-    setUserData({
-      ...userData,
-      name: input.name,
-      surnames: input.surnames,
-      birthDate: new Date(input.year, input.month - 1, input.day)
-    });
-    setEditable(false);
   };
 
   return (
@@ -124,7 +95,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
           </FormFieldNotEditable>
         </>
       ) : (
-        <form id={id} onSubmit={handleSubmit(onUpdateUserData)}>
+        <form id={formId} onSubmit={handleSubmit(handler)}>
           <FormField>
             <label>{t("account.user-data.personal-data.labels.name")}</label>
             <Input

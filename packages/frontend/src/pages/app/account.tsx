@@ -10,6 +10,9 @@ import AppLayout from "../../components/AppLayout";
 import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import { plans } from "../../config.js";
 import useUserData from "../../lib/useUserData";
+import { IUser } from "../../types";
+import { useMutation } from "react-apollo";
+import { UPDATE_USER_DATA_MUTATION } from "../../apollo/queries";
 
 enum TabType {
   UserData,
@@ -19,13 +22,16 @@ enum TabType {
 const AccountPage: NextPage = () => {
   const personalDataFormId = "personal-data-form";
   const t = useTranslate();
-  const userData = useUserData();
+  const [userData, setUserData] = useState<IUser>(useUserData());
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
+  const [updatePersonalData, { error, loading }] = useMutation(
+    UPDATE_USER_DATA_MUTATION
+  );
+
   const [currentTab, setCurrentTab] = useState<TabType>(TabType.UserData);
-  const [error, setError] = useState<ApolloError>();
   const [personalDataEditable, setPersonalDataEditable] = useState<boolean>(
     false
   );
@@ -34,6 +40,28 @@ const AccountPage: NextPage = () => {
   const togglePersonalDataEditable = (e: React.MouseEvent) => {
     e.preventDefault();
     setPersonalDataEditable(!personalDataEditable);
+  };
+
+  const onUpdatePersonalData = async (input: IUser) => {
+    await updatePersonalData({
+      variables: {
+        id: userData.id,
+        input: {
+          name: input.name,
+          surnames: input.surnames,
+          birthDate: input.birthDate
+        }
+      }
+    });
+    updateUserData(input);
+    setPersonalDataEditable(false);
+  };
+
+  const updateUserData = (input: IUser) => {
+    setUserData({
+      ...userData,
+      ...input
+    });
   };
 
   if (error) {
@@ -65,7 +93,11 @@ const AccountPage: NextPage = () => {
               buttons={
                 personalDataEditable ? (
                   <>
-                    <Button form={personalDataFormId} type="submit">
+                    <Button
+                      form={personalDataFormId}
+                      type="submit"
+                      disabled={loading}
+                    >
                       {t("account.user-data.personal-data.button-save")}
                     </Button>
                     <Button secondary onClick={togglePersonalDataEditable}>
@@ -80,10 +112,10 @@ const AccountPage: NextPage = () => {
               }
             >
               <AccountPersonalData
-                id={personalDataFormId}
                 editable={personalDataEditable}
-                setEditable={setPersonalDataEditable}
-                setError={setError}
+                formId={personalDataFormId}
+                onSubmit={onUpdatePersonalData}
+                userData={userData}
               />
             </Panel>
             <Panel
