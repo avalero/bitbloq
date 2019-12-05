@@ -99,6 +99,7 @@ const EditExercise = ({ type, id }) => {
   }, [exercise, submission, teamName]);
 
   useEffect(() => {
+    console.log(submission);
     if (exercise && teamName) {
       window.removeEventListener("beforeunload", setActiveToFalse);
       window.addEventListener("beforeunload", setActiveToFalse);
@@ -125,6 +126,7 @@ const EditExercise = ({ type, id }) => {
   // }
 
   const loadSubmission = async () => {
+    console.log(client);
     const { data: submissionData } = await client.query({
       query: STUDENT_SUBMISSION_QUERY,
       errorPolicy: "ignore"
@@ -256,9 +258,11 @@ const EditExercise = ({ type, id }) => {
       {loginVisible && !loading && (
         <ExerciseLoginModal
           code={exercise.code}
-          onSuccess={newTeamName => {
+          onSuccess={async newTeamName => {
             setTeamName(newTeamName);
             setLoginVisible(false);
+            const tok = await getToken("exercise-team");
+            console.log({ tok });
             loadSubmission();
           }}
         />
@@ -295,7 +299,7 @@ const EditExercise = ({ type, id }) => {
           setSessionExpired(false);
         }}
       />
-      {teamName && (
+      {teamName && submission && (
         <>
           <Subscription
             subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
@@ -310,14 +314,17 @@ const EditExercise = ({ type, id }) => {
           />
           <Subscription
             subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
+            variables={{ submissionID: submission.id }}
             shouldResubscribe={true}
             onSubscriptionData={({ subscriptionData }) => {
               const submissionSessionExpires: ISessionExpires =
                 (subscriptionData.data &&
                   subscriptionData.data.submissionSessionExpires) ||
                 {};
+              console.log({ submissionSessionExpires });
               if (submissionSessionExpires.expiredSession) {
                 setToken("", "exercise-team");
+                setActiveToFalse();
                 Router.replace("/");
               }
               if (Number(submissionSessionExpires.secondsRemaining) < 350) {
@@ -325,7 +332,11 @@ const EditExercise = ({ type, id }) => {
                 setSecondsRemaining(
                   Number(submissionSessionExpires.secondsRemaining)
                 );
-              } else {
+              }
+              if (
+                !submissionSessionExpires.expiredSession &&
+                Number(submissionSessionExpires.secondsRemaining) > 350
+              ) {
                 setSessionExpired(false);
               }
             }}

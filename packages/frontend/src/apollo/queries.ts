@@ -584,8 +584,8 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
 `;
 
 export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
-  subscription SubmissionSessionExpires {
-    submissionSessionExpires {
+  subscription SubmissionSessionExpires($submissionID: ObjectID!) {
+    submissionSessionExpires(submissionID: $submissionID) {
       key
       secondsRemaining
       subToken

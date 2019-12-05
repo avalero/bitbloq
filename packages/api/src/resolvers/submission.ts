@@ -61,7 +61,6 @@ const submissionResolver = {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
         (payload, variables, context) => {
-          console.log("subAct", { payload, context });
           return (
             String(payload.submissionActive.id) ===
             String(context.user.submissionID)
@@ -75,16 +74,17 @@ const submissionResolver = {
         () => pubsub.asyncIterator([SUBMISSION_SESSION_EXPIRES]),
         (
           payload: { submissionSessionExpires: ISessionExpires },
-          variables,
+          variables: { submissionID: string },
           context: { user: IUserInToken }
         ) => {
-          console.log({ payload, context });
+          console.log({ payload, context, variables });
           console.log(
+            variables.submissionID,
             context.user.submissionID,
             payload.submissionSessionExpires.key
           );
           return (
-            String(context.user.submissionID) ===
+            String(variables.submissionID) ===
             String(payload.submissionSessionExpires.key)
           );
         }
@@ -169,7 +169,6 @@ const submissionResolver = {
         { new: true }
       );
       if (process.env.USE_REDIS === "true") {
-        console.log(newSub.id);
         await storeTokenInRedis(newSub.id, token, true);
       }
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
@@ -247,7 +246,6 @@ const submissionResolver = {
           submissionUpdated: existSubmission
         });
         if (process.env.USE_REDIS === "true") {
-          console.log(existSubmission.id);
           await storeTokenInRedis(existSubmission.id, token, true);
         }
         return {
@@ -319,7 +317,6 @@ const submissionResolver = {
       args: IMutationSetActiveSubmissionArgs,
       context: { user: IUserInToken }
     ) => {
-      console.log("ENTRA SETACTIVE FALSE");
       const existSubmission: ISubmission | null = await SubmissionModel.findOne(
         {
           _id: args.submissionID,

@@ -39,79 +39,8 @@ interface ISessionWatcherProps {
   tempSession?: string;
   client: ApolloClient<any>;
 }
+
 const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
-  const [anotherSession, setAnotherSession] = useState(false);
-
-  useEffect(() => {
-    const interval = watchSession(tempSession);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
-  useSessionEvent(
-    "error",
-    ({ error }) => {
-      const code = error && error.extensions && error.extensions.code;
-      if (code === "ANOTHER_OPEN_SESSION") {
-        setAnotherSession(true);
-        setToken("");
-      }
-    },
-    tempSession
-  );
-
-  useSessionEvent(
-    "expired",
-    () => {
-      logout();
-    },
-    tempSession
-  );
-
-  useSessionEvent("logout", async () => {
-    await client.resetStore();
-    setToken("");
-    Router.push("/");
-  });
-
-  useSessionEvent(
-    "activity",
-    () => {
-      if (shouldRenewToken(tempSession)) {
-        renewToken(
-          getToken(tempSession)
-            .then(currentToken =>
-              client.mutate({
-                mutation: RENEW_TOKEN_MUTATION,
-                context: { token: currentToken }
-              })
-            )
-            .then(({ data }) => data.renewToken),
-          tempSession
-        );
-      }
-    },
-    tempSession
-  );
-
-  if (anotherSession) {
-    return (
-      <ErrorLayout
-        title="Has iniciado sesión en otro dispositivo"
-        text="Solo se puede tener una sesión abierta al mismo tiempo"
-        onOk={() => logout()}
-      />
-    );
-  }
-
-  return <SessionWarningModal tempSession={tempSession} />;
-};
-
-const SessionWatcherAlda: FC<ISessionWatcherProps> = ({
-  tempSession,
-  client
-}) => {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [anotherSession, setAnotherSession] = useState(false);
@@ -126,18 +55,19 @@ const SessionWatcherAlda: FC<ISessionWatcherProps> = ({
         setAnotherSession(true);
         setToken("");
       }
+      if (code === "UNAUTHENTICATED") {
+        Router.replace("/");
+      }
     },
     tempSession
   );
 
   useSessionEvent("logout", async () => {
-    console.log("LOGOUT");
     setToken("");
-    // if(client)
-    // {await client.resetStore();}
-    // Router.push("/");
-    client.cache.reset();
-    await client.reFetchObservableQueries();
+    if (client) {
+      await client.cache.reset();
+      await client.reFetchObservableQueries();
+    }
     Router.replace("/");
   });
 
@@ -145,19 +75,6 @@ const SessionWatcherAlda: FC<ISessionWatcherProps> = ({
     "activity",
     () => {
       console.log("activity");
-      // if (shouldRenewToken(tempSession)) {
-      //   renewToken(
-      //     getToken(tempSession)
-      //       .then(currentToken =>
-      //         client.mutate({
-      //           mutation: RENEW_TOKEN_MUTATION,
-      //           context: { token: currentToken }
-      //         })
-      //       )
-      //       .then(({ data }) => data.renewToken),
-      //     tempSession
-      //   );
-      // }
     },
     tempSession
   );
@@ -196,16 +113,15 @@ const SessionWatcherAlda: FC<ISessionWatcherProps> = ({
             (subscriptionData.data &&
               subscriptionData.data.userSessionExpires) ||
             {};
-          console.log(userSessionExpires);
           if (userSessionExpires.expiredSession) {
             logout();
           }
           if (Number(userSessionExpires.secondsRemaining) < 350) {
-            console.log("Caduca sesión");
             setSessionExpired(true);
-            setSecondsRemaining(Number(userSessionExpires.secondsRemaining));
+            setSecondsRemaining(
+              Math.ceil(Number(userSessionExpires.secondsRemaining))
+            );
           }
-          console.log(userSessionExpires.secondsRemaining);
           if (
             !userSessionExpires.expiredSession &&
             Number(userSessionExpires.secondsRemaining) > 350
@@ -254,8 +170,7 @@ export default function withApollo(
             <PageComponent {...pageProps} />
           </UserDataProvider>
         )}
-        {/* <SessionWatcher tempSession={tempSession} client={client} /> */}
-        <SessionWatcherAlda tempSession={tempSession} client={client} />
+        <SessionWatcher tempSession={tempSession} client={client} />
       </ApolloProvider>
     );
   };

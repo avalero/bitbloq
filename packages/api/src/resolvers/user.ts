@@ -768,7 +768,7 @@ const getResetPasswordData = async (token: string) => {
     const storedToken = await redisClient.hgetallAsync(
       `resetPasswordToken-${dataInToken.resetPassUserID}`
     );
-    if (storedToken !== token) {
+    if (storedToken.authToken !== token) {
       throw new ApolloError(
         "The provided token is not the latest one",
         "INVALID_TOKEN"
