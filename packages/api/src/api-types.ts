@@ -177,6 +177,8 @@ export interface IMutation {
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
   updateMyPlan?: Maybe<IUser>;
+  sendChangeMyEmailToken?: Maybe<Scalars["String"]>;
+  confirmChangeEmail?: Maybe<IUser>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
   duplicateDocument?: Maybe<IDuplicateDocument>;
@@ -267,6 +269,14 @@ export interface IMutationUpdateMyPasswordArgs {
 
 export interface IMutationUpdateMyPlanArgs {
   userPlan: Scalars["String"];
+}
+
+export interface IMutationSendChangeMyEmailTokenArgs {
+  newEmail: Scalars["String"];
+}
+
+export interface IMutationConfirmChangeEmailArgs {
+  token: Scalars["String"];
 }
 
 export interface IMutationCreateDocumentArgs {
@@ -1213,6 +1223,18 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationUpdateMyPlanArgs, "userPlan">
+  >;
+  sendChangeMyEmailToken?: Resolver<
+    Maybe<IResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationSendChangeMyEmailTokenArgs, "newEmail">
+  >;
+  confirmChangeEmail?: Resolver<
+    Maybe<IResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationConfirmChangeEmailArgs, "token">
   >;
   createDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,
