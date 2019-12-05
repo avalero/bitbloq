@@ -38,9 +38,9 @@ const DialogModal: SFC<IDialogModalProps> = ({
 
   useLayoutEffect(() => {
     const onSubmitForm = (e: KeyboardEvent) => {
-      if (e.keyCode === 13) {
+      if (e.keyCode === 13 && submitRef.current) {
         e.preventDefault();
-        submitRef.current!.click();
+        submitRef.current.click();
       }
     };
     window.addEventListener("keypress", onSubmitForm);
