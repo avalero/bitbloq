@@ -8,6 +8,7 @@ import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { ApolloError } from "apollo-client";
+import { IFolder, IResult as IDocsAndFols } from "../../../api/src/api-types";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
@@ -42,8 +43,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [breadcrumbsLinks, setBreadcrumbsLinks] = useState<IBreadcrumbLink[]>(
     []
   );
-  const [docsAndFols, setDocsAndFols] = useState<any[]>([]);
-  const [parentsPath, setParentsPath] = useState<any[]>([]);
+  const [docsAndFols, setDocsAndFols] = useState<IDocsAndFols[]>([]);
+  const [parentsPath, setParentsPath] = useState<IFolder[]>([]);
   const [nFolders, setNFolders] = useState<number>(0);
 
   const openFile = React.createRef<HTMLInputElement>();
@@ -106,11 +107,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     }
   }, [pagesNumber]);
 
-  const onDocumentClick = ({ id: documentId, title }) => {
+  const onDocumentClick = ({ id: documentId }) => {
     Router.push(`/app/document/${documentId}`);
   };
 
-  const onCreateFolder = async folderName => {
+  const onCreateFolder = async (folderName: string) => {
     await createFolder({
       variables: {
         input: { name: folderName, parent: currentLocation.id }
@@ -127,7 +128,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     refetchDocsFols();
   };
 
-  const onOpenExercise = async exerciseCode => {
+  const onOpenExercise = async (exerciseCode: string) => {
     if (exerciseCode) {
       try {
         setLoadingExercise(true);
@@ -152,7 +153,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     setCurrentPage(1);
   }, 500);
 
-  const onFileSelected = file => {
+  const onFileSelected = (file: File) => {
     if (file) {
       window.open(`/app/edit-document/${currentLocation.id}/open/new`);
       const reader = new FileReader();
