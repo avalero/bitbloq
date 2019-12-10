@@ -276,6 +276,7 @@
       "personal-data": {
         "title": "Datos personales",
         "button": "Editar datos personales",
+        "button-avatar": "Cambiar imagen",
         "button-cancel": "Cancelar",
         "button-save": "Guardar",
         "errors": {

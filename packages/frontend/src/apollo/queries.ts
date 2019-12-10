@@ -4,6 +4,7 @@ export const ME_QUERY = gql`
   query Me {
     me {
       admin
+      avatar
       birthDate
       email
       id

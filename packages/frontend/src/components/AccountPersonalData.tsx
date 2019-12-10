@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
-import React, { FC, useEffect } from "react";
+import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
-import { Input, useTranslate } from "@bitbloq/ui";
+import { Input, useTranslate, colors, FileSelectButton } from "@bitbloq/ui";
+import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { isValidDate, getAge } from "../util";
 import useUserData from "../lib/useUserData";
@@ -27,20 +28,12 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   const t = useTranslate();
   const { userData } = useUserData();
   const ageLimit = userData.teacher ? 18 : 14;
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   useEffect(() => {
+    setAvatarPreview(null);
     if (editable) {
-      reset(userData);
-      setValue("day", userData.birthDate && dayjs(userData.birthDate).date());
-      setValue(
-        "month",
-        userData.birthDate && dayjs(userData.birthDate).month() + 1
-      );
-      setValue("year", userData.birthDate && dayjs(userData.birthDate).year());
-      setValue(
-        "birthDate",
-        userData.birthDate && new Date(userData.birthDate).toLocaleDateString()
-      );
+      resetForm(userData);
     }
   }, [editable]);
 
@@ -54,6 +47,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     setValue
   } = useForm({ defaultValues: userData });
 
+  register({ name: "avatar", type: "custom" });
   register(
     { name: "birthDate", type: "custom" },
     {
@@ -73,129 +67,217 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     );
   };
 
-  if (!editable) {
-    return (
-      <>
-        <FormFieldNotEditable>
-          <div>{t("account.user-data.personal-data.labels.name")}</div>
-          <div>{userData.name}</div>
-        </FormFieldNotEditable>
-        <FormFieldNotEditable>
-          <div>{t("account.user-data.personal-data.labels.surnames")}</div>
-          <div>{userData.surnames}</div>
-        </FormFieldNotEditable>
-        <FormFieldNotEditable>
-          <div>{t("account.user-data.personal-data.labels.birth-date")}</div>
-          <div>
-            {userData.birthDate &&
-              new Date(userData.birthDate).toLocaleDateString()}
-          </div>
-        </FormFieldNotEditable>
-      </>
+  const onFileSelected = (file: File) => {
+    setValue("avatar", file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setAvatarPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const resetForm = (input: IUser) => {
+    reset(input);
+    setValue("day", input.birthDate && dayjs(input.birthDate).date());
+    setValue("month", input.birthDate && dayjs(input.birthDate).month() + 1);
+    setValue("year", input.birthDate && dayjs(input.birthDate).year());
+    setValue(
+      "birthDate",
+      input.birthDate && new Date(input.birthDate).toLocaleDateString()
     );
-  }
+  };
+
+  const formNotEditable = () => (
+    <>
+      <FormFieldNotEditable>
+        <div>{t("account.user-data.personal-data.labels.name")}</div>
+        <div>{userData.name}</div>
+      </FormFieldNotEditable>
+      <FormFieldNotEditable>
+        <div>{t("account.user-data.personal-data.labels.surnames")}</div>
+        <div>{userData.surnames}</div>
+      </FormFieldNotEditable>
+      <FormFieldNotEditable>
+        <div>{t("account.user-data.personal-data.labels.birth-date")}</div>
+        <div>
+          {userData.birthDate &&
+            new Date(userData.birthDate).toLocaleDateString()}
+        </div>
+      </FormFieldNotEditable>
+    </>
+  );
 
   return (
-    <form
-      id={formId}
-      onSubmit={handleSubmit((input: IPersonalData) =>
-        onSubmit({
-          ...userData,
-          name: input.name,
-          surnames: input.surnames,
-          birthDate: new Date(input.year, input.month - 1, input.day)
-        })
-      )}
-    >
-      <FormField>
-        <label>{t("account.user-data.personal-data.labels.name")}</label>
-        <Input
-          type="text"
-          name="name"
-          placeholder={t("account.user-data.personal-data.placeholders.name")}
-          ref={register({ required: true })}
-          error={!!errors.name}
-        />
-      </FormField>
-      <FormError>
-        {errors.name && (
-          <ErrorMessage>
-            {t("account.user-data.personal-data.errors.name")}
-          </ErrorMessage>
+    <Container>
+      <Form
+        id={formId}
+        onSubmit={handleSubmit((input: IPersonalData) =>
+          onSubmit({
+            ...userData,
+            avatar: input.avatar,
+            name: input.name,
+            surnames: input.surnames,
+            birthDate: new Date(input.year, input.month - 1, input.day)
+          })
         )}
-      </FormError>
-      <FormField>
-        <label>{t("account.user-data.personal-data.labels.surnames")}</label>
-        <Input
-          type="text"
-          name="surnames"
-          placeholder={t(
-            "account.user-data.personal-data.placeholders.surnames"
-          )}
-          ref={register({ required: true })}
-          error={!!errors.surnames}
-        />
-      </FormField>
-      <FormError>
-        {errors.surnames && (
-          <ErrorMessage>
-            {t("account.user-data.personal-data.errors.surnames")}
-          </ErrorMessage>
-        )}
-      </FormError>
-      <FormField>
-        <label>{t("account.user-data.personal-data.labels.birth-date")}</label>
-        <FormGroup onChange={onChangeBirthDate}>
-          <Input
-            type="number"
-            name="day"
-            placeholder={t(
-              "account.user-data.personal-data.placeholders.birth-date-day"
-            )}
-            ref={register}
-            error={!!errors.birthDate}
-          />
-          <Input
-            type="number"
-            name="month"
-            placeholder={t(
-              "account.user-data.personal-data.placeholders.birth-date-month"
-            )}
-            ref={register}
-            error={!!errors.birthDate}
-          />
-          <Input
-            type="number"
-            name="year"
-            placeholder={t(
-              "account.user-data.personal-data.placeholders.birth-date-year"
-            )}
-            ref={register}
-            error={!!errors.birthDate}
-          />
-        </FormGroup>
-      </FormField>
-      <FormError>
-        {errors.birthDate && (
-          <ErrorMessage>
-            {errors.birthDate.type === "validAge"
-              ? t(
-                  `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`,
-                  [ageLimit.toString()]
-                )
-              : t(
-                  `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`
+      >
+        {!editable ? (
+          formNotEditable()
+        ) : (
+          <>
+            <FormField>
+              <label>{t("account.user-data.personal-data.labels.name")}</label>
+              <Input
+                type="text"
+                name="name"
+                placeholder={t(
+                  "account.user-data.personal-data.placeholders.name"
                 )}
-          </ErrorMessage>
+                ref={register({ required: true })}
+                error={!!errors.name}
+              />
+            </FormField>
+            <FormError>
+              {errors.name && (
+                <ErrorMessage>
+                  {t("account.user-data.personal-data.errors.name")}
+                </ErrorMessage>
+              )}
+            </FormError>
+            <FormField>
+              <label>
+                {t("account.user-data.personal-data.labels.surnames")}
+              </label>
+              <Input
+                type="text"
+                name="surnames"
+                placeholder={t(
+                  "account.user-data.personal-data.placeholders.surnames"
+                )}
+                ref={register({ required: true })}
+                error={!!errors.surnames}
+              />
+            </FormField>
+            <FormError>
+              {errors.surnames && (
+                <ErrorMessage>
+                  {t("account.user-data.personal-data.errors.surnames")}
+                </ErrorMessage>
+              )}
+            </FormError>
+            <FormField>
+              <label>
+                {t("account.user-data.personal-data.labels.birth-date")}
+              </label>
+              <FormGroup onChange={onChangeBirthDate}>
+                <Input
+                  type="number"
+                  name="day"
+                  placeholder={t(
+                    "account.user-data.personal-data.placeholders.birth-date-day"
+                  )}
+                  ref={register}
+                  error={!!errors.birthDate}
+                />
+                <Input
+                  type="number"
+                  name="month"
+                  placeholder={t(
+                    "account.user-data.personal-data.placeholders.birth-date-month"
+                  )}
+                  ref={register}
+                  error={!!errors.birthDate}
+                />
+                <Input
+                  type="number"
+                  name="year"
+                  placeholder={t(
+                    "account.user-data.personal-data.placeholders.birth-date-year"
+                  )}
+                  ref={register}
+                  error={!!errors.birthDate}
+                />
+              </FormGroup>
+            </FormField>
+            <FormError>
+              {errors.birthDate && (
+                <ErrorMessage>
+                  {errors.birthDate.type === "validAge"
+                    ? t(
+                        `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`,
+                        [ageLimit.toString()]
+                      )
+                    : t(
+                        `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`
+                      )}
+                </ErrorMessage>
+              )}
+            </FormError>
+          </>
         )}
-      </FormError>
-    </form>
+      </Form>
+      <Avatar editable={editable}>
+        <AvatarImage src={avatarPreview || userData.avatar} />
+        {editable && (
+          <AvatarButton
+            accept="image/*"
+            tertiary
+            onFileSelected={onFileSelected}
+          >
+            {t("account.user-data.personal-data.button-avatar")}
+          </AvatarButton>
+        )}
+      </Avatar>
+    </Container>
   );
 };
 
 export default AccountPersonalData;
 
 /* Styled components */
+
+const Avatar = styled.div<{ editable: boolean }>`
+  margin-left: 20px;
+  position: relative;
+  width: ${props => (props.editable ? 145 : 112)}px;
+
+  img {
+    height: ${props => (props.editable ? 145 : 112)}px;
+    width: ${props => (props.editable ? 145 : 112)}px;
+  }
+`;
+
+const AvatarButton = styled(FileSelectButton)`
+  margin-top: 10px;
+  padding: 0;
+  width: 100%;
+`;
+
+const AvatarImage = styled.img<{ src?: string }>`
+  background-color: ${colors.grayAvatar};
+  border-radius: 4px;
+  left: 100%;
+  position: relative;
+  transform: translate(-100%, 0);
+  transition: all 100ms ease-out;
+
+  ${props =>
+    props.src &&
+    css`
+      background-image: url(${props.src});
+      background-size: cover;
+      background-position: center;
+    `}
+`;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const Form = styled.form`
+  flex: 1;
+`;
 
 const FormError = styled.div`
   display: flex;
@@ -229,7 +311,7 @@ const FormFieldNotEditable = styled.div`
   height: 36px;
   display: flex;
   justify-content: space-between;
-  border: 0px solid #8c919b;
+  border: 0px solid ${colors.gray4};
   border-top-width: 1px;
 
   &:last-of-type {
@@ -248,5 +330,5 @@ const ErrorMessage = styled.div`
   margin-top: 10px;
   font-size: 12px;
   font-style: italic;
-  color: #d82b32;
+  color: ${colors.red};
 `;

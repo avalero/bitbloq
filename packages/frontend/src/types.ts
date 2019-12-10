@@ -2,7 +2,7 @@ import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
 
 export interface IUser {
   admin: boolean;
-  avatar: string;
+  avatar: File | string;
   birthDate: Date;
   email: string;
   id: string;
