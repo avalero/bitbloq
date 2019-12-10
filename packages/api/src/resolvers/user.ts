@@ -698,7 +698,6 @@ const userResolver = {
         process.env.JWT_SECRET,
         { expiresIn: "30m" }
       );
-      console.log(token);
       await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
       // Generate the email with the activation link and send it
       const data: IEmailData = {
@@ -720,21 +719,14 @@ const userResolver = {
 
     /**
      * confirmChangeEmail: second mutation to update my email in account page.
-     * It checks the token and stores the new email.
+     * It checks the token and stores the new email. It returns the login token updated.
      * args: token sent to user
      */
     confirmChangeEmail: async (
       _,
       args: IMutationConfirmChangeEmailArgs,
-      context: { user: IUserInToken }
+      __
     ) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        _id: context.user.userID,
-        finishedSignUp: true
-      });
-      if (!contactFound) {
-        throw new ApolloError("User not found", "USER_NOT_FOUND");
-      }
       let userInToken: {
         changeEmailUserID: string;
         changeEmailNewEmail: string;
@@ -758,8 +750,20 @@ const userResolver = {
         } catch (e) {
           throw new ApolloError("Email already exists", "EMAIL_EXISTS");
         }
+        if (!user) {
+          throw new ApolloError("User not found", "USER_NOT_FOUND");
+        }
         await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
-        return user;
+        const { token, role } = await contextController.generateLoginToken(
+          user
+        );
+        await UserModel.updateOne(
+          { _id: user._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+        return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }

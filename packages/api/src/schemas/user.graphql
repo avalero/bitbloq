@@ -27,7 +27,7 @@ type Mutation {
   updateMyPlan(userPlan: String!): User @authRequired(requires: [USER])
   sendChangeMyEmailToken(newEmail: String!): String
     @authRequired(requires: [USER])
-  confirmChangeEmail(token: String!): User @authRequired(requires: [USER])
+  confirmChangeEmail(token: String!): String
 }
 
 type UserStep1 {
