@@ -4,6 +4,7 @@ import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidName } from "../util";
 
 interface IEditTitleModalProps {
+  className?: string;
   title?: string;
   onSave: (title?: string) => any;
   onCancel: () => any;
@@ -13,10 +14,13 @@ interface IEditTitleModalProps {
   saveButton: string;
   type?: string;
   validateInput?: boolean;
+  isOpen?: boolean;
+  label?: string;
 }
 
 const EditTitleModal: FC<IEditTitleModalProps> = props => {
   const {
+    className,
     onSave,
     onCancel,
     modalTitle,
@@ -24,7 +28,9 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
     placeholder,
     saveButton,
     type,
-    validateInput = true
+    validateInput = true,
+    isOpen = true,
+    label
   } = props;
   const [title, setTitle] = useState(props.title);
   const [error, setError] = useState(false);
@@ -37,7 +43,12 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   });
 
   return (
-    <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
+    <Modal
+      className={className}
+      isOpen={isOpen}
+      title={modalTitle}
+      onClose={onCancel}
+    >
       <Content>
         <form
           onSubmit={e => {
@@ -46,6 +57,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
           }}
         >
           <p>{modalText}</p>
+          {label && <InputLabel>{label}</InputLabel>}
           <Input
             ref={titleInputRef}
             placeholder={title || placeholder}
@@ -104,4 +116,12 @@ const Buttons = styled.div`
     height: 40px;
     border-radius: 4px;
   }
+`;
+
+const InputLabel = styled.label`
+  color: #323843;
+  display: inline-block;
+  font-size: 14px;
+  height: 16px;
+  margin-bottom: 10px;
 `;
