@@ -822,9 +822,9 @@ const userResolver = {
       } catch (e) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
-      const redisToken: string = await redisClient.getAsync(
+      const redisToken: string = (await redisClient.getAsync(
         `changeEmail-${userInToken.changeEmailUserID}`
-      );
+      )).authToken;
       if (redisToken === args.token) {
         let user: IUser | null;
         try {
@@ -848,7 +848,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
         return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
