@@ -262,6 +262,9 @@
       },
       "email": {
         "title": "Mi correo electrónico",
+        "sent-title": "Email enviado",
+        "sent-text": "Revisa la bandeja de tu correo electrónico, si no se encuentra ahí, es posible que esté en la carpeta de Spam.",
+        "sent-button": "Volver a enviar email",
         "new": "Nuevo correo electrónico",
         "change-text": "Escribe tu nuevo correo electrónico y te enviaremos un email con un enlace para que puedas cambiarlo.",
         "button": "Cambiar correo electrónico"

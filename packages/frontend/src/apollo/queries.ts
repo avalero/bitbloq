@@ -690,3 +690,9 @@ export const SAVE_USER_DATA_MUTATION = gql`
     }
   }
 `;
+
+export const CHANGE_EMAIL_MUTATION = gql`
+  mutation SendChangeMyEmailToken($newEmail: String!) {
+    sendChangeMyEmailToken(newEmail: $newEmail)
+  }
+`;

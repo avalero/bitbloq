@@ -1,12 +1,16 @@
 import dayjs from "dayjs";
-import React, { FC, useState } from "react";
+import React, { FC, useRef, useState } from "react";
+import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
-import { useTranslate, Button, Icon, colors } from "@bitbloq/ui";
+import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
+import { CHANGE_EMAIL_MUTATION } from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
+import CounterButton from "../../components/CounterButton";
 import AppLayout from "../../components/AppLayout";
 import EditTitleModal from "../../components/EditTitleModal";
+import ErrorLayout from "../../components/ErrorLayout";
 import { plans } from "../../config.js";
 import useUserData from "../../lib/useUserData";
 
@@ -22,10 +26,17 @@ const AccountPage: NextPage = () => {
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
+  const [changeEmail] = useMutation(CHANGE_EMAIL_MUTATION);
+
+  const newEmailRef = useRef<string>("");
+
   const [currentTab, setCurrentTab] = useState(TabType.UserData);
+  const [error, setError] = useState<boolean>(false);
+  const [loadingData, setLoadingData] = useState<boolean>(false);
   const [personalDataEditable, setPersonalDataEditable] = useState(false);
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
-  const [showPasswordModal, setShowPasswordModa] = useState<boolean>(false);
+  const [emailSent, setEmailSent] = useState<boolean>(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
 
   return (
     <AppLayout header="Mi cuenta">
@@ -98,7 +109,7 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.email.title")}
               icon="at"
               buttons={
-                <Button onClick={() => setShowPasswordModa(true)} tertiary>
+                <Button onClick={() => setShowPasswordModal(true)} tertiary>
                   {t("account.user-data.email.button")}
                 </Button>
               }
@@ -147,18 +158,68 @@ const AccountPage: NextPage = () => {
           </Content>
         )}
       </Container>
+      {error && <ErrorLayout code="500" />}
       <EditEmailModal
-        isOpen={true /*showPasswordModal*/}
+        disabledSave={loadingData}
+        isOpen={showPasswordModal}
         label={t("account.user-data.email.new")}
         modalText={t("account.user-data.email.change-text")}
         modalTitle={t("account.user-data.email.button")}
-        onCancel={() => setShowPasswordModa(false)}
-        onSave={(newEmail: string) => {
-          console.log(newEmail);
+        onCancel={() => setShowPasswordModal(false)}
+        onSave={async (newEmail: string) => {
+          newEmailRef.current = newEmail;
+          setLoadingData(true);
+          const {
+            data: { sendChangeMyEmailToken }
+          } = await changeEmail({
+            variables: {
+              newEmail
+            }
+          });
+          if (sendChangeMyEmailToken === "OK") {
+            setEmailSent(true);
+            setError(false);
+            setLoadingData(false);
+            setShowPasswordModal(false);
+          } else {
+            setError(true);
+            setShowPasswordModal(false);
+          }
         }}
         placeholder={t("account.user-data.email.new")}
         saveButton={t("general-change-button")}
         type="email"
+      />
+      <DialogModal
+        cancelButton={
+          <Button
+            onClick={() => {
+              newEmailRef.current = "";
+              setEmailSent(false);
+              setError(false);
+              setLoadingData(false);
+              setShowPasswordModal(false);
+            }}
+          >
+            {t("general-accept-button")}
+          </Button>
+        }
+        isOpen={emailSent}
+        okButton={
+          <CounterButton
+            onClick={() => {
+              changeEmail({
+                variables: {
+                  newEmail: newEmailRef.current
+                }
+              });
+            }}
+          >
+            {t("account.user-data.email.sent-button")}
+          </CounterButton>
+        }
+        text={t("account.user-data.email.sent-text")}
+        title={t("account.user-data.email.sent-title")}
       />
     </AppLayout>
   );
@@ -203,7 +264,7 @@ const EditEmailModal = styled(EditTitleModal)`
   p {
     color: #5d6069;
     line-height: 1.57;
-    margin: 10px 0 40px;
+    margin: 10px 0 40px !important;
   }
 `;
 

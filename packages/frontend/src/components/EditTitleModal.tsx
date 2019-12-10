@@ -5,6 +5,7 @@ import { isValidEmail, isValidName } from "../util";
 
 interface IEditTitleModalProps {
   className?: string;
+  disabledSave?: boolean;
   title?: string;
   onSave: (title?: string) => any;
   onCancel: () => any;
@@ -21,6 +22,7 @@ interface IEditTitleModalProps {
 const EditTitleModal: FC<IEditTitleModalProps> = props => {
   const {
     className,
+    disabledSave = false,
     onSave,
     onCancel,
     modalTitle,
@@ -87,7 +89,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button disabled={error}>{saveButton}</Button>
+            <Button disabled={disabledSave || error}>{saveButton}</Button>
           </Buttons>
         </form>
       </Content>
