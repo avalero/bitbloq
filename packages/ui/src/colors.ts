@@ -26,7 +26,6 @@ export default {
   gray5: "#5d6069",
   gray6: "#dddddd",
   gray7: "#e8e8e8",
-  grayAvatar: "#4a3737",
   grayFooter: "#373b44",
   disabledBackground: "#dbdee3",
   disabledColor: "#bdc0c5",

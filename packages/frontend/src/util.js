@@ -24,16 +24,14 @@ export const getAge = birthDate =>
     "year"
   );
 
-export const getAvatarColor = id => {
-  const brandColors = [
+export const getAvatarColor = userId =>
+  [
     colors.green,
     colors.brandBlue,
     colors.brandOrange,
     colors.brandPink,
     colors.brandYellow
-  ];
-  return brandColors[parseInt(id, 16) % 5];
-};
+  ][parseInt(userId, 16) % 5];
 
 export const isValidDate = date =>
   /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/i.test(date) &&

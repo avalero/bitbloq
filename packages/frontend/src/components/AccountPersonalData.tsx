@@ -217,10 +217,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
         )}
       </Form>
       <Avatar editable={editable}>
-        <AvatarImage
-          color={getAvatarColor(userData.id)}
-          src={avatarPreview || userData.avatar}
-        >
+        <AvatarImage id={userData.id} src={avatarPreview || userData.avatar}>
           {!avatarPreview && !userData.avatar && (
             <span>
               {userData.name.charAt(0)}
@@ -272,8 +269,7 @@ const AvatarButton = styled(FileSelectButton)`
   width: 100%;
 `;
 
-const AvatarImage = styled.div<{ color: string; src?: string }>`
-  background-color: ${props => props.color};
+const AvatarImage = styled.div<{ id: string; src?: string }>`
   border-radius: 4px;
   left: 100%;
   padding-top: 100%;
@@ -282,12 +278,15 @@ const AvatarImage = styled.div<{ color: string; src?: string }>`
   width: 100%;
 
   ${props =>
-    props.src &&
-    css`
-      background-image: url(${props.src});
-      background-size: cover;
-      background-position: center;
-    `}
+    props.src
+      ? css`
+          background-image: url(${props.src});
+          background-size: cover;
+          background-position: center;
+        `
+      : css`
+          background-color: ${getAvatarColor(props.id)};
+        `}
 `;
 
 const Container = styled.div`

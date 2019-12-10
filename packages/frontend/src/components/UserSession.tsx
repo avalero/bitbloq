@@ -18,7 +18,7 @@ const UserSession: FC = () => {
   return (
     <>
       <UserName>{userData.name}</UserName>
-      <UserAvatar color={getAvatarColor(userData.id)} src={userData.avatar}>
+      <UserAvatar id={userData.id} src={userData.avatar}>
         {!userData.avatar && (
           <span>
             {userData.name.charAt(0)}
@@ -57,8 +57,7 @@ const UserName = styled.div`
   font-size: 14px;
 `;
 
-const UserAvatar = styled.div<{ color: string; src?: string }>`
-  background-color: ${props => props.color};
+const UserAvatar = styled.div<{ id: string; src?: string }>`
   border-radius: 50%;
   height: 40px;
   margin: 0 10px;
@@ -77,12 +76,15 @@ const UserAvatar = styled.div<{ color: string; src?: string }>`
   }
 
   ${props =>
-    props.src &&
-    css`
-      background-image: url(${props.src});
-      background-size: cover;
-      background-position: center;
-    `}
+    props.src
+      ? css`
+          background-image: url(${props.src});
+          background-size: cover;
+          background-position: center;
+        `
+      : css`
+          background-color: ${getAvatarColor(props.id)};
+        `}
 `;
 
 const ContextMenu = styled.div`
