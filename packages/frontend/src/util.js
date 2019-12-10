@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import { colors } from "@bitbloq/ui";
 
 export const getChromeVersion = userAgent => {
   if (userAgent) {
@@ -22,6 +23,17 @@ export const getAge = birthDate =>
     ),
     "year"
   );
+
+export const getAvatarColor = id => {
+  const brandColors = [
+    colors.green,
+    colors.brandBlue,
+    colors.brandOrange,
+    colors.brandPink,
+    colors.brandYellow
+  ];
+  return brandColors[parseInt(id, 16) % 5];
+};
 
 export const isValidDate = date =>
   /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/i.test(date) &&

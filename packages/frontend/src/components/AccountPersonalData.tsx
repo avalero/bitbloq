@@ -4,9 +4,9 @@ import useForm from "react-hook-form";
 import { Input, useTranslate, colors, FileSelectButton } from "@bitbloq/ui";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
-import { isValidDate, getAge } from "../util";
 import useUserData from "../lib/useUserData";
 import { IUser } from "../types";
+import { getAge, getAvatarColor, isValidDate } from "../util";
 
 interface IPersonalData extends IUser {
   day: number;
@@ -217,7 +217,17 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
         )}
       </Form>
       <Avatar editable={editable}>
-        <AvatarImage src={avatarPreview || userData.avatar} />
+        <AvatarImage
+          color={getAvatarColor(userData.id)}
+          src={avatarPreview || userData.avatar}
+        >
+          {!avatarPreview && !userData.avatar && (
+            <span>
+              {userData.name.charAt(0)}
+              {userData.surnames && userData.surnames.charAt(0)}
+            </span>
+          )}
+        </AvatarImage>
         {editable && (
           <AvatarButton
             accept="image/*"
@@ -239,11 +249,20 @@ export default AccountPersonalData;
 const Avatar = styled.div<{ editable: boolean }>`
   margin-left: 20px;
   position: relative;
+  transition: width 100ms ease-out;
   width: ${props => (props.editable ? 145 : 112)}px;
 
-  img {
-    height: ${props => (props.editable ? 145 : 112)}px;
-    width: ${props => (props.editable ? 145 : 112)}px;
+  span {
+    color: white;
+    font-size: ${props => (props.editable ? 80 : 62)}px;
+    font-weight: 300;
+    left: 0;
+    line-height: ${props => (props.editable ? 145 : 112)}px;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    transition: all 100ms ease-out;
   }
 `;
 
@@ -253,13 +272,14 @@ const AvatarButton = styled(FileSelectButton)`
   width: 100%;
 `;
 
-const AvatarImage = styled.img<{ src?: string }>`
-  background-color: ${colors.grayAvatar};
+const AvatarImage = styled.div<{ color: string; src?: string }>`
+  background-color: ${props => props.color};
   border-radius: 4px;
   left: 100%;
+  padding-top: 100%;
   position: relative;
   transform: translate(-100%, 0);
-  transition: all 100ms ease-out;
+  width: 100%;
 
   ${props =>
     props.src &&
