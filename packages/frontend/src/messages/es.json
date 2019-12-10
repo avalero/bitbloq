@@ -262,6 +262,8 @@
       },
       "email": {
         "title": "Mi correo electrónico",
+        "new": "Nuevo correo electrónico",
+        "change-text": "Escribe tu nuevo correo electrónico y te enviaremos un email con un enlace para que puedas cambiarlo.",
         "button": "Cambiar correo electrónico"
       },
       "password": {

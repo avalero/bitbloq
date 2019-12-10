@@ -6,6 +6,7 @@ import { NextPage } from "next";
 import { useTranslate, Button, Icon, colors } from "@bitbloq/ui";
 import withApollo from "../../apollo/withApollo";
 import AppLayout from "../../components/AppLayout";
+import EditTitleModal from "../../components/EditTitleModal";
 import { plans } from "../../config.js";
 import useUserData from "../../lib/useUserData";
 
@@ -24,6 +25,7 @@ const AccountPage: NextPage = () => {
   const [currentTab, setCurrentTab] = useState(TabType.UserData);
   const [personalDataEditable, setPersonalDataEditable] = useState(false);
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
+  const [showPasswordModal, setShowPasswordModa] = useState<boolean>(false);
 
   return (
     <AppLayout header="Mi cuenta">
@@ -96,7 +98,9 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.email.title")}
               icon="at"
               buttons={
-                <Button tertiary>{t("account.user-data.email.button")}</Button>
+                <Button onClick={() => setShowPasswordModa(true)} tertiary>
+                  {t("account.user-data.email.button")}
+                </Button>
               }
             >
               {userData.email}
@@ -143,6 +147,19 @@ const AccountPage: NextPage = () => {
           </Content>
         )}
       </Container>
+      <EditEmailModal
+        isOpen={true /*showPasswordModal*/}
+        label={t("account.user-data.email.new")}
+        modalText={t("account.user-data.email.change-text")}
+        modalTitle={t("account.user-data.email.button")}
+        onCancel={() => setShowPasswordModa(false)}
+        onSave={(newEmail: string) => {
+          console.log(newEmail);
+        }}
+        placeholder={t("account.user-data.email.new")}
+        saveButton={t("general-change-button")}
+        type="email"
+      />
     </AppLayout>
   );
 };
@@ -180,6 +197,14 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 1;
   margin: 30px 20px;
+`;
+
+const EditEmailModal = styled(EditTitleModal)`
+  p {
+    color: #5d6069;
+    line-height: 1.57;
+    margin: 10px 0 40px;
+  }
 `;
 
 const Field = styled.div`

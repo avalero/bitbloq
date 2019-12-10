@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
-import { isValidName } from "../util";
+import { isValidEmail, isValidName } from "../util";
 
 interface IEditTitleModalProps {
   className?: string;
@@ -36,6 +36,8 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   const [error, setError] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  const isValidValue = type === "email" ? isValidEmail : isValidName;
+
   useEffect(() => {
     if (titleInputRef.current) {
       titleInputRef.current.focus();
@@ -63,7 +65,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
-              if (!validateInput || isValidName(value)) {
+              if (!validateInput || isValidValue(value)) {
                 setTitle(value);
                 setError(false);
               } else {
