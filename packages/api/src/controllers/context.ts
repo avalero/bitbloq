@@ -16,29 +16,25 @@ const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
     const now: Date = new Date();
     let expiresAt: Date;
     // now.setHours(now.getHours() + 1);
-    if (user.userID) {
-      try {
+    try {
+      if (user.userID) {
         const result: IDataInRedis = await redisClient.hgetallAsync(
           String(user.userID)
         );
         reply = result.authToken;
         expiresAt = new Date(result.expiresAt);
-      } catch (e) {
-        return undefined;
-      }
-    } else if (user.submissionID) {
-      try {
+      } else if (user.submissionID) {
         const result: IDataInRedis = await redisClient.hgetallAsync(
           String(user.submissionID)
         );
         reply = result.subToken;
         expiresAt = new Date(result.expiresAt);
-      } catch (e) {
-        return undefined;
+      } else {
+        reply = "";
+        expiresAt = new Date();
       }
-    } else {
-      reply = "";
-      expiresAt = new Date();
+    } catch (e) {
+      return undefined;
     }
     if (reply === justToken) {
       if (now.getTime() > expiresAt.getTime()) {
@@ -73,22 +69,26 @@ export const storeTokenInRedis = async (
   // date.setHours(date.getHours() + 2); // debería ser el tiempo que queramos que tarde en caducar la sesión
   date.setMinutes(date.getMinutes() + 6);
   if (process.env.USE_REDIS === "true") {
-    if (subToken) {
-      return redisClient.hmset(
-        String(id),
-        "subToken",
-        String(token),
-        "expiresAt",
-        date
-      );
-    } else {
-      return redisClient.hmset(
-        String(id),
-        "authToken",
-        String(token),
-        "expiresAt",
-        date
-      );
+    try {
+      if (subToken) {
+        return redisClient.hmset(
+          String(id),
+          "subToken",
+          String(token),
+          "expiresAt",
+          date
+        );
+      } else {
+        return redisClient.hmset(
+          String(id),
+          "authToken",
+          String(token),
+          "expiresAt",
+          date
+        );
+      }
+    } catch (e) {
+      return undefined;
     }
   }
 };
@@ -97,72 +97,58 @@ export const updateExpireDateInRedis = async (
   id: string,
   submission: boolean
 ) => {
-  const token: string = submission
-    ? (await redisClient.hgetallAsync(id)).subToken
-    : (await redisClient.hgetallAsync(id)).authToken;
-  return storeTokenInRedis(id, token, submission);
+  try {
+    const token: string = submission
+      ? (await redisClient.hgetallAsync(id)).subToken
+      : (await redisClient.hgetallAsync(id)).authToken;
+    return storeTokenInRedis(id, token, submission);
+  } catch (e) {
+    return undefined;
+  }
 };
 
 const checksSessionExpires = async () => {
   const allKeys: string[] = await redisClient.keysAsync("*");
-  // console.log({ allKeys });
-
   const now: Date = new Date();
   allKeys.map(async key => {
-    // redisClient.del(key);
-    const result: IDataInRedis = await redisClient.hgetallAsync(key);
-    if (result && result.expiresAt) {
-      const expiresAt: Date = new Date(result.expiresAt);
-      let secondsRemaining: number = 0;
-      if (expiresAt > now) {
-        secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-        if (secondsRemaining / 60 < 5) {
-          if (result.authToken) {
-            console.log("subscription published user");
-            await pubsub.publish(USER_SESSION_EXPIRES, {
-              userSessionExpires: {
-                ...result,
-                key,
-                secondsRemaining,
-                expiredSession: false
-              }
-            });
-          } else if (result.subToken) {
-            console.log("subscription published submission", { key });
-            await pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
-              submissionSessionExpires: {
-                ...result,
-                key,
-                secondsRemaining,
-                expiredSession: false
-              }
-            });
-          }
-        }
-      } else {
+    try {
+      const result: IDataInRedis = await redisClient.hgetallAsync(key);
+      if (result && result.expiresAt) {
+        const expiresAt: Date = new Date(result.expiresAt);
+        let secondsRemaining: number = 0;
+        let expiredSession: boolean = false;
+        let topic: string = "";
+        let type: string = "";
         if (result.authToken) {
-          console.log("subscription published user expired session");
-          pubsub.publish(USER_SESSION_EXPIRES, {
-            userSessionExpires: {
-              ...result,
-              key,
-              secondsRemaining,
-              expiredSession: true
-            }
-          });
+          topic = USER_SESSION_EXPIRES;
+          type = "userSessionExpires";
         } else if (result.subToken) {
-          console.log("subscription published submission expired session");
-          pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
-            submissionSessionExpires: {
-              ...result,
-              key,
-              secondsRemaining,
-              expiredSession: true
-            }
-          });
+          topic = SUBMISSION_SESSION_EXPIRES;
+          type = "submissionSessionExpires";
         }
-        redisClient.del(key);
+        if (expiresAt > now) {
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          if (secondsRemaining / 60 < 5) {
+            expiredSession = false;
+          }
+        } else {
+          expiredSession = true;
+        }
+        await pubsub.publish(topic, {
+          [type]: {
+            ...result,
+            key,
+            secondsRemaining,
+            expiredSession
+          }
+        });
+        if (expiredSession) {
+          await redisClient.del(key);
+        }
       }
+    } catch (e) {
+      console.log(e);
+      await redisClient.del(key);
     }
   });
 };

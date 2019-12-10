@@ -71,7 +71,6 @@ const userResolver = {
           variables,
           context: { user: IUserInToken }
         ) => {
-          console.log({ payload, context });
           return (
             String(context.user.userID) ===
             String(payload.userSessionExpires.key)
@@ -489,7 +488,9 @@ const userResolver = {
         process.env.JWT_SECRET,
         { expiresIn: "30m" }
       );
-      await storeTokenInRedis(`resetPasswordToken-${contactFound._id}`, token);
+      const index: string = `resPass-${contactFound._id}`;
+      console.log(index);
+      await storeTokenInRedis(index, token);
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
@@ -550,7 +551,7 @@ const userResolver = {
       );
 
       if (process.env.USE_REDIS === "true") {
-        redisClient.del(`resetPasswordToken-${contactFound._id}`);
+        redisClient.del(`resPass-${contactFound._id}`);
       }
 
       await storeTokenInRedis(contactFound._id, authToken);
@@ -822,7 +823,7 @@ const userResolver = {
       } catch (e) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
-      const redisToken: string = (await redisClient.getAsync(
+      const redisToken: string = (await redisClient.hgetallAsync(
         `changeEmail-${userInToken.changeEmailUserID}`
       )).authToken;
       if (redisToken === args.token) {
@@ -906,7 +907,7 @@ const getResetPasswordData = async (token: string) => {
 
   if (process.env.USE_REDIS === "true") {
     const storedToken = await redisClient.hgetallAsync(
-      `resetPasswordToken-${dataInToken.resetPassUserID}`
+      `resPass-${dataInToken.resetPassUserID}`
     );
     if (storedToken.authToken !== token) {
       throw new ApolloError(
