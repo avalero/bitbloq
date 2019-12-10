@@ -6,13 +6,19 @@ import AppHeader from "./AppHeader";
 import UserSession from "./UserSession";
 
 interface IAppLayoutProps {
+  className?: string;
   header?: JSX.Element | string;
   loading?: boolean;
 }
 
-const AppLayout: FC<IAppLayoutProps> = ({ header, loading, children }) => {
+const AppLayout: FC<IAppLayoutProps> = ({
+  className,
+  header,
+  loading,
+  children
+}) => {
   return (
-    <Container>
+    <Container className={className}>
       <AppHeader>
         <UserSession />
       </AppHeader>
