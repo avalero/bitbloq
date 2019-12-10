@@ -1,16 +1,7 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useMemo,
-  useState
-} from "react";
+import React, { useEffect, useRef, useMemo, useState } from "react";
 import styled from "@emotion/styled";
 
-import { colors, DropDown, Icon, useTranslate } from "@bitbloq/ui";
-import FolderSelectorMenu from "./FolderSelectorMenu";
+import { DropDown, Icon, useTranslate } from "@bitbloq/ui";
 
 export interface IBreadcrumbLink {
   route?: string;
@@ -64,7 +55,9 @@ const Breadcrumbs: React.FC<IBreadcrumbsProps> = ({ links, title }) => {
     <Wrap>
       <Links aria-label="Migas de pan">
         <BreadcrumbRoot>
-          <a href={(links && links[0].route) || ""}>{t("breadcrumbs-root")}</a>
+          <a href={(links[0] && links[0].route) || ""}>
+            {t("breadcrumbs-root")}
+          </a>
         </BreadcrumbRoot>
         {hideFolders.length > 0 ? (
           <>

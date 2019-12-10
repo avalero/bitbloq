@@ -6,10 +6,7 @@ import {
   UPDATE_SUBMISSION_MUTATION
 } from "../apollo/queries";
 
-const uri =
-  typeof window !== "undefined"
-    ? process.env.API_URL
-    : process.env.API_URL_SERVER || process.env.API_URL;
+const uri = process.env.API_URL;
 const link = createUploadLink({ fetch, uri });
 
 const CACHE_NAME = "bitbloq-service-worker";
