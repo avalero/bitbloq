@@ -4,6 +4,7 @@ export const ME_QUERY = gql`
   query Me {
     me {
       admin
+      avatar
       birthDate
       email
       id
@@ -604,7 +605,15 @@ export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
     }
   }
 `;
+/* Account */
 
+export const UPDATE_USER_DATA_MUTATION = gql`
+  mutation UpdateUserData($id: ObjectID!, $input: UpdateUserData!) {
+    updateUserData(id: $id, input: $input) {
+      id
+    }
+  }
+`;
 export const RENEW_SESSION_MUTATION = gql`
   mutation renewSession {
     renewSession

@@ -27,7 +27,7 @@ import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
 
 const Documents: FC<{ id?: string }> = ({ id }) => {
-  const userData = useUserData();
+  const { userData } = useUserData();
   const client = useApolloClient();
 
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
