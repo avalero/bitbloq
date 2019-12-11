@@ -459,7 +459,7 @@ class Document extends React.Component<any, DocumentState> {
 
     return (
       <UserDataContext.Consumer>
-        {value => (
+        {({ userData }) => (
           <Translate>
             {t => (
               <>
@@ -485,10 +485,10 @@ class Document extends React.Component<any, DocumentState> {
                     return (
                       <AppLayout header={this.renderHeader(document)}>
                         <DocumentData>
-                          {value.userData && value.userData.teacher
+                          {userData && userData.teacher
                             ? this.renderDocumentTeacherInfo(document, t)
                             : this.renderDocumentInfo(document, t)}
-                          {value.userData && value.userData.teacher
+                          {userData && userData.teacher
                             ? this.renderExercises(
                                 document.exercises,
                                 refetch,
