@@ -818,14 +818,16 @@ const userResolver = {
         changeEmailUserID: string;
         changeEmailNewEmail: string;
       };
+      let redisToken: string;
       try {
         userInToken = await jwtVerify(args.token, process.env.JWT_SECRET);
+        redisToken = (await redisClient.hgetallAsync(
+          `changeEmail-${userInToken.changeEmailUserID}`
+        )).authToken;
       } catch (e) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
-      const redisToken: string = (await redisClient.hgetallAsync(
-        `changeEmail-${userInToken.changeEmailUserID}`
-      )).authToken;
+
       if (redisToken === args.token) {
         let user: IUser | null;
         try {
