@@ -39,7 +39,7 @@ import {
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
-import { uploadDocumentImage } from "./upload";
+import { uploadDocumentUserImage } from "./upload";
 import { changeEmailTemplate } from "../email/changeEmailMail";
 
 const saltRounds: number = 7;
@@ -579,7 +579,7 @@ const userResolver = {
 
       let image: string | undefined;
       if (args.input.avatar) {
-        const imageUploaded: IUpload = await uploadDocumentImage(
+        const imageUploaded: IUpload = await uploadDocumentUserImage(
           args.input.avatar,
           context.user.userID
         );
