@@ -207,6 +207,7 @@ const AccountPage: NextPage = () => {
         onSave={onSaveNewEmail}
         placeholder={t("account.user-data.email.new")}
         saveButton={t("general-change-button")}
+        title=""
         type="email"
       />
       <DialogModal

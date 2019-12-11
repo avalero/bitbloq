@@ -12,6 +12,7 @@ import { setToken, useSessionEvent } from "../../../lib/session";
 const ChangeEmailPage: FC = () => {
   const [confirmEmail] = useMutation(CONFIRM_NEW_EMAIL);
   const tokenRef = useRef<string>("");
+  const [disabledButton, setDisabledButton] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [queryToken, setQueryToken] = useState<string>("");
   const t = useTranslate();
@@ -38,6 +39,7 @@ const ChangeEmailPage: FC = () => {
       setError(t("change-email-page.password-empty"));
       return;
     }
+    setDisabledButton(true);
     confirmEmail({
       variables: {
         password: newPassword,
@@ -54,6 +56,7 @@ const ChangeEmailPage: FC = () => {
         }
       })
       .catch(e => {
+        setDisabledButton(false);
         if (
           e.graphQLErrors &&
           e.graphQLErrors[0] &&
@@ -67,6 +70,7 @@ const ChangeEmailPage: FC = () => {
   return (
     <Container>
       <ConfirmPasswordModal
+        disabledSave={disabledButton}
         errorText={error}
         isOpen={true}
         label={t("change-email-page.placeholder")}
@@ -77,6 +81,7 @@ const ChangeEmailPage: FC = () => {
         placeholder={t("change-email-page.placeholder")}
         saveButton={t("change-email-page.confirm")}
         transparentOverlay={true}
+        title=""
         type="password"
         validateInput={false}
       />
