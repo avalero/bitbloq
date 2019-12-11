@@ -23,7 +23,7 @@ interface IEditTitleModalProps {
   label?: string;
 }
 
-const EditTitleModal: FC<IEditTitleModalProps> = props => {
+const EditInputModal: FC<IEditTitleModalProps> = props => {
   const {
     className,
     disabledSave = false,
@@ -115,7 +115,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   );
 };
 
-export default EditTitleModal;
+export default EditInputModal;
 
 /* styled components */
 

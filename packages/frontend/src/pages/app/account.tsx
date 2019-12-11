@@ -12,7 +12,7 @@ import withApollo from "../../apollo/withApollo";
 import AccountPersonalData from "../../components/AccountPersonalData";
 import AppLayout from "../../components/AppLayout";
 import CounterButton from "../../components/CounterButton";
-import EditTitleModal from "../../components/EditTitleModal";
+import EditInputModal from "../../components/EditInputModal";
 import ErrorLayout from "../../components/ErrorLayout";
 import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import { plans } from "../../config.js";
@@ -299,7 +299,7 @@ const Content = styled.div`
   margin: 30px 20px;
 `;
 
-const EditEmailModal = styled(EditTitleModal)`
+const EditEmailModal = styled(EditInputModal)`
   p {
     color: #5d6069;
     line-height: 1.57;

@@ -6,7 +6,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { CONFIRM_NEW_EMAIL } from "../../../apollo/queries";
 import withApollo from "../../../apollo/withApollo";
-import EditTitleModal from "../../../components/EditTitleModal";
+import EditInputModal from "../../../components/EditInputModal";
 import { setToken, useSessionEvent } from "../../../lib/session";
 
 const ChangeEmailPage: FC = () => {
@@ -91,7 +91,7 @@ const ChangeEmailPage: FC = () => {
 
 export default withApollo(ChangeEmailPage);
 
-const ConfirmPasswordModal = styled(EditTitleModal)`
+const ConfirmPasswordModal = styled(EditInputModal)`
   p {
     color: #5d6069;
     line-height: 1.57;

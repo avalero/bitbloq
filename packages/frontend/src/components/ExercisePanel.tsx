@@ -15,7 +15,7 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import {
   UPDATE_PASSWORD_SUBMISSION_MUTATION,
   SET_ACTIVESUBMISSION_MUTATION
@@ -149,7 +149,7 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
       {passwordModalOpen && (
         <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
           {updateForgotPassword => (
-            <EditTitleModal
+            <EditInputModal
               title=""
               onCancel={() => setPasswordModalOpen(false)}
               onSave={(value: string) => {

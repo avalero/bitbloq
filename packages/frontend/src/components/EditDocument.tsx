@@ -15,7 +15,7 @@ import {
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
 import DocumentInfoForm from "./DocumentInfoForm";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
 import UserSession from "./UserSession";
@@ -547,7 +547,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         )}
       </EditorComponent>
       {isEditTitleVisible && (
-        <EditTitleModal
+        <EditInputModal
           title={title}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
