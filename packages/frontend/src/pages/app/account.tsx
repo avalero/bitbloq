@@ -32,11 +32,47 @@ const AccountPage: NextPage = () => {
 
   const [currentTab, setCurrentTab] = useState(TabType.UserData);
   const [error, setError] = useState<boolean>(false);
+  const [errorText, setErrorText] = useState<string>("");
   const [loadingData, setLoadingData] = useState<boolean>(false);
   const [personalDataEditable, setPersonalDataEditable] = useState(false);
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
   const [emailSent, setEmailSent] = useState<boolean>(false);
-  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
+
+  const onSaveNewEmail = (newEmail: string) => {
+    newEmailRef.current = newEmail;
+    setLoadingData(true);
+    changeEmail({
+      variables: {
+        newEmail
+      }
+    })
+      .then(result => {
+        const {
+          data: { sendChangeMyEmailToken }
+        } = result;
+        if (sendChangeMyEmailToken === "OK") {
+          setEmailSent(true);
+          setError(false);
+          setLoadingData(false);
+          setShowEmailModal(false);
+        } else {
+          setError(true);
+          setLoadingData(false);
+          setShowEmailModal(false);
+        }
+      })
+      .catch(e => {
+        if (
+          e.graphQLErrors &&
+          e.graphQLErrors[0] &&
+          e.graphQLErrors[0].extensions.code === "EMAIL_EXISTS"
+        ) {
+          setErrorText(t("account.user-data.email.email-exists"));
+          setLoadingData(false);
+        }
+      });
+  };
 
   return (
     <AppLayout header="Mi cuenta">
@@ -109,7 +145,7 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.email.title")}
               icon="at"
               buttons={
-                <Button onClick={() => setShowPasswordModal(true)} tertiary>
+                <Button onClick={() => setShowEmailModal(true)} tertiary>
                   {t("account.user-data.email.button")}
                 </Button>
               }
@@ -161,31 +197,14 @@ const AccountPage: NextPage = () => {
       {error && <ErrorLayout code="500" />}
       <EditEmailModal
         disabledSave={loadingData}
-        isOpen={showPasswordModal}
+        errorText={errorText}
+        isOpen={showEmailModal}
         label={t("account.user-data.email.new")}
         modalText={t("account.user-data.email.change-text")}
         modalTitle={t("account.user-data.email.button")}
-        onCancel={() => setShowPasswordModal(false)}
-        onSave={async (newEmail: string) => {
-          newEmailRef.current = newEmail;
-          setLoadingData(true);
-          const {
-            data: { sendChangeMyEmailToken }
-          } = await changeEmail({
-            variables: {
-              newEmail
-            }
-          });
-          if (sendChangeMyEmailToken === "OK") {
-            setEmailSent(true);
-            setError(false);
-            setLoadingData(false);
-            setShowPasswordModal(false);
-          } else {
-            setError(true);
-            setShowPasswordModal(false);
-          }
-        }}
+        onCancel={() => setShowEmailModal(false)}
+        onChange={() => setErrorText("")}
+        onSave={onSaveNewEmail}
         placeholder={t("account.user-data.email.new")}
         saveButton={t("general-change-button")}
         type="email"
@@ -198,7 +217,7 @@ const AccountPage: NextPage = () => {
               setEmailSent(false);
               setError(false);
               setLoadingData(false);
-              setShowPasswordModal(false);
+              setShowEmailModal(false);
             }}
           >
             {t("general-accept-button")}

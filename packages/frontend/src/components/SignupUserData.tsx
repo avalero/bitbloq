@@ -11,6 +11,7 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import ErrorMessage from "./ErrorMessage";
 import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages, privacyPolicyUrl } from "../config";
 
@@ -128,9 +129,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.centerName}
             />
             {errors.centerName && (
-              <ErrorMessage>
+              <SignupErrorMessage>
                 {t("signup.user-data.errors.center-name")}
-              </ErrorMessage>
+              </SignupErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -164,7 +165,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.city}
             />
             {errors.city && (
-              <ErrorMessage>{t("signup.user-data.errors.city")}</ErrorMessage>
+              <SignupErrorMessage>
+                {t("signup.user-data.errors.city")}
+              </SignupErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -177,9 +180,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.postCode}
             />
             {errors.postCode && (
-              <ErrorMessage>
+              <SignupErrorMessage>
                 {t("signup.user-data.errors.post-code")}
-              </ErrorMessage>
+              </SignupErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -216,7 +219,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             error={!!errors.name}
           />
           {errors.name && (
-            <ErrorMessage>{t("signup.user-data.errors.name")}</ErrorMessage>
+            <SignupErrorMessage>
+              {t("signup.user-data.errors.name")}
+            </SignupErrorMessage>
           )}
         </FormField>
         <FormField>
@@ -229,7 +234,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             error={!!errors.surnames}
           />
           {errors.surnames && (
-            <ErrorMessage>{t("signup.user-data.errors.surnames")}</ErrorMessage>
+            <SignupErrorMessage>
+              {t("signup.user-data.errors.surnames")}
+            </SignupErrorMessage>
           )}
         </FormField>
       </FormGroup>
@@ -244,9 +251,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           error={!!errors.email}
         />
         {errors.email && (
-          <ErrorMessage>
+          <SignupErrorMessage>
             {t(`signup.user-data.errors.email-${errors.email.type}`)}
-          </ErrorMessage>
+          </SignupErrorMessage>
         )}
       </FormField>
       <FormField>
@@ -264,7 +271,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           </TooglePassword>
         </InputPassword>
         {errors.password && (
-          <ErrorMessage>{t("signup.user-data.errors.password")}</ErrorMessage>
+          <SignupErrorMessage>
+            {t("signup.user-data.errors.password")}
+          </SignupErrorMessage>
         )}
       </FormField>
       <FormField>
@@ -293,9 +302,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           />
         </FormGroup>
         {errors.birthDate && (
-          <ErrorMessage>
+          <SignupErrorMessage>
             {t(`signup.user-data.errors.birth-date-${errors.birthDate.type}`)}
-          </ErrorMessage>
+          </SignupErrorMessage>
         )}
       </FormField>
       <CheckOption
@@ -344,7 +353,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         </span>
       </CheckOption>
       {errors.acceptTerms && (
-        <ErrorMessage>{t("signup.user-data.errors.accept-terms")}</ErrorMessage>
+        <SignupErrorMessage>
+          {t("signup.user-data.errors.accept-terms")}
+        </SignupErrorMessage>
       )}
       <Buttons>
         <Button
@@ -425,9 +436,6 @@ const CheckOption = styled.div`
   }
 `;
 
-const ErrorMessage = styled.div`
+const SignupErrorMessage = styled(ErrorMessage)`
   margin-top: 10px;
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
 `;

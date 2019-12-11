@@ -277,6 +277,7 @@ export interface IMutationSendChangeMyEmailTokenArgs {
 
 export interface IMutationConfirmChangeEmailArgs {
   token: Scalars["String"];
+  password: Scalars["String"];
 }
 
 export interface IMutationCreateDocumentArgs {
@@ -1234,7 +1235,7 @@ export type IMutationResolvers<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
-    RequireFields<IMutationConfirmChangeEmailArgs, "token">
+    RequireFields<IMutationConfirmChangeEmailArgs, "token" | "password">
   >;
   createDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,

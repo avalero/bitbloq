@@ -696,3 +696,9 @@ export const CHANGE_EMAIL_MUTATION = gql`
     sendChangeMyEmailToken(newEmail: $newEmail)
   }
 `;
+
+export const CONFIRM_NEW_EMAIL = gql`
+  mutation ConfirmChangeEmail($token: String!, $password: String!) {
+    confirmChangeEmail(token: $token, password: $password)
+  }
+`;

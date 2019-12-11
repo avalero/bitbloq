@@ -2,18 +2,22 @@ import React, { FC, useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidEmail, isValidName } from "../util";
+import ErrorMessage from "./ErrorMessage";
 
 interface IEditTitleModalProps {
   className?: string;
   disabledSave?: boolean;
+  errorText?: string;
   title?: string;
   onSave: (title?: string) => any;
+  onChange?: (title?: string) => any;
   onCancel: () => any;
   modalTitle: string;
   modalText: string;
   placeholder: string;
   saveButton: string;
   type?: string;
+  transparentOverlay?: boolean;
   validateInput?: boolean;
   isOpen?: boolean;
   label?: string;
@@ -23,7 +27,9 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   const {
     className,
     disabledSave = false,
+    errorText,
     onSave,
+    onChange,
     onCancel,
     modalTitle,
     modalText,
@@ -32,10 +38,11 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
     type,
     validateInput = true,
     isOpen = true,
-    label
+    label,
+    transparentOverlay
   } = props;
   const [title, setTitle] = useState(props.title);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<boolean | string>(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
 
   const isValidValue = type === "email" ? isValidEmail : isValidName;
@@ -46,12 +53,17 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
     }
   });
 
+  useEffect(() => {
+    setError(!!errorText ? errorText : false);
+  }, [errorText]);
+
   return (
     <Modal
       className={className}
       isOpen={isOpen}
       title={modalTitle}
       onClose={onCancel}
+      transparentOverlay={transparentOverlay}
     >
       <Content>
         <form
@@ -67,6 +79,9 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
+              if (onChange) {
+                onChange(value);
+              }
               if (!validateInput || isValidValue(value)) {
                 setTitle(value);
                 setError(false);
@@ -77,8 +92,11 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             }}
             value={title}
             type={type || "text"}
-            error={error}
+            error={!!error}
           />
+          {error && typeof error === "string" && (
+            <InputErrorMessage>{error}</InputErrorMessage>
+          )}
           <Buttons>
             <Button
               tertiary
@@ -89,7 +107,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button disabled={disabledSave || error}>{saveButton}</Button>
+            <Button disabled={disabledSave || !!error}>{saveButton}</Button>
           </Buttons>
         </form>
       </Content>
@@ -120,6 +138,10 @@ const Buttons = styled.div`
     height: 40px;
     border-radius: 4px;
   }
+`;
+
+const InputErrorMessage = styled(ErrorMessage)`
+  margin-top: 5px;
 `;
 
 const InputLabel = styled.label`
