@@ -28,12 +28,12 @@ const ForgotPasswordPage: FC = () => {
     UPDATE_FORGOT_PASSWORD_MUTATION
   );
 
-  const user = useUserData();
+  const { userData } = useUserData();
   useEffect(() => {
-    if (user) {
+    if (userData) {
       Router.replace("/app");
     }
-  }, [user]);
+  }, [userData]);
 
   const checkTokenValidity = async () => {
     try {
