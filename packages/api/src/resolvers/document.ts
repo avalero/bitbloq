@@ -10,7 +10,7 @@ import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel, IResource } from "../models/upload";
 import { UserModel, IUser } from "../models/user";
 import { pubsub } from "../server";
-import { uploadDocumentImage } from "./upload";
+import { uploadDocumentUserImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
 import { IUserInToken } from "../models/interfaces";
 import {
@@ -427,7 +427,7 @@ const documentResolver = {
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      const imageUploaded: IUpload = await uploadDocumentImage(
+      const imageUploaded: IUpload = await uploadDocumentUserImage(
         args.image,
         context.user.userID,
         docFound._id

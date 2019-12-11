@@ -130,7 +130,6 @@ const processUpload = async (input: {
         let uploaded: IUpload | null;
         if (
           await UploadModel.findOne({
-            documentsID: input.documentID,
             publicUrl,
             user: input.userID
           })
@@ -197,7 +196,7 @@ export function getFilesizeInBytes(filename) {
   }
 }
 
-export async function uploadDocumentImage(
+export async function uploadDocumentUserImage(
   image: any,
   userID: string,
   documentID?: string
