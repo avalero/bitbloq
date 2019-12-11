@@ -130,7 +130,7 @@ const processUpload = async (input: {
         let uploaded: IUpload | null;
         if (
           await UploadModel.findOne({
-            document: input.documentID,
+            documentsID: input.documentID,
             publicUrl,
             user: input.userID
           })
@@ -160,7 +160,7 @@ const processUpload = async (input: {
           );
         } else {
           const uploadNew = new UploadModel({
-            document: input.documentID,
+            documentsID: input.documentID,
             filename: input.filename,
             mimetype: input.mimetype,
             encoding: input.encoding,
@@ -216,11 +216,30 @@ export async function uploadDocumentImage(
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
-  const uniqueName: string = documentID
-    ? documentID + normalize(filename)
-    : "profilePhoto" + normalize(filename);
-  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
+  let uniqueName: string = "profilePhoto" + normalize(filename);
 
+  if (documentID) {
+    const oldPhoto: IUpload | null = await UploadModel.findOne({
+      documentsID: documentID,
+      type: "docImage"
+    });
+    console.log(oldPhoto);
+    if (oldPhoto) {
+      try {
+        const [files] = await bucket.getFiles({
+          prefix: `${userID}/docImage${documentID}`
+        });
+        files.map(async file => {
+          await file.delete();
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    uniqueName = "docImage" + documentID + Date.now() + normalize(filename);
+  }
+
+  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
   return new Promise((resolve, reject) => {
     processUpload({
       resolve,

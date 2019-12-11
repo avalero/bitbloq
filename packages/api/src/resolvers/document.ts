@@ -429,8 +429,8 @@ const documentResolver = {
       }
       const imageUploaded: IUpload = await uploadDocumentImage(
         args.image,
-        docFound._id,
-        context.user.userID
+        context.user.userID,
+        docFound._id
       );
       const image = imageUploaded.publicUrl;
 
