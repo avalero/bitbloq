@@ -223,7 +223,6 @@ export async function uploadDocumentImage(
       documentsID: documentID,
       type: "docImage"
     });
-    console.log(oldPhoto);
     if (oldPhoto) {
       try {
         const [files] = await bucket.getFiles({
@@ -232,9 +231,8 @@ export async function uploadDocumentImage(
         files.map(async file => {
           await file.delete();
         });
-      } catch (e) {
-        console.log(e);
-      }
+        // tslint:disable-next-line: no-empty
+      } catch (e) {}
     }
     uniqueName = "docImage" + documentID + Date.now() + normalize(filename);
   }
