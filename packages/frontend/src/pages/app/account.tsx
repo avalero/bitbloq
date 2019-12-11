@@ -1,12 +1,13 @@
-import { ApolloError } from "apollo-client";
-import dayjs from "dayjs";
-import React, { FC, useEffect, useRef, useState } from "react";
+import React, { FC, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
 import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
-import { CHANGE_EMAIL_MUTATION } from "../../apollo/queries";
+import {
+  CHANGE_EMAIL_MUTATION,
+  UPDATE_USER_DATA_MUTATION
+} from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
 import AccountPersonalData from "../../components/AccountPersonalData";
 import AppLayout from "../../components/AppLayout";
@@ -17,8 +18,6 @@ import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import { plans } from "../../config.js";
 import useUserData from "../../lib/useUserData";
 import { IUser } from "../../types";
-import { useMutation } from "react-apollo";
-import { UPDATE_USER_DATA_MUTATION } from "../../apollo/queries";
 
 enum TabType {
   UserData,
@@ -37,11 +36,9 @@ const AccountPage: NextPage = () => {
 
   const newEmailRef = useRef<string>("");
 
-  const [currentTab, setCurrentTab] = useState(TabType.UserData);
-  const [error, setError] = useState<boolean>(false);
+  const [serverError, setServerError] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string>("");
   const [loadingData, setLoadingData] = useState<boolean>(false);
-  const [personalDataEditable, setPersonalDataEditable] = useState(false);
   const [updatePersonalData, { error, loading }] = useMutation(
     UPDATE_USER_DATA_MUTATION
   );
@@ -68,11 +65,11 @@ const AccountPage: NextPage = () => {
         } = result;
         if (sendChangeMyEmailToken === "OK") {
           setEmailSent(true);
-          setError(false);
+          setServerError(false);
           setLoadingData(false);
           setShowEmailModal(false);
         } else {
-          setError(true);
+          setServerError(true);
           setLoadingData(false);
           setShowEmailModal(false);
         }
@@ -216,7 +213,7 @@ const AccountPage: NextPage = () => {
           </Content>
         )}
       </Container>
-      {error && <ErrorLayout code="500" />}
+      {serverError && <ErrorLayout code="500" />}
       <EditEmailModal
         disabledSave={loadingData}
         errorText={errorText}
@@ -238,7 +235,7 @@ const AccountPage: NextPage = () => {
             onClick={() => {
               newEmailRef.current = "";
               setEmailSent(false);
-              setError(false);
+              setServerError(false);
               setLoadingData(false);
               setShowEmailModal(false);
             }}
