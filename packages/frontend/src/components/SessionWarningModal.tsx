@@ -1,32 +1,59 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
+import { useSubscription, useMutation } from "@apollo/react-hooks";
 import { DialogModal } from "@bitbloq/ui";
-import { useSessionEvent, onSessionActivity } from "../lib/session";
+import { useSessionEvent, onSessionActivity, logout } from "../lib/session";
+import {
+  USER_SESSION_EXPIRES_SUBSCRIPTION,
+  RENEW_SESSION_MUTATION
+} from "../apollo/queries";
+import { ISessionExpires } from "../../../api/src/api-types";
+import { DocumentNode } from "apollo-link";
 
 export interface ISessionWarningModalProps {
-  tempSession?: string;
+  subscription: DocumentNode;
 }
 const SessionWarningModal: FC<ISessionWarningModalProps> = ({
-  tempSession
+  subscription
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
-
-  useSessionEvent(
-    "expiration-warning",
-    e => {
-      if (e.tempSession === tempSession) {
-        setIsOpen(true);
-        setRemainingSeconds(e.remainingSeconds || 0);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
+  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
+  useSubscription(subscription, {
+    shouldResubscribe: true,
+    onSubscriptionData: ({ subscriptionData }) => {
+      console.log(subscriptionData);
+      const sessionExpires: ISessionExpires =
+        (subscriptionData.data && subscriptionData.data.userSessionExpires) ||
+        subscriptionData.data.submissionSessionExpires ||
+        {};
+      if (sessionExpires.expiredSession) {
+        logout();
       }
-    },
-    tempSession
-  );
+      if (Number(sessionExpires.secondsRemaining) < 350) {
+        setIsOpen(true);
+        setSecondsRemaining(Math.ceil(Number(sessionExpires.secondsRemaining)));
+      }
+      if (
+        !sessionExpires.expiredSession &&
+        Number(sessionExpires.secondsRemaining) > 350
+      ) {
+        setIsOpen(false);
+      }
+    }
+  });
 
-  useSessionEvent("new-token", () => setIsOpen(false), tempSession);
+  useEffect(() => {
+    const interval = setInterval(
+      () => setSecondsRemaining(secondsRemaining - 1),
+      1000
+    );
+    return () => {
+      clearInterval(interval);
+    };
+  }, [secondsRemaining]);
 
   const onContinue = async () => {
-    onSessionActivity();
-    setIsOpen(false);
+    await renewSession();
   };
 
   return (
@@ -36,7 +63,7 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
       content={
         <p>
           Parece que te has ido, si no quieres seguir trabajando saldrás de tu
-          cuenta en <b>{remainingSeconds} segundos</b>.
+          cuenta en <b>{secondsRemaining} segundos</b>.
         </p>
       }
       okText="Si, quiero seguir trabajando"

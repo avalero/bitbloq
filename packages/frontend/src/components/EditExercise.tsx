@@ -283,22 +283,11 @@ const EditExercise = ({ type, id }) => {
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />
-      {/* <SessionWarningModal tempSession="exercise-team" isOpenInit={sessionExpired}/> */}
-      <DialogModal
-        isOpen={sessionExpired}
-        title="¿Sigues ahí?"
-        content={
-          <p>
-            Parece que te has ido, si no quieres seguir trabajando saldrás de tu
-            cuenta en <b>{secondsRemaining} segundos</b>.
-          </p>
-        }
-        okText="Si, quiero seguir trabajando"
-        onOk={async () => {
-          await renewSession();
-          setSessionExpired(false);
-        }}
-      />
+      {teamName && (
+        <SessionWarningModal
+          subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
+        />
+      )}
       {teamName && submission && (
         <>
           <Subscription
@@ -309,35 +298,6 @@ const EditExercise = ({ type, id }) => {
               if (submissionActive && !submissionActive.active) {
                 setToken("", "exercise-team");
                 Router.replace("/");
-              }
-            }}
-          />
-          <Subscription
-            subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
-            variables={{ submissionID: submission.id }}
-            shouldResubscribe={true}
-            onSubscriptionData={({ subscriptionData }) => {
-              const submissionSessionExpires: ISessionExpires =
-                (subscriptionData.data &&
-                  subscriptionData.data.submissionSessionExpires) ||
-                {};
-              console.log({ submissionSessionExpires });
-              if (submissionSessionExpires.expiredSession) {
-                setToken("", "exercise-team");
-                setActiveToFalse();
-                Router.replace("/");
-              }
-              if (Number(submissionSessionExpires.secondsRemaining) < 350) {
-                setSessionExpired(true);
-                setSecondsRemaining(
-                  Number(submissionSessionExpires.secondsRemaining)
-                );
-              }
-              if (
-                !submissionSessionExpires.expiredSession &&
-                Number(submissionSessionExpires.secondsRemaining) > 350
-              ) {
-                setSessionExpired(false);
               }
             }}
           />

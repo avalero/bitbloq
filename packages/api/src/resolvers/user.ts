@@ -435,7 +435,7 @@ const userResolver = {
           const expiresAt: Date = new Date(result.expiresAt);
           secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
           pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
-            userSessionExpires: {
+            submissionSessionExpires: {
               ...result,
               key: data.submissionID,
               secondsRemaining,

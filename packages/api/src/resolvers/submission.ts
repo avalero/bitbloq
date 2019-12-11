@@ -74,7 +74,7 @@ const submissionResolver = {
         () => pubsub.asyncIterator([SUBMISSION_SESSION_EXPIRES]),
         (
           payload: { submissionSessionExpires: ISessionExpires },
-          variables: { submissionID: string },
+          variables,
           context: { user: IUserInToken }
         ) => {
           console.log({ payload, context, variables });
@@ -84,7 +84,7 @@ const submissionResolver = {
             payload.submissionSessionExpires.key
           );
           return (
-            String(variables.submissionID) ===
+            String(context.user.submissionID) ===
             String(payload.submissionSessionExpires.key)
           );
         }

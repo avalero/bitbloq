@@ -67,7 +67,7 @@ export const storeTokenInRedis = async (
   }
   const date = new Date();
   // date.setHours(date.getHours() + 2); // debería ser el tiempo que queramos que tarde en caducar la sesión
-  date.setMinutes(date.getMinutes() + 6);
+  date.setMinutes(date.getMinutes() + 3);
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {
@@ -128,12 +128,14 @@ const checksSessionExpires = async () => {
         }
         if (expiresAt > now) {
           secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          console.log(secondsRemaining);
           if (secondsRemaining / 60 < 5) {
             expiredSession = false;
           }
         } else {
           expiredSession = true;
         }
+        console.log("publish", topic, secondsRemaining);
         await pubsub.publish(topic, {
           [type]: {
             ...result,

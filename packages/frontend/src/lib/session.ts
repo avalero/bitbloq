@@ -24,7 +24,9 @@ const getSession = (
   );
 
   const sessionString = tempSession
-    ? cookies[`session-${tempSession}`]
+    ? typeof sessionStorage !== "undefined"
+      ? sessionStorage.getItem(`session-${tempSession}`)
+      : ""
     : cookies.session;
 
   if (!sessionString) {
@@ -51,14 +53,7 @@ const setSession = (session?: ISession, tempSession?: string) => {
   }
 
   if (tempSession) {
-    document.cookie = cookie.serialize(
-      `session-${tempSession}`,
-      sessionString,
-      {
-        sameSite: true,
-        path: "/"
-      }
-    );
+    sessionStorage.setItem(`session-${tempSession}`, sessionString);
   } else {
     document.cookie = cookie.serialize("session", sessionString, {
       sameSite: true,

@@ -70,14 +70,6 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
     Router.replace("/");
   });
 
-  useSessionEvent(
-    "activity",
-    () => {
-      console.log("activity");
-    },
-    tempSession
-  );
-
   if (anotherSession) {
     return (
       <ErrorLayout
@@ -87,49 +79,8 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
       />
     );
   }
-  return (
-    <>
-      <DialogModal
-        isOpen={sessionExpired}
-        title="¿Sigues ahí?"
-        content={
-          <p>
-            Parece que te has ido, si no quieres seguir trabajando saldrás de tu
-            cuenta en <b>{secondsRemaining} segundos</b>.
-          </p>
-        }
-        okText="Si, quiero seguir trabajando"
-        onOk={async () => {
-          await renewSession();
-          setSessionExpired(false);
-        }}
-      />
-      <Subscription
-        subscription={USER_SESSION_EXPIRES_SUBSCRIPTION}
-        shouldResubscribe={true}
-        onSubscriptionData={({ subscriptionData }) => {
-          const userSessionExpires: ISessionExpires =
-            (subscriptionData.data &&
-              subscriptionData.data.userSessionExpires) ||
-            {};
-          if (userSessionExpires.expiredSession) {
-            logout();
-          }
-          if (Number(userSessionExpires.secondsRemaining) < 350) {
-            setSessionExpired(true);
-            setSecondsRemaining(
-              Math.ceil(Number(userSessionExpires.secondsRemaining))
-            );
-          }
-          if (
-            !userSessionExpires.expiredSession &&
-            Number(userSessionExpires.secondsRemaining) > 350
-          ) {
-            setSessionExpired(false);
-          }
-        }}
-      />
-    </>
+  return tempSession ? null : (
+    <SessionWarningModal subscription={USER_SESSION_EXPIRES_SUBSCRIPTION} />
   );
 };
 
@@ -169,7 +120,9 @@ export default function withApollo(
             <PageComponent {...pageProps} />
           </UserDataProvider>
         )}
-        <SessionWatcher tempSession={tempSession} client={client} />
+        {requiresSession && (
+          <SessionWatcher tempSession={tempSession} client={client} />
+        )}
       </ApolloProvider>
     );
   };
