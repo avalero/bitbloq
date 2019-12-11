@@ -4,7 +4,7 @@ import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidEmail, isValidName } from "../util";
 import ErrorMessage from "./ErrorMessage";
 
-interface IEditTitleModalProps {
+interface IEditInputModalProps {
   className?: string;
   disabledSave?: boolean;
   errorText?: string;
@@ -23,7 +23,7 @@ interface IEditTitleModalProps {
   label?: string;
 }
 
-const EditInputModal: FC<IEditTitleModalProps> = props => {
+const EditInputModal: FC<IEditInputModalProps> = props => {
   const {
     className,
     disabledSave = false,
@@ -44,8 +44,6 @@ const EditInputModal: FC<IEditTitleModalProps> = props => {
   const [title, setTitle] = useState(props.title);
   const [error, setError] = useState<boolean | string>(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-
-  const isValidValue = type === "email" ? isValidEmail : isValidName;
 
   useEffect(() => {
     if (titleInputRef.current) {
@@ -69,7 +67,11 @@ const EditInputModal: FC<IEditTitleModalProps> = props => {
         <form
           onSubmit={e => {
             e.preventDefault();
-            onSave(title);
+            if (type !== "email" || isValidEmail(title)) {
+              onSave(title);
+            } else {
+              setError(true);
+            }
           }}
         >
           <p>{modalText}</p>
@@ -82,7 +84,7 @@ const EditInputModal: FC<IEditTitleModalProps> = props => {
               if (onChange) {
                 onChange(value);
               }
-              if (!validateInput || isValidValue(value)) {
+              if (!validateInput || type === "email" || isValidName(value)) {
                 setTitle(value);
                 setError(false);
               } else {
