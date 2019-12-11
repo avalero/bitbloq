@@ -47,6 +47,9 @@ const Container = styled.div`
 `;
 
 const Content = styled(Layout)`
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
   padding-bottom: 60px;
 `;
 
