@@ -216,7 +216,7 @@ export async function uploadDocumentImage(
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
-  let uniqueName: string = "profilePhoto" + normalize(filename);
+  let uniqueName: string;
 
   if (documentID) {
     const oldPhoto: IUpload | null = await UploadModel.findOne({
@@ -235,8 +235,24 @@ export async function uploadDocumentImage(
       } catch (e) {}
     }
     uniqueName = "docImage" + documentID + Date.now() + normalize(filename);
+  } else {
+    const oldPhoto: IUpload | null = await UploadModel.findOne({
+      user: userID,
+      type: "profilePhoto"
+    });
+    if (oldPhoto) {
+      try {
+        const [files] = await bucket.getFiles({
+          prefix: `${userID}/profilePhoto`
+        });
+        files.map(async file => {
+          await file.delete();
+        });
+        // tslint:disable-next-line: no-empty
+      } catch (e) {}
+    }
+    uniqueName = "profilePhoto" + normalize(filename);
   }
-
   const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
   return new Promise((resolve, reject) => {
     processUpload({
