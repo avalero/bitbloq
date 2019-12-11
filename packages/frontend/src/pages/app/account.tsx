@@ -1,32 +1,69 @@
-import dayjs from "dayjs";
-import React, { FC, useState } from "react";
+import { ApolloError } from "apollo-client";
+import React, { FC, useState, useEffect, useRef } from "react";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
 import { useTranslate, Button, Icon, colors } from "@bitbloq/ui";
 import withApollo from "../../apollo/withApollo";
+import AccountPersonalData from "../../components/AccountPersonalData";
 import AppLayout from "../../components/AppLayout";
+import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import { plans } from "../../config.js";
 import useUserData from "../../lib/useUserData";
+import { IUser } from "../../types";
+import { useMutation } from "react-apollo";
+import { UPDATE_USER_DATA_MUTATION } from "../../apollo/queries";
 
 enum TabType {
   UserData,
-  PurchasedItems
+  Purchases
 }
 
 const AccountPage: NextPage = () => {
+  const personalDataFormId = "personal-data-form";
   const t = useTranslate();
-  const userData = useUserData();
+  const { userData, fetchUserData } = useUserData();
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
-  const [currentTab, setCurrentTab] = useState(TabType.UserData);
-  const [personalDataEditable, setPersonalDataEditable] = useState(false);
+  const [updatePersonalData, { error, loading }] = useMutation(
+    UPDATE_USER_DATA_MUTATION
+  );
+
+  const [currentTab, setCurrentTab] = useState<TabType>(TabType.UserData);
+  const [personalDataEditable, setPersonalDataEditable] = useState<boolean>(
+    false
+  );
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
 
+  const togglePersonalDataEditable = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setPersonalDataEditable(!personalDataEditable);
+  };
+
+  const onUpdatePersonalData = async (input: IUser) => {
+    await updatePersonalData({
+      variables: {
+        id: userData.id,
+        input: {
+          avatar: input.avatar,
+          name: input.name,
+          surnames: input.surnames,
+          birthDate: input.birthDate
+        }
+      }
+    });
+    fetchUserData();
+    setPersonalDataEditable(false);
+  };
+
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
+
   return (
-    <AppLayout header="Mi cuenta">
+    <AppLayout header={t("account.title")}>
       <Container>
         <Tabs>
           <Tab
@@ -36,10 +73,10 @@ const AccountPage: NextPage = () => {
             {t("account.user-data.title")}
           </Tab>
           {/* <Tab
-            selected={currentTab === TabType.PurchasedItems}
-            onClick={() => setCurrentTab(TabType.PurchasedItems)}
+            selected={currentTab === TabType.Purchases}
+            onClick={() => setCurrentTab(TabType.Purchases)}
           >
-            {t("account.purchased-items.title")}
+            {t("account.purchases.title")}
           </Tab> */}
         </Tabs>
         {currentTab === TabType.UserData && (
@@ -50,47 +87,29 @@ const AccountPage: NextPage = () => {
               buttons={
                 personalDataEditable ? (
                   <>
-                    <Button onClick={() => setPersonalDataEditable(true)}>
+                    <Button
+                      form={personalDataFormId}
+                      type="submit"
+                      disabled={loading}
+                    >
                       {t("account.user-data.personal-data.button-save")}
                     </Button>
-                    <Button
-                      secondary
-                      onClick={() => setPersonalDataEditable(true)}
-                    >
+                    <Button secondary onClick={togglePersonalDataEditable}>
                       {t("account.user-data.personal-data.button-cancel")}
                     </Button>
                   </>
                 ) : (
-                  <Button
-                    tertiary
-                    onClick={() => setPersonalDataEditable(false)}
-                  >
+                  <Button tertiary onClick={togglePersonalDataEditable}>
                     {t("account.user-data.personal-data.button")}
                   </Button>
                 )
               }
             >
-              {!personalDataEditable && (
-                <>
-                  <Field>
-                    <div>Nombre</div>
-                    <div>{userData.name}</div>
-                  </Field>
-                  <Field>
-                    <div>Apellidos</div>
-                    <div>{userData.surnames}</div>
-                  </Field>
-                  <Field>
-                    <div>Fecha de nacimiento</div>
-                    <div>
-                      {userData.birthDate &&
-                        dayjs(new Date(userData.birthDate)).format(
-                          "DD/MM/YYYY"
-                        )}
-                    </div>
-                  </Field>
-                </>
-              )}
+              <AccountPersonalData
+                editable={personalDataEditable}
+                formId={personalDataFormId}
+                onSubmit={onUpdatePersonalData}
+              />
             </Panel>
             <Panel
               title={t("account.user-data.email.title")}
@@ -180,19 +199,6 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 1;
   margin: 30px 20px;
-`;
-
-const Field = styled.div`
-  align-items: center;
-  height: 36px;
-  display: flex;
-  justify-content: space-between;
-  border: 0px solid #8c919b;
-  border-top-width: 1px;
-
-  &:last-of-type {
-    border-bottom-width: 1px;
-  }
 `;
 
 const Tabs = styled.div`
