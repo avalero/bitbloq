@@ -3,6 +3,7 @@ import styled from "@emotion/styled";
 
 import WaitIcon from "./icons/WaitIcon";
 import ServoPositionIcon from "./icons/ServoPositionIcon";
+import SevenSegmentIcon from "./icons/SevenSegmentIcon";
 
 import { IBloq, IBloqType } from "../index";
 
@@ -13,7 +14,8 @@ interface IIconComponentProps {
 
 const iconComponents = {
   WaitIcon,
-  ServoPositionIcon
+  ServoPositionIcon,
+  SevenSegmentIcon
 };
 
 const IconComponent: FC<IIconComponentProps> = ({ bloq, component }) => {

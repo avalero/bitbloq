@@ -19,7 +19,6 @@ import notViewColorGreen from "../../images/bloqs/not-view-color-green.svg";
 import notViewColorRed from "../../images/bloqs/not-view-color-red.svg";
 import buttonPressedIcon from "../../images/bloqs/button-pressed.svg";
 import buttonReleasedIcon from "../../images/bloqs/button-released.svg";
-import sevenSegmentsIcon from "../../images/bloqs/7segments.svg";
 import obstacleIcon from "../../images/bloqs/obstacle.svg";
 import noObstacleIcon from "../../images/bloqs/no-obstacle.svg";
 import musicIcon from "../../images/bloqs/music.svg";
@@ -39,6 +38,7 @@ import onCIcon from "../../images/bloqs/on-message-c.svg";
 import onDIcon from "../../images/bloqs/on-message-d.svg";
 import onEIcon from "../../images/bloqs/on-message-e.svg";
 import lightIcon from "../../images/bloqs/light.svg";
+import sunsetIcon from "../../images/bloqs/sunset.svg";
 import darkIcon from "../../images/bloqs/dark.svg";
 import temperatureHotIcon from "../../images/bloqs/temperature-hot.svg";
 import temperatureColdIcon from "../../images/bloqs/temperature-cold.svg";
@@ -52,7 +52,6 @@ import boardLedRedIcon from "../../images/bloqs/board-led-red.svg";
 import boardLedGreenIcon from "../../images/bloqs/board-led-green.svg";
 import boardLedBlueIcon from "../../images/bloqs/board-led-blue.svg";
 import boardLedWhiteIcon from "../../images/bloqs/board-led-white.svg";
-import servoIcon from "../../images/bloqs/servo.svg";
 import servoClockwiseSlowIcon from "../../images/bloqs/servo-clockwise-slow.svg";
 import servoClockwiseMediumIcon from "../../images/bloqs/servo-clockwise-medium.svg";
 import servoClockwiseFastIcon from "../../images/bloqs/servo-clockwise-fast.svg";
@@ -272,7 +271,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     category: BloqCategory.Event,
     name: "OnSevenSegmentValue",
     label: "bloq-on-seven-segment",
-    icon: sevenSegmentsIcon,
+    iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
     actions: [
       {
@@ -431,6 +430,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-on-detect-light",
     iconSwitch: {
       "value === 'light'": lightIcon,
+      "value === 'sunset'": sunsetIcon,
       "value === 'dark'": darkIcon
     },
     actions: [
@@ -457,6 +457,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
           {
             label: "bloq-parameter-light",
             value: "light"
+          },
+          {
+            label: "bloq-parameter-sunset",
+            value: "sunset"
           },
           {
             label: "bloq-parameter-dark",
@@ -496,12 +500,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-hot",
-            value: "hot"
-          },
-          {
             label: "bloq-parameter-cold",
             value: "cold"
+          },
+          {
+            label: "bloq-parameter-hot",
+            value: "hot"
           }
         ]
       }
@@ -509,21 +513,22 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Action,
-    name: "SetLed1OnOff",
+    name: "SetDoubleLedOnOff",
     label: "bloq-led1",
     components: ["ZumjuniorDoubleLed"],
     iconSwitch: {
-      "value === 'on'": led1OnIcon,
-      "value === 'off'": led1OffIcon
+      "value === 'on' and led === 'White'": led1OnIcon,
+      "value === 'off' and led === 'White'": led1OffIcon,
+      "value === 'on' and led === 'Color'": led2OnIcon,
+      "value === 'off' and led === 'Color'": led2OffIcon
     },
-    configurationComponent: "TurnOnConfiguration",
+    configurationComponent: "DoubleLedConfiguration",
     parameters: [
       {
         name: "component",
         label: "bloq-parameter-component",
         type: BloqParameterType.SelectComponent
       },
-
       {
         name: "value",
         label: "bloq-parameter-value",
@@ -538,48 +543,19 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
             value: "off"
           }
         ]
-      }
-    ],
-    code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}WhitePin",
-          value: "{{value}}"
-        }
-      }
-    ]
-  },
-  {
-    category: BloqCategory.Action,
-    name: "SetLed2OnOff",
-    label: "bloq-led2",
-    components: ["ZumjuniorDoubleLed"],
-    iconSwitch: {
-      "value === 'on'": led2OnIcon,
-      "value === 'off'": led2OffIcon
-    },
-    configurationComponent: "TurnOnConfiguration",
-    parameters: [
-      {
-        name: "component",
-        label: "bloq-parameter-component",
-        type: BloqParameterType.SelectComponent
       },
-
       {
-        name: "value",
-        label: "bloq-parameter-value",
+        name: "led",
+        label: "bloq-parameter-led",
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-on",
-            value: "on"
+            label: "bloq-parameter-led-1",
+            value: "White"
           },
           {
-            label: "bloq-parameter-off",
-            value: "off"
+            label: "bloq-parameter-led-2",
+            value: "Color"
           }
         ]
       }
@@ -589,7 +565,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {
         name: "write",
         parameters: {
-          pinVarName: "{{component}}ColorPin",
+          pinVarName: "{{component}}{{led}}Pin",
           value: "{{value}}"
         }
       }
@@ -601,14 +577,13 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-cr-servo",
     components: ["ContRotServo"],
     iconSwitch: {
-      "rotation === 'clockwise' and speed === 'slow'": servoClockwiseSlowIcon,
-      "rotation === 'clockwise' and speed === 'medium'": servoClockwiseMediumIcon,
       "rotation === 'clockwise' and speed === 'fast'": servoClockwiseFastIcon,
-      "rotation === 'counterclockwise' and speed === 'slow'": servoCounterClockwiseSlowIcon,
-      "rotation === 'counterclockwise' and speed === 'medium'": servoCounterClockwiseMediumIcon,
+      "rotation === 'clockwise' and speed === 'medium'": servoClockwiseMediumIcon,
+      "rotation === 'clockwise' and speed === 'slow'": servoClockwiseSlowIcon,
       "rotation === 'counterclockwise' and speed === 'fast'": servoCounterClockwiseFastIcon,
-      "rotation === 'stop'": servoStopIcon,
-      true: servoIcon
+      "rotation === 'counterclockwise' and speed === 'medium'": servoCounterClockwiseMediumIcon,
+      "rotation === 'counterclockwise' and speed === 'slow'": servoCounterClockwiseSlowIcon,
+      "rotation === 'stop'": servoStopIcon
     },
     configurationComponent: "ServoConfiguration",
     parameters: [
@@ -642,16 +617,16 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-slow",
-            value: "slow"
+            label: "bloq-parameter-fast",
+            value: "fast"
           },
           {
             label: "bloq-parameter-medium",
             value: "medium"
           },
           {
-            label: "bloq-parameter-fast",
-            value: "fast"
+            label: "bloq-parameter-slow",
+            value: "slow"
           }
         ]
       }
@@ -822,7 +797,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "SetSevenSegmentNumericValue",
     label: "bloq-set-seven-segment-num",
     components: ["ZumjuniorSevenSegment"],
-    icon: sevenSegmentsIcon,
+    iconComponent: "SevenSegmentIcon",
     configurationComponent: "SetNumberConfiguration",
     parameters: [
       {
@@ -1092,6 +1067,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-wait-detect-light",
     iconSwitch: {
       "value === 'light'": lightIcon,
+      "value === 'sunset'": sunsetIcon,
       "value === 'dark'": darkIcon
     },
     actions: [
@@ -1120,6 +1096,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
             value: "light"
           },
           {
+            label: "bloq-parameter-sunset",
+            value: "sunset"
+          },
+          {
             label: "bloq-parameter-dark",
             value: "dark"
           }
@@ -1132,8 +1112,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "WaitDetectTemperature",
     label: "bloq-wait-detect-temperature",
     iconSwitch: {
-      "value === 'hot'": temperatureHotIcon,
-      "value === 'cold'": temperatureColdIcon
+      "value === 'cold'": temperatureColdIcon,
+      "value === 'hot'": temperatureHotIcon
     },
     actions: [
       {
@@ -1157,12 +1137,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Select,
         options: [
           {
-            label: "bloq-parameter-hot",
-            value: "hot"
-          },
-          {
             label: "bloq-parameter-cold",
             value: "cold"
+          },
+          {
+            label: "bloq-parameter-hot",
+            value: "hot"
           }
         ]
       }
@@ -1213,7 +1193,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     category: BloqCategory.Wait,
     name: "WaitForSevenSegmentValue",
     label: "bloq-wait-seven-segment",
-    icon: sevenSegmentsIcon,
+    iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
     actions: [
       {

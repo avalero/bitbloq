@@ -54,5 +54,5 @@ const StartConfiguration: FC<IStartConfigurationProps> = ({
 export default StartConfiguration;
 
 const ButtonIcon = styled.img`
-  width: 30px;
+  width: 36px;
 `;

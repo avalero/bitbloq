@@ -91,7 +91,7 @@ const SwitchWrap = styled.div`
 `;
 
 const ButtonIcon = styled.img`
-  width: 30px;
+  width: 36px;
 `;
 
 const ColorSwitch = styled.div<{ disabled?: boolean }>`
