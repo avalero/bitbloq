@@ -2,14 +2,16 @@ import { useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import Router from "next/router";
 import queryString from "query-string";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { CONFIRM_NEW_EMAIL } from "../../../apollo/queries";
 import withApollo from "../../../apollo/withApollo";
 import EditTitleModal from "../../../components/EditTitleModal";
+import { setToken, useSessionEvent } from "../../../lib/session";
 
 const ChangeEmailPage: FC = () => {
   const [confirmEmail] = useMutation(CONFIRM_NEW_EMAIL);
+  const tokenRef = useRef<string>("");
   const [error, setError] = useState<string>("");
   const [queryToken, setQueryToken] = useState<string>("");
   const t = useTranslate();
@@ -21,6 +23,16 @@ const ChangeEmailPage: FC = () => {
     }
   }, []);
 
+  useSessionEvent("new-token", event => {
+    if (
+      event.event === "new-token" &&
+      tokenRef.current &&
+      tokenRef.current === event.data
+    ) {
+      Router.replace("/app");
+    }
+  });
+
   const onSaveEmail = (newPassword: string) => {
     if (!newPassword) {
       setError(t("change-email-page.password-empty"));
@@ -31,21 +43,31 @@ const ChangeEmailPage: FC = () => {
         password: newPassword,
         token: queryToken
       }
-    }).catch(e => {
-      if (
-        e.graphQLErrors &&
-        e.graphQLErrors[0] &&
-        e.graphQLErrors[0].extensions.code === "PASSWORD_INCORRECT"
-      ) {
-        setError(t("change-email-page.password-error"));
-      }
-    });
+    })
+      .then(result => {
+        const {
+          data: { confirmChangeEmail }
+        } = result;
+        if (confirmChangeEmail) {
+          setToken(confirmChangeEmail);
+          tokenRef.current = confirmChangeEmail;
+        }
+      })
+      .catch(e => {
+        if (
+          e.graphQLErrors &&
+          e.graphQLErrors[0] &&
+          e.graphQLErrors[0].extensions.code === "PASSWORD_INCORRECT"
+        ) {
+          setError(t("change-email-page.password-error"));
+        }
+      });
   };
 
   return (
     <Container>
       <ConfirmPasswordModal
-        // errorText={error}
+        errorText={error}
         isOpen={true}
         label={t("change-email-page.placeholder")}
         modalText={t("change-email-page.text")}
