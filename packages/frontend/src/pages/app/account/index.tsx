@@ -7,17 +7,17 @@ import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
 import {
   CHANGE_EMAIL_MUTATION,
   UPDATE_USER_DATA_MUTATION
-} from "../../apollo/queries";
-import withApollo from "../../apollo/withApollo";
-import AccountPersonalData from "../../components/AccountPersonalData";
-import AppLayout from "../../components/AppLayout";
-import CounterButton from "../../components/CounterButton";
-import EditInputModal from "../../components/EditInputModal";
-import ErrorLayout from "../../components/ErrorLayout";
-import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
-import { plans } from "../../config.js";
-import useUserData from "../../lib/useUserData";
-import { IUser } from "../../types";
+} from "../../../apollo/queries";
+import withApollo from "../../../apollo/withApollo";
+import AccountPersonalData from "../../../components/AccountPersonalData";
+import AppLayout from "../../../components/AppLayout";
+import CounterButton from "../../../components/CounterButton";
+import EditInputModal from "../../../components/EditInputModal";
+import ErrorLayout from "../../../components/ErrorLayout";
+import GraphQLErrorMessage from "../../../components/GraphQLErrorMessage";
+import { plans } from "../../../config.js";
+import useUserData from "../../../lib/useUserData";
+import { IUser } from "../../../types";
 
 enum TabType {
   UserData,
