@@ -4,6 +4,7 @@ import useForm from "react-hook-form";
 import { Input, useTranslate, colors, FileSelectButton } from "@bitbloq/ui";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
+import ErrorMessage from "./ErrorMessage";
 import useUserData from "../lib/useUserData";
 import { IUser } from "../types";
 import { getAge, getAvatarColor, isValidDate } from "../util";
@@ -90,15 +91,21 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   const formNotEditable = () => (
     <>
       <FormFieldNotEditable>
-        <div>{t("account.user-data.personal-data.labels.name")}</div>
-        <div>{userData.name}</div>
+        <LabelNotEditable>
+          {t("account.user-data.personal-data.labels.name")}
+        </LabelNotEditable>
+        <InputNotEditable>{userData.name}</InputNotEditable>
       </FormFieldNotEditable>
       <FormFieldNotEditable>
-        <div>{t("account.user-data.personal-data.labels.surnames")}</div>
-        <div>{userData.surnames}</div>
+        <LabelNotEditable>
+          {t("account.user-data.personal-data.labels.surnames")}
+        </LabelNotEditable>
+        <InputNotEditable>{userData.surnames}</InputNotEditable>
       </FormFieldNotEditable>
       <FormFieldNotEditable>
-        <div>{t("account.user-data.personal-data.labels.birth-date")}</div>
+        <LabelNotEditable>
+          {t("account.user-data.personal-data.labels.birth-date")}
+        </LabelNotEditable>
         <div>
           {userData.birthDate &&
             new Date(userData.birthDate).toLocaleDateString()}
@@ -130,6 +137,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
               <Input
                 type="text"
                 name="name"
+                maxLength={200}
                 placeholder={t(
                   "account.user-data.personal-data.placeholders.name"
                 )}
@@ -139,9 +147,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.name && (
-                <ErrorMessage>
+                <InputErrorMessage>
                   {t("account.user-data.personal-data.errors.name")}
-                </ErrorMessage>
+                </InputErrorMessage>
               )}
             </FormError>
             <FormField>
@@ -151,6 +159,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
               <Input
                 type="text"
                 name="surnames"
+                maxLength={200}
                 placeholder={t(
                   "account.user-data.personal-data.placeholders.surnames"
                 )}
@@ -160,9 +169,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.surnames && (
-                <ErrorMessage>
+                <InputErrorMessage>
                   {t("account.user-data.personal-data.errors.surnames")}
-                </ErrorMessage>
+                </InputErrorMessage>
               )}
             </FormError>
             <FormField>
@@ -201,7 +210,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.birthDate && (
-                <ErrorMessage>
+                <InputErrorMessage>
                   {errors.birthDate.type === "validAge"
                     ? t(
                         `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`,
@@ -210,7 +219,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
                     : t(
                         `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`
                       )}
-                </ErrorMessage>
+                </InputErrorMessage>
               )}
             </FormError>
           </>
@@ -296,6 +305,7 @@ const Container = styled.div`
 
 const Form = styled.form`
   flex: 1;
+  overflow: hidden;
 `;
 
 const FormError = styled.div`
@@ -345,9 +355,16 @@ const FormGroup = styled.div`
   grid-column-gap: 10px;
 `;
 
-const ErrorMessage = styled.div`
+const InputErrorMessage = styled(ErrorMessage)`
   margin-top: 10px;
-  font-size: 12px;
-  font-style: italic;
-  color: ${colors.red};
+`;
+
+const InputNotEditable = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const LabelNotEditable = styled.div`
+  min-width: 150px;
 `;

@@ -303,8 +303,10 @@ const Container = styled.div`
 `;
 
 const Content = styled.div`
+  box-sizing: border-box;
   flex: 1;
-  margin: 30px 20px;
+  max-width: 75%;
+  padding: 30px 20px;
 `;
 
 const EditEmailModal = styled(EditInputModal)`
