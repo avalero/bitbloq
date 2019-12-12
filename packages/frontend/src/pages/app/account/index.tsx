@@ -11,6 +11,7 @@ import {
 import withApollo from "../../../apollo/withApollo";
 import AccountPersonalData from "../../../components/AccountPersonalData";
 import AppLayout from "../../../components/AppLayout";
+import ChangePasswordModal from "../../../components/ChangePasswordModal";
 import CounterButton from "../../../components/CounterButton";
 import EditInputModal from "../../../components/EditInputModal";
 import ErrorLayout from "../../../components/ErrorLayout";
@@ -50,6 +51,7 @@ const AccountPage: NextPage = () => {
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
   const [emailSent, setEmailSent] = useState<boolean>(false);
   const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
 
   const onSaveNewEmail = (newEmail: string) => {
     newEmailRef.current = newEmail;
@@ -175,7 +177,7 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.password.title")}
               icon="padlock-close"
               buttons={
-                <Button tertiary>
+                <Button onClick={() => setShowPasswordModal(true)} tertiary>
                   {t("account.user-data.password.button")}
                 </Button>
               }
@@ -228,6 +230,12 @@ const AccountPage: NextPage = () => {
         saveButton={t("general-change-button")}
         title=""
         type="email"
+      />
+      <ChangePasswordModal
+        disabledSave={loadingData}
+        isOpen={showPasswordModal}
+        onCancel={() => setShowPasswordModal(false)}
+        title=""
       />
       <DialogModal
         cancelButton={

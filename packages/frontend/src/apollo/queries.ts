@@ -594,6 +594,37 @@ export const UPDATE_USER_DATA_MUTATION = gql`
   }
 `;
 
+export const SAVE_USER_DATA_MUTATION = gql`
+  mutation SaveUserData($input: UserIn!) {
+    saveUserData(input: $input) {
+      id
+    }
+  }
+`;
+
+export const CHANGE_EMAIL_MUTATION = gql`
+  mutation SendChangeMyEmailToken($newEmail: String!) {
+    sendChangeMyEmailToken(newEmail: $newEmail)
+  }
+`;
+
+export const CHANGE_PASSWORD_MUTATION = gql`
+  mutation UpdateMyPassword($currentPassword: String!, $newPassword: String!) {
+    updateMyPassword(
+      currentPassword: $currentPassword
+      newPassword: $newPassword
+    ) {
+      id
+    }
+  }
+`;
+
+export const CONFIRM_NEW_EMAIL = gql`
+  mutation ConfirmChangeEmail($token: String!, $password: String!) {
+    confirmChangeEmail(token: $token, password: $password)
+  }
+`;
+
 /* Cloud */
 
 export const ADD_RESOURCE_TO_DOCUMENT = gql`
@@ -691,25 +722,5 @@ export const ACTIVATE_ACCOUNT_MUTATION = gql`
 export const FINISH_SIGNUP_MUTATION = gql`
   mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
     finishSignUp(id: $id, userPlan: $userPlan)
-  }
-`;
-
-export const SAVE_USER_DATA_MUTATION = gql`
-  mutation SaveUserData($input: UserIn!) {
-    saveUserData(input: $input) {
-      id
-    }
-  }
-`;
-
-export const CHANGE_EMAIL_MUTATION = gql`
-  mutation SendChangeMyEmailToken($newEmail: String!) {
-    sendChangeMyEmailToken(newEmail: $newEmail)
-  }
-`;
-
-export const CONFIRM_NEW_EMAIL = gql`
-  mutation ConfirmChangeEmail($token: String!, $password: String!) {
-    confirmChangeEmail(token: $token, password: $password)
   }
 `;

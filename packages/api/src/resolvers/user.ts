@@ -630,7 +630,7 @@ const userResolver = {
           { new: true }
         );
       } else {
-        throw new AuthenticationError("Password incorrect");
+        throw new ApolloError("Password incorrect", "INCORRECT_PASSWORD");
       }
     },
 
