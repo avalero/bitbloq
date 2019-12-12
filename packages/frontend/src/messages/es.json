@@ -294,7 +294,11 @@
         "button-avatar": "Cambiar imagen",
         "button-cancel": "Cancelar",
         "button-save": "Guardar",
+        "button-warning-ok": "Aceptar",
+        "button-warning-title": "Aviso",
         "errors": {
+          "avatar-ext": "El formato de la imagen no es válido",
+          "avatar-size": "El tamaño de la imagen es demasiado grande",
           "birth-date-required": "Debes introducir una fecha válida",
           "birth-date-validAge": "Debes ser mayor de %v% años",
           "birth-date-validDate": "Debes introducir una fecha válida",

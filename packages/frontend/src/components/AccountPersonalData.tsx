@@ -1,7 +1,13 @@
 import dayjs from "dayjs";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
-import { Input, useTranslate, colors, FileSelectButton } from "@bitbloq/ui";
+import {
+  Input,
+  useTranslate,
+  colors,
+  FileSelectButton,
+  DialogModal
+} from "@bitbloq/ui";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import useUserData from "../lib/useUserData";
@@ -20,6 +26,8 @@ interface IAccountPersonalDataProps {
   onSubmit: (input: IUser) => void;
 }
 
+const maxImageSize = 1000000;
+
 const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   editable,
   formId,
@@ -28,6 +36,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   const t = useTranslate();
   const { userData } = useUserData();
   const ageLimit = userData.teacher ? 18 : 14;
+  const [avatarError, setAvatarError] = useState<string>("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -68,12 +77,18 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   };
 
   const onFileSelected = (file: File) => {
-    setValue("avatar", file);
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAvatarPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    if (file.type.indexOf("image/") !== 0) {
+      setAvatarError(t("account.user-data.personal-data.errors.avatar-ext"));
+    } else if (file.size > maxImageSize) {
+      setAvatarError(t("account.user-data.personal-data.errors.avatar-size"));
+    } else {
+      setValue("avatar", file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const resetForm = (input: IUser) => {
@@ -235,6 +250,13 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
           </AvatarButton>
         )}
       </Avatar>
+      <DialogModal
+        title={t("account.user-data.personal-data.button-warning-title")}
+        isOpen={!!avatarError}
+        text={avatarError}
+        okText={t("account.user-data.personal-data.button-warning-ok")}
+        onOk={() => setAvatarError("")}
+      />
     </Container>
   );
 };
