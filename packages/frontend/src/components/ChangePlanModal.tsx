@@ -2,8 +2,9 @@ import React, { FC, useState } from "react";
 import { useMutation } from "react-apollo";
 import styled from "@emotion/styled";
 import { DialogModal, Button, Modal, useTranslate } from "@bitbloq/ui";
-import { CHANGE_PASSWORD_MUTATION } from "../apollo/queries";
+import { CHANGE_PLAN_MUTATION } from "../apollo/queries";
 import { plans } from "../config";
+import ErrorLayout from "./ErrorLayout";
 import PlanOption from "./PlanOption";
 
 interface IChangePlanModalProps {
@@ -26,6 +27,7 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
 
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
+  const [changePlan, { error }] = useMutation(CHANGE_PLAN_MUTATION);
   const [planChanged, setPlanChanged] = useState<boolean>(false);
   const t = useTranslate();
 
@@ -34,13 +36,19 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
     onCancel();
   };
 
-  const onSubmitPlan = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitPlan = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    await changePlan({
+      variables: {
+        userPlan: "teacher"
+      }
+    });
     setPlanChanged(true);
   };
 
   return (
     <>
+      {error && <ErrorLayout code="500" />}
       <DialogModal
         isOpen={isOpen && planChanged}
         title={t("account.user-data.plan.changed-title")}

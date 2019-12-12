@@ -619,6 +619,14 @@ export const CHANGE_PASSWORD_MUTATION = gql`
   }
 `;
 
+export const CHANGE_PLAN_MUTATION = gql`
+  mutation UpdateMyPlan($userPlan: String!) {
+    updateMyPlan(userPlan: $userPlan) {
+      id
+    }
+  }
+`;
+
 export const CONFIRM_NEW_EMAIL = gql`
   mutation ConfirmChangeEmail($token: String!, $password: String!) {
     confirmChangeEmail(token: $token, password: $password)
