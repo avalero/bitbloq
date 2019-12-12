@@ -95,7 +95,6 @@ const server = new ApolloServer({
       if (connectionParams.authorization) {
         const justToken = connectionParams.authorization.split(" ")[1];
         const user = await contextController.getDataInToken(justToken);
-        console.log("subs", user);
         return { user }; //  add the user to the ctx
       }
       return undefined;

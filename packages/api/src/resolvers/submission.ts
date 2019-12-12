@@ -77,12 +77,6 @@ const submissionResolver = {
           variables,
           context: { user: IUserInToken }
         ) => {
-          console.log({ payload, context, variables });
-          console.log(
-            variables.submissionID,
-            context.user.submissionID,
-            payload.submissionSessionExpires.key
-          );
           return (
             String(context.user.submissionID) ===
             String(payload.submissionSessionExpires.key)

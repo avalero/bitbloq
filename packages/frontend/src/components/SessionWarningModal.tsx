@@ -11,31 +11,43 @@ import { DocumentNode } from "apollo-link";
 
 export interface ISessionWarningModalProps {
   subscription: DocumentNode;
+  setActivteToFalse?: () => any;
 }
 const SessionWarningModal: FC<ISessionWarningModalProps> = ({
-  subscription
+  subscription,
+  setActivteToFalse
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
   useSubscription(subscription, {
     shouldResubscribe: true,
-    onSubscriptionData: ({ subscriptionData }) => {
-      console.log(subscriptionData);
+    onSubscriptionData: async ({ subscriptionData }) => {
       const sessionExpires: ISessionExpires =
-        (subscriptionData.data && subscriptionData.data.userSessionExpires) ||
-        subscriptionData.data.submissionSessionExpires ||
+        (subscriptionData.data &&
+          (subscriptionData.data.userSessionExpires ||
+            subscriptionData.data.submissionSessionExpires)) ||
         {};
+      console.log(subscriptionData);
       if (sessionExpires.expiredSession) {
+        if (
+          subscriptionData.data.submissionSessionExpires &&
+          subscriptionData.data.submissionSessionExpires.expiredSession &&
+          setActivteToFalse
+        ) {
+          console.log("entra en quitar bolita verde");
+          await setActivteToFalse();
+        }
+        console.log("entra en logout");
         logout();
       }
-      if (Number(sessionExpires.secondsRemaining) < 350) {
+      if (Number(sessionExpires.secondsRemaining) < 120) {
         setIsOpen(true);
         setSecondsRemaining(Math.ceil(Number(sessionExpires.secondsRemaining)));
       }
       if (
         !sessionExpires.expiredSession &&
-        Number(sessionExpires.secondsRemaining) > 350
+        Number(sessionExpires.secondsRemaining) > 120
       ) {
         setIsOpen(false);
       }

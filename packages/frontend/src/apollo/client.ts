@@ -114,7 +114,6 @@ export const createClient = (
                 reconnect: true,
                 connectionParams: async () => {
                   const token = await getToken();
-                  console.log(token);
                   return {
                     authorization: token ? `Bearer ${token}` : ""
                   };

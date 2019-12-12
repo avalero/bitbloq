@@ -116,7 +116,6 @@ const checksSessionExpires = async () => {
       if (result && result.expiresAt) {
         const expiresAt: Date = new Date(result.expiresAt);
         let secondsRemaining: number = 0;
-        let expiredSession: boolean = false;
         let topic: string = "";
         let type: string = "";
         if (result.authToken) {
@@ -128,28 +127,29 @@ const checksSessionExpires = async () => {
         }
         if (expiresAt > now) {
           secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-          console.log(secondsRemaining);
-          if (secondsRemaining / 60 < 5) {
-            expiredSession = false;
+          if (secondsRemaining / 60 < 2) {
+            await pubsub.publish(topic, {
+              [type]: {
+                ...result,
+                key,
+                secondsRemaining,
+                expiredSession: false
+              }
+            });
           }
         } else {
-          expiredSession = true;
-        }
-        console.log("publish", topic, secondsRemaining);
-        await pubsub.publish(topic, {
-          [type]: {
-            ...result,
-            key,
-            secondsRemaining,
-            expiredSession
-          }
-        });
-        if (expiredSession) {
+          await pubsub.publish(topic, {
+            [type]: {
+              ...result,
+              key,
+              secondsRemaining,
+              expiredSession: true
+            }
+          });
           await redisClient.del(key);
         }
       }
     } catch (e) {
-      console.log(e);
       await redisClient.del(key);
     }
   });

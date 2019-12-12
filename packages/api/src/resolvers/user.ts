@@ -488,7 +488,6 @@ const userResolver = {
         { expiresIn: "30m" }
       );
       const index: string = `resPass-${contactFound._id}`;
-      console.log(index);
       await storeTokenInRedis(index, token);
 
       // Generate the email with the activation link and send it

@@ -75,17 +75,6 @@ const EditExercise = ({ type, id }) => {
     setToken("", "exercise-team");
   }, []);
 
-  const [sessionExpired, setSessionExpired] = useState(false);
-  const [secondsRemaining, setSecondsRemaining] = useState(0);
-  // useSessionEvent(
-  //   "expired",
-  //   () => {
-  //     setTeamName("");
-  //     setSessionExpired(true);
-  //   },
-  //   "exercise-team"
-  // );
-
   const setActiveToFalse = useCallback(async () => {
     if (exercise && teamName && serviceWorker && submission) {
       const token = await getToken("exercise-team");
@@ -99,7 +88,6 @@ const EditExercise = ({ type, id }) => {
   }, [exercise, submission, teamName]);
 
   useEffect(() => {
-    console.log(submission);
     if (exercise && teamName) {
       window.removeEventListener("beforeunload", setActiveToFalse);
       window.addEventListener("beforeunload", setActiveToFalse);
@@ -121,12 +109,8 @@ const EditExercise = ({ type, id }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
-  // if (sessionExpired) {
-  //   return null;
-  // }
 
   const loadSubmission = async () => {
-    console.log(client);
     const { data: submissionData } = await client.query({
       query: STUDENT_SUBMISSION_QUERY,
       errorPolicy: "ignore"
@@ -261,8 +245,6 @@ const EditExercise = ({ type, id }) => {
           onSuccess={async newTeamName => {
             setTeamName(newTeamName);
             setLoginVisible(false);
-            const tok = await getToken("exercise-team");
-            console.log({ tok });
             loadSubmission();
           }}
         />
@@ -286,22 +268,21 @@ const EditExercise = ({ type, id }) => {
       {teamName && (
         <SessionWarningModal
           subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
+          setActivteToFalse={setActiveToFalse}
         />
       )}
       {teamName && submission && (
-        <>
-          <Subscription
-            subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
-            shouldResubscribe={true}
-            onSubscriptionData={({ subscriptionData }) => {
-              const { submissionActive } = subscriptionData.data || {};
-              if (submissionActive && !submissionActive.active) {
-                setToken("", "exercise-team");
-                Router.replace("/");
-              }
-            }}
-          />
-        </>
+        <Subscription
+          subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={({ subscriptionData }) => {
+            const { submissionActive } = subscriptionData.data || {};
+            if (submissionActive && !submissionActive.active) {
+              setToken("", "exercise-team");
+              Router.replace("/");
+            }
+          }}
+        />
       )}
     </>
   );
