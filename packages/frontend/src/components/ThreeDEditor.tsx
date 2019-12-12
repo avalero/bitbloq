@@ -45,14 +45,9 @@ const ThreeDEditor: FC<IEditorProps> = ({
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
-    onDocumentChange
+    onDocumentChange,
+    advancedMode
   );
-
-  useEffect(() => {
-    if (advancedMode !== document.advancedMode) {
-      onDocumentChange({ ...document, advancedMode });
-    }
-  }, [advancedMode]);
 
   const addShapeGroups = useCallback(
     baseShapeGroups => [

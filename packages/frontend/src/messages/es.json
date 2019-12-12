@@ -263,10 +263,25 @@
       },
       "email": {
         "title": "Mi correo electrónico",
+        "sent-title": "Email enviado",
+        "sent-text": "Revisa la bandeja de tu correo electrónico, si no se encuentra ahí, es posible que esté en la carpeta de Spam.",
+        "sent-button": "Volver a enviar email",
+        "new": "Nuevo correo electrónico",
+        "email-exists": "Este correo ya está en uso",
+        "change-text": "Escribe tu nuevo correo electrónico y te enviaremos un email con un enlace para que puedas cambiarlo.",
         "button": "Cambiar correo electrónico"
       },
       "password": {
+        "wrong-error": "La contraseña no es correcta",
         "title": "Mi contraseña",
+        "repeat-placeholder": "Repetir nueva contraseña",
+        "repeat-error": "Las contraseñas deben ser iguales",
+        "password-changed-title": "Contraseña cambiada",
+        "password-changed": "Tu contraseña se ha cambiado con éxito, a partir de ahora ya no podrás entrar con la anterior contraseña.",
+        "new-placeholder": "Nueva contraseña",
+        "empty-error": "El campo de contraseña de debe rellenar",
+        "current-placeholder": "Contraseña actual",
+        "change-text": "Escribe tu contraseña actual y la nueva contraseña que quieres utilizar.",
         "button": "Cambiar contraseña"
       },
       "plan": {
@@ -304,6 +319,14 @@
     "purchases": {
       "title": "Elementos comprados"
     }
+  },
+  "change-email-page": {
+    "confirm": "Confirmar",
+    "password-empty": "La contraseña no puede estar vacía",
+    "password-error": "La contraseña no es correcta",
+    "placeholder": "Contraseña",
+    "text": "Escribe tu contraseña para confirmar el cambio de correo electrónico de tu cuenta.",
+    "title": "Confirmar cambio"
   },
   "cloud": {
     "buttons": {

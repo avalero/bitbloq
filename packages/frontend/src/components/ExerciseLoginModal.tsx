@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Modal, Input, DialogModal, useTranslate } from "@bitbloq/ui";
 import { useMutation } from "@apollo/react-hooks";
@@ -23,6 +23,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
   code,
   onSuccess
 }) => {
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [step, setStep] = useState(Steps.StartOrContinue);
   const [teamName, setTeamName] = useState("");
   const [password, setPassword] = useState("");
@@ -38,6 +39,17 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
     setTeamNameError("");
     setPasswordError("");
   }, [step]);
+
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13 && submitRef.current) {
+        e.preventDefault();
+        submitRef.current.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
 
   const gotoStep = (nextStep: Steps) => {
     setTeamName("");
@@ -184,6 +196,7 @@ const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
               onClick={() =>
                 step === Steps.Start ? onStartClick() : onContinueClick()
               }
+              ref={submitRef}
             >
               Empezar
             </Button>

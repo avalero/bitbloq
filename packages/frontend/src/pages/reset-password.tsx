@@ -11,6 +11,7 @@ import {
 } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
+import ErrorMessage from "../components/ErrorMessage";
 import ModalLayout from "../components/ModalLayout";
 
 const ForgotPasswordPage: FC = () => {
@@ -129,7 +130,9 @@ const ForgotPasswordPage: FC = () => {
             setPassword(e.target.value)
           }
         />
-        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
+        {passwordError && (
+          <PasswordErrorMessage>{passwordError}</PasswordErrorMessage>
+        )}
       </FormGroup>
       <FormGroup>
         <label>Repetir nueva contraseña</label>
@@ -142,7 +145,9 @@ const ForgotPasswordPage: FC = () => {
             setRepeat(e.target.value)
           }
         />
-        {repeatError && <ErrorMessage>{repeatError}</ErrorMessage>}
+        {repeatError && (
+          <PasswordErrorMessage>{repeatError}</PasswordErrorMessage>
+        )}
       </FormGroup>
       <Buttons>
         <Button secondary onClick={() => Router.push("/login")}>
@@ -171,11 +176,8 @@ const FormGroup = styled.div`
   }
 `;
 
-const ErrorMessage = styled.div`
+const PasswordErrorMessage = styled(ErrorMessage)`
   margin-top: 8px;
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
 `;
 
 const Buttons = styled.div`

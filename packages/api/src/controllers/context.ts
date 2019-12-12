@@ -100,69 +100,73 @@ export const updateExpireDateInRedis = async (
   id: string,
   submission: boolean
 ) => {
-  try {
-    const token: string = submission
-      ? (await redisClient.hgetallAsync(id)).subToken
-      : (await redisClient.hgetallAsync(id)).authToken;
-    return storeTokenInRedis(id, token, submission);
-  } catch (e) {
-    return undefined;
+  if (String(process.env.USE_REDIS) === "true") {
+    try {
+      const token: string = submission
+        ? (await redisClient.hgetallAsync(id)).subToken
+        : (await redisClient.hgetallAsync(id)).authToken;
+      return storeTokenInRedis(id, token, submission);
+    } catch (e) {
+      return undefined;
+    }
   }
 };
 
 const checksSessionExpires = async () => {
-  const allKeys: string[] = await redisClient.keysAsync("*");
-  const sessionWarningSecs: string | undefined =
-    process.env.SESSION_SHOW_WARNING_SECONDS;
-  const now: Date = new Date();
-  allKeys.map(async key => {
-    try {
-      const result: IDataInRedis = await redisClient.hgetallAsync(key);
-      if (result && result.expiresAt) {
-        const expiresAt: Date = new Date(result.expiresAt);
-        let secondsRemaining: number = 0;
-        let topic: string = "";
-        let type: string = "";
-        if (result.authToken) {
-          topic = USER_SESSION_EXPIRES;
-          type = "userSessionExpires";
-        } else if (result.subToken) {
-          topic = SUBMISSION_SESSION_EXPIRES;
-          type = "submissionSessionExpires";
-        }
-        if (expiresAt > now) {
-          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-          if (
-            secondsRemaining <
-            (sessionWarningSecs ? Number(sessionWarningSecs) : 350)
-          ) {
+  if (String(process.env.USE_REDIS) === "true") {
+    const allKeys: string[] = await redisClient.keysAsync("*");
+    const sessionWarningSecs: string | undefined =
+      process.env.SESSION_SHOW_WARNING_SECONDS;
+    const now: Date = new Date();
+    allKeys.map(async key => {
+      try {
+        const result: IDataInRedis = await redisClient.hgetallAsync(key);
+        if (result && result.expiresAt) {
+          const expiresAt: Date = new Date(result.expiresAt);
+          let secondsRemaining: number = 0;
+          let topic: string = "";
+          let type: string = "";
+          if (result.authToken) {
+            topic = USER_SESSION_EXPIRES;
+            type = "userSessionExpires";
+          } else if (result.subToken) {
+            topic = SUBMISSION_SESSION_EXPIRES;
+            type = "submissionSessionExpires";
+          }
+          if (expiresAt > now) {
+            secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+            if (
+              secondsRemaining <
+              (sessionWarningSecs ? Number(sessionWarningSecs) : 350)
+            ) {
+              await pubsub.publish(topic, {
+                [type]: {
+                  ...result,
+                  key,
+                  secondsRemaining,
+                  expiredSession: false,
+                  showSessionWarningSecs: sessionWarningSecs
+                }
+              });
+            }
+          } else {
             await pubsub.publish(topic, {
               [type]: {
                 ...result,
                 key,
                 secondsRemaining,
-                expiredSession: false,
+                expiredSession: true,
                 showSessionWarningSecs: sessionWarningSecs
               }
             });
+            await redisClient.del(key);
           }
-        } else {
-          await pubsub.publish(topic, {
-            [type]: {
-              ...result,
-              key,
-              secondsRemaining,
-              expiredSession: true,
-              showSessionWarningSecs: sessionWarningSecs
-            }
-          });
-          await redisClient.del(key);
         }
+      } catch (e) {
+        await redisClient.del(key);
       }
-    } catch (e) {
-      await redisClient.del(key);
-    }
-  });
+    });
+  }
 };
 
 setInterval(checksSessionExpires, 5000);

@@ -408,7 +408,7 @@ const userResolver = {
         | IUserInToken
         | undefined = await contextController.getDataInToken(justToken);
 
-      if (data) {
+      if (data && String(process.env.USE_REDIS) === "true") {
         const now: Date = new Date();
         let secondsRemaining: number = 0;
         if (data.userID) {
@@ -529,7 +529,7 @@ const userResolver = {
         }
       );
 
-      if (process.env.USE_REDIS === "true") {
+      if (String(process.env.USE_REDIS) === "true") {
         redisClient.del(`resPass-${contactFound._id}`);
       }
 
@@ -696,7 +696,7 @@ const userResolver = {
           { new: true }
         );
       } else {
-        throw new AuthenticationError("Password incorrect");
+        throw new ApolloError("Password incorrect", "INCORRECT_PASSWORD");
       }
     },
 
@@ -797,18 +797,27 @@ const userResolver = {
         changeEmailUserID: string;
         changeEmailNewEmail: string;
       };
-      let redisToken: string;
+      let redisToken: string = "";
       try {
         userInToken = await jwtVerify(args.token, process.env.JWT_SECRET);
-        redisToken = (await redisClient.hgetallAsync(
-          `changeEmail-${userInToken.changeEmailUserID}`
-        )).authToken;
+        if (String(process.env.USE_REDIS) === "true") {
+          redisToken = (await redisClient.hgetallAsync(
+            `changeEmail-${userInToken.changeEmailUserID}`
+          )).authToken;
+        }
       } catch (e) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
-
+      let user: IUser | null;
+      user = await UserModel.findOne({ _id: userInToken.changeEmailUserID });
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const valid: boolean = await bcryptCompare(args.password, user.password);
+      if (!valid) {
+        throw new ApolloError("Password incorrect", "PASSWORD_INCORRECT");
+      }
       if (redisToken === args.token) {
-        let user: IUser | null;
         try {
           user = await UserModel.findOneAndUpdate(
             { _id: userInToken.changeEmailUserID },
@@ -818,19 +827,14 @@ const userResolver = {
         } catch (e) {
           throw new ApolloError("Email already exists", "EMAIL_EXISTS");
         }
-        if (!user) {
-          throw new ApolloError("User not found", "USER_NOT_FOUND");
-        }
         await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
-        const { token, role } = await contextController.generateLoginToken(
-          user
-        );
+        const { token } = await contextController.generateLoginToken(user);
         await UserModel.updateOne(
-          { _id: user._id },
+          { _id: user!._id },
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(user._id, token);
+        await storeTokenInRedis(`authToken-${user!._id}`, token);
         return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
@@ -886,7 +890,7 @@ const getResetPasswordData = async (token: string) => {
     );
   }
 
-  if (process.env.USE_REDIS === "true") {
+  if (String(process.env.USE_REDIS) === "true") {
     const storedToken = await redisClient.hgetallAsync(
       `resPass-${dataInToken.resetPassUserID}`
     );

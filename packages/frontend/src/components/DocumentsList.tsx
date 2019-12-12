@@ -19,7 +19,7 @@ import {
 } from "../apollo/queries";
 import DocumentCard from "./DocumentCard";
 import DocumentCardMenu from "./DocumentCardMenu";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import FolderSelectorMenu from "./FolderSelectorMenu";
 import MenuButton from "./MenuButton";
 import Paginator from "./Paginator";
@@ -98,7 +98,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
 
   const [
     hasExercises,
-    { data: hasExercisesRes, error: errorHasEx, loading: loadingHasEx }
+    { data: hasExercisesRes, error: errorHasEx }
   ] = useLazyQuery(HAS_EXERCISES_QUERY, {
     variables: {
       id: selectedToDel.id,
@@ -576,7 +576,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         }}
       />
       {editDocTitleModal.id && (
-        <EditTitleModal
+        <EditInputModal
           title={editDocTitleModal.title || undefined}
           onCancel={() => setEditDocTitleModal({ id: null, title: null })}
           onSave={onUpdateDocTitle}
@@ -587,7 +587,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         />
       )}
       {editFolderNameModal.id && (
-        <EditTitleModal
+        <EditInputModal
           title={editFolderNameModal.name || undefined}
           onCancel={() => setEditFolderNameModal({ id: null, name: null })}
           onSave={onUpdateFolderName}

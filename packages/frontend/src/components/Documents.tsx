@@ -20,7 +20,7 @@ import { OrderType } from "../types";
 import AppLayout from "./AppLayout";
 import Breadcrumbs, { IBreadcrumbLink } from "./Breadcrumbs";
 import DocumentList from "./DocumentsList";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import NewDocumentButton from "./NewDocumentButton";
@@ -266,7 +266,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
           style={{ display: "none" }}
         />
         {folderTitleModal && (
-          <EditTitleModal
+          <EditInputModal
             title={"Carpeta sin título"}
             onCancel={() => setFolderTitleModal(false)}
             onSave={onCreateFolder}
