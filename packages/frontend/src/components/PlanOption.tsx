@@ -6,10 +6,10 @@ import styled from "@emotion/styled";
 import { IPlan } from "../types";
 
 interface IPlanOptionProps {
-  checked: boolean;
+  checked?: boolean;
   className?: string;
   disabled?: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   plan: IPlan;
   showFeatures?: boolean;
 }
@@ -27,8 +27,14 @@ const PlanOption: FC<IPlanOptionProps> = ({
   return (
     <PlanContainer className={className} disabled={disabled}>
       <PlanHeader>
-        <BulletOption checked={checked} disabled={disabled} onClick={onClick} />
-        <PlanTitle>
+        {checked !== undefined && (
+          <BulletOption
+            checked={checked}
+            disabled={disabled}
+            onClick={onClick!}
+          />
+        )}
+        <PlanTitle bullet={checked !== undefined}>
           <span>{t(`plans.${plan.name}`)}</span>
           {plan.isFree ? (
             <PlanCost>{t(`signup.plan-selection.free`)}</PlanCost>
@@ -125,9 +131,9 @@ const PlanHeader = styled.div`
   }
 `;
 
-const PlanTitle = styled.div`
+const PlanTitle = styled.div<{ bullet: boolean }>`
   align-items: center;
-  border-left: solid 1px #cfcfcf;
+  border-left: ${props => (props.bullet ? "solid 1px #cfcfcf" : "none")};
   display: flex;
   flex: 1;
   justify-content: space-between;

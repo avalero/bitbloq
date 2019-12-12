@@ -12,6 +12,7 @@ import withApollo from "../../../apollo/withApollo";
 import AccountPersonalData from "../../../components/AccountPersonalData";
 import AppLayout from "../../../components/AppLayout";
 import ChangePasswordModal from "../../../components/ChangePasswordModal";
+import ChangePlanModal from "../../../components/ChangePlanModal";
 import CounterButton from "../../../components/CounterButton";
 import EditInputModal from "../../../components/EditInputModal";
 import ErrorLayout from "../../../components/ErrorLayout";
@@ -52,6 +53,7 @@ const AccountPage: NextPage = () => {
   const [emailSent, setEmailSent] = useState<boolean>(false);
   const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
+  const [showPlanModal, setShowPlanModal] = useState<boolean>(false);
 
   const onSaveNewEmail = (newEmail: string) => {
     newEmailRef.current = newEmail;
@@ -187,7 +189,9 @@ const AccountPage: NextPage = () => {
               icon="user"
               buttons={
                 plan === memberPlan ? (
-                  <Button>{t("account.user-data.plan.button")}</Button>
+                  <Button onClick={() => setShowPlanModal(true)}>
+                    {t("account.user-data.plan.button")}
+                  </Button>
                 ) : (
                   undefined
                 )
@@ -235,6 +239,12 @@ const AccountPage: NextPage = () => {
         disabledSave={loadingData}
         isOpen={showPasswordModal}
         onCancel={() => setShowPasswordModal(false)}
+        title=""
+      />
+      <ChangePlanModal
+        disabledSave={loadingData}
+        isOpen={showPlanModal}
+        onCancel={() => setShowPlanModal(false)}
         title=""
       />
       <DialogModal
