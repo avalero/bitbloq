@@ -1,4 +1,4 @@
-import React, { FC, useRef, useState } from "react";
+import React, { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
@@ -55,6 +55,10 @@ const AccountPage: NextPage = () => {
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   const [showPlanModal, setShowPlanModal] = useState<boolean>(false);
 
+  useEffect(() => {
+    setPlan(userData.teacher ? teacherPlan : memberPlan);
+  }, [userData]);
+
   const onSaveNewEmail = (newEmail: string) => {
     newEmailRef.current = newEmail;
     setLoadingData(true);
@@ -72,6 +76,7 @@ const AccountPage: NextPage = () => {
           setServerError(false);
           setLoadingData(false);
           setShowEmailModal(false);
+          fetchUserData();
         } else {
           setServerError(true);
           setLoadingData(false);
@@ -244,7 +249,10 @@ const AccountPage: NextPage = () => {
       <ChangePlanModal
         disabledSave={loadingData}
         isOpen={showPlanModal}
-        onCancel={() => setShowPlanModal(false)}
+        onSave={() => {
+          fetchUserData();
+          setShowPlanModal(false);
+        }}
         title=""
       />
       <DialogModal

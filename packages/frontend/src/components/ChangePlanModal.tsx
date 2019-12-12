@@ -11,7 +11,7 @@ interface IChangePlanModalProps {
   className?: string;
   disabledSave?: boolean;
   title?: string;
-  onCancel: () => any;
+  onSave: () => void;
   transparentOverlay?: boolean;
   isOpen?: boolean;
 }
@@ -20,7 +20,7 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
   const {
     className,
     disabledSave = false,
-    onCancel,
+    onSave,
     isOpen = true,
     transparentOverlay
   } = props;
@@ -33,7 +33,7 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
 
   const onClose = () => {
     setPlanChanged(false);
-    onCancel();
+    onSave();
   };
 
   const onSubmitPlan = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,6 +54,7 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
         title={t("account.user-data.plan.changed-title")}
         text={t("account.user-data.plan.changed")}
         okText={t("general-accept-button")}
+        onCancel={onClose}
         onOk={onClose}
       />
       <Modal
