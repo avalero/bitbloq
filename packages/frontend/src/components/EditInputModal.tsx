@@ -58,7 +58,8 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     >
       <Content>
         <form
-          onSubmit={() => {
+          onSubmit={e => {
+            e.preventDefault();
             if (type !== "email" || isValidEmail(title)) {
               onSave(title);
             } else {
