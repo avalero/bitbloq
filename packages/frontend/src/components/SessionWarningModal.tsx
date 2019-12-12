@@ -1,11 +1,8 @@
 import React, { FC, useEffect, useState } from "react";
 import { useSubscription, useMutation } from "@apollo/react-hooks";
 import { DialogModal } from "@bitbloq/ui";
-import { useSessionEvent, onSessionActivity, logout } from "../lib/session";
-import {
-  USER_SESSION_EXPIRES_SUBSCRIPTION,
-  RENEW_SESSION_MUTATION
-} from "../apollo/queries";
+import { logout } from "../lib/session";
+import { RENEW_SESSION_MUTATION } from "../apollo/queries";
 import { ISessionExpires } from "../../../api/src/api-types";
 import { DocumentNode } from "apollo-link";
 
@@ -20,6 +17,7 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
+
   useSubscription(subscription, {
     shouldResubscribe: true,
     onSubscriptionData: async ({ subscriptionData }) => {
@@ -28,28 +26,27 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
           (subscriptionData.data.userSessionExpires ||
             subscriptionData.data.submissionSessionExpires)) ||
         {};
-      console.log(subscriptionData);
       if (sessionExpires.expiredSession) {
         if (
           subscriptionData.data.submissionSessionExpires &&
           subscriptionData.data.submissionSessionExpires.expiredSession &&
           setActivteToFalse
         ) {
-          console.log("entra en quitar bolita verde");
           await setActivteToFalse();
         }
-        console.log("entra en logout");
-        logout();
-      }
-      if (Number(sessionExpires.secondsRemaining) < 120) {
-        setIsOpen(true);
-        setSecondsRemaining(Math.ceil(Number(sessionExpires.secondsRemaining)));
+        return logout();
       }
       if (
         !sessionExpires.expiredSession &&
-        Number(sessionExpires.secondsRemaining) > 120
+        Number(sessionExpires.secondsRemaining) >
+          (sessionExpires.showSessionWarningSecs
+            ? sessionExpires.showSessionWarningSecs
+            : 350)
       ) {
         setIsOpen(false);
+      } else {
+        setIsOpen(true);
+        setSecondsRemaining(Math.ceil(Number(sessionExpires.secondsRemaining)));
       }
     }
   });

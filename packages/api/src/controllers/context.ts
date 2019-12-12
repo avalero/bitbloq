@@ -65,9 +65,12 @@ export const storeTokenInRedis = async (
   if (id === undefined) {
     return undefined;
   }
+  const sessionDurationMin: string | undefined =
+    process.env.SESSION_DURATION_MINUTES;
   const date = new Date();
-  // date.setHours(date.getHours() + 2); // debería ser el tiempo que queramos que tarde en caducar la sesión
-  date.setMinutes(date.getMinutes() + 3);
+  date.setMinutes(
+    date.getMinutes() + (sessionDurationMin ? Number(sessionDurationMin) : 60)
+  );
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {
@@ -109,6 +112,8 @@ export const updateExpireDateInRedis = async (
 
 const checksSessionExpires = async () => {
   const allKeys: string[] = await redisClient.keysAsync("*");
+  const sessionWarningSecs: string | undefined =
+    process.env.SESSION_SHOW_WARNING_SECONDS;
   const now: Date = new Date();
   allKeys.map(async key => {
     try {
@@ -127,13 +132,17 @@ const checksSessionExpires = async () => {
         }
         if (expiresAt > now) {
           secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-          if (secondsRemaining / 60 < 2) {
+          if (
+            secondsRemaining <
+            (sessionWarningSecs ? Number(sessionWarningSecs) : 350)
+          ) {
             await pubsub.publish(topic, {
               [type]: {
                 ...result,
                 key,
                 secondsRemaining,
-                expiredSession: false
+                expiredSession: false,
+                showSessionWarningSecs: sessionWarningSecs
               }
             });
           }
@@ -143,7 +152,8 @@ const checksSessionExpires = async () => {
               ...result,
               key,
               secondsRemaining,
-              expiredSession: true
+              expiredSession: true,
+              showSessionWarningSecs: sessionWarningSecs
             }
           });
           await redisClient.del(key);

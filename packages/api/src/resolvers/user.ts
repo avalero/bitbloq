@@ -403,7 +403,6 @@ const userResolver = {
     renewSession: async (_, __, context: any) => {
       // authorization for queries and mutations
       const token1: string = context.headers.authorization || "";
-      const type: string = token1.split(" ")[0];
       const justToken: string = token1.split(" ")[1];
       const data:
         | IUserInToken
@@ -424,7 +423,8 @@ const userResolver = {
               ...result,
               key: data.userID,
               secondsRemaining,
-              expiredSession: false
+              expiredSession: false,
+              showSessionWarningSecs: process.env.SESSION_SHOW_WARNING_SECONDS
             }
           });
         } else if (data.submissionID) {
@@ -439,33 +439,14 @@ const userResolver = {
               ...result,
               key: data.submissionID,
               secondsRemaining,
-              expiredSession: false
+              expiredSession: false,
+              showSessionWarningSecs: process.env.SESSION_SHOW_WARNING_SECONDS
             }
           });
         }
         return "OK";
       }
       throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
-    },
-
-    /*
-     * renewToken: returns a new token for a logged user
-     */
-    renewToken: async (_, __, context: any) => {
-      let oldToken = "";
-      if (context.headers && context.headers.authorization) {
-        oldToken = context.headers.authorization.split(" ")[1];
-      }
-
-      const { data, token } = await contextController.generateNewToken(
-        oldToken
-      );
-      if (data.userID) {
-        await storeTokenInRedis(data.userID, token);
-      } else if (data.submissionID) {
-        await storeTokenInRedis(data.submissionID, token, true);
-      }
-      return token;
     },
 
     /**

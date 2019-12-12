@@ -169,7 +169,6 @@ export interface IMutation {
   login?: Maybe<Scalars["String"]>;
   loginWithGoogle?: Maybe<ISocialLogin>;
   loginWithMicrosoft?: Maybe<ISocialLogin>;
-  renewToken?: Maybe<Scalars["String"]>;
   renewSession?: Maybe<Scalars["String"]>;
   sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
   checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
@@ -560,6 +559,7 @@ export interface ISessionExpires {
   subToken?: Maybe<Scalars["String"]>;
   expiresAt?: Maybe<Scalars["Date"]>;
   secondsRemaining?: Maybe<Scalars["Number"]>;
+  showSessionWarningSecs?: Maybe<Scalars["Number"]>;
   expiredSession?: Maybe<Scalars["Boolean"]>;
 }
 
@@ -1189,11 +1189,6 @@ export type IMutationResolvers<
     ContextType,
     RequireFields<IMutationLoginWithMicrosoftArgs, "token">
   >;
-  renewToken?: Resolver<
-    Maybe<IResolversTypes["String"]>,
-    ParentType,
-    ContextType
-  >;
   renewSession?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
@@ -1658,6 +1653,11 @@ export type ISessionExpiresResolvers<
   >;
   expiresAt?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
   secondsRemaining?: Resolver<
+    Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
+  showSessionWarningSecs?: Resolver<
     Maybe<IResolversTypes["Number"]>,
     ParentType,
     ContextType

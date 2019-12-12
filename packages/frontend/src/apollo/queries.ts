@@ -591,6 +591,7 @@ export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
       secondsRemaining
       subToken
       expiredSession
+      showSessionWarningSecs
     }
   }
 `;
@@ -602,6 +603,7 @@ export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
       secondsRemaining
       authToken
       expiredSession
+      showSessionWarningSecs
     }
   }
 `;
