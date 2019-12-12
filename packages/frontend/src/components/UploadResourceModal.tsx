@@ -1,6 +1,7 @@
 import React, {
   FC,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -54,6 +55,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const canvasRef = useRef<STLViewer>(null);
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [cameraY, setCameraY] = useState<number>(0);
   const [cameraZ, setCameraZ] = useState<number | null>(null);
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
@@ -155,6 +157,17 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     }
   }, [canvasRef, fileArray]);
 
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13 && submitRef.current) {
+        e.preventDefault();
+        submitRef.current.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
+
   return openCloud && file === undefined && error === Errors.noError ? (
     <CloudModal
       acceptedExt={accept}
@@ -234,6 +247,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             <ResourceModalButton
               disabled={disabledButton || !isValidName(nameFile)}
               onClick={() => onSendResource(file)}
+              ref={submitRef}
             >
               {t("general-add-button")}
             </ResourceModalButton>

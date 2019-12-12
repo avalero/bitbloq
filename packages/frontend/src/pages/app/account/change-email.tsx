@@ -1,4 +1,4 @@
-import { useTranslate } from "@bitbloq/ui";
+import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import Router from "next/router";
 import queryString from "query-string";
@@ -100,7 +100,7 @@ const ConfirmPasswordModal = styled(EditInputModal)`
 `;
 
 const Container = styled.div`
-  background-color: #fbfbfb;
+  background-color: ${colors.gray1};
   height: 100vh;
   width: 100vw;
 `;

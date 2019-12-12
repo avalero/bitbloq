@@ -98,7 +98,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
 
   const [
     hasExercises,
-    { data: hasExercisesRes, error: errorHasEx, loading: loadingHasEx }
+    { data: hasExercisesRes, error: errorHasEx }
   ] = useLazyQuery(HAS_EXERCISES_QUERY, {
     variables: {
       id: selectedToDel.id,
