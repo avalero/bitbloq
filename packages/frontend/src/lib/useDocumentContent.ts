@@ -3,7 +3,8 @@ import { IDocument } from "../types";
 
 const useDocumentContent = (
   document: IDocument,
-  onDocumentChange: (document: IDocument) => any
+  onDocumentChange: (document: IDocument) => any,
+  advancedMode?: boolean
 ) => {
   const documentRef = useRef(document);
   const onDocumentChangeRef = useRef(onDocumentChange);
@@ -28,9 +29,10 @@ const useDocumentContent = (
     (newContent: any) =>
       onDocumentChangeRef.current({
         ...documentRef.current,
+        advancedMode,
         content: JSON.stringify(newContent)
       }),
-    [documentRef, onDocumentChangeRef]
+    [advancedMode, documentRef, onDocumentChangeRef]
   );
 
   return [initialContent, onContentChange];

@@ -388,7 +388,7 @@ const documentResolver = {
                 ? args.input.content || existDocument.content
                 : existDocument.content,
               advancedMode:
-                args.input && args.input.advancedMode
+                args.input && args.input.advancedMode !== undefined
                   ? args.input.advancedMode
                   : existDocument.advancedMode,
               cache: args.input

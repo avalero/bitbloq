@@ -31,6 +31,9 @@ export interface IDocument {
   image: IDocumentImage | string;
   content: any;
   advancedMode?: boolean;
+  type?: string;
+  example?: boolean;
+  public?: boolean;
 }
 
 export interface IDocumentImage {

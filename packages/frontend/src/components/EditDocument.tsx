@@ -32,7 +32,7 @@ import {
 } from "../apollo/queries";
 import { boards, documentTypes, components } from "../config";
 import { dataURItoBlob } from "../util";
-import { IDocumentImage, IResource } from "../types";
+import { IDocument, IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
@@ -68,7 +68,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
   const [error, setError] = useState<ApolloError | null>(null);
-  const [document, setDocument] = useState({
+  const [document, setDocument] = useState<Partial<IDocument>>({
     id: "",
     content: "[]",
     title: t("untitled-project"),
@@ -320,7 +320,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   };
 
   const debouncedUpdate = useCallback(
-    debounce(async (newDocument: any) => {
+    debounce(async (newDocument: Partial<IDocument>) => {
       saveImage(newDocument.content);
       await updateDocument({ variables: { ...newDocument, id } }).catch(e => {
         return setError(e);
@@ -337,7 +337,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     );
   }, [data]);
 
-  const update = async (updatedDocument: any) => {
+  const update = async (updatedDocument: Partial<IDocument>) => {
     delete updatedDocument.image;
     setDocument(updatedDocument);
 
@@ -475,7 +475,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentInfoForm
         title={title}
         description={description}
-        documentId={document.id}
+        documentId={document.id!}
         resourceAdded={onResourceAdded}
         resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
@@ -493,7 +493,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
             description: newDescription || t("document-body-description")
           };
           if (newImage) {
-            updateImage(document.id, newImage, false);
+            updateImage(document.id!, newImage, false);
           }
           update(newDocument);
         }}
@@ -534,8 +534,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
             preMenuContent={
               isPublisher && (
                 <PublishBar
-                  isPublic={isPublic}
-                  isExample={isExample}
+                  isPublic={isPublic!}
+                  isExample={isExample!}
                   onChange={onChangePublic}
                   url={isPublic ? publicUrl : ""}
                 />
