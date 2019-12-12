@@ -21,7 +21,7 @@ import { welcomeTemplate } from "../email/welcomeMail";
 
 import { redisClient } from "../server";
 
-import { sign as jwtSign, decode } from "jsonwebtoken";
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
 import {
@@ -32,11 +32,15 @@ import {
   IMutationLoginWithMicrosoftArgs,
   IMutationLoginWithGoogleArgs,
   IMutationUpdateUserDataArgs,
-  IMutationUpdateMyPasswordArgs
+  IMutationUpdateMyPasswordArgs,
+  IMutationUpdateMyPlanArgs,
+  IMutationSendChangeMyEmailTokenArgs,
+  IMutationConfirmChangeEmailArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
-import { uploadDocumentImage } from "./upload";
+import { uploadDocumentUserImage } from "./upload";
+import { changeEmailTemplate } from "../email/changeEmailMail";
 
 const saltRounds: number = 7;
 
@@ -575,7 +579,7 @@ const userResolver = {
 
       let image: string | undefined;
       if (args.input.avatar) {
-        const imageUploaded: IUpload = await uploadDocumentImage(
+        const imageUploaded: IUpload = await uploadDocumentUserImage(
           args.input.avatar,
           context.user.userID
         );
@@ -627,6 +631,141 @@ const userResolver = {
         );
       } else {
         throw new AuthenticationError("Password incorrect");
+      }
+    },
+
+    /**
+     * updateMyPlan: mutation to update my user plan in accounts page.
+     * args: new User Plan
+     */
+    updateMyPlan: async (
+      _,
+      args: IMutationUpdateMyPlanArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID,
+        finishedSignUp: true
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      let teacher: boolean = false;
+      switch (args.userPlan) {
+        case "teacher":
+          teacher = true;
+          break;
+        case "member":
+          break;
+        default:
+          throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
+      }
+      return UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        { $set: { teacher } },
+        { new: true }
+      );
+    },
+
+    /**
+     * sendChangeMyEmailToken: first mutation to update my email in account page.
+     * It sends a new Email with a token like in create account process.
+     * args: new User Email
+     */
+    sendChangeMyEmailToken: async (
+      _,
+      args: IMutationSendChangeMyEmailTokenArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID,
+        finishedSignUp: true
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const existsNewMail: IUser | null = await UserModel.findOne({
+        email: args.newEmail
+      });
+      if (existsNewMail) {
+        throw new ApolloError("Email already exists", "EMAIL_EXISTS");
+      }
+      const token: string = jwtSign(
+        {
+          changeEmailUserID: contactFound._id,
+          changeEmailNewEmail: args.newEmail
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "30m" }
+      );
+      await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
+      // Generate the email with the activation link and send it
+      const data: IEmailData = {
+        url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
+      };
+      const mjml: string = changeEmailTemplate(data);
+      const htmlMessage: any = mjml2html(mjml, {
+        keepComments: false,
+        beautify: true,
+        minify: true
+      });
+      await mailerController.sendEmail(
+        args.newEmail!,
+        "Bitbloq change e-mail ✔",
+        htmlMessage.html
+      );
+      return "OK";
+    },
+
+    /**
+     * confirmChangeEmail: second mutation to update my email in account page.
+     * It checks the token and stores the new email. It returns the login token updated.
+     * args: token sent to user
+     */
+    confirmChangeEmail: async (
+      _,
+      args: IMutationConfirmChangeEmailArgs,
+      __
+    ) => {
+      let userInToken: {
+        changeEmailUserID: string;
+        changeEmailNewEmail: string;
+      };
+      try {
+        userInToken = await jwtVerify(args.token, process.env.JWT_SECRET);
+      } catch (e) {
+        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
+      }
+      const redisToken: string = await redisClient.getAsync(
+        `changeEmail-${userInToken.changeEmailUserID}`
+      );
+      if (redisToken === args.token) {
+        let user: IUser | null;
+        try {
+          user = await UserModel.findOneAndUpdate(
+            { _id: userInToken.changeEmailUserID },
+            { $set: { email: userInToken.changeEmailNewEmail } },
+            { new: true }
+          );
+        } catch (e) {
+          throw new ApolloError("Email already exists", "EMAIL_EXISTS");
+        }
+        if (!user) {
+          throw new ApolloError("User not found", "USER_NOT_FOUND");
+        }
+        await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
+        const { token, role } = await contextController.generateLoginToken(
+          user
+        );
+        await UserModel.updateOne(
+          { _id: user._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(`authToken-${user._id}`, token);
+        return token;
+      } else {
+        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
     }
   },

@@ -176,6 +176,9 @@ export interface IMutation {
   deleteUser?: Maybe<IUser>;
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
+  updateMyPlan?: Maybe<IUser>;
+  sendChangeMyEmailToken?: Maybe<Scalars["String"]>;
+  confirmChangeEmail?: Maybe<Scalars["String"]>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
   duplicateDocument?: Maybe<IDuplicateDocument>;
@@ -262,6 +265,18 @@ export interface IMutationUpdateUserDataArgs {
 export interface IMutationUpdateMyPasswordArgs {
   currentPassword: Scalars["String"];
   newPassword: Scalars["String"];
+}
+
+export interface IMutationUpdateMyPlanArgs {
+  userPlan: Scalars["String"];
+}
+
+export interface IMutationSendChangeMyEmailTokenArgs {
+  newEmail: Scalars["String"];
+}
+
+export interface IMutationConfirmChangeEmailArgs {
+  token: Scalars["String"];
 }
 
 export interface IMutationCreateDocumentArgs {
@@ -1202,6 +1217,24 @@ export type IMutationResolvers<
       IMutationUpdateMyPasswordArgs,
       "currentPassword" | "newPassword"
     >
+  >;
+  updateMyPlan?: Resolver<
+    Maybe<IResolversTypes["User"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationUpdateMyPlanArgs, "userPlan">
+  >;
+  sendChangeMyEmailToken?: Resolver<
+    Maybe<IResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationSendChangeMyEmailTokenArgs, "newEmail">
+  >;
+  confirmChangeEmail?: Resolver<
+    Maybe<IResolversTypes["String"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationConfirmChangeEmailArgs, "token">
   >;
   createDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,

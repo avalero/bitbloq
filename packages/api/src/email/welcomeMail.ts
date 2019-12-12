@@ -20,11 +20,9 @@ const welcomeTemplate = compile(`
   </mj-head>
   <mj-body background-color="#ffffff" width="520px" height="827px" border-radius="4px">
     <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="40px">
-      <mj-column width="40%">
-        <mj-image align="left" src="https://storage.googleapis.com/bitbloq-dev/1550495188742logo-vertical.png" width="120px" height="55.2px" alt=""  />
-      </mj-column>
-      <mj-column width="60%">
-      </mj-column>
+    <mj-column width="100%">
+    <mj-image align="center" width="196px" src="https://storage.googleapis.com/bitbloq-qa/5d63bbafbb9ddb0015645632/profilePhotomail-header-png" width="120px" height="55.2px" alt=""  />
+  </mj-column>
     </mj-section>
     <mj-section padding-top="1px" padding-bottom="1px" background-color="#ffffff">
       <mj-column width="100%">

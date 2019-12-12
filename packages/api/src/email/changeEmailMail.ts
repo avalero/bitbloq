@@ -1,6 +1,6 @@
 import { compile } from "handlebars";
 
-const resetPasswordTemplate = compile(`
+const changeEmailTemplate = compile(`
 <mjml>
   <mj-head>
     <mj-attributes>
@@ -19,10 +19,10 @@ const resetPasswordTemplate = compile(`
 
   </mj-head>
   <mj-body background-color="#ffffff" width="520px" height="827px" border-radius="4px">
-    <mj-section background-color="#ffffff" padding-left="15px" padding-right="15px" padding-top="40px">
-    <mj-column width="100%">
-    <mj-image align="center" width="196px" src="https://storage.googleapis.com/bitbloq-qa/5d63bbafbb9ddb0015645632/profilePhotomail-header-png" width="120px" height="55.2px" alt=""  />
-  </mj-column>
+    <mj-section background-color="#ffffff" padding-left="160px" padding-right="160px" padding-top="40px">
+      <mj-column width="100%">
+        <mj-image align="center" width="196px" src="https://storage.googleapis.com/bitbloq-qa/5d63bbafbb9ddb0015645632/profilePhotomail-header-png" width="120px" height="55.2px" alt=""  />
+      </mj-column>
     </mj-section>
     <mj-section padding-top="1px" padding-bottom="1px" background-color="#ffffff">
       <mj-column width="100%">
@@ -36,17 +36,17 @@ const resetPasswordTemplate = compile(`
           ¡Hola!
         </mj-text>
         <mj-text color="#313741" font-size="14px">
-          Has solicitado cambiar la contraseña de tu cuenta. Para hacerlo, pulsa en el enlace correspondiente o copia y pega la URL en el navegador:
+          Has solicitado cambiar el correo electrónico de tu cuenta. Para hacerlo, pulsa en este enlace o copialo y pegalo la en el navegador:
         </mj-text>
         <mj-button background-color="#ebebeb" align="center" color="#313741" font-size="14px" font-weight="bold" href="{{activationUrl}}" width="420px" height="110px" border-radius="4px">
           {{url}}
         </mj-button>
         <mj-text color="#313741" font-size="14px">
-          Recuerda: desde que recibas este email, el enlace estará activo solo durante 30 minutos.
-        </mj-text>
+          Recuerda: desde que recibas este email, el enlace estará activo sólo durante 30 minutos.
+        </mj-text>        
         <mj-text color="#313741" font-size="14px" padding-bottom="0">
           Un saludo,
-          <p>El equipo de Bitbloq.</p>
+          <p>el equipo de Bitbloq.</p>
         </mj-text>
       </mj-column>
     </mj-section>
@@ -65,4 +65,4 @@ const resetPasswordTemplate = compile(`
 </mjml>
   `);
 
-export { resetPasswordTemplate };
+export { changeEmailTemplate };

@@ -27,7 +27,7 @@ import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
 
 const Documents: FC<{ id?: string }> = ({ id }) => {
-  const userData = useUserData();
+  const { userData } = useUserData();
   const client = useApolloClient();
 
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
@@ -180,7 +180,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   return (
     <>
-      {loading && <AppLayout loading />}
+      {loading && <AppLayoutLoading loading />}
       <AppLayout
         header={
           currentLocation.id === (userData && userData.rootFolder) ? (
@@ -286,6 +286,12 @@ const DocumentsWithDelete = props => <Documents {...props} />;
 export default DocumentsWithDelete;
 
 /* styled components */
+
+const AppLayoutLoading = styled(AppLayout)`
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+`;
 
 const DocumentListHeader = styled.div`
   align-items: center;
