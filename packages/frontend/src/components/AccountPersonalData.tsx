@@ -229,8 +229,8 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
         <AvatarImage id={userData.id} src={avatarPreview || userData.avatar}>
           {!avatarPreview && !userData.avatar && (
             <span>
-              {userData.name.charAt(0)}
-              {userData.surnames && userData.surnames.charAt(0)}
+              {userData.name.charAt(0).toUpperCase()}
+              {userData.surnames && userData.surnames.charAt(0).toUpperCase()}
             </span>
           )}
         </AvatarImage>
