@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { SFC, useLayoutEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import Button from "./Button";
 import Modal from "./Modal";
@@ -20,7 +20,7 @@ export interface IDialogModalProps {
   horizontalRule?: boolean;
 }
 
-const DialogModal: React.SFC<IDialogModalProps> = ({
+const DialogModal: SFC<IDialogModalProps> = ({
   isOpen,
   title,
   text,
@@ -33,30 +33,49 @@ const DialogModal: React.SFC<IDialogModalProps> = ({
   onCancel,
   transparentOverlay,
   horizontalRule = false
-}) => (
-  <Modal
-    isOpen={isOpen}
-    showHeader={false}
-    transparentOverlay={transparentOverlay}
-  >
-    <Content>
-      <Header horizontalRule={horizontalRule}>
-        <h2>{title}</h2>
-        {horizontalRule && <Rule small />}
-      </Header>
-      {text && <p>{text}</p>}
-      {content}
-      {okButton}
-      {!okButton && okText && <Button onClick={onOk}>{okText}</Button>}
-      {cancelButton}
-      {!cancelButton && cancelText && (
-        <Button tertiary onClick={onCancel}>
-          {cancelText}
-        </Button>
-      )}
-    </Content>
-  </Modal>
-);
+}) => {
+  const submitRef = useRef<HTMLButtonElement | null>(null);
+
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13 && submitRef.current) {
+        e.preventDefault();
+        submitRef.current.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, [isOpen]);
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      showHeader={false}
+      transparentOverlay={transparentOverlay}
+    >
+      <Content>
+        <Header horizontalRule={horizontalRule}>
+          <h2>{title}</h2>
+          {horizontalRule && <Rule small />}
+        </Header>
+        {text && <p>{text}</p>}
+        {content}
+        {okButton}
+        {!okButton && okText && (
+          <Button ref={submitRef} onClick={onOk}>
+            {okText}
+          </Button>
+        )}
+        {cancelButton}
+        {!cancelButton && cancelText && (
+          <Button tertiary onClick={onCancel}>
+            {cancelText}
+          </Button>
+        )}
+      </Content>
+    </Modal>
+  );
+};
 
 export default DialogModal;
 

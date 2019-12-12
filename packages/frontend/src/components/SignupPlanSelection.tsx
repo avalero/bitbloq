@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { useRouter } from "next/router";
-import React, { FC, useState } from "react";
+import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import {
   Button,
   colors,
@@ -33,6 +33,18 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [plan, setPlan] = useState(defaultValues);
+  const submitRef = useRef<HTMLButtonElement | null>(null);
+
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13) {
+        e.preventDefault();
+        submitRef.current!.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
 
   return (
     <>
@@ -60,7 +72,11 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
         >
           {t("signup.plan-selection.cancel")}
         </Button>
-        <Button disabled={loading} onClick={() => onSubmit(plan)}>
+        <Button
+          ref={submitRef}
+          disabled={loading}
+          onClick={() => onSubmit(plan)}
+        >
           {t("signup.plan-selection.ok")}
         </Button>
       </Buttons>

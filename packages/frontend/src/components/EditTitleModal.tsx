@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidName } from "../util";
@@ -28,26 +28,18 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   } = props;
   const [title, setTitle] = useState(props.title);
   const [error, setError] = useState(false);
-  const titleInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (titleInputRef.current) {
-      titleInputRef.current.focus();
-    }
-  });
 
   return (
     <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
       <Content>
         <form
-          onSubmit={e => {
-            e.preventDefault();
+          onSubmit={() => {
             onSave(title);
           }}
         >
           <p>{modalText}</p>
           <Input
-            ref={titleInputRef}
+            autoFocus
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
@@ -66,14 +58,16 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
           <Buttons>
             <Button
               tertiary
-              onClick={e => {
-                e.preventDefault();
+              type="button"
+              onClick={() => {
                 onCancel();
               }}
             >
               Cancelar
             </Button>
-            <Button disabled={error}>{saveButton}</Button>
+            <Button type="submit" disabled={error}>
+              {saveButton}
+            </Button>
           </Buttons>
         </form>
       </Content>

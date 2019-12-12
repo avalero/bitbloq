@@ -22,14 +22,19 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
       targetPosition={"bottom center"}
       closeOnClick={false}
     >
-      {(isOpen: boolean) => (
+      {() => (
         <HeaderButton tertiary>
           <Icon name="airplane-document" />
           Ir al ejercicio
         </HeaderButton>
       )}
       <ExerciseDropDown>
-        <ExerciseForm>
+        <ExerciseForm
+          onSubmit={e => {
+            e.preventDefault();
+            onOpenExercise(exerciseCode);
+          }}
+        >
           <label>Código del ejercicio</label>
           <Input
             type="text"
@@ -39,12 +44,9 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
             onChange={e => setExerciseCode(e.target.value)}
           />
           {exerciseError && <Error>El código no es válido</Error>}
-          <HeaderButton
-            onClick={() => onOpenExercise(exerciseCode)}
-            disabled={loadingExercise}
-          >
+          <Button type="submit" disabled={loadingExercise}>
             Ir al ejercicio
-          </HeaderButton>
+          </Button>
         </ExerciseForm>
       </ExerciseDropDown>
     </DropDown>
@@ -86,7 +88,7 @@ const ExerciseDropDown = styled.div`
   }
 `;
 
-const ExerciseForm = styled.div`
+const ExerciseForm = styled.form`
   label {
     font-size: 14px;
     margin-bottom: 10px;

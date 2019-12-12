@@ -39,7 +39,12 @@ const OpenExerciseForm: FC<IOpenExerciseForm> = ({
   };
 
   return (
-    <Form>
+    <Form
+      onSubmit={e => {
+        e.preventDefault();
+        onOpenExercise();
+      }}
+    >
       <label>Código del ejercicio</label>
       <Input
         type="text"
@@ -49,7 +54,7 @@ const OpenExerciseForm: FC<IOpenExerciseForm> = ({
         onChange={e => setExerciseCode(e.target.value)}
       />
       {exerciseError && <Error>El código no es válido</Error>}
-      <Button onClick={() => onOpenExercise()} disabled={loadingExercise}>
+      <Button type="submit" disabled={loadingExercise}>
         {openText}
       </Button>
     </Form>
@@ -60,7 +65,7 @@ export default OpenExerciseForm;
 
 /* styled components */
 
-const Form = styled.div`
+const Form = styled.form`
   label {
     font-size: 14px;
     margin-bottom: 10px;
