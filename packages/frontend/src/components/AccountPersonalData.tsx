@@ -9,6 +9,7 @@ import { IUser } from "../types";
 import { getAge, getAvatarColor, isValidDate } from "../util";
 
 interface IPersonalData extends IUser {
+  avatarFile: File;
   day: number;
   month: number;
   year: number;
@@ -47,7 +48,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     setValue
   } = useForm({ defaultValues: userData });
 
-  register({ name: "avatar", type: "custom" });
+  register({ name: "avatarFile", type: "custom" });
   register(
     { name: "birthDate", type: "custom" },
     {
@@ -68,7 +69,6 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   };
 
   const onFileSelected = (file: File) => {
-    setValue("avatar", file);
     const reader = new FileReader();
     reader.onload = () => {
       setAvatarPreview(reader.result as string);
@@ -114,7 +114,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
         onSubmit={handleSubmit((input: IPersonalData) =>
           onSubmit({
             ...userData,
-            avatar: input.avatar,
+            avatar: input.avatarFile,
             name: input.name,
             surnames: input.surnames,
             birthDate: new Date(input.year, input.month - 1, input.day)
