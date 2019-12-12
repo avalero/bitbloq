@@ -107,7 +107,11 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
             </FormLabel>
             <FormInput>
               <TextArea
-                value={description}
+                value={
+                  description === t("document-body-description")
+                    ? undefined
+                    : description
+                }
                 placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
                   onChange({
