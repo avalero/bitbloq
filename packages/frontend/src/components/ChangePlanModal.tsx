@@ -1,10 +1,9 @@
 import React, { FC, useState } from "react";
 import { useMutation } from "react-apollo";
 import styled from "@emotion/styled";
-import { DialogModal, Button, Input, Modal, useTranslate } from "@bitbloq/ui";
+import { DialogModal, Button, Modal, useTranslate } from "@bitbloq/ui";
 import { CHANGE_PASSWORD_MUTATION } from "../apollo/queries";
 import { plans } from "../config";
-import ErrorMessage from "./ErrorMessage";
 import PlanOption from "./PlanOption";
 
 interface IChangePlanModalProps {
@@ -27,45 +26,57 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
 
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
+  const [planChanged, setPlanChanged] = useState<boolean>(false);
   const t = useTranslate();
 
   const onClose = () => {
+    setPlanChanged(false);
     onCancel();
   };
 
   const onSubmitPlan = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setPlanChanged(true);
   };
 
   return (
-    <Modal
-      className={className}
-      isOpen={isOpen}
-      title={t("account.user-data.plan.button")}
-      onClose={onClose}
-      transparentOverlay={transparentOverlay}
-    >
-      <Content>
-        <form onSubmit={onSubmitPlan}>
-          <PlanLabel>{t("account.user-data.plan.label")}</PlanLabel>
-          <PlanContent plan={teacherPlan} showFeatures={true} />
-          <Buttons>
-            <Button
-              tertiary
-              type="button"
-              onClick={() => {
-                onClose();
-              }}
-            >
-              {t("general-cancel-button")}
-            </Button>
-            <Button type="submit" disabled={disabledSave}>
-              {t("account.user-data.plan.button")}
-            </Button>
-          </Buttons>
-        </form>
-      </Content>
-    </Modal>
+    <>
+      <DialogModal
+        isOpen={isOpen && planChanged}
+        title={t("account.user-data.plan.changed-title")}
+        text={t("account.user-data.plan.changed")}
+        okText={t("general-accept-button")}
+        onOk={onClose}
+      />
+      <Modal
+        className={className}
+        isOpen={isOpen && !planChanged}
+        title={t("account.user-data.plan.button")}
+        onClose={onClose}
+        transparentOverlay={transparentOverlay}
+      >
+        <Content>
+          <form onSubmit={onSubmitPlan}>
+            <PlanLabel>{t("account.user-data.plan.label")}</PlanLabel>
+            <PlanContent plan={teacherPlan} showFeatures={true} />
+            <Buttons>
+              <Button
+                tertiary
+                type="button"
+                onClick={() => {
+                  onClose();
+                }}
+              >
+                {t("general-cancel-button")}
+              </Button>
+              <Button type="submit" disabled={disabledSave}>
+                {t("account.user-data.plan.button")}
+              </Button>
+            </Buttons>
+          </form>
+        </Content>
+      </Modal>
+    </>
   );
 };
 
