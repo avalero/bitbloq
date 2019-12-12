@@ -5,7 +5,11 @@ import { Icon, JuniorNumberInput, JuniorSwitch } from "@bitbloq/ui";
 
 import { IBloq } from "../../index";
 
-import LoopImage from "./images/LoopImage";
+import StartLoopIcon from "./icons/start-loop.svg";
+import Start1TimeIcon from "./icons/start-1-time.svg";
+import Start2TimesIcon from "./icons/start-2-times.svg";
+import Start5TimesIcon from "./icons/start-5-times.svg";
+import Start10TimesIcon from "./icons/start-10-times.svg";
 
 export interface IStartConfigurationProps {
   bloq: IBloq;
@@ -20,48 +24,35 @@ const StartConfiguration: FC<IStartConfigurationProps> = ({
   const times = bloq.parameters.times as number;
 
   return (
-    <Container>
-      <Switch
-        buttons={[
-          { content: <Icon name="loop" />, id: "loop" },
-          { content: <Icon name="times" />, id: "times" }
-        ]}
-        value={type}
-        onChange={value =>
-          onChange(update(bloq, { parameters: { type: { $set: value } } }))
+    <JuniorSwitch
+      buttons={[
+        { content: <ButtonIcon src={StartLoopIcon} />, id: "loop" },
+        { content: <ButtonIcon src={Start1TimeIcon} />, id: "1" },
+        { content: <ButtonIcon src={Start2TimesIcon} />, id: "2" },
+        { content: <ButtonIcon src={Start5TimesIcon} />, id: "5" },
+        { content: <ButtonIcon src={Start10TimesIcon} />, id: "10" }
+      ]}
+      value={type === "loop" ? "loop" : times.toString()}
+      onChange={value => {
+        if (value === "loop") {
+          onChange(update(bloq, { parameters: { type: { $set: "loop" } } }));
+        } else {
+          onChange(
+            update(bloq, {
+              parameters: {
+                type: { $set: "times" },
+                times: { $set: parseInt(value, 10) }
+              }
+            })
+          );
         }
-      />
-      {type === "loop" && (
-        <LoopImageWrap>
-          <LoopImage />
-        </LoopImageWrap>
-      )}
-      {type === "times" && (
-        <JuniorNumberInput
-          value={times}
-          onChange={value =>
-            onChange(update(bloq, { parameters: { times: { $set: value } } }))
-          }
-        />
-      )}
-    </Container>
+      }}
+    />
   );
 };
 
 export default StartConfiguration;
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const Switch = styled(JuniorSwitch)`
-  margin-right: 20px;
-`;
-
-const LoopImageWrap = styled.div`
-  svg {
-    width: 152px;
-    height: 92px;
-  }
+const ButtonIcon = styled.img`
+  width: 36px;
 `;

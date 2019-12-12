@@ -119,7 +119,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
             <React.Fragment key={i}>
               {selectedBloq !== i && (
                 <StyledBloq
-                  type={bloqTypes.find(t => t.name === bloq.type)!}
+                  type={bloqTypes.find(t => t.name === bloq.type)}
                   onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
                   bloq={bloq}
                   port={getBloqPort(bloq)}

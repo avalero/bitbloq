@@ -49,7 +49,7 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
             )
           }
         />
-        <JuniorSwitch
+        <ColorSwitch
           buttons={[
             { content: <ButtonIcon src={RedIcon} />, id: "red" },
             { content: <ButtonIcon src={GreenIcon} />, id: "green" },
@@ -92,5 +92,9 @@ const SwitchWrap = styled.div`
 `;
 
 const ButtonIcon = styled.img`
-  width: 30px;
+  width: 36px;
+`;
+
+const ColorSwitch = styled(JuniorSwitch)`
+  margin-left: 10px;
 `;

@@ -1,11 +1,13 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
+import { css } from "@emotion/core";
 import update from "immutability-helper";
 import { Icon, JuniorSwitch } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
-import BulbColorImage from "./images/BulbColor";
+import LedImage from "./images/Led";
 
 import OnIcon from "./icons/led-on.svg";
 import OffIcon from "./icons/led-off.svg";
@@ -14,28 +16,21 @@ import BlueIcon from "./icons/color-blue.svg";
 import GreenIcon from "./icons/color-green.svg";
 import RedIcon from "./icons/color-red.svg";
 
-interface ITurnOnConfigurationProps {
+interface IColorLedConfigurationProps {
   bloq: IBloq;
   onChange: (newBloq: IBloq) => any;
 }
 
-const bulbColors = {
-  red: "rgb(255, 0, 0)",
-  green: "rgb(0, 255, 0)",
-  blue: "rgb(0, 0, 255)",
-  white: "rgba(255, 230, 50, 0.8)"
-};
-
-const TurnOnConfiguration: FC<ITurnOnConfigurationProps> = ({
+const ColorLedConfiguration: FC<IColorLedConfigurationProps> = ({
   bloq,
   onChange
 }) => {
   const value = bloq.parameters.value as string;
 
   return (
-    <div>
+    <Container>
       <ImageWrap>
-        <BulbColorImage isOn={value !== "off"} color={bulbColors[value]} />
+        <LedImage color={value} />
       </ImageWrap>
       <SwitchWrap>
         <JuniorSwitch
@@ -47,18 +42,18 @@ const TurnOnConfiguration: FC<ITurnOnConfigurationProps> = ({
           onChange={id =>
             onChange(
               update(bloq, {
-                parameters: { value: { $set: id === "on" ? "white" : "off" } }
+                parameters: { value: { $set: id === "on" ? "red" : "off" } }
               })
             )
           }
         />
-        {value !== "off" && (
+        <ColorSwitch disabled={value === "off"}>
           <JuniorSwitch
             buttons={[
-              { content: <ButtonIcon src={WhiteIcon} />, id: "white" },
               { content: <ButtonIcon src={RedIcon} />, id: "red" },
               { content: <ButtonIcon src={GreenIcon} />, id: "green" },
-              { content: <ButtonIcon src={BlueIcon} />, id: "blue" }
+              { content: <ButtonIcon src={BlueIcon} />, id: "blue" },
+              { content: <ButtonIcon src={WhiteIcon} />, id: "white" }
             ]}
             value={value}
             onChange={(newValue: string) =>
@@ -69,20 +64,25 @@ const TurnOnConfiguration: FC<ITurnOnConfigurationProps> = ({
               )
             }
           />
-        )}
+        </ColorSwitch>
       </SwitchWrap>
-    </div>
+    </Container>
   );
 };
 
-export default TurnOnConfiguration;
+export default ColorLedConfiguration;
 
-const ImageWrap = styled.div`
-  margin-bottom: 20px;
-  svg {
-    width: 484px;
-    height: 200px;
-  }
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 70px;
+  display: flex;
+  align-items: center;
 `;
 
 const SwitchWrap = styled.div`
@@ -91,5 +91,25 @@ const SwitchWrap = styled.div`
 `;
 
 const ButtonIcon = styled.img`
-  width: 30px;
+  width: 36px;
+`;
+
+const ColorSwitch = styled.div<{ disabled?: boolean }>`
+  margin-left: 10px;
+  position: relative;
+
+  ${props =>
+    props.disabled &&
+    css`
+      &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+    `}
 `;

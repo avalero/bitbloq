@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import React, { FC, useState } from "react";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
-import { DropDown, Icon, useTranslate } from "@bitbloq/ui";
+import { breakpoints, DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import CloudModal from "./CloudModal";
 import MenuButton from "./MenuButton";
 import useUserData from "../lib/useUserData";
@@ -59,10 +59,10 @@ const UserName = styled.div`
 
 const UserAvatar = styled.div<{ id: string; src?: string }>`
   border-radius: 50%;
-  height: 40px;
   margin: 0 10px;
   position: relative;
-  width: 40px;
+  height: 36px;
+  width: 36px;
 
   span {
     color: white;
@@ -85,6 +85,11 @@ const UserAvatar = styled.div<{ id: string; src?: string }>`
       : css`
           background-color: ${getAvatarColor(props.id)};
         `}
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: 40px;
+    width: 40px;
+  }
 `;
 
 const ContextMenu = styled.div`

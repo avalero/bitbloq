@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
 import { Icon, JuniorSwitch } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
@@ -27,7 +28,7 @@ const MusicConfiguration: FC<IMusicConfigurationProps> = ({
   return (
     <Container>
       <ImageWrap>
-        <MusicImage isOn={melody !== "stop"} />
+        <MusicImage melody={melody} />
       </ImageWrap>
       <JuniorSwitch
         buttons={[
@@ -51,14 +52,14 @@ export default MusicConfiguration;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  flex-direction: column;
 `;
 
-const ImageWrap = styled.div`
-  margin-right: 20px;
-  svg {
-    width: 200px;
-    height: 200px;
-  }
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 33px;
+  display: flex;
+  align-items: center;
 `;
 
 const ButtonIcon = styled.img`
