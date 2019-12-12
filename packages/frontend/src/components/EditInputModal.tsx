@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
 import { isValidEmail, isValidName } from "../util";
@@ -43,13 +43,6 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
   } = props;
   const [title, setTitle] = useState(props.title);
   const [error, setError] = useState<boolean | string>(false);
-  const titleInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (titleInputRef.current) {
-      titleInputRef.current.focus();
-    }
-  });
 
   useEffect(() => {
     setError(!!errorText ? errorText : false);
@@ -65,8 +58,7 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     >
       <Content>
         <form
-          onSubmit={e => {
-            e.preventDefault();
+          onSubmit={() => {
             if (type !== "email" || isValidEmail(title)) {
               onSave(title);
             } else {
@@ -77,7 +69,7 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
           <p>{modalText}</p>
           {label && <InputLabel>{label}</InputLabel>}
           <Input
-            ref={titleInputRef}
+            autoFocus
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
@@ -102,14 +94,16 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
           <Buttons>
             <Button
               tertiary
-              onClick={e => {
-                e.preventDefault();
+              type="button"
+              onClick={() => {
                 onCancel();
               }}
             >
               Cancelar
             </Button>
-            <Button disabled={disabledSave || !!error}>{saveButton}</Button>
+            <Button type="submit" disabled={disabledSave || !!error}>
+              {saveButton}
+            </Button>
           </Buttons>
         </form>
       </Content>
