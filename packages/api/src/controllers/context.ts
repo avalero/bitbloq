@@ -5,10 +5,19 @@ import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { compare as bcryptCompare } from "bcrypt";
 
 import { redisClient, pubsub } from "../server";
-import { IUser } from "../api-types";
+import { IUser, ISubmission } from "../api-types";
 
 import { USER_SESSION_EXPIRES } from "../resolvers/user";
-import { SUBMISSION_SESSION_EXPIRES } from "../resolvers/submission";
+import {
+  SUBMISSION_SESSION_EXPIRES,
+  SUBMISSION_ACTIVE
+} from "../resolvers/submission";
+
+import {
+  SESSION_DURATION_MINUTES,
+  SESSION_SHOW_WARNING_SECONDS
+} from "../config";
+import { SubmissionModel } from "../models/submission";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
   let reply: string | undefined;
@@ -65,12 +74,8 @@ export const storeTokenInRedis = async (
   if (id === undefined) {
     return undefined;
   }
-  const sessionDurationMin: string | undefined =
-    process.env.SESSION_DURATION_MINUTES;
   const date = new Date();
-  date.setMinutes(
-    date.getMinutes() + (sessionDurationMin ? Number(sessionDurationMin) : 60)
-  );
+  date.setMinutes(date.getMinutes() + SESSION_DURATION_MINUTES);
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {
@@ -115,8 +120,6 @@ export const updateExpireDateInRedis = async (
 const checksSessionExpires = async () => {
   if (String(process.env.USE_REDIS) === "true") {
     const allKeys: string[] = await redisClient.keysAsync("*");
-    const sessionWarningSecs: string | undefined =
-      process.env.SESSION_SHOW_WARNING_SECONDS;
     const now: Date = new Date();
     allKeys.map(async key => {
       try {
@@ -135,17 +138,14 @@ const checksSessionExpires = async () => {
           }
           if (expiresAt > now) {
             secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-            if (
-              secondsRemaining <
-              (sessionWarningSecs ? Number(sessionWarningSecs) : 350)
-            ) {
+            if (secondsRemaining < SESSION_SHOW_WARNING_SECONDS) {
               await pubsub.publish(topic, {
                 [type]: {
                   ...result,
                   key,
                   secondsRemaining,
                   expiredSession: false,
-                  showSessionWarningSecs: sessionWarningSecs
+                  showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
                 }
               });
             }
@@ -156,9 +156,19 @@ const checksSessionExpires = async () => {
                 key,
                 secondsRemaining,
                 expiredSession: true,
-                showSessionWarningSecs: sessionWarningSecs
+                showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
               }
             });
+            if (type === "submissionSessionExpires") {
+              const updatedSubmission: ISubmission | null = await SubmissionModel.findByIdAndUpdate(
+                { _id: key },
+                { $set: { active: false } },
+                { new: true }
+              );
+              await pubsub.publish(SUBMISSION_ACTIVE, {
+                submissionActive: updatedSubmission
+              });
+            }
             await redisClient.del(key);
           }
         }
@@ -281,7 +291,6 @@ const contextController = {
         role: rolePerm
       },
       process.env.JWT_SECRET
-      // { expiresIn: "1.1h" }
     );
     role = rolePerm;
     return { token, role };
@@ -291,11 +300,7 @@ const contextController = {
     const data = await contextController.getDataInToken(oldToken);
     await checkOtherSessionOpen(data, oldToken);
     delete data.exp;
-    const token = await jwtSign(
-      data,
-      process.env.JWT_SECRET
-      // { expiresIn: "1.1h" }
-    );
+    const token = await jwtSign(data, process.env.JWT_SECRET);
     return { data, token };
   }
 };

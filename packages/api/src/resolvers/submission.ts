@@ -29,7 +29,7 @@ import {
 const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
-const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
+export const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
 export const SUBMISSION_SESSION_EXPIRES: string = "SUBMISSION_SESSION_EXPIRES";
 
 const submissionResolver = {

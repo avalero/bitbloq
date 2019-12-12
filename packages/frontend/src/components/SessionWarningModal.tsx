@@ -53,7 +53,8 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
 
   useEffect(() => {
     const interval = setInterval(
-      () => setSecondsRemaining(secondsRemaining - 1),
+      () =>
+        secondsRemaining > 0 ? setSecondsRemaining(secondsRemaining - 1) : null,
       1000
     );
     return () => {

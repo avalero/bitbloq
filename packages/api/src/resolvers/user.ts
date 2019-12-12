@@ -52,6 +52,8 @@ import { IUpload } from "../models/upload";
 import { uploadDocumentUserImage } from "./upload";
 import { changeEmailTemplate } from "../email/changeEmailMail";
 
+import { SESSION_SHOW_WARNING_SECONDS } from "../config";
+
 import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 const saltRounds: number = 7;
 
@@ -424,7 +426,7 @@ const userResolver = {
               key: data.userID,
               secondsRemaining,
               expiredSession: false,
-              showSessionWarningSecs: process.env.SESSION_SHOW_WARNING_SECONDS
+              showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
             }
           });
         } else if (data.submissionID) {
@@ -440,7 +442,7 @@ const userResolver = {
               key: data.submissionID,
               secondsRemaining,
               expiredSession: false,
-              showSessionWarningSecs: process.env.SESSION_SHOW_WARNING_SECONDS
+              showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
             }
           });
         }
