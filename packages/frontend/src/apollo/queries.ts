@@ -584,6 +584,29 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
   }
 `;
 
+export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
+  subscription SubmissionSessionExpires {
+    submissionSessionExpires {
+      key
+      secondsRemaining
+      subToken
+      expiredSession
+      showSessionWarningSecs
+    }
+  }
+`;
+
+export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
+  subscription UserSessionExpires {
+    userSessionExpires {
+      key
+      secondsRemaining
+      authToken
+      expiredSession
+      showSessionWarningSecs
+    }
+  }
+`;
 /* Account */
 
 export const UPDATE_USER_DATA_MUTATION = gql`
@@ -591,6 +614,11 @@ export const UPDATE_USER_DATA_MUTATION = gql`
     updateUserData(id: $id, input: $input) {
       id
     }
+  }
+`;
+export const RENEW_SESSION_MUTATION = gql`
+  mutation renewSession {
+    renewSession
   }
 `;
 

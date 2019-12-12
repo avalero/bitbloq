@@ -2,6 +2,7 @@ import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
 
 export interface ISubmission extends Document {
+  id: string;
   user?: string;
   title: string;
   exercise?: string;

@@ -3,9 +3,14 @@ import Router from "next/router";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
 import { ApolloClient } from "apollo-client";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider, useMutation } from "@apollo/react-hooks";
 import { createClient } from "./client";
-import { ME_QUERY, RENEW_TOKEN_MUTATION } from "./queries";
+import {
+  ME_QUERY,
+  RENEW_TOKEN_MUTATION,
+  USER_SESSION_EXPIRES_SUBSCRIPTION,
+  RENEW_SESSION_MUTATION
+} from "./queries";
 import {
   getToken,
   setToken,
@@ -21,6 +26,9 @@ import { UserDataProvider } from "../lib/useUserData";
 import redirect from "../lib/redirect";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
+import { Subscription } from "react-apollo";
+import { ISessionExpires } from "../../../api/src/api-types";
+import { DialogModal } from "@bitbloq/ui";
 
 export interface IContext extends NextPageContext {
   apolloClient: ApolloClient<any>;
@@ -30,15 +38,13 @@ interface ISessionWatcherProps {
   tempSession?: string;
   client: ApolloClient<any>;
 }
+
 const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [anotherSession, setAnotherSession] = useState(false);
 
-  useEffect(() => {
-    const interval = watchSession(tempSession);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
 
   useSessionEvent(
     "error",
@@ -48,42 +54,21 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
         setAnotherSession(true);
         setToken("");
       }
-    },
-    tempSession
-  );
-
-  useSessionEvent(
-    "expired",
-    () => {
-      logout();
+      if (code === "UNAUTHENTICATED") {
+        Router.replace("/");
+      }
     },
     tempSession
   );
 
   useSessionEvent("logout", async () => {
-    await client.resetStore();
-    Router.push("/");
+    setToken("");
+    if (client) {
+      await client.cache.reset();
+      await client.reFetchObservableQueries();
+    }
+    Router.replace("/");
   });
-
-  useSessionEvent(
-    "activity",
-    () => {
-      if (shouldRenewToken(tempSession)) {
-        renewToken(
-          getToken(tempSession)
-            .then(currentToken =>
-              client.mutate({
-                mutation: RENEW_TOKEN_MUTATION,
-                context: { token: currentToken }
-              })
-            )
-            .then(({ data }) => data.renewToken),
-          tempSession
-        );
-      }
-    },
-    tempSession
-  );
 
   if (anotherSession) {
     return (
@@ -94,8 +79,9 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
       />
     );
   }
-
-  return <SessionWarningModal tempSession={tempSession} />;
+  return tempSession ? null : (
+    <SessionWarningModal subscription={USER_SESSION_EXPIRES_SUBSCRIPTION} />
+  );
 };
 
 export default function withApollo(
@@ -134,7 +120,9 @@ export default function withApollo(
             <PageComponent {...pageProps} />
           </UserDataProvider>
         )}
-        <SessionWatcher tempSession={tempSession} client={client} />
+        {requiresSession && (
+          <SessionWatcher tempSession={tempSession} client={client} />
+        )}
       </ApolloProvider>
     );
   };

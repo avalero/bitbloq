@@ -1,5 +1,13 @@
-import { ApolloError, AuthenticationError } from "apollo-server-koa";
-import { contextController } from "../controllers/context";
+import {
+  ApolloError,
+  AuthenticationError,
+  withFilter
+} from "apollo-server-koa";
+import {
+  contextController,
+  storeTokenInRedis,
+  updateExpireDateInRedis
+} from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
@@ -12,14 +20,15 @@ import {
   IEmailData,
   IResetPasswordToken,
   ISignUpToken,
-  IUserInToken
+  IUserInToken,
+  IDataInRedis
 } from "../models/interfaces";
 
 import mjml2html from "mjml";
 import { resetPasswordTemplate } from "../email/resetPasswordMail";
 import { welcomeTemplate } from "../email/welcomeMail";
 
-import { redisClient } from "../server";
+import { redisClient, pubsub } from "../server";
 
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
@@ -31,6 +40,7 @@ import {
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
   IMutationLoginWithGoogleArgs,
+  ISessionExpires,
   IMutationUpdateUserDataArgs,
   IMutationUpdateMyPasswordArgs,
   IMutationUpdateMyPlanArgs,
@@ -42,9 +52,35 @@ import { IUpload } from "../models/upload";
 import { uploadDocumentUserImage } from "./upload";
 import { changeEmailTemplate } from "../email/changeEmailMail";
 
+import { SESSION_SHOW_WARNING_SECONDS } from "../config";
+
+import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 const saltRounds: number = 7;
 
+export const USER_SESSION_EXPIRES: string = "USER_SESSION_EXPIRES";
+
 const userResolver = {
+  Subscription: {
+    userSessionExpires: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([USER_SESSION_EXPIRES]),
+        (
+          payload: {
+            userSessionExpires: ISessionExpires;
+          },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
+          return (
+            String(context.user.userID) ===
+            String(payload.userSessionExpires.key)
+          );
+        }
+      )
+    }
+  },
+
   Mutation: {
     // Public mutations:
 
@@ -140,7 +176,7 @@ const userResolver = {
           user
         );
         logOrSignToken = token;
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       } else {
         logOrSignToken = jwtSign(
           {
@@ -239,14 +275,13 @@ const userResolver = {
             { new: true }
           );
         }
-
+        const res = await storeTokenInRedis(contactFound._id, token);
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
         throw new AuthenticationError("Email or password incorrect");
@@ -304,7 +339,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
     },
@@ -359,29 +394,61 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
     },
 
     /*
-     * renewToken: returns a new token for a logged user
+     * renewSession: updates expire date token in redis
      */
-    renewToken: async (_, __, context: any) => {
-      let oldToken = "";
-      if (context.headers && context.headers.authorization) {
-        oldToken = context.headers.authorization.split(" ")[1];
-      }
+    renewSession: async (_, __, context: any) => {
+      // authorization for queries and mutations
+      const token1: string = context.headers.authorization || "";
+      const justToken: string = token1.split(" ")[1];
+      const data:
+        | IUserInToken
+        | undefined = await contextController.getDataInToken(justToken);
 
-      const { data, token } = await contextController.generateNewToken(
-        oldToken
-      );
-      if (data.userID) {
-        await storeTokenInRedis(`authToken-${data.userID}`, token);
-      } else if (data.submissionID) {
-        await storeTokenInRedis(`subToken-${data.submissionID}`, token);
+      if (data && String(process.env.USE_REDIS) === "true") {
+        const now: Date = new Date();
+        let secondsRemaining: number = 0;
+        if (data.userID) {
+          await updateExpireDateInRedis(data.userID, false);
+          const result: IDataInRedis = await redisClient.hgetallAsync(
+            data.userID
+          );
+          const expiresAt: Date = new Date(result.expiresAt);
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          pubsub.publish(USER_SESSION_EXPIRES, {
+            userSessionExpires: {
+              ...result,
+              key: data.userID,
+              secondsRemaining,
+              expiredSession: false,
+              showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
+            }
+          });
+        } else if (data.submissionID) {
+          await updateExpireDateInRedis(data.submissionID, true);
+          const result: IDataInRedis = await redisClient.hgetallAsync(
+            data.submissionID
+          );
+          const expiresAt: Date = new Date(result.expiresAt);
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
+            submissionSessionExpires: {
+              ...result,
+              key: data.submissionID,
+              secondsRemaining,
+              expiredSession: false,
+              showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
+            }
+          });
+        }
+        return "OK";
       }
-      return token;
+      throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
     },
 
     /**
@@ -403,7 +470,8 @@ const userResolver = {
         process.env.JWT_SECRET,
         { expiresIn: "30m" }
       );
-      await storeTokenInRedis(`resetPasswordToken-${contactFound._id}`, token);
+      const index: string = `resPass-${contactFound._id}`;
+      await storeTokenInRedis(index, token);
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
@@ -463,11 +531,11 @@ const userResolver = {
         }
       );
 
-      if (process.env.USE_REDIS === "true") {
-        redisClient.del(`resetPasswordToken-${contactFound._id}`);
+      if (String(process.env.USE_REDIS) === "true") {
+        redisClient.del(`resPass-${contactFound._id}`);
       }
 
-      await storeTokenInRedis(`authToken-${contactFound._id}`, authToken);
+      await storeTokenInRedis(contactFound._id, authToken);
       return authToken;
     },
 
@@ -510,7 +578,7 @@ const userResolver = {
             }
           }
         );
-        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
+        await storeTokenInRedis(contactFound._id, token);
         return token;
       } else {
         return new ApolloError(
@@ -731,14 +799,17 @@ const userResolver = {
         changeEmailUserID: string;
         changeEmailNewEmail: string;
       };
+      let redisToken: string = "";
       try {
         userInToken = await jwtVerify(args.token, process.env.JWT_SECRET);
+        if (String(process.env.USE_REDIS) === "true") {
+          redisToken = (await redisClient.hgetallAsync(
+            `changeEmail-${userInToken.changeEmailUserID}`
+          )).authToken;
+        }
       } catch (e) {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
-      const redisToken: string = await redisClient.getAsync(
-        `changeEmail-${userInToken.changeEmailUserID}`
-      );
       let user: IUser | null;
       user = await UserModel.findOne({ _id: userInToken.changeEmailUserID });
       if (!user) {
@@ -803,19 +874,6 @@ const userResolver = {
   }
 };
 
-const storeTokenInRedis = (id: string, token: string) => {
-  if (process.env.USE_REDIS === "true") {
-    return redisClient.set(String(id), token, (err, reply) => {
-      if (err) {
-        throw new ApolloError(
-          "Error storing auth token in redis",
-          "REDIS_TOKEN_ERROR"
-        );
-      }
-    });
-  }
-};
-
 const getResetPasswordData = async (token: string) => {
   if (!token) {
     throw new ApolloError(
@@ -834,11 +892,11 @@ const getResetPasswordData = async (token: string) => {
     );
   }
 
-  if (process.env.USE_REDIS === "true") {
-    const storedToken = await redisClient.getAsync(
-      `resetPasswordToken-${dataInToken.resetPassUserID}`
+  if (String(process.env.USE_REDIS) === "true") {
+    const storedToken = await redisClient.hgetallAsync(
+      `resPass-${dataInToken.resetPassUserID}`
     );
-    if (storedToken !== token) {
+    if (storedToken.authToken !== token) {
       throw new ApolloError(
         "The provided token is not the latest one",
         "INVALID_TOKEN"

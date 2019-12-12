@@ -13,6 +13,7 @@ import { RedisPubSub } from "graphql-redis-subscriptions";
 import Redis from "ioredis";
 import { RedisClient, createClient } from "redis";
 import { promisifyAll } from "bluebird";
+import { IUserInToken } from "./models/interfaces";
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
@@ -82,7 +83,9 @@ const server = new ApolloServer({
       // check connection for metadata
       return connection.context;
     } else {
-      const user = await contextController.getMyUser(ctx);
+      const user: IUserInToken | undefined = await contextController.getMyUser(
+        ctx
+      );
       return { user, headers: ctx.headers }; //  add the user to the ctx
     }
   },

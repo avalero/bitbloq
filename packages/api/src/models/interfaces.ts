@@ -21,3 +21,9 @@ export interface IResetPasswordToken {
 export interface ISignUpToken {
   signUpUserID: ObjectID;
 }
+
+export interface IDataInRedis {
+  expiresAt: Date;
+  authToken?: string;
+  subToken?: string;
+}

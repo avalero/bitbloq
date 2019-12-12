@@ -169,7 +169,7 @@ export interface IMutation {
   login?: Maybe<Scalars["String"]>;
   loginWithGoogle?: Maybe<ISocialLogin>;
   loginWithMicrosoft?: Maybe<ISocialLogin>;
-  renewToken?: Maybe<Scalars["String"]>;
+  renewSession?: Maybe<Scalars["String"]>;
   sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
   checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
   updateForgotPassword?: Maybe<Scalars["String"]>;
@@ -553,6 +553,17 @@ export enum IRole {
   Family = "FAMILY"
 }
 
+export interface ISessionExpires {
+  __typename?: "SessionExpires";
+  key?: Maybe<Scalars["ObjectID"]>;
+  authToken?: Maybe<Scalars["String"]>;
+  subToken?: Maybe<Scalars["String"]>;
+  expiresAt?: Maybe<Scalars["Date"]>;
+  secondsRemaining?: Maybe<Scalars["Number"]>;
+  showSessionWarningSecs?: Maybe<Scalars["Number"]>;
+  expiredSession?: Maybe<Scalars["Boolean"]>;
+}
+
 export interface ISocialLogin {
   __typename?: "SocialLogin";
   id?: Maybe<Scalars["ObjectID"]>;
@@ -597,9 +608,11 @@ export interface ISubmissionIn {
 
 export interface ISubscription {
   __typename?: "Subscription";
+  userSessionExpires?: Maybe<ISessionExpires>;
   documentUpdated?: Maybe<IDocument>;
   folderUpdated?: Maybe<IFolder>;
   submissionUpdated?: Maybe<ISubmission>;
+  submissionSessionExpires?: Maybe<ISessionExpires>;
   submissionActive?: Maybe<ISubmission>;
 }
 
@@ -810,6 +823,7 @@ export type IResolversTypes = ResolversObject<{
   loginOut: ResolverTypeWrapper<ILoginOut>;
   SubmissionIn: ISubmissionIn;
   Subscription: ResolverTypeWrapper<{}>;
+  SessionExpires: ResolverTypeWrapper<ISessionExpires>;
   Role: IRole;
 }>;
 
@@ -849,6 +863,7 @@ export type IResolversParentTypes = ResolversObject<{
   loginOut: ILoginOut;
   SubmissionIn: ISubmissionIn;
   Subscription: {};
+  SessionExpires: ISessionExpires;
   Role: IRole;
 }>;
 
@@ -1175,7 +1190,7 @@ export type IMutationResolvers<
     ContextType,
     RequireFields<IMutationLoginWithMicrosoftArgs, "token">
   >;
-  renewToken?: Resolver<
+  renewSession?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType
@@ -1622,6 +1637,39 @@ export type IResultResolvers<
   >;
 }>;
 
+export type ISessionExpiresResolvers<
+  ContextType = any,
+  ParentType extends IResolversParentTypes["SessionExpires"] = IResolversParentTypes["SessionExpires"]
+> = ResolversObject<{
+  key?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
+  authToken?: Resolver<
+    Maybe<IResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  subToken?: Resolver<
+    Maybe<IResolversTypes["String"]>,
+    ParentType,
+    ContextType
+  >;
+  expiresAt?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
+  secondsRemaining?: Resolver<
+    Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
+  showSessionWarningSecs?: Resolver<
+    Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
+  expiredSession?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType
+  >;
+}>;
+
 export type ISocialLoginResolvers<
   ContextType = any,
   ParentType extends IResolversParentTypes["SocialLogin"] = IResolversParentTypes["SocialLogin"]
@@ -1701,6 +1749,12 @@ export type ISubscriptionResolvers<
   ContextType = any,
   ParentType extends IResolversParentTypes["Subscription"] = IResolversParentTypes["Subscription"]
 > = ResolversObject<{
+  userSessionExpires?: SubscriptionResolver<
+    Maybe<IResolversTypes["SessionExpires"]>,
+    "userSessionExpires",
+    ParentType,
+    ContextType
+  >;
   documentUpdated?: SubscriptionResolver<
     Maybe<IResolversTypes["Document"]>,
     "documentUpdated",
@@ -1719,6 +1773,12 @@ export type ISubscriptionResolvers<
     ParentType,
     ContextType,
     RequireFields<ISubscriptionSubmissionUpdatedArgs, "exercise">
+  >;
+  submissionSessionExpires?: SubscriptionResolver<
+    Maybe<IResolversTypes["SessionExpires"]>,
+    "submissionSessionExpires",
+    ParentType,
+    ContextType
   >;
   submissionActive?: SubscriptionResolver<
     Maybe<IResolversTypes["Submission"]>,
@@ -1861,6 +1921,7 @@ export type IResolvers<ContextType = any> = ResolversObject<{
   Query?: IQueryResolvers<ContextType>;
   Resource?: IResourceResolvers<ContextType>;
   Result?: IResultResolvers<ContextType>;
+  SessionExpires?: ISessionExpiresResolvers<ContextType>;
   SocialLogin?: ISocialLoginResolvers<ContextType>;
   Submission?: ISubmissionResolvers<ContextType>;
   Subscription?: ISubscriptionResolvers<ContextType>;

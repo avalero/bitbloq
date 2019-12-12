@@ -363,14 +363,6 @@ const documentResolver = {
             { $pull: { documentsID: existDocument._id } }
           );
         }
-        if (
-          (args.input && args.input.content) ||
-          (args.input && args.input.cache)
-        ) {
-          console.log(
-            "You should use Update document Content IMutation, USE_UPDATECONTENT_MUTATION"
-          );
-        }
         const updatedDoc: IDocument | null = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
           {
