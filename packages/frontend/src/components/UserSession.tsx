@@ -21,8 +21,8 @@ const UserSession: FC = () => {
       <UserAvatar id={userData.id} src={userData.avatar}>
         {!userData.avatar && (
           <span>
-            {userData.name.charAt(0)}
-            {userData.surnames && userData.surnames.charAt(0)}
+            {userData.name.charAt(0).toUpperCase()}
+            {userData.surnames && userData.surnames.charAt(0).toUpperCase()}
           </span>
         )}
       </UserAvatar>
