@@ -1,10 +1,4 @@
-import React, {
-  FC,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState
-} from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { useApolloClient } from "@apollo/react-hooks";
 import { Input, Button } from "@bitbloq/ui";
@@ -17,33 +11,11 @@ export interface IOpenExerciseForm {
 const OpenExerciseForm: FC<IOpenExerciseForm> = ({
   openText = "Ir al ejercicio"
 }) => {
-  const submitRef = useRef<HTMLButtonElement>(null);
   const client = useApolloClient();
 
   const [exerciseCode, setExerciseCode] = useState("");
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
-
-  const onSubmitForm = useCallback(
-    (e: KeyboardEvent) => {
-      if (
-        e.keyCode === 13 &&
-        submitRef.current &&
-        openText === "Ir al ejercicio"
-      ) {
-        e.preventDefault();
-        submitRef.current.click();
-      }
-    },
-    [submitRef.current]
-  );
-
-  useLayoutEffect(() => {
-    console.log(submitRef.current);
-    window.removeEventListener("keypress", onSubmitForm);
-    window.addEventListener("keypress", onSubmitForm);
-    return () => window.removeEventListener("keypress", onSubmitForm);
-  }, [onSubmitForm]);
 
   const onOpenExercise = async () => {
     if (exerciseCode) {
@@ -67,7 +39,12 @@ const OpenExerciseForm: FC<IOpenExerciseForm> = ({
   };
 
   return (
-    <Form>
+    <Form
+      onSubmit={e => {
+        e.preventDefault();
+        onOpenExercise();
+      }}
+    >
       <label>Código del ejercicio</label>
       <Input
         type="text"
@@ -77,11 +54,7 @@ const OpenExerciseForm: FC<IOpenExerciseForm> = ({
         onChange={e => setExerciseCode(e.target.value)}
       />
       {exerciseError && <Error>El código no es válido</Error>}
-      <Button
-        ref={submitRef}
-        onClick={() => onOpenExercise()}
-        disabled={loadingExercise}
-      >
+      <Button type="submit" disabled={loadingExercise}>
         {openText}
       </Button>
     </Form>
@@ -92,7 +65,7 @@ export default OpenExerciseForm;
 
 /* styled components */
 
-const Form = styled.div`
+const Form = styled.form`
   label {
     font-size: 14px;
     margin-bottom: 10px;

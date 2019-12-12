@@ -350,8 +350,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         <Button
           secondary
           type="button"
-          onClick={e => {
-            e.preventDefault();
+          onClick={() => {
             router.push("/");
           }}
         >

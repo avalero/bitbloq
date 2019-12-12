@@ -1,10 +1,4 @@
-import React, {
-  FC,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState
-} from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 
 import { Button, Input, Icon, DropDown } from "@bitbloq/ui";
@@ -20,25 +14,7 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
   exerciseError,
   loadingExercise
 }) => {
-  const submitRef = useRef<HTMLButtonElement>(null);
   const [exerciseCode, setExerciseCode] = useState("");
-  const [showModal, setShowModal] = useState<boolean>(false);
-
-  const onSubmitForm = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.keyCode === 13 && submitRef.current && showModal) {
-        e.preventDefault();
-        submitRef.current.click();
-      }
-    },
-    [submitRef.current, showModal]
-  );
-
-  useLayoutEffect(() => {
-    window.removeEventListener("keypress", onSubmitForm);
-    window.addEventListener("keypress", onSubmitForm);
-    return () => window.removeEventListener("keypress", onSubmitForm);
-  }, [onSubmitForm]);
 
   return (
     <DropDown
@@ -46,17 +22,19 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
       targetPosition={"bottom center"}
       closeOnClick={false}
     >
-      {(isOpen: boolean) => {
-        setShowModal(isOpen);
-        return (
-          <HeaderButton tertiary>
-            <Icon name="airplane-document" />
-            Ir al ejercicio
-          </HeaderButton>
-        );
-      }}
+      {() => (
+        <HeaderButton tertiary>
+          <Icon name="airplane-document" />
+          Ir al ejercicio
+        </HeaderButton>
+      )}
       <ExerciseDropDown>
-        <ExerciseForm>
+        <ExerciseForm
+          onSubmit={e => {
+            e.preventDefault();
+            onOpenExercise(exerciseCode);
+          }}
+        >
           <label>Código del ejercicio</label>
           <Input
             type="text"
@@ -66,13 +44,9 @@ const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
             onChange={e => setExerciseCode(e.target.value)}
           />
           {exerciseError && <Error>El código no es válido</Error>}
-          <HeaderButton
-            ref={submitRef}
-            onClick={() => onOpenExercise(exerciseCode)}
-            disabled={loadingExercise}
-          >
+          <Button type="submit" disabled={loadingExercise}>
             Ir al ejercicio
-          </HeaderButton>
+          </Button>
         </ExerciseForm>
       </ExerciseDropDown>
     </DropDown>
@@ -114,7 +88,7 @@ const ExerciseDropDown = styled.div`
   }
 `;
 
-const ExerciseForm = styled.div`
+const ExerciseForm = styled.form`
   label {
     font-size: 14px;
     margin-bottom: 10px;
