@@ -1,49 +1,82 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import { Button, Input, Modal } from "@bitbloq/ui";
-import { isValidName } from "../util";
+import { isValidEmail, isValidName } from "../util";
+import ErrorMessage from "./ErrorMessage";
 
-interface IEditTitleModalProps {
+interface IEditInputModalProps {
+  className?: string;
+  disabledSave?: boolean;
+  errorText?: string;
   title?: string;
   onSave: (title?: string) => any;
+  onChange?: (title?: string) => any;
   onCancel: () => any;
   modalTitle: string;
   modalText: string;
   placeholder: string;
   saveButton: string;
   type?: string;
+  transparentOverlay?: boolean;
   validateInput?: boolean;
+  isOpen?: boolean;
+  label?: string;
 }
 
-const EditTitleModal: FC<IEditTitleModalProps> = props => {
+const EditInputModal: FC<IEditInputModalProps> = props => {
   const {
+    className,
+    disabledSave = false,
+    errorText,
     onSave,
+    onChange,
     onCancel,
     modalTitle,
     modalText,
     placeholder,
     saveButton,
     type,
-    validateInput = true
+    validateInput = true,
+    isOpen = true,
+    label,
+    transparentOverlay
   } = props;
   const [title, setTitle] = useState(props.title);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<boolean | string>(false);
+
+  useEffect(() => {
+    setError(!!errorText ? errorText : false);
+  }, [errorText]);
 
   return (
-    <Modal isOpen={true} title={modalTitle} onClose={onCancel}>
+    <Modal
+      className={className}
+      isOpen={isOpen}
+      title={modalTitle}
+      onClose={onCancel}
+      transparentOverlay={transparentOverlay}
+    >
       <Content>
         <form
           onSubmit={() => {
-            onSave(title);
+            if (type !== "email" || isValidEmail(title)) {
+              onSave(title);
+            } else {
+              setError(true);
+            }
           }}
         >
           <p>{modalText}</p>
+          {label && <InputLabel>{label}</InputLabel>}
           <Input
             autoFocus
             placeholder={title || placeholder}
             onChange={e => {
               const value: string = e.target.value;
-              if (!validateInput || isValidName(value)) {
+              if (onChange) {
+                onChange(value);
+              }
+              if (!validateInput || type === "email" || isValidName(value)) {
                 setTitle(value);
                 setError(false);
               } else {
@@ -53,8 +86,11 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             }}
             value={title}
             type={type || "text"}
-            error={error}
+            error={!!error}
           />
+          {error && typeof error === "string" && (
+            <InputErrorMessage>{error}</InputErrorMessage>
+          )}
           <Buttons>
             <Button
               tertiary
@@ -65,7 +101,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
             >
               Cancelar
             </Button>
-            <Button type="submit" disabled={error}>
+            <Button type="submit" disabled={disabledSave || !!error}>
               {saveButton}
             </Button>
           </Buttons>
@@ -75,7 +111,7 @@ const EditTitleModal: FC<IEditTitleModalProps> = props => {
   );
 };
 
-export default EditTitleModal;
+export default EditInputModal;
 
 /* styled components */
 
@@ -98,4 +134,16 @@ const Buttons = styled.div`
     height: 40px;
     border-radius: 4px;
   }
+`;
+
+const InputErrorMessage = styled(ErrorMessage)`
+  margin-top: 5px;
+`;
+
+const InputLabel = styled.label`
+  color: #323843;
+  display: inline-block;
+  font-size: 14px;
+  height: 16px;
+  margin-bottom: 10px;
 `;

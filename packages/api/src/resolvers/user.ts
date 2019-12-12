@@ -739,8 +739,16 @@ const userResolver = {
       const redisToken: string = await redisClient.getAsync(
         `changeEmail-${userInToken.changeEmailUserID}`
       );
+      let user: IUser | null;
+      user = await UserModel.findOne({ _id: userInToken.changeEmailUserID });
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const valid: boolean = await bcryptCompare(args.password, user.password);
+      if (!valid) {
+        throw new ApolloError("Password incorrect", "PASSWORD_INCORRECT");
+      }
       if (redisToken === args.token) {
-        let user: IUser | null;
         try {
           user = await UserModel.findOneAndUpdate(
             { _id: userInToken.changeEmailUserID },
@@ -750,19 +758,14 @@ const userResolver = {
         } catch (e) {
           throw new ApolloError("Email already exists", "EMAIL_EXISTS");
         }
-        if (!user) {
-          throw new ApolloError("User not found", "USER_NOT_FOUND");
-        }
         await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
-        const { token, role } = await contextController.generateLoginToken(
-          user
-        );
+        const { token } = await contextController.generateLoginToken(user);
         await UserModel.updateOne(
-          { _id: user._id },
+          { _id: user!._id },
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(`authToken-${user!._id}`, token);
         return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");

@@ -1,18 +1,23 @@
-import { ApolloError } from "apollo-client";
-import React, { FC, useState, useEffect, useRef } from "react";
+import React, { FC, useRef, useState } from "react";
+import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import { NextPage } from "next";
-import { useTranslate, Button, Icon, colors } from "@bitbloq/ui";
-import withApollo from "../../apollo/withApollo";
-import AccountPersonalData from "../../components/AccountPersonalData";
-import AppLayout from "../../components/AppLayout";
-import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
-import { plans } from "../../config.js";
-import useUserData from "../../lib/useUserData";
-import { IUser } from "../../types";
-import { useMutation } from "react-apollo";
-import { UPDATE_USER_DATA_MUTATION } from "../../apollo/queries";
+import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
+import {
+  CHANGE_EMAIL_MUTATION,
+  UPDATE_USER_DATA_MUTATION
+} from "../../../apollo/queries";
+import withApollo from "../../../apollo/withApollo";
+import AccountPersonalData from "../../../components/AccountPersonalData";
+import AppLayout from "../../../components/AppLayout";
+import CounterButton from "../../../components/CounterButton";
+import EditInputModal from "../../../components/EditInputModal";
+import ErrorLayout from "../../../components/ErrorLayout";
+import GraphQLErrorMessage from "../../../components/GraphQLErrorMessage";
+import { plans } from "../../../config.js";
+import useUserData from "../../../lib/useUserData";
+import { IUser } from "../../../types";
 
 enum TabType {
   UserData,
@@ -27,6 +32,13 @@ const AccountPage: NextPage = () => {
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
+  const [changeEmail] = useMutation(CHANGE_EMAIL_MUTATION);
+
+  const newEmailRef = useRef<string>("");
+
+  const [serverError, setServerError] = useState<boolean>(false);
+  const [errorText, setErrorText] = useState<string>("");
+  const [loadingData, setLoadingData] = useState<boolean>(false);
   const [updatePersonalData, { error, loading }] = useMutation(
     UPDATE_USER_DATA_MUTATION
   );
@@ -36,6 +48,43 @@ const AccountPage: NextPage = () => {
     false
   );
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
+  const [emailSent, setEmailSent] = useState<boolean>(false);
+  const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
+
+  const onSaveNewEmail = (newEmail: string) => {
+    newEmailRef.current = newEmail;
+    setLoadingData(true);
+    changeEmail({
+      variables: {
+        newEmail
+      }
+    })
+      .then(result => {
+        const {
+          data: { sendChangeMyEmailToken }
+        } = result;
+        if (sendChangeMyEmailToken === "OK") {
+          setEmailSent(true);
+          setServerError(false);
+          setLoadingData(false);
+          setShowEmailModal(false);
+        } else {
+          setServerError(true);
+          setLoadingData(false);
+          setShowEmailModal(false);
+        }
+      })
+      .catch(e => {
+        if (
+          e.graphQLErrors &&
+          e.graphQLErrors[0] &&
+          e.graphQLErrors[0].extensions.code === "EMAIL_EXISTS"
+        ) {
+          setErrorText(t("account.user-data.email.email-exists"));
+          setLoadingData(false);
+        }
+      });
+  };
 
   const togglePersonalDataEditable = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -115,7 +164,9 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.email.title")}
               icon="at"
               buttons={
-                <Button tertiary>{t("account.user-data.email.button")}</Button>
+                <Button onClick={() => setShowEmailModal(true)} tertiary>
+                  {t("account.user-data.email.button")}
+                </Button>
               }
             >
               {userData.email}
@@ -162,6 +213,53 @@ const AccountPage: NextPage = () => {
           </Content>
         )}
       </Container>
+      {serverError && <ErrorLayout code="500" />}
+      <EditEmailModal
+        disabledSave={loadingData}
+        errorText={errorText}
+        isOpen={showEmailModal}
+        label={t("account.user-data.email.new")}
+        modalText={t("account.user-data.email.change-text")}
+        modalTitle={t("account.user-data.email.button")}
+        onCancel={() => setShowEmailModal(false)}
+        onChange={() => setErrorText("")}
+        onSave={onSaveNewEmail}
+        placeholder={t("account.user-data.email.new")}
+        saveButton={t("general-change-button")}
+        title=""
+        type="email"
+      />
+      <DialogModal
+        cancelButton={
+          <Button
+            onClick={() => {
+              newEmailRef.current = "";
+              setEmailSent(false);
+              setServerError(false);
+              setLoadingData(false);
+              setShowEmailModal(false);
+            }}
+          >
+            {t("general-accept-button")}
+          </Button>
+        }
+        isOpen={emailSent}
+        okButton={
+          <CounterButton
+            onClick={() => {
+              changeEmail({
+                variables: {
+                  newEmail: newEmailRef.current
+                }
+              });
+            }}
+          >
+            {t("account.user-data.email.sent-button")}
+          </CounterButton>
+        }
+        text={t("account.user-data.email.sent-text")}
+        title={t("account.user-data.email.sent-title")}
+      />
     </AppLayout>
   );
 };
@@ -199,6 +297,27 @@ const Container = styled.div`
 const Content = styled.div`
   flex: 1;
   margin: 30px 20px;
+`;
+
+const EditEmailModal = styled(EditInputModal)`
+  p {
+    color: #5d6069;
+    line-height: 1.57;
+    margin: 10px 0 40px !important;
+  }
+`;
+
+const Field = styled.div`
+  align-items: center;
+  height: 36px;
+  display: flex;
+  justify-content: space-between;
+  border: 0px solid #8c919b;
+  border-top-width: 1px;
+
+  &:last-of-type {
+    border-bottom-width: 1px;
+  }
 `;
 
 const Tabs = styled.div`

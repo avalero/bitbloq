@@ -7,6 +7,7 @@ import withApollo from "../apollo/withApollo";
 import { RESET_PASSWORD_MUTATION } from "../apollo/queries";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
 import CounterButton from "../components/CounterButton";
+import ErrorMessage from "../components/ErrorMessage";
 import ModalLayout from "../components/ModalLayout";
 
 const ForgotPasswordPage: FC = () => {
@@ -99,12 +100,6 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 10px;
   }
-`;
-
-const ErrorMessage = styled.div`
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
 `;
 
 const Buttons = styled.div`

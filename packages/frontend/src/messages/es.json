@@ -263,6 +263,12 @@
       },
       "email": {
         "title": "Mi correo electrónico",
+        "sent-title": "Email enviado",
+        "sent-text": "Revisa la bandeja de tu correo electrónico, si no se encuentra ahí, es posible que esté en la carpeta de Spam.",
+        "sent-button": "Volver a enviar email",
+        "new": "Nuevo correo electrónico",
+        "email-exists": "Este correo ya está en uso",
+        "change-text": "Escribe tu nuevo correo electrónico y te enviaremos un email con un enlace para que puedas cambiarlo.",
         "button": "Cambiar correo electrónico"
       },
       "password": {
@@ -304,6 +310,14 @@
     "purchases": {
       "title": "Elementos comprados"
     }
+  },
+  "change-email-page": {
+    "confirm": "Confirmar",
+    "password-empty": "La contraseña no puede estar vacía",
+    "password-error": "La contraseña no es correcta",
+    "placeholder": "Contraseña",
+    "text": "Escribe tu contraseña para confirmar el cambio de correo electrónico de tu cuenta.",
+    "title": "Confirmar cambio"
   },
   "cloud": {
     "buttons": {
