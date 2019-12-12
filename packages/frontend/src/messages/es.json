@@ -286,6 +286,9 @@
       },
       "plan": {
         "title": "Mi plan",
+        "label": "Mejora tu plan a:",
+        "changed-title": "Plan mejorado",
+        "changed": "Has mejorado tu plan con éxito, a partir de ahora pasas a tener el plan de Docente",
         "button": "Mejorar mi plan"
       },
       "personal-data": {
