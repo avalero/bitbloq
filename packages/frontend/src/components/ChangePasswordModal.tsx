@@ -5,7 +5,7 @@ import { DialogModal, Button, Input, Modal, useTranslate } from "@bitbloq/ui";
 import { CHANGE_PASSWORD_MUTATION } from "../apollo/queries";
 import ErrorMessage from "./ErrorMessage";
 
-interface IEditInputModalProps {
+interface IChangePasswordModalProps {
   className?: string;
   disabledSave?: boolean;
   title?: string;
@@ -14,7 +14,7 @@ interface IEditInputModalProps {
   isOpen?: boolean;
 }
 
-const EditInputModal: FC<IEditInputModalProps> = props => {
+const ChangePasswordModal: FC<IChangePasswordModalProps> = props => {
   const {
     className,
     disabledSave = false,
@@ -190,7 +190,7 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
   );
 };
 
-export default EditInputModal;
+export default ChangePasswordModal;
 
 /* styled components */
 
