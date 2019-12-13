@@ -1,12 +1,19 @@
 import { IComponent, ConnectorPinMode } from "@bitbloq/bloqs";
 
 import SevenSegmentImage from "../../images/hardware/zumjunior-7segment.svg";
+import SevenSegmentSnapshotImage from "../../images/hardware/zumjunior-7segment.png";
 import ButtonImage from "../../images/hardware/zumjunior-button.svg";
+import ButtonSnapshotImage from "../../images/hardware/zumjunior-button.png";
 import DoubleLedImage from "../../images/hardware/zumjunior-double-led.svg";
+import DoubleLedSnapshotImage from "../../images/hardware/zumjunior-double-led.png";
 import MiniservoImage from "../../images/hardware/zumjunior-miniservo.svg";
+import MiniservoSnapshotImage from "../../images/hardware/zumjunior-miniservo.png";
 import SensorsImage from "../../images/hardware/zumjunior-sensors.svg";
+import SensorsSnapshotImage from "../../images/hardware/zumjunior-sensors.png";
 import ServoImage from "../../images/hardware/zumjunior-servo.svg";
+import ServoSnapshotImage from "../../images/hardware/zumjunior-servo.png";
 import SliderImage from "../../images/hardware/zumjunior-slider.svg";
+import SliderSnapshotImage from "../../images/hardware/zumjunior-slider.png";
 import BuzzerImage from "../../images/hardware/buzzer.svg";
 import RGBLedImage from "../../images/hardware/RGBled.svg";
 
@@ -215,6 +222,11 @@ export const components: Array<Partial<IComponent>> = [
       url: ServoImage,
       width: 80,
       height: 80
+    },
+    snapshotImage: {
+      url: ServoSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -327,6 +339,11 @@ export const components: Array<Partial<IComponent>> = [
       url: ButtonImage,
       width: 80,
       height: 80
+    },
+    snapshotImage: {
+      url: ButtonSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -371,6 +388,11 @@ export const components: Array<Partial<IComponent>> = [
       url: DoubleLedImage,
       width: 80,
       height: 80
+    },
+    snapshotImage: {
+      url: DoubleLedSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -408,6 +430,11 @@ export const components: Array<Partial<IComponent>> = [
       url: SliderImage,
       width: 80,
       height: 80
+    },
+    snapshotImage: {
+      url: SliderSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -438,6 +465,11 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: SevenSegmentImage,
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: SevenSegmentSnapshotImage,
       width: 80,
       height: 80
     },
@@ -516,6 +548,11 @@ export const components: Array<Partial<IComponent>> = [
       url: MiniservoImage,
       width: 80,
       height: 80
+    },
+    snapshotImage: {
+      url: MiniservoSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -543,6 +580,11 @@ export const components: Array<Partial<IComponent>> = [
     ],
     image: {
       url: SensorsImage,
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: SensorsSnapshotImage,
       width: 80,
       height: 80
     },

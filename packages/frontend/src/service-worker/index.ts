@@ -1,5 +1,6 @@
 import { execute, GraphQLRequest, makePromise } from "apollo-link";
 import { createUploadLink } from "apollo-upload-client";
+import { getDocumentSnapshot } from "./snapshot";
 import fetch from "isomorphic-fetch";
 import {
   SET_DOCUMENT_IMAGE_MUTATION,
@@ -25,52 +26,54 @@ ctx.addEventListener("install", event => {
 ctx.addEventListener("message", async message => {
   const {
     exerciseID,
-    documentId,
-    image,
+    document,
     submissionID,
     token,
     type,
     userID
   } = message.data;
 
-  let operation: GraphQLRequest | undefined;
-
   if (type === "upload-image") {
-    operation = {
-      context: {
-        headers: {
-          authorization: `Bearer ${token}`
-        },
-        user: {
-          userID
-        }
-      },
-      query: SET_DOCUMENT_IMAGE_MUTATION,
-      variables: {
-        id: documentId,
-        image,
-        isSnapshot: true
-      }
-    };
+    try {
+      const image = await getDocumentSnapshot(document);
+      makePromise(
+        execute(link, {
+          context: {
+            headers: {
+              authorization: `Bearer ${token}`
+            },
+            user: {
+              userID
+            }
+          },
+          query: SET_DOCUMENT_IMAGE_MUTATION,
+          variables: {
+            id: document.id,
+            image,
+            isSnapshot: true
+          }
+        })
+      );
+    } catch (e) {
+      console.log("Error generating document snapshot", e);
+    }
   } else if (type === "leave-exercise") {
-    operation = {
-      context: {
-        headers: {
-          authorization: `Bearer ${token}`
+    makePromise(
+      execute(link, {
+        context: {
+          headers: {
+            authorization: `Bearer ${token}`
+          },
+          user: {
+            exerciseID,
+            submissionID
+          }
         },
-        user: {
-          exerciseID,
-          submissionID
+        query: UPDATE_SUBMISSION_MUTATION,
+        variables: {
+          active: false
         }
-      },
-      query: UPDATE_SUBMISSION_MUTATION,
-      variables: {
-        active: false
-      }
-    };
-  }
-
-  if (operation) {
-    makePromise(execute(link, operation));
+      })
+    );
   }
 });

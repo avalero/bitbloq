@@ -1,4 +1,4 @@
-import React, { SFC, useLayoutEffect, useRef } from "react";
+import React, { SFC, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import Button from "./Button";
 import Modal from "./Modal";
@@ -36,7 +36,7 @@ const DialogModal: SFC<IDialogModalProps> = ({
 }) => {
   const submitRef = useRef<HTMLButtonElement | null>(null);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const onSubmitForm = (e: KeyboardEvent) => {
       if (e.keyCode === 13 && submitRef.current) {
         e.preventDefault();

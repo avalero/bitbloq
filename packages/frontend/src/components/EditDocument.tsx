@@ -1,5 +1,4 @@
 import { ApolloError } from "apollo-client";
-import axios, { AxiosResponse } from "axios";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
@@ -30,7 +29,7 @@ import {
   PUBLISH_DOCUMENT_MUTATION,
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
-import { boards, documentTypes, components } from "../config";
+import { documentTypes } from "../config";
 import { dataURItoBlob } from "../util";
 import { IDocument, IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
@@ -80,7 +79,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
   });
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
   const [image, setImage] = useState<IDocumentImage>();
-  const imageToUpload = useRef<Blob | null>(null);
   const serviceWorker = useServiceWorker();
 
   const {
@@ -102,28 +100,17 @@ const EditDocument: FC<IEditDocumentProps> = ({
     example: isExample
   } = document || {};
 
-  useEffect(() => {
-    saveImage();
-  }, [document]);
-
   const onPostImage = useCallback(async () => {
-    if (
-      (!image || image.isSnapshot) &&
-      imageToUpload.current &&
-      imageToUpload.current.size > 0 &&
-      serviceWorker &&
-      userData
-    ) {
+    if ((!image || image.isSnapshot) && serviceWorker && userData) {
       const token = await getToken();
       serviceWorker.postMessage({
-        documentId: id,
-        image: imageToUpload.current,
+        document,
         token,
         type: "upload-image",
         userID: userData.id
       });
     }
-  }, [image, imageToUpload.current, serviceWorker]);
+  }, [document, userData, image, serviceWorker]);
 
   useEffect(() => {
     if (isLoggedIn && !prevIsLoggedIn.current) {
@@ -188,117 +175,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [publishDocument] = useMutation(PUBLISH_DOCUMENT_MUTATION);
   const [setDocumentImage] = useMutation(SET_DOCUMENT_IMAGE_MUTATION);
 
-  const downloadSvgs = async (
-    boardSvg: string,
-    componentsList: Array<{ port: string; url: string }>
-  ) => {
-    const promises = new Array<Promise<string>>(componentsList.length);
-    componentsList.forEach((component, index: number) => {
-      promises[index] = new Promise(async (resolve, reject) => {
-        const result = await axios({
-          url: component.url,
-          method: "GET",
-          responseType: "text" // important
-        }).catch(e => reject(e));
-        const { data: svgData } = result as AxiosResponse<any>;
-        resolve(svgData);
-      });
-    });
-    const componentsSvg = await Promise.all(promises);
-    componentsSvg.forEach((component, index) => {
-      boardSvg = boardSvg.replace(
-        `##PORT_${componentsList[index].port}##`,
-        component
-      );
-    });
-    return boardSvg;
-  };
-
-  const saveImage = (documentContent?: any) => {
-    if (!image || image.isSnapshot) {
-      switch (type) {
-        case "3d":
-          save3DImage();
-          break;
-        case "junior":
-          saveJuniorImage(documentContent);
-          break;
-        default:
-          break;
-      }
-    }
-  };
-
-  const save3DImage = () => {
-    const canvasCollection = window.document.getElementsByTagName("canvas");
-    const canvas = canvasCollection[0];
-    if (canvas) {
-      const imgData: string = canvas.toDataURL("image/jpeg");
-
-      if (imgData !== "data:,") {
-        const file: Blob = dataURItoBlob(imgData);
-        imageToUpload.current = file;
-      }
-    }
-  };
-
-  const saveJuniorImage = async (DocumentContent?: any) => {
-    const { hardware } = JSON.parse(DocumentContent || document.content);
-    if (hardware) {
-      const { board: boardName } = hardware;
-      let { components: componentsList } = hardware;
-      const board = boards.find(boardItem => boardItem.name === boardName);
-      componentsList = componentsList
-        .filter(component => !component.integrated)
-        .map(boardComponent => {
-          const component = components.find(
-            componentItem => componentItem.name === boardComponent.component
-          );
-          return {
-            port: boardComponent.port,
-            url: component ? component.image!.url : ""
-          };
-        });
-      let { data: boardSvg } = await axios({
-        url: board!.snapshotImage.url,
-        method: "GET",
-        responseType: "text" // important
-      });
-      boardSvg = await downloadSvgs(boardSvg, componentsList);
-      const blobSvg = new Blob([boardSvg], { type: "image/svg+xml" });
-      const urlSvg = URL.createObjectURL(blobSvg);
-      const canvas = window.document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-      canvas.height = 430;
-      canvas.width = 700;
-      const img = new Image();
-      img.onload = () => {
-        ctx!.fillStyle = "#fff";
-        ctx!.fillRect(0, 0, canvas.width, canvas.height);
-        ctx!.drawImage(
-          img,
-          canvas.width * 0.05,
-          canvas.height * 0.05,
-          canvas.width * 0.9,
-          canvas.height * 0.9
-        );
-        const imgData: string = canvas.toDataURL("image/jpeg");
-
-        if (imgData !== "data:,") {
-          const file: Blob = dataURItoBlob(imgData);
-          imageToUpload.current = file;
-        }
-      };
-      img.src = urlSvg;
-    }
-  };
-
   const updateImage = (
     documentId: string,
-    imageFile?: Blob,
+    newImage?: Blob,
     isImageSnapshot?: boolean
   ) => {
-    const newImage = imageFile || imageToUpload.current;
     const isSnapshot = isImageSnapshot === undefined ? true : isImageSnapshot;
     setImage({ image: "udpated", isSnapshot });
 
@@ -321,7 +202,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   const debouncedUpdate = useCallback(
     debounce(async (newDocument: Partial<IDocument>) => {
-      saveImage(newDocument.content);
       await updateDocument({ variables: { ...newDocument, id } }).catch(e => {
         return setError(e);
       });
@@ -363,7 +243,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
         } = result;
         const href = "/app/edit-document/[folder]/[type]/[id]";
         const as = `/app/edit-document/${saveFolder}/${type}/${newId}`;
-        saveImage();
         Router.replace(href, as, { shallow: true });
       }
     } else {

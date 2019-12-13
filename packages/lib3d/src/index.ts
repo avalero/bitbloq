@@ -4,6 +4,7 @@ import Scene, {
   IHelperDescription as SceneIHelperDescription
 } from "./Scene";
 import Renderer from "./Renderer";
+import OffscreenRenderer from "./OffscreenRenderer";
 import STLLoader from "./STLLoader";
 import STLObject from "./STLObject";
 
@@ -18,6 +19,7 @@ export {
   Object3D,
   Scene,
   Renderer,
+  OffscreenRenderer,
   STLLoader,
   STLObject,
   isTranslateOperation,

@@ -57,7 +57,7 @@ const Container = styled.div`
 
 const ImageWrap = styled(BalloonPanel)`
   height: 150px;
-  padding: 0px 33px;
+  padding: 0px 55px;
   display: flex;
   align-items: center;
 `;
