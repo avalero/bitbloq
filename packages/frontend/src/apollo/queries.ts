@@ -649,9 +649,7 @@ export const CHANGE_PASSWORD_MUTATION = gql`
 
 export const CHANGE_PLAN_MUTATION = gql`
   mutation UpdateMyPlan($userPlan: String!) {
-    updateMyPlan(userPlan: $userPlan) {
-      id
-    }
+    updateMyPlan(userPlan: $userPlan)
   }
 `;
 
