@@ -13,6 +13,7 @@ import styled from "@emotion/styled";
 import useUserData from "../lib/useUserData";
 import { IUser } from "../types";
 import { getAge, getAvatarColor, isValidDate } from "../util";
+import { LIMIT_SIZE } from "../../../api/src/config";
 
 interface IPersonalData extends IUser {
   day: number;
@@ -20,13 +21,17 @@ interface IPersonalData extends IUser {
   year: number;
 }
 
+enum AvatarErrors {
+  extError,
+  noError,
+  sizeError
+}
+
 interface IAccountPersonalDataProps {
   editable: boolean;
   formId: string;
   onSubmit: (input: IUser) => void;
 }
-
-const maxImageSize = 1000000;
 
 const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   editable,
@@ -36,7 +41,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
   const t = useTranslate();
   const { userData } = useUserData();
   const ageLimit = userData.teacher ? 18 : 14;
-  const [avatarError, setAvatarError] = useState<string>("");
+  const [avatarError, setAvatarError] = useState<AvatarErrors>(
+    AvatarErrors.noError
+  );
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   useEffect(() => {
@@ -78,9 +85,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
 
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
-      setAvatarError(t("account.user-data.personal-data.errors.avatar-ext"));
-    } else if (file.size > maxImageSize) {
-      setAvatarError(t("account.user-data.personal-data.errors.avatar-size"));
+      setAvatarError(AvatarErrors.extError);
+    } else if (file.size > LIMIT_SIZE.MAX_AVATAR_BYTES) {
+      setAvatarError(AvatarErrors.sizeError);
     } else {
       setValue("avatar", file);
       const reader = new FileReader();
@@ -251,11 +258,16 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
         )}
       </Avatar>
       <DialogModal
-        title={t("account.user-data.personal-data.button-warning-title")}
-        isOpen={!!avatarError}
-        text={avatarError}
-        okText={t("account.user-data.personal-data.button-warning-ok")}
-        onOk={() => setAvatarError("")}
+        isOpen={avatarError !== AvatarErrors.noError}
+        onCancel={() => setAvatarError(AvatarErrors.noError)}
+        onOk={() => setAvatarError(AvatarErrors.noError)}
+        text={
+          avatarError === AvatarErrors.extError
+            ? t("account.user-data.personal-data.warning-ext")
+            : t("account.user-data.personal-data.warning-size")
+        }
+        okText={t("account.user-data.personal-data.warning-ok")}
+        title={t("account.user-data.personal-data.warning-title")}
       />
     </Container>
   );

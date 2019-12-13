@@ -19,6 +19,7 @@ import {
 } from "../apollo/queries";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
+import { LIMIT_SIZE } from "../../../api/src/config";
 
 const acceptedFiles = {
   image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
@@ -132,7 +133,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     const extFile = newFile.name.split(".").pop();
     if (!isValidExt(extFile!)) {
       setError(Errors.extError);
-    } else if (newFile.size > 10000000) {
+    } else if (newFile.size > LIMIT_SIZE.MAX_RESOURCE_BYTES) {
       setError(Errors.sizeError);
     } else {
       setNameFile(
@@ -185,7 +186,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       text={
         error === Errors.extError
           ? t("cloud.upload.warning-ext")
-          : t("cloud.upload.warning-size")
+          : t("cloud.upload.warning-size", [
+              (LIMIT_SIZE.MAX_RESOURCE_BYTES / (1024 * 1024)).toString()
+            ])
       }
       okText={t("general-accept-button")}
       title={t("cloud.upload.warning-title")}

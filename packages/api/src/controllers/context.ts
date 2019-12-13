@@ -13,10 +13,7 @@ import {
   SUBMISSION_ACTIVE
 } from "../resolvers/submission";
 
-import {
-  SESSION_DURATION_MINUTES,
-  SESSION_SHOW_WARNING_SECONDS
-} from "../config";
+import { SESSION } from "../config";
 import { SubmissionModel } from "../models/submission";
 
 const checkOtherSessionOpen = async (user: IUserInToken, justToken: string) => {
@@ -75,7 +72,7 @@ export const storeTokenInRedis = async (
     return undefined;
   }
   const date = new Date();
-  date.setMinutes(date.getMinutes() + SESSION_DURATION_MINUTES);
+  date.setMinutes(date.getMinutes() + SESSION.DURATION_MINUTES);
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {
@@ -138,14 +135,14 @@ const checksSessionExpires = async () => {
           }
           if (expiresAt > now) {
             secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
-            if (secondsRemaining < SESSION_SHOW_WARNING_SECONDS) {
+            if (secondsRemaining < SESSION.SHOW_WARNING_SECONDS) {
               await pubsub.publish(topic, {
                 [type]: {
                   ...result,
                   key,
                   secondsRemaining,
                   expiredSession: false,
-                  showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
+                  showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
                 }
               });
             }
@@ -156,7 +153,7 @@ const checksSessionExpires = async () => {
                 key,
                 secondsRemaining,
                 expiredSession: true,
-                showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
+                showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
               }
             });
             if (type === "submissionSessionExpires") {
