@@ -230,7 +230,7 @@ export const googleAuthEndpoint =
   "https://accounts.google.com/o/oauth2/v2/auth";
 
 export const googleScopes =
-  "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/userinfo.email";
+  "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
 
 export const privacyPolicyUrl =
   "https://storage.googleapis.com/webstatic.bq.com/Pol%C3%ADtica%20Privacidad/Politica%20privacidad_ES.pdf";
