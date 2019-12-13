@@ -7,7 +7,7 @@ import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import useUserData from "../lib/useUserData";
 import { IUser } from "../types";
-import { getAge, getAvatarColor, isValidDate } from "../util";
+import { getAvatarColor, isValidAge, isValidDate } from "../util";
 
 interface IPersonalData extends IUser {
   avatarFile: File;
@@ -56,7 +56,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
       required: true,
       validate: {
         validDate: isValidDate,
-        validAge: () => getAge(getValues().birthDate) >= ageLimit
+        validAge: () => isValidAge(getValues().birthDate, ageLimit)
       }
     }
   );
