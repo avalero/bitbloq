@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 import { DialogModal, Button, Modal, useTranslate } from "@bitbloq/ui";
 import { CHANGE_PLAN_MUTATION } from "../apollo/queries";
 import { plans } from "../config";
+import { setToken } from "../lib/session";
 import ErrorLayout from "./ErrorLayout";
 import PlanOption from "./PlanOption";
 
@@ -38,11 +39,14 @@ const ChangePlanModal: FC<IChangePlanModalProps> = props => {
 
   const onSubmitPlan = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await changePlan({
+    const {
+      data: { updateMyPlan: newToken }
+    } = await changePlan({
       variables: {
         userPlan: "teacher"
       }
     });
+    setToken(newToken);
     setPlanChanged(true);
   };
 
