@@ -19,7 +19,8 @@ import ErrorLayout from "../../../components/ErrorLayout";
 import GraphQLErrorMessage from "../../../components/GraphQLErrorMessage";
 import { plans } from "../../../config.js";
 import useUserData from "../../../lib/useUserData";
-import { IUser } from "../../../types";
+import { isValidAge } from "../../../util";
+import { IPlan, IUser } from "../../../types";
 
 enum TabType {
   UserData,
@@ -31,8 +32,8 @@ const AccountPage: NextPage = () => {
   const t = useTranslate();
   const { userData, fetchUserData } = useUserData();
 
-  const memberPlan = plans.filter(p => p.name === "member")[0];
-  const teacherPlan = plans.filter(p => p.name === "teacher")[0];
+  const memberPlan: IPlan = plans.filter(p => p.name === "member")[0];
+  const teacherPlan: IPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [changeEmail] = useMutation(CHANGE_EMAIL_MUTATION);
 
@@ -193,7 +194,11 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.plan.title")}
               icon="user"
               buttons={
-                plan === memberPlan ? (
+                plan === memberPlan &&
+                isValidAge(
+                  new Date(userData.birthDate).toLocaleDateString(),
+                  teacherPlan.ageLimit
+                ) ? (
                   <Button onClick={() => setShowPlanModal(true)}>
                     {t("account.user-data.plan.button")}
                   </Button>
@@ -248,7 +253,13 @@ const AccountPage: NextPage = () => {
       />
       <ChangePlanModal
         disabledSave={loadingData}
-        isOpen={showPlanModal}
+        isOpen={
+          showPlanModal &&
+          isValidAge(
+            new Date(userData.birthDate).toLocaleDateString(),
+            teacherPlan.ageLimit
+          )
+        }
         onSave={() => {
           fetchUserData();
           setShowPlanModal(false);
