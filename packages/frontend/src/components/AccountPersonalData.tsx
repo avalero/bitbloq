@@ -91,7 +91,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
     } else if (file.size > LIMIT_SIZE.MAX_AVATAR_BYTES) {
       setAvatarError(AvatarErrors.sizeError);
     } else {
-      setValue("avatar", file);
+      setValue("avatarFile", file);
       const reader = new FileReader();
       reader.onload = () => {
         setAvatarPreview(reader.result as string);
