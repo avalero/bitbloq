@@ -757,13 +757,6 @@ const userResolver = {
       args: IMutationUpdateMyPlanArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        _id: context.user.userID,
-        finishedSignUp: true
-      });
-      if (!contactFound) {
-        throw new ApolloError("User not found", "USER_NOT_FOUND");
-      }
       let teacher: boolean = false;
       switch (args.userPlan) {
         case "teacher":
@@ -774,11 +767,22 @@ const userResolver = {
         default:
           throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
-      return UserModel.findOneAndUpdate(
-        { _id: contactFound._id },
+      const user: IUser | null = await UserModel.findOneAndUpdate(
+        { _id: context.user.userID, finishedSignUp: true },
         { $set: { teacher } },
         { new: true }
       );
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const { token } = await contextController.generateLoginToken(user);
+      await UserModel.updateOne(
+        { _id: user!._id },
+        { $set: { authToken: token, lastLogin: new Date() } },
+        { new: true }
+      );
+      await storeTokenInRedis(user!._id, token);
+      return token;
     },
 
     /**
@@ -882,7 +886,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user!._id}`, token);
+        await storeTokenInRedis(user!._id, token);
         return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
