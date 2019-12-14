@@ -297,6 +297,10 @@
         "button-avatar": "Cambiar imagen",
         "button-cancel": "Cancelar",
         "button-save": "Guardar",
+        "warning-ext": "El formato de la imagen no es válido",
+        "warning-size": "El tamaño de la imagen es demasiado grande",
+        "warning-ok": "Aceptar",
+        "warning-title": "Aviso",
         "errors": {
           "birth-date-required": "Debes introducir una fecha válida",
           "birth-date-validAge": "Debes ser mayor de %v% años",
@@ -372,7 +376,7 @@
       "select": "O selecciona un archivo",
       "title": "Añadir recurso importado",
       "warning-ext": "Este recurso no es compatible con este documento.",
-      "warning-size": "El recurso pesa más de 10MB, intenta reducir su tamaño e impórtalo de nuevo.",
+      "warning-size": "El recurso pesa más de %v%MB, intenta reducir su tamaño e impórtalo de nuevo.",
       "warning-title": "Aviso"
     }
   },
@@ -398,7 +402,7 @@
       "title": "Título del documento"
     },
     "sublabels": {
-      "image": "Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1 MB.",
+      "image": "Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo %v%MB.",
       "resources": "Estos son los recursos importados que necesita el alumno para visualizar y realizar el ejercicio."
     },
     "title": "Información del documento"
