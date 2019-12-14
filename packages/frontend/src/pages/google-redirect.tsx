@@ -28,7 +28,7 @@ const GoogleRedirectPage: NextPage = () => {
   };
 
   const onPlanSelection = (id: string) =>
-    router.push(`/signup/${signupSteps[1]}?id=${id}`);
+    router.push(`/signup/${signupSteps.planSelection}?id=${id}`);
 
   const onLeaveProcess = () => {
     router.push(sessionStorage.getItem("googlePrevPathname") || "/");

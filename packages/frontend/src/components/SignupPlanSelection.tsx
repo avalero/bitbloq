@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { useRouter } from "next/router";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { Button, useTranslate } from "@bitbloq/ui";
@@ -58,7 +57,7 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
         <Button
           tertiary
           onClick={() =>
-            router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
+            router.push("/signup/[step]", `/signup/${signupSteps.userData}`, {
               shallow: true
             })
           }
