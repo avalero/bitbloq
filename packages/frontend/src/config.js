@@ -126,7 +126,8 @@ export const plans = [
       "open-documents",
       "create-documents-with-bq-kits",
       "exercise-access"
-    ]
+    ],
+    ageLimit: 0
   },
   {
     name: "member",
@@ -141,7 +142,8 @@ export const plans = [
       "bitbloq-cloud",
       "save-unlimited-documents"
     ],
-    isFree: true
+    isFree: true,
+    ageLimit: 14
   },
   {
     name: "teacher",
@@ -165,7 +167,8 @@ export const plans = [
       "correct-exercises"
     ],
     originalPrice: 6,
-    isBetaFree: true
+    isBetaFree: true,
+    ageLimit: 18
   }
 ];
 

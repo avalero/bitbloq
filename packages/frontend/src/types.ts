@@ -76,4 +76,5 @@ export interface IPlan {
   originalPrice?: number;
   price?: number;
   isBetaFree?: boolean;
+  ageLimit: number;
 }
