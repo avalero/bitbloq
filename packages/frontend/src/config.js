@@ -195,7 +195,7 @@ export const educationalStages = [
 ];
 
 export const signupSteps = {
-  birthdate: "birthdate",
+  birthDate: "birth-date",
   create: "create",
   leave: "leave",
   planSelection: "plan-selection",

@@ -9,6 +9,7 @@ import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
   FINISH_SIGNUP_MUTATION,
+  SAVE_BIRTH_DATE_MUTATION,
   SAVE_USER_DATA_MUTATION
 } from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
@@ -60,10 +61,10 @@ const SignupStepPage: NextPage = () => {
       wrapRef.current.scrollIntoView();
     }
     switch (step) {
-      case signupSteps.birthdate:
+      case signupSteps.birthDate:
         setSignupFlow([
           signupSteps.leave,
-          signupSteps.birthdate,
+          signupSteps.birthDate,
           signupSteps.planSelection
         ]);
       case signupSteps.create:
@@ -78,7 +79,7 @@ const SignupStepPage: NextPage = () => {
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [error, setError] = useState<ApolloError>();
-  const [userError, setUserError] = useState<ApolloError>();
+  const [userBirthDate, setUserBirthDate] = useState<string>("");
   const [userData, setUserData] = useState({
     acceptTerms: false,
     birthDate: "",
@@ -87,11 +88,15 @@ const SignupStepPage: NextPage = () => {
     imTeacherCheck: defaultPlan === teacherPlan.name,
     noNotifications: false
   });
+  const [userError, setUserError] = useState<ApolloError>();
   const [userId, setUserId] = useState();
   const [userPlan, setUserPlan] = useState();
 
   const [finishSignup, { loading: finishingSignup }] = useMutation(
     FINISH_SIGNUP_MUTATION
+  );
+  const [saveBirthDate, { loading: savingBirthDate }] = useMutation(
+    SAVE_BIRTH_DATE_MUTATION
   );
   const [saveUserData, { loading: savingUserData }] = useMutation(
     SAVE_USER_DATA_MUTATION
@@ -114,6 +119,22 @@ const SignupStepPage: NextPage = () => {
       });
     } else {
       router.back();
+    }
+  };
+
+  const onSaveBirthDate = async (input: string) => {
+    setUserBirthDate(input);
+    try {
+      const { data }: ExecutionResult<IUserStep1> = await saveBirthDate({
+        variables: {
+          id: externalProfileId,
+          birthDate: input
+        }
+      });
+      setUserId(data!.id);
+      goToNextStep();
+    } catch (e) {
+      setError(e);
     }
   };
 
@@ -161,7 +182,7 @@ const SignupStepPage: NextPage = () => {
     try {
       const { data }: ExecutionResult<ISignupUserResult> = await finishSignup({
         variables: {
-          id: externalProfileId || userId,
+          id: userId,
           userPlan: input.name
         }
       });
@@ -176,11 +197,6 @@ const SignupStepPage: NextPage = () => {
     } catch (e) {
       setError(e);
     }
-  };
-
-  const onSignupBirthDate = async (input: string) => {
-    // TODO
-    goToNextStep();
   };
 
   if (error) {
@@ -222,12 +238,12 @@ const SignupStepPage: NextPage = () => {
 
   return (
     <Wrap ref={wrapRef}>
-      {step === signupSteps.birthdate ? (
+      {step === signupSteps.birthDate ? (
         <AccessLayout panelTitle={t(`signup.${step}.title`)}>
           <SignupBirthDateForm
-            loading={false}
+            loading={savingBirthDate}
             onCancel={goToPreviousStep}
-            onSubmit={onSignupBirthDate}
+            onSubmit={onSaveBirthDate}
           />
         </AccessLayout>
       ) : (
@@ -235,7 +251,7 @@ const SignupStepPage: NextPage = () => {
           panelTitle={t("signup.title")}
           size={AccessLayoutSize.BIG}
         >
-          {signupFlow[0] !== signupSteps.birthdate && (
+          {signupFlow[0] !== signupSteps.birthDate && (
             <StepCounter>
               {t("signup.step", [
                 (signupFlow.findIndex(s => s === step) + 1).toString()
@@ -262,7 +278,7 @@ const SignupStepPage: NextPage = () => {
                     <a target="_blank" href={privacyPolicyUrl}>
                       {t("legal.privacy-policy").toLowerCase()}
                     </a>
-                    AccessLayout .
+                    .
                   </LoginWithLegalInformation>
                 </div>
                 <LoginWithButtons>
@@ -282,7 +298,7 @@ const SignupStepPage: NextPage = () => {
           {step === signupSteps.planSelection && (
             <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
-              isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
+              isAMinor={userBirthDate ? getAge(userData.birthDate) < 18 : false}
               loading={finishingSignup}
               onCancel={goToPreviousStep}
               onSubmit={onSignupUser}
@@ -299,7 +315,7 @@ SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
   if (
     asPath &&
     !Object.entries(signupSteps).find(
-      item => item[1] === asPath.replace("/signup/", "").split("?")[0]
+      item => item[1] === asPath.replace("/signup/", "").split("?id=")[0]
     )
   ) {
     redirect(ctx, `/signup/${signupSteps.userData}`);

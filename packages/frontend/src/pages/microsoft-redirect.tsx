@@ -33,7 +33,7 @@ const MicrosoftRedirectPage: NextPage = () => {
   };
 
   const onSignup = (id: string) =>
-    router.push(`/signup/${signupSteps.birthdate}?id=${id}`);
+    router.push(`/signup/${signupSteps.birthDate}?id=${id}`);
 
   useEffect(() => {
     try {
