@@ -34,13 +34,17 @@ import { IPlan, IUserBirthDate, IUserData } from "../../types";
 import { getAge } from "../../util";
 import { IUserStep1 } from "../../../../api/src/api-types";
 
-interface ISaveUserResult {
-  saveUserData: IUserStep1;
-}
+const NORMAL_SIGNUP_FLOW = [
+  signupSteps.userData,
+  signupSteps.planSelection,
+  signupSteps.create
+];
 
-interface ISignupUserResult {
-  finishSignUp?: string;
-}
+const EXTERNAL_SIGNUP_FLOW = [
+  signupSteps.leave,
+  signupSteps.birthDate,
+  signupSteps.planSelection
+];
 
 const SignupStepPage: NextPage = () => {
   const client = useApolloClient();
@@ -48,25 +52,18 @@ const SignupStepPage: NextPage = () => {
   const t = useTranslate();
   const wrapRef = React.createRef<HTMLDivElement>();
 
-  const { id: externalProfileId, plan: defaultPlan, step } = router.query;
-
-  const [signupFlow, setSignupFlow] = useState<string[]>([
-    signupSteps.userData,
-    signupSteps.planSelection,
-    signupSteps.create
-  ]);
+  const { id: encryptedId, plan: defaultPlan, step } = router.query;
 
   useEffect(() => {
     if (wrapRef && wrapRef.current) {
       wrapRef.current.scrollIntoView();
     }
+    if (encryptedId) {
+      setUserId(encryptedId.toString());
+    }
     switch (step) {
       case signupSteps.birthDate:
-        setSignupFlow([
-          signupSteps.leave,
-          signupSteps.birthDate,
-          signupSteps.planSelection
-        ]);
+        setSignupFlow(EXTERNAL_SIGNUP_FLOW);
       case signupSteps.create:
         router.beforePopState(() => {
           router.push("/");
@@ -78,7 +75,7 @@ const SignupStepPage: NextPage = () => {
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
-  const [error, setError] = useState<ApolloError>();
+  const [signupFlow, setSignupFlow] = useState<string[]>(NORMAL_SIGNUP_FLOW);
   const [userBirthDate, setUserBirthDate] = useState<IUserBirthDate>({
     birthDate: ""
   });
@@ -94,15 +91,18 @@ const SignupStepPage: NextPage = () => {
   const [userId, setUserId] = useState<string>("");
   const [userPlan, setUserPlan] = useState<IPlan>(memberPlan);
 
-  const [finishSignup, { loading: finishingSignup }] = useMutation(
-    FINISH_SIGNUP_MUTATION
-  );
-  const [saveBirthDate, { loading: savingBirthDate }] = useMutation(
-    SAVE_BIRTH_DATE_MUTATION
-  );
-  const [saveUserData, { loading: savingUserData }] = useMutation(
-    SAVE_USER_DATA_MUTATION
-  );
+  const [
+    finishSignup,
+    { error: finishSignupError, loading: finishingSignup }
+  ] = useMutation(FINISH_SIGNUP_MUTATION);
+  const [
+    saveBirthDate,
+    { error: saveBirthDateError, loading: savingBirthDate }
+  ] = useMutation(SAVE_BIRTH_DATE_MUTATION);
+  const [
+    saveUserData,
+    { error: saveUserDataError, loading: savingUserData }
+  ] = useMutation(SAVE_USER_DATA_MUTATION);
 
   const goToNextStep = () => {
     const index = signupFlow.findIndex(s => s === step);
@@ -126,24 +126,21 @@ const SignupStepPage: NextPage = () => {
 
   const onSaveBirthDate = async (input: IUserBirthDate) => {
     setUserBirthDate(input);
-    try {
-      const { data }: ExecutionResult<IUserStep1> = await saveBirthDate({
-        variables: {
-          id: externalProfileId,
-          birthDate: input.birthDate
-        }
-      });
-      setUserId(data!.id!);
-      goToNextStep();
-    } catch (e) {
-      setError(e);
-    }
+    await saveBirthDate({
+      variables: {
+        id: userId,
+        birthDate: input.birthDate
+      }
+    });
+    goToNextStep();
   };
 
   const onSaveUser = async (input: IUserData) => {
     setUserData(input);
     try {
-      const { data }: ExecutionResult<ISaveUserResult> = await saveUserData({
+      const {
+        data
+      }: ExecutionResult<{ saveUserData: IUserStep1 }> = await saveUserData({
         variables: {
           input: {
             birthDate: input.birthDate,
@@ -173,36 +170,46 @@ const SignupStepPage: NextPage = () => {
       setUserId(data!.saveUserData.id!);
       goToNextStep();
     } catch (e) {
-      e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
-        ? setUserError(e)
-        : setError(e);
+      if (e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS") {
+        setUserError(e);
+      }
     }
   };
 
   const onSignupUser = async (input: IPlan) => {
     setUserPlan(input);
-    try {
-      const { data }: ExecutionResult<ISignupUserResult> = await finishSignup({
-        variables: {
-          id: userId,
-          userPlan: input.name
-        }
-      });
-      const token = data!.finishSignUp;
-      if (token) {
-        client.resetStore();
-        setToken(token);
-        router.push("/app");
-      } else {
-        goToNextStep();
+    const {
+      data
+    }: ExecutionResult<{ finishSignUp?: string }> = await finishSignup({
+      variables: {
+        id: userId,
+        userPlan: input.name
       }
-    } catch (e) {
-      setError(e);
+    });
+    const token = data!.finishSignUp;
+    if (token) {
+      client.resetStore();
+      setToken(token);
+      router.push("/app");
+    } else {
+      goToNextStep();
     }
   };
 
-  if (error) {
-    return <GraphQLErrorMessage apolloError={error} />;
+  if (
+    (saveUserDataError && !userError) ||
+    saveBirthDateError ||
+    finishSignupError
+  ) {
+    return (
+      <GraphQLErrorMessage
+        apolloError={
+          (saveUserDataError ||
+            saveBirthDateError ||
+            finishSignupError) as ApolloError
+        }
+      />
+    );
   }
 
   if (step === signupSteps.create) {
@@ -241,7 +248,10 @@ const SignupStepPage: NextPage = () => {
   return (
     <Wrap ref={wrapRef}>
       {step === signupSteps.birthDate ? (
-        <AccessLayout panelTitle={t(`signup.${step}.title`)}>
+        <AccessLayout
+          panelTitle={t(`signup.${step}.title`)}
+          size={AccessLayoutSize.MEDIUM}
+        >
           <SignupBirthDateForm
             defaultValues={userBirthDate}
             loading={savingBirthDate}
@@ -254,7 +264,7 @@ const SignupStepPage: NextPage = () => {
           panelTitle={t("signup.title")}
           size={AccessLayoutSize.BIG}
         >
-          {signupFlow[0] !== signupSteps.birthDate && (
+          {signupFlow === NORMAL_SIGNUP_FLOW && (
             <StepCounter>
               {t("signup.step", [
                 (signupFlow.findIndex(s => s === step) + 1).toString()
@@ -302,7 +312,7 @@ const SignupStepPage: NextPage = () => {
             <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
               isAMinor={
-                userBirthDate ? getAge(userBirthDate.birthDate) < 18 : false
+                getAge(userBirthDate.birthDate || userData.birthDate) < 18
               }
               loading={finishingSignup}
               onCancel={goToPreviousStep}
