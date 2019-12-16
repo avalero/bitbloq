@@ -12,7 +12,7 @@ const EditDocumentPage: NextPage = () => {
   const { id, folder, type } = router.query;
 
   const documentType = documentTypes[type];
-  if (!documentType || !documentType.supported) {
+  if (type !== "open" && (!documentType || !documentType.supported)) {
     return <ErrorPage statusCode={404} />;
   }
 
