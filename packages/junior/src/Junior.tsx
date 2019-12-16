@@ -26,7 +26,10 @@ export interface IJuniorProps {
   onContentChange: (content: any) => any;
   boards: IBoard[];
   components: IComponent[];
-  children: (hardware: JSX.Element, software: JSX.Element) => JSX.Element;
+  children: (
+    hardware: JSX.Element,
+    software: (isActive: boolean) => JSX.Element | null
+  ) => JSX.Element;
 }
 
 const Junior: React.FunctionComponent<IJuniorProps> = ({
@@ -216,28 +219,31 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
         setContent({ hardware: newHardware, program })
       }
     />,
-    <>
-      <HorizontalBloqEditor
-        lines={program}
-        components={components}
-        getComponents={getComponents}
-        getBloqPort={getBloqPort}
-        bloqTypes={bloqTypes}
-        availableBloqs={availableBloqs}
-        onLinesChange={(newProgram: IBloqLine[]) =>
-          setContent({ program: newProgram, hardware })
-        }
-        onUpload={() => upload(10000)}
-        board={board}
-      />
-      {uploadSpinnerVisible && (
-        <UploadSpinner
-          uploading={uploading}
-          success={uploadingSuccess}
-          onClick={() => !uploading && setUploadSpinnerVisible(false)}
-        />
-      )}
-    </>
+    (isActive: boolean) =>
+      isActive ? (
+        <>
+          <HorizontalBloqEditor
+            lines={program}
+            components={components}
+            getComponents={getComponents}
+            getBloqPort={getBloqPort}
+            bloqTypes={bloqTypes}
+            availableBloqs={availableBloqs}
+            onLinesChange={(newProgram: IBloqLine[]) =>
+              setContent({ program: newProgram, hardware })
+            }
+            onUpload={() => upload(10000)}
+            board={board}
+          />
+          {uploadSpinnerVisible && (
+            <UploadSpinner
+              uploading={uploading}
+              success={uploadingSuccess}
+              onClick={() => !uploading && setUploadSpinnerVisible(false)}
+            />
+          )}
+        </>
+      ) : null
   );
 };
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { Icon, JuniorButton } from "@bitbloq/ui";
+import { colors, Icon, JuniorButton } from "@bitbloq/ui";
 import HorizontalBloq from "./HorizontalBloq";
 import BloqPlaceholder from "./BloqPlaceholder";
 
@@ -55,6 +55,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
     if (!bloqsRef.current) {
       return;
     }
+
     const { scrollLeft, scrollWidth, clientWidth } = bloqsRef.current;
     setShowScrollLeft(scrollLeft > 0);
     setShowScrollRight(scrollLeft + clientWidth < scrollWidth);
@@ -98,15 +99,52 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   };
 
   const onScrollLeft = () => {
-    console.log("Scroll left");
+    if (!bloqsRef.current) {
+      return;
+    }
+
+    let newScrollLeft = 0;
+    let i = 0;
+    const { scrollLeft, clientWidth } = bloqsRef.current;
+    while (i < bloqs.length && newScrollLeft + 98 < scrollLeft) {
+      newScrollLeft += 88;
+      i++;
+    }
+    bloqsRef.current.scrollLeft = newScrollLeft;
+    onScrollChange(scrollLeft);
   };
 
   const onScrollRight = () => {
-    console.log("Scroll right");
+    if (!bloqsRef.current) {
+      return;
+    }
+
+    let newScrollLeft = 0;
+    let i = 0;
+    const { scrollLeft, clientWidth } = bloqsRef.current;
+    while (i < bloqs.length && newScrollLeft + 88 < scrollLeft + clientWidth) {
+      newScrollLeft += 88;
+      i++;
+    }
+    newScrollLeft += 98;
+    bloqsRef.current.scrollLeft = newScrollLeft - clientWidth;
+    onScrollChange(scrollLeft);
   };
 
   return (
-    <>
+    <Wrap>
+      {!startsWithEvent() && bloqs.length > 0 ? (
+        <MissingEventIcon>
+          <Icon name="programming-question" />
+        </MissingEventIcon>
+      ) : line.disabled ? (
+        <DisabledIcon>
+          <Icon name="eye-close" />
+        </DisabledIcon>
+      ) : (
+        <LineBullet />
+      )}
+
       <Container>
         <Bloqs ref={bloqsRef}>
           {!startsWithEvent() && selectedPlaceholder !== 0 && (
@@ -188,13 +226,48 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
           <Icon name="ellipsis" />
         </ShowOptionsButton>
       )}
-    </>
+    </Wrap>
   );
 };
 
 export default BloqsLine;
 
 /* styled components */
+
+const Wrap = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const LineBullet = styled.div`
+  min-width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: #3b3e45;
+  margin-right: 10px;
+`;
+
+const DisabledIcon = styled.div`
+  min-width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+`;
+
+const MissingEventIcon = styled.div`
+  min-width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  color: ${colors.red};
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+`;
 
 const Container = styled.div`
   position: relative;
@@ -212,7 +285,7 @@ const Bloqs = styled.div`
   padding: 10px;
   height: 103px;
   box-sizing: border-box;
-  overflow-y: auto;
+  overflow-x: auto;
 `;
 
 const StyledBloq = styled(HorizontalBloq)`
@@ -221,6 +294,7 @@ const StyledBloq = styled(HorizontalBloq)`
 `;
 
 const EmptyBloq = styled.div`
+  flex-shrink: 0;
   width: 156px;
   height: 83px;
   margin-left: 5px;

@@ -122,10 +122,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
   useEffect(() => {
     window.removeEventListener("beforeunload", onPostImage);
     window.addEventListener("beforeunload", onPostImage);
+    Router.events.on("routeChangeStart", onPostImage);
 
     return () => {
       window.removeEventListener("beforeunload", onPostImage);
-      onPostImage();
+      Router.events.off("routeChangeStart", onPostImage);
     };
   }, [onPostImage]);
 
