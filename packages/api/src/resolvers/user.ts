@@ -248,16 +248,17 @@ const userResolver = {
         args.id,
         process.env.JWT_SECRET
       );
-      if (!idInfo.saveUserData) {
+      if (!idInfo || !idInfo.saveUserData) {
         throw new ApolloError("User ID not valid", "ID_NOT_VALID");
       }
       const user: IUser | null = await UserModel.findOne({
         _id: idInfo.saveUserData,
-        active: false
+        active: false,
+        finishedSignUp: false
       });
       if (!user) {
         return new ApolloError(
-          "User does not exist or activated.",
+          "User does not exist or activated 1.",
           "USER_NOT_FOUND"
         );
       }
@@ -266,7 +267,7 @@ const userResolver = {
         const { token } = await contextController.generateLoginToken(user);
         await storeTokenInRedis(user._id, token);
         await UserModel.findOneAndUpdate(
-          { _id: args.id, active: false },
+          { _id: idInfo.saveUserData, finishedSignUp: false, active: false },
           {
             $set: {
               birthDate: new Date(
@@ -281,7 +282,7 @@ const userResolver = {
         return { id: user.id, email: user.email };
       } catch (e) {
         return new ApolloError(
-          "User does not exist or activated.",
+          "User does not exist or activated 2.",
           "USER_NOT_FOUND"
         );
       }
