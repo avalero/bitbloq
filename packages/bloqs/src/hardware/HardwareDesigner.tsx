@@ -144,7 +144,7 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   const connectionPath = (port: IPort) => {
     const position = (!isDesktop && port.position.tablet) || port.position;
     const portX = (position.x * width) / 2;
-    const portY = (-position.y * width) / 2;
+    const portY = (-position.y * height) / 2;
     const placeholderPosition =
       (!isDesktop && port.placeholderPosition.tablet) ||
       port.placeholderPosition;

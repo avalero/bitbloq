@@ -283,8 +283,8 @@ export default class Scene {
   /**
    * returns a THREE.Group object containing designed 3D objects .
    */
-  public async getObjectsAsync(): Promise<THREE.Group> {
-    if (!this.sceneUpdated) {
+  public async getObjectsAsync(forceUpdate?: boolean): Promise<THREE.Group> {
+    if (!this.sceneUpdated && !forceUpdate) {
       return this.objectsGroup;
     }
 

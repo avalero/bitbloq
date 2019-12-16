@@ -218,8 +218,7 @@ export interface IComponent {
   actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
-  // onValue?: string;
-  // offValue?: string;
+  snapshotImage?: IComponentImage;
   values: { [name: string]: string };
 }
 
