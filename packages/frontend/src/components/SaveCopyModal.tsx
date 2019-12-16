@@ -1,13 +1,14 @@
 import React, { FC, useState, useRef, useEffect } from "react";
 import styled from "@emotion/styled";
-import { Button, Input, Modal, DialogModal, Option } from "@bitbloq/ui";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { Button, Input, Modal, DialogModal } from "@bitbloq/ui";
+import { useMutation } from "@apollo/react-hooks";
 import { DOCUMENTS_QUERY, CREATE_DOCUMENT_MUTATION } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
+import { IDocument } from "../../../api/src/api-types";
 
 interface ISaveCopyModalProps {
   onClose: () => any;
-  document: any;
+  document: IDocument;
   content: any;
 }
 
@@ -16,7 +17,8 @@ const SaveCopyModal: FC<ISaveCopyModalProps> = ({
   document,
   content
 }) => {
-  const { userData } = useUserData();
+  let userData = useUserData();
+  userData = userData && userData.userData;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,11 +41,14 @@ const SaveCopyModal: FC<ISaveCopyModalProps> = ({
       await createDocument({
         variables: {
           ...document,
+          content,
           image: {
-            image: document.image.image ? document.image.image : document.image,
+            image: document.image!.image
+              ? document.image!.image
+              : document.image,
             isSnapshot:
-              document.image.isSnapshot !== undefined
-                ? document.image.isSnapshot
+              document.image!.isSnapshot !== undefined
+                ? document.image!.isSnapshot
                 : false
           }
         },

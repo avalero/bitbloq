@@ -21,19 +21,17 @@ import {
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION,
   SUBMISSION_ACTIVE_SUBSCRIPTION,
-  SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION,
-  RENEW_SESSION_MUTATION
+  SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { getToken, setToken, useSessionEvent } from "../lib/session";
+import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { IDocument, IResource } from "../types";
-import { ISessionExpires } from "../../../api/src/api-types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -59,8 +57,6 @@ const EditExercise = ({ type, id }) => {
     errorPolicy: "ignore"
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
-
-  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
 
   const [submission, setSubmission] = useState<IDocument | undefined>(
     undefined
