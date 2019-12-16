@@ -22,6 +22,7 @@ const Container = styled.div`
   height: 100%;
   overflow: hidden;
   user-select: none;
+  background-color: white;
 `;
 
 const HeaderWrap = styled.div<{ collapsed: boolean }>`
@@ -153,7 +154,7 @@ const MenuWrap = styled.div`
 const CollapseButton = styled.div<{ collapsed: boolean }>`
   cursor: pointer;
   svg {
-    width: 12px;
+    width: 18px;
     margin: 0px 12px;
     transition: transform 150ms ease-out;
   }
@@ -165,6 +166,13 @@ const CollapseButton = styled.div<{ collapsed: boolean }>`
         transform: rotateX(180deg);
       }
     `};
+`;
+
+const FullScreenButton = styled.div`
+  cursor: pointer;
+  svg {
+    width: 18px;
+  }
 `;
 
 const Tabs = styled.div`
@@ -208,16 +216,10 @@ const TabIcon = styled.div<{ selected: boolean }>`
     `};
 `;
 
-const Content = styled.div<{ active: boolean }>`
-  display: none;
+const Content = styled.div`
+  display: flex;
   flex: 1;
   overflow: hidden;
-
-  ${props =>
-    props.active &&
-    css`
-      display: flex;
-    `};
 `;
 
 export interface IDocumentTab {
@@ -253,6 +255,8 @@ class Document extends React.Component<IDocumentProps, IState> {
     isHeaderCollapsed: false
   };
 
+  private containerRef = React.createRef<HTMLDivElement>();
+
   public render() {
     const {
       menuOptions = [],
@@ -274,7 +278,7 @@ class Document extends React.Component<IDocumentProps, IState> {
     const { isHeaderCollapsed } = this.state;
 
     return (
-      <Container>
+      <Container ref={this.containerRef}>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
             <DocumentIcon
@@ -318,6 +322,9 @@ class Document extends React.Component<IDocumentProps, IState> {
         <MenuWrap>
           <MenuBar options={menuOptions} />
           {menuRightContent}
+          <FullScreenButton onClick={this.onFullScreenClick}>
+            <Icon name="full-screen" />
+          </FullScreenButton>
           <CollapseButton
             onClick={this.onCollapseButtonClick}
             collapsed={isHeaderCollapsed}
@@ -342,11 +349,10 @@ class Document extends React.Component<IDocumentProps, IState> {
               </Tooltip>
             ))}
           </Tabs>
-          {tabs.map((tab, i) => (
-            <Content key={i} active={i === tabIndex}>
-              {tab.content}
-            </Content>
-          ))}
+          {tabs.map(
+            (tab, i) =>
+              i === tabIndex && <Content key={i}>{tab.content}</Content>
+          )}
         </Main>
       </Container>
     );
@@ -357,6 +363,16 @@ class Document extends React.Component<IDocumentProps, IState> {
       ...state,
       isHeaderCollapsed: !state.isHeaderCollapsed
     }));
+  };
+
+  private onFullScreenClick = () => {
+    if (this.containerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        this.containerRef.current.requestFullscreen();
+      }
+    }
   };
 }
 
