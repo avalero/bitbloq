@@ -1,18 +1,20 @@
-import { useRouter } from "next/router";
 import React, { FC } from "react";
 import useForm from "react-hook-form";
 import { Button, Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
+import { IUserBirthDate } from "../types";
 import { isValidDate, getAge } from "../util";
 
 interface ISignupBirthDateProps {
+  defaultValues: IUserBirthDate;
   loading: boolean;
   onCancel: () => void;
-  onSubmit: (birthDate: string) => void;
+  onSubmit: (birthDate: IUserBirthDate) => void;
 }
 
 const SignupBirthDate: FC<ISignupBirthDateProps> = ({
+  defaultValues,
   loading,
   onCancel,
   onSubmit
@@ -26,7 +28,7 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({
     handleSubmit,
     register,
     setValue
-  } = useForm();
+  } = useForm({ defaultValues });
 
   register(
     { name: "birthDate", type: "custom" },
@@ -48,7 +50,7 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(input => onSubmit(input.birthDate))}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <FormField>
         <label>{t("signup.birthdate.labels.birth-date")}</label>
         <FormGroup onChange={onChangeBirthDate}>

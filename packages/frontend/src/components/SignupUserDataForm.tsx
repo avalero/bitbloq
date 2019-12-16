@@ -1,5 +1,4 @@
 import { ApolloError } from "apollo-client";
-import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
 import {
@@ -31,7 +30,6 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
   onCancel,
   onSubmit
 }) => {
-  const router = useRouter();
   const t = useTranslate();
 
   const {

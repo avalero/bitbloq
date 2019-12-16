@@ -14,23 +14,26 @@ export interface IUser {
   teacher: boolean;
 }
 
-export interface IUserData {
-  acceptTerms: boolean;
+export interface IUserBirthDate {
   birthDate: string;
-  centerName: string;
-  city: string;
+  day?: number;
+  month?: number;
+  year?: number;
+}
+
+export interface IUserData extends IUserBirthDate {
+  acceptTerms: boolean;
+  centerName?: string;
+  city?: string;
   country: string;
-  day: number;
   educationalStage: string;
-  email: string;
+  email?: string;
   imTeacherCheck: boolean;
-  month: number;
-  name: string;
+  name?: string;
   noNotifications: boolean;
-  password: string;
-  postCode: number;
-  surnames: string;
-  year: number;
+  password?: string;
+  postCode?: number;
+  surnames?: string;
 }
 
 export interface IEditorProps {

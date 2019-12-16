@@ -30,7 +30,7 @@ import {
 } from "../../config";
 import redirect from "../../lib/redirect";
 import { setToken } from "../../lib/session";
-import { IPlan, IUserData } from "../../types";
+import { IPlan, IUserBirthDate, IUserData } from "../../types";
 import { getAge } from "../../util";
 import { IUserStep1 } from "../../../../api/src/api-types";
 
@@ -79,18 +79,20 @@ const SignupStepPage: NextPage = () => {
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [error, setError] = useState<ApolloError>();
-  const [userBirthDate, setUserBirthDate] = useState<string>("");
-  const [userData, setUserData] = useState({
+  const [userBirthDate, setUserBirthDate] = useState<IUserBirthDate>({
+    birthDate: ""
+  });
+  const [userData, setUserData] = useState<IUserData>({
     acceptTerms: false,
     birthDate: "",
     country: "ES",
-    educationalStage: _.first(educationalStages),
+    educationalStage: _.first(educationalStages) || "",
     imTeacherCheck: defaultPlan === teacherPlan.name,
     noNotifications: false
   });
   const [userError, setUserError] = useState<ApolloError>();
-  const [userId, setUserId] = useState();
-  const [userPlan, setUserPlan] = useState();
+  const [userId, setUserId] = useState<string>("");
+  const [userPlan, setUserPlan] = useState<IPlan>(memberPlan);
 
   const [finishSignup, { loading: finishingSignup }] = useMutation(
     FINISH_SIGNUP_MUTATION
@@ -122,16 +124,16 @@ const SignupStepPage: NextPage = () => {
     }
   };
 
-  const onSaveBirthDate = async (input: string) => {
+  const onSaveBirthDate = async (input: IUserBirthDate) => {
     setUserBirthDate(input);
     try {
       const { data }: ExecutionResult<IUserStep1> = await saveBirthDate({
         variables: {
           id: externalProfileId,
-          birthDate: input
+          birthDate: input.birthDate
         }
       });
-      setUserId(data!.id);
+      setUserId(data!.id!);
       goToNextStep();
     } catch (e) {
       setError(e);
@@ -168,7 +170,7 @@ const SignupStepPage: NextPage = () => {
           ? teacherPlan
           : memberPlan
       );
-      setUserId(data!.saveUserData.id);
+      setUserId(data!.saveUserData.id!);
       goToNextStep();
     } catch (e) {
       e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
@@ -241,6 +243,7 @@ const SignupStepPage: NextPage = () => {
       {step === signupSteps.birthDate ? (
         <AccessLayout panelTitle={t(`signup.${step}.title`)}>
           <SignupBirthDateForm
+            defaultValues={userBirthDate}
             loading={savingBirthDate}
             onCancel={goToPreviousStep}
             onSubmit={onSaveBirthDate}
@@ -298,7 +301,9 @@ const SignupStepPage: NextPage = () => {
           {step === signupSteps.planSelection && (
             <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
-              isAMinor={userBirthDate ? getAge(userData.birthDate) < 18 : false}
+              isAMinor={
+                userBirthDate ? getAge(userBirthDate.birthDate) < 18 : false
+              }
               loading={finishingSignup}
               onCancel={goToPreviousStep}
               onSubmit={onSignupUser}
