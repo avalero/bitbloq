@@ -23,11 +23,6 @@ import {
   IUserInToken,
   IDataInRedis
 } from "../models/interfaces";
-
-import mjml2html from "mjml";
-import { resetPasswordTemplate } from "../email/resetPasswordMail";
-import { welcomeTemplate } from "../email/welcomeMail";
-
 import { redisClient, pubsub } from "../server";
 
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
@@ -51,9 +46,14 @@ import {
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
 import { uploadDocumentUserImage } from "./upload";
-import { changeEmailTemplate } from "../email/changeEmailMail";
 
-import { SESSION_SHOW_WARNING_SECONDS } from "../config";
+import {
+  generateChangeEmailEmail,
+  generateResetPasswordEmail,
+  generateWelcomeEmail
+} from "../email/generateEmails";
+
+import { SESSION } from "../config";
 
 import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 const saltRounds: number = 7;
@@ -189,17 +189,14 @@ const userResolver = {
         const data: IEmailData = {
           url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
         };
-        const mjml: string = welcomeTemplate(data);
-        const htmlMessage: any = mjml2html(mjml, {
-          keepComments: false,
-          beautify: true,
-          minify: true
-        });
-        await mailerController.sendEmail(
-          user.email!,
-          "Bitbloq Sign Up ✔",
-          htmlMessage.html
-        );
+        const emailContent: string = await generateWelcomeEmail(data);
+        if (emailContent) {
+          await mailerController.sendEmail(
+            user.email!,
+            "Bitbloq cuenta creada",
+            emailContent
+          );
+        }
       }
 
       // Update the user information in the database
@@ -469,7 +466,7 @@ const userResolver = {
               key: data.userID,
               secondsRemaining,
               expiredSession: false,
-              showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
+              showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
             }
           });
         } else if (data.submissionID) {
@@ -485,7 +482,7 @@ const userResolver = {
               key: data.submissionID,
               secondsRemaining,
               expiredSession: false,
-              showSessionWarningSecs: SESSION_SHOW_WARNING_SECONDS
+              showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
             }
           });
         }
@@ -520,17 +517,15 @@ const userResolver = {
       const data: IEmailData = {
         url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
       };
-      const mjml = resetPasswordTemplate(data);
-      const htmlMessage = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        contactFound.email!,
-        "Cambiar contraseña Bitbloq",
-        htmlMessage.html
-      );
+      const emailContent: string = await generateResetPasswordEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          contactFound.email!,
+          "Cambiar contraseña Bitbloq",
+          emailContent
+        );
+      }
+
       return "OK";
     },
 
@@ -754,13 +749,6 @@ const userResolver = {
       args: IMutationUpdateMyPlanArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        _id: context.user.userID,
-        finishedSignUp: true
-      });
-      if (!contactFound) {
-        throw new ApolloError("User not found", "USER_NOT_FOUND");
-      }
       let teacher: boolean = false;
       switch (args.userPlan) {
         case "teacher":
@@ -771,11 +759,22 @@ const userResolver = {
         default:
           throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
-      return UserModel.findOneAndUpdate(
-        { _id: contactFound._id },
+      const user: IUser | null = await UserModel.findOneAndUpdate(
+        { _id: context.user.userID, finishedSignUp: true },
         { $set: { teacher } },
         { new: true }
       );
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const { token } = await contextController.generateLoginToken(user);
+      await UserModel.updateOne(
+        { _id: user!._id },
+        { $set: { authToken: token, lastLogin: new Date() } },
+        { new: true }
+      );
+      await storeTokenInRedis(user!._id, token);
+      return token;
     },
 
     /**
@@ -814,17 +813,14 @@ const userResolver = {
       const data: IEmailData = {
         url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
       };
-      const mjml: string = changeEmailTemplate(data);
-      const htmlMessage: any = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        args.newEmail!,
-        "Bitbloq change e-mail ✔",
-        htmlMessage.html
-      );
+      const emailContent: string = await generateChangeEmailEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          args.newEmail!,
+          "Bitbloq cambiar correo electrónico",
+          emailContent
+        );
+      }
       return "OK";
     },
 
@@ -879,7 +875,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user!._id}`, token);
+        await storeTokenInRedis(user!._id, token);
         return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");

@@ -1,3 +1,4 @@
+import { css } from "@emotion/core";
 import React, { FC } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import styled from "@emotion/styled";
@@ -140,10 +141,14 @@ interface IImageProps {
 const Image = styled.div<IImageProps>`
   flex: 1;
   background-color: ${colors.gray2};
-  background-image: url(${props => props.src});
   background-size: cover;
   background-position: center;
   border-bottom: 1px solid ${colors.gray3};
+  ${props =>
+    props.src !== "imageURL" &&
+    css`
+      background-image: url(${props.src});
+    `};
 `;
 
 const ImageFol = styled.div<IImageProps>`

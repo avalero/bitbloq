@@ -136,7 +136,10 @@ const EditDocument: FC<IEditDocumentProps> = ({
     window.removeEventListener("beforeunload", onPostImage);
     window.addEventListener("beforeunload", onPostImage);
 
-    return () => window.removeEventListener("beforeunload", onPostImage);
+    return () => {
+      window.removeEventListener("beforeunload", onPostImage);
+      onPostImage();
+    };
   }, [onPostImage]);
 
   useEffect(() => {

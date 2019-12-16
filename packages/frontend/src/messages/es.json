@@ -279,7 +279,7 @@
         "password-changed-title": "Contraseña cambiada",
         "password-changed": "Tu contraseña se ha cambiado con éxito, a partir de ahora ya no podrás entrar con la anterior contraseña.",
         "new-placeholder": "Nueva contraseña",
-        "empty-error": "El campo de contraseña de debe rellenar",
+        "empty-error": "El campo de contraseña se debe rellenar",
         "current-placeholder": "Contraseña actual",
         "change-text": "Escribe tu contraseña actual y la nueva contraseña que quieres utilizar.",
         "button": "Cambiar contraseña"
@@ -297,6 +297,10 @@
         "button-avatar": "Cambiar imagen",
         "button-cancel": "Cancelar",
         "button-save": "Guardar",
+        "warning-ext": "El formato de la imagen no es válido",
+        "warning-size": "El tamaño de la imagen es demasiado grande",
+        "warning-ok": "Aceptar",
+        "warning-title": "Aviso",
         "errors": {
           "birth-date-required": "Debes introducir una fecha válida",
           "birth-date-validAge": "Debes ser mayor de %v% años",
@@ -372,7 +376,7 @@
       "select": "O selecciona un archivo",
       "title": "Añadir recurso importado",
       "warning-ext": "Este recurso no es compatible con este documento.",
-      "warning-size": "El recurso pesa más de 10MB, intenta reducir su tamaño e impórtalo de nuevo.",
+      "warning-size": "El recurso pesa más de %v%MB, intenta reducir su tamaño e impórtalo de nuevo.",
       "warning-title": "Aviso"
     }
   },
@@ -398,7 +402,7 @@
       "title": "Título del documento"
     },
     "sublabels": {
-      "image": "Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 1 MB.",
+      "image": "Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo %v%MB.",
       "resources": "Estos son los recursos importados que necesita el alumno para visualizar y realizar el ejercicio."
     },
     "title": "Información del documento"
@@ -503,7 +507,7 @@
   "signup": {
     "activate-modal": {
       "title": "Cuenta validada",
-      "content": "Tu cuenta ha sido validada con exito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
+      "content": "Tu cuenta ha sido validada con éxito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
       "ok": "¡Entrar a Bitbloq!"
     },
     "create-modal": {
