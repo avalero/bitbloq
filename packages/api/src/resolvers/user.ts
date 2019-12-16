@@ -23,11 +23,6 @@ import {
   IUserInToken,
   IDataInRedis
 } from "../models/interfaces";
-
-import mjml2html from "mjml";
-import { resetPasswordTemplate } from "../email/resetPasswordMail";
-import { welcomeTemplate } from "../email/welcomeMail";
-
 import { redisClient, pubsub } from "../server";
 
 import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
@@ -51,7 +46,12 @@ import {
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
 import { uploadDocumentUserImage } from "./upload";
-import { changeEmailTemplate } from "../email/changeEmailMail";
+
+import {
+  generateChangeEmailEmail,
+  generateResetPasswordEmail,
+  generateWelcomeEmail
+} from "../email/generateEmails";
 
 import { SESSION } from "../config";
 
@@ -189,17 +189,14 @@ const userResolver = {
         const data: IEmailData = {
           url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
         };
-        const mjml: string = welcomeTemplate(data);
-        const htmlMessage: any = mjml2html(mjml, {
-          keepComments: false,
-          beautify: true,
-          minify: true
-        });
-        await mailerController.sendEmail(
-          user.email!,
-          "Bitbloq Sign Up ✔",
-          htmlMessage.html
-        );
+        const emailContent: string = await generateWelcomeEmail(data);
+        if (emailContent) {
+          await mailerController.sendEmail(
+            user.email!,
+            "Bitbloq cuenta creada",
+            emailContent
+          );
+        }
       }
 
       // Update the user information in the database
@@ -523,17 +520,15 @@ const userResolver = {
       const data: IEmailData = {
         url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
       };
-      const mjml = resetPasswordTemplate(data);
-      const htmlMessage = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        contactFound.email!,
-        "Cambiar contraseña Bitbloq",
-        htmlMessage.html
-      );
+      const emailContent: string = await generateResetPasswordEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          contactFound.email!,
+          "Cambiar contraseña Bitbloq",
+          emailContent
+        );
+      }
+
       return "OK";
     },
 
@@ -821,17 +816,14 @@ const userResolver = {
       const data: IEmailData = {
         url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
       };
-      const mjml: string = changeEmailTemplate(data);
-      const htmlMessage: any = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        args.newEmail!,
-        "Bitbloq change e-mail ✔",
-        htmlMessage.html
-      );
+      const emailContent: string = await generateChangeEmailEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          args.newEmail!,
+          "Bitbloq cambiar correo electrónico",
+          emailContent
+        );
+      }
       return "OK";
     },
 
