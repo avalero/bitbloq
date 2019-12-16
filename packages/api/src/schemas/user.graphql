@@ -11,7 +11,7 @@ type Query {
 type Mutation {
   saveUserData(input: UserIn!): UserStep1
   finishSignUp(id: ObjectID!, userPlan: String!): String
-  saveBirthDate(id: ObjectID!, birthDate: Date!): SocialLogin
+  saveBirthDate(id: ObjectID!, birthDate: Date!): UserStep1
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
   loginWithGoogle(token: String!): SocialLogin

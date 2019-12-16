@@ -249,15 +249,12 @@ const userResolver = {
                 Number(birthDate[2]),
                 Number(birthDate[1]) - 1,
                 Number(birthDate[0])
-              ),
-              active: true,
-              authToken: token,
-              finishedSignUp: true
+              )
             }
           },
           { new: true }
         );
-        return { id: user.id, token, finishedSignUp: true };
+        return { id: user.id, email: user.email };
       } catch (e) {
         return new ApolloError(
           "User does not exist or activated.",
