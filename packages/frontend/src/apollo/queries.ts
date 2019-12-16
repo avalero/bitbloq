@@ -524,12 +524,6 @@ export const LOGIN_WITH_GOOGLE = gql`
   }
 `;
 
-export const RENEW_TOKEN_MUTATION = gql`
-  mutation RenewToken {
-    renewToken
-  }
-`;
-
 export const CHECK_UPDATE_PASSWORD_TOKEN_MUTATION = gql`
   mutation CheckResetPasswordToken($token: String) {
     checkForgotPasswordToken(token: $token)
