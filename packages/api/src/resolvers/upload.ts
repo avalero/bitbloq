@@ -196,6 +196,36 @@ export function getFilesizeInBytes(filename) {
   }
 }
 
+export const createExerciseImage = async (docFatherImg, newCode, userID) => {
+  const imgData: IUpload | null = await UploadModel.findOne({
+    publicUrl: docFatherImg
+  });
+  if (!imgData) {
+    return "";
+  }
+  const filename: string = `${userID}/exercise-${newCode}`;
+  await storage
+    .bucket(bucketName)
+    .file(imgData.storageName)
+    .copy(storage.bucket(bucketName).file(filename));
+  const imgUrl: string = getPublicUrl(filename);
+  return imgUrl;
+};
+
+export const deleteExerciseImage = async (exCode, userID) => {
+  try {
+    const [files] = await bucket.getFiles({
+      prefix: `${userID}/exercise-${exCode}`
+    });
+    files.map(async file => {
+      await file.delete();
+    });
+    return "ok";
+  } catch (e) {
+    return undefined;
+  }
+};
+
 export async function uploadDocumentUserImage(
   image: any,
   userID: string,
