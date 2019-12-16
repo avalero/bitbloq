@@ -165,6 +165,7 @@ export interface IMutation {
   __typename?: "Mutation";
   saveUserData?: Maybe<IUserStep1>;
   finishSignUp?: Maybe<Scalars["String"]>;
+  saveBirthDate?: Maybe<ISocialLogin>;
   activateAccount?: Maybe<Scalars["String"]>;
   login?: Maybe<Scalars["String"]>;
   loginWithGoogle?: Maybe<ISocialLogin>;
@@ -221,6 +222,11 @@ export interface IMutationSaveUserDataArgs {
 export interface IMutationFinishSignUpArgs {
   id: Scalars["ObjectID"];
   userPlan: Scalars["String"];
+}
+
+export interface IMutationSaveBirthDateArgs {
+  id: Scalars["ObjectID"];
+  birthDate: Scalars["Date"];
 }
 
 export interface IMutationActivateAccountArgs {
@@ -1165,6 +1171,12 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationFinishSignUpArgs, "id" | "userPlan">
+  >;
+  saveBirthDate?: Resolver<
+    Maybe<IResolversTypes["SocialLogin"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationSaveBirthDateArgs, "id" | "birthDate">
   >;
   activateAccount?: Resolver<
     Maybe<IResolversTypes["String"]>,

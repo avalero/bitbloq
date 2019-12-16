@@ -45,7 +45,8 @@ import {
   IMutationUpdateMyPasswordArgs,
   IMutationUpdateMyPlanArgs,
   IMutationSendChangeMyEmailTokenArgs,
-  IMutationConfirmChangeEmailArgs
+  IMutationConfirmChangeEmailArgs,
+  IMutationSaveBirthDateArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -218,6 +219,51 @@ const userResolver = {
         { new: true }
       );
       return user.microsoftID || user.googleID ? logOrSignToken : "";
+    },
+
+    /**
+     * saveBirthDate: Saves birthDate for signup with google or microsoft
+     * args: user id and birthDate
+     */
+
+    saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
+      const user: IUser | null = await UserModel.findOne({
+        _id: args.id,
+        active: false
+      });
+      if (!user) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
+      const birthDate: string[] = String(args.birthDate).split("/");
+      try {
+        const { token } = await contextController.generateLoginToken(user);
+        await storeTokenInRedis(user._id, token);
+        await UserModel.findOneAndUpdate(
+          { _id: args.id, active: false },
+          {
+            $set: {
+              birthDate: new Date(
+                Number(birthDate[2]),
+                Number(birthDate[1]) - 1,
+                Number(birthDate[0])
+              ),
+              active: true,
+              authToken: token,
+              finishedSignUp: true
+            }
+          },
+          { new: true }
+        );
+        return { id: user.id, token, finishedSignUp: true };
+      } catch (e) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
     },
 
     /*
