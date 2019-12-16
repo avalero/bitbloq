@@ -1,19 +1,11 @@
 import { useEffect } from "react";
 import cookie from "cookie";
 import { NextApiRequest } from "next";
-import { flags } from "../config";
 
 interface ISession {
   token: string;
   time: number;
 }
-
-const {
-  RENEW_TOKEN_SECONDS,
-  TOKEN_DURATION_MINUTES,
-  TOKEN_WARNING_SECONDS
-}: any = flags;
-const CHECK_TOKEN_MS = 500;
 
 const getSession = (
   tempSession?: string,
@@ -33,17 +25,7 @@ const getSession = (
     return null;
   }
 
-  const session = JSON.parse(sessionString);
-
-  if (Date.now() - session.time > TOKEN_DURATION_MINUTES * 60000) {
-    if (session.token) {
-      triggerEvent({ tempSession, event: "expired" });
-      setToken("", tempSession);
-    }
-    return null;
-  }
-
-  return session;
+  return JSON.parse(sessionString);
 };
 
 const setSession = (session?: ISession, tempSession?: string) => {
@@ -57,23 +39,14 @@ const setSession = (session?: ISession, tempSession?: string) => {
   } else {
     document.cookie = cookie.serialize("session", sessionString, {
       sameSite: true,
-      path: "/",
-      maxAge: TOKEN_DURATION_MINUTES * 60 + RENEW_TOKEN_SECONDS
+      path: "/"
     });
   }
 };
 
-const renewTokenPromises: { [tempSession: string]: Promise<string> } = {};
-
-export const getToken = async (
-  tempSession?: string,
-  req?: NextApiRequest
-): Promise<string | null> => {
-  if (renewTokenPromises[tempSession!]) {
-    await renewTokenPromises[tempSession!];
-  }
+export const getToken = (tempSession?: string, req?: NextApiRequest) => {
   const session = getSession(tempSession, req);
-  return Promise.resolve(session ? session.token : null);
+  return session ? session.token : null;
 };
 
 export const setToken = (token: string, tempSession?: string) => {
@@ -84,27 +57,6 @@ export const setToken = (token: string, tempSession?: string) => {
 export const logout = () => {
   setToken("");
   triggerEvent({ event: "logout" });
-};
-
-export const renewToken = async (
-  tokenPromise: Promise<string>,
-  tempSession?: string
-) => {
-  if (renewTokenPromises[tempSession!]) {
-    return;
-  }
-  renewTokenPromises[tempSession!] = tokenPromise;
-  const token = await tokenPromise;
-  delete renewTokenPromises[tempSession!];
-  setToken(token, tempSession);
-};
-
-export const shouldRenewToken = (tempSession?: string): boolean => {
-  const session = getSession(tempSession);
-  return session
-    ? Date.now() - session.time > RENEW_TOKEN_SECONDS * 1000 &&
-        Date.now() - session.time < TOKEN_DURATION_MINUTES * 60000
-    : false;
 };
 
 export interface ISessionEvent {
@@ -131,27 +83,6 @@ const triggerEvent = (event: ISessionEvent) => {
 
 export const onSessionError = (error: any, tempSession?: string) => {
   triggerEvent({ tempSession, error, event: "error" });
-};
-
-export const onSessionActivity = () => {
-  triggerEvent({ event: "activity", allSessions: true });
-};
-
-export const watchSession = (tempSession?: string) => {
-  return setInterval(() => {
-    const session = getSession(tempSession);
-    if (session && session.token) {
-      const elapsedSeconds = Math.floor((Date.now() - session.time) / 1000);
-      const remainingSeconds = TOKEN_DURATION_MINUTES * 60 - elapsedSeconds;
-      if (remainingSeconds < TOKEN_WARNING_SECONDS) {
-        triggerEvent({
-          remainingSeconds,
-          tempSession,
-          event: "expiration-warning"
-        });
-      }
-    }
-  }, CHECK_TOKEN_MS);
 };
 
 export const useSessionEvent = (

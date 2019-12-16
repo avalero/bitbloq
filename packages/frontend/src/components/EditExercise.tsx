@@ -71,9 +71,9 @@ const EditExercise = ({ type, id }) => {
     setToken("", "exercise-team");
   }, []);
 
-  const setActiveToFalse = useCallback(async () => {
+  const setActiveToFalse = useCallback(() => {
     if (exercise && teamName && serviceWorker && submission) {
-      const token = await getToken("exercise-team");
+      const token = getToken("exercise-team");
       serviceWorker.postMessage({
         exerciseID: exercise.id,
         token,

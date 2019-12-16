@@ -11,7 +11,7 @@ import env from "../lib/env";
 
 const { SHOW_GRAPHQL_LOGS } = flags;
 
-const request = async (operation, client, { getToken, onSessionActivity }) => {
+const request = async (operation, client, { getToken }) => {
   const context = operation.getContext();
 
   let authHeader = "";
@@ -20,11 +20,10 @@ const request = async (operation, client, { getToken, onSessionActivity }) => {
     const basicAuth = btoa(`${context.email}:${context.password}`);
     authHeader = `Basic ${basicAuth}`;
   } else {
-    const token = context.token || (await getToken());
+    const token = context.token || getToken();
     authHeader = `Bearer ${token}`;
   }
 
-  onSessionActivity();
   operation.setContext({
     headers: {
       Authorization: authHeader
@@ -39,10 +38,7 @@ const httpLink = createUploadLink({
   uri: isBrowser ? env.API_URL : env.API_URL_SERVER || env.API_URL
 });
 
-export const createClient = (
-  initialState,
-  { getToken, onSessionError, onSessionActivity }
-) => {
+export const createClient = (initialState, { getToken, onSessionError }) => {
   const client = new ApolloClient({
     link: ApolloLink.from([
       onError(({ graphQLErrors, networkError, operation }) => {
@@ -78,8 +74,7 @@ export const createClient = (
             Promise.resolve(operation)
               .then(oper =>
                 request(oper, client, {
-                  getToken,
-                  onSessionActivity
+                  getToken
                 })
               )
               .then(() => {
@@ -113,7 +108,7 @@ export const createClient = (
                 lazy: true,
                 reconnect: true,
                 connectionParams: async () => {
-                  const token = await getToken();
+                  const token = getToken();
                   return {
                     authorization: token ? `Bearer ${token}` : ""
                   };

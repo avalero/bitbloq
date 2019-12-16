@@ -7,18 +7,13 @@ import { ApolloProvider, useMutation } from "@apollo/react-hooks";
 import { createClient } from "./client";
 import {
   ME_QUERY,
-  RENEW_TOKEN_MUTATION,
   USER_SESSION_EXPIRES_SUBSCRIPTION,
   RENEW_SESSION_MUTATION
 } from "./queries";
 import {
   getToken,
   setToken,
-  renewToken,
-  shouldRenewToken,
   onSessionError,
-  onSessionActivity,
-  watchSession,
   logout,
   useSessionEvent
 } from "../lib/session";
@@ -214,8 +209,7 @@ function initApolloClient(
 ) {
   const sessionMethods = {
     getToken: () => getToken(tempSession, req),
-    onSessionError: error => onSessionError(error, tempSession),
-    onSessionActivity: () => onSessionActivity()
+    onSessionError: error => onSessionError(error, tempSession)
   };
 
   if (typeof window === "undefined") {

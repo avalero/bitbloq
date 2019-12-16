@@ -12,21 +12,6 @@ import { flags } from "../config";
 
 const flagFields = [
   {
-    key: "RENEW_TOKEN_SECONDS",
-    label: "Renovar token cada (segundos)",
-    type: "number"
-  },
-  {
-    key: "TOKEN_DURATION_MINUTES",
-    label: "La sesión caduca después de (minutos)",
-    type: "number"
-  },
-  {
-    key: "TOKEN_WARNING_SECONDS",
-    label: "Mostrar aviso de sesión cuando falten (segundos)",
-    type: "number"
-  },
-  {
     key: "SHOW_GRAPHQL_LOGS",
     label: "Mostrar logs de graphql",
     type: "boolean"

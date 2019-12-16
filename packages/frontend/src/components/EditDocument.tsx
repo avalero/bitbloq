@@ -100,9 +100,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
     example: isExample
   } = document || {};
 
-  const onPostImage = useCallback(async () => {
+  const onPostImage = useCallback(() => {
     if ((!image || image.isSnapshot) && serviceWorker && userData) {
-      const token = await getToken();
+      const token = getToken();
       serviceWorker.postMessage({
         document,
         token,
