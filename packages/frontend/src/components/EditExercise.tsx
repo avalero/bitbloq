@@ -92,7 +92,10 @@ const EditExercise = ({ type, id }) => {
       window.removeEventListener("beforeunload", setActiveToFalse);
       window.addEventListener("beforeunload", setActiveToFalse);
 
-      return () => window.removeEventListener("beforeunload", setActiveToFalse);
+      return () => {
+        window.removeEventListener("beforeunload", setActiveToFalse);
+        setActiveToFalse();
+      };
     }
     return;
   }, [exercise, submission, teamName]);
