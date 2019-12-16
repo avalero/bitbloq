@@ -151,6 +151,7 @@ const ObjectTree: FC<IObjectTreeProps> = ({
             <ObjectName
               isSelected={isSelected}
               isParent={children.length > 0}
+              isTop={isTop}
               onClick={() => onObjectClick(object)}
             >
               <DragHandle {...provided.dragHandleProps}>
@@ -321,6 +322,7 @@ const DeleteObject = styled.div`
 interface IObjectNameProps {
   isSelected: boolean;
   isParent: boolean;
+  isTop: boolean;
 }
 const ObjectName = styled.div<IObjectNameProps>`
   padding: 0px 8px 0px 8px;
@@ -346,7 +348,7 @@ const ObjectName = styled.div<IObjectNameProps>`
       display: block;
     }
     ${ObjectTypeIcon} {
-      display: none;
+      display: ${props => (props.isTop ? "none" : "block")};
     }
   }
 
