@@ -12,27 +12,9 @@ import {
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
-import { isValidDate, isValidEmail, getAge } from "../util";
 import { educationalStages, privacyPolicyUrl } from "../config";
-
-interface IUserData {
-  acceptTerms: boolean;
-  birthDate: string;
-  centerName: string;
-  city: string;
-  country: string;
-  day: number;
-  educationalStage: string;
-  email: string;
-  imTeacherCheck: boolean;
-  month: number;
-  name: string;
-  noNotifications: boolean;
-  password: string;
-  postCode: number;
-  surnames: string;
-  year: number;
-}
+import { IUserData } from "../types";
+import { isValidDate, isValidEmail, getAge } from "../util";
 
 interface ISignupUserDataProps {
   defaultValues: {};

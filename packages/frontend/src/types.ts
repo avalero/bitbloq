@@ -14,6 +14,25 @@ export interface IUser {
   teacher: boolean;
 }
 
+export interface IUserData {
+  acceptTerms: boolean;
+  birthDate: string;
+  centerName: string;
+  city: string;
+  country: string;
+  day: number;
+  educationalStage: string;
+  email: string;
+  imTeacherCheck: boolean;
+  month: number;
+  name: string;
+  noNotifications: boolean;
+  password: string;
+  postCode: number;
+  surnames: string;
+  year: number;
+}
+
 export interface IEditorProps {
   document: IDocument;
   onDocumentChange: (document: IDocument) => any;

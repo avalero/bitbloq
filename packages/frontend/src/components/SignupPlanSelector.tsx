@@ -6,14 +6,14 @@ import PlanOption from "./PlanOption";
 import { plans, signupSteps } from "../config";
 import { IPlan } from "../types";
 
-interface ISignupPlanSelectionProps {
+interface ISignupPlanSelectorProps {
   defaultValues: IPlan;
   isAMinor: boolean;
   loading: boolean;
   onSubmit: (userInputs: IPlan) => void;
 }
 
-const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
+const SignupPlanSelector: FC<ISignupPlanSelectorProps> = ({
   defaultValues,
   isAMinor,
   loading,
@@ -76,7 +76,7 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
   );
 };
 
-export default SignupPlanSelection;
+export default SignupPlanSelector;
 
 /* Styled components */
 

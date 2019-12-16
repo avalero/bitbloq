@@ -3,9 +3,9 @@ import _ from "lodash";
 import { NextPage, NextPageContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FC, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
-import { colors, useTranslate } from "@bitbloq/ui";
+import { colors, useTranslate, Modal, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
   FINISH_SIGNUP_MUTATION,
@@ -18,8 +18,9 @@ import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import LoginWithGoogleButton from "../../components/LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "../../components/LoginWithMicrosoftButton";
 import ModalLayout from "../../components/ModalLayout";
-import SignupPlanSelection from "../../components/SignupPlanSelection";
-import SignupUserData from "../../components/SignupUserData";
+import SignupBirthDateForm from "../../components/SignupBirthDateForm";
+import SignupPlanSelector from "../../components/SignupPlanSelector";
+import SignupUserDataForm from "../../components/SignupUserDataForm";
 import {
   educationalStages,
   plans,
@@ -28,28 +29,9 @@ import {
 } from "../../config";
 import redirect from "../../lib/redirect";
 import { setToken } from "../../lib/session";
-import { IPlan } from "../../types";
+import { IPlan, IUserData } from "../../types";
 import { getAge } from "../../util";
 import { IUserStep1 } from "../../../../api/src/api-types";
-
-interface IUserData {
-  acceptTerms: boolean;
-  birthDate: string;
-  centerName: string;
-  city: string;
-  country: string;
-  day: number;
-  educationalStage: string;
-  email: string;
-  imTeacherCheck: boolean;
-  month: number;
-  name: string;
-  noNotifications: boolean;
-  password: string;
-  postCode: number;
-  surnames: string;
-  year: number;
-}
 
 interface ISaveUserResult {
   saveUserData: IUserStep1;
@@ -167,6 +149,10 @@ const SignupStepPage: NextPage = () => {
     }
   };
 
+  const onSignupBirthDate = async (input: string) => {
+    console.log("TODO");
+  };
+
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
@@ -186,6 +172,21 @@ const SignupStepPage: NextPage = () => {
         onCancel={() => router.push("/")}
         isOpen={true}
       />
+    );
+  }
+
+  if (step === signupSteps.birthdate) {
+    return (
+      <Modal
+        isOpen={true}
+        title="title"
+        onClose={() => true}
+        transparentOverlay={true}
+      >
+        <Content>
+          <SignupBirthDateForm loading={false} onSubmit={onSignupBirthDate} />
+        </Content>
+      </Modal>
     );
   }
 
@@ -221,7 +222,7 @@ const SignupStepPage: NextPage = () => {
                 <LoginWithGoogleButton />
               </LoginWithButtons>
             </LoginWith>
-            <SignupUserData
+            <SignupUserDataForm
               defaultValues={userData}
               error={userError}
               loading={savingUserData}
@@ -233,17 +234,12 @@ const SignupStepPage: NextPage = () => {
           <>
             <StepCounter>{t("signup.step", ["2"])}</StepCounter>
             <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
-            <SignupPlanSelection
+            <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
               isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
               loading={finishingSignup}
               onSubmit={onSignupUser}
             />
-          </>
-        )}
-        {step === signupSteps.birthdate && (
-          <>
-            <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
           </>
         )}
       </AccessLayout>
@@ -267,6 +263,17 @@ SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
 export default withApollo(SignupStepPage, { requiresSession: false });
 
 /* Styled components */
+
+const Content = styled.div`
+  padding: 30px;
+  width: 500px;
+  box-sizing: border-box;
+
+  p {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+`;
 
 const Wrap = styled.div`
   a {
