@@ -754,7 +754,7 @@ export const ACTIVATE_ACCOUNT_MUTATION = gql`
 `;
 
 export const FINISH_SIGNUP_MUTATION = gql`
-  mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
+  mutation FinishSignUp($id: String!, $userPlan: String!) {
     finishSignUp(id: $id, userPlan: $userPlan)
   }
 `;
