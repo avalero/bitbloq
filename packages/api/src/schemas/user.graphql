@@ -11,6 +11,7 @@ type Query {
 type Mutation {
   saveUserData(input: UserIn!): UserStep1
   finishSignUp(id: ObjectID!, userPlan: String!): String
+  saveBirthDate(id: ObjectID!, birthDate: Date!): SocialLogin
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
   loginWithGoogle(token: String!): SocialLogin
@@ -24,7 +25,7 @@ type Mutation {
     @authRequired(requires: [USER])
   updateMyPassword(currentPassword: String!, newPassword: String!): User
     @authRequired(requires: [USER])
-  updateMyPlan(userPlan: String!): User @authRequired(requires: [USER])
+  updateMyPlan(userPlan: String!): String @authRequired(requires: [USER])
   sendChangeMyEmailToken(newEmail: String!): String
     @authRequired(requires: [USER])
   confirmChangeEmail(token: String!, password: String!): String

@@ -45,7 +45,8 @@ import {
   IMutationUpdateMyPasswordArgs,
   IMutationUpdateMyPlanArgs,
   IMutationSendChangeMyEmailTokenArgs,
-  IMutationConfirmChangeEmailArgs
+  IMutationConfirmChangeEmailArgs,
+  IMutationSaveBirthDateArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -218,6 +219,51 @@ const userResolver = {
         { new: true }
       );
       return user.microsoftID || user.googleID ? logOrSignToken : "";
+    },
+
+    /**
+     * saveBirthDate: Saves birthDate for signup with google or microsoft
+     * args: user id and birthDate
+     */
+
+    saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
+      const user: IUser | null = await UserModel.findOne({
+        _id: args.id,
+        active: false
+      });
+      if (!user) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
+      const birthDate: string[] = String(args.birthDate).split("/");
+      try {
+        const { token } = await contextController.generateLoginToken(user);
+        await storeTokenInRedis(user._id, token);
+        await UserModel.findOneAndUpdate(
+          { _id: args.id, active: false },
+          {
+            $set: {
+              birthDate: new Date(
+                Number(birthDate[2]),
+                Number(birthDate[1]) - 1,
+                Number(birthDate[0])
+              ),
+              active: true,
+              authToken: token,
+              finishedSignUp: true
+            }
+          },
+          { new: true }
+        );
+        return { id: user.id, token, finishedSignUp: true };
+      } catch (e) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
     },
 
     /*
@@ -711,13 +757,6 @@ const userResolver = {
       args: IMutationUpdateMyPlanArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        _id: context.user.userID,
-        finishedSignUp: true
-      });
-      if (!contactFound) {
-        throw new ApolloError("User not found", "USER_NOT_FOUND");
-      }
       let teacher: boolean = false;
       switch (args.userPlan) {
         case "teacher":
@@ -728,11 +767,22 @@ const userResolver = {
         default:
           throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
       }
-      return UserModel.findOneAndUpdate(
-        { _id: contactFound._id },
+      const user: IUser | null = await UserModel.findOneAndUpdate(
+        { _id: context.user.userID, finishedSignUp: true },
         { $set: { teacher } },
         { new: true }
       );
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const { token } = await contextController.generateLoginToken(user);
+      await UserModel.updateOne(
+        { _id: user!._id },
+        { $set: { authToken: token, lastLogin: new Date() } },
+        { new: true }
+      );
+      await storeTokenInRedis(user!._id, token);
+      return token;
     },
 
     /**
@@ -836,7 +886,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user!._id}`, token);
+        await storeTokenInRedis(user!._id, token);
         return token;
       } else {
         throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");

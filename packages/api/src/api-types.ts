@@ -5,7 +5,7 @@ import {
 } from "graphql";
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = {
-  [X in Exclude<keyof T, K>]?: T[X];
+  [X in Exclude<keyof T, K>]?: T[X]
 } &
   { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -165,6 +165,7 @@ export interface IMutation {
   __typename?: "Mutation";
   saveUserData?: Maybe<IUserStep1>;
   finishSignUp?: Maybe<Scalars["String"]>;
+  saveBirthDate?: Maybe<ISocialLogin>;
   activateAccount?: Maybe<Scalars["String"]>;
   login?: Maybe<Scalars["String"]>;
   loginWithGoogle?: Maybe<ISocialLogin>;
@@ -176,7 +177,7 @@ export interface IMutation {
   deleteUser?: Maybe<IUser>;
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
-  updateMyPlan?: Maybe<IUser>;
+  updateMyPlan?: Maybe<Scalars["String"]>;
   sendChangeMyEmailToken?: Maybe<Scalars["String"]>;
   confirmChangeEmail?: Maybe<Scalars["String"]>;
   createDocument?: Maybe<IDocument>;
@@ -221,6 +222,11 @@ export interface IMutationSaveUserDataArgs {
 export interface IMutationFinishSignUpArgs {
   id: Scalars["ObjectID"];
   userPlan: Scalars["String"];
+}
+
+export interface IMutationSaveBirthDateArgs {
+  id: Scalars["ObjectID"];
+  birthDate: Scalars["Date"];
 }
 
 export interface IMutationActivateAccountArgs {
@@ -1166,6 +1172,12 @@ export type IMutationResolvers<
     ContextType,
     RequireFields<IMutationFinishSignUpArgs, "id" | "userPlan">
   >;
+  saveBirthDate?: Resolver<
+    Maybe<IResolversTypes["SocialLogin"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationSaveBirthDateArgs, "id" | "birthDate">
+  >;
   activateAccount?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
@@ -1235,7 +1247,7 @@ export type IMutationResolvers<
     >
   >;
   updateMyPlan?: Resolver<
-    Maybe<IResolversTypes["User"]>,
+    Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
     RequireFields<IMutationUpdateMyPlanArgs, "userPlan">
