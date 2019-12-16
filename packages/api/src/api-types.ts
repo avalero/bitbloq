@@ -59,6 +59,7 @@ export interface IDocument {
   cache?: Maybe<Scalars["String"]>;
   description?: Maybe<Scalars["String"]>;
   version?: Maybe<Scalars["String"]>;
+  contentVersion?: Maybe<Scalars["Number"]>;
   image?: Maybe<IDocImage>;
   public?: Maybe<Scalars["Boolean"]>;
   example?: Maybe<Scalars["Boolean"]>;
@@ -81,6 +82,7 @@ export interface IDocumentIn {
   cache?: Maybe<Scalars["String"]>;
   description?: Maybe<Scalars["String"]>;
   version?: Maybe<Scalars["String"]>;
+  contentVersion?: Maybe<Scalars["Number"]>;
   image?: Maybe<IDocImageIn>;
 }
 
@@ -97,6 +99,7 @@ export interface IExercise {
   user?: Maybe<Scalars["ObjectID"]>;
   title?: Maybe<Scalars["String"]>;
   content?: Maybe<Scalars["String"]>;
+  contentVersion?: Maybe<Scalars["Number"]>;
   cache?: Maybe<Scalars["String"]>;
   code?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
@@ -118,6 +121,7 @@ export interface IExerciseIn {
   description?: Maybe<Scalars["String"]>;
   acceptSubmissions?: Maybe<Scalars["Boolean"]>;
   expireDate?: Maybe<Scalars["Date"]>;
+  contentVersion?: Maybe<Scalars["Number"]>;
 }
 
 export interface IFile {
@@ -185,7 +189,6 @@ export interface IMutation {
   duplicateDocument?: Maybe<IDuplicateDocument>;
   updateDocument?: Maybe<IDocument>;
   setDocumentImage?: Maybe<IDocument>;
-  updateDocumentContent?: Maybe<IDocument>;
   publishDocument?: Maybe<IDocument>;
   createExercise?: Maybe<IExercise>;
   changeSubmissionsState?: Maybe<IExercise>;
@@ -312,13 +315,6 @@ export interface IMutationSetDocumentImageArgs {
   id?: Maybe<Scalars["ObjectID"]>;
   image?: Maybe<Scalars["Upload"]>;
   isSnapshot?: Maybe<Scalars["Boolean"]>;
-}
-
-export interface IMutationUpdateDocumentContentArgs {
-  id?: Maybe<Scalars["ObjectID"]>;
-  content?: Maybe<Scalars["String"]>;
-  cache?: Maybe<Scalars["String"]>;
-  advancedMode?: Maybe<Scalars["Boolean"]>;
 }
 
 export interface IMutationPublishDocumentArgs {
@@ -587,6 +583,7 @@ export interface ISubmission {
   studentNick?: Maybe<Scalars["String"]>;
   password?: Maybe<Scalars["String"]>;
   content?: Maybe<Scalars["String"]>;
+  contentVersion?: Maybe<Scalars["Number"]>;
   cache?: Maybe<Scalars["String"]>;
   submissionToken?: Maybe<Scalars["String"]>;
   finished?: Maybe<Scalars["Boolean"]>;
@@ -607,6 +604,7 @@ export interface ISubmissionIn {
   studentComment?: Maybe<Scalars["String"]>;
   studentNick?: Maybe<Scalars["String"]>;
   content?: Maybe<Scalars["String"]>;
+  contentVersion?: Maybe<Scalars["Number"]>;
   cache?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
   active?: Maybe<Scalars["Boolean"]>;
@@ -803,13 +801,13 @@ export type IResolversTypes = ResolversObject<{
   Boolean: ResolverTypeWrapper<Scalars["Boolean"]>;
   Date: ResolverTypeWrapper<Scalars["Date"]>;
   Document: ResolverTypeWrapper<IDocument>;
+  Number: ResolverTypeWrapper<Scalars["Number"]>;
   DocImage: ResolverTypeWrapper<IDocImage>;
   Exercise: ResolverTypeWrapper<IExercise>;
   Submission: ResolverTypeWrapper<ISubmission>;
   Float: ResolverTypeWrapper<Scalars["Float"]>;
   Resource: ResolverTypeWrapper<IResource>;
   ID: ResolverTypeWrapper<Scalars["ID"]>;
-  Number: ResolverTypeWrapper<Scalars["Number"]>;
   File: ResolverTypeWrapper<IFile>;
   Folder: ResolverTypeWrapper<IFolder>;
   DocsAndFolders: ResolverTypeWrapper<IDocsAndFolders>;
@@ -843,13 +841,13 @@ export type IResolversParentTypes = ResolversObject<{
   Boolean: Scalars["Boolean"];
   Date: Scalars["Date"];
   Document: IDocument;
+  Number: Scalars["Number"];
   DocImage: IDocImage;
   Exercise: IExercise;
   Submission: ISubmission;
   Float: Scalars["Float"];
   Resource: IResource;
   ID: Scalars["ID"];
-  Number: Scalars["Number"];
   File: IFile;
   Folder: IFolder;
   DocsAndFolders: IDocsAndFolders;
@@ -965,6 +963,11 @@ export type IDocumentResolvers<
     ContextType
   >;
   version?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+  contentVersion?: Resolver<
+    Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
   image?: Resolver<Maybe<IResolversTypes["DocImage"]>, ParentType, ContextType>;
   public?: Resolver<Maybe<IResolversTypes["Boolean"]>, ParentType, ContextType>;
   example?: Resolver<
@@ -1031,6 +1034,11 @@ export type IExerciseResolvers<
   user?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
   title?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   content?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+  contentVersion?: Resolver<
+    Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
   cache?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   code?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   type?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
@@ -1293,12 +1301,6 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     IMutationSetDocumentImageArgs
-  >;
-  updateDocumentContent?: Resolver<
-    Maybe<IResolversTypes["Document"]>,
-    ParentType,
-    ContextType,
-    IMutationUpdateDocumentContentArgs
   >;
   publishDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,
@@ -1723,6 +1725,11 @@ export type ISubmissionResolvers<
     ContextType
   >;
   content?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+  contentVersion?: Resolver<
+    Maybe<IResolversTypes["Number"]>,
+    ParentType,
+    ContextType
+  >;
   cache?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   submissionToken?: Resolver<
     Maybe<IResolversTypes["String"]>,

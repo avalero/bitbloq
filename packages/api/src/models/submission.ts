@@ -1,5 +1,6 @@
 import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
+import { CONTENT_VERSION } from "../config";
 
 export interface ISubmission extends Document {
   id: string;
@@ -9,6 +10,7 @@ export interface ISubmission extends Document {
   studentNick?: string;
   password?: string;
   content?: string;
+  contentVersion?: number;
   cache?: string;
   finished?: boolean;
   comment?: string;
@@ -55,6 +57,11 @@ const submissionMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: "content"
+  },
+
+  contentVersion: {
+    type: Number,
+    default: CONTENT_VERSION
   },
 
   cache: {

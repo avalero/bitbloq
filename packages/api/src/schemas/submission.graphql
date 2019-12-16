@@ -59,6 +59,7 @@ type Submission {
   studentNick: String
   password: String
   content: String
+  contentVersion: Number
   cache: String
   submissionToken: String
   finished: Boolean
@@ -78,6 +79,7 @@ input SubmissionIn {
   studentComment: String
   studentNick: String
   content: String
+  contentVersion: Number
   cache: String
   type: String
   active: Boolean

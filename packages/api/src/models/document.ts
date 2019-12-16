@@ -1,5 +1,6 @@
 import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
+import { CONTENT_VERSION } from "../config";
 
 export interface IDocument extends Document {
   user?: string;
@@ -7,6 +8,7 @@ export interface IDocument extends Document {
   type?: string;
   folder?: string;
   content?: string;
+  contentVersion?: number;
   advancedMode?: boolean;
   cache?: string;
   image?: { image: string; isSnapshot: boolean };
@@ -44,6 +46,11 @@ const documentMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: "content"
+  },
+
+  contentVersion: {
+    type: Number,
+    default: CONTENT_VERSION
   },
 
   advancedMode: {

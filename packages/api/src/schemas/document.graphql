@@ -36,12 +36,6 @@ type Mutation {
     @authRequired(requires: [USER])
   setDocumentImage(id: ObjectID, image: Upload, isSnapshot: Boolean): Document
     @authRequired(requires: [USER])
-  updateDocumentContent(
-    id: ObjectID
-    content: String
-    cache: String
-    advancedMode: Boolean
-  ): Document @authRequired(requires: [USER])
   publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
     @authRequired(requires: [PUBLISHER])
 }
@@ -82,6 +76,7 @@ type Document {
   cache: String
   description: String
   version: String
+  contentVersion: Number
   image: DocImage
   public: Boolean
   example: Boolean
@@ -114,5 +109,6 @@ input DocumentIn {
   cache: String
   description: String
   version: String
+  contentVersion: Number
   image: DocImageIn
 }

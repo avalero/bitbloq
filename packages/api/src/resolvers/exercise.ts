@@ -16,6 +16,7 @@ import {
   IQueryExerciseByCodeArgs,
   IQueryExercisesByDocumentArgs
 } from "../api-types";
+import { CONTENT_VERSION } from "../config";
 
 const exerciseResolver = {
   Mutation: {
@@ -64,7 +65,8 @@ const exerciseResolver = {
         teacherName: user.name,
         expireDate: args.input.expireDate,
         image: docFather.image!.image,
-        resourcesID: docFather.exResourcesID
+        resourcesID: docFather.exResourcesID,
+        contentVersion: docFather.contentVersion || CONTENT_VERSION
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
