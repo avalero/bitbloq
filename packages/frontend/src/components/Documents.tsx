@@ -102,7 +102,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   useEffect(() => {
-    if (currentPage > pagesNumber) {
+    if (currentPage > pagesNumber && pagesNumber > 0) {
       setCurrentPage(pagesNumber);
     }
   }, [pagesNumber]);
