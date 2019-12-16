@@ -279,7 +279,7 @@
         "password-changed-title": "Contraseña cambiada",
         "password-changed": "Tu contraseña se ha cambiado con éxito, a partir de ahora ya no podrás entrar con la anterior contraseña.",
         "new-placeholder": "Nueva contraseña",
-        "empty-error": "El campo de contraseña de debe rellenar",
+        "empty-error": "El campo de contraseña se debe rellenar",
         "current-placeholder": "Contraseña actual",
         "change-text": "Escribe tu contraseña actual y la nueva contraseña que quieres utilizar.",
         "button": "Cambiar contraseña"
