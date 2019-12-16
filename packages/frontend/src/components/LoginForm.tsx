@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import ErrorMessage from "./ErrorMessage";
 
 interface IFormProps {
   className?: string;
@@ -46,17 +47,14 @@ const LoginForm: FC<IFormProps> = ({
           onChange={e => setPassword(e.target.value)}
         />
       </FormGroup>
-      {loginError && <ErrorMessage>{t("login.error")}</ErrorMessage>}
+      {loginError && <LoginErrorMessage>{t("login.error")}</LoginErrorMessage>}
     </div>
   );
 };
 
 export default LoginForm;
 
-const ErrorMessage = styled.div`
-  color: #d82b32;
-  font-size: 12px;
-  font-style: italic;
+const LoginErrorMessage = styled(ErrorMessage)`
   margin-bottom: 30px;
 `;
 

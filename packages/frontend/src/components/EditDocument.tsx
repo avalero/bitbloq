@@ -14,9 +14,8 @@ import {
 } from "@bitbloq/ui";
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
-import CloudModal from "./CloudModal";
 import DocumentInfoForm from "./DocumentInfoForm";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import PublishBar from "./PublishBar";
 import HeaderRightContent from "./HeaderRightContent";
 import UserSession from "./UserSession";
@@ -33,7 +32,7 @@ import {
 } from "../apollo/queries";
 import { boards, documentTypes, components } from "../config";
 import { dataURItoBlob } from "../util";
-import { IDocumentImage, IResource } from "../types";
+import { IDocument, IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
@@ -51,27 +50,25 @@ const EditDocument: FC<IEditDocumentProps> = ({
 }) => {
   const t = useTranslate();
 
-  const user = useUserData();
-  const isLoggedIn = !!user;
+  const { userData } = useUserData();
+  const isLoggedIn = !!userData;
   const prevIsLoggedIn = useRef(isLoggedIn);
 
   const [type, setType] = useState(initialType);
 
-  const isPublisher = user && user.publisher;
+  const isPublisher = userData && userData.publisher;
 
   const isNew = id === "new";
 
   const [previousId, setPreviousId] = useState(id);
 
-  const [cloudModalOpen, setCloudModalOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-
   const [isEditTitleVisible, setIsEditTitleVisible] = useState(false);
   const [tabIndex, setTabIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
   const [error, setError] = useState<ApolloError | null>(null);
-  const [document, setDocument] = useState({
+  const [document, setDocument] = useState<Partial<IDocument>>({
     id: "",
     content: "[]",
     title: t("untitled-project"),
@@ -115,7 +112,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       imageToUpload.current &&
       imageToUpload.current.size > 0 &&
       serviceWorker &&
-      user
+      userData
     ) {
       const token = await getToken();
       serviceWorker.postMessage({
@@ -123,7 +120,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         image: imageToUpload.current,
         token,
         type: "upload-image",
-        userID: user.id
+        userID: userData.id
       });
     }
   }, [image, imageToUpload.current, serviceWorker]);
@@ -139,7 +136,10 @@ const EditDocument: FC<IEditDocumentProps> = ({
     window.removeEventListener("beforeunload", onPostImage);
     window.addEventListener("beforeunload", onPostImage);
 
-    return () => window.removeEventListener("beforeunload", onPostImage);
+    return () => {
+      window.removeEventListener("beforeunload", onPostImage);
+      onPostImage();
+    };
   }, [onPostImage]);
 
   useEffect(() => {
@@ -323,7 +323,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   };
 
   const debouncedUpdate = useCallback(
-    debounce(async (newDocument: any) => {
+    debounce(async (newDocument: Partial<IDocument>) => {
       saveImage(newDocument.content);
       await updateDocument({ variables: { ...newDocument, id } }).catch(e => {
         return setError(e);
@@ -340,7 +340,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     );
   }, [data]);
 
-  const update = async (updatedDocument: any) => {
+  const update = async (updatedDocument: Partial<IDocument>) => {
     delete updatedDocument.image;
     setDocument(updatedDocument);
 
@@ -348,7 +348,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       return;
     }
     if (isNew) {
-      const saveFolder = folder === "local" ? user.rootFolder : folder;
+      const saveFolder = folder === "local" ? userData.rootFolder : folder;
       const result = await createDocument({
         variables: {
           ...updatedDocument,
@@ -478,13 +478,13 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentInfoForm
         title={title}
         description={description}
-        documentId={document.id}
+        documentId={document.id!}
         resourceAdded={onResourceAdded}
         resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
         image={image ? image.image : ""}
-        isTeacher={user && user.teacher}
+        isTeacher={userData && userData.teacher}
         onChange={({
           title: newTitle,
           description: newDescription,
@@ -496,7 +496,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
             description: newDescription || t("document-body-description")
           };
           if (newImage) {
-            updateImage(document.id, newImage, false);
+            updateImage(document.id!, newImage, false);
           }
           update(newDocument);
         }}
@@ -507,7 +507,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const headerRightContent = (
     <HeaderRightContent hideBorder={!isLoggedIn}>
       {isLoggedIn ? (
-        <UserSession cloudClick={() => setCloudModalOpen(true)} />
+        <UserSession />
       ) : (
         <EnterButton onClick={() => setShowLoginModal(true)}>
           {t("document-enter-button")}
@@ -523,7 +523,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         onDocumentChange={update}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}
-        user={user}
+        user={userData}
       >
         {documentProps => (
           <Document
@@ -537,8 +537,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
             preMenuContent={
               isPublisher && (
                 <PublishBar
-                  isPublic={isPublic}
-                  isExample={isExample}
+                  isPublic={isPublic!}
+                  isExample={isExample!}
                   onChange={onChangePublic}
                   url={isPublic ? publicUrl : ""}
                 />
@@ -550,7 +550,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         )}
       </EditorComponent>
       {isEditTitleVisible && (
-        <EditTitleModal
+        <EditInputModal
           title={title}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
@@ -563,10 +563,6 @@ const EditDocument: FC<IEditDocumentProps> = ({
       <DocumentLoginModal
         isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
-      />
-      <CloudModal
-        isOpen={cloudModalOpen}
-        onClose={() => setCloudModalOpen(false)}
       />
     </>
   );

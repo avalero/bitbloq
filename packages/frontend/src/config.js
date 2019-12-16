@@ -126,7 +126,8 @@ export const plans = [
       "open-documents",
       "create-documents-with-bq-kits",
       "exercise-access"
-    ]
+    ],
+    ageLimit: 0
   },
   {
     name: "member",
@@ -141,7 +142,8 @@ export const plans = [
       "bitbloq-cloud",
       "save-unlimited-documents"
     ],
-    isFree: true
+    isFree: true,
+    ageLimit: 14
   },
   {
     name: "teacher",
@@ -165,7 +167,8 @@ export const plans = [
       "correct-exercises"
     ],
     originalPrice: 6,
-    isBetaFree: true
+    isBetaFree: true,
+    ageLimit: 18
   }
 ];
 
@@ -230,7 +233,7 @@ export const googleAuthEndpoint =
   "https://accounts.google.com/o/oauth2/v2/auth";
 
 export const googleScopes =
-  "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/user.birthday.read https://www.googleapis.com/auth/userinfo.email";
+  "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email";
 
 export const privacyPolicyUrl =
   "https://storage.googleapis.com/webstatic.bq.com/Pol%C3%ADtica%20Privacidad/Politica%20privacidad_ES.pdf";

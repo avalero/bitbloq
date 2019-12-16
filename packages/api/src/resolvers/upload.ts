@@ -130,7 +130,6 @@ const processUpload = async (input: {
         let uploaded: IUpload | null;
         if (
           await UploadModel.findOne({
-            document: input.documentID,
             publicUrl,
             user: input.userID
           })
@@ -160,7 +159,7 @@ const processUpload = async (input: {
           );
         } else {
           const uploadNew = new UploadModel({
-            document: input.documentID,
+            documentsID: input.documentID,
             filename: input.filename,
             mimetype: input.mimetype,
             encoding: input.encoding,
@@ -197,10 +196,10 @@ export function getFilesizeInBytes(filename) {
   }
 }
 
-export async function uploadDocumentImage(
+export async function uploadDocumentUserImage(
   image: any,
-  documentID: string,
-  userID: string
+  userID: string,
+  documentID?: string
 ): Promise<IUpload> {
   const { createReadStream, filename, mimetype, encoding } = await image;
   if (!createReadStream || !filename || !mimetype || !encoding) {
@@ -216,9 +215,44 @@ export async function uploadDocumentImage(
     // 2megas
     throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
   }
-  const uniqueName: string = documentID + normalize(filename);
-  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
+  let uniqueName: string;
 
+  if (documentID) {
+    const oldPhoto: IUpload | null = await UploadModel.findOne({
+      documentsID: documentID,
+      type: "docImage"
+    });
+    if (oldPhoto) {
+      try {
+        const [files] = await bucket.getFiles({
+          prefix: `${userID}/docImage${documentID}`
+        });
+        files.map(async file => {
+          await file.delete();
+        });
+        // tslint:disable-next-line: no-empty
+      } catch (e) {}
+    }
+    uniqueName = "docImage" + documentID + Date.now() + normalize(filename);
+  } else {
+    const oldPhoto: IUpload | null = await UploadModel.findOne({
+      user: userID,
+      type: "profilePhoto"
+    });
+    if (oldPhoto) {
+      try {
+        const [files] = await bucket.getFiles({
+          prefix: `${userID}/profilePhoto`
+        });
+        files.map(async file => {
+          await file.delete();
+        });
+        // tslint:disable-next-line: no-empty
+      } catch (e) {}
+    }
+    uniqueName = "profilePhoto" + normalize(filename);
+  }
+  const gcsName: string = `${userID}/${encodeURIComponent(uniqueName)}`;
   return new Promise((resolve, reject) => {
     processUpload({
       resolve,
@@ -230,7 +264,7 @@ export async function uploadDocumentImage(
       mimetype,
       encoding,
       userID,
-      type: "docImage"
+      type: documentID ? "docImage" : "profilePhoto"
     });
   });
 }

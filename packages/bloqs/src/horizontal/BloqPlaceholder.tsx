@@ -18,7 +18,7 @@ const BloqPlaceholder: React.FunctionComponent<IBloqPlaceholderProps> = ({
   half
 }) => {
   return (
-    <Container onClick={onClick} selected={selected} category={category}>
+    <Container onClick={onClick} selected={selected}>
       {category === BloqCategory.Event ? (
         <svg width={86} height={83}>
           <path
@@ -44,12 +44,7 @@ export default BloqPlaceholder;
 
 /* styled components */
 
-interface IContainerProps {
-  selected?: boolean;
-  half?: boolean;
-  category: BloqCategory;
-}
-const Container = styled.div<IContainerProps>`
+const Container = styled.div<{ selected?: boolean }>`
   cursor: pointer;
   position: relative;
   display: flex;

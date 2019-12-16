@@ -2,11 +2,15 @@ import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
 
 export interface IUser {
   admin: boolean;
+  avatar: string;
+  birthDate: Date;
   email: string;
   id: string;
   name: string;
+  password: string;
   publisher: boolean;
   rootFolder: string;
+  surnames: string;
   teacher: boolean;
 }
 
@@ -27,6 +31,9 @@ export interface IDocument {
   image: IDocumentImage | string;
   content: any;
   advancedMode?: boolean;
+  type?: string;
+  example?: boolean;
+  public?: boolean;
 }
 
 export interface IDocumentImage {
@@ -69,4 +76,5 @@ export interface IPlan {
   originalPrice?: number;
   price?: number;
   isBetaFree?: boolean;
+  ageLimit: number;
 }

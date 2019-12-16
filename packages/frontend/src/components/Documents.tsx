@@ -8,6 +8,7 @@ import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { ApolloError } from "apollo-client";
+import { IFolder, IResult as IDocsAndFols } from "../../../api/src/api-types";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
@@ -17,16 +18,16 @@ import {
 import useUserData from "../lib/useUserData";
 import { OrderType } from "../types";
 import AppLayout from "./AppLayout";
-import Breadcrumbs from "./Breadcrumbs";
+import Breadcrumbs, { IBreadcrumbLink } from "./Breadcrumbs";
 import DocumentList from "./DocumentsList";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
 
 const Documents: FC<{ id?: string }> = ({ id }) => {
-  const userData = useUserData();
+  const { userData } = useUserData();
   const client = useApolloClient();
 
   const [order, setOrder] = useState<OrderType>(OrderType.Creation);
@@ -39,18 +40,16 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
   });
-  const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
-    {
-      route: userData ? "/" : "",
-      text: userData ? "Mis documentos" : "",
-      type: ""
-    }
-  ]);
+  const [breadcrumbsLinks, setBreadcrumbsLinks] = useState<IBreadcrumbLink[]>(
+    []
+  );
+  const [docsAndFols, setDocsAndFols] = useState<IDocsAndFols[]>([]);
+  const [parentsPath, setParentsPath] = useState<IFolder[]>([]);
+  const [nFolders, setNFolders] = useState<number>(0);
 
   const openFile = React.createRef<HTMLInputElement>();
 
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
-  const [documentsData, setDocumentsData] = useState<any>({});
   const [error, setError] = useState<ApolloError>();
 
   const {
@@ -71,9 +70,24 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   useEffect(() => {
     if (!loading && !errorQuery) {
+      const {
+        nFolders: foldersNumber,
+        pagesNumber: numberOfPages,
+        parentsPath: pathOfParent,
+        result: docsAndFolsItems
+      } = resultData.documentsAndFolders;
+      setBreadcrumbsLinks(
+        pathOfParent.map(item => ({
+          route: `/app/folder/${item.id}`,
+          text: item.name,
+          type: "folder"
+        }))
+      );
+      setDocsAndFols(docsAndFolsItems || []);
+      setNFolders(foldersNumber);
+      setPagesNumber(numberOfPages);
+      setParentsPath(pathOfParent);
       setError(undefined);
-      setDocumentsData(resultData);
-      setPagesNumber(resultData.documentsAndFolders.pagesNumber);
     }
     if (errorQuery) {
       setError(errorQuery);
@@ -88,20 +102,16 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   };
 
   useEffect(() => {
-    if (currentPage > pagesNumber) {
+    if (currentPage > pagesNumber && pagesNumber > 0) {
       setCurrentPage(pagesNumber);
     }
   }, [pagesNumber]);
 
-  const onDocumentClick = ({ id: documentId, title }) => {
-    setBreadcrumbsLinks([
-      ...breadcrumbLinks,
-      { route: documentId, text: title, type: "document" }
-    ]);
+  const onDocumentClick = ({ id: documentId }) => {
     Router.push(`/app/document/${documentId}`);
   };
 
-  const onCreateFolder = async folderName => {
+  const onCreateFolder = async (folderName: string) => {
     await createFolder({
       variables: {
         input: { name: folderName, parent: currentLocation.id }
@@ -118,7 +128,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     refetchDocsFols();
   };
 
-  const onOpenExercise = async exerciseCode => {
+  const onOpenExercise = async (exerciseCode: string) => {
     if (exerciseCode) {
       try {
         setLoadingExercise(true);
@@ -143,7 +153,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     setCurrentPage(1);
   }, 500);
 
-  const onFileSelected = file => {
+  const onFileSelected = (file: File) => {
     if (file) {
       window.open(`/app/edit-document/${currentLocation.id}/open/new`);
       const reader = new FileReader();
@@ -166,117 +176,108 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
-  } else if (loading || !documentsData.documentsAndFolders) {
-    return <AppLayout loading />;
   }
 
-  const {
-    result: docsAndFols,
-    parentsPath,
-    nFolders
-  } = documentsData.documentsAndFolders;
-
-  const breadParents = parentsPath.map(item => ({
-    route: `/app/folder/${item.id}`,
-    text: item.name,
-    type: "folder"
-  }));
-
   return (
-    <AppLayout
-      header={
-        currentLocation.id === (userData && userData.rootFolder) ? (
-          "Mis documentos"
+    <>
+      {loading && <AppLayoutLoading loading />}
+      <AppLayout
+        header={
+          currentLocation.id === (userData && userData.rootFolder) ? (
+            "Mis documentos"
+          ) : (
+            <Breadcrumbs links={breadcrumbsLinks} />
+          )
+        }
+      >
+        <DocumentListHeader>
+          {(docsAndFols.length > 0 || searchQuery) && (
+            <FilterOptions
+              onOrderChange={onOrderChange}
+              searchText={searchText}
+              selectValue={order}
+              onChange={(value: string) => {
+                setSearchText(value);
+                onSearchInput(value);
+              }}
+            />
+          )}
+          <HeaderButtons>
+            <NewFolderButton
+              tertiary
+              onClick={() => {
+                setFolderTitleModal(true);
+              }}
+            >
+              <Icon name="new-folder" />
+              Nueva carpeta
+            </NewFolderButton>
+            <NewExerciseButton
+              onOpenExercise={onOpenExercise}
+              exerciseError={exerciseError}
+              loadingExercise={loadingExercise}
+            />
+            <NewDocumentButton arrowOffset={10} />
+          </HeaderButtons>
+        </DocumentListHeader>
+        {docsAndFols.length > 0 ? (
+          <DndProvider backend={HTML5Backend}>
+            <DocumentList
+              currentPage={currentPage}
+              parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
+              refetchDocsFols={refetchDocsFols}
+              docsAndFols={docsAndFols}
+              currentLocation={currentLocation}
+              order={order}
+              searchText={searchText}
+              onFolderClick={onFolderClick}
+              onDocumentClick={onDocumentClick}
+              selectPage={(page: number) => {
+                setCurrentPage(page);
+                refetchDocsFols();
+              }}
+              nFolders={nFolders}
+            />
+          </DndProvider>
+        ) : searchQuery ? (
+          <NoDocuments>
+            <h1>No hay resultados para tu búsqueda</h1>
+          </NoDocuments>
         ) : (
-          <Breadcrumbs links={breadParents} />
-        )
-      }
-    >
-      <DocumentListHeader>
-        {(docsAndFols.length > 0 || searchQuery) && (
-          <FilterOptions
-            onOrderChange={onOrderChange}
-            searchText={searchText}
-            selectValue={order}
-            onChange={(value: string) => {
-              setSearchText(value);
-              onSearchInput(value);
-            }}
+          <NoDocuments>
+            <h1>No tienes ningún documento</h1>
+            <p>
+              Puedes crear un documento nuevo o subir uno desde tu ordenador.
+            </p>
+          </NoDocuments>
+        )}
+        <Subscription
+          subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
+          shouldResubscribe={true}
+          onSubscriptionData={() => {
+            refetchDocsFols();
+          }}
+        />
+        <input
+          ref={openFile}
+          type="file"
+          onChange={e => onFileSelected(e.target.files![0])}
+          style={{ display: "none" }}
+        />
+        {folderTitleModal && (
+          <EditInputModal
+            title={"Carpeta sin título"}
+            onCancel={() => setFolderTitleModal(false)}
+            onSave={onCreateFolder}
+            modalTitle="Crear carpeta"
+            modalText="Nombre de la carpeta"
+            placeholder="Carpeta sin título"
+            saveButton="Crear"
           />
         )}
-        <HeaderButtons>
-          <NewFolderButton
-            tertiary
-            onClick={() => {
-              setFolderTitleModal(true);
-            }}
-          >
-            <Icon name="new-folder" />
-            Nueva carpeta
-          </NewFolderButton>
-          <NewExerciseButton
-            onOpenExercise={onOpenExercise}
-            exerciseError={exerciseError}
-            loadingExercise={loadingExercise}
-          />
-          <NewDocumentButton arrowOffset={10} />
-        </HeaderButtons>
-      </DocumentListHeader>
-      {docsAndFols.length > 0 ? (
-        <DndProvider backend={HTML5Backend}>
-          <DocumentList
-            currentPage={currentPage}
-            parentsPath={parentsPath}
-            pagesNumber={pagesNumber}
-            refetchDocsFols={refetchDocsFols}
-            docsAndFols={docsAndFols}
-            currentLocation={currentLocation}
-            order={order}
-            searchText={searchText}
-            onFolderClick={onFolderClick}
-            onDocumentClick={onDocumentClick}
-            selectPage={(page: number) => {
-              setCurrentPage(page);
-              refetchDocsFols();
-            }}
-            nFolders={nFolders}
-          />
-        </DndProvider>
-      ) : searchQuery ? (
-        <NoDocuments>
-          <h1>No hay resultados para tu búsqueda</h1>
-        </NoDocuments>
-      ) : (
-        <NoDocuments>
-          <h1>No tienes ningún documento</h1>
-          <p>Puedes crear un documento nuevo o subir uno desde tu ordenador.</p>
-        </NoDocuments>
-      )}
-      <Subscription
-        subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
-        shouldResubscribe={true}
-        onSubscriptionData={() => {
-          refetchDocsFols();
-        }}
-      />
-      <input
-        ref={openFile}
-        type="file"
-        onChange={e => onFileSelected(e.target.files![0])}
-        style={{ display: "none" }}
-      />
-      {folderTitleModal && (
-        <EditTitleModal
-          title={"Carpeta sin título"}
-          onCancel={() => setFolderTitleModal(false)}
-          onSave={onCreateFolder}
-          modalTitle="Crear carpeta"
-          modalText="Nombre de la carpeta"
-          placeholder="Carpeta sin título"
-          saveButton="Crear"
-        />
-      )}
-    </AppLayout>
+      </AppLayout>
+    </>
   );
 };
 
@@ -285,6 +286,12 @@ const DocumentsWithDelete = props => <Documents {...props} />;
 export default DocumentsWithDelete;
 
 /* styled components */
+
+const AppLayoutLoading = styled(AppLayout)`
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+`;
 
 const DocumentListHeader = styled.div`
   align-items: center;

@@ -47,7 +47,6 @@ const exerciseResolver = {
         .toString(36)
         .substr(2, 6);
       while ((await ExerciseModel.findOne({ code: newCode })) != null) {
-        console.log("The exercise code already exists");
         newCode = Math.random()
           .toString(36)
           .substr(2, 6);

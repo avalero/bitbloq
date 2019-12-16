@@ -10,7 +10,7 @@ import { SubmissionModel } from "../models/submission";
 import { IUpload, UploadModel, IResource } from "../models/upload";
 import { UserModel, IUser } from "../models/user";
 import { pubsub } from "../server";
-import { uploadDocumentImage } from "./upload";
+import { uploadDocumentUserImage } from "./upload";
 import { getParentsPath, orderFunctions } from "../utils";
 import { IUserInToken } from "../models/interfaces";
 import {
@@ -363,14 +363,6 @@ const documentResolver = {
             { $pull: { documentsID: existDocument._id } }
           );
         }
-        if (
-          (args.input && args.input.content) ||
-          (args.input && args.input.cache)
-        ) {
-          console.log(
-            "You should use Update document Content IMutation, USE_UPDATECONTENT_MUTATION"
-          );
-        }
         const updatedDoc: IDocument | null = await DocumentModel.findOneAndUpdate(
           { _id: existDocument._id },
           {
@@ -388,7 +380,7 @@ const documentResolver = {
                 ? args.input.content || existDocument.content
                 : existDocument.content,
               advancedMode:
-                args.input && args.input.advancedMode
+                args.input && args.input.advancedMode !== undefined
                   ? args.input.advancedMode
                   : existDocument.advancedMode,
               cache: args.input
@@ -427,10 +419,10 @@ const documentResolver = {
       if (!docFound) {
         return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      const imageUploaded: IUpload = await uploadDocumentImage(
+      const imageUploaded: IUpload = await uploadDocumentUserImage(
         args.image,
-        docFound._id,
-        context.user.userID
+        context.user.userID,
+        docFound._id
       );
       const image = imageUploaded.publicUrl;
 

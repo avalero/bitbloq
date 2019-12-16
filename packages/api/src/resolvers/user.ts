@@ -1,5 +1,13 @@
-import { ApolloError, AuthenticationError } from "apollo-server-koa";
-import { contextController } from "../controllers/context";
+import {
+  ApolloError,
+  AuthenticationError,
+  withFilter
+} from "apollo-server-koa";
+import {
+  contextController,
+  storeTokenInRedis,
+  updateExpireDateInRedis
+} from "../controllers/context";
 import { mailerController } from "../controllers/mailer";
 import { getMicrosoftUser, IMSData } from "../controllers/microsoftAuth";
 import { DocumentModel, IDocument } from "../models/document";
@@ -12,32 +20,68 @@ import {
   IEmailData,
   IResetPasswordToken,
   ISignUpToken,
-  IUserInToken
+  IUserInToken,
+  IDataInRedis
 } from "../models/interfaces";
+import { redisClient, pubsub } from "../server";
 
-import mjml2html from "mjml";
-import { resetPasswordTemplate } from "../email/resetPasswordMail";
-import { welcomeTemplate } from "../email/welcomeMail";
-
-import { redisClient } from "../server";
-
-import { sign as jwtSign, decode } from "jsonwebtoken";
+import { sign as jwtSign, verify as jwtVerify } from "jsonwebtoken";
 import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
 import {
   IMutationActivateAccountArgs,
   IMutationDeleteUserArgs,
-  IMutationUpdateUserArgs,
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
-  IMutationLoginWithGoogleArgs
+  IMutationLoginWithGoogleArgs,
+  ISessionExpires,
+  IMutationUpdateUserDataArgs,
+  IMutationUpdateMyPasswordArgs,
+  IMutationUpdateMyPlanArgs,
+  IMutationSendChangeMyEmailTokenArgs,
+  IMutationConfirmChangeEmailArgs,
+  IMutationSaveBirthDateArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
+import { IUpload } from "../models/upload";
+import { uploadDocumentUserImage } from "./upload";
 
+import {
+  generateChangeEmailEmail,
+  generateResetPasswordEmail,
+  generateWelcomeEmail
+} from "../email/generateEmails";
+
+import { SESSION } from "../config";
+
+import { SUBMISSION_SESSION_EXPIRES } from "./submission";
 const saltRounds: number = 7;
 
+export const USER_SESSION_EXPIRES: string = "USER_SESSION_EXPIRES";
+
 const userResolver = {
+  Subscription: {
+    userSessionExpires: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([USER_SESSION_EXPIRES]),
+        (
+          payload: {
+            userSessionExpires: ISessionExpires;
+          },
+          variables,
+          context: { user: IUserInToken }
+        ) => {
+          return (
+            String(context.user.userID) ===
+            String(payload.userSessionExpires.key)
+          );
+        }
+      )
+    }
+  },
+
   Mutation: {
     // Public mutations:
 
@@ -133,7 +177,7 @@ const userResolver = {
           user
         );
         logOrSignToken = token;
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       } else {
         logOrSignToken = jwtSign(
           {
@@ -145,17 +189,14 @@ const userResolver = {
         const data: IEmailData = {
           url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
         };
-        const mjml: string = welcomeTemplate(data);
-        const htmlMessage: any = mjml2html(mjml, {
-          keepComments: false,
-          beautify: true,
-          minify: true
-        });
-        await mailerController.sendEmail(
-          user.email!,
-          "Bitbloq Sign Up ✔",
-          htmlMessage.html
-        );
+        const emailContent: string = await generateWelcomeEmail(data);
+        if (emailContent) {
+          await mailerController.sendEmail(
+            user.email!,
+            "Bitbloq cuenta creada",
+            emailContent
+          );
+        }
       }
 
       // Update the user information in the database
@@ -175,6 +216,51 @@ const userResolver = {
         { new: true }
       );
       return user.microsoftID || user.googleID ? logOrSignToken : "";
+    },
+
+    /**
+     * saveBirthDate: Saves birthDate for signup with google or microsoft
+     * args: user id and birthDate
+     */
+
+    saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
+      const user: IUser | null = await UserModel.findOne({
+        _id: args.id,
+        active: false
+      });
+      if (!user) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
+      const birthDate: string[] = String(args.birthDate).split("/");
+      try {
+        const { token } = await contextController.generateLoginToken(user);
+        await storeTokenInRedis(user._id, token);
+        await UserModel.findOneAndUpdate(
+          { _id: args.id, active: false },
+          {
+            $set: {
+              birthDate: new Date(
+                Number(birthDate[2]),
+                Number(birthDate[1]) - 1,
+                Number(birthDate[0])
+              ),
+              active: true,
+              authToken: token,
+              finishedSignUp: true
+            }
+          },
+          { new: true }
+        );
+        return { id: user.id, token, finishedSignUp: true };
+      } catch (e) {
+        return new ApolloError(
+          "User does not exist or activated.",
+          "USER_NOT_FOUND"
+        );
+      }
     },
 
     /*
@@ -232,14 +318,13 @@ const userResolver = {
             { new: true }
           );
         }
-
+        const res = await storeTokenInRedis(contactFound._id, token);
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
         return token;
       } else {
         throw new AuthenticationError("Email or password incorrect");
@@ -297,7 +382,7 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
     },
@@ -352,36 +437,68 @@ const userResolver = {
           { $set: { authToken: token, lastLogin: new Date() } },
           { new: true }
         );
-        await storeTokenInRedis(`authToken-${user._id}`, token);
+        await storeTokenInRedis(user._id, token);
       }
       return { id: userID, finishedSignUp, token };
     },
 
     /*
-     * renewToken: returns a new token for a logged user
+     * renewSession: updates expire date token in redis
      */
-    renewToken: async (_, __, context: any) => {
-      let oldToken = "";
-      if (context.headers && context.headers.authorization) {
-        oldToken = context.headers.authorization.split(" ")[1];
-      }
+    renewSession: async (_, __, context: any) => {
+      // authorization for queries and mutations
+      const token1: string = context.headers.authorization || "";
+      const justToken: string = token1.split(" ")[1];
+      const data:
+        | IUserInToken
+        | undefined = await contextController.getDataInToken(justToken);
 
-      const { data, token } = await contextController.generateNewToken(
-        oldToken
-      );
-      if (data.userID) {
-        await storeTokenInRedis(`authToken-${data.userID}`, token);
-      } else if (data.submissionID) {
-        await storeTokenInRedis(`subToken-${data.submissionID}`, token);
+      if (data && String(process.env.USE_REDIS) === "true") {
+        const now: Date = new Date();
+        let secondsRemaining: number = 0;
+        if (data.userID) {
+          await updateExpireDateInRedis(data.userID, false);
+          const result: IDataInRedis = await redisClient.hgetallAsync(
+            data.userID
+          );
+          const expiresAt: Date = new Date(result.expiresAt);
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          pubsub.publish(USER_SESSION_EXPIRES, {
+            userSessionExpires: {
+              ...result,
+              key: data.userID,
+              secondsRemaining,
+              expiredSession: false,
+              showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+            }
+          });
+        } else if (data.submissionID) {
+          await updateExpireDateInRedis(data.submissionID, true);
+          const result: IDataInRedis = await redisClient.hgetallAsync(
+            data.submissionID
+          );
+          const expiresAt: Date = new Date(result.expiresAt);
+          secondsRemaining = (expiresAt.getTime() - now.getTime()) / 1000;
+          pubsub.publish(SUBMISSION_SESSION_EXPIRES, {
+            submissionSessionExpires: {
+              ...result,
+              key: data.submissionID,
+              secondsRemaining,
+              expiredSession: false,
+              showSessionWarningSecs: SESSION.SHOW_WARNING_SECONDS
+            }
+          });
+        }
+        return "OK";
       }
-      return token;
+      throw new ApolloError("Not data in token", "TOKEN_NOT_VALID");
     },
 
     /**
      * reset Password: send a email to the user email with a new token for edit the password.
      * args: email
      */
-    resetPasswordEmail: async (_, { email }) => {
+    sendForgotPasswordEmail: async (_, { email }) => {
       const contactFound: IUser | null = await UserModel.findOne({
         email,
         finishedSignUp: true
@@ -396,37 +513,36 @@ const userResolver = {
         process.env.JWT_SECRET,
         { expiresIn: "30m" }
       );
-      await storeTokenInRedis(`resetPasswordToken-${contactFound._id}`, token);
+      const index: string = `resPass-${contactFound._id}`;
+      await storeTokenInRedis(index, token);
 
       // Generate the email with the activation link and send it
       const data: IEmailData = {
         url: `${process.env.FRONTEND_URL}/reset-password?token=${token}`
       };
-      const mjml = resetPasswordTemplate(data);
-      const htmlMessage = mjml2html(mjml, {
-        keepComments: false,
-        beautify: true,
-        minify: true
-      });
-      await mailerController.sendEmail(
-        contactFound.email!,
-        "Cambiar contraseña Bitbloq",
-        htmlMessage.html
-      );
+      const emailContent: string = await generateResetPasswordEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          contactFound.email!,
+          "Cambiar contraseña Bitbloq",
+          emailContent
+        );
+      }
+
       return "OK";
     },
 
-    checkResetPasswordToken: async (_, { token }) => {
+    checkForgotPasswordToken: async (_, { token }) => {
       await getResetPasswordData(token);
       return true;
     },
 
     /**
      * edit Password: stores the new password passed as argument in the database
-     * You can only use this method if the token provided is the one created in the resetPasswordEmail mutation
+     * You can only use this method if the token provided is the one created in the sendForgotPasswordEmail mutation
      * args: token, new Password
      */
-    updatePassword: async (_, { token, newPassword }) => {
+    updateForgotPassword: async (_, { token, newPassword }) => {
       const dataInToken = await getResetPasswordData(token);
 
       const contactFound: IUser | null = await UserModel.findOne({
@@ -456,11 +572,11 @@ const userResolver = {
         }
       );
 
-      if (process.env.USE_REDIS === "true") {
-        redisClient.del(`resetPasswordToken-${contactFound._id}`);
+      if (String(process.env.USE_REDIS) === "true") {
+        redisClient.del(`resPass-${contactFound._id}`);
       }
 
-      await storeTokenInRedis(`authToken-${contactFound._id}`, authToken);
+      await storeTokenInRedis(contactFound._id, authToken);
       return authToken;
     },
 
@@ -503,7 +619,7 @@ const userResolver = {
             }
           }
         );
-        await storeTokenInRedis(`authToken-${contactFound._id}`, token);
+        await storeTokenInRedis(contactFound._id, token);
         return token;
       } else {
         return new ApolloError(
@@ -548,34 +664,224 @@ const userResolver = {
       }
     },
 
-    /*
-      Update user: update existing user.
-      It updates the user with the new information provided.
-      args: user ID, new user information.
-    */
-    updateUser: async (
+    /**
+     * Update user data: update existing user data.
+     * It updates the user with the new information provided.
+     * args: user ID, new user information: name, surnames, birthDate and avatar file.
+     */
+    updateUserData: async (
       _,
-      args: IMutationUpdateUserArgs,
+      args: IMutationUpdateUserDataArgs,
       context: { user: IUserInToken }
     ) => {
       const contactFound: IUser | null = await UserModel.findOne({
-        email: context.user.email,
-        _id: context.user.userID,
+        _id: args.id,
         finishedSignUp: true
       });
 
-      if (!contactFound) {
+      if (
+        !contactFound ||
+        String(contactFound._id) !== String(context.user.userID)
+      ) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
 
-      if (String(contactFound._id) === args.id) {
+      let image: string | undefined;
+      if (args.input.avatar) {
+        const imageUploaded: IUpload = await uploadDocumentUserImage(
+          args.input.avatar,
+          context.user.userID
+        );
+        image = imageUploaded.publicUrl;
+      }
+      return UserModel.findOneAndUpdate(
+        { _id: contactFound._id },
+        {
+          $set: {
+            name: args.input.name || contactFound.name,
+            surnames: args.input.surnames || contactFound.surnames,
+            birthDate: args.input.birthDate || contactFound.birthDate,
+            avatar: image || contactFound.avatar
+          }
+        },
+        { new: true }
+      );
+    },
+
+    /**
+     * updateMyPassword: updates my own password with user logged.
+     * args: currentPassword and newPassword
+     */
+    updateMyPassword: async (
+      _,
+      args: IMutationUpdateMyPasswordArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const valid: boolean = await bcryptCompare(
+        args.currentPassword,
+        contactFound.password
+      );
+      if (valid) {
+        // Store the password with a hash
+        const hash: string = await bcryptHash(
+          args.newPassword as string,
+          saltRounds as number
+        );
         return UserModel.findOneAndUpdate(
           { _id: contactFound._id },
-          { $set: args.input },
+          { $set: { password: hash } },
           { new: true }
         );
       } else {
-        return new ApolloError("User does not exist", "USER_NOT_FOUND");
+        throw new ApolloError("Password incorrect", "INCORRECT_PASSWORD");
+      }
+    },
+
+    /**
+     * updateMyPlan: mutation to update my user plan in accounts page.
+     * args: new User Plan
+     */
+    updateMyPlan: async (
+      _,
+      args: IMutationUpdateMyPlanArgs,
+      context: { user: IUserInToken }
+    ) => {
+      let teacher: boolean = false;
+      switch (args.userPlan) {
+        case "teacher":
+          teacher = true;
+          break;
+        case "member":
+          break;
+        default:
+          throw new ApolloError("User plan is not valid", "PLAN_NOT_FOUND");
+      }
+      const user: IUser | null = await UserModel.findOneAndUpdate(
+        { _id: context.user.userID, finishedSignUp: true },
+        { $set: { teacher } },
+        { new: true }
+      );
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const { token } = await contextController.generateLoginToken(user);
+      await UserModel.updateOne(
+        { _id: user!._id },
+        { $set: { authToken: token, lastLogin: new Date() } },
+        { new: true }
+      );
+      await storeTokenInRedis(user!._id, token);
+      return token;
+    },
+
+    /**
+     * sendChangeMyEmailToken: first mutation to update my email in account page.
+     * It sends a new Email with a token like in create account process.
+     * args: new User Email
+     */
+    sendChangeMyEmailToken: async (
+      _,
+      args: IMutationSendChangeMyEmailTokenArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const contactFound: IUser | null = await UserModel.findOne({
+        _id: context.user.userID,
+        finishedSignUp: true
+      });
+      if (!contactFound) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const existsNewMail: IUser | null = await UserModel.findOne({
+        email: args.newEmail
+      });
+      if (existsNewMail) {
+        throw new ApolloError("Email already exists", "EMAIL_EXISTS");
+      }
+      const token: string = jwtSign(
+        {
+          changeEmailUserID: contactFound._id,
+          changeEmailNewEmail: args.newEmail
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "30m" }
+      );
+      await storeTokenInRedis(`changeEmail-${contactFound._id}`, token);
+      // Generate the email with the activation link and send it
+      const data: IEmailData = {
+        url: `${process.env.FRONTEND_URL}/app/account/change-email?token=${token}`
+      };
+      const emailContent: string = await generateChangeEmailEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          args.newEmail!,
+          "Bitbloq cambiar correo electrónico",
+          emailContent
+        );
+      }
+      return "OK";
+    },
+
+    /**
+     * confirmChangeEmail: second mutation to update my email in account page.
+     * It checks the token and stores the new email. It returns the login token updated.
+     * args: token sent to user
+     */
+    confirmChangeEmail: async (
+      _,
+      args: IMutationConfirmChangeEmailArgs,
+      __
+    ) => {
+      let userInToken: {
+        changeEmailUserID: string;
+        changeEmailNewEmail: string;
+      };
+      let redisToken: string = "";
+      try {
+        userInToken = await jwtVerify(args.token, process.env.JWT_SECRET);
+        if (String(process.env.USE_REDIS) === "true") {
+          redisToken = (await redisClient.hgetallAsync(
+            `changeEmail-${userInToken.changeEmailUserID}`
+          )).authToken;
+        }
+      } catch (e) {
+        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
+      }
+      let user: IUser | null;
+      user = await UserModel.findOne({ _id: userInToken.changeEmailUserID });
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+      const valid: boolean = await bcryptCompare(args.password, user.password);
+      if (!valid) {
+        throw new ApolloError("Password incorrect", "PASSWORD_INCORRECT");
+      }
+      if (redisToken === args.token) {
+        try {
+          user = await UserModel.findOneAndUpdate(
+            { _id: userInToken.changeEmailUserID },
+            { $set: { email: userInToken.changeEmailNewEmail } },
+            { new: true }
+          );
+        } catch (e) {
+          throw new ApolloError("Email already exists", "EMAIL_EXISTS");
+        }
+        await redisClient.del(`changeEmail-${userInToken.changeEmailUserID}`);
+        const { token } = await contextController.generateLoginToken(user);
+        await UserModel.updateOne(
+          { _id: user!._id },
+          { $set: { authToken: token, lastLogin: new Date() } },
+          { new: true }
+        );
+        await storeTokenInRedis(user!._id, token);
+        return token;
+      } else {
+        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
     }
   },
@@ -610,19 +916,6 @@ const userResolver = {
   }
 };
 
-const storeTokenInRedis = (id: string, token: string) => {
-  if (process.env.USE_REDIS === "true") {
-    return redisClient.set(String(id), token, (err, reply) => {
-      if (err) {
-        throw new ApolloError(
-          "Error storing auth token in redis",
-          "REDIS_TOKEN_ERROR"
-        );
-      }
-    });
-  }
-};
-
 const getResetPasswordData = async (token: string) => {
   if (!token) {
     throw new ApolloError(
@@ -641,11 +934,11 @@ const getResetPasswordData = async (token: string) => {
     );
   }
 
-  if (process.env.USE_REDIS === "true") {
-    const storedToken = await redisClient.getAsync(
-      `resetPasswordToken-${dataInToken.resetPassUserID}`
+  if (String(process.env.USE_REDIS) === "true") {
+    const storedToken = await redisClient.hgetallAsync(
+      `resPass-${dataInToken.resetPassUserID}`
     );
-    if (storedToken !== token) {
+    if (storedToken.authToken !== token) {
       throw new ApolloError(
         "The provided token is not the latest one",
         "INVALID_TOKEN"

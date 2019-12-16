@@ -3,12 +3,15 @@ import gql from "graphql-tag";
 export const ME_QUERY = gql`
   query Me {
     me {
-      id
-      rootFolder
-      email
-      name
       admin
+      avatar
+      birthDate
+      email
+      id
+      name
       publisher
+      rootFolder
+      surnames
       teacher
     }
   }
@@ -527,21 +530,21 @@ export const RENEW_TOKEN_MUTATION = gql`
   }
 `;
 
-export const CHECK_RESET_PASSWORD_TOKEN_MUTATION = gql`
+export const CHECK_UPDATE_PASSWORD_TOKEN_MUTATION = gql`
   mutation CheckResetPasswordToken($token: String) {
-    checkResetPasswordToken(token: $token)
+    checkForgotPasswordToken(token: $token)
   }
 `;
 
 export const RESET_PASSWORD_MUTATION = gql`
   mutation ResetPassword($email: EmailAddress!) {
-    resetPasswordEmail(email: $email)
+    sendForgotPasswordEmail(email: $email)
   }
 `;
 
-export const UPDATE_PASSWORD_MUTATION = gql`
+export const UPDATE_FORGOT_PASSWORD_MUTATION = gql`
   mutation UpdatePassword($token: String, $newPassword: String) {
-    updatePassword(token: $token, newPassword: $newPassword)
+    updateForgotPassword(token: $token, newPassword: $newPassword)
   }
 `;
 
@@ -578,6 +581,81 @@ export const LOGIN_SUBMISSION_MUTATION = gql`
       exerciseID
       type
     }
+  }
+`;
+
+export const SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION = gql`
+  subscription SubmissionSessionExpires {
+    submissionSessionExpires {
+      key
+      secondsRemaining
+      subToken
+      expiredSession
+      showSessionWarningSecs
+    }
+  }
+`;
+
+export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
+  subscription UserSessionExpires {
+    userSessionExpires {
+      key
+      secondsRemaining
+      authToken
+      expiredSession
+      showSessionWarningSecs
+    }
+  }
+`;
+/* Account */
+
+export const UPDATE_USER_DATA_MUTATION = gql`
+  mutation UpdateUserData($id: ObjectID!, $input: UpdateUserData!) {
+    updateUserData(id: $id, input: $input) {
+      id
+    }
+  }
+`;
+export const RENEW_SESSION_MUTATION = gql`
+  mutation renewSession {
+    renewSession
+  }
+`;
+
+export const SAVE_USER_DATA_MUTATION = gql`
+  mutation SaveUserData($input: UserIn!) {
+    saveUserData(input: $input) {
+      id
+    }
+  }
+`;
+
+export const CHANGE_EMAIL_MUTATION = gql`
+  mutation SendChangeMyEmailToken($newEmail: String!) {
+    sendChangeMyEmailToken(newEmail: $newEmail)
+  }
+`;
+
+export const CHANGE_PASSWORD_MUTATION = gql`
+  mutation UpdateMyPassword($currentPassword: String!, $newPassword: String!) {
+    updateMyPassword(
+      currentPassword: $currentPassword
+      newPassword: $newPassword
+    ) {
+      id
+    }
+  }
+`;
+
+export const CHANGE_PLAN_MUTATION = gql`
+  mutation UpdateMyPlan($userPlan: String!) {
+    updateMyPlan(userPlan: $userPlan)
+  }
+`;
+
+export const CONFIRM_NEW_EMAIL = gql`
+  mutation ConfirmChangeEmail($token: String!, $password: String!) {
+    confirmChangeEmail(token: $token, password: $password)
   }
 `;
 
@@ -678,13 +756,5 @@ export const ACTIVATE_ACCOUNT_MUTATION = gql`
 export const FINISH_SIGNUP_MUTATION = gql`
   mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
     finishSignUp(id: $id, userPlan: $userPlan)
-  }
-`;
-
-export const SAVE_USER_DATA_MUTATION = gql`
-  mutation SaveUserData($input: UserIn!) {
-    saveUserData(input: $input) {
-      id
-    }
   }
 `;

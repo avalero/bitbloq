@@ -2,10 +2,9 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
 import { JuniorNumberInput } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
-
-import LoopImage from "./images/LoopImage";
 
 export interface IStartConfigurationProps {
   bloq: IBloq;
@@ -16,11 +15,11 @@ const StartConfiguration: FC<IStartConfigurationProps> = ({
   bloq,
   onChange
 }) => {
-  const value = bloq.parameters.value as number;
+  const value = (bloq.parameters.value || 0) as number;
 
   return (
     <Container>
-      <p>¿Cuántos segundos esperamos?</p>
+      <NumberContainer>{value.toString().padStart(2, "0")}</NumberContainer>
       <JuniorNumberInput
         value={value}
         onChange={newValue =>
@@ -35,13 +34,11 @@ export default StartConfiguration;
 
 const Container = styled.div`
   display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
 
-  p {
-    margin-top: 22px;
-    font-size: 20px;
-    margin-right: 10px;
-    max-width: 180px;
-    text-align: right;
-    line-height: normal;
-  }
+const NumberContainer = styled(BalloonPanel)`
+  font-size: 80px;
+  padding: 30px 50px;
 `;

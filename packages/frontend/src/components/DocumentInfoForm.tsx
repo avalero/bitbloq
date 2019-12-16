@@ -11,6 +11,7 @@ import {
 import ResourcesBox from "./ResourcesBox";
 import { isValidName } from "../util";
 import { IResource, ResourcesTypes } from "../types";
+import { LIMIT_SIZE } from "../../../api/src/config";
 
 export interface IDocumentInfoFormProps {
   title?: string;
@@ -28,8 +29,6 @@ export interface IDocumentInfoFormProps {
     image?: File;
   }) => void;
 }
-
-const maxImageSize = 2097152;
 
 const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
   title,
@@ -58,7 +57,7 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
   const onFileSelected = (file: File) => {
     if (file.type.indexOf("image/") !== 0) {
       setImageError(t("document-info.errors.image-ext"));
-    } else if (file.size > maxImageSize) {
+    } else if (file.size > LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES) {
       setImageError(t("document-info.errors.image-size"));
     } else {
       onChange({
@@ -107,7 +106,11 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
             </FormLabel>
             <FormInput>
               <TextArea
-                value={description}
+                value={
+                  description === t("document-body-description")
+                    ? undefined
+                    : description
+                }
                 placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
                   onChange({
@@ -122,7 +125,14 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
           <FormRow>
             <FormLabel>
               <label>{t("document-info.labels.image")}</label>
-              <FormSubLabel>{t("document-info.sublabels.image")}</FormSubLabel>
+              <FormSubLabel>
+                {t("document-info.sublabels.image", [
+                  (
+                    LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES /
+                    (1024 * 1024)
+                  ).toString()
+                ])}
+              </FormSubLabel>
             </FormLabel>
             <FormInput>
               <Image src={image} />

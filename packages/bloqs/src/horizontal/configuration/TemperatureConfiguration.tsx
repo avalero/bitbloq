@@ -4,6 +4,7 @@ import update from "immutability-helper";
 import { Icon, JuniorSwitch } from "@bitbloq/ui";
 
 import { IBloq } from "../../index";
+import BalloonPanel from "../BalloonPanel";
 
 import HotImage from "./images/TemperatureHot";
 import ColdImage from "./images/TemperatureCold";
@@ -30,8 +31,8 @@ const TemperatureConfiguration: FC<ITemperatureConfigurationProps> = ({
       </ImageWrap>
       <JuniorSwitch
         buttons={[
-          { content: <ButtonIcon src={HotIcon} />, id: "hot" },
-          { content: <ButtonIcon src={ColdIcon} />, id: "cold" }
+          { content: <ButtonIcon src={ColdIcon} />, id: "cold" },
+          { content: <ButtonIcon src={HotIcon} />, id: "hot" }
         ]}
         value={value}
         onChange={newValue =>
@@ -47,14 +48,14 @@ export default TemperatureConfiguration;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  flex-direction: column;
 `;
 
-const ImageWrap = styled.div`
-  margin-right: 20px;
-  svg {
-    width: 200px;
-    height: 200px;
-  }
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 55px;
+  display: flex;
+  align-items: center;
 `;
 
 const RightArrow = styled.div`
@@ -64,5 +65,5 @@ const RightArrow = styled.div`
 `;
 
 const ButtonIcon = styled.img`
-  width: 30px;
+  width: 36px;
 `;

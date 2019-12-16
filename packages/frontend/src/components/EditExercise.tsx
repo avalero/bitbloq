@@ -20,7 +20,9 @@ import {
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION,
-  SUBMISSION_ACTIVE_SUBSCRIPTION
+  SUBMISSION_ACTIVE_SUBSCRIPTION,
+  SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION,
+  RENEW_SESSION_MUTATION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
@@ -31,6 +33,7 @@ import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { IDocument, IResource } from "../types";
+import { ISessionExpires } from "../../../api/src/api-types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -57,6 +60,8 @@ const EditExercise = ({ type, id }) => {
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
+  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
+
   const [submission, setSubmission] = useState<IDocument | undefined>(
     undefined
   );
@@ -69,16 +74,6 @@ const EditExercise = ({ type, id }) => {
   useEffect(() => {
     setToken("", "exercise-team");
   }, []);
-
-  const [sessionExpired, setSessionExpired] = useState(false);
-  useSessionEvent(
-    "expired",
-    () => {
-      setTeamName("");
-      setSessionExpired(true);
-    },
-    "exercise-team"
-  );
 
   const setActiveToFalse = useCallback(async () => {
     if (exercise && teamName && serviceWorker && submission) {
@@ -97,7 +92,10 @@ const EditExercise = ({ type, id }) => {
       window.removeEventListener("beforeunload", setActiveToFalse);
       window.addEventListener("beforeunload", setActiveToFalse);
 
-      return () => window.removeEventListener("beforeunload", setActiveToFalse);
+      return () => {
+        window.removeEventListener("beforeunload", setActiveToFalse);
+        setActiveToFalse();
+      };
     }
     return;
   }, [exercise, submission, teamName]);
@@ -113,9 +111,6 @@ const EditExercise = ({ type, id }) => {
   }
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
-  }
-  if (sessionExpired) {
-    return null;
   }
 
   const loadSubmission = async () => {
@@ -250,7 +245,7 @@ const EditExercise = ({ type, id }) => {
       {loginVisible && !loading && (
         <ExerciseLoginModal
           code={exercise.code}
-          onSuccess={newTeamName => {
+          onSuccess={async newTeamName => {
             setTeamName(newTeamName);
             setLoginVisible(false);
             loadSubmission();
@@ -273,8 +268,13 @@ const EditExercise = ({ type, id }) => {
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />
-      <SessionWarningModal tempSession="exercise-team" />
       {teamName && (
+        <SessionWarningModal
+          subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
+          setActivteToFalse={setActiveToFalse}
+        />
+      )}
+      {teamName && submission && (
         <Subscription
           subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}

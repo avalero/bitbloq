@@ -598,6 +598,7 @@ export const components: Array<Partial<IComponent>> = [
       cold: "< 25",
       light: ">=40",
       dark: "<40",
+      sunset: ">=40 && <60",
       obstacle: "<20",
       no_obstacle: ">=20",
       truered: "==0",

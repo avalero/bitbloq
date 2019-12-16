@@ -16,7 +16,7 @@ import { sortByCreatedAt } from "../util";
 import AppLayout from "./AppLayout";
 import Breadcrumbs from "./Breadcrumbs";
 import DocumentTypeTag from "./DocumentTypeTag";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
@@ -329,7 +329,7 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Mutation mutation={CREATE_EXERCISE_MUTATION}>
         {createExercise => (
-          <EditTitleModal
+          <EditInputModal
             title={newExerciseTitle}
             onCancel={() =>
               this.setState({ isCreateExerciseOpen: false, errorName: false })
@@ -374,7 +374,7 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
         {updateExercise => (
-          <EditTitleModal
+          <EditInputModal
             title={newExerciseTitle}
             onCancel={() =>
               this.setState({ isUpdateExerciseOpen: false, errorName: false })
@@ -459,7 +459,7 @@ class Document extends React.Component<any, DocumentState> {
 
     return (
       <UserDataContext.Consumer>
-        {user => (
+        {({ userData }) => (
           <Translate>
             {t => (
               <>
@@ -485,10 +485,10 @@ class Document extends React.Component<any, DocumentState> {
                     return (
                       <AppLayout header={this.renderHeader(document)}>
                         <DocumentData>
-                          {user && user.teacher
+                          {userData && userData.teacher
                             ? this.renderDocumentTeacherInfo(document, t)
                             : this.renderDocumentInfo(document, t)}
-                          {user && user.teacher
+                          {userData && userData.teacher
                             ? this.renderExercises(
                                 document.exercises,
                                 refetch,

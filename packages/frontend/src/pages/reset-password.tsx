@@ -6,36 +6,34 @@ import withApollo from "../apollo/withApollo";
 import { useMutation } from "@apollo/react-hooks";
 import { Input, Button } from "@bitbloq/ui";
 import {
-  CHECK_RESET_PASSWORD_TOKEN_MUTATION,
-  UPDATE_PASSWORD_MUTATION
+  CHECK_UPDATE_PASSWORD_TOKEN_MUTATION,
+  UPDATE_FORGOT_PASSWORD_MUTATION
 } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
+import ErrorMessage from "../components/ErrorMessage";
 import ModalLayout from "../components/ModalLayout";
 
-export interface IForgotPasswordPageProps {
-  location: any;
-}
-
-const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
+const ForgotPasswordPage: FC = () => {
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [repeatError, setRepeatError] = useState("");
   const [success, setSuccess] = useState(false);
   const [invalidToken, setInvalidToken] = useState(false);
+  const [token, setToken] = useState("");
 
-  const [checkToken] = useMutation(CHECK_RESET_PASSWORD_TOKEN_MUTATION);
-  const [updatePassword, { loading }] = useMutation(UPDATE_PASSWORD_MUTATION);
+  const [checkToken] = useMutation(CHECK_UPDATE_PASSWORD_TOKEN_MUTATION);
+  const [updateForgotPassword, { loading }] = useMutation(
+    UPDATE_FORGOT_PASSWORD_MUTATION
+  );
 
-  const { token } = queryString.parse(location.search);
-
-  const user = useUserData();
+  const { userData } = useUserData();
   useEffect(() => {
-    if (user) {
+    if (userData) {
       Router.replace("/app");
     }
-  }, [user]);
+  }, [userData]);
 
   const checkTokenValidity = async () => {
     try {
@@ -46,8 +44,16 @@ const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
   };
 
   useEffect(() => {
-    checkTokenValidity();
+    const location = window.location;
+    const { token: queryToken } = queryString.parse(location.search);
+    setToken(queryToken as string);
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      checkTokenValidity();
+    }
+  }, [token]);
 
   const onSaveClick = async () => {
     if (!password) {
@@ -64,7 +70,7 @@ const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
     try {
       setPasswordError("");
       setRepeatError("");
-      const result = await updatePassword({
+      const result = await updateForgotPassword({
         variables: { token, newPassword: password }
       });
       setSuccess(true);
@@ -124,7 +130,9 @@ const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
             setPassword(e.target.value)
           }
         />
-        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
+        {passwordError && (
+          <PasswordErrorMessage>{passwordError}</PasswordErrorMessage>
+        )}
       </FormGroup>
       <FormGroup>
         <label>Repetir nueva contraseña</label>
@@ -137,7 +145,9 @@ const ForgotPasswordPage: FC<IForgotPasswordPageProps> = ({ location }) => {
             setRepeat(e.target.value)
           }
         />
-        {repeatError && <ErrorMessage>{repeatError}</ErrorMessage>}
+        {repeatError && (
+          <PasswordErrorMessage>{repeatError}</PasswordErrorMessage>
+        )}
       </FormGroup>
       <Buttons>
         <Button secondary onClick={() => Router.push("/login")}>
@@ -166,11 +176,8 @@ const FormGroup = styled.div`
   }
 `;
 
-const ErrorMessage = styled.div`
+const PasswordErrorMessage = styled(ErrorMessage)`
   margin-top: 8px;
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
 `;
 
 const Buttons = styled.div`

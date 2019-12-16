@@ -1,6 +1,7 @@
 import React, {
   FC,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -18,6 +19,7 @@ import {
 } from "../apollo/queries";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
+import { LIMIT_SIZE } from "../../../api/src/config";
 
 const acceptedFiles = {
   image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
@@ -54,6 +56,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);
   const [uploadResource] = useMutation(UPLOAD_CLOUD_RESOURCE);
   const canvasRef = useRef<STLViewer>(null);
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [cameraY, setCameraY] = useState<number>(0);
   const [cameraZ, setCameraZ] = useState<number | null>(null);
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
@@ -130,7 +133,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     const extFile = newFile.name.split(".").pop();
     if (!isValidExt(extFile!)) {
       setError(Errors.extError);
-    } else if (newFile.size > 10000000) {
+    } else if (newFile.size > LIMIT_SIZE.MAX_RESOURCE_BYTES) {
       setError(Errors.sizeError);
     } else {
       setNameFile(
@@ -155,6 +158,17 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
     }
   }, [canvasRef, fileArray]);
 
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13 && submitRef.current) {
+        e.preventDefault();
+        submitRef.current.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
+
   return openCloud && file === undefined && error === Errors.noError ? (
     <CloudModal
       acceptedExt={accept}
@@ -172,7 +186,9 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
       text={
         error === Errors.extError
           ? t("cloud.upload.warning-ext")
-          : t("cloud.upload.warning-size")
+          : t("cloud.upload.warning-size", [
+              (LIMIT_SIZE.MAX_RESOURCE_BYTES / (1024 * 1024)).toString()
+            ])
       }
       okText={t("general-accept-button")}
       title={t("cloud.upload.warning-title")}
@@ -234,6 +250,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
             <ResourceModalButton
               disabled={disabledButton || !isValidName(nameFile)}
               onClick={() => onSendResource(file)}
+              ref={submitRef}
             >
               {t("general-add-button")}
             </ResourceModalButton>

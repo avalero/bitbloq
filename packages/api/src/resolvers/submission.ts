@@ -16,14 +16,21 @@ import {
   IMutationGradeSubmissionArgs,
   IMutationUpdatePasswordSubmissionArgs,
   IQuerySubmissionArgs,
-  IQuerySubmissionsByExerciseArgs
+  IQuerySubmissionsByExerciseArgs,
+  ISessionExpires
 } from "../api-types";
 import { IUserInToken } from "../models/interfaces";
+import {
+  storeTokenInRedis,
+  updateExpireDateInRedis,
+  contextController
+} from "../controllers/context";
 
 const saltRounds = 7;
 
 const SUBMISSION_UPDATED: string = "SUBMISSION_UPDATED";
-const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
+export const SUBMISSION_ACTIVE: string = "SUBMISSION_ACTIVE";
+export const SUBMISSION_SESSION_EXPIRES: string = "SUBMISSION_SESSION_EXPIRES";
 
 const submissionResolver = {
   Subscription: {
@@ -53,14 +60,26 @@ const submissionResolver = {
     submissionActive: {
       subscribe: withFilter(
         () => pubsub.asyncIterator([SUBMISSION_ACTIVE]),
+        (payload, variables, context) => {
+          return (
+            String(payload.submissionActive.id) ===
+            String(context.user.submissionID)
+          );
+        }
+      )
+    },
+    submissionSessionExpires: {
+      subscribe: withFilter(
+        // Filtra para devolver solo los documentos del usuario
+        () => pubsub.asyncIterator([SUBMISSION_SESSION_EXPIRES]),
         (
-          payload: { submissionActive: ISubmission },
+          payload: { submissionSessionExpires: ISessionExpires },
           variables,
           context: { user: IUserInToken }
         ) => {
           return (
-            String(payload.submissionActive._id) ===
-            String(context.user.submissionID)
+            String(context.user.submissionID) ===
+            String(payload.submissionSessionExpires.key)
           );
         }
       )
@@ -132,30 +151,19 @@ const submissionResolver = {
       const token: string = jwtSign(
         {
           exerciseID: exFather._id,
-          submissionID: newSub._id,
+          submissionID: newSub.id,
           role: "stu-"
         },
-        process.env.JWT_SECRET,
-        { expiresIn: "3h" }
+        process.env.JWT_SECRET
+        // { expiresIn: "3h" }
       );
       await SubmissionModel.findOneAndUpdate(
-        { _id: newSub._id },
+        { _id: newSub.id },
         { $set: { submissionToken: token } },
         { new: true }
       );
       if (process.env.USE_REDIS === "true") {
-        await redisClient.set(
-          String("subToken-" + newSub._id),
-          token,
-          (err, reply) => {
-            if (err) {
-              throw new ApolloError(
-                "Error storing auth token in redis",
-                "REDIS_TOKEN_ERROR"
-              );
-            }
-          }
-        );
+        await storeTokenInRedis(newSub.id, token, true);
       }
       pubsub.publish(SUBMISSION_UPDATED, { submissionUpdated: newSub });
       return {
@@ -217,14 +225,14 @@ const submissionResolver = {
         const token: string = jwtSign(
           {
             exerciseID: exFather._id,
-            submissionID: existSubmission._id,
+            submissionID: existSubmission.id,
             role: "stu-"
           },
-          process.env.JWT_SECRET,
-          { expiresIn: "3h" }
+          process.env.JWT_SECRET
+          // { expiresIn: "3h" }
         );
         await SubmissionModel.findOneAndUpdate(
-          { _id: existSubmission._id },
+          { _id: existSubmission.id },
           { $set: { submissionToken: token, active: true } },
           { new: true }
         );
@@ -232,22 +240,8 @@ const submissionResolver = {
           submissionUpdated: existSubmission
         });
         if (process.env.USE_REDIS === "true") {
-          await redisClient.set(
-            String("subToken-" + existSubmission._id),
-            token,
-            (err, reply) => {
-              if (err) {
-                throw new ApolloError(
-                  "Error storing auth token in redis",
-                  "REDIS_TOKEN_ERROR"
-                );
-              }
-            }
-          );
+          await storeTokenInRedis(existSubmission.id, token, true);
         }
-        pubsub.publish(SUBMISSION_UPDATED, {
-          submissionUpdated: existSubmission
-        });
         return {
           token,
           exerciseID: exFather._id,
@@ -292,13 +286,16 @@ const submissionResolver = {
           );
         }
         const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
-          { _id: existSubmission._id },
+          { _id: existSubmission.id },
           { $set: args.input },
           { new: true }
         );
         pubsub.publish(SUBMISSION_UPDATED, {
           submissionUpdated: updatedSubmission
         });
+        if (process.env.USE_REDIS === "true") {
+          await updateExpireDateInRedis(existSubmission.id, true);
+        }
         return updatedSubmission;
       }
       return;
@@ -322,7 +319,7 @@ const submissionResolver = {
       );
       if (existSubmission) {
         const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
-          { _id: existSubmission._id },
+          { _id: existSubmission.id },
           {
             $set: {
               active: args.active
@@ -385,7 +382,7 @@ const submissionResolver = {
         throw new ApolloError("Your submission is late", "SUBMISSION_LATE");
       }
       const updatedSubmission = await SubmissionModel.findOneAndUpdate(
-        { _id: existSubmission._id },
+        { _id: existSubmission.id },
         {
           $set: {
             finished: true,
@@ -422,7 +419,7 @@ const submissionResolver = {
           "SUBMISSION_NOT_FOUND"
         );
       }
-      return SubmissionModel.deleteOne({ _id: existSubmission._id });
+      return SubmissionModel.deleteOne({ _id: existSubmission.id });
     },
 
     /**
@@ -455,7 +452,7 @@ const submissionResolver = {
       pubsub.publish(SUBMISSION_ACTIVE, {
         submissionActive: existSubmission
       });
-      return SubmissionModel.deleteOne({ _id: existSubmission._id });
+      return SubmissionModel.deleteOne({ _id: existSubmission.id });
     },
 
     /**
@@ -489,7 +486,7 @@ const submissionResolver = {
       }
 
       const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
-        { _id: existSubmission._id },
+        { _id: existSubmission.id },
         {
           $set: {
             grade: args.grade,
@@ -526,7 +523,7 @@ const submissionResolver = {
       }
       const hash: string = await bcryptHash(args.password, saltRounds);
       const updatedSubmission: ISubmission | null = await SubmissionModel.findOneAndUpdate(
-        { _id: existSubmission._id },
+        { _id: existSubmission.id },
         {
           $set: {
             password: hash

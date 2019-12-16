@@ -13,3 +13,13 @@ enum Role {
   STUDENT
   FAMILY
 }
+
+type SessionExpires {
+  key: ObjectID
+  authToken: String
+  subToken: String
+  expiresAt: Date
+  secondsRemaining: Number
+  showSessionWarningSecs: Number
+  expiredSession: Boolean
+}

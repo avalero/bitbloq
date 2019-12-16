@@ -8,7 +8,7 @@ import { IBloqType, IBloq, isBloqSelectComponentParameter } from "../index";
 import { BloqCategory } from "../enums";
 
 interface IHorizontalBloqProps {
-  type: IBloqType;
+  type?: IBloqType;
   className?: string;
   onClick?: React.MouseEventHandler;
   selected?: boolean;
@@ -56,6 +56,9 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   bloq,
   port
 }) => {
+  if (!type) {
+    return null;
+  }
   const parameters = (bloq && bloq.parameters) || {};
   let icon = type.icon;
   const { iconSwitch, iconComponent } = type;
