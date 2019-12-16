@@ -1,23 +1,24 @@
-import _ from "lodash";
 import { useRouter } from "next/router";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { Button, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import PlanOption from "./PlanOption";
-import { plans, signupSteps } from "../config";
+import { plans } from "../config";
 import { IPlan } from "../types";
 
-interface ISignupPlanSelectionProps {
+interface ISignupPlanSelectorProps {
   defaultValues: IPlan;
   isAMinor: boolean;
   loading: boolean;
+  onCancel: () => void;
   onSubmit: (userInputs: IPlan) => void;
 }
 
-const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
+const SignupPlanSelector: FC<ISignupPlanSelectorProps> = ({
   defaultValues,
   isAMinor,
   loading,
+  onCancel,
   onSubmit
 }) => {
   const router = useRouter();
@@ -55,14 +56,7 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
         showFeatures={true}
       />
       <Buttons>
-        <Button
-          tertiary
-          onClick={() =>
-            router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
-              shallow: true
-            })
-          }
-        >
+        <Button tertiary onClick={onCancel}>
           {t("signup.plan-selection.cancel")}
         </Button>
         <Button
@@ -77,7 +71,7 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
   );
 };
 
-export default SignupPlanSelection;
+export default SignupPlanSelector;
 
 /* Styled components */
 

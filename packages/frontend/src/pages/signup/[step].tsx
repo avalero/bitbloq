@@ -1,8 +1,9 @@
 import { ApolloError } from "apollo-client";
 import _ from "lodash";
+import { NextPage, NextPageContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FC, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
 import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -17,37 +18,20 @@ import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import LoginWithGoogleButton from "../../components/LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "../../components/LoginWithMicrosoftButton";
 import ModalLayout from "../../components/ModalLayout";
-import SignupPlanSelection from "../../components/SignupPlanSelection";
-import SignupUserData from "../../components/SignupUserData";
+import SignupBirthDateForm from "../../components/SignupBirthDateForm";
+import SignupPlanSelector from "../../components/SignupPlanSelector";
+import SignupUserDataForm from "../../components/SignupUserDataForm";
 import {
   educationalStages,
   plans,
   privacyPolicyUrl,
   signupSteps
 } from "../../config";
+import redirect from "../../lib/redirect";
 import { setToken } from "../../lib/session";
-import { IPlan } from "../../types";
+import { IPlan, IUserData } from "../../types";
 import { getAge } from "../../util";
 import { IUserStep1 } from "../../../../api/src/api-types";
-
-interface IUserData {
-  acceptTerms: boolean;
-  birthDate: string;
-  centerName: string;
-  city: string;
-  country: string;
-  day: number;
-  educationalStage: string;
-  email: string;
-  imTeacherCheck: boolean;
-  month: number;
-  name: string;
-  noNotifications: boolean;
-  password: string;
-  postCode: number;
-  surnames: string;
-  year: number;
-}
 
 interface ISaveUserResult {
   saveUserData: IUserStep1;
@@ -57,7 +41,7 @@ interface ISignupUserResult {
   finishSignUp?: string;
 }
 
-const SignupStepPage: FC = () => {
+const SignupStepPage: NextPage = () => {
   const client = useApolloClient();
   const router = useRouter();
   const t = useTranslate();
@@ -65,20 +49,28 @@ const SignupStepPage: FC = () => {
 
   const { id: externalProfileId, plan: defaultPlan, step } = router.query;
 
+  const [signupFlow, setSignupFlow] = useState<string[]>([
+    signupSteps.userData,
+    signupSteps.planSelection,
+    signupSteps.create
+  ]);
+
   useEffect(() => {
     if (wrapRef && wrapRef.current) {
       wrapRef.current.scrollIntoView();
     }
-    if (!signupSteps.includes(step as string)) {
-      router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
-        shallow: true
-      });
-    }
-    if (step === _.last(signupSteps)) {
-      router.beforePopState(() => {
-        router.push("/");
-        return false;
-      });
+    switch (step) {
+      case signupSteps.birthdate:
+        setSignupFlow([
+          signupSteps.leave,
+          signupSteps.birthdate,
+          signupSteps.planSelection
+        ]);
+      case signupSteps.create:
+        router.beforePopState(() => {
+          router.push("/");
+          return false;
+        });
     }
   }, [step]);
 
@@ -104,6 +96,26 @@ const SignupStepPage: FC = () => {
   const [saveUserData, { loading: savingUserData }] = useMutation(
     SAVE_USER_DATA_MUTATION
   );
+
+  const goToNextStep = () => {
+    const index = signupFlow.findIndex(s => s === step);
+    if (index < signupFlow.length) {
+      router.push("/signup/[step]", `/signup/${signupFlow[index + 1]}`, {
+        shallow: true
+      });
+    }
+  };
+
+  const goToPreviousStep = () => {
+    const index = signupFlow.findIndex(s => s === step);
+    if (index > 0) {
+      router.push("/signup/[step]", `/signup/${signupFlow[index - 1]}`, {
+        shallow: true
+      });
+    } else {
+      router.back();
+    }
+  };
 
   const onSaveUser = async (input: IUserData) => {
     setUserData(input);
@@ -136,9 +148,7 @@ const SignupStepPage: FC = () => {
           : memberPlan
       );
       setUserId(data!.saveUserData.id);
-      router.push("/signup/[step]", `/signup/${signupSteps[1]}`, {
-        shallow: true
-      });
+      goToNextStep();
     } catch (e) {
       e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
         ? setUserError(e)
@@ -161,20 +171,23 @@ const SignupStepPage: FC = () => {
         setToken(token);
         router.push("/app");
       } else {
-        router.push("/signup/[step]", `/signup/${signupSteps[2]}`, {
-          shallow: true
-        });
+        goToNextStep();
       }
     } catch (e) {
       setError(e);
     }
   };
 
+  const onSignupBirthDate = async (input: string) => {
+    // TODO
+    goToNextStep();
+  };
+
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
 
-  if (step === _.last(signupSteps)) {
+  if (step === signupSteps.create) {
     return (
       <ModalLayout
         title={t("signup.create-modal.title")}
@@ -192,61 +205,106 @@ const SignupStepPage: FC = () => {
     );
   }
 
+  if (step === signupSteps.leave) {
+    return (
+      <ModalLayout
+        title={t("signup.leave-modal.title")}
+        modalTitle={t("signup.leave-modal.title")}
+        text={t("signup.leave-modal.content")}
+        cancelText={t("signup.leave-modal.cancel")}
+        onCancel={goToPreviousStep}
+        okText={t("signup.leave-modal.ok")}
+        onOk={goToNextStep}
+        isOpen={true}
+      />
+    );
+  }
+
   return (
     <Wrap ref={wrapRef}>
-      <AccessLayout panelTitle={t("signup.title")} size={AccessLayoutSize.BIG}>
-        <StepCounter>
-          {t("signup.step", [
-            (signupSteps.findIndex(s => s === step) + 1).toLocaleString()
-          ])}
-        </StepCounter>
-        <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
-        {step === signupSteps[0] && (
-          <>
-            {t("signup.login.account-text")}{" "}
-            <Link href="/login">
-              <a>{t("signup.login.account-link")}</a>
-            </Link>
-            .
-            <LoginWith>
-              <div>
-                {t("signup.login.with-text")}
-                <LoginWithLegalInformation>
-                  {t("signup.login.with-sub-text-1")}{" "}
-                  <a target="_blank" href="/legal/general-conditions">
-                    {t("legal.general-conditions").toLowerCase()}
-                  </a>{" "}
-                  {t("signup.login.with-sub-text-2")}{" "}
-                  <a target="_blank" href={privacyPolicyUrl}>
-                    {t("legal.privacy-policy").toLowerCase()}
-                  </a>
-                  .
-                </LoginWithLegalInformation>
-              </div>
-              <LoginWithButtons>
-                <LoginWithMicrosoftButton />
-                <LoginWithGoogleButton />
-              </LoginWithButtons>
-            </LoginWith>
-            <SignupUserData
-              defaultValues={userData}
-              error={userError}
-              loading={savingUserData}
-              onSubmit={onSaveUser}
-            />
-          </>
-        )}
-        {step === signupSteps[1] && (
-          <SignupPlanSelection
-            defaultValues={userPlan ? userPlan : memberPlan}
-            isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
-            loading={finishingSignup}
-            onSubmit={onSignupUser}
+      {step === signupSteps.birthdate ? (
+        <AccessLayout panelTitle={t(`signup.${step}.title`)}>
+          <SignupBirthDateForm
+            loading={false}
+            onCancel={goToPreviousStep}
+            onSubmit={onSignupBirthDate}
           />
-        )}
-      </AccessLayout>
+        </AccessLayout>
+      ) : (
+        <AccessLayout
+          panelTitle={t("signup.title")}
+          size={AccessLayoutSize.BIG}
+        >
+          {signupFlow[0] !== signupSteps.birthdate && (
+            <StepCounter>
+              {t("signup.step", [
+                (signupFlow.findIndex(s => s === step) + 1).toString()
+              ])}
+            </StepCounter>
+          )}
+          <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
+          {step === signupSteps.userData && (
+            <>
+              {t("signup.login.account-text")}{" "}
+              <Link href="/login">
+                <a>{t("signup.login.account-link")}</a>
+              </Link>
+              .
+              <LoginWith>
+                <div>
+                  {t("signup.login.with-text")}
+                  <LoginWithLegalInformation>
+                    {t("signup.login.with-sub-text-1")}{" "}
+                    <a target="_blank" href="/legal/general-conditions">
+                      {t("legal.general-conditions").toLowerCase()}
+                    </a>{" "}
+                    {t("signup.login.with-sub-text-2")}{" "}
+                    <a target="_blank" href={privacyPolicyUrl}>
+                      {t("legal.privacy-policy").toLowerCase()}
+                    </a>
+                    AccessLayout .
+                  </LoginWithLegalInformation>
+                </div>
+                <LoginWithButtons>
+                  <LoginWithMicrosoftButton />
+                  <LoginWithGoogleButton />
+                </LoginWithButtons>
+              </LoginWith>
+              <SignupUserDataForm
+                defaultValues={userData}
+                error={userError}
+                loading={savingUserData}
+                onCancel={goToPreviousStep}
+                onSubmit={onSaveUser}
+              />
+            </>
+          )}
+          {step === signupSteps.planSelection && (
+            <SignupPlanSelector
+              defaultValues={userPlan ? userPlan : memberPlan}
+              isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
+              loading={finishingSignup}
+              onCancel={goToPreviousStep}
+              onSubmit={onSignupUser}
+            />
+          )}
+        </AccessLayout>
+      )}
     </Wrap>
   );
+};
+
+SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
+  const { asPath } = ctx;
+  if (
+    asPath &&
+    !Object.entries(signupSteps).find(
+      item => item[1] === asPath.replace("/signup/", "").split("?")[0]
+    )
+  ) {
+    redirect(ctx, `/signup/${signupSteps.userData}`);
+  }
+  return {};
 };
 
 export default withApollo(SignupStepPage, { requiresSession: false });

@@ -21,19 +21,19 @@ const MicrosoftRedirectPage: NextPage = () => {
       throw e;
     });
 
+  const onLeaveProcess = () => {
+    router.push(sessionStorage.getItem("microsoftPrevPathname") || "/");
+    sessionStorage.removeItem("microsoftPrevPathname");
+  };
+
   const onLogin = (token: string) => {
     client.resetStore();
     setToken(token);
     router.push("/app");
   };
 
-  const onPlanSelection = (id: string) =>
-    router.push(`/signup/${signupSteps[1]}?id=${id}`);
-
-  const onLeaveProcess = () => {
-    router.push(sessionStorage.getItem("microsoftPrevPathname") || "/");
-    sessionStorage.removeItem("microsoftPrevPathname");
-  };
+  const onSignup = (id: string) =>
+    router.push(`/signup/${signupSteps.birthdate}?id=${id}`);
 
   useEffect(() => {
     try {
@@ -42,7 +42,7 @@ const MicrosoftRedirectPage: NextPage = () => {
         const { data } = await callLogin(token);
         data!.loginWithMicrosoft.finishedSignUp
           ? onLogin(data!.loginWithMicrosoft.token!)
-          : onPlanSelection(data!.loginWithMicrosoft.id!);
+          : onSignup(data!.loginWithMicrosoft.id!);
       })();
     } catch (e) {
       onLeaveProcess();

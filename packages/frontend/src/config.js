@@ -194,7 +194,13 @@ export const educationalStages = [
   "college"
 ];
 
-export const signupSteps = ["user-data", "plan-selection", "create"];
+export const signupSteps = {
+  birthdate: "birthdate",
+  create: "create",
+  leave: "leave",
+  planSelection: "plan-selection",
+  userData: "user-data"
+};
 
 const defaultFlags = {
   RENEW_TOKEN_SECONDS: 60,
