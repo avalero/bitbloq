@@ -21,19 +21,19 @@ const GoogleRedirectPage: NextPage = () => {
       throw e;
     });
 
+  const onLeaveProcess = () => {
+    router.push(sessionStorage.getItem("googlePrevPathname") || "/");
+    sessionStorage.removeItem("googlePrevPathname");
+  };
+
   const onLogin = (token: string) => {
     client.resetStore();
     setToken(token);
     router.push("/app");
   };
 
-  const onPlanSelection = (id: string) =>
-    router.push(`/signup/${signupSteps.planSelection}?id=${id}`);
-
-  const onLeaveProcess = () => {
-    router.push(sessionStorage.getItem("googlePrevPathname") || "/");
-    sessionStorage.removeItem("googlePrevPathname");
-  };
+  const onSignup = (id: string) =>
+    router.push(`/signup/${signupSteps.birthdate}?id=${id}`);
 
   useEffect(() => {
     try {
@@ -43,7 +43,7 @@ const GoogleRedirectPage: NextPage = () => {
         const { data } = await callLogin(token);
         data!.loginWithGoogle.finishedSignUp
           ? onLogin(data!.loginWithGoogle.token!)
-          : onPlanSelection(data!.loginWithGoogle.id!);
+          : onSignup(data!.loginWithGoogle.id!);
       })();
     } catch (e) {
       onLeaveProcess();

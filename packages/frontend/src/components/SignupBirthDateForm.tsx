@@ -8,11 +8,15 @@ import { isValidDate, getAge } from "../util";
 
 interface ISignupBirthDateProps {
   loading: boolean;
+  onCancel: () => void;
   onSubmit: (birthDate: string) => void;
 }
 
-const SignupBirthDate: FC<ISignupBirthDateProps> = ({ loading, onSubmit }) => {
-  const router = useRouter();
+const SignupBirthDate: FC<ISignupBirthDateProps> = ({
+  loading,
+  onCancel,
+  onSubmit
+}) => {
   const t = useTranslate();
 
   const {
@@ -46,7 +50,7 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({ loading, onSubmit }) => {
   return (
     <form onSubmit={handleSubmit(input => onSubmit(input.birthDate))}>
       <FormField>
-        <label>{t("signup.user-data.labels.birth-date")}</label>
+        <label>{t("signup.birthdate.labels.birth-date")}</label>
         <FormGroup onChange={onChangeBirthDate}>
           <Input
             type="number"
@@ -77,13 +81,7 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({ loading, onSubmit }) => {
         )}
       </FormField>
       <Buttons>
-        <Button
-          tertiary
-          type="button"
-          onClick={() => {
-            router.push("/");
-          }}
-        >
+        <Button tertiary type="button" onClick={onCancel}>
           {t("signup.user-data.cancel")}
         </Button>
         <Button tertiary type="submit" disabled={loading}>

@@ -192,10 +192,11 @@ export const educationalStages = [
 ];
 
 export const signupSteps = {
-  userData: "user-data",
-  planSelection: "plan-selection",
+  birthdate: "birthdate",
   create: "create",
-  birthdate: "birthdate"
+  leave: "leave",
+  planSelection: "plan-selection",
+  userData: "user-data"
 };
 
 const defaultFlags = {

@@ -20,6 +20,7 @@ interface ISignupUserDataProps {
   defaultValues: {};
   error?: ApolloError;
   loading: boolean;
+  onCancel: () => void;
   onSubmit: (userInputs: IUserData) => void;
 }
 
@@ -27,6 +28,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
   defaultValues,
   error,
   loading,
+  onCancel,
   onSubmit
 }) => {
   const router = useRouter();
@@ -340,13 +342,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         </SignupErrorMessage>
       )}
       <Buttons>
-        <Button
-          secondary
-          type="button"
-          onClick={() => {
-            router.push("/");
-          }}
-        >
+        <Button secondary type="button" onClick={onCancel}>
           {t("signup.user-data.cancel")}
         </Button>
         <Button tertiary type="submit" disabled={loading}>

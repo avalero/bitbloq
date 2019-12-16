@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
-import { colors, useTranslate, Modal, Button } from "@bitbloq/ui";
+import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
   FINISH_SIGNUP_MUTATION,
@@ -49,15 +49,28 @@ const SignupStepPage: NextPage = () => {
 
   const { id: externalProfileId, plan: defaultPlan, step } = router.query;
 
+  const [signupFlow, setSignupFlow] = useState<string[]>([
+    signupSteps.userData,
+    signupSteps.planSelection,
+    signupSteps.create
+  ]);
+
   useEffect(() => {
     if (wrapRef && wrapRef.current) {
       wrapRef.current.scrollIntoView();
     }
-    if (step === signupSteps.create) {
-      router.beforePopState(() => {
-        router.push("/");
-        return false;
-      });
+    switch (step) {
+      case signupSteps.birthdate:
+        setSignupFlow([
+          signupSteps.leave,
+          signupSteps.birthdate,
+          signupSteps.planSelection
+        ]);
+      case signupSteps.create:
+        router.beforePopState(() => {
+          router.push("/");
+          return false;
+        });
     }
   }, [step]);
 
@@ -83,6 +96,26 @@ const SignupStepPage: NextPage = () => {
   const [saveUserData, { loading: savingUserData }] = useMutation(
     SAVE_USER_DATA_MUTATION
   );
+
+  const goToNextStep = () => {
+    const index = signupFlow.findIndex(s => s === step);
+    if (index < signupFlow.length) {
+      router.push("/signup/[step]", `/signup/${signupFlow[index + 1]}`, {
+        shallow: true
+      });
+    }
+  };
+
+  const goToPreviousStep = () => {
+    const index = signupFlow.findIndex(s => s === step);
+    if (index > 0) {
+      router.push("/signup/[step]", `/signup/${signupFlow[index - 1]}`, {
+        shallow: true
+      });
+    } else {
+      router.back();
+    }
+  };
 
   const onSaveUser = async (input: IUserData) => {
     setUserData(input);
@@ -115,9 +148,7 @@ const SignupStepPage: NextPage = () => {
           : memberPlan
       );
       setUserId(data!.saveUserData.id);
-      router.push("/signup/[step]", `/signup/${signupSteps.planSelection}`, {
-        shallow: true
-      });
+      goToNextStep();
     } catch (e) {
       e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
         ? setUserError(e)
@@ -140,9 +171,7 @@ const SignupStepPage: NextPage = () => {
         setToken(token);
         router.push("/app");
       } else {
-        router.push("/signup/[step]", `/signup/${signupSteps.create}`, {
-          shallow: true
-        });
+        goToNextStep();
       }
     } catch (e) {
       setError(e);
@@ -150,7 +179,8 @@ const SignupStepPage: NextPage = () => {
   };
 
   const onSignupBirthDate = async (input: string) => {
-    console.log("TODO");
+    // TODO
+    goToNextStep();
   };
 
   if (error) {
@@ -175,74 +205,91 @@ const SignupStepPage: NextPage = () => {
     );
   }
 
-  if (step === signupSteps.birthdate) {
+  if (step === signupSteps.leave) {
     return (
-      <Modal
+      <ModalLayout
+        title={t("signup.leave-modal.title")}
+        modalTitle={t("signup.leave-modal.title")}
+        text={t("signup.leave-modal.content")}
+        cancelText={t("signup.leave-modal.cancel")}
+        onCancel={goToPreviousStep}
+        okText={t("signup.leave-modal.ok")}
+        onOk={goToNextStep}
         isOpen={true}
-        title="title"
-        onClose={() => true}
-        transparentOverlay={true}
-      >
-        <Content>
-          <SignupBirthDateForm loading={false} onSubmit={onSignupBirthDate} />
-        </Content>
-      </Modal>
+      />
     );
   }
 
   return (
     <Wrap ref={wrapRef}>
-      <AccessLayout panelTitle={t("signup.title")} size={AccessLayoutSize.BIG}>
-        {step === signupSteps.userData && (
-          <>
-            <StepCounter>{t("signup.step", ["1"])}</StepCounter>
-            <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
-            {t("signup.login.account-text")}{" "}
-            <Link href="/login">
-              <a>{t("signup.login.account-link")}</a>
-            </Link>
-            .
-            <LoginWith>
-              <div>
-                {t("signup.login.with-text")}
-                <LoginWithLegalInformation>
-                  {t("signup.login.with-sub-text-1")}{" "}
-                  <a target="_blank" href="/legal/general-conditions">
-                    {t("legal.general-conditions").toLowerCase()}
-                  </a>{" "}
-                  {t("signup.login.with-sub-text-2")}{" "}
-                  <a target="_blank" href={privacyPolicyUrl}>
-                    {t("legal.privacy-policy").toLowerCase()}
-                  </a>
-                  .
-                </LoginWithLegalInformation>
-              </div>
-              <LoginWithButtons>
-                <LoginWithMicrosoftButton />
-                <LoginWithGoogleButton />
-              </LoginWithButtons>
-            </LoginWith>
-            <SignupUserDataForm
-              defaultValues={userData}
-              error={userError}
-              loading={savingUserData}
-              onSubmit={onSaveUser}
-            />
-          </>
-        )}
-        {step === signupSteps.planSelection && (
-          <>
-            <StepCounter>{t("signup.step", ["2"])}</StepCounter>
-            <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
+      {step === signupSteps.birthdate ? (
+        <AccessLayout panelTitle={t(`signup.${step}.title`)}>
+          <SignupBirthDateForm
+            loading={false}
+            onCancel={goToPreviousStep}
+            onSubmit={onSignupBirthDate}
+          />
+        </AccessLayout>
+      ) : (
+        <AccessLayout
+          panelTitle={t("signup.title")}
+          size={AccessLayoutSize.BIG}
+        >
+          {signupFlow[0] !== signupSteps.birthdate && (
+            <StepCounter>
+              {t("signup.step", [
+                (signupFlow.findIndex(s => s === step) + 1).toString()
+              ])}
+            </StepCounter>
+          )}
+          <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
+          {step === signupSteps.userData && (
+            <>
+              {t("signup.login.account-text")}{" "}
+              <Link href="/login">
+                <a>{t("signup.login.account-link")}</a>
+              </Link>
+              .
+              <LoginWith>
+                <div>
+                  {t("signup.login.with-text")}
+                  <LoginWithLegalInformation>
+                    {t("signup.login.with-sub-text-1")}{" "}
+                    <a target="_blank" href="/legal/general-conditions">
+                      {t("legal.general-conditions").toLowerCase()}
+                    </a>{" "}
+                    {t("signup.login.with-sub-text-2")}{" "}
+                    <a target="_blank" href={privacyPolicyUrl}>
+                      {t("legal.privacy-policy").toLowerCase()}
+                    </a>
+                    AccessLayout .
+                  </LoginWithLegalInformation>
+                </div>
+                <LoginWithButtons>
+                  <LoginWithMicrosoftButton />
+                  <LoginWithGoogleButton />
+                </LoginWithButtons>
+              </LoginWith>
+              <SignupUserDataForm
+                defaultValues={userData}
+                error={userError}
+                loading={savingUserData}
+                onCancel={goToPreviousStep}
+                onSubmit={onSaveUser}
+              />
+            </>
+          )}
+          {step === signupSteps.planSelection && (
             <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
               isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
               loading={finishingSignup}
+              onCancel={goToPreviousStep}
               onSubmit={onSignupUser}
             />
-          </>
-        )}
-      </AccessLayout>
+          )}
+        </AccessLayout>
+      )}
     </Wrap>
   );
 };
@@ -252,7 +299,7 @@ SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
   if (
     asPath &&
     !Object.entries(signupSteps).find(
-      item => item[1] === asPath.replace("/signup/", "")
+      item => item[1] === asPath.replace("/signup/", "").split("?")[0]
     )
   ) {
     redirect(ctx, `/signup/${signupSteps.userData}`);
@@ -263,17 +310,6 @@ SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
 export default withApollo(SignupStepPage, { requiresSession: false });
 
 /* Styled components */
-
-const Content = styled.div`
-  padding: 30px;
-  width: 500px;
-  box-sizing: border-box;
-
-  p {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-`;
 
 const Wrap = styled.div`
   a {
