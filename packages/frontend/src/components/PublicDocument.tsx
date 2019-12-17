@@ -151,6 +151,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
           onClose={() => setIsSaveCopyVisible(false)}
           document={document}
           content={content}
+          type="example"
         />
       )}
       <DialogModal
