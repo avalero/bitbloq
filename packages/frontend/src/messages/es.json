@@ -516,6 +516,19 @@
       "ok": "Volver a enviar email",
       "cancel": "Volver al inicio"
     },
+    "leave-modal": {
+      "title": "Abandonar proceso",
+      "content": "¿Seguro que quieres abandonar el proceso? Si lo haces, tu cuenta de Bitbloq",
+      "content-highlighted": "no se creará",
+      "ok": "Volver al proceso",
+      "cancel": "Salir"
+    },
+    "birth-date": {
+      "cancel": "Cancelar",
+      "ok": "Guardar",
+      "subtitle": "Para finalizar solo necesitamos saber tu fecha de nacimiento.",
+      "title": "Fecha de nacimiento"
+    },
     "login": {
       "account-text": "¿Ya tienes cuenta con esta versión de Bitbloq?",
       "account-link": "Entra usando tus credenciales",

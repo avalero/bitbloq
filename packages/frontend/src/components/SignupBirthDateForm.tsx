@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import useForm from "react-hook-form";
-import { Button, Input, useTranslate } from "@bitbloq/ui";
+import { Button, Input, useTranslate, colors } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { IUserBirthDate } from "../types";
@@ -50,9 +50,10 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <Form onSubmit={handleSubmit(onSubmit)}>
+      <p>{t("signup.birth-date.subtitle")}</p>
       <FormField>
-        <label>{t("signup.birthdate.labels.birth-date")}</label>
+        <label>{t("signup.user-data.labels.birth-date")}</label>
         <FormGroup onChange={onChangeBirthDate}>
           <Input
             type="number"
@@ -83,20 +84,28 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({
         )}
       </FormField>
       <Buttons>
-        <Button tertiary type="button" onClick={onCancel}>
-          {t("signup.user-data.cancel")}
+        <Button secondary type="button" onClick={onCancel}>
+          {t("signup.birth-date.cancel")}
         </Button>
         <Button tertiary type="submit" disabled={loading}>
-          {t("signup.user-data.ok")}
+          {t("signup.birth-date.ok")}
         </Button>
       </Buttons>
-    </form>
+    </Form>
   );
 };
 
 export default SignupBirthDate;
 
 /* Styled components */
+
+const Form = styled.form`
+  p {
+    color: ${colors.blackHover};
+    line-height: 1.57;
+    margin-bottom: 40px;
+  }
+`;
 
 const Buttons = styled.div`
   display: flex;

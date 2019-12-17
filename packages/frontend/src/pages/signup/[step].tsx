@@ -77,12 +77,10 @@ const SignupStepPage: NextPage = () => {
 
   const [signupFlow, setSignupFlow] = useState<string[]>(NORMAL_SIGNUP_FLOW);
   const [userData, setUserData] = useState<IUserData>({
-    acceptTerms: false,
     birthDate: "",
     country: "ES",
     educationalStage: _.first(educationalStages) || "",
-    imTeacherCheck: defaultPlan === teacherPlan.name,
-    noNotifications: false
+    imTeacherCheck: defaultPlan === teacherPlan.name
   });
   const [userError, setUserError] = useState<ApolloError>();
   const [userId, setUserId] = useState<string>("");
@@ -232,7 +230,12 @@ const SignupStepPage: NextPage = () => {
       <ModalLayout
         title={t("signup.leave-modal.title")}
         modalTitle={t("signup.leave-modal.title")}
-        text={t("signup.leave-modal.content")}
+        text={
+          <p>
+            {t("signup.leave-modal.content")}{" "}
+            <b>{t("signup.leave-modal.content-highlighted")}</b>.
+          </p>
+        }
         cancelText={t("signup.leave-modal.cancel")}
         onCancel={goToPreviousStep}
         okText={t("signup.leave-modal.ok")}
