@@ -122,7 +122,10 @@ const HorizontalBloqEditor: React.FunctionComponent<
       onLinesChange(
         update(lines, {
           [selectedLineIndex]: {
-            bloqs: { $splice: [[selectedPlaceholder, 0, newBloq]] }
+            bloqs: { $splice: [[selectedPlaceholder, 0, newBloq]] },
+            disabled: {
+              $set: lines[selectedLineIndex].disabled && selectedPlaceholder > 0
+            }
           }
         })
       );
@@ -148,11 +151,19 @@ const HorizontalBloqEditor: React.FunctionComponent<
   };
 
   const onDeleteBloq = () => {
-    onLinesChange(
-      update(lines, {
-        [selectedLineIndex]: { bloqs: { $splice: [[selectedBloqIndex, 1]] } }
-      })
-    );
+    const line = lines[selectedLineIndex];
+    if (line.bloqs.length === 1) {
+      onLinesChange(update(lines, { $splice: [[selectedLineIndex, 1]] }));
+    } else {
+      onLinesChange(
+        update(lines, {
+          [selectedLineIndex]: {
+            bloqs: { $splice: [[selectedBloqIndex, 1]] },
+            disabled: { $set: selectedBloqIndex === 0 }
+          }
+        })
+      );
+    }
     setUndoPast([...undoPast, lines]);
     setUndoFuture([]);
     deselectEverything();
@@ -211,16 +222,11 @@ const HorizontalBloqEditor: React.FunctionComponent<
 
   return (
     <Container>
-      <Lines selectedLine={selectedLineIndex} onClick={deselectEverything}>
-        {[...lines, { id: uuid(), bloqs: [] }].map((line, i) => (
-          <Line key={line.id}>
-            {!line.disabled && <LineBullet />}
-            {line.disabled && (
-              <DisabledIcon>
-                <Icon name="eye-close" />
-              </DisabledIcon>
-            )}
+      <Lines onClick={deselectEverything}>
+        <LinesWrap selectedLine={selectedLineIndex}>
+          {[...lines, { id: uuid(), bloqs: [] }].map((line, i) => (
             <BloqsLine
+              key={line.id}
               line={line}
               bloqTypes={bloqTypes}
               getBloqPort={getBloqPort}
@@ -249,8 +255,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
               onDelete={onDeleteLine}
               onScrollChange={onLinesScroll}
             />
-          </Line>
-        ))}
+          ))}
+        </LinesWrap>
       </Lines>
       <Toolbar>
         <ToolbarLeft>
@@ -306,43 +312,22 @@ const Container = styled.div`
   max-width: 100%;
 `;
 
-interface ILinesProps {
-  selectedLine: number;
-}
-const Lines = styled.div<ILinesProps>`
+const Lines = styled.div`
   overflow-x: auto;
-  overflow-y: ${props => (props.selectedLine >= 0 ? "hidden" : "auto")};
-  padding: 10px;
-  box-sizing: border-box;
   flex: 1;
+  position: relative;
+`;
+
+const LinesWrap = styled.div<{ selectedLine: number }>`
+  position: absolute;
+  padding: 10px;
+  overflow-y: ${props => (props.selectedLine >= 0 ? "hidden" : "auto")};
+  width: 100%;
+  box-sizing: border-box;
   transform: translate(
     0,
     ${props => (props.selectedLine > 0 ? props.selectedLine * -123 : 0)}px
   );
-`;
-
-const Line = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const LineBullet = styled.div`
-  min-width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: #3b3e45;
-  margin-right: 10px;
-`;
-
-const DisabledIcon = styled.div`
-  min-width: 32px;
-  height: 32px;
-  margin-right: 10px;
-  svg {
-    width: 32px;
-    height: 32px;
-  }
 `;
 
 const Toolbar = styled.div`

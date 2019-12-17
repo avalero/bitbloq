@@ -216,16 +216,22 @@ const TabIcon = styled.div<{ selected: boolean }>`
     `};
 `;
 
-const Content = styled.div`
-  display: flex;
+const Content = styled.div<{ active: boolean }>`
+  display: none;
   flex: 1;
   overflow: hidden;
+
+  ${props =>
+    props.active &&
+    css`
+      display: flex;
+    `};
 `;
 
 export interface IDocumentTab {
   label: string;
   icon: JSX.Element;
-  content: JSX.Element;
+  content: JSX.Element | ((isActive: boolean) => JSX.Element | null);
 }
 
 export interface IDocumentProps {
@@ -349,10 +355,13 @@ class Document extends React.Component<IDocumentProps, IState> {
               </Tooltip>
             ))}
           </Tabs>
-          {tabs.map(
-            (tab, i) =>
-              i === tabIndex && <Content key={i}>{tab.content}</Content>
-          )}
+          {tabs.map((tab, i) => (
+            <Content key={i} active={i === tabIndex}>
+              {typeof tab.content === "function"
+                ? tab.content(i === tabIndex)
+                : tab.content}
+            </Content>
+          ))}
         </Main>
       </Container>
     );
