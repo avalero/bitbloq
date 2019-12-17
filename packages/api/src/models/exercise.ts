@@ -1,5 +1,6 @@
 import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
+import { CONTENT_VERSION } from "../config";
 
 export interface IExercise extends Document {
   user?: string;
@@ -10,6 +11,7 @@ export interface IExercise extends Document {
   description: string;
   teacherName: string;
   content?: string;
+  contentVersion?: number;
   cache?: string;
   acceptSubmissions?: boolean;
   expireDate?: Date;
@@ -58,6 +60,11 @@ const exerciseMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: "content"
+  },
+
+  contentVersion: {
+    type: Number,
+    default: CONTENT_VERSION
   },
 
   cache: {

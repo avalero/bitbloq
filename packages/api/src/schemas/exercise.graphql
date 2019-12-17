@@ -27,6 +27,7 @@ type Exercise {
   user: ObjectID
   title: String
   content: String
+  contentVersion: Number
   cache: String
   code: String
   type: String
@@ -48,4 +49,5 @@ input ExerciseIn {
   description: String
   acceptSubmissions: Boolean
   expireDate: Date
+  contentVersion: Number
 }

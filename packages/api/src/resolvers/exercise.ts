@@ -16,6 +16,7 @@ import {
   IQueryExerciseByCodeArgs,
   IQueryExercisesByDocumentArgs
 } from "../api-types";
+import { CONTENT_VERSION } from "../config";
 import { createExerciseImage, deleteExerciseImage } from "./upload";
 
 const exerciseResolver = {
@@ -69,8 +70,9 @@ const exerciseResolver = {
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        image: exerciseImg,
-        resourcesID: docFather.exResourcesID
+        resourcesID: docFather.exResourcesID,
+        contentVersion: docFather.contentVersion || CONTENT_VERSION,
+        image: exerciseImg
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });

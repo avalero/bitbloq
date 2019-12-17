@@ -17,7 +17,6 @@ import {
   IMutationCreateDocumentArgs,
   IMutationDuplicateDocumentArgs,
   IMutationDeleteDocumentArgs,
-  IMutationUpdateDocumentContentArgs,
   IMutationUpdateDocumentArgs,
   IMutationSetDocumentImageArgs,
   IMutationPublishDocumentArgs,
@@ -146,7 +145,8 @@ const documentResolver = {
         title: args.title,
         type: document.type,
         user: user._id,
-        version: document.version
+        version: document.version,
+        contentVersion: document.contentVersion
       };
       const newDocument: IDocument = await DocumentModel.create(documentNew);
 
@@ -293,42 +293,6 @@ const documentResolver = {
     },
 
     /**
-     *  Update document Content: update content of existing document.
-     *  It updates document content with the new information provided.
-     *  args: id, content and cache
-     */
-    updateDocumentContent: async (
-      _,
-      args: IMutationUpdateDocumentContentArgs,
-      context: { user: IUserInToken }
-    ) => {
-      const existDocument: IDocument | null = await DocumentModel.findOne({
-        _id: args.id,
-        user: context.user.userID
-      });
-      if (existDocument) {
-        const updatedDoc: IDocument | null = await DocumentModel.findOneAndUpdate(
-          { _id: existDocument._id },
-          {
-            $set: {
-              content: args.content || existDocument.content,
-              cache: args.cache || existDocument.cache,
-              advancedMode:
-                args.advancedMode !== undefined
-                  ? args.advancedMode
-                  : existDocument.advancedMode
-            }
-          },
-          { new: true }
-        );
-        pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: updatedDoc });
-        return updatedDoc;
-      } else {
-        return new ApolloError("Document does not exist", "DOCUMENT_NOT_FOUND");
-      }
-    },
-
-    /**
      * Update document: update information of existing document.
      * It updates the document with the new information provided.
      * args: document ID, new document information.
@@ -379,6 +343,9 @@ const documentResolver = {
               content: args.input
                 ? args.input.content || existDocument.content
                 : existDocument.content,
+              contentVersion:
+                (args.input && args.input.contentVersion) ||
+                existDocument.contentVersion,
               advancedMode:
                 args.input && args.input.advancedMode !== undefined
                   ? args.input.advancedMode

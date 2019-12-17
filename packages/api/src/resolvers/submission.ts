@@ -25,6 +25,7 @@ import {
   updateExpireDateInRedis,
   contextController
 } from "../controllers/context";
+import { CONTENT_VERSION } from "../config";
 
 const saltRounds = 7;
 
@@ -145,7 +146,8 @@ const submissionResolver = {
         document: exFather.document,
         title: exFather.title,
         type: exFather.type,
-        active: true
+        active: true,
+        contentVersion: exFather.contentVersion || CONTENT_VERSION
       });
       const newSub: ISubmission = await SubmissionModel.create(submissionNew);
       const token: string = jwtSign(
