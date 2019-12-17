@@ -198,7 +198,7 @@ export const signupSteps = {
   birthDate: "birth-date",
   create: "create",
   leave: "leave",
-  planSelection: "plan-selection",
+  plan: "plan",
   userData: "user-data"
 };
 

@@ -36,14 +36,14 @@ import { IUserStep1 } from "../../../../api/src/api-types";
 
 const NORMAL_SIGNUP_FLOW = [
   signupSteps.userData,
-  signupSteps.planSelection,
+  signupSteps.plan,
   signupSteps.create
 ];
 
 const EXTERNAL_SIGNUP_FLOW = [
   signupSteps.leave,
   signupSteps.birthDate,
-  signupSteps.planSelection
+  signupSteps.plan
 ];
 
 const SignupStepPage: NextPage = () => {
@@ -310,7 +310,7 @@ const SignupStepPage: NextPage = () => {
               />
             </>
           )}
-          {step === signupSteps.planSelection && (
+          {step === signupSteps.plan && (
             <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
               isAMinor={getAge(userData.birthDate) < 18}

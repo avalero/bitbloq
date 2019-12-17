@@ -42,7 +42,7 @@ const SignupPlanSelector: FC<ISignupPlanSelectorProps> = ({
 
   return (
     <>
-      {t("signup.plan-selection.sub-title")}
+      {t("signup.plan.sub-title")}
       <PlanOption
         checked={plan === memberPlan}
         onClick={() => setPlan(memberPlan)}
@@ -57,14 +57,14 @@ const SignupPlanSelector: FC<ISignupPlanSelectorProps> = ({
       />
       <Buttons>
         <Button tertiary onClick={onCancel}>
-          {t("signup.plan-selection.cancel")}
+          {t("signup.plan.cancel")}
         </Button>
         <Button
           ref={submitRef}
           disabled={loading}
           onClick={() => onSubmit(plan)}
         >
-          {t("signup.plan-selection.ok")}
+          {t("signup.plan.ok")}
         </Button>
       </Buttons>
     </>
