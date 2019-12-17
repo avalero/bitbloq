@@ -500,18 +500,34 @@ const program2code = (
             );
 
             // some blocks will have a trueCondition. If not, foget it.
-            const trueCondition = bloqInstance.parameters.trueCondition || "";
+            // const trueCondition = bloqInstance.parameters.trueCondition || "";
 
-            eventLoopCode = `
-              if(${code} ${trueCondition} ${(componentDefintion.values &&
+            const conditionCodeTemplate = ` if (${(componentDefintion.values &&
               componentDefintion.values[bloqInstanceValue]) ||
               bloqInstanceValue}){
                 if(!${timelineFlagName}){ 
                   heap.insert(${functionName});
                   ${timelineFlagName} = true;
                 }
-              }
-              `;
+              }`;
+
+            const nunjucksConditionData = { read: code };
+
+            eventLoopCode = nunjucks.renderString(
+              conditionCodeTemplate,
+              nunjucksConditionData
+            );
+
+            // eventLoopCode = `
+            //   if(${code} ${trueCondition} ${(componentDefintion.values &&
+            //   componentDefintion.values[bloqInstanceValue]) ||
+            //   bloqInstanceValue}){
+            //     if(!${timelineFlagName}){
+            //       heap.insert(${functionName});
+            //       ${timelineFlagName} = true;
+            //     }
+            //   }
+            //   `;
           }
           arduinoCode.loop!.push(eventLoopCode);
           arduinoCode.globals!.push(eventGlobalsCode);
