@@ -194,7 +194,13 @@ export const educationalStages = [
   "college"
 ];
 
-export const signupSteps = ["user-data", "plan-selection", "create"];
+export const signupSteps = {
+  birthDate: "birth-date",
+  create: "create",
+  leave: "leave",
+  plan: "plan",
+  userData: "user-data"
+};
 
 const defaultFlags = {
   SHOW_GRAPHQL_LOGS: false

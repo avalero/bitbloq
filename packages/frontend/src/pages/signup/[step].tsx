@@ -1,13 +1,15 @@
 import { ApolloError } from "apollo-client";
 import _ from "lodash";
+import { NextPage, NextPageContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FC, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
 import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
   FINISH_SIGNUP_MUTATION,
+  SAVE_BIRTH_DATE_MUTATION,
   SAVE_USER_DATA_MUTATION
 } from "../../apollo/queries";
 import withApollo from "../../apollo/withApollo";
@@ -17,98 +19,125 @@ import GraphQLErrorMessage from "../../components/GraphQLErrorMessage";
 import LoginWithGoogleButton from "../../components/LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "../../components/LoginWithMicrosoftButton";
 import ModalLayout from "../../components/ModalLayout";
-import SignupPlanSelection from "../../components/SignupPlanSelection";
-import SignupUserData from "../../components/SignupUserData";
+import SignupBirthDateForm from "../../components/SignupBirthDateForm";
+import SignupPlanSelector from "../../components/SignupPlanSelector";
+import SignupUserDataForm from "../../components/SignupUserDataForm";
 import {
   educationalStages,
   plans,
   privacyPolicyUrl,
   signupSteps
 } from "../../config";
+import redirect from "../../lib/redirect";
 import { setToken } from "../../lib/session";
-import { IPlan } from "../../types";
+import { IPlan, IUserBirthDate, IUserData } from "../../types";
 import { getAge } from "../../util";
 import { IUserStep1 } from "../../../../api/src/api-types";
 
-interface IUserData {
-  acceptTerms: boolean;
-  birthDate: string;
-  centerName: string;
-  city: string;
-  country: string;
-  day: number;
-  educationalStage: string;
-  email: string;
-  imTeacherCheck: boolean;
-  month: number;
-  name: string;
-  noNotifications: boolean;
-  password: string;
-  postCode: number;
-  surnames: string;
-  year: number;
-}
+const NORMAL_SIGNUP_FLOW = [
+  signupSteps.userData,
+  signupSteps.plan,
+  signupSteps.create
+];
 
-interface ISaveUserResult {
-  saveUserData: IUserStep1;
-}
+const EXTERNAL_SIGNUP_FLOW = [
+  signupSteps.leave,
+  signupSteps.birthDate,
+  signupSteps.plan
+];
 
-interface ISignupUserResult {
-  finishSignUp?: string;
-}
-
-const SignupStepPage: FC = () => {
+const SignupStepPage: NextPage = () => {
   const client = useApolloClient();
   const router = useRouter();
   const t = useTranslate();
   const wrapRef = React.createRef<HTMLDivElement>();
 
-  const { id: externalProfileId, plan: defaultPlan, step } = router.query;
+  const { id: encryptedId, plan: defaultPlan, step } = router.query;
+
+  useEffect(() => {
+    router.beforePopState(() => {
+      if (step === signupSteps.create) {
+        router.push("/");
+        return false;
+      }
+      return true;
+    });
+    if (encryptedId) {
+      setUserId(encryptedId.toString());
+      setSignupFlow(EXTERNAL_SIGNUP_FLOW);
+    }
+  });
 
   useEffect(() => {
     if (wrapRef && wrapRef.current) {
       wrapRef.current.scrollIntoView();
-    }
-    if (!signupSteps.includes(step as string)) {
-      router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
-        shallow: true
-      });
-    }
-    if (step === _.last(signupSteps)) {
-      router.beforePopState(() => {
-        router.push("/");
-        return false;
-      });
     }
   }, [step]);
 
   const memberPlan = plans.filter(p => p.name === "member")[0];
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
-  const [error, setError] = useState<ApolloError>();
-  const [userError, setUserError] = useState<ApolloError>();
-  const [userData, setUserData] = useState({
-    acceptTerms: false,
+  const [signupFlow, setSignupFlow] = useState<string[]>(NORMAL_SIGNUP_FLOW);
+  const [userData, setUserData] = useState<IUserData>({
     birthDate: "",
     country: "ES",
-    educationalStage: _.first(educationalStages),
-    imTeacherCheck: defaultPlan === teacherPlan.name,
-    noNotifications: false
+    educationalStage: _.first(educationalStages) || "",
+    imTeacherCheck: defaultPlan === teacherPlan.name
   });
-  const [userId, setUserId] = useState();
-  const [userPlan, setUserPlan] = useState();
+  const [userError, setUserError] = useState<ApolloError>();
+  const [userId, setUserId] = useState<string>("");
+  const [userPlan, setUserPlan] = useState<IPlan>(memberPlan);
 
-  const [finishSignup, { loading: finishingSignup }] = useMutation(
-    FINISH_SIGNUP_MUTATION
-  );
-  const [saveUserData, { loading: savingUserData }] = useMutation(
-    SAVE_USER_DATA_MUTATION
-  );
+  const [
+    finishSignup,
+    { error: finishSignupError, loading: finishingSignup }
+  ] = useMutation(FINISH_SIGNUP_MUTATION);
+  const [
+    saveBirthDate,
+    { error: saveBirthDateError, loading: savingBirthDate }
+  ] = useMutation(SAVE_BIRTH_DATE_MUTATION);
+  const [
+    saveUserData,
+    { error: saveUserDataError, loading: savingUserData }
+  ] = useMutation(SAVE_USER_DATA_MUTATION);
+
+  const goToNextStep = () => {
+    const index = signupFlow.findIndex(s => s === step);
+    if (index + 1 < signupFlow.length) {
+      router.push("/signup/[step]", `/signup/${signupFlow[index + 1]}`, {
+        shallow: true
+      });
+    }
+  };
+
+  const goToPreviousStep = () => {
+    const index = signupFlow.findIndex(s => s === step);
+    if (index > 0) {
+      router.push("/signup/[step]", `/signup/${signupFlow[index - 1]}`, {
+        shallow: true
+      });
+    } else {
+      router.push("/");
+    }
+  };
+
+  const onSaveBirthDate = async (input: IUserBirthDate) => {
+    setUserData(input);
+    await saveBirthDate({
+      variables: {
+        id: userId,
+        birthDate: input.birthDate
+      }
+    });
+    goToNextStep();
+  };
 
   const onSaveUser = async (input: IUserData) => {
     setUserData(input);
     try {
-      const { data }: ExecutionResult<ISaveUserResult> = await saveUserData({
+      const {
+        data
+      }: ExecutionResult<{ saveUserData: IUserStep1 }> = await saveUserData({
         variables: {
           input: {
             birthDate: input.birthDate,
@@ -135,46 +164,52 @@ const SignupStepPage: FC = () => {
           ? teacherPlan
           : memberPlan
       );
-      setUserId(data!.saveUserData.id);
-      router.push("/signup/[step]", `/signup/${signupSteps[1]}`, {
-        shallow: true
-      });
+      setUserId(data!.saveUserData.id!);
+      goToNextStep();
     } catch (e) {
-      e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS"
-        ? setUserError(e)
-        : setError(e);
+      if (e.graphQLErrors[0].extensions.code === "USER_EMAIL_EXISTS") {
+        setUserError(e);
+      }
     }
   };
 
   const onSignupUser = async (input: IPlan) => {
     setUserPlan(input);
-    try {
-      const { data }: ExecutionResult<ISignupUserResult> = await finishSignup({
-        variables: {
-          id: externalProfileId || userId,
-          userPlan: input.name
-        }
-      });
-      const token = data!.finishSignUp;
-      if (token) {
-        client.resetStore();
-        setToken(token);
-        router.push("/app");
-      } else {
-        router.push("/signup/[step]", `/signup/${signupSteps[2]}`, {
-          shallow: true
-        });
+    const {
+      data
+    }: ExecutionResult<{ finishSignUp?: string }> = await finishSignup({
+      variables: {
+        id: userId,
+        userPlan: input.name
       }
-    } catch (e) {
-      setError(e);
+    });
+    const token = data!.finishSignUp;
+    if (token) {
+      client.resetStore();
+      setToken(token);
+      router.push("/app");
+    } else {
+      goToNextStep();
     }
   };
 
-  if (error) {
-    return <GraphQLErrorMessage apolloError={error} />;
+  if (
+    (saveUserDataError && !userError) ||
+    saveBirthDateError ||
+    finishSignupError
+  ) {
+    return (
+      <GraphQLErrorMessage
+        apolloError={
+          (saveUserDataError ||
+            saveBirthDateError ||
+            finishSignupError) as ApolloError
+        }
+      />
+    );
   }
 
-  if (step === _.last(signupSteps)) {
+  if (step === signupSteps.create) {
     return (
       <ModalLayout
         title={t("signup.create-modal.title")}
@@ -192,61 +227,115 @@ const SignupStepPage: FC = () => {
     );
   }
 
+  if (step === signupSteps.leave) {
+    return (
+      <ModalLayout
+        title={t("signup.leave-modal.title")}
+        modalTitle={t("signup.leave-modal.title")}
+        text={
+          <p>
+            {t("signup.leave-modal.content")}{" "}
+            <b>{t("signup.leave-modal.content-highlighted")}</b>.
+          </p>
+        }
+        cancelText={t("signup.leave-modal.cancel")}
+        onCancel={goToPreviousStep}
+        okText={t("signup.leave-modal.ok")}
+        onOk={goToNextStep}
+        isOpen={true}
+      />
+    );
+  }
+
   return (
     <Wrap ref={wrapRef}>
-      <AccessLayout panelTitle={t("signup.title")} size={AccessLayoutSize.BIG}>
-        <StepCounter>
-          {t("signup.step", [
-            (signupSteps.findIndex(s => s === step) + 1).toLocaleString()
-          ])}
-        </StepCounter>
-        <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
-        {step === signupSteps[0] && (
-          <>
-            {t("signup.login.account-text")}{" "}
-            <Link href="/login">
-              <a>{t("signup.login.account-link")}</a>
-            </Link>
-            .
-            <LoginWith>
-              <div>
-                {t("signup.login.with-text")}
-                <LoginWithLegalInformation>
-                  {t("signup.login.with-sub-text-1")}{" "}
-                  <a target="_blank" href="/legal/general-conditions">
-                    {t("legal.general-conditions").toLowerCase()}
-                  </a>{" "}
-                  {t("signup.login.with-sub-text-2")}{" "}
-                  <a target="_blank" href={privacyPolicyUrl}>
-                    {t("legal.privacy-policy").toLowerCase()}
-                  </a>
-                  .
-                </LoginWithLegalInformation>
-              </div>
-              <LoginWithButtons>
-                <LoginWithMicrosoftButton />
-                <LoginWithGoogleButton />
-              </LoginWithButtons>
-            </LoginWith>
-            <SignupUserData
-              defaultValues={userData}
-              error={userError}
-              loading={savingUserData}
-              onSubmit={onSaveUser}
-            />
-          </>
-        )}
-        {step === signupSteps[1] && (
-          <SignupPlanSelection
-            defaultValues={userPlan ? userPlan : memberPlan}
-            isAMinor={userData ? getAge(userData.birthDate) < 18 : false}
-            loading={finishingSignup}
-            onSubmit={onSignupUser}
+      {step === signupSteps.birthDate ? (
+        <AccessLayout
+          panelTitle={t(`signup.${step}.title`)}
+          size={AccessLayoutSize.MEDIUM}
+        >
+          <SignupBirthDateForm
+            defaultValues={userData}
+            loading={savingBirthDate}
+            onCancel={goToPreviousStep}
+            onSubmit={onSaveBirthDate}
           />
-        )}
-      </AccessLayout>
+        </AccessLayout>
+      ) : (
+        <AccessLayout
+          panelTitle={t("signup.title")}
+          size={AccessLayoutSize.BIG}
+        >
+          {signupFlow === NORMAL_SIGNUP_FLOW && (
+            <StepCounter>
+              {t("signup.step", [
+                (signupFlow.findIndex(s => s === step) + 1).toString()
+              ])}
+            </StepCounter>
+          )}
+          <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
+          {step === signupSteps.userData && (
+            <>
+              {t("signup.login.account-text")}{" "}
+              <Link href="/login">
+                <a>{t("signup.login.account-link")}</a>
+              </Link>
+              .
+              <LoginWith>
+                <div>
+                  {t("signup.login.with-text")}
+                  <LoginWithLegalInformation>
+                    {t("signup.login.with-sub-text-1")}{" "}
+                    <a target="_blank" href="/legal/general-conditions">
+                      {t("legal.general-conditions").toLowerCase()}
+                    </a>{" "}
+                    {t("signup.login.with-sub-text-2")}{" "}
+                    <a target="_blank" href={privacyPolicyUrl}>
+                      {t("legal.privacy-policy").toLowerCase()}
+                    </a>
+                    .
+                  </LoginWithLegalInformation>
+                </div>
+                <LoginWithButtons>
+                  <LoginWithMicrosoftButton />
+                  <LoginWithGoogleButton />
+                </LoginWithButtons>
+              </LoginWith>
+              <SignupUserDataForm
+                defaultValues={userData}
+                error={userError}
+                loading={savingUserData}
+                onCancel={goToPreviousStep}
+                onSubmit={onSaveUser}
+              />
+            </>
+          )}
+          {step === signupSteps.plan && (
+            <SignupPlanSelector
+              defaultValues={userPlan ? userPlan : memberPlan}
+              isAMinor={getAge(userData.birthDate) < 18}
+              loading={finishingSignup}
+              onCancel={goToPreviousStep}
+              onSubmit={onSignupUser}
+            />
+          )}
+        </AccessLayout>
+      )}
     </Wrap>
   );
+};
+
+SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
+  const { asPath } = ctx;
+  if (
+    asPath &&
+    !Object.entries(signupSteps).find(
+      item => item[1] === asPath.replace("/signup/", "").split("?id=")[0]
+    )
+  ) {
+    redirect(ctx, `/signup/${signupSteps.userData}`);
+  }
+  return {};
 };
 
 export default withApollo(SignupStepPage, { requiresSession: false });

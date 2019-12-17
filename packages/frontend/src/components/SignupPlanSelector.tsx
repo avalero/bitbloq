@@ -1,23 +1,24 @@
-import _ from "lodash";
 import { useRouter } from "next/router";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { Button, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import PlanOption from "./PlanOption";
-import { plans, signupSteps } from "../config";
+import { plans } from "../config";
 import { IPlan } from "../types";
 
-interface ISignupPlanSelectionProps {
+interface ISignupPlanSelectorProps {
   defaultValues: IPlan;
   isAMinor: boolean;
   loading: boolean;
+  onCancel: () => void;
   onSubmit: (userInputs: IPlan) => void;
 }
 
-const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
+const SignupPlanSelector: FC<ISignupPlanSelectorProps> = ({
   defaultValues,
   isAMinor,
   loading,
+  onCancel,
   onSubmit
 }) => {
   const router = useRouter();
@@ -41,7 +42,7 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
 
   return (
     <>
-      {t("signup.plan-selection.sub-title")}
+      {t("signup.plan.sub-title")}
       <PlanOption
         checked={plan === memberPlan}
         onClick={() => setPlan(memberPlan)}
@@ -55,29 +56,22 @@ const SignupPlanSelection: FC<ISignupPlanSelectionProps> = ({
         showFeatures={true}
       />
       <Buttons>
-        <Button
-          tertiary
-          onClick={() =>
-            router.push("/signup/[step]", `/signup/${_.first(signupSteps)}`, {
-              shallow: true
-            })
-          }
-        >
-          {t("signup.plan-selection.cancel")}
+        <Button tertiary onClick={onCancel}>
+          {t("signup.plan.cancel")}
         </Button>
         <Button
           ref={submitRef}
           disabled={loading}
           onClick={() => onSubmit(plan)}
         >
-          {t("signup.plan-selection.ok")}
+          {t("signup.plan.ok")}
         </Button>
       </Buttons>
     </>
   );
 };
 
-export default SignupPlanSelection;
+export default SignupPlanSelector;
 
 /* Styled components */
 

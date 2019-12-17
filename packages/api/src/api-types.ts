@@ -5,7 +5,7 @@ import {
 } from "graphql";
 export type Maybe<T> = T | null;
 export type RequireFields<T, K extends keyof T> = {
-  [X in Exclude<keyof T, K>]?: T[X]
+  [X in Exclude<keyof T, K>]?: T[X];
 } &
   { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
@@ -169,7 +169,7 @@ export interface IMutation {
   __typename?: "Mutation";
   saveUserData?: Maybe<IUserStep1>;
   finishSignUp?: Maybe<Scalars["String"]>;
-  saveBirthDate?: Maybe<ISocialLogin>;
+  saveBirthDate?: Maybe<IUserStep1>;
   activateAccount?: Maybe<Scalars["String"]>;
   login?: Maybe<Scalars["String"]>;
   loginWithGoogle?: Maybe<ISocialLogin>;
@@ -223,12 +223,12 @@ export interface IMutationSaveUserDataArgs {
 }
 
 export interface IMutationFinishSignUpArgs {
-  id: Scalars["ObjectID"];
+  id: Scalars["String"];
   userPlan: Scalars["String"];
 }
 
 export interface IMutationSaveBirthDateArgs {
-  id: Scalars["ObjectID"];
+  id: Scalars["String"];
   birthDate: Scalars["Date"];
 }
 
@@ -568,7 +568,7 @@ export interface ISessionExpires {
 
 export interface ISocialLogin {
   __typename?: "SocialLogin";
-  id?: Maybe<Scalars["ObjectID"]>;
+  id?: Maybe<Scalars["String"]>;
   finishedSignUp?: Maybe<Scalars["Boolean"]>;
   token?: Maybe<Scalars["String"]>;
 }
@@ -683,7 +683,7 @@ export interface IUserIn {
 
 export interface IUserStep1 {
   __typename?: "UserStep1";
-  id?: Maybe<Scalars["ObjectID"]>;
+  id?: Maybe<Scalars["String"]>;
   email?: Maybe<Scalars["EmailAddress"]>;
 }
 
@@ -1181,7 +1181,7 @@ export type IMutationResolvers<
     RequireFields<IMutationFinishSignUpArgs, "id" | "userPlan">
   >;
   saveBirthDate?: Resolver<
-    Maybe<IResolversTypes["SocialLogin"]>,
+    Maybe<IResolversTypes["UserStep1"]>,
     ParentType,
     ContextType,
     RequireFields<IMutationSaveBirthDateArgs, "id" | "birthDate">
@@ -1688,7 +1688,7 @@ export type ISocialLoginResolvers<
   ContextType = any,
   ParentType extends IResolversParentTypes["SocialLogin"] = IResolversParentTypes["SocialLogin"]
 > = ResolversObject<{
-  id?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
+  id?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   finishedSignUp?: Resolver<
     Maybe<IResolversTypes["Boolean"]>,
     ParentType,
@@ -1914,7 +1914,7 @@ export type IUserStep1Resolvers<
   ContextType = any,
   ParentType extends IResolversParentTypes["UserStep1"] = IResolversParentTypes["UserStep1"]
 > = ResolversObject<{
-  id?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
+  id?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   email?: Resolver<
     Maybe<IResolversTypes["EmailAddress"]>,
     ParentType,

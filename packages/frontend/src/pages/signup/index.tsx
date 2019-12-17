@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { NextPage, NextPageContext } from "next";
 import withApollo from "../../apollo/withApollo";
 import { signupSteps } from "../../config";
@@ -9,7 +8,7 @@ const SignupPage: NextPage = () => {
 };
 
 SignupPage.getInitialProps = async (ctx: NextPageContext) => {
-  redirect(ctx, `/signup/${_.first(signupSteps)}`);
+  redirect(ctx, `/signup/${signupSteps.userData}`);
   return {};
 };
 

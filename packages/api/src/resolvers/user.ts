@@ -133,7 +133,14 @@ const userResolver = {
         finishedSignUp: false
       });
       const newUser: IUser = await UserModel.create(userNew);
-      return { id: newUser._id, email: newUser.email };
+      const idToken: string = await jwtSign(
+        {
+          saveUserData: newUser._id
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "15m" }
+      );
+      return { id: idToken, email: newUser.email };
     },
 
     /**
@@ -143,14 +150,27 @@ const userResolver = {
      * args: userID and plan selected("member" or "teacher").
      */
     finishSignUp: async (_, args: IMutationFinishSignUpArgs) => {
+      const idInfo: { saveUserData: string } = await jwtVerify(
+        args.id,
+        process.env.JWT_SECRET
+      );
+      if (!idInfo.saveUserData) {
+        throw new ApolloError("User ID not valid", "ID_NOT_VALID");
+      }
       const user: IUser | null = await UserModel.findOne({
-        _id: args.id,
+        _id: idInfo.saveUserData,
         active: false
       });
       if (!user) {
         return new ApolloError(
           "User does not exist or activated.",
           "USER_NOT_FOUND"
+        );
+      }
+      if (!user.birthDate) {
+        return new ApolloError(
+          "User has not birth date saved.",
+          "USER_NOT_BIRTHDATE"
         );
       }
       let teacher: boolean = false;
@@ -224,13 +244,21 @@ const userResolver = {
      */
 
     saveBirthDate: async (_, args: IMutationSaveBirthDateArgs) => {
+      const idInfo: { saveUserData: string } = await jwtVerify(
+        args.id,
+        process.env.JWT_SECRET
+      );
+      if (!idInfo || !idInfo.saveUserData) {
+        throw new ApolloError("User ID not valid", "ID_NOT_VALID");
+      }
       const user: IUser | null = await UserModel.findOne({
-        _id: args.id,
-        active: false
+        _id: idInfo.saveUserData,
+        active: false,
+        finishedSignUp: false
       });
       if (!user) {
         return new ApolloError(
-          "User does not exist or activated.",
+          "User does not exist or activated 1.",
           "USER_NOT_FOUND"
         );
       }
@@ -239,25 +267,22 @@ const userResolver = {
         const { token } = await contextController.generateLoginToken(user);
         await storeTokenInRedis(user._id, token);
         await UserModel.findOneAndUpdate(
-          { _id: args.id, active: false },
+          { _id: idInfo.saveUserData, finishedSignUp: false, active: false },
           {
             $set: {
               birthDate: new Date(
                 Number(birthDate[2]),
                 Number(birthDate[1]) - 1,
                 Number(birthDate[0])
-              ),
-              active: true,
-              authToken: token,
-              finishedSignUp: true
+              )
             }
           },
           { new: true }
         );
-        return { id: user.id, token, finishedSignUp: true };
+        return { id: user.id, email: user.email };
       } catch (e) {
         return new ApolloError(
-          "User does not exist or activated.",
+          "User does not exist or activated 2.",
           "USER_NOT_FOUND"
         );
       }
@@ -318,7 +343,7 @@ const userResolver = {
             { new: true }
           );
         }
-        const res = await storeTokenInRedis(contactFound._id, token);
+        await storeTokenInRedis(contactFound._id, token);
         // Update the user information in the database
         await UserModel.updateOne(
           { _id: contactFound._id },
@@ -340,7 +365,7 @@ const userResolver = {
       args: IMutationLoginWithGoogleArgs,
       context: any
     ) => {
-      let userID: string = "";
+      let idToken: string = "";
       let finishedSignUp: boolean | undefined;
       let token: string = "";
       const userData: IGoogleData = await getGoogleUser(args.token);
@@ -371,12 +396,17 @@ const userResolver = {
           birthDate: userData.birthDate
         });
         finishedSignUp = user.finishedSignUp;
-        userID = user._id;
+        idToken = await jwtSign(
+          {
+            saveUserData: user._id
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: "15m" }
+        );
       } else {
         // usuario se logea sin más
         token = (await contextController.generateLoginToken(user)).token;
         finishedSignUp = user.finishedSignUp;
-        userID = user._id;
         await UserModel.updateOne(
           { _id: user._id },
           { $set: { authToken: token, lastLogin: new Date() } },
@@ -384,7 +414,8 @@ const userResolver = {
         );
         await storeTokenInRedis(user._id, token);
       }
-      return { id: userID, finishedSignUp, token };
+
+      return { id: idToken, finishedSignUp, token };
     },
 
     /**
@@ -396,7 +427,7 @@ const userResolver = {
       args: IMutationLoginWithMicrosoftArgs,
       ___
     ) => {
-      let userID: string = "";
+      let idToken: string = "";
       let finishedSignUp: boolean | undefined;
       let token: string = "";
       const userData: IMSData = await getMicrosoftUser(args.token);
@@ -426,12 +457,17 @@ const userResolver = {
           finishedSignUp: false
         });
         finishedSignUp = user.finishedSignUp;
-        userID = user._id;
+        idToken = await jwtSign(
+          {
+            saveUserData: user._id
+          },
+          process.env.JWT_SECRET,
+          { expiresIn: "15m" }
+        );
       } else {
         // usuario se logea sin más
         token = (await contextController.generateLoginToken(user)).token;
         finishedSignUp = user.finishedSignUp;
-        userID = user._id;
         await UserModel.updateOne(
           { _id: user._id },
           { $set: { authToken: token, lastLogin: new Date() } },
@@ -439,7 +475,7 @@ const userResolver = {
         );
         await storeTokenInRedis(user._id, token);
       }
-      return { id: userID, finishedSignUp, token };
+      return { id: idToken, finishedSignUp, token };
     },
 
     /*
@@ -528,7 +564,6 @@ const userResolver = {
           emailContent
         );
       }
-
       return "OK";
     },
 

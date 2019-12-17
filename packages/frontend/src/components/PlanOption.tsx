@@ -37,20 +37,20 @@ const PlanOption: FC<IPlanOptionProps> = ({
         <PlanTitle bullet={checked !== undefined}>
           <span>{t(`plans.${plan.name}`)}</span>
           {plan.isFree ? (
-            <PlanCost>{t(`signup.plan-selection.free`)}</PlanCost>
+            <PlanCost>{t(`signup.plan.free`)}</PlanCost>
           ) : plan.isBetaFree && plan.originalPrice ? (
             <PlanCost>
               <span>
-                {t("signup.plan-selection.monthly-price", [
+                {t("signup.plan.monthly-price", [
                   plan.originalPrice.toLocaleString()
                 ])}
               </span>
-              <span> {t(`signup.plan-selection.free-beta`)}</span>
+              <span> {t(`signup.plan.free-beta`)}</span>
             </PlanCost>
           ) : (
             plan.originalPrice && (
               <PlanCost>
-                {t("signup.plan-selection.monthly-price", [
+                {t("signup.plan.monthly-price", [
                   plan.originalPrice.toLocaleString()
                 ])}
               </PlanCost>
@@ -60,9 +60,7 @@ const PlanOption: FC<IPlanOptionProps> = ({
       </PlanHeader>
       {showFeatures && (
         <PlanFeatures>
-          <p>
-            {t(`signup.plan-selection.advantages`, [t(`plans.${plan.name}`)])}
-          </p>
+          <p>{t(`signup.plan.advantages`, [t(`plans.${plan.name}`)])}</p>
           {(plan.highlightedFeatures || []).map(feature => (
             <Feature key={feature}>
               <Tick name="tick" />

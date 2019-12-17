@@ -616,14 +616,6 @@ export const RENEW_SESSION_MUTATION = gql`
   }
 `;
 
-export const SAVE_USER_DATA_MUTATION = gql`
-  mutation SaveUserData($input: UserIn!) {
-    saveUserData(input: $input) {
-      id
-    }
-  }
-`;
-
 export const CHANGE_EMAIL_MUTATION = gql`
   mutation SendChangeMyEmailToken($newEmail: String!) {
     sendChangeMyEmailToken(newEmail: $newEmail)
@@ -748,7 +740,23 @@ export const ACTIVATE_ACCOUNT_MUTATION = gql`
 `;
 
 export const FINISH_SIGNUP_MUTATION = gql`
-  mutation FinishSignUp($id: ObjectID!, $userPlan: String!) {
+  mutation FinishSignUp($id: String!, $userPlan: String!) {
     finishSignUp(id: $id, userPlan: $userPlan)
+  }
+`;
+
+export const SAVE_BIRTH_DATE_MUTATION = gql`
+  mutation SaveBirthDate($id: String!, $birthDate: Date!) {
+    saveBirthDate(id: $id, birthDate: $birthDate) {
+      id
+    }
+  }
+`;
+
+export const SAVE_USER_DATA_MUTATION = gql`
+  mutation SaveUserData($input: UserIn!) {
+    saveUserData(input: $input) {
+      id
+    }
   }
 `;
