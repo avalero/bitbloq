@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState
-} from "react";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
 import { Button, Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
@@ -95,9 +88,10 @@ const CloudModal: FC<ICloudModalProps> = ({
 
   useEffect(() => {
     onSearchInput(searchText);
+    return () => onSearchInput.cancel();
   }, [searchText]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!loading && data) {
       const {
         pagesNumber: newPagesNumber,
