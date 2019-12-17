@@ -55,20 +55,22 @@ const SignupStepPage: NextPage = () => {
   const { id: encryptedId, plan: defaultPlan, step } = router.query;
 
   useEffect(() => {
-    if (wrapRef && wrapRef.current) {
-      wrapRef.current.scrollIntoView();
-    }
+    router.beforePopState(() => {
+      if (step === signupSteps.create) {
+        router.push("/");
+        return false;
+      }
+      return true;
+    });
     if (encryptedId) {
       setUserId(encryptedId.toString());
+      setSignupFlow(EXTERNAL_SIGNUP_FLOW);
     }
-    switch (step) {
-      case signupSteps.birthDate:
-        setSignupFlow(EXTERNAL_SIGNUP_FLOW);
-      case signupSteps.create:
-        router.beforePopState(() => {
-          router.push("/");
-          return false;
-        });
+  });
+
+  useEffect(() => {
+    if (wrapRef && wrapRef.current) {
+      wrapRef.current.scrollIntoView();
     }
   }, [step]);
 
@@ -101,7 +103,7 @@ const SignupStepPage: NextPage = () => {
 
   const goToNextStep = () => {
     const index = signupFlow.findIndex(s => s === step);
-    if (index < signupFlow.length) {
+    if (index + 1 < signupFlow.length) {
       router.push("/signup/[step]", `/signup/${signupFlow[index + 1]}`, {
         shallow: true
       });
@@ -115,7 +117,7 @@ const SignupStepPage: NextPage = () => {
         shallow: true
       });
     } else {
-      router.back();
+      router.push("/");
     }
   };
 
