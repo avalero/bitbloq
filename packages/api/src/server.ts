@@ -78,28 +78,18 @@ const httpServer = app.listen(PORT, () =>
 );
 
 const server = new ApolloServer({
-  context: async ({ ctx, req, connection }) => {
-    if (connection) {
-      // check connection for metadata
-      return connection.context;
-    } else {
-      const user: IUserInToken | undefined = await contextController.getMyUser(
-        ctx
-      );
-      return { user, headers: ctx.headers }; //  add the user to the ctx
-    }
+  context: async ({ ctx, payload, req, connection }) => {
+    const authorization =
+      (ctx && ctx.headers && ctx.headers.authorization) ||
+      (payload && payload.authorization) ||
+      "";
+
+    const user: IUserInToken | undefined = await contextController.getMyUser(
+      authorization
+    );
+    return { user, headers: ctx && ctx.headers }; //  add the user to the ctx
   },
-  schema: exSchema,
-  subscriptions: {
-    onConnect: async (connectionParams: any) => {
-      if (connectionParams.authorization) {
-        const justToken = connectionParams.authorization.split(" ")[1];
-        const user = await contextController.getDataInToken(justToken);
-        return { user }; //  add the user to the ctx
-      }
-      return undefined;
-    }
-  }
+  schema: exSchema
 });
 
 export { pubsub, redisClient };

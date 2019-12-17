@@ -111,9 +111,7 @@ export default function withApollo(
             <PageComponent {...pageProps} />
           </UserDataProvider>
         )}
-        {requiresSession && (
-          <SessionWatcher tempSession={tempSession} client={client} />
-        )}
+        <SessionWatcher tempSession={tempSession} client={client} />
       </ApolloProvider>
     );
   };

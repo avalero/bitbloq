@@ -181,22 +181,13 @@ const checksSessionExpires = async () => {
 setInterval(checksSessionExpires, 5000);
 
 const contextController = {
-  getMyUser: async context => {
+  getMyUser: async authorization => {
     let type: string;
-    let token1: string;
     let justToken: string;
-    if (context.headers) {
-      // authorization for queries and mutations
-      token1 = context.headers.authorization || "";
-      type = token1.split(" ")[0];
-      justToken = token1.split(" ")[1];
-    } else if (context.authorization) {
-      // authorization for subscriptions
-      token1 = context.authorization || "";
-      type = token1.split(" ")[0];
-      justToken = token1.split(" ")[1];
+    if (authorization) {
+      type = authorization.split(" ")[0];
+      justToken = authorization.split(" ")[1];
     } else {
-      token1 = "";
       type = "";
       justToken = "";
     }
