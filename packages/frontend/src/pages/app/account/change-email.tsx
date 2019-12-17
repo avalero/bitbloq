@@ -8,6 +8,7 @@ import { CONFIRM_NEW_EMAIL } from "../../../apollo/queries";
 import withApollo from "../../../apollo/withApollo";
 import EditInputModal from "../../../components/EditInputModal";
 import { setToken, useSessionEvent } from "../../../lib/session";
+import useUserData from "../../../lib/useUserData";
 
 const ChangeEmailPage: FC = () => {
   const [confirmEmail] = useMutation(CONFIRM_NEW_EMAIL);
@@ -16,6 +17,7 @@ const ChangeEmailPage: FC = () => {
   const [error, setError] = useState<string>("");
   const [queryToken, setQueryToken] = useState<string>("");
   const t = useTranslate();
+  const { fetchUserData } = useUserData();
 
   useEffect(() => {
     const { token } = queryString.parse(window.location.search);
@@ -30,6 +32,7 @@ const ChangeEmailPage: FC = () => {
       tokenRef.current &&
       tokenRef.current === event.data
     ) {
+      fetchUserData();
       Router.replace("/app");
     }
   });
