@@ -22,15 +22,15 @@ export interface IUserBirthDate {
 }
 
 export interface IUserData extends IUserBirthDate {
-  acceptTerms: boolean;
+  acceptTerms?: boolean;
   centerName?: string;
   city?: string;
-  country: string;
-  educationalStage: string;
+  country?: string;
+  educationalStage?: string;
   email?: string;
-  imTeacherCheck: boolean;
+  imTeacherCheck?: boolean;
   name?: string;
-  noNotifications: boolean;
+  noNotifications?: boolean;
   password?: string;
   postCode?: number;
   surnames?: string;

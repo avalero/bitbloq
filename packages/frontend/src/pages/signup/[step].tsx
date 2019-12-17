@@ -76,9 +76,6 @@ const SignupStepPage: NextPage = () => {
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [signupFlow, setSignupFlow] = useState<string[]>(NORMAL_SIGNUP_FLOW);
-  const [userBirthDate, setUserBirthDate] = useState<IUserBirthDate>({
-    birthDate: ""
-  });
   const [userData, setUserData] = useState<IUserData>({
     acceptTerms: false,
     birthDate: "",
@@ -125,7 +122,7 @@ const SignupStepPage: NextPage = () => {
   };
 
   const onSaveBirthDate = async (input: IUserBirthDate) => {
-    setUserBirthDate(input);
+    setUserData(input);
     await saveBirthDate({
       variables: {
         id: userId,
@@ -253,7 +250,7 @@ const SignupStepPage: NextPage = () => {
           size={AccessLayoutSize.MEDIUM}
         >
           <SignupBirthDateForm
-            defaultValues={userBirthDate}
+            defaultValues={userData}
             loading={savingBirthDate}
             onCancel={goToPreviousStep}
             onSubmit={onSaveBirthDate}
@@ -311,9 +308,7 @@ const SignupStepPage: NextPage = () => {
           {step === signupSteps.planSelection && (
             <SignupPlanSelector
               defaultValues={userPlan ? userPlan : memberPlan}
-              isAMinor={
-                getAge(userBirthDate.birthDate || userData.birthDate) < 18
-              }
+              isAMinor={getAge(userData.birthDate) < 18}
               loading={finishingSignup}
               onCancel={goToPreviousStep}
               onSubmit={onSignupUser}
