@@ -17,6 +17,7 @@ import {
   IQueryExercisesByDocumentArgs
 } from "../api-types";
 import { CONTENT_VERSION } from "../config";
+import { createExerciseImage, deleteExerciseImage } from "./upload";
 
 const exerciseResolver = {
   Mutation: {
@@ -52,6 +53,11 @@ const exerciseResolver = {
           .toString(36)
           .substr(2, 6);
       }
+      const exerciseImg: string = await createExerciseImage(
+        docFather.image!.image,
+        newCode,
+        context.user.userID
+      );
       const exerciseNew: IExercise = new ExerciseModel({
         user: context.user.userID,
         document: docFather._id,
@@ -64,9 +70,9 @@ const exerciseResolver = {
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        image: docFather.image!.image,
         resourcesID: docFather.exResourcesID,
-        contentVersion: docFather.contentVersion || CONTENT_VERSION
+        contentVersion: docFather.contentVersion || CONTENT_VERSION,
+        image: exerciseImg
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
@@ -113,6 +119,9 @@ const exerciseResolver = {
         user: context.user.userID
       });
       if (existExercise) {
+        if (existExercise.image) {
+          await deleteExerciseImage(existExercise.code, context.user.userID);
+        }
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         const docFather = await DocumentModel.findOne({
           _id: existExercise.document
