@@ -77,6 +77,7 @@ const ChangeEmailPage: FC = () => {
         modalText={t("change-email-page.text")}
         modalTitle={t("change-email-page.title")}
         onCancel={() => Router.replace("/")}
+        onChange={() => setError("")}
         onSave={onSaveEmail}
         placeholder={t("change-email-page.placeholder")}
         saveButton={t("change-email-page.confirm")}
