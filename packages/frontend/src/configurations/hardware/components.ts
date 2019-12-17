@@ -483,7 +483,7 @@ export const components: Array<Partial<IComponent>> = [
       setup: [
         `{% for pin in pinsInfo %}
         {{pin.pinVarName}}Obj.setup();
-        {{pin.pinVarName}}Obj.displayChar(' ',' ');
+        {{pin.pinVarName}}Obj.displayInt(0);
         {% endfor %}`
       ]
     },
