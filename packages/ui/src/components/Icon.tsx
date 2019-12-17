@@ -36,6 +36,7 @@ import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
 import EyeClose from "./icons/EyeClose";
 import Folder from "./icons/Folder";
+import FullScreen from "./icons/FullScreen";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
 import HardwareQuestion from "./icons/HardwareQuestion";
@@ -190,6 +191,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Eye className={className} />;
     case "eye-close":
       return <EyeClose className={className} />;
+    case "full-screen":
+      return <FullScreen className={className} />;
     case "group":
       return <Group className={className} />;
     case "hardware":
