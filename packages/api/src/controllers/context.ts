@@ -71,8 +71,10 @@ export const storeTokenInRedis = async (
   if (id === undefined) {
     return undefined;
   }
-  const date = new Date();
-  date.setMinutes(date.getMinutes() + SESSION.DURATION_MINUTES);
+  let date: Date = new Date();
+  date = new Date(
+    date.setMinutes(date.getMinutes() + SESSION.DURATION_MINUTES)
+  );
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {
@@ -179,22 +181,13 @@ const checksSessionExpires = async () => {
 setInterval(checksSessionExpires, 5000);
 
 const contextController = {
-  getMyUser: async context => {
+  getMyUser: async authorization => {
     let type: string;
-    let token1: string;
     let justToken: string;
-    if (context.headers) {
-      // authorization for queries and mutations
-      token1 = context.headers.authorization || "";
-      type = token1.split(" ")[0];
-      justToken = token1.split(" ")[1];
-    } else if (context.authorization) {
-      // authorization for subscriptions
-      token1 = context.authorization || "";
-      type = token1.split(" ")[0];
-      justToken = token1.split(" ")[1];
+    if (authorization) {
+      type = authorization.split(" ")[0];
+      justToken = authorization.split(" ")[1];
     } else {
-      token1 = "";
       type = "";
       justToken = "";
     }

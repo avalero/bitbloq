@@ -5,6 +5,7 @@ import { onError } from "apollo-link-error";
 import { ApolloLink, Observable, split } from "apollo-link";
 import { createUploadLink } from "apollo-upload-client";
 import { WebSocketLink } from "apollo-link-ws";
+import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getMainDefinition } from "apollo-utilities";
 import { flags } from "../config";
 import env from "../lib/env";
@@ -39,6 +40,34 @@ const httpLink = createUploadLink({
 });
 
 export const createClient = (initialState, { getToken, onSessionError }) => {
+  const createWsLink = () => {
+    const subscriptionClient = new SubscriptionClient(
+      `${env.API_URL!.replace("http", "ws")}`,
+      {
+        lazy: true,
+        reconnect: true,
+        connectionParams: async () => {
+          const token = getToken();
+          return {
+            authorization: token ? `Bearer ${token}` : ""
+          };
+        }
+      }
+    );
+
+    const subscriptionMiddleware = {
+      applyMiddleware(options, next) {
+        const token = getToken();
+        options.authorization = token ? `Bearer ${token}` : "";
+        next();
+      }
+    };
+
+    subscriptionClient.use([subscriptionMiddleware]);
+
+    return new WebSocketLink(subscriptionClient);
+  };
+
   const client = new ApolloClient({
     link: ApolloLink.from([
       onError(({ graphQLErrors, networkError, operation }) => {
@@ -102,19 +131,7 @@ export const createClient = (initialState, { getToken, onSessionError }) => {
                 definition.operation === "subscription"
               );
             },
-            new WebSocketLink({
-              uri: `${env.API_URL!.replace("http", "ws")}`,
-              options: {
-                lazy: true,
-                reconnect: true,
-                connectionParams: async () => {
-                  const token = getToken();
-                  return {
-                    authorization: token ? `Bearer ${token}` : ""
-                  };
-                }
-              }
-            }),
+            createWsLink(),
             httpLink
           )
         : httpLink
