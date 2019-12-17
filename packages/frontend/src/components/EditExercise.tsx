@@ -253,6 +253,7 @@ const EditExercise = ({ type, id }) => {
           onClose={() => setIsSaveCopyVisible(false)}
           document={exercise}
           content={currentContent.current}
+          type="exercise"
         />
       )}
       <DialogModal

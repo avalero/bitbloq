@@ -504,6 +504,37 @@
     "teacher-subtitle": "Además del plan gratuíto podrás …",
     "unregistered": "Sin registro"
   },
+  "save-copy-modal": {
+    "buttons": {
+      "add": {
+        "copy": "Añadir copia",
+        "to-account": "Añadir a tu cuenta",
+        "to-another-account": "Añadir a otra cuenta"
+      },
+      "cancel": "Cancelar",
+      "ok": "Aceptar"
+    },
+    "content": {},
+    "text": {
+      "add-copy": "Escribe el correo electrónico y la contraseña de tu cuenta para añadir la copia",
+      "copy-added": {
+        "example": "Se ha añadido una copia de este ejemplo a tus documentos.",
+        "exercise": "Se ha añadido una copia de este ejercicio a tus documentos."
+      },
+      "email": "Correo electrónico",
+      "error": "El Correo electrónico o la contraseña no son correctos",
+      "password": "Contraseña",
+      "select-account": "¿Añadir una copia a tu cuenta o a otra?"
+    },
+    "title": {
+      "add-copy": {
+        "example": "Añadir una copia del ejemplo a mis documentos",
+        "exercise": "Añadir una copia del ejercicio a mis documentos"
+      },
+      "copy-added": "Copia añadida correctamente",
+      "select-account": "Añadir copia a mis documentos"
+    }
+  },
   "signup": {
     "activate-modal": {
       "title": "Cuenta validada",
