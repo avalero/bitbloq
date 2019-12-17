@@ -138,7 +138,7 @@ const Buttons = styled.div`
 `;
 
 const InputErrorMessage = styled(ErrorMessage)`
-  margin-top: 5px;
+  margin-top: 10px;
 `;
 
 const InputLabel = styled.label`
