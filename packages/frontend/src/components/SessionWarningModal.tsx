@@ -21,6 +21,7 @@ const SessionWarningModal: FC<ISessionWarningModalProps> = ({
   useSubscription(subscription, {
     shouldResubscribe: true,
     onSubscriptionData: async ({ subscriptionData }) => {
+      console.log({ subscriptionData });
       const sessionExpires: ISessionExpires =
         (subscriptionData.data &&
           (subscriptionData.data.userSessionExpires ||

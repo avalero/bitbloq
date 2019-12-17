@@ -71,8 +71,10 @@ export const storeTokenInRedis = async (
   if (id === undefined) {
     return undefined;
   }
-  const date = new Date();
-  date.setMinutes(date.getMinutes() + SESSION.DURATION_MINUTES);
+  let date: Date = new Date();
+  date = new Date(
+    date.setMinutes(date.getMinutes() + SESSION.DURATION_MINUTES)
+  );
   if (process.env.USE_REDIS === "true") {
     try {
       if (subToken) {

@@ -35,11 +35,7 @@ interface ISessionWatcherProps {
 }
 
 const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
-  const [sessionExpired, setSessionExpired] = useState(false);
-  const [secondsRemaining, setSecondsRemaining] = useState(0);
   const [anotherSession, setAnotherSession] = useState(false);
-
-  const [renewSession] = useMutation(RENEW_SESSION_MUTATION);
 
   useSessionEvent(
     "error",
