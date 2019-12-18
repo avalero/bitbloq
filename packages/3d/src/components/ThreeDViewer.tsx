@@ -272,11 +272,12 @@ const StatusBarGroup = styled.div`
   display: flex;
   margin-right: 40px;
 
-  b, span {
+  b,
+  span {
     margin-right: 20px;
   }
   span:last-child {
-    margin-right; 0px;
+    margin-right: 0;
   }
 `;
 
