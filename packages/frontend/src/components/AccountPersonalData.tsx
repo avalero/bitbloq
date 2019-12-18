@@ -130,8 +130,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
           {t("account.user-data.personal-data.labels.birth-date")}
         </LabelNotEditable>
         <div>
-          {userData.birthDate &&
-            new Date(userData.birthDate).toLocaleDateString()}
+          {userData.birthDate && dayjs(userData.birthDate).format("DD/MM/YYYY")}
         </div>
       </FormFieldNotEditable>
     </>
@@ -147,7 +146,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             avatar: input.avatarFile,
             name: input.name,
             surnames: input.surnames,
-            birthDate: new Date(input.year, input.month - 1, input.day)
+            birthDate: new Date(
+              Date.UTC(input.year, input.month - 1, input.day)
+            )
           })
         )}
       >
