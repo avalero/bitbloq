@@ -198,8 +198,18 @@ export default class Renderer {
     this.objectClickHandlers.push(handler);
   }
 
+  public offObjectClick(handler: ObjectClickHandler): void {
+    const index = this.objectClickHandlers.indexOf(handler);
+    this.objectClickHandlers.splice(index, 1);
+  }
+
   public onBackgroundClick(handler: BackgroundClickHandler): void {
     this.backgroundClickHandlers.push(handler);
+  }
+
+  public offBackgroundClick(handler: BackgroundClickHandler): void {
+    const index = this.backgroundClickHandlers.indexOf(handler);
+    this.backgroundClickHandlers.splice(index, 1);
   }
 
   public getCanvasImage(): string {

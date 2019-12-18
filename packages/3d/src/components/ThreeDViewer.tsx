@@ -118,9 +118,6 @@ const ThreeDViewer: FC<IThreeDViewerProps> = ({
         }
       });
       updateScene();
-
-      rendererRef.current.onObjectClick(onObjectClick);
-      rendererRef.current.onBackgroundClick(onBackgroundClick);
     }
 
     return () => {
@@ -130,6 +127,30 @@ const ThreeDViewer: FC<IThreeDViewerProps> = ({
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (rendererRef.current) {
+      rendererRef.current.onObjectClick(onObjectClick);
+    }
+
+    return () => {
+      if (rendererRef.current) {
+        rendererRef.current.offObjectClick(onObjectClick);
+      }
+    };
+  }, [rendererRef.current, onObjectClick]);
+
+  useEffect(() => {
+    if (rendererRef.current) {
+      rendererRef.current.onBackgroundClick(onBackgroundClick);
+    }
+
+    return () => {
+      if (rendererRef.current) {
+        rendererRef.current.offBackgroundClick(onBackgroundClick);
+      }
+    };
+  }, [rendererRef.current, onBackgroundClick]);
 
   useEffect(() => {
     if (rendererRef.current) {

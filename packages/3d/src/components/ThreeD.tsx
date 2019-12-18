@@ -50,11 +50,13 @@ const ThreeD: React.FC<IThreeDProps> = ({
   const sceneRef = useRef<Scene | null>(null);
   const initialObjectsRef = useRef<IObjectsCommonJSON[]>([]);
   const [objects, setObjects] = useState<IObjectsCommonJSON[]>([]);
+  const objectsRef = useRef(objects);
 
   useEffect(() => {
     if (sceneRef.current && objects !== initialObjectsRef.current) {
       onContentChange(objects);
     }
+    objectsRef.current = objects;
   }, [objects]);
 
   useEffect(() => {
@@ -66,6 +68,8 @@ const ThreeD: React.FC<IThreeDProps> = ({
   const scene = sceneRef.current || new Scene();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  const selectedIdsRef = useRef(selectedIds);
 
   const selectedObjects = useMemo(
     () =>
@@ -84,6 +88,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
     if (selectedIds.length === 0) {
       setActiveOperation(null);
     }
+    selectedIdsRef.current = selectedIds;
   }, [selectedIds]);
 
   const onCreateObject = useCallback(
@@ -214,8 +219,8 @@ const ThreeD: React.FC<IThreeDProps> = ({
   }, [advancedMode]);
 
   // Keyboard handling
-  const [controlPressed, setControlPressed] = useState(false);
-  const [shiftPressed, setShiftPressed] = useState(false);
+  const controlPressed = useRef(false);
+  const shiftPressed = useRef(false);
 
   const onUndo = useCallback(() => {
     setObjects(scene.undo());
@@ -226,23 +231,19 @@ const ThreeD: React.FC<IThreeDProps> = ({
   }, [scene]);
 
   useEffect(() => {
-    let control = false;
-    let shift = false;
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Control") {
-        control = true;
-        setControlPressed(true);
+        controlPressed.current = true;
       }
       if (e.key === "Shift") {
-        shift = true;
-        setShiftPressed(true);
+        shiftPressed.current = true;
       }
-      if (e.key === "z" && control) {
+      if (e.key === "z" && controlPressed.current) {
         if (scene.canUndo()) {
           setObjects(scene.undo());
         }
       }
-      if (e.key === "Z" && control) {
+      if (e.key === "Z" && controlPressed.current) {
         if (scene.canRedo()) {
           setObjects(scene.redo());
         }
@@ -251,10 +252,10 @@ const ThreeD: React.FC<IThreeDProps> = ({
 
     const onKeyUp = (e: KeyboardEvent) => {
       if (e.key === "Control") {
-        setControlPressed(false);
+        controlPressed.current = false;
       }
       if (e.key === "Shift") {
-        setShiftPressed(false);
+        shiftPressed.current = false;
       }
     };
 
@@ -267,21 +268,27 @@ const ThreeD: React.FC<IThreeDProps> = ({
     };
   }, [scene]);
 
-  const onObjectClick = (object?: IObjectsCommonJSON) => {
+  const onObjectClick = useCallback((object?: IObjectsCommonJSON) => {
     if (object) {
-      const isTop = objects.includes(object);
-      const isSelectedTop = objects.some(o => selectedIds.includes(o.id));
-      const isSelected = selectedIds.includes(object.id);
+      const isTop = objectsRef.current.some(o => o.id === object.id);
+      const isSelectedTop = objectsRef.current.some(o =>
+        selectedIdsRef.current.includes(o.id)
+      );
+      const isSelected = selectedIdsRef.current.includes(object.id);
 
-      if (isTop && isSelectedTop && (controlPressed || shiftPressed)) {
+      if (
+        isTop &&
+        isSelectedTop &&
+        (controlPressed.current || shiftPressed.current)
+      ) {
         if (isSelected) {
-          setSelectedIds(selectedIds.filter(id => id !== object.id));
+          setSelectedIds(selectedIdsRef.current.filter(id => id !== object.id));
         } else {
-          setSelectedIds([...selectedIds, object.id]);
+          setSelectedIds([...selectedIdsRef.current, object.id]);
         }
       } else {
-        if (isSelected && selectedIds.length === 1) {
-          setSelectedIds(selectedIds.filter(id => id !== object.id));
+        if (isSelected && selectedIdsRef.current.length === 1) {
+          setSelectedIds(selectedIdsRef.current.filter(id => id !== object.id));
         } else {
           setSelectedIds([object.id]);
         }
@@ -289,7 +296,7 @@ const ThreeD: React.FC<IThreeDProps> = ({
     } else {
       setSelectedIds([]);
     }
-  };
+  }, []);
 
   const onUpdateObject = useCallback(
     (object: IObjectsCommonJSON) => {
@@ -298,9 +305,9 @@ const ThreeD: React.FC<IThreeDProps> = ({
     [scene]
   );
 
-  const onBackgroundClick = () => {
+  const onBackgroundClick = useCallback(() => {
     setSelectedIds([]);
-  };
+  }, []);
 
   useEffect(() => {
     if (threeDRef) {
