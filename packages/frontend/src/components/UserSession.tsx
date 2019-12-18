@@ -55,6 +55,10 @@ export default UserSession;
 
 const UserName = styled.div`
   font-size: 14px;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const UserAvatar = styled.div<{ id: string; src?: string }>`
