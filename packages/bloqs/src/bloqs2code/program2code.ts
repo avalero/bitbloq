@@ -312,16 +312,17 @@ const waitEvent2Code = (
   void ${functionName}();`;
 
   // some blocks will have a trueCondition. If not, foget it.
-  const trueCondition = bloqInstance.parameters.trueCondition || "";
+  // const trueCondition = bloqInstance.parameters.trueCondition || "";
 
-  const waitEventDefinitionCode: string = `
-    heap.insert(${functionName}Wait);
+  const nunjucksWaitEventData = { read: waitEventCode };
+  const waitEventCodeTemplate: string = `
+  heap.insert(${functionName}Wait);
   }
   
   void ${functionName}Wait(){
-    if(!(${waitEventCode} ${trueCondition} ${(componentDefintion.values &&
-    componentDefintion.values[bloqInstanceValue]) ||
-    bloqInstanceValue})){
+    if(!(${(componentDefintion.values &&
+      componentDefintion.values[bloqInstanceValue]) ||
+      bloqInstanceValue})){
         heap.insert(${functionName}Wait);
     }else{
       heap.insert(${functionName});
@@ -330,6 +331,28 @@ const waitEvent2Code = (
 
   void ${functionName}(){
   `;
+
+  const waitEventDefinitionCode: string = nunjucks.renderString(
+    waitEventCodeTemplate,
+    nunjucksWaitEventData
+  );
+
+  // const waitEventDefinitionCode: string = `
+  //   heap.insert(${functionName}Wait);
+  // }
+
+  // void ${functionName}Wait(){
+  //   if(!(${waitEventCode} ${trueCondition} ${(componentDefintion.values &&
+  //   componentDefintion.values[bloqInstanceValue]) ||
+  //   bloqInstanceValue})){
+  //       heap.insert(${functionName}Wait);
+  //   }else{
+  //     heap.insert(${functionName});
+  //   }
+  // }
+
+  // void ${functionName}(){
+  // `;
 
   arduinoCode.globals!.push(waitEventGlobalsCode);
   arduinoCode.definitions!.push(waitEventDefinitionCode);
@@ -500,18 +523,34 @@ const program2code = (
             );
 
             // some blocks will have a trueCondition. If not, foget it.
-            const trueCondition = bloqInstance.parameters.trueCondition || "";
+            // const trueCondition = bloqInstance.parameters.trueCondition || "";
 
-            eventLoopCode = `
-              if(${code} ${trueCondition} ${(componentDefintion.values &&
+            const conditionCodeTemplate = ` if (${(componentDefintion.values &&
               componentDefintion.values[bloqInstanceValue]) ||
               bloqInstanceValue}){
                 if(!${timelineFlagName}){ 
                   heap.insert(${functionName});
                   ${timelineFlagName} = true;
                 }
-              }
-              `;
+              }`;
+
+            const nunjucksConditionData = { read: code };
+
+            eventLoopCode = nunjucks.renderString(
+              conditionCodeTemplate,
+              nunjucksConditionData
+            );
+
+            // eventLoopCode = `
+            //   if(${code} ${trueCondition} ${(componentDefintion.values &&
+            //   componentDefintion.values[bloqInstanceValue]) ||
+            //   bloqInstanceValue}){
+            //     if(!${timelineFlagName}){
+            //       heap.insert(${functionName});
+            //       ${timelineFlagName} = true;
+            //     }
+            //   }
+            //   `;
           }
           arduinoCode.loop!.push(eventLoopCode);
           arduinoCode.globals!.push(eventGlobalsCode);

@@ -314,8 +314,8 @@ export const components: Array<Partial<IComponent>> = [
     label: "hardware.component.button",
     extends: "Button",
     values: {
-      pressed: "== HIGH",
-      released: "== LOW"
+      pressed: "{{read}} == HIGH",
+      released: "{{read}} == LOW"
     },
     instanceName: "bloq-button-instance-name",
     connectors: [
@@ -401,8 +401,8 @@ export const components: Array<Partial<IComponent>> = [
     extends: "DigitalInput",
     instanceName: "bloq-switch-instance-name",
     values: {
-      pos1: " == LOW",
-      pos2: " == HIGH"
+      pos1: "{{read}} == LOW",
+      pos2: "{{read}} == HIGH"
     },
     connectors: [
       {
@@ -483,7 +483,7 @@ export const components: Array<Partial<IComponent>> = [
       setup: [
         `{% for pin in pinsInfo %}
         {{pin.pinVarName}}Obj.setup();
-        {{pin.pinVarName}}Obj.displayChar(' ',' ');
+        {{pin.pinVarName}}Obj.displayInt(0);
         {% endfor %}`
       ]
     },
@@ -636,23 +636,23 @@ export const components: Array<Partial<IComponent>> = [
       }
     ],
     values: {
-      hot: ">= 25",
-      cold: "< 25",
-      light: ">=40",
-      dark: "<40",
-      sunset: ">=40 && <60",
-      obstacle: "<20",
-      no_obstacle: ">=20",
-      truered: "==0",
-      truegreen: "==1",
-      trueblue: "==2",
-      truewhite: "==3",
-      trueblack: "==4",
-      falsered: "!=0",
-      falsegreen: "!=1",
-      falseblue: "!=2",
-      falsewhite: "!=3",
-      falseblack: "!=4"
+      hot: " {{read}} >= 25",
+      cold: "{{read}} < 25",
+      light: "{{read}} >= 40",
+      dark: "{{read}} < 40",
+      sunset: "{{read}} >=40 && {{read}} < 60",
+      obstacle: "{{read}} <20",
+      no_obstacle: "{{read}} >=20",
+      truered: "{{read}}==0",
+      truegreen: "{{read}}==1",
+      trueblue: "{{read}}==2",
+      truewhite: "{{read}}==3",
+      trueblack: "{{read}}==4",
+      falsered: "{{read}}!=0",
+      falsegreen: "{{read}}!=1",
+      falseblue: "{{read}}!=2",
+      falsewhite: "{{read}}!=3",
+      falseblack: "{{read}}!=4"
     }
   }
 ];
