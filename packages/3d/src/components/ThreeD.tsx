@@ -267,23 +267,27 @@ const ThreeD: React.FC<IThreeDProps> = ({
     };
   }, [scene]);
 
-  const onObjectClick = (object: IObjectsCommonJSON) => {
-    const isTop = objects.includes(object);
-    const isSelectedTop = objects.some(o => selectedIds.includes(o.id));
-    const isSelected = selectedIds.includes(object.id);
+  const onObjectClick = (object?: IObjectsCommonJSON) => {
+    if (object) {
+      const isTop = objects.includes(object);
+      const isSelectedTop = objects.some(o => selectedIds.includes(o.id));
+      const isSelected = selectedIds.includes(object.id);
 
-    if (isTop && isSelectedTop && (controlPressed || shiftPressed)) {
-      if (isSelected) {
-        setSelectedIds(selectedIds.filter(id => id !== object.id));
+      if (isTop && isSelectedTop && (controlPressed || shiftPressed)) {
+        if (isSelected) {
+          setSelectedIds(selectedIds.filter(id => id !== object.id));
+        } else {
+          setSelectedIds([...selectedIds, object.id]);
+        }
       } else {
-        setSelectedIds([...selectedIds, object.id]);
+        if (isSelected && selectedIds.length === 1) {
+          setSelectedIds(selectedIds.filter(id => id !== object.id));
+        } else {
+          setSelectedIds([object.id]);
+        }
       }
     } else {
-      if (isSelected && selectedIds.length === 1) {
-        setSelectedIds(selectedIds.filter(id => id !== object.id));
-      } else {
-        setSelectedIds([object.id]);
-      }
+      setSelectedIds([]);
     }
   };
 
@@ -326,8 +330,6 @@ const ThreeD: React.FC<IThreeDProps> = ({
       };
     }
   }, [threeDRef]);
-
-  const t = useTranslate();
 
   const baseShapeGroups = config.addShapeGroups;
   const shapeGroups = useMemo(

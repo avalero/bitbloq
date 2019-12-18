@@ -20,7 +20,7 @@ export interface IObjectTreeProps {
   onCreateObject: (object: IObjectsCommonJSON) => any;
   onDeleteObject: (object: IObjectsCommonJSON) => any;
   onUpdateObject: (object: IObjectsCommonJSON | ICompoundObjectJSON) => any;
-  onObjectClick: (object: IObjectsCommonJSON) => any;
+  onObjectClick: (object?: IObjectsCommonJSON) => any;
   onUpdateObjectsOrder: (orderedObjectIds: string[]) => any;
   shapeGroups: IShapeGroup[];
 }
@@ -152,7 +152,10 @@ const ObjectTree: FC<IObjectTreeProps> = ({
               isSelected={isSelected}
               isParent={children.length > 0}
               isTop={isTop}
-              onClick={() => onObjectClick(object)}
+              onClick={e => {
+                e.stopPropagation();
+                onObjectClick(object);
+              }}
             >
               <DragHandle {...provided.dragHandleProps}>
                 <Icon name="drag" />
@@ -197,7 +200,11 @@ const ObjectTree: FC<IObjectTreeProps> = ({
       return (
         <Droppable droppableId={parentId} type={parentId}>
           {provided => (
-            <ObjectList ref={provided.innerRef} {...provided.droppableProps}>
+            <ObjectList
+              ref={provided.innerRef}
+              onClick={() => onObjectClick()}
+              {...provided.droppableProps}
+            >
               {objectsList.map((object, index) =>
                 renderObjectItem(object, index, depth, parent)
               )}
