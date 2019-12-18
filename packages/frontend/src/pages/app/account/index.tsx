@@ -1,3 +1,4 @@
+import { ApolloError } from "apollo-client";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
@@ -38,20 +39,16 @@ const AccountPage: NextPage = () => {
   const teacherPlan: IPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [changeEmail] = useMutation(CHANGE_EMAIL_MUTATION);
-  const [
-    deleteUser,
-    { error: deleteUserError, loading: deletingUser }
-  ] = useMutation(DELETE_USER);
-  const [
-    updatePersonalData,
-    { error: updatePersonalDataError, loading: updatingPersonalData }
-  ] = useMutation(UPDATE_USER_DATA_MUTATION);
+  const [deleteUser, { error: deleteUserError }] = useMutation(DELETE_USER);
+  const [updatePersonalData, { error: updatePersonalDataError }] = useMutation(
+    UPDATE_USER_DATA_MUTATION
+  );
 
   const newEmailRef = useRef<string>("");
 
   const [serverError, setServerError] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string>("");
-  const [loadingData, setLoadingData] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [currentTab, setCurrentTab] = useState<TabType>(TabType.UserData);
   const [personalDataEditable, setPersonalDataEditable] = useState<boolean>(
@@ -72,18 +69,35 @@ const AccountPage: NextPage = () => {
     setPlan(userData.teacher ? teacherPlan : memberPlan);
   }, [userData]);
 
-  const onDeleteUser = async () => {
-    await deleteUser({
+  const onDeleteUser = (password: string) => {
+    if (!password) {
+      setErrorText(t("change-email-page.password-empty"));
+      return;
+    }
+    setLoading(true);
+    deleteUser({
       variables: {
         id: userData.id
       }
-    });
-    redirect({}, "/app/account/delete");
+    })
+      .then(() => {
+        redirect({}, "/app/account/delete");
+      })
+      .catch(e => {
+        setLoading(false);
+        if (
+          e.graphQLErrors &&
+          e.graphQLErrors[0] &&
+          e.graphQLErrors[0].extensions.code === "PASSWORD_INCORRECT"
+        ) {
+          setErrorText(t("change-email-page.password-error"));
+        }
+      });
   };
 
   const onSaveNewEmail = (newEmail: string) => {
     newEmailRef.current = newEmail;
-    setLoadingData(true);
+    setLoading(true);
     changeEmail({
       variables: {
         newEmail
@@ -96,12 +110,12 @@ const AccountPage: NextPage = () => {
         if (sendChangeMyEmailToken === "OK") {
           setEmailSent(true);
           setServerError(false);
-          setLoadingData(false);
+          setLoading(false);
           setShowEmailModal(false);
           fetchUserData();
         } else {
           setServerError(true);
-          setLoadingData(false);
+          setLoading(false);
           setShowEmailModal(false);
         }
       })
@@ -112,7 +126,7 @@ const AccountPage: NextPage = () => {
           e.graphQLErrors[0].extensions.code === "EMAIL_EXISTS"
         ) {
           setErrorText(t("account.user-data.email.email-exists"));
-          setLoadingData(false);
+          setLoading(false);
         }
       });
   };
@@ -123,6 +137,7 @@ const AccountPage: NextPage = () => {
   };
 
   const onUpdatePersonalData = async (input: IUser) => {
+    setLoading(true);
     await updatePersonalData({
       variables: {
         id: userData.id,
@@ -135,11 +150,18 @@ const AccountPage: NextPage = () => {
       }
     });
     fetchUserData();
+    setLoading(false);
     setPersonalDataEditable(false);
   };
 
-  if (updatePersonalDataError) {
-    return <GraphQLErrorMessage apolloError={updatePersonalDataError} />;
+  if (updatePersonalDataError || deleteUserError) {
+    return (
+      <GraphQLErrorMessage
+        apolloError={
+          (updatePersonalDataError || deleteUserError) as ApolloError
+        }
+      />
+    );
   }
 
   return (
@@ -170,7 +192,7 @@ const AccountPage: NextPage = () => {
                     <Button
                       form={personalDataFormId}
                       type="submit"
-                      disabled={updatingPersonalData}
+                      disabled={loading}
                     >
                       {t("account.user-data.personal-data.button-save")}
                     </Button>
@@ -252,7 +274,7 @@ const AccountPage: NextPage = () => {
       </Container>
       {serverError && <ErrorLayout code="500" />}
       <StyledEditInputModal
-        disabledSave={loadingData}
+        disabledSave={loading}
         errorText={errorText}
         isOpen={showEmailModal}
         label={t("account.user-data.email.new")}
@@ -267,13 +289,13 @@ const AccountPage: NextPage = () => {
         type="email"
       />
       <ChangePasswordModal
-        disabledSave={loadingData}
+        disabledSave={loading}
         isOpen={showPasswordModal}
         onCancel={() => setShowPasswordModal(false)}
         title=""
       />
       <ChangePlanModal
-        disabledSave={loadingData}
+        disabledSave={loading}
         isOpen={
           showPlanModal &&
           isValidAge(
@@ -294,7 +316,7 @@ const AccountPage: NextPage = () => {
               newEmailRef.current = "";
               setEmailSent(false);
               setServerError(false);
-              setLoadingData(false);
+              setLoading(false);
               setShowEmailModal(false);
             }}
           >
@@ -336,7 +358,7 @@ const AccountPage: NextPage = () => {
         title={t("account.user-data.delete.modal.title")}
       />
       <StyledEditInputModal
-        disabledSave={false}
+        disabledSave={loading}
         errorText={errorText}
         isOpen={showDeleteConfirmationModal}
         label={t("account.user-data.delete.modal-confirmation.label")}
