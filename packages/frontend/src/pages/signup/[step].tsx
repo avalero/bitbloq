@@ -277,7 +277,7 @@ const SignupStepPage: NextPage = () => {
           {step === signupSteps.userData && (
             <>
               {t("signup.login.account-text")}{" "}
-              <Link href="/login">
+              <Link href="/login" prefetch={false}>
                 <a>{t("signup.login.account-link")}</a>
               </Link>
               .

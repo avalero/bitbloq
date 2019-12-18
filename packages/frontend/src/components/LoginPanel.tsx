@@ -53,7 +53,7 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
         <StyledButton secondary onClick={secondaryButtonCallback}>
           {secondaryButtonText}
         </StyledButton>
-        <Link href="/forgot-password">
+        <Link href="/forgot-password" prefetch={false}>
           <a>{t("login.forgot-password")}</a>
         </Link>
       </Form>
