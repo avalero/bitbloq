@@ -71,7 +71,7 @@
         </mj-text>
         <mj-text color="#313741" font-size="14px">
           Has solicitado cambiar el correo electrónico de tu cuenta. Para
-          hacerlo, pulsa en este enlace o cópialo y pégalo la en el navegador:
+          hacerlo, pulsa en este enlace o cópialo y pégalo en el navegador:
         </mj-text>
         <mj-button
           background-color="#ebebeb"

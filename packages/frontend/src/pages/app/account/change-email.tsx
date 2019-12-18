@@ -89,7 +89,7 @@ const ChangeEmailPage: FC = () => {
   );
 };
 
-export default withApollo(ChangeEmailPage);
+export default withApollo(ChangeEmailPage, { requiresSession: false });
 
 const ConfirmPasswordModal = styled(EditInputModal)`
   p {
