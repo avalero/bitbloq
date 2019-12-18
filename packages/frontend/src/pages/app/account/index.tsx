@@ -6,6 +6,7 @@ import { NextPage } from "next";
 import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
 import {
   CHANGE_EMAIL_MUTATION,
+  DELETE_USER,
   UPDATE_USER_DATA_MUTATION
 } from "../../../apollo/queries";
 import withApollo from "../../../apollo/withApollo";
@@ -19,6 +20,7 @@ import ErrorLayout from "../../../components/ErrorLayout";
 import GraphQLErrorMessage from "../../../components/GraphQLErrorMessage";
 import { plans } from "../../../config.js";
 import useUserData from "../../../lib/useUserData";
+import redirect from "../../../lib/redirect";
 import { isValidAge } from "../../../util";
 import { IPlan, IUser } from "../../../types";
 
@@ -36,15 +38,20 @@ const AccountPage: NextPage = () => {
   const teacherPlan: IPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [changeEmail] = useMutation(CHANGE_EMAIL_MUTATION);
+  const [
+    deleteUser,
+    { error: deleteUserError, loading: deletingUser }
+  ] = useMutation(DELETE_USER);
+  const [
+    updatePersonalData,
+    { error: updatePersonalDataError, loading: updatingPersonalData }
+  ] = useMutation(UPDATE_USER_DATA_MUTATION);
 
   const newEmailRef = useRef<string>("");
 
   const [serverError, setServerError] = useState<boolean>(false);
   const [errorText, setErrorText] = useState<string>("");
   const [loadingData, setLoadingData] = useState<boolean>(false);
-  const [updatePersonalData, { error, loading }] = useMutation(
-    UPDATE_USER_DATA_MUTATION
-  );
 
   const [currentTab, setCurrentTab] = useState<TabType>(TabType.UserData);
   const [personalDataEditable, setPersonalDataEditable] = useState<boolean>(
@@ -52,6 +59,11 @@ const AccountPage: NextPage = () => {
   );
   const [plan, setPlan] = useState(userData.teacher ? teacherPlan : memberPlan);
   const [emailSent, setEmailSent] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+  const [
+    showDeleteConfirmationModal,
+    setShowDeleteConfirmationModal
+  ] = useState<boolean>(false);
   const [showEmailModal, setShowEmailModal] = useState<boolean>(false);
   const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   const [showPlanModal, setShowPlanModal] = useState<boolean>(false);
@@ -59,6 +71,15 @@ const AccountPage: NextPage = () => {
   useEffect(() => {
     setPlan(userData.teacher ? teacherPlan : memberPlan);
   }, [userData]);
+
+  const onDeleteUser = async () => {
+    await deleteUser({
+      variables: {
+        id: userData.id
+      }
+    });
+    redirect({}, "/app/account/delete");
+  };
 
   const onSaveNewEmail = (newEmail: string) => {
     newEmailRef.current = newEmail;
@@ -117,8 +138,8 @@ const AccountPage: NextPage = () => {
     setPersonalDataEditable(false);
   };
 
-  if (error) {
-    return <GraphQLErrorMessage apolloError={error} />;
+  if (updatePersonalDataError) {
+    return <GraphQLErrorMessage apolloError={updatePersonalDataError} />;
   }
 
   return (
@@ -149,7 +170,7 @@ const AccountPage: NextPage = () => {
                     <Button
                       form={personalDataFormId}
                       type="submit"
-                      disabled={loading}
+                      disabled={updatingPersonalData}
                     >
                       {t("account.user-data.personal-data.button-save")}
                     </Button>
@@ -221,7 +242,7 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.delete.title")}
               icon="trash"
               buttons={
-                <Button secondary>
+                <Button secondary onClick={() => setShowDeleteModal(true)}>
                   {t("account.user-data.delete.button")}
                 </Button>
               }
@@ -230,7 +251,7 @@ const AccountPage: NextPage = () => {
         )}
       </Container>
       {serverError && <ErrorLayout code="500" />}
-      <EditEmailModal
+      <StyledEditInputModal
         disabledSave={loadingData}
         errorText={errorText}
         isOpen={showEmailModal}
@@ -297,6 +318,40 @@ const AccountPage: NextPage = () => {
         text={t("account.user-data.email.sent-text")}
         title={t("account.user-data.email.sent-title")}
       />
+      <DialogModal
+        cancelText={t("general-cancel-button")}
+        content={
+          <p>
+            {t(`account.user-data.delete.modal.content-${plan.name}`)}{" "}
+            <b>{t("account.user-data.delete.modal.content-highlighted")}</b>.
+          </p>
+        }
+        isOpen={showDeleteModal}
+        onCancel={() => setShowDeleteModal(false)}
+        onOk={() => {
+          setShowDeleteModal(false);
+          setShowDeleteConfirmationModal(true);
+        }}
+        okText={t("general-accept-button")}
+        title={t("account.user-data.delete.modal.title")}
+      />
+      <StyledEditInputModal
+        disabledSave={false}
+        errorText={errorText}
+        isOpen={showDeleteConfirmationModal}
+        label={t("account.user-data.delete.modal-confirmation.label")}
+        modalText={t("account.user-data.delete.modal-confirmation.text")}
+        modalTitle={t("account.user-data.delete.modal-confirmation.title")}
+        onSave={onDeleteUser}
+        onChange={() => setErrorText("")}
+        onCancel={() => setShowDeleteConfirmationModal(false)}
+        placeholder={t(
+          "account.user-data.delete.modal-confirmation.placeholder"
+        )}
+        saveButton={t("account.user-data.delete.modal-confirmation.save")}
+        type="password"
+        validateInput={false}
+      />
     </AppLayout>
   );
 };
@@ -338,24 +393,11 @@ const Content = styled.div`
   padding: 30px 20px;
 `;
 
-const EditEmailModal = styled(EditInputModal)`
+const StyledEditInputModal = styled(EditInputModal)`
   p {
     color: #5d6069;
     line-height: 1.57;
     margin: 10px 0 40px !important;
-  }
-`;
-
-const Field = styled.div`
-  align-items: center;
-  height: 36px;
-  display: flex;
-  justify-content: space-between;
-  border: 0px solid #8c919b;
-  border-top-width: 1px;
-
-  &:last-of-type {
-    border-bottom-width: 1px;
   }
 `;
 
