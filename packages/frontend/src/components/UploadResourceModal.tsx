@@ -17,7 +17,7 @@ import {
   ADD_RESOURCE_TO_DOCUMENT,
   UPLOAD_CLOUD_RESOURCE
 } from "../apollo/queries";
-import { acceptedFormats } from "../config";
+import { resourceTypes } from "../config";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
 import { LIMIT_SIZE } from "../../../api/src/config";
@@ -44,7 +44,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   onClose
 }) => {
   const accept = useMemo(
-    () => acceptedTypes.flatMap(type => acceptedFormats[type]),
+    () => acceptedTypes.flatMap(type => resourceTypes[type].formats),
     []
   );
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);

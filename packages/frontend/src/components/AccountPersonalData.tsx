@@ -11,9 +11,9 @@ import {
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
-import { acceptedFormats } from "../config";
+import { resourceTypes } from "../config";
 import useUserData from "../lib/useUserData";
-import { IUser } from "../types";
+import { IUser, ResourcesTypes } from "../types";
 import { getAvatarColor, isValidAge, isValidDate } from "../util";
 import { LIMIT_SIZE } from "../../../api/src/config";
 
@@ -88,7 +88,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
 
   const onFileSelected = (file: File) => {
     if (
-      acceptedFormats.image.indexOf(`.${file.type.replace("image/", "")}`) < 0
+      resourceTypes[ResourcesTypes.image].formats.indexOf(
+        `.${file.type.replace("image/", "")}`
+      ) < 0
     ) {
       setAvatarError(AvatarErrors.extError);
     } else if (file.size > LIMIT_SIZE.MAX_AVATAR_BYTES) {
