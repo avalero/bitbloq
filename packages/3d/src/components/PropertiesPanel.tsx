@@ -1,11 +1,4 @@
-import React, {
-  FC,
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  useMemo
-} from "react";
+import React, { FC, useState, useEffect, useRef, useCallback } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
@@ -29,8 +22,6 @@ const colorParameter = {
   type: "color",
   isViewOption: true
 };
-
-const baseObjectParameter = {};
 
 interface IPropertiesPanelProps {
   advancedMode: boolean;
@@ -58,10 +49,8 @@ const PropertiesPanel: FC<IPropertiesPanelProps> = ({
   onConvertToGroup
 }) => {
   const t = useTranslate();
-  const [draggingOperations, setDraggingOperations] = useState(false);
-  const [contextMenuOpen, setContextMenuOpen] = useState(false);
+  const [, setDraggingOperations] = useState(false);
   const [editingName, setEditingName] = useState(false);
-  const { color } = object.viewOptions;
 
   const nameInputRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
@@ -102,10 +91,6 @@ const PropertiesPanel: FC<IPropertiesPanelProps> = ({
   if (!typeConfig.withoutColor) {
     parameters.push(colorParameter);
   }
-
-  const onNameChange = (name: string) => {
-    onUpdateObject(update(object, { viewOptions: { name: { $set: name } } }));
-  };
 
   const objectRef = useRef(object);
   useEffect(() => {
@@ -377,11 +362,6 @@ const ObjectPropertyInput: FC<IObjectPropertyInputProps> = ({
 
 /* styled components */
 
-const Wrap = styled.div`
-  display: flex;
-  width: 310px;
-`;
-
 const Container = styled.div`
   width: 310px;
   min-width: 310px;
@@ -420,7 +400,7 @@ const ObjectName = styled.div`
   flex: 1;
   display: flex;
   align-items: center;
-  font-weigth: bold;
+  font-weight: bold;
   font-style: italic;
   font-size: 13px;
   cursor: pointer;
@@ -455,10 +435,6 @@ const ObjectProperties = styled.div`
 
 const ParametersPanel = styled.div`
   padding: 20px;
-`;
-
-const ParametersForm = styled.div`
-  flex: 1;
 `;
 
 const ObjectButtons = styled.div`
