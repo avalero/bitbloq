@@ -281,7 +281,7 @@ const config: IConfig = {
     {
       name: "SemiCylinder",
       label: "object-type-semicylinder",
-      icon: <Icon name="semicylinder" />,
+      icon: <Icon name="semiCylinder" />,
       parameters: [
         {
           name: "r0",
