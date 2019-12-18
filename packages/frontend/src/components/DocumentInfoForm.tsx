@@ -9,6 +9,7 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import ResourcesBox from "./ResourcesBox";
+import { acceptedFormats } from "../config";
 import { isValidName } from "../util";
 import { IResource, ResourcesTypes } from "../types";
 import { LIMIT_SIZE } from "../../../api/src/config";
@@ -55,7 +56,9 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
   }, [title, titleFocused]);
 
   const onFileSelected = (file: File) => {
-    if (file.type.indexOf("image/") !== 0) {
+    if (
+      acceptedFormats.image.indexOf(`.${file.type.replace("image/", "")}`) < 0
+    ) {
       setImageError(t("document-info.errors.image-ext"));
     } else if (file.size > LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES) {
       setImageError(t("document-info.errors.image-size"));

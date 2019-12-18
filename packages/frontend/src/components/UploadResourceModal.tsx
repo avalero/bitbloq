@@ -17,16 +17,10 @@ import {
   ADD_RESOURCE_TO_DOCUMENT,
   UPLOAD_CLOUD_RESOURCE
 } from "../apollo/queries";
+import { acceptedFormats } from "../config";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
 import { LIMIT_SIZE } from "../../../api/src/config";
-
-const acceptedFiles = {
-  image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
-  video: [".mp4", ".webm"],
-  sound: [".mp3", ".ocg"],
-  object3D: [".stl"]
-};
 
 enum Errors {
   extError,
@@ -50,7 +44,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
   onClose
 }) => {
   const accept = useMemo(
-    () => acceptedTypes.flatMap(type => acceptedFiles[type]),
+    () => acceptedTypes.flatMap(type => acceptedFormats[type]),
     []
   );
   const [addResource] = useMutation(ADD_RESOURCE_TO_DOCUMENT);

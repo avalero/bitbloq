@@ -117,6 +117,13 @@ export const resourceTypes = {
   }
 };
 
+export const acceptedFormats = {
+  image: [".png", ".gif", ".jpg", ".jpeg", ".webp"],
+  video: [".mp4", ".webm"],
+  sound: [".mp3", ".ocg"],
+  object3D: [".stl"]
+};
+
 export const plans = [
   {
     name: "unregistered",
