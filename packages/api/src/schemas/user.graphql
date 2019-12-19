@@ -20,7 +20,7 @@ type Mutation {
   sendForgotPasswordEmail(email: EmailAddress!): String
   checkForgotPasswordToken(token: String): Boolean
   updateForgotPassword(token: String, newPassword: String): String
-  deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
+  deleteMyUser(password: String!): String @authRequired(requires: [USER])
   updateUserData(id: ObjectID!, input: UpdateUserData!): User
     @authRequired(requires: [USER])
   updateMyPassword(currentPassword: String!, newPassword: String!): User
