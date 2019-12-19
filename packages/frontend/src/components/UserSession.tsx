@@ -70,7 +70,7 @@ const UserAvatar = styled.div<{ id: string; src?: string }>`
 
   span {
     color: white;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 300;
     left: 0;
     line-height: 36px;
@@ -93,7 +93,9 @@ const UserAvatar = styled.div<{ id: string; src?: string }>`
   @media screen and (min-width: ${breakpoints.desktop}px) {
     height: 40px;
     width: 40px;
+
     span {
+      font-size: 22px;
       line-height: 40px;
     }
   }
