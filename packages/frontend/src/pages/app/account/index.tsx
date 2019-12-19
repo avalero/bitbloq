@@ -212,29 +212,31 @@ const AccountPage: NextPage = () => {
                 onSubmit={onUpdatePersonalData}
               />
             </Panel>
+            <Panel
+              title={t("account.user-data.email.title")}
+              icon="at"
+              buttons={
+                !userData.socialLogin ? (
+                  <Button onClick={() => setShowEmailModal(true)} tertiary>
+                    {t("account.user-data.email.button")}
+                  </Button>
+                ) : (
+                  undefined
+                )
+              }
+            >
+              {userData.email}
+            </Panel>
             {!userData.socialLogin && (
-              <>
-                <Panel
-                  title={t("account.user-data.email.title")}
-                  icon="at"
-                  buttons={
-                    <Button onClick={() => setShowEmailModal(true)} tertiary>
-                      {t("account.user-data.email.button")}
-                    </Button>
-                  }
-                >
-                  {userData.email}
-                </Panel>
-                <Panel
-                  title={t("account.user-data.password.title")}
-                  icon="padlock-close"
-                  buttons={
-                    <Button onClick={() => setShowPasswordModal(true)} tertiary>
-                      {t("account.user-data.password.button")}
-                    </Button>
-                  }
-                />
-              </>
+              <Panel
+                title={t("account.user-data.password.title")}
+                icon="padlock-close"
+                buttons={
+                  <Button onClick={() => setShowPasswordModal(true)} tertiary>
+                    {t("account.user-data.password.button")}
+                  </Button>
+                }
+              />
             )}
             <Panel
               title={t("account.user-data.plan.title")}
