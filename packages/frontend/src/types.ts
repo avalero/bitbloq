@@ -10,6 +10,7 @@ export interface IUser {
   password: string;
   publisher: boolean;
   rootFolder: string;
+  socialLogin: boolean;
   surnames: string;
   teacher: boolean;
 }

@@ -40,7 +40,7 @@ const NORMAL_SIGNUP_FLOW = [
   signupSteps.create
 ];
 
-const EXTERNAL_SIGNUP_FLOW = [
+const SOCIAL_SIGNUP_FLOW = [
   signupSteps.leave,
   signupSteps.birthDate,
   signupSteps.plan
@@ -64,7 +64,7 @@ const SignupStepPage: NextPage = () => {
     });
     if (encryptedId) {
       setUserId(encryptedId.toString());
-      setSignupFlow(EXTERNAL_SIGNUP_FLOW);
+      setSignupFlow(SOCIAL_SIGNUP_FLOW);
     }
   });
 

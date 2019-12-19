@@ -216,22 +216,28 @@ const AccountPage: NextPage = () => {
               title={t("account.user-data.email.title")}
               icon="at"
               buttons={
-                <Button onClick={() => setShowEmailModal(true)} tertiary>
-                  {t("account.user-data.email.button")}
-                </Button>
+                !userData.socialLogin ? (
+                  <Button onClick={() => setShowEmailModal(true)} tertiary>
+                    {t("account.user-data.email.button")}
+                  </Button>
+                ) : (
+                  undefined
+                )
               }
             >
               {userData.email}
             </Panel>
-            <Panel
-              title={t("account.user-data.password.title")}
-              icon="padlock-close"
-              buttons={
-                <Button onClick={() => setShowPasswordModal(true)} tertiary>
-                  {t("account.user-data.password.button")}
-                </Button>
-              }
-            />
+            {!userData.socialLogin && (
+              <Panel
+                title={t("account.user-data.password.title")}
+                icon="padlock-close"
+                buttons={
+                  <Button onClick={() => setShowPasswordModal(true)} tertiary>
+                    {t("account.user-data.password.button")}
+                  </Button>
+                }
+              />
+            )}
             <Panel
               title={t("account.user-data.plan.title")}
               icon="user"
@@ -259,15 +265,17 @@ const AccountPage: NextPage = () => {
                 </>} */}
               </>
             </Panel>
-            <Panel
-              title={t("account.user-data.delete.title")}
-              icon="trash"
-              buttons={
-                <Button secondary onClick={() => setShowDeleteModal(true)}>
-                  {t("account.user-data.delete.button")}
-                </Button>
-              }
-            />
+            {!userData.socialLogin && (
+              <Panel
+                title={t("account.user-data.delete.title")}
+                icon="trash"
+                buttons={
+                  <Button secondary onClick={() => setShowDeleteModal(true)}>
+                    {t("account.user-data.delete.button")}
+                  </Button>
+                }
+              />
+            )}
           </Content>
         )}
       </Container>
