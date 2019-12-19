@@ -144,7 +144,7 @@ const AccountPage: NextPage = () => {
         variables: {
           id: userData.id,
           input: {
-            avatar: "input.avatar",
+            avatar: input.avatar,
             name: input.name,
             surnames: input.surnames,
             birthDate: input.birthDate
