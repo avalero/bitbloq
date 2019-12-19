@@ -39,14 +39,13 @@ const AccountPage: NextPage = () => {
   const teacherPlan: IPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [changeEmail] = useMutation(CHANGE_EMAIL_MUTATION);
-  const [deleteUser, { error: deleteUserError }] = useMutation(DELETE_USER);
-  const [updatePersonalData, { error: updatePersonalDataError }] = useMutation(
-    UPDATE_USER_DATA_MUTATION
-  );
+  const [deleteUser] = useMutation(DELETE_USER);
+  const [updatePersonalData] = useMutation(UPDATE_USER_DATA_MUTATION);
 
   const newEmailRef = useRef<string>("");
 
   const [serverError, setServerError] = useState<boolean>(false);
+  const [error, setError] = useState<ApolloError>();
   const [errorText, setErrorText] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -77,7 +76,7 @@ const AccountPage: NextPage = () => {
     setLoading(true);
     deleteUser({
       variables: {
-        id: userData.id
+        password
       }
     })
       .then(() => {
@@ -91,6 +90,8 @@ const AccountPage: NextPage = () => {
           e.graphQLErrors[0].extensions.code === "PASSWORD_INCORRECT"
         ) {
           setErrorText(t("change-email-page.password-error"));
+        } else {
+          setError(e);
         }
       });
   };
@@ -138,30 +139,28 @@ const AccountPage: NextPage = () => {
 
   const onUpdatePersonalData = async (input: IUser) => {
     setLoading(true);
-    await updatePersonalData({
-      variables: {
-        id: userData.id,
-        input: {
-          avatar: input.avatar,
-          name: input.name,
-          surnames: input.surnames,
-          birthDate: input.birthDate
+    try {
+      await updatePersonalData({
+        variables: {
+          id: userData.id,
+          input: {
+            avatar: "input.avatar",
+            name: input.name,
+            surnames: input.surnames,
+            birthDate: input.birthDate
+          }
         }
-      }
-    });
-    fetchUserData();
-    setLoading(false);
-    setPersonalDataEditable(false);
+      });
+      fetchUserData();
+      setLoading(false);
+      setPersonalDataEditable(false);
+    } catch (e) {
+      setError(e);
+    }
   };
 
-  if (updatePersonalDataError || deleteUserError) {
-    return (
-      <GraphQLErrorMessage
-        apolloError={
-          (updatePersonalDataError || deleteUserError) as ApolloError
-        }
-      />
-    );
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
   }
 
   return (

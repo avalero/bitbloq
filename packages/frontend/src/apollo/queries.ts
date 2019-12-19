@@ -647,10 +647,8 @@ export const CONFIRM_NEW_EMAIL = gql`
 `;
 
 export const DELETE_USER = gql`
-  mutation DeleteUser($id: ObjectID!) {
-    deleteUser(id: $id) {
-      id
-    }
+  mutation DeleteMyUser($password: String!) {
+    deleteMyUser(password: $password)
   }
 `;
 
