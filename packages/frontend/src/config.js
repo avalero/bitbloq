@@ -51,7 +51,11 @@ export const documentTypes = {
     level: "Avanzado",
     landingText:
       "Da el salto al código con Arduino®. Crea tus primeros programas y da vida a tus robots.",
-    supported: ENABLED_TOOLS.includes("code")
+    supported: ENABLED_TOOLS.includes("code"),
+    editorComponent: CreateDynamicComponent(
+      () => import("./components/CodeEditor"),
+      colors.brandPink
+    )
   },
   "3d": {
     acceptedResourcesTypes: [ResourcesTypes.object3D],

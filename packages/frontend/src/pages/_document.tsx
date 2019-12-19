@@ -15,6 +15,10 @@ export default class BitbloqDocument extends Document {
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap"
             rel="stylesheet"
           ></link>
+          <link
+            href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,700&display=swap"
+            rel="stylesheet"
+          ></link>
         </Head>
         <body>
           <Main />

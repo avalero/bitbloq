@@ -11,8 +11,10 @@ module.exports = withTM(
       "@bitbloq/lib3d",
       "@bitbloq/bloqs",
       "@bitbloq/junior",
+      "@bitbloq/code",
       "react-dnd",
-      "dnd-core"
+      "dnd-core",
+      "monaco-editor"
     ],
 
     webpack(config, options) {
@@ -36,6 +38,10 @@ module.exports = withTM(
         {
           test: /\.html$/,
           loader: "raw-loader"
+        },
+        {
+          test: /\.css$/,
+          use: ["style-loader", "css-loader"]
         }
       );
 
