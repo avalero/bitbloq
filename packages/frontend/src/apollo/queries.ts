@@ -624,6 +624,12 @@ export const CHANGE_EMAIL_MUTATION = gql`
   }
 `;
 
+export const CHECK_EMAIL_TOKEN_MUTATION = gql`
+  mutation CheckTokenChangeEmail($token: String!) {
+    checkTokenChangeEmail(token: $token)
+  }
+`;
+
 export const CHANGE_PASSWORD_MUTATION = gql`
   mutation UpdateMyPassword($currentPassword: String!, $newPassword: String!) {
     updateMyPassword(

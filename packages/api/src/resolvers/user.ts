@@ -862,6 +862,29 @@ const userResolver = {
     },
 
     /**
+     * checkTokenChangeEmail: checks token before show change email page
+     */
+    checkTokenChangeEmail: async (_, { token }) => {
+      let userInToken: {
+        changeEmailUserID: string;
+        changeEmailNewEmail: string;
+      };
+      let redisToken: string = "";
+      try {
+        userInToken = await jwtVerify(token, process.env.JWT_SECRET);
+        if (String(process.env.USE_REDIS) === "true") {
+          redisToken = (await redisClient.hgetallAsync(
+            `changeEmail-${userInToken.changeEmailUserID}`
+          )).authToken;
+          return redisToken === token;
+        }
+        return false;
+      } catch (e) {
+        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
+      }
+    },
+
+    /**
      * confirmChangeEmail: second mutation to update my email in account page.
      * It checks the token and stores the new email. It returns the login token updated.
      * args: token sent to user

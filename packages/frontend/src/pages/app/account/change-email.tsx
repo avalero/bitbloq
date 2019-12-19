@@ -1,28 +1,56 @@
-import { colors, useTranslate } from "@bitbloq/ui";
+import { colors, DialogModal, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import Router from "next/router";
 import queryString from "query-string";
 import { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
-import { CONFIRM_NEW_EMAIL } from "../../../apollo/queries";
+import {
+  CHECK_EMAIL_TOKEN_MUTATION,
+  CONFIRM_NEW_EMAIL
+} from "../../../apollo/queries";
 import withApollo from "../../../apollo/withApollo";
 import EditInputModal from "../../../components/EditInputModal";
+import Loading from "../../../components/Loading";
 import { setToken, useSessionEvent } from "../../../lib/session";
 import useUserData from "../../../lib/useUserData";
 
 const ChangeEmailPage: FC = () => {
   const [confirmEmail] = useMutation(CONFIRM_NEW_EMAIL);
+  const [checkToken] = useMutation(CHECK_EMAIL_TOKEN_MUTATION);
   const tokenRef = useRef<string>("");
   const [disabledButton, setDisabledButton] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
   const [queryToken, setQueryToken] = useState<string>("");
+  const [valid, setValid] = useState<boolean>(true);
   const t = useTranslate();
   const { fetchUserData } = useUserData();
 
   useEffect(() => {
     const { token } = queryString.parse(window.location.search);
     if (token) {
-      setQueryToken(typeof token === "string" ? token : token[0]);
+      const parsedToken = typeof token === "string" ? token : token[0];
+      checkToken({
+        variables: {
+          token: parsedToken
+        }
+      })
+        .then(result => {
+          const {
+            data: { checkTokenChangeEmail }
+          } = result;
+          if (checkTokenChangeEmail) {
+            setQueryToken(parsedToken);
+          } else {
+            setValid(false);
+          }
+        })
+        .catch(() => {
+          setValid(false);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, []);
 
@@ -70,12 +98,14 @@ const ChangeEmailPage: FC = () => {
       });
   };
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <Container>
       <ConfirmPasswordModal
         disabledSave={disabledButton}
         errorText={error}
-        isOpen={true}
+        isOpen={valid}
         label={t("change-email-page.placeholder")}
         modalText={t("change-email-page.text")}
         modalTitle={t("change-email-page.title")}
@@ -88,6 +118,14 @@ const ChangeEmailPage: FC = () => {
         title=""
         type="password"
         validateInput={false}
+      />
+      <DialogModal
+        isOpen={!valid}
+        okText={t("change-email-page.error.button")}
+        onOk={() => Router.replace("/")}
+        text={t("change-email-page.error.text")}
+        title={t("change-email-page.error.title")}
+        transparentOverlay={true}
       />
     </Container>
   );
