@@ -687,11 +687,13 @@ const userResolver = {
       if (!valid) {
         throw new ApolloError("Password incorrect", "PASSWORD_INCORRECT");
       }
-      await SubmissionModel.deleteMany({ user: user._id });
-      await ExerciseModel.deleteMany({ user: user._id });
-      await DocumentModel.deleteMany({ user: user._id, public: false });
-      await FolderModel.deleteMany({ user: user._id });
-      await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
+      await Promise.all([
+        SubmissionModel.deleteMany({ user: user._id }),
+        ExerciseModel.deleteMany({ user: user._id }),
+        DocumentModel.deleteMany({ user: user._id, public: false }),
+        FolderModel.deleteMany({ user: user._id }),
+        UserModel.deleteOne({ _id: user._id })
+      ]);
       return "OK";
     },
 
