@@ -93,22 +93,26 @@ export const resourceTypes = {
   image: {
     id: "image",
     label: "cloud.resources.images",
-    icon: "resource-image"
+    icon: "resource-image",
+    formats: [".png", ".gif", ".jpg", ".jpeg", ".webp"]
   },
   video: {
     id: "video",
     label: "cloud.resources.videos",
-    icon: "resource-video"
+    icon: "resource-video",
+    formats: [".mp4", ".webm"]
   },
   sound: {
     id: "sound",
     label: "cloud.resources.sounds",
-    icon: "resource-sound"
+    icon: "resource-sound",
+    formats: [".mp3", ".ocg"]
   },
   object3D: {
     id: "object3D",
     label: "cloud.resources.objects",
-    icon: "resource-object3D"
+    icon: "resource-object3D",
+    formats: [".stl"]
   },
   deleted: {
     id: "deleted",
