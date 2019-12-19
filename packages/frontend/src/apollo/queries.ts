@@ -602,6 +602,7 @@ export const USER_SESSION_EXPIRES_SUBSCRIPTION = gql`
     }
   }
 `;
+
 /* Account */
 
 export const UPDATE_USER_DATA_MUTATION = gql`
@@ -643,6 +644,12 @@ export const CHANGE_PLAN_MUTATION = gql`
 export const CONFIRM_NEW_EMAIL = gql`
   mutation ConfirmChangeEmail($token: String!, $password: String!) {
     confirmChangeEmail(token: $token, password: $password)
+  }
+`;
+
+export const DELETE_USER = gql`
+  mutation DeleteMyUser($password: String!) {
+    deleteMyUser(password: $password)
   }
 `;
 
