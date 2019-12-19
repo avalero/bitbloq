@@ -11,6 +11,7 @@ export const ME_QUERY = gql`
       name
       publisher
       rootFolder
+      socialLogin
       surnames
       teacher
     }
