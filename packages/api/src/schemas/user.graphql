@@ -28,6 +28,7 @@ type Mutation {
   updateMyPlan(userPlan: String!): String @authRequired(requires: [USER])
   sendChangeMyEmailToken(newEmail: String!): String
     @authRequired(requires: [USER])
+  checkTokenChangeEmail(token: String!): Boolean
   confirmChangeEmail(token: String!, password: String!): String
 }
 type Subscription {

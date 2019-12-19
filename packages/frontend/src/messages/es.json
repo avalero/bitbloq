@@ -329,6 +329,11 @@
   },
   "change-email-page": {
     "confirm": "Confirmar",
+    "error": {
+      "button": "Volver",
+      "text": "Este token ha dejado de funcionar, vuelve a enviar el email",
+      "title": "El token no es válido"
+    },
     "password-empty": "La contraseña no puede estar vacía",
     "password-error": "La contraseña no es correcta",
     "placeholder": "Contraseña",
