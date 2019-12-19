@@ -30,7 +30,6 @@ import { hash as bcryptHash, compare as bcryptCompare } from "bcrypt";
 
 import {
   IMutationActivateAccountArgs,
-  IMutationDeleteUserArgs,
   IMutationSaveUserDataArgs,
   IMutationFinishSignUpArgs,
   IMutationLoginWithMicrosoftArgs,
@@ -41,7 +40,8 @@ import {
   IMutationUpdateMyPlanArgs,
   IMutationSendChangeMyEmailTokenArgs,
   IMutationConfirmChangeEmailArgs,
-  IMutationSaveBirthDateArgs
+  IMutationSaveBirthDateArgs,
+  IMutationDeleteMyUserArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -670,33 +670,29 @@ const userResolver = {
      * This method deletes all the documents, exercises and submissions related with this user.
      * args: user ID.
      */
-    deleteUser: async (
+    deleteMyUser: async (
       _,
-      args: IMutationDeleteUserArgs,
+      args: IMutationDeleteMyUserArgs,
       context: { user: IUserInToken }
     ) => {
-      const contactFound: IUser | null = await UserModel.findOne({
-        email: context.user.email,
+      const user: IUser | null = await UserModel.findOne({
         _id: context.user.userID,
-        finishedSignUp: true
+        finishedSignUp: true,
+        active: true
       });
-
-      if (!contactFound) {
+      if (!user) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
-
-      if (String(contactFound._id) === args.id) {
-        await SubmissionModel.deleteMany({ user: contactFound._id });
-        await ExerciseModel.deleteMany({ user: contactFound._id });
-        await DocumentModel.deleteMany({ user: contactFound._id });
-        await FolderModel.deleteMany({ user: contactFound._id });
-        return UserModel.deleteOne({ _id: contactFound._id }); // Delete every data of the user
-      } else {
-        throw new ApolloError(
-          "Cannot delete a user that is not yours",
-          "DELETE_USER_ERROR"
-        );
+      const valid: boolean = await bcryptCompare(args.password, user.password);
+      if (!valid) {
+        throw new ApolloError("Password incorrect", "PASSWORD_INCORRECT");
       }
+      await SubmissionModel.deleteMany({ user: user._id });
+      await ExerciseModel.deleteMany({ user: user._id });
+      await DocumentModel.deleteMany({ user: user._id, public: false });
+      await FolderModel.deleteMany({ user: user._id });
+      await UserModel.deleteOne({ _id: user._id }); // Delete every data of the user
+      return "OK";
     },
 
     /**
