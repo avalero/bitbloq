@@ -393,7 +393,7 @@ const userResolver = {
           imTeacherCheck: false,
           lastLogin: new Date(),
           finishedSignUp: false,
-          birthDate: userData.birthDate
+          socialLogin: true
         });
         finishedSignUp = user.finishedSignUp;
         idToken = await jwtSign(
@@ -454,7 +454,8 @@ const userResolver = {
           notifications: false,
           imTeacherCheck: false,
           lastLogin: new Date(),
-          finishedSignUp: false
+          finishedSignUp: false,
+          socialLogin: true
         });
         finishedSignUp = user.finishedSignUp;
         idToken = await jwtSign(

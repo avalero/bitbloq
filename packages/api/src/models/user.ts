@@ -28,6 +28,7 @@ export interface IUser extends Document {
   rootFolder?: string;
   lastLogin?: Date;
   finishedSignUp?: boolean;
+  socialLogin: boolean;
   microsoftID?: string;
   googleID?: string;
 }
@@ -123,6 +124,11 @@ export const contactSchema: Schema = new Schema({
   rootFolder: {
     type: Schema.Types.ObjectId,
     ref: "FolderModel"
+  },
+
+  socialLogin: {
+    type: Boolean,
+    default: false
   },
 
   microsoftID: {
