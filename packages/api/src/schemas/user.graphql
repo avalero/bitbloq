@@ -79,6 +79,7 @@ type User {
   updatedAt: Date
   lastLogin: Date
   rootFolder: ObjectID
+  socialLogin: Boolean
   documents: [Document]
   folders: [Folder]
 }
