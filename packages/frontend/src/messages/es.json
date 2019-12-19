@@ -258,8 +258,26 @@
     "title": "Mi cuenta",
     "user-data": {
       "delete": {
-        "title": "Eliminar mi cuenta",
-        "button": "Eliminar cuenta"
+        "button": "Eliminar cuenta",
+        "confirmation": {
+          "button": "Volver al inicio",
+          "text": "Lastima, tu cuenta se ha eliminado correctamente. A partir de ahora ya no podrás entrar con los datos de esa cuenta y deberás crearte una nueva.",
+          "title": "Cuenta eliminada"
+        },
+        "modal": {
+          "content-member": "¿Seguro que quieres eliminar tu cuenta? Si lo haces perderás todos los documentos que tengas guardados",
+          "content-teacher": "¿Seguro que quieres eliminar tu cuenta? Si lo haces perderás todos los documentos y ejercicios que tengas guardados",
+          "content-highlighted": "y ya no podrás volver a entrar con esta cuenta",
+          "title": "Eliminar mi cuenta"
+        },
+        "modal-confirmation": {
+          "label": "Contraseña",
+          "placeholder": "Contraseña",
+          "save": "Confirmar",
+          "text": "Escribe tu contraseña para confirmar la eliminación de tu cuenta de usuario.",
+          "title": "Confirmar eliminación"
+        },
+        "title": "Eliminar mi cuenta"
       },
       "email": {
         "title": "Mi correo electrónico",
