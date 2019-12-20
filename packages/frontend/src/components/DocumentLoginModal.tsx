@@ -1,11 +1,8 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { Button, DialogModal, useTranslate } from "@bitbloq/ui";
-import { useMutation } from "@apollo/react-hooks";
+import { DialogModal, useTranslate } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
 import { setToken } from "../lib/session";
-import { LOGIN_MUTATION } from "../apollo/queries";
-import { ILogin } from "../types";
 
 interface IDocumentLoginModalProps {
   isOpen: boolean;
@@ -17,23 +14,10 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
   onClose
 }) => {
   const t = useTranslate();
-  const [loginError, setLoginError] = useState(false);
-  const [loggingIn, setLoggingIn] = useState(false);
-  const [login] = useMutation(LOGIN_MUTATION);
 
-  const onLogin = async (input: ILogin) => {
-    try {
-      setLoggingIn(false);
-      setLoginError(false);
-      const result = await login({
-        variables: { email: input.email, password: input.password }
-      });
-      setToken(result.data.login);
-      onClose();
-    } catch (e) {
-      setLoggingIn(false);
-      setLoginError(true);
-    }
+  const onLoginSuccess = (token: string) => {
+    setToken(token);
+    onClose();
   };
 
   return (
@@ -43,13 +27,7 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
       cancelText={t("general-cancel-button")}
       onCancel={onClose}
       horizontalRule={true}
-      content={
-        <ModalLoginForm
-          loggingIn={loggingIn}
-          loginError={loginError}
-          onLogin={onLogin}
-        />
-      }
+      content={<ModalLoginForm onLoginSuccess={onLoginSuccess} />}
     />
   );
 };

@@ -1,30 +1,33 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState } from "react";
+import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
 import { Input, useTranslate, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
+import { LOGIN_MUTATION } from "../apollo/queries";
 import { ILogin } from "../types";
 
 interface IFormProps {
   className?: string;
-  loggingIn: boolean;
-  loginError: boolean;
-  onLogin: (input: ILogin) => void;
+  onLoginSuccess: (token: string) => void;
 }
 
-const LoginForm: FC<IFormProps> = ({
-  className,
-  loggingIn,
-  loginError,
-  onLogin
-}) => {
+const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
   const t = useTranslate();
   const { handleSubmit, register } = useForm();
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [login] = useMutation(LOGIN_MUTATION);
 
-  useEffect(() => {
-    setError(loginError);
-  }, [loginError]);
+  const onLogin = async (input: ILogin) => {
+    try {
+      setLoggingIn(true);
+      const result = await login({ variables: input });
+      onLoginSuccess(result.data.login);
+    } catch (e) {
+      setLoggingIn(false);
+    }
+  };
 
   return (
     <form className={className} onSubmit={handleSubmit(onLogin)}>

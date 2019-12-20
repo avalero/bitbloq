@@ -5,25 +5,16 @@ import { Button, useTranslate, colors } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
 import LoginWithGoogleButton from "./LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
-import { ILogin } from "../types";
 
 interface ILoginPanelProps {
-  loggingIn: boolean;
-  loginError: boolean;
-  onLogin: (input: ILogin) => void;
+  onLoginSuccess: (token: string) => void;
   onSecondaryButton: () => void;
   secondaryButtonText: string;
 }
 
 const LoginPanel: FC<ILoginPanelProps> = props => {
   const t = useTranslate();
-  const {
-    loggingIn,
-    loginError,
-    onLogin,
-    onSecondaryButton,
-    secondaryButtonText
-  } = props;
+  const { onLoginSuccess, onSecondaryButton, secondaryButtonText } = props;
   return (
     <>
       {t("login.with")}
@@ -33,11 +24,7 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
       </LoginWith>
       <Divider>{t("login.divider")}</Divider>
       <Form>
-        <LoginForm
-          loggingIn={loggingIn}
-          loginError={loginError}
-          onLogin={onLogin}
-        />
+        <LoginForm onLoginSuccess={onLoginSuccess} />
         <StyledButton secondary onClick={onSecondaryButton}>
           {secondaryButtonText}
         </StyledButton>
