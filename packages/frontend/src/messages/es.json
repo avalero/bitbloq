@@ -261,7 +261,7 @@
         "button": "Eliminar cuenta",
         "confirmation": {
           "button": "Volver al inicio",
-          "text": "Lastima, tu cuenta se ha eliminado correctamente. A partir de ahora ya no podrás entrar con los datos de esa cuenta y deberás crearte una nueva.",
+          "text": "Lástima, tu cuenta se ha eliminado correctamente. A partir de ahora ya no podrás entrar con los datos de esa cuenta y deberás crearte una nueva.",
           "title": "Cuenta eliminada"
         },
         "modal": {
