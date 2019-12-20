@@ -299,7 +299,7 @@ const userResolver = {
         finishedSignUp: true
       });
       if (!contactFound) {
-        throw new AuthenticationError("Email or password incorrect");
+        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
       if (!contactFound.active) {
         throw new ApolloError(
@@ -352,7 +352,7 @@ const userResolver = {
         );
         return token;
       } else {
-        throw new AuthenticationError("Email or password incorrect");
+        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
     },
 
@@ -541,7 +541,7 @@ const userResolver = {
         finishedSignUp: true
       });
       if (!contactFound) {
-        throw new AuthenticationError("The email does not exist.");
+        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
       }
       const token: string = jwtSign(
         {

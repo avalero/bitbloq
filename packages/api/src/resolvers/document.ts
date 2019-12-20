@@ -280,9 +280,11 @@ const documentResolver = {
           { _id: existDocument.folder }, // modifico los documentsID de la carpeta
           { $pull: { documentsID: existDocument._id } }
         );
-        await UploadModel.deleteMany({ document: existDocument._id });
-        await SubmissionModel.deleteMany({ document: existDocument._id });
-        await ExerciseModel.deleteMany({ document: existDocument._id });
+        await Promise.all([
+          UploadModel.deleteMany({ document: existDocument._id }),
+          SubmissionModel.deleteMany({ document: existDocument._id }),
+          ExerciseModel.deleteMany({ document: existDocument._id })
+        ]);
         return DocumentModel.deleteOne({ _id: args.id }); // delete all the document dependencies
       } else {
         throw new ApolloError(
