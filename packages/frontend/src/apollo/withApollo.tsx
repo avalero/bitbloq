@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from "react";
 import Router from "next/router";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
-import { ApolloClient } from "apollo-client";
+import { ApolloClient, ApolloError } from "apollo-client";
 import { ApolloProvider, useMutation } from "@apollo/react-hooks";
 import { createClient } from "./client";
 import {
@@ -32,25 +32,40 @@ export interface IContext extends NextPageContext {
 interface ISessionWatcherProps {
   tempSession?: string;
   client: ApolloClient<any>;
+  userDataError: ApolloError;
 }
 
-const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
+const SessionWatcher: FC<ISessionWatcherProps> = ({
+  tempSession,
+  client,
+  userDataError
+}) => {
   const [anotherSession, setAnotherSession] = useState(false);
 
-  useSessionEvent(
-    "error",
-    ({ error }) => {
-      const code = error && error.extensions && error.extensions.code;
-      if (code === "ANOTHER_OPEN_SESSION") {
-        setAnotherSession(true);
-        setToken("");
+  const handleError = (error: any) => {
+    const code = error && error.extensions && error.extensions.code;
+    if (code === "ANOTHER_OPEN_SESSION") {
+      setAnotherSession(true);
+      setToken("");
+    }
+    if (code === "UNAUTHENTICATED") {
+      Router.replace("/");
+    }
+  };
+
+  useEffect(() => {
+    if (userDataError) {
+      if (userDataError.networkError) {
+        const networkError = userDataError.networkError as any;
+        const errors = networkError.result && networkError.result.errors;
+        if (errors && errors.length) {
+          errors.forEach(handleError);
+        }
       }
-      if (code === "UNAUTHENTICATED") {
-        Router.replace("/");
-      }
-    },
-    tempSession
-  );
+    }
+  }, []);
+
+  useSessionEvent("error", ({ error }) => handleError(error), tempSession);
 
   useSessionEvent("logout", async () => {
     setToken("");
@@ -58,7 +73,7 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({ tempSession, client }) => {
       await client.cache.reset();
       await client.reFetchObservableQueries();
     }
-    Router.replace("/");
+    window.location.reload();
   });
 
   if (anotherSession) {
@@ -88,6 +103,7 @@ export default function withApollo(
     apolloClient,
     apolloState,
     userData,
+    userDataError,
     ...pageProps
   }) => {
     const client = apolloClient || initApolloClient(apolloState, tempSession);
@@ -111,7 +127,11 @@ export default function withApollo(
             <PageComponent {...pageProps} />
           </UserDataProvider>
         )}
-        <SessionWatcher tempSession={tempSession} client={client} />
+        <SessionWatcher
+          tempSession={tempSession}
+          client={client}
+          userDataError={userDataError}
+        />
       </ApolloProvider>
     );
   };
@@ -169,24 +189,32 @@ export default function withApollo(
           apolloState
         };
       } else {
-        const { data, error } = await apolloClient.query({
-          query: ME_QUERY,
-          errorPolicy: "ignore"
-        });
+        try {
+          const { data, error } = await apolloClient.query({
+            query: ME_QUERY,
+            errorPolicy: "all"
+          });
 
-        if (onlyWithoutSession && data && data.me) {
-          redirect(ctx, "/app");
+          if (onlyWithoutSession && data && data.me) {
+            redirect(ctx, "/app");
+          }
+
+          if (requiresSession && !(data && data.me)) {
+            redirect(ctx, "/");
+          }
+
+          return {
+            ...pageProps,
+            apolloState,
+            userData: data && data.me
+          };
+        } catch (e) {
+          return {
+            ...pageProps,
+            apolloState,
+            userDataError: e
+          };
         }
-
-        if (requiresSession && !(data && data.me)) {
-          redirect(ctx, "/");
-        }
-
-        return {
-          ...pageProps,
-          apolloState,
-          userData: data && data.me
-        };
       }
     };
   }
