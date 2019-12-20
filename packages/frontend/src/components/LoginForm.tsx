@@ -1,29 +1,33 @@
-import React, { FC } from "react";
-import { Input, useTranslate } from "@bitbloq/ui";
+import React, { FC, useState, useEffect } from "react";
+import useForm from "react-hook-form";
+import { Input, useTranslate, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
+import { ILogin } from "../types";
 
 interface IFormProps {
   className?: string;
-  email: string;
+  loggingIn: boolean;
   loginError: boolean;
-  password: string;
-  setEmail(email: string): void;
-  setPassword(password: string): void;
+  onLogin: (input: ILogin) => void;
 }
 
 const LoginForm: FC<IFormProps> = ({
   className,
-  email,
+  loggingIn,
   loginError,
-  password,
-  setEmail,
-  setPassword
+  onLogin
 }) => {
   const t = useTranslate();
+  const { handleSubmit, register } = useForm();
+  const [error, setError] = useState<boolean>(false);
+
+  useEffect(() => {
+    setError(loginError);
+  }, [loginError]);
 
   return (
-    <div className={className}>
+    <form className={className} onSubmit={handleSubmit(onLogin)}>
       <FormGroup>
         <label>{t("login.labels.email")}</label>
         <Input
@@ -31,31 +35,34 @@ const LoginForm: FC<IFormProps> = ({
           name="email"
           type="text"
           placeholder={t("login.placeholders.email")}
-          value={email}
-          error={loginError}
-          onChange={e => setEmail(e.target.value)}
+          ref={register({})}
+          error={error}
+          onChange={() => setError(false)}
         />
       </FormGroup>
       <FormGroup>
         <label>{t("login.labels.password")}</label>
         <Input
-          name="email"
+          name="password"
           type="password"
           placeholder={t("login.placeholders.password")}
-          value={password}
-          error={loginError}
-          onChange={e => setPassword(e.target.value)}
+          ref={register({})}
+          error={error}
+          onChange={() => setError(false)}
         />
+        {error && <LoginErrorMessage>{t("login.error")}</LoginErrorMessage>}
       </FormGroup>
-      {loginError && <LoginErrorMessage>{t("login.error")}</LoginErrorMessage>}
-    </div>
+      <StyledButton type="submit" disabled={loggingIn}>
+        {t("login.ok")}
+      </StyledButton>
+    </form>
   );
 };
 
 export default LoginForm;
 
 const LoginErrorMessage = styled(ErrorMessage)`
-  margin-bottom: 30px;
+  margin-top: 10px;
 `;
 
 const FormGroup = styled.div`
@@ -64,4 +71,9 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 10px;
   }
+`;
+
+const StyledButton = styled(Button)`
+  margin: 30px 0 10px;
+  width: 100%;
 `;

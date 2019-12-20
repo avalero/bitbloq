@@ -5,6 +5,7 @@ import { useMutation } from "@apollo/react-hooks";
 import LoginForm from "./LoginForm";
 import { setToken } from "../lib/session";
 import { LOGIN_MUTATION } from "../apollo/queries";
+import { ILogin } from "../types";
 
 interface IDocumentLoginModalProps {
   isOpen: boolean;
@@ -16,25 +17,21 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
   onClose
 }) => {
   const t = useTranslate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
 
-  const close = () => {
-    setEmail("");
-    setPassword("");
-    setLoginError(false);
-    onClose();
-  };
-
-  const onOkClick = async () => {
+  const onLogin = async (input: ILogin) => {
     try {
+      setLoggingIn(false);
       setLoginError(false);
-      const result = await login({ variables: { email, password } });
+      const result = await login({
+        variables: { email: input.email, password: input.password }
+      });
       setToken(result.data.login);
-      close();
+      onClose();
     } catch (e) {
+      setLoggingIn(false);
       setLoginError(true);
     }
   };
@@ -43,18 +40,14 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
     <DialogModal
       isOpen={isOpen}
       title={t("general-enter-button")}
-      okText={t("general-enter-button")}
       cancelText={t("general-cancel-button")}
-      onOk={onOkClick}
-      onCancel={close}
+      onCancel={onClose}
       horizontalRule={true}
       content={
         <ModalLoginForm
-          email={email}
+          loggingIn={loggingIn}
           loginError={loginError}
-          password={password}
-          setEmail={setEmail}
-          setPassword={setPassword}
+          onLogin={onLogin}
         />
       }
     />
@@ -64,12 +57,9 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
 export default DocumentLoginModal;
 
 const ModalLoginForm = styled(LoginForm)`
+  text-align: left;
+
   label {
     font-size: 14px;
-    text-align: left;
-  }
-
-  & > div:last-of-type {
-    margin-bottom: 30px;
   }
 `;

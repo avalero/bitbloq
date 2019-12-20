@@ -7,26 +7,26 @@ import AccessLayout from "../components/AccessLayout";
 import LoginPanel from "../components/LoginPanel";
 import { LOGIN_MUTATION } from "../apollo/queries";
 import { setToken } from "../lib/session";
+import { ILogin } from "../types";
 
 const LoginPage: FC = () => {
   const t = useTranslate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginError, setLogingError] = useState(false);
+  const [loginError, setLoginError] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
   const client = useApolloClient();
 
-  const onLoginClick = async () => {
+  const onLogin = async (input: ILogin) => {
     try {
       setLoggingIn(true);
-      setLogingError(false);
-      const result = await login({ variables: { email, password } });
-      setLoggingIn(false);
+      setLoginError(false);
+      const result = await login({
+        variables: { email: input.email, password: input.password }
+      });
       onLoginSuccess(result.data.login);
     } catch (e) {
       setLoggingIn(false);
-      setLogingError(true);
+      setLoginError(true);
     }
   };
 
@@ -39,15 +39,11 @@ const LoginPage: FC = () => {
   return (
     <AccessLayout panelTitle={t("login.title")}>
       <LoginPanel
-        email={email}
+        loggingIn={loggingIn}
         loginError={loginError}
-        loginIn={loggingIn}
-        password={password}
-        onLoginClick={onLoginClick}
-        secondaryButtonCallback={() => Router.push("/signup")}
+        onLogin={onLogin}
+        onSecondaryButton={() => Router.push("/signup")}
         secondaryButtonText={t("login.signup")}
-        setEmail={setEmail}
-        setPassword={setPassword}
       />
     </AccessLayout>
   );

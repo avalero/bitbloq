@@ -1,35 +1,28 @@
 import Link from "next/link";
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { Button, useTranslate } from "@bitbloq/ui";
+import { Button, useTranslate, colors } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
 import LoginWithGoogleButton from "./LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
+import { ILogin } from "../types";
 
 interface ILoginPanelProps {
-  email: string;
+  loggingIn: boolean;
   loginError: boolean;
-  loginIn: boolean;
-  password: string;
-  onLoginClick: () => any;
-  secondaryButtonCallback: () => any;
+  onLogin: (input: ILogin) => void;
+  onSecondaryButton: () => void;
   secondaryButtonText: string;
-  setEmail(email: string): void;
-  setPassword(password: string): void;
 }
 
 const LoginPanel: FC<ILoginPanelProps> = props => {
   const t = useTranslate();
   const {
-    email,
+    loggingIn,
     loginError,
-    loginIn,
-    password,
-    onLoginClick,
-    secondaryButtonCallback,
-    secondaryButtonText,
-    setEmail,
-    setPassword
+    onLogin,
+    onSecondaryButton,
+    secondaryButtonText
   } = props;
   return (
     <>
@@ -39,18 +32,13 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
         <LoginWithGoogleButton />
       </LoginWith>
       <Divider>{t("login.divider")}</Divider>
-      <Form onSubmit={(event: React.FormEvent) => event.preventDefault()}>
+      <Form>
         <LoginForm
-          email={email}
+          loggingIn={loggingIn}
           loginError={loginError}
-          password={password}
-          setEmail={setEmail}
-          setPassword={setPassword}
+          onLogin={onLogin}
         />
-        <StyledButton type="submit" onClick={onLoginClick} disabled={loginIn}>
-          {t("login.ok")}
-        </StyledButton>
-        <StyledButton secondary onClick={secondaryButtonCallback}>
+        <StyledButton secondary onClick={onSecondaryButton}>
           {secondaryButtonText}
         </StyledButton>
         <Link href="/forgot-password">
@@ -86,14 +74,13 @@ const LoginWith = styled.div`
   padding: 10px 0;
 `;
 
-const Form = styled.form`
+const Form = styled.div`
   a {
-    color: #00ade5;
+    color: ${colors.brandBlue};
     display: block;
     font-size: 14px;
     font-style: italic;
     font-weight: bold;
-    margin-top: 4px;
     text-align: center;
     text-decoration: none;
   }
