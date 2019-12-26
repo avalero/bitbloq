@@ -250,7 +250,6 @@ export async function uploadDocumentUserImage(
       getFilesizeInBytes(createReadStream().path) >
       LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES
     ) {
-      // 2megas
       throw new ApolloError(
         "Upload error, image too big.",
         "UPLOAD_SIZE_ERROR"
@@ -276,7 +275,6 @@ export async function uploadDocumentUserImage(
     if (
       getFilesizeInBytes(createReadStream().path) > LIMIT_SIZE.MAX_AVATAR_BYTES
     ) {
-      // 2megas
       throw new ApolloError(
         "Upload error, image too big.",
         "UPLOAD_SIZE_ERROR"
