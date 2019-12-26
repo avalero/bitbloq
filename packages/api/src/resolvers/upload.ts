@@ -12,6 +12,7 @@ import {
 
 import * as fs from "fs";
 import { Storage, Bucket } from "@google-cloud/storage";
+import { LIMIT_SIZE } from "../config";
 
 const storage: Storage = new Storage({
   projectId: process.env.GCLOUD_PROJECT_ID
@@ -121,9 +122,9 @@ const processUpload = async (input: {
       file.makePublic().then(async () => {
         publicUrl = getPublicUrl(input.gcsName);
         fileSize = getFilesizeInBytes(input.createReadStream().path);
-        if (fileSize > 10000000) {
+        if (fileSize > LIMIT_SIZE.MAX_RESOURCE_BYTES) {
           throw new ApolloError(
-            "Upload error, image too big.",
+            "Upload error, resource too big.",
             "UPLOAD_SIZE_ERROR"
           );
         }
@@ -241,13 +242,19 @@ export async function uploadDocumentUserImage(
       "UPLOAD_FORMAT_ERROR"
     );
   }
-  if (getFilesizeInBytes(createReadStream().path) > 2000000) {
-    // 2megas
-    throw new ApolloError("Upload error, image too big.", "UPLOAD_SIZE_ERROR");
-  }
+
   let uniqueName: string;
 
   if (documentID) {
+    if (
+      getFilesizeInBytes(createReadStream().path) >
+      LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES
+    ) {
+      throw new ApolloError(
+        "Upload error, image too big.",
+        "UPLOAD_SIZE_ERROR"
+      );
+    }
     const oldPhoto: IUpload | null = await UploadModel.findOne({
       documentsID: documentID,
       type: "docImage"
@@ -265,6 +272,14 @@ export async function uploadDocumentUserImage(
     }
     uniqueName = "docImage" + documentID + Date.now() + normalize(filename);
   } else {
+    if (
+      getFilesizeInBytes(createReadStream().path) > LIMIT_SIZE.MAX_AVATAR_BYTES
+    ) {
+      throw new ApolloError(
+        "Upload error, image too big.",
+        "UPLOAD_SIZE_ERROR"
+      );
+    }
     const oldPhoto: IUpload | null = await UploadModel.findOne({
       user: userID,
       type: "profilePhoto"
