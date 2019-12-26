@@ -40,7 +40,7 @@ export interface IDocumentListProps {
   nFolders: number;
 }
 
-const DocumentListComp: FC<IDocumentListProps> = ({
+const DocumentList: FC<IDocumentListProps> = ({
   currentPage,
   docsAndFols = [],
   pagesNumber,
@@ -191,7 +191,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       id: null,
       parent: null
     });
-    setEditFolderNameModal({ id: folder.id!, name: folder.name! });
+    setEditFolderNameModal({ id: folder.id!, name: folder.title });
   };
 
   const onFolderDeleteClick = (
@@ -272,7 +272,6 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         title: newTitle
       }
     }).catch(catchError => {
-      console.log(catchError);
       return catchError;
     });
 
@@ -361,7 +360,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   return (
     <>
       <DocumentsAndPaginator ref={drop}>
-        <DocumentList className={className}>
+        <Documents className={className}>
           {docsAndFols &&
             docsAndFols.map(document => (
               <StyledDocumentCard
@@ -518,7 +517,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                 </DropDown>
               </StyledDocumentCard>
             ))}
-        </DocumentList>
+        </Documents>
         <DocumentsPaginator
           currentPage={currentPage}
           pages={pagesNumber}
@@ -582,7 +581,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
           onSave={onUpdateDocTitle}
           modalTitle="Cambiar nombre del documento"
           modalText="Nombre del documento"
-          placeholder={editDocTitleModal.title || "Placeholder"}
+          placeholder="Documento sin título"
           saveButton="Cambiar"
         />
       )}
@@ -593,7 +592,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
           onSave={onUpdateFolderName}
           modalTitle="Cambiar nombre de la carpeta"
           modalText="Nombre de la carpeta"
-          placeholder={editFolderNameModal.name || "Placeholder"}
+          placeholder="Carpeta sin título"
           saveButton="Cambiar"
         />
       )}
@@ -601,9 +600,9 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   );
 };
 
-export default DocumentListComp;
+export default DocumentList;
 
-const DocumentList = styled.div`
+const Documents = styled.div`
   display: grid;
   grid-auto-rows: 240px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

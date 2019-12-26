@@ -138,6 +138,8 @@ export interface IFile {
 export interface IFolder {
   __typename?: "Folder";
   id?: Maybe<Scalars["ObjectID"]>;
+  // TODO: update types
+  title?: Maybe<Scalars["String"]>;
   name?: Maybe<Scalars["String"]>;
   user?: Maybe<Scalars["ObjectID"]>;
   documentsID?: Maybe<Array<Maybe<Scalars["ObjectID"]>>>;
