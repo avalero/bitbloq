@@ -1,10 +1,8 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { Button, DialogModal, useTranslate } from "@bitbloq/ui";
-import { useMutation } from "@apollo/react-hooks";
+import { DialogModal, useTranslate } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
 import { setToken } from "../lib/session";
-import { LOGIN_MUTATION } from "../apollo/queries";
 
 interface IDocumentLoginModalProps {
   isOpen: boolean;
@@ -16,47 +14,20 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
   onClose
 }) => {
   const t = useTranslate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState(false);
-  const [login] = useMutation(LOGIN_MUTATION);
 
-  const close = () => {
-    setEmail("");
-    setPassword("");
-    setLoginError(false);
+  const onLoginSuccess = (token: string) => {
+    setToken(token);
     onClose();
-  };
-
-  const onOkClick = async () => {
-    try {
-      setLoginError(false);
-      const result = await login({ variables: { email, password } });
-      setToken(result.data.login);
-      close();
-    } catch (e) {
-      setLoginError(true);
-    }
   };
 
   return (
     <DialogModal
       isOpen={isOpen}
       title={t("general-enter-button")}
-      okText={t("general-enter-button")}
       cancelText={t("general-cancel-button")}
-      onOk={onOkClick}
-      onCancel={close}
+      onCancel={onClose}
       horizontalRule={true}
-      content={
-        <ModalLoginForm
-          email={email}
-          loginError={loginError}
-          password={password}
-          setEmail={setEmail}
-          setPassword={setPassword}
-        />
-      }
+      content={<ModalLoginForm onLoginSuccess={onLoginSuccess} />}
     />
   );
 };
@@ -64,12 +35,9 @@ const DocumentLoginModal: FC<IDocumentLoginModalProps> = ({
 export default DocumentLoginModal;
 
 const ModalLoginForm = styled(LoginForm)`
+  text-align: left;
+
   label {
     font-size: 14px;
-    text-align: left;
-  }
-
-  & > div:last-of-type {
-    margin-bottom: 30px;
   }
 `;

@@ -1,36 +1,20 @@
 import Link from "next/link";
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { Button, useTranslate } from "@bitbloq/ui";
+import { Button, useTranslate, colors } from "@bitbloq/ui";
 import LoginForm from "./LoginForm";
 import LoginWithGoogleButton from "./LoginWithGoogleButton";
 import LoginWithMicrosoftButton from "./LoginWithMicrosoftButton";
 
 interface ILoginPanelProps {
-  email: string;
-  loginError: boolean;
-  loginIn: boolean;
-  password: string;
-  onLoginClick: () => any;
-  secondaryButtonCallback: () => any;
+  onLoginSuccess: (token: string) => void;
+  onSecondaryButton: () => void;
   secondaryButtonText: string;
-  setEmail(email: string): void;
-  setPassword(password: string): void;
 }
 
 const LoginPanel: FC<ILoginPanelProps> = props => {
   const t = useTranslate();
-  const {
-    email,
-    loginError,
-    loginIn,
-    password,
-    onLoginClick,
-    secondaryButtonCallback,
-    secondaryButtonText,
-    setEmail,
-    setPassword
-  } = props;
+  const { onLoginSuccess, onSecondaryButton, secondaryButtonText } = props;
   return (
     <>
       {t("login.with")}
@@ -39,18 +23,9 @@ const LoginPanel: FC<ILoginPanelProps> = props => {
         <LoginWithGoogleButton />
       </LoginWith>
       <Divider>{t("login.divider")}</Divider>
-      <Form onSubmit={(event: React.FormEvent) => event.preventDefault()}>
-        <LoginForm
-          email={email}
-          loginError={loginError}
-          password={password}
-          setEmail={setEmail}
-          setPassword={setPassword}
-        />
-        <StyledButton type="submit" onClick={onLoginClick} disabled={loginIn}>
-          {t("login.ok")}
-        </StyledButton>
-        <StyledButton secondary onClick={secondaryButtonCallback}>
+      <Form>
+        <LoginForm onLoginSuccess={onLoginSuccess} />
+        <StyledButton secondary onClick={onSecondaryButton}>
           {secondaryButtonText}
         </StyledButton>
         <Link href="/forgot-password">
@@ -86,14 +61,13 @@ const LoginWith = styled.div`
   padding: 10px 0;
 `;
 
-const Form = styled.form`
+const Form = styled.div`
   a {
-    color: #00ade5;
+    color: ${colors.brandBlue};
     display: block;
     font-size: 14px;
     font-style: italic;
     font-weight: bold;
-    margin-top: 4px;
     text-align: center;
     text-decoration: none;
   }
