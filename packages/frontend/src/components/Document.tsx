@@ -2,9 +2,12 @@ import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
 import { colors, Button, DialogModal, Icon, Translate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import gql from "graphql-tag";
 import { ApolloError } from "apollo-client";
 import {
+  CHANGE_SUBMISSION_STATE_MUTATION,
+  CREATE_EXERCISE_MUTATION,
+  DELETE_SUBMISSION_MUTATION,
+  DOCUMENT_QUERY,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_UPDATE_MUTATION,
   EXERCISE_DELETE_MUTATION,
@@ -19,66 +22,6 @@ import DocumentTypeTag from "./DocumentTypeTag";
 import EditInputModal from "./EditInputModal";
 import ExercisePanel from "./ExercisePanel";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-
-const DOCUMENT_QUERY = gql`
-  query Document($id: ObjectID!) {
-    document(id: $id) {
-      id
-      type
-      title
-      description
-      image {
-        image
-        isSnapshot
-      }
-      folder
-      parentsPath {
-        id
-        name
-      }
-      exercises {
-        id
-        code
-        title
-        acceptSubmissions
-        createdAt
-        submissions {
-          id
-          studentNick
-          finished
-          finishedAt
-          type
-          grade
-          active
-        }
-      }
-    }
-  }
-`;
-
-const CREATE_EXERCISE_MUTATION = gql`
-  mutation CreateExercise($documentId: ObjectID!, $title: String!) {
-    createExercise(input: { document: $documentId, title: $title }) {
-      id
-    }
-  }
-`;
-
-const DELETE_SUBMISSION_MUTATION = gql`
-  mutation DeleteSubmission($id: ObjectID!) {
-    deleteSubmission(submissionID: $id) {
-      id
-    }
-  }
-`;
-
-const CHANGE_SUBMISSIONS_STATE_MUTATION = gql`
-  mutation ChangeSubmissionsState($id: ObjectID!, $subState: Boolean!) {
-    changeSubmissionsState(id: $id, subState: $subState) {
-      id
-    }
-  }
-`;
 
 class DocumentState {
   public readonly isCreateExerciseOpen: boolean = false;
@@ -197,7 +140,7 @@ class Document extends React.Component<any, DocumentState> {
       <React.Fragment key={exercise.id}>
         <Mutation mutation={DELETE_SUBMISSION_MUTATION}>
           {deleteSubmission => (
-            <Mutation mutation={CHANGE_SUBMISSIONS_STATE_MUTATION}>
+            <Mutation mutation={CHANGE_SUBMISSION_STATE_MUTATION}>
               {changeSubmissionsState => (
                 <Mutation mutation={REMOVE_SUBMISSION_MUTATION}>
                   {removeSubmission => (

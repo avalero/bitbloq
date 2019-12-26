@@ -1,27 +1,9 @@
-import gql from "graphql-tag";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import styled from "@emotion/styled";
 import { Icon } from "@bitbloq/ui";
+import { FOLDER_QUERY } from "../apollo/queries";
 import { IFolder } from "../../../api/src/api-types";
-
-const FOLDER_QUERY = gql`
-  query folder($id: ObjectID!) {
-    folder(id: $id) {
-      id
-      name
-      parent
-      parentsPath {
-        id
-        name
-      }
-      folders {
-        id
-        name
-      }
-    }
-  }
-`;
 
 interface ISelectorOptionProps {
   folder: IFolder;
