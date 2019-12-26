@@ -74,7 +74,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   });
   const [editDocTitleModal, setEditDocTitleModal] = useState<IState>({
     id: null,
-    title: null
+    name: null
   });
   const [editFolderNameModal, setEditFolderNameModal] = useState<IState>({
     id: null,
@@ -142,7 +142,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       id: null,
       parent: null
     });
-    setEditDocTitleModal({ id: document.id!, title: document.title });
+    setEditDocTitleModal({ id: document.id!, name: document.name });
   };
 
   const onDocumentDeleteClick = (
@@ -233,11 +233,11 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     await updateDocument({
       variables: {
         id: editDocTitleModal.id,
-        title: docTitle ? docTitle : "Documento sin título"
+        name: docTitle ? docTitle : "Documento sin título"
       }
     });
     refetchDocsFols();
-    setEditDocTitleModal({ id: null, title: null });
+    setEditDocTitleModal({ id: null, name: null });
     setMenuOpenId("");
   };
 
@@ -258,7 +258,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     document: IDocument
   ) => {
     e.stopPropagation();
-    let newTitle: string = `${document.title} copia`;
+    let newTitle: string = `${document.name} copia`;
 
     if (newTitle.length >= 64) {
       newTitle = newTitle.slice(0, 63);
@@ -269,7 +269,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         documentID: document.id,
         order,
         searchTitle: searchText,
-        title: newTitle
+        name: newTitle
       }
     }).catch(catchError => {
       console.log(catchError);
@@ -577,12 +577,12 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       />
       {editDocTitleModal.id && (
         <EditInputModal
-          title={editDocTitleModal.title || undefined}
-          onCancel={() => setEditDocTitleModal({ id: null, title: null })}
+          title={editDocTitleModal.name || undefined}
+          onCancel={() => setEditDocTitleModal({ id: null, name: null })}
           onSave={onUpdateDocTitle}
           modalTitle="Cambiar nombre del documento"
           modalText="Nombre del documento"
-          placeholder={editDocTitleModal.title || "Placeholder"}
+          placeholder={editDocTitleModal.name || "Placeholder"}
           saveButton="Cambiar"
         />
       )}

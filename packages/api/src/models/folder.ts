@@ -6,7 +6,7 @@ export interface IFolder extends Document {
   user?: string;
   documentsID?: [string];
   foldersID?: [string];
-  parent?: string;
+  parentFolder?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -36,7 +36,7 @@ const folderMongSchema: Schema = new Schema({
     }
   ],
 
-  parent: {
+  parentFolder: {
     type: Schema.Types.ObjectId,
     ref: "FolderModel"
   }

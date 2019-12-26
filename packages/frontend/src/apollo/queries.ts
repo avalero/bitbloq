@@ -23,7 +23,7 @@ export const DOCUMENT_QUERY = gql`
     document(id: $id) {
       id
       type
-      title
+      name
       description
       content
       image {
@@ -38,7 +38,7 @@ export const DOCUMENT_QUERY = gql`
       }
       exercisesResources {
         id
-        title
+        name
         type
       }
     }
@@ -50,7 +50,7 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
     openPublicDocument(id: $id) {
       id
       type
-      title
+      name
       description
       content
       image {
@@ -80,7 +80,7 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
     ) {
       result {
         id
-        title
+        name
         type
         createdAt
         updatedAt
@@ -108,7 +108,7 @@ export const DOCUMENTS_QUERY = gql`
     documents {
       id
       type
-      title
+      name
       createdAt
       image {
         image
@@ -135,7 +135,7 @@ export const ROOT_FOLDER_QUERY = gql`
       documents {
         id
         type
-        title
+        name
         createdAt
         image {
           image
@@ -162,7 +162,7 @@ export const FOLDER_QUERY = gql`
       documents {
         id
         type
-        title
+        name
         createdAt
         updatedAt
         image
@@ -171,7 +171,7 @@ export const FOLDER_QUERY = gql`
         content
         folder
         exercises {
-          title
+          name
           code
         }
       }
@@ -191,7 +191,7 @@ export const EXAMPLES_QUERY = gql`
     examples {
       id
       type
-      title
+      name
       image {
         image
         isSnapshot
@@ -203,7 +203,7 @@ export const EXAMPLES_QUERY = gql`
 export const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
     $type: String!
-    $title: String!
+    $name: String!
     $description: String
     $content: String
     $advancedMode: Boolean
@@ -213,7 +213,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     createDocument(
       input: {
         type: $type
-        title: $title
+        name: $name
         description: $description
         content: $content
         advancedMode: $advancedMode
@@ -234,7 +234,7 @@ export const DUPLICATE_DOCUMENT_MUTATION = gql`
     $itemsPerPage: Number
     $order: String
     $searchTitle: String
-    $title: String!
+    $name: String!
   ) {
     duplicateDocument(
       currentLocation: $currentLocation
@@ -242,7 +242,7 @@ export const DUPLICATE_DOCUMENT_MUTATION = gql`
       itemsPerPage: $itemsPerPage
       order: $order
       searchTitle: $searchTitle
-      title: $title
+      name: $name
     ) {
       document {
         id
@@ -299,7 +299,7 @@ export const SET_DOCUMENT_IMAGE_MUTATION = gql`
 export const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
     $id: ObjectID!
-    $title: String
+    $name: String
     $content: String
     $description: String
     $advancedMode: Boolean
@@ -308,7 +308,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
     updateDocument(
       id: $id
       input: {
-        title: $title
+        name: $name
         content: $content
         description: $description
         advancedMode: $advancedMode
@@ -365,7 +365,7 @@ export const EXERCISE_QUERY = gql`
     exercise(id: $id) {
       id
       type
-      title
+      name
       code
       teacherName
       content
@@ -375,7 +375,7 @@ export const EXERCISE_QUERY = gql`
         file
         id
         thumbnail
-        title
+        name
         type
       }
     }
@@ -397,7 +397,7 @@ export const EXERCISE_UPDATE_MUTATION = gql`
     updateExercise(id: $id, input: $input) {
       id
       type
-      title
+      name
       code
       teacherName
       content
@@ -418,7 +418,7 @@ export const EXERCISE_DELETE_MUTATION = gql`
 export const SUBMISSION_QUERY = gql`
   query Submission($id: ObjectID!) {
     submission(id: $id) {
-      title
+      name
       studentNick
       content
     }
@@ -714,7 +714,7 @@ export const GET_CLOUD_RESOURCES = gql`
         preview
         size
         thumbnail
-        title
+        name
         type
       }
     }

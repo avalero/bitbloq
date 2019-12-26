@@ -78,17 +78,17 @@ const documentResolver = {
       args: IMutationCreateDocumentArgs,
       context: { user: IUserInToken }
     ) => {
-      if (args.input.folder) {
-        if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
+      if (args.input.parentFolder) {
+        if (!(await FolderModel.findOne({ _id: args.input.parentFolder }))) {
           throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
         }
       }
       const documentNew: IDocument = new DocumentModel({
         user: context.user.userID,
-        title: args.input.title,
+        name: args.input.name,
         type: args.input.type,
         folder:
-          args.input.folder ||
+          args.input.parentFolder ||
           ((await UserModel.findOne({ _id: context.user.userID })) as IUser)
             .rootFolder,
         content: args.input.content,
@@ -101,7 +101,7 @@ const documentResolver = {
       const newDocument: IDocument = await DocumentModel.create(documentNew);
 
       await FolderModel.updateOne(
-        { _id: documentNew.folder },
+        { _id: documentNew.parentFolder },
         { $push: { documentsID: newDocument._id } },
         { new: true }
       );
@@ -138,11 +138,11 @@ const documentResolver = {
         description: document.description,
         example: document.example,
         exResourcesID: document.exResourcesID,
-        folder: document.folder,
+        folder: document.parentFolder,
         image: document.image,
         public: document.public,
         resourcesID: document.resourcesID,
-        title: args.title,
+        name: args.name,
         type: document.type,
         user: user._id,
         version: document.version,
@@ -165,7 +165,7 @@ const documentResolver = {
 
       // Get new document page
       const location: IFolder | null = await FolderModel.findOne({
-        _id: newDocument.folder
+        _id: newDocument.parentFolder
       });
       if (!location) {
         return new ApolloError("Location does not exists", "FOLDER_NOT_FOUND");
@@ -177,78 +177,39 @@ const documentResolver = {
 
       const orderFunction = orderFunctions[args.order! as string];
 
-      const filterOptionsDoc =
+      const filterOptions =
         text === ""
           ? {
-              folder: location.id
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID,
+              parentFolder: location
             }
-          : {};
-      const filterOptionsFol =
-        text === ""
-          ? {
-              parent: location.id
-            }
-          : {};
+          : {
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
 
-      const docs: IDocument[] = await DocumentModel.find({
-        title: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsDoc
-      });
-      const fols: IFolder[] = await FolderModel.find({
-        name: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsFol
-      });
+      const docs: IDocument[] = await DocumentModel.find(filterOptions);
+      const fols: IFolder[] = await FolderModel.find(filterOptions);
 
       const docsParent = await Promise.all(
-        docs.map(
-          async ({
-            title,
-            _id: id,
-            createdAt,
-            updatedAt,
-            type,
-            folder: parent,
-            image,
+        docs.map(async ({ _id: id, image, ...op }) => {
+          return {
+            id,
+            image: image!.image,
             ...op
-          }) => {
-            return {
-              title,
-              id,
-              createdAt,
-              updatedAt,
-              type,
-              parent,
-              image: image!.image,
-              ...op
-            };
-          }
-        )
+          };
+        })
       );
       const folsTitle = await Promise.all(
-        fols.map(
-          async ({
-            name: title,
-            _id: id,
-            createdAt,
-            updatedAt,
-            parent,
-            documentsID,
-            foldersID,
+        fols.map(async ({ _id: id, ...op }) => {
+          return {
+            name,
+            id,
+            type: "folder",
             ...op
-          }) => {
-            return {
-              title,
-              id,
-              createdAt,
-              updatedAt,
-              type: "folder",
-              parent,
-              ...op
-            };
-          }
-        )
+          };
+        })
       );
 
       const allData = [...docsParent, ...folsTitle];
@@ -277,7 +238,7 @@ const documentResolver = {
       });
       if (existDocument) {
         await FolderModel.updateOne(
-          { _id: existDocument.folder }, // modifico los documentsID de la carpeta
+          { _id: existDocument.parentFolder }, // modifico los documentsID de la carpeta
           { $pull: { documentsID: existDocument._id } }
         );
         await Promise.all([
@@ -308,24 +269,24 @@ const documentResolver = {
         _id: args.id,
         user: context.user.userID
       });
-      if (args.input && args.input!.folder) {
-        if (!(await FolderModel.findOne({ _id: args.input.folder }))) {
+      if (args.input && args.input!.parentFolder) {
+        if (!(await FolderModel.findOne({ _id: args.input.parentFolder }))) {
           throw new ApolloError("Folder does not exist", "FOLDER_NOT_FOUND");
         }
       }
       if (existDocument) {
         if (
           args.input &&
-          args.input.folder &&
+          args.input.parentFolder &&
           args.input &&
-          args.input.folder !== String(existDocument.folder)
+          args.input.parentFolder !== String(existDocument.parentFolder)
         ) {
           await FolderModel.updateOne(
-            { _id: args.input.folder }, // modifico los documentsID de la carpeta
+            { _id: args.input.parentFolder }, // modifico los documentsID de la carpeta
             { $push: { documentsID: existDocument._id } }
           );
           await FolderModel.updateOne(
-            { _id: existDocument.folder }, // modifico los documentsID de la carpeta donde estaba el documento
+            { _id: existDocument.parentFolder }, // modifico los documentsID de la carpeta donde estaba el documento
             { $pull: { documentsID: existDocument._id } }
           );
         }
@@ -333,15 +294,15 @@ const documentResolver = {
           { _id: existDocument._id },
           {
             $set: {
-              title: args.input
-                ? args.input.title || existDocument.title
-                : existDocument.title,
+              name: args.input
+                ? args.input.name || existDocument.name
+                : existDocument.name,
               type: args.input
                 ? args.input.type || existDocument.type
                 : existDocument.type,
-              folder: args.input
-                ? args.input.folder || existDocument.folder
-                : existDocument.folder,
+              parentFolder: args.input
+                ? args.input.parentFolder || existDocument.parentFolder
+                : existDocument.parentFolder,
               content: args.input
                 ? args.input.content || existDocument.content
                 : existDocument.content,
@@ -531,78 +492,39 @@ const documentResolver = {
 
       const orderFunction = orderFunctions[args.order!];
 
-      const filterOptionsDoc =
+      const filterOptions =
         text === ""
           ? {
-              folder: currentLocation
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID,
+              parentFolder: currentLocation
             }
-          : {};
-      const filterOptionsFol =
-        text === ""
-          ? {
-              parent: currentLocation
-            }
-          : {};
+          : {
+              name: { $regex: `.*${text}.*`, $options: "i" },
+              user: context.user.userID
+            };
 
-      const docs: IDocument[] = await DocumentModel.find({
-        title: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsDoc
-      });
-      const fols: IFolder[] = await FolderModel.find({
-        name: { $regex: `.*${text}.*`, $options: "i" },
-        user: context.user.userID,
-        ...filterOptionsFol
-      });
+      const docs: IDocument[] = await DocumentModel.find(filterOptions);
+      const fols: IFolder[] = await FolderModel.find(filterOptions);
 
       const docsParent = await Promise.all(
-        docs.map(
-          async ({
-            title,
-            _id: id,
-            createdAt,
-            updatedAt,
-            type,
-            folder: parent,
-            image,
+        docs.map(async ({ _id: id, image, ...op }) => {
+          return {
+            id,
+            image: image!.image,
             ...op
-          }) => {
-            return {
-              title,
-              id,
-              createdAt,
-              updatedAt,
-              type,
-              parent,
-              image: image!.image,
-              ...op
-            };
-          }
-        )
+          };
+        })
       );
       const folsTitle = await Promise.all(
-        fols.map(
-          async ({
-            name: title,
-            _id: id,
-            createdAt,
-            updatedAt,
-            parent,
-            documentsID,
-            foldersID,
+        fols.map(async ({ _id: id, ...op }) => {
+          return {
+            name,
+            id,
+            type: "folder",
             ...op
-          }) => {
-            return {
-              title,
-              id,
-              createdAt,
-              updatedAt,
-              type: "folder",
-              parent,
-              ...op
-            };
-          }
-        )
+          };
+        })
       );
 
       const allData = [...docsParent, ...folsTitle];
@@ -612,7 +534,7 @@ const documentResolver = {
       );
       const nFolders: number = await FolderModel.countDocuments({
         user: context.user.userID,
-        parent: currentLocation
+        parentFolder: currentLocation
       });
       const folderLoc: IFolder | null = await FolderModel.findOne({
         _id: currentLocation
@@ -663,7 +585,7 @@ const documentResolver = {
       UploadModel.find({ document: document._id }),
     parentsPath: async (document: IDocument) => {
       const parent: IFolder | null = await FolderModel.findOne({
-        _id: document.folder
+        _id: document.parentFolder
       });
       if (!parent) {
         throw new ApolloError("Folder has no parent");
@@ -677,7 +599,7 @@ const documentResolver = {
       })).map(i => {
         return {
           id: i._id,
-          title: i.filename,
+          name: i.filename,
           type: i.type,
           size: i.size,
           thumbnail: i.image,
@@ -695,7 +617,7 @@ const documentResolver = {
       })).map(i => {
         return {
           id: i._id,
-          title: i.filename,
+          name: i.filename,
           type: i.type,
           size: i.size,
           thumbnail: i.image,

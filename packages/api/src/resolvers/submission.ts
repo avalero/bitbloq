@@ -144,7 +144,7 @@ const submissionResolver = {
         cache: exFather.cache,
         user: exFather.user,
         document: exFather.document,
-        title: exFather.title,
+        name: exFather.name,
         type: exFather.type,
         active: true,
         contentVersion: exFather.contentVersion || CONTENT_VERSION

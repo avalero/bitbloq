@@ -59,11 +59,11 @@ const folderResolver = {
       const folderNew: IFolder = new FolderModel({
         name: args.input!.name,
         user: context.user.userID,
-        parent: args.input!.parent || user!.rootFolder
+        parentFolder: args.input!.parent || user!.rootFolder
       });
       const newFolder: IFolder = await FolderModel.create(folderNew);
       await FolderModel.findOneAndUpdate(
-        { _id: folderNew.parent },
+        { _id: folderNew.parentFolder },
         { $push: { foldersID: newFolder._id } },
         { new: true }
       );
@@ -104,7 +104,7 @@ const folderResolver = {
               context
             );
             await FolderModel.updateOne(
-              { _id: existFolder.parent },
+              { _id: existFolder.parentFolder },
               { $pull: { documentsID: document } },
               { new: true }
             );
@@ -120,7 +120,7 @@ const folderResolver = {
           }
         }
         await FolderModel.updateOne(
-          { _id: existFolder.parent },
+          { _id: existFolder.parentFolder },
           { $pull: { foldersID: existFolder._id } },
           { new: true }
         );
@@ -170,14 +170,14 @@ const folderResolver = {
             }
             await FolderModel.updateOne(
               // quito la carpeta de la carpeta en la que estuviera
-              { _id: fol.parent },
+              { _id: fol.parentFolder },
               { $pull: { foldersID: folder } },
               { new: true }
             );
             await FolderModel.updateOne(
               // actualizo la carpeta con el nuevo padre
               { _id: folder },
-              { parent: existFolder._id }
+              { parentFolder: existFolder._id }
             );
             await FolderModel.updateOne(
               { _id: existFolder._id },
@@ -200,14 +200,14 @@ const folderResolver = {
             }
             await FolderModel.updateOne(
               // quito el documento de la carpeta en la que estuviera
-              { _id: doc.folder },
+              { _id: doc.parentFolder },
               { $pull: { documentsID: document } },
               { new: true }
             );
             await DocumentModel.updateOne(
               // actualizo el documento con la nueva carpeta
               { _id: document },
-              { folder: existFolder._id }
+              { parentFolder: existFolder._id }
             );
             await FolderModel.updateOne(
               { _id: existFolder._id },
@@ -216,14 +216,17 @@ const folderResolver = {
             );
           }
         }
-        if (args.input!.parent && args.input!.parent !== existFolder.parent) {
+        if (
+          args.input!.parent &&
+          args.input!.parent !== existFolder.parentFolder
+        ) {
           // si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
           await FolderModel.updateOne(
             { _id: args.input!.parent },
             { $push: { foldersID: existFolder._id } }
           );
           await FolderModel.updateOne(
-            { _id: existFolder.parent },
+            { _id: existFolder.parentFolder },
             { $pull: { foldersID: existFolder._id } }
           );
         }
@@ -238,7 +241,7 @@ const folderResolver = {
           {
             $set: {
               name: args.input!.name || existFolder.name,
-              parent: args.input!.parent || existFolder.parent
+              parentFolder: args.input!.parent || existFolder.parentFolder
             }
           },
           { new: true }

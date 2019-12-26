@@ -1,20 +1,16 @@
 import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
 import { CONTENT_VERSION } from "../config";
+import { ICommonProps } from "./interfaces";
 
-export interface ISubmission extends Document {
+export interface ISubmission extends ICommonProps, Document {
   id: string;
-  user?: string;
-  title: string;
   exercise?: string;
   studentNick?: string;
   password?: string;
-  content?: string;
   contentVersion?: number;
-  cache?: string;
   finished?: boolean;
   comment?: string;
-  type: string;
   image: string;
   active: boolean;
 }
@@ -25,7 +21,7 @@ const submissionMongSchema: Schema = new Schema({
     ref: "UserModel"
   },
 
-  title: {
+  name: {
     type: String,
     default: "New Submission"
   },

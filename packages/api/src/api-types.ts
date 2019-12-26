@@ -51,9 +51,9 @@ export interface IDocument {
   __typename?: "Document";
   id?: Maybe<Scalars["ObjectID"]>;
   user?: Maybe<Scalars["ObjectID"]>;
-  title: Scalars["String"];
+  name: Scalars["String"];
   type?: Maybe<Scalars["String"]>;
-  folder?: Maybe<Scalars["ObjectID"]>;
+  parentFolder?: Maybe<Scalars["ObjectID"]>;
   content?: Maybe<Scalars["String"]>;
   advancedMode?: Maybe<Scalars["Boolean"]>;
   cache?: Maybe<Scalars["String"]>;
@@ -74,9 +74,9 @@ export interface IDocument {
 
 export interface IDocumentIn {
   user?: Maybe<Scalars["ObjectID"]>;
-  title?: Maybe<Scalars["String"]>;
+  name?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
-  folder?: Maybe<Scalars["ObjectID"]>;
+  parentFolder?: Maybe<Scalars["ObjectID"]>;
   content?: Maybe<Scalars["String"]>;
   advancedMode?: Maybe<Scalars["Boolean"]>;
   cache?: Maybe<Scalars["String"]>;
@@ -97,7 +97,7 @@ export interface IExercise {
   id?: Maybe<Scalars["ObjectID"]>;
   document?: Maybe<Scalars["ObjectID"]>;
   user?: Maybe<Scalars["ObjectID"]>;
-  title?: Maybe<Scalars["String"]>;
+  name?: Maybe<Scalars["String"]>;
   content?: Maybe<Scalars["String"]>;
   contentVersion?: Maybe<Scalars["Number"]>;
   cache?: Maybe<Scalars["String"]>;
@@ -116,7 +116,7 @@ export interface IExercise {
 
 export interface IExerciseIn {
   document?: Maybe<Scalars["ObjectID"]>;
-  title?: Maybe<Scalars["String"]>;
+  name?: Maybe<Scalars["String"]>;
   code?: Maybe<Scalars["String"]>;
   description?: Maybe<Scalars["String"]>;
   acceptSubmissions?: Maybe<Scalars["Boolean"]>;
@@ -178,11 +178,12 @@ export interface IMutation {
   sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
   checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
   updateForgotPassword?: Maybe<Scalars["String"]>;
-  deleteMyUser?: Maybe<IUser>;
+  deleteMyUser?: Maybe<Scalars["String"]>;
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
   updateMyPlan?: Maybe<Scalars["String"]>;
   sendChangeMyEmailToken?: Maybe<Scalars["String"]>;
+  checkTokenChangeEmail?: Maybe<Scalars["Boolean"]>;
   confirmChangeEmail?: Maybe<Scalars["String"]>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
@@ -284,6 +285,10 @@ export interface IMutationSendChangeMyEmailTokenArgs {
   newEmail: Scalars["String"];
 }
 
+export interface IMutationCheckTokenChangeEmailArgs {
+  token: Scalars["String"];
+}
+
 export interface IMutationConfirmChangeEmailArgs {
   token: Scalars["String"];
   password: Scalars["String"];
@@ -303,7 +308,7 @@ export interface IMutationDuplicateDocumentArgs {
   itemsPerPage?: Maybe<Scalars["Number"]>;
   order?: Maybe<Scalars["String"]>;
   searchTitle?: Maybe<Scalars["String"]>;
-  title: Scalars["String"];
+  name: Scalars["String"];
 }
 
 export interface IMutationUpdateDocumentArgs {
@@ -537,7 +542,7 @@ export interface IResource {
 export interface IResult {
   __typename?: "Result";
   id?: Maybe<Scalars["ObjectID"]>;
-  title?: Maybe<Scalars["String"]>;
+  name?: Maybe<Scalars["String"]>;
   image?: Maybe<Scalars["String"]>;
   type?: Maybe<Scalars["String"]>;
   createdAt?: Maybe<Scalars["Date"]>;
@@ -576,7 +581,7 @@ export interface ISocialLogin {
 export interface ISubmission {
   __typename?: "Submission";
   id?: Maybe<Scalars["ObjectID"]>;
-  title?: Maybe<Scalars["String"]>;
+  name?: Maybe<Scalars["String"]>;
   exercise?: Maybe<Scalars["ObjectID"]>;
   user?: Maybe<Scalars["ObjectID"]>;
   document?: Maybe<Scalars["ObjectID"]>;
@@ -599,7 +604,7 @@ export interface ISubmission {
 }
 
 export interface ISubmissionIn {
-  title?: Maybe<Scalars["String"]>;
+  name?: Maybe<Scalars["String"]>;
   finished?: Maybe<Scalars["Boolean"]>;
   studentComment?: Maybe<Scalars["String"]>;
   studentNick?: Maybe<Scalars["String"]>;
@@ -659,6 +664,7 @@ export interface IUser {
   updatedAt?: Maybe<Scalars["Date"]>;
   lastLogin?: Maybe<Scalars["Date"]>;
   rootFolder?: Maybe<Scalars["ObjectID"]>;
+  socialLogin?: Maybe<Scalars["Boolean"]>;
   documents?: Maybe<Array<Maybe<IDocument>>>;
   folders?: Maybe<Array<Maybe<IFolder>>>;
 }
@@ -943,9 +949,9 @@ export type IDocumentResolvers<
 > = ResolversObject<{
   id?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
   user?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
-  title?: Resolver<IResolversTypes["String"], ParentType, ContextType>;
+  name?: Resolver<IResolversTypes["String"], ParentType, ContextType>;
   type?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
-  folder?: Resolver<
+  parentFolder?: Resolver<
     Maybe<IResolversTypes["ObjectID"]>,
     ParentType,
     ContextType
@@ -1032,7 +1038,7 @@ export type IExerciseResolvers<
     ContextType
   >;
   user?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
-  title?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+  name?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   content?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   contentVersion?: Resolver<
     Maybe<IResolversTypes["Number"]>,
@@ -1234,7 +1240,7 @@ export type IMutationResolvers<
     IMutationUpdateForgotPasswordArgs
   >;
   deleteMyUser?: Resolver<
-    Maybe<IResolversTypes["User"]>,
+    Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
     RequireFields<IMutationDeleteMyUserArgs, "password">
@@ -1266,6 +1272,12 @@ export type IMutationResolvers<
     ContextType,
     RequireFields<IMutationSendChangeMyEmailTokenArgs, "newEmail">
   >;
+  checkTokenChangeEmail?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationCheckTokenChangeEmailArgs, "token">
+  >;
   confirmChangeEmail?: Resolver<
     Maybe<IResolversTypes["String"]>,
     ParentType,
@@ -1288,7 +1300,7 @@ export type IMutationResolvers<
     Maybe<IResolversTypes["DuplicateDocument"]>,
     ParentType,
     ContextType,
-    RequireFields<IMutationDuplicateDocumentArgs, "documentID" | "title">
+    RequireFields<IMutationDuplicateDocumentArgs, "documentID" | "name">
   >;
   updateDocument?: Resolver<
     Maybe<IResolversTypes["Document"]>,
@@ -1639,7 +1651,7 @@ export type IResultResolvers<
   ParentType extends IResolversParentTypes["Result"] = IResolversParentTypes["Result"]
 > = ResolversObject<{
   id?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
-  title?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+  name?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   image?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   type?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
@@ -1702,7 +1714,7 @@ export type ISubmissionResolvers<
   ParentType extends IResolversParentTypes["Submission"] = IResolversParentTypes["Submission"]
 > = ResolversObject<{
   id?: Resolver<Maybe<IResolversTypes["ObjectID"]>, ParentType, ContextType>;
-  title?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
+  name?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   exercise?: Resolver<
     Maybe<IResolversTypes["ObjectID"]>,
     ParentType,
@@ -1895,6 +1907,11 @@ export type IUserResolvers<
   lastLogin?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
   rootFolder?: Resolver<
     Maybe<IResolversTypes["ObjectID"]>,
+    ParentType,
+    ContextType
+  >;
+  socialLogin?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
     ParentType,
     ContextType
   >;

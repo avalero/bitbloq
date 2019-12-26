@@ -52,7 +52,7 @@ type Subscription {
 
 type Submission {
   id: ObjectID
-  title: String
+  name: String
   exercise: ObjectID
   user: ObjectID
   document: ObjectID
@@ -74,7 +74,7 @@ type Submission {
   active: Boolean
 }
 input SubmissionIn {
-  title: String
+  name: String
   finished: Boolean
   studentComment: String
   studentNick: String
