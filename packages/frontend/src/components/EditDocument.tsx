@@ -431,11 +431,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
       </EditorComponent>
       {isEditTitleVisible && (
         <EditInputModal
-          title={title}
+          value={title}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
-          modalTitle="Cambiar nombre del documento"
-          modalText="Nombre del documento"
+          title="Cambiar nombre del documento"
+          label="Nombre del documento"
           placeholder="Documento sin título"
           saveButton="Cambiar"
         />

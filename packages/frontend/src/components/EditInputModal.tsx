@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import { Button, Input, Modal } from "@bitbloq/ui";
+import { Button, Input, Modal, colors } from "@bitbloq/ui";
 import { isValidEmail, isValidName } from "../util";
 import ErrorMessage from "./ErrorMessage";
 
@@ -8,19 +8,19 @@ interface IEditInputModalProps {
   className?: string;
   disabledSave?: boolean;
   errorText?: string;
-  title?: string;
-  onSave: (title?: string) => any;
-  onChange?: (title?: string) => any;
+  value?: string;
+  onSave: (value?: string) => any;
+  onChange?: (value?: string) => any;
   onCancel: () => any;
-  modalTitle: string;
-  modalText: string;
+  title: string;
+  text?: string;
   placeholder: string;
   saveButton: string;
   type?: string;
   transparentOverlay?: boolean;
   validateInput?: boolean;
   isOpen?: boolean;
-  label?: string;
+  label: string;
 }
 
 const EditInputModal: FC<IEditInputModalProps> = props => {
@@ -31,8 +31,8 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     onSave,
     onChange,
     onCancel,
-    modalTitle,
-    modalText,
+    title,
+    text,
     placeholder,
     saveButton,
     type,
@@ -41,7 +41,7 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     label,
     transparentOverlay
   } = props;
-  const [title, setTitle] = useState(props.title);
+  const [value, setValue] = useState(props.value);
   const [error, setError] = useState<boolean | string>(false);
 
   useEffect(() => {
@@ -52,39 +52,39 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     <Modal
       className={className}
       isOpen={isOpen}
-      title={modalTitle}
+      title={title}
       onClose={onCancel}
       transparentOverlay={transparentOverlay}
     >
       <Form
         onSubmit={e => {
           e.preventDefault();
-          if (type !== "email" || isValidEmail(title)) {
-            onSave(title);
+          if (type !== "email" || isValidEmail(value)) {
+            onSave(value);
           } else {
             setError(true);
           }
         }}
       >
-        <p>{modalText}</p>
-        {label && <InputLabel>{label}</InputLabel>}
+        {text && <p>{text}</p>}
+        <InputLabel>{label}</InputLabel>
         <Input
           autoFocus
-          placeholder={title || placeholder}
+          placeholder={value || placeholder}
           onChange={e => {
-            const value: string = e.target.value;
+            const newValue: string = e.target.value;
             if (onChange) {
-              onChange(value);
+              onChange(newValue);
             }
-            if (!validateInput || type === "email" || isValidName(value)) {
-              setTitle(value);
+            if (!validateInput || type === "email" || isValidName(newValue)) {
+              setValue(newValue);
               setError(false);
             } else {
-              setTitle(value);
+              setValue(newValue);
               setError(true);
             }
           }}
-          value={title}
+          value={value}
           type={type || "text"}
           error={!!error}
         />
@@ -121,20 +121,20 @@ const Form = styled.form`
   width: 500px;
 
   p {
-    color: #5d6069;
+    color: ${colors.blackHover};
     line-height: 1.57;
     margin: 10px 0 30px;
   }
 `;
 
 const InputErrorMessage = styled(ErrorMessage)`
-  margin: 10px 0;
+  margin-top: 10px;
 `;
 
 const InputLabel = styled.label`
-  color: #323843;
+  color: ${colors.black};
   display: inline-block;
   font-size: 14px;
   height: 16px;
-  margin-bottom: 10px;
+  margin: 10px 0;
 `;

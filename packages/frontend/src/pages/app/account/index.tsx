@@ -285,14 +285,14 @@ const AccountPage: NextPage = () => {
         errorText={errorText}
         isOpen={showEmailModal}
         label={t("account.user-data.email.new")}
-        modalText={t("account.user-data.email.change-text")}
-        modalTitle={t("account.user-data.email.button")}
+        text={t("account.user-data.email.change-text")}
+        title={t("account.user-data.email.button")}
         onCancel={() => setShowEmailModal(false)}
         onChange={() => setErrorText("")}
         onSave={onSaveNewEmail}
         placeholder={t("account.user-data.email.new")}
         saveButton={t("general-change-button")}
-        title=""
+        value=""
         type="email"
       />
       <ChangePasswordModal
@@ -369,8 +369,8 @@ const AccountPage: NextPage = () => {
         errorText={errorText}
         isOpen={showDeleteConfirmationModal}
         label={t("account.user-data.delete.modal-confirmation.label")}
-        modalText={t("account.user-data.delete.modal-confirmation.text")}
-        modalTitle={t("account.user-data.delete.modal-confirmation.title")}
+        text={t("account.user-data.delete.modal-confirmation.text")}
+        title={t("account.user-data.delete.modal-confirmation.title")}
         onSave={onDeleteUser}
         onChange={() => setErrorText("")}
         onCancel={() => setShowDeleteConfirmationModal(false)}

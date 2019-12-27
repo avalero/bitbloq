@@ -577,22 +577,22 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       />
       {editDocTitleModal.id && (
         <EditInputModal
-          title={editDocTitleModal.title || undefined}
+          value={editDocTitleModal.title || undefined}
           onCancel={() => setEditDocTitleModal({ id: null, title: null })}
           onSave={onUpdateDocTitle}
-          modalTitle="Cambiar nombre del documento"
-          modalText="Nombre del documento"
+          title="Cambiar nombre del documento"
+          label="Nombre del documento"
           placeholder={editDocTitleModal.title || "Placeholder"}
           saveButton="Cambiar"
         />
       )}
       {editFolderNameModal.id && (
         <EditInputModal
-          title={editFolderNameModal.name || undefined}
+          value={editFolderNameModal.name || undefined}
           onCancel={() => setEditFolderNameModal({ id: null, name: null })}
           onSave={onUpdateFolderName}
-          modalTitle="Cambiar nombre de la carpeta"
-          modalText="Nombre de la carpeta"
+          title="Cambiar nombre de la carpeta"
+          label="Nombre de la carpeta"
           placeholder={editFolderNameModal.name || "Placeholder"}
           saveButton="Cambiar"
         />

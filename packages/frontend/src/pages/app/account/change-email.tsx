@@ -107,15 +107,15 @@ const ChangeEmailPage: FC = () => {
         errorText={error}
         isOpen={valid}
         label={t("change-email-page.placeholder")}
-        modalText={t("change-email-page.text")}
-        modalTitle={t("change-email-page.title")}
+        text={t("change-email-page.text")}
+        title={t("change-email-page.title")}
         onCancel={() => Router.replace("/")}
         onChange={() => setError("")}
         onSave={onSaveEmail}
         placeholder={t("change-email-page.placeholder")}
         saveButton={t("change-email-page.confirm")}
         transparentOverlay={true}
-        title=""
+        value=""
         type="password"
         validateInput={false}
       />
