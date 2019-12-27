@@ -114,7 +114,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const onCreateFolder = async (folderName: string) => {
     await createFolder({
       variables: {
-        input: { name: folderName, parent: currentLocation.id }
+        input: { name: folderName, parentFolder: currentLocation.id }
       }
     }).catch(e => {
       setError(e);

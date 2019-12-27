@@ -7,7 +7,8 @@ import { css } from "@emotion/core";
 import {
   IDocument,
   IFolder,
-  IResult as IDocsAndFols
+  IResult as IDocsAndFols,
+  IDuplicateDocument
 } from "../../../api/src/api-types";
 import {
   UPDATE_DOCUMENT_MUTATION,
@@ -58,7 +59,7 @@ const DocumentList: FC<IDocumentListProps> = ({
   interface IState {
     id: string;
     name?: string;
-    parent?: string;
+    parentFolder?: string;
     type?: string;
   }
 
@@ -235,9 +236,9 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (newName.length >= 64) {
       newName = newName.slice(0, 63);
     }
-    const result = await duplicateDocument({
+    const result: IDuplicateDocument = await duplicateDocument({
       variables: {
-        currentLocation,
+        currentLocation: currentLocation.id,
         documentID: document.id,
         order,
         searchTitle: searchText,
@@ -246,8 +247,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     }).catch(catchError => {
       return catchError;
     });
-
-    const { page } = result.data.duplicateDocument;
+    const { page } = result;
 
     if (page) {
       selectPage(page);
@@ -262,7 +262,10 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (selectedToMove.id) {
       setSelectedToMove({ id: "" });
     } else {
-      setSelectedToMove({ id: document.id!, parent: document.parentFolder! });
+      setSelectedToMove({
+        id: document.id!,
+        parentFolder: document.parentFolder!
+      });
     }
   };
   const onMoveFolderClick = async (
@@ -273,7 +276,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (selectedToMove.id) {
       setSelectedToMove({ id: "" });
     } else {
-      setSelectedToMove({ id: folder.id!, parent: folder.parentFolder! });
+      setSelectedToMove({ id: folder.id!, parentFolder: folder.parentFolder! });
     }
   };
 
@@ -317,7 +320,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     await updateFolder({
       variables: {
         id: folderMovedId || selectedToMove.id,
-        input: { parent: folderParent.id }
+        input: { parentFolder: folderParent.id }
       }
     });
     onMove();

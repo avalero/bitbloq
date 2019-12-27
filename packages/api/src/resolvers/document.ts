@@ -125,7 +125,6 @@ const documentResolver = {
       if (!user) {
         return new AuthenticationError("You need to be logged in");
       }
-
       // Create a new document
       const document = await DocumentModel.findOne({ _id: args.documentID });
 
@@ -175,46 +174,13 @@ const documentResolver = {
       }
       const itemsPerPage: number = (args.itemsPerPage as number) || 8;
       const text: string = (args.searchTitle as string) || "";
-
-      const orderFunction = orderFunctions[args.order! as string];
-
-      const filterOptions =
-        text === ""
-          ? {
-              name: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID,
-              parentFolder: location
-            }
-          : {
-              name: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID
-            };
-
-      const docs: IDocument[] = await DocumentModel.find(filterOptions);
-      const fols: IFolder[] = await FolderModel.find(filterOptions);
-
-      const docsParent = await Promise.all(
-        docs.map(async ({ _id: id, image, ...op }) => {
-          return {
-            id,
-            image: image!.image,
-            ...op
-          };
-        })
-      );
-      const folsTitle = await Promise.all(
-        fols.map(async ({ _id: id, ...op }) => {
-          return {
-            name,
-            id,
-            type: "folder",
-            ...op
-          };
-        })
+      const allDataSorted = await getSortedData(
+        args!.order!,
+        text,
+        context.user.userID,
+        location._id
       );
 
-      const allData = [...docsParent, ...folsTitle];
-      const allDataSorted = allData.sort(orderFunction);
       const docIndex: number = allDataSorted.findIndex(element => {
         return String(element.id) === String(newDocument._id);
       });
@@ -490,40 +456,12 @@ const documentResolver = {
       const skipN: number = ((args.currentPage || 1) - 1) * itemsPerPage;
       const limit: number = skipN + itemsPerPage;
       const text: string = args.searchTitle || "";
-
-      const orderFunction = orderFunctions[args.order!];
-
-      const filterOptions =
-        text === ""
-          ? {
-              name: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID,
-              parentFolder: currentLocation
-            }
-          : {
-              name: { $regex: `.*${text}.*`, $options: "i" },
-              user: context.user.userID
-            };
-
-      const docs: IDocument[] = await DocumentModel.find(filterOptions);
-      const fols: IFolder[] = await FolderModel.find(filterOptions);
-
-      const allData = [...docs, ...fols];
-      const formatedData = await Promise.all(
-        allData.map(async (op: any) => {
-          const res: IResult = {
-            id: op._id,
-            image: op.image ? op.image!.image : undefined,
-            name: op.name,
-            type: op.type ? op.type : "folder",
-            createdAt: op.createdAt,
-            updatedAt: op.updatedAt,
-            parentFolder: op.parentFolder
-          };
-          return res;
-        })
+      const allDataSorted = await getSortedData(
+        args!.order!,
+        text,
+        context.user.userID,
+        currentLocation
       );
-      const allDataSorted = formatedData.sort(orderFunction);
       const pagesNumber: number = Math.ceil(
         allDataSorted.length / itemsPerPage
       );
@@ -625,6 +563,48 @@ const documentResolver = {
       return result;
     }
   }
+};
+
+const getSortedData = async (
+  order: string,
+  text: string,
+  userID: string,
+  currentLocation: string
+): Promise<IResult[]> => {
+  const orderFunction = orderFunctions[order];
+
+  const filterOptions =
+    text === ""
+      ? {
+          name: { $regex: `.*${text}.*`, $options: "i" },
+          user: userID,
+          parentFolder: currentLocation
+        }
+      : {
+          name: { $regex: `.*${text}.*`, $options: "i" },
+          user: userID
+        };
+
+  const docs: IDocument[] = await DocumentModel.find(filterOptions);
+  const fols: IFolder[] = await FolderModel.find(filterOptions);
+
+  const allData = [...docs, ...fols];
+  const formatedData = await Promise.all(
+    allData.map(async (op: any) => {
+      const res: IResult = {
+        id: op._id,
+        image: op.image ? op.image!.image : undefined,
+        name: op.name,
+        type: op.type ? op.type : "folder",
+        createdAt: op.createdAt,
+        updatedAt: op.updatedAt,
+        parentFolder: op.parentFolder
+      };
+      return res;
+    })
+  );
+  const allDataSorted = formatedData.sort(orderFunction);
+  return allDataSorted;
 };
 
 export default documentResolver;

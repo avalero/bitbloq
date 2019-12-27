@@ -110,7 +110,7 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
         {foldersData &&
           foldersData
             .filter(
-              (op: { id: string; parent: string }) =>
+              (op: { id: string; parentFolder: string }) =>
                 op.id !== selectedToMove.id
             )
             .map((folder, i) => (
