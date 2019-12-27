@@ -29,7 +29,7 @@ export const DOCUMENT_QUERY = gql`
         image
         isSnapshot
       }
-      folder
+      parentFolder
       parentsPath {
         id
         name
@@ -37,7 +37,7 @@ export const DOCUMENT_QUERY = gql`
       exercises {
         id
         code
-        title
+        name
         acceptSubmissions
         createdAt
         submissions {
@@ -59,7 +59,7 @@ export const EDIT_DOCUMENT_QUERY = gql`
     document(id: $id) {
       id
       type
-      title
+      name
       description
       content
       image {
@@ -74,7 +74,7 @@ export const EDIT_DOCUMENT_QUERY = gql`
       }
       exercisesResources {
         id
-        name
+        title
         type
       }
     }
@@ -121,7 +121,7 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
         createdAt
         updatedAt
         image
-        parent
+        parentFolder
       }
       parentsPath {
         id
@@ -191,7 +191,7 @@ export const FOLDER_QUERY = gql`
     folder(id: $id) {
       id
       name
-      parent
+      parentFolder
       parentsPath {
         id
         name
@@ -225,7 +225,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
     $description: String
     $content: String
     $advancedMode: Boolean
-    $folder: ObjectID
+    $parentFolder: ObjectID
     $image: DocImageIn
   ) {
     createDocument(
@@ -235,7 +235,7 @@ export const CREATE_DOCUMENT_MUTATION = gql`
         description: $description
         content: $content
         advancedMode: $advancedMode
-        folder: $folder
+        parentFolder: $parentFolder
         image: $image
       }
     ) {
@@ -321,7 +321,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
     $content: String
     $description: String
     $advancedMode: Boolean
-    $folder: ObjectID
+    $parentFolder: ObjectID
   ) {
     updateDocument(
       id: $id
@@ -330,7 +330,7 @@ export const UPDATE_DOCUMENT_MUTATION = gql`
         content: $content
         description: $description
         advancedMode: $advancedMode
-        folder: $folder
+        parentFolder: $parentFolder
       }
     ) {
       id
@@ -393,7 +393,7 @@ export const EXERCISE_QUERY = gql`
         file
         id
         thumbnail
-        name
+        title
         type
       }
     }
@@ -434,8 +434,8 @@ export const EXERCISE_DELETE_MUTATION = gql`
 `;
 
 export const CREATE_EXERCISE_MUTATION = gql`
-  mutation CreateExercise($documentId: ObjectID!, $title: String!) {
-    createExercise(input: { document: $documentId, title: $title }) {
+  mutation CreateExercise($documentId: ObjectID!, $name: String!) {
+    createExercise(input: { document: $documentId, name: $name }) {
       id
     }
   }
@@ -756,7 +756,7 @@ export const GET_CLOUD_RESOURCES = gql`
         preview
         size
         thumbnail
-        name
+        title
         type
       }
     }

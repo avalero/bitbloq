@@ -48,8 +48,8 @@ const folderResolver = {
       const user: IUser | null = await UserModel.findOne({
         _id: context.user.userID
       });
-      if (args.input!.parent) {
-        if (!(await FolderModel.findOne({ _id: args.input!.parent }))) {
+      if (args.input!.parentFolder) {
+        if (!(await FolderModel.findOne({ _id: args.input!.parentFolder }))) {
           throw new ApolloError(
             "Parent folder does not exist",
             "PARENT_NOT_FOUND"
@@ -59,7 +59,7 @@ const folderResolver = {
       const folderNew: IFolder = new FolderModel({
         name: args.input!.name,
         user: context.user.userID,
-        parentFolder: args.input!.parent || user!.rootFolder
+        parentFolder: args.input!.parentFolder || user!.rootFolder
       });
       const newFolder: IFolder = await FolderModel.create(folderNew);
       await FolderModel.findOneAndUpdate(
@@ -144,8 +144,8 @@ const folderResolver = {
         _id: args.id,
         user: context.user.userID
       });
-      if (args.input!.parent) {
-        if (!(await FolderModel.findOne({ _id: args.input!.parent }))) {
+      if (args.input!.parentFolder) {
+        if (!(await FolderModel.findOne({ _id: args.input!.parentFolder }))) {
           throw new ApolloError(
             "Parent folder does not exist",
             "PARENT_NOT_FOUND"
@@ -217,12 +217,12 @@ const folderResolver = {
           }
         }
         if (
-          args.input!.parent &&
-          args.input!.parent !== existFolder.parentFolder
+          args.input!.parentFolder &&
+          args.input!.parentFolder !== existFolder.parentFolder
         ) {
           // si se pasa un nuevo parent hay que modificarlo para que tenga al hijo en la lista
           await FolderModel.updateOne(
-            { _id: args.input!.parent },
+            { _id: args.input!.parentFolder },
             { $push: { foldersID: existFolder._id } }
           );
           await FolderModel.updateOne(
@@ -241,7 +241,7 @@ const folderResolver = {
           {
             $set: {
               name: args.input!.name || existFolder.name,
-              parentFolder: args.input!.parent || existFolder.parentFolder
+              parentFolder: args.input!.parentFolder || existFolder.parentFolder
             }
           },
           { new: true }
@@ -297,7 +297,8 @@ const folderResolver = {
   Folder: {
     documents: async (folder: IFolder) =>
       DocumentModel.find({ folder: folder.id }),
-    folders: async (folder: IFolder) => FolderModel.find({ parent: folder.id }),
+    folders: async (folder: IFolder) =>
+      FolderModel.find({ parentFolder: folder.id }),
     parentsPath: async (folder: IFolder) => {
       const result = await getParentsPath(folder);
       return result;

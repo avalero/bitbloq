@@ -142,7 +142,7 @@ export interface IFolder {
   user?: Maybe<Scalars["ObjectID"]>;
   documentsID?: Maybe<Array<Maybe<Scalars["ObjectID"]>>>;
   foldersID?: Maybe<Array<Maybe<Scalars["ObjectID"]>>>;
-  parent?: Maybe<Scalars["ObjectID"]>;
+  parentFolder?: Maybe<Scalars["ObjectID"]>;
   createdAt?: Maybe<Scalars["Date"]>;
   updatedAt?: Maybe<Scalars["Date"]>;
   documents?: Maybe<Array<Maybe<IDocument>>>;
@@ -155,7 +155,7 @@ export interface IFolderIn {
   user?: Maybe<Scalars["ObjectID"]>;
   documentsID?: Maybe<Array<Maybe<Scalars["ObjectID"]>>>;
   foldersID?: Maybe<Array<Maybe<Scalars["ObjectID"]>>>;
-  parent?: Maybe<Scalars["ObjectID"]>;
+  parentFolder?: Maybe<Scalars["ObjectID"]>;
 }
 
 export interface ILoginOut {
@@ -547,7 +547,7 @@ export interface IResult {
   type?: Maybe<Scalars["String"]>;
   createdAt?: Maybe<Scalars["Date"]>;
   updatedAt?: Maybe<Scalars["Date"]>;
-  parent?: Maybe<Scalars["ObjectID"]>;
+  parentFolder?: Maybe<Scalars["ObjectID"]>;
 }
 
 export enum IRole {
@@ -1133,7 +1133,7 @@ export type IFolderResolvers<
     ParentType,
     ContextType
   >;
-  parent?: Resolver<
+  parentFolder?: Resolver<
     Maybe<IResolversTypes["ObjectID"]>,
     ParentType,
     ContextType
@@ -1656,7 +1656,7 @@ export type IResultResolvers<
   type?: Resolver<Maybe<IResolversTypes["String"]>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
-  parent?: Resolver<
+  parentFolder?: Resolver<
     Maybe<IResolversTypes["ObjectID"]>,
     ParentType,
     ContextType

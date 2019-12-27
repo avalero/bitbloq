@@ -23,7 +23,8 @@ import {
   IQueryDocumentArgs,
   IQueryOpenPublicDocumentArgs,
   IQueryDocumentsAndFoldersArgs,
-  IQueryHasExercisesArgs
+  IQueryHasExercisesArgs,
+  IResult
 } from "../api-types";
 
 export const DOCUMENT_UPDATED: string = "DOCUMENT_UPDATED";
@@ -87,7 +88,7 @@ const documentResolver = {
         user: context.user.userID,
         name: args.input.name,
         type: args.input.type,
-        folder:
+        parentFolder:
           args.input.parentFolder ||
           ((await UserModel.findOne({ _id: context.user.userID })) as IUser)
             .rootFolder,
@@ -138,7 +139,7 @@ const documentResolver = {
         description: document.description,
         example: document.example,
         exResourcesID: document.exResourcesID,
-        folder: document.parentFolder,
+        parentFolder: document.parentFolder,
         image: document.image,
         public: document.public,
         resourcesID: document.resourcesID,
@@ -158,7 +159,7 @@ const documentResolver = {
       }
 
       await FolderModel.updateOne(
-        { _id: documentNew.folder },
+        { _id: documentNew.parentFolder },
         { $push: { documentsID: newDocument._id } },
         { new: true }
       );
@@ -507,28 +508,22 @@ const documentResolver = {
       const docs: IDocument[] = await DocumentModel.find(filterOptions);
       const fols: IFolder[] = await FolderModel.find(filterOptions);
 
-      const docsParent = await Promise.all(
-        docs.map(async ({ _id: id, image, ...op }) => {
-          return {
-            id,
-            image: image!.image,
-            ...op
+      const allData = [...docs, ...fols];
+      const formatedData = await Promise.all(
+        allData.map(async (op: any) => {
+          const res: IResult = {
+            id: op._id,
+            image: op.image ? op.image!.image : undefined,
+            name: op.name,
+            type: op.type ? op.type : "folder",
+            createdAt: op.createdAt,
+            updatedAt: op.updatedAt,
+            parentFolder: op.parentFolder
           };
+          return res;
         })
       );
-      const folsTitle = await Promise.all(
-        fols.map(async ({ _id: id, ...op }) => {
-          return {
-            name,
-            id,
-            type: "folder",
-            ...op
-          };
-        })
-      );
-
-      const allData = [...docsParent, ...folsTitle];
-      const allDataSorted = allData.sort(orderFunction);
+      const allDataSorted = formatedData.sort(orderFunction);
       const pagesNumber: number = Math.ceil(
         allDataSorted.length / itemsPerPage
       );
@@ -599,7 +594,7 @@ const documentResolver = {
       })).map(i => {
         return {
           id: i._id,
-          name: i.filename,
+          title: i.filename,
           type: i.type,
           size: i.size,
           thumbnail: i.image,
@@ -617,7 +612,7 @@ const documentResolver = {
       })).map(i => {
         return {
           id: i._id,
-          name: i.filename,
+          title: i.filename,
           type: i.type,
           size: i.size,
           thumbnail: i.image,

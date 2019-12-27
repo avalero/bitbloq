@@ -54,7 +54,7 @@ export interface IEditorProps {
 
 export interface IDocument {
   id: string;
-  title: string;
+  name: string;
   description: string;
   image: IDocumentImage | string;
   content: any;

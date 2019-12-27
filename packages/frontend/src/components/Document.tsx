@@ -60,9 +60,9 @@ class Document extends React.Component<any, DocumentState> {
       type: "folder"
     }));
 
-    breadParents.push({ route: "", text: document.title, type: "document" });
+    breadParents.push({ route: "", text: document.name, type: "document" });
 
-    return <Breadcrumbs links={breadParents} title={document.title} />;
+    return <Breadcrumbs links={breadParents} title={document.name} />;
   }
 
   public renderDocumentInfo(document, t) {
@@ -76,7 +76,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/edit-document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.parentFolder}/${document.type}/${document.id}`
               )
             }
           >
@@ -88,7 +88,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentBodyInfo>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
-              {document.title || t("document-body-title")}
+              {document.name || t("document-body-title")}
             </DocumentTitle>
             <DocumentDescription>
               {document.description || t("document-body-description")}
@@ -110,7 +110,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/edit-document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.parentFolder}/${document.type}/${document.id}`
               )
             }
           >
@@ -122,7 +122,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentBodyInfo teacher>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
-              {document.title || t("document-body-title")}
+              {document.name || t("document-body-title")}
             </DocumentTitle>
             <DocumentDescription>
               {document.description || t("document-body-description")}
@@ -281,7 +281,7 @@ class Document extends React.Component<any, DocumentState> {
               createExercise({
                 variables: {
                   documentId,
-                  title: value || "Ejercicio sin título"
+                  name: value || "Ejercicio sin título"
                 },
                 refetchQueries: [
                   {

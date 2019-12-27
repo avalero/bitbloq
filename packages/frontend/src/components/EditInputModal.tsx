@@ -9,8 +9,8 @@ interface IEditInputModalProps {
   disabledSave?: boolean;
   errorText?: string;
   title?: string;
-  onSave: (title?: string) => any;
-  onChange?: (title?: string) => any;
+  onSave: (name?: string) => any;
+  onChange?: (name?: string) => any;
   onCancel: () => any;
   modalTitle: string;
   modalText: string;
@@ -41,7 +41,7 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     label,
     transparentOverlay
   } = props;
-  const [title, setTitle] = useState(props.title);
+  const [name, setName] = useState(props.title);
   const [error, setError] = useState<boolean | string>(false);
 
   useEffect(() => {
@@ -60,8 +60,8 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
         <form
           onSubmit={e => {
             e.preventDefault();
-            if (type !== "email" || isValidEmail(title)) {
-              onSave(title);
+            if (type !== "email" || isValidEmail(name)) {
+              onSave(name);
             } else {
               setError(true);
             }
@@ -71,21 +71,21 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
           {label && <InputLabel>{label}</InputLabel>}
           <Input
             autoFocus
-            placeholder={title || placeholder}
+            placeholder={name || placeholder}
             onChange={e => {
               const value: string = e.target.value;
               if (onChange) {
                 onChange(value);
               }
               if (!validateInput || type === "email" || isValidName(value)) {
-                setTitle(value);
+                setName(value);
                 setError(false);
               } else {
-                setTitle(value);
+                setName(value);
                 setError(true);
               }
             }}
-            value={title}
+            value={name}
             type={type || "text"}
             error={!!error}
           />

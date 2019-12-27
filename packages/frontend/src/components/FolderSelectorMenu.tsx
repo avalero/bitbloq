@@ -67,7 +67,7 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
   useLayoutEffect(() => {
     const onClick = (e: MouseEvent) => {
       e.stopPropagation();
-      setSelectedFolder({ id: parent, name: "" });
+      setSelectedFolder({ id: parentFolder, name: "" });
     };
     if (parentButtonRef.current) {
       parentButtonRef.current.addEventListener("click", onClick);
@@ -83,7 +83,12 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
   if (loading) {
     return <FolderSelector>loading...</FolderSelector>;
   }
-  const { folders: foldersData, name: folderName, parent, id } = data.folder;
+  const {
+    folders: foldersData,
+    name: folderName,
+    parentFolder,
+    id
+  } = data.folder;
   return (
     <FolderSelector className={className}>
       <ParentButton ref={parentButtonRef}>

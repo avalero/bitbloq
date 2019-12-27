@@ -9,7 +9,7 @@ enum TabType {
 }
 
 interface IExercise {
-  title: string;
+  name: string;
   description: string;
   image: string;
 }
@@ -20,7 +20,7 @@ interface IExerciseInfoProps {
 }
 
 const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
-  exercise: { title, description, image },
+  exercise: { name, description, image },
   onGotoExercise
 }) => {
   const [currentTab, setCurrentTab] = useState(TabType.Description);
@@ -29,7 +29,7 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
     <Container>
       <Left>
         <LeftContent>
-          <h2>{title}</h2>
+          <h2>{name}</h2>
           <Image src={image} />
         </LeftContent>
       </Left>

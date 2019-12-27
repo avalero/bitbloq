@@ -262,7 +262,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (selectedToMove.id) {
       setSelectedToMove({ id: "" });
     } else {
-      setSelectedToMove({ id: document.id!, parent: document.parent! });
+      setSelectedToMove({ id: document.id!, parent: document.parentFolder! });
     }
   };
   const onMoveFolderClick = async (
@@ -273,7 +273,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (selectedToMove.id) {
       setSelectedToMove({ id: "" });
     } else {
-      setSelectedToMove({ id: folder.id!, parent: folder.parent! });
+      setSelectedToMove({ id: folder.id!, parent: folder.parentFolder! });
     }
   };
 
@@ -299,7 +299,10 @@ const DocumentList: FC<IDocumentListProps> = ({
       e.stopPropagation();
     }
     await updateDocument({
-      variables: { id: documentId || selectedToMove.id, folder: folder.id }
+      variables: {
+        id: documentId || selectedToMove.id,
+        parentFolder: folder.id
+      }
     });
     onMove();
   };

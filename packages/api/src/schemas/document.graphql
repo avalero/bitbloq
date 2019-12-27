@@ -62,7 +62,7 @@ type Result {
   type: String
   createdAt: Date
   updatedAt: Date
-  parent: ObjectID
+  parentFolder: ObjectID
 }
 
 type Document {

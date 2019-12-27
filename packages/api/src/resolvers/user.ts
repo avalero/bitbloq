@@ -331,11 +331,11 @@ const userResolver = {
           });
           await DocumentModel.updateMany(
             { user: contactFound._id },
-            { $set: { folder: userFolder._id } }
+            { $set: { parentFolder: userFolder._id } }
           );
           await FolderModel.updateMany(
             { user: contactFound._id, name: { $ne: "root" } },
-            { $set: { parent: userFolder._id } }
+            { $set: { parentFolder: userFolder._id } }
           );
           await UserModel.updateOne(
             { _id: contactFound._id },
