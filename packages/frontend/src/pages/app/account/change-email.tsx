@@ -115,9 +115,7 @@ const ChangeEmailPage: FC = () => {
         placeholder={t("change-email-page.placeholder")}
         saveButton={t("change-email-page.confirm")}
         transparentOverlay={true}
-        value=""
         type="password"
-        validateInput={false}
       />
       <DialogModal
         isOpen={!valid}

@@ -582,7 +582,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
           onSave={onUpdateDocTitle}
           title="Cambiar nombre del documento"
           label="Nombre del documento"
-          placeholder={editDocTitleModal.title || "Placeholder"}
+          placeholder="Documento sin título"
           saveButton="Cambiar"
         />
       )}
@@ -593,7 +593,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
           onSave={onUpdateFolderName}
           title="Cambiar nombre de la carpeta"
           label="Nombre de la carpeta"
-          placeholder={editFolderNameModal.name || "Placeholder"}
+          placeholder="Carpeta sin título"
           saveButton="Cambiar"
         />
       )}

@@ -1,8 +1,9 @@
 import React, { FC, useEffect, useState } from "react";
+import useForm from "react-hook-form";
 import styled from "@emotion/styled";
-import { Button, Input, Modal, colors } from "@bitbloq/ui";
-import { isValidEmail, isValidName } from "../util";
+import { Button, Input, Modal, colors, useTranslate } from "@bitbloq/ui";
 import ErrorMessage from "./ErrorMessage";
+import { isValidEmail, isValidName } from "../util";
 
 interface IEditInputModalProps {
   className?: string;
@@ -16,17 +17,18 @@ interface IEditInputModalProps {
   text?: string;
   placeholder: string;
   saveButton: string;
-  type?: string;
+  type?: "text" | "password" | "email";
   transparentOverlay?: boolean;
-  validateInput?: boolean;
   isOpen?: boolean;
   label: string;
 }
 
 const EditInputModal: FC<IEditInputModalProps> = props => {
+  const t = useTranslate();
+
   const {
     className,
-    disabledSave = false,
+    disabledSave,
     errorText,
     onSave,
     onChange,
@@ -35,18 +37,16 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
     text,
     placeholder,
     saveButton,
-    type,
-    validateInput = true,
+    type = "text",
     isOpen = true,
     label,
     transparentOverlay
   } = props;
-  const [value, setValue] = useState(props.value);
-  const [error, setError] = useState<boolean | string>(false);
 
-  useEffect(() => {
-    setError(!!errorText ? errorText : false);
-  }, [errorText]);
+  const { errors, getValues, handleSubmit, register } = useForm({
+    defaultValues: { input: props.value },
+    mode: type === "text" ? "onChange" : "onSubmit"
+  });
 
   return (
     <Modal
@@ -57,45 +57,50 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
       transparentOverlay={transparentOverlay}
     >
       <Form
-        onSubmit={e => {
-          e.preventDefault();
-          if (type !== "email" || isValidEmail(value)) {
-            onSave(value);
-          } else {
-            setError(true);
-          }
-        }}
+        onSubmit={handleSubmit((value: { input: string }) =>
+          onSave(value.input)
+        )}
       >
         {text && <p>{text}</p>}
-        <InputLabel>{label}</InputLabel>
+        <label>{label}</label>
         <Input
           autoFocus
-          placeholder={value || placeholder}
-          onChange={e => {
-            const newValue: string = e.target.value;
-            if (onChange) {
-              onChange(newValue);
+          error={!!errorText || !!errors.input}
+          name="input"
+          onChange={() => onChange && onChange(getValues().input)}
+          placeholder={placeholder}
+          ref={register({
+            validate: {
+              valid: (input: string) => {
+                switch (type) {
+                  case "email":
+                    return isValidEmail(input);
+                  case "text":
+                    return isValidName(input);
+                  case "password":
+                    return;
+                }
+              }
             }
-            if (!validateInput || type === "email" || isValidName(newValue)) {
-              setValue(newValue);
-              setError(false);
-            } else {
-              setValue(newValue);
-              setError(true);
-            }
-          }}
-          value={value}
-          type={type || "text"}
-          error={!!error}
+          })}
+          type={(type !== "email" && type) || "text"}
         />
-        {error && typeof error === "string" && (
-          <InputErrorMessage>{error}</InputErrorMessage>
-        )}
+        {errorText && <InputErrorMessage>{errorText}</InputErrorMessage>}
+        {errors.input &&
+          errors.input.type === "valid" &&
+          (type === "email" ? (
+            <InputErrorMessage>invalid email</InputErrorMessage>
+          ) : (
+            <InputErrorMessage>invalid name</InputErrorMessage>
+          ))}
         <Buttons>
           <Button tertiary type="button" onClick={onCancel}>
-            Cancelar
+            {t("general-cancel-button")}
           </Button>
-          <Button type="submit" disabled={disabledSave || !!error}>
+          <Button
+            type="submit"
+            disabled={disabledSave || !!errorText || !!errors.input}
+          >
             {saveButton}
           </Button>
         </Buttons>
@@ -125,16 +130,16 @@ const Form = styled.form`
     line-height: 1.57;
     margin: 10px 0 30px;
   }
+
+  label {
+    color: ${colors.black};
+    display: inline-block;
+    font-size: 14px;
+    height: 16px;
+    margin: 10px 0;
+  }
 `;
 
 const InputErrorMessage = styled(ErrorMessage)`
   margin-top: 10px;
-`;
-
-const InputLabel = styled.label`
-  color: ${colors.black};
-  display: inline-block;
-  font-size: 14px;
-  height: 16px;
-  margin: 10px 0;
 `;
