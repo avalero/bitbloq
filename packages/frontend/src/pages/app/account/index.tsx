@@ -280,7 +280,7 @@ const AccountPage: NextPage = () => {
         )}
       </Container>
       {serverError && <ErrorLayout code="500" />}
-      <StyledEditInputModal
+      <EditInputModal
         disabledSave={loading}
         errorText={errorText}
         isOpen={showEmailModal}
@@ -364,7 +364,7 @@ const AccountPage: NextPage = () => {
         okText={t("general-accept-button")}
         title={t("account.user-data.delete.modal.title")}
       />
-      <StyledEditInputModal
+      <EditInputModal
         disabledSave={loading}
         errorText={errorText}
         isOpen={showDeleteConfirmationModal}
@@ -420,14 +420,6 @@ const Content = styled.div`
   flex: 1;
   max-width: 75%;
   padding: 30px 20px;
-`;
-
-const StyledEditInputModal = styled(EditInputModal)`
-  p {
-    color: #5d6069;
-    line-height: 1.57;
-    margin: 10px 0 40px !important;
-  }
 `;
 
 const Tabs = styled.div`

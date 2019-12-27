@@ -56,58 +56,50 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
       onClose={onCancel}
       transparentOverlay={transparentOverlay}
     >
-      <Content>
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-            if (type !== "email" || isValidEmail(title)) {
-              onSave(title);
+      <Form
+        onSubmit={e => {
+          e.preventDefault();
+          if (type !== "email" || isValidEmail(title)) {
+            onSave(title);
+          } else {
+            setError(true);
+          }
+        }}
+      >
+        <p>{modalText}</p>
+        {label && <InputLabel>{label}</InputLabel>}
+        <Input
+          autoFocus
+          placeholder={title || placeholder}
+          onChange={e => {
+            const value: string = e.target.value;
+            if (onChange) {
+              onChange(value);
+            }
+            if (!validateInput || type === "email" || isValidName(value)) {
+              setTitle(value);
+              setError(false);
             } else {
+              setTitle(value);
               setError(true);
             }
           }}
-        >
-          <p>{modalText}</p>
-          {label && <InputLabel>{label}</InputLabel>}
-          <Input
-            autoFocus
-            placeholder={title || placeholder}
-            onChange={e => {
-              const value: string = e.target.value;
-              if (onChange) {
-                onChange(value);
-              }
-              if (!validateInput || type === "email" || isValidName(value)) {
-                setTitle(value);
-                setError(false);
-              } else {
-                setTitle(value);
-                setError(true);
-              }
-            }}
-            value={title}
-            type={type || "text"}
-            error={!!error}
-          />
-          {error && typeof error === "string" && (
-            <InputErrorMessage>{error}</InputErrorMessage>
-          )}
-          <Buttons>
-            <Button
-              tertiary
-              type="button"
-              onClick={() => {
-                onCancel();
-              }}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={disabledSave || !!error}>
-              {saveButton}
-            </Button>
-          </Buttons>
-        </form>
-      </Content>
+          value={title}
+          type={type || "text"}
+          error={!!error}
+        />
+        {error && typeof error === "string" && (
+          <InputErrorMessage>{error}</InputErrorMessage>
+        )}
+        <Buttons>
+          <Button tertiary type="button" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button type="submit" disabled={disabledSave || !!error}>
+            {saveButton}
+          </Button>
+        </Buttons>
+      </Form>
     </Modal>
   );
 };
@@ -116,29 +108,27 @@ export default EditInputModal;
 
 /* styled components */
 
-const Content = styled.div`
-  padding: 30px;
-  width: 500px;
-  box-sizing: border-box;
-
-  p {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-`;
-
 const Buttons = styled.div`
   display: flex;
-  margin-top: 50px;
   justify-content: space-between;
-  ${Button} {
-    height: 40px;
-    border-radius: 4px;
+  margin-top: 40px;
+`;
+
+const Form = styled.form`
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 30px;
+  width: 500px;
+
+  p {
+    color: #5d6069;
+    line-height: 1.57;
+    margin: 10px 0 30px;
   }
 `;
 
 const InputErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
+  margin: 10px 0;
 `;
 
 const InputLabel = styled.label`

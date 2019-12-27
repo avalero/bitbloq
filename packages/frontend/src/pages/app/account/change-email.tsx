@@ -102,7 +102,7 @@ const ChangeEmailPage: FC = () => {
     <Loading />
   ) : (
     <Container>
-      <ConfirmPasswordModal
+      <EditInputModal
         disabledSave={disabledButton}
         errorText={error}
         isOpen={valid}
@@ -132,14 +132,6 @@ const ChangeEmailPage: FC = () => {
 };
 
 export default withApollo(ChangeEmailPage, { requiresSession: false });
-
-const ConfirmPasswordModal = styled(EditInputModal)`
-  p {
-    color: #5d6069;
-    line-height: 1.57;
-    margin: 10px 0 40px !important;
-  }
-`;
 
 const Container = styled.div`
   background-color: ${colors.gray1};
