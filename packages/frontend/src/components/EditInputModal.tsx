@@ -87,9 +87,9 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
           })}
           type={(type !== "email" && type) || "text"}
         />
-        {errorText && <InputErrorMessage>{errorText}</InputErrorMessage>}
+        {errorText && <ErrorMessage>{errorText}</ErrorMessage>}
         {errors.input && type === "email" && (
-          <InputErrorMessage>{t("general-error-email")}</InputErrorMessage>
+          <ErrorMessage>{t("general-error-email")}</ErrorMessage>
         )}
         <Buttons>
           <Button tertiary type="button" onClick={onCancel}>
@@ -136,8 +136,4 @@ const Form = styled.form`
     height: 16px;
     margin: 10px 0;
   }
-`;
-
-const InputErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;

@@ -96,7 +96,6 @@ const Text = styled.p`
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 8px;
   label {
     display: block;
     margin-bottom: 10px;

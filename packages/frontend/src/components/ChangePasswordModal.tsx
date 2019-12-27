@@ -125,9 +125,7 @@ const ChangePasswordModal: FC<IChangePasswordModalProps> = props => {
               type="password"
               error={!!errorCurrent}
             />
-            {errorCurrent && (
-              <InputErrorMessage>{errorCurrent}</InputErrorMessage>
-            )}
+            {errorCurrent && <ErrorMessage>{errorCurrent}</ErrorMessage>}
             <InputLabel>
               {t("account.user-data.password.new-placeholder")}
             </InputLabel>
@@ -144,7 +142,7 @@ const ChangePasswordModal: FC<IChangePasswordModalProps> = props => {
               type="password"
               error={!!errorNew}
             />
-            {errorNew && <InputErrorMessage>{errorNew}</InputErrorMessage>}
+            {errorNew && <ErrorMessage>{errorNew}</ErrorMessage>}
             <InputLabel>
               {t("account.user-data.password.repeat-placeholder")}
             </InputLabel>
@@ -161,9 +159,7 @@ const ChangePasswordModal: FC<IChangePasswordModalProps> = props => {
               type="password"
               error={!!errorRepeat}
             />
-            {errorRepeat && (
-              <InputErrorMessage>{errorRepeat}</InputErrorMessage>
-            )}
+            {errorRepeat && <ErrorMessage>{errorRepeat}</ErrorMessage>}
             <Buttons>
               <Button
                 tertiary
@@ -215,10 +211,6 @@ const Buttons = styled.div`
     height: 40px;
     border-radius: 4px;
   }
-`;
-
-const InputErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;
 
 const InputLabel = styled.label`

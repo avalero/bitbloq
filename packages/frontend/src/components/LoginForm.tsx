@@ -53,7 +53,7 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
           error={error}
           onChange={() => setError(false)}
         />
-        {error && <LoginErrorMessage>{t("login.error")}</LoginErrorMessage>}
+        {error && <ErrorMessage>{t("login.error")}</ErrorMessage>}
       </FormGroup>
       <StyledButton type="submit" disabled={loggingIn}>
         {t("login.ok")}
@@ -63,10 +63,6 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
 };
 
 export default LoginForm;
-
-const LoginErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
-`;
 
 const FormGroup = styled.div`
   margin-bottom: 20px;
