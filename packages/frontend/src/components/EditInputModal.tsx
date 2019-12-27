@@ -88,13 +88,9 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
           type={(type !== "email" && type) || "text"}
         />
         {errorText && <InputErrorMessage>{errorText}</InputErrorMessage>}
-        {errors.input &&
-          errors.input.type === "valid" &&
-          (type === "email" ? (
-            <InputErrorMessage>invalid email</InputErrorMessage>
-          ) : (
-            <InputErrorMessage>invalid name</InputErrorMessage>
-          ))}
+        {errors.input && type === "email" && (
+          <InputErrorMessage>{t("general-error-email")}</InputErrorMessage>
+        )}
         <Buttons>
           <Button tertiary type="button" onClick={onCancel}>
             {t("general-cancel-button")}
