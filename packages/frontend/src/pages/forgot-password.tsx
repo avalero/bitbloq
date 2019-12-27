@@ -2,7 +2,7 @@ import React, { FC, useState, useEffect } from "react";
 import Router from "next/router";
 import styled from "@emotion/styled";
 import { useMutation } from "@apollo/react-hooks";
-import { Input, Button } from "@bitbloq/ui";
+import { Input, Button, colors } from "@bitbloq/ui";
 import withApollo from "../apollo/withApollo";
 import { RESET_PASSWORD_MUTATION } from "../apollo/queries";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
@@ -90,6 +90,7 @@ const ForgotPasswordPage: FC = () => {
 export default withApollo(ForgotPasswordPage, { requiresSession: false });
 
 const Text = styled.p`
+  color: ${colors.blackHover};
   line-height: 1.57;
   margin-bottom: 40px;
 `;
