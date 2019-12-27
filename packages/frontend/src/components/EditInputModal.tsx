@@ -3,6 +3,7 @@ import useForm from "react-hook-form";
 import styled from "@emotion/styled";
 import { Button, Input, Modal, colors, useTranslate } from "@bitbloq/ui";
 import ErrorMessage from "./ErrorMessage";
+import { maxLengthName } from "../config";
 import { isValidEmail, isValidName } from "../util";
 
 interface IEditInputModalProps {
@@ -66,6 +67,7 @@ const EditInputModal: FC<IEditInputModalProps> = props => {
         <Input
           autoFocus
           error={!!errorText || !!errors.input}
+          maxLength={maxLengthName}
           name="input"
           onChange={() => onChange && onChange(getValues().input)}
           placeholder={placeholder}

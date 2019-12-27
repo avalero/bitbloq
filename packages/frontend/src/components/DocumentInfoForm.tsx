@@ -9,7 +9,7 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import ResourcesBox from "./ResourcesBox";
-import { resourceTypes } from "../config";
+import { resourceTypes, maxLengthName } from "../config";
 import { isValidName } from "../util";
 import { IResource, ResourcesTypes } from "../types";
 import { LIMIT_SIZE } from "../../../api/src/config";
@@ -99,6 +99,7 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                   }
                   setTitle(value);
                 }}
+                maxLength={maxLengthName}
                 error={titleError}
                 onFocus={() => setTitleFocused(true)}
                 onBlur={() => setTitleFocused(false)}
