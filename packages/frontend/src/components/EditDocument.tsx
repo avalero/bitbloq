@@ -23,7 +23,7 @@ import DocumentLoginModal from "./DocumentLoginModal";
 import {
   ADD_RESOURCE_TO_EXERCISES,
   DELETE_RESOURCE_FROM_EXERCISES,
-  DOCUMENT_QUERY,
+  EDIT_DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
   PUBLISH_DOCUMENT_MUTATION,
@@ -86,7 +86,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     error: errorDocument,
     data,
     refetch
-  } = useQuery(DOCUMENT_QUERY, {
+  } = useQuery(EDIT_DOCUMENT_QUERY, {
     variables: { id },
     skip: isNew
   });

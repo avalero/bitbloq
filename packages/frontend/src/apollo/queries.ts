@@ -25,6 +25,42 @@ export const DOCUMENT_QUERY = gql`
       type
       name
       description
+      image {
+        image
+        isSnapshot
+      }
+      folder
+      parentsPath {
+        id
+        name
+      }
+      exercises {
+        id
+        code
+        title
+        acceptSubmissions
+        createdAt
+        submissions {
+          id
+          studentNick
+          finished
+          finishedAt
+          type
+          grade
+          active
+        }
+      }
+    }
+  }
+`;
+
+export const EDIT_DOCUMENT_QUERY = gql`
+  query Document($id: ObjectID!) {
+    document(id: $id) {
+      id
+      type
+      title
+      description
       content
       image {
         image
@@ -155,32 +191,14 @@ export const FOLDER_QUERY = gql`
     folder(id: $id) {
       id
       name
+      parent
       parentsPath {
         id
         name
       }
-      documents {
-        id
-        type
-        name
-        createdAt
-        updatedAt
-        image
-        description
-        advancedMode
-        content
-        folder
-        exercises {
-          name
-          code
-        }
-      }
       folders {
         id
         name
-        parent
-        createdAt
-        updatedAt
       }
     }
   }
@@ -415,12 +433,36 @@ export const EXERCISE_DELETE_MUTATION = gql`
   }
 `;
 
+export const CREATE_EXERCISE_MUTATION = gql`
+  mutation CreateExercise($documentId: ObjectID!, $title: String!) {
+    createExercise(input: { document: $documentId, title: $title }) {
+      id
+    }
+  }
+`;
+
 export const SUBMISSION_QUERY = gql`
   query Submission($id: ObjectID!) {
     submission(id: $id) {
       name
       studentNick
       content
+    }
+  }
+`;
+
+export const DELETE_SUBMISSION_MUTATION = gql`
+  mutation DeleteSubmission($id: ObjectID!) {
+    deleteSubmission(submissionID: $id) {
+      id
+    }
+  }
+`;
+
+export const CHANGE_SUBMISSION_STATE_MUTATION = gql`
+  mutation ChangeSubmissionsState($id: ObjectID!, $subState: Boolean!) {
+    changeSubmissionsState(id: $id, subState: $subState) {
+      id
     }
   }
 `;
