@@ -5,7 +5,7 @@ import { Input, useTranslate, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { LOGIN_MUTATION } from "../apollo/queries";
-import { ILogin } from "../types";
+import { IMutationLoginArgs } from "../../../api/src/api-types";
 
 interface IFormProps {
   className?: string;
@@ -19,7 +19,7 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
   const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
 
-  const onLogin = async (input: ILogin) => {
+  const onLogin = async (input: IMutationLoginArgs) => {
     try {
       setLoggingIn(true);
       const result = await login({ variables: input });

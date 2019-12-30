@@ -38,11 +38,6 @@ export interface IUserData extends IUserBirthDate {
   surnames?: string;
 }
 
-export interface ILogin {
-  email: string;
-  password: string;
-}
-
 export interface IEditorProps {
   document: IDocument;
   onDocumentChange: (document: IDocument) => any;
