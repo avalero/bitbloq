@@ -1,8 +1,7 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { colors, Button } from "@bitbloq/ui";
-import { IDocumentImage } from "../types";
-import { IDocument } from "../../../api/src/api-types";
+import { IDocument, IDocImage } from "../../../api/src/api-types";
 
 interface IDocumentInfoProps {
   document: IDocument;
@@ -19,8 +18,8 @@ const DocumentInfo: FC<IDocumentInfoProps> = ({ document, onGotoDocument }) => {
           <h2>{title}</h2>
           <Image
             src={
-              (image as IDocumentImage).image!
-                ? (image as IDocumentImage).image
+              (image as IDocImage).image
+                ? (image as IDocImage).image!
                 : (image as string)
             }
           />

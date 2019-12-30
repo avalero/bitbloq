@@ -30,11 +30,11 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { IDocumentImage, IResource } from "../types";
+import { IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
-import { IDocument } from "../../../api/src/api-types";
+import { IDocument, IDocImageIn } from "../../../api/src/api-types";
 
 interface IEditDocumentProps {
   folder?: string;
@@ -78,7 +78,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     advancedMode: false
   });
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
-  const [image, setImage] = useState<IDocumentImage>();
+  const [image, setImage] = useState<IDocImageIn>();
   const serviceWorker = useServiceWorker();
 
   const {
@@ -363,7 +363,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
-        image={image ? image.image : ""}
+        image={image && image.image ? image.image : ""}
         isTeacher={userData && userData.teacher}
         onChange={({
           title: newTitle,

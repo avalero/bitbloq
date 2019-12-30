@@ -53,11 +53,6 @@ export interface IEditorProps {
   children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
 }
 
-export interface IDocumentImage {
-  image: string;
-  isSnapshot: boolean;
-}
-
 export enum OrderType {
   Creation = "creation",
   Modification = "modification",
