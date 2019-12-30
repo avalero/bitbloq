@@ -11,7 +11,7 @@ interface ISignupPlanSelectorProps {
   isAMinor: boolean;
   loading: boolean;
   onCancel: () => void;
-  onSubmit: (userInputs: IPlan) => void;
+  onSubmit: (input: IPlan) => void;
 }
 
 const SignupPlanSelector: FC<ISignupPlanSelectorProps> = ({

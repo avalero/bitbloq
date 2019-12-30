@@ -17,6 +17,7 @@ interface IUserDataProvider {
   requiresSession: boolean;
   onChange: (user: any) => any;
 }
+
 export const UserDataProvider: FC<IUserDataProvider> = ({
   initialUserData,
   requiresSession,
