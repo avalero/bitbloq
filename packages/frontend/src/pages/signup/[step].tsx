@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
+import { IUserIn, IUserStep1 } from "@bitbloq/api";
 import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
@@ -32,7 +33,6 @@ import redirect from "../../lib/redirect";
 import { setToken } from "../../lib/session";
 import { IPlan } from "../../types";
 import { getAge } from "../../util";
-import { IUserIn, IUserStep1 } from "../../../../api/src/api-types";
 
 const NORMAL_SIGNUP_FLOW = [
   signupSteps.userData,

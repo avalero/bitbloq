@@ -1,10 +1,10 @@
+import { IResource } from "@bitbloq/api";
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import UploadResourceModal from "./UploadResourceModal";
 import { resourceTypes } from "../config";
 import { ResourcesTypes } from "../types";
-import { IResource } from "../../../api/src/api-types";
 
 interface IResourceItemProps extends IResource {
   onDelete: (id: string) => void;

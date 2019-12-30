@@ -1,7 +1,7 @@
+import { IResource } from "@bitbloq/api";
 import styled from "@emotion/styled";
 import React, { FC } from "react";
 import ResourceCard from "./ResourceCard";
-import { IResource } from "../../../api/src/api-types";
 
 interface IResourcesGridProps {
   addAllow?: boolean;

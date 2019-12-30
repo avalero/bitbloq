@@ -1,5 +1,5 @@
+import { IDocument, IResource, IUser } from "@bitbloq/api";
 import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
-import { IDocument, IResource, IUser } from "../../api/src/api-types";
 
 export enum OrderType {
   Creation = "creation",

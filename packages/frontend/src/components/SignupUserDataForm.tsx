@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
+import { IUserIn } from "@bitbloq/api";
 import {
   Button,
   Checkbox,
@@ -13,7 +14,6 @@ import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { educationalStages, privacyPolicyUrl } from "../config";
 import { isValidDate, isValidEmail, getAge } from "../util";
-import { IUserIn } from "../../../api/src/api-types";
 
 interface ISignupUserDataProps {
   defaultValues: {};

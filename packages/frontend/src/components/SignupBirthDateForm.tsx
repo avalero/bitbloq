@@ -1,10 +1,10 @@
 import React, { FC } from "react";
 import useForm from "react-hook-form";
+import { IUserIn } from "@bitbloq/api";
 import { Button, Input, useTranslate, colors } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { isValidDate, getAge } from "../util";
-import { IUserIn } from "../../../api/src/api-types";
 
 interface ISignupBirthDateProps {
   defaultValues: IUserIn;

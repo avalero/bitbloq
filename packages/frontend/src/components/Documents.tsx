@@ -2,13 +2,13 @@ import React, { FC, useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
-import styled from "@emotion/styled";
+import { IFolder, IResult as IDocsAndFols } from "@bitbloq/api";
 import { Button, Icon } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { ApolloError } from "apollo-client";
-import { IFolder, IResult as IDocsAndFols } from "../../../api/src/api-types";
 import {
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,

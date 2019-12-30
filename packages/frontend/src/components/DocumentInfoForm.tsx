@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import styled from "@emotion/styled";
+import { IResource } from "@bitbloq/api";
 import {
   colors,
   FileSelectButton,
@@ -8,11 +8,11 @@ import {
   DialogModal,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import ResourcesBox from "./ResourcesBox";
 import { resourceTypes } from "../config";
 import { isValidName } from "../util";
 import { ResourcesTypes } from "../types";
-import { IResource } from "../../../api/src/api-types";
 import { LIMIT_SIZE } from "../../../api/src/config";
 
 export interface IDocumentInfoFormProps {

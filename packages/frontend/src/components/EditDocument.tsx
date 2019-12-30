@@ -1,9 +1,9 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
-import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import { IDocument, IDocImageIn, IResource } from "@bitbloq/api";
 import {
   Document,
   IDocumentTab,
@@ -11,6 +11,7 @@ import {
   Button,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
 import DocumentInfoForm from "./DocumentInfoForm";
@@ -33,7 +34,6 @@ import { documentTypes } from "../config";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
-import { IDocument, IDocImageIn, IResource } from "../../../api/src/api-types";
 
 interface IEditDocumentProps {
   folder?: string;

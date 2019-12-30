@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect } from "react";
 import Router from "next/router";
-import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery } from "@apollo/react-hooks";
+import { IDocument } from "@bitbloq/api";
 import {
   DialogModal,
   Document,
@@ -10,13 +10,13 @@ import {
   Icon,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { OPEN_PUBLIC_DOCUMENT_QUERY } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { IDocument } from "../../../api/src/api-types";
 
 interface IPublicDocumentProps {
   id: string;

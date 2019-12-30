@@ -1,7 +1,7 @@
 import React, { FC } from "react";
-import styled from "@emotion/styled";
+import { IDocument, IDocImage } from "@bitbloq/api";
 import { colors, Button } from "@bitbloq/ui";
-import { IDocument, IDocImage } from "../../../api/src/api-types";
+import styled from "@emotion/styled";
 
 interface IDocumentInfoProps {
   document: IDocument;

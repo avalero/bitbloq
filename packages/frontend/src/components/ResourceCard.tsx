@@ -1,9 +1,9 @@
+import { IResource } from "@bitbloq/api";
 import { DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import DocumentCardMenu from "./DocumentCardMenu";
 import MenuButton from "./MenuButton";
-import { IResource } from "../../../api/src/api-types";
 
 interface IResourceCardProps extends IResource {
   addAllow?: boolean;

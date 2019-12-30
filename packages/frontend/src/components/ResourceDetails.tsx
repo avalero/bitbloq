@@ -1,9 +1,9 @@
+import { IResource } from "@bitbloq/api";
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useEffect, useRef, useState } from "react";
 import STLViewer from "stl-viewer";
 import { ResourcesTypes } from "../types";
-import { IResource } from "../../../api/src/api-types";
 
 interface IResourceDetailsProps extends IResource {
   className?: string;

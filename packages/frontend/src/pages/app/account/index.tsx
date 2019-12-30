@@ -1,9 +1,10 @@
 import { ApolloError } from "apollo-client";
+import { NextPage } from "next";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
-import { NextPage } from "next";
+import { IUser } from "@bitbloq/api";
 import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
 import {
   CHANGE_EMAIL_MUTATION,
@@ -24,7 +25,6 @@ import useUserData from "../../../lib/useUserData";
 import redirect from "../../../lib/redirect";
 import { isValidAge } from "../../../util";
 import { IPlan } from "../../../types";
-import { IUser } from "../../../../../api/src/api-types";
 
 enum TabType {
   UserData,

@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
+import { IUser } from "@bitbloq/api";
 import {
   Input,
   useTranslate,
@@ -15,7 +16,6 @@ import { resourceTypes } from "../config";
 import useUserData from "../lib/useUserData";
 import { ResourcesTypes } from "../types";
 import { getAvatarColor, isValidAge, isValidDate } from "../util";
-import { IUser } from "../../../api/src/api-types";
 import { LIMIT_SIZE } from "../../../api/src/config";
 
 interface IPersonalData extends IUser {

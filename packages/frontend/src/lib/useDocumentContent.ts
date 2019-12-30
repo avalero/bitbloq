@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { IDocument } from "../../../api/src/api-types";
+import { IDocument } from "@bitbloq/api";
 
 const useDocumentContent = (
   document: IDocument,

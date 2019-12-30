@@ -6,9 +6,9 @@ import React, {
   useEffect
 } from "react";
 import { useApolloClient } from "@apollo/react-hooks";
+import { IUser } from "@bitbloq/api";
 import { ME_QUERY } from "../apollo/queries";
 import { useSessionEvent } from "../lib/session";
-import { IUser } from "../../../api/src/api-types";
 
 export const UserDataContext = createContext<any>(null);
 
