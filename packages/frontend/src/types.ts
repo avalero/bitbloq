@@ -1,20 +1,5 @@
 import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
-import { IDocument, IResource } from "../../api/src/api-types";
-
-export interface IUser {
-  admin: boolean;
-  avatar: string;
-  birthDate: Date;
-  email: string;
-  id: string;
-  name: string;
-  password: string;
-  publisher: boolean;
-  rootFolder: string;
-  socialLogin: boolean;
-  surnames: string;
-  teacher: boolean;
-}
+import { IDocument, IResource, IUser } from "../../api/src/api-types";
 
 export interface IUserBirthDate {
   birthDate: string;

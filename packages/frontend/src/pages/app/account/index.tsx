@@ -23,7 +23,8 @@ import { plans } from "../../../config.js";
 import useUserData from "../../../lib/useUserData";
 import redirect from "../../../lib/redirect";
 import { isValidAge } from "../../../util";
-import { IPlan, IUser } from "../../../types";
+import { IPlan } from "../../../types";
+import { IUser } from "../../../../../api/src/api-types";
 
 enum TabType {
   UserData,

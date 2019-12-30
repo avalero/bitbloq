@@ -13,8 +13,9 @@ import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { resourceTypes } from "../config";
 import useUserData from "../lib/useUserData";
-import { IUser, ResourcesTypes } from "../types";
+import { ResourcesTypes } from "../types";
 import { getAvatarColor, isValidAge, isValidDate } from "../util";
+import { IUser } from "../../../api/src/api-types";
 import { LIMIT_SIZE } from "../../../api/src/config";
 
 interface IPersonalData extends IUser {

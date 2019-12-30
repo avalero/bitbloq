@@ -8,7 +8,7 @@ import React, {
 import { useApolloClient } from "@apollo/react-hooks";
 import { ME_QUERY } from "../apollo/queries";
 import { useSessionEvent } from "../lib/session";
-import { IUser } from "../types";
+import { IUser } from "../../../api/src/api-types";
 
 export const UserDataContext = createContext<any>(null);
 
