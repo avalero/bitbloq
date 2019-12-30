@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import STLViewer from "stl-viewer";
 import { useMutation } from "@apollo/react-hooks";
+import { LIMIT_SIZE } from "@bitbloq/api";
 import { Button, DialogModal, Modal, Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import CloudModal from "./CloudModal";
@@ -20,7 +21,6 @@ import {
 import { resourceTypes } from "../config";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
-import { LIMIT_SIZE } from "../../../api/src/config";
 
 enum Errors {
   extError,

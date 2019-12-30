@@ -2,8 +2,8 @@
   "name": "@bitbloq/api",
   "version": "1.0.0",
   "description": "## Despliegue",
-  "main": "src/api-types.ts",
-  "types": "src/api-types.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "jest": {
     "testEnvironment": "node",
     "transform": {
