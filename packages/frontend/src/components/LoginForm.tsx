@@ -25,6 +25,7 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
       const result = await login({ variables: input });
       onLoginSuccess(result.data.login);
     } catch (e) {
+      setError(true);
       setLoggingIn(false);
     }
   };
