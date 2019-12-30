@@ -30,11 +30,10 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
-import { IDocument, IDocImageIn } from "../../../api/src/api-types";
+import { IDocument, IDocImageIn, IResource } from "../../../api/src/api-types";
 
 interface IEditDocumentProps {
   folder?: string;

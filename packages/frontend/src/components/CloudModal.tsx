@@ -11,13 +11,8 @@ import {
   RESTORE_RESOURCE_FROM_TRASH
 } from "../apollo/queries";
 import { resourceTypes } from "../config";
-import { IResource, OrderType } from "../types";
-
-interface IResourceType {
-  label: string;
-  icon: string;
-  id: string;
-}
+import { OrderType } from "../types";
+import { IResource } from "../../../api/src/api-types";
 
 interface IResourceTypeProps {
   active: boolean;

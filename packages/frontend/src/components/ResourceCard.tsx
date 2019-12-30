@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import DocumentCardMenu from "./DocumentCardMenu";
 import MenuButton from "./MenuButton";
-import { IResource, ResourcesTypes } from "../types";
+import { IResource } from "../../../api/src/api-types";
 
 interface IResourceCardProps extends IResource {
   addAllow?: boolean;
@@ -29,17 +29,17 @@ const ResourceCard: FC<IResourceCardProps> = ({
   title,
   type
 }) => {
-  const extTitle = title.split(".").pop();
   const t = useTranslate();
-  const titleName = title
-    .replace(new RegExp(`\.${extTitle}$`), "")
+  const titleExt = title!.split(".").pop();
+  const titleName = title!
+    .replace(new RegExp(`\.${titleExt}$`), "")
     .substring(0, 64);
 
   const [firstTitle, setFirsTitle] = useState<string>(
     titleName.substring(0, titleName.length - 3)
   );
   const [secondTitle, setSecondTitle] = useState<string>(
-    `${titleName.substring(titleName.length - 3)}.${extTitle}`
+    `${titleName.substring(titleName.length - 3)}.${titleExt}`
   );
 
   const titleRef = useRef<HTMLDivElement>(null);
@@ -65,7 +65,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
       onClick={() =>
         (importResource || addAllow) &&
         addCallback &&
-        addCallback(id, extTitle!)
+        addCallback(id!, titleExt!)
       }
     >
       <DropDown
@@ -90,7 +90,7 @@ const ResourceCard: FC<IResourceCardProps> = ({
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
                 if (selectResource) {
-                  selectResource(id);
+                  selectResource(id!);
                 }
               }
             },
@@ -102,9 +102,9 @@ const ResourceCard: FC<IResourceCardProps> = ({
               onClick(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
                 e.stopPropagation();
                 if (deleted && restoreFromTrash) {
-                  restoreFromTrash(id);
+                  restoreFromTrash(id!);
                 } else if (!deleted && moveToTrash) {
-                  moveToTrash(id);
+                  moveToTrash(id!);
                 }
               }
             }

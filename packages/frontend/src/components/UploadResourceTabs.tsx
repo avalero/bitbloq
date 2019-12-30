@@ -4,7 +4,8 @@ import { Button, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ResourcesGrid from "./ResourcesGrid";
 import { GET_CLOUD_RESOURCES } from "../apollo/queries";
-import { IResource, OrderType, ResourcesTypes } from "../types";
+import { OrderType, ResourcesTypes } from "../types";
+import { IResource } from "../../../api/src/api-types";
 
 export enum TabType {
   add,

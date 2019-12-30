@@ -3,7 +3,8 @@ import styled from "@emotion/styled";
 import React, { FC, useEffect, useLayoutEffect, useRef, useState } from "react";
 import UploadResourceModal from "./UploadResourceModal";
 import { resourceTypes } from "../config";
-import { IResource, ResourcesTypes } from "../types";
+import { ResourcesTypes } from "../types";
+import { IResource } from "../../../api/src/api-types";
 
 interface IResourceItemProps extends IResource {
   onDelete: (id: string) => void;
@@ -21,12 +22,12 @@ const ResourceItem: FC<IResourceItemProps> = ({
   const titleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const extTitle = title.split(".").pop();
-    const titleName = title
-      .replace(new RegExp(`\.${extTitle}$`), "")
+    const titleExt = title!.split(".").pop();
+    const titleName = title!
+      .replace(new RegExp(`\.${titleExt}$`), "")
       .substring(0, 64);
     setFirsTitle(titleName.substring(0, titleName.length - 3));
-    setSecondTitle(`${titleName.substring(titleName.length - 3)}.${extTitle}`);
+    setSecondTitle(`${titleName.substring(titleName.length - 3)}.${titleExt}`);
   }, []);
 
   useLayoutEffect(() => {
@@ -45,7 +46,7 @@ const ResourceItem: FC<IResourceItemProps> = ({
         {firstTitle}
         {secondTitle}
       </ResourceTitle>
-      <TrashIcon onClick={() => onDelete(id)}>
+      <TrashIcon onClick={() => onDelete(id!)}>
         <Icon name="trash" />
       </TrashIcon>
     </ResourceBox>
@@ -76,7 +77,7 @@ const ResourcesBox: FC<IResourcesBoxProps> = ({
         {resources.length > 0 ? (
           resources.map(resource => (
             <ResourceItem
-              key={resource.id}
+              key={resource.id!}
               {...resource}
               onDelete={resourceDeleted}
             />

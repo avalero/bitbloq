@@ -1,5 +1,5 @@
 import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
-import { IDocument } from "../../api/src/api-types";
+import { IDocument, IResource } from "../../api/src/api-types";
 
 export interface IUser {
   admin: boolean;
@@ -65,18 +65,6 @@ export enum ResourcesTypes {
   object3D = "object3D",
   sound = "sound",
   video = "video"
-}
-
-export interface IResource {
-  createdAt: Date;
-  deleted: boolean;
-  id: string;
-  file: string;
-  preview?: string;
-  size: number; // Bytes
-  thumbnail?: string;
-  title: string;
-  type: ResourcesTypes;
 }
 
 export interface IPlan {

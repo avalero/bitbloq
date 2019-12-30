@@ -31,8 +31,7 @@ import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { IResource } from "../types";
-import { IDocument } from "../../../api/src/api-types";
+import { IDocument, IResource } from "../../../api/src/api-types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();

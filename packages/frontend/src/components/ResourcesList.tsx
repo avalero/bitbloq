@@ -4,7 +4,8 @@ import React, { FC } from "react";
 import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
 import ResourcesGrid from "./ResourcesGrid";
-import { IResource, OrderType } from "../types";
+import { OrderType } from "../types";
+import { IResource } from "../../../api/src/api-types";
 
 interface IResourcesListProps {
   addAllow?: boolean;

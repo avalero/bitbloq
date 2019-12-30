@@ -11,7 +11,8 @@ import {
 import ResourcesBox from "./ResourcesBox";
 import { resourceTypes } from "../config";
 import { isValidName } from "../util";
-import { IResource, ResourcesTypes } from "../types";
+import { ResourcesTypes } from "../types";
+import { IResource } from "../../../api/src/api-types";
 import { LIMIT_SIZE } from "../../../api/src/config";
 
 export interface IDocumentInfoFormProps {
