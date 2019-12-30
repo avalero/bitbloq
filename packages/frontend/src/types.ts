@@ -1,4 +1,5 @@
 import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
+import { IDocument } from "../../api/src/api-types";
 
 export interface IUser {
   admin: boolean;
@@ -50,18 +51,6 @@ export interface IEditorProps {
   resources?: IResource[];
   user?: IUser;
   children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
-}
-
-export interface IDocument {
-  id: string;
-  title: string;
-  description: string;
-  image: IDocumentImage | string;
-  content: any;
-  advancedMode?: boolean;
-  type?: string;
-  example?: boolean;
-  public?: boolean;
 }
 
 export interface IDocumentImage {

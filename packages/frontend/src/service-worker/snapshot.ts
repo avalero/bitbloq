@@ -1,9 +1,8 @@
-import { IDocument } from "../types";
+import fetch from "isomorphic-fetch";
+import { Scene, OffscreenRenderer } from "@bitbloq/lib3d";
 import { boards } from "../configurations/hardware/boards";
 import { components } from "../configurations/hardware/components";
-import fetch from "isomorphic-fetch";
-import { dataURItoBlob } from "../util";
-import { Scene, OffscreenRenderer } from "@bitbloq/lib3d";
+import { IDocument } from "../../../api/src/api-types";
 
 const SNAPSHOT_WIDTH = 700;
 const SNAPSHOT_HEIGHT = 430;
@@ -22,7 +21,7 @@ export const getDocumentSnapshot = (document: IDocument): Promise<Blob> => {
 };
 
 const get3DSnapshot = async (document: IDocument) => {
-  const sceneJSON = JSON.parse(document.content);
+  const sceneJSON = JSON.parse(document.content!);
   const scene = Scene.newFromJSON(sceneJSON);
   const renderer = new OffscreenRenderer(scene, {
     width: SNAPSHOT_WIDTH,
@@ -34,7 +33,7 @@ const get3DSnapshot = async (document: IDocument) => {
 };
 
 const getJuniorSnapshot = async (document: IDocument) => {
-  const { hardware } = JSON.parse(document.content);
+  const { hardware } = JSON.parse(document.content!);
   if (!hardware) {
     throw new Error("Hardware not found for snapshot generation");
   }

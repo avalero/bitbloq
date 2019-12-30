@@ -187,7 +187,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
           )
         }
         acceptedTypes={[ResourcesTypes.object3D]}
-        documentId={document.id}
+        documentId={document.id!}
         isOpen={resourceModal}
         onClose={() => setResourceModal(false)}
       />

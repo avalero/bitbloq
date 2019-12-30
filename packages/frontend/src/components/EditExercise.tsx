@@ -31,7 +31,8 @@ import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { IDocument, IResource } from "../types";
+import { IResource } from "../types";
+import { IDocument } from "../../../api/src/api-types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -121,7 +122,7 @@ const EditExercise = ({ type, id }) => {
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setSubmission({ ...submission!, content: initialContent });
+    setSubmission({ ...submission!, content: initialContent as any });
     updateSubmission({
       variables: {
         content: initialContent
@@ -177,7 +178,7 @@ const EditExercise = ({ type, id }) => {
               variables: { content: document.content }
             });
           }
-          currentContent.current = document.content;
+          currentContent.current = document.content as any;
         }, 1000)}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}

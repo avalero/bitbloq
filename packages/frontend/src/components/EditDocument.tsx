@@ -30,11 +30,11 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage, IResource } from "../types";
+import { IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
+import { IDocument } from "../../../api/src/api-types";
 
 interface IEditDocumentProps {
   folder?: string;
@@ -357,7 +357,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     content: (
       <DocumentInfoForm
         title={title}
-        description={description}
+        description={description || undefined}
         documentId={document.id!}
         resourceAdded={onResourceAdded}
         resourceDeleted={onResourceDeleted}
