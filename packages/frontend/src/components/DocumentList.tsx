@@ -163,10 +163,9 @@ const DocumentList: FC<IDocumentListProps> = ({
   ) => {
     e.stopPropagation();
     setSelectedToMove({ id: "" });
-    // TODO: remove cast to IDocument after IFolder type refactor
     setEditFolderNameModal({
       id: folder.id!,
-      name: (folder as IDocument).name
+      name: folder.name || undefined
     });
   };
 

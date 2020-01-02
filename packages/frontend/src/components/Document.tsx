@@ -327,7 +327,7 @@ class Document extends React.Component<any, DocumentState> {
                 variables: {
                   id: exerciseId,
                   input: {
-                    title: value || "Ejercicio sin título"
+                    name: value || "Ejercicio sin título"
                   }
                 },
                 refetchQueries: [
