@@ -418,9 +418,32 @@ export const EXERCISE_DELETE_MUTATION = gql`
 export const SUBMISSION_QUERY = gql`
   query Submission($id: ObjectID!) {
     submission(id: $id) {
+      exercise
       title
       studentNick
       content
+      grade
+      teacherComment
+    }
+  }
+`;
+
+export const SUBMISSION_SET_GRADE = gql`
+  mutation GradeSubmission(
+    $submissionID: ObjectID
+    $grade: Float
+    $teacherComment: String
+  ) {
+    gradeSubmission(
+      submissionID: $submissionID
+      grade: $grade
+      teacherComment: $teacherComment
+    ) {
+      title
+      studentNick
+      content
+      grade
+      teacherComment
     }
   }
 `;
@@ -430,6 +453,8 @@ export const STUDENT_SUBMISSION_QUERY = gql`
     submission {
       id
       content
+      grade
+      teacherComment
     }
   }
 `;

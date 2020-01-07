@@ -95,6 +95,13 @@ export interface IResource {
   type: ResourcesTypes;
 }
 
+export interface ISubmission extends IDocument {
+  exercise: string;
+  grade: number;
+  studentNick: string;
+  teacherComment: string;
+}
+
 export interface IPlan {
   name: string;
   bitbloqCloud?: boolean;
