@@ -17,7 +17,7 @@ import {
   ADD_RESOURCE_TO_DOCUMENT,
   UPLOAD_CLOUD_RESOURCE
 } from "../apollo/queries";
-import { resourceTypes } from "../config";
+import { resourceTypes, maxLengthName } from "../config";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
 import { LIMIT_SIZE } from "../../../api/src/config";
@@ -212,6 +212,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
                 onChange={(e: ChangeEvent) =>
                   setNameFile((e.target as HTMLInputElement).value)
                 }
+                maxLength={maxLengthName}
                 value={nameFile}
               />
             </FormGroup>

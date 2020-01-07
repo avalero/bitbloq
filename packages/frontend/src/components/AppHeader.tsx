@@ -14,7 +14,7 @@ const AppHeader: FC<IAppHeaderProps> = ({ children, isSticky }) => {
     <Container isSticky={isSticky}>
       <Layout>
         <Header isSticky={isSticky}>
-          <Link href="/">
+          <Link href="/" prefetch={false}>
             <a>
               <Logo isSticky={isSticky} src={logoBetaImage} alt="Bitbloq" />
             </a>

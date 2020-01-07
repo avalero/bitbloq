@@ -254,6 +254,7 @@
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
   "general-add-button": "Añadir",
+  "general-error-email": "Este correo no es válido",
   "account": {
     "title": "Mi cuenta",
     "user-data": {
