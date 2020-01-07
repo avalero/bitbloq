@@ -95,12 +95,10 @@ export interface IResource {
   type: ResourcesTypes;
 }
 
-export interface ISubmission {
-  content: any;
+export interface ISubmission extends IDocument {
   grade: number;
   studentNick: string;
   teacherComment: string;
-  title: string;
 }
 
 export interface IPlan {

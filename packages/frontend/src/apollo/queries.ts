@@ -452,6 +452,8 @@ export const STUDENT_SUBMISSION_QUERY = gql`
     submission {
       id
       content
+      grade
+      teacherComment
     }
   }
 `;
