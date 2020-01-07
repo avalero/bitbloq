@@ -38,8 +38,8 @@ const PlansPage: NextPage = () => {
           <Plan plan={teacherPlan} image={teacherPlanImage} big={true} />
         )}
         <TryContent>
-          <h2>O pruébala sin compromisos</h2>
-          <h3>Utiliza Bitbloq sin registro previo</h3>
+          <h2>{t("plans.try-it")}</h2>
+          <h3>{t("plans.try-without-registration")}</h3>
           <NewDocumentButton
             quaternary
             attachmentPosition="top left"
@@ -125,11 +125,11 @@ const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
       <HorizontalRule small />
       <PlanContent>
         <PriceContainer>
-          {plan.originalPrice && (
+          {/* {plan.originalPrice && (
             <OldPricing>
               {t("plans.monthly-price", [plan.originalPrice.toLocaleString()])}
             </OldPricing>
-          )}
+          )} */}
           {plan.isFree || plan.isBetaFree
             ? t("plans.free")
             : t("plans.monthly-price", [(plan.price || "").toLocaleString()])}
