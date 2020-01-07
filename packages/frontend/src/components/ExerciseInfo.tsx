@@ -12,6 +12,7 @@ enum TabType {
 interface IExerciseInfoProps {
   grade?: number;
   exercise: IExercise;
+  isTeacher?: boolean;
   onGotoExercise: () => any;
   teacherComment?: string;
 }
@@ -19,6 +20,7 @@ interface IExerciseInfoProps {
 const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
   grade,
   exercise: { title, description, image },
+  isTeacher = false,
   onGotoExercise,
   teacherComment
 }) => {
@@ -61,9 +63,11 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
             <p>{teacherComment}</p>
           </TabContent>
         )}
-        <GotoExercise>
-          <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
-        </GotoExercise>
+        {!isTeacher && (
+          <GotoExercise>
+            <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
+          </GotoExercise>
+        )}
       </Right>
     </Container>
   );

@@ -19,6 +19,7 @@ import {
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseRate from "./ExerciseRate";
 import { IExercise } from "../../../api/src/api-types";
+import { ISubmission } from "../types";
 
 interface IViewSubmissionProps {
   id: string;
@@ -28,6 +29,7 @@ interface IViewSubmissionProps {
 const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
   const t = useTranslate();
   const [exercise, setExercise] = useState<IExercise>();
+  const [submission, setSubmission] = useState<ISubmission>();
   const [tabIndex, setTabIndex] = useState(0);
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
@@ -45,6 +47,7 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
 
   useEffect(() => {
     if (data && data.submission) {
+      setSubmission(data.submission);
       getExercise({
         variables: {
           id: data.submission.exercise
@@ -59,9 +62,6 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
   if (error) {
     return <GraphQLErrorMessage apolloError={error!} />;
   }
-
-  const { submission } = data;
-  const { title, studentNick } = submission;
 
   const menuOptions = [
     {
@@ -78,6 +78,11 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
       content: (
         <ExerciseRate
           gradeSubmission={(grade: number, teacherComment: string) => {
+            setSubmission({
+              ...submission!,
+              grade,
+              teacherComment
+            });
             gradeSubmission({
               variables: {
                 grade,
@@ -86,7 +91,7 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
               }
             });
           }}
-          submission={submission}
+          submission={submission!}
         />
       )
     }
@@ -99,10 +104,11 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
         label: t("tab-project-info"),
         content: (
           <ExerciseInfo
-            grade={submission.grade}
+            grade={submission!.grade}
             exercise={exercise}
             onGotoExercise={() => setTabIndex(0)}
-            teacherComment={submission.teacherComment}
+            teacherComment={submission!.teacherComment}
+            isTeacher={true}
           />
         )
       },
@@ -124,7 +130,7 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
           tabIndex={tabIndex}
           onTabChange={setTabIndex}
           getTabs={(mainTabs: any[]) => mainTabs}
-          title={`${title} (${studentNick})`}
+          title={`${submission!.title} (${submission!.studentNick})`}
           {...documentProps}
         />
       )}
