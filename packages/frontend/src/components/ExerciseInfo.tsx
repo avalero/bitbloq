@@ -2,16 +2,11 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { Button, colors, useTranslate } from "@bitbloq/ui";
+import { IExercise } from "../../../api/src/api-types";
 
 enum TabType {
   Description,
   Score
-}
-
-interface IExercise {
-  title: string;
-  description: string;
-  image: string;
 }
 
 interface IExerciseInfoProps {
@@ -35,7 +30,7 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
       <Left>
         <LeftContent>
           <h2>{title}</h2>
-          <Image src={image} />
+          <Image src={image!} />
         </LeftContent>
       </Left>
       <Right>

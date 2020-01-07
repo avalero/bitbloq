@@ -418,6 +418,7 @@ export const EXERCISE_DELETE_MUTATION = gql`
 export const SUBMISSION_QUERY = gql`
   query Submission($id: ObjectID!) {
     submission(id: $id) {
+      exercise
       title
       studentNick
       content

@@ -1,6 +1,6 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import { useLazyQuery, useMutation, useQuery } from "@apollo/react-hooks";
 import {
   colors,
   Spinner,
@@ -11,8 +11,14 @@ import {
 } from "@bitbloq/ui";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { documentTypes } from "../config";
-import { SUBMISSION_QUERY, SUBMISSION_SET_GRADE } from "../apollo/queries";
+import {
+  EXERCISE_QUERY,
+  SUBMISSION_QUERY,
+  SUBMISSION_SET_GRADE
+} from "../apollo/queries";
+import ExerciseInfo from "./ExerciseInfo";
 import ExerciseRate from "./ExerciseRate";
+import { IExercise } from "../../../api/src/api-types";
 
 interface IViewSubmissionProps {
   id: string;
@@ -21,13 +27,31 @@ interface IViewSubmissionProps {
 
 const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
   const t = useTranslate();
+  const [exercise, setExercise] = useState<IExercise>();
   const [tabIndex, setTabIndex] = useState(0);
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
+  const [getExercise, { data: exerciseData }] = useLazyQuery(EXERCISE_QUERY);
   const [gradeSubmission] = useMutation(SUBMISSION_SET_GRADE);
   const { data, loading, error } = useQuery(SUBMISSION_QUERY, {
     variables: { id }
   });
+
+  useEffect(() => {
+    if (exerciseData && exerciseData.exercise) {
+      setExercise(exerciseData.exercise);
+    }
+  }, [exerciseData]);
+
+  useEffect(() => {
+    if (data && data.submission) {
+      getExercise({
+        variables: {
+          id: data.submission.exercise
+        }
+      });
+    }
+  }, [data]);
 
   if (loading) {
     return <Loading color={documentType.color} />;
@@ -47,30 +71,50 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
     }
   ];
 
-  const rateTab: IDocumentTab = {
-    icon: <Icon name="tick-circle" />,
-    label: t("tab-submission-rate"),
-    content: (
-      <ExerciseRate
-        gradeSubmission={(grade: number, teacherComment: string) => {
-          gradeSubmission({
-            variables: {
-              grade,
-              submissionID: id,
-              teacherComment
-            }
-          });
-        }}
-        submission={submission}
-      />
-    )
-  };
+  let baseTabs: IDocumentTab[] = [
+    {
+      icon: <Icon name="tick-circle" />,
+      label: t("tab-submission-rate"),
+      content: (
+        <ExerciseRate
+          gradeSubmission={(grade: number, teacherComment: string) => {
+            gradeSubmission({
+              variables: {
+                grade,
+                submissionID: id,
+                teacherComment
+              }
+            });
+          }}
+          submission={submission}
+        />
+      )
+    }
+  ];
+
+  if (exercise) {
+    baseTabs = [
+      {
+        icon: <Icon name="info" />,
+        label: t("tab-project-info"),
+        content: (
+          <ExerciseInfo
+            grade={submission.grade}
+            exercise={exercise}
+            onGotoExercise={() => setTabIndex(0)}
+            teacherComment={submission.teacherComment}
+          />
+        )
+      },
+      ...baseTabs
+    ];
+  }
 
   return (
     <EditorComponent
       document={submission}
       onDocumentChange={() => null}
-      baseTabs={[rateTab]}
+      baseTabs={baseTabs}
       baseMenuOptions={menuOptions}
     >
       {documentProps => (

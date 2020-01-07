@@ -96,6 +96,7 @@ export interface IResource {
 }
 
 export interface ISubmission extends IDocument {
+  exercise: string;
   grade: number;
   studentNick: string;
   teacherComment: string;
