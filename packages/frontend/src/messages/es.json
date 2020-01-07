@@ -496,8 +496,10 @@
     "with": "Con mi perfil de:"
   },
   "plans": {
-    "bitbloq-cloud-info": "Contratando Bitbloq Cloud tendrás espacio en la nube para almacenar fotografías, videos, STLs, etc. poder importarlos en tus documentos.",
-    "choose-plan": "Elije el plan que más se ajuste a tus necesidades",
+    "bitbloq-cloud-info": "Con Bitbloq Cloud tendrás espacio en la nube para almacenar fotografías, videos, STLs, etc. y poder importarlos en tus documentos.",
+    "choose-plan": "Elige el plan que más se ajuste a tus necesidades",
+    "try-without-registration": "Empieza a trabajar sin registros",
+    "try-it": "O pruébalo gratis",
     "during-beta": "Durante la beta",
     "features": {
       "create-documents": "Crear documentos",
@@ -505,27 +507,27 @@
       "open-documents": "Abrir documentos descargados",
       "create-documents-with-bq-kits": "Crear documentos con kits y robots de BQ",
       "exercise-access": "Acceder a ejercicios",
-      "bitbloq-cloud": "Bitbloq Cloud Incluido",
+      "bitbloq-cloud": "Bitbloq Cloud",
       "save-online-documents": "Guardar documentos online en Bitbloq",
-      "save-unlimited-documents": "Guardar documentos ilimitados online",
-      "exercise-compilation": "Complilación en ejercicios",
+      "save-unlimited-documents": "Guardar documentos online",
+      "exercise-compilation": "Complilación en línea para tus alumnos",
       "online-compilation": "Complilación en línea",
       "create-exercises": "Crear ejercicios",
       "correct-exercises": "Corregir ejercicios",
-      "unregistered-student-access": "Acceso de alumnos sin registrar"
+      "unregistered-student-access": "Dar acceso a tus alumnos sin que se registren"
     },
     "free": "Gratis",
     "includes-bitbloq-cloud": "Incluye Bitbloq Cloud",
     "link": "Planes",
     "member": "Miembro",
     "member-description": "Con este plan gratuito simplemente puedes guardar tus documentos en la nube.",
-    "member-signup": "¡Quiero jugar con Bitbloq!",
-    "member-subtitle": "Todo lo que necesitas para empezar a diseñar gratis",
+    "member-signup": "¡Quiero empezar con Bitbloq!",
+    "member-subtitle": "Todo lo que necesitas para empezar gratis",
     "monthly-price": "%v%€ / mes",
     "teacher": "Docente",
     "teacher-description": "Este plan te permite crear ejercicios y corregirlos, acceso para tus alumnos a los ejercicios sin necesidad de tener que registrarse y la herramienta de Bitbloq Cloud.",
     "teacher-signup": "¡Quiero enseñar con Bitbloq!",
-    "teacher-subtitle": "Además del plan gratuíto podrás …",
+    "teacher-subtitle": "Con el plan docente podrás además …",
     "unregistered": "Sin registro"
   },
   "save-copy-modal": {
@@ -595,7 +597,7 @@
     "user-data": {
       "cancel": "Cancelar",
       "educational-stages": {
-        "preschool": "Preescolar",
+        "preschool": "Infantil",
         "primary": "Primaria",
         "high-school": "Secundaria",
         "bachelor": "Bachiller",
@@ -653,7 +655,7 @@
       "free-beta": "Gratis durante la beta",
       "monthly-price": "%v%€ al mes",
       "ok": "¡Unirme a Bitbloq ya!",
-      "sub-title": "Elije el tipo de cuenta que deseas crear:",
+      "sub-title": "Elige el tipo de cuenta que deseas crear:",
       "title": "Configuración de la cuenta"
     },
     "title": "Crear una cuenta"
