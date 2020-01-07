@@ -93,6 +93,7 @@
   "submission-error-not-name": "Debes escribir un nombre de equipo",
   "tab-3d": "3D",
   "tab-project-info": "Información del documento",
+  "tab-submission-rate": "Calificación del ejercicio",
   "tooltip-select-multiple": "Selecciona varios objetos pulsando *“Control + clic”* en cada uno de ellos para utilizar esta herramienta",
   "tooltip-select-top": "Selecciona objetos de primer nivel para poder usar esta herramienta",
   "tooltip-select-one": "Selecciona un único objeto para utilizar esta herramienta",
@@ -431,6 +432,16 @@
     "title": "Información del documento"
   },
   "exercises": {
+    "rate": {
+      "observations": {
+        "placeholder": "Observaciones del ejercicio",
+        "title": "Observaciones"
+      },
+      "rate": {
+        "title": "Nota"
+      },
+      "title": "Calificación del ejercicio"
+    },
     "resources": {
       "title": "Recursos del ejercicio"
     }

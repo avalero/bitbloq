@@ -1,10 +1,18 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import { useQuery } from "@apollo/react-hooks";
-import { colors, Spinner, Document, useTranslate, Icon } from "@bitbloq/ui";
+import {
+  colors,
+  Spinner,
+  Document,
+  useTranslate,
+  Icon,
+  IDocumentTab
+} from "@bitbloq/ui";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { documentTypes } from "../config";
 import { SUBMISSION_QUERY } from "../apollo/queries";
+import ExerciseRate from "./ExerciseRate";
 
 interface IViewSubmissionProps {
   id: string;
@@ -38,11 +46,19 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
     }
   ];
 
+  console.log(submission);
+
+  const rateTab: IDocumentTab = {
+    icon: <Icon name="tick-circle" />,
+    label: t("tab-submission-rate"),
+    content: <ExerciseRate submission={submission} />
+  };
+
   return (
     <EditorComponent
       document={submission}
       onDocumentChange={() => null}
-      baseTabs={[]}
+      baseTabs={[rateTab]}
       baseMenuOptions={menuOptions}
     >
       {documentProps => (

@@ -421,6 +421,8 @@ export const SUBMISSION_QUERY = gql`
       title
       studentNick
       content
+      grade
+      teacherComment
     }
   }
 `;
