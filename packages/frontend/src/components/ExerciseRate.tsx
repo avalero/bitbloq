@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
 import {
   colors,
@@ -10,12 +10,22 @@ import {
 import { ISubmission } from "../types";
 
 export interface IExerciseRateProps {
+  gradeSubmission: (grade: number, teacherComment: string) => void;
   submission: ISubmission;
 }
 
-const ExerciseRate: FC<IExerciseRateProps> = ({ submission }) => {
+const ExerciseRate: FC<IExerciseRateProps> = ({
+  gradeSubmission,
+  submission
+}) => {
+  const [error, setError] = useState<boolean>(false);
+  const [grade, setGrade] = useState<number | string>(
+    submission.grade !== null ? submission.grade : ""
+  );
+  const [teacherComment, setTeacherComment] = useState<string>(
+    submission.teacherComment || ""
+  );
   const t = useTranslate();
-  const { grade, teacherComment } = submission;
 
   return (
     <Container>
@@ -28,24 +38,19 @@ const ExerciseRate: FC<IExerciseRateProps> = ({ submission }) => {
             </FormLabel>
             <FormInput>
               <Input
-                value={grade}
+                error={error}
+                onBlur={() => gradeSubmission(+grade, teacherComment)}
+                onChange={e => {
+                  const value: string = e.target.value;
+                  if (!value || (value.match(/\d/) && +value >= 0)) {
+                    setError(false);
+                    setGrade(value ? +value : "");
+                  } else {
+                    setError(true);
+                  }
+                }}
                 placeholder="00"
-                // onChange={e => {
-                //   const value: string = e.target.value;
-                //   if (isValidName(value)) {
-                //     setTitleError(false);
-                //     onChange({
-                //       title: value,
-                //       description
-                //     });
-                //   } else {
-                //     setTitleError(true);
-                //   }
-                //   setTitle(value);
-                // // }}
-                // error={titleError}
-                // onFocus={() => setTitleFocused(true)}
-                // onBlur={() => setTitleFocused(false)}
+                value={grade}
               />
             </FormInput>
           </FormRow>
@@ -55,15 +60,14 @@ const ExerciseRate: FC<IExerciseRateProps> = ({ submission }) => {
             </FormLabel>
             <FormInput>
               <TextArea
-                value={teacherComment}
+                onBlur={() => gradeSubmission(+grade, teacherComment)}
+                onChange={e => {
+                  const value: string = e.target.value;
+                  setTeacherComment(value);
+                }}
                 placeholder={t("exercises.rate.observations.placeholder")}
-                // onChange={e => {
-                //   onChange({
-                //     title,
-                //     description: e.target.value
-                //   });
-                // }}
                 rows={3}
+                value={teacherComment}
               />
             </FormInput>
           </FormRow>

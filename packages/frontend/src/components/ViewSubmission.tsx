@@ -1,6 +1,6 @@
 import React, { FC, useState } from "react";
 import styled from "@emotion/styled";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
 import {
   colors,
   Spinner,
@@ -11,7 +11,7 @@ import {
 } from "@bitbloq/ui";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { documentTypes } from "../config";
-import { SUBMISSION_QUERY } from "../apollo/queries";
+import { SUBMISSION_QUERY, SUBMISSION_SET_GRADE } from "../apollo/queries";
 import ExerciseRate from "./ExerciseRate";
 
 interface IViewSubmissionProps {
@@ -24,6 +24,7 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
+  const [gradeSubmission] = useMutation(SUBMISSION_SET_GRADE);
   const { data, loading, error } = useQuery(SUBMISSION_QUERY, {
     variables: { id }
   });
@@ -46,12 +47,23 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
     }
   ];
 
-  console.log(submission);
-
   const rateTab: IDocumentTab = {
     icon: <Icon name="tick-circle" />,
     label: t("tab-submission-rate"),
-    content: <ExerciseRate submission={submission} />
+    content: (
+      <ExerciseRate
+        gradeSubmission={(grade: number, teacherComment: string) => {
+          gradeSubmission({
+            variables: {
+              grade,
+              submissionID: id,
+              teacherComment
+            }
+          });
+        }}
+        submission={submission}
+      />
+    )
   };
 
   return (
