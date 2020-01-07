@@ -150,7 +150,6 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
         <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
           {updateForgotPassword => (
             <EditInputModal
-              title=""
               onCancel={() => setPasswordModalOpen(false)}
               onSave={(value: string) => {
                 updateForgotPassword({
@@ -161,12 +160,11 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
                 });
                 setPasswordModalOpen(false);
               }}
-              modalTitle={t("submission-passwordmodal-title")}
-              modalText={t("submission-passwordmodal-text")}
+              title={t("submission-passwordmodal-title")}
+              label={t("submission-passwordmodal-text")}
               placeholder={t("submission-passwordmodal-placeholder")}
               saveButton={t("general-accept-button")}
               type="password"
-              validateInput={false}
             />
           )}
         </Mutation>

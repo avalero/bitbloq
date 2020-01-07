@@ -225,6 +225,7 @@ export const flags = {
   ...savedFlags
 };
 
+export const maxLengthName = 64;
 export const maxSTLFileSize = 5242880;
 
 export const minChromeVersion = 69;
