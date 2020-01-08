@@ -3,6 +3,7 @@ import * as ConfigParameters from "./config";
 
 export type IDocImageIn = Types.IDocImageIn;
 export type IDocument = Types.IDocument;
+export type IExercise = Types.IExercise;
 export type IFolder = Types.IFolder;
 export type IMutationLoginArgs = Types.IMutationLoginArgs;
 export type IResource = Types.IResource;
