@@ -169,6 +169,7 @@ export interface IMutation {
   __typename?: "Mutation";
   saveUserData?: Maybe<IUserStep1>;
   finishSignUp?: Maybe<Scalars["String"]>;
+  resendWelcomeEmail?: Maybe<Scalars["Boolean"]>;
   saveBirthDate?: Maybe<IUserStep1>;
   activateAccount?: Maybe<Scalars["String"]>;
   login?: Maybe<Scalars["String"]>;
@@ -226,6 +227,10 @@ export interface IMutationSaveUserDataArgs {
 export interface IMutationFinishSignUpArgs {
   id: Scalars["String"];
   userPlan: Scalars["String"];
+}
+
+export interface IMutationResendWelcomeEmailArgs {
+  email: Scalars["String"];
 }
 
 export interface IMutationSaveBirthDateArgs {
@@ -1185,6 +1190,12 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationFinishSignUpArgs, "id" | "userPlan">
+  >;
+  resendWelcomeEmail?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationResendWelcomeEmailArgs, "email">
   >;
   saveBirthDate?: Resolver<
     Maybe<IResolversTypes["UserStep1"]>,
