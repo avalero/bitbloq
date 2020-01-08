@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery } from "@apollo/react-hooks";
+import { IResource } from "@bitbloq/api";
 import { Button, Modal, Icon, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import debounce from "lodash/debounce";
@@ -11,13 +12,7 @@ import {
   RESTORE_RESOURCE_FROM_TRASH
 } from "../apollo/queries";
 import { resourceTypes } from "../config";
-import { IResource, OrderType } from "../types";
-
-interface IResourceType {
-  label: string;
-  icon: string;
-  id: string;
-}
+import { OrderType } from "../types";
 
 interface IResourceTypeProps {
   active: boolean;

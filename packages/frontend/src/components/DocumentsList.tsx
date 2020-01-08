@@ -1,14 +1,10 @@
 import React, { FC, useState } from "react";
 import { useMutation, useLazyQuery } from "@apollo/react-hooks";
-import styled from "@emotion/styled";
+import { IDocument, IFolder, IResult as IDocsAndFols } from "@bitbloq/api";
 import { DialogModal, DropDown } from "@bitbloq/ui";
-import { useDrop } from "react-dnd";
 import { css } from "@emotion/core";
-import {
-  IDocument,
-  IFolder,
-  IResult as IDocsAndFols
-} from "../../../api/src/api-types";
+import styled from "@emotion/styled";
+import { useDrop } from "react-dnd";
 import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,

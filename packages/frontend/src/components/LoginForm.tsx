@@ -1,12 +1,12 @@
 import React, { FC, useState } from "react";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
+import { IMutationLoginArgs } from "@bitbloq/api";
 import { DialogModal, Input, useTranslate, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import CounterButton from "../components/CounterButton";
 import ErrorMessage from "./ErrorMessage";
 import { LOGIN_MUTATION, RESEND_WELCOME_EMAIL } from "../apollo/queries";
-import { ILogin } from "../types";
 
 interface IFormProps {
   className?: string;
@@ -23,7 +23,7 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
   const [login] = useMutation(LOGIN_MUTATION);
   const [resendEmail] = useMutation(RESEND_WELCOME_EMAIL);
 
-  const onLogin = async (input: ILogin) => {
+  const onLogin = async (input: IMutationLoginArgs) => {
     try {
       setLoggingIn(true);
       const result = await login({ variables: input });

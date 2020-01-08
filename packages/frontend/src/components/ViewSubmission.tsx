@@ -1,6 +1,7 @@
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/react-hooks";
+import { IExercise } from "@bitbloq/api";
 import {
   colors,
   Spinner,
@@ -18,7 +19,6 @@ import {
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseRate from "./ExerciseRate";
-import { IExercise } from "../../../api/src/api-types";
 import { ISubmission } from "../types";
 
 interface IViewSubmissionProps {

@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useState } from "react";
 import { useSubscription, useMutation } from "@apollo/react-hooks";
+import { ISessionExpires } from "@bitbloq/api";
 import { DialogModal } from "@bitbloq/ui";
 import { logout } from "../lib/session";
 import { RENEW_SESSION_MUTATION } from "../apollo/queries";
-import { ISessionExpires } from "../../../api/src/api-types";
 import { DocumentNode } from "apollo-link";
 
 export interface ISessionWarningModalProps {
