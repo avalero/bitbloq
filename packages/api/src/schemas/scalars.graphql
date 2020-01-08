@@ -23,3 +23,15 @@ type SessionExpires {
   showSessionWarningSecs: Number
   expiredSession: Boolean
 }
+
+type CommonProps {
+  id: ObjectID
+  user: ObjectID
+  name: String!
+  type: String
+  content: String
+  cache: String
+  description: String
+  createdAt: Date
+  updatedAt: Date
+}

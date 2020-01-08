@@ -3,13 +3,9 @@ import Router from "next/router";
 import { NextApiRequest, NextPageContext } from "next";
 import Head from "next/head";
 import { ApolloClient, ApolloError } from "apollo-client";
-import { ApolloProvider, useMutation } from "@apollo/react-hooks";
+import { ApolloProvider } from "@apollo/react-hooks";
 import { createClient } from "./client";
-import {
-  ME_QUERY,
-  USER_SESSION_EXPIRES_SUBSCRIPTION,
-  RENEW_SESSION_MUTATION
-} from "./queries";
+import { ME_QUERY, USER_SESSION_EXPIRES_SUBSCRIPTION } from "./queries";
 import {
   getToken,
   setToken,
@@ -21,9 +17,6 @@ import { UserDataProvider } from "../lib/useUserData";
 import redirect from "../lib/redirect";
 import SessionWarningModal from "../components/SessionWarningModal";
 import ErrorLayout from "../components/ErrorLayout";
-import { Subscription } from "react-apollo";
-import { ISessionExpires } from "../../../api/src/api-types";
-import { DialogModal } from "@bitbloq/ui";
 
 export interface IContext extends NextPageContext {
   apolloClient: ApolloClient<any>;

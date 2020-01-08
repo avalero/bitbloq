@@ -6,9 +6,9 @@ import React, {
   useEffect
 } from "react";
 import { useApolloClient } from "@apollo/react-hooks";
+import { IUser } from "@bitbloq/api";
 import { ME_QUERY } from "../apollo/queries";
 import { useSessionEvent } from "../lib/session";
-import { IUser } from "../types";
 
 export const UserDataContext = createContext<any>(null);
 
@@ -17,6 +17,7 @@ interface IUserDataProvider {
   requiresSession: boolean;
   onChange: (user: any) => any;
 }
+
 export const UserDataProvider: FC<IUserDataProvider> = ({
   initialUserData,
   requiresSession,

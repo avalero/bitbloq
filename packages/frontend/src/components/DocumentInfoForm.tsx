@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import styled from "@emotion/styled";
+import { IResource, LIMIT_SIZE } from "@bitbloq/api";
 import {
   colors,
   FileSelectButton,
@@ -8,14 +8,14 @@ import {
   DialogModal,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import ResourcesBox from "./ResourcesBox";
 import { resourceTypes, maxLengthName } from "../config";
 import { isValidName } from "../util";
-import { IResource, ResourcesTypes } from "../types";
-import { LIMIT_SIZE } from "../../../api/src/config";
+import { ResourcesTypes } from "../types";
 
 export interface IDocumentInfoFormProps {
-  title?: string;
+  name?: string;
   description?: string;
   documentId: string;
   image: string;
@@ -25,14 +25,14 @@ export interface IDocumentInfoFormProps {
   resources?: IResource[];
   resourcesTypesAccepted: ResourcesTypes[];
   onChange: (newValues: {
-    title?: string;
+    name?: string;
     description?: string;
     image?: File;
   }) => void;
 }
 
 const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
-  title,
+  name,
   description,
   documentId,
   image,
@@ -44,16 +44,16 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
-  const [titleInput, setTitle] = useState(title);
-  const [titleError, setTitleError] = useState(false);
-  const [titleFocused, setTitleFocused] = useState(false);
+  const [nameInput, setName] = useState(name);
+  const [nameError, setNameError] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
   const t = useTranslate();
 
   useEffect(() => {
-    if (!titleFocused) {
-      setTitle(title);
+    if (!nameFocused) {
+      setName(name);
     }
-  }, [title, titleFocused]);
+  }, [name, nameFocused]);
 
   const onFileSelected = (file: File) => {
     if (
@@ -66,7 +66,7 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
       setImageError(t("document-info.errors.image-size"));
     } else {
       onChange({
-        title,
+        name,
         description,
         image: file
       });
@@ -84,25 +84,25 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
             </FormLabel>
             <FormInput>
               <Input
-                value={titleInput}
+                value={nameInput}
                 placeholder={t("document-info.placeholders.title")}
                 onChange={e => {
                   const value: string = e.target.value;
                   if (isValidName(value)) {
-                    setTitleError(false);
+                    setNameError(false);
                     onChange({
-                      title: value,
+                      name: value,
                       description
                     });
                   } else {
-                    setTitleError(true);
+                    setNameError(true);
                   }
-                  setTitle(value);
+                  setName(value);
                 }}
+                error={nameError}
+                onFocus={() => setNameFocused(true)}
+                onBlur={() => setNameFocused(false)}
                 maxLength={maxLengthName}
-                error={titleError}
-                onFocus={() => setTitleFocused(true)}
-                onBlur={() => setTitleFocused(false)}
               />
             </FormInput>
           </FormRow>
@@ -120,7 +120,7 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                 placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
                   onChange({
-                    title,
+                    name,
                     description: e.target.value
                   });
                 }}

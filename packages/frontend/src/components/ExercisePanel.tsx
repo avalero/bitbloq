@@ -57,7 +57,7 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
           </Toggle>
         </HeaderLeft>
         <HeaderCenter onClick={() => setOpen(!isOpen)}>
-          <Title>{exercise.title}</Title>
+          <Title>{exercise.name}</Title>
           <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
         </HeaderCenter>
         <DropDown
@@ -80,7 +80,7 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
                 iconName: "pencil",
                 label: t("menu-change-name"),
                 onClick() {
-                  onChangeName(exercise.title);
+                  onChangeName(exercise.name);
                 }
               },
               {
@@ -197,7 +197,6 @@ interface ISubmissionPanelProps {
 
 const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
   const {
-    exerciseId,
     onCheckSubmission,
     setDeleteModalOpen,
     setPasswordModalOpen,
@@ -206,7 +205,6 @@ const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
     t
   } = props;
 
-  const [passwordValue, setPasswordValue] = useState("");
   const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
 
   return (
@@ -231,7 +229,13 @@ const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
           </span>
         )}
       </td>
-      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        {!submission.finished
+          ? ""
+          : submission.grade !== null && submission.grade !== undefined
+          ? submission.grade
+          : "-"}
+      </td>
       <td>
         <DropDown
           constraints={[

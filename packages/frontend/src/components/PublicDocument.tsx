@@ -1,8 +1,8 @@
 import React, { FC, useState, useEffect } from "react";
 import Router from "next/router";
-import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery } from "@apollo/react-hooks";
+import { IDocument } from "@bitbloq/api";
 import {
   DialogModal,
   Document,
@@ -10,13 +10,13 @@ import {
   Icon,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { OPEN_PUBLIC_DOCUMENT_QUERY } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { IDocument } from "../types";
 
 interface IPublicDocumentProps {
   id: string;
@@ -30,7 +30,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
   const [tabIndex, setTabIndex] = useState(1);
   const [isSaveCopyVisible, setIsSaveCopyVisible] = useState(false);
   const [isRestartModalVisible, setIsRestartModalVisible] = useState(false);
-  const [content, setContent] = useState([]);
+  const [content, setContent] = useState<string>();
   const [restartCount, setRestartCount] = useState(0);
 
   const t = useTranslate();
@@ -75,7 +75,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
     const blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
-    saveAs(blob, `${document.title}.bitbloq`);
+    saveAs(blob, `${document.name}.bitbloq`);
   };
 
   const infoTab: IDocumentTab = {
@@ -107,7 +107,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
       <EditorComponent
         document={document}
         onDocumentChange={(newDocument: IDocument) =>
-          setContent(newDocument.content)
+          setContent(newDocument.content!)
         }
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}
@@ -124,7 +124,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
                 <TitleIcon>
                   <Icon name="view-document" />
                 </TitleIcon>
-                <span>{document.title}</span>
+                <span>{document.name}</span>
               </>
             }
             headerButtons={[

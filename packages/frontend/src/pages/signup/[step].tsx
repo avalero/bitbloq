@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMutation, ExecutionResult, useApolloClient } from "react-apollo";
+import { IUserIn, IUserStep1 } from "@bitbloq/api";
 import { colors, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import {
@@ -30,9 +31,8 @@ import {
 } from "../../config";
 import redirect from "../../lib/redirect";
 import { setToken } from "../../lib/session";
-import { IPlan, IUserBirthDate, IUserData } from "../../types";
+import { IPlan } from "../../types";
 import { getAge } from "../../util";
-import { IUserStep1 } from "../../../../api/src/api-types";
 
 const NORMAL_SIGNUP_FLOW = [
   signupSteps.userData,
@@ -78,8 +78,7 @@ const SignupStepPage: NextPage = () => {
   const teacherPlan = plans.filter(p => p.name === "teacher")[0];
 
   const [signupFlow, setSignupFlow] = useState<string[]>(NORMAL_SIGNUP_FLOW);
-  const [userData, setUserData] = useState<IUserData>({
-    birthDate: "",
+  const [userData, setUserData] = useState<IUserIn>({
     country: "ES",
     educationalStage: _.first(educationalStages) || "",
     imTeacherCheck: defaultPlan === teacherPlan.name
@@ -121,7 +120,7 @@ const SignupStepPage: NextPage = () => {
     }
   };
 
-  const onSaveBirthDate = async (input: IUserBirthDate) => {
+  const onSaveBirthDate = async (input: IUserIn) => {
     setUserData(input);
     await saveBirthDate({
       variables: {
@@ -132,7 +131,7 @@ const SignupStepPage: NextPage = () => {
     goToNextStep();
   };
 
-  const onSaveUser = async (input: IUserData) => {
+  const onSaveUser = async (input: IUserIn) => {
     setUserData(input);
     try {
       const {
@@ -150,7 +149,8 @@ const SignupStepPage: NextPage = () => {
             email: input.email,
             imTeacherCheck: input.imTeacherCheck,
             name: input.name,
-            notifications: !input.noNotifications,
+            notifications:
+              input.notifications !== undefined ? input.notifications : true,
             password: input.password,
             postCode: input.imTeacherCheck ? input.postCode : undefined,
             surnames: input.surnames

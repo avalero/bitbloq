@@ -1,9 +1,9 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
-import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import { IDocument, IDocImageIn, IResource } from "@bitbloq/api";
 import {
   Document,
   IDocumentTab,
@@ -11,6 +11,7 @@ import {
   Button,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
 import DocumentInfoForm from "./DocumentInfoForm";
@@ -23,15 +24,13 @@ import DocumentLoginModal from "./DocumentLoginModal";
 import {
   ADD_RESOURCE_TO_EXERCISES,
   DELETE_RESOURCE_FROM_EXERCISES,
-  DOCUMENT_QUERY,
+  EDIT_DOCUMENT_QUERY,
   CREATE_DOCUMENT_MUTATION,
   UPDATE_DOCUMENT_MUTATION,
   PUBLISH_DOCUMENT_MUTATION,
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
@@ -67,10 +66,10 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const [loading, setLoading] = useState(true);
   const [opening, setOpening] = useState(type === "open");
   const [error, setError] = useState<ApolloError | null>(null);
-  const [document, setDocument] = useState<Partial<IDocument>>({
+  const [document, setDocument] = useState<IDocument>({
     id: "",
     content: "[]",
-    title: t("untitled-project"),
+    name: t("untitled-project"),
     description: "",
     public: false,
     example: false,
@@ -78,7 +77,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     advancedMode: false
   });
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
-  const [image, setImage] = useState<IDocumentImage>();
+  const [image, setImage] = useState<IDocImageIn>();
   const serviceWorker = useServiceWorker();
 
   const {
@@ -86,15 +85,16 @@ const EditDocument: FC<IEditDocumentProps> = ({
     error: errorDocument,
     data,
     refetch
-  } = useQuery(DOCUMENT_QUERY, {
+  } = useQuery(EDIT_DOCUMENT_QUERY, {
     variables: { id },
-    skip: isNew
+    skip: isNew,
+    fetchPolicy: "cache-and-network"
   });
 
   const {
     content,
     advancedMode,
-    title,
+    name,
     description,
     public: isPublic,
     example: isExample
@@ -114,7 +114,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
 
   useEffect(() => {
     if (isLoggedIn && !prevIsLoggedIn.current) {
-      update({ content, title, description, type, advancedMode });
+      update({ content, name, description, type, advancedMode });
     }
     prevIsLoggedIn.current = isLoggedIn;
   }, [isLoggedIn]);
@@ -205,7 +205,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   };
 
   const debouncedUpdate = useCallback(
-    debounce(async (newDocument: Partial<IDocument>) => {
+    debounce(async (newDocument: IDocument) => {
       await updateDocument({ variables: { ...newDocument, id } }).catch(e => {
         return setError(e);
       });
@@ -221,10 +221,9 @@ const EditDocument: FC<IEditDocumentProps> = ({
     );
   }, [data]);
 
-  const update = async (updatedDocument: Partial<IDocument>) => {
+  const update = async (updatedDocument: IDocument) => {
     delete updatedDocument.image;
     setDocument(updatedDocument);
-
     if (!isLoggedIn) {
       return;
     }
@@ -233,8 +232,8 @@ const EditDocument: FC<IEditDocumentProps> = ({
       const result = await createDocument({
         variables: {
           ...updatedDocument,
-          folder: saveFolder,
-          title: updatedDocument.title || t("untitled-project")
+          parentFolder: saveFolder,
+          name: updatedDocument.name || t("untitled-project")
         }
       }).catch(e => {
         return setError(e);
@@ -295,7 +294,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const onSaveDocument = () => {
     const documentJSON = {
       type,
-      title: title || `document${type}`,
+      name: name || `document${type}`,
       description: description || `bitbloq ${type} document`,
       content,
       advancedMode,
@@ -309,7 +308,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       type: "text/json;charset=utf-8"
     });
 
-    saveAs(blob, `${documentJSON.title}.bitbloq`);
+    saveAs(blob, `${documentJSON.name}.bitbloq`);
   };
 
   const menuOptions = [
@@ -341,7 +340,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
   const EditorComponent = documentType.editorComponent;
 
   const onSaveTitle = (newTitle: string) => {
-    update({ ...document, title: newTitle || t("untitled-project") });
+    update({ ...document, name: newTitle || t("untitled-project") });
     setIsEditTitleVisible(false);
   };
 
@@ -356,23 +355,23 @@ const EditDocument: FC<IEditDocumentProps> = ({
     label: t("tab-project-info"),
     content: (
       <DocumentInfoForm
-        title={title}
-        description={description}
+        name={name}
+        description={description || undefined}
         documentId={document.id!}
         resourceAdded={onResourceAdded}
         resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
-        image={image ? image.image : ""}
+        image={image && image.image ? image.image : ""}
         isTeacher={userData && userData.teacher}
         onChange={({
-          title: newTitle,
+          name: newTitle,
           description: newDescription,
           image: newImage
         }) => {
           const newDocument = {
             ...document,
-            title: newTitle || t("untitled-project"),
+            name: newTitle || t("untitled-project"),
             description: newDescription || t("document-body-description")
           };
           if (newImage) {
@@ -408,7 +407,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         {documentProps => (
           <Document
             brandColor={documentType.color}
-            title={title}
+            title={name}
             onEditTitle={onEditTitle}
             icon={<Icon name={documentType.icon} />}
             tabIndex={tabIndex}
@@ -431,7 +430,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
       </EditorComponent>
       {isEditTitleVisible && (
         <EditInputModal
-          value={title}
+          value={name}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
           title="Cambiar nombre del documento"

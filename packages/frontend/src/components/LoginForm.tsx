@@ -1,11 +1,13 @@
+import Router from "next/router";
 import React, { FC, useState } from "react";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
-import { Input, useTranslate, Button } from "@bitbloq/ui";
+import { IMutationLoginArgs } from "@bitbloq/api";
+import { DialogModal, Input, useTranslate, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
+import CounterButton from "../components/CounterButton";
 import ErrorMessage from "./ErrorMessage";
-import { LOGIN_MUTATION } from "../apollo/queries";
-import { ILogin } from "../types";
+import { LOGIN_MUTATION, RESEND_WELCOME_EMAIL } from "../apollo/queries";
 
 interface IFormProps {
   className?: string;
@@ -15,51 +17,84 @@ interface IFormProps {
 const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
   const t = useTranslate();
   const { handleSubmit, register } = useForm();
+  const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
+  const [notActiveError, setNotActiveError] = useState<boolean>(false);
   const [login] = useMutation(LOGIN_MUTATION);
+  const [resendEmail] = useMutation(RESEND_WELCOME_EMAIL);
 
-  const onLogin = async (input: ILogin) => {
+  const onLogin = async (input: IMutationLoginArgs) => {
     try {
       setLoggingIn(true);
       const result = await login({ variables: input });
       onLoginSuccess(result.data.login);
     } catch (e) {
-      setError(true);
+      if (
+        e.graphQLErrors &&
+        e.graphQLErrors[0] &&
+        e.graphQLErrors[0].extensions &&
+        e.graphQLErrors[0].extensions.code === "NOT_ACTIVE_USER"
+      ) {
+        setEmail(input.email);
+        setNotActiveError(true);
+      } else {
+        setError(true);
+      }
       setLoggingIn(false);
     }
   };
 
+  const onSendClick = () => {
+    resendEmail({
+      variables: { email }
+    });
+  };
+
   return (
-    <form className={className} onSubmit={handleSubmit(onLogin)}>
-      <FormGroup>
-        <label>{t("login.labels.email")}</label>
-        <Input
-          autoFocus
-          name="email"
-          type="text"
-          placeholder={t("login.placeholders.email")}
-          ref={register({})}
-          error={error}
-          onChange={() => setError(false)}
-        />
-      </FormGroup>
-      <FormGroup>
-        <label>{t("login.labels.password")}</label>
-        <Input
-          name="password"
-          type="password"
-          placeholder={t("login.placeholders.password")}
-          ref={register({})}
-          error={error}
-          onChange={() => setError(false)}
-        />
-        {error && <ErrorMessage>{t("login.error")}</ErrorMessage>}
-      </FormGroup>
-      <StyledButton type="submit" disabled={loggingIn}>
-        {t("login.ok")}
-      </StyledButton>
-    </form>
+    <>
+      <form className={className} onSubmit={handleSubmit(onLogin)}>
+        <FormGroup>
+          <label>{t("login.labels.email")}</label>
+          <Input
+            autoFocus
+            name="email"
+            type="text"
+            placeholder={t("login.placeholders.email")}
+            ref={register({})}
+            error={error}
+            onChange={() => setError(false)}
+          />
+        </FormGroup>
+        <FormGroup>
+          <label>{t("login.labels.password")}</label>
+          <Input
+            name="password"
+            type="password"
+            placeholder={t("login.placeholders.password")}
+            ref={register({})}
+            error={error}
+            onChange={() => setError(false)}
+          />
+          {error && <ErrorMessage>{t("login.error")}</ErrorMessage>}
+        </FormGroup>
+        <StyledButton type="submit" disabled={loggingIn}>
+          {t("login.ok")}
+        </StyledButton>
+      </form>
+      <DialogModal
+        cancelText={t("signup.not-activate-modal.cancel")}
+        isOpen={notActiveError}
+        okButton={
+          <CounterButton onClick={onSendClick}>
+            {t("signup.not-activate-modal.ok")}
+          </CounterButton>
+        }
+        onCancel={() => Router.replace("/")}
+        text={t("signup.not-activate-modal.text")}
+        title={t("signup.not-activate-modal.title")}
+      />
+    </>
   );
 };
 

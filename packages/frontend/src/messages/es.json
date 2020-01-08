@@ -93,6 +93,7 @@
   "submission-error-not-name": "Debes escribir un nombre de equipo",
   "tab-3d": "3D",
   "tab-project-info": "Información del documento",
+  "tab-submission-rate": "Calificación del ejercicio",
   "tooltip-select-multiple": "Selecciona varios objetos pulsando *“Control + clic”* en cada uno de ellos para utilizar esta herramienta",
   "tooltip-select-top": "Selecciona objetos de primer nivel para poder usar esta herramienta",
   "tooltip-select-one": "Selecciona un único objeto para utilizar esta herramienta",
@@ -432,6 +433,17 @@
     "title": "Información del documento"
   },
   "exercises": {
+    "rate": {
+      "observations": {
+        "placeholder": "Observaciones del ejercicio",
+        "title": "Observaciones"
+      },
+      "rate": {
+        "error": "La nota solo pueden tener un decimal y estar entre 0 y 10",
+        "title": "Nota"
+      },
+      "title": "Calificación del ejercicio"
+    },
     "resources": {
       "title": "Recursos del ejercicio"
     }
@@ -592,6 +604,12 @@
       "with-sub-text-1": "Registrándote con una cuenta, estás aceptando las",
       "with-sub-text-2": "y la",
       "with-text": "Crear la cuenta con mi perfil de:"
+    },
+    "not-activate-modal": {
+      "cancel": "Volver al inicio",
+      "ok": "Volver a enviar email",
+      "text": "Para poder entrar debes validar tu correo electrónico a través de un email que te hemos enviado. Si no ves el email revisa tu carpeta de spam.",
+      "title": "Cuenta sin validar"
     },
     "step": "Paso %v% de 2",
     "user-data": {

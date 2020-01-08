@@ -6,6 +6,7 @@ const { parsed: localEnv } = require("dotenv").config();
 module.exports = withTM(
   withWorkers({
     transpileModules: [
+      "@bitbloq/api",
       "@bitbloq/3d",
       "@bitbloq/ui",
       "@bitbloq/lib3d",

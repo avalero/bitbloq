@@ -58,7 +58,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
         shapes: resources.map(resource => ({
           type: "STLObject",
           parameters: { url: resource.file },
-          label: resource.title.replace(/\.\w+$/, ""),
+          label: resource.title!.replace(/\.\w+$/, ""),
           icon: resource.thumbnail ? (
             <img src={resource.thumbnail} />
           ) : (
@@ -187,7 +187,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
           )
         }
         acceptedTypes={[ResourcesTypes.object3D]}
-        documentId={document.id}
+        documentId={document.id!}
         isOpen={resourceModal}
         onClose={() => setResourceModal(false)}
       />

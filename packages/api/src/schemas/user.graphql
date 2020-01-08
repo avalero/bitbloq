@@ -11,6 +11,7 @@ type Query {
 type Mutation {
   saveUserData(input: UserIn!): UserStep1
   finishSignUp(id: String!, userPlan: String!): String
+  resendWelcomeEmail(email: String!): Boolean
   saveBirthDate(id: String!, birthDate: Date!): UserStep1
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String

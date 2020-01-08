@@ -41,7 +41,8 @@ import {
   IMutationSendChangeMyEmailTokenArgs,
   IMutationConfirmChangeEmailArgs,
   IMutationSaveBirthDateArgs,
-  IMutationDeleteMyUserArgs
+  IMutationDeleteMyUserArgs,
+  IMutationResendWelcomeEmailArgs
 } from "../api-types";
 import { getGoogleUser, IGoogleData } from "../controllers/googleAuth";
 import { IUpload } from "../models/upload";
@@ -239,6 +240,57 @@ const userResolver = {
     },
 
     /**
+     * resendWelcomeEmail: Sends the welcome email to the user when the user request it
+     * args: email
+     */
+    resendWelcomeEmail: async (_, args: IMutationResendWelcomeEmailArgs) => {
+      const { email } = args;
+      const user: IUser | null = await UserModel.findOne({
+        email,
+        active: false
+      });
+      if (!user) {
+        throw new ApolloError("Email or password incorrect", "LOGIN_ERROR");
+      }
+
+      const logOrSignToken = jwtSign(
+        {
+          signUpUserID: user._id
+        },
+        process.env.JWT_SECRET
+      );
+
+      // Update the user information in the database
+      await UserModel.findOneAndUpdate(
+        { _id: user._id },
+        {
+          $set: {
+            signUpToken: logOrSignToken,
+            authToken: logOrSignToken
+          }
+        },
+        { new: true }
+      );
+
+      // Generate the email with the activation link and send it
+      const data: IEmailData = {
+        url: `${process.env.FRONTEND_URL}/signup/activate?token=${logOrSignToken}`
+      };
+
+      const emailContent: string = await generateWelcomeEmail(data);
+      if (emailContent) {
+        await mailerController.sendEmail(
+          user.email!,
+          "Bitbloq cuenta creada",
+          emailContent
+        );
+        return true;
+      } else {
+        return false;
+      }
+    },
+
+    /**
      * saveBirthDate: Saves birthDate for signup with google or microsoft
      * args: user id and birthDate
      */
@@ -331,11 +383,11 @@ const userResolver = {
           });
           await DocumentModel.updateMany(
             { user: contactFound._id },
-            { $set: { folder: userFolder._id } }
+            { $set: { parentFolder: userFolder._id } }
           );
           await FolderModel.updateMany(
             { user: contactFound._id, name: { $ne: "root" } },
-            { $set: { parent: userFolder._id } }
+            { $set: { parentFolder: userFolder._id } }
           );
           await UserModel.updateOne(
             { _id: contactFound._id },
@@ -634,11 +686,16 @@ const userResolver = {
 
       const contactFound: IUser | null = await UserModel.findOne({
         _id: userInToken.signUpUserID,
+        active: false,
         finishedSignUp: true
       });
 
       if (!contactFound) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+
+      if (contactFound.signUpToken !== args.token) {
+        throw new ApolloError("Token not valid", "TOKEN_NOT_VALID");
       }
 
       if (userInToken.signUpUserID && !contactFound.active) {

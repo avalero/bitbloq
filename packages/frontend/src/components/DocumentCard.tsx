@@ -67,7 +67,6 @@ const DocumentCard: FC<IDocumentCardProps> = ({
       }
     }
   });
-
   return hidden ? (
     <></>
   ) : (
@@ -93,11 +92,11 @@ const DocumentCard: FC<IDocumentCardProps> = ({
       {document.type !== "folder" ? (
         <Info>
           <DocumentTypeTag small document={document} />
-          <Title>{document.title}</Title>
+          <Title>{document.name}</Title>
         </Info>
       ) : (
         <Info folder>
-          <Title folder>{document.title}</Title>
+          <Title folder>{document.name}</Title>
         </Info>
       )}
       {children}

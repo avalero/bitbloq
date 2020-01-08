@@ -23,7 +23,43 @@ export const DOCUMENT_QUERY = gql`
     document(id: $id) {
       id
       type
-      title
+      name
+      description
+      image {
+        image
+        isSnapshot
+      }
+      parentFolder
+      parentsPath {
+        id
+        name
+      }
+      exercises {
+        id
+        code
+        name
+        acceptSubmissions
+        createdAt
+        submissions {
+          id
+          studentNick
+          finished
+          finishedAt
+          type
+          grade
+          active
+        }
+      }
+    }
+  }
+`;
+
+export const EDIT_DOCUMENT_QUERY = gql`
+  query Document($id: ObjectID!) {
+    document(id: $id) {
+      id
+      type
+      name
       description
       content
       image {
@@ -50,7 +86,7 @@ export const OPEN_PUBLIC_DOCUMENT_QUERY = gql`
     openPublicDocument(id: $id) {
       id
       type
-      title
+      name
       description
       content
       image {
@@ -80,12 +116,12 @@ export const DOCS_FOLDERS_PAGE_QUERY = gql`
     ) {
       result {
         id
-        title
+        name
         type
         createdAt
         updatedAt
         image
-        parent
+        parentFolder
       }
       parentsPath {
         id
@@ -108,7 +144,7 @@ export const DOCUMENTS_QUERY = gql`
     documents {
       id
       type
-      title
+      name
       createdAt
       image {
         image
@@ -135,7 +171,7 @@ export const ROOT_FOLDER_QUERY = gql`
       documents {
         id
         type
-        title
+        name
         createdAt
         image {
           image
@@ -155,32 +191,14 @@ export const FOLDER_QUERY = gql`
     folder(id: $id) {
       id
       name
+      parentFolder
       parentsPath {
         id
         name
       }
-      documents {
-        id
-        type
-        title
-        createdAt
-        updatedAt
-        image
-        description
-        advancedMode
-        content
-        folder
-        exercises {
-          title
-          code
-        }
-      }
       folders {
         id
         name
-        parent
-        createdAt
-        updatedAt
       }
     }
   }
@@ -191,7 +209,7 @@ export const EXAMPLES_QUERY = gql`
     examples {
       id
       type
-      title
+      name
       image {
         image
         isSnapshot
@@ -203,21 +221,21 @@ export const EXAMPLES_QUERY = gql`
 export const CREATE_DOCUMENT_MUTATION = gql`
   mutation CreateDocument(
     $type: String!
-    $title: String!
+    $name: String!
     $description: String
     $content: String
     $advancedMode: Boolean
-    $folder: ObjectID
+    $parentFolder: ObjectID
     $image: DocImageIn
   ) {
     createDocument(
       input: {
         type: $type
-        title: $title
+        name: $name
         description: $description
         content: $content
         advancedMode: $advancedMode
-        folder: $folder
+        parentFolder: $parentFolder
         image: $image
       }
     ) {
@@ -234,7 +252,7 @@ export const DUPLICATE_DOCUMENT_MUTATION = gql`
     $itemsPerPage: Number
     $order: String
     $searchTitle: String
-    $title: String!
+    $name: String!
   ) {
     duplicateDocument(
       currentLocation: $currentLocation
@@ -242,7 +260,7 @@ export const DUPLICATE_DOCUMENT_MUTATION = gql`
       itemsPerPage: $itemsPerPage
       order: $order
       searchTitle: $searchTitle
-      title: $title
+      name: $name
     ) {
       document {
         id
@@ -299,20 +317,20 @@ export const SET_DOCUMENT_IMAGE_MUTATION = gql`
 export const UPDATE_DOCUMENT_MUTATION = gql`
   mutation UpdateDocument(
     $id: ObjectID!
-    $title: String
+    $name: String
     $content: String
     $description: String
     $advancedMode: Boolean
-    $folder: ObjectID
+    $parentFolder: ObjectID
   ) {
     updateDocument(
       id: $id
       input: {
-        title: $title
+        name: $name
         content: $content
         description: $description
         advancedMode: $advancedMode
-        folder: $folder
+        parentFolder: $parentFolder
       }
     ) {
       id
@@ -365,7 +383,7 @@ export const EXERCISE_QUERY = gql`
     exercise(id: $id) {
       id
       type
-      title
+      name
       code
       teacherName
       content
@@ -397,7 +415,7 @@ export const EXERCISE_UPDATE_MUTATION = gql`
     updateExercise(id: $id, input: $input) {
       id
       type
-      title
+      name
       code
       teacherName
       content
@@ -415,12 +433,58 @@ export const EXERCISE_DELETE_MUTATION = gql`
   }
 `;
 
+export const CREATE_EXERCISE_MUTATION = gql`
+  mutation CreateExercise($documentId: ObjectID!, $name: String!) {
+    createExercise(input: { document: $documentId, name: $name }) {
+      id
+    }
+  }
+`;
+
 export const SUBMISSION_QUERY = gql`
   query Submission($id: ObjectID!) {
     submission(id: $id) {
-      title
+      name
+      exercise
       studentNick
       content
+      grade
+      teacherComment
+    }
+  }
+`;
+
+export const SUBMISSION_SET_GRADE = gql`
+  mutation GradeSubmission(
+    $submissionID: ObjectID
+    $grade: Float
+    $teacherComment: String
+  ) {
+    gradeSubmission(
+      submissionID: $submissionID
+      grade: $grade
+      teacherComment: $teacherComment
+    ) {
+      studentNick
+      content
+      grade
+      teacherComment
+    }
+  }
+`;
+
+export const DELETE_SUBMISSION_MUTATION = gql`
+  mutation DeleteSubmission($id: ObjectID!) {
+    deleteSubmission(submissionID: $id) {
+      id
+    }
+  }
+`;
+
+export const CHANGE_SUBMISSION_STATE_MUTATION = gql`
+  mutation ChangeSubmissionsState($id: ObjectID!, $subState: Boolean!) {
+    changeSubmissionsState(id: $id, subState: $subState) {
+      id
     }
   }
 `;
@@ -430,6 +494,8 @@ export const STUDENT_SUBMISSION_QUERY = gql`
     submission {
       id
       content
+      grade
+      teacherComment
     }
   }
 `;
@@ -502,6 +568,12 @@ export const PUBLISH_DOCUMENT_MUTATION = gql`
 export const LOGIN_MUTATION = gql`
   mutation Login($email: EmailAddress!, $password: String!) {
     login(email: $email, password: $password)
+  }
+`;
+
+export const RESEND_WELCOME_EMAIL = gql`
+  mutation ResendWelcomeEmail($email: String!) {
+    resendWelcomeEmail(email: $email)
   }
 `;
 

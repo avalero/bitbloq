@@ -2,12 +2,12 @@ import React, { useEffect } from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { useMutation, useApolloClient, ExecutionResult } from "react-apollo";
+import { ISocialLogin } from "@bitbloq/api";
 import { LOGIN_WITH_MICROSOFT } from "../apollo/queries";
 import withApollo from "../apollo/withApollo";
 import Loading from "../components/Loading";
 import { signupSteps } from "../config";
 import { setToken } from "../lib/session";
-import { ISocialLogin } from "../../../api/src/api-types";
 
 const MicrosoftRedirectPage: NextPage = () => {
   const client = useApolloClient();

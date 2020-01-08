@@ -25,7 +25,7 @@ type Exercise {
   id: ObjectID
   document: ObjectID
   user: ObjectID
-  title: String
+  name: String
   content: String
   contentVersion: Number
   cache: String
@@ -44,7 +44,7 @@ type Exercise {
 
 input ExerciseIn {
   document: ObjectID
-  title: String
+  name: String
   code: String
   description: String
   acceptSubmissions: Boolean

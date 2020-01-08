@@ -1,5 +1,16 @@
 import { ObjectID } from "bson";
 
+export interface ICommonProps {
+  user?: string;
+  name?: string;
+  type?: string;
+  description?: string;
+  content?: string;
+  cache?: string;
+  resourcesID?: string[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 // User in token user interface
 export interface IUserInToken {
   email: string;

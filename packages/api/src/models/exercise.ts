@@ -1,22 +1,16 @@
 import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
 import { CONTENT_VERSION } from "../config";
+import { ICommonProps } from "./interfaces";
 
-export interface IExercise extends Document {
-  user?: string;
-  document?: string;
+export interface IExercise extends ICommonProps, Document {
   code?: string;
-  title?: string;
-  type?: string;
-  description: string;
   teacherName: string;
-  content?: string;
   contentVersion?: number;
-  cache?: string;
   acceptSubmissions?: boolean;
   expireDate?: Date;
   image: string;
-  resourcesID: string[];
+  document: string;
 }
 
 const exerciseMongSchema: Schema = new Schema({
@@ -40,7 +34,7 @@ const exerciseMongSchema: Schema = new Schema({
     default: "111111"
   },
 
-  title: {
+  name: {
     type: String,
     default: "New Exercise"
   },

@@ -24,7 +24,7 @@ type Folder {
   user: ObjectID
   documentsID: [ObjectID]
   foldersID: [ObjectID]
-  parent: ObjectID
+  parentFolder: ObjectID
   createdAt: Date
   updatedAt: Date
   documents: [Document]
@@ -37,5 +37,5 @@ input FolderIn {
   user: ObjectID
   documentsID: [ObjectID]
   foldersID: [ObjectID]
-  parent: ObjectID
+  parentFolder: ObjectID
 }

@@ -96,6 +96,7 @@ import STL from "./icons/STL";
 import Text from "./icons/Text";
 import ThreeD from "./icons/ThreeD";
 import Tick from "./icons/Tick";
+import TickCircle from "./icons/TickCircle";
 import Times from "./icons/Times";
 import Torus from "./icons/Torus";
 import Translation from "./icons/Translation";
@@ -301,6 +302,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <ThreeD className={className} />;
     case "tick":
       return <Tick className={className} />;
+    case "tick-circle":
+      return <TickCircle className={className} />;
     case "times":
       return <Times className={className} />;
     case "translation":

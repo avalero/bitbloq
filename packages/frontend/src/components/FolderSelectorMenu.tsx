@@ -1,27 +1,9 @@
-import gql from "graphql-tag";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import styled from "@emotion/styled";
+import { IFolder } from "@bitbloq/api";
 import { Icon } from "@bitbloq/ui";
-import { IFolder } from "../../../api/src/api-types";
-
-const FOLDER_QUERY = gql`
-  query folder($id: ObjectID!) {
-    folder(id: $id) {
-      id
-      name
-      parent
-      parentsPath {
-        id
-        name
-      }
-      folders {
-        id
-        name
-      }
-    }
-  }
-`;
+import { FOLDER_QUERY } from "../apollo/queries";
+import styled from "@emotion/styled";
 
 interface ISelectorOptionProps {
   folder: IFolder;
@@ -85,7 +67,7 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
   useLayoutEffect(() => {
     const onClick = (e: MouseEvent) => {
       e.stopPropagation();
-      setSelectedFolder({ id: parent, name: "" });
+      setSelectedFolder({ id: parentFolder, name: "" });
     };
     if (parentButtonRef.current) {
       parentButtonRef.current.addEventListener("click", onClick);
@@ -101,7 +83,12 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
   if (loading) {
     return <FolderSelector>loading...</FolderSelector>;
   }
-  const { folders: foldersData, name: folderName, parent, id } = data.folder;
+  const {
+    folders: foldersData,
+    name: folderName,
+    parentFolder,
+    id
+  } = data.folder;
   return (
     <FolderSelector className={className}>
       <ParentButton ref={parentButtonRef}>
@@ -123,7 +110,7 @@ const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
         {foldersData &&
           foldersData
             .filter(
-              (op: { id: string; parent: string }) =>
+              (op: { id: string; parentFolder: string }) =>
                 op.id !== selectedToMove.id
             )
             .map((folder, i) => (
