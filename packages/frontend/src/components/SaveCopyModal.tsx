@@ -1,10 +1,10 @@
 import React, { FC, useState, useRef, useEffect } from "react";
-import styled from "@emotion/styled";
-import { Button, Input, Modal, DialogModal, useTranslate } from "@bitbloq/ui";
 import { useMutation } from "@apollo/react-hooks";
+import { IDocument } from "@bitbloq/api";
+import { Button, Input, Modal, DialogModal, useTranslate } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import { DOCUMENTS_QUERY, CREATE_DOCUMENT_MUTATION } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
-import { IDocument } from "../../../api/src/api-types";
 
 interface ISaveCopyModalProps {
   onClose: () => any;

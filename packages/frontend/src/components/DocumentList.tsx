@@ -1,15 +1,10 @@
 import React, { FC, useState } from "react";
 import { useMutation, useLazyQuery } from "@apollo/react-hooks";
-import styled from "@emotion/styled";
+import { IDocument, IFolder, IResult as IDocsAndFols } from "@bitbloq/api";
 import { DialogModal, DropDown } from "@bitbloq/ui";
-import { useDrop } from "react-dnd";
 import { css } from "@emotion/core";
-import {
-  IDocument,
-  IFolder,
-  IResult as IDocsAndFols,
-  IDuplicateDocument
-} from "../../../api/src/api-types";
+import styled from "@emotion/styled";
+import { useDrop } from "react-dnd";
 import {
   UPDATE_DOCUMENT_MUTATION,
   DELETE_DOCUMENT_MUTATION,
@@ -235,7 +230,7 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (newName.length >= 64) {
       newName = newName.slice(0, 63);
     }
-    const result: IDuplicateDocument = await duplicateDocument({
+    const { page } = await duplicateDocument({
       variables: {
         currentLocation: currentLocation.id,
         documentID: document.id,
@@ -246,7 +241,6 @@ const DocumentList: FC<IDocumentListProps> = ({
     }).catch(catchError => {
       return catchError;
     });
-    const { page } = result;
 
     if (page) {
       selectPage(page);
@@ -544,22 +538,22 @@ const DocumentList: FC<IDocumentListProps> = ({
       />
       {editDocNameModal.id && (
         <EditInputModal
-          title={editDocNameModal.name || undefined}
-          onCancel={() => setEditDocNameModal({ id: "" })}
+          value={editDocNameModal.name || undefined}
+          onCancel={() => setEditDocNameModal({ id: "", name: undefined })}
           onSave={onUpdateDocName}
-          modalTitle="Cambiar nombre del documento"
-          modalText="Nombre del documento"
+          title="Cambiar nombre del documento"
+          label="Nombre del documento"
           placeholder="Documento sin título"
           saveButton="Cambiar"
         />
       )}
       {editFolderNameModal.id && (
         <EditInputModal
-          title={editFolderNameModal.name || undefined}
-          onCancel={() => setEditFolderNameModal({ id: "" })}
+          value={editFolderNameModal.name || undefined}
+          onCancel={() => setEditFolderNameModal({ id: "", name: undefined })}
           onSave={onUpdateFolderName}
-          modalTitle="Cambiar nombre de la carpeta"
-          modalText="Nombre de la carpeta"
+          title="Cambiar nombre de la carpeta"
+          label="Nombre de la carpeta"
           placeholder="Carpeta sin título"
           saveButton="Cambiar"
         />

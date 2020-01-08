@@ -1,8 +1,9 @@
+import { IResource } from "@bitbloq/api";
 import { Button, Icon, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC, useEffect, useRef, useState } from "react";
 import STLViewer from "stl-viewer";
-import { IResource, ResourcesTypes } from "../types";
+import { ResourcesTypes } from "../types";
 
 interface IResourceDetailsProps extends IResource {
   className?: string;
@@ -20,8 +21,10 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
   returnCallback
 }) => {
   const t = useTranslate();
-  const titleExt = title.split(".").pop();
-  const titleName = title.replace(new RegExp(`\.${titleExt}$`), "");
+  const titleExt = title!.split(".").pop();
+  const titleName = title!
+    .replace(new RegExp(`\.${titleExt}$`), "")
+    .substring(0, 64);
   const canvasRef = useRef<STLViewer>(null);
   const [cameraY, setCameraY] = useState<number>(0);
   const [cameraZ, setCameraZ] = useState<number | null>(null);
@@ -121,7 +124,7 @@ const ResourceDetails: FC<IResourceDetailsProps> = ({
         <DataItem>
           <h2>{t("cloud.details.date")}</h2>
           <p>
-            {new Date(createdAt).toLocaleString(undefined, {
+            {new Date(createdAt!).toLocaleString(undefined, {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",

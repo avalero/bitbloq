@@ -1,9 +1,10 @@
 import { ApolloError } from "apollo-client";
+import { NextPage } from "next";
 import React, { FC, useEffect, useRef, useState } from "react";
 import { useMutation } from "react-apollo";
 import { css } from "@emotion/core";
 import styled from "@emotion/styled";
-import { NextPage } from "next";
+import { IUser } from "@bitbloq/api";
 import { useTranslate, Button, DialogModal, Icon, colors } from "@bitbloq/ui";
 import {
   CHANGE_EMAIL_MUTATION,
@@ -23,7 +24,7 @@ import { plans } from "../../../config.js";
 import useUserData from "../../../lib/useUserData";
 import redirect from "../../../lib/redirect";
 import { isValidAge } from "../../../util";
-import { IPlan, IUser } from "../../../types";
+import { IPlan } from "../../../types";
 
 enum TabType {
   UserData,
@@ -280,19 +281,21 @@ const AccountPage: NextPage = () => {
         )}
       </Container>
       {serverError && <ErrorLayout code="500" />}
-      <StyledEditInputModal
+      <EditInputModal
         disabledSave={loading}
         errorText={errorText}
         isOpen={showEmailModal}
         label={t("account.user-data.email.new")}
-        modalText={t("account.user-data.email.change-text")}
-        modalTitle={t("account.user-data.email.button")}
-        onCancel={() => setShowEmailModal(false)}
+        text={t("account.user-data.email.change-text")}
+        title={t("account.user-data.email.button")}
+        onCancel={() => {
+          setErrorText("");
+          setShowEmailModal(false);
+        }}
         onChange={() => setErrorText("")}
         onSave={onSaveNewEmail}
         placeholder={t("account.user-data.email.new")}
         saveButton={t("general-change-button")}
-        title=""
         type="email"
       />
       <ChangePasswordModal
@@ -364,22 +367,24 @@ const AccountPage: NextPage = () => {
         okText={t("general-accept-button")}
         title={t("account.user-data.delete.modal.title")}
       />
-      <StyledEditInputModal
+      <EditInputModal
         disabledSave={loading}
         errorText={errorText}
         isOpen={showDeleteConfirmationModal}
         label={t("account.user-data.delete.modal-confirmation.label")}
-        modalText={t("account.user-data.delete.modal-confirmation.text")}
-        modalTitle={t("account.user-data.delete.modal-confirmation.title")}
+        text={t("account.user-data.delete.modal-confirmation.text")}
+        title={t("account.user-data.delete.modal-confirmation.title")}
         onSave={onDeleteUser}
         onChange={() => setErrorText("")}
-        onCancel={() => setShowDeleteConfirmationModal(false)}
+        onCancel={() => {
+          setErrorText("");
+          setShowDeleteConfirmationModal(false);
+        }}
         placeholder={t(
           "account.user-data.delete.modal-confirmation.placeholder"
         )}
         saveButton={t("account.user-data.delete.modal-confirmation.save")}
         type="password"
-        validateInput={false}
       />
     </AppLayout>
   );
@@ -420,14 +425,6 @@ const Content = styled.div`
   flex: 1;
   max-width: 75%;
   padding: 30px 20px;
-`;
-
-const StyledEditInputModal = styled(EditInputModal)`
-  p {
-    color: #5d6069;
-    line-height: 1.57;
-    margin: 10px 0 40px !important;
-  }
 `;
 
 const Tabs = styled.div`

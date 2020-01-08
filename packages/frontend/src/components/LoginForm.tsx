@@ -1,11 +1,11 @@
 import React, { FC, useState } from "react";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
+import { IMutationLoginArgs } from "@bitbloq/api";
 import { Input, useTranslate, Button } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { LOGIN_MUTATION } from "../apollo/queries";
-import { ILogin } from "../types";
 
 interface IFormProps {
   className?: string;
@@ -19,12 +19,13 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
   const [loggingIn, setLoggingIn] = useState(false);
   const [login] = useMutation(LOGIN_MUTATION);
 
-  const onLogin = async (input: ILogin) => {
+  const onLogin = async (input: IMutationLoginArgs) => {
     try {
       setLoggingIn(true);
       const result = await login({ variables: input });
       onLoginSuccess(result.data.login);
     } catch (e) {
+      setError(true);
       setLoggingIn(false);
     }
   };
@@ -53,7 +54,7 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
           error={error}
           onChange={() => setError(false)}
         />
-        {error && <LoginErrorMessage>{t("login.error")}</LoginErrorMessage>}
+        {error && <ErrorMessage>{t("login.error")}</ErrorMessage>}
       </FormGroup>
       <StyledButton type="submit" disabled={loggingIn}>
         {t("login.ok")}
@@ -63,10 +64,6 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
 };
 
 export default LoginForm;
-
-const LoginErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
-`;
 
 const FormGroup = styled.div`
   margin-bottom: 20px;

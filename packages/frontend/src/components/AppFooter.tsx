@@ -42,7 +42,7 @@ const LegalLinks = styled.div`
   height: 60px;
   justify-content: center;
   align-items: center;
-  background-color: ${colors.grayFooter};
+  background-color: ${colors.black};
   color: ${colors.gray4};
 
   a {

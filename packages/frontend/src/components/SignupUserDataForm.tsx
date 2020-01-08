@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
+import { IUserIn } from "@bitbloq/api";
 import {
   Button,
   Checkbox,
@@ -12,7 +13,6 @@ import {
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { educationalStages, privacyPolicyUrl } from "../config";
-import { IUserData } from "../types";
 import { isValidDate, isValidEmail, getAge } from "../util";
 
 interface ISignupUserDataProps {
@@ -20,7 +20,7 @@ interface ISignupUserDataProps {
   error?: ApolloError;
   loading: boolean;
   onCancel: () => void;
-  onSubmit: (userInputs: IUserData) => void;
+  onSubmit: (input: IUserIn) => void;
 }
 
 const SignupUserData: FC<ISignupUserDataProps> = ({
@@ -59,7 +59,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
     }
   );
   register({ name: "imTeacherCheck", type: "custom" });
-  register({ name: "noNotifications", type: "custom" });
+  register({ name: "notifications", type: "custom" });
 
   useEffect(() => {
     if (error) {
@@ -111,9 +111,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.centerName}
             />
             {errors.centerName && (
-              <SignupErrorMessage>
+              <ErrorMessage>
                 {t("signup.user-data.errors.center-name")}
-              </SignupErrorMessage>
+              </ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -147,9 +147,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.city}
             />
             {errors.city && (
-              <SignupErrorMessage>
-                {t("signup.user-data.errors.city")}
-              </SignupErrorMessage>
+              <ErrorMessage>{t("signup.user-data.errors.city")}</ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -162,9 +160,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.postCode}
             />
             {errors.postCode && (
-              <SignupErrorMessage>
+              <ErrorMessage>
                 {t("signup.user-data.errors.post-code")}
-              </SignupErrorMessage>
+              </ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -201,9 +199,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             error={!!errors.name}
           />
           {errors.name && (
-            <SignupErrorMessage>
-              {t("signup.user-data.errors.name")}
-            </SignupErrorMessage>
+            <ErrorMessage>{t("signup.user-data.errors.name")}</ErrorMessage>
           )}
         </FormField>
         <FormField>
@@ -216,9 +212,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             error={!!errors.surnames}
           />
           {errors.surnames && (
-            <SignupErrorMessage>
-              {t("signup.user-data.errors.surnames")}
-            </SignupErrorMessage>
+            <ErrorMessage>{t("signup.user-data.errors.surnames")}</ErrorMessage>
           )}
         </FormField>
       </FormGroup>
@@ -233,9 +227,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           error={!!errors.email}
         />
         {errors.email && (
-          <SignupErrorMessage>
+          <ErrorMessage>
             {t(`signup.user-data.errors.email-${errors.email.type}`)}
-          </SignupErrorMessage>
+          </ErrorMessage>
         )}
       </FormField>
       <FormField>
@@ -253,9 +247,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           </TooglePassword>
         </InputPassword>
         {errors.password && (
-          <SignupErrorMessage>
-            {t("signup.user-data.errors.password")}
-          </SignupErrorMessage>
+          <ErrorMessage>{t("signup.user-data.errors.password")}</ErrorMessage>
         )}
       </FormField>
       <FormField>
@@ -284,9 +276,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           />
         </FormGroup>
         {errors.birthDate && (
-          <SignupErrorMessage>
+          <ErrorMessage>
             {t(`signup.user-data.errors.birth-date-${errors.birthDate.type}`)}
-          </SignupErrorMessage>
+          </ErrorMessage>
         )}
       </FormField>
       <CheckOption
@@ -298,10 +290,21 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
       {teacherSubForm(getValues().imTeacherCheck)}
       <CheckOption
         onClick={() =>
-          setValue("noNotifications", !getValues().noNotifications)
+          setValue(
+            "notifications",
+            getValues().notifications !== undefined
+              ? !getValues().notifications
+              : false
+          )
         }
       >
-        <Checkbox checked={getValues().noNotifications} />
+        <Checkbox
+          checked={
+            getValues().notifications !== undefined
+              ? !getValues().notifications
+              : false
+          }
+        />
         <span>{t("signup.user-data.labels.no-notifications")}</span>
       </CheckOption>
       <CheckOption
@@ -335,9 +338,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         </span>
       </CheckOption>
       {errors.acceptTerms && (
-        <SignupErrorMessage>
-          {t("signup.user-data.errors.accept-terms")}
-        </SignupErrorMessage>
+        <ErrorMessage>{t("signup.user-data.errors.accept-terms")}</ErrorMessage>
       )}
       <Buttons>
         <Button secondary type="button" onClick={onCancel}>
@@ -410,8 +411,4 @@ const CheckOption = styled.div`
   span {
     margin-left: 10px;
   }
-`;
-
-const SignupErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;

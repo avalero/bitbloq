@@ -102,22 +102,20 @@ const ChangeEmailPage: FC = () => {
     <Loading />
   ) : (
     <Container>
-      <ConfirmPasswordModal
+      <EditInputModal
         disabledSave={disabledButton}
         errorText={error}
         isOpen={valid}
         label={t("change-email-page.placeholder")}
-        modalText={t("change-email-page.text")}
-        modalTitle={t("change-email-page.title")}
+        text={t("change-email-page.text")}
+        title={t("change-email-page.title")}
         onCancel={() => Router.replace("/")}
         onChange={() => setError("")}
         onSave={onSaveEmail}
         placeholder={t("change-email-page.placeholder")}
         saveButton={t("change-email-page.confirm")}
         transparentOverlay={true}
-        title=""
         type="password"
-        validateInput={false}
       />
       <DialogModal
         isOpen={!valid}
@@ -132,14 +130,6 @@ const ChangeEmailPage: FC = () => {
 };
 
 export default withApollo(ChangeEmailPage, { requiresSession: false });
-
-const ConfirmPasswordModal = styled(EditInputModal)`
-  p {
-    color: #5d6069;
-    line-height: 1.57;
-    margin: 10px 0 40px !important;
-  }
-`;
 
 const Container = styled.div`
   background-color: ${colors.gray1};

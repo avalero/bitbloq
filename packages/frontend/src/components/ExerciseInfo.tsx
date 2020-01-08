@@ -1,36 +1,38 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { Button, colors } from "@bitbloq/ui";
+import { IExercise } from "@bitbloq/api";
+import { Button, colors, useTranslate } from "@bitbloq/ui";
 
 enum TabType {
   Description,
   Score
 }
 
-interface IExercise {
-  name: string;
-  description: string;
-  image: string;
-}
-
 interface IExerciseInfoProps {
+  grade?: number;
   exercise: IExercise;
+  isTeacher?: boolean;
   onGotoExercise: () => any;
+  teacherComment?: string;
 }
 
 const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
+  grade,
   exercise: { name, description, image },
-  onGotoExercise
+  isTeacher = false,
+  onGotoExercise,
+  teacherComment
 }) => {
   const [currentTab, setCurrentTab] = useState(TabType.Description);
+  const t = useTranslate();
 
   return (
     <Container>
       <Left>
         <LeftContent>
           <h2>{name}</h2>
-          <Image src={image} />
+          <Image src={image || ""} />
         </LeftContent>
       </Left>
       <Right>
@@ -53,10 +55,19 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
             <p>{description}</p>
           </TabContent>
         )}
-        {currentTab === TabType.Score && <TabContent></TabContent>}
-        <GotoExercise>
-          <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
-        </GotoExercise>
+        {currentTab === TabType.Score && (
+          <TabContent>
+            <h2>{t("exercises.rate.rate.title")}</h2>
+            <RateSquare>{grade}</RateSquare>
+            <h2>{t("exercises.rate.observations.title")}</h2>
+            <p>{teacherComment}</p>
+          </TabContent>
+        )}
+        {!isTeacher && (
+          <GotoExercise>
+            <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
+          </GotoExercise>
+        )}
       </Right>
     </Container>
   );
@@ -108,6 +119,19 @@ const Image = styled.div<{ src: string }>`
   }
 `;
 
+const RateSquare = styled.div`
+  align-items: center;
+  border: solid 1px #cccccc;
+  border-radius: 4px;
+  display: flex;
+  font-size: 20px;
+  font-weight: bold;
+  height: 60px;
+  justify-content: center;
+  line-height: 1.1;
+  margin-bottom: 30px;
+`;
+
 const Right = styled.div`
   width: 400px;
   border-left: 1px solid ${colors.gray3};
@@ -149,7 +173,13 @@ const TabContent = styled.div`
   flex: 1;
 
   p {
-    line-height: 22px;
+    font-size: 14px;
+    line-height: 1.57;
+  }
+
+  h2 {
+    color: #474749;
+    margin-bottom: 10px;
   }
 `;
 

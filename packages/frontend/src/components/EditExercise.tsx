@@ -1,9 +1,9 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import Router from "next/router";
-import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
-import styled from "@emotion/styled";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { IDocument, IResource } from "@bitbloq/api";
 import {
   colors,
   Button,
@@ -15,6 +15,7 @@ import {
   Icon,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import {
   EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
@@ -31,7 +32,7 @@ import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { IDocument, IResource } from "../types";
+import { ISubmission } from "../types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -58,7 +59,7 @@ const EditExercise = ({ type, id }) => {
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
-  const [submission, setSubmission] = useState<IDocument | undefined>(
+  const [submission, setSubmission] = useState<ISubmission | undefined>(
     undefined
   );
   const currentContent = useRef([]);
@@ -121,7 +122,7 @@ const EditExercise = ({ type, id }) => {
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setSubmission({ ...submission!, content: initialContent });
+    setSubmission({ ...submission!, content: initialContent as any });
     updateSubmission({
       variables: {
         content: initialContent
@@ -152,7 +153,12 @@ const EditExercise = ({ type, id }) => {
     icon: <Icon name="info" />,
     label: t("tab-project-info"),
     content: (
-      <ExerciseInfo exercise={exercise} onGotoExercise={() => setTabIndex(0)} />
+      <ExerciseInfo
+        grade={submission && submission.grade}
+        exercise={exercise}
+        onGotoExercise={() => setTabIndex(0)}
+        teacherComment={submission && submission.teacherComment}
+      />
     )
   };
 
@@ -175,7 +181,7 @@ const EditExercise = ({ type, id }) => {
               variables: { content: document.content }
             });
           }
-          currentContent.current = document.content;
+          currentContent.current = document.content as any;
         }, 1000)}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}

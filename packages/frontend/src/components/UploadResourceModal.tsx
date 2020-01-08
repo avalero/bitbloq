@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import STLViewer from "stl-viewer";
 import { useMutation } from "@apollo/react-hooks";
+import { LIMIT_SIZE } from "@bitbloq/api";
 import { Button, DialogModal, Modal, Input, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import CloudModal from "./CloudModal";
@@ -17,10 +18,9 @@ import {
   ADD_RESOURCE_TO_DOCUMENT,
   UPLOAD_CLOUD_RESOURCE
 } from "../apollo/queries";
-import { resourceTypes } from "../config";
+import { resourceTypes, maxLengthName } from "../config";
 import { ResourcesTypes } from "../types";
 import { dataURItoBlob, isValidName } from "../util";
-import { LIMIT_SIZE } from "../../../api/src/config";
 
 enum Errors {
   extError,
@@ -212,6 +212,7 @@ const UploadResourceModal: FC<IUploadResourceModalProps> = ({
                 onChange={(e: ChangeEvent) =>
                   setNameFile((e.target as HTMLInputElement).value)
                 }
+                maxLength={maxLengthName}
                 value={nameFile}
               />
             </FormGroup>

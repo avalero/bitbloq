@@ -1,7 +1,7 @@
+import { IResource } from "@bitbloq/api";
 import styled from "@emotion/styled";
 import React, { FC } from "react";
 import ResourceCard from "./ResourceCard";
-import { IResource } from "../types";
 
 interface IResourcesGridProps {
   addAllow?: boolean;
@@ -30,7 +30,7 @@ const ResourcesGrid: FC<IResourcesGridProps> = ({
         addAllow={addAllow}
         addCallback={addCallback}
         importResource={!!importResource}
-        key={resource.id}
+        key={resource.id!}
         moveToTrash={moveToTrash}
         {...resource}
         restoreFromTrash={restoreFromTrash}

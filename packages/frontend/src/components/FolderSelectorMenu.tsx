@@ -1,9 +1,9 @@
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import styled from "@emotion/styled";
+import { IFolder } from "@bitbloq/api";
 import { Icon } from "@bitbloq/ui";
 import { FOLDER_QUERY } from "../apollo/queries";
-import { IFolder } from "../../../api/src/api-types";
+import styled from "@emotion/styled";
 
 interface ISelectorOptionProps {
   folder: IFolder;

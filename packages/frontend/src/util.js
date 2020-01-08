@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { colors } from "@bitbloq/ui";
+import { maxLengthName } from "./config";
 
 export const getChromeVersion = userAgent => {
   if (userAgent) {
@@ -52,7 +53,7 @@ export const isValidEmail = email =>
 export const isValidName = name => {
   if (
     !name ||
-    (name.length <= 64 &&
+    (name.length <= maxLengthName &&
       name.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
       !name.match(/^\s+$/))
   ) {

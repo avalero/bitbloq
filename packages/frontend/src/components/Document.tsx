@@ -273,7 +273,7 @@ class Document extends React.Component<any, DocumentState> {
       <Mutation mutation={CREATE_EXERCISE_MUTATION}>
         {createExercise => (
           <EditInputModal
-            title={newExerciseTitle}
+            value={newExerciseTitle}
             onCancel={() =>
               this.setState({ isCreateExerciseOpen: false, errorName: false })
             }
@@ -295,8 +295,8 @@ class Document extends React.Component<any, DocumentState> {
                 errorName: false
               });
             }}
-            modalTitle={t("exercises-modal-title")}
-            modalText={t("exercises-modal-text")}
+            title={t("exercises-modal-title")}
+            label={t("exercises-modal-text")}
             placeholder={t("exercises-modal-placeholder")}
             saveButton={t("general-create-button")}
           />
@@ -318,7 +318,7 @@ class Document extends React.Component<any, DocumentState> {
       <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
         {updateExercise => (
           <EditInputModal
-            title={newExerciseTitle}
+            value={newExerciseTitle}
             onCancel={() =>
               this.setState({ isUpdateExerciseOpen: false, errorName: false })
             }
@@ -342,8 +342,8 @@ class Document extends React.Component<any, DocumentState> {
                 errorName: false
               });
             }}
-            modalTitle={t("exercises-modal-update")}
-            modalText={t("exercises-modal-text")}
+            title={t("exercises-modal-update")}
+            label={t("exercises-modal-text")}
             placeholder={t("exercises-modal-placeholder")}
             saveButton={t("general-change-button")}
           />

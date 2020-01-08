@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
+import { IUser, LIMIT_SIZE } from "@bitbloq/api";
 import {
   Input,
   useTranslate,
@@ -13,9 +14,8 @@ import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { resourceTypes } from "../config";
 import useUserData from "../lib/useUserData";
-import { IUser, ResourcesTypes } from "../types";
+import { ResourcesTypes } from "../types";
 import { getAvatarColor, isValidAge, isValidDate } from "../util";
-import { LIMIT_SIZE } from "../../../api/src/config";
 
 interface IPersonalData extends IUser {
   avatarFile: File;
@@ -176,9 +176,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.name && (
-                <InputErrorMessage>
+                <ErrorMessage>
                   {t("account.user-data.personal-data.errors.name")}
-                </InputErrorMessage>
+                </ErrorMessage>
               )}
             </FormError>
             <FormField>
@@ -198,9 +198,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.surnames && (
-                <InputErrorMessage>
+                <ErrorMessage>
                   {t("account.user-data.personal-data.errors.surnames")}
-                </InputErrorMessage>
+                </ErrorMessage>
               )}
             </FormError>
             <FormField>
@@ -239,7 +239,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.birthDate && (
-                <InputErrorMessage>
+                <ErrorMessage>
                   {errors.birthDate.type === "validAge"
                     ? t(
                         `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`,
@@ -248,7 +248,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
                     : t(
                         `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`
                       )}
-                </InputErrorMessage>
+                </ErrorMessage>
               )}
             </FormError>
           </>
@@ -394,10 +394,6 @@ const FormGroup = styled.div`
   flex: 1;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   grid-column-gap: 10px;
-`;
-
-const InputErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;
 
 const InputNotEditable = styled.div`

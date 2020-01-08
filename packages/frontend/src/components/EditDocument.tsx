@@ -1,9 +1,9 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
-import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import { IDocument, IDocImageIn, IResource } from "@bitbloq/api";
 import {
   Document,
   IDocumentTab,
@@ -11,6 +11,7 @@ import {
   Button,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
 import DocumentInfoForm from "./DocumentInfoForm";
@@ -30,12 +31,9 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { dataURItoBlob } from "../util";
-import { IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
-import { IDocument } from "../../../api/src/api-types";
 
 interface IEditDocumentProps {
   folder?: string;
@@ -79,7 +77,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     advancedMode: false
   });
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
-  const [image, setImage] = useState<IDocumentImage>();
+  const [image, setImage] = useState<IDocImageIn>();
   const serviceWorker = useServiceWorker();
 
   const {
@@ -364,7 +362,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
         resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
-        image={image ? image.image : ""}
+        image={image && image.image ? image.image : ""}
         isTeacher={userData && userData.teacher}
         onChange={({
           name: newTitle,
@@ -432,11 +430,11 @@ const EditDocument: FC<IEditDocumentProps> = ({
       </EditorComponent>
       {isEditTitleVisible && (
         <EditInputModal
-          title={name}
+          value={name}
           onCancel={() => setIsEditTitleVisible(false)}
           onSave={onSaveTitle}
-          modalTitle="Cambiar nombre del documento"
-          modalText="Nombre del documento"
+          title="Cambiar nombre del documento"
+          label="Nombre del documento"
           placeholder="Documento sin título"
           saveButton="Cambiar"
         />

@@ -1,10 +1,11 @@
+import { IResource } from "@bitbloq/api";
 import { useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import React, { FC } from "react";
 import FilterOptions from "./FilterOptions";
 import Paginator from "./Paginator";
 import ResourcesGrid from "./ResourcesGrid";
-import { IResource, OrderType } from "../types";
+import { OrderType } from "../types";
 
 interface IResourcesListProps {
   addAllow?: boolean;
