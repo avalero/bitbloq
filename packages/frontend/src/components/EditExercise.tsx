@@ -153,7 +153,9 @@ const EditExercise = ({ type, id }) => {
     label: t("tab-project-info"),
     content: (
       <ExerciseInfo
-        grade={(submission && submission.grade) || undefined}
+        grade={
+          submission && submission.grade !== null ? submission.grade : undefined
+        }
         exercise={exercise}
         onGotoExercise={() => setTabIndex(0)}
         teacherComment={(submission && submission.teacherComment) || ""}

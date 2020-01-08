@@ -197,7 +197,6 @@ interface ISubmissionPanelProps {
 
 const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
   const {
-    exerciseId,
     onCheckSubmission,
     setDeleteModalOpen,
     setPasswordModalOpen,
@@ -206,7 +205,6 @@ const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
     t
   } = props;
 
-  const [passwordValue, setPasswordValue] = useState("");
   const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
 
   return (
@@ -231,7 +229,13 @@ const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
           </span>
         )}
       </td>
-      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        {!submission.finished
+          ? ""
+          : submission.grade !== null && submission.grade !== undefined
+          ? submission.grade
+          : "-"}
+      </td>
       <td>
         <DropDown
           constraints={[
