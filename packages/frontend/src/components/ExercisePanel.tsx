@@ -57,7 +57,7 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
           </Toggle>
         </HeaderLeft>
         <HeaderCenter onClick={() => setOpen(!isOpen)}>
-          <Title>{exercise.title}</Title>
+          <Title>{exercise.name}</Title>
           <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
         </HeaderCenter>
         <DropDown
@@ -80,7 +80,7 @@ const ExercisePanel: FC<IExercisePanelProps> = props => {
                 iconName: "pencil",
                 label: t("menu-change-name"),
                 onClick() {
-                  onChangeName(exercise.title);
+                  onChangeName(exercise.name);
                 }
               },
               {

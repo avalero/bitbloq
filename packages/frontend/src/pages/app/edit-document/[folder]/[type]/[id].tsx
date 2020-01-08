@@ -15,7 +15,6 @@ const EditDocumentPage: NextPage = () => {
   if (type !== "open" && (!documentType || !documentType.supported)) {
     return <ErrorPage statusCode={404} />;
   }
-
   return (
     <EditDocument
       id={id as string}

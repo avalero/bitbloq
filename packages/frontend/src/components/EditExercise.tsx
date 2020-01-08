@@ -148,9 +148,7 @@ const EditExercise = ({ type, id }) => {
     });
     setIsSubmissionSuccessOpen(true);
   };
-
-  const { title, teacherName, resources } = exercise;
-
+  const { name, teacherName, resources } = exercise;
   const infoTab: IDocumentTab = {
     icon: <Icon name="info" />,
     label: t("tab-project-info"),
@@ -198,7 +196,7 @@ const EditExercise = ({ type, id }) => {
                   <Icon name="airplane-document" />
                 </TitleIcon>
                 <div>
-                  <TitleText>{title}</TitleText>
+                  <TitleText>{name}</TitleText>
                   <TeacherName>Profesor: {teacherName}</TeacherName>
                 </div>
               </Title>

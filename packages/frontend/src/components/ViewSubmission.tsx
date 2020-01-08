@@ -130,7 +130,7 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
           tabIndex={tabIndex}
           onTabChange={setTabIndex}
           getTabs={(mainTabs: any[]) => mainTabs}
-          title={`${submission!.title} (${submission!.studentNick})`}
+          title={`${submission!.name} (${submission!.studentNick})`}
           {...documentProps}
         />
       )}

@@ -30,7 +30,7 @@ type Mutation {
     itemsPerPage: Number
     order: String
     searchTitle: String
-    title: String!
+    name: String!
   ): DuplicateDocument @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
     @authRequired(requires: [USER])
@@ -57,20 +57,20 @@ type DocsAndFolders {
 
 type Result {
   id: ObjectID
-  title: String
+  name: String
   image: String
   type: String
   createdAt: Date
   updatedAt: Date
-  parent: ObjectID
+  parentFolder: ObjectID
 }
 
 type Document {
   id: ObjectID
   user: ObjectID
-  title: String!
+  name: String!
   type: String
-  folder: ObjectID
+  parentFolder: ObjectID
   content: String
   advancedMode: Boolean
   cache: String
@@ -101,9 +101,9 @@ input DocImageIn {
 
 input DocumentIn {
   user: ObjectID
-  title: String
+  name: String
   type: String
-  folder: ObjectID
+  parentFolder: ObjectID
   content: String
   advancedMode: Boolean
   cache: String

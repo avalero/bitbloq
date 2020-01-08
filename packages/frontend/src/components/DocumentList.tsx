@@ -36,7 +36,7 @@ export interface IDocumentListProps {
   nFolders: number;
 }
 
-const DocumentListComp: FC<IDocumentListProps> = ({
+const DocumentList: FC<IDocumentListProps> = ({
   currentPage,
   docsAndFols = [],
   pagesNumber,
@@ -52,39 +52,25 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   nFolders
 }) => {
   interface IState {
-    id: string | null;
-    name?: string | null;
-    parent?: string | undefined | null;
-    title?: string | null;
-    type?: string | null;
+    id: string;
+    name?: string;
+    parentFolder?: string;
+    type?: string;
   }
-  const [deleteDoc, setDeleteDoc] = useState<IState>({
-    id: null
-  });
-  const [deleteFol, setDeleteFol] = useState<IState>({
-    id: null
-  });
-  const [selectedToDel, setSelectedToDel] = useState<IState>({
-    id: null,
-    type: null
-  });
-  const [editDocTitleModal, setEditDocTitleModal] = useState<IState>({
-    id: null,
-    title: null
-  });
+
+  const [deleteDoc, setDeleteDoc] = useState<IState>({ id: "" });
+  const [deleteFol, setDeleteFol] = useState<IState>({ id: "" });
+  const [selectedToDel, setSelectedToDel] = useState<IState>({ id: "" });
+  const [editDocNameModal, setEditDocNameModal] = useState<IState>({ id: "" });
   const [editFolderNameModal, setEditFolderNameModal] = useState<IState>({
-    id: null,
-    name: null
+    id: ""
   });
-  const [menuOpenId, setMenuOpenId] = useState("");
-  const [docWithEx, setDocWithEx] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string>("");
+  const [docWithEx, setDocWithEx] = useState<boolean>(false);
   const [folWithChildren, setFolWithChildren] = useState(false);
-  const [selectedToMove, setSelectedToMove] = useState<IState>({
-    id: null,
-    parent: null
-  });
-  const [draggingItemId, setDraggingItemId] = useState("");
-  const [droppedItemId, setDroppedItemId] = useState("");
+  const [selectedToMove, setSelectedToMove] = useState<IState>({ id: "" });
+  const [draggingItemId, setDraggingItemId] = useState<string>("");
+  const [droppedItemId, setDroppedItemId] = useState<string>("");
 
   const [updateDocument] = useMutation(UPDATE_DOCUMENT_MUTATION);
   const [deleteDocument] = useMutation(DELETE_DOCUMENT_MUTATION);
@@ -116,16 +102,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     e.stopPropagation();
     if (menuOpenId === document.id) {
       setMenuOpenId("");
-      setSelectedToMove({
-        id: null,
-        parent: null
-      });
+      setSelectedToMove({ id: "" });
     } else {
       setMenuOpenId(document.id!);
-      setSelectedToMove({
-        id: null,
-        parent: null
-      });
+      setSelectedToMove({ id: "" });
     }
   };
 
@@ -134,11 +114,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     document: IDocument
   ) => {
     e.stopPropagation();
-    setSelectedToMove({
-      id: null,
-      parent: null
-    });
-    setEditDocTitleModal({ id: document.id!, title: document.title });
+    setSelectedToMove({ id: "" });
+    setEditDocNameModal({ id: document.id!, name: document.name });
   };
 
   const onDocumentDeleteClick = (
@@ -146,10 +123,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     document: IDocument
   ) => {
     e.stopPropagation();
-    setSelectedToMove({
-      id: null,
-      parent: null
-    });
+    setSelectedToMove({ id: "" });
     setSelectedToDel({ id: document.id!, type: document.type! });
     setDeleteDoc({
       id: document.id!
@@ -174,7 +148,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       variables: { id: deleteDoc.id }
     });
     refetchDocsFols();
-    setDeleteDoc({ id: null });
+    setDeleteDoc({ id: "" });
     setDocWithEx(false);
   };
 
@@ -183,11 +157,11 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     folder: IFolder
   ) => {
     e.stopPropagation();
-    setSelectedToMove({
-      id: null,
-      parent: null
+    setSelectedToMove({ id: "" });
+    setEditFolderNameModal({
+      id: folder.id!,
+      name: folder.name || undefined
     });
-    setEditFolderNameModal({ id: folder.id!, name: folder.name! });
   };
 
   const onFolderDeleteClick = (
@@ -195,10 +169,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     folder: IFolder
   ) => {
     e.stopPropagation();
-    setSelectedToMove({
-      id: null,
-      parent: null
-    });
+    setSelectedToMove({ id: "" });
     setSelectedToDel({ id: folder.id!, type: "folder" });
     setDeleteFol({ id: folder.id! });
     hasExercises();
@@ -222,18 +193,18 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     });
     refetchDocsFols();
     setFolWithChildren(false);
-    setDeleteFol({ id: null });
+    setDeleteFol({ id: "" });
   };
 
-  const onUpdateDocTitle = async (docTitle?: string) => {
+  const onUpdateDocName = async (docName?: string) => {
     await updateDocument({
       variables: {
-        id: editDocTitleModal.id,
-        title: docTitle ? docTitle : "Documento sin título"
+        id: editDocNameModal.id,
+        name: docName ? docName : "Documento sin título"
       }
     });
     refetchDocsFols();
-    setEditDocTitleModal({ id: null, title: null });
+    setEditDocNameModal({ id: "" });
     setMenuOpenId("");
   };
 
@@ -245,7 +216,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       }
     });
     refetchDocsFols();
-    setEditFolderNameModal({ id: null, name: null });
+    setEditFolderNameModal({ id: "" });
     setMenuOpenId("");
   };
 
@@ -254,25 +225,22 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     document: IDocument
   ) => {
     e.stopPropagation();
-    let newTitle: string = `${document.title} copia`;
+    let newName: string = `${document.name} copia`;
 
-    if (newTitle.length >= 64) {
-      newTitle = newTitle.slice(0, 63);
+    if (newName.length >= 64) {
+      newName = newName.slice(0, 63);
     }
-    const result = await duplicateDocument({
+    const { page } = await duplicateDocument({
       variables: {
-        currentLocation,
+        currentLocation: currentLocation.id,
         documentID: document.id,
         order,
         searchTitle: searchText,
-        title: newTitle
+        name: newName
       }
     }).catch(catchError => {
-      console.log(catchError);
       return catchError;
     });
-
-    const { page } = result.data.duplicateDocument;
 
     if (page) {
       selectPage(page);
@@ -285,12 +253,12 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   ) => {
     e.stopPropagation();
     if (selectedToMove.id) {
-      setSelectedToMove({
-        id: null,
-        parent: null
-      });
+      setSelectedToMove({ id: "" });
     } else {
-      setSelectedToMove({ id: document.id!, parent: document.parent });
+      setSelectedToMove({
+        id: document.id!,
+        parentFolder: document.parentFolder!
+      });
     }
   };
   const onMoveFolderClick = async (
@@ -299,22 +267,16 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   ) => {
     e.stopPropagation();
     if (selectedToMove.id) {
-      setSelectedToMove({
-        id: null,
-        parent: null
-      });
+      setSelectedToMove({ id: "" });
     } else {
-      setSelectedToMove({ id: folder.id!, parent: folder.parent });
+      setSelectedToMove({ id: folder.id!, parentFolder: folder.parentFolder! });
     }
   };
 
   const onMove = () => {
     refetchDocsFols();
     setMenuOpenId("");
-    setSelectedToMove({
-      id: null,
-      parent: null
-    });
+    setSelectedToMove({ id: "" });
     if (
       pagesNumber > 1 &&
       pagesNumber === currentPage &&
@@ -333,7 +295,10 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       e.stopPropagation();
     }
     await updateDocument({
-      variables: { id: documentId || selectedToMove.id, folder: folder.id }
+      variables: {
+        id: documentId || selectedToMove.id,
+        parentFolder: folder.id
+      }
     });
     onMove();
   };
@@ -348,7 +313,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
     await updateFolder({
       variables: {
         id: folderMovedId || selectedToMove.id,
-        input: { parent: folderParent.id }
+        input: { parentFolder: folderParent.id }
       }
     });
     onMove();
@@ -357,7 +322,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   return (
     <>
       <DocumentsAndPaginator ref={drop}>
-        <DocumentList className={className}>
+        <Documents className={className}>
           {docsAndFols &&
             docsAndFols.map(document => (
               <StyledDocumentCard
@@ -514,7 +479,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
                 </DropDown>
               </StyledDocumentCard>
             ))}
-        </DocumentList>
+        </Documents>
         <DocumentsPaginator
           currentPage={currentPage}
           pages={pagesNumber}
@@ -529,8 +494,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         cancelText="Cancelar"
         onOk={confirmDeleteDoc}
         onCancel={() => {
-          setDeleteDoc({ id: null });
-          setSelectedToDel({ id: null, type: null });
+          setDeleteDoc({ id: "" });
+          setSelectedToDel({ id: "" });
         }}
       />
       <DialogModal
@@ -541,8 +506,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         cancelText="Cancelar"
         onOk={confirmDeleteFol}
         onCancel={() => {
-          setDeleteFol({ id: null });
-          setSelectedToDel({ id: null, type: null });
+          setDeleteFol({ id: "" });
+          setSelectedToDel({ id: "" });
         }}
       />
       <DialogModal
@@ -553,8 +518,8 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteDocument}
         onCancel={() => {
-          setSelectedToDel({ id: null, type: null });
-          setDeleteDoc({ id: null });
+          setSelectedToDel({ id: "" });
+          setDeleteDoc({ id: "" });
           setDocWithEx(false);
         }}
       />
@@ -566,16 +531,16 @@ const DocumentListComp: FC<IDocumentListProps> = ({
         cancelText="Cancelar"
         onOk={onDeleteFolder}
         onCancel={() => {
-          setSelectedToDel({ id: null, type: null });
-          setDeleteFol({ id: null });
+          setSelectedToDel({ id: "" });
+          setDeleteFol({ id: "" });
           setFolWithChildren(false);
         }}
       />
-      {editDocTitleModal.id && (
+      {editDocNameModal.id && (
         <EditInputModal
-          value={editDocTitleModal.title || undefined}
-          onCancel={() => setEditDocTitleModal({ id: null, title: null })}
-          onSave={onUpdateDocTitle}
+          value={editDocNameModal.name || undefined}
+          onCancel={() => setEditDocNameModal({ id: "", name: undefined })}
+          onSave={onUpdateDocName}
           title="Cambiar nombre del documento"
           label="Nombre del documento"
           placeholder="Documento sin título"
@@ -585,7 +550,7 @@ const DocumentListComp: FC<IDocumentListProps> = ({
       {editFolderNameModal.id && (
         <EditInputModal
           value={editFolderNameModal.name || undefined}
-          onCancel={() => setEditFolderNameModal({ id: null, name: null })}
+          onCancel={() => setEditFolderNameModal({ id: "", name: undefined })}
           onSave={onUpdateFolderName}
           title="Cambiar nombre de la carpeta"
           label="Nombre de la carpeta"
@@ -597,9 +562,9 @@ const DocumentListComp: FC<IDocumentListProps> = ({
   );
 };
 
-export default DocumentListComp;
+export default DocumentList;
 
-const DocumentList = styled.div`
+const Documents = styled.div`
   display: grid;
   grid-auto-rows: 240px;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

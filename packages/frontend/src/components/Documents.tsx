@@ -19,7 +19,7 @@ import useUserData from "../lib/useUserData";
 import { OrderType } from "../types";
 import AppLayout from "./AppLayout";
 import Breadcrumbs, { IBreadcrumbLink } from "./Breadcrumbs";
-import DocumentList from "./DocumentsList";
+import DocumentList from "./DocumentList";
 import EditInputModal from "./EditInputModal";
 import FilterOptions from "./FilterOptions";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
@@ -114,7 +114,7 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const onCreateFolder = async (folderName: string) => {
     await createFolder({
       variables: {
-        input: { name: folderName, parent: currentLocation.id }
+        input: { name: folderName, parentFolder: currentLocation.id }
       }
     }).catch(e => {
       setError(e);

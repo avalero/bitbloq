@@ -75,7 +75,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
     const blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
-    saveAs(blob, `${document.title}.bitbloq`);
+    saveAs(blob, `${document.name}.bitbloq`);
   };
 
   const infoTab: IDocumentTab = {
@@ -124,7 +124,7 @@ const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
                 <TitleIcon>
                   <Icon name="view-document" />
                 </TitleIcon>
-                <span>{document.title}</span>
+                <span>{document.name}</span>
               </>
             }
             headerButtons={[

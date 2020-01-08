@@ -9,13 +9,13 @@ interface IDocumentInfoProps {
 }
 
 const DocumentInfo: FC<IDocumentInfoProps> = ({ document, onGotoDocument }) => {
-  const { title, description, image } = document;
+  const { name, description, image } = document;
 
   return (
     <Container>
       <Left>
         <LeftContent>
-          <h2>{title}</h2>
+          <h2>{name}</h2>
           <Image
             src={
               (image as IDocImageIn).image

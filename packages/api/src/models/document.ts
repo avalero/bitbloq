@@ -1,24 +1,16 @@
 import { Document, Model, model, Schema } from "mongoose";
 import timestamps from "mongoose-timestamp";
 import { CONTENT_VERSION } from "../config";
+import { ICommonProps } from "./interfaces";
 
-export interface IDocument extends Document {
-  user?: string;
-  title?: string;
-  type?: string;
-  folder?: string;
-  content?: string;
+export interface IDocument extends ICommonProps, Document {
+  parentFolder?: string;
   contentVersion?: number;
   advancedMode?: boolean;
-  cache?: string;
   image?: { image: string; isSnapshot: boolean };
   public: boolean;
   example: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-  description?: string;
   version?: string;
-  resourcesID?: string[];
   exResourcesID?: string[];
 }
 
@@ -28,7 +20,7 @@ const documentMongSchema: Schema = new Schema({
     ref: "UserModel"
   },
 
-  title: {
+  name: {
     type: String,
     default: ""
   },
@@ -38,7 +30,7 @@ const documentMongSchema: Schema = new Schema({
     required: true
   },
 
-  folder: {
+  parentFolder: {
     type: Schema.Types.ObjectId,
     ref: "FolderModel"
   },

@@ -61,7 +61,7 @@ const exerciseResolver = {
       const exerciseNew: IExercise = new ExerciseModel({
         user: context.user.userID,
         document: docFather._id,
-        title: args.input.title,
+        name: args.input.name,
         code: newCode,
         type: docFather.type,
         acceptSubmissions: args.input.acceptSubmissions,
@@ -233,7 +233,7 @@ const exerciseResolver = {
       })).map(i => {
         return {
           id: i._id,
-          title: i.filename,
+          name: i.filename,
           type: i.type,
           size: i.size,
           thumbnail: i.image,

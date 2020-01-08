@@ -19,7 +19,7 @@ interface IExerciseInfoProps {
 
 const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
   grade,
-  exercise: { title, description, image },
+  exercise: { name, description, image },
   isTeacher = false,
   onGotoExercise,
   teacherComment
@@ -31,8 +31,8 @@ const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
     <Container>
       <Left>
         <LeftContent>
-          <h2>{title}</h2>
-          <Image src={image!} />
+          <h2>{name}</h2>
+          <Image src={image || ""} />
         </LeftContent>
       </Left>
       <Right>
