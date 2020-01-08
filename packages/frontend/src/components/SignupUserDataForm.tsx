@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
+import { IUserIn } from "@bitbloq/api";
 import {
   Button,
   Checkbox,
@@ -12,7 +13,6 @@ import {
 import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { educationalStages, privacyPolicyUrl } from "../config";
-import { IUserData } from "../types";
 import { isValidDate, isValidEmail, getAge } from "../util";
 
 interface ISignupUserDataProps {
@@ -20,7 +20,7 @@ interface ISignupUserDataProps {
   error?: ApolloError;
   loading: boolean;
   onCancel: () => void;
-  onSubmit: (userInputs: IUserData) => void;
+  onSubmit: (input: IUserIn) => void;
 }
 
 const SignupUserData: FC<ISignupUserDataProps> = ({
@@ -59,7 +59,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
     }
   );
   register({ name: "imTeacherCheck", type: "custom" });
-  register({ name: "noNotifications", type: "custom" });
+  register({ name: "notifications", type: "custom" });
 
   useEffect(() => {
     if (error) {
@@ -290,10 +290,21 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
       {teacherSubForm(getValues().imTeacherCheck)}
       <CheckOption
         onClick={() =>
-          setValue("noNotifications", !getValues().noNotifications)
+          setValue(
+            "notifications",
+            getValues().notifications !== undefined
+              ? !getValues().notifications
+              : false
+          )
         }
       >
-        <Checkbox checked={getValues().noNotifications} />
+        <Checkbox
+          checked={
+            getValues().notifications !== undefined
+              ? !getValues().notifications
+              : false
+          }
+        />
         <span>{t("signup.user-data.labels.no-notifications")}</span>
       </CheckOption>
       <CheckOption

@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import React, { FC, useEffect, useState } from "react";
 import useForm from "react-hook-form";
+import { IUser, LIMIT_SIZE } from "@bitbloq/api";
 import {
   Input,
   useTranslate,
@@ -13,9 +14,8 @@ import styled from "@emotion/styled";
 import ErrorMessage from "./ErrorMessage";
 import { resourceTypes } from "../config";
 import useUserData from "../lib/useUserData";
-import { IUser, ResourcesTypes } from "../types";
+import { ResourcesTypes } from "../types";
 import { getAvatarColor, isValidAge, isValidDate } from "../util";
-import { LIMIT_SIZE } from "../../../api/src/config";
 
 interface IPersonalData extends IUser {
   avatarFile: File;

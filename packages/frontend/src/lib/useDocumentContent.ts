@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { IDocument } from "../types";
+import { IDocument } from "@bitbloq/api";
 
 const useDocumentContent = (
   document: IDocument,
@@ -19,7 +19,7 @@ const useDocumentContent = (
 
   useEffect(() => {
     try {
-      setInitialContent(JSON.parse(document.content));
+      setInitialContent(JSON.parse(document.content!));
     } catch (e) {
       console.warn("Error parsing document content", e);
     }

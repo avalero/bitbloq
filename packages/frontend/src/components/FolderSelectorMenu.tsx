@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import styled from "@emotion/styled";
+import { IFolder } from "@bitbloq/api";
 import { Icon } from "@bitbloq/ui";
-import { IFolder } from "../../../api/src/api-types";
+import styled from "@emotion/styled";
 
 const FOLDER_QUERY = gql`
   query folder($id: ObjectID!) {

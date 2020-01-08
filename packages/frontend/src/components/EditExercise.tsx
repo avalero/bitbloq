@@ -1,9 +1,9 @@
 import React, { useCallback, useState, useRef, useEffect } from "react";
 import Router from "next/router";
-import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
-import styled from "@emotion/styled";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { IDocument, IResource } from "@bitbloq/api";
 import {
   colors,
   Button,
@@ -15,6 +15,7 @@ import {
   Icon,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import {
   EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
@@ -31,7 +32,7 @@ import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { IDocument, ISubmission, IResource } from "../types";
+import { ISubmission } from "../types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -121,7 +122,7 @@ const EditExercise = ({ type, id }) => {
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setSubmission({ ...submission!, content: initialContent });
+    setSubmission({ ...submission!, content: initialContent as any });
     updateSubmission({
       variables: {
         content: initialContent
@@ -182,7 +183,7 @@ const EditExercise = ({ type, id }) => {
               variables: { content: document.content }
             });
           }
-          currentContent.current = document.content;
+          currentContent.current = document.content as any;
         }, 1000)}
         baseTabs={[infoTab]}
         baseMenuOptions={menuOptions}

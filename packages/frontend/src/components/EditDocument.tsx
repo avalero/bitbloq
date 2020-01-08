@@ -1,9 +1,9 @@
 import { ApolloError } from "apollo-client";
 import React, { FC, useCallback, useEffect, useRef, useState } from "react";
 import Router from "next/router";
-import styled from "@emotion/styled";
 import { saveAs } from "file-saver";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import { IDocument, IDocImageIn, IResource } from "@bitbloq/api";
 import {
   Document,
   IDocumentTab,
@@ -11,6 +11,7 @@ import {
   Button,
   useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import useUserData from "../lib/useUserData";
 import useServiceWorker from "../lib/useServiceWorker";
 import DocumentInfoForm from "./DocumentInfoForm";
@@ -30,8 +31,6 @@ import {
   SET_DOCUMENT_IMAGE_MUTATION
 } from "../apollo/queries";
 import { documentTypes } from "../config";
-import { dataURItoBlob } from "../util";
-import { IDocument, IDocumentImage, IResource } from "../types";
 import debounce from "lodash/debounce";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { getToken } from "../lib/session";
@@ -78,7 +77,7 @@ const EditDocument: FC<IEditDocumentProps> = ({
     advancedMode: false
   });
   const [exercisesResources, setExercisesResources] = useState<IResource[]>([]);
-  const [image, setImage] = useState<IDocumentImage>();
+  const [image, setImage] = useState<IDocImageIn>();
   const serviceWorker = useServiceWorker();
 
   const {
@@ -357,13 +356,13 @@ const EditDocument: FC<IEditDocumentProps> = ({
     content: (
       <DocumentInfoForm
         title={title}
-        description={description}
+        description={description || undefined}
         documentId={document.id!}
         resourceAdded={onResourceAdded}
         resourceDeleted={onResourceDeleted}
         resources={exercisesResources}
         resourcesTypesAccepted={documentType.acceptedResourcesTypes}
-        image={image ? image.image : ""}
+        image={image && image.image ? image.image : ""}
         isTeacher={userData && userData.teacher}
         onChange={({
           title: newTitle,
