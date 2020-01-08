@@ -38,8 +38,8 @@ const PlansPage: NextPage = () => {
           <Plan plan={teacherPlan} image={teacherPlanImage} big={true} />
         )}
         <TryContent>
-          <h2>O pruébala sin compromisos</h2>
-          <h3>Utiliza Bitbloq sin registro previo</h3>
+          <h2>{t("plans.try-it")}</h2>
+          <h3>{t("plans.try-without-registration")}</h3>
           <NewDocumentButton
             quaternary
             attachmentPosition="top left"
@@ -66,8 +66,10 @@ const PlansPage: NextPage = () => {
               plan =>
                 plan && (
                   <FeaturePlan key={`${row} ${plan.name}`}>
-                    {plan.featureTable.indexOf(row) >= 0 && (
+                    {plan.featureTable.indexOf(row) >= 0 ? (
                       <Tick name="tick" />
+                    ) : (
+                      <Rectangle />
                     )}
                   </FeaturePlan>
                 )
@@ -116,19 +118,18 @@ const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
 
   return (
     <PlanContainer big={big}>
-      <PlanHeader>
+      <PlanHeader big={big}>
         <img src={image} />
         <h2>{t(`plans.${plan.name}`)}</h2>
       </PlanHeader>
       <HorizontalRule small />
-
       <PlanContent>
         <PriceContainer>
-          {plan.originalPrice && (
+          {/* {plan.originalPrice && (
             <OldPricing>
               {t("plans.monthly-price", [plan.originalPrice.toLocaleString()])}
             </OldPricing>
-          )}
+          )} */}
           {plan.isFree || plan.isBetaFree
             ? t("plans.free")
             : t("plans.monthly-price", [(plan.price || "").toLocaleString()])}
@@ -148,14 +149,12 @@ const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
               ))}
           </AppList>
         )}
-        <FeatureList>
-          {(plan.highlightedFeatures || []).map(feature => (
-            <Feature key={feature}>
-              <Tick name="tick" />
-              {t(`plans.features.${feature}`)}
-            </Feature>
-          ))}
-        </FeatureList>
+        {(plan.highlightedFeatures || []).map(feature => (
+          <Feature key={feature}>
+            <Tick name="tick" />
+            {t(`plans.features.${feature}`)}
+          </Feature>
+        ))}
         {plan.bitbloqCloud && (
           <BitbloqCloud>
             <BitbloqCloudLogo name="cloud-logo" />
@@ -169,10 +168,10 @@ const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
             </Tooltip>
           </BitbloqCloud>
         )}
-        <PlanButton onClick={() => router.push(`/signup?plan=${plan.name}`)}>
-          {t(`plans.${plan.name}-signup`)}
-        </PlanButton>
       </PlanContent>
+      <PlanButton onClick={() => router.push(`/signup?plan=${plan.name}`)}>
+        {t(`plans.${plan.name}-signup`)}
+      </PlanButton>
     </PlanContainer>
   );
 };
@@ -217,6 +216,10 @@ const PlanContainer = styled.div<{ big?: boolean }>`
     text-align: center;
     margin-bottom: 20px;
   }
+
+  button {
+    margin: 30px;
+  }
 `;
 
 const PlanHeader = styled.div<{ big?: boolean }>`
@@ -236,7 +239,15 @@ const PlanContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0px 30px 30px 30px;
+  margin: auto;
+  padding: 0px 30px;
+`;
+
+const Rectangle = styled.div`
+  background-color: #f1f1f1;
+  height: 2px;
+  margin: auto;
+  width: 14px;
 `;
 
 const AppList = styled.div`
@@ -287,10 +298,6 @@ const PriceCaption = styled.div`
   font-weight: bold;
 `;
 
-const FeatureList = styled.ul`
-  margin-bottom: 10px;
-`;
-
 const Feature = styled.li`
   font-size: 14px;
   margin-bottom: 10px;
@@ -300,7 +307,6 @@ const Feature = styled.li`
 
 const BitbloqCloud = styled.div`
   display: flex;
-  margin-bottom: 20px;
   font-size: 14px;
   align-items: center;
   justify-content: center;
@@ -328,7 +334,6 @@ const Tick = styled(Icon)`
 `;
 
 const PlanButton = styled(Button)`
-  width: 100%;
   font-size: 14px;
   padding: 0px 10px;
 `;
@@ -376,7 +381,7 @@ const FeatureName = styled.div`
 const FeaturePlan = styled.div`
   width: 216px;
   text-align: center;
-  padding: 0px 5px;
+  padding-right: 10px;
 `;
 
 const ButtonRow = styled.div`

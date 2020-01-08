@@ -40,7 +40,7 @@ const LandingLayout: FC<ILandingLayoutProps> = ({ headerFixed, children }) => {
       <div ref={headerRef}>
         <AppHeader isSticky={headerFixed ? undefined : isHeaderSticky}>
           <MainNavigation>
-            <Link href="/plans">
+            <Link href="/plans" prefetch={false}>
               <NavLink active={router.pathname === "/plans"}>
                 {t("plans.link")}
               </NavLink>

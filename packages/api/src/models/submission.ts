@@ -88,8 +88,7 @@ const submissionMongSchema: Schema = new Schema({
   },
 
   studentComment: {
-    type: String,
-    default: "studentComment"
+    type: String
   },
 
   finishedAt: {
@@ -101,8 +100,7 @@ const submissionMongSchema: Schema = new Schema({
   },
 
   teacherComment: {
-    type: String,
-    default: "teacherComment"
+    type: String
   },
 
   gradedAt: {

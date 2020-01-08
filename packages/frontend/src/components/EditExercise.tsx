@@ -32,6 +32,7 @@ import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import { ISubmission } from "../types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -58,7 +59,7 @@ const EditExercise = ({ type, id }) => {
   });
   const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
-  const [submission, setSubmission] = useState<IDocument | undefined>(
+  const [submission, setSubmission] = useState<ISubmission | undefined>(
     undefined
   );
   const currentContent = useRef([]);
@@ -154,7 +155,12 @@ const EditExercise = ({ type, id }) => {
     icon: <Icon name="info" />,
     label: t("tab-project-info"),
     content: (
-      <ExerciseInfo exercise={exercise} onGotoExercise={() => setTabIndex(0)} />
+      <ExerciseInfo
+        grade={submission && submission.grade}
+        exercise={exercise}
+        onGotoExercise={() => setTabIndex(0)}
+        teacherComment={submission && submission.teacherComment}
+      />
     )
   };
 

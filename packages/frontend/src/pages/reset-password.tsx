@@ -130,9 +130,7 @@ const ForgotPasswordPage: FC = () => {
             setPassword(e.target.value)
           }
         />
-        {passwordError && (
-          <PasswordErrorMessage>{passwordError}</PasswordErrorMessage>
-        )}
+        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <label>Repetir nueva contraseña</label>
@@ -145,9 +143,7 @@ const ForgotPasswordPage: FC = () => {
             setRepeat(e.target.value)
           }
         />
-        {repeatError && (
-          <PasswordErrorMessage>{repeatError}</PasswordErrorMessage>
-        )}
+        {repeatError && <ErrorMessage>{repeatError}</ErrorMessage>}
       </FormGroup>
       <Buttons>
         <Button secondary onClick={() => Router.push("/login")}>
@@ -174,10 +170,6 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 10px;
   }
-`;
-
-const PasswordErrorMessage = styled(ErrorMessage)`
-  margin-top: 8px;
 `;
 
 const Buttons = styled.div`

@@ -10,7 +10,7 @@ import {
 } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import ResourcesBox from "./ResourcesBox";
-import { resourceTypes } from "../config";
+import { resourceTypes, maxLengthName } from "../config";
 import { isValidName } from "../util";
 import { ResourcesTypes } from "../types";
 
@@ -99,6 +99,7 @@ const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
                   }
                   setTitle(value);
                 }}
+                maxLength={maxLengthName}
                 error={titleError}
                 onFocus={() => setTitleFocused(true)}
                 onBlur={() => setTitleFocused(false)}

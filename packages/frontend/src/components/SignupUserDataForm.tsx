@@ -111,9 +111,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.centerName}
             />
             {errors.centerName && (
-              <SignupErrorMessage>
+              <ErrorMessage>
                 {t("signup.user-data.errors.center-name")}
-              </SignupErrorMessage>
+              </ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -147,9 +147,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.city}
             />
             {errors.city && (
-              <SignupErrorMessage>
-                {t("signup.user-data.errors.city")}
-              </SignupErrorMessage>
+              <ErrorMessage>{t("signup.user-data.errors.city")}</ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -162,9 +160,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
               error={!!errors.postCode}
             />
             {errors.postCode && (
-              <SignupErrorMessage>
+              <ErrorMessage>
                 {t("signup.user-data.errors.post-code")}
-              </SignupErrorMessage>
+              </ErrorMessage>
             )}
           </FormField>
           <FormField>
@@ -201,9 +199,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             error={!!errors.name}
           />
           {errors.name && (
-            <SignupErrorMessage>
-              {t("signup.user-data.errors.name")}
-            </SignupErrorMessage>
+            <ErrorMessage>{t("signup.user-data.errors.name")}</ErrorMessage>
           )}
         </FormField>
         <FormField>
@@ -216,9 +212,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
             error={!!errors.surnames}
           />
           {errors.surnames && (
-            <SignupErrorMessage>
-              {t("signup.user-data.errors.surnames")}
-            </SignupErrorMessage>
+            <ErrorMessage>{t("signup.user-data.errors.surnames")}</ErrorMessage>
           )}
         </FormField>
       </FormGroup>
@@ -233,9 +227,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           error={!!errors.email}
         />
         {errors.email && (
-          <SignupErrorMessage>
+          <ErrorMessage>
             {t(`signup.user-data.errors.email-${errors.email.type}`)}
-          </SignupErrorMessage>
+          </ErrorMessage>
         )}
       </FormField>
       <FormField>
@@ -253,9 +247,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           </TooglePassword>
         </InputPassword>
         {errors.password && (
-          <SignupErrorMessage>
-            {t("signup.user-data.errors.password")}
-          </SignupErrorMessage>
+          <ErrorMessage>{t("signup.user-data.errors.password")}</ErrorMessage>
         )}
       </FormField>
       <FormField>
@@ -284,9 +276,9 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
           />
         </FormGroup>
         {errors.birthDate && (
-          <SignupErrorMessage>
+          <ErrorMessage>
             {t(`signup.user-data.errors.birth-date-${errors.birthDate.type}`)}
-          </SignupErrorMessage>
+          </ErrorMessage>
         )}
       </FormField>
       <CheckOption
@@ -346,9 +338,7 @@ const SignupUserData: FC<ISignupUserDataProps> = ({
         </span>
       </CheckOption>
       {errors.acceptTerms && (
-        <SignupErrorMessage>
-          {t("signup.user-data.errors.accept-terms")}
-        </SignupErrorMessage>
+        <ErrorMessage>{t("signup.user-data.errors.accept-terms")}</ErrorMessage>
       )}
       <Buttons>
         <Button secondary type="button" onClick={onCancel}>
@@ -421,8 +411,4 @@ const CheckOption = styled.div`
   span {
     margin-left: 10px;
   }
-`;
-
-const SignupErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;

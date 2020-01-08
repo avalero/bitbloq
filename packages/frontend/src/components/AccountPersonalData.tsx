@@ -176,9 +176,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.name && (
-                <InputErrorMessage>
+                <ErrorMessage>
                   {t("account.user-data.personal-data.errors.name")}
-                </InputErrorMessage>
+                </ErrorMessage>
               )}
             </FormError>
             <FormField>
@@ -198,9 +198,9 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.surnames && (
-                <InputErrorMessage>
+                <ErrorMessage>
                   {t("account.user-data.personal-data.errors.surnames")}
-                </InputErrorMessage>
+                </ErrorMessage>
               )}
             </FormError>
             <FormField>
@@ -239,7 +239,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
             </FormField>
             <FormError>
               {errors.birthDate && (
-                <InputErrorMessage>
+                <ErrorMessage>
                   {errors.birthDate.type === "validAge"
                     ? t(
                         `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`,
@@ -248,7 +248,7 @@ const AccountPersonalData: FC<IAccountPersonalDataProps> = ({
                     : t(
                         `account.user-data.personal-data.errors.birth-date-${errors.birthDate.type}`
                       )}
-                </InputErrorMessage>
+                </ErrorMessage>
               )}
             </FormError>
           </>
@@ -394,10 +394,6 @@ const FormGroup = styled.div`
   flex: 1;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   grid-column-gap: 10px;
-`;
-
-const InputErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;
 
 const InputNotEditable = styled.div`

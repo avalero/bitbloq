@@ -165,8 +165,8 @@ export const plans = [
       "exercise-access",
       "bitbloq-cloud",
       "save-unlimited-documents",
-      "exercise-compilation",
       "online-compilation",
+      "exercise-compilation",
       "create-exercises",
       "correct-exercises"
     ],
@@ -184,8 +184,8 @@ export const featureTable = [
   "exercise-access",
   "bitbloq-cloud",
   "save-unlimited-documents",
-  "exercise-compilation",
   "online-compilation",
+  "exercise-compilation",
   "create-exercises",
   "correct-exercises"
 ];
@@ -194,7 +194,6 @@ export const educationalStages = [
   "preschool",
   "primary",
   "high-school",
-  "bachelor",
   "college"
 ];
 
@@ -225,6 +224,7 @@ export const flags = {
   ...savedFlags
 };
 
+export const maxLengthName = 64;
 export const maxSTLFileSize = 5242880;
 
 export const minChromeVersion = 69;

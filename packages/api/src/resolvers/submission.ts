@@ -498,6 +498,9 @@ const submissionResolver = {
         },
         { new: true }
       );
+      pubsub.publish(SUBMISSION_UPDATED, {
+        submissionUpdated: updatedSubmission
+      });
       return updatedSubmission;
     },
 

@@ -267,11 +267,11 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
         />
         {folderTitleModal && (
           <EditInputModal
-            title={"Carpeta sin título"}
+            value="Carpeta sin título"
             onCancel={() => setFolderTitleModal(false)}
             onSave={onCreateFolder}
-            modalTitle="Crear carpeta"
-            modalText="Nombre de la carpeta"
+            title="Crear carpeta"
+            label="Nombre de la carpeta"
             placeholder="Carpeta sin título"
             saveButton="Crear"
           />

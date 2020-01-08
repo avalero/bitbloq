@@ -78,9 +78,9 @@ const SignupBirthDate: FC<ISignupBirthDateProps> = ({
           />
         </FormGroup>
         {errors.birthDate && (
-          <SignupErrorMessage>
+          <ErrorMessage>
             {t(`signup.user-data.errors.birth-date-${errors.birthDate.type}`)}
-          </SignupErrorMessage>
+          </ErrorMessage>
         )}
       </FormField>
       <Buttons>
@@ -134,8 +134,4 @@ const FormField = styled.div`
   input[type="number"] {
     -moz-appearance: textfield;
   }
-`;
-
-const SignupErrorMessage = styled(ErrorMessage)`
-  margin-top: 10px;
 `;
