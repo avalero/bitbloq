@@ -604,6 +604,12 @@
       "with-sub-text-2": "y la",
       "with-text": "Crear la cuenta con mi perfil de:"
     },
+    "not-activate-modal": {
+      "cancel": "Volver al inicio",
+      "ok": "Volver a enviar email",
+      "text": "Para poder entrar debes validar tu correo electrónico a través de un email que te hemos enviado. Si no ves el email revisa tu carpeta de spam.",
+      "title": "Cuenta sin validar"
+    },
     "step": "Paso %v% de 2",
     "user-data": {
       "cancel": "Cancelar",

@@ -169,6 +169,7 @@ export interface IMutation {
   __typename?: "Mutation";
   saveUserData?: Maybe<IUserStep1>;
   finishSignUp?: Maybe<Scalars["String"]>;
+  resendWelcomeEmail?: Maybe<Scalars["Boolean"]>;
   saveBirthDate?: Maybe<IUserStep1>;
   activateAccount?: Maybe<Scalars["String"]>;
   login?: Maybe<Scalars["String"]>;
@@ -178,11 +179,12 @@ export interface IMutation {
   sendForgotPasswordEmail?: Maybe<Scalars["String"]>;
   checkForgotPasswordToken?: Maybe<Scalars["Boolean"]>;
   updateForgotPassword?: Maybe<Scalars["String"]>;
-  deleteMyUser?: Maybe<IUser>;
+  deleteMyUser?: Maybe<Scalars["String"]>;
   updateUserData?: Maybe<IUser>;
   updateMyPassword?: Maybe<IUser>;
   updateMyPlan?: Maybe<Scalars["String"]>;
   sendChangeMyEmailToken?: Maybe<Scalars["String"]>;
+  checkTokenChangeEmail?: Maybe<Scalars["Boolean"]>;
   confirmChangeEmail?: Maybe<Scalars["String"]>;
   createDocument?: Maybe<IDocument>;
   deleteDocument?: Maybe<IDocument>;
@@ -225,6 +227,10 @@ export interface IMutationSaveUserDataArgs {
 export interface IMutationFinishSignUpArgs {
   id: Scalars["String"];
   userPlan: Scalars["String"];
+}
+
+export interface IMutationResendWelcomeEmailArgs {
+  email: Scalars["String"];
 }
 
 export interface IMutationSaveBirthDateArgs {
@@ -282,6 +288,10 @@ export interface IMutationUpdateMyPlanArgs {
 
 export interface IMutationSendChangeMyEmailTokenArgs {
   newEmail: Scalars["String"];
+}
+
+export interface IMutationCheckTokenChangeEmailArgs {
+  token: Scalars["String"];
 }
 
 export interface IMutationConfirmChangeEmailArgs {
@@ -659,6 +669,7 @@ export interface IUser {
   updatedAt?: Maybe<Scalars["Date"]>;
   lastLogin?: Maybe<Scalars["Date"]>;
   rootFolder?: Maybe<Scalars["ObjectID"]>;
+  socialLogin?: Maybe<Scalars["Boolean"]>;
   documents?: Maybe<Array<Maybe<IDocument>>>;
   folders?: Maybe<Array<Maybe<IFolder>>>;
 }
@@ -1180,6 +1191,12 @@ export type IMutationResolvers<
     ContextType,
     RequireFields<IMutationFinishSignUpArgs, "id" | "userPlan">
   >;
+  resendWelcomeEmail?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationResendWelcomeEmailArgs, "email">
+  >;
   saveBirthDate?: Resolver<
     Maybe<IResolversTypes["UserStep1"]>,
     ParentType,
@@ -1234,7 +1251,7 @@ export type IMutationResolvers<
     IMutationUpdateForgotPasswordArgs
   >;
   deleteMyUser?: Resolver<
-    Maybe<IResolversTypes["User"]>,
+    Maybe<IResolversTypes["String"]>,
     ParentType,
     ContextType,
     RequireFields<IMutationDeleteMyUserArgs, "password">
@@ -1265,6 +1282,12 @@ export type IMutationResolvers<
     ParentType,
     ContextType,
     RequireFields<IMutationSendChangeMyEmailTokenArgs, "newEmail">
+  >;
+  checkTokenChangeEmail?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
+    ParentType,
+    ContextType,
+    RequireFields<IMutationCheckTokenChangeEmailArgs, "token">
   >;
   confirmChangeEmail?: Resolver<
     Maybe<IResolversTypes["String"]>,
@@ -1895,6 +1918,11 @@ export type IUserResolvers<
   lastLogin?: Resolver<Maybe<IResolversTypes["Date"]>, ParentType, ContextType>;
   rootFolder?: Resolver<
     Maybe<IResolversTypes["ObjectID"]>,
+    ParentType,
+    ContextType
+  >;
+  socialLogin?: Resolver<
+    Maybe<IResolversTypes["Boolean"]>,
     ParentType,
     ContextType
   >;

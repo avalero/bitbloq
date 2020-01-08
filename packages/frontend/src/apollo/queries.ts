@@ -530,6 +530,12 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const RESEND_WELCOME_EMAIL = gql`
+  mutation ResendWelcomeEmail($email: String!) {
+    resendWelcomeEmail(email: $email)
+  }
+`;
+
 export const LOGIN_WITH_MICROSOFT = gql`
   mutation LoginWithMicrosoft($token: String!) {
     loginWithMicrosoft(token: $token) {
