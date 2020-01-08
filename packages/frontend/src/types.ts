@@ -25,13 +25,6 @@ export interface IEditorProps {
   children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
 }
 
-export interface ISubmission extends IDocument {
-  exercise: string;
-  grade: number;
-  studentNick: string;
-  teacherComment: string;
-}
-
 export interface IPlan {
   name: string;
   bitbloqCloud?: boolean;
