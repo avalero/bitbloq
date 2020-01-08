@@ -169,12 +169,15 @@ const Tab = styled.div<{ selected?: boolean }>`
 `;
 
 const TabContent = styled.div`
-  padding: 30px;
   flex: 1;
+  padding: 30px;
+  overflow: scroll;
 
   p {
     font-size: 14px;
     line-height: 1.57;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
   }
 
   h2 {
