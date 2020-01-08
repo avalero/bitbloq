@@ -172,28 +172,7 @@ const FormLabel = styled.div`
   }
 `;
 
-const FormSubLabel = styled.div`
-  font-size: 12px;
-  font-style: italic;
-  margin-top: 10px;
-`;
-
 const FormInput = styled.div`
   flex: 2;
   max-width: 66%;
-`;
-
-const Image = styled.div<{ src: string }>`
-  border: 1px solid ${colors.gray3};
-  border-radius: 4px;
-  width: 250px;
-  height: 160px;
-  margin-bottom: 10px;
-  background-image: url(${props => props.src});
-  background-size: cover;
-  background-position: center;
-`;
-
-const ImageButton = styled(FileSelectButton)`
-  width: 250px;
 `;

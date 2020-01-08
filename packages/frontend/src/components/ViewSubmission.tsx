@@ -103,7 +103,7 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
         label: t("tab-project-info"),
         content: (
           <ExerciseInfo
-            grade={submission!.grade || undefined}
+            grade={submission!.grade !== null ? submission!.grade : undefined}
             exercise={exercise}
             onGotoExercise={() => setTabIndex(0)}
             teacherComment={submission!.teacherComment || ""}
