@@ -3,7 +3,7 @@ import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
-import { IDocument, IResource } from "@bitbloq/api";
+import { IDocument, IResource, ISubmission } from "@bitbloq/api";
 import {
   colors,
   Button,
@@ -32,7 +32,6 @@ import { getToken, setToken } from "../lib/session";
 import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import { ISubmission } from "../types";
 
 const EditExercise = ({ type, id }) => {
   const serviceWorker = useServiceWorker();
@@ -154,10 +153,12 @@ const EditExercise = ({ type, id }) => {
     label: t("tab-project-info"),
     content: (
       <ExerciseInfo
-        grade={submission && submission.grade}
+        grade={
+          submission && submission.grade !== null ? submission.grade : undefined
+        }
         exercise={exercise}
         onGotoExercise={() => setTabIndex(0)}
-        teacherComment={submission && submission.teacherComment}
+        teacherComment={(submission && submission.teacherComment) || ""}
       />
     )
   };

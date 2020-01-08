@@ -1,4 +1,5 @@
 import React, { FC, useState } from "react";
+import { ISubmission } from "@bitbloq/api";
 import styled from "@emotion/styled";
 import {
   colors,
@@ -7,10 +8,10 @@ import {
   TextArea,
   useTranslate
 } from "@bitbloq/ui";
-import { ISubmission } from "../types";
+import ErrorMessage from "./ErrorMessage";
 
 export interface IExerciseRateProps {
-  gradeSubmission: (grade: number, teacherComment: string) => void;
+  gradeSubmission: (grade: number | undefined, teacherComment: string) => void;
   submission: ISubmission;
 }
 
@@ -20,7 +21,9 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
 }) => {
   const [error, setError] = useState<boolean>(false);
   const [grade, setGrade] = useState<number | string>(
-    submission.grade !== null ? submission.grade : ""
+    submission.grade !== null && submission.grade !== undefined
+      ? submission.grade
+      : ""
   );
   const [teacherComment, setTeacherComment] = useState<string>(
     submission.teacherComment || ""
@@ -39,19 +42,42 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
             <FormInput>
               <Input
                 error={error}
-                onBlur={() => gradeSubmission(+grade, teacherComment)}
-                onChange={e => {
-                  const value: string = e.target.value;
-                  if (!value || (value.match(/\d/) && +value >= 0)) {
-                    setError(false);
-                    setGrade(value ? +value : "");
+                max={10}
+                min={0}
+                onBlur={() => {
+                  if (grade) {
+                    if (
+                      !grade ||
+                      (`${grade}`.match(/^(\d{1,2})$|^(\d\.\d)$/) &&
+                        +grade >= 0 &&
+                        +grade <= 10)
+                    ) {
+                      setError(false);
+                      gradeSubmission(+grade, teacherComment);
+                    } else {
+                      setError(true);
+                    }
                   } else {
-                    setError(true);
+                    gradeSubmission(
+                      submission.grade !== null ? submission.grade : undefined,
+                      teacherComment
+                    );
+                    setGrade(submission.grade || "");
                   }
                 }}
+                onChange={e => {
+                  const value: string = e.target.value;
+                  setError(false);
+                  setGrade(value);
+                }}
                 placeholder="00"
+                step={0.1}
+                type="number"
                 value={grade}
               />
+              <ErrorMessage hide={!error}>
+                {t("exercises.rate.rate.error")}
+              </ErrorMessage>
             </FormInput>
           </FormRow>
           <FormRow>
@@ -146,28 +172,7 @@ const FormLabel = styled.div`
   }
 `;
 
-const FormSubLabel = styled.div`
-  font-size: 12px;
-  font-style: italic;
-  margin-top: 10px;
-`;
-
 const FormInput = styled.div`
   flex: 2;
   max-width: 66%;
-`;
-
-const Image = styled.div<{ src: string }>`
-  border: 1px solid ${colors.gray3};
-  border-radius: 4px;
-  width: 250px;
-  height: 160px;
-  margin-bottom: 10px;
-  background-image: url(${props => props.src});
-  background-size: cover;
-  background-position: center;
-`;
-
-const ImageButton = styled(FileSelectButton)`
-  width: 250px;
 `;

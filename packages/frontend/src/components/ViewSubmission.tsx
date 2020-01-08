@@ -1,7 +1,7 @@
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/react-hooks";
-import { IExercise } from "@bitbloq/api";
+import { IExercise, ISubmission } from "@bitbloq/api";
 import {
   colors,
   Spinner,
@@ -19,7 +19,6 @@ import {
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseRate from "./ExerciseRate";
-import { ISubmission } from "../types";
 
 interface IViewSubmissionProps {
   id: string;
@@ -104,10 +103,10 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
         label: t("tab-project-info"),
         content: (
           <ExerciseInfo
-            grade={submission!.grade}
+            grade={submission!.grade !== null ? submission!.grade : undefined}
             exercise={exercise}
             onGotoExercise={() => setTabIndex(0)}
-            teacherComment={submission!.teacherComment}
+            teacherComment={submission!.teacherComment || ""}
             isTeacher={true}
           />
         )

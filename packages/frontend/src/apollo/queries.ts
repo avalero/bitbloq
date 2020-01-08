@@ -465,7 +465,6 @@ export const SUBMISSION_SET_GRADE = gql`
       grade: $grade
       teacherComment: $teacherComment
     ) {
-      title
       studentNick
       content
       grade

@@ -1,3 +1,4 @@
+import Router from "next/router";
 import React, { FC, useState } from "react";
 import { useMutation } from "react-apollo";
 import useForm from "react-hook-form";
@@ -89,7 +90,7 @@ const LoginForm: FC<IFormProps> = ({ className, onLoginSuccess }) => {
             {t("signup.not-activate-modal.ok")}
           </CounterButton>
         }
-        onCancel={() => setNotActiveError(false)}
+        onCancel={() => Router.replace("/")}
         text={t("signup.not-activate-modal.text")}
         title={t("signup.not-activate-modal.title")}
       />
