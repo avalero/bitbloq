@@ -205,10 +205,14 @@ export const createExerciseImage = async (docFatherImg, newCode, userID) => {
     return "";
   }
   const filename: string = `${userID}/exercise-${newCode}`;
-  await storage
-    .bucket(bucketName)
-    .file(imgData.storageName)
-    .copy(storage.bucket(bucketName).file(filename));
+  try {
+    await storage
+      .bucket(bucketName)
+      .file(imgData.storageName)
+      .copy(storage.bucket(bucketName).file(filename));
+  } catch (e) {
+    return "";
+  }
   const imgUrl: string = getPublicUrl(filename);
   return imgUrl;
 };
