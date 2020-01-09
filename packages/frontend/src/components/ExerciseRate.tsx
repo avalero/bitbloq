@@ -63,7 +63,7 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
                   }
                 }}
                 onChange={e => {
-                  const value: string = e.target.value;
+                  const value: string = e.target.value.replace(",", ".");
                   if (
                     !value ||
                     (value.match(/^\d{1,2}$|^\d\.\d?$/) &&
