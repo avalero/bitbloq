@@ -1,13 +1,7 @@
 import React, { FC, useState } from "react";
 import { ISubmission } from "@bitbloq/api";
 import styled from "@emotion/styled";
-import {
-  colors,
-  FileSelectButton,
-  Input,
-  TextArea,
-  useTranslate
-} from "@bitbloq/ui";
+import { colors, Input, TextArea, useTranslate } from "@bitbloq/ui";
 import ErrorMessage from "./ErrorMessage";
 
 export interface IExerciseRateProps {
@@ -20,9 +14,14 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
   submission
 }) => {
   const [error, setError] = useState<boolean>(false);
-  const [grade, setGrade] = useState<number | string>(
+  const [grade, setGrade] = useState<string>(
     submission.grade !== null && submission.grade !== undefined
-      ? submission.grade
+      ? `${submission.grade}`
+      : ""
+  );
+  const [originalGrade] = useState<string>(
+    submission.grade !== null && submission.grade !== undefined
+      ? `${submission.grade}`
       : ""
   );
   const [teacherComment, setTeacherComment] = useState<string>(
@@ -42,15 +41,12 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
             <FormInput>
               <Input
                 error={error}
-                max={10}
-                min={0}
                 onBlur={() => {
                   if (grade) {
                     if (
-                      !grade ||
-                      (`${grade}`.match(/^(\d{1,2})$|^(\d\.\d)$/) &&
-                        +grade >= 0 &&
-                        +grade <= 10)
+                      grade.match(/^\d{1,2}$|^\d\.\d$/) &&
+                      +grade >= 0 &&
+                      +grade <= 10
                     ) {
                       setError(false);
                       gradeSubmission(+grade, teacherComment);
@@ -59,20 +55,28 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
                     }
                   } else {
                     gradeSubmission(
-                      submission.grade !== null ? submission.grade : undefined,
+                      originalGrade ? +originalGrade : undefined,
                       teacherComment
                     );
-                    setGrade(submission.grade || "");
+                    setError(false);
+                    setGrade(originalGrade);
                   }
                 }}
                 onChange={e => {
-                  const value: string = e.target.value;
-                  setError(false);
+                  const value: string = e.target.value.replace(",", ".");
+                  if (
+                    !value ||
+                    (value.match(/^\d{1,2}$|^\d\.\d?$/) &&
+                      +value >= 0 &&
+                      +value <= 10)
+                  ) {
+                    setError(false);
+                  } else {
+                    setError(true);
+                  }
                   setGrade(value);
                 }}
                 placeholder="00"
-                step={0.1}
-                type="number"
                 value={grade}
               />
               <ErrorMessage hide={!error}>

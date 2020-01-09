@@ -444,6 +444,7 @@ export const CREATE_EXERCISE_MUTATION = gql`
 export const SUBMISSION_QUERY = gql`
   query Submission($id: ObjectID!) {
     submission(id: $id) {
+      document
       name
       exercise
       studentNick
