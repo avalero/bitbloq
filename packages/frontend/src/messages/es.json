@@ -439,7 +439,7 @@
         "title": "Observaciones"
       },
       "rate": {
-        "error": "La nota solo pueden tener un decimal y estar entre 0 y 10",
+        "error": "La nota solo puede tener un decimal y estar entre 0 y 10",
         "title": "Nota"
       },
       "title": "Calificación del ejercicio"
