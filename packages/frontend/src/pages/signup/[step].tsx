@@ -276,31 +276,31 @@ const SignupStepPage: NextPage = () => {
           <StepTitle>{t(`signup.${step}.title`)}</StepTitle>
           {step === signupSteps.userData && (
             <>
-              {t("signup.login.account-text")}{" "}
-              <Link href="/login" prefetch={false}>
-                <a>{t("signup.login.account-link")}</a>
-              </Link>
-              .
-              <LoginWith>
-                <div>
-                  {t("signup.login.with-text")}
-                  <LoginWithLegalInformation>
-                    {t("signup.login.with-sub-text-1")}{" "}
-                    <a target="_blank" href="/legal/general-conditions">
-                      {t("legal.general-conditions").toLowerCase()}
-                    </a>{" "}
-                    {t("signup.login.with-sub-text-2")}{" "}
-                    <a target="_blank" href={privacyPolicyUrl}>
-                      {t("legal.privacy-policy").toLowerCase()}
-                    </a>
-                    .
-                  </LoginWithLegalInformation>
-                </div>
-                <LoginWithButtons>
-                  <LoginWithMicrosoftButton />
-                  <LoginWithGoogleButton />
-                </LoginWithButtons>
-              </LoginWith>
+              <div>
+                {t("signup.login.account-text")}{" "}
+                <Link href="/login" prefetch={false}>
+                  <a>{t("signup.login.account-link")}</a>
+                </Link>
+                .
+              </div>
+              <br />
+              <div>{t("signup.login.with-text")}</div>
+              <LoginWithLegalInformation>
+                {t("signup.login.with-sub-text-1")}{" "}
+                <a target="_blank" href="/legal/general-conditions">
+                  {t("legal.general-conditions").toLowerCase()}
+                </a>{" "}
+                {t("signup.login.with-sub-text-2")}{" "}
+                <a target="_blank" href={privacyPolicyUrl}>
+                  {t("legal.privacy-policy").toLowerCase()}
+                </a>
+                .
+              </LoginWithLegalInformation>
+              <LoginWithButtons>
+                <LoginWithMicrosoftButton />
+                <LoginWithGoogleButton />
+              </LoginWithButtons>
+              <br />
               <SignupUserDataForm
                 defaultValues={userData}
                 error={userError}
@@ -351,23 +351,18 @@ const Wrap = styled.div`
   }
 `;
 
-const LoginWith = styled.div`
-  display: flex;
-  padding: 20px 0;
-  width: 50%;
-`;
-
 const LoginWithLegalInformation = styled.div`
   font-size: 12px;
   line-height: 18px;
-  padding-top: 10px;
+  padding: 10px 0;
 `;
 
 const LoginWithButtons = styled.div`
   display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  margin-left: 15px;
+
+  & > button:first-of-type {
+    margin-right: 10px;
+  }
 `;
 
 const StepCounter = styled.div`
