@@ -40,7 +40,7 @@ const ExerciseRate: FC<IExerciseRateProps> = ({
               <label>{t("exercises.rate.rate.title")}</label>
             </FormLabel>
             <FormInput>
-              <Input
+              <GradeInput
                 error={error}
                 max={10}
                 min={0}
@@ -175,4 +175,16 @@ const FormLabel = styled.div`
 const FormInput = styled.div`
   flex: 2;
   max-width: 66%;
+`;
+
+const GradeInput = styled(Input)`
+  -moz-appearance: textfield;
+
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
 `;
