@@ -14,6 +14,7 @@ import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
 import CloudLogo from "./icons/CloudLogo";
 import Cone from "./icons/Cone";
+import Crown from "./icons/Crown";
 import Cthulhito from "./icons/Cthulhito";
 import Cube from "./icons/Cube";
 import CurveAngle from "./icons/CurveAngle";
@@ -152,6 +153,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Close className={className} />;
     case "cloud-logo":
       return <CloudLogo className={className} />;
+    case "crown":
+      return <Crown className={className} />;
     case "cube":
       return <Cube className={className} />;
     case "curve-angle":
