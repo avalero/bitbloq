@@ -1,3 +1,4 @@
+import Router from "next/router";
 import React, { FC, useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/react-hooks";
@@ -19,6 +20,8 @@ import {
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseRate from "./ExerciseRate";
+import HeaderRightContent from "./HeaderRightContent";
+import UserSession from "./UserSession";
 
 interface IViewSubmissionProps {
   id: string;
@@ -115,6 +118,12 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
     ];
   }
 
+  const headerRightContent = (
+    <HeaderRightContent>
+      <UserSession />
+    </HeaderRightContent>
+  );
+
   return (
     <EditorComponent
       document={submission}
@@ -129,7 +138,11 @@ const ViewSubmission: FC<IViewSubmissionProps> = ({ id, type }) => {
           tabIndex={tabIndex}
           onTabChange={setTabIndex}
           getTabs={(mainTabs: any[]) => mainTabs}
+          headerRightContent={headerRightContent}
           title={`${submission!.name} (${submission!.studentNick})`}
+          backCallback={() =>
+            Router.push(`/app/document/${submission!.document}`)
+          }
           {...documentProps}
         />
       )}
