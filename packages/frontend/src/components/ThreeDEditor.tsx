@@ -59,11 +59,7 @@ const ThreeDEditor: FC<IEditorProps> = ({
           type: "STLObject",
           parameters: { url: resource.file },
           label: resource.title!.replace(/\.\w+$/, ""),
-          icon: resource.thumbnail ? (
-            <img src={resource.thumbnail} />
-          ) : (
-            <Icon name={resourceTypes[resource.type].icon} />
-          )
+          icon: <Icon name={resourceTypes[resource.type].icon} />
         }))
       }
     ],
