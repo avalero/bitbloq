@@ -230,19 +230,17 @@ const exerciseResolver = {
     resources: async (exercise: IExercise) => {
       const result: IResource[] | any = (await UploadModel.find({
         _id: { $in: exercise.resourcesID }
-      })).map(i => {
-        return {
-          id: i._id,
-          name: i.filename,
-          type: i.type,
-          size: i.size,
-          thumbnail: i.image,
-          preview: i.image,
-          file: i.publicUrl,
-          deleted: i.deleted,
-          createdAt: i.createdAt
-        };
-      });
+      })).map(resource => ({
+        id: resource._id,
+        title: resource.filename,
+        type: resource.type,
+        size: resource.size,
+        thumbnail: resource.thumbnail,
+        preview: resource.preview,
+        file: resource.publicUrl,
+        deleted: resource.deleted,
+        createdAt: resource.createdAt
+      }));
       return result;
     }
   }
