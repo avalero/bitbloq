@@ -435,9 +435,9 @@ const userResolver = {
         // guardar datos de usuario
         user = await UserModel.create({
           password: "google",
-          googleID: userData.id,
-          name: userData.given_name,
-          surnames: userData.family_name,
+          googleID: userData.id || "google",
+          name: userData.given_name || userData.email,
+          surnames: userData.family_name || "google",
           email: userData.email,
           active: false,
           authToken: " ",
@@ -497,9 +497,9 @@ const userResolver = {
         // guardar datos de usuario
         user = await UserModel.create({
           password: "microsoft",
-          microsoftID: userData.id,
-          name: userData.givenName,
-          surnames: userData.surname,
+          microsoftID: userData.id || "microsoft",
+          name: userData.givenName || userData.userPrincipalName,
+          surnames: userData.surname || "microsoft",
           email: userData.userPrincipalName,
           active: false,
           authToken: " ",
