@@ -2,11 +2,10 @@ import { ApolloError } from "apollo-client";
 import { useRouter } from "next/router";
 import React, { FC, useEffect, useState } from "react";
 import { useMutation, ExecutionResult } from "react-apollo";
-import { Spinner, useTranslate } from "@bitbloq/ui";
+import { DialogModal, Spinner, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import { ACTIVATE_ACCOUNT_MUTATION } from "../apollo/queries";
 import { setToken } from "../lib/session";
-import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import ModalLayout from "./ModalLayout";
 
 interface IActivateProps {
@@ -35,7 +34,16 @@ const Activate: FC<IActivateProps> = ({ token }) => {
   }, []);
 
   if (error) {
-    return <GraphQLErrorMessage apolloError={error} />;
+    return (
+      <DialogModal
+        isOpen={true}
+        okText={t("change-email-page.error.button")}
+        onOk={() => router.replace("/")}
+        text={t("change-email-page.error.text")}
+        title={t("change-email-page.error.title")}
+        transparentOverlay={true}
+      />
+    );
   }
 
   if (activate) {
