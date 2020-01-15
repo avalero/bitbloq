@@ -90,7 +90,6 @@ const EditExercise = ({ type, id }) => {
 
       return () => {
         window.removeEventListener("beforeunload", setActiveToFalse);
-        setActiveToFalse();
       };
     }
     return;
@@ -224,7 +223,10 @@ const EditExercise = ({ type, id }) => {
               }
             }}
             headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
-            backCallback={() => Router.push("/")}
+            backCallback={() => {
+              setActiveToFalse();
+              Router.push("/");
+            }}
             {...documentProps}
           />
         )}
