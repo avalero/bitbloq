@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
 import { JuniorSwitch } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
@@ -19,14 +20,6 @@ export interface IViewColorConfigurationProps {
   onChange: (newBloq: IBloq) => any;
 }
 
-const colorValues = {
-  black: "#000000",
-  white: "#FFFFFF",
-  red: "#FF0000",
-  green: "#00FF00",
-  blue: "#0000FF"
-};
-
 const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
   bloq,
   onChange
@@ -35,9 +28,9 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
   const color = bloq.parameters.color as string;
 
   return (
-    <div>
+    <Container>
       <ImageWrap>
-        <ViewColorImage color={colorValues[color]} closed={detect !== "true"} />
+        <ViewColorImage color={color} closed={detect !== "true"} />
       </ImageWrap>
       <SwitchWrap>
         <JuniorSwitch
@@ -56,13 +49,13 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
             )
           }
         />
-        <JuniorSwitch
+        <ColorSwitch
           buttons={[
-            { content: <ButtonIcon src={BlackIcon} />, id: "black" },
-            { content: <ButtonIcon src={WhiteIcon} />, id: "white" },
             { content: <ButtonIcon src={RedIcon} />, id: "red" },
             { content: <ButtonIcon src={GreenIcon} />, id: "green" },
-            { content: <ButtonIcon src={BlueIcon} />, id: "blue" }
+            { content: <ButtonIcon src={BlueIcon} />, id: "blue" },
+            { content: <ButtonIcon src={WhiteIcon} />, id: "white" },
+            { content: <ButtonIcon src={BlackIcon} />, id: "black" }
           ]}
           value={color}
           onChange={(value: string) =>
@@ -74,18 +67,23 @@ const ViewColorConfiguration: FC<IViewColorConfigurationProps> = ({
           }
         />
       </SwitchWrap>
-    </div>
+    </Container>
   );
 };
 
 export default ViewColorConfiguration;
 
-const ImageWrap = styled.div`
-  margin-bottom: 20px;
-  svg {
-    width: 484px;
-    height: 200px;
-  }
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 33px;
+  display: flex;
+  align-items: center;
 `;
 
 const SwitchWrap = styled.div`
@@ -94,5 +92,9 @@ const SwitchWrap = styled.div`
 `;
 
 const ButtonIcon = styled.img`
-  width: 30px;
+  width: 36px;
+`;
+
+const ColorSwitch = styled(JuniorSwitch)`
+  margin-left: 10px;
 `;

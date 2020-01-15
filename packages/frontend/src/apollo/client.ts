@@ -1,24 +1,18 @@
 import fetch from "isomorphic-fetch";
-import throttle from "lodash/throttle";
 import { ApolloClient } from "apollo-client";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { onError } from "apollo-link-error";
 import { ApolloLink, Observable, split } from "apollo-link";
 import { createUploadLink } from "apollo-upload-client";
 import { WebSocketLink } from "apollo-link-ws";
+import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getMainDefinition } from "apollo-utilities";
-import { RENEW_TOKEN_MUTATION } from "./queries";
-import {
-  getToken,
-  setToken,
-  shouldRenewToken,
-  onSessionError
-} from "../lib/session";
 import { flags } from "../config";
+import env from "../lib/env";
 
 const { SHOW_GRAPHQL_LOGS } = flags;
 
-const request = async (operation, client) => {
+const request = async (operation, client, { getToken }) => {
   const context = operation.getContext();
 
   let authHeader = "";
@@ -27,19 +21,7 @@ const request = async (operation, client) => {
     const basicAuth = btoa(`${context.email}:${context.password}`);
     authHeader = `Basic ${basicAuth}`;
   } else {
-    let token = getToken(context.tempSession);
-    if (
-      token &&
-      operation.operationName !== "Login" &&
-      operation.operationName !== "RenewToken" &&
-      shouldRenewToken(context.tempSession)
-    ) {
-      token = await renewToken(client, context.tempSession);
-      if (token) {
-        setToken(token, context.tempSession);
-      }
-    }
-
+    const token = context.token || getToken();
     authHeader = `Bearer ${token}`;
   }
 
@@ -50,27 +32,42 @@ const request = async (operation, client) => {
   });
 };
 
-const renewToken = async (client, tempSession) => {
-  try {
-    const { data, error } = await client.mutate({
-      mutation: RENEW_TOKEN_MUTATION,
-      context: { tempSession }
-    });
-    return data.renewToken;
-  } catch (e) {
-    if (SHOW_GRAPHQL_LOGS) {
-      console.log("Renew token error", e);
-    }
-    return "";
-  }
-};
+const isBrowser = typeof window !== "undefined";
 
 const httpLink = createUploadLink({
-  uri: "/api/graphql",
-  fetch
+  fetch,
+  uri: isBrowser ? env.API_URL : env.API_URL_SERVER || env.API_URL
 });
 
-export const createClient = isBrowser => {
+export const createClient = (initialState, { getToken, onSessionError }) => {
+  const createWsLink = () => {
+    const subscriptionClient = new SubscriptionClient(
+      `${env.API_URL!.replace("http", "ws")}`,
+      {
+        lazy: true,
+        reconnect: true,
+        connectionParams: async () => {
+          const token = getToken();
+          return {
+            authorization: token ? `Bearer ${token}` : ""
+          };
+        }
+      }
+    );
+
+    const subscriptionMiddleware = {
+      applyMiddleware(options, next) {
+        const token = getToken();
+        options.authorization = token ? `Bearer ${token}` : "";
+        next();
+      }
+    };
+
+    subscriptionClient.use([subscriptionMiddleware]);
+
+    return new WebSocketLink(subscriptionClient);
+  };
+
   const client = new ApolloClient({
     link: ApolloLink.from([
       onError(({ graphQLErrors, networkError, operation }) => {
@@ -89,21 +86,26 @@ export const createClient = isBrowser => {
 
           if (SHOW_GRAPHQL_LOGS) {
             graphQLErrors.map(({ message, locations, path }) =>
-              console.log(
+              console.error(
                 `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
               )
             );
           }
         }
-        if (networkError && SHOW_GRAPHQL_LOGS)
-          console.log(`[Network error]: ${JSON.stringify(networkError)}`);
+        if (networkError && SHOW_GRAPHQL_LOGS) {
+          console.error(`[Network error]: ${JSON.stringify(networkError)}`);
+        }
       }),
       new ApolloLink(
         (operation, forward) =>
           new Observable(observer => {
             let handle;
             Promise.resolve(operation)
-              .then(oper => request(oper, client))
+              .then(oper =>
+                request(oper, client, {
+                  getToken
+                })
+              )
               .then(() => {
                 handle = forward(operation).subscribe({
                   next: observer.next.bind(observer),
@@ -114,39 +116,27 @@ export const createClient = isBrowser => {
               .catch(observer.error.bind(observer));
 
             return () => {
-              if (handle) handle.unsubscribe();
+              if (handle) {
+                handle.unsubscribe();
+              }
             };
           })
       ),
       isBrowser
         ? split(
             ({ query }) => {
-              const { kind, operation } = getMainDefinition(query);
+              const definition = getMainDefinition(query);
               return (
-                kind === "OperationDefinition" && operation === "subscription"
+                definition.kind === "OperationDefinition" &&
+                definition.operation === "subscription"
               );
             },
-            new WebSocketLink({
-              uri: `${window.location.protocol === "https:" ? "wss" : "ws"}://${
-                window.location.host
-              }/api/graphql`,
-              options: {
-                lazy: true,
-                reconnect: true,
-                connectionParams: async () => {
-                  const token = getToken();
-
-                  return {
-                    authorization: token ? `Bearer ${token}` : ""
-                  };
-                }
-              }
-            }),
+            createWsLink(),
             httpLink
           )
         : httpLink
     ]),
-    cache: new InMemoryCache()
+    cache: new InMemoryCache().restore(initialState)
   });
 
   return client;

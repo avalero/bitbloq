@@ -1,30 +1,26 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import timestamps from "mongoose-timestamp";
+import { CONTENT_VERSION } from "../config";
+import { ICommonProps } from "./interfaces";
 
-export interface IDocument extends Document {
-  user?: string;
-  title?: string;
-  type?: string;
-  folder?: string;
-  content?: string;
+export interface IDocument extends ICommonProps, Document {
+  parentFolder?: string;
+  contentVersion?: number;
   advancedMode?: boolean;
-  cache?: string;
   image?: { image: string; isSnapshot: boolean };
   public: boolean;
   example: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
-  description?: string;
   version?: string;
+  exResourcesID?: string[];
 }
 
-const DocumentMongSchema: Schema = new Schema({
+const documentMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: "UserModel"
   },
 
-  title: {
+  name: {
     type: String,
     default: ""
   },
@@ -34,7 +30,7 @@ const DocumentMongSchema: Schema = new Schema({
     required: true
   },
 
-  folder: {
+  parentFolder: {
     type: Schema.Types.ObjectId,
     ref: "FolderModel"
   },
@@ -42,6 +38,11 @@ const DocumentMongSchema: Schema = new Schema({
   content: {
     type: String,
     default: "content"
+  },
+
+  contentVersion: {
+    type: Number,
+    default: CONTENT_VERSION
   },
 
   advancedMode: {
@@ -55,7 +56,7 @@ const DocumentMongSchema: Schema = new Schema({
   },
 
   image: {
-    image: { type: String, default: "imageURL" },
+    image: { type: String, default: "" },
     isSnapshot: {
       type: Boolean,
       default: true
@@ -80,11 +81,19 @@ const DocumentMongSchema: Schema = new Schema({
   example: {
     type: Boolean,
     default: false
+  },
+  resourcesID: {
+    type: [Schema.Types.ObjectId],
+    ref: "UploadModel"
+  },
+  exResourcesID: {
+    type: [Schema.Types.ObjectId],
+    ref: "UploadModel"
   }
 });
 
-DocumentMongSchema.plugin(timestamps);
+documentMongSchema.plugin(timestamps);
 export const DocumentModel: Model<IDocument> = model<IDocument>(
   "DocumentModel",
-  DocumentMongSchema
+  documentMongSchema
 );

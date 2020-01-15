@@ -3,10 +3,7 @@ import TetherComponent from "react-tether";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 
-interface ContainerProps {
-  position: string;
-}
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<{ position: string }>`
   background-color: #373b44;
   border-radius: 2px;
   pointer-events: none;
@@ -34,7 +31,7 @@ const Container = styled.div<ContainerProps>`
     top: 12px;
     left: 50%;
 
-    ${(props: ContainerProps) =>
+    ${props =>
       props.position === "right" &&
       css`
         transform: translate(0, -50%) rotate(45deg);
@@ -42,7 +39,7 @@ const Container = styled.div<ContainerProps>`
         left: 12px;
       `};
 
-    ${(props: ContainerProps) =>
+    ${props =>
       props.position === "left" &&
       css`
         transform: translate(0, -50%) rotate(45deg);
@@ -51,7 +48,7 @@ const Container = styled.div<ContainerProps>`
         left: auto;
       `};
 
-    ${(props: ContainerProps) =>
+    ${props =>
       props.position === "top" &&
       css`
         transform: translate(-50%, 0) rotate(45deg);
@@ -60,21 +57,21 @@ const Container = styled.div<ContainerProps>`
       `};
   }
 
-  ${(props: ContainerProps) =>
+  ${props =>
     props.position === "right" &&
     css`
       margin-top: 0px;
       margin-left: 16px;
     `};
 
-  ${(props: ContainerProps) =>
+  ${props =>
     props.position === "left" &&
     css`
       margin-top: 0px;
       margin-right: 16px;
     `};
 
-  ${(props: ContainerProps) =>
+  ${props =>
     props.position === "top" &&
     css`
       margin-top: 0px;
@@ -96,45 +93,41 @@ const targetPosition = {
   right: "middle right"
 };
 
-export interface TooltipChildrenProps {
+export interface ITooltipChildrenProps {
   ref?: React.RefObject<HTMLDivElement>;
   onMouseOver?: (ev: React.MouseEvent) => void;
   onMouseOut?: (ev: React.MouseEvent) => void;
 }
 
-export interface TooltipProps {
+export interface ITooltipProps {
   className?: string;
   content: React.ReactChild;
-  position: string;
-  children: (props: TooltipChildrenProps) => React.ReactChild;
+  position?: string;
+  children: (props: ITooltipChildrenProps) => React.ReactChild;
   isVisible?: boolean;
 }
 
-interface State {
+interface IState {
   isVisible: boolean;
 }
 
-class Tooltip extends React.Component<TooltipProps, State> {
-  state = {
+class Tooltip extends React.Component<ITooltipProps, IState> {
+  public state = {
     isVisible: this.props.isVisible !== undefined ? this.props.isVisible : false
   };
 
-  onMouseOver = () => {
-    if (this.props.isVisible === undefined) {
-      this.setState({ isVisible: true });
+  public componentDidUpdate(prevProps: ITooltipProps) {
+    if (
+      this.props.isVisible !== undefined &&
+      prevProps.isVisible !== this.props.isVisible
+    ) {
+      this.setState({ isVisible: this.props.isVisible });
     }
-  };
+  }
 
-  onMouseOut = () => {
-    if (this.props.isVisible === undefined) {
-      this.setState({ isVisible: false });
-    }
-  };
-
-  render() {
+  public render() {
     const { isVisible } = this.state;
     const { className, children, content, position = "bottom" } = this.props;
-    const { onMouseOver, onMouseOut } = this;
 
     if (!content) {
       return children({});
@@ -149,8 +142,8 @@ class Tooltip extends React.Component<TooltipProps, State> {
         renderTarget={ref =>
           children({
             ref: ref as React.RefObject<HTMLDivElement>,
-            onMouseOver,
-            onMouseOut
+            onMouseOver: this.onMouseOver,
+            onMouseOut: this.onMouseOut
           })
         }
         renderElement={ref =>
@@ -166,6 +159,18 @@ class Tooltip extends React.Component<TooltipProps, State> {
       />
     );
   }
+
+  private onMouseOver = () => {
+    if (this.props.isVisible === undefined) {
+      this.setState({ isVisible: true });
+    }
+  };
+
+  private onMouseOut = () => {
+    if (this.props.isVisible === undefined) {
+      this.setState({ isVisible: false });
+    }
+  };
 }
 
 export default Tooltip;

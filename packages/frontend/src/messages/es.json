@@ -50,6 +50,7 @@
   "menu-open-document": "Abrir documento",
   "menu-change-name": "Cambiar nombre",
   "menu-duplicate-document": "Crear una copia",
+  "menu-import-resource": "Importar recurso",
   "menu-import-stl": "Importar un archivo STL",
   "menu-export-stl": "Exportar la escena en formato STL",
   "menu-change-language": "Cambiar idioma",
@@ -92,6 +93,7 @@
   "submission-error-not-name": "Debes escribir un nombre de equipo",
   "tab-3d": "3D",
   "tab-project-info": "Información del documento",
+  "tab-submission-rate": "Calificación del ejercicio",
   "tooltip-select-multiple": "Selecciona varios objetos pulsando *“Control + clic”* en cada uno de ellos para utilizar esta herramienta",
   "tooltip-select-top": "Selecciona objetos de primer nivel para poder usar esta herramienta",
   "tooltip-select-one": "Selecciona un único objeto para utilizar esta herramienta",
@@ -100,10 +102,7 @@
   "tooltip-zoom-minus": "Zoom -",
   "tooltip-orthogonal-view": "Vista ortogonal",
   "tooltip-perspective-view": "Vista en perspectiva",
-  "tooltip-error-length": "Debe tener al menos %v%mm",
-  "tooltip-error-sides": "Debe tener al menos %v% lados",
-  "tooltip-error-number": "Debe ser al menos %v%",
-  "tooltip-error-peaks": "Debe tener al menos %v% puntas",
+  "tooltip-error-min-value": "Debe ser al menos %v% %v%",
   "undo": "Deshacer",
   "redo": "Rehacer",
   "navigation-top": "superior",
@@ -120,10 +119,10 @@
   "object-type-cylinder": "Cilindro",
   "object-type-semicylinder": "Semicilindro",
   "object-type-cone": "Cono",
-  "object-type-truncatedcone": "Cono Truncado",
-  "object-type-tube": "Cilindro Hueco",
+  "object-type-truncatedcone": "Cono truncado",
+  "object-type-tube": "Cilindro hueco",
   "object-type-torus": "Toroide",
-  "object-type-rectprism": "Prisma Rectangular",
+  "object-type-rectprism": "Prisma rectangular",
   "object-type-prism": "Prisma",
   "object-type-text-object": "Texto",
   "object-type-pyramid": "Pirámide",
@@ -249,16 +248,214 @@
   "G-tone": "SOL",
   "bloq-parameter-duration-sec": "Duración (seg.)",
   "bloq-on-message": "Al recibir el mensaje",
-  "playground-enter-button": "Entra con tu cuenta",
+  "document-enter-button": "Entra con tu cuenta",
   "general-enter-button": "Entrar",
   "general-create-button": "Crear",
   "general-change-button": "Cambiar",
   "general-cancel-button": "Cancelar",
   "general-accept-button": "Aceptar",
+  "general-add-button": "Añadir",
+  "general-error-email": "Este correo no es válido",
+  "account": {
+    "title": "Mi cuenta",
+    "user-data": {
+      "delete": {
+        "button": "Eliminar cuenta",
+        "confirmation": {
+          "button": "Volver al inicio",
+          "text": "Lástima, tu cuenta se ha eliminado correctamente. A partir de ahora ya no podrás entrar con los datos de esa cuenta y deberás crearte una nueva.",
+          "title": "Cuenta eliminada"
+        },
+        "modal": {
+          "content-member": "¿Seguro que quieres eliminar tu cuenta? Si lo haces perderás todos los documentos que tengas guardados",
+          "content-teacher": "¿Seguro que quieres eliminar tu cuenta? Si lo haces perderás todos los documentos y ejercicios que tengas guardados",
+          "content-highlighted": "y ya no podrás volver a entrar con esta cuenta",
+          "title": "Eliminar mi cuenta"
+        },
+        "modal-confirmation": {
+          "label": "Contraseña",
+          "placeholder": "Contraseña",
+          "save": "Confirmar",
+          "text": "Escribe tu contraseña para confirmar la eliminación de tu cuenta de usuario.",
+          "title": "Confirmar eliminación"
+        },
+        "title": "Eliminar mi cuenta"
+      },
+      "email": {
+        "title": "Mi correo electrónico",
+        "sent-title": "Email enviado",
+        "sent-text": "Revisa la bandeja de tu correo electrónico, si no se encuentra ahí, es posible que esté en la carpeta de Spam.",
+        "sent-button": "Volver a enviar email",
+        "new": "Nuevo correo electrónico",
+        "email-exists": "Este correo ya está en uso",
+        "change-text": "Escribe tu nuevo correo electrónico y te enviaremos un email con un enlace para que puedas cambiarlo.",
+        "button": "Cambiar correo electrónico"
+      },
+      "password": {
+        "wrong-error": "La contraseña no es correcta",
+        "title": "Mi contraseña",
+        "repeat-placeholder": "Repetir nueva contraseña",
+        "repeat-error": "Las contraseñas deben ser iguales",
+        "password-changed-title": "Contraseña cambiada",
+        "password-changed": "Tu contraseña se ha cambiado con éxito, a partir de ahora ya no podrás entrar con la anterior contraseña.",
+        "new-placeholder": "Nueva contraseña",
+        "empty-error": "El campo de contraseña se debe rellenar",
+        "current-placeholder": "Contraseña actual",
+        "change-text": "Escribe tu contraseña actual y la nueva contraseña que quieres utilizar.",
+        "button": "Cambiar contraseña"
+      },
+      "plan": {
+        "title": "Mi plan",
+        "label": "Mejora tu plan a:",
+        "changed-title": "Plan mejorado",
+        "changed": "Has mejorado tu plan con éxito, a partir de ahora pasas a tener el plan de Docente",
+        "button": "Mejorar mi plan"
+      },
+      "personal-data": {
+        "title": "Datos personales",
+        "button": "Editar datos personales",
+        "button-avatar": "Cambiar imagen",
+        "button-cancel": "Cancelar",
+        "button-save": "Guardar",
+        "warning-ext": "El formato de la imagen no es válido",
+        "warning-size": "El tamaño de la imagen es demasiado grande",
+        "warning-ok": "Aceptar",
+        "warning-title": "Aviso",
+        "errors": {
+          "birth-date-required": "Debes introducir una fecha válida",
+          "birth-date-validAge": "Debes ser mayor de %v% años",
+          "birth-date-validDate": "Debes introducir una fecha válida",
+          "name": "Debes introducir un nombre",
+          "surnames": "Debes introducir unos apellidos"
+        },
+        "labels": {
+          "birth-date": "Fecha de nacimiento",
+          "name": "Nombre",
+          "surnames": "Apellidos"
+        },
+        "placeholders": {
+          "birth-date-day": "DD",
+          "birth-date-month": "MM",
+          "birth-date-year": "AAAA",
+          "name": "Nombre",
+          "surnames": "Apellidos"
+        }
+      },
+      "title": "Datos de usuario"
+    },
+    "purchases": {
+      "title": "Elementos comprados"
+    }
+  },
+  "change-email-page": {
+    "confirm": "Confirmar",
+    "error": {
+      "button": "Volver",
+      "text": "Este token ha dejado de funcionar, vuelve a enviar el email",
+      "title": "El token no es válido"
+    },
+    "password-empty": "La contraseña no puede estar vacía",
+    "password-error": "La contraseña no es correcta",
+    "placeholder": "Contraseña",
+    "text": "Escribe tu contraseña para confirmar el cambio de correo electrónico de tu cuenta.",
+    "title": "Confirmar cambio"
+  },
+  "cloud": {
+    "buttons": {
+      "import": "Importar nuevo recurso",
+      "see-more": "Ver más recursos en mi Bitbloq Cloud"
+    },
+    "details": {
+      "date": "Fecha de importación",
+      "ext": "Formato del recurso",
+      "no-preview": "El formato de este recurso no se puede visualizar",
+      "preview": "Previsualización",
+      "return": "Volver",
+      "size": "Tamaño del recurso",
+      "title": "Nombre del recurso"
+    },
+    "options": {
+      "details": "Ver detalles del recurso",
+      "recover": "Restaurar",
+      "trash": "Enviar a la papelera"
+    },
+    "resources": {
+      "deleted": "Papelera",
+      "images": "Imágenes",
+      "objects": "Objetos 3D",
+      "sounds": "Sonidos",
+      "videos": "Vídeos"
+    },
+    "text": {
+      "empty": "No tienes ningún recurso en esta categoría",
+      "empty-imported-text": "Aún no has importado un recurso compatible con este documento",
+      "empty-imported-title": "No tienes recursos importados",
+      "no-result": "No hay resultados para tu búsqueda",
+      "trash": "Aún no has enviado ningún recurso a la papelera"
+    },
+    "upload": {
+      "add": "Añadir un recurso ya importado",
+      "drag": "Arrastra un archivo aquí",
+      "import": "Importar un nuevo recurso",
+      "name": "Nombre del recurso",
+      "select": "O selecciona un archivo",
+      "title": "Añadir recurso importado",
+      "warning-ext": "Este recurso no es compatible con este documento.",
+      "warning-size": "El recurso pesa más de %v%MB, intenta reducir su tamaño e impórtalo de nuevo.",
+      "warning-title": "Aviso"
+    }
+  },
+  "document-info": {
+    "buttons": {
+      "add-new-resource": "Añadir un recurso al ejercicio",
+      "add-more-resources": "Añadir más recursos al ejercicio",
+      "image": "Seleccionar una imagen"
+    },
+    "errors": {
+      "image-ext": "El formato de la imagen no es válido",
+      "image-size": "El tamaño de la imagen es demasiado grande"
+    },
+    "labels": {
+      "description": "Descripción del documento",
+      "image": "Imagen del documento",
+      "resources": "Recursos del ejercicio",
+      "title": "Título del documento"
+    },
+    "placeholders": {
+      "description": "Descripción del documento",
+      "resources": "El documento no usa recursos importados",
+      "title": "Título del documento"
+    },
+    "sublabels": {
+      "image": "Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo %v%MB.",
+      "resources": "Estos son los recursos importados que necesita el alumno para visualizar y realizar el ejercicio."
+    },
+    "title": "Información del documento"
+  },
+  "exercises": {
+    "rate": {
+      "observations": {
+        "placeholder": "Observaciones del ejercicio",
+        "title": "Observaciones"
+      },
+      "rate": {
+        "error": "La nota solo puede tener un decimal y estar entre 0 y 10",
+        "title": "Nota"
+      },
+      "title": "Calificación del ejercicio"
+    },
+    "resources": {
+      "title": "Recursos del ejercicio"
+    }
+  },
+  "filter": {
+    "text": {
+      "placeholder": "Buscar..."
+    }
+  },
   "junior": {
     "hardware": "Hardware",
-    "software": "Software",
-    "component-not-found": "Componente no encontrado"
+    "software": "Software"
   },
   "hardware": {
     "component": {
@@ -270,5 +467,220 @@
       "multisensor": "Multisensor",
       "seven-segment": "Display 7 segmentos"
     }
+  },
+  "units": {
+    "mm": "mm",
+    "peaks": "puntas",
+    "sides": "caras"
+  },
+  "user": {
+    "cloud": {
+      "access": "Ver mi Bitbloq Cloud"
+    },
+    "session": {
+      "account": "Mi cuenta",
+      "logout": "Salir"
+    }
+  },
+  "documents": {
+    "go-to-exercise": "Ir al ejercicio"
+  },
+  "legal": {
+    "cookies-policy": "Política de cookies",
+    "general-conditions": "Condiciones generales",
+    "privacy-policy": "Política de privacidad"
+  },
+  "login": {
+    "divider": "o",
+    "error": "Correo electrónico o contraseña no válidos",
+    "forgot-password": "No recuerdo mi contraseña",
+    "labels": {
+      "email": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "placeholders": {
+      "email": "Correo electrónico",
+      "password": "Contraseña"
+    },
+    "ok": "Entrar",
+    "signup": "Crear una cuenta",
+    "title": "Entrar",
+    "with": "Con mi perfil de:"
+  },
+  "plans": {
+    "bitbloq-cloud-info": "Con Bitbloq Cloud tendrás espacio en la nube para almacenar fotografías, videos, STLs, etc. y poder importarlos en tus documentos.",
+    "choose-plan": "Elige el plan que más se ajuste a tus necesidades",
+    "try-without-registration": "Empieza a trabajar sin registros",
+    "try-it": "O pruébalo gratis",
+    "during-beta": "Durante la beta",
+    "features": {
+      "create-documents": "Crear documentos",
+      "download-documents": "Descargar documentos en tu dispositivo",
+      "open-documents": "Abrir documentos descargados",
+      "create-documents-with-bq-kits": "Crear documentos con kits y robots de BQ",
+      "exercise-access": "Acceder a ejercicios",
+      "bitbloq-cloud": "Bitbloq Cloud",
+      "save-online-documents": "Guardar documentos online en Bitbloq",
+      "save-unlimited-documents": "Guardar documentos online",
+      "exercise-compilation": "Complilación en línea para tus alumnos",
+      "online-compilation": "Complilación en línea",
+      "create-exercises": "Crear ejercicios",
+      "correct-exercises": "Corregir ejercicios",
+      "unregistered-student-access": "Dar acceso a tus alumnos sin que se registren"
+    },
+    "free": "Gratis",
+    "includes-bitbloq-cloud": "Incluye Bitbloq Cloud",
+    "link": "Planes",
+    "member": "Miembro",
+    "member-description": "Con este plan gratuito simplemente puedes guardar tus documentos en la nube.",
+    "member-signup": "¡Quiero empezar con Bitbloq!",
+    "member-subtitle": "Todo lo que necesitas para empezar gratis",
+    "monthly-price": "%v%€ / mes",
+    "teacher": "Docente",
+    "teacher-description": "Este plan te permite crear ejercicios y corregirlos, acceso para tus alumnos a los ejercicios sin necesidad de tener que registrarse y la herramienta de Bitbloq Cloud.",
+    "teacher-signup": "¡Quiero enseñar con Bitbloq!",
+    "teacher-subtitle": "Con el plan docente podrás además …",
+    "unregistered": "Sin registro"
+  },
+  "save-copy-modal": {
+    "buttons": {
+      "add": {
+        "copy": "Añadir copia",
+        "to-account": "Añadir a tu cuenta",
+        "to-another-account": "Añadir a otra cuenta"
+      },
+      "cancel": "Cancelar",
+      "ok": "Aceptar"
+    },
+    "content": {},
+    "text": {
+      "add-copy": "Escribe el correo electrónico y la contraseña de tu cuenta para añadir la copia",
+      "copy-added": {
+        "example": "Se ha añadido una copia de este ejemplo a tus documentos.",
+        "exercise": "Se ha añadido una copia de este ejercicio a tus documentos."
+      },
+      "email": "Correo electrónico",
+      "error": "El Correo electrónico o la contraseña no son correctos",
+      "password": "Contraseña",
+      "select-account": "¿Añadir una copia a tu cuenta o a otra?"
+    },
+    "title": {
+      "add-copy": {
+        "example": "Añadir una copia del ejemplo a mis documentos",
+        "exercise": "Añadir una copia del ejercicio a mis documentos"
+      },
+      "copy-added": "Copia añadida correctamente",
+      "select-account": "Añadir copia a mis documentos"
+    }
+  },
+  "signup": {
+    "activate-modal": {
+      "title": "Cuenta validada",
+      "content": "Tu cuenta ha sido validada con éxito. ¡Ahora puedes acceder y disfrutar de todas las ventajas de formar parte de Bitbloq!",
+      "ok": "¡Entrar a Bitbloq!"
+    },
+    "create-modal": {
+      "title": "Cuenta creada",
+      "content": "Tu cuenta ha sido creada con éxito. Hemos enviado un email a tu dirección de correo electrónico para validar la cuenta. Si no ves el mensaje revisa tu carpeta de spam.",
+      "ok": "Volver a enviar email",
+      "cancel": "Volver al inicio"
+    },
+    "leave-modal": {
+      "title": "Abandonar proceso",
+      "content": "¿Seguro que quieres abandonar el proceso? Si lo haces, tu cuenta de Bitbloq",
+      "content-highlighted": "no se creará",
+      "ok": "Volver al proceso",
+      "cancel": "Salir"
+    },
+    "birth-date": {
+      "cancel": "Cancelar",
+      "ok": "Guardar",
+      "subtitle": "Para finalizar solo necesitamos saber tu fecha de nacimiento.",
+      "title": "Fecha de nacimiento"
+    },
+    "login": {
+      "account-text": "¿Ya tienes cuenta con esta versión de Bitbloq?",
+      "account-link": "Entra usando tus credenciales",
+      "with-sub-text-1": "Registrándote con una cuenta, estás aceptando las",
+      "with-sub-text-2": "y la",
+      "with-text": "Crear la cuenta con mi perfil de:"
+    },
+    "not-activate-modal": {
+      "cancel": "Volver al inicio",
+      "ok": "Volver a enviar email",
+      "text": "Para poder entrar debes validar tu correo electrónico a través de un email que te hemos enviado. Si no ves el email revisa tu carpeta de spam.",
+      "title": "Cuenta sin validar"
+    },
+    "step": "Paso %v% de 2",
+    "user-data": {
+      "cancel": "Cancelar",
+      "educational-stages": {
+        "preschool": "Infantil",
+        "primary": "Primaria",
+        "high-school": "Secundaria",
+        "bachelor": "Bachiller",
+        "college": "Universidad"
+      },
+      "errors": {
+        "accept-terms": "Debes leer y aceptar las condiciones generales y la política de privacidad",
+        "birth-date-required": "Debes introducir una fecha válida",
+        "birth-date-validAge": "Debes ser mayor de 14 años para crear una cuenta en Bitbloq",
+        "birth-date-validDate": "Debes introducir una fecha válida",
+        "center-name": "El nombre que has introducido no es válido",
+        "city": "Debes introducir una ciudad",
+        "email-existing": "Ya hay un usuario registrado con este correo electrónico",
+        "email-validate": "Debes introducir una dirección de correo electrónico válida",
+        "name": "El nombre que has introducido no es válido",
+        "password": "Debes introducir una contraseña",
+        "post-code": "Debes introducir un código postal",
+        "surnames": "Los apellidos que has introducido no son válidos"
+      },
+      "labels": {
+        "accept-terms-1": "He leído y acepto las",
+        "accept-terms-2": "y la",
+        "birth-date": "Fecha de nacimiento",
+        "center-name": "Nombre del centro",
+        "city": "Ciudad",
+        "country": "País",
+        "educational-stage": "Etapa",
+        "email": "Correo electrónico",
+        "im-teacher": "Soy profesor",
+        "name": "Nombre",
+        "no-notifications": "No quiero recibir noticias y novedades en mi correo electrónico.",
+        "password": "Contraseña",
+        "post-code": "Código postal",
+        "surnames": "Apellidos"
+      },
+      "ok": "Guardar",
+      "placeholders": {
+        "birth-date-day": "DD",
+        "birth-date-month": "MM",
+        "birth-date-year": "AAAA",
+        "center-name": "Nombre del centro",
+        "city": "Ciudad",
+        "email": "Correo electrónico",
+        "name": "Nombre",
+        "password": "Contraseña",
+        "post-code": "00000",
+        "surnames": "Apellidos"
+      },
+      "title": "Datos de usuario"
+    },
+    "plan": {
+      "advantages": "Estas son las ventajas que disfrutarás siendo %v% en Bitbloq:",
+      "cancel": "Anterior",
+      "free": "Gratis",
+      "free-beta": "Gratis durante la beta",
+      "monthly-price": "%v%€ al mes",
+      "ok": "¡Unirme a Bitbloq ya!",
+      "sub-title": "Elige el tipo de cuenta que deseas crear:",
+      "title": "Configuración de la cuenta"
+    },
+    "title": "Crear una cuenta"
+  },
+  "page-error-text": {
+    "403": "Lo sentimos, no tienes permisos para poder ver este contenido.",
+    "404": "¡Vaya! La página web a la que intentas acceder no existe.",
+    "500": "¡Uy! Ha ocurrido un error inesperado, vuelve a intentarlo más tarde."
   }
 }

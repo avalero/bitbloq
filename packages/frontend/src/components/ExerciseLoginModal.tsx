@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState, useEffect, useLayoutEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { Button, Modal, Input, DialogModal, useTranslate } from "@bitbloq/ui";
 import { useMutation } from "@apollo/react-hooks";
@@ -14,15 +14,16 @@ enum Steps {
   Continue
 }
 
-interface ExerciseLoginModalProps {
+interface IExerciseLoginModalProps {
   code: string;
   onSuccess: (teamName: string) => any;
 }
 
-const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
+const ExerciseLoginModal: FC<IExerciseLoginModalProps> = ({
   code,
   onSuccess
 }) => {
+  const submitRef = useRef<HTMLButtonElement>(null);
   const [step, setStep] = useState(Steps.StartOrContinue);
   const [teamName, setTeamName] = useState("");
   const [password, setPassword] = useState("");
@@ -39,10 +40,21 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
     setPasswordError("");
   }, [step]);
 
-  const gotoStep = (step: Steps) => {
+  useLayoutEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13 && submitRef.current) {
+        e.preventDefault();
+        submitRef.current.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, []);
+
+  const gotoStep = (nextStep: Steps) => {
     setTeamName("");
     setPassword("");
-    setStep(step);
+    setStep(nextStep);
   };
 
   const onStartClick = async () => {
@@ -50,7 +62,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
       setTeamNameError(t("submission-error-not-name"));
     } else {
       try {
-        const { data } = await start({
+        const result = await start({
           variables: {
             studentNick: teamName,
             exerciseCode: code,
@@ -67,11 +79,16 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
             setTeamNameError(e.message);
           }
         });
-        const { token } = data.startSubmission;
-        setToken(token, "exercise-team");
-        onSuccess(teamName);
-      } catch (e) {}
+        if (result && result.data) {
+          const { token } = result.data.startSubmission;
+          setToken(token, "exercise-team");
+          onSuccess(teamName);
+        }
+      } catch (e) {
+        return undefined;
+      }
     }
+    return;
   };
 
   const onContinueClick = async () => {
@@ -148,7 +165,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
               <label>Nombre del equipo</label>
               <Input
                 value={teamName}
-                error={teamNameError}
+                error={!!teamNameError}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setTeamName(e.target.value)
                 }
@@ -159,7 +176,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
               <label>Contraseña {step === Steps.Start && "(opcional)"}</label>
               <Input
                 value={password}
-                error={passwordError}
+                error={!!passwordError}
                 type="password"
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setPassword(e.target.value)
@@ -179,6 +196,7 @@ const ExerciseLoginModal: FC<ExerciseLoginModalProps> = ({
               onClick={() =>
                 step === Steps.Start ? onStartClick() : onContinueClick()
               }
+              ref={submitRef}
             >
               Empezar
             </Button>

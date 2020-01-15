@@ -1,7 +1,7 @@
 # import Date, ObjectID, Role from "./scalars.graphql"
 # import Exercise from "./exercise.graphql"
 # import Folder from "./folder.graphql"
-# import File from "./upload.graphql"
+# import File, Resource from "./upload.graphql"
 # import Upload from "./scalars.graphql"
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
@@ -15,23 +15,27 @@ type Query {
     itemsPerPage: Number
     order: String
     searchTitle: String
-  ): DocsAndFolders
+  ): DocsAndFolders @authRequired(requires: [USER])
+  hasExercises(id: ObjectID!, type: String): Boolean
+    @authRequired(requires: [USER])
   openPublicDocument(id: ObjectID!): Document # @authRequired(requires: [BASIC])
   examples: [Document]
 }
 type Mutation {
   createDocument(input: DocumentIn!): Document @authRequired(requires: [USER])
   deleteDocument(id: ObjectID!): Document @authRequired(requires: [USER])
+  duplicateDocument(
+    currentLocation: ObjectID
+    documentID: ObjectID!
+    itemsPerPage: Number
+    order: String
+    searchTitle: String
+    name: String!
+  ): DuplicateDocument @authRequired(requires: [USER])
   updateDocument(id: ObjectID!, input: DocumentIn): Document
     @authRequired(requires: [USER])
   setDocumentImage(id: ObjectID, image: Upload, isSnapshot: Boolean): Document
     @authRequired(requires: [USER])
-  updateDocumentContent(
-    id: ObjectID
-    content: String
-    cache: String
-    advancedMode: Boolean
-  ): Document @authRequired(requires: [USER])
   publishDocument(id: ObjectID!, public: Boolean, example: Boolean): Document
     @authRequired(requires: [PUBLISHER])
 }
@@ -53,26 +57,26 @@ type DocsAndFolders {
 
 type Result {
   id: ObjectID
-  title: String
+  name: String
   image: String
   type: String
   createdAt: Date
   updatedAt: Date
-  parent: ObjectID
-  hasChildren: Boolean
+  parentFolder: ObjectID
 }
 
 type Document {
   id: ObjectID
   user: ObjectID
-  title: String!
+  name: String!
   type: String
-  folder: ObjectID
+  parentFolder: ObjectID
   content: String
   advancedMode: Boolean
   cache: String
   description: String
   version: String
+  contentVersion: Number
   image: DocImage
   public: Boolean
   example: Boolean
@@ -81,6 +85,13 @@ type Document {
   exercises: [Exercise]
   images: [File]
   parentsPath: [Folder]
+  resources: [Resource]
+  exercisesResources: [Resource]
+}
+
+type DuplicateDocument {
+  document: Document
+  page: Number
 }
 
 input DocImageIn {
@@ -90,13 +101,14 @@ input DocImageIn {
 
 input DocumentIn {
   user: ObjectID
-  title: String
+  name: String
   type: String
-  folder: ObjectID
+  parentFolder: ObjectID
   content: String
   advancedMode: Boolean
   cache: String
   description: String
   version: String
+  contentVersion: Number
   image: DocImageIn
 }

@@ -1,36 +1,38 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { Button, colors } from "@bitbloq/ui";
+import { IExercise } from "@bitbloq/api";
+import { Button, colors, useTranslate } from "@bitbloq/ui";
 
 enum TabType {
   Description,
   Score
 }
 
-interface Exercise {
-  title: string;
-  description: string;
-  image: string;
-}
-
-interface ExerciseInfoProps {
-  exercise: Exercise;
+interface IExerciseInfoProps {
+  grade?: number;
+  exercise: IExercise;
+  isTeacher?: boolean;
   onGotoExercise: () => any;
+  teacherComment?: string;
 }
 
-const ExerciseInfo: React.FunctionComponent<ExerciseInfoProps> = ({
-  exercise: { title, description, image },
-  onGotoExercise
+const ExerciseInfo: React.FunctionComponent<IExerciseInfoProps> = ({
+  grade,
+  exercise: { name, description, image },
+  isTeacher = false,
+  onGotoExercise,
+  teacherComment
 }) => {
   const [currentTab, setCurrentTab] = useState(TabType.Description);
+  const t = useTranslate();
 
   return (
     <Container>
       <Left>
         <LeftContent>
-          <h2>{title}</h2>
-          <Image src={image} />
+          <h2>{name}</h2>
+          <Image src={image || ""} />
         </LeftContent>
       </Left>
       <Right>
@@ -55,11 +57,17 @@ const ExerciseInfo: React.FunctionComponent<ExerciseInfoProps> = ({
         )}
         {currentTab === TabType.Score && (
           <TabContent>
+            <h2>{t("exercises.rate.rate.title")}</h2>
+            <RateSquare>{grade}</RateSquare>
+            <h2>{t("exercises.rate.observations.title")}</h2>
+            <p>{teacherComment}</p>
           </TabContent>
         )}
-        <GotoExercise>
-          <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
-        </GotoExercise>
+        {!isTeacher && (
+          <GotoExercise>
+            <Button onClick={onGotoExercise}>Ir al ejercicio</Button>
+          </GotoExercise>
+        )}
       </Right>
     </Container>
   );
@@ -94,10 +102,7 @@ const LeftContent = styled.div`
   }
 `;
 
-interface ImageProps {
-  src: string;
-}
-const Image = styled.div<ImageProps>`
+const Image = styled.div<{ src: string }>`
   background-color: ${colors.gray2};
   background-image: url(${props => props.src});
   background-size: cover;
@@ -114,6 +119,19 @@ const Image = styled.div<ImageProps>`
   }
 `;
 
+const RateSquare = styled.div`
+  align-items: center;
+  border: solid 1px #cccccc;
+  border-radius: 4px;
+  display: flex;
+  font-size: 20px;
+  font-weight: bold;
+  height: 60px;
+  justify-content: center;
+  line-height: 1.1;
+  margin-bottom: 30px;
+`;
+
 const Right = styled.div`
   width: 400px;
   border-left: 1px solid ${colors.gray3};
@@ -125,10 +143,7 @@ const Tabs = styled.div`
   display: flex;
 `;
 
-interface TabProps {
-  selected?: boolean;
-}
-const Tab = styled.div<TabProps>`
+const Tab = styled.div<{ selected?: boolean }>`
   height: 60px;
   border-right: 1px solid ${colors.gray3};
   border-bottom: 1px solid ${colors.gray3};
@@ -154,11 +169,20 @@ const Tab = styled.div<TabProps>`
 `;
 
 const TabContent = styled.div`
-  padding: 30px;
   flex: 1;
+  padding: 30px;
+  overflow: scroll;
 
   p {
-    line-height: 22px;
+    font-size: 14px;
+    line-height: 1.57;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+
+  h2 {
+    color: #474749;
+    margin-bottom: 10px;
   }
 `;
 

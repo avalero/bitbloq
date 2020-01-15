@@ -2,10 +2,33 @@ import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 
-interface ContainerProps {
+export interface ISwitchProps {
+  className?: string;
+  value: boolean;
+  onChange: (newValue: boolean) => void;
   leftRight?: boolean;
 }
-const Container = styled.div<ContainerProps>`
+
+export const Switch: React.SFC<ISwitchProps> = ({
+  className,
+  value,
+  onChange,
+  leftRight
+}) => (
+  <Container
+    className={className}
+    onClick={() => onChange(!value)}
+    leftRight={leftRight}
+  >
+    <Toggle active={value} leftRight={leftRight} />
+  </Container>
+);
+
+export default Switch;
+
+/* styled components */
+
+const Container = styled.div<{ leftRight?: boolean }>`
   align-items: center;
   display: flex;
   position: relative;
@@ -16,11 +39,7 @@ const Container = styled.div<ContainerProps>`
   cursor: pointer;
 `;
 
-interface ToggleProps {
-  active: boolean;
-  leftRight?: boolean;
-}
-const Toggle = styled.div<ToggleProps>`
+const Toggle = styled.div<{ active: boolean; leftRight?: boolean }>`
   width: 22px;
   height: 22px;
   border-radius: 11px;
@@ -41,27 +60,3 @@ const Toggle = styled.div<ToggleProps>`
       transform: translate(24px);
     `};
 `;
-
-export interface SwitchProps {
-  className?: string;
-  value: boolean;
-  onChange: (newValue: boolean) => void;
-  leftRight?: boolean;
-}
-
-export const Switch: React.SFC<SwitchProps> = ({
-  className,
-  value,
-  onChange,
-  leftRight
-}) => (
-  <Container
-    className={className}
-    onClick={() => onChange(!value)}
-    leftRight={leftRight}
-  >
-    <Toggle active={value} leftRight={leftRight} />
-  </Container>
-);
-
-export default Switch;

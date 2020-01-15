@@ -121,11 +121,7 @@ export default class NumberInput extends React.Component {
     });
 
     if (onChange) {
-      const newValue = Math.min(
-        Math.max(Number(value) || 0, minValue),
-        maxValue
-      );
-      onChange(newValue, value);
+      onChange(Number(value), value);
     }
   };
 
@@ -218,10 +214,10 @@ export default class NumberInput extends React.Component {
 
   render() {
     const { focused, text } = this.state;
-    const { value, unit, tooltipProps } = this.props;
+    const { value, unit } = this.props;
 
     return (
-      <Container {...tooltipProps} focused={focused}>
+      <Container focused={focused}>
         <DecrementButton onMouseDown={this.onDecrementClick}>
           <Icon name="triangle" />
         </DecrementButton>

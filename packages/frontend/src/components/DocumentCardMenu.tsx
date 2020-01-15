@@ -1,51 +1,53 @@
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { Icon, colors } from "@bitbloq/ui";
 
-export interface Option {
+export interface IOption {
   disabled?: boolean;
   iconName?: string;
   label: string;
-  onClick(event: React.MouseEvent<HTMLDivElement, MouseEvent>): void;
+  onClick: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
   red?: boolean;
   selected?: boolean;
 }
 
-export interface DocumentCardMenuProps {
+export interface IDocumentCardMenuProps {
   className?: string;
-  options?: Option[];
+  options: Array<IOption | undefined>;
 }
 
-const DocumentCardMenu: FC<DocumentCardMenuProps> = ({
+const DocumentCardMenu: FC<IDocumentCardMenuProps> = ({
   className,
-  options
+  options = []
 }) => {
   return (
     <DocumentMenu className={className}>
-      {options &&
-        options.map((option: Option, index: number) => (
-          <DocumentMenuOption
-            key={index}
-            onClick={e =>
-              option.disabled ? e.stopPropagation() : option.onClick(e)
-            }
-            disabled={option.disabled}
-            red={option.red}
-            selected={option.selected}
-          >
-            <p>
-              {option.iconName && <MenuIcon name={option.iconName} />}
-              {option.label}
-            </p>
-          </DocumentMenuOption>
-        ))}
+      {options.map(
+        (option: IOption, index: number) =>
+          option && (
+            <DocumentMenuOption
+              key={index}
+              onClick={e =>
+                option.disabled ? e.stopPropagation() : option.onClick(e)
+              }
+              disabled={option.disabled}
+              red={option.red}
+              selected={option.selected}
+            >
+              <p>
+                {option.iconName && <MenuIcon name={option.iconName} />}
+                {option.label}
+              </p>
+            </DocumentMenuOption>
+          )
+      )}
     </DocumentMenu>
   );
 };
 
 export default DocumentCardMenu;
 
-/**styled components */
+/* styled components */
 
 const DocumentMenu = styled.div`
   display: flex;
@@ -63,12 +65,12 @@ const DocumentMenu = styled.div`
   }
 `;
 
-interface DocumentMenuOptionProps {
+interface IDocumentMenuOptionProps {
   disabled?: boolean;
   red?: boolean;
   selected?: boolean;
 }
-const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
+const DocumentMenuOption = styled.div<IDocumentMenuOptionProps>`
   width: 179px;
   height: 35px;
   display: flex;
@@ -76,15 +78,13 @@ const DocumentMenuOption = styled.div<DocumentMenuOptionProps>`
   border-bottom: 1px solid #ebebeb;
   cursor: pointer;
   width: 100%;
-  background-color: ${(props: DocumentMenuOptionProps) =>
-    props.selected ? "#ebebeb" : "white"};
+  background-color: ${props => (props.selected ? "#ebebeb" : "white")};
 
-  opacity: ${(props: DocumentMenuOptionProps) => (props.disabled ? 0.5 : 1)};
+  opacity: ${props => (props.disabled ? 0.5 : 1)};
 
   p {
     margin-left: 13px;
-    color: ${(props: DocumentMenuOptionProps) =>
-      props.red ? colors.red : "#3b3e45"};
+    color: ${props => (props.red ? colors.red : "#3b3e45")};
     font-size: 14px;
     display: flex;
     align-items: center;

@@ -112,6 +112,7 @@ export default class Renderer {
       this.threeScene.add(newObjectsGroup);
       this.objectsGroup = newObjectsGroup;
     } catch (e) {
+      // tslint:disable-next-line:no-console
       console.log(e);
     }
   }
@@ -122,13 +123,15 @@ export default class Renderer {
   }
 
   public async setActiveHelper(
-    activeOperation: IHelperDescription
+    activeOperation: IHelperDescription | null
   ): Promise<void> {
     while (this.helpersGroup.children.length > 0) {
       this.helpersGroup.remove(this.helpersGroup.children[0]);
     }
-    const helpers = await this.scene.setActiveHelperAsync(activeOperation);
-    helpers.forEach(helper => this.helpersGroup.add(helper));
+    if (activeOperation) {
+      const helpers = await this.scene.setActiveHelperAsync(activeOperation);
+      helpers.forEach(helper => this.helpersGroup.add(helper));
+    }
   }
 
   public updateCameraAngle(theta: number, phi: number) {
@@ -195,8 +198,18 @@ export default class Renderer {
     this.objectClickHandlers.push(handler);
   }
 
+  public offObjectClick(handler: ObjectClickHandler): void {
+    const index = this.objectClickHandlers.indexOf(handler);
+    this.objectClickHandlers.splice(index, 1);
+  }
+
   public onBackgroundClick(handler: BackgroundClickHandler): void {
     this.backgroundClickHandlers.push(handler);
+  }
+
+  public offBackgroundClick(handler: BackgroundClickHandler): void {
+    const index = this.backgroundClickHandlers.indexOf(handler);
+    this.backgroundClickHandlers.splice(index, 1);
   }
 
   public getCanvasImage(): string {

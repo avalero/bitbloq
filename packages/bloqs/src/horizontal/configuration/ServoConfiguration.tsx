@@ -1,11 +1,15 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
+import { css } from "@emotion/core";
 import update from "immutability-helper";
 import { JuniorSwitch } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
-import WheelImage from "./images/Wheel";
+import ClockwiseImage from "./images/ServoClockwise";
+import CounterClockwiseImage from "./images/ServoCounterClockwise";
+import StopImage from "./images/ServoStop";
 
 import ClockwiseIcon from "./icons/servo-clockwise.svg";
 import CounterclockwiseIcon from "./icons/servo-counterclockwise.svg";
@@ -34,9 +38,11 @@ const TurnOnConfiguration: FC<ITurnOnConfigurationProps> = ({
   const speed = bloq.parameters.speed as string;
 
   return (
-    <div>
+    <Container>
       <ImageWrap>
-        <WheelImage />
+        {rotation === "clockwise" && <ClockwiseImage />}
+        {rotation === "counterclockwise" && <CounterClockwiseImage />}
+        {rotation === "stop" && <StopImage />}
       </ImageWrap>
       <SwitchWrap>
         <JuniorSwitch
@@ -57,12 +63,12 @@ const TurnOnConfiguration: FC<ITurnOnConfigurationProps> = ({
             )
           }
         />
-        {rotation !== "stop" && (
+        <SpeedSwitch disabled={rotation === "stop"}>
           <JuniorSwitch
             buttons={[
-              { content: <ButtonIcon src={SlowIcon} />, id: "slow" },
+              { content: <ButtonIcon src={FastIcon} />, id: "fast" },
               { content: <ButtonIcon src={MediumIcon} />, id: "medium" },
-              { content: <ButtonIcon src={FastIcon} />, id: "fast" }
+              { content: <ButtonIcon src={SlowIcon} />, id: "slow" }
             ]}
             value={speed}
             onChange={(newValue: string) =>
@@ -73,20 +79,25 @@ const TurnOnConfiguration: FC<ITurnOnConfigurationProps> = ({
               )
             }
           />
-        )}
+        </SpeedSwitch>
       </SwitchWrap>
-    </div>
+    </Container>
   );
 };
 
 export default TurnOnConfiguration;
 
-const ImageWrap = styled.div`
-  margin-bottom: 20px;
-  svg {
-    width: 484px;
-    height: 200px;
-  }
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 50px;
+  display: flex;
+  align-items: center;
 `;
 
 const SwitchWrap = styled.div`
@@ -95,5 +106,25 @@ const SwitchWrap = styled.div`
 `;
 
 const ButtonIcon = styled.img`
-  width: 44px;
+  width: 36px;
+`;
+
+const SpeedSwitch = styled.div<{ disabled?: boolean }>`
+  margin-left: 10px;
+  position: relative;
+
+  ${props =>
+    props.disabled &&
+    css`
+      &::after {
+        content: "";
+        display: block;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+    `}
 `;

@@ -1,91 +1,55 @@
 import React, { FC, useEffect, useState } from "react";
+import { DndProvider } from "react-dnd";
+import HTML5Backend from "react-dnd-html5-backend";
 import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { IFolder, IResult as IDocsAndFols } from "@bitbloq/api";
+import { Button, Icon } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import {
-  Button,
-  colors,
-  Icon,
-  DropDown,
-  Select,
-  Spinner,
-  Input,
-  HorizontalRule
-} from "@bitbloq/ui";
-import { navigate } from "gatsby";
+import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
-import AppHeader from "./AppHeader";
-import NewDocumentDropDown from "./NewDocumentDropDown";
-import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import useUserData from "../lib/useUserData";
+import { ApolloError } from "apollo-client";
 import {
-  CREATE_DOCUMENT_MUTATION,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_BY_CODE_QUERY,
   CREATE_FOLDER_MUTATION,
   DOCS_FOLDERS_PAGE_QUERY
 } from "../apollo/queries";
+import useUserData from "../lib/useUserData";
+import { OrderType } from "../types";
+import AppLayout from "./AppLayout";
+import Breadcrumbs, { IBreadcrumbLink } from "./Breadcrumbs";
+import DocumentList from "./DocumentList";
+import EditInputModal from "./EditInputModal";
+import FilterOptions from "./FilterOptions";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
+import NewDocumentButton from "./NewDocumentButton";
 import NewExerciseButton from "./NewExerciseButton";
-import EditTitleModal from "./EditTitleModal";
-import DocumentListComp from "./DocumentsList";
-
-import Breadcrumbs from "./Breadcrumbs";
-import AppFooter from "./Footer";
-import Paginator from "./Paginator";
-import { ApolloError } from "apollo-client";
-
-enum OrderType {
-  Creation = "creation",
-  Modification = "modification",
-  NameAZ = "nameAZ",
-  NameZA = "nameZA"
-}
-
-const orderOptions = [
-  {
-    label: "Orden: Creación",
-    value: OrderType.Creation
-  },
-  {
-    label: "Orden: Modificación",
-    value: OrderType.Modification
-  },
-  {
-    label: "Orden: Nombre A-Z",
-    value: OrderType.NameAZ
-  },
-  {
-    label: "Orden: Nombre Z-A",
-    value: OrderType.NameZA
-  }
-];
 
 const Documents: FC<{ id?: string }> = ({ id }) => {
-  const userData = useUserData();
+  const { userData } = useUserData();
   const client = useApolloClient();
 
-  const [order, setOrder] = useState(OrderType.Creation);
+  const [order, setOrder] = useState<OrderType>(OrderType.Creation);
   const [searchText, setSearchText] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [folderTitleModal, setFolderTitleModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [pagesNumber, setPagesNumber] = useState(1);
   const [currentLocation] = useState({
     id: id ? id : userData ? userData.rootFolder : null,
     name: "root"
   });
-  const [breadcrumbLinks, setBreadcrumbsLinks] = useState([
-    {
-      route: userData ? "/" : "",
-      text: userData ? "Mis documentos" : "",
-      type: ""
-    }
-  ]);
+  const [breadcrumbsLinks, setBreadcrumbsLinks] = useState<IBreadcrumbLink[]>(
+    []
+  );
+  const [docsAndFols, setDocsAndFols] = useState<IDocsAndFols[]>([]);
+  const [parentsPath, setParentsPath] = useState<IFolder[]>([]);
+  const [nFolders, setNFolders] = useState<number>(0);
 
-  let openFile = React.createRef<HTMLInputElement>();
+  const openFile = React.createRef<HTMLInputElement>();
 
-  const [createDocument] = useMutation(CREATE_DOCUMENT_MUTATION);
   const [createFolder] = useMutation(CREATE_FOLDER_MUTATION);
-  const [documentsData, setDocumentsData] = useState<any>({});
   const [error, setError] = useState<ApolloError>();
 
   const {
@@ -96,8 +60,8 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   } = useQuery(DOCS_FOLDERS_PAGE_QUERY, {
     variables: {
       currentLocation: currentLocation.id,
-      currentPage: currentPage,
-      order: order,
+      currentPage,
+      order,
       searchTitle: searchQuery,
       itemsPerPage: 8
     },
@@ -106,8 +70,24 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
 
   useEffect(() => {
     if (!loading && !errorQuery) {
-      setError(null);
-      setDocumentsData(resultData);
+      const {
+        nFolders: foldersNumber,
+        pagesNumber: numberOfPages,
+        parentsPath: pathOfParent,
+        result: docsAndFolsItems
+      } = resultData.documentsAndFolders;
+      setBreadcrumbsLinks(
+        pathOfParent.map(item => ({
+          route: `/app/folder/${item.id}`,
+          text: item.name,
+          type: "folder"
+        }))
+      );
+      setDocsAndFols(docsAndFolsItems || []);
+      setNFolders(foldersNumber);
+      setPagesNumber(numberOfPages);
+      setParentsPath(pathOfParent);
+      setError(undefined);
     }
     if (errorQuery) {
       setError(errorQuery);
@@ -117,22 +97,24 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
   const [loadingExercise, setLoadingExercise] = useState(false);
   const [exerciseError, setExerciseError] = useState(false);
 
-  const onFolderClick = async ({ id, title }) => {
-    window.open(`/app/folder/${id}`, "_self");
+  const onFolderClick = async ({ id: folderId }) => {
+    Router.push(`/app/folder/${folderId}`);
   };
 
-  const onDocumentClick = ({ id, type, title }) => {
-    setBreadcrumbsLinks([
-      ...breadcrumbLinks,
-      { route: id, text: title, type: "document" }
-    ]);
-    window.open(`/app/document/${id}`);
+  useEffect(() => {
+    if (currentPage > pagesNumber && pagesNumber > 0) {
+      setCurrentPage(pagesNumber);
+    }
+  }, [pagesNumber]);
+
+  const onDocumentClick = ({ id: documentId }) => {
+    Router.push(`/app/document/${documentId}`);
   };
 
-  const onCreateFolder = async folderName => {
+  const onCreateFolder = async (folderName: string) => {
     await createFolder({
       variables: {
-        input: { name: folderName, parent: currentLocation.id }
+        input: { name: folderName, parentFolder: currentLocation.id }
       }
     }).catch(e => {
       setError(e);
@@ -141,25 +123,12 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     setFolderTitleModal(false);
   };
 
-  const onNewDocument = type => {
-    window.open(`/app/document/${currentLocation.id}/${type}/new`);
-  };
-
-  const onDocumentCreated = ({ createDocument: { id, type } }) => {
-    navigate(`/app/document/${currentLocation.id}/${type}/${id}`);
-  };
-
-  const onOrderChange = order => {
-    setOrder(order);
+  const onOrderChange = (newOrder: OrderType) => {
+    setOrder(newOrder);
     refetchDocsFols();
   };
 
-  const onOpenDocumentClick = () => {
-    refetchDocsFols();
-    openFile.current.click();
-  };
-
-  const onOpenExercise = async exerciseCode => {
+  const onOpenExercise = async (exerciseCode: string) => {
     if (exerciseCode) {
       try {
         setLoadingExercise(true);
@@ -184,83 +153,54 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
     setCurrentPage(1);
   }, 500);
 
-  const onFileSelected = file => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const document = JSON.parse(reader.result as string);
-      const { data } = await createDocument({
-        variables: {
-          ...document,
-          image: {
-            image: document.image.image ? document.image.image : document.image,
-            isSnapshot:
-              document.image.isSnapshot !== undefined
-                ? document.image.isSnapshot
-                : false
-          },
-          folder: currentLocation.id
-        }
-      });
-      refetchDocsFols();
-      onDocumentCreated(data);
-    };
-
-    reader.readAsText(file);
+  const onFileSelected = (file: File) => {
+    if (file) {
+      window.open(`/app/edit-document/${currentLocation.id}/open/new`);
+      const reader = new FileReader();
+      reader.onload = async e => {
+        const document = JSON.parse(reader.result as string);
+        const channel = new BroadcastChannel("bitbloq-documents");
+        channel.onmessage = event => {
+          if (event.data.command === "open-document-ready") {
+            channel.postMessage({ document, command: "open-document" });
+            channel.close();
+          }
+        };
+      };
+      reader.readAsText(file);
+      if (openFile.current) {
+        openFile.current.value = "";
+      }
+    }
   };
 
   if (error) {
     return <GraphQLErrorMessage apolloError={error} />;
   }
-  if (!documentsData || !documentsData.documentsAndFolders)
-    return (
-      <Container>
-        <Loading />
-      </Container>
-    );
-
-  const {
-    pagesNumber,
-    result: docsAndFols,
-    parentsPath,
-    nFolders
-  } = documentsData.documentsAndFolders;
-
-  const breadParents = parentsPath.map(item => ({
-    route: `/app/folder/${item.id}`,
-    text: item.name,
-    type: "folder"
-  }));
 
   return (
-    <Container>
-      <AppHeader />
-      <Content>
-        <Header>
-          {currentLocation.id === userData.rootFolder ? (
-            <h1>Mis documentos</h1>
+    <>
+      {loading && <AppLayoutLoading loading />}
+      <AppLayout
+        header={
+          currentLocation.id === (userData && userData.rootFolder) ? (
+            "Mis documentos"
           ) : (
-            <Breadcrumbs links={breadParents} />
-          )}
-        </Header>
-        <Rule />
+            <Breadcrumbs links={breadcrumbsLinks} />
+          )
+        }
+      >
         <DocumentListHeader>
           {(docsAndFols.length > 0 || searchQuery) && (
-            <>
-              <ViewOptions>
-                <OrderSelect
-                  options={orderOptions}
-                  onChange={onOrderChange}
-                  selectConfig={{ isSearchable: false }}
-                />
-              </ViewOptions>
-              <SearchInput
-                value={searchText}
-                onChange={e => (
-                  setSearchText(e.target.value), onSearchInput(e.target.value)
-                )}
-                placeholder="Buscar..."
-              />
-            </>
+            <FilterOptions
+              onOrderChange={onOrderChange}
+              searchText={searchText}
+              selectValue={order}
+              onChange={(value: string) => {
+                setSearchText(value);
+                onSearchInput(value);
+              }}
+            />
           )}
           <HeaderButtons>
             <NewFolderButton
@@ -277,43 +217,29 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
               exerciseError={exerciseError}
               loadingExercise={loadingExercise}
             />
-            <DropDown
-              attachmentPosition={"top center"}
-              targetPosition={"bottom center"}
-            >
-              {(isOpen: boolean) => (
-                <NewDocumentButton tertiary isOpen={isOpen}>
-                  <Icon name="new-document" />
-                  Nuevo documento
-                </NewDocumentButton>
-              )}
-              <NewDocumentDropDown
-                onNewDocument={onNewDocument}
-                onOpenDocument={onOpenDocumentClick}
-                arrowOffset={10}
-              />
-            </DropDown>
+            <NewDocumentButton arrowOffset={10} />
           </HeaderButtons>
         </DocumentListHeader>
         {docsAndFols.length > 0 ? (
-          <DocumentsAndPaginator>
-            <DocumentListComp
+          <DndProvider backend={HTML5Backend}>
+            <DocumentList
+              currentPage={currentPage}
               parentsPath={parentsPath}
+              pagesNumber={pagesNumber}
               refetchDocsFols={refetchDocsFols}
               docsAndFols={docsAndFols}
               currentLocation={currentLocation}
+              order={order}
+              searchText={searchText}
               onFolderClick={onFolderClick}
               onDocumentClick={onDocumentClick}
-              order={order}
-              searchTitle={searchText}
+              selectPage={(page: number) => {
+                setCurrentPage(page);
+                refetchDocsFols();
+              }}
               nFolders={nFolders}
             />
-            <DocumentsPaginator
-              currentPage={currentPage}
-              pages={pagesNumber}
-              selectPage={(page: number) => setCurrentPage(page)}
-            />
-          </DocumentsAndPaginator>
+          </DndProvider>
         ) : searchQuery ? (
           <NoDocuments>
             <h1>No hay resultados para tu búsqueda</h1>
@@ -333,26 +259,25 @@ const Documents: FC<{ id?: string }> = ({ id }) => {
             refetchDocsFols();
           }}
         />
-      </Content>
-      <input
-        ref={openFile}
-        type="file"
-        onChange={e => onFileSelected(e.target.files[0])}
-        style={{ display: "none" }}
-      />
-      {folderTitleModal && (
-        <EditTitleModal
-          title={"Carpeta sin título"}
-          onCancel={() => setFolderTitleModal(false)}
-          onSave={onCreateFolder}
-          modalTitle="Crear carpeta"
-          modalText="Nombre de la carpeta"
-          placeholder="Carpeta sin título"
-          saveButton="Crear"
+        <input
+          ref={openFile}
+          type="file"
+          onChange={e => onFileSelected(e.target.files![0])}
+          style={{ display: "none" }}
         />
-      )}
-      <AppFooter />
-    </Container>
+        {folderTitleModal && (
+          <EditInputModal
+            value="Carpeta sin título"
+            onCancel={() => setFolderTitleModal(false)}
+            onSave={onCreateFolder}
+            title="Crear carpeta"
+            label="Nombre de la carpeta"
+            placeholder="Carpeta sin título"
+            saveButton="Crear"
+          />
+        )}
+      </AppLayout>
+    </>
   );
 };
 
@@ -362,99 +287,22 @@ export default DocumentsWithDelete;
 
 /* styled components */
 
-const Container = styled.div`
+const AppLayoutLoading = styled(AppLayout)`
   position: absolute;
-  height: 100%;
   width: 100%;
-  background-color: ${colors.gray1};
-  display: flex;
-  flex-direction: column;
-`;
-
-const Content = styled.div`
-  display: flex;
-  flex: 1;
-  flex-flow: column nowrap;
-  padding: 0px 50px;
-
-  & > div {
-    flex-shrink: 0;
-  }
-`;
-
-const Header = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  h1 {
-    flex: 1;
-    font-weight: bold;
-    font-size: 24px;
-    &:hover {
-      cursor: pointer;
-    }
-  }
-`;
-
-const Loading = styled(Spinner)`
-  flex: 1;
-`;
-
-const Rule = styled(HorizontalRule)`
-  margin: 0px -10px;
+  z-index: 100;
 `;
 
 const DocumentListHeader = styled.div`
-  display: flex;
-  height: 115px;
   align-items: center;
+  display: flex;
+  margin-bottom: 40px;
 `;
 
 const HeaderButtons = styled.div`
   display: flex;
   flex: 1;
   justify-content: flex-end;
-`;
-
-const ViewOptions = styled.div`
-  margin-right: 10px;
-`;
-
-const OrderSelect: Select = styled(Select)`
-  width: 200px;
-`;
-
-const SearchInput: Input = styled(Input)`
-  width: 210px;
-  flex: inherit;
-`;
-
-interface NewDocumentButtonProps {
-  isOpen: boolean;
-}
-const NewDocumentButton = styled(Button)<NewDocumentButtonProps>`
-  border-radius: 4px;
-  font-size: 14px;
-  padding: 0px 20px;
-  display: flex;
-  align-items: center;
-  height: 40px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${colors.gray2};
-  }
-
-  svg {
-    height: 20px;
-    margin-right: 8px;
-  }
 `;
 
 const NoDocuments = styled.div`
@@ -494,16 +342,4 @@ const NewFolderButton = styled(Button)`
     height: 20px;
     margin-right: 6px;
   }
-`;
-
-const DocumentsPaginator = styled(Paginator)`
-  margin-bottom: 60px;
-`;
-
-const DocumentsAndPaginator = styled.div`
-  display: flex;
-  flex: 1;
-  flex-flow: column nowrap;
-  justify-content: space-between;
-  width: 100%;
 `;

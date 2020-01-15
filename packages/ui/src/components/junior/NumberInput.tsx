@@ -9,34 +9,24 @@ export interface INumberInputProps {
 }
 
 const NumberInput: FC<INumberInputProps> = ({ value, onChange }) => {
-  const stringValue = Math.round(value).toString();
-  const digit1 = stringValue.length === 1 ? "0" : stringValue.substr(-2, 1);
-  const digit2 = stringValue.substr(-1);
-
   return (
     <Container>
-      <NumberBox>
-        <Digit>{digit1}</Digit>
-        <Digit>{digit2}</Digit>
-      </NumberBox>
-      <Spinners>
-        <Spinner>
-          <UpButton onClick={() => value < 90 && onChange(value + 10)}>
-            <Icon name="angle" />
-          </UpButton>
-          <DownButton onClick={() => value > 9 && onChange(value - 10)}>
-            <Icon name="angle" />
-          </DownButton>
-        </Spinner>
-        <Spinner>
-          <UpButton onClick={() => value < 99 && onChange(value + 1)}>
-            <Icon name="angle" />
-          </UpButton>
-          <DownButton onClick={() => value > 0 && onChange(value - 1)}>
-            <Icon name="angle" />
-          </DownButton>
-        </Spinner>
-      </Spinners>
+      <Spinner>
+        <UpButton onClick={() => value < 90 && onChange(value + 10)}>
+          <Icon name="angle" />
+        </UpButton>
+        <DownButton onClick={() => value > 9 && onChange(value - 10)}>
+          <Icon name="angle" />
+        </DownButton>
+      </Spinner>
+      <Spinner>
+        <UpButton onClick={() => value < 99 && onChange(value + 1)}>
+          <Icon name="angle" />
+        </UpButton>
+        <DownButton onClick={() => value > 0 && onChange(value - 1)}>
+          <Icon name="angle" />
+        </DownButton>
+      </Spinner>
     </Container>
   );
 };
@@ -46,46 +36,15 @@ export default NumberInput;
 /* Styled components */
 
 const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 150px;
-  align-items: stretch;
-`;
-
-const NumberBox = styled.div`
-  display: flex;
-  justify-content: space-around;
-  box-shadow: inset 0 0 6px 0 rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  background-color: white;
-  margin-bottom: 14px;
+  background-color: ${colors.gray2};
   padding: 10px;
-`;
-
-const Digit = styled.div`
-  font-size: 80px;
-`;
-
-const Spinners = styled.div`
-  width: 150px;
   display: flex;
-  justify-content: space-between;
 `;
 
 const Spinner = styled.div`
-  border: 6px solid #979797;
-  background-color: #ddd;
-  border-radius: 40px;
-  position: relative;
-
-  &::before {
-    content: "";
-    width: 60px;
-    height: 24px;
-    background-color: #ddd;
-    display: block;
-    position: absolute;
-    top: 16px;
+  margin-right: 6px;
+  &:last-of-type {
+    margin-right: 0px;
   }
 `;
 
@@ -94,22 +53,23 @@ const Button = styled.button`
   width: 60px;
   height: 30px;
   cursor: pointer;
-  background-color: #eee;
+  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   color: ${colors.black};
 
-  box-shadow: 0 14px 0 0 #ddd;
-  transform: translate(0, -14px);
+  box-shadow: 0 4px 0 0 #c0c3c9;
+  transform: translate(0, -4px);
 
   &:focus {
     outline: none;
   }
 
   &:active {
-    box-shadow: 0 12px 0 0 #ddd;
-    transform: translate(0, -12px);
+    background-color: #c0c3c9;
+    box-shadow: none;
+    transform: translate(0, 0);
   }
 
   svg {
@@ -121,7 +81,7 @@ const Button = styled.button`
 const UpButton = styled(Button)`
   border-top-left-radius: 40px;
   border-top-right-radius: 40px;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 
   svg {
     transform: rotate(180deg);

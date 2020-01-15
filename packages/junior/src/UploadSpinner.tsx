@@ -1,19 +1,22 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
-import { css } from "@emotion/core";
-import { keyframes } from "@emotion/core";
+import { css, keyframes } from "@emotion/core";
 import { Icon, colors } from "@bitbloq/ui";
 
-export interface UploadSpinnerProps {
+export interface IUploadSpinnerProps {
   uploading: boolean;
   success: boolean;
   onClick: (e: React.MouseEvent) => any;
 }
 
-const UploadSpinner: FC<UploadSpinnerProps> = ({ uploading, success, onClick }) => {
+const UploadSpinner: FC<IUploadSpinnerProps> = ({
+  uploading,
+  success,
+  onClick
+}) => {
   let icon = "";
   if (uploading) {
-    icon = "brain";
+    icon = "programming-board";
   } else if (success) {
     icon = "tick";
   } else if (!success) {
@@ -24,7 +27,7 @@ const UploadSpinner: FC<UploadSpinnerProps> = ({ uploading, success, onClick }) 
     <Overlay onClick={onClick}>
       <Container uploading={uploading} success={success}>
         <Icon name={icon} />
-        <Spinner uploading={uploading} success={success}/>
+        <Spinner uploading={uploading} success={success} />
       </Container>
     </Overlay>
   );

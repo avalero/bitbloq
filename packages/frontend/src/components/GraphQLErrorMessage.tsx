@@ -2,11 +2,13 @@ import React, { FC } from "react";
 import { ApolloError } from "apollo-client";
 import ErrorLayout from "./ErrorLayout";
 
-export interface GraphQLErrorMessageProps {
+export interface IGraphQLErrorMessageProps {
   apolloError: ApolloError;
 }
 
-const GraphQLErrorMessage: FC<GraphQLErrorMessageProps> = ({ apolloError }) => {
+const GraphQLErrorMessage: FC<IGraphQLErrorMessageProps> = ({
+  apolloError
+}) => {
   const { graphQLErrors } = apolloError;
   if (graphQLErrors.length === 0) {
     return null;
@@ -29,8 +31,9 @@ const getErrorProps = (extensionCode: string) => {
       };
 
     case "NOT_YOUR_DOCUMENT":
+    case "UNAUTHENTICATED":
       return {
-        code: 403,
+        code: "403",
         text: "Lo sentimos, no tienes permisos para poder ver este contenido"
       };
 

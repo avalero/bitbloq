@@ -36,23 +36,13 @@ const LandingExamples: FC = () => {
       <Wrap>
         <ExamplesWrap>
           <Examples style={examplesStyle}>
-            {data.examples.map(
-              (example: any) => (
-                example.image && example.image.image
-                  ? (example.image = example.image.image)
-                  : (example.image = example.image),
-                (
-                  <Example
-                    key={example.id}
-                    onClick={() => onExampleClick(example)}
-                  >
-                    <DndProvider backend={HTML5Backend}>
-                      <DocumentCard draggable={false} document={example} />
-                    </DndProvider>
-                  </Example>
-                )
-              )
-            )}
+            {data.examples.map((example: any) => (
+              <Example key={example.id} onClick={() => onExampleClick(example)}>
+                <DndProvider backend={HTML5Backend}>
+                  <DocumentCard draggable={false} document={example} />
+                </DndProvider>
+              </Example>
+            ))}
           </Examples>
         </ExamplesWrap>
         {first > 0 && (
@@ -79,10 +69,7 @@ const LandingExamples: FC = () => {
 export default LandingExamples;
 
 const Container = styled.div`
-  max-width: 1280px;
-  box-sizing: border-box;
-  margin: 0 auto;
-  padding: 80px 50px;
+  padding: 80px 0;
 
   h2 {
     display: flex;
@@ -173,10 +160,7 @@ const Dots = styled.div`
   justify-content: center;
 `;
 
-interface DotProps {
-  active?: boolean;
-}
-const Dot = styled.div<DotProps>`
+const Dot = styled.div<{ active?: boolean }>`
   width: 14px;
   height: 14px;
   border-radius: 7px;

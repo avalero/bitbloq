@@ -5,7 +5,13 @@ import { Icon, JuniorSwitch } from "@bitbloq/ui";
 
 import { IBloq } from "../../index";
 
+import BalloonPanel from "../BalloonPanel";
 import ReceiveMessage from "./images/ReceiveMessage";
+import Symbol1Icon from "./icons/symbol-1.svg";
+import Symbol2Icon from "./icons/symbol-2.svg";
+import Symbol3Icon from "./icons/symbol-3.svg";
+import Symbol4Icon from "./icons/symbol-4.svg";
+import Symbol5Icon from "./icons/symbol-5.svg";
 
 interface IReceiveMessageConfigurationProps {
   bloq: IBloq;
@@ -21,15 +27,15 @@ const ReceiveMessageConfiguration: FC<IReceiveMessageConfigurationProps> = ({
   return (
     <Container>
       <ImageWrap>
-        <ReceiveMessage letter={value.split("message")[1]} />
+        <ReceiveMessage message={value} />
       </ImageWrap>
       <JuniorSwitch
         buttons={[
-          { content: <Letter>A</Letter>, id: "messageA" },
-          { content: <Letter>B</Letter>, id: "messageB" },
-          { content: <Letter>C</Letter>, id: "messageC" },
-          { content: <Letter>D</Letter>, id: "messageD" },
-          { content: <Letter>E</Letter>, id: "messageE" }
+          { content: <ButtonIcon src={Symbol1Icon} />, id: "messageA" },
+          { content: <ButtonIcon src={Symbol2Icon} />, id: "messageB" },
+          { content: <ButtonIcon src={Symbol3Icon} />, id: "messageC" },
+          { content: <ButtonIcon src={Symbol4Icon} />, id: "messageD" },
+          { content: <ButtonIcon src={Symbol5Icon} />, id: "messageE" }
         ]}
         value={value}
         onChange={newValue =>
@@ -45,17 +51,16 @@ export default ReceiveMessageConfiguration;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  flex-direction: column;
 `;
 
-const ImageWrap = styled.div`
-  margin-right: 20px;
-  svg {
-    width: 200px;
-    height: 200px;
-  }
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 55px;
+  display: flex;
+  align-items: center;
 `;
 
-const Letter = styled.div`
-  font-size: 36px;
-  font-weight: bold;
+const ButtonIcon = styled.img`
+  width: 36px;
 `;

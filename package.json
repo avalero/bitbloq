@@ -1,24 +1,26 @@
 {
-  "name": "root",
-  "private": false,
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "lerna exec -- npm run test",
-    "coveralls": "lerna exec -- npm run coveralls",
-    "tslint:prod": "lerna run tslint:prod",
-    "tslint:dev": "lerna run tslint:dev",
-    "prettier": "lerna run prettier",
-    "prettier:ts": "lerna run prettier:ts"
+    "prettier": "prettier --write \"packages/*/src/**/*.{ts,js,tsx,jsx,json,md,scss,yml}\"",
+    "tslint": "tslint -c ./tslint.json \"packages/*/src/**/*.{ts,tsx}\"",
+    "tsc:front": "cd packages/frontend && tsc --noEmit --p ./tsconfig.json",
+    "tsc:back": "cd packages/api && tsc --noEmit --p ./tsconfig.json",
+    "tsc": "yarn run tsc:front && yarn run tsc:back"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/plugin-syntax-decorators": "^7.2.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-plugin-emotion": "^10.0.16"
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.3",
+    "prettier": "^1.18.2",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.2"
   },
-  "dependencies": {
-    "@babel/preset-env": "^7.5.5",
-    "@babel/preset-typescript": "^7.3.3",
-    "deepmerge": "^4.0.0"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && yarn run tsc"
+    }
   }
 }

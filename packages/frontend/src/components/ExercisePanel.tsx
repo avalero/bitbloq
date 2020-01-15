@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { useMutation, Mutation } from "react-apollo";
 import dayjs from "dayjs";
-import { Spring } from "react-spring/renderprops";
+import { Spring } from "react-spring/renderprops.cjs";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import {
@@ -15,13 +15,13 @@ import {
   useTranslate
 } from "@bitbloq/ui";
 import DocumentCardMenu from "./DocumentCardMenu";
-import EditTitleModal from "./EditTitleModal";
+import EditInputModal from "./EditInputModal";
 import {
   UPDATE_PASSWORD_SUBMISSION_MUTATION,
   SET_ACTIVESUBMISSION_MUTATION
 } from "../apollo/queries";
 
-export interface ExercisePanelProps {
+export interface IExercisePanelProps {
   exercise: any;
   onCancelSubmission: (value: any) => void;
   onCheckSubmission: (value: any) => void;
@@ -31,7 +31,7 @@ export interface ExercisePanelProps {
   onRemoveSubmission: (submissionID: string) => void;
 }
 
-const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
+const ExercisePanel: FC<IExercisePanelProps> = props => {
   const {
     exercise,
     onCancelSubmission,
@@ -57,7 +57,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
           </Toggle>
         </HeaderLeft>
         <HeaderCenter onClick={() => setOpen(!isOpen)}>
-          <Title>{exercise.title}</Title>
+          <Title>{exercise.name}</Title>
           <Date>{dayjs(exercise.createdAt).format("DD/MM/YY HH:mm")}</Date>
         </HeaderCenter>
         <DropDown
@@ -69,8 +69,8 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
             }
           ]}
         >
-          {(isOpen: boolean) => (
-            <HeaderRight isOpen={isOpen}>
+          {(isMenuOpen: boolean) => (
+            <HeaderRight isOpen={isMenuOpen}>
               <Icon name="ellipsis" />
             </HeaderRight>
           )}
@@ -80,7 +80,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                 iconName: "pencil",
                 label: t("menu-change-name"),
                 onClick() {
-                  onChangeName(exercise.title);
+                  onChangeName(exercise.name);
                 }
               },
               {
@@ -148,12 +148,11 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
       </Spring>
       {passwordModalOpen && (
         <Mutation mutation={UPDATE_PASSWORD_SUBMISSION_MUTATION}>
-          {updatePassword => (
-            <EditTitleModal
-              title=""
+          {updateForgotPassword => (
+            <EditInputModal
               onCancel={() => setPasswordModalOpen(false)}
               onSave={(value: string) => {
-                updatePassword({
+                updateForgotPassword({
                   variables: {
                     id: submissionIdModal,
                     password: value
@@ -161,12 +160,11 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
                 });
                 setPasswordModalOpen(false);
               }}
-              modalTitle={t("submission-passwordmodal-title")}
-              modalText={t("submission-passwordmodal-text")}
+              title={t("submission-passwordmodal-title")}
+              label={t("submission-passwordmodal-text")}
               placeholder={t("submission-passwordmodal-placeholder")}
               saveButton={t("general-accept-button")}
               type="password"
-              validateInput={false}
             />
           )}
         </Mutation>
@@ -187,7 +185,7 @@ const ExercisePanel: FC<ExercisePanelProps> = (props: ExercisePanelProps) => {
   );
 };
 
-interface SubmissionPanelProps {
+interface ISubmissionPanelProps {
   exerciseId: string;
   onCheckSubmission: any;
   setDeleteModalOpen: (value: boolean) => void;
@@ -197,11 +195,8 @@ interface SubmissionPanelProps {
   t: any;
 }
 
-const SubmissionPanel: FC<SubmissionPanelProps> = (
-  props: SubmissionPanelProps
-) => {
+const SubmissionPanel: FC<ISubmissionPanelProps> = props => {
   const {
-    exerciseId,
     onCheckSubmission,
     setDeleteModalOpen,
     setPasswordModalOpen,
@@ -210,7 +205,6 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
     t
   } = props;
 
-  const [passwordValue, setPasswordValue] = useState("");
   const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION);
 
   return (
@@ -235,7 +229,13 @@ const SubmissionPanel: FC<SubmissionPanelProps> = (
           </span>
         )}
       </td>
-      <td>{submission.grade || (submission.finished ? "-" : "")}</td>
+      <td>
+        {!submission.finished
+          ? ""
+          : submission.grade !== null && submission.grade !== undefined
+          ? submission.grade
+          : "-"}
+      </td>
       <td>
         <DropDown
           constraints={[
@@ -313,12 +313,11 @@ const Container = styled.div`
   width: 100%;
 `;
 
-interface ExerciseDetailsProps {
+interface IExerciseDetailsProps {
   style: React.CSSProperties;
 }
-const ExerciseDetails = styled.div<ExerciseDetailsProps>`
-  overflow: ${(props: ExerciseDetailsProps) =>
-    props.style.height === "auto" ? "visible" : "hidden"};
+const ExerciseDetails = styled.div<IExerciseDetailsProps>`
+  overflow: ${props => (props.style.height === "auto" ? "visible" : "hidden")};
 `;
 
 const ExerciseInfo = styled.div`
@@ -354,7 +353,6 @@ const SubmissionMenu = styled(DocumentCardMenu)`
 const NoSubmissions = styled.div`
   align-items: center;
   border-top: 1px solid #c0c3c9;
-  color: #323843;
   display: flex;
   font-size: 14px;
   font-style: italic;
@@ -390,16 +388,13 @@ const HeaderLeft = styled.div`
   max-width: 39px;
 `;
 
-interface ToggleProps {
-  isOpen: boolean;
-}
-const Toggle = styled.div<ToggleProps>`
+const Toggle = styled.div<{ isOpen: boolean }>`
   svg {
     transform: rotate(-90deg);
     width: 16px;
   }
 
-  ${(props: ToggleProps) =>
+  ${props =>
     props.isOpen &&
     css`
       svg {
@@ -408,13 +403,9 @@ const Toggle = styled.div<ToggleProps>`
     `}
 `;
 
-interface HeaderRightProps {
-  isOpen: boolean;
-}
-const HeaderRight = styled.div<HeaderRightProps>`
+const HeaderRight = styled.div<{ isOpen: boolean }>`
   align-items: center;
-  background-color: ${(props: HeaderRightProps) =>
-    props.isOpen ? "#e8e8e8" : "white"};
+  background-color: ${props => (props.isOpen ? "#e8e8e8" : "white")};
   border-left: 1px solid #c0c3c9;
   cursor: pointer;
   display: flex;
@@ -550,13 +541,9 @@ const Table = styled.table`
   }
 `;
 
-interface SubmissionOptionsProps {
-  isOpen?: boolean;
-}
-const SubmissionOptions = styled.div<SubmissionOptionsProps>`
+const SubmissionOptions = styled.div<{ isOpen?: boolean }>`
   align-items: center;
-  background-color: ${(props: SubmissionOptionsProps) =>
-    props.isOpen ? "#e8e8e8" : "#fff"};
+  background-color: ${props => (props.isOpen ? "#e8e8e8" : "#fff")};
   border: solid 1px #dddddd;
   border-radius: 4px;
   cursor: pointer;

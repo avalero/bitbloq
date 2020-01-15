@@ -17,10 +17,10 @@ import ObjectsCommon from "./ObjectsCommon";
 import PrimitiveObject from "./PrimitiveObject";
 
 import {
-  IViewOptions,
-  OperationsArray,
+  IPrismJSON,
   IPrismParams,
-  IPrismJSON
+  IViewOptions,
+  OperationsArray
 } from "./Interfaces";
 
 export default class Prism extends PrimitiveObject {

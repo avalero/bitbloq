@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { colors, useTranslate, JuniorButton, Icon } from "@bitbloq/ui";
+import { css } from "@emotion/core";
+import {
+  breakpoints,
+  colors,
+  useTranslate,
+  JuniorButton,
+  Icon
+} from "@bitbloq/ui";
 import ComponentPlaceholder from "./ComponentPlaceholder";
 import AddComponentPanel from "./AddComponentPanel";
 
@@ -28,11 +35,23 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   onHardwareChange
 }) => {
   const [selectedPortIndex, setSelectedPortIndex] = useState(-1);
+  const [isDesktop, setIsDesktop] = useState(
+    window.innerWidth >= breakpoints.desktop
+  );
+  useEffect(() => {
+    const onResize = () => {
+      setIsDesktop(window.innerWidth >= breakpoints.desktop);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
+  }, []);
 
   const t = useTranslate();
 
   const board = boards.find(b => b.name === hardware.board)!;
-  const { width, height } = board.image;
+  const { width, height } = (!isDesktop && board.image.tablet) || board.image;
 
   const selectedPort = board.ports[selectedPortIndex];
   const selectedComponentInstance =
@@ -52,8 +71,11 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     const componentInstance = hardware.components.find(
       c => c.port === port.name
     );
-    const top = (-port.placeholderPosition.y * height) / 2;
-    const left = (port.placeholderPosition.x * width) / 2;
+    const placeholderPosition =
+      (!isDesktop && port.placeholderPosition.tablet) ||
+      port.placeholderPosition;
+    const top = (-placeholderPosition.y * height) / 2;
+    const left = (placeholderPosition.x * width) / 2;
 
     if (componentInstance) {
       const component = components.find(
@@ -67,35 +89,39 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
 
       return (
         <Component
-          key={i}
           selected={selectedPortIndex === i}
+          key={i}
           top={top}
           left={left}
-          width={image.width * 0.65}
-          height={image.height * 0.65}
         >
-          <img
-            src={image.url}
-            onClick={e => {
-              e.stopPropagation();
-              setSelectedPortIndex(i);
-            }}
-          />
+          <ComponentImageWrap selected={selectedPortIndex === i}>
+            <ComponentImage width={image.width} height={image.height}>
+              <img
+                src={image.url}
+                onClick={e => {
+                  e.stopPropagation();
+                  setSelectedPortIndex(i);
+                }}
+              />
+            </ComponentImage>
+          </ComponentImageWrap>
           {selectedPortIndex === i && (
-            <DeleteButton
-              red
-              onClick={() => {
-                onHardwareChange({
-                  ...hardware,
-                  components: hardware.components.filter(
-                    c => c !== componentInstance
-                  )
-                });
-                setSelectedPortIndex(-1);
-              }}
-            >
-              <Icon name="trash" />
-            </DeleteButton>
+            <DeleteWrap>
+              <DeleteButton
+                red
+                onClick={() => {
+                  onHardwareChange({
+                    ...hardware,
+                    components: hardware.components.filter(
+                      c => c !== componentInstance
+                    )
+                  });
+                  setSelectedPortIndex(-1);
+                }}
+              >
+                <Icon name="trash" />
+              </DeleteButton>
+            </DeleteWrap>
           )}
         </Component>
       );
@@ -116,10 +142,14 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
   };
 
   const connectionPath = (port: IPort) => {
-    const portX = (port.position.x * width) / 2;
-    const portY = (-port.position.y * width) / 2;
-    const placeholderX = (port.placeholderPosition.x * width) / 2;
-    const placeholderY = (-port.placeholderPosition.y * height) / 2;
+    const position = (!isDesktop && port.position.tablet) || port.position;
+    const portX = (position.x * width) / 2;
+    const portY = (-position.y * height) / 2;
+    const placeholderPosition =
+      (!isDesktop && port.placeholderPosition.tablet) ||
+      port.placeholderPosition;
+    const placeholderX = (placeholderPosition.x * width) / 2;
+    const placeholderY = (-placeholderPosition.y * height) / 2;
 
     if (
       port.direction === IPortDirection.West ||
@@ -139,30 +169,52 @@ const HardwareDesigner: React.FunctionComponent<IHardwareDesignerProps> = ({
     `;
   };
 
+  const connectionCircle = (port: IPort, selected: boolean) => {
+    const position = (!isDesktop && port.position.tablet) || port.position;
+    const portX = (position.x * width) / 2;
+    const portY = (-position.y * width) / 2;
+
+    return (
+      <circle
+        r="5"
+        cx={portX}
+        cy={portY}
+        fill={selected ? colors.brandOrange : "#bbb"}
+      />
+    );
+  };
+
   const compatibleComponents = selectedPort
     ? components.filter(c => isCompatiblePort(selectedPort, c))
     : [];
 
   return (
-    <Container className="image-snapshot">
+    <Container>
       <ScrollContainer>
         <CanvasWrap onClick={() => setSelectedPortIndex(-1)}>
-          <ConnectionCanvas>
-            {board.ports.map((port, i) => (
-              <path
-                key={port.name}
-                d={connectionPath(port)}
-                fill="none"
-                stroke={selectedPortIndex === i ? colors.brandOrange : "#bbb"}
-                strokeWidth={2}
-                strokeDasharray="7 3"
-              />
-            ))}
-          </ConnectionCanvas>
           <Canvas>
-            {board.ports.map(renderPort)}
             <Board width={width} height={height} src={board.image.url} />
           </Canvas>
+          <ConnectionCanvas>
+            {board.ports.map((port, i) => (
+              <g key={port.name}>
+                <path
+                  key={port.name}
+                  d={connectionPath(port)}
+                  fill="none"
+                  stroke={selectedPortIndex === i ? colors.brandOrange : "#bbb"}
+                  strokeWidth={2}
+                  strokeDasharray={
+                    hardware.components.some(c => c.port === port.name)
+                      ? "0"
+                      : "7 3"
+                  }
+                />
+                {connectionCircle(port, selectedPortIndex === i)}
+              </g>
+            ))}
+          </ConnectionCanvas>
+          <Canvas>{board.ports.map(renderPort)}</Canvas>
         </CanvasWrap>
       </ScrollContainer>
       <AddComponentPanel
@@ -216,7 +268,7 @@ const ScrollContainer = styled.div`
 const CanvasWrap = styled.div`
   flex: 1;
   position: relative;
-  min-height: 600px;
+  margin-top: 90px;
 `;
 
 const Canvas = styled.div`
@@ -232,39 +284,61 @@ const ConnectionCanvas = styled.svg`
   overflow: visible;
 `;
 
-interface IComponentProps {
-  selected: boolean;
-  width: number;
-  height: number;
+const Component = styled.div<{
   top: number;
   left: number;
-}
-const Component = styled.div<IComponentProps>`
+  selected: boolean;
+}>`
   position: absolute;
   cursor: pointer;
   top: ${props => props.top}px;
   left: ${props => props.left}px;
-  width: ${props => props.width}px;
-  height: ${props => props.height}px;
   transform: translate(-50%, -50%);
+  border-radius: 6px;
+  background-color: white;
+  z-index: 10;
 
+  ${props =>
+    props.selected &&
+    css`
+      filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.3));
+      padding: 10px;
+      z-index: 20;
+    `}
+`;
+
+const ComponentImageWrap = styled.div<{ selected: boolean }>`
+  padding-bottom: 3px;
+  border-color: ${colors.brandOrange};
+  border-width: 2px;
+  border-style: ${props => (props.selected ? "solid" : "none")};
+  border-radius: 5px;
+`;
+
+const ComponentImage = styled.div<{ width: number; height: number }>`
+  border-radius: 3px;
+  padding: 10px;
+  background-color: #f1f1f1;
+  box-shadow: 0 3px 0 0 #bbb;
   img {
     width: ${props => props.width}px;
     height: ${props => props.height}px;
-    border-color: ${props => (props.selected ? colors.brandOrange : "#bbb")};
-    border-style: solid;
-    border-width: 2px;
-    border-radius: 6px;
   }
 `;
 
-const DeleteButton = styled(JuniorButton)`
+const DeleteWrap = styled.div`
+  border-radius: 5px;
   position: absolute;
+  padding: 10px;
+  background-color: white;
+  top: 0px;
+  right: -50px;
+`;
+
+const DeleteButton = styled(JuniorButton)`
   padding: 0px;
   width: 40px;
   height: 40px;
-  top: -20px;
-  right: -20px;
 
   svg {
     width: 20px;

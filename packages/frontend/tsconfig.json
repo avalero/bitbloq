@@ -1,34 +1,30 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "module": "esnext",
     "target": "es5",
-    "lib": ["esnext.asynciterable", "es7", "dom"],
-    "sourceMap": true,
+    "lib": ["dom", "dom.iterable", "esnext", "webworker"],
     "allowJs": true,
-    "jsx": "react",
-    "moduleResolution": "node",
+    "skipLibCheck": true,
+    "strict": false,
     "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
     "noImplicitReturns": true,
     "noImplicitThis": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    "noUnusedLocals": false,
-    "outDir": "./build/dist",
-    "rootDir": "src",
-    "esModuleInterop": true
+    "noUnusedLocals": false
   },
-  "include": [
-    "./src"
-  ],
-  "exclude": [
-    "node_modules",
-    "build",
-    "scripts",
-    "acceptance-tests",
-    "webpack",
-    "jest",
-    "src/setupTests.ts"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "baseUrl": ".",
+  "paths": {
+    "components/*": ["src/components/*"],
+    "apollo/*": ["src/apollo/*"]
+  }
 }

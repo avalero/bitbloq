@@ -1,26 +1,26 @@
-import * as React from "react";
+import React, { SFC, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import Button from "./Button";
 import Modal from "./Modal";
 import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
-export interface DialogModalProps {
+export interface IDialogModalProps {
   isOpen: boolean;
   title?: string;
-  text?: string;
+  text?: JSX.Element | string;
   content?: JSX.Element;
   okText?: string;
   cancelText?: string;
   okButton?: JSX.Element;
   cancelButton?: JSX.Element;
-  onOk: () => void;
+  onOk?: () => void;
   onCancel?: () => void;
   transparentOverlay?: boolean;
   horizontalRule?: boolean;
 }
 
-const DialogModal: React.SFC<DialogModalProps> = ({
+const DialogModal: SFC<IDialogModalProps> = ({
   isOpen,
   title,
   text,
@@ -33,30 +33,49 @@ const DialogModal: React.SFC<DialogModalProps> = ({
   onCancel,
   transparentOverlay,
   horizontalRule = false
-}) => (
-  <Modal
-    isOpen={isOpen}
-    showHeader={false}
-    transparentOverlay={transparentOverlay}
-  >
-    <Content>
-      <Header horizontalRule={horizontalRule}>
-        <h2>{title}</h2>
-        {horizontalRule && <Rule small />}
-      </Header>
-      {text && <p>{text}</p>}
-      {content}
-      {okButton}
-      {!okButton && okText && <Button onClick={onOk}>{okText}</Button>}
-      {cancelButton}
-      {!cancelButton && cancelText && (
-        <Button tertiary onClick={onCancel}>
-          {cancelText}
-        </Button>
-      )}
-    </Content>
-  </Modal>
-);
+}) => {
+  const submitRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    const onSubmitForm = (e: KeyboardEvent) => {
+      if (e.keyCode === 13 && submitRef.current) {
+        e.preventDefault();
+        submitRef.current.click();
+      }
+    };
+    window.addEventListener("keypress", onSubmitForm);
+    return () => window.removeEventListener("keypress", onSubmitForm);
+  }, [isOpen]);
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      showHeader={false}
+      transparentOverlay={transparentOverlay}
+    >
+      <Content>
+        <Header horizontalRule={horizontalRule}>
+          <h2>{title}</h2>
+          {horizontalRule && <Rule small />}
+        </Header>
+        {text && <p>{text}</p>}
+        {content}
+        {okButton}
+        {!okButton && okText && (
+          <Button ref={submitRef} onClick={onOk}>
+            {okText}
+          </Button>
+        )}
+        {cancelButton}
+        {!cancelButton && cancelText && (
+          <Button tertiary onClick={onCancel}>
+            {cancelText}
+          </Button>
+        )}
+      </Content>
+    </Modal>
+  );
+};
 
 export default DialogModal;
 
@@ -99,12 +118,9 @@ const Content = styled.div`
   }
 `;
 
-interface HeaderProps {
-  horizontalRule: boolean;
-}
-const Header = styled.div<HeaderProps>`
+const Header = styled.div<{ horizontalRule: boolean }>`
   height: 60px;
-  margin-bottom: ${(props: HeaderProps) => props.horizontalRule ? 40 : 0}px;
+  margin-bottom: ${props => (props.horizontalRule ? 40 : 0)}px;
   position: relative;
 `;
 

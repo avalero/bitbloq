@@ -1,112 +1,43 @@
 import * as React from "react";
 import { Query, Mutation, Subscription } from "react-apollo";
-import {
-  colors,
-  Button,
-  DialogModal,
-  HorizontalRule,
-  Icon,
-  Input,
-  Spinner,
-  Modal,
-  Translate
-} from "@bitbloq/ui";
+import { colors, Button, DialogModal, Icon, Translate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { Link, navigate } from "gatsby";
-import gql from "graphql-tag";
-import AppHeader from "./AppHeader";
-import DocumentTypeTag from "./DocumentTypeTag";
-import ExercisePanel from "./ExercisePanel";
-import GraphQLErrorMessage from "./GraphQLErrorMessage";
-import EditTitleModal from "./EditTitleModal";
-import { sortByCreatedAt } from "../util";
-import { UserDataContext } from "../lib/useUserData";
+import { ApolloError } from "apollo-client";
 import {
+  CHANGE_SUBMISSION_STATE_MUTATION,
+  CREATE_EXERCISE_MUTATION,
+  DELETE_SUBMISSION_MUTATION,
+  DOCUMENT_QUERY,
   DOCUMENT_UPDATED_SUBSCRIPTION,
   EXERCISE_UPDATE_MUTATION,
   EXERCISE_DELETE_MUTATION,
   SUBMISSION_UPDATED_SUBSCRIPTION,
   REMOVE_SUBMISSION_MUTATION
 } from "../apollo/queries";
+import { UserDataContext } from "../lib/useUserData";
+import { sortByCreatedAt } from "../util";
+import AppLayout from "./AppLayout";
 import Breadcrumbs from "./Breadcrumbs";
-import AppFooter from "./Footer";
-import { ApolloError } from "apollo-client";
-
-const DOCUMENT_QUERY = gql`
-  query Document($id: ObjectID!) {
-    document(id: $id) {
-      id
-      type
-      title
-      description
-      image {
-        image
-        isSnapshot
-      }
-      folder
-      parentsPath {
-        id
-        name
-      }
-      exercises {
-        id
-        code
-        title
-        acceptSubmissions
-        createdAt
-        submissions {
-          id
-          studentNick
-          finished
-          finishedAt
-          type
-          grade
-          active
-        }
-      }
-    }
-  }
-`;
-
-const CREATE_EXERCISE_MUTATION = gql`
-  mutation CreateExercise($documentId: ObjectID!, $title: String!) {
-    createExercise(input: { document: $documentId, title: $title }) {
-      id
-    }
-  }
-`;
-
-const DELETE_SUBMISSION_MUTATION = gql`
-  mutation DeleteSubmission($id: ObjectID!) {
-    deleteSubmission(submissionID: $id) {
-      id
-    }
-  }
-`;
-
-const CHANGE_SUBMISSIONS_STATE_MUTATION = gql`
-  mutation ChangeSubmissionsState($id: ObjectID!, $subState: Boolean!) {
-    changeSubmissionsState(id: $id, subState: $subState) {
-      id
-    }
-  }
-`;
+import DocumentTypeTag from "./DocumentTypeTag";
+import EditInputModal from "./EditInputModal";
+import ExercisePanel from "./ExercisePanel";
+import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
 class DocumentState {
-  readonly isCreateExerciseOpen: boolean = false;
-  readonly isUpdateExerciseOpen: boolean = false;
-  readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
-  readonly errorName: boolean = false;
-  readonly newExerciseTitle: string = "";
-  readonly exerciseId: string = "";
-  readonly stateError: ApolloError = "";
+  public readonly isCreateExerciseOpen: boolean = false;
+  public readonly isUpdateExerciseOpen: boolean = false;
+  public readonly isRemoveExerciseOpen: 0 | 1 | 2 = 0; // 0 -> cerrada; 1 -> sin entregas; 2 -> con entregas
+  public readonly errorName: boolean = false;
+  public readonly newExerciseTitle: string = "";
+  public readonly exerciseId: string = "";
+  public readonly stateError: ApolloError | null = null;
 }
 
 class Document extends React.Component<any, DocumentState> {
-  readonly state = new DocumentState();
-  newExerciseTitleInput = React.createRef<HTMLInputElement>();
+  public readonly state = new DocumentState();
+  private newExerciseTitleInput = React.createRef<HTMLInputElement>();
 
-  componentDidUpdate(prevProps: any, prevState: DocumentState) {
+  public componentDidUpdate(prevProps: any, prevState: DocumentState) {
     const { isCreateExerciseOpen, isUpdateExerciseOpen } = this.state;
     if (isCreateExerciseOpen && !prevState.isCreateExerciseOpen) {
       const input = this.newExerciseTitleInput.current;
@@ -122,25 +53,19 @@ class Document extends React.Component<any, DocumentState> {
     }
   }
 
-  renderHeader(document) {
-    let breadParents = [];
-    for (let item of document.parentsPath) {
-      breadParents = [
-        ...breadParents,
-        ...[
-          { route: `/app/folder/${item.id}`, text: item.name, type: "folder" }
-        ]
-      ];
-    }
-    breadParents.push({ route: "", text: document.title, type: "document" });
-    return (
-      <Header>
-        <Breadcrumbs links={breadParents} title={document.title} />
-      </Header>
-    );
+  public renderHeader(document) {
+    const breadParents = document.parentsPath.map(item => ({
+      route: `/app/folder/${item.id}`,
+      text: item.name,
+      type: "folder"
+    }));
+
+    breadParents.push({ route: "", text: document.name, type: "document" });
+
+    return <Breadcrumbs links={breadParents} title={document.name} />;
   }
 
-  renderDocumentInfo(document, t) {
+  public renderDocumentInfo(document, t) {
     return (
       <DocumentInfo>
         <DocumentHeader>
@@ -151,7 +76,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.parentFolder}/${document.type}/${document.id}`
               )
             }
           >
@@ -163,7 +88,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentBodyInfo>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
-              {document.title || t("document-body-title")}
+              {document.name || t("document-body-title")}
             </DocumentTitle>
             <DocumentDescription>
               {document.description || t("document-body-description")}
@@ -174,7 +99,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderDocumentTeacherInfo(document, t) {
+  public renderDocumentTeacherInfo(document, t) {
     return (
       <DocumentInfo teacher>
         <DocumentHeader>
@@ -185,7 +110,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentHeaderButton
             onClick={() =>
               window.open(
-                `/app/document/${document.folder}/${document.type}/${document.id}`
+                `/app/edit-document/${document.parentFolder}/${document.type}/${document.id}`
               )
             }
           >
@@ -197,7 +122,7 @@ class Document extends React.Component<any, DocumentState> {
           <DocumentBodyInfo teacher>
             <DocumentTypeTag document={document} />
             <DocumentTitle>
-              {document.title || t("document-body-title")}
+              {document.name || t("document-body-title")}
             </DocumentTitle>
             <DocumentDescription>
               {document.description || t("document-body-description")}
@@ -208,14 +133,14 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderExercise = (exercise, refetch) => {
+  public renderExercise = (exercise, refetch) => {
     const { id: documentId } = this.props;
 
     return (
       <React.Fragment key={exercise.id}>
         <Mutation mutation={DELETE_SUBMISSION_MUTATION}>
           {deleteSubmission => (
-            <Mutation mutation={CHANGE_SUBMISSIONS_STATE_MUTATION}>
+            <Mutation mutation={CHANGE_SUBMISSION_STATE_MUTATION}>
               {changeSubmissionsState => (
                 <Mutation mutation={REMOVE_SUBMISSION_MUTATION}>
                   {removeSubmission => (
@@ -292,7 +217,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   };
 
-  renderExercises(exercises, refetch, t) {
+  public renderExercises(exercises, refetch, t) {
     return (
       <Exercises>
         <DocumentHeader>
@@ -340,15 +265,15 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderCreateExerciseModal(document, t) {
+  public renderCreateExerciseModal(document, t) {
     const { id: documentId } = this.props;
     const { errorName, isCreateExerciseOpen, newExerciseTitle } = this.state;
 
     return (
       <Mutation mutation={CREATE_EXERCISE_MUTATION}>
         {createExercise => (
-          <EditTitleModal
-            title={newExerciseTitle}
+          <EditInputModal
+            value={newExerciseTitle}
             onCancel={() =>
               this.setState({ isCreateExerciseOpen: false, errorName: false })
             }
@@ -356,7 +281,7 @@ class Document extends React.Component<any, DocumentState> {
               createExercise({
                 variables: {
                   documentId,
-                  title: value || "Ejercicio sin título"
+                  name: value || "Ejercicio sin título"
                 },
                 refetchQueries: [
                   {
@@ -370,8 +295,8 @@ class Document extends React.Component<any, DocumentState> {
                 errorName: false
               });
             }}
-            modalTitle={t("exercises-modal-title")}
-            modalText={t("exercises-modal-text")}
+            title={t("exercises-modal-title")}
+            label={t("exercises-modal-text")}
             placeholder={t("exercises-modal-placeholder")}
             saveButton={t("general-create-button")}
           />
@@ -380,7 +305,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderUpdateExerciseModal(t) {
+  public renderUpdateExerciseModal(t) {
     const { id: documentId } = this.props;
     const {
       errorName,
@@ -392,8 +317,8 @@ class Document extends React.Component<any, DocumentState> {
     return (
       <Mutation mutation={EXERCISE_UPDATE_MUTATION}>
         {updateExercise => (
-          <EditTitleModal
-            title={newExerciseTitle}
+          <EditInputModal
+            value={newExerciseTitle}
             onCancel={() =>
               this.setState({ isUpdateExerciseOpen: false, errorName: false })
             }
@@ -402,7 +327,7 @@ class Document extends React.Component<any, DocumentState> {
                 variables: {
                   id: exerciseId,
                   input: {
-                    title: value || "Ejercicio sin título"
+                    name: value || "Ejercicio sin título"
                   }
                 },
                 refetchQueries: [
@@ -417,8 +342,8 @@ class Document extends React.Component<any, DocumentState> {
                 errorName: false
               });
             }}
-            modalTitle={t("exercises-modal-update")}
-            modalText={t("exercises-modal-text")}
+            title={t("exercises-modal-update")}
+            label={t("exercises-modal-text")}
             placeholder={t("exercises-modal-placeholder")}
             saveButton={t("general-change-button")}
           />
@@ -427,7 +352,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  renderRemoveExerciseModal(t) {
+  public renderRemoveExerciseModal(t) {
     const { id: documentId } = this.props;
     const { isRemoveExerciseOpen, exerciseId } = this.state;
 
@@ -467,7 +392,7 @@ class Document extends React.Component<any, DocumentState> {
     );
   }
 
-  render() {
+  public render() {
     const { id } = this.props;
     const {
       isCreateExerciseOpen,
@@ -477,17 +402,18 @@ class Document extends React.Component<any, DocumentState> {
 
     return (
       <UserDataContext.Consumer>
-        {user => (
+        {({ userData }) => (
           <Translate>
             {t => (
-              <Container>
-                <AppHeader />
+              <>
                 <Query query={DOCUMENT_QUERY} variables={{ id }}>
                   {({ loading, error, data, refetch }) => {
                     if (error) {
                       return <GraphQLErrorMessage apolloError={error} />;
                     }
-                    if (loading) return <Loading />;
+                    if (loading) {
+                      return <AppLayout loading />;
+                    }
 
                     if (stateError) {
                       return <GraphQLErrorMessage apolloError={stateError} />;
@@ -495,39 +421,36 @@ class Document extends React.Component<any, DocumentState> {
 
                     const { document } = data;
 
+                    if (!document) {
+                      return null;
+                    }
+
                     return (
-                      <>
-                        <Content>
-                          {this.renderHeader(document)}
-                          <Rule />
-                          <DocumentData>
-                            {user.teacher
-                              ? this.renderDocumentTeacherInfo(document, t)
-                              : this.renderDocumentInfo(document, t)}
-                            {user.teacher
-                              ? this.renderExercises(
-                                  document.exercises,
-                                  refetch,
-                                  t
-                                )
-                              : ""}
-                          </DocumentData>
-                        </Content>
+                      <AppLayout header={this.renderHeader(document)}>
+                        <DocumentData>
+                          {userData && userData.teacher
+                            ? this.renderDocumentTeacherInfo(document, t)
+                            : this.renderDocumentInfo(document, t)}
+                          {userData && userData.teacher
+                            ? this.renderExercises(
+                                document.exercises,
+                                refetch,
+                                t
+                              )
+                            : ""}
+                        </DocumentData>
                         <Subscription
                           subscription={DOCUMENT_UPDATED_SUBSCRIPTION}
                           shouldResubscribe={true}
                           onSubscriptionData={({ subscriptionData }) => {
-                            const { data } = subscriptionData;
-                            if (
-                              data &&
-                              data.documentUpdated &&
-                              data.documentUpdated.id === id
-                            ) {
+                            const { documentUpdated } =
+                              subscriptionData.data || {};
+                            if (documentUpdated && documentUpdated.id === id) {
                               refetch();
                             }
                           }}
                         />
-                      </>
+                      </AppLayout>
                     );
                   }}
                 </Query>
@@ -536,8 +459,7 @@ class Document extends React.Component<any, DocumentState> {
                   : ""}
                 {isUpdateExerciseOpen ? this.renderUpdateExerciseModal(t) : ""}
                 {this.renderRemoveExerciseModal(t)}
-                <AppFooter />
-              </Container>
+              </>
             )}
           </Translate>
         )}
@@ -555,42 +477,6 @@ const withCreateExercise = Component => props => (
 export default Document;
 
 /* styled components */
-
-const Container = styled.div`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: ${colors.gray1};
-  display: flex;
-  flex-direction: column;
-`;
-
-const Content = styled.div`
-  flex: 1;
-  padding: 0px 50px;
-`;
-
-const Header = styled.div`
-  height: 80px;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-
-  a {
-    font-weight: bold;
-    color: inherit;
-    text-decoration: none;
-    margin-right: 6px;
-  }
-`;
-
-const Loading = styled(Spinner)`
-  flex: 1;
-`;
-
-const Rule = styled(HorizontalRule)`
-  margin: 0px -10px;
-`;
 
 const EmptyExercises = styled.div`
   align-items: center;
@@ -617,15 +503,10 @@ const EmptyExercises = styled.div`
   }
 `;
 
-interface DocumentBodyProps {
-  teacher?: boolean;
-}
-const DocumentBody = styled.div<DocumentBodyProps>`
+const DocumentBody = styled.div<{ teacher?: boolean }>`
   display: flex;
-  flex-flow: ${(props: DocumentBodyProps) =>
-    props.teacher ? "column nowrap" : "row nowrap"};
-  padding: ${(props: DocumentBodyProps) =>
-    props.teacher ? "20px" : "40px 20px"};
+  flex-flow: ${props => (props.teacher ? "column nowrap" : "row nowrap")};
+  padding: ${props => (props.teacher ? "20px" : "40px 20px")};
   width: calc(100% - 40px);
 `;
 
@@ -633,15 +514,11 @@ const ExercisesPanel = styled.div`
   padding: 23px 20px;
 `;
 
-interface DocumentBodyInfoProps {
-  teacher?: boolean;
-}
-const DocumentBodyInfo = styled.div<DocumentBodyInfoProps>`
+const DocumentBodyInfo = styled.div<{ teacher?: boolean }>`
   color: #474749;
   flex-grow: 0;
-  margin-top: ${(props: DocumentBodyInfoProps) => (props.teacher ? 20 : 0)}px;
-  width: ${(props: DocumentBodyInfoProps) =>
-    props.teacher ? "100%" : "calc(100% - 375px)"};
+  margin-top: ${props => (props.teacher ? 20 : 0)}px;
+  width: ${props => (props.teacher ? "100%" : "calc(100% - 375px)")};
 `;
 
 const DocumentHeader = styled.div`
@@ -673,10 +550,7 @@ const DocumentHeaderButton = styled(MyButton)`
   align-self: flex-end;
 `;
 
-interface DocumentHeaderTextProps {
-  exercise?: boolean;
-}
-const DocumentHeaderText = styled.div<DocumentHeaderTextProps>`
+const DocumentHeaderText = styled.div<{ exercise?: boolean }>`
   align-items: center;
   display: flex;
   font-family: Roboto;
@@ -684,10 +558,8 @@ const DocumentHeaderText = styled.div<DocumentHeaderTextProps>`
   font-weight: 500;
 
   svg {
-    height: ${(props: DocumentHeaderTextProps) =>
-      props.exercise ? "24px" : "auto"};
-    width: ${(props: DocumentHeaderTextProps) =>
-      props.exercise ? "24px" : "auto"};
+    height: ${props => (props.exercise ? "24px" : "auto")};
+    width: ${props => (props.exercise ? "24px" : "auto")};
   }
 `;
 
@@ -697,35 +569,26 @@ const DocumentData = styled.div`
   border-radius: 4px;
   display: flex;
   flex-flow: row nowrap;
-  margin-top: 23px;
   width: 100%;
 `;
 
-interface DocumentInfoProps {
-  teacher?: boolean;
-}
-const DocumentInfo = styled.div<DocumentInfoProps>`
-  border-right: ${(props: DocumentInfoProps) =>
-    props.teacher ? "solid 1px #c0c3c9" : "none"};
+const DocumentInfo = styled.div<{ teacher?: boolean }>`
+  border-right: ${props => (props.teacher ? "solid 1px #c0c3c9" : "none")};
   display: flex;
   flex-flow: column nowrap;
-  width: ${(props: DocumentInfoProps) => (props.teacher ? 34 : 100)}%;
+  width: ${props => (props.teacher ? 34 : 100)}%;
 `;
 
-interface DocumentImageProps {
-  src: string;
-  teacher?: boolean;
-}
-const DocumentImage = styled.div<DocumentImageProps>`
+const DocumentImage = styled.div<{ src: string; teacher?: boolean }>`
   background-color: ${colors.gray2};
-  background-image: url(${(props: DocumentImageProps) => props.src});
+  background-image: url(${props => props.src});
   background-position: center;
   background-size: cover;
   border-radius: 4px;
   flex-shrink: 0;
   height: 215px;
-  margin: ${(props: DocumentImageProps) => (props.teacher ? 0 : "0 20px 0 0")};
-  width: ${(props: DocumentImageProps) => (props.teacher ? "100%" : "360px")};
+  margin: ${props => (props.teacher ? 0 : "0 20px 0 0")};
+  width: ${props => (props.teacher ? "100%" : "360px")};
 `;
 
 const DocumentTitle = styled.div`
@@ -746,45 +609,6 @@ const DocumentDescription = styled.div`
   word-wrap: break-word;
 `;
 
-const Buttons = styled.div`
-  display: flex;
-  & > * {
-    margin-right: 10px;
-    svg {
-      width: 11px;
-      height: 11px;
-      margin-right: 6px;
-    }
-  }
-`;
-
-const DocumentButton = styled.div`
-  margin-right: 10px;
-  color: white;
-`;
-
 const Exercises = styled.div`
   width: 66%;
-`;
-
-const ModalContent = styled.div`
-  padding: 30px;
-  width: 500px;
-  box-sizing: border-box;
-
-  p {
-    font-size: 14px;
-    margin-bottom: 20px;
-  }
-`;
-
-const ModalButtons = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 50px;
-`;
-
-const ModalButton = styled(Button)`
-  height: 40px;
-  padding: 0 20px;
 `;

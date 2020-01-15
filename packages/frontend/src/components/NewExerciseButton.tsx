@@ -3,13 +3,13 @@ import styled from "@emotion/styled";
 
 import { Button, Input, Icon, DropDown } from "@bitbloq/ui";
 
-export interface NewExerciseDropDownProps {
+export interface INewExerciseDropDownProps {
   onOpenExercise: (exerciseCode: string) => any;
   exerciseError: boolean;
   loadingExercise: boolean;
 }
 
-const NewExerciseButton: FC<NewExerciseDropDownProps> = ({
+const NewExerciseButton: FC<INewExerciseDropDownProps> = ({
   onOpenExercise,
   exerciseError,
   loadingExercise
@@ -22,14 +22,19 @@ const NewExerciseButton: FC<NewExerciseDropDownProps> = ({
       targetPosition={"bottom center"}
       closeOnClick={false}
     >
-      {(isOpen: boolean) => (
+      {() => (
         <HeaderButton tertiary>
           <Icon name="airplane-document" />
           Ir al ejercicio
         </HeaderButton>
       )}
       <ExerciseDropDown>
-        <ExerciseForm>
+        <ExerciseForm
+          onSubmit={e => {
+            e.preventDefault();
+            onOpenExercise(exerciseCode);
+          }}
+        >
           <label>Código del ejercicio</label>
           <Input
             type="text"
@@ -39,12 +44,9 @@ const NewExerciseButton: FC<NewExerciseDropDownProps> = ({
             onChange={e => setExerciseCode(e.target.value)}
           />
           {exerciseError && <Error>El código no es válido</Error>}
-          <HeaderButton
-            onClick={() => onOpenExercise(exerciseCode)}
-            disabled={loadingExercise}
-          >
+          <Button type="submit" disabled={loadingExercise}>
             Ir al ejercicio
-          </HeaderButton>
+          </Button>
         </ExerciseForm>
       </ExerciseDropDown>
     </DropDown>
@@ -67,7 +69,7 @@ const HeaderButton = styled(Button)`
 
 const ExerciseDropDown = styled.div`
   width: 280px;
-  margin-top: 8px;
+  margin-top: 12px;
   background-color: white;
   border-radius: 4px;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -86,7 +88,7 @@ const ExerciseDropDown = styled.div`
   }
 `;
 
-const ExerciseForm = styled.div`
+const ExerciseForm = styled.form`
   label {
     font-size: 14px;
     margin-bottom: 10px;

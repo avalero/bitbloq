@@ -1,11 +1,12 @@
-import React, { FC, useState } from "react";
+import { css } from "@emotion/core";
+import React, { FC } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import styled from "@emotion/styled";
 import DocumentTypeTag from "./DocumentTypeTag";
 import { colors } from "@bitbloq/ui";
 import folderImg from "../images/folder.svg";
 
-export interface DocumentCardProps {
+export interface IDocumentCardProps {
   beginFunction?: () => void;
   className?: string;
   document: any;
@@ -13,10 +14,11 @@ export interface DocumentCardProps {
   dropDocumentCallback?: () => void;
   dropFolderCallback?: () => void;
   endFunction?: () => void;
+  hidden?: boolean;
   onClick?: (e: React.MouseEvent) => any;
 }
 
-const DocumentCard: FC<DocumentCardProps> = ({
+const DocumentCard: FC<IDocumentCardProps> = ({
   beginFunction,
   children,
   className,
@@ -25,44 +27,46 @@ const DocumentCard: FC<DocumentCardProps> = ({
   dropDocumentCallback,
   dropFolderCallback,
   endFunction,
+  hidden = false,
   onClick
 }) => {
-  const [hidden, setHidden] = useState(false);
   const [{ isDragging }, drag] = useDrag({
-    item: { type: document.type === "folder" ? "folder" : "document" },
+    item: {
+      id: document.id,
+      type: document.type === "folder" ? "folder" : "document"
+    },
     collect: monitor => ({
       isDragging: !!monitor.isDragging()
     }),
-    canDrag: monitor => {
-      return !!draggable;
-    },
-    begin: monitor => {
-      beginFunction && beginFunction();
-    },
-    end: (item, monitor) => {
-      if (monitor.didDrop()) {
-        setHidden(true);
-      } else {
-        setHidden(false);
+    canDrag: () => !!draggable,
+    begin: () => {
+      if (beginFunction) {
+        beginFunction();
       }
-      endFunction && endFunction();
+    },
+    end: () => {
+      if (endFunction) {
+        endFunction();
+      }
     }
   });
 
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
-    drop: item => {
-      if (item.type === "document" && dropDocumentCallback) {
-        dropDocumentCallback();
-      } else if (item.type === "folder" && dropFolderCallback) {
-        dropFolderCallback();
-      }
-    },
+    canDrop: () => true,
     collect: monitor => ({
       isOver: !!monitor.isOver()
-    })
+    }),
+    drop: (item, monitor) => {
+      if (document.id !== monitor.getItem().id) {
+        if (item.type === "document" && dropDocumentCallback) {
+          dropDocumentCallback();
+        } else if (item.type === "folder" && dropFolderCallback) {
+          dropFolderCallback();
+        }
+      }
+    }
   });
-
   return hidden ? (
     <></>
   ) : (
@@ -75,18 +79,24 @@ const DocumentCard: FC<DocumentCardProps> = ({
     >
       {document.type === "folder" && <DropContainer ref={drop} />}
       {document.type !== "folder" ? (
-        <Image src={document.image} />
+        <Image
+          src={
+            document.image && document.image.image
+              ? document.image.image
+              : document.image
+          }
+        />
       ) : (
         <ImageFol src={folderImg} />
       )}
       {document.type !== "folder" ? (
         <Info>
           <DocumentTypeTag small document={document} />
-          <Title>{document.title}</Title>
+          <Title>{document.name}</Title>
         </Info>
       ) : (
-        <Info folder={true}>
-          <Title folder={true}>{document.title}</Title>
+        <Info folder>
+          <Title folder>{document.name}</Title>
         </Info>
       )}
       {children}
@@ -96,23 +106,21 @@ const DocumentCard: FC<DocumentCardProps> = ({
 
 export default DocumentCard;
 
-interface ContainerProps {
+interface IContainerProps {
   isDragging: boolean;
   isOver: boolean;
 }
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<IContainerProps>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
   border: 1px solid
-    ${(props: ContainerProps) =>
-      props.isDragging || props.isOver ? colors.gray4 : colors.gray3};
+    ${props => (props.isDragging || props.isOver ? colors.gray4 : colors.gray3)};
   cursor: pointer;
   background-color: white;
   position: relative;
   overflow: hidden;
-  visibility: ${(props: ContainerProps) =>
-    props.isDragging ? "hidden" : "visible"};
+  visibility: ${props => (props.isDragging ? "hidden" : "visible")};
 
   &:hover {
     border-color: ${colors.gray4};
@@ -126,21 +134,25 @@ const DropContainer = styled.div`
   width: 100%;
 `;
 
-interface ImageProps {
+interface IImageProps {
   src: string;
 }
-const Image = styled.div<ImageProps>`
+const Image = styled.div<IImageProps>`
   flex: 1;
   background-color: ${colors.gray2};
-  background-image: url(${props => props.src});
   background-size: cover;
   background-position: center;
   border-bottom: 1px solid ${colors.gray3};
+  ${props =>
+    props.src !== "imageURL" &&
+    css`
+      background-image: url(${props.src});
+    `};
 `;
 
-const ImageFol = styled.div<ImageProps>`
+const ImageFol = styled.div<IImageProps>`
   flex: 1;
-  background-color: ${colors.white};
+  background-color: white;
   background-image: url(${props => props.src});
   background-size: 60px 60px;
   background-position: center;
@@ -157,11 +169,16 @@ const Info = styled.div<{ folder?: boolean }>`
 `;
 
 const Title = styled.div<{ folder?: boolean }>`
+  -webkit-box-orient: ${props => (props.folder ? "vertical" : null)};
+  -webkit-line-clamp: ${props => (props.folder ? 2 : null)};
+  display: ${props => (props.folder ? "-webkit-box" : null)};
   margin-top: ${props => (props.folder ? null : 10)}px;
   font-size: 16px;
   text-overflow: ellipsis;
   overflow: hidden;
+  overflow-wrap: ${props => (props.folder ? "break-word" : null)};
   white-space: ${props => (props.folder ? null : "nowrap")};
+  word-wrap: ${props => (props.folder ? "break-word" : null)};
 `;
 
 const DocumentMenu = styled.div`
@@ -193,33 +210,5 @@ const DocumentMenuOption = styled.div`
 
   &:last-child {
     border: none;
-  }
-`;
-
-const DocumentMenuButton = styled.div<{ isOpen: boolean }>`
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  width: 34px;
-  height: 34px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  border: 1px solid ${colors.gray3};
-  background-color: white;
-  display: none;
-
-  &:hover {
-    background-color: ${colors.gray1};
-    border-color: ${colors.gray4};
-  }
-
-  ${props =>
-    props.isOpen &&
-    css`
-      border: solid 1px #dddddd;
-      background-color: #e8e8e8;
-    `} svg {
-    transform: rotate(90deg);
   }
 `;

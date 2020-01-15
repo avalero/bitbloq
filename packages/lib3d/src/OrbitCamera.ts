@@ -44,7 +44,6 @@ export default class OrbitCamera {
   };
 
   private _needsUpdate: boolean;
-
   private dispose: () => void;
 
   constructor(camera: THREE.Camera, domElement: any) {
@@ -52,16 +51,16 @@ export default class OrbitCamera {
 
     if (this.camera instanceof THREE.OrthographicCamera) {
       this.ortho = {
-        near: this.camera.near,
         far: this.camera.far,
         left: this.camera.left,
+        near: this.camera.near,
         right: this.camera.right
       };
     } else {
       this.ortho = {
-        near: 0.1,
         far: 10000,
         left: -200,
+        near: 0.1,
         right: 200
       };
     }
@@ -488,24 +487,22 @@ export default class OrbitCamera {
 
   public toJSON(): object {
     return {
-      enabled: this.enabled,
+      dampingFactor: this.dampingFactor,
+      dollySpeed: this.dollySpeed,
+      draggingDampingFactor: this.draggingDampingFactor,
 
-      minDistance: this.minDistance,
+      enabled: this.enabled,
+      maxAzimuthAngle: infinityToMaxNumber(this.maxAzimuthAngle),
       maxDistance: infinityToMaxNumber(this.maxDistance),
-      minPolarAngle: this.minPolarAngle,
       maxPolarAngle: infinityToMaxNumber(this.maxPolarAngle),
       minAzimuthAngle: infinityToMaxNumber(this.minAzimuthAngle),
-      maxAzimuthAngle: infinityToMaxNumber(this.maxAzimuthAngle),
-      dampingFactor: this.dampingFactor,
-      draggingDampingFactor: this.draggingDampingFactor,
-      dollySpeed: this.dollySpeed,
-      truckSpeed: this.truckSpeed,
-
-      target: this._targetEnd.toArray(),
+      minDistance: this.minDistance,
+      minPolarAngle: this.minPolarAngle,
       position: this.camera.position.toArray(),
-
+      position0: this._position0.toArray(),
+      target: this._targetEnd.toArray(),
       target0: this._target0.toArray(),
-      position0: this._position0.toArray()
+      truckSpeed: this.truckSpeed
     };
   }
 
@@ -571,70 +568,70 @@ export default class OrbitCamera {
     this._needsUpdate = true;
   }
 
-  private moveTo(
-    x: number,
-    y: number,
-    z: number,
-    enableTransition: boolean
-  ): void {
-    this._targetEnd.set(x, y, z);
+  // private moveTo(
+  //   x: number,
+  //   y: number,
+  //   z: number,
+  //   enableTransition: boolean
+  // ): void {
+  //   this._targetEnd.set(x, y, z);
 
-    if (!enableTransition) {
-      this.target.copy(this._targetEnd);
-    }
+  //   if (!enableTransition) {
+  //     this.target.copy(this._targetEnd);
+  //   }
 
-    this._needsUpdate = true;
-  }
+  //   this._needsUpdate = true;
+  // }
 
-  private saveState(): void {
-    this._target0.copy(this.target);
-    this._position0.copy(this.camera.position);
-  }
+  // private saveState(): void {
+  //   this._target0.copy(this.target);
+  //   this._position0.copy(this.camera.position);
+  // }
 
-  private reset(enableTransition: boolean): void {
-    this._targetEnd.copy(this._target0);
-    this._sphericalEnd.setFromVector3(this._position0);
-    this._sphericalEnd.theta = this._sphericalEnd.theta % (2 * Math.PI);
-    this._spherical.theta = this._spherical.theta % (2 * Math.PI);
+  // private reset(enableTransition: boolean): void {
+  //   this._targetEnd.copy(this._target0);
+  //   this._sphericalEnd.setFromVector3(this._position0);
+  //   this._sphericalEnd.theta = this._sphericalEnd.theta % (2 * Math.PI);
+  //   this._spherical.theta = this._spherical.theta % (2 * Math.PI);
 
-    if (!enableTransition) {
-      this.target.copy(this._targetEnd);
-      this._spherical.copy(this._sphericalEnd);
-    }
+  //   if (!enableTransition) {
+  //     this.target.copy(this._targetEnd);
+  //     this._spherical.copy(this._sphericalEnd);
+  //   }
 
-    this._needsUpdate = true;
-  }
+  //   this._needsUpdate = true;
+  // }
 
-  private fromJSON(json: string, enableTransition: boolean): void {
-    const obj = JSON.parse(json);
-    const position = new THREE.Vector3().fromArray(obj.position);
+  // private fromJSON(json: string, enableTransition: boolean): void {
+  //   const obj = JSON.parse(json);
+  //   const position = new THREE.Vector3().fromArray(obj.position);
 
-    this.enabled = obj.enabled;
+  //   this.enabled = obj.enabled;
 
-    this.minDistance = obj.minDistance;
-    this.maxDistance = maxNumberToInfinity(obj.maxDistance);
-    this.minPolarAngle = obj.minPolarAngle;
-    this.maxPolarAngle = maxNumberToInfinity(obj.maxPolarAngle);
-    this.minAzimuthAngle = maxNumberToInfinity(obj.minAzimuthAngle);
-    this.maxAzimuthAngle = maxNumberToInfinity(obj.maxAzimuthAngle);
-    this.dampingFactor = obj.dampingFactor;
-    this.draggingDampingFactor = obj.draggingDampingFactor;
-    this.dollySpeed = obj.dollySpeed;
-    this.truckSpeed = obj.truckSpeed;
+  //   this.minDistance = obj.minDistance;
+  //   this.maxDistance = maxNumberToInfinity(obj.maxDistance);
+  //   this.minPolarAngle = obj.minPolarAngle;
+  //   this.maxPolarAngle = maxNumberToInfinity(obj.maxPolarAngle);
+  //   this.minAzimuthAngle = maxNumberToInfinity(obj.minAzimuthAngle);
+  //   this.maxAzimuthAngle = maxNumberToInfinity(obj.maxAzimuthAngle);
+  //   this.dampingFactor = obj.dampingFactor;
+  //   this.draggingDampingFactor = obj.draggingDampingFactor;
+  //   this.dollySpeed = obj.dollySpeed;
+  //   this.truckSpeed = obj.truckSpeed;
 
-    this._target0.fromArray(obj.target0);
-    this._position0.fromArray(obj.position0);
+  //   this._target0.fromArray(obj.target0);
+  //   this._position0.fromArray(obj.position0);
 
-    this._targetEnd.fromArray(obj.target);
-    this._sphericalEnd.setFromVector3(position.sub(this._target0));
+  //   this._targetEnd.fromArray(obj.target);
+  //   this._sphericalEnd.setFromVector3(position.sub(this._target0));
 
-    if (!enableTransition) {
-      this.target.copy(this._targetEnd);
-      this._spherical.copy(this._sphericalEnd);
-    }
+  //   if (!enableTransition) {
+  //     this.target.copy(this._targetEnd);
+  //     this._spherical.copy(this._sphericalEnd);
+  //   }
 
-    this._needsUpdate = true;
-  }
+  //   this._needsUpdate = true;
+  // }
 }
 
 const infinityToMaxNumber: (value: number) => number = (value: number) => {
@@ -649,10 +646,10 @@ const infinityToMaxNumber: (value: number) => number = (value: number) => {
   return Number.MAX_VALUE;
 };
 
-const maxNumberToInfinity: (value: number) => number = (value: number) => {
-  if (Math.abs(value) < Number.MAX_VALUE) {
-    return value;
-  }
+// const maxNumberToInfinity: (value: number) => number = (value: number) => {
+//   if (Math.abs(value) < Number.MAX_VALUE) {
+//     return value;
+//   }
 
-  return value * Infinity;
-};
+//   return value * Infinity;
+// };

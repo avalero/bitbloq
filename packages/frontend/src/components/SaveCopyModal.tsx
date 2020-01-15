@@ -1,22 +1,27 @@
 import React, { FC, useState, useRef, useEffect } from "react";
+import { useMutation } from "@apollo/react-hooks";
+import { IDocument } from "@bitbloq/api";
+import { Button, Input, Modal, DialogModal, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import { Button, Input, Modal, DialogModal, Option } from "@bitbloq/ui";
-import { useQuery, useMutation } from "@apollo/react-hooks";
 import { DOCUMENTS_QUERY, CREATE_DOCUMENT_MUTATION } from "../apollo/queries";
 import useUserData from "../lib/useUserData";
 
-interface SaveCopyModalProps {
+interface ISaveCopyModalProps {
   onClose: () => any;
-  document: any;
+  document: IDocument;
   content: any;
+  type: "example" | "exercise";
 }
 
-const SaveCopyModal: FC<SaveCopyModalProps> = ({
+const SaveCopyModal: FC<ISaveCopyModalProps> = ({
   onClose,
   document,
-  content
+  content,
+  type
 }) => {
-  const userData = useUserData();
+  const t = useTranslate();
+  let userData = useUserData();
+  userData = userData && userData.userData;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,14 +44,16 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
       await createDocument({
         variables: {
           ...document,
+          content,
           image: {
-            image: document.image.image ? document.image.image : document.image,
+            image: document.image!.image
+              ? document.image!.image
+              : document.image,
             isSnapshot:
-              document.image.isSnapshot !== undefined
-                ? document.image.isSnapshot
+              document.image!.isSnapshot !== undefined
+                ? document.image!.isSnapshot
                 : false
-          },
-          content: JSON.stringify(content)
+          }
         },
         context: {
           email,
@@ -64,9 +71,9 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
     return (
       <DialogModal
         isOpen={true}
-        title="Copia añadida correctamente"
-        text="Se ha añadido una copia de este ejemplo a tus documentos."
-        okText="Aceptar"
+        title={t("save-copy-modal.title.copy-added")}
+        text={t(`save-copy-modal.text.copy-added.${type}`)}
+        okText={t("save-copy-modal.buttons.ok")}
         onOk={onClose}
       />
     );
@@ -76,18 +83,20 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
     return (
       <DialogModal
         isOpen={true}
-        title="Añadir copia a mis documentos"
-        text="¿Añadir una copia a tu cuenta o a otra?"
+        title={t("save-copy-modal.title.select-account")}
+        text={t("save-copy-modal.text.select-account")}
         content={
           <OtherAccountDialog>
-            <Button onClick={() => onSave()}>Añadir a tu cuenta</Button>
+            <Button onClick={() => onSave()}>
+              {t("save-copy-modal.buttons.add.to-account")}
+            </Button>
             <Separator />
             <Button tertiary onClick={() => setShowAccountDialog(false)}>
-              Añadir a otra cuenta
+              {t("save-copy-modal.buttons.add.to-another-account")}
             </Button>
           </OtherAccountDialog>
         }
-        cancelText="Cancelar"
+        cancelText={t("save-copy-modal.buttons.cancel")}
         onCancel={onClose}
       />
     );
@@ -96,17 +105,14 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
   return (
     <Modal
       isOpen
-      title="Añadir una copia del ejemplo a mis documentos"
+      title={t(`save-copy-modal.title.add-copy.${type}`)}
       onClose={onClose}
     >
       <Content>
-        <p>
-          Escribe el correo electrónico y la contraseña de tu cuenta para añadir
-          la copia
-        </p>
+        <p>{t("save-copy-modal.text.add-copy")}</p>
         <LoginForm>
           <FormGroup>
-            <label>Correo electrónico</label>
+            <label>{t("save-copy-modal.text.email")}</label>
             <Input
               value={email}
               ref={emailInput}
@@ -114,11 +120,11 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setEmail(e.target.value)
               }
-              placeholder="Correo electrónico"
+              placeholder={t("save-copy-modal.text.email")}
             />
           </FormGroup>
           <FormGroup>
-            <label>Contraseña</label>
+            <label>{t("save-copy-modal.text.password")}</label>
             <Input
               value={password}
               type="password"
@@ -126,15 +132,15 @@ const SaveCopyModal: FC<SaveCopyModalProps> = ({
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setPassword(e.target.value)
               }
-              placeholder="Contraseña"
+              placeholder={t("save-copy-modal.text.password")}
             />
           </FormGroup>
         </LoginForm>
-        {loginError && (
-          <Error>El Correo electrónico o la contraseña no son correctos</Error>
-        )}
+        {loginError && <Error>{t("save-copy-modal.text.error")}</Error>}
         <Buttons>
-          <Button onClick={() => onSave()}>Añadir copia</Button>
+          <Button onClick={() => onSave()}>
+            {t("save-copy-modal.buttons.add.copy")}
+          </Button>
         </Buttons>
       </Content>
     </Modal>

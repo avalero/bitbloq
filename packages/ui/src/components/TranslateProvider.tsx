@@ -1,13 +1,18 @@
 import React, { useContext } from "react";
 
-export const TranslateContext = React.createContext((id: string) => id);
+export type TranslateFn = (id: string, variables?: string[]) => string;
 
-interface TranslateProviderProps {
-  messagesFiles: any;
+export const TranslateContext = React.createContext<TranslateFn>(
+  (id: string) => id
+);
+
+export interface ITranslateProviderProps {
+  messages?: any;
+  messagesFiles?: any;
   fallback?: React.ReactNode;
 }
 
-const findByString = function(object: any, selector: string) {
+const findByString = (object: any, selector: string) => {
   if (!selector) {
     return;
   }
@@ -26,16 +31,26 @@ const findByString = function(object: any, selector: string) {
   }, object);
 };
 
-class TranslateProvider extends React.Component<TranslateProviderProps> {
-  readonly state = {
-    messages: null
-  };
+interface IState {
+  messages?: any;
+}
 
-  componentDidMount() {
-    this.getLanguageMessages();
+class TranslateProvider extends React.Component<
+  ITranslateProviderProps,
+  IState
+> {
+  constructor(props: ITranslateProviderProps) {
+    super(props);
+    this.state = { messages: props.messages };
   }
 
-  async getLanguageMessages() {
+  public componentDidMount() {
+    if (this.props.messagesFiles) {
+      this.getLanguageMessages();
+    }
+  }
+
+  public async getLanguageMessages() {
     const { messagesFiles } = this.props;
     const language = navigator.language;
     const langCode = language.split("-")[0] || language;
@@ -47,7 +62,7 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
     this.setState({ messages });
   }
 
-  render() {
+  public render() {
     const { fallback } = this.props;
     const messages = this.state.messages || {};
 
@@ -61,13 +76,12 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
         }
         return translation;
       }
-      console.warn(`Missing translation for ${id}`);
       return id;
     };
 
     return (
       <TranslateContext.Provider value={translateFn}>
-        {this.state.messages ? this.props.children : fallback}
+        {messages ? this.props.children : fallback}
       </TranslateContext.Provider>
     );
   }
@@ -75,15 +89,15 @@ class TranslateProvider extends React.Component<TranslateProviderProps> {
 
 export const Translate = TranslateContext.Consumer;
 
-export interface WithTranslateProps {
-  t: () => string;
+export interface IWithTranslateProps {
+  t: TranslateFn;
 }
 
 export const withTranslate = <P extends object>(
   Component: React.ComponentType<P>
 ) =>
   class WithTranslate extends React.Component<P> {
-    render() {
+    public render() {
       return <Translate>{t => <Component t={t} {...this.props} />}</Translate>;
     }
   };

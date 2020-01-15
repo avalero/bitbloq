@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import colors from "../colors";
 
-interface ButtonProps {
+export interface IButtonProps {
   small?: boolean;
   secondary?: boolean;
   tertiary?: boolean;
@@ -12,7 +12,7 @@ interface ButtonProps {
   pink?: boolean;
   yellow?: boolean;
 }
-const Button = styled.button<ButtonProps>`
+const Button = styled.button<IButtonProps>`
   border-radius: 4px;
   border: ${props => {
     if (props.quaternary) {

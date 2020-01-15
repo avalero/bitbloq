@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
 import { Icon, JuniorSwitch } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
@@ -47,19 +48,17 @@ export default ButtonConfiguration;
 const Container = styled.div`
   display: flex;
   align-items: center;
+  flex-direction: column;
 `;
 
-const ButtonImageWrap = styled.div`
-  margin-right: 20px;
+const ButtonImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 55px;
+  display: flex;
+  align-items: center;
   svg {
-    width: 200px;
-    height: 200px;
-  }
-`;
-
-const RightArrow = styled.div`
-  svg {
-    transform: rotate(180deg);
+    width: 80px;
+    height: 80px;
   }
 `;
 

@@ -3,12 +3,7 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import Icon from "./Icon";
 
-interface ContainerProps {
-  checked: boolean;
-  error?: boolean;
-}
-
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<{ checked: boolean; error?: boolean }>`
   border-radius: 3px;
   width: 14px;
   height: 14px;
@@ -48,7 +43,7 @@ const Container = styled.div<ContainerProps>`
 
 type ChangeHandler = (cheked: boolean) => void;
 
-export interface CheckboxProps {
+export interface ICheckboxProps {
   className?: string;
 
   /** If the checkbox is checked or not */
@@ -63,12 +58,11 @@ export interface CheckboxProps {
 /**
  * Component that displays a checkbox component
  */
-export default class Checkbox extends React.Component<CheckboxProps> {
-  render() {
-    const { className, checked, error, onChange, tooltipProps } = this.props;
+export default class Checkbox extends React.Component<ICheckboxProps> {
+  public render() {
+    const { className, checked, error, onChange } = this.props;
     return (
       <Container
-        {...tooltipProps}
         className={className}
         checked={checked}
         error={error}

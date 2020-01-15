@@ -1,28 +1,27 @@
 import { Document, Model, model, Schema } from "mongoose";
-const timestamps = require("mongoose-timestamp");
+import timestamps from "mongoose-timestamp";
+import { CONTENT_VERSION } from "../config";
+import { ICommonProps } from "./interfaces";
 
-export interface ISubmission extends Document {
-  user?: string;
-  title: string;
+export interface ISubmission extends ICommonProps, Document {
+  id: string;
   exercise?: string;
   studentNick?: string;
   password?: string;
-  content?: string;
-  cache?: string;
+  contentVersion?: number;
   finished?: boolean;
   comment?: string;
-  type: string;
   image: string;
   active: boolean;
 }
 
-const SubmissionMongSchema: Schema = new Schema({
+const submissionMongSchema: Schema = new Schema({
   user: {
     type: Schema.Types.ObjectId,
     ref: "UserModel"
   },
 
-  title: {
+  name: {
     type: String,
     default: "New Submission"
   },
@@ -56,6 +55,11 @@ const SubmissionMongSchema: Schema = new Schema({
     default: "content"
   },
 
+  contentVersion: {
+    type: Number,
+    default: CONTENT_VERSION
+  },
+
   cache: {
     type: String,
     default: "cache"
@@ -80,8 +84,7 @@ const SubmissionMongSchema: Schema = new Schema({
   },
 
   studentComment: {
-    type: String,
-    default: "studentComment"
+    type: String
   },
 
   finishedAt: {
@@ -93,16 +96,15 @@ const SubmissionMongSchema: Schema = new Schema({
   },
 
   teacherComment: {
-    type: String,
-    default: "teacherComment"
+    type: String
   },
 
   gradedAt: {
     type: Date
   }
 });
-SubmissionMongSchema.plugin(timestamps);
+submissionMongSchema.plugin(timestamps);
 export const SubmissionModel: Model<ISubmission> = model<ISubmission>(
   "SubmissionModel",
-  SubmissionMongSchema
+  submissionMongSchema
 );

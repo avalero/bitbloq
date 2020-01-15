@@ -1,5 +1,6 @@
 # import Date, ObjectID, Role from "./scalars.graphql"
 # import Submission from "./submission.graphql"
+# import Resource from "./upload.graphql"
 
 directive @authRequired(requires: [Role] = [ADMIN]) on QUERY | FIELD
 
@@ -17,16 +18,16 @@ type Mutation {
     @authRequired(requires: [TEACHER])
   updateExercise(id: ObjectID!, input: ExerciseIn): Exercise
     @authRequired(requires: [TEACHER])
-  deleteExercise(id: ObjectID!): Exercise
-    @authRequired(requires: [TEACHER])
+  deleteExercise(id: ObjectID!): Exercise @authRequired(requires: [TEACHER])
 }
 
 type Exercise {
   id: ObjectID
   document: ObjectID
   user: ObjectID
-  title: String
+  name: String
   content: String
+  contentVersion: Number
   cache: String
   code: String
   type: String
@@ -38,13 +39,15 @@ type Exercise {
   createdAt: Date
   updatedAt: Date
   submissions: [Submission]
+  resources: [Resource]
 }
 
 input ExerciseIn {
   document: ObjectID
-  title: String
+  name: String
   code: String
   description: String
   acceptSubmissions: Boolean
   expireDate: Date
+  contentVersion: Number
 }

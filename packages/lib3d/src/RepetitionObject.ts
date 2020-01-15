@@ -9,24 +9,23 @@
 
 import ObjectsCommon from "./ObjectsCommon";
 
-import { isEqual, cloneDeep } from "lodash";
+import { cloneDeep, isEqual } from "lodash";
 import * as THREE from "three";
 import Object3D from "./Object3D";
 import ObjectsGroup from "./ObjectsGroup";
 import Scene from "./Scene";
 
 import {
+  ICartesianRepetitionParams,
   IMirrorOperation,
+  IPolarRepetitionParams,
+  IRepetitionObjectJSON,
   IRotateOperation,
   IScaleOperation,
   ITranslateOperation,
   IViewOptions,
-  IRepetitionObjectJSON,
-  IPolarRepetitionParams,
-  ICartesianRepetitionParams,
   OperationsArray
 } from "./Interfaces";
-import CompoundObject from "./CompoundObject";
 
 /**
  * RepetitionObject Class
@@ -130,31 +129,6 @@ export default class RepetitionObject extends ObjectsCommon {
     }
   }
 
-  // public async computeUnionMeshAsync(): Promise<THREE.Mesh> {
-  //   await this.originalObject.computeMeshAsync();
-
-  //   const obj: RepetitionObject = new RepetitionObject(
-  //     cloneDeep(this.parameters),
-  //     this.originalObject.clone(),
-  //     cloneDeep(this.viewOptions),
-  //     cloneDeep(this.operations)
-  //   );
-  //   await obj.computeMeshAsync();
-  //   const uni: Union = obj.toUnion();
-
-  //   // const uni = this.toUnion();
-  //   return uni.getMeshAsync() as Promise<THREE.Mesh>;
-  // }
-  // public async getUnionMeshAsync(): Promise<THREE.Mesh> {
-  //   await this.computeMeshAsync();
-  //   return this.computeUnionMeshAsync();
-  // }
-
-  // public toUnion(): Union {
-  //   const group = this.getGroup();
-  //   return group.toUnion();
-  // }
-
   public setParameters(
     parameters: ICartesianRepetitionParams | IPolarRepetitionParams
   ) {
@@ -225,8 +199,8 @@ export default class RepetitionObject extends ObjectsCommon {
   public toJSON(): IRepetitionObjectJSON {
     const obj = {
       ...super.toJSON(),
-      parameters: this.parameters,
-      children: [this.originalObject.toJSON()]
+      children: [this.originalObject.toJSON()],
+      parameters: this.parameters
     };
     return obj;
   }
@@ -326,8 +300,8 @@ export default class RepetitionObject extends ObjectsCommon {
         this.mesh.add(mesh);
         mesh.userData = {
           ...mesh.userData,
-          repetitionObject: true,
-          originalObject: this.originalObject
+          originalObject: this.originalObject,
+          repetitionObject: true
         };
       });
 
@@ -345,7 +319,7 @@ export default class RepetitionObject extends ObjectsCommon {
 
   protected async applyOperationsAsync(): Promise<void> {
     this.mesh.position.set(0, 0, 0);
-    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0), true);
+    this.mesh.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
 
     this.mesh.scale.x = 1;
     this.mesh.scale.y = 1;
@@ -449,7 +423,7 @@ export default class RepetitionObject extends ObjectsCommon {
       throw new Error("No cartesian operation");
     }
 
-    const { x, y, z, type, num } = this.parameters;
+    const { x, y, z, num } = this.parameters;
 
     if (this.originalObject.meshPromise) {
       await this.originalObject.computeMeshAsync();
@@ -483,7 +457,7 @@ export default class RepetitionObject extends ObjectsCommon {
       throw new Error("No polar operation");
     }
 
-    const { axis, angle, type, num } = this.parameters;
+    const { axis, angle, num } = this.parameters;
 
     if (this.originalObject.meshPromise) {
       await this.originalObject.computeMeshAsync();

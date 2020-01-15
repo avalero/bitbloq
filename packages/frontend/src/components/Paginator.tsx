@@ -1,23 +1,17 @@
-import React, {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useEffect,
-  useState
-} from "react";
+import React, { useState } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import styled from "@emotion/styled";
 import { Icon } from "@bitbloq/ui";
 
-export interface ArrowProps {
+export interface IArrowProps {
   direction: "decrement" | "increment";
   disabled: boolean;
   page: number;
   onClick: (page: number) => void;
 }
 
-const Arrow: React.FC<ArrowProps> = ({
+const Arrow: React.FC<IArrowProps> = ({
   direction,
   disabled,
   page,
@@ -53,13 +47,13 @@ const Arrow: React.FC<ArrowProps> = ({
   );
 };
 
-export interface PageProps {
+export interface IPageProps {
   page: number;
   onClick: (page: number) => void;
   selected: boolean;
 }
 
-const Page: React.FC<PageProps> = ({ page, selected, onClick }) => {
+const Page: React.FC<IPageProps> = ({ page, selected, onClick }) => {
   const [{ isOver }, drop] = useDrop({
     accept: ["document", "folder"],
     canDrop: () => false,
@@ -81,49 +75,55 @@ const Page: React.FC<PageProps> = ({ page, selected, onClick }) => {
   );
 };
 
-export interface PaginatorProps {
+export interface IPaginatorProps {
   className?: string;
   currentPage: number;
   pages: number;
   selectPage: (page: number) => void;
 }
 
-const Paginator: React.FC<PaginatorProps> = ({
+const Paginator: React.FC<IPaginatorProps> = ({
   className,
   currentPage,
   pages,
   selectPage
 }) => {
-  let pagesElements: JSX.Element[] = [];
+  const preparePagesElements = (): JSX.Element[] => {
+    const numberPages: Set<number> = new Set();
 
-  for (let i = 1; i <= pages; i++) {
-    pagesElements.push(
-      <Page
-        key={i}
-        page={i}
-        selected={currentPage === i}
-        onClick={selectPage}
-      />
-    );
-  }
+    numberPages.add(currentPage);
 
-  if (pages > 9 && currentPage < pages / 2) {
-    pagesElements = [
-      ...pagesElements.slice(0, 8),
-      <Ellipsis key="ellipsis">
-        <Icon name="ellipsis" />
-      </Ellipsis>,
-      pagesElements[pagesElements.length - 1]
-    ];
-  } else if (pages > 9 && currentPage >= pages / 2) {
-    pagesElements = [
-      pagesElements[0],
-      <Ellipsis key="ellipsis">
-        <Icon name="ellipsis" />
-      </Ellipsis>,
-      ...pagesElements.slice(pagesElements.length - 8, pagesElements.length)
-    ];
-  }
+    for (let i = 1; i <= pages && numberPages.size < 7; i++) {
+      if (currentPage - i > 0) {
+        numberPages.add(currentPage - i);
+      }
+      if (currentPage + i <= pages) {
+        numberPages.add(currentPage + i);
+      }
+    }
+
+    numberPages.add(1);
+    numberPages.add(pages);
+
+    const pagesArray = Array.from(numberPages).sort((a, b) => a - b);
+
+    return pagesArray.map((page, i) => (
+      <React.Fragment key={i}>
+        <Page
+          page={page}
+          selected={currentPage === page}
+          onClick={selectPage}
+        />
+        {pagesArray[+i + 1] && pagesArray[+i + 1] - page > 1 && (
+          <Ellipsis>
+            <Icon name="ellipsis" />
+          </Ellipsis>
+        )}
+      </React.Fragment>
+    ));
+  };
+
+  const pagesElements = preparePagesElements();
 
   return (
     <DndProvider backend={HTML5Backend}>
@@ -148,14 +148,13 @@ const Paginator: React.FC<PaginatorProps> = ({
 
 export default Paginator;
 
-interface AngleIconProps {
+interface IAngleIconProps {
   direction: "decrement" | "increment";
 }
-const AngleIcon = styled(Icon)<AngleIconProps>`
+const AngleIcon = styled(Icon)<IAngleIconProps>`
   height: 12px;
   transform: rotate(
-    ${(props: AngleIconProps) =>
-      props.direction === "decrement" ? "90" : "-90"}deg
+    ${props => (props.direction === "decrement" ? "90" : "-90")}deg
   );
   width: 12px;
 `;
@@ -172,11 +171,11 @@ const Ellipsis = styled.div`
   }
 `;
 
-interface PageItemProps {
+interface IPageItemProps {
   isOver?: boolean;
   selected?: boolean;
 }
-const PageItem = styled.div<PageItemProps>`
+const PageItem = styled.div<IPageItemProps>`
   align-items: center;
   background-color: ${props => (props.selected ? "#eee" : "#fff")};
   border: solid 1px ${props => (props.isOver ? "#373b44" : "#ccc")};

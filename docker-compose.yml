@@ -16,25 +16,23 @@ services:
     build:
       context: ./
       dockerfile: ./packages/frontend/Dockerfile.devenv
+    environment:
+      - API_URL=http://localhost:8002/graphql
+      - API_URL_SERVER=http://api:8000/graphql
     volumes:
       - type: bind
-        source: ./packages/3d/src
-        target: /usr/src/app/packages/3d/src
-      - type: bind
-        source: ./packages/lib3d/src
-        target: /usr/src/app/packages/lib3d/src
-      - type: bind
-        source: ./packages/bloqs/src
-        target: /usr/src/app/packages/bloqs/src
-      - type: bind
-        source: ./packages/frontend/src
-        target: /usr/src/app/packages/frontend/src
-      - type: bind
-        source: ./packages/junior/src
-        target: /usr/src/app/packages/junior/src
-      - type: bind
-        source: ./packages/ui/src
-        target: /usr/src/app/packages/ui/src
+        source: ./packages
+        target: /usr/src/app/packages
+      - /usr/src/app/node_modules
+      - /usr/src/app/packages/3d/node_modules
+      - /usr/src/app/packages/api/node_modules
+      - /usr/src/app/packages/bloqs/node_modules
+      - /usr/src/app/packages/frontend/node_modules
+      - /usr/src/app/packages/junior/node_modules
+      - /usr/src/app/packages/lib3d/node_modules
+      - /usr/src/app/packages/ui/node_modules
+
+    command: bash -c "yarn --prod && cd packages/frontend && yarn dev"
 
   api:
     build:
@@ -53,14 +51,16 @@ services:
       - redis
     volumes:
       - type: bind
-        source: ./packages/api/src
-        target: /usr/src/app/src
+        source: ./packages/api
+        target: /usr/src/app
       - type: bind
         source: "${GOOGLE_APPLICATION_CREDENTIALS}"
         target: /google-application-credentials.json
+      - /usr/src/app/node_modules
     ports:
       - 8002:8000
       - 9229:9229
+    command: bash -c "npm install && npm run migrate-db:up && npm run dev-inspect"
 
   redis:
     image: redis:latest
@@ -75,5 +75,4 @@ services:
     ports:
       - 8001:27017
     command: mongod --logpath=/dev/null
-
 

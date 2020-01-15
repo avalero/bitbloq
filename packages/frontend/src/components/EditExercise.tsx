@@ -1,38 +1,41 @@
-import React, { useState, useRef, useEffect } from "react";
-import { navigate } from "gatsby";
-import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import React, { useCallback, useState, useRef, useEffect } from "react";
+import Router from "next/router";
 import { Subscription } from "react-apollo";
 import debounce from "lodash/debounce";
-import styled from "@emotion/styled";
-import { css } from "@emotion/core";
+import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { IDocument, IResource, ISubmission } from "@bitbloq/api";
 import {
   colors,
   Button,
   DialogModal,
   Document,
+  IDocumentTab,
   Spinner,
   Modal,
   Icon,
-  withTranslate
+  useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import {
   EXERCISE_QUERY,
   STUDENT_SUBMISSION_QUERY,
   UPDATE_SUBMISSION_MUTATION,
   FINISH_SUBMISSION_MUTATION,
-  SET_ACTIVESUBMISSION_MUTATION,
-  SUBMISSION_UPDATED_SUBSCRIPTION,
-  SUBMISSION_ACTIVE_SUBSCRIPTION
+  SUBMISSION_ACTIVE_SUBSCRIPTION,
+  SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION
 } from "../apollo/queries";
 import ExerciseInfo from "./ExerciseInfo";
 import ExerciseLoginModal from "./ExerciseLoginModal";
 import SaveCopyModal from "./SaveCopyModal";
 import { documentTypes } from "../config";
-import { useSessionEvent, watchSession, setToken } from "../lib/session";
+import { getToken, setToken } from "../lib/session";
+import useServiceWorker from "../lib/useServiceWorker";
 import SessionWarningModal from "./SessionWarningModal";
 import GraphQLErrorMessage from "./GraphQLErrorMessage";
 
-const EditExercise = ({ type, id, t }) => {
+const EditExercise = ({ type, id }) => {
+  const serviceWorker = useServiceWorker();
+  const t = useTranslate();
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
 
@@ -51,17 +54,13 @@ const EditExercise = ({ type, id, t }) => {
     variables: { id }
   });
   const [updateSubmission] = useMutation(UPDATE_SUBMISSION_MUTATION, {
-    context: { tempSession: "exercise-team" }
+    errorPolicy: "ignore"
   });
-  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION, {
-    context: { tempSession: "exercise-team" }
-  });
-  const [setActiveSubmission] = useMutation(SET_ACTIVESUBMISSION_MUTATION, {
-    context: { tempSession: "exercise-team" }
-  });
+  const [finishSubmission] = useMutation(FINISH_SUBMISSION_MUTATION);
 
-  const [submissionContent, setSubmissionContent] = useState([]);
-  const [active, setActive] = useState(false);
+  const [submission, setSubmission] = useState<ISubmission | undefined>(
+    undefined
+  );
   const currentContent = useRef([]);
 
   const client = useApolloClient();
@@ -72,88 +71,60 @@ const EditExercise = ({ type, id, t }) => {
     setToken("", "exercise-team");
   }, []);
 
-  useSessionEvent(
-    "expired",
-    event => {
-      if (event.tempSession === "exercise-team") {
-        setToken("", "exercise-team");
-        client.resetStore();
-        navigate("/");
-      }
-    },
-    "exercise-team"
-  );
-
-  useEffect(() => {
-    if (!loginVisible) {
-      loadSubmission();
+  const setActiveToFalse = useCallback(() => {
+    if (exercise && teamName && serviceWorker && submission) {
+      const token = getToken("exercise-team");
+      serviceWorker.postMessage({
+        exerciseID: exercise.id,
+        token,
+        type: "leave-exercise",
+        submissionID: submission.id
+      });
     }
-  }, [loginVisible]);
+  }, [exercise, submission, teamName]);
 
   useEffect(() => {
     if (exercise && teamName) {
-      // const setActive = (active: boolean) => {
-      //   setActiveSubmission({
-      //     variables: {
-      //       exerciseId: exercise.id,
-      //       studentNick: teamName,
-      //       active
-      //     }
-      //   });
-      // };
-
-      setActive(true);
-
-      window.addEventListener("beforeunload", () => {
-        setActive(false);
-      });
+      window.removeEventListener("beforeunload", setActiveToFalse);
+      window.addEventListener("beforeunload", setActiveToFalse);
 
       return () => {
-        setActive(false);
+        window.removeEventListener("beforeunload", setActiveToFalse);
+        setActiveToFalse();
       };
     }
-  }, [teamName]);
-
-  useEffect(() => {
-    watchSession("exercise-team");
-  }, [teamName]);
+    return;
+  }, [exercise, submission, teamName]);
 
   useEffect(() => {
     if (exercise && exercise.content) {
-      try {
-        const content = JSON.parse(data.exercise.content);
-        setInitialContent(content);
-      } catch (e) {
-        console.warn("Error parsing submission content", e);
-      }
+      setInitialContent(data.exercise.content);
     }
   }, [exercise]);
 
-  if (loading) return <Loading />;
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
+  if (loading) {
+    return <Loading />;
+  }
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
 
   const loadSubmission = async () => {
-    const { data } = await client.query({
+    const { data: submissionData } = await client.query({
       query: STUDENT_SUBMISSION_QUERY,
-      context: { tempSession: "exercise-team" }
+      errorPolicy: "ignore"
     });
-    try {
-      const content = JSON.parse(data.submission.content);
-      setSubmissionContent(content);
-      setRestartCount(restartCount + 1);
-      currentContent.current = content;
-    } catch (e) {
-      console.warn("Error parsing submission content", e);
-    }
+    setSubmission(submissionData.submission);
+    setRestartCount(restartCount + 1);
+    currentContent.current = submissionData.submission.content;
   };
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setSubmissionContent(initialContent);
+    setSubmission({ ...submission!, content: initialContent as any });
     updateSubmission({
       variables: {
-        content: JSON.stringify(initialContent || []),
-        active: active
+        content: initialContent
       }
     });
     currentContent.current = initialContent;
@@ -171,75 +142,93 @@ const EditExercise = ({ type, id, t }) => {
   const onSubmitClick = async () => {
     await finishSubmission({
       variables: {
-        content: JSON.stringify(currentContent.current || [])
+        content: currentContent.current
       }
     });
     setIsSubmissionSuccessOpen(true);
   };
+  const { name, teacherName, resources } = exercise;
+  const infoTab: IDocumentTab = {
+    icon: <Icon name="info" />,
+    label: t("tab-project-info"),
+    content: (
+      <ExerciseInfo
+        grade={
+          submission && submission.grade !== null ? submission.grade : undefined
+        }
+        exercise={exercise}
+        onGotoExercise={() => setTabIndex(0)}
+        teacherComment={(submission && submission.teacherComment) || ""}
+      />
+    )
+  };
 
-  const { title, teacherName } = exercise;
+  const menuOptions = [
+    {
+      id: "file",
+      label: t("menu-file"),
+      children: []
+    }
+  ];
 
   return (
     <>
       <EditorComponent
-        brandColor={documentType.color}
-        key={restartCount}
-        content={submissionContent}
-        tabIndex={tabIndex}
-        onTabChange={setTabIndex}
-        title={
-          <Title>
-            <TitleIcon>
-              <Icon name="airplane-document" />
-            </TitleIcon>
-            <div>
-              <TitleText>{title}</TitleText>
-              <TeacherName>Profesor: {teacherName}</TeacherName>
-            </div>
-          </Title>
-        }
-        onContentChange={debounce((content: any[]) => {
+        resources={resources as IResource[]}
+        document={submission || exercise}
+        onDocumentChange={debounce((document: IDocument) => {
           if (teamName) {
             updateSubmission({
-              variables: { content: JSON.stringify(content || []) }
+              variables: { content: document.content }
             });
           }
-          currentContent.current = content;
+          currentContent.current = document.content as any;
         }, 1000)}
-        getTabs={mainTab => [
-          mainTab,
-          <Document.Tab
-            key="info"
-            icon={<Icon name="info" />}
-            label={t("tab-project-info")}
-          >
-            <ExerciseInfo
-              exercise={exercise}
-              onGotoExercise={() => setTabIndex(0)}
-            />
-          </Document.Tab>
-        ]}
-        headerButtons={[
-          { id: "save-copy", icon: "add-document" },
-          { id: "restart", icon: "reload" },
-          { id: "submit", icon: "airplane" }
-        ]}
-        onHeaderButtonClick={(buttonId: string) => {
-          switch (buttonId) {
-            case "save-copy":
-              onSaveCopyClick();
-              return;
-            case "restart":
-              onRestartClick();
-              return;
-            case "submit":
-              onSubmitClick();
-              return;
-          }
-        }}
-        headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
-        backCallback={() => navigate("/")}
-      />
+        baseTabs={[infoTab]}
+        baseMenuOptions={menuOptions}
+        key={restartCount}
+      >
+        {documentProps => (
+          <Document
+            brandColor={documentType.color}
+            title={
+              <Title>
+                <TitleIcon>
+                  <Icon name="airplane-document" />
+                </TitleIcon>
+                <div>
+                  <TitleText>{name}</TitleText>
+                  <TeacherName>Profesor: {teacherName}</TeacherName>
+                </div>
+              </Title>
+            }
+            icon={<Icon name={documentType.icon} />}
+            tabIndex={tabIndex}
+            onTabChange={setTabIndex}
+            headerButtons={[
+              { id: "save-copy", icon: "add-document" },
+              { id: "restart", icon: "reload" },
+              { id: "submit", icon: "airplane" }
+            ]}
+            onHeaderButtonClick={(buttonId: string) => {
+              switch (buttonId) {
+                case "save-copy":
+                  onSaveCopyClick();
+                  return;
+                case "restart":
+                  onRestartClick();
+                  return;
+                case "submit":
+                  onSubmitClick();
+                  return;
+              }
+            }}
+            headerRightContent={teamName && <TeamName>{teamName}</TeamName>}
+            backCallback={() => Router.push("/")}
+            {...documentProps}
+          />
+        )}
+      </EditorComponent>
       <Modal
         isOpen={isSubmissionSuccessOpen}
         title="Entregar ejercicio"
@@ -254,12 +243,13 @@ const EditExercise = ({ type, id, t }) => {
           </ModalButtons>
         </ModalContent>
       </Modal>
-      {loginVisible && (
+      {loginVisible && !loading && (
         <ExerciseLoginModal
           code={exercise.code}
-          onSuccess={teamName => {
-            setTeamName(teamName);
+          onSuccess={async newTeamName => {
+            setTeamName(newTeamName);
             setLoginVisible(false);
+            loadSubmission();
           }}
         />
       )}
@@ -268,6 +258,7 @@ const EditExercise = ({ type, id, t }) => {
           onClose={() => setIsSaveCopyVisible(false)}
           document={exercise}
           content={currentContent.current}
+          type="exercise"
         />
       )}
       <DialogModal
@@ -279,20 +270,21 @@ const EditExercise = ({ type, id, t }) => {
         onOk={() => restart()}
         onCancel={() => setIsRestartModalVisible(false)}
       />
-      <SessionWarningModal tempSession="exercise-team" />
       {teamName && (
+        <SessionWarningModal
+          subscription={SUBMISSION_SESSION_EXPIRES_SUBSCRIPTION}
+          setActivteToFalse={setActiveToFalse}
+        />
+      )}
+      {teamName && submission && (
         <Subscription
           subscription={SUBMISSION_ACTIVE_SUBSCRIPTION}
           shouldResubscribe={true}
           onSubscriptionData={({ subscriptionData }) => {
-            const { data } = subscriptionData;
-            if (
-              data &&
-              data.submissionActive &&
-              !data.submissionActive.active
-            ) {
+            const { submissionActive } = subscriptionData.data || {};
+            if (submissionActive && !submissionActive.active) {
               setToken("", "exercise-team");
-              navigate("/", { replace: true });
+              Router.replace("/");
             }
           }}
         />
@@ -301,7 +293,7 @@ const EditExercise = ({ type, id, t }) => {
   );
 };
 
-export default withTranslate(EditExercise);
+export default EditExercise;
 
 /* styled components */
 

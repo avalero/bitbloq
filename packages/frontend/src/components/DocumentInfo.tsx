@@ -1,23 +1,28 @@
 import React, { FC } from "react";
-import styled from "@emotion/styled";
+import { IDocument, IDocImageIn } from "@bitbloq/api";
 import { colors, Button } from "@bitbloq/ui";
+import styled from "@emotion/styled";
 
-import { Document } from "../types";
-
-interface DocumentInfoProps {
-  document: Document;
+interface IDocumentInfoProps {
+  document: IDocument;
   onGotoDocument: () => any;
 }
 
-const DocumentInfo: FC<DocumentInfoProps> = ({ document, onGotoDocument }) => {
-  const { title, description, image } = document;
+const DocumentInfo: FC<IDocumentInfoProps> = ({ document, onGotoDocument }) => {
+  const { name, description, image } = document;
 
   return (
     <Container>
       <Left>
         <LeftContent>
-          <h2>{title}</h2>
-          <Image src={image.image ? image.image : image} />
+          <h2>{name}</h2>
+          <Image
+            src={
+              (image as IDocImageIn).image
+                ? (image as IDocImageIn).image!
+                : (image as string)
+            }
+          />
         </LeftContent>
       </Left>
       <Right>
@@ -61,10 +66,7 @@ const LeftContent = styled.div`
   }
 `;
 
-interface ImageProps {
-  src: string;
-}
-const Image = styled.div<ImageProps>`
+const Image = styled.div<{ src: string }>`
   background-color: ${colors.gray2};
   background-image: url(${props => props.src});
   background-size: cover;

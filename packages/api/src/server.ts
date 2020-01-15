@@ -1,17 +1,19 @@
-require("dotenv").config();
+import { config } from "dotenv";
+config();
 
-import * as mongoose from "mongoose";
+import { set as mongooseSet, connect as mongooseConnect } from "mongoose";
 import { contextController } from "./controllers/context";
 import exSchema from "./schemas/allSchemas";
 
-import Koa = require("koa");
-const { ApolloServer, AuthenticationError } = require("apollo-server-koa");
+import koa from "koa";
+import { ApolloServer } from "apollo-server-koa";
 import { PubSub } from "apollo-server";
-
 import { RedisPubSub } from "graphql-redis-subscriptions";
-import * as Redis from "ioredis";
-const redis = require("redis");
-const bluebird = require("bluebird");
+
+import Redis from "ioredis";
+import { RedisClient, createClient } from "redis";
+import { promisifyAll } from "bluebird";
+import { IUserInToken } from "./models/interfaces";
 
 const REDIS_DOMAIN_NAME = process.env.REDIS_DOMAIN_NAME;
 const REDIS_PORT_NUMBER = process.env.REDIS_PORT_NUMBER;
@@ -19,25 +21,25 @@ const USE_REDIS: string = String(process.env.USE_REDIS);
 
 const PORT = process.env.PORT;
 
-const mongoUrl: string = process.env.MONGO_URL;
+const mongoUrl: string = process.env.MONGO_URL as string;
 
-mongoose.set("debug", true);
-mongoose.set("useFindAndModify", false); // ojo con esto al desplegar
-mongoose.connect(
+mongooseSet("debug", true);
+mongooseSet("useFindAndModify", false); // ojo con esto al desplegar
+mongooseConnect(
   mongoUrl,
-  { useNewUrlParser: true, useCreateIndex: true },
+  { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true },
   (err: any) => {
     if (err) {
       throw err;
     }
-
     console.log("Successfully connected to Mongo");
   }
 );
 
-let pubsub, redisClient;
+let pubsub;
+let redisClient;
 if (USE_REDIS === "true") {
-  //Redis configuration
+  // Redis configuration
   const redisOptions = {
     host: REDIS_DOMAIN_NAME,
     port: REDIS_PORT_NUMBER,
@@ -61,8 +63,8 @@ if (USE_REDIS === "true") {
 
   // Redis client for session tokens
   // to do async/await
-  bluebird.promisifyAll(redis.RedisClient.prototype);
-  redisClient = redis.createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
+  promisifyAll(RedisClient.prototype);
+  redisClient = createClient(REDIS_PORT_NUMBER, REDIS_DOMAIN_NAME);
   redisClient.on("connect", () => {
     console.log("Redis client connected.");
   });
@@ -70,39 +72,24 @@ if (USE_REDIS === "true") {
   pubsub = new PubSub();
 }
 
-const app = new Koa();
-const httpServer = app.listen(
-  PORT,
-  () => console.log(`🚀 Server ready at http://localhost:${PORT}`)
-  //console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`),
-  //console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+const app = new koa();
+const httpServer = app.listen(PORT, () =>
+  console.log(`🚀 Server ready at http://localhost:${PORT}`)
 );
 
 const server = new ApolloServer({
-  context: async ({ ctx, req, connection }) => {
-    if (connection) {
-      // check connection for metadata
-      return connection.context;
-    } else {
-      const user = await contextController.getMyUser(ctx);
-      return { user, headers: ctx.headers }; //  add the user to the ctx
-    }
+  context: async ({ ctx, payload, req, connection }) => {
+    const authorization =
+      (ctx && ctx.headers && ctx.headers.authorization) ||
+      (payload && payload.authorization) ||
+      "";
+
+    const user: IUserInToken | undefined = await contextController.getMyUser(
+      authorization
+    );
+    return { user, headers: ctx && ctx.headers }; //  add the user to the ctx
   },
-  schema: exSchema,
-  upload: {
-    maxFileSize: 10000000,
-    maxFiles: 1
-  },
-  subscriptions: {
-    onConnect: async (connectionParams, webSocket) => {
-      if (connectionParams.authorization) {
-        const justToken = connectionParams.authorization.split(" ")[1];
-        const user = await contextController.getDataInToken(justToken);
-        return { user }; //  add the user to the ctx
-      }
-      throw new AuthenticationError("You need to be logged in");
-    }
-  }
+  schema: exSchema
 });
 
 export { pubsub, redisClient };

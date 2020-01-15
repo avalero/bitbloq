@@ -82,7 +82,9 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
   };
 
   // check common parameters
-  if (!isEqual(obj1Basics, obj2Basics)) return false;
+  if (!isEqual(obj1Basics, obj2Basics)) {
+    return false;
+  }
   // from here we know both have same type, same operations, same id
 
   // If they are primitive types, use standard lodash.isEqual to compare Parameters
@@ -126,7 +128,9 @@ export function equalJSON(obj1: objJSON, obj2: objJSON): boolean {
     const obj2Rep = obj2 as IRepetitionObjectJSON;
 
     // compare params
-    if (!isEqual(obj1Rep.parameters, obj2Rep.parameters)) return false;
+    if (!isEqual(obj1Rep.parameters, obj2Rep.parameters)) {
+      return false;
+    }
 
     // compare repeated object (children[0])
     return equalJSON(obj1Rep.children[0], obj2Rep.children[0]);
@@ -150,13 +154,17 @@ export function compareObjectsJSONArray(
   array2: IObjectsCommonJSON[]
 ): boolean {
   // if different number of children, not equal
-  if (array1.length !== array2.length) return false;
+  if (array1.length !== array2.length) {
+    return false;
+  }
 
   // compare children one by one
   let equalChildren: boolean = true;
   for (let i: number = 0; i < array1.length; i += 1) {
     equalChildren = equalChildren && equalJSON(array1[i], array2[i]);
-    if (!equalChildren) return false;
+    if (!equalChildren) {
+      return false;
+    }
   }
   return equalChildren; // true
 }

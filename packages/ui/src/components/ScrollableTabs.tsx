@@ -3,14 +3,12 @@ import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import colors from "../colors";
 
-import { ITab } from "../index.d";
-
-export interface ScrollableTabsProps {
-  tabs: ITab[];
+export interface IScrollableTabsProps {
+  tabs: Array<{ icon: JSX.Element; content: JSX.Element; bottom?: boolean }>;
   className?: string;
 }
 
-const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
+const ScrollableTabs: React.FunctionComponent<IScrollableTabsProps> = ({
   className,
   tabs
 }) => {
@@ -18,7 +16,9 @@ const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
   const contentEl = useRef<HTMLDivElement>(null);
 
   const onScroll = () => {
-    if (!contentEl.current) return;
+    if (!contentEl.current) {
+      return;
+    }
     const el = contentEl.current!;
     const scrollTop = el.scrollTop;
     const visibleTab = Array.from(el.children).reduce(
@@ -40,7 +40,12 @@ const ScrollableTabs: React.FunctionComponent<ScrollableTabsProps> = ({
     <Container className={className}>
       <Tabs>
         {tabs.map((tab, i) => (
-          <Tab key={i} active={i === activeTab} onClick={() => onSelectTab(i)}>
+          <Tab
+            key={i}
+            active={i === activeTab}
+            bottom={!!tab.bottom}
+            onClick={() => onSelectTab(i)}
+          >
             {tab.icon}
           </Tab>
         ))}
@@ -66,12 +71,11 @@ const Container = styled.div`
 const Tabs = styled.div`
   width: 60px;
   border-right: 1px solid ${colors.gray3};
+  position: relative;
 `;
 
-interface TabProps {
-  active: boolean;
-}
-const Tab = styled.div<TabProps>`
+const Tab = styled.div<{ active: boolean; bottom: boolean }>`
+  border-top: ${props => (props.bottom ? `1px solid ${colors.gray3}` : "")};
   height: 60px;
   width: 60px;
   border-bottom: 1px solid white;
@@ -81,6 +85,8 @@ const Tab = styled.div<TabProps>`
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  position: ${props => (props.bottom ? "absolute" : "relative")};
+  bottom: 0;
 
   svg {
     width: 24px;
@@ -95,10 +101,13 @@ const Tab = styled.div<TabProps>`
       border-right: 1px solid white;
       border-bottom: 1px solid ${colors.gray3};
     `}
+
+  border-bottom-width: ${props => (props.bottom ? 0 : 1)}px;
 `;
 
 const Content = styled.div`
   overflow-y: auto;
+  scroll-behavior: smooth;
   &::-webkit-scrollbar {
     display: none;
   }

@@ -5,6 +5,19 @@ import { SubmissionModel } from "../models/submission";
 import { IUser, UserModel } from "../models/user";
 import { pubsub } from "../server";
 import { DOCUMENT_UPDATED } from "./document";
+import { UploadModel, IResource } from "../models/upload";
+import { IUserInToken } from "../models/interfaces";
+import {
+  IMutationCreateExerciseArgs,
+  IMutationChangeSubmissionsStateArgs,
+  IMutationDeleteExerciseArgs,
+  IMutationUpdateExerciseArgs,
+  IQueryExerciseArgs,
+  IQueryExerciseByCodeArgs,
+  IQueryExercisesByDocumentArgs
+} from "../api-types";
+import { CONTENT_VERSION } from "../config";
+import { createExerciseImage, deleteExerciseImage } from "./upload";
 
 const exerciseResolver = {
   Mutation: {
@@ -13,8 +26,12 @@ const exerciseResolver = {
      * It stores the new exercise in the database with the document father information or new one provided by the user
      * args: exercise information
      */
-    createExercise: async (root: any, args: any, context: any) => {
-      const docFather: IDocument = await DocumentModel.findOne({
+    createExercise: async (
+      _,
+      args: IMutationCreateExerciseArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const docFather: IDocument | null = await DocumentModel.findOne({
         _id: args.input.document,
         user: context.user.userID
       });
@@ -24,20 +41,27 @@ const exerciseResolver = {
           "DOCUMENT_NOT_FOUND"
         );
       }
-      const user: IUser = await UserModel.findById(context.user.userID);
+      const user: IUser | null = await UserModel.findById(context.user.userID);
+      if (!user) {
+        throw new ApolloError(" User not found", "USER_NOT_FOUND");
+      }
       let newCode: string = Math.random()
         .toString(36)
         .substr(2, 6);
       while ((await ExerciseModel.findOne({ code: newCode })) != null) {
-        console.log("The exercise code already exists");
         newCode = Math.random()
           .toString(36)
           .substr(2, 6);
       }
+      const exerciseImg: string = await createExerciseImage(
+        docFather.image!.image,
+        newCode,
+        context.user.userID
+      );
       const exerciseNew: IExercise = new ExerciseModel({
         user: context.user.userID,
         document: docFather._id,
-        title: args.input.title,
+        name: args.input.name,
         code: newCode,
         type: docFather.type,
         acceptSubmissions: args.input.acceptSubmissions,
@@ -46,7 +70,9 @@ const exerciseResolver = {
         description: args.input.description || docFather.description,
         teacherName: user.name,
         expireDate: args.input.expireDate,
-        image: docFather.image.image
+        resourcesID: docFather.exResourcesID,
+        contentVersion: docFather.contentVersion || CONTENT_VERSION,
+        image: exerciseImg
       });
       const newEx: IExercise = await ExerciseModel.create(exerciseNew);
       pubsub.publish(DOCUMENT_UPDATED, { documentUpdated: docFather });
@@ -57,8 +83,12 @@ const exerciseResolver = {
      * Change Submission State: changes the value of the boolean acceptSubmissions.
      * args: exerciseID, new state of acceptSubmissions
      */
-    changeSubmissionsState: async (root: any, args: any, context: any) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+    changeSubmissionsState: async (
+      _,
+      args: IMutationChangeSubmissionsStateArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -79,12 +109,19 @@ const exerciseResolver = {
      * This method deletes all the submissions related with the exercise ID.
      * args: exercise ID
      */
-    deleteExercise: async (root: any, args: any, context: any) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+    deleteExercise: async (
+      _,
+      args: IMutationDeleteExerciseArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
       if (existExercise) {
+        if (existExercise.image) {
+          await deleteExerciseImage(existExercise.code, context.user.userID);
+        }
         await SubmissionModel.deleteMany({ exercise: existExercise._id });
         const docFather = await DocumentModel.findOne({
           _id: existExercise.document
@@ -101,8 +138,12 @@ const exerciseResolver = {
      * It updates the exercise with the new information provided.
      * args: exercise ID, new exercise information.
      */
-    updateExercise: async (root: any, args: any, context: any) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+    updateExercise: async (
+      _,
+      args: IMutationUpdateExerciseArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id,
         user: context.user.userID
       });
@@ -123,7 +164,7 @@ const exerciseResolver = {
      * Exercises: returns all the exercises of the user logged.
      * args: nothing.
      */
-    exercises: async (root: any, args: any, context: any) => {
+    exercises: async (_, __, context: { user: IUserInToken }) => {
       return ExerciseModel.find({ user: context.user.userID });
     },
 
@@ -132,11 +173,11 @@ const exerciseResolver = {
      * It can be asked with the user logged token or the student token.
      * args: exercise ID.
      */
-    exercise: async (root: any, args: any, context: any) => {
+    exercise: async (_, args: IQueryExerciseArgs) => {
       if (!args.id || !args.id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new ApolloError("Invalid or missing id", "EXERCISE_NOT_FOUND");
       }
-      const existExercise: IExercise = await ExerciseModel.findOne({
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         _id: args.id
       });
       if (!existExercise) {
@@ -150,8 +191,8 @@ const exerciseResolver = {
      * It can be asked by anyone. It is the step previous to login in the exercise as student.
      * args: exercise code.
      */
-    exerciseByCode: async (root: any, args: any, context: any) => {
-      const existExercise: IExercise = await ExerciseModel.findOne({
+    exerciseByCode: async (_, args: IQueryExerciseByCodeArgs) => {
+      const existExercise: IExercise | null = await ExerciseModel.findOne({
         code: args.code
       });
       if (!existExercise) {
@@ -164,15 +205,19 @@ const exerciseResolver = {
      * Exercises by document: returns all the exercises that depends on the document father ID passed in the arguments.
      * args: document ID.
      */
-    exercisesByDocument: async (root: any, args: any, context: any) => {
-      const docFather: IDocument = await DocumentModel.findOne({
+    exercisesByDocument: async (
+      _,
+      args: IQueryExercisesByDocumentArgs,
+      context: { user: IUserInToken }
+    ) => {
+      const docFather: IDocument | null = await DocumentModel.findOne({
         _id: args.document,
         user: context.user.userID
       });
       if (!docFather) {
         throw new ApolloError("document does not exist", "DOCUMENT_NOT_FOUND");
       }
-      return await ExerciseModel.find({
+      return ExerciseModel.find({
         document: docFather._id,
         user: context.user.userID
       });
@@ -181,7 +226,23 @@ const exerciseResolver = {
 
   Exercise: {
     submissions: async (exercise: IExercise) =>
-      SubmissionModel.find({ exercise: exercise._id })
+      SubmissionModel.find({ exercise: exercise._id }),
+    resources: async (exercise: IExercise) => {
+      const result: IResource[] | any = (await UploadModel.find({
+        _id: { $in: exercise.resourcesID }
+      })).map(resource => ({
+        id: resource._id,
+        title: resource.filename,
+        type: resource.type,
+        size: resource.size,
+        thumbnail: resource.thumbnail,
+        preview: resource.preview,
+        file: resource.publicUrl,
+        deleted: resource.deleted,
+        createdAt: resource.createdAt
+      }));
+      return result;
+    }
   }
 };
 

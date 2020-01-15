@@ -75,8 +75,8 @@ Esta devuelve un String con el token de inicio de sesión. Para acceder a las de
       signUpUser(input: UserIn!): String
       activateAccount(token: String): String
       login(email: EmailAddress!, password: String!): String
-      resetPasswordEmail(email: EmailAddress!): String
-      updatePassword(token: String, newPassword: String): String
+      sendForgotPasswordEmail(email: EmailAddress!): String
+      updateForgotPassword(token: String, newPassword: String): String
       deleteUser(id: ObjectID!): User                             @authRequired(requires: [USER])
       updateUser(id: ObjectID!, input: UserIn!): User             @authRequired(requires: [USER])
 

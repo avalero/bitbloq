@@ -1,28 +1,38 @@
-import { IHeaderButton, HeaderButtonClickCallback } from "@bitbloq/ui";
+import { IDocument, IResource, IUser } from "@bitbloq/api";
+import { IDocumentProps, IDocumentTab, IMainMenuOption } from "@bitbloq/ui";
 
-export interface EditorProps {
-  content: any;
-  onContentChange: (content: any) => any;
-  tabIndex: number;
-  onTabChange: (index: number) => any;
-  getTabs: (mainTabs: any) => any;
-  title: string;
-  canEditTitle?: boolean;
-  onEditTitle?: () => any;
-  onSaveDocument?: () => any;
-  brandColor: string;
-  headerButtons?: IHeaderButton[];
-  onHeaderButtonClick?: HeaderButtonClickCallback;
-  isPlayground?: boolean;
-  headerRightContent?: JSX.Element;
-  preMenuContent?: JSX.Element;
-  changeAdvancedMode?(mode: boolean): void;
-  documentAdvancedMode?: boolean;
-  backCallback?():void;
+export enum OrderType {
+  Creation = "creation",
+  Modification = "modification",
+  NameAZ = "nameAZ",
+  NameZA = "nameZA"
 }
 
-export interface Document {
-  title: string;
-  description: string;
-  image: string;
+export enum ResourcesTypes {
+  image = "image",
+  object3D = "object3D",
+  sound = "sound",
+  video = "video"
+}
+
+export interface IEditorProps {
+  document: IDocument;
+  onDocumentChange: (document: IDocument) => any;
+  baseTabs: IDocumentTab[];
+  baseMenuOptions: IMainMenuOption[];
+  resources?: IResource[];
+  user?: IUser;
+  children: (documentProps: Partial<IDocumentProps>) => JSX.Element;
+}
+
+export interface IPlan {
+  name: string;
+  bitbloqCloud?: boolean;
+  highlightedFeatures?: string[];
+  featureTable: string[];
+  isFree?: boolean;
+  originalPrice?: number;
+  price?: number;
+  isBetaFree?: boolean;
+  ageLimit: number;
 }

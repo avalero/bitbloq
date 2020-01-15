@@ -6,7 +6,8 @@ import BloqPlaceholder from "./BloqPlaceholder";
 import Configuration from "./Configuration";
 import { Icon, JuniorSwitch, JuniorButton } from "@bitbloq/ui";
 import PinSelector from "./PinSelector";
-import SelectComponent from "./SelectComponent";
+import LedOnIcon from "./configuration/icons/led-on.svg";
+import ClockIcon from "./configuration/icons/clock.svg";
 
 import { BloqCategory } from "../enums";
 import {
@@ -63,7 +64,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   const addEvent = selectedPlaceholder === 0;
   const addAction = selectedPlaceholder > 0;
 
-  let content = null;
+  let content = <></>;
 
   if (addEvent) {
     const filteredTypes = availableBloqs.filter(
@@ -78,6 +79,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
         >
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
+            selected={true}
           />
         </BloqPlaceholderWrap>
         <BloqList>
@@ -106,33 +108,32 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
         >
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
+            selected={true}
           />
         </BloqPlaceholderWrap>
         <BloqTabs>
-          <BloqTabsHeader>
-            <BloqTab
-              selected={selectedTab === BloqCategory.Action}
-              onClick={() => setSelectedTab(BloqCategory.Action)}
-            >
-              <Icon name="programming" />
-            </BloqTab>
-            <BloqTab
-              selected={selectedTab === BloqCategory.Wait}
-              onClick={() => setSelectedTab(BloqCategory.Wait)}
-            >
-              <Icon name="programming3" />
-            </BloqTab>
-          </BloqTabsHeader>
-          <BloqList>
-            {filteredTypes.map(type => (
-              <StyledBloq
-                key={type.name}
-                type={type}
-                onClick={() => onSelectBloqType(type)}
-              />
-            ))}
-          </BloqList>
+          <BloqTab
+            selected={selectedTab === BloqCategory.Action}
+            onClick={() => setSelectedTab(BloqCategory.Action)}
+          >
+            <img src={LedOnIcon} />
+          </BloqTab>
+          <BloqTab
+            selected={selectedTab === BloqCategory.Wait}
+            onClick={() => setSelectedTab(BloqCategory.Wait)}
+          >
+            <img src={ClockIcon} />
+          </BloqTab>
         </BloqTabs>
+        <BloqList>
+          {filteredTypes.map(type => (
+            <StyledBloq
+              key={type.name}
+              type={type}
+              onClick={() => onSelectBloqType(type)}
+            />
+          ))}
+        </BloqList>
       </>
     );
   }
@@ -154,6 +155,11 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
             bloq={selectedBloq}
             port={getBloqPort(selectedBloq)}
           />
+          <DeleteWrap>
+            <DeleteButton red onClick={onDeleteBloq}>
+              <Icon name="trash" />
+            </DeleteButton>
+          </DeleteWrap>
         </BloqPlaceholderWrap>
         <ConfigContainer>
           <Configuration
@@ -161,31 +167,23 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
             bloq={selectedBloq}
             onChange={onUpdateBloq}
           />
+          {componentParam && (
+            <PinSelector
+              value={selectedBloq.parameters[componentParam.name] as string}
+              componentInstances={getComponents(bloqType.components || [])}
+              fallbackComponent={(bloqType.components || [])[0]}
+              onChange={(value: any) =>
+                onUpdateBloq(
+                  update(selectedBloq, {
+                    parameters: { [componentParam.name]: { $set: value } }
+                  })
+                )
+              }
+              board={board}
+              components={components}
+            />
+          )}
         </ConfigContainer>
-        <ConfigRight>
-          <ConfigPinsContainer>
-            {componentParam && (
-              <PinSelector
-                value={selectedBloq.parameters[componentParam.name] as string}
-                componentInstances={getComponents(bloqType.components || [])}
-                fallbackComponent={(bloqType.components || [])[0]}
-                onChange={(value: any) =>
-                  onUpdateBloq(
-                    update(selectedBloq, {
-                      parameters: { [componentParam.name]: { $set: value } }
-                    })
-                  )
-                }
-                board={board}
-                components={components}
-              />
-            )}
-          </ConfigPinsContainer>
-          <DeleteButton red onClick={onDeleteBloq}>
-            <Icon name="trash" />
-            Eliminar bloque
-          </DeleteButton>
-        </ConfigRight>
       </>
     );
   }
@@ -211,7 +209,7 @@ interface IContainerProps {
 }
 const Container = styled.div<IContainerProps>`
   position: absolute;
-  top: 80px;
+  top: 123px;
   left: 0px;
   bottom: 0px;
   right: 0px;
@@ -220,6 +218,9 @@ const Container = styled.div<IContainerProps>`
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
   flex: 1;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   transform: translate(0, ${props => (props.isOpen ? "0" : "100%")});
 `;
 
@@ -229,16 +230,17 @@ const CloseButton = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  border-radius: 30px;
+  width: 40px;
+  height: 40px;
   position: absolute;
-  top: -30px;
-  right: 0px;
+  top: -40px;
+  right: 20px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
 
   svg {
-    height: 24px;
-    width: 24px;
+    height: 20px;
+    width: 20px;
   }
 `;
 
@@ -248,29 +250,22 @@ interface IBloqPlaceholderWrapProps {
 }
 const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
   position: absolute;
-  top: -72px;
+  top: 0px;
+  transform: translate(0, -100%);
   left: ${props =>
-    (props.bloqPosition > 0 ? 65 : 60) +
-    props.bloqPosition * 65 -
+    (props.bloqPosition > 0 ? 68 : 62) +
+    props.bloqPosition * 88 -
     props.linesScrollLeft}px;
   background-color: white;
-  height: 70px;
-  padding: 10px 10px 0px 10px;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  padding: 10px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
 `;
 
 const BloqTabs = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-`;
-
-const BloqTabsHeader = styled.div`
   display: flex;
   justify-content: center;
-  border-bottom: 1px solid #979797;
-  margin-top: 20px;
+  margin-bottom: 20px;
 `;
 
 interface IBloqTabProps {
@@ -281,28 +276,35 @@ const BloqTab = styled.div<IBloqTabProps>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
-  background-color: ${props => (props.selected ? "white" : "#ebebeb")};
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  border-style: ${props => (props.selected ? "solid" : "none")};
-  border-width: 1px;
-  border-color: ${props =>
-    props.selected ? "#979797 #979797 white #979797" : "none"};
-  margin-bottom: -1px;
+  width: 50px;
+  height: 50px;
+  background-color: ${props => (props.selected ? "#c0c3c9" : "#ebebeb")};
+  margin: ${props => (props.selected ? 0 : -3)}px 3px 0px 3px;
+  box-shadow: ${props => (props.selected ? "none" : "0 3px 0 0 #dddddd")};
 
-  svg {
-    width: 24px;
-    height: 24px;
+  &:first-of-type {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+  }
+
+  &:last-of-type {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+  }
+
+  img {
+    width: 32px;
+    height: 32px;
   }
 `;
 
 const BloqList = styled.div`
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  max-width: 700px;
+  flex-wrap: wrap;
 `;
 
 const StyledBloq = styled(HorizontalBloq)`
@@ -316,23 +318,23 @@ const ConfigContainer = styled.div`
   justify-content: center;
 `;
 
-const ConfigRight = styled.div`
-  display: flex;
-  flex-direction: column;
+const DeleteWrap = styled.div`
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  transform: translate(100%, 0);
+  background: white;
   padding: 10px;
-  width: 192px;
-  margin-top: 20px;
-`;
-
-const ConfigPinsContainer = styled.div`
-  flex: 1;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
 `;
 
 const DeleteButton = styled(JuniorButton)`
-  padding: 0px 12px;
+  padding: 10px;
+  width: 40px;
+  height: 40px;
   svg {
-    width: 24px;
-    height: 24px;
-    margin-right: 10px;
+    width: 20px;
+    height: 20px;
   }
 `;

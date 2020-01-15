@@ -1,8 +1,16 @@
 import React, { FC, useState, useEffect } from "react";
-import styled from "@emotion/styled";
+import Router from "next/router";
+import { saveAs } from "file-saver";
 import { useQuery } from "@apollo/react-hooks";
-import { DialogModal, Document, Icon, useTranslate } from "@bitbloq/ui";
-import { navigate } from "gatsby";
+import { IDocument } from "@bitbloq/api";
+import {
+  DialogModal,
+  Document,
+  IDocumentTab,
+  Icon,
+  useTranslate
+} from "@bitbloq/ui";
+import styled from "@emotion/styled";
 import Loading from "./Loading";
 import DocumentInfo from "./DocumentInfo";
 import SaveCopyModal from "./SaveCopyModal";
@@ -10,21 +18,19 @@ import GraphQLErrorMessage from "./GraphQLErrorMessage";
 import { OPEN_PUBLIC_DOCUMENT_QUERY } from "../apollo/queries";
 import { documentTypes } from "../config";
 
-interface PublicDocumentProps {
+interface IPublicDocumentProps {
   id: string;
   type: string;
 }
 
-const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
+const PublicDocument: FC<IPublicDocumentProps> = ({ id, type }) => {
   const documentType = documentTypes[type];
   const EditorComponent = documentType.editorComponent;
 
   const [tabIndex, setTabIndex] = useState(1);
   const [isSaveCopyVisible, setIsSaveCopyVisible] = useState(false);
   const [isRestartModalVisible, setIsRestartModalVisible] = useState(false);
-  const [initialContent, setInitialContent] = useState([]);
-  const [contentLoaded, setContentLoaded] = useState(false);
-  const [content, setContent] = useState([]);
+  const [content, setContent] = useState<string>();
   const [restartCount, setRestartCount] = useState(0);
 
   const t = useTranslate();
@@ -37,28 +43,21 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
 
   const restart = () => {
     setRestartCount(restartCount + 1);
-    setContent(initialContent);
     setIsRestartModalVisible(false);
   };
 
   useEffect(() => {
     if (document && document.content) {
-      try {
-        const c = JSON.parse(document.content);
-        setInitialContent(c);
-        restart();
-        setContent(c);
-        setContentLoaded(true);
-      } catch (e) {
-        console.warn("Error parsing document content", e);
-      }
+      setContent(document.content);
     }
   }, [document]);
 
-  if (error) return <GraphQLErrorMessage apolloError={error} />;
-  if (loading || !contentLoaded) return <Loading color={documentType.color} />;
-
-  window.sessionStorage.setItem("advancedMode", `${document.advancedMode}`);
+  if (error) {
+    return <GraphQLErrorMessage apolloError={error} />;
+  }
+  if (loading) {
+    return <Loading color={documentType.color} />;
+  }
 
   const onSaveCopyClick = () => {
     setIsSaveCopyVisible(true);
@@ -68,75 +67,91 @@ const PublicDocument: FC<PublicDocumentProps> = ({ id, type }) => {
     setIsRestartModalVisible(true);
   };
 
-  const onContentChange = (content: any) => {
-    setContent(content);
-  };
-
   const onSaveDocument = () => {
     const documentJSON = {
       ...document,
-      content: JSON.stringify(content)
+      content
     };
-    var blob = new Blob([JSON.stringify(documentJSON)], {
+    const blob = new Blob([JSON.stringify(documentJSON)], {
       type: "text/json;charset=utf-8"
     });
-    saveAs(blob, `${document.title}.bitbloq`);
+    saveAs(blob, `${document.name}.bitbloq`);
   };
+
+  const infoTab: IDocumentTab = {
+    icon: <Icon name="info" />,
+    label: t("tab-project-info"),
+    content: (
+      <DocumentInfo document={document} onGotoDocument={() => setTabIndex(0)} />
+    )
+  };
+
+  const menuOptions = [
+    {
+      id: "file",
+      label: t("menu-file"),
+      children: [
+        {
+          id: "download-document",
+          label: t("menu-download-document"),
+          icon: <Icon name="download-document" />,
+          type: "option",
+          onClick: () => onSaveDocument()
+        }
+      ]
+    }
+  ];
 
   return (
     <>
       <EditorComponent
-        brandColor={documentType.color}
-        key={restartCount}
-        content={initialContent}
-        tabIndex={tabIndex}
-        onTabChange={setTabIndex}
-        onSaveDocument={onSaveDocument}
-        onContentChange={onContentChange}
-        title={
-          <>
-            <TitleIcon>
-              <Icon name="view-document" />
-            </TitleIcon>
-            <span>{document.title}</span>
-          </>
+        document={document}
+        onDocumentChange={(newDocument: IDocument) =>
+          setContent(newDocument.content!)
         }
-        getTabs={mainTab => [
-          mainTab,
-          <Document.Tab
-            key="info"
-            icon={<Icon name="info" />}
-            label={t("tab-project-info")}
-          >
-            <DocumentInfo
-              document={document}
-              onGotoDocument={() => setTabIndex(0)}
-            />
-          </Document.Tab>
-        ]}
-        headerButtons={[
-          { id: "save-copy", icon: "add-document" },
-          { id: "restart", icon: "reload" }
-        ]}
-        onHeaderButtonClick={(buttonId: string) => {
-          switch (buttonId) {
-            case "save-copy":
-              onSaveCopyClick();
-              break;
-            case "restart":
-              onRestartClick();
-              break;
-          }
-        }}
-        backCallback={() => navigate("/")}
-        documentAdvancedMode={document.advancedMode}
-        isPlayground
-      />
+        baseTabs={[infoTab]}
+        baseMenuOptions={menuOptions}
+        key={restartCount}
+      >
+        {documentProps => (
+          <Document
+            brandColor={documentType.color}
+            tabIndex={tabIndex}
+            onTabChange={setTabIndex}
+            icon={<Icon name={documentType.icon} />}
+            title={
+              <>
+                <TitleIcon>
+                  <Icon name="view-document" />
+                </TitleIcon>
+                <span>{document.name}</span>
+              </>
+            }
+            headerButtons={[
+              { id: "save-copy", icon: "add-document" },
+              { id: "restart", icon: "reload" }
+            ]}
+            onHeaderButtonClick={(buttonId: string) => {
+              switch (buttonId) {
+                case "save-copy":
+                  onSaveCopyClick();
+                  break;
+                case "restart":
+                  onRestartClick();
+                  break;
+              }
+            }}
+            backCallback={() => Router.push("/")}
+            {...documentProps}
+          />
+        )}
+      </EditorComponent>
       {isSaveCopyVisible && (
         <SaveCopyModal
           onClose={() => setIsSaveCopyVisible(false)}
           document={document}
           content={content}
+          type="example"
         />
       )}
       <DialogModal

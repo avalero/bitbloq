@@ -1,13 +1,18 @@
 import * as React from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import MenuBar, {
-  MainMenuOption,
-  OptionClickHandler as MenuOptionClickHandler
-} from "./MenuBar";
+import MenuBar, { IMainMenuOption } from "./MenuBar";
 import Icon from "./Icon";
 import Tooltip from "./Tooltip";
-import { IHeaderButton, HeaderButtonClickCallback } from "../index.d";
+import breakpoints from "../breakpoints";
+
+const TABLET_FRAME_WIDTH = 50;
+const DESKTOP_FRAME_WIDTH = 70;
+
+export interface IHeaderButton {
+  id: string;
+  icon: string;
+}
 
 const Container = styled.div`
   display: flex;
@@ -17,35 +22,36 @@ const Container = styled.div`
   height: 100%;
   overflow: hidden;
   user-select: none;
+  background-color: white;
 `;
 
-interface HeaderWrapProps {
-  collapsed: boolean;
-}
-const HeaderWrap = styled.div<HeaderWrapProps>`
-  height: 70px;
+const HeaderWrap = styled.div<{ collapsed: boolean }>`
+  height: ${props => (props.collapsed ? 0 : TABLET_FRAME_WIDTH)}px;
   overflow: hidden;
   transition: height 150ms ease-out;
 
-  ${props =>
-    props.collapsed &&
-    css`
-      height: 0px;
-    `};
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: ${props => (props.collapsed ? 0 : DESKTOP_FRAME_WIDTH)}px;
+  }
 `;
 
 const Header = styled.div`
   background-color: #ebebeb;
-  height: 69px;
+  height: ${TABLET_FRAME_WIDTH - 1}px;
   display: flex;
   border-bottom: 1px solid #dadada;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: ${DESKTOP_FRAME_WIDTH - 1}px;
+  }
 `;
 
 const HeaderButton = styled.div`
   display: flex;
   align-items: center;
+  background-color: #fcfcfc;
   justify-content: center;
-  width: 76px;
+  width: ${TABLET_FRAME_WIDTH}px;
   border-left: 1px solid #dadada;
   cursor: pointer;
 
@@ -53,20 +59,20 @@ const HeaderButton = styled.div`
     width: 24px;
     height: 24px;
   }
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: ${DESKTOP_FRAME_WIDTH}px;
+  }
 `;
 
-interface DocumentIconProps {
-  color: string;
-  pointer?: boolean;
-}
-const DocumentIcon = styled.div`
-  width: 70px;
-  background-color: ${(props: DocumentIconProps) => props.color || "#4dc3ff"};
+const DocumentIcon = styled.div<{ color?: string; pointer?: boolean }>`
+  width: ${TABLET_FRAME_WIDTH}px;
+  background-color: ${props => props.color || "#4dc3ff"};
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: ${(props: DocumentIconProps) => (props.pointer ? "pointer" : "auto")};
+  cursor: ${props => (props.pointer ? "pointer" : "auto")};
 
   .back {
     display: none;
@@ -77,14 +83,21 @@ const DocumentIcon = styled.div`
       display: block;
     }
     .main {
-      display: ${(props: DocumentIconProps) =>
-        props.pointer ? "none" : "block"};
+      display: ${props => (props.pointer ? "none" : "block")};
     }
   }
 
   svg {
-    width: 46px;
-    height: 46px;
+    width: 33px;
+    height: 33px;
+  }
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: ${DESKTOP_FRAME_WIDTH}px;
+    svg {
+      width: 46px;
+      height: 46px;
+    }
   }
 `;
 
@@ -98,10 +111,7 @@ const EditTitleIcon = styled.div`
   }
 `;
 
-interface TitleProps {
-  canEdit: boolean;
-}
-const Title = styled.div<TitleProps>`
+const Title = styled.div<{ canEdit: boolean }>`
   display: flex;
   align-items: center;
   padding-left: 18px;
@@ -141,13 +151,10 @@ const MenuWrap = styled.div`
   border-bottom: 1px solid #cfcfcf;
 `;
 
-interface CollapsedButtonProps {
-  collapsed: boolean;
-}
-const CollapseButton = styled.div<CollapsedButtonProps>`
+const CollapseButton = styled.div<{ collapsed: boolean }>`
   cursor: pointer;
   svg {
-    width: 12px;
+    width: 18px;
     margin: 0px 12px;
     transition: transform 150ms ease-out;
   }
@@ -161,23 +168,36 @@ const CollapseButton = styled.div<CollapsedButtonProps>`
     `};
 `;
 
-const Tabs = styled.div`
-  width: 70px;
-  min-width: 70px;
-  background-color: #3b3e45;
-  color: white;
+const FullScreenButton = styled.div`
+  cursor: pointer;
+  svg {
+    width: 18px;
+  }
 `;
 
-interface TabIconProps {
-  selected: boolean;
-}
-const TabIcon = styled.div<TabIconProps>`
-  height: 70px;
+const Tabs = styled.div`
+  width: ${TABLET_FRAME_WIDTH}px;
+  min-width: ${TABLET_FRAME_WIDTH}px;
+  background-color: #3b3e45;
+  color: white;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    width: ${DESKTOP_FRAME_WIDTH}px;
+    min-width: ${DESKTOP_FRAME_WIDTH}px;
+  }
+`;
+
+const TabIcon = styled.div<{ selected: boolean }>`
+  height: ${TABLET_FRAME_WIDTH}px;
   border-bottom: 1px solid #797c81;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
+
+  @media screen and (min-width: ${breakpoints.desktop}px) {
+    height: ${DESKTOP_FRAME_WIDTH}px;
+  }
 
   svg {
     width: 24px;
@@ -196,10 +216,7 @@ const TabIcon = styled.div<TabIconProps>`
     `};
 `;
 
-interface ContentProps {
-  active: boolean;
-}
-const Content = styled.div<ContentProps>`
+const Content = styled.div<{ active: boolean }>`
   display: none;
   flex: 1;
   overflow: hidden;
@@ -211,57 +228,46 @@ const Content = styled.div<ContentProps>`
     `};
 `;
 
-export interface TabProps {
+export interface IDocumentTab {
   label: string;
   icon: JSX.Element;
-  children: React.ReactChild;
+  content: JSX.Element | ((isActive: boolean) => JSX.Element | null);
 }
 
-export const Tab: React.SFC<TabProps> = props => null;
-
-export interface DocumentProps {
-  menuOptions?: MainMenuOption[];
-  onMenuOptionClick?: MenuOptionClickHandler;
+export interface IDocumentProps {
+  menuOptions?: IMainMenuOption[];
   menuRightContent?: React.ReactChild;
-  headerRightContent?: React.ReactChildren;
+  headerRightContent?: JSX.Element;
   headerButtons?: IHeaderButton[];
   title?: JSX.Element | string;
   brandColor?: string;
   tabIndex: number;
   onTabChange: (tabIndex: number) => any;
   onEditTitle: () => any;
-  onHeaderButtonClick?: HeaderButtonClickCallback;
+  onHeaderButtonClick?: (id: string) => any;
   icon?: JSX.Element;
   preMenuContent?: JSX.Element;
   postMenuContent?: JSX.Element;
   backCallback: () => any;
+  tabs: IDocumentTab[];
 }
 
-interface State {
+interface IState {
   isHeaderCollapsed: boolean;
 }
 
-class Document extends React.Component<DocumentProps, State> {
-  static Tab = Tab;
-
-  state = {
+class Document extends React.Component<IDocumentProps, IState> {
+  public state = {
     isHeaderCollapsed: false
   };
 
-  onCollapseButtonClick = () => {
-    this.setState(state => ({
-      ...state,
-      isHeaderCollapsed: !state.isHeaderCollapsed
-    }));
-  };
+  private containerRef = React.createRef<HTMLDivElement>();
 
-  render() {
+  public render() {
     const {
-      children,
       menuOptions = [],
       menuRightContent,
       headerRightContent,
-      onMenuOptionClick,
       title,
       onEditTitle,
       brandColor,
@@ -272,21 +278,22 @@ class Document extends React.Component<DocumentProps, State> {
       icon,
       preMenuContent,
       postMenuContent,
-      backCallback
+      backCallback,
+      tabs
     } = this.props;
     const { isHeaderCollapsed } = this.state;
 
-    const currentTab = React.Children.toArray(children)[tabIndex];
-
     return (
-      <Container>
+      <Container ref={this.containerRef}>
         <HeaderWrap collapsed={isHeaderCollapsed}>
           <Header>
             <DocumentIcon
               pointer={!!backCallback}
               color={brandColor}
               onClick={() => {
-                if (backCallback) backCallback();
+                if (backCallback) {
+                  backCallback();
+                }
               }}
             >
               {icon && icon.props ? (
@@ -319,8 +326,11 @@ class Document extends React.Component<DocumentProps, State> {
         </HeaderWrap>
         {preMenuContent}
         <MenuWrap>
-          <MenuBar options={menuOptions} onOptionClick={onMenuOptionClick} />
+          <MenuBar options={menuOptions} />
           {menuRightContent}
+          <FullScreenButton onClick={this.onFullScreenClick}>
+            <Icon name="full-screen" />
+          </FullScreenButton>
           <CollapseButton
             onClick={this.onCollapseButtonClick}
             collapsed={isHeaderCollapsed}
@@ -331,33 +341,48 @@ class Document extends React.Component<DocumentProps, State> {
         {postMenuContent}
         <Main>
           <Tabs>
-            {React.Children.map(
-              children,
-              (tab: React.ReactElement<TabProps>, i) => (
-                <Tooltip position="right" content={tab.props.label}>
-                  {tooltipProps => (
-                    <TabIcon
-                      {...tooltipProps}
-                      selected={i === tabIndex}
-                      onClick={() => onTabChange && onTabChange(i)}
-                    >
-                      {tab.props.icon}
-                    </TabIcon>
-                  )}
-                </Tooltip>
-              )
-            )}
+            {tabs.map((tab, i) => (
+              <Tooltip position="right" content={tab.label} key={i}>
+                {tooltipProps => (
+                  <TabIcon
+                    {...tooltipProps}
+                    selected={i === tabIndex}
+                    onClick={() => onTabChange && onTabChange(i)}
+                  >
+                    {tab.icon}
+                  </TabIcon>
+                )}
+              </Tooltip>
+            ))}
           </Tabs>
-          {React.Children.map(
-            children,
-            (tab: React.ReactElement<TabProps>, i) => (
-              <Content active={i === tabIndex}>{tab.props.children}</Content>
-            )
-          )}
+          {tabs.map((tab, i) => (
+            <Content key={i} active={i === tabIndex}>
+              {typeof tab.content === "function"
+                ? tab.content(i === tabIndex)
+                : tab.content}
+            </Content>
+          ))}
         </Main>
       </Container>
     );
   }
+
+  private onCollapseButtonClick = () => {
+    this.setState(state => ({
+      ...state,
+      isHeaderCollapsed: !state.isHeaderCollapsed
+    }));
+  };
+
+  private onFullScreenClick = () => {
+    if (this.containerRef.current) {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      } else {
+        this.containerRef.current.requestFullscreen();
+      }
+    }
+  };
 }
 
 export default Document;

@@ -1,39 +1,17 @@
-import gql from "graphql-tag";
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
-import { useQuery, useMutation, useApolloClient } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/react-hooks";
+import { IFolder } from "@bitbloq/api";
+import { Icon } from "@bitbloq/ui";
+import { FOLDER_QUERY } from "../apollo/queries";
 import styled from "@emotion/styled";
-import { Icon, colors } from "@bitbloq/ui";
 
-interface Folder {
-  name: string;
-  id: string;
+interface ISelectorOptionProps {
+  folder: IFolder;
+  selectedFolder?: IFolder;
+  setSelectedFolder: (folder: IFolder) => void;
 }
 
-const FOLDER_QUERY = gql`
-  query folder($id: ObjectID!) {
-    folder(id: $id) {
-      id
-      name
-      parent
-      parentsPath {
-        id
-        name
-      }
-      folders {
-        id
-        name
-      }
-    }
-  }
-`;
-
-interface SelectorOptionProps {
-  folder: Folder;
-  selectedFolder?: Folder;
-  setSelectedFolder: (folder: Folder) => void;
-}
-
-const SelectorOption: FC<SelectorOptionProps> = ({
+const SelectorOption: FC<ISelectorOptionProps> = ({
   folder,
   selectedFolder,
   setSelectedFolder
@@ -61,24 +39,24 @@ const SelectorOption: FC<SelectorOptionProps> = ({
   );
 };
 
-export interface FolderSelectorMenuProps {
+export interface IFolderSelectorMenuProps {
   className?: string;
-  currentLocation?: Folder;
-  selectedToMove: { id: string | null; parent: string | null };
+  currentLocation?: IFolder;
+  selectedToMove: { id: string | null; parent?: string | null };
   onMove: (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
-    selectedFolder: Folder
+    selectedFolder: IFolder
   ) => any;
 }
 
-const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
+const FolderSelectorMenu: FC<IFolderSelectorMenuProps> = ({
   className,
   currentLocation,
   selectedToMove,
   onMove
 }) => {
   const [selectedFolder, setSelectedFolder] = useState(currentLocation);
-  const { data, loading, error } = useQuery(FOLDER_QUERY, {
+  const { data, loading } = useQuery(FOLDER_QUERY, {
     variables: {
       id: selectedFolder!.id
     }
@@ -89,26 +67,28 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
   useLayoutEffect(() => {
     const onClick = (e: MouseEvent) => {
       e.stopPropagation();
-      setSelectedFolder({ id: parent, name: "" });
+      setSelectedFolder({ id: parentFolder, name: "" });
     };
-    parentButtonRef &&
-      parentButtonRef.current &&
+    if (parentButtonRef.current) {
       parentButtonRef.current.addEventListener("click", onClick);
+    }
 
     return () => {
-      parentButtonRef &&
-        parentButtonRef.current &&
+      if (parentButtonRef.current) {
         parentButtonRef.current.removeEventListener("click", onClick);
+      }
     };
   });
 
   if (loading) {
     return <FolderSelector>loading...</FolderSelector>;
   }
-  if (error) {
-    console.log(error);
-  }
-  const { folders: foldersData, name: folderName, parent, id } = data.folder;
+  const {
+    folders: foldersData,
+    name: folderName,
+    parentFolder,
+    id
+  } = data.folder;
   return (
     <FolderSelector className={className}>
       <ParentButton ref={parentButtonRef}>
@@ -130,10 +110,10 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
         {foldersData &&
           foldersData
             .filter(
-              (op: { id: string; parent: string }) =>
+              (op: { id: string; parentFolder: string }) =>
                 op.id !== selectedToMove.id
             )
-            .map((folder: Folder, i: number) => (
+            .map((folder, i) => (
               <SelectorOption
                 key={folder.id}
                 folder={folder}
@@ -153,7 +133,7 @@ const FolderSelectorMenu: FC<FolderSelectorMenuProps> = ({
 
 export default FolderSelectorMenu;
 
-/**styled components */
+/* styled components */
 
 const FolderSelector = styled.div`
   display: flex;
@@ -179,10 +159,7 @@ const FolderSelectorOptions = styled.div<{ showMove?: boolean }>`
   }
 `;
 
-interface FolderSelectorOptionProps {
-  selectedFolder: boolean;
-}
-const FolderSelectorOption = styled.div<FolderSelectorOptionProps>`
+const FolderSelectorOption = styled.div<{ selectedFolder: boolean }>`
   width: 100%;
   height: 35px;
   display: flex;

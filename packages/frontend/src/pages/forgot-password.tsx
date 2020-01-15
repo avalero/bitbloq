@@ -1,40 +1,21 @@
 import React, { FC, useState, useEffect } from "react";
+import Router from "next/router";
 import styled from "@emotion/styled";
 import { useMutation } from "@apollo/react-hooks";
-import { navigate } from "gatsby";
-import { Input, Button } from "@bitbloq/ui";
+import { Input, Button, colors } from "@bitbloq/ui";
+import withApollo from "../apollo/withApollo";
 import { RESET_PASSWORD_MUTATION } from "../apollo/queries";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
+import CounterButton from "../components/CounterButton";
+import ErrorMessage from "../components/ErrorMessage";
 import ModalLayout from "../components/ModalLayout";
 
 const ForgotPasswordPage: FC = () => {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const [disableRetry, setDisableRetry] = useState(false);
-  const [retryTime, setRetryTime] = useState(0);
 
   const [resetPassword, { loading }] = useMutation(RESET_PASSWORD_MUTATION);
-
-  useEffect(() => {
-    let interval: number;
-    if (disableRetry) {
-      let time = retryTime;
-      interval = window.setInterval(() => {
-        if (time > 0) {
-          time = time - 1;
-          setRetryTime(time);
-        } else {
-          clearInterval(interval);
-          setDisableRetry(false);
-        }
-      }, 1000);
-    }
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [disableRetry])
 
   const onSendClick = async () => {
     try {
@@ -44,12 +25,6 @@ const ForgotPasswordPage: FC = () => {
     } catch (e) {
       setEmailError(true);
     }
-  };
-
-  const onResendClick = () => {
-    setRetryTime(59);
-    setDisableRetry(true);
-    onSendClick();
   };
 
   if (emailSent) {
@@ -62,19 +37,19 @@ const ForgotPasswordPage: FC = () => {
           " es posible que esté en la carpeta de Spam."
         }
         okButton={
-          <Button onClick={onResendClick} disabled={disableRetry}>
-            Volver a enviar email {disableRetry && `(0:${retryTime})`}
-          </Button>
+          <CounterButton onClick={onSendClick}>
+            Volver a enviar email
+          </CounterButton>
         }
         cancelText="Volver al inicio"
-        onCancel={() => navigate("/")}
+        onCancel={() => Router.push("/")}
+        isOpen={true}
       />
     );
   }
 
   return (
     <AccessLayout
-      title="Bitbloq | Contraseña olvidada"
       panelTitle="Contraseña olvidada"
       size={AccessLayoutSize.MEDIUM}
     >
@@ -101,7 +76,7 @@ const ForgotPasswordPage: FC = () => {
         </ErrorMessage>
       )}
       <Buttons>
-        <Button secondary onClick={() => navigate("/login")}>
+        <Button secondary onClick={() => Router.push("/login")}>
           Cancelar
         </Button>
         <Button onClick={() => onSendClick()} disabled={loading}>
@@ -112,25 +87,19 @@ const ForgotPasswordPage: FC = () => {
   );
 };
 
-export default ForgotPasswordPage;
+export default withApollo(ForgotPasswordPage, { requiresSession: false });
 
 const Text = styled.p`
+  color: ${colors.blackHover};
   line-height: 1.57;
   margin-bottom: 40px;
 `;
 
 const FormGroup = styled.div`
-  margin-bottom: 8px;
   label {
     display: block;
     margin-bottom: 10px;
   }
-`;
-
-const ErrorMessage = styled.div`
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
 `;
 
 const Buttons = styled.div`

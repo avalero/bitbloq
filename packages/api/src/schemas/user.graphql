@@ -1,4 +1,4 @@
-# import Date, ObjectID, EmailAddress, JSON, Role from "./scalars.graphql"
+# import Date, ObjectID, EmailAddress, Role, SessionExpires from "./scalars.graphql"
 # import Document from "./document.graphql"
 # import Folder from "./folder.graphql"
 
@@ -9,16 +9,49 @@ type Query {
   me: User @authRequired(requires: [USER])
 }
 type Mutation {
-  signUpUser(input: UserIn!): String
+  saveUserData(input: UserIn!): UserStep1
+  finishSignUp(id: String!, userPlan: String!): String
+  resendWelcomeEmail(email: String!): Boolean
+  saveBirthDate(id: String!, birthDate: Date!): UserStep1
   activateAccount(token: String): String
   login(email: EmailAddress!, password: String!): String
-  renewToken: String
-  resetPasswordEmail(email: EmailAddress!): String
-  checkResetPasswordToken(token: String): Boolean
-  updatePassword(token: String, newPassword: String): String
-  deleteUser(id: ObjectID!): User @authRequired(requires: [USER])
-  updateUser(id: ObjectID!, input: UserIn!): User
+  loginWithGoogle(token: String!): SocialLogin
+  loginWithMicrosoft(token: String!): SocialLogin
+  renewSession: String
+  sendForgotPasswordEmail(email: EmailAddress!): String
+  checkForgotPasswordToken(token: String): Boolean
+  updateForgotPassword(token: String, newPassword: String): String
+  deleteMyUser(password: String!): String @authRequired(requires: [USER])
+  updateUserData(id: ObjectID!, input: UpdateUserData!): User
     @authRequired(requires: [USER])
+  updateMyPassword(currentPassword: String!, newPassword: String!): User
+    @authRequired(requires: [USER])
+  updateMyPlan(userPlan: String!): String @authRequired(requires: [USER])
+  sendChangeMyEmailToken(newEmail: String!): String
+    @authRequired(requires: [USER])
+  checkTokenChangeEmail(token: String!): Boolean
+  confirmChangeEmail(token: String!, password: String!): String
+}
+type Subscription {
+  userSessionExpires: SessionExpires @authRequired(requires: [USER])
+}
+
+type UserStep1 {
+  id: String
+  email: EmailAddress
+}
+
+type SocialLogin {
+  id: String
+  finishedSignUp: Boolean
+  token: String
+}
+
+input UpdateUserData {
+  name: String
+  surnames: String
+  birthDate: Date
+  avatar: Upload
 }
 
 type User {
@@ -31,16 +64,24 @@ type User {
   teacherPro: Boolean
   family: Boolean
   name: String
-  center: String
+  surnames: String
+  avatar: String
+  birthDate: Date
   active: Boolean
   signUpToken: String
   authToken: String
   notifications: Boolean
+  imTeacherCheck: Boolean
+  centerName: String
+  educationalStage: String
+  city: String
+  postCode: String
+  country: String
   createdAt: Date
   updatedAt: Date
   lastLogin: Date
-  signUpSurvey: JSON
   rootFolder: ObjectID
+  socialLogin: Boolean
   documents: [Document]
   folders: [Folder]
 }
@@ -49,10 +90,16 @@ input UserIn {
   email: EmailAddress
   password: String
   name: String
-  center: String
+  surnames: String
+  birthDate: Date
   active: Boolean
   signUpToken: String
   authToken: String
   notifications: Boolean
-  signUpSurvey: JSON
+  imTeacherCheck: Boolean
+  centerName: String
+  educationalStage: String
+  city: String
+  postCode: String
+  country: String
 }

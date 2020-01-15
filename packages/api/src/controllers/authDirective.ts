@@ -3,7 +3,7 @@ import {
   AuthenticationError,
   SchemaDirectiveVisitor
 } from "apollo-server-koa";
-const { defaultFieldResolver } = require("graphql");
+import { defaultFieldResolver } from "graphql";
 
 class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
   public visitObject(type) {
@@ -40,12 +40,11 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
           return resolve.apply(this, args);
         }
         const context = args[2];
-        //console.log(context);
-        if (!context.user || typeof context.user == "undefined") {
+        if (!context.user || typeof context.user === "undefined") {
           throw new AuthenticationError("You need to be logged in");
         } else {
           let passed: boolean = false;
-          for (let roleReq of requiredRole) {
+          for (const roleReq of requiredRole) {
             if (roleReq === "USER" && context.user.role.indexOf("usr-") > -1) {
               passed = true;
               return resolve.apply(this, args);
@@ -107,6 +106,7 @@ class AuthDirectiveResolvers extends SchemaDirectiveVisitor {
         }
       };
     });
+    return;
   }
 }
 

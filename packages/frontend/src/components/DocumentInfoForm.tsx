@@ -1,96 +1,128 @@
 import React, { FC, useEffect, useState } from "react";
-import styled from "@emotion/styled";
+import { IResource, LIMIT_SIZE } from "@bitbloq/api";
 import {
   colors,
   FileSelectButton,
   Input,
   TextArea,
-  DialogModal
+  DialogModal,
+  useTranslate
 } from "@bitbloq/ui";
+import styled from "@emotion/styled";
+import ResourcesBox from "./ResourcesBox";
+import { resourceTypes, maxLengthName } from "../config";
+import { isValidName } from "../util";
+import { ResourcesTypes } from "../types";
 
-export interface DocumentInfoFormProps {
-  title?: string;
+export interface IDocumentInfoFormProps {
+  name?: string;
   description?: string;
+  documentId: string;
   image: string;
-  onChange: (data: any) => void;
+  isTeacher?: boolean;
+  resourceAdded: (id: string) => void;
+  resourceDeleted: (id: string) => void;
+  resources?: IResource[];
+  resourcesTypesAccepted: ResourcesTypes[];
+  onChange: (newValues: {
+    name?: string;
+    description?: string;
+    image?: File;
+  }) => void;
 }
 
-const maxImageSize = 2097152;
-
-const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
-  title,
+const DocumentInfoForm: FC<IDocumentInfoFormProps> = ({
+  name,
   description,
+  documentId,
   image,
+  isTeacher,
+  resourceAdded,
+  resourceDeleted,
+  resources = [],
+  resourcesTypesAccepted,
   onChange
 }) => {
   const [imageError, setImageError] = useState("");
-  const [titleInput, setTitle] = useState(title);
-  const [titleError, setTitleError] = useState(false);
+  const [nameInput, setName] = useState(name);
+  const [nameError, setNameError] = useState(false);
+  const [nameFocused, setNameFocused] = useState(false);
+  const t = useTranslate();
 
   useEffect(() => {
-    setTitle(title);
-  });
+    if (!nameFocused) {
+      setName(name);
+    }
+  }, [name, nameFocused]);
 
   const onFileSelected = (file: File) => {
-    if (file.type.indexOf("image/") !== 0) {
-      setImageError("El formato de la imagen no es válido");
-    } else if (file.size > maxImageSize) {
-      setImageError("El tamaño de la imagen es demasiado grande");
-    } else {
-      onChange({ title, description, image: file });
-    }
-  };
-
-  const validate = (value: string): boolean => {
     if (
-      !value ||
-      (value.length <= 64 &&
-        value.match(/^[\w\sÁÉÍÓÚÑáéíóúñ]+$/) &&
-        !value.match(/^\s+$/))
+      resourceTypes[ResourcesTypes.image].formats.indexOf(
+        `.${file.type.replace("image/", "")}`
+      ) < 0
     ) {
-      return true;
+      setImageError(t("document-info.errors.image-ext"));
+    } else if (file.size > LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES) {
+      setImageError(t("document-info.errors.image-size"));
     } else {
-      return false;
+      onChange({
+        name,
+        description,
+        image: file
+      });
     }
   };
 
   return (
     <Container>
       <Panel>
-        <Header>Información del documento</Header>
+        <Header>{t("document-info.title")}</Header>
         <Form>
           <FormRow>
             <FormLabel>
-              <label>Nombre del documento</label>
+              <label>{t("document-info.labels.title")}</label>
             </FormLabel>
             <FormInput>
               <Input
-                value={titleInput}
-                placeholder="Nombre del documento"
+                value={nameInput}
+                placeholder={t("document-info.placeholders.title")}
                 onChange={e => {
                   const value: string = e.target.value;
-                  if (validate(value)) {
-                    setTitleError(false);
-                    onChange({ title: value, description });
+                  if (isValidName(value)) {
+                    setNameError(false);
+                    onChange({
+                      name: value,
+                      description
+                    });
                   } else {
-                    setTitleError(true);
+                    setNameError(true);
                   }
-                  setTitle(value);
+                  setName(value);
                 }}
-                error={titleError}
+                error={nameError}
+                onFocus={() => setNameFocused(true)}
+                onBlur={() => setNameFocused(false)}
+                maxLength={maxLengthName}
               />
             </FormInput>
           </FormRow>
           <FormRow>
             <FormLabel>
-              <label>Descripción del documento</label>
+              <label>{t("document-info.labels.description")}</label>
             </FormLabel>
             <FormInput>
               <TextArea
-                value={description}
-                placeholder="Descripción del documento"
+                value={
+                  description === t("document-body-description")
+                    ? undefined
+                    : description
+                }
+                placeholder={t("document-info.placeholders.description")}
                 onChange={e => {
-                  onChange({ title, description: e.target.value });
+                  onChange({
+                    name,
+                    description: e.target.value
+                  });
                 }}
                 rows={3}
               />
@@ -98,9 +130,14 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
           </FormRow>
           <FormRow>
             <FormLabel>
-              <label>Imagen del documento</label>
+              <label>{t("document-info.labels.image")}</label>
               <FormSubLabel>
-                Tamaño mínimo 600x400 px en formato jpg, png. Peso máximo 2Mb.
+                {t("document-info.sublabels.image", [
+                  (
+                    LIMIT_SIZE.MAX_DOCUMENT_IMAGE_BYTES /
+                    (1024 * 1024)
+                  ).toString()
+                ])}
               </FormSubLabel>
             </FormLabel>
             <FormInput>
@@ -110,11 +147,32 @@ const DocumentInfoForm: FC<DocumentInfoFormProps> = ({
                 tertiary
                 onFileSelected={onFileSelected}
               >
-                Seleccionar imagen
+                {t("document-info.buttons.image")}
               </ImageButton>
             </FormInput>
           </FormRow>
         </Form>
+        {isTeacher && (
+          <Form>
+            <FormRow>
+              <FormLabel>
+                <label>{t("document-info.labels.resources")}</label>
+                <FormSubLabel>
+                  {t("document-info.sublabels.resources")}
+                </FormSubLabel>
+              </FormLabel>
+              <FormInput>
+                <ResourcesBox
+                  documentId={documentId}
+                  resourceAdded={resourceAdded}
+                  resourceDeleted={resourceDeleted}
+                  resources={resources}
+                  resourcesTypesAccepted={resourcesTypesAccepted}
+                />
+              </FormInput>
+            </FormRow>
+          </Form>
+        )}
       </Panel>
       <DialogModal
         title="Aviso"
@@ -147,26 +205,40 @@ const Panel = styled.div`
   box-shadow: 0 2px 3px 0 #c7c7c7;
   background-color: white;
   width: 100%;
+  max-height: 100%;
   max-width: 900px;
+  overflow: scroll;
 `;
 
 const Header = styled.div`
+  background-color: #fff;
   border-bottom: 1px solid ${colors.gray2};
   font-size: 16px;
   font-weight: bold;
   padding: 0px 30px;
+  position: sticky;
   height: 50px;
+  top: 0;
   display: flex;
   align-items: center;
 `;
 
 const Form = styled.div`
+  border-bottom: 1px solid ${colors.gray2};
   padding: 20px 30px;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
 `;
 
 const FormRow = styled.div`
   display: flex;
   margin-bottom: 20px;
+
+  &:last-of-type {
+    margin-bottom: 0;
+  }
 `;
 
 const FormLabel = styled.div`
@@ -190,12 +262,10 @@ const FormSubLabel = styled.div`
 
 const FormInput = styled.div`
   flex: 2;
+  max-width: 66%;
 `;
 
-interface ImageProps {
-  src: string;
-}
-const Image = styled.div<ImageProps>`
+const Image = styled.div<{ src: string }>`
   border: 1px solid ${colors.gray3};
   border-radius: 4px;
   width: 250px;

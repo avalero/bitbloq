@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import styled from "@emotion/styled";
 import update from "immutability-helper";
 import { Icon, colors } from "@bitbloq/ui";
+import BalloonPanel from "../BalloonPanel";
 
 import { IBloq } from "../../index";
 
@@ -19,48 +20,49 @@ const ServoPositionConfiguration: FC<IServoPositionConfigurationProps> = ({
   const value = bloq.parameters.value as number;
 
   return (
-    <div>
+    <Container>
       <ImageWrap>
         <ServoPositionImage value={value} />
       </ImageWrap>
       <Buttons>
-        <ButtonWrap>
-          <LeftButton
-            onClick={() =>
-              value >= 20 &&
-              onChange(
-                update(bloq, { parameters: { value: { $set: value - 10 } } })
-              )
-            }
-          >
-            <Icon name="angle" />
-          </LeftButton>
-        </ButtonWrap>
-        <ButtonWrap>
-          <RightButton
-            onClick={() =>
-              value <= 160 &&
-              onChange(
-                update(bloq, { parameters: { value: { $set: value + 10 } } })
-              )
-            }
-          >
-            <Icon name="angle" />
-          </RightButton>
-        </ButtonWrap>
+        <LeftButton
+          onClick={() =>
+            value >= 10 &&
+            onChange(
+              update(bloq, { parameters: { value: { $set: value - 10 } } })
+            )
+          }
+        >
+          <Icon name="angle" />
+        </LeftButton>
+        <RightButton
+          onClick={() =>
+            value <= 170 &&
+            onChange(
+              update(bloq, { parameters: { value: { $set: value + 10 } } })
+            )
+          }
+        >
+          <Icon name="angle" />
+        </RightButton>
       </Buttons>
-    </div>
+    </Container>
   );
 };
 
 export default ServoPositionConfiguration;
 
-const ImageWrap = styled.div`
-  margin-bottom: 10px;
-  svg {
-    width: 150px;
-    height: 130px;
-  }
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const ImageWrap = styled(BalloonPanel)`
+  height: 150px;
+  padding: 0px 65px;
+  display: flex;
+  align-items: center;
 `;
 
 const ButtonIcon = styled.img`
@@ -69,6 +71,8 @@ const ButtonIcon = styled.img`
 
 const Buttons = styled.div`
   display: flex;
+  background-color: ${colors.gray2};
+  padding: 10px;
 `;
 
 const ButtonWrap = styled.div`
@@ -85,23 +89,24 @@ const Button = styled.button`
   width: 60px;
   height: 60px;
   border-radius: 30px;
+  background-color: #fff;
   cursor: pointer;
-  background-color: #eee;
   display: flex;
   align-items: center;
   justify-content: center;
   color: ${colors.black};
 
-  box-shadow: 0 14px 0 0 #ddd;
-  transform: translate(0, -14px);
+  box-shadow: 0 4px 0 0 #c0c3c9;
+  transform: translate(0, -4px);
 
   &:focus {
     outline: none;
   }
 
   &:active {
-    box-shadow: 0 12px 0 0 #ddd;
-    transform: translate(0, -12px);
+    background-color: #c0c3c9;
+    box-shadow: none;
+    transform: translate(0, 0);
   }
 
   svg {
@@ -111,6 +116,7 @@ const Button = styled.button`
 `;
 
 const LeftButton = styled(Button)`
+  margin-right: 6px;
   svg {
     transform: rotate(90deg);
   }

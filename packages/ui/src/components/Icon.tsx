@@ -6,91 +6,110 @@ import Angle from "./icons/Angle";
 import AngleDouble from "./icons/AngleDouble";
 import Arrow from "./icons/Arrow";
 import ArrowLeft from "./icons/ArrowLeft";
+import At from "./icons/At";
 import BasicShapes from "./icons/BasicShapes";
-import Brain from "./icons/Brain";
 import Brush from "./icons/Brush";
+import Center from "./icons/Center";
 import CityElements from "./icons/CityElements";
 import Close from "./icons/Close";
+import CloudLogo from "./icons/CloudLogo";
+import Cone from "./icons/Cone";
+import Cthulhito from "./icons/Cthulhito";
 import Cube from "./icons/Cube";
 import CurveAngle from "./icons/CurveAngle";
 import Cylinder from "./icons/Cylinder";
+import Description from "./icons/Description";
 import Difference from "./icons/Difference";
 import Difficulty from "./icons/Difficulty";
-import Download from "./icons/Download";
 import Document from "./icons/Document";
+import Download from "./icons/Download";
 import DownloadDocument from "./icons/DownloadDocument";
 import Drag from "./icons/Drag";
+import DragFile from "./icons/DragFile";
 import Dropdown from "./icons/Dropdown";
 import Duplicate from "./icons/Duplicate";
 import Earth from "./icons/Earth";
 import Ellipsis from "./icons/Ellipsis";
 import Equal from "./icons/Equal";
+import ExerciseResources from "./icons/ExerciseResources";
 import ExportSTL from "./icons/ExportSTL";
 import Eye from "./icons/Eye";
+import EyeClose from "./icons/EyeClose";
+import Folder from "./icons/Folder";
+import FullScreen from "./icons/FullScreen";
 import Group from "./icons/Group";
 import Hardware from "./icons/Hardware";
+import HardwareQuestion from "./icons/HardwareQuestion";
+import Heart from "./icons/Heart";
+import HollowCylinder from "./icons/HollowCylinder";
 import ImportSTL from "./icons/ImportSTL";
 import Info from "./icons/Info";
+import Interrogation from "./icons/Interrogation";
 import Intersection from "./icons/Intersection";
+import Logo3D from "./icons/Logo3D";
+import LogoApps from "./icons/LogoApps";
+import LogoBloqs from "./icons/LogoBloqs";
+import LogoCode from "./icons/LogoCode";
+import LogoJunior from "./icons/LogoJunior";
 import Loop from "./icons/Loop";
 import Minus from "./icons/Minus";
-import Center from "./icons/Center";
-import NewDocument from "./icons/NewDocument";
-import OpenDocument from "./icons/OpenDocument";
 import MoveDocument from "./icons/MoveDocument";
+import NewDocument from "./icons/NewDocument";
+import NewFolder from "./icons/NewFolder";
+import Octahedron from "./icons/Octahedron";
+import OpenDocument from "./icons/OpenDocument";
 import Orthographic from "./icons/Orthographic";
 import PadlockClose from "./icons/PadlockClose";
 import PadlockOpen from "./icons/PadlockOpen";
 import Pencil from "./icons/Pencil";
+import People from "./icons/People";
 import Perspective from "./icons/Perspective";
 import Plus from "./icons/Plus";
 import Prism from "./icons/Prism";
-import Text from "./icons/Text";
-import People from "./icons/People";
 import Programming from "./icons/Programming";
 import Programming2 from "./icons/Programming2";
 import Programming3 from "./icons/Programming3";
-import Pyramid from "./icons/Pyramid";
+import ProgrammingBoard from "./icons/ProgrammingBoard";
+import ProgrammingDuplicate from "./icons/ProgrammingDuplicate";
+import ProgrammingQuestion from "./icons/ProgrammingQuestion";
+import ProgrammingUpload from "./icons/ProgrammingUpload";
 import Publish from "./icons/Publish";
+import Pyramid from "./icons/Pyramid";
+import RectangularPrism from "./icons/RectangularPrism";
 import Redo from "./icons/Redo";
 import Reflection from "./icons/Reflection";
 import Reload from "./icons/Reload";
 import Repeat from "./icons/Repeat";
 import RepeatPolar from "./icons/RepeatPolar";
+import ResourceDeleted from "./icons/ResourceDeleted";
+import ResourceImage from "./icons/ResourceImage";
+import ResourceObject from "./icons/ResourceObject";
+import ResourceSound from "./icons/ResourceSound";
+import ResourceVideo from "./icons/ResourceVideo";
 import Rotation from "./icons/Rotation";
 import Scale from "./icons/Scale";
+import SemiCylinder from "./icons/SemiCylinder";
 import Sphere from "./icons/Sphere";
 import Spinner from "./icons/Spinner";
+import Star from "./icons/Star";
 import STL from "./icons/STL";
+import Text from "./icons/Text";
 import ThreeD from "./icons/ThreeD";
 import Tick from "./icons/Tick";
+import TickCircle from "./icons/TickCircle";
 import Times from "./icons/Times";
+import Torus from "./icons/Torus";
 import Translation from "./icons/Translation";
 import Trash from "./icons/Trash";
 import Triangle from "./icons/Triangle";
+import TruncatedCone from "./icons/TruncatedCone";
 import Undo from "./icons/Undo";
 import Ungroup from "./icons/Ungroup";
 import Union from "./icons/Union";
+import User from "./icons/User";
 import ViewDocument from "./icons/ViewDocument";
-import Torus from "./icons/Torus";
-import RectangularPrism from "./icons/RectangularPrism";
-import Cone from "./icons/Cone";
-import TruncatedCone from "./icons/TruncatedCone";
-import Star from "./icons/Star";
-import SemiCylinder from "./icons/SemiCylinder";
-import Octahedron from "./icons/Octahedron";
-import Heart from "./icons/Heart";
-import Logo3D from "./icons/Logo3D";
-import LogoBloqs from "./icons/LogoBloqs";
-import LogoJunior from "./icons/LogoJunior";
-import LogoApps from "./icons/LogoApps";
-import LogoCode from "./icons/LogoCode";
-import HollowCylinder from "./icons/HollowCylinder";
-import Cthulhito from "./icons/Cthulhito";
-import NewFolder from "./icons/NewFolder";
-import Folder from "./icons/Folder";
 
-export interface IconProps {
+export interface IIconProps {
   /** Name of the icon to display */
   name: string;
   className?: string;
@@ -99,7 +118,7 @@ export interface IconProps {
 /**
  * Icon component that renders an svg from a catalog of icons
  */
-const Icon: React.SFC<IconProps> = ({ name, className }) => {
+const Icon: React.SFC<IIconProps> = ({ name, className }) => {
   switch (name) {
     case "add-document":
       return <AddDocument className={className} />;
@@ -113,8 +132,6 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Angle className={className} />;
     case "angle-double":
       return <AngleDouble className={className} />;
-    case "brain":
-      return <Brain className={className} />;
     case "heart":
       return <Heart className={className} />;
     case "tube":
@@ -123,6 +140,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Arrow className={className} />;
     case "arrow-left":
       return <ArrowLeft className={className} />;
+    case "at":
+      return <At className={className} />;
     case "basic-shapes":
       return <BasicShapes className={className} />;
     case "brush":
@@ -131,12 +150,16 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <CityElements className={className} />;
     case "close":
       return <Close className={className} />;
+    case "cloud-logo":
+      return <CloudLogo className={className} />;
     case "cube":
       return <Cube className={className} />;
     case "curve-angle":
       return <CurveAngle className={className} />;
     case "cylinder":
       return <Cylinder className={className} />;
+    case "description":
+      return <Description className={className} />;
     case "difference":
       return <Difference className={className} />;
     case "difficulty":
@@ -149,6 +172,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <DownloadDocument className={className} />;
     case "drag":
       return <Drag className={className} />;
+    case "drag-file":
+      return <DragFile className={className} />;
     case "dropdown":
       return <Dropdown className={className} />;
     case "duplicate":
@@ -159,18 +184,28 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Ellipsis className={className} />;
     case "equal":
       return <Equal className={className} />;
+    case "exercise-resources":
+      return <ExerciseResources className={className} />;
     case "export-stl":
       return <ExportSTL className={className} />;
     case "eye":
       return <Eye className={className} />;
+    case "eye-close":
+      return <EyeClose className={className} />;
+    case "full-screen":
+      return <FullScreen className={className} />;
     case "group":
       return <Group className={className} />;
     case "hardware":
       return <Hardware className={className} />;
+    case "hardware-question":
+      return <HardwareQuestion className={className} />;
     case "import-stl":
       return <ImportSTL className={className} />;
     case "info":
       return <Info className={className} />;
+    case "interrogation":
+      return <Interrogation className={className} />;
     case "intersection":
       return <Intersection className={className} />;
     case "center":
@@ -217,6 +252,14 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Programming2 className={className} />;
     case "programming3":
       return <Programming3 className={className} />;
+    case "programming-board":
+      return <ProgrammingBoard className={className} />;
+    case "programming-duplicate":
+      return <ProgrammingDuplicate className={className} />;
+    case "programming-question":
+      return <ProgrammingQuestion className={className} />;
+    case "programming-upload":
+      return <ProgrammingUpload className={className} />;
     case "text":
       return <Text className={className} />;
     case "pyramid":
@@ -233,6 +276,16 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Repeat className={className} />;
     case "repeat-polar":
       return <RepeatPolar className={className} />;
+    case "resource-deleted":
+      return <ResourceDeleted className={className} />;
+    case "resource-image":
+      return <ResourceImage className={className} />;
+    case "resource-object3D":
+      return <ResourceObject className={className} />;
+    case "resource-sound":
+      return <ResourceSound className={className} />;
+    case "resource-video":
+      return <ResourceVideo className={className} />;
     case "rotation":
       return <Rotation className={className} />;
     case "scale":
@@ -249,6 +302,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <ThreeD className={className} />;
     case "tick":
       return <Tick className={className} />;
+    case "tick-circle":
+      return <TickCircle className={className} />;
     case "times":
       return <Times className={className} />;
     case "translation":
@@ -263,6 +318,8 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
       return <Ungroup className={className} />;
     case "union":
       return <Union className={className} />;
+    case "user":
+      return <User className={className} />;
     case "view-document":
       return <ViewDocument className={className} />;
     case "logo-3d":
@@ -282,9 +339,10 @@ const Icon: React.SFC<IconProps> = ({ name, className }) => {
     case "folder-icon":
       return <Folder className={className} />;
     default:
+      // tslint:disable-next-line:no-console
       console.warn("Icon not found");
       return null;
   }
 };
 
-export default Icon;
+export default React.memo(Icon);

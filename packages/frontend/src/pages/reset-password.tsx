@@ -1,47 +1,59 @@
 import React, { FC, useState, useEffect } from "react";
 import queryString from "query-string";
 import styled from "@emotion/styled";
-import { useQuery, useMutation } from "@apollo/react-hooks";
-import { navigate } from "gatsby";
+import Router from "next/router";
+import withApollo from "../apollo/withApollo";
+import { useMutation } from "@apollo/react-hooks";
 import { Input, Button } from "@bitbloq/ui";
-import { ME_QUERY, CHECK_RESET_PASSWORD_TOKEN_MUTATION, UPDATE_PASSWORD_MUTATION } from "../apollo/queries";
+import {
+  CHECK_UPDATE_PASSWORD_TOKEN_MUTATION,
+  UPDATE_FORGOT_PASSWORD_MUTATION
+} from "../apollo/queries";
+import useUserData from "../lib/useUserData";
 import AccessLayout, { AccessLayoutSize } from "../components/AccessLayout";
+import ErrorMessage from "../components/ErrorMessage";
 import ModalLayout from "../components/ModalLayout";
 
-export interface ForgotPasswordPageProps {
-  location: any;
-}
-
-const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
+const ForgotPasswordPage: FC = () => {
   const [password, setPassword] = useState("");
   const [repeat, setRepeat] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [repeatError, setRepeatError] = useState("");
   const [success, setSuccess] = useState(false);
   const [invalidToken, setInvalidToken] = useState(false);
+  const [token, setToken] = useState("");
 
-  const [checkToken] = useMutation(CHECK_RESET_PASSWORD_TOKEN_MUTATION);
-  const [updatePassword, { loading }] = useMutation(UPDATE_PASSWORD_MUTATION);
+  const [checkToken] = useMutation(CHECK_UPDATE_PASSWORD_TOKEN_MUTATION);
+  const [updateForgotPassword, { loading }] = useMutation(
+    UPDATE_FORGOT_PASSWORD_MUTATION
+  );
 
-  const { token } = queryString.parse(location.search);
-
-  const { data } = useQuery(ME_QUERY);
-  if (data && data.me) {
-    navigate("/app");
-  }
+  const { userData } = useUserData();
+  useEffect(() => {
+    if (userData) {
+      Router.replace("/app");
+    }
+  }, [userData]);
 
   const checkTokenValidity = async () => {
     try {
-      await checkToken({ variables: { token }});
+      await checkToken({ variables: { token } });
     } catch (e) {
       setInvalidToken(true);
     }
   };
 
   useEffect(() => {
-    checkTokenValidity();
+    const location = window.location;
+    const { token: queryToken } = queryString.parse(location.search);
+    setToken(queryToken as string);
   }, []);
 
+  useEffect(() => {
+    if (token) {
+      checkTokenValidity();
+    }
+  }, [token]);
 
   const onSaveClick = async () => {
     if (!password) {
@@ -58,9 +70,15 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
     try {
       setPasswordError("");
       setRepeatError("");
-      const result = await updatePassword({ variables: { token, newPassword: password } });
+      const result = await updateForgotPassword({
+        variables: { token, newPassword: password }
+      });
       setSuccess(true);
-    } catch (e) {}
+    } catch (e) {
+      return undefined;
+    }
+
+    return;
   };
 
   if (invalidToken) {
@@ -74,9 +92,10 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
           "debes volver a solicitar el cambio."
         }
         okText="Volver a solicitar cambio de contraseña"
-        onOk={() => navigate("/forgot-password")}
+        onOk={() => Router.push("/forgot-password")}
         cancelText="Volver al inicio"
-        onCancel={() => navigate("/")}
+        onCancel={() => Router.push("/")}
+        isOpen={true}
       />
     );
   }
@@ -87,38 +106,31 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
         title="Contraseña cambiada"
         modalTitle="Contraseña cambiada"
         text={
-          "Tu contraseña se ha cambiado con éxito, a partir de ahora " + 
+          "Tu contraseña se ha cambiado con éxito, a partir de ahora " +
           "ya no podrás entrar con la anterior contraseña."
         }
         cancelText="Volver al inicio"
-        onCancel={() => navigate("/")}
+        onCancel={() => Router.push("/")}
+        isOpen={true}
       />
     );
   }
 
   return (
-    <AccessLayout
-      title="Bitbloq | Nueva contraseña"
-      panelTitle="Nueva contraseña"
-      size={AccessLayoutSize.MEDIUM}
-    >
-      <Text>
-        Ahora ya puedes escribir una nueva contraseña
-      </Text>
+    <AccessLayout panelTitle="Nueva contraseña" size={AccessLayoutSize.MEDIUM}>
+      <Text>Ahora ya puedes escribir una nueva contraseña</Text>
       <FormGroup>
         <label>Nueva contraseña</label>
         <Input
           type="password"
           placeholder="Contraseña"
           value={password}
-          error={passwordError}
+          error={!!passwordError}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setPassword(e.target.value)
           }
         />
-        {passwordError && (
-          <ErrorMessage>{passwordError}</ErrorMessage>
-        )}
+        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
       </FormGroup>
       <FormGroup>
         <label>Repetir nueva contraseña</label>
@@ -126,17 +138,15 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
           type="password"
           placeholder="Repetir contraseña"
           value={repeat}
-          error={repeatError}
+          error={!!repeatError}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setRepeat(e.target.value)
           }
         />
-        {repeatError && (
-          <ErrorMessage>{repeatError}</ErrorMessage>
-        )}
+        {repeatError && <ErrorMessage>{repeatError}</ErrorMessage>}
       </FormGroup>
       <Buttons>
-        <Button secondary onClick={() => navigate("/login")}>
+        <Button secondary onClick={() => Router.push("/login")}>
           Cancelar
         </Button>
         <Button onClick={() => onSaveClick()} disabled={loading}>
@@ -147,7 +157,7 @@ const ForgotPasswordPage: FC<ForgotPasswordPageProps> = ({ location }) => {
   );
 };
 
-export default ForgotPasswordPage;
+export default withApollo(ForgotPasswordPage, { requiresSession: false });
 
 const Text = styled.p`
   line-height: 1.57;
@@ -160,13 +170,6 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 10px;
   }
-`;
-
-const ErrorMessage = styled.div`
-  margin-top: 8px;
-  font-size: 12px;
-  font-style: italic;
-  color: #d82b32;
 `;
 
 const Buttons = styled.div`

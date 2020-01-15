@@ -1,5 +1,4 @@
 scalar Date
-scalar JSON
 scalar ObjectID
 scalar EmailAddress
 scalar Upload
@@ -13,4 +12,26 @@ enum Role {
   TEACHERPRO
   STUDENT
   FAMILY
+}
+
+type SessionExpires {
+  key: ObjectID
+  authToken: String
+  subToken: String
+  expiresAt: Date
+  secondsRemaining: Number
+  showSessionWarningSecs: Number
+  expiredSession: Boolean
+}
+
+type CommonProps {
+  id: ObjectID
+  user: ObjectID
+  name: String!
+  type: String
+  content: String
+  cache: String
+  description: String
+  createdAt: Date
+  updatedAt: Date
 }

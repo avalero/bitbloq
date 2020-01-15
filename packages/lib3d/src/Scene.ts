@@ -15,26 +15,25 @@ import Difference from "./Difference";
 import Intersection from "./Intersection";
 import CompoundObject from "./CompoundObject";
 import ObjectsCommon from "./ObjectsCommon";
-
 import ObjectsGroup from "./ObjectsGroup";
 import RepetitionObject from "./RepetitionObject";
 
 import { isEqual } from "lodash";
 
 import ObjectFactory from "./ObjectFactory";
+import OperationHelper from "./OperationHelper";
 import PositionCalculator from "./PositionCalculator";
 import meshArray2STLAsync from "./STLExporter";
-import OperationHelper from "./OperationHelper";
 
+import { MeshOperations, setMeshMaterial } from "./Bitbloq";
 import {
-  IGeometry,
   ICompoundObjectJSON,
+  IGeometry,
   IObjectsCommonJSON,
-  IRepetitionObjectJSON,
   IObjectsGroupJSON,
+  IRepetitionObjectJSON,
   OperationsArray
 } from "./Interfaces";
-import { setMeshMaterial, MeshOperations } from "./Bitbloq";
 
 enum HelperType {
   Rotation = "rotation",
@@ -121,7 +120,7 @@ export default class Scene {
   private selectedMaterial: object;
   private secondaryMaterial: object;
   private normalMaterial: object;
-  private transitionMaterial: object;
+  private computingMeshesPromise: Array<Promise<THREE.Object3D>>;
 
   constructor() {
     this.anySelectedObjects = false;
@@ -186,7 +185,7 @@ export default class Scene {
 
       const objects3D: THREE.Object3D[] = await Promise.all(
         this.objectsInScene.map(async object => {
-          const mesh = await object.getMeshAsync();
+          const mesh = (await object.getMeshAsync()) as THREE.Object3D;
           return mesh;
         })
       );
@@ -284,8 +283,8 @@ export default class Scene {
   /**
    * returns a THREE.Group object containing designed 3D objects .
    */
-  public async getObjectsAsync(): Promise<THREE.Group> {
-    if (!this.sceneUpdated) {
+  public async getObjectsAsync(forceUpdate?: boolean): Promise<THREE.Group> {
+    if (!this.sceneUpdated && !forceUpdate) {
       return this.objectsGroup;
     }
 
@@ -293,39 +292,41 @@ export default class Scene {
 
     this.objectsGroup = new THREE.Group();
 
-    const meshes: THREE.Object3D[] = await Promise.all(
-      this.objectsInScene.map(async object => {
-        const mesh = await object.getMeshAsync();
+    this.computingMeshesPromise = this.objectsInScene.map(async object => {
+      const mesh = await object.getMeshAsync();
 
-        if (this.anySelectedObjects) {
-          // if object is selected highlight
-          if (object.getViewOptions().selected) {
-            if (mesh instanceof THREE.Mesh) {
-              if (mesh.material instanceof THREE.MeshLambertMaterial) {
-                mesh.material.setValues(this.selectedMaterial);
-              }
-            }
-          } else {
-            if (mesh instanceof THREE.Mesh) {
-              if (mesh.material instanceof THREE.MeshLambertMaterial) {
-                mesh.material.setValues(this.secondaryMaterial);
-              }
+      if (this.anySelectedObjects) {
+        // if object is selected highlight
+        if (object.getViewOptions().selected) {
+          if (mesh instanceof THREE.Mesh) {
+            if (mesh.material instanceof THREE.MeshLambertMaterial) {
+              mesh.material.setValues(this.selectedMaterial);
             }
           }
         } else {
           if (mesh instanceof THREE.Mesh) {
             if (mesh.material instanceof THREE.MeshLambertMaterial) {
-              mesh.material.setValues(this.normalMaterial);
+              mesh.material.setValues(this.secondaryMaterial);
             }
           }
         }
+      } else {
+        if (mesh instanceof THREE.Mesh) {
+          if (mesh.material instanceof THREE.MeshLambertMaterial) {
+            mesh.material.setValues(this.normalMaterial);
+          }
+        }
+      }
 
-        mesh.userData = {
-          ...mesh.userData,
-          ...object.toJSON()
-        };
-        return mesh;
-      })
+      mesh.userData = {
+        ...mesh.userData,
+        ...object.toJSON()
+      };
+      return mesh;
+    });
+
+    const meshes: THREE.Object3D[] = await Promise.all(
+      this.computingMeshesPromise
     );
 
     meshes.forEach(mesh => {
@@ -373,7 +374,7 @@ export default class Scene {
           parent instanceof CompoundObject &&
           parent.getChildren()[0].getID() === object.getID()
         ) {
-          const childMesh: THREE.Mesh = (object as any).mesh.clone();
+          const childMesh: THREE.Mesh = object.getMesh().clone() as THREE.Mesh;
           childMesh.position.set(0, 0, 0);
           childMesh.rotation.set(0, 0, 0);
           childMesh.scale.set(1, 1, 1);
@@ -446,8 +447,8 @@ export default class Scene {
               if (geom.id === json.id) {
                 json.geometry = {
                   id: geom.id,
-                  vertices: geom.vertices,
-                  normals: geom.normals
+                  normals: geom.normals,
+                  vertices: geom.vertices
                 };
                 break;
               }
@@ -486,7 +487,7 @@ export default class Scene {
       if (foundObj) {
         this.objectsInScene.push(foundObj);
       } else {
-        console.info("Object not found. This SHOULD NOT HAPPEN");
+        throw new Error("Object not found. This SHOULD NOT HAPPEN");
       }
     });
 
@@ -636,10 +637,14 @@ export default class Scene {
    * @param json object descriptor
    */
   public async getPositionAsync(
-    json: IObjectsCommonJSON
+    json: IObjectsCommonJSON,
+    waitScene: boolean = false
   ): Promise<IObjectPosition> {
     try {
       const obj = this.getObject(json);
+      if (waitScene) {
+        await Promise.all(this.computingMeshesPromise);
+      }
       return new PositionCalculator(obj).getPositionAsync();
     } catch (e) {
       throw new Error(`Cannot find object: ${e}`);
@@ -886,17 +891,21 @@ export default class Scene {
 
   private updateHistory(): void {
     this.sceneUpdated = true;
-    const currentTime: number = new Date().getTime() / 1000;
-    if (currentTime - this.lastUpdateTS < 1) {
-      return;
-    }
-    this.lastUpdateTS = currentTime;
     const sceneJSON = this.toJSON();
     // Add to history
     this.history = this.history.slice(0, this.historyIndex + 1);
 
     this.history.push(sceneJSON);
     this.historyIndex = this.history.length - 1;
+
+    const currentTime: number = new Date().getTime() / 1000;
+    if (currentTime - this.lastUpdateTS < 1) {
+      this.history.splice(this.history.length - 2, 1);
+      this.historyIndex = this.history.length - 1;
+      return;
+    }
+
+    this.lastUpdateTS = currentTime;
   }
 
   private setMaterials(): void {
@@ -913,11 +922,6 @@ export default class Scene {
     this.normalMaterial = {
       opacity: 1,
       transparent: false
-    };
-
-    this.transitionMaterial = {
-      opacity: 0.8,
-      transparent: true
     };
   }
   /**
@@ -945,14 +949,14 @@ export default class Scene {
         lineWidth: 2
       },
       plane: {
-        enabled: false,
-        color: 0x98f5ff
+        color: 0x98f5ff,
+        enabled: false
       }
     };
 
     this.sceneSetup = {
-      base: new BaseGrid(gridConfig).getMesh(),
       ambientLight: new THREE.AmbientLight(0x666666),
+      base: new BaseGrid(gridConfig).getMesh(),
       spotLight: new THREE.SpotLight(0xdddddd),
       spotLight2: new THREE.SpotLight(0xbbbbbb)
     };

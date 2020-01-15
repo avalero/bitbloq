@@ -1,26 +1,20 @@
 import * as React from "react";
-import Button from "./Button";
+import Button, { IButtonProps } from "./Button";
 
-export interface FileSelectButtonProps {
+export interface IFileSelectButtonProps {
   onFileSelected: (file: File) => void;
 }
 
 class FileSelectButton extends React.Component<
-  FileSelectButtonProps & React.HTMLProps<HTMLButtonElement>
+  IFileSelectButtonProps & IButtonProps & React.HTMLProps<HTMLButtonElement>
 > {
-  input = React.createRef<HTMLInputElement>();
+  private input = React.createRef<HTMLInputElement>();
 
-  onClick = () => {
-    if (this.input.current) {
-      this.input.current.click();
-    }
-  };
-
-  render() {
+  public render() {
     const { onFileSelected, accept, ...restProps } = this.props;
     return (
       <>
-        <Button {...restProps} onClick={this.onClick} />
+        <Button {...restProps} onClick={this.onClick} type="button" />
         <input
           type="file"
           style={{ display: "none" }}
@@ -36,6 +30,12 @@ class FileSelectButton extends React.Component<
       </>
     );
   }
+
+  private onClick = () => {
+    if (this.input.current) {
+      this.input.current.click();
+    }
+  };
 }
 
 export default FileSelectButton;

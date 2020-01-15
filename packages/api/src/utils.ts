@@ -5,12 +5,17 @@ import { IFolder, FolderModel } from "./models/folder";
  * @param folder carpeta de la que se quieren obtener los padres
  * @param path listado de padres
  */
-export const getParentsPath = async (folder: IFolder, path: IFolder[] = []) => {
+export const getParentsPath = async (
+  folder: IFolder,
+  path: IFolder[] = []
+): Promise<IFolder[]> => {
   if (folder.name === "root") {
     return [folder, ...path];
   } else {
-    const parentFolder = await FolderModel.findOne({ _id: folder.parent });
-    const result = await getParentsPath(parentFolder, [folder]);
+    const parentFolder = await FolderModel.findOne({
+      _id: folder.parentFolder
+    });
+    const result = await getParentsPath(parentFolder!, [folder]);
     return [...result, ...path];
   }
 };
@@ -36,18 +41,39 @@ export const sortByUpdatedAt = (a, b) => {
 
 export const sortByTitleAZ = (a, b) => {
   try {
-    const aTitle = a && a.title.toLowerCase();
-    const bTitle = b && b.title.toLowerCase();
+    let aTitle: string = "";
+    let bTitle: string = "";
+    if (a && a.name && b && b.name) {
+      aTitle = a.name.toLowerCase();
+      bTitle = b.name.toLowerCase();
+    }
+    if (a && a.title && b && b.title) {
+      aTitle = a.title.toLowerCase();
+      bTitle = b.title.toLowerCase();
+    }
     return aTitle === bTitle ? 0 : aTitle < bTitle ? -1 : 1;
-  } catch (e) {}
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const sortByTitleZA = (a, b) => {
   try {
-    const aTitle = a && a.title.toLowerCase();
-    const bTitle = b && b.title.toLowerCase();
+    let aTitle: string = "";
+    let bTitle: string = "";
+    if (a && a.name && b && b.name) {
+      aTitle = a.name.toLowerCase();
+      bTitle = b.name.toLowerCase();
+      return aTitle === bTitle ? 0 : aTitle > bTitle ? -1 : 1;
+    }
+    if (a && a.title && b && b.title) {
+      aTitle = a.title.toLowerCase();
+      bTitle = b.title.toLowerCase();
+    }
     return aTitle === bTitle ? 0 : aTitle > bTitle ? -1 : 1;
-  } catch (e) {}
+  } catch (e) {
+    return undefined;
+  }
 };
 
 export const orderFunctions = {

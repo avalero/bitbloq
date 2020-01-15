@@ -4,23 +4,27 @@ import Icon from "./Icon";
 import HorizontalRule from "./HorizontalRule";
 import colors from "../colors";
 
-export interface ModalProps {
+export interface IModalProps {
   isOpen: boolean;
   title?: string;
-  showHeader: boolean;
+  showHeader?: boolean;
   onClose?: () => void;
   transparentOverlay?: boolean;
   className?: string;
+  iconName?: string;
+  iconColor?: string;
 }
 
-const Modal: FC<ModalProps> = ({
+const Modal: FC<IModalProps> = ({
   isOpen,
   title,
   showHeader,
   onClose,
   transparentOverlay,
   children,
-  className
+  className,
+  iconName,
+  iconColor
 }) => {
   if (!isOpen) {
     return null;
@@ -33,13 +37,16 @@ const Modal: FC<ModalProps> = ({
       transparent={transparentOverlay}
     >
       <Container
-        onMouseDown={(e: Event) => e.stopPropagation()}
+        onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
         withShadow={transparentOverlay}
       >
         {showHeader && (
           <>
             <Header>
-              <Title>{title}</Title>
+              <Title>
+                {iconName && <HeaderIcon name={iconName} color={iconColor} />}
+                {title}
+              </Title>
               {onClose && (
                 <Close onClick={onClose}>
                   <Icon name="close" />
@@ -64,38 +71,36 @@ export default Modal;
 
 /* styled components */
 
-interface OverlayProps {
-  transparent?: boolean;
-}
-const Overlay = styled.div<OverlayProps>`
+const Overlay = styled.div<{ transparent?: boolean }>`
   position: fixed;
   top: 0px;
   left: 0px;
   width: 100%;
   height: 100%;
   z-index: 20;
-  background: ${(props: OverlayProps) =>
+  background: ${props =>
     props.transparent ? "transparent" : "rgba(0, 0, 0, 0.4)"};
   display: flex;
   justify-content: center;
   align-items: center;
 `;
 
-interface ContainerProps {
-  withShadow?: boolean;
-}
-const Container = styled.div<ContainerProps>`
+const Container = styled.div<{ withShadow?: boolean }>`
   display: flex;
   flex-direction: column;
   border-radius: 4px;
   background-color: white;
-  box-shadow: ${(props: ContainerProps) =>
+  box-shadow: ${props =>
     props.withShadow ? "0 10px 40px 0 rgba(0, 0, 0, 0.1)" : "none"};
 `;
 
 const Header = styled.div`
   display: flex;
   height: 60px;
+`;
+
+const HeaderIcon = styled(Icon)<{ color?: string }>`
+  color: ${props => props.color};
 `;
 
 const Title = styled.div`
@@ -105,6 +110,10 @@ const Title = styled.div`
   padding: 0px 30px;
   display: flex;
   align-items: center;
+
+  svg {
+    margin-right: 10px;
+  }
 `;
 
 const Close = styled.div`

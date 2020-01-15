@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
-import { Document, Icon, useTranslate } from "@bitbloq/ui";
+import { useTranslate } from "@bitbloq/ui";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -8,6 +8,7 @@ import {
   getBoardDefinition,
   Web2Board,
   IBloq,
+  IBloqLine,
   IBloqType,
   IBloqTypeGroup,
   IBoard,
@@ -19,40 +20,30 @@ import {
 } from "@bitbloq/bloqs";
 import UploadSpinner from "./UploadSpinner";
 
-export interface JuniorProps {
-  brandColor: string;
-  title: string;
-  onEditTitle: () => any;
-  tabIndex: number;
-  onTabChange: (tabIndex: number) => any;
+export interface IJuniorProps {
   bloqTypes: IBloqType[];
   initialContent?: any;
   onContentChange: (content: any) => any;
   boards: IBoard[];
   components: IComponent[];
-  backCallback: () => any;
-  headerRightContent: JSX.Element;
+  children: (
+    hardware: JSX.Element,
+    software: (isActive: boolean) => JSX.Element | null
+  ) => JSX.Element;
 }
 
-const Junior: React.FunctionComponent<JuniorProps> = ({
+const Junior: React.FunctionComponent<IJuniorProps> = ({
   children,
-  brandColor,
-  title,
-  onEditTitle,
-  tabIndex,
-  onTabChange,
   bloqTypes,
   initialContent,
   onContentChange,
   boards,
-  components,
-  backCallback,
-  headerRightContent
+  components
 }) => {
   const t = useTranslate();
 
   const [content, setContent] = useState(initialContent);
-  const program = content.program || [];
+  const program: IBloqLine[] = content.program || [];
   const hardware: IHardware = content.hardware || {
     board: "zumjunior",
     components: []
@@ -75,7 +66,7 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
 
     if (!uploading) {
-      hideTimeout.current = setTimeout(() => {
+      hideTimeout.current = window.setTimeout(() => {
         setUploadSpinnerVisible(false);
       }, 5000);
     }
@@ -161,7 +152,20 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
   const upload = async (timeout: number): Promise<void> => {
     setUploading(true);
     const web2Board = web2BoardRef.current;
-    const code = bloqs2code(boards, components, bloqTypes, hardware, program);
+    const programBloqs = program
+      .filter(line => !line.disabled)
+      .map(line => line.bloqs);
+    const code = bloqs2code(
+      boards,
+      components,
+      bloqTypes,
+      hardware,
+      programBloqs
+    );
+
+    if (!web2Board) {
+      return;
+    }
 
     if (!web2Board.isConnected()) {
       try {
@@ -206,64 +210,40 @@ const Junior: React.FunctionComponent<JuniorProps> = ({
     }
   };
 
-  const mainTabs = [
-    <Document.Tab
-      key="hardware"
-      icon={<Icon name="hardware" />}
-      label={t("junior.hardware")}
-    >
-      <HardwareDesigner
-        boards={boards}
-        components={components}
-        hardware={hardware}
-        onHardwareChange={newHardware =>
-          setContent({ hardware: newHardware, program })
-        }
-      />
-    </Document.Tab>,
-    <Document.Tab
-      key="software"
-      icon={<Icon name="programming" />}
-      label={t("junior.software")}
-    >
-      <HorizontalBloqEditor
-        bloqs={program}
-        components={components}
-        getComponents={getComponents}
-        getBloqPort={getBloqPort}
-        bloqTypes={bloqTypes}
-        availableBloqs={availableBloqs}
-        onBloqsChange={(newProgram: IBloq[][]) =>
-          setContent({ program: newProgram, hardware })
-        }
-        onUpload={() => upload(10000)}
-        board={board}
-      />
-    </Document.Tab>
-  ];
-
-  return (
-    <>
-      <Document
-        icon={<Icon name="logo-junior" />}
-        brandColor={brandColor}
-        title={title || t("untitled-project")}
-        onEditTitle={onEditTitle}
-        tabIndex={tabIndex}
-        onTabChange={onTabChange}
-        backCallback={backCallback}
-        headerRightContent={headerRightContent}
-      >
-        {typeof children === "function" ? children(mainTabs) : mainTabs}
-      </Document>
-      {uploadSpinnerVisible && (
-        <UploadSpinner
-          uploading={uploading}
-          success={uploadingSuccess}
-          onClick={() => !uploading && setUploadSpinnerVisible(false)}
-        />
-      )}
-    </>
+  return children(
+    <HardwareDesigner
+      boards={boards}
+      components={components}
+      hardware={hardware}
+      onHardwareChange={newHardware =>
+        setContent({ hardware: newHardware, program })
+      }
+    />,
+    (isActive: boolean) =>
+      isActive ? (
+        <>
+          <HorizontalBloqEditor
+            lines={program}
+            components={components}
+            getComponents={getComponents}
+            getBloqPort={getBloqPort}
+            bloqTypes={bloqTypes}
+            availableBloqs={availableBloqs}
+            onLinesChange={(newProgram: IBloqLine[]) =>
+              setContent({ program: newProgram, hardware })
+            }
+            onUpload={() => upload(10000)}
+            board={board}
+          />
+          {uploadSpinnerVisible && (
+            <UploadSpinner
+              uploading={uploading}
+              success={uploadingSuccess}
+              onClick={() => !uploading && setUploadSpinnerVisible(false)}
+            />
+          )}
+        </>
+      ) : null
   );
 };
 

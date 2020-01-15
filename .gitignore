@@ -6,3 +6,4 @@ packages/**/*.tgz
 .vscode/
 .env
 /data
+yarn-error.log

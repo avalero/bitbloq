@@ -1,16 +1,23 @@
 import { IComponent, ConnectorPinMode } from "@bitbloq/bloqs";
 
 import SevenSegmentImage from "../../images/hardware/zumjunior-7segment.svg";
+import SevenSegmentSnapshotImage from "../../images/hardware/zumjunior-7segment.png";
 import ButtonImage from "../../images/hardware/zumjunior-button.svg";
+import ButtonSnapshotImage from "../../images/hardware/zumjunior-button.png";
 import DoubleLedImage from "../../images/hardware/zumjunior-double-led.svg";
+import DoubleLedSnapshotImage from "../../images/hardware/zumjunior-double-led.png";
 import MiniservoImage from "../../images/hardware/zumjunior-miniservo.svg";
+import MiniservoSnapshotImage from "../../images/hardware/zumjunior-miniservo.png";
 import SensorsImage from "../../images/hardware/zumjunior-sensors.svg";
+import SensorsSnapshotImage from "../../images/hardware/zumjunior-sensors.png";
 import ServoImage from "../../images/hardware/zumjunior-servo.svg";
+import ServoSnapshotImage from "../../images/hardware/zumjunior-servo.png";
 import SliderImage from "../../images/hardware/zumjunior-slider.svg";
+import SliderSnapshotImage from "../../images/hardware/zumjunior-slider.png";
 import BuzzerImage from "../../images/hardware/buzzer.svg";
 import RGBLedImage from "../../images/hardware/RGBled.svg";
 
-export const components: Partial<IComponent>[] = [
+export const components: Array<Partial<IComponent>> = [
   {
     name: "Component",
     code: {
@@ -40,7 +47,7 @@ export const components: Partial<IComponent>[] = [
         name: "read",
         parameters: ["pinVarName"],
         code: "digitalRead({{pinVarName}})",
-        returns: "uint8_t"
+        return: "uint8_t"
       }
     ]
   },
@@ -213,8 +220,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: ServoImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: ServoSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -240,11 +252,10 @@ export const components: Partial<IComponent>[] = [
         name: "write",
         parameters: ["pinVarName", "value"],
         code: `
-        uint8_t {{pinVarName}}color[3] = {{value}} ;
-        analogWrite({{pinVarName}}PinRed,{{pinVarName}}color[0]);
-        analogWrite({{pinVarName}}PinGreen,{{pinVarName}}color[1]);
-        analogWrite({{pinVarName}}PinBlue,{{pinVarName}}color[2]);
-        `
+                analogWrite({{pinVarName}}PinRed,(int[3]){{value}}[0]);
+                analogWrite({{pinVarName}}PinGreen,(int[3]){{value}}[1]);
+                analogWrite({{pinVarName}}PinBlue,(int[3]){{value}}[2]);
+                `
       }
     ],
     instanceName: "bloq-digitalrgbled-instance-name",
@@ -303,8 +314,8 @@ export const components: Partial<IComponent>[] = [
     label: "hardware.component.button",
     extends: "Button",
     values: {
-      pressed: "== HIGH",
-      released: "== LOW"
+      pressed: "{{read}} == HIGH",
+      released: "{{read}} == LOW"
     },
     instanceName: "bloq-button-instance-name",
     connectors: [
@@ -326,8 +337,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: ButtonImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: ButtonSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -370,8 +386,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: DoubleLedImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: DoubleLedSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -380,8 +401,8 @@ export const components: Partial<IComponent>[] = [
     extends: "DigitalInput",
     instanceName: "bloq-switch-instance-name",
     values: {
-      pos1: " == LOW",
-      pos2: " == HIGH"
+      pos1: "{{read}} == LOW",
+      pos2: "{{read}} == HIGH"
     },
     connectors: [
       {
@@ -407,8 +428,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: SliderImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: SliderSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -439,8 +465,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: SevenSegmentImage,
-      width: 124,
-      height: 124
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: SevenSegmentSnapshotImage,
+      width: 80,
+      height: 80
     },
     code: {
       includes: ["<BQZUMI2C7SegmentDisplay.h>"],
@@ -452,7 +483,7 @@ export const components: Partial<IComponent>[] = [
       setup: [
         `{% for pin in pinsInfo %}
         {{pin.pinVarName}}Obj.setup();
-        {{pin.pinVarName}}Obj.displayChar(' ',' ');
+        {{pin.pinVarName}}Obj.displayInt(0);
         {% endfor %}`
       ]
     },
@@ -515,8 +546,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: MiniservoImage,
-      width: 88,
-      height: 95
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: MiniservoSnapshotImage,
+      width: 80,
+      height: 80
     }
   },
   {
@@ -544,8 +580,13 @@ export const components: Partial<IComponent>[] = [
     ],
     image: {
       url: SensorsImage,
-      width: 123,
-      height: 124
+      width: 80,
+      height: 80
+    },
+    snapshotImage: {
+      url: SensorsSnapshotImage,
+      width: 80,
+      height: 80
     },
     code: {
       includes: [
@@ -595,22 +636,23 @@ export const components: Partial<IComponent>[] = [
       }
     ],
     values: {
-      hot: ">= 25",
-      cold: "< 25",
-      light: ">=40",
-      dark: "<40",
-      obstacle: "<20",
-      no_obstacle: ">=20",
-      truered: "==0",
-      truegreen: "==1",
-      trueblue: "==2",
-      truewhite: "==3",
-      trueblack: "==4",
-      falsered: "!=0",
-      falsegreen: "!=1",
-      falseblue: "!=2",
-      falsewhite: "!=3",
-      falseblack: "!=4"
+      hot: " {{read}} >= 25",
+      cold: "{{read}} < 25",
+      light: "{{read}} >= 40",
+      dark: "{{read}} < 40",
+      sunset: "{{read}} >=40 && {{read}} < 60",
+      obstacle: "{{read}} <20",
+      no_obstacle: "{{read}} >=20",
+      truered: "{{read}}==0",
+      truegreen: "{{read}}==1",
+      trueblue: "{{read}}==2",
+      truewhite: "{{read}}==3",
+      trueblack: "{{read}}==4",
+      falsered: "{{read}}!=0",
+      falsegreen: "{{read}}!=1",
+      falseblue: "{{read}}!=2",
+      falsewhite: "{{read}}!=3",
+      falseblack: "{{read}}!=4"
     }
   }
 ];

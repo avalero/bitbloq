@@ -43,7 +43,9 @@ export const getBloqDefinition = (
     bloq => bloq.name === bloqInstance.type
   );
 
-  if (bloqDefinition) return bloqDefinition;
+  if (bloqDefinition) {
+    return bloqDefinition;
+  }
 
   throw new Error(`Bloq Type ${bloqInstance.type} not defined`);
 };
@@ -310,16 +312,17 @@ const waitEvent2Code = (
   void ${functionName}();`;
 
   // some blocks will have a trueCondition. If not, foget it.
-  const trueCondition = bloqInstance.parameters.trueCondition || "";
+  // const trueCondition = bloqInstance.parameters.trueCondition || "";
 
-  const waitEventDefinitionCode: string = `
-    heap.insert(${functionName}Wait);
+  const nunjucksWaitEventData = { read: waitEventCode };
+  const waitEventCodeTemplate: string = `
+  heap.insert(${functionName}Wait);
   }
   
   void ${functionName}Wait(){
-    if(!(${waitEventCode} ${trueCondition} ${(componentDefintion.values &&
-    componentDefintion.values[bloqInstanceValue]) ||
-    bloqInstanceValue})){
+    if(!(${(componentDefintion.values &&
+      componentDefintion.values[bloqInstanceValue]) ||
+      bloqInstanceValue})){
         heap.insert(${functionName}Wait);
     }else{
       heap.insert(${functionName});
@@ -328,6 +331,28 @@ const waitEvent2Code = (
 
   void ${functionName}(){
   `;
+
+  const waitEventDefinitionCode: string = nunjucks.renderString(
+    waitEventCodeTemplate,
+    nunjucksWaitEventData
+  );
+
+  // const waitEventDefinitionCode: string = `
+  //   heap.insert(${functionName}Wait);
+  // }
+
+  // void ${functionName}Wait(){
+  //   if(!(${waitEventCode} ${trueCondition} ${(componentDefintion.values &&
+  //   componentDefintion.values[bloqInstanceValue]) ||
+  //   bloqInstanceValue})){
+  //       heap.insert(${functionName}Wait);
+  //   }else{
+  //     heap.insert(${functionName});
+  //   }
+  // }
+
+  // void ${functionName}(){
+  // `;
 
   arduinoCode.globals!.push(waitEventGlobalsCode);
   arduinoCode.definitions!.push(waitEventDefinitionCode);
@@ -342,11 +367,21 @@ const program2code = (
   program: IBloq[][],
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
-  if (!arduinoCode.definitions) arduinoCode.definitions = [];
-  if (!arduinoCode.globals) arduinoCode.globals = [];
-  if (!arduinoCode.loop) arduinoCode.loop = [];
-  if (!arduinoCode.endloop) arduinoCode.endloop = [];
-  if (!arduinoCode.setup) arduinoCode.setup = [];
+  if (!arduinoCode.definitions) {
+    arduinoCode.definitions = [];
+  }
+  if (!arduinoCode.globals) {
+    arduinoCode.globals = [];
+  }
+  if (!arduinoCode.loop) {
+    arduinoCode.loop = [];
+  }
+  if (!arduinoCode.endloop) {
+    arduinoCode.endloop = [];
+  }
+  if (!arduinoCode.setup) {
+    arduinoCode.setup = [];
+  }
 
   let functionNameIndex: number = 0;
   let functionName: string = "";
@@ -356,7 +391,9 @@ const program2code = (
 
   for (let index = 0; index < program.length; index++) {
     const timeline = program[index];
-    if (timeline.length === 0) continue; // this should not happen on fixed programs
+    if (timeline.length === 0) {
+      continue;
+    } // this should not happen on fixed programs
 
     timelineFlagName = `timeline${index + 1}`;
     let i = 0;
@@ -372,7 +409,9 @@ const program2code = (
       if (bloqDefinition.code) {
         Object.keys(arduinoCode).forEach(key => {
           if (bloqDefinition.code![key]) {
-            arduinoCode[key].push(...bloqDefinition.code![key]);
+            (arduinoCode[key] as string[]).push(
+              ...(bloqDefinition.code![key] as string[])
+            );
           }
         });
       }
@@ -484,18 +523,34 @@ const program2code = (
             );
 
             // some blocks will have a trueCondition. If not, foget it.
-            const trueCondition = bloqInstance.parameters.trueCondition || "";
+            // const trueCondition = bloqInstance.parameters.trueCondition || "";
 
-            eventLoopCode = `
-              if(${code} ${trueCondition} ${(componentDefintion.values &&
+            const conditionCodeTemplate = ` if (${(componentDefintion.values &&
               componentDefintion.values[bloqInstanceValue]) ||
               bloqInstanceValue}){
                 if(!${timelineFlagName}){ 
                   heap.insert(${functionName});
                   ${timelineFlagName} = true;
                 }
-              }
-              `;
+              }`;
+
+            const nunjucksConditionData = { read: code };
+
+            eventLoopCode = nunjucks.renderString(
+              conditionCodeTemplate,
+              nunjucksConditionData
+            );
+
+            // eventLoopCode = `
+            //   if(${code} ${trueCondition} ${(componentDefintion.values &&
+            //   componentDefintion.values[bloqInstanceValue]) ||
+            //   bloqInstanceValue}){
+            //     if(!${timelineFlagName}){
+            //       heap.insert(${functionName});
+            //       ${timelineFlagName} = true;
+            //     }
+            //   }
+            //   `;
           }
           arduinoCode.loop!.push(eventLoopCode);
           arduinoCode.globals!.push(eventGlobalsCode);
@@ -533,7 +588,9 @@ const program2code = (
               );
             }
             i += 1;
-            if (i >= timeline.length) break;
+            if (i >= timeline.length) {
+              break;
+            }
 
             bloqInstance = timeline[i];
             bloqDefinition = getBloqDefinition(bloqTypes, bloqInstance);
