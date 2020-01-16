@@ -230,7 +230,11 @@ const DocumentList: FC<IDocumentListProps> = ({
     if (newName.length >= 64) {
       newName = newName.slice(0, 63);
     }
-    const { page } = await duplicateDocument({
+    const {
+      data: {
+        duplicateDocument: { page }
+      }
+    } = await duplicateDocument({
       variables: {
         currentLocation: currentLocation.id,
         documentID: document.id,
@@ -244,6 +248,8 @@ const DocumentList: FC<IDocumentListProps> = ({
 
     if (page) {
       selectPage(page);
+    } else {
+      refetchDocsFols();
     }
   };
 

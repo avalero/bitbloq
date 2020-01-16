@@ -66,7 +66,7 @@ const SessionWatcher: FC<ISessionWatcherProps> = ({
       await client.cache.reset();
       await client.reFetchObservableQueries();
     }
-    window.location.reload();
+    Router.replace("/");
   });
 
   if (anotherSession) {
