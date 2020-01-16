@@ -326,14 +326,19 @@ const SignupStepPage: NextPage = () => {
 };
 
 SignupStepPage.getInitialProps = async (ctx: NextPageContext) => {
-  const { asPath } = ctx;
+  const {
+    asPath,
+    query: { plan }
+  } = ctx;
   if (
     asPath &&
-    !Object.entries(signupSteps).find(
-      item => item[1] === asPath.replace("/signup/", "").split("?id=")[0]
+    !Object.values(signupSteps).find(
+      item => item === asPath.replace("/signup/", "").split(/\?\w+=/)[0]
     )
   ) {
-    redirect(ctx, `/signup/${signupSteps.userData}`);
+    const url =
+      `/signup/${signupSteps.userData}` + (plan ? `?plan=${plan}` : "");
+    redirect(ctx, url);
   }
   return {};
 };
