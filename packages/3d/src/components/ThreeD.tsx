@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
-import { useTranslate } from "@bitbloq/ui";
 import {
   Object3D,
   Operation,
