@@ -11,7 +11,7 @@ import { DropDown, Icon, useTranslate } from "@bitbloq/ui";
 import config from "../config";
 import AddObjectDropdown from "./AddObjectDropdown";
 import { IObjectsCommonJSON, ICompoundObjectJSON } from "@bitbloq/lib3d";
-import { IObjectType, IShape, IShapeGroup } from "../types";
+import { IShape, IShapeGroup } from "../types";
 
 export interface IObjectTreeProps {
   advancedMode: boolean;
@@ -123,9 +123,9 @@ const ObjectTree: FC<IObjectTreeProps> = ({
   const renderObjectItem = (
     object: IObjectsCommonJSON,
     index: number,
-    depth: number,
-    parent: IObjectsCommonJSON | null = null
+    depth: number
   ) => {
+    const isFirstChild = index === 0 && depth > 0;
     const isSelected = selectedObjects.includes(object);
     const isTop = objects.includes(object);
     const { children = [], id } = object as ICompoundObjectJSON;
@@ -141,7 +141,7 @@ const ObjectTree: FC<IObjectTreeProps> = ({
 
     return (
       <Draggable draggableId={id} index={index} key={id}>
-        {(provided, snapshot) => (
+        {provided => (
           <ObjectItem
             {...provided.draggableProps}
             isSelected={isSelected}
@@ -176,7 +176,12 @@ const ObjectTree: FC<IObjectTreeProps> = ({
               <span className="object-name">
                 {object.viewOptions.name || object.type}
               </span>
-              {icon && <ObjectTypeIcon>{icon}</ObjectTypeIcon>}
+              {isFirstChild && (
+                <RightIcon>
+                  <Icon name="crown" />
+                </RightIcon>
+              )}
+              {icon && <RightIcon>{icon}</RightIcon>}
               {isTop && (
                 <DeleteObject onClick={() => onDeleteClick(object)}>
                   <Icon name="trash" />
@@ -206,7 +211,7 @@ const ObjectTree: FC<IObjectTreeProps> = ({
               {...provided.droppableProps}
             >
               {objectsList.map((object, index) =>
-                renderObjectItem(object, index, depth, parent)
+                renderObjectItem(object, index, depth)
               )}
               {provided.placeholder}
             </ObjectList>
@@ -316,7 +321,9 @@ const DragHandle = styled.div`
   }
 `;
 
-const ObjectTypeIcon = styled.div`
+const RightIcon = styled.div`
+  margin-left: 6px;
+
   svg {
     width: 12px;
   }
@@ -354,7 +361,7 @@ const ObjectName = styled.div<IObjectNameProps>`
     ${DeleteObject} {
       display: block;
     }
-    ${ObjectTypeIcon} {
+    ${RightIcon} {
       display: ${props => (props.isTop ? "none" : "block")};
     }
   }
