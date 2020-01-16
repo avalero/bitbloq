@@ -36,10 +36,16 @@ const LoginWithMicrosoftButton: FC = () => {
     location.assign(microsoftAuthEndpoint + queryString.stringify(authParams));
   };
 
+  // return (
+  //   <StyledButton quaternary onClick={onClick}>
+  //     <Logo src={logoMicrosoftImage} alt="Microsoft" />
+  //   </StyledButton>
+  // );
+
   return (
-    <StyledButton quaternary onClick={onClick}>
+    <DisabledButton quaternary>
       <Logo src={logoMicrosoftImage} alt="Microsoft" />
-    </StyledButton>
+    </DisabledButton>
   );
 };
 
@@ -53,4 +59,13 @@ const Logo = styled.img`
 
 const StyledButton = styled(Button)`
   width: 145px;
+`;
+
+const DisabledButton = styled(StyledButton)`
+  cursor: not-allowed;
+  filter: grayscale(100%);
+
+  &:hover {
+    background-color: initial;
+  }
 `;
