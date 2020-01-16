@@ -37,10 +37,10 @@ const Activate: FC<IActivateProps> = ({ token }) => {
     return (
       <DialogModal
         isOpen={true}
-        okText={t("change-email-page.error.button")}
+        okText={t("signup.activate-modal.error.button")}
         onOk={() => router.replace("/")}
-        text={t("change-email-page.error.text")}
-        title={t("change-email-page.error.title")}
+        text={t("signup.activate-modal.error.text")}
+        title={t("signup.activate-modal.error.title")}
         transparentOverlay={true}
       />
     );
