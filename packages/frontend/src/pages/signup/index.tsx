@@ -8,7 +8,11 @@ const SignupPage: NextPage = () => {
 };
 
 SignupPage.getInitialProps = async (ctx: NextPageContext) => {
-  redirect(ctx, `/signup/${signupSteps.userData}`);
+  const {
+    query: { plan }
+  } = ctx;
+  const url = `/signup/${signupSteps.userData}` + (plan ? `?plan=${plan}` : "");
+  redirect(ctx, url);
   return {};
 };
 
