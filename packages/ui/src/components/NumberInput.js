@@ -144,6 +144,7 @@ export default class NumberInput extends React.Component {
 
     if (onBlur) {
       onBlur(e);
+    } else {
       if (Number(value) < minValue && onChange) {
         onChange(minValue);
       }
