@@ -125,11 +125,11 @@ const Plan: FC<IPlanProps> = ({ plan, big, image, showAppList }) => {
       <HorizontalRule small />
       <PlanContent>
         <PriceContainer>
-          {/* {plan.originalPrice && (
+          {plan.originalPrice && (
             <OldPricing>
               {t("plans.monthly-price", [plan.originalPrice.toLocaleString()])}
             </OldPricing>
-          )} */}
+          )}
           {plan.isFree || plan.isBetaFree
             ? t("plans.free")
             : t("plans.monthly-price", [(plan.price || "").toLocaleString()])}
