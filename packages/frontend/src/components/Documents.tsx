@@ -288,8 +288,11 @@ export default DocumentsWithDelete;
 /* styled components */
 
 const AppLayoutLoading = styled(AppLayout)`
-  position: absolute;
-  width: 100%;
+  height: 100vh;
+  left: 0;
+  position: fixed;
+  bottom: 0;
+  width: 100vw;
   z-index: 100;
 `;
 
