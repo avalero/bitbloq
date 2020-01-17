@@ -1,33 +1,44 @@
-import React, { FC, useEffect, useRef } from "react";
+import React, { FC, useState, useEffect, useRef } from "react";
+import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { Button, Icon } from "@bitbloq/ui";
 import Editor from "./Editor";
 import FileList from "./FileList";
 
-import { IFile } from "./index";
+import { IFile, ICodeContent } from "./index";
 
-const Code: FC = () => {
-  const files = [
-    {
-      name: "main.ino",
-      content: "ASDASDASD ASDASDASD"
-    },
-    {
-      name: "test.ino",
-      content: "adasd asd asdasd"
-    }
-  ];
+export interface ICodeProps {
+  initialContent?: ICodeContent;
+  onContentChange: (content: ICodeContent) => any;
+}
+
+const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
+  const [content, setContent] = useState(getInitialContent(initialContent));
+  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
+  const selectedFile = content.files[selectedFileIndex];
 
   const onDeleteFile = (file: IFile) => {
     console.log("delete File", file);
   };
 
+  const onCodeChange = (code: string) => {
+    const newContent = update(content, {
+      files: {
+        [selectedFileIndex]: {
+          content: { $set: code }
+        }
+      }
+    });
+    setContent(newContent);
+    onContentChange(newContent);
+  };
+
   return (
     <Container>
       <FileList
-        files={files}
-        selected={files[0]}
+        files={content.files}
+        selected={selectedFile}
         onDelete={onDeleteFile}
         onSelect={file => console.log("Select", file)}
       />
@@ -49,13 +60,43 @@ const Code: FC = () => {
             Upload
           </UploadButton>
         </Toolbar>
-        <Editor code={sampleCode} onChange={code => console.log("change")} />
+        <Editor
+          code={selectedFile.content}
+          onChange={code => console.log("change")}
+        />
       </Main>
     </Container>
   );
 };
 
 export default Code;
+
+const defaultCode = `
+void setup() {
+
+}
+
+void loop() {
+
+}
+`;
+
+const getInitialContent = (initialContent?: ICodeContent) => {
+  if (initialContent && initialContent.files && initialContent.files.length) {
+    return initialContent;
+  } else {
+    return {
+      files: [
+        {
+          name: "main.ino",
+          content: defaultCode
+        }
+      ]
+    };
+  }
+};
+
+/* Styled components */
 
 const Container = styled.div`
   flex: 1;

@@ -5,4 +5,8 @@ export interface IFile {
   content: string;
 }
 
+export interface ICodeContent {
+  files: IFile[];
+}
+
 export { Code };

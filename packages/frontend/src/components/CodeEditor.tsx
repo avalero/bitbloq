@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from "react";
 import { Code } from "@bitbloq/code";
 import { IEditorProps, IDocumentImage } from "../types";
+import useDocumentContent from "../lib/useDocumentContent";
 import {
   Icon,
   useTranslate,
@@ -19,11 +20,21 @@ const CodeEditor: FC<IEditorProps> = ({
 }) => {
   const t = useTranslate();
 
+  const [initialContent, onContentChange] = useDocumentContent(
+    document,
+    onDocumentChange
+  );
+
   const mainTab: IDocumentTab = useMemo(
     () => ({
       icon: <Icon name="programming" />,
       label: t("code"),
-      content: <Code />
+      content: (
+        <Code
+          initialContent={initialContent || {}}
+          onContentChange={onContentChange}
+        />
+      )
     }),
     []
   );
