@@ -2,14 +2,7 @@ import React, { FC, useMemo } from "react";
 import { Code } from "@bitbloq/code";
 import { IEditorProps } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
-import {
-  Icon,
-  useTranslate,
-  IDocumentProps,
-  IDocumentTab,
-  Switch,
-  IMainMenuOption
-} from "@bitbloq/ui";
+import { Icon, useTranslate, IDocumentTab } from "@bitbloq/ui";
 
 const CodeEditor: FC<IEditorProps> = ({
   document,
