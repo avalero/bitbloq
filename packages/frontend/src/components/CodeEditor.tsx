@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from "react";
 import { Code } from "@bitbloq/code";
-import { IEditorProps, IDocumentImage } from "../types";
+import { IEditorProps } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
 import {
   Icon,
