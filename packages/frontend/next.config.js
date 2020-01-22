@@ -28,12 +28,21 @@ module.exports = withTM(
 
       config.module.rules.push(
         {
-          test: /\.(stl|svg|mp3|png)$/,
+          test: /\.(svg|mp3|png)$/,
           loader: "file-loader",
           options: {
             publicPath: `/_next/static/images/`,
             outputPath: `${isServer ? "../" : ""}static/images/`,
             name: "[name]-[hash].[ext]"
+          }
+        },
+        {
+          test: /\.(stl)$/,
+          loader: "file-loader",
+          options: {
+            publicPath: `/_next/static/images/`,
+            outputPath: `${isServer ? "../" : ""}static/images/`,
+            name: "[hash].[ext]"
           }
         },
         {
