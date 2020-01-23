@@ -8,6 +8,7 @@
  */
 
 import { IBoard, IHardware, IArduinoCode } from "../index";
+import initializeArduinoCode from "./initializearduinocode";
 
 /**
  * Returns full definition for the board of a hardware description
@@ -37,19 +38,11 @@ const boardCodes = (board: IBoard, section: string): string[] => {
 
 /**
  * Adds the code to include in the arduino program related to a specific board
- * @param boards The list of known boards
- * @param hardware The list of hardware used by the program
+ * @param board The board configuration
  * @param arduinoCode The arduinoCode array
  */
-const board2code = (
-  boards: IBoard[],
-  hardware: IHardware,
-  arduinoCode: IArduinoCode
-): IArduinoCode => {
-  // get board information
-  const board: IBoard = getBoardDefinition(boards, hardware);
-
-  // get board code
+const board2code = (board: IBoard): IArduinoCode => {
+  const arduinoCode: IArduinoCode = initializeArduinoCode();
   try {
     Object.keys(arduinoCode).forEach(section => {
       (arduinoCode[section] as string[]).push(...boardCodes(board, section));

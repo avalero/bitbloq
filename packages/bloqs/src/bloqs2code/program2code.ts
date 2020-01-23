@@ -16,6 +16,8 @@ import {
   IComponentAction,
   IArduinoCode
 } from "../index";
+
+import initializeArduinoCode from "./initializearduinocode";
 import { getFullComponentDefinition } from "./componentBuilder";
 import nunjucks from "nunjucks";
 import { BloqCategory } from "../enums";
@@ -364,24 +366,24 @@ const program2code = (
   componentsDefinition: Array<Partial<IComponent>>,
   bloqTypes: Array<Partial<IBloqType>>,
   hardware: IHardware,
-  program: IBloq[][],
-  arduinoCode: IArduinoCode
+  program: IBloq[][]
 ): IArduinoCode => {
-  if (!arduinoCode.definitions) {
-    arduinoCode.definitions = [];
-  }
-  if (!arduinoCode.globals) {
-    arduinoCode.globals = [];
-  }
-  if (!arduinoCode.loop) {
-    arduinoCode.loop = [];
-  }
-  if (!arduinoCode.endloop) {
-    arduinoCode.endloop = [];
-  }
-  if (!arduinoCode.setup) {
-    arduinoCode.setup = [];
-  }
+  const arduinoCode: IArduinoCode = initializeArduinoCode();
+  // if (!arduinoCode.definitions) {
+  //   arduinoCode.definitions = [];
+  // }
+  // if (!arduinoCode.globals) {
+  //   arduinoCode.globals = [];
+  // }
+  // if (!arduinoCode.loop) {
+  //   arduinoCode.loop = [];
+  // }
+  // if (!arduinoCode.endloop) {
+  //   arduinoCode.endloop = [];
+  // }
+  // if (!arduinoCode.setup) {
+  //   arduinoCode.setup = [];
+  // }
 
   let functionNameIndex: number = 0;
   let functionName: string = "";

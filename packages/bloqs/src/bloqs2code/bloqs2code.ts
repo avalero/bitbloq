@@ -74,13 +74,7 @@ const adjustProgram = (
   return adjustedProgram;
 };
 
-const bloqs2code = (
-  boards: IBoard[],
-  components: IComponent[],
-  bloqTypes: IBloqType[],
-  hardware: IHardware,
-  program: IBloq[][]
-) => {
+const compose = (codeArray: IArduinoCode[]): IArduinoCode => {
   const includes: string[] = [];
   const globals: string[] = [];
   const setup: string[] = [];
@@ -97,21 +91,11 @@ const bloqs2code = (
     definitions
   };
 
-  try {
-    // adjust program
-    const programFixed: IBloq[][] = adjustProgram(
-      cloneDeep(program),
-      bloqTypes
-    );
-
-    board2code(boards, hardware, arduinoCode);
-    const board: IBoard = getBoardDefinition(boards, hardware);
-    components2code(components, hardware.components, board, arduinoCode);
-    program2code(components, bloqTypes, hardware, programFixed, arduinoCode);
-  } catch (e) {
-    // console.warn(e);
-    throw e;
-  }
+  codeArray.forEach(code => {
+    Object.keys(arduinoCode).forEach(section => {
+      (arduinoCode[section] as string[]).push(...code[section]);
+    });
+  });
 
   // Remove duplicates from includes, globals and setup
   arduinoCode.globals = Array.from(new Set(arduinoCode.globals));
@@ -119,11 +103,44 @@ const bloqs2code = (
   arduinoCode.setup = Array.from(new Set(arduinoCode.setup));
   arduinoCode.endloop = Array.from(new Set(arduinoCode.endloop));
 
-  const nunjucksData = { ...arduinoCode, date: getDate() };
-  const code: string = nunjucks.renderString(juniorcodetemplate, nunjucksData);
+  return arduinoCode;
+};
 
-  console.info(code);
-  return code;
+const bloqs2code = (
+  boards: IBoard[],
+  components: IComponent[],
+  bloqTypes: IBloqType[],
+  hardware: IHardware,
+  program: IBloq[][]
+) => {
+  try {
+    // adjust program
+    const programFixed: IBloq[][] = adjustProgram(
+      cloneDeep(program),
+      bloqTypes
+    );
+
+    // debugger;
+
+    const board: IBoard = getBoardDefinition(boards, hardware);
+    const arduinoCode: IArduinoCode = compose([
+      board2code(board),
+      components2code(components, hardware.components, board),
+      program2code(components, bloqTypes, hardware, programFixed)
+    ]);
+
+    const nunjucksData = { ...arduinoCode, date: getDate() };
+    const code: string = nunjucks.renderString(
+      juniorcodetemplate,
+      nunjucksData
+    );
+
+    console.info(code);
+    return code;
+  } catch (e) {
+    // console.warn(e);
+    throw e;
+  }
 };
 
 export default bloqs2code;
