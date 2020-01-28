@@ -166,32 +166,59 @@ export default class RepetitionObject extends ObjectsCommon {
    */
   public getGroup(): ObjectsGroup {
     const globalOperations = cloneDeep(this.operations);
+    // debugger;
+    if (this.parameters.type.toLowerCase() === "cartesian") {
+      this.group.forEach(obj => {
+        const objectOperations = obj
+          .getOperations()
+          .slice(0)
+          .reverse()
+          .map(operation => {
+            if (
+              operation.type === Object3D.createTranslateOperation().type ||
+              operation.type === Object3D.createRotateOperation().type
+            ) {
+              const op: ITranslateOperation | IRotateOperation = {
+                ...(operation as ITranslateOperation | IRotateOperation)
+              };
+              op.relative = !op.relative;
+              return op;
+            }
+            return { ...operation };
+          });
 
-    this.group.forEach(obj => {
-      const objectOperations = obj
-        .getOperations()
-        .slice(0)
-        .reverse()
-        .map(operation => {
-          if (
-            operation.type === Object3D.createTranslateOperation().type ||
-            operation.type === Object3D.createRotateOperation().type
-          ) {
-            const op: ITranslateOperation | IRotateOperation = {
-              ...(operation as ITranslateOperation | IRotateOperation)
-            };
-            op.relative = !op.relative;
-            return op;
-          }
-          return { ...operation };
-        });
+        // first set globalOperations
+        obj.setOperations(globalOperations);
 
-      // first set globalOperations
-      obj.setOperations(globalOperations);
+        // then set object operations in reverse order
+        obj.addOperations(objectOperations);
+      });
+    } else {
+      this.group.forEach(obj => {
+        const objectOperations = obj
+          .getOperations()
+          .slice(0)
+          .map(operation => {
+            if (
+              operation.type === Object3D.createTranslateOperation().type ||
+              operation.type === Object3D.createRotateOperation().type
+            ) {
+              const op: ITranslateOperation | IRotateOperation = {
+                ...(operation as ITranslateOperation | IRotateOperation)
+              };
+              // op.relative = !op.relative;
+              return op;
+            }
+            return { ...operation };
+          });
 
-      // then set object operations in reverse order
-      obj.addOperations(objectOperations);
-    });
+        // first set globalOperations
+        obj.setOperations(globalOperations);
+
+        // then set object operations in reverse order
+        obj.addOperations(objectOperations);
+      });
+    }
 
     return new ObjectsGroup(this.group, this.viewOptions);
   }
