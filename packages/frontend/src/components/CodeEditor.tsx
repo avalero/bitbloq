@@ -22,14 +22,14 @@ const CodeEditor: FC<IEditorProps> = ({
     () => ({
       icon: <Icon name="programming" />,
       label: t("code"),
-      content: (
+      content: initialContent && (
         <Code
           initialContent={initialContent || {}}
           onContentChange={onContentChange}
         />
       )
     }),
-    []
+    [initialContent]
   );
 
   return children({
