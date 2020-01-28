@@ -687,5 +687,8 @@
     "403": "Lo sentimos, no tienes permisos para poder ver este contenido.",
     "404": "¡Vaya! La página web a la que intentas acceder no existe.",
     "500": "¡Uy! Ha ocurrido un error inesperado, vuelve a intentarlo más tarde."
+  },
+  "code": {
+    "add-new": "Añadir nuevo"
   }
 }
