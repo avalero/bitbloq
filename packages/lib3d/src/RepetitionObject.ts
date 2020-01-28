@@ -497,7 +497,6 @@ export default class RepetitionObject extends ObjectsCommon {
 
     // const positionCalculator = new PositionCalculator(baseObject);
     // const basePosition = await positionCalculator.getPositionAsync();
-
     const baseJSON = baseObject.toJSON();
     baseJSON.operations.push(
       ObjectsCommon.createTranslateOperation(
@@ -518,16 +517,15 @@ export default class RepetitionObject extends ObjectsCommon {
         json.operations = [...json.operations];
         const rotation = ObjectsCommon.createRotateOperation(0, 0, 0, false);
         rotation[axis] = (i * angle) / (num - 1);
-        json.operations.push(rotation);
-        json.operations.push(
-          ObjectsCommon.createTranslateOperation(
-            basePosition.x,
-            basePosition.y,
-            basePosition.z,
-            true
-          )
+        const translation = ObjectsCommon.createTranslateOperation(
+          basePosition.x,
+          basePosition.y,
+          basePosition.z,
+          true
         );
 
+        // prepend [rotation, translation]
+        json.operations = [rotation, translation, ...json.operations];
         objectClone.updateFromJSON(json);
         this.group.push(objectClone);
       }
