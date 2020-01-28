@@ -5,6 +5,8 @@ import { css } from "@emotion/core";
 import { Button, Icon } from "@bitbloq/ui";
 import Editor from "./Editor";
 import FileList from "./FileList";
+import Borndate from "@bitbloq/borndate";
+import UploadSpinner from "./UploadSpinner";
 
 import { IFile, ICodeContent } from "./index";
 
@@ -13,8 +15,11 @@ export interface ICodeProps {
   onContentChange: (content: ICodeContent) => any;
 }
 
+const borndate = new Borndate("zumjunior");
+
 const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
   const [content, setContent] = useState(getInitialContent(initialContent));
+  const [uploading, setUploading] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
   const selectedFile = content.files[selectedFileIndex];
 
@@ -32,6 +37,12 @@ const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
     });
     setContent(newContent);
     onContentChange(newContent);
+  };
+
+  const onUpload = async () => {
+    setUploading(true);
+    await borndate.compileAndUpload(selectedFile.content);
+    setUploading(false);
   };
 
   return (
@@ -55,16 +66,14 @@ const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
               <Icon name="brush" />
             </ToolbarButton>
           </ToolbarButtons>
-          <UploadButton>
+          <UploadButton onClick={() => onUpload()}>
             <Icon name="programming" />
             Upload
           </UploadButton>
         </Toolbar>
-        <Editor
-          code={selectedFile.content}
-          onChange={code => console.log("change")}
-        />
+        <Editor code={selectedFile.content} onChange={onCodeChange} />
       </Main>
+      {uploading && <UploadSpinner />}
     </Container>
   );
 };
