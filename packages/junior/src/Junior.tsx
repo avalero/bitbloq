@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { useTranslate } from "@bitbloq/ui";
+import { useCodeUpload } from "@bitbloq/code";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
   bloqs2code,
   getBoardDefinition,
-  Web2Board,
   IBloq,
   IBloqLine,
   IBloqType,
@@ -18,7 +18,6 @@ import {
   BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
-import UploadSpinner from "./UploadSpinner";
 
 export interface IJuniorProps {
   bloqTypes: IBloqType[];
@@ -30,6 +29,7 @@ export interface IJuniorProps {
     hardware: JSX.Element,
     software: (isActive: boolean) => JSX.Element | null
   ) => JSX.Element;
+  chromeAppID: string;
 }
 
 const Junior: React.FunctionComponent<IJuniorProps> = ({
@@ -38,9 +38,16 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   initialContent,
   onContentChange,
   boards,
-  components
+  components,
+  chromeAppID
 }) => {
   const t = useTranslate();
+
+  const [upload, uploadContent] = useCodeUpload(
+    "zumjunior",
+    "http://localhost:8000/_next/static/borndate",
+    chromeAppID
+  );
 
   const [content, setContent] = useState(initialContent);
   const program: IBloqLine[] = content.program || [];
@@ -55,30 +62,6 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     }
   }, [content]);
 
-  const [uploadSpinnerVisible, setUploadSpinnerVisible] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [uploadingSuccess, setUploadingSuccess] = useState(false);
-
-  const hideTimeout = useRef(0);
-  useEffect(() => {
-    if (uploading) {
-      setUploadSpinnerVisible(true);
-    }
-
-    if (!uploading) {
-      hideTimeout.current = window.setTimeout(() => {
-        setUploadSpinnerVisible(false);
-      }, 5000);
-    }
-  }, [uploading]);
-
-  useEffect(() => {
-    if (!uploadSpinnerVisible && hideTimeout.current) {
-      clearTimeout(hideTimeout.current);
-      hideTimeout.current = 0;
-    }
-  }, [uploadSpinnerVisible]);
-
   const board: IBoard = getBoardDefinition(boards, hardware);
   if (hardware.components.length === 0) {
     // Add board integrated components to hardware list
@@ -88,11 +71,6 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       );
     }
   }
-
-  const web2BoardRef = useRef<Web2Board>();
-  useEffect(() => {
-    web2BoardRef.current = new Web2Board("wss://web2board.es:9867/bitbloq");
-  }, []);
 
   if (!board.integrated) {
     board.integrated = [];
@@ -149,12 +127,11 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       )
   );
 
-  const upload = async (timeout: number): Promise<void> => {
-    setUploading(true);
-    const web2Board = web2BoardRef.current;
+  const onUpload = () => {
     const programBloqs = program
       .filter(line => !line.disabled)
       .map(line => line.bloqs);
+
     const code = bloqs2code(
       boards,
       components,
@@ -163,51 +140,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       programBloqs
     );
 
-    if (!web2Board) {
-      return;
-    }
-
-    if (!web2Board.isConnected()) {
-      try {
-        await web2Board.waitUntilOpened();
-      } catch (e) {
-        console.warn(e);
-        setUploading(false);
-        setUploadingSuccess(false);
-      }
-    }
-
-    if (web2Board.isConnected()) {
-      // if not loaded in tiemout ms exit
-      setTimeout(() => {
-        if (uploading) {
-          setUploading(false);
-          setUploadingSuccess(false);
-          console.error("Uploading Timeout");
-        }
-      }, timeout);
-
-      try {
-        const uploadGen = web2Board.upload(code, "zumjunior");
-
-        while (true) {
-          const { value: reply, done } = await uploadGen.next();
-          const fn = reply.function;
-
-          if (done) {
-            setUploading(false);
-            setUploadingSuccess(true);
-            return;
-          }
-        }
-      } catch (e) {
-        setUploading(false);
-        setUploadingSuccess(false);
-        return;
-      }
-    } else {
-      console.warn("Web2Board not connected");
-    }
+    upload(code);
   };
 
   return children(
@@ -232,16 +165,10 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             onLinesChange={(newProgram: IBloqLine[]) =>
               setContent({ program: newProgram, hardware })
             }
-            onUpload={() => upload(10000)}
+            onUpload={onUpload}
             board={board}
           />
-          {uploadSpinnerVisible && (
-            <UploadSpinner
-              uploading={uploading}
-              success={uploadingSuccess}
-              onClick={() => !uploading && setUploadSpinnerVisible(false)}
-            />
-          )}
+          {uploadContent}
         </>
       ) : null
   );
