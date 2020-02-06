@@ -1,7 +1,9 @@
-import React, { FC, useMemo } from "react";
+import React, { FC, useEffect, useMemo } from "react";
 import { Code } from "@bitbloq/code";
 import { IEditorProps } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
+import useServiceWorker from "../lib/useServiceWorker";
+import env from "../lib/env";
 import { Icon, useTranslate, IDocumentTab } from "@bitbloq/ui";
 
 const CodeEditor: FC<IEditorProps> = ({
@@ -12,6 +14,15 @@ const CodeEditor: FC<IEditorProps> = ({
   children
 }) => {
   const t = useTranslate();
+  const serviceWorker = useServiceWorker();
+
+  useEffect(() => {
+    if (serviceWorker) {
+      serviceWorker.postMessage({
+        type: "preload-borndate"
+      });
+    }
+  }, [serviceWorker]);
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
@@ -21,11 +32,12 @@ const CodeEditor: FC<IEditorProps> = ({
   const mainTab: IDocumentTab = useMemo(
     () => ({
       icon: <Icon name="programming" />,
-      label: t("code"),
+      label: t("code.code"),
       content: initialContent && (
         <Code
           initialContent={initialContent || {}}
           onContentChange={onContentChange}
+          chromeAppID={env.CHROME_APP_ID}
         />
       )
     }),

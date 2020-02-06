@@ -8,6 +8,7 @@ import Arrow from "./icons/Arrow";
 import ArrowLeft from "./icons/ArrowLeft";
 import At from "./icons/At";
 import BasicShapes from "./icons/BasicShapes";
+import BoardNotFound from "./icons/BoardNotFound";
 import Brush from "./icons/Brush";
 import Center from "./icons/Center";
 import CityElements from "./icons/CityElements";
@@ -145,6 +146,8 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <At className={className} />;
     case "basic-shapes":
       return <BasicShapes className={className} />;
+    case "board-not-found":
+      return <BoardNotFound className={className} />;
     case "brush":
       return <Brush className={className} />;
     case "city-elements":
