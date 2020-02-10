@@ -48,7 +48,7 @@ class Uploader {
     }
   }
 
-  public upload(code: string) {
+  public upload(code: any[], libraries: any[] = []) {
     return new Promise((resolve, reject) => {
       const port = this.openChromeAppPort();
 
@@ -58,7 +58,7 @@ class Uploader {
       }
 
       this.borndate
-        .compile(code)
+        .compile(code, libraries)
         .then(hex => {
           port.onMessage.addListener(msg => {
             if (msg.type === "upload") {
@@ -84,7 +84,7 @@ export const useCodeUpload = (
   board: string,
   filesRoot: string,
   chromeAppID: string
-): [(code: string) => void, JSX.Element] => {
+): [(code: any[], libraries: any[]) => void, JSX.Element] => {
   const t = useTranslate();
   const [showChromeAppModal, setShowChromeAppModal] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -97,7 +97,7 @@ export const useCodeUpload = (
     uploaderRef.current = new Uploader(board, filesRoot, chromeAppID);
   }, []);
 
-  const upload = async (code: string) => {
+  const upload = async (code: any[], libraries: any[]) => {
     if (!uploaderRef.current) {
       return;
     }
@@ -113,7 +113,7 @@ export const useCodeUpload = (
     setUploadText(t("code.uploading-to-board"));
 
     try {
-      const hex = await uploaderRef.current.upload(code);
+      const hex = await uploaderRef.current.upload(code, libraries);
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.uploading-success"));
