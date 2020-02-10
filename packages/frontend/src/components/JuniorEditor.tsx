@@ -1,7 +1,7 @@
 import React from "react";
 import { Junior } from "@bitbloq/junior";
 import { Icon, useTranslate } from "@bitbloq/ui";
-import { bloqTypes, boards, components } from "../config";
+import { bloqTypes, boards, components, juniorLibraries } from "../config";
 import { IEditorProps } from "../types";
 import env from "../lib/env";
 import useDocumentContent from "../lib/useDocumentContent";
@@ -32,6 +32,8 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
       boards={boards}
       components={components}
       chromeAppID={env.CHROME_APP_ID}
+      borndateFilesRoot={`${window.location.origin}/_next/static/borndate`}
+      arduinoLibraries={juniorLibraries}
     >
       {(hardware, software) =>
         children({

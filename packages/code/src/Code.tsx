@@ -13,12 +13,14 @@ export interface ICodeProps {
   initialContent?: ICodeContent;
   onContentChange: (content: ICodeContent) => any;
   chromeAppID: string;
+  borndateFilesRoot: string;
 }
 
 const Code: FC<ICodeProps> = ({
   initialContent,
   onContentChange,
-  chromeAppID
+  chromeAppID,
+  borndateFilesRoot
 }) => {
   const [content, setContent] = useState(getInitialContent(initialContent));
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
@@ -26,7 +28,7 @@ const Code: FC<ICodeProps> = ({
 
   const [upload, uploadContent] = useCodeUpload(
     "zumjunior",
-    "http://localhost:8000/_next/static/borndate",
+    borndateFilesRoot,
     chromeAppID
   );
 
@@ -47,7 +49,7 @@ const Code: FC<ICodeProps> = ({
   };
 
   const onUpload = () => {
-    upload(selectedFile.content);
+    upload([{ name: "main.ino", content: selectedFile.content }], []);
   };
 
   return (

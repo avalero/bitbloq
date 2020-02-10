@@ -30,6 +30,8 @@ export interface IJuniorProps {
     software: (isActive: boolean) => JSX.Element | null
   ) => JSX.Element;
   chromeAppID: string;
+  borndateFilesRoot: string;
+  arduinoLibraries: any[];
 }
 
 const Junior: React.FunctionComponent<IJuniorProps> = ({
@@ -39,13 +41,15 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   onContentChange,
   boards,
   components,
-  chromeAppID
+  chromeAppID,
+  borndateFilesRoot,
+  arduinoLibraries
 }) => {
   const t = useTranslate();
 
   const [upload, uploadContent] = useCodeUpload(
     "zumjunior",
-    "http://localhost:8000/_next/static/borndate",
+    borndateFilesRoot,
     chromeAppID
   );
 
@@ -140,7 +144,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       programBloqs
     );
 
-    upload(code);
+    upload([{ name: "main.ino", content: code }], arduinoLibraries);
   };
 
   return children(
