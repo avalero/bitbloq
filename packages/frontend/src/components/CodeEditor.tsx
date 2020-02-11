@@ -2,7 +2,6 @@ import React, { FC, useEffect, useMemo } from "react";
 import { Code } from "@bitbloq/code";
 import { IEditorProps } from "../types";
 import useDocumentContent from "../lib/useDocumentContent";
-import useServiceWorker from "../lib/useServiceWorker";
 import env from "../lib/env";
 import { Icon, useTranslate, IDocumentTab } from "@bitbloq/ui";
 
@@ -14,15 +13,6 @@ const CodeEditor: FC<IEditorProps> = ({
   children
 }) => {
   const t = useTranslate();
-  const serviceWorker = useServiceWorker();
-
-  useEffect(() => {
-    if (serviceWorker) {
-      serviceWorker.postMessage({
-        type: "preload-borndate"
-      });
-    }
-  }, [serviceWorker]);
 
   const [initialContent, onContentChange] = useDocumentContent(
     document,
