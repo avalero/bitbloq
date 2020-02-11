@@ -24,41 +24,24 @@ ctx.addEventListener("install", event => {
   event.waitUntil(preLoaded);
 });
 
-/*const compileWasm = "http://localhost:8000/_next/static/borndate/compile.wasm";
-
-ctx.addEventListener("message", async message => {
-  const { type } = message.data;
-  if (type === "preload-borndate") {
-    caches.open(CACHE_NAME).then(cache =>
-      cache.match(compileWasm).then(cacheHit => {
-        if (!cacheHit) {
-          console.log("NOT FOUND COMPILE.WASM");
-          fetch(compileWasm).then(response => {
-            console.log("SAVING COMPILE.WASM");
-            cache.put(compileWasm, response.clone());
-          });
-        } else {
-          WebAssembly.instantiateStreaming(cacheHit);
-          console.log("FOUND COMPILE.WASM");
-        }
+/* Cache Borndate files */
+self.addEventListener("fetch", (event: FetchEvent) => {
+  if (/static\/borndate\/*/.test(event.request.url)) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cacheResponse => {
+          return (
+            cacheResponse ||
+            fetch(event.request).then(response => {
+              cache.put(event.request, response.clone());
+              return response;
+            })
+          );
+        });
       })
     );
   }
-});*/
-
-/*self.addEventListener('fetch', (event: FetchEvent) => {
-  console.log("FETCHING", event.request.url);
-  event.respondWith(
-    caches.open('borndate').then((cache) => {
-      return cache.match(event.request).then((response) => {
-        return response || fetch(event.request).then((response) => {
-          cache.put(event.request, response.clone());
-          return response;
-        });
-      });
-    })
-  );
-});*/
+});
 
 ctx.addEventListener("message", async message => {
   const {
