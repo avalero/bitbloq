@@ -32,12 +32,21 @@ monaco.editor.defineTheme("bitbloqTheme", {
   }
 });
 
+interface IError {
+  startLineNumber: number;
+  startColumn: number;
+  endLineNumber: number;
+  endColumn: number;
+  message: string;
+}
+
 interface IEditorProps {
   code: string;
   onChange: (newCode: string) => void;
+  errors: IError[];
 }
 
-const Editor: FC<IEditorProps> = ({ code, onChange }) => {
+const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.ICodeEditor | null>(null);
 
@@ -74,11 +83,23 @@ const Editor: FC<IEditorProps> = ({ code, onChange }) => {
     if (!editor) {
       return;
     }
-    const model = editor.getModel();
-    if (model && code !== model.getValue()) {
-      editor.setValue(code);
-    }
   }, [code]);
+
+  useEffect(() => {
+    const editor = editorRef.current;
+    const model = editor && editor.getModel();
+
+    if (model) {
+      monaco.editor.setModelMarkers(
+        model,
+        "compile",
+        errors.map(error => ({
+          ...error,
+          severity: monaco.MarkerSeverity.Error
+        }))
+      );
+    }
+  }, [errors, editorRef.current]);
 
   return <Container ref={containerRef} />;
 };

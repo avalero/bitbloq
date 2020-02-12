@@ -11,7 +11,8 @@ const uri = process.env.API_URL;
 const link = createUploadLink({ fetch, uri });
 
 const CACHE_NAME = "bitbloq-service-worker";
-const urlsToCache = ["/index", "/plans"];
+// const urlsToCache = ["/index", "/plans"];
+const urlsToCache = [];
 
 const ctx: ServiceWorkerGlobalScope = self as any;
 
@@ -21,6 +22,25 @@ ctx.addEventListener("install", event => {
     .open(CACHE_NAME)
     .then(cache => cache.addAll(urlsToCache));
   event.waitUntil(preLoaded);
+});
+
+/* Cache Borndate files */
+self.addEventListener("fetch", (event: FetchEvent) => {
+  if (/static\/borndate\/*/.test(event.request.url)) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then(cache => {
+        return cache.match(event.request).then(cacheResponse => {
+          return (
+            cacheResponse ||
+            fetch(event.request).then(response => {
+              cache.put(event.request, response.clone());
+              return response;
+            })
+          );
+        });
+      })
+    );
+  }
 });
 
 ctx.addEventListener("message", async message => {

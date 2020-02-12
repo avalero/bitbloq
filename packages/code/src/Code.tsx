@@ -5,18 +5,32 @@ import { css } from "@emotion/core";
 import { Button, Icon } from "@bitbloq/ui";
 import Editor from "./Editor";
 import FileList from "./FileList";
+import useCodeUpload from "./useCodeUpload";
 
 import { IFile, ICodeContent } from "./index";
 
 export interface ICodeProps {
   initialContent?: ICodeContent;
   onContentChange: (content: ICodeContent) => any;
+  chromeAppID: string;
+  borndateFilesRoot: string;
 }
 
-const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
+const Code: FC<ICodeProps> = ({
+  initialContent,
+  onContentChange,
+  chromeAppID,
+  borndateFilesRoot
+}) => {
   const [content, setContent] = useState(getInitialContent(initialContent));
   const [selectedFileIndex, setSelectedFileIndex] = useState(0);
   const selectedFile = content.files[selectedFileIndex];
+
+  const [upload, uploadContent] = useCodeUpload(
+    "zumjunior",
+    borndateFilesRoot,
+    chromeAppID
+  );
 
   const onDeleteFile = (file: IFile) => {
     console.log("delete File", file);
@@ -32,6 +46,10 @@ const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
     });
     setContent(newContent);
     onContentChange(newContent);
+  };
+
+  const onUpload = () => {
+    upload([{ name: "main.ino", content: selectedFile.content }], []);
   };
 
   return (
@@ -55,16 +73,18 @@ const Code: FC<ICodeProps> = ({ initialContent, onContentChange }) => {
               <Icon name="brush" />
             </ToolbarButton>
           </ToolbarButtons>
-          <UploadButton>
+          <UploadButton onClick={() => onUpload()}>
             <Icon name="programming" />
             Upload
           </UploadButton>
         </Toolbar>
         <Editor
           code={selectedFile.content}
-          onChange={code => console.log("change")}
+          onChange={onCodeChange}
+          errors={[]}
         />
       </Main>
+      {uploadContent}
     </Container>
   );
 };
@@ -153,45 +173,4 @@ const UploadButton = styled(Button)`
   svg {
     margin-right: 10px;
   }
-`;
-
-const sampleCode = `
-String inputString = "";         // a String to hold incoming data
-bool stringComplete = false;  // whether the string is complete
-
-void setup() {
-  // initialize serial:
-  Serial.begin(9600);
-  // reserve 200 bytes for the inputString:
-  inputString.reserve(200);
-}
-
-void loop() {
-  // print the string when a newline arrives:
-  if (stringComplete) {
-    Serial.println(inputString);
-    // clear the string:
-    inputString = "";
-    stringComplete = false;
-  }
-}
-
-/*
-  SerialEvent occurs whenever a new data comes in the hardware serial RX. This
-  routine is run between each time loop() runs, so using delay inside loop can
-  delay response. Multiple bytes of data may be available.
-*/
-void serialEvent() {
-  while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag so the main loop can
-    // do something about it:
-    if (inChar == '\\n') {
-      stringComplete = true;
-    }
-  }
-}
 `;

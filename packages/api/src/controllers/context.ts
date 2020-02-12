@@ -217,7 +217,7 @@ const contextController = {
       const pass: string = data.split(":")[1];
       const contactFound: IUser | null = await UserModel.findOne({ email });
       if (!contactFound || !contactFound.active) {
-        return undefined;
+        throw new ApolloError("Token not valid.", "ERROR_IN_TOKEN");
       }
       // Compare passwords from request and database
       const valid: boolean = await bcryptCompare(pass, contactFound.password);
@@ -249,7 +249,7 @@ const contextController = {
         const data: string = Buffer.from(inToken, "base64").toString("ascii");
         return data;
       } catch (e) {
-        throw new AuthenticationError("Token not value.");
+        throw new ApolloError("Token not valid.", "ERROR_IN_TOKEN");
       }
     }
     return;

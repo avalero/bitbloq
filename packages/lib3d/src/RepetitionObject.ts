@@ -166,32 +166,59 @@ export default class RepetitionObject extends ObjectsCommon {
    */
   public getGroup(): ObjectsGroup {
     const globalOperations = cloneDeep(this.operations);
+    // debugger;
+    if (this.parameters.type.toLowerCase() === "cartesian") {
+      this.group.forEach(obj => {
+        const objectOperations = obj
+          .getOperations()
+          .slice(0)
+          .reverse()
+          .map(operation => {
+            if (
+              operation.type === Object3D.createTranslateOperation().type ||
+              operation.type === Object3D.createRotateOperation().type
+            ) {
+              const op: ITranslateOperation | IRotateOperation = {
+                ...(operation as ITranslateOperation | IRotateOperation)
+              };
+              op.relative = !op.relative;
+              return op;
+            }
+            return { ...operation };
+          });
 
-    this.group.forEach(obj => {
-      const objectOperations = obj
-        .getOperations()
-        .slice(0)
-        .reverse()
-        .map(operation => {
-          if (
-            operation.type === Object3D.createTranslateOperation().type ||
-            operation.type === Object3D.createRotateOperation().type
-          ) {
-            const op: ITranslateOperation | IRotateOperation = {
-              ...(operation as ITranslateOperation | IRotateOperation)
-            };
-            op.relative = !op.relative;
-            return op;
-          }
-          return { ...operation };
-        });
+        // first set globalOperations
+        obj.setOperations(globalOperations);
 
-      // first set globalOperations
-      obj.setOperations(globalOperations);
+        // then set object operations in reverse order
+        obj.addOperations(objectOperations);
+      });
+    } else {
+      this.group.forEach(obj => {
+        const objectOperations = obj
+          .getOperations()
+          .slice(0)
+          .map(operation => {
+            if (
+              operation.type === Object3D.createTranslateOperation().type ||
+              operation.type === Object3D.createRotateOperation().type
+            ) {
+              const op: ITranslateOperation | IRotateOperation = {
+                ...(operation as ITranslateOperation | IRotateOperation)
+              };
+              // op.relative = !op.relative;
+              return op;
+            }
+            return { ...operation };
+          });
 
-      // then set object operations in reverse order
-      obj.addOperations(objectOperations);
-    });
+        // first set globalOperations
+        obj.setOperations(globalOperations);
+
+        // then set object operations in reverse order
+        obj.addOperations(objectOperations);
+      });
+    }
 
     return new ObjectsGroup(this.group, this.viewOptions);
   }
@@ -470,7 +497,6 @@ export default class RepetitionObject extends ObjectsCommon {
 
     // const positionCalculator = new PositionCalculator(baseObject);
     // const basePosition = await positionCalculator.getPositionAsync();
-
     const baseJSON = baseObject.toJSON();
     baseJSON.operations.push(
       ObjectsCommon.createTranslateOperation(
@@ -491,16 +517,15 @@ export default class RepetitionObject extends ObjectsCommon {
         json.operations = [...json.operations];
         const rotation = ObjectsCommon.createRotateOperation(0, 0, 0, false);
         rotation[axis] = (i * angle) / (num - 1);
-        json.operations.push(rotation);
-        json.operations.push(
-          ObjectsCommon.createTranslateOperation(
-            basePosition.x,
-            basePosition.y,
-            basePosition.z,
-            true
-          )
+        const translation = ObjectsCommon.createTranslateOperation(
+          basePosition.x,
+          basePosition.y,
+          basePosition.z,
+          true
         );
 
+        // prepend [rotation, translation]
+        json.operations = [rotation, translation, ...json.operations];
         objectClone.updateFromJSON(json);
         this.group.push(objectClone);
       }
