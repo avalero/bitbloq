@@ -166,7 +166,7 @@ export default class RepetitionObject extends ObjectsCommon {
    */
   public getGroup(): ObjectsGroup {
     const globalOperations = cloneDeep(this.operations);
-    // debugger;
+
     if (this.parameters.type.toLowerCase() === "cartesian") {
       this.group.forEach(obj => {
         const objectOperations = obj

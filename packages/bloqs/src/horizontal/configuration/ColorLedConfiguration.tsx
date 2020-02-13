@@ -26,6 +26,7 @@ const ColorLedConfiguration: FC<IColorLedConfigurationProps> = ({
   onChange
 }) => {
   const value = bloq.parameters.value as string;
+  const code = bloq.parameters.code as string;
 
   return (
     <Container>
@@ -59,7 +60,9 @@ const ColorLedConfiguration: FC<IColorLedConfigurationProps> = ({
             onChange={(newValue: string) =>
               onChange(
                 update(bloq, {
-                  parameters: { value: { $set: newValue } }
+                  parameters: {
+                    value: { $set: newValue }
+                  }
                 })
               )
             }

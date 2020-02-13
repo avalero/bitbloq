@@ -10,12 +10,9 @@ import {
   IBloq,
   IBloqLine,
   IBloqType,
-  IBloqTypeGroup,
   IBoard,
-  getComponentDefinition,
   IComponent,
   IHardware,
-  BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
@@ -144,7 +141,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       programBloqs
     );
 
-    upload([{ name: "main.ino", content: code }], arduinoLibraries);
+    // upload([{ name: "main.ino", content: code }], arduinoLibraries);
   };
 
   return children(

@@ -79,6 +79,7 @@ export interface IBloqType {
   parameters?: IBloqParameter[];
   components?: string[];
   configurationComponent?: string;
+  genCode?: string;
   actions: IBloqAction[];
 }
 
@@ -227,6 +228,7 @@ export interface IComponentInstance {
   name: string;
   port?: string;
   integrated?: boolean;
+  pins?: { [name: string]: string | number };
 }
 
 export interface IHardware {

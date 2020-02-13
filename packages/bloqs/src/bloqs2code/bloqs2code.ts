@@ -120,8 +120,6 @@ const bloqs2code = (
       bloqTypes
     );
 
-    // debugger;
-
     const board: IBoard = getBoardDefinition(boards, hardware);
     const arduinoCode: IArduinoCode = compose([
       board2code(board),

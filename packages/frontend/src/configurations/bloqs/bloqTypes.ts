@@ -561,6 +561,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
+    genCode:
+      'digitalWrite({{component}}{{led}}Pin, {{"HIGH" if({{value}} === "on") else "LOW"}});',
     actions: [
       {
         name: "write",
@@ -632,6 +634,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
+    genCode: `{{component}}PinObj.write(90 {{"+" if(rotation === "clockwise") else "-"}} 
+            {{"10" if(speed === "slow")}} 
+            {{"20" if(speed === "medium")}} 
+            {{"30" if(speed === "fast")}});`,
     actions: [
       {
         name: "write",
@@ -663,6 +669,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
+    genCode: "{{component}}PinObj.write{{value}}`",
     actions: [
       {
         name: "write",
@@ -722,6 +729,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
+    genCode: `  
+                analogWrite({{PinRed}},{{"0" if(value==="red" or value==="white") else "255"}});
+                analogWrite({{PinGreen}},{{"0" if(value==="green" or value === "white") else "255"}});
+                analogWrite({{PinBlue}},{{"0" if(value==="blue" or value === "white") else "255"}});
+              `,
     actions: [
       {
         name: "write",
@@ -830,6 +842,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         ]
       }
     ],
+    genCode: `
+      {% if action === "writeNumber" %}
+        {{component}}i2cObj.displayInt({{value}})
+      {% elif action === "incrementNumber" %}
+        {{component}}i2cObj.displayInt({{component}}i2cObj.readInt() + {{value}});
+      {% elif action === "decrementNumber" %}
+        {{component}}i2cObj.displayInt({{component}}i2cObj.readInt() - {{value}});
+      {% endif %}
+    `,
     code: {},
     actions: [
       {
@@ -875,6 +896,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "bool ___messageE = false;"
       ]
     },
+    genCode: "___{{value}} = true;",
     actions: [
       {
         name: "send",

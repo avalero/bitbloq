@@ -14,7 +14,8 @@ import {
   IHardware,
   IComponentInstance,
   IComponentAction,
-  IArduinoCode
+  IArduinoCode,
+  IBloqSelectParameter
 } from "../index";
 
 import initializeArduinoCode from "./initializearduinocode";
@@ -30,6 +31,37 @@ interface IAction {
 }
 
 type ActionsArray = IAction[];
+
+/**
+ *
+ * @param bloqTypes The array of existing bloqs
+ * @param bloqInstance the bloq we are processing
+ * @returns the code corresponding to the value of the bloqInstance
+ */
+const getCodeForValue = (
+  bloqDefinition: Partial<IBloqType>,
+  bloqInstance: IBloq,
+  hardware: IHardware
+): string => {
+  // debugger;
+
+  try {
+    let code: string = bloqDefinition.genCode || "";
+    const component = hardware.components.find(
+      obj => obj.name === bloqInstance.parameters.component
+    );
+    const nunjucksData = { ...bloqInstance!.parameters, ...component!.pins };
+
+    while (code.includes("{{") && code.includes("}}")) {
+      code = nunjucks.renderString(code, nunjucksData);
+    }
+
+    // debugger;
+    return code;
+  } catch (e) {
+    return "";
+  }
+};
 
 /**
  * Returns the bloq definition to which a bloq refers
@@ -369,21 +401,6 @@ const program2code = (
   program: IBloq[][]
 ): IArduinoCode => {
   const arduinoCode: IArduinoCode = initializeArduinoCode();
-  // if (!arduinoCode.definitions) {
-  //   arduinoCode.definitions = [];
-  // }
-  // if (!arduinoCode.globals) {
-  //   arduinoCode.globals = [];
-  // }
-  // if (!arduinoCode.loop) {
-  //   arduinoCode.loop = [];
-  // }
-  // if (!arduinoCode.endloop) {
-  //   arduinoCode.endloop = [];
-  // }
-  // if (!arduinoCode.setup) {
-  //   arduinoCode.setup = [];
-  // }
 
   let functionNameIndex: number = 0;
   let functionName: string = "";
@@ -406,6 +423,7 @@ const program2code = (
         bloqTypes,
         bloqInstance
       );
+      let componentDefintion: Partial<IComponent> | undefined;
 
       // add code definitions if the bloq has them
       if (bloqDefinition.code) {
@@ -418,7 +436,8 @@ const program2code = (
         });
       }
 
-      let componentDefintion: Partial<IComponent> = {};
+      // debugger;
+      const genCode = getCodeForValue(bloqDefinition, bloqInstance, hardware);
 
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
@@ -580,14 +599,15 @@ const program2code = (
                 );
               });
             } else {
-              arduinoCode.definitions!.push(
-                `\t${bloq2code(
-                  bloqInstance,
-                  hardware,
-                  bloqTypes,
-                  componentsDefinition
-                ).join("\n\t")}\n`
-              );
+              arduinoCode.definitions!.push(genCode);
+              // arduinoCode.definitions!.push(
+              //   `\t${bloq2code(
+              //     bloqInstance,
+              //     hardware,
+              //     bloqTypes,
+              //     componentsDefinition
+              //   ).join("\n\t")}\n`
+              // );
             }
             i += 1;
             if (i >= timeline.length) {
