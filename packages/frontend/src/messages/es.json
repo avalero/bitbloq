@@ -690,6 +690,9 @@
   },
   "code": {
     "add-new": "Añadir nuevo",
+    "add-new-cpp": "Añadir archivo .cpp",
+    "add-new-h": "Añadir archivo .h",
+    "add-new-folder": "Añadir carpeta",
     "code": "Código",
     "uploading-to-board": "Cargando en la placa...",
     "uploading-success": "Cargada correctamente",
@@ -697,6 +700,7 @@
     "board-not-found": "No hay placa conectada",
     "install-chrome-app-text": "Para poder cargar el programa en la placa, debes instalar la aplicación de Chrome de Bitbloq",
     "open-chrome-webstore": "Instalar aplicación de Chrome",
-    "install-chrome-app-title": "Aplicación de Chrome no encontrada"
+    "install-chrome-app-title": "Aplicación de Chrome no encontrada",
+    "libraries": "Bibliotecas"
   }
 }

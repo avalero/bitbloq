@@ -12,7 +12,8 @@ export enum ResourcesTypes {
   image = "image",
   object3D = "object3D",
   sound = "sound",
-  video = "video"
+  video = "video",
+  arduinoLibrary = "arduinoLibrary"
 }
 
 export interface IEditorProps {
