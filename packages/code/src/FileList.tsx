@@ -1,21 +1,25 @@
 import React, { FC } from "react";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
-import { useTranslate, DropDown, Icon } from "@bitbloq/ui";
-import { IFile } from "./index";
+import { colors, useTranslate, DropDown, Icon } from "@bitbloq/ui";
+import { IFile, ILibrary } from "./index";
 
 interface IFileListProps {
   files: IFile[];
+  libraries: ILibrary[];
   selected?: IFile;
   onSelect: (file: IFile) => void;
   onDelete: (file: IFile) => void;
+  onNew: (type: string) => void;
 }
 
 const FileList: FC<IFileListProps> = ({
   files,
+  libraries,
   selected,
   onDelete,
-  onSelect
+  onSelect,
+  onNew
 }) => {
   const t = useTranslate();
 
@@ -28,11 +32,21 @@ const FileList: FC<IFileListProps> = ({
     <Container>
       <DropDown attachmentPosition="top left" targetPosition="bottom left">
         {(isOpen: boolean) => (
-          <AddFileButton isOpen={isOpen}>
+          <AddButton isOpen={isOpen}>
             <Icon name="new-document" /> {t("code.add-new")}
-          </AddFileButton>
+          </AddButton>
         )}
-        <div>Add files</div>
+        <AddDropDown>
+          <AddOption onClick={() => onNew("cpp")}>
+            <Icon name="new-document" /> {t("code.add-new-cpp")}
+          </AddOption>
+          <AddOption onClick={() => onNew("h")}>
+            <Icon name="new-document" /> {t("code.add-new-h")}
+          </AddOption>
+          <AddOption onClick={() => onNew("folder")}>
+            <Icon name="new-folder" /> {t("code.add-new-folder")}
+          </AddOption>
+        </AddDropDown>
       </DropDown>
       <Files>
         {files.map(file => (
@@ -44,6 +58,19 @@ const FileList: FC<IFileListProps> = ({
           </File>
         ))}
       </Files>
+      {libraries.length && (
+        <Libraries>
+          <h3>{t("code.libraries")}</h3>
+          {libraries.map(library => (
+            <File key={library.name} isSelected={false}>
+              <FileName isSelected={false}>{library.name}</FileName>
+              <DeleteFile>
+                <Icon name="trash" />
+              </DeleteFile>
+            </File>
+          ))}
+        </Libraries>
+      )}
     </Container>
   );
 };
@@ -57,7 +84,7 @@ const Container = styled.div`
   border-right: 1px solid #cfcfcf;
 `;
 
-const AddFileButton = styled.div<{ isOpen: boolean }>`
+const AddButton = styled.div<{ isOpen: boolean }>`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -79,7 +106,6 @@ const AddFileButton = styled.div<{ isOpen: boolean }>`
 `;
 
 const Files = styled.div`
-  flex: 1;
   overflow-y: auto;
   padding: 20px 0px;
 `;
@@ -138,5 +164,46 @@ const FileName = styled.div<{ isSelected: boolean }>`
 
   img {
     width: 24px;
+  }
+`;
+
+const AddDropDown = styled.div`
+  background-color: white;
+  width: 180px;
+  box-shadow: 0 3px 7px 0 rgba(0, 0, 0, 0.5);
+`;
+
+const AddOption = styled.div`
+  height: 40px;
+  padding: 0px 12px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  border-bottom: 1px solid ${colors.gray2};
+  cursor: pointer;
+
+  svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+  }
+
+  &:hover {
+    background-color: ${colors.gray2};
+  }
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+`;
+
+const Libraries = styled.div`
+  h3 {
+    padding: 0px 8px;
+    font-weight: 400;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin: 6px 0px;
   }
 `;

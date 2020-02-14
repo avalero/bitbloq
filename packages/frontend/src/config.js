@@ -119,6 +119,12 @@ export const resourceTypes = {
     icon: "resource-object3D",
     formats: [".stl"]
   },
+  arduinoLibrary: {
+    id: "arduinoLibrary",
+    label: "cloud.resources.arduinoLibraries",
+    icon: "resource-object3D",
+    formats: [".zip"]
+  },
   deleted: {
     id: "deleted",
     label: "cloud.resources.deleted",

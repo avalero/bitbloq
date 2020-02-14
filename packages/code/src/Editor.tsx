@@ -1,10 +1,7 @@
 import React, { FC, useEffect, useRef } from "react";
 import { colors } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import "monaco-editor/esm/vs/editor/browser/controller/coreCommands.js";
-import "monaco-editor/esm/vs/editor/contrib/find/findController.js";
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import "monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution.js";
+import * as monaco from "monaco-editor";
 import {
   editorBackground,
   editorForeground
@@ -33,10 +30,8 @@ monaco.editor.defineTheme("bitbloqTheme", {
 });
 
 interface IError {
-  startLineNumber: number;
-  startColumn: number;
-  endLineNumber: number;
-  endColumn: number;
+  line: number;
+  column: number;
   message: string;
 }
 
@@ -49,6 +44,20 @@ interface IEditorProps {
 const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.ICodeEditor | null>(null);
+
+  useEffect(() => {
+    const onWindowResize = () => {
+      if (editorRef.current) {
+        editorRef.current.layout();
+      }
+    };
+
+    window.addEventListener("resize", onWindowResize);
+
+    return () => {
+      window.removeEventListener("resize", onWindowResize);
+    };
+  }, []);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -80,13 +89,6 @@ const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
 
   useEffect(() => {
     const editor = editorRef.current;
-    if (!editor) {
-      return;
-    }
-  }, [code]);
-
-  useEffect(() => {
-    const editor = editorRef.current;
     const model = editor && editor.getModel();
 
     if (model) {
@@ -95,13 +97,17 @@ const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
         "compile",
         errors.map(error => ({
           ...error,
+          startLineNumber: error.line - 8,
+          endLineNumber: error.line - 8,
+          startColumn: error.column,
+          endColumn: error.column + 1,
           severity: monaco.MarkerSeverity.Error
         }))
       );
     }
   }, [errors, editorRef.current]);
 
-  return <Container ref={containerRef} />;
+  return <Container ref={containerRef} key="editor" />;
 };
 
 export default Editor;

@@ -39,7 +39,15 @@ const uploadMongSchema: Schema = new Schema({
   storageName: String,
   type: {
     type: String,
-    enum: ["image", "video", "sound", "object3D", "docImage", "profilePhoto"]
+    enum: [
+      "image",
+      "video",
+      "sound",
+      "object3D",
+      "arduinoLibrary",
+      "docImage",
+      "profilePhoto"
+    ]
   },
   deleted: { type: Boolean, default: false },
   thumbnail: String,
