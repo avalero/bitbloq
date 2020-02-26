@@ -4,10 +4,16 @@ import { DialogModal, useTranslate } from "@bitbloq/ui";
 import UploadSpinner from "./UploadSpinner";
 declare var chrome: any;
 
+export enum UploadErrorType {
+  CHROME_APP_MISSING = "chrome-app-missing",
+  COMPILE_ERROR = "compile-error",
+  BOARD_NOT_FOUND = "board-not-found"
+}
+
 const errorMessages = {
-  "chrome-app-missing": "Can't connect with chrome app",
-  "compile-error": "Error compiling source code",
-  "board-not-found": "Can't connect with board"
+  [UploadErrorType.CHROME_APP_MISSING]: "Can't connect with chrome app",
+  [UploadErrorType.COMPILE_ERROR]: "Error compiling source code",
+  [UploadErrorType.BOARD_NOT_FOUND]: "Can't connect with board"
 };
 
 class UploadError extends Error {
@@ -19,11 +25,6 @@ class UploadError extends Error {
     this.name = this.constructor.name;
     this.type = type;
     this.data = data;
-    if (typeof Error.captureStackTrace === "function") {
-      Error.captureStackTrace(this, this.constructor);
-    } else {
-      this.stack = new Error(errorMessages[type]).stack;
-    }
   }
 }
 
@@ -118,8 +119,6 @@ export const useCodeUpload = (
       setUploadSuccess(true);
       setUploadText(t("code.uploading-success"));
     } catch (e) {
-      console.log(e);
-
       setUploading(false);
       setUploadSuccess(false);
 

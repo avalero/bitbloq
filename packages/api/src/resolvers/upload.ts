@@ -31,7 +31,8 @@ const acceptedFiles = {
   image: [".png", ".gif", ".jpg", ".jpeg", "webp"],
   video: [".mp4", ".webm"],
   sound: [".mp3", ".ocg"],
-  object3D: [".stl"]
+  object3D: [".stl"],
+  arduinoLibrary: [".zip"]
 };
 
 const normalize = (() => {
