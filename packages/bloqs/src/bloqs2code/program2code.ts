@@ -43,15 +43,11 @@ const genCodeForAction = (
   bloqDefinition: Partial<IBloqType>,
   hardware: IHardware,
   functionName: string,
+  timelineFlagName: string,
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
-  // debugger;
-
+  debugger;
   Object.keys(arduinoCode).forEach(key => {
-    // if (!bloqDefinition.genCode) {
-    //   return;
-    // }
-
     try {
       if (bloqDefinition.genCode![key]) {
         bloqDefinition.genCode![key].forEach((keycode: string) => {
@@ -60,7 +56,11 @@ const genCodeForAction = (
             obj => obj.name === bloqInstance.parameters.component
           );
 
-          let nunjucksData = { ...bloqInstance.parameters, functionName };
+          let nunjucksData = {
+            ...bloqInstance.parameters,
+            functionName,
+            timelineFlagName
+          };
           nunjucksData =
             component && component.pins
               ? { ...nunjucksData, ...component.pins }
@@ -263,6 +263,7 @@ const genCodeForWaitTimer = (
   bloqDefinition: Partial<IBloqType>,
   hardware: IHardware,
   functionName: string,
+  timelineFlagName: string,
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
   return genCodeForAction(
@@ -270,6 +271,7 @@ const genCodeForWaitTimer = (
     bloqDefinition,
     hardware,
     functionName,
+    timelineFlagName,
     arduinoCode
   );
 
@@ -310,10 +312,21 @@ const genCodeForWaitTimer = (
  */
 const onstart2code = (
   bloqInstance: IBloq,
+  bloqDefinition: Partial<IBloqType>,
+  hardware: IHardware,
   functionName: string,
   timelineFlagName: string,
   arduinoCode: IArduinoCode
 ): IArduinoCode => {
+  return genCodeForAction(
+    bloqInstance,
+    bloqDefinition,
+    hardware,
+    functionName,
+    timelineFlagName,
+    arduinoCode
+  );
+
   const onStartSetupCode = `heap.insert(${functionName});\n ${timelineFlagName} = true;`;
   const onStartGlobalsCode = `
   bool ${timelineFlagName} = false;
@@ -520,6 +533,7 @@ const program2code = (
               bloqDefinition,
               hardware,
               functionName,
+              timelineFlagName,
               arduinoCode
             );
             break;
@@ -545,6 +559,8 @@ const program2code = (
             onStartEvent = true;
             onstart2code(
               bloqInstance,
+              bloqDefinition,
+              hardware,
               functionName,
               timelineFlagName,
               arduinoCode
@@ -670,6 +686,7 @@ const program2code = (
                 bloqDefinition,
                 hardware,
                 functionName,
+                timelineFlagName,
                 arduinoCode
               );
             }

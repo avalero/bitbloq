@@ -98,7 +98,19 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         type: BloqParameterType.Number,
         defaultValue: 1
       }
-    ]
+    ],
+    genCode: {
+      setup: [`heap.insert({{functionName}});\n {{timelineFlagName}} = true;`],
+      globals: [
+        `
+        bool {{timelineFlagName}} = false;
+        void {{functionName}}();
+        bool onStartForEver{{timelineFlagName}} = ("{{type}}" === "loop"); //onStart loop forever
+        unsigned short onStartLoopTimes{{timelineFlagName}} = {{times}}; //onStart loops n times
+        `
+      ],
+      definitions: [`void {{functionName}}(){\n`]
+    }
   },
   {
     category: BloqCategory.Event,
