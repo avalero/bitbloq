@@ -561,8 +561,12 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    genCode:
-      'digitalWrite({{component}}{{led}}Pin, {{"HIGH" if({{value}} === "on") else "LOW"}});',
+    genCode: {
+      definitions: [
+        'digitalWrite({{component}}{{led}}Pin, {{"LOW" if(value === "on") else "HIGH"}});'
+      ]
+    },
+
     actions: [
       {
         name: "write",
@@ -634,10 +638,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    genCode: `{{component}}PinObj.write(90 {{"+" if(rotation === "clockwise") else "-"}} 
+    genCode: {
+      definitions: [
+        `{{component}}PinObj.write(90 {{"+" if(rotation === "clockwise") else "-"}} 
             {{"10" if(speed === "slow")}} 
             {{"20" if(speed === "medium")}} 
-            {{"30" if(speed === "fast")}});`,
+            {{"30" if(speed === "fast")}});`
+      ]
+    },
+
     actions: [
       {
         name: "write",
@@ -669,7 +678,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    genCode: "{{component}}PinObj.write{{value}}`",
+    genCode: {
+      definitions: ["{{component}}PinObj.write({{value}});"]
+    },
     actions: [
       {
         name: "write",
@@ -729,11 +740,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       }
     ],
     code: {},
-    genCode: `  
+    genCode: {
+      definitions: [
+        `  
                 analogWrite({{PinRed}},{{"0" if(value==="red" or value==="white") else "255"}});
                 analogWrite({{PinGreen}},{{"0" if(value==="green" or value === "white") else "255"}});
                 analogWrite({{PinBlue}},{{"0" if(value==="blue" or value === "white") else "255"}});
-              `,
+              `
+      ]
+    },
     actions: [
       {
         name: "write",
@@ -842,7 +857,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         ]
       }
     ],
-    genCode: `
+    genCode: {
+      definitions: [
+        `
       {% if action === "writeNumber" %}
         {{component}}i2cObj.displayInt({{value}})
       {% elif action === "incrementNumber" %}
@@ -850,7 +867,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {% elif action === "decrementNumber" %}
         {{component}}i2cObj.displayInt({{component}}i2cObj.readInt() - {{value}});
       {% endif %}
-    `,
+    `
+      ]
+    },
     code: {},
     actions: [
       {
@@ -896,7 +915,9 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "bool ___messageE = false;"
       ]
     },
-    genCode: "___{{value}} = true;",
+    genCode: {
+      definitions: ["___{{value}} = true;"]
+    },
     actions: [
       {
         name: "send",
@@ -950,6 +971,13 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         defaultValue: 1
       }
     ],
+    genCode: {
+      definitions: [
+        "heap.insert({{functionName}},{{value}}*1000);}\n",
+        "void {{functionName}}(){\n"
+      ],
+      globals: [`void {{functionName}}();\n`]
+    },
     code: {},
     actions: [
       {

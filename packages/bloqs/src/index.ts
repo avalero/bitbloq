@@ -79,7 +79,7 @@ export interface IBloqType {
   parameters?: IBloqParameter[];
   components?: string[];
   configurationComponent?: string;
-  genCode?: string;
+  genCode?: IArduinoCode;
   actions: IBloqAction[];
 }
 
