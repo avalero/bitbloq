@@ -239,13 +239,35 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   },
   {
     category: BloqCategory.Event,
+    name: "EventsParent",
+    components: [],
+    genCode: {
+      globals: ["bool {{timelineFlagName}} = false;"],
+      definitions: ["void {{functionName}}(){\n"],
+      loop: [
+        `
+      if ({{conditionCode | safe}}){
+        if(!{{timelineFlagName}}){ 
+          heap.insert({{functionName}});
+          {{timelineFlagName}} = true;
+        }
+      }
+      `
+      ]
+    }
+  },
+  {
+    category: BloqCategory.Event,
     name: "OnButtonPress",
+    extends: "EventsParent",
     label: "bloq-on-button-pressed",
     components: ["Button"],
     iconSwitch: {
       "value === 'pressed'": buttonPressedIcon,
       "value === 'released'": buttonReleasedIcon
     },
+    conditionCode:
+      'digitalRead({{component}}Pin) == {{"HIGH" if(value === "pressed") else "LOW"}}',
     actions: [
       {
         name: "read",
@@ -293,6 +315,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         }
       }
     ],
+    conditionCode: "{{component}}i2cObj.readInt() == {{value}}",
     configurationComponent: "GetNumberConfiguration",
     parameters: [
       {
@@ -321,6 +344,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'obstacle'": obstacleIcon,
       "value === 'no_obstacle'": noObstacleIcon
     },
+    conditionCode:
+      '{{component}}ALPS.getDistance() {{"< 20" if(value === "no_obstacle") else " >= 20"}}',
     actions: [
       {
         name: "readDistance",
@@ -359,17 +384,18 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "OnDetectColor",
     label: "bloq-on-detect-color",
     iconSwitch: {
-      "detect === 'true' and color === 'red'": viewColorRed,
-      "detect === 'true' and color === 'black'": viewColorBlack,
-      "detect === 'true' and color === 'white'": viewColorWhite,
-      "detect === 'true' and color === 'blue'": viewColorBlue,
-      "detect === 'true' and color === 'green'": viewColorGreen,
-      "detect === 'false' and color === 'black'": notViewColorBlack,
-      "detect === 'false' and color === 'white'": notViewColorWhite,
-      "detect === 'false' and color === 'blue'": notViewColorBlue,
-      "detect === 'false' and color === 'green'": notViewColorGreen,
-      "detect === 'false' and color === 'red'": notViewColorRed
+      "detect === '==' and color === '0'": viewColorRed,
+      "detect === '==' and color === '4'": viewColorBlack,
+      "detect === '==' and color === '3'": viewColorWhite,
+      "detect === '==' and color === '2'": viewColorBlue,
+      "detect === '==' and color === '1'": viewColorGreen,
+      "detect === '!=' and color === '4'": notViewColorBlack,
+      "detect === '!=' and color === '3'": notViewColorWhite,
+      "detect === '!=' and color === '2'": notViewColorBlue,
+      "detect === '!=' and color === '1'": notViewColorGreen,
+      "detect === '!=' and color === '0'": notViewColorRed
     },
+    conditionCode: "{{component}}Color.whichColor() {{detect}} {{color}}",
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
     actions: [
@@ -393,11 +419,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         options: [
           {
             label: "bloq-parameter-detect",
-            value: "true"
+            value: "=="
           },
           {
             label: "bloq-parameter-not-detect",
-            value: "false"
+            value: "!="
           }
         ]
       },
@@ -408,23 +434,23 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         options: [
           {
             label: "bloq-parameter-red",
-            value: "red"
+            value: "0"
           },
           {
             label: "bloq-parameter-green",
-            value: "green"
+            value: "1"
           },
           {
             label: "bloq-parameter-blue",
-            value: "blue"
+            value: "2"
           },
           {
             label: "bloq-parameter-white",
-            value: "white"
+            value: "3"
           },
           {
             label: "bloq-parameter-black",
-            value: "black"
+            value: "4"
           }
         ]
       },
@@ -1218,6 +1244,13 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     iconSwitch: {
       "value === 'pressed'": buttonPressedIcon,
       "value === 'released'": buttonReleasedIcon
+    },
+    genCode: {
+      definitions: [
+        `  
+                digitalRead({{"HIGH" if (value === "pressed") else "LOW"}})
+              `
+      ]
     },
     actions: [
       {

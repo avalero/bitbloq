@@ -80,6 +80,8 @@ export interface IBloqType {
   components?: string[];
   configurationComponent?: string;
   genCode?: IArduinoCode;
+  conditionCode?: string;
+  extends?: string;
   actions: IBloqAction[];
 }
 
