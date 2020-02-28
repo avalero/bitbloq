@@ -3,6 +3,7 @@ const withTM = require("next-transpile-modules");
 const withWorkers = require("@zeit/next-workers");
 const { parsed: localEnv } = require("dotenv").config();
 const CopyPlugin = require("copy-webpack-plugin");
+const BorndatePackage = require("@bitbloq/borndate/package.json");
 
 module.exports = withTM(
   withWorkers({
@@ -58,7 +59,8 @@ module.exports = withTM(
 
       config.plugins.push(
         new webpack.EnvironmentPlugin({
-          ...localEnv
+          ...localEnv,
+          BORNDATE_VERSION: BorndatePackage.version
         }),
         new CopyPlugin([
           {
