@@ -404,14 +404,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     },
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readColor",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
     parameters: [
       {
         name: "component",
@@ -478,14 +470,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'sunset'": sunsetIcon,
       "value === 'dark'": darkIcon
     },
-    actions: [
-      {
-        name: "readLight",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: `
+      {% if value === "light" %} 
+        {{component}}i2cALPS.getAL() >= 60
+      {% elif value === "dark" %} 
+        {{component}}i2cALPS.getAL() <= 40
+      {% elif value === "sunset" %} 
+        ({{component}}i2cALPS.getAL() < 60) && ({{component}}i2cALPS.getAL() > 40)
+      {% endif %} 
+    `,
     configurationComponent: "DetectLightConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
