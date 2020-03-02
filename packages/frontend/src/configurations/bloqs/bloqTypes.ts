@@ -1081,29 +1081,23 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDetectColor",
+    extends: "WaitParent",
     label: "bloq-wait-detect-color",
     iconSwitch: {
-      "detect === 'true' and color === 'red'": viewColorRed,
-      "detect === 'true' and color === 'black'": viewColorBlack,
-      "detect === 'true' and color === 'white'": viewColorWhite,
-      "detect === 'true' and color === 'blue'": viewColorBlue,
-      "detect === 'true' and color === 'green'": viewColorGreen,
-      "detect === 'false' and color === 'black'": notViewColorBlack,
-      "detect === 'false' and color === 'white'": notViewColorWhite,
-      "detect === 'false' and color === 'blue'": notViewColorBlue,
-      "detect === 'false' and color === 'green'": notViewColorGreen,
-      "detect === 'false' and color === 'red'": notViewColorRed
+      "detect === '==' and color === 'red'": viewColorRed,
+      "detect === '==' and color === 'black'": viewColorBlack,
+      "detect === '==' and color === 'white'": viewColorWhite,
+      "detect === '==' and color === 'blue'": viewColorBlue,
+      "detect === '==' and color === 'green'": viewColorGreen,
+      "detect === '!=' and color === 'black'": notViewColorBlack,
+      "detect === '!=' and color === 'white'": notViewColorWhite,
+      "detect === '!=' and color === 'blue'": notViewColorBlue,
+      "detect === '!=' and color === 'green'": notViewColorGreen,
+      "detect === '!=' and color === 'red'": notViewColorRed
     },
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readColor",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: "{{component}}i2cColor.whichColor() {{detect}} {{color}}",
     parameters: [
       {
         name: "component",
@@ -1117,11 +1111,11 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         options: [
           {
             label: "bloq-parameter-detect",
-            value: "true"
+            value: "=="
           },
           {
             label: "bloq-parameter-not-detect",
-            value: "false"
+            value: "!="
           }
         ]
       },
@@ -1163,6 +1157,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDetectLight",
+    extends: "WaitParent",
     label: "bloq-wait-detect-light",
     iconSwitch: {
       "value === 'light'": lightIcon,
@@ -1209,6 +1204,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDetectTemperature",
+    extends: "WaitParent",
     label: "bloq-wait-detect-temperature",
     iconSwitch: {
       "value === 'cold'": temperatureColdIcon,
@@ -1250,6 +1246,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitButtonPressed",
+    extends: "WaitParent",
     label: "bloq-wait-button-pressed",
     components: ["Button"],
     iconSwitch: {
@@ -1298,6 +1295,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitForSevenSegmentValue",
+    extends: "WaitParent",
     label: "bloq-wait-seven-segment",
     iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
@@ -1332,6 +1330,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitDoubleSwitchOnOff",
+    extends: "WaitParent",
     label: "bloq-wait-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
@@ -1391,6 +1390,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitMessage",
+    extends: "WaitParent",
     label: "bloq-wait-message",
     iconSwitch: {
       "value === 'messageA'": onAIcon,
