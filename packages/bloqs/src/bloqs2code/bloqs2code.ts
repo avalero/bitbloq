@@ -18,6 +18,7 @@ import {
 import nunjucks from "nunjucks";
 import cloneDeep from "clone-deep";
 
+import initilizeArduinoCode from "./initializearduinocode";
 import juniorcodetemplate from "./juniorcodetemplate";
 import board2code, { getBoardDefinition } from "./board2code";
 import components2code from "./components2code";
@@ -75,21 +76,7 @@ const adjustProgram = (
 };
 
 const compose = (codeArray: IArduinoCode[]): IArduinoCode => {
-  const includes: string[] = [];
-  const globals: string[] = [];
-  const setup: string[] = [];
-  const loop: string[] = [];
-  const endloop: string[] = [];
-  const definitions: string[] = [];
-
-  const arduinoCode: IArduinoCode = {
-    includes,
-    globals,
-    setup,
-    loop,
-    endloop,
-    definitions
-  };
+  const arduinoCode: IArduinoCode = initilizeArduinoCode();
 
   codeArray.forEach(code => {
     Object.keys(arduinoCode).forEach(section => {
@@ -97,10 +84,13 @@ const compose = (codeArray: IArduinoCode[]): IArduinoCode => {
     });
   });
 
-  // Remove duplicates from includes, globals and setup
-  arduinoCode.globals = Array.from(new Set(arduinoCode.globals));
+  // Remove duplicates from defines, includes, globals and setup
+  arduinoCode.defines = Array.from(new Set(arduinoCode.defines));
   arduinoCode.includes = Array.from(new Set(arduinoCode.includes));
+  arduinoCode.globals = Array.from(new Set(arduinoCode.globals));
   arduinoCode.setup = Array.from(new Set(arduinoCode.setup));
+
+  // I am not sure this should be done - Alberto Valero.
   arduinoCode.endloop = Array.from(new Set(arduinoCode.endloop));
 
   return arduinoCode;
@@ -121,6 +111,7 @@ const bloqs2code = (
     );
 
     const board: IBoard = getBoardDefinition(boards, hardware);
+    debugger;
     const arduinoCode: IArduinoCode = compose([
       board2code(board),
       components2code(components, hardware.components, board),

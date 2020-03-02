@@ -304,6 +304,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnSevenSegmentValue",
+    extends: "EventsParent",
     label: "bloq-on-seven-segment",
     iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
@@ -339,13 +340,14 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnObstacle",
+    extends: "EventsParent",
     label: "bloq-on-obstacle",
     iconSwitch: {
       "value === 'obstacle'": obstacleIcon,
       "value === 'no_obstacle'": noObstacleIcon
     },
     conditionCode:
-      '{{component}}ALPS.getDistance() {{"< 20" if(value === "no_obstacle") else " >= 20"}}',
+      '{{component}}i2cALPS.getDistance() {{"< 20" | safe if(value === "no_obstacle") else " >= 20" | safe}}',
     actions: [
       {
         name: "readDistance",
@@ -382,20 +384,24 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDetectColor",
+    extends: "EventsParent",
     label: "bloq-on-detect-color",
     iconSwitch: {
-      "detect === '==' and color === '0'": viewColorRed,
-      "detect === '==' and color === '4'": viewColorBlack,
-      "detect === '==' and color === '3'": viewColorWhite,
-      "detect === '==' and color === '2'": viewColorBlue,
-      "detect === '==' and color === '1'": viewColorGreen,
-      "detect === '!=' and color === '4'": notViewColorBlack,
-      "detect === '!=' and color === '3'": notViewColorWhite,
-      "detect === '!=' and color === '2'": notViewColorBlue,
-      "detect === '!=' and color === '1'": notViewColorGreen,
-      "detect === '!=' and color === '0'": notViewColorRed
+      "detect === '==' and color === 'red'": viewColorRed,
+      "detect === '==' and color === 'black'": viewColorBlack,
+      "detect === '==' and color === 'white'": viewColorWhite,
+      "detect === '==' and color === 'blue'": viewColorBlue,
+      "detect === '==' and color === 'green'": viewColorGreen,
+      "detect === '!=' and color === 'black'": notViewColorBlack,
+      "detect === '!=' and color === 'white'": notViewColorWhite,
+      "detect === '!=' and color === 'blue'": notViewColorBlue,
+      "detect === '!=' and color === 'green'": notViewColorGreen,
+      "detect === '!=' and color === 'red'": notViewColorRed
     },
-    conditionCode: "{{component}}Color.whichColor() {{detect}} {{color}}",
+    conditionCode: "{{component}}i2cColor.whichColor() {{detect}} {{color}}",
+    code: {
+      defines: ["red 0", "green 1", "blue 2", "white 3", "black 4"]
+    },
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
     actions: [
@@ -434,23 +440,23 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         options: [
           {
             label: "bloq-parameter-red",
-            value: "0"
+            value: "red"
           },
           {
             label: "bloq-parameter-green",
-            value: "1"
+            value: "green"
           },
           {
             label: "bloq-parameter-blue",
-            value: "2"
+            value: "blue"
           },
           {
             label: "bloq-parameter-white",
-            value: "3"
+            value: "white"
           },
           {
             label: "bloq-parameter-black",
-            value: "4"
+            value: "black"
           }
         ]
       },
@@ -465,6 +471,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDetectLight",
+    extends: "EventsParent",
     label: "bloq-on-detect-light",
     iconSwitch: {
       "value === 'light'": lightIcon,
@@ -511,6 +518,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDetectTemperature",
+    extends: "EventsParent",
     label: "bloq-on-detect-temperature",
     iconSwitch: {
       "value === 'hot'": temperatureHotIcon,

@@ -112,6 +112,7 @@ export interface IShapeProps {
 export type ConnectorType = string;
 
 export interface IArduinoCode {
+  defines?: string[];
   includes?: string[];
   globals?: string[];
   setup?: string[];

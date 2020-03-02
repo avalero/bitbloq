@@ -1,6 +1,7 @@
 import { IArduinoCode } from "..";
 
 const initilizeArduinoCode: () => IArduinoCode = () => {
+  const defines: string[] = [];
   const includes: string[] = [];
   const globals: string[] = [];
   const setup: string[] = [];
@@ -9,6 +10,7 @@ const initilizeArduinoCode: () => IArduinoCode = () => {
   const definitions: string[] = [];
 
   const arduinoCode: IArduinoCode = {
+    defines,
     includes,
     globals,
     setup,
