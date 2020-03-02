@@ -6,14 +6,24 @@ import React, {
   useImperativeHandle,
   forwardRef
 } from "react";
+import { v1 as uuid } from "uuid";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { css } from "@emotion/core";
 import { useTranslate, Button, Icon, Select } from "@bitbloq/ui";
 import Editor from "./Editor";
-import FileList from "./FileList";
+import FileTree from "./FileTree";
+import NewFileModal from "./NewFileModal";
+import NewFolderModal from "./NewFolderModal";
 import useCodeUpload, { UploadErrorType } from "./useCodeUpload";
-import { IFile, ILibrary, ICodeContent } from "./index";
+import {
+  IError,
+  IFile,
+  IFolder,
+  IFileItem,
+  ILibrary,
+  ICodeContent
+} from "./index";
 
 export interface ICodeRef {
   addLibrary: (library: ILibrary) => void;
@@ -27,6 +37,18 @@ export interface ICodeProps {
   codeRef?: { current: ICodeRef | null };
 }
 
+const updateFile = (files: IFileItem[], newFile: IFileItem): IFileItem[] =>
+  files.map(file => {
+    if (file.id === newFile.id) {
+      return newFile;
+    }
+    if (file.type === "folder") {
+      return update(file, { files: { $set: updateFile(file.files, newFile) } });
+    }
+
+    return file;
+  });
+
 const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   { initialContent, onContentChange, chromeAppID, borndateFilesRoot, codeRef },
   ref
@@ -35,10 +57,14 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   const content = useRef<ICodeContent | null>(
     getInitialContent(initialContent)
   );
-  const [files, setFiles] = useState<IFile[]>([]);
+  const [files, setFiles] = useState<IFileItem[]>([]);
   const [libraries, setLibraries] = useState<ILibrary[]>([]);
-  const [selectedFileIndex, setSelectedFileIndex] = useState(0);
-  const [errors, setErrors] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(files[0]);
+  const [errors, setErrors] = useState<IError[]>([]);
+
+  const [newFileOpen, setNewFileOpen] = useState(false);
+  const [newFileExtension, setNewFileExtension] = useState("");
+  const [newFolderOpen, setNewFolderOpen] = useState(false);
 
   useEffect(() => {
     setFiles(content.current!.files);
@@ -63,33 +89,74 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     chromeAppID
   );
 
-  const onNewFile = (type: string) => {
+  const onAddNew = (type: string) => {
+    if (type === "folder") {
+      setNewFolderOpen(true);
+    } else {
+      setNewFileOpen(true);
+      setNewFileExtension(type);
+    }
+  };
+
+  const onNewFile = (name: string) => {
+    const newFile: IFile = {
+      id: uuid(),
+      type: "file",
+      name: `${name}.${newFileExtension}`,
+      content: ""
+    };
+
     content.current = update(content.current!, {
       files: {
-        $push: [
-          {
-            name: `new.${type}`,
-            content: ""
-          }
-        ]
+        $push: [newFile]
       }
     });
 
     setFiles(content.current!.files);
+    setNewFileOpen(false);
+    setSelectedFile(newFile);
+    onContentChange(content.current);
+  };
+
+  const onNewFolder = (name: string) => {
+    const newFolder: IFolder = {
+      id: uuid(),
+      type: "folder",
+      files: [],
+      name
+    };
+
+    content.current = update(content.current!, {
+      files: {
+        $push: [newFolder]
+      }
+    });
+
+    setFiles(content.current!.files);
+    setNewFolderOpen(false);
     onContentChange(content.current);
   };
 
   const onDeleteFile = (file: IFile) => {
-    console.log("delete File", file);
+    content.current = update(content.current!, {
+      files: { $set: content.current!.files.filter(f => f.id !== file.id) }
+    });
+    setFiles(content.current.files);
+    onContentChange(content.current);
+  };
+
+  const onSelectFile = (file: IFile) => {
+    const contentFile = content.current!.files.find(f => f.id === file.id);
+    if (contentFile) {
+      setSelectedFile(contentFile);
+    }
   };
 
   const onCodeChange = (code: string) => {
+    const newFile = update(selectedFile, { content: { $set: code } });
+
     content.current = update(content.current!, {
-      files: {
-        [selectedFileIndex]: {
-          content: { $set: code }
-        }
-      }
+      files: { $set: updateFile(content.current!.files, newFile) }
     });
     onContentChange(content.current);
   };
@@ -101,7 +168,12 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     } catch (e) {
       switch (e.type) {
         case UploadErrorType.COMPILE_ERROR:
-          setErrors(e.data);
+          setErrors(
+            e.data.map(e => ({
+              ...e,
+              line: e.file === "main.ino" ? e.line - 8 : e.line
+            }))
+          );
           break;
 
         default:
@@ -114,17 +186,16 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     return null;
   }
 
-  const selectedFile = files[selectedFileIndex];
-
   return (
     <Container>
-      <FileList
+      <FileTree
+        errors={errors}
         files={files}
         libraries={libraries}
         selected={selectedFile}
         onDelete={onDeleteFile}
-        onSelect={file => console.log("Select", file)}
-        onNew={onNewFile}
+        onSelect={onSelectFile}
+        onNew={onAddNew}
       />
       <Main>
         <Toolbar>
@@ -154,17 +225,30 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
             Upload
           </UploadButton>
         </Toolbar>
-        {selectedFile && (
+        {selectedFile && selectedFile.type === "file" ? (
           <Editor
-            key={selectedFileIndex}
+            key={selectedFile.id}
             code={selectedFile.content}
             onChange={onCodeChange}
-            errors={errors}
+            errors={errors.filter(e => e.file === selectedFile.name)}
           />
+        ) : (
+          <EmptyEditor />
         )}
         <StatusBar></StatusBar>
       </Main>
       {uploadContent}
+      <NewFileModal
+        isOpen={newFileOpen}
+        fileExtension={newFileExtension}
+        onNewFile={onNewFile}
+        onCancel={() => setNewFileOpen(false)}
+      />
+      <NewFolderModal
+        isOpen={newFolderOpen}
+        onNewFolder={onNewFolder}
+        onCancel={() => setNewFolderOpen(false)}
+      />
     </Container>
   );
 };
@@ -181,13 +265,15 @@ void loop() {
 }
 `;
 
-const getInitialContent = (initialContent?: ICodeContent) => {
+const getInitialContent = (initialContent?: ICodeContent): ICodeContent => {
   if (initialContent && initialContent.files && initialContent.files.length) {
     return initialContent;
   } else {
     return {
       files: [
         {
+          id: uuid(),
+          type: "file",
           name: "main.ino",
           content: defaultCode
         }
@@ -281,4 +367,8 @@ const StatusBar = styled.div`
   z-index: 10;
   color: white;
   font-size: 12px;
+`;
+
+const EmptyEditor = styled.div`
+  flex: 1;
 `;

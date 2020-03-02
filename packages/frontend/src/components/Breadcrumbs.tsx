@@ -75,7 +75,7 @@ const Breadcrumbs: React.FC<IBreadcrumbsProps> = ({ links, title }) => {
               <FolderSelectorOptions>
                 {hideFolders.map((folder, index) => (
                   <FolderSelectorOption key={index} href={folder.route}>
-                    <MenuIcon name="folder-icon" />
+                    <MenuIcon name="folder" />
                     <p>{folder.text}</p>
                   </FolderSelectorOption>
                 ))}
@@ -96,15 +96,13 @@ const Breadcrumbs: React.FC<IBreadcrumbsProps> = ({ links, title }) => {
                 {index === customLinks.length - 1 ? (
                   <BreadcrumbTarget ref={breadcrumbTarget} maxWidth={maxWidth}>
                     <IconLink
-                      name={
-                        link.type === "document" ? "document" : "folder-icon"
-                      }
+                      name={link.type === "document" ? "document" : "folder"}
                     />
                     <p>{title || link.text}</p>
                   </BreadcrumbTarget>
                 ) : (
                   <BreadcrumbLink folders={links.length - 2}>
-                    <IconLink name="folder-icon" />
+                    <IconLink name="folder" />
                     <a href={link.route || ""}>{link.text}</a>
                   </BreadcrumbLink>
                 )}
