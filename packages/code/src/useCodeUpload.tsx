@@ -79,6 +79,10 @@ class Uploader {
         .catch(e => reject(new UploadError("compile-error", e.errors)));
     });
   }
+
+  public destroy() {
+    console.log("DESTROY BORNDATE");
+  }
 }
 
 export const useCodeUpload = (
@@ -96,6 +100,12 @@ export const useCodeUpload = (
 
   useEffect(() => {
     uploaderRef.current = new Uploader(board, filesRoot, chromeAppID);
+
+    return () => {
+      if (uploaderRef.current) {
+        uploaderRef.current.destroy();
+      }
+    };
   }, []);
 
   const upload = async (code: any[], libraries: any[]) => {

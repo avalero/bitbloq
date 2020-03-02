@@ -342,7 +342,7 @@ const Icon: React.SFC<IIconProps> = ({ name, className }) => {
       return <Cthulhito className={className} />;
     case "new-folder":
       return <NewFolder className={className} />;
-    case "folder-icon":
+    case "folder":
       return <Folder className={className} />;
     default:
       // tslint:disable-next-line:no-console
