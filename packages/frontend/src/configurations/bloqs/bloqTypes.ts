@@ -115,6 +115,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnDoubleSwitchOnOff",
+    extends: "EventsParent",
     label: "bloq-on-switch",
     components: ["ZumjuniorDoubleSwitch"],
     iconSwitch: {
@@ -123,14 +124,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pos2' and switch === '1'": switch2OffIcon,
       "value === 'pos1' and switch === '1'": switch2OnIcon
     },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin{{switch}}"
-        }
-      }
-    ],
+    conditionCode: `digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if (value === "pos2" else "LOW")}}`,
     configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
@@ -249,7 +243,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         }
     
         void {{functionName}}Wait(){
-          if(!{{conditionCode | safe}}){
+          if(!({{conditionCode | safe}})){
             heap.insert({{functionName}}Wait);
           }else{
             heap.insert({{functionName}});
@@ -292,14 +286,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     },
     conditionCode:
       'digitalRead({{component}}Pin) == {{"HIGH" if(value === "pressed") else "LOW"}}',
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin"
-        }
-      }
-    ],
     configurationComponent: "ButtonConfiguration",
     parameters: [
       {
@@ -332,14 +318,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-on-seven-segment",
     iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
-    actions: [
-      {
-        name: "readNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
     conditionCode: "{{component}}i2cObj.readInt() == {{value}}",
     configurationComponent: "GetNumberConfiguration",
     parameters: [
@@ -372,14 +350,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     },
     conditionCode:
       '{{component}}i2cALPS.getDistance() {{"< 20" | safe if(value === "no_obstacle") else " >= 20" | safe}}',
-    actions: [
-      {
-        name: "readDistance",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
     components: ["ZumjuniorMultiSensor"],
     configurationComponent: "ObstacleConfiguration",
     parameters: [
@@ -619,17 +589,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       definitions: [
         'digitalWrite({{component}}{{led}}Pin, {{"LOW" if(value === "on") else "HIGH"}});'
       ]
-    },
-
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}{{led}}Pin",
-          value: "{{value}}"
-        }
-      }
-    ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -699,17 +659,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
             {{"20" if(speed === "medium")}} 
             {{"30" if(speed === "fast")}});`
       ]
-    },
-
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{rotation}}{{speed}}"
-        }
-      }
-    ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -734,16 +684,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     code: {},
     genCode: {
       definitions: ["{{component}}PinObj.write({{value}});"]
-    },
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{value}}"
-        }
-      }
-    ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -802,16 +743,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
                 analogWrite({{PinBlue}},{{"0" if(value==="blue" or value === "white") else "255"}});
               `
       ]
-    },
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{value}}"
-        }
-      }
-    ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -923,31 +855,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       {% endif %}
     `
       ]
-    },
-    code: {},
-    actions: [
-      {
-        name: "writeNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c",
-          value: "{{value}}"
-        }
-      },
-      {
-        name: "incrementNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c",
-          value: "{{value}}"
-        }
-      },
-      {
-        name: "decrementNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c",
-          value: "{{value}}"
-        }
-      }
-    ]
+    }
   },
   {
     category: BloqCategory.Action,
@@ -1164,14 +1072,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'sunset'": sunsetIcon,
       "value === 'dark'": darkIcon
     },
-    actions: [
-      {
-        name: "readLight",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: `
+      {% if value === "light" %} 
+        {{component}}i2cALPS.getAL() >= 60
+      {% elif value === "dark" %} 
+        {{component}}i2cALPS.getAL() <= 40
+      {% elif value === "sunset" %} 
+        ({{component}}i2cALPS.getAL() < 60) && ({{component}}i2cALPS.getAL() > 40)
+      {% endif %} 
+    `,
     configurationComponent: "DetectLightConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1210,14 +1119,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'cold'": temperatureColdIcon,
       "value === 'hot'": temperatureHotIcon
     },
-    actions: [
-      {
-        name: "readTemperature",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1253,21 +1156,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pressed'": buttonPressedIcon,
       "value === 'released'": buttonReleasedIcon
     },
-    genCode: {
-      definitions: [
-        `  
-                digitalRead({{"HIGH" if (value === "pressed") else "LOW"}})
-              `
-      ]
-    },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin"
-        }
-      }
-    ],
+    conditionCode:
+      'digitalRead({{component}}Pin) == {{"HIGH" if(value === "pressed") else "LOW"}}',
     configurationComponent: "ButtonConfiguration",
     parameters: [
       {
@@ -1299,14 +1189,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     label: "bloq-wait-seven-segment",
     iconComponent: "SevenSegmentIcon",
     components: ["ZumjuniorSevenSegment"],
-    actions: [
-      {
-        name: "readNumber",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode: "{{component}}i2cObj.readInt() == {{value}}",
     configurationComponent: "GetNumberConfiguration",
     parameters: [
       {
@@ -1339,14 +1222,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pos2' and switch === '1'": switch2OffIcon,
       "value === 'pos1' and switch === '1'": switch2OnIcon
     },
-    actions: [
-      {
-        name: "read",
-        parameters: {
-          pinVarName: "{{component}}Pin{{switch}}"
-        }
-      }
-    ],
+    conditionCode: `digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if (value === "pos2" else "LOW")}}`,
     configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
