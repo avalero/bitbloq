@@ -589,6 +589,7 @@ export const components: Array<Partial<IComponent>> = [
       height: 80
     },
     code: {
+      defines: ["red 0", "green 1", "blue 2", "white 3", "black 4"],
       includes: [
         "<BQZUMI2CTempSensor.h>",
         "<BQZUMI2CColorSensor.h>",

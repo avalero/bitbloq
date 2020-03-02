@@ -238,6 +238,30 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     ]
   },
   {
+    category: BloqCategory.Wait,
+    name: "WaitParent",
+    components: [],
+    genCode: {
+      globals: ["void {{functionName}}Wait();", "void {{functionName}}();"],
+      definitions: [
+        `
+          heap.insert({{functionName}}Wait);
+        }
+    
+        void {{functionName}}Wait(){
+          if(!{{conditionCode | safe}}){
+            heap.insert({{functionName}}Wait);
+          }else{
+            heap.insert({{functionName}});
+          }
+        }
+
+        void {{functionName}}(){
+      `
+      ]
+    }
+  },
+  {
     category: BloqCategory.Event,
     name: "EventsParent",
     components: [],
@@ -399,9 +423,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "detect === '!=' and color === 'red'": notViewColorRed
     },
     conditionCode: "{{component}}i2cColor.whichColor() {{detect}} {{color}}",
-    code: {
-      defines: ["red 0", "green 1", "blue 2", "white 3", "black 4"]
-    },
     configurationComponent: "ViewColorConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -517,14 +538,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'hot'": temperatureHotIcon,
       "value === 'cold'": temperatureColdIcon
     },
-    actions: [
-      {
-        name: "readTemperature",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cTemp.getTemp() {{ ">=25" | safe if (value === "hot") else "<25" | safe}}',
     configurationComponent: "TemperatureConfiguration",
     components: ["ZumjuniorMultiSensor"],
     parameters: [
@@ -1030,20 +1045,15 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Wait,
     name: "WaitObstacle",
+    extends: "WaitParent",
     label: "bloq-wait-obstacle",
     iconSwitch: {
       "value === 'obstacle'": obstacleIcon,
       "value === 'no_obstacle'": noObstacleIcon
     },
     components: ["ZumjuniorMultiSensor"],
-    actions: [
-      {
-        name: "readDistance",
-        parameters: {
-          pinVarName: "{{component}}i2c"
-        }
-      }
-    ],
+    conditionCode:
+      '{{component}}i2cALPS.getDistance() {{"<20" | safe if (value === "obstacle") else ">=20" | safe }}',
     configurationComponent: "ObstacleConfiguration",
     parameters: [
       {

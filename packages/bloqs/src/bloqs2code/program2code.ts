@@ -386,37 +386,16 @@ const program2code = (
 
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
-          if (!bloqDefinition.actions) {
-            throw new Error("Wait bloq should have actions");
-          }
-
           functionName = `func_${++functionNameIndex}`;
-
-          // Wait Timer
-          if (!bloqDefinition.components) {
-            // Wait timer
-            debugger;
-            genCode(
-              bloqInstance,
-              bloqDefinition,
-              hardware,
-              functionName,
-              timelineFlagName,
-              arduinoCode
-            );
-            break;
-          } else {
-            waitEvent2Code(
-              bloqInstance,
-              bloqDefinition,
-              hardware,
-              componentsDefinition,
-              bloqTypes,
-              functionName,
-              arduinoCode
-            );
-            break;
-          }
+          genCode(
+            bloqInstance,
+            bloqDefinition,
+            hardware,
+            functionName,
+            timelineFlagName,
+            arduinoCode
+          );
+          break;
 
         case BloqCategory.Event:
           functionName = `func_${++functionNameIndex}`;
@@ -425,58 +404,16 @@ const program2code = (
           // OnStart Bloq requires special treatment
           if (bloqDefinition.name === "OnStart") {
             onStartEvent = true;
-            genCode(
-              bloqInstance,
-              bloqDefinition,
-              hardware,
-              functionName,
-              timelineFlagName,
-              arduinoCode
-            );
-          } else {
-            debugger;
-            genCode(
-              bloqInstance,
-              bloqDefinition,
-              hardware,
-              functionName,
-              timelineFlagName,
-              arduinoCode
-            );
-
-            break;
-
-            let eventLoopCode: string = "";
-            const eventGlobalsCode: string = `bool ${timelineFlagName} = false;`;
-            const eventDefinitionCode: string = `void ${functionName}(){\n`;
-
-            // bloqs without component (like onmessage)
-            if (
-              !bloqDefinition.components ||
-              bloqDefinition.components.length === 0
-            ) {
-              if (!bloqDefinition.actions) {
-                throw new Error(`No actions for bloq ${bloqDefinition.name}`);
-              }
-              const nunjucksData = { ...bloqInstance.parameters };
-              const action = bloqDefinition.actions[0];
-              const onMsgCodeTemplate: string = `
-                if(${action.parameters.variable}){
-                  if(!${timelineFlagName}){ 
-                    heap.insert(${functionName});
-                    ${timelineFlagName} = true;
-                  }
-                }
-                `;
-              eventLoopCode = nunjucks.renderString(
-                onMsgCodeTemplate,
-                nunjucksData
-              );
-            }
-            arduinoCode.loop!.push(eventLoopCode);
-            arduinoCode.globals!.push(eventGlobalsCode);
-            arduinoCode.definitions!.push(eventDefinitionCode);
           }
+          genCode(
+            bloqInstance,
+            bloqDefinition,
+            hardware,
+            functionName,
+            timelineFlagName,
+            arduinoCode
+          );
+
           break;
 
         case BloqCategory.Action:
