@@ -16,6 +16,7 @@ import FileTree from "./FileTree";
 import NewFileModal from "./NewFileModal";
 import NewFolderModal from "./NewFolderModal";
 import useCodeUpload, { UploadErrorType } from "./useCodeUpload";
+import { unzipLibrary } from "./util";
 import {
   IError,
   IFile,
@@ -49,6 +50,21 @@ const updateFile = (files: IFileItem[], newFile: IFileItem): IFileItem[] =>
     return file;
   });
 
+const findFile = (files: IFileItem[], fileId: string) => {
+  if (!files.length) {
+    return undefined;
+  }
+  const [first, ...rest] = files;
+  if (first.id === fileId) {
+    return first;
+  }
+
+  return (
+    (first.type === "folder" && findFile(first.files, fileId)) ||
+    findFile(rest, fileId)
+  );
+};
+
 const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   { initialContent, onContentChange, chromeAppID, borndateFilesRoot, codeRef },
   ref
@@ -59,6 +75,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   );
   const [files, setFiles] = useState<IFileItem[]>([]);
   const [libraries, setLibraries] = useState<ILibrary[]>([]);
+  const [librariesFiles, setLibrariesFiles] = useState<IFileItem[][]>([]);
   const [selectedFile, setSelectedFile] = useState(files[0]);
   const [errors, setErrors] = useState<IError[]>([]);
 
@@ -66,9 +83,20 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   const [newFileExtension, setNewFileExtension] = useState("");
   const [newFolderOpen, setNewFolderOpen] = useState(false);
 
+  const setLibrariesWithFiles = async (libs: ILibrary[]) => {
+    setLibraries(
+      await Promise.all(
+        libs.map(async lib => ({
+          ...lib,
+          files: await unzipLibrary(lib.zipURL)
+        }))
+      )
+    );
+  };
+
   useEffect(() => {
     setFiles(content.current!.files);
-    setLibraries(content.current!.libraries || []);
+    setLibrariesWithFiles(content.current!.libraries || []);
   }, []);
 
   useImperativeHandle(ref, () => ({
@@ -78,7 +106,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
           $push: [library]
         }
       });
-      setLibraries(content.current.libraries);
+      setLibrariesWithFiles(content.current.libraries);
       onContentChange(content.current);
     }
   }));
@@ -98,6 +126,25 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     }
   };
 
+  const addFileItem = (item: IFileItem) => {
+    if (selectedFile && selectedFile.type === "folder") {
+      const newFolder = update(selectedFile, {
+        files: {
+          $push: [item]
+        }
+      });
+      content.current = update(content.current!, {
+        files: { $set: updateFile(content.current!.files, newFolder) }
+      });
+    } else {
+      content.current = update(content.current!, {
+        files: {
+          $push: [item]
+        }
+      });
+    }
+  };
+
   const onNewFile = (name: string) => {
     const newFile: IFile = {
       id: uuid(),
@@ -106,16 +153,12 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
       content: ""
     };
 
-    content.current = update(content.current!, {
-      files: {
-        $push: [newFile]
-      }
-    });
+    addFileItem(newFile);
 
     setFiles(content.current!.files);
     setNewFileOpen(false);
     setSelectedFile(newFile);
-    onContentChange(content.current);
+    onContentChange(content.current!);
   };
 
   const onNewFolder = (name: string) => {
@@ -126,15 +169,11 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
       name
     };
 
-    content.current = update(content.current!, {
-      files: {
-        $push: [newFolder]
-      }
-    });
+    addFileItem(newFolder);
 
     setFiles(content.current!.files);
     setNewFolderOpen(false);
-    onContentChange(content.current);
+    onContentChange(content.current!);
   };
 
   const onDeleteFile = (file: IFile) => {
@@ -146,7 +185,17 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   };
 
   const onSelectFile = (file: IFile) => {
-    const contentFile = content.current!.files.find(f => f.id === file.id);
+    let contentFile = findFile(content.current!.files, file.id);
+
+    let i = 0;
+    while (!contentFile && i < libraries.length) {
+      const libFiles = libraries[i].files;
+      if (libFiles) {
+        contentFile = findFile(libFiles, file.id);
+      }
+      i++;
+    }
+
     if (contentFile) {
       setSelectedFile(contentFile);
     }
