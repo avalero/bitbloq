@@ -55,26 +55,41 @@ const FileTree: FC<IFileTreeProps> = ({
           </AddOption>
         </AddDropDown>
       </DropDown>
-      <FileList
-        errors={errors}
-        files={files}
-        onDelete={onDelete}
-        onSelect={onSelect}
-        selected={selected}
-        depth={0}
-        collapsedFolders={collapsedFolders}
-        onCollapseFolder={onCollapseFolder}
-      />
+      <FilesContainer>
+        <FileList
+          errors={errors}
+          files={files}
+          onDelete={onDelete}
+          onSelect={onSelect}
+          selected={selected}
+          depth={0}
+          collapsedFolders={collapsedFolders}
+          onCollapseFolder={onCollapseFolder}
+        />
+      </FilesContainer>
       {libraries.length > 0 && (
         <Libraries>
           <h3>{t("code.libraries")}</h3>
           {libraries.map(library => (
-            <File key={library.name}>
-              <FileName isSelected={false}>{library.name}</FileName>
-              <DeleteFile>
-                <Icon name="trash" />
-              </DeleteFile>
-            </File>
+            <React.Fragment key={library.name}>
+              <File>
+                <FileName isSelected={false}>{library.name}</FileName>
+                <DeleteFile>
+                  <Icon name="trash" />
+                </DeleteFile>
+              </File>
+              {library.files && (
+                <FileList
+                  errors={[]}
+                  files={library.files}
+                  onSelect={onSelect}
+                  selected={selected}
+                  depth={0}
+                  collapsedFolders={collapsedFolders}
+                  onCollapseFolder={onCollapseFolder}
+                />
+              )}
+            </React.Fragment>
           ))}
         </Libraries>
       )}
@@ -88,8 +103,8 @@ interface IFileListProps {
   files: IFileItem[];
   errors: IError[];
   selected?: IFileItem;
-  onSelect: (file: IFileItem) => void;
-  onDelete: (file: IFileItem) => void;
+  onSelect?: (file: IFileItem) => void;
+  onDelete?: (file: IFileItem) => void;
   depth: number;
   collapsedFolders: string[];
   onCollapseFolder: (folder: IFolder) => any;
@@ -107,7 +122,7 @@ const FileList: FC<IFileListProps> = ({
 }) => {
   const onDeleteClick = (e: React.MouseEvent, file: IFileItem) => {
     e.preventDefault();
-    onDelete(file);
+    onDelete!(file);
   };
 
   const onCollapseClick = (e: React.MouseEvent, folder: IFolder) => {
@@ -120,8 +135,8 @@ const FileList: FC<IFileListProps> = ({
       {files.map(file => (
         <File key={file.id}>
           <FileName
-            isSelected={file === selected}
-            onClick={() => onSelect(file)}
+            isSelected={selected && file.id === selected.id}
+            onClick={() => onSelect && onSelect(file)}
           >
             {depth > 0 && (
               <AngleIcon depth={depth}>
@@ -142,7 +157,7 @@ const FileList: FC<IFileListProps> = ({
                 <Icon name="close" />
               </ErrorTag>
             )}
-            {file.name !== "main.ino" && (
+            {onDelete && file.name !== "main.ino" && (
               <DeleteFile onClick={e => onDeleteClick(e, file)}>
                 <Icon name="trash" />
               </DeleteFile>
@@ -151,7 +166,7 @@ const FileList: FC<IFileListProps> = ({
               <Icon name={file.type === "folder" ? "folder" : "document"} />
             </RightIcon>
           </FileName>
-          {file.type === "folder" && (
+          {file.type === "folder" && !collapsedFolders.includes(file.id) && (
             <FileList
               errors={errors}
               files={file.files}
@@ -170,7 +185,7 @@ const FileList: FC<IFileListProps> = ({
 };
 
 const Container = styled.div`
-  width: 180px;
+  width: 210px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #cfcfcf;
@@ -197,10 +212,12 @@ const AddButton = styled.div<{ isOpen: boolean }>`
   }
 `;
 
-const Files = styled.div`
-  overflow-y: auto;
+const FilesContainer = styled.div`
   padding: 20px 0px;
+  overflow-y: auto;
 `;
+
+const Files = styled.div``;
 
 const File = styled.div`
   width: 100%;
@@ -265,7 +282,7 @@ const FileName = styled.div<{ isSelected?: boolean }>`
 `;
 
 const AngleIcon = styled.div<{ depth: number }>`
-  margin-left: ${props => (props.depth - 1) * 16}px;
+  margin-left: ${props => props.depth * 16}px;
   svg {
     width: 10px;
     height: 10px;

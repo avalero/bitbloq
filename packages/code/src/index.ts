@@ -27,6 +27,7 @@ export type IFileItem = IFile | IFolder;
 export interface ILibrary {
   name: string;
   zipURL: string;
+  files?: IFileItem[];
 }
 
 export interface ICodeContent {
