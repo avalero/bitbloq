@@ -83,6 +83,8 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
   const [newFileExtension, setNewFileExtension] = useState("");
   const [newFolderOpen, setNewFolderOpen] = useState(false);
 
+  const [board, setBoard] = useState("zumjunior");
+
   const setLibrariesWithFiles = async (libs: ILibrary[]) => {
     setLibraries(
       await Promise.all(
@@ -111,8 +113,7 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     }
   }));
 
-  const [upload, uploadContent] = useCodeUpload(
-    "zumjunior",
+  const [upload, compile, uploadContent] = useCodeUpload(
     borndateFilesRoot,
     chromeAppID
   );
@@ -212,7 +213,28 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
 
   const onUpload = async () => {
     try {
-      await upload(content.current!.files, libraries);
+      await upload(content.current!.files, libraries, board);
+      setErrors([]);
+    } catch (e) {
+      switch (e.type) {
+        case UploadErrorType.COMPILE_ERROR:
+          setErrors(
+            e.data.map(e => ({
+              ...e,
+              line: e.file === "main.ino" ? e.line - 8 : e.line
+            }))
+          );
+          break;
+
+        default:
+          console.log(e);
+      }
+    }
+  };
+
+  const onCompile = async () => {
+    try {
+      await compile(content.current!.files, libraries);
       setErrors([]);
     } catch (e) {
       switch (e.type) {
@@ -259,8 +281,13 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
           <BoardSelectWrap>
             <p>Placa:</p>
             <BoardSelect
-              value="zumjunior"
+              value={board}
+              onChange={setBoard}
               options={[
+                {
+                  label: "BQ ZUM Core 2",
+                  value: "zumcore2"
+                },
                 {
                   label: "ZUM Junior",
                   value: "zumjunior"
@@ -269,9 +296,13 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
               selectConfig={{ isSearchable: false, blurInputOnSelect: false }}
             />
           </BoardSelectWrap>
+          <UploadButton onClick={() => onCompile()}>
+            <Icon name="programming" />
+            {t("code.compile")}
+          </UploadButton>
           <UploadButton onClick={() => onUpload()}>
             <Icon name="programming" />
-            Upload
+            {t("code.upload")}
           </UploadButton>
         </Toolbar>
         {selectedFile && selectedFile.type === "file" ? (
@@ -390,7 +421,7 @@ const ToolbarButton = styled.div<{ disabled?: boolean }>`
 const BoardSelectWrap = styled.div`
   display: flex;
   align-items: center;
-  margin-right: 20px;
+  margin-right: 10px;
   p {
     margin-right: 10px;
     font-weight: 500;
@@ -402,6 +433,7 @@ const BoardSelect = styled(Select)`
 `;
 
 const UploadButton = styled(Button)`
+  margin-left: 10px;
   svg {
     margin-right: 10px;
   }
