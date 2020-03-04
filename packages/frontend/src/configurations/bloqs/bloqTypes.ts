@@ -102,12 +102,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     genCode: {
       setup: [`heap.insert({{functionName}});\n {{timelineFlagName}} = true;`],
       globals: [
-        `
-        bool {{timelineFlagName}} = false;
-        void {{functionName}}();
-        bool onStartForEver{{timelineFlagName}} = ("{{type}}" === "loop"); //onStart loop forever
-        unsigned short onStartLoopTimes{{timelineFlagName}} = {{times}}; //onStart loops n times
-        `
+        "bool {{timelineFlagName}} = false;",
+        "void {{functionName}}();",
+        'bool onStartForEver{{timelineFlagName}} = {{ "true" if(type === "loop") else "false" }}; //onStart loop forever',
+        "unsigned short onStartLoopTimes{{timelineFlagName}} = {{times}}; //onStart loops n times"
       ],
       definitions: [`void {{functionName}}(){\n`]
     }
@@ -254,7 +252,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     name: "EventsParent",
     components: [],
     genCode: {
-      globals: ["bool {{timelineFlagName}} = false;"],
+      globals: [
+        "bool {{timelineFlagName}} = false;",
+        "void {{functionName}}();"
+      ],
       definitions: ["void {{functionName}}(){\n"],
       loop: [
         `
@@ -921,10 +922,10 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     ],
     genCode: {
       definitions: [
-        "heap.insert({{functionName}},{{value}}*1000);}\n",
-        "void {{functionName}}(){\n"
+        "heap.insert({{functionName}},{{value}}*1000);}",
+        "void {{functionName}}(){"
       ],
-      globals: [`void {{functionName}}();\n`]
+      globals: [`void {{functionName}}();`]
     },
     code: {},
     actions: [

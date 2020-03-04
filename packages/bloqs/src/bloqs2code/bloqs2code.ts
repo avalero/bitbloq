@@ -111,7 +111,6 @@ const bloqs2code = (
     );
 
     const board: IBoard = getBoardDefinition(boards, hardware);
-    debugger;
     const arduinoCode: IArduinoCode = compose([
       board2code(board),
       components2code(components, hardware.components, board),
