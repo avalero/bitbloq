@@ -97,8 +97,8 @@ const Editor: FC<IEditorProps> = ({ code, onChange, errors }) => {
         "compile",
         errors.map(error => ({
           ...error,
-          startLineNumber: error.line - 8,
-          endLineNumber: error.line - 8,
+          startLineNumber: error.line,
+          endLineNumber: error.line,
           startColumn: error.column,
           endColumn: error.column + 1,
           severity: monaco.MarkerSeverity.Error
