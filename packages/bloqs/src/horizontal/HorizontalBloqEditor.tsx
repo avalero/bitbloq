@@ -5,14 +5,14 @@ import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
 import BloqsLine from "./BloqsLine";
 import BloqConfigPanel from "./BloqConfigPanel";
-import AddBloqPanel from "./AddBloqPanel";
+// import AddBloqPanel from "./AddBloqPanel";
 
-import { BloqCategory } from "../enums";
+// import { BloqCategory } from "../enums";
 import {
   IBloq,
   IBloqLine,
   IBloqType,
-  IBloqTypeGroup,
+  // IBloqTypeGroup,
   IBoard,
   IComponent,
   IComponentInstance,

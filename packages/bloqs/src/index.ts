@@ -79,7 +79,9 @@ export interface IBloqType {
   parameters?: IBloqParameter[];
   components?: string[];
   configurationComponent?: string;
-  actions: IBloqAction[];
+  genCode?: IArduinoCode;
+  conditionCode?: string;
+  extends?: string;
 }
 
 export interface IBloq {
@@ -109,6 +111,7 @@ export interface IShapeProps {
 export type ConnectorType = string;
 
 export interface IArduinoCode {
+  defines?: string[];
   includes?: string[];
   globals?: string[];
   setup?: string[];
@@ -215,11 +218,9 @@ export interface IComponent {
   instanceName: string;
   extends: string;
   code: IArduinoCode;
-  actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
   snapshotImage?: IComponentImage;
-  values: { [name: string]: string };
 }
 
 export interface IComponentInstance {
@@ -227,6 +228,7 @@ export interface IComponentInstance {
   name: string;
   port?: string;
   integrated?: boolean;
+  pins?: { [name: string]: string | number };
 }
 
 export interface IHardware {

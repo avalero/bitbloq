@@ -18,6 +18,7 @@ import {
 import nunjucks from "nunjucks";
 import cloneDeep from "clone-deep";
 
+import initilizeArduinoCode from "./initializearduinocode";
 import juniorcodetemplate from "./juniorcodetemplate";
 import board2code, { getBoardDefinition } from "./board2code";
 import components2code from "./components2code";
@@ -74,6 +75,27 @@ const adjustProgram = (
   return adjustedProgram;
 };
 
+const compose = (codeArray: IArduinoCode[]): IArduinoCode => {
+  const arduinoCode: IArduinoCode = initilizeArduinoCode();
+
+  codeArray.forEach(code => {
+    Object.keys(arduinoCode).forEach(section => {
+      (arduinoCode[section] as string[]).push(...code[section]);
+    });
+  });
+
+  // Remove duplicates from defines, includes, globals and setup
+  arduinoCode.defines = Array.from(new Set(arduinoCode.defines));
+  arduinoCode.includes = Array.from(new Set(arduinoCode.includes));
+  arduinoCode.globals = Array.from(new Set(arduinoCode.globals));
+  arduinoCode.setup = Array.from(new Set(arduinoCode.setup));
+
+  // I am not sure this should be done - Alberto Valero.
+  arduinoCode.endloop = Array.from(new Set(arduinoCode.endloop));
+
+  return arduinoCode;
+};
+
 const bloqs2code = (
   boards: IBoard[],
   components: IComponent[],
@@ -81,22 +103,6 @@ const bloqs2code = (
   hardware: IHardware,
   program: IBloq[][]
 ) => {
-  const includes: string[] = [];
-  const globals: string[] = [];
-  const setup: string[] = [];
-  const loop: string[] = [];
-  const endloop: string[] = [];
-  const definitions: string[] = [];
-
-  const arduinoCode: IArduinoCode = {
-    includes,
-    globals,
-    setup,
-    loop,
-    endloop,
-    definitions
-  };
-
   try {
     // adjust program
     const programFixed: IBloq[][] = adjustProgram(
@@ -104,26 +110,25 @@ const bloqs2code = (
       bloqTypes
     );
 
-    board2code(boards, hardware, arduinoCode);
     const board: IBoard = getBoardDefinition(boards, hardware);
-    components2code(components, hardware.components, board, arduinoCode);
-    program2code(components, bloqTypes, hardware, programFixed, arduinoCode);
+    const arduinoCode: IArduinoCode = compose([
+      board2code(board),
+      components2code(components, hardware.components, board),
+      program2code(components, bloqTypes, hardware, programFixed)
+    ]);
+
+    const nunjucksData = { ...arduinoCode, date: getDate() };
+    const code: string = nunjucks.renderString(
+      juniorcodetemplate,
+      nunjucksData
+    );
+
+    console.info(code);
+    return code;
   } catch (e) {
     // console.warn(e);
     throw e;
   }
-
-  // Remove duplicates from includes, globals and setup
-  arduinoCode.globals = Array.from(new Set(arduinoCode.globals));
-  arduinoCode.includes = Array.from(new Set(arduinoCode.includes));
-  arduinoCode.setup = Array.from(new Set(arduinoCode.setup));
-  arduinoCode.endloop = Array.from(new Set(arduinoCode.endloop));
-
-  const nunjucksData = { ...arduinoCode, date: getDate() };
-  const code: string = nunjucks.renderString(juniorcodetemplate, nunjucksData);
-
-  console.info(code);
-  return code;
 };
 
 export default bloqs2code;

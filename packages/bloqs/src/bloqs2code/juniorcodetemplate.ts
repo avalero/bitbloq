@@ -14,6 +14,11 @@ const juniorcodetemplate: string = `
  * {{date}} 
 **/
 
+// custom defines
+{% for define in defines %}
+#define {{define | safe}}
+{% endfor %}
+
 // headers to be included
 
 #include <ArduinoEventsLib.h>

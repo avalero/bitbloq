@@ -10,12 +10,9 @@ import {
   IBloq,
   IBloqLine,
   IBloqType,
-  IBloqTypeGroup,
   IBoard,
-  getComponentDefinition,
   IComponent,
   IHardware,
-  BloqCategory,
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
@@ -142,12 +139,15 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       hardware,
       programBloqs
     );
-
-    upload(
-      [{ name: "main.ino", content: code }],
-      arduinoLibraries,
-      "zumjunior"
-    );
+    try {
+      upload(
+        [{ name: "main.ino", content: code }],
+        arduinoLibraries,
+        "zumjunior"
+      );
+    } catch (e) {
+      console.error(e.data);
+    }
   };
 
   return children(
