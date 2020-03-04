@@ -23,14 +23,6 @@ import nunjucks from "nunjucks";
 import { BloqCategory } from "../enums";
 import { isString } from "util";
 
-// interface IAction {
-//   parameters: { [name: string]: string };
-//   definition: IComponentAction;
-//   valuesSym: { [name: string]: string };
-// }
-
-// type ActionsArray = IAction[];
-
 /**
  *
  * @param bloqTypes The array of existing bloqs
@@ -157,122 +149,6 @@ export const getComponentForBloq = (
 
   return component;
 };
-
-// export const getActions = (
-//   bloqInstance: IBloq,
-//   bloqDefinition: Partial<IBloqType>,
-//   componentDefinition: Partial<IComponent>
-// ): ActionsArray => {
-//   if (!bloqDefinition.actions) {
-//     throw new Error(`${bloqDefinition.name} has no actions`);
-//   }
-
-//   if (!componentDefinition.actions) {
-//     throw new Error(`${componentDefinition.name} has no actions`);
-//   }
-
-//   const actionsNames: string[] = bloqDefinition.actions.map(
-//     action => action.name
-//   );
-
-//   const actionsDefinitions: IComponentAction[] = actionsNames.map(
-//     actionName => {
-//       const actionDef = componentDefinition.actions!.find(
-//         action => action.name === actionName
-//       );
-
-//       if (!actionDef) {
-//         throw new Error(
-//           `Action ${actionName} not defined in ${componentDefinition.name}`
-//         );
-//       }
-//       return actionDef;
-//     }
-//   );
-
-//   const actionsParameters: Array<{ [name: string]: string }> = [];
-
-//   actionsDefinitions.forEach((action, index) => {
-//     const obj: { [name: string]: string } = {};
-//     action.parameters.forEach(parameter => {
-//       const codeTemplate = bloqDefinition.actions![index].parameters[parameter];
-//       const nunjucksData = bloqInstance.parameters;
-//       const value: string = nunjucks.renderString(codeTemplate, nunjucksData);
-//       obj[parameter] = value;
-//     });
-//     actionsParameters.push(obj);
-//   });
-
-//   const actions: ActionsArray = [];
-
-//   if (actionsParameters.length !== actionsDefinitions.length) {
-//     throw new Error(
-//       "Unexpected different sizes of actionParameters and actionDefinitions"
-//     );
-//   }
-
-//   actionsParameters.forEach((parameters, index) => {
-//     const obj: IAction = {
-//       parameters: { ...parameters },
-//       definition: { ...actionsDefinitions[index] },
-//       valuesSym: { ...componentDefinition.values }
-//     };
-//     actions.push(obj);
-//   });
-
-//   return actions;
-// };
-
-// export const actions2code = (actions: ActionsArray): string[] => {
-//   const code: string[] = [];
-//   actions.forEach(action => {
-//     const nunjucksData = action.parameters;
-
-//     // in case the alias is a value
-//     if (action.valuesSym[action.parameters.value]) {
-//       nunjucksData.value = action.valuesSym[action.parameters.value];
-//     }
-
-//     const codeTemplate = action.definition.code;
-//     const c: string = nunjucks.renderString(codeTemplate, nunjucksData);
-//     code.push(c);
-//   });
-
-//   return code;
-// };
-
-// export const bloq2code = (
-//   bloqInstance: IBloq,
-//   hardware: IHardware,
-//   bloqTypes: Array<Partial<IBloqType>>,
-//   componentsDefinition: Array<Partial<IComponent>>
-// ): string[] => {
-//   const bloqDefinition: Partial<IBloqType> = getBloqDefinition(
-//     bloqTypes,
-//     bloqInstance
-//   );
-//   const componentDefintion: Partial<IComponent> = getComponentForBloq(
-//     bloqInstance,
-//     hardware,
-//     componentsDefinition
-//   );
-//   const actions: ActionsArray = getActions(
-//     bloqInstance,
-//     bloqDefinition,
-//     componentDefintion
-//   );
-
-//   const runActions = actions.filter(action => {
-//     // if the bloq has an "action" parameter defining which action to run
-//     if (bloqInstance.parameters.action) {
-//       return bloqInstance.parameters.action === action.definition.name;
-//     }
-//     return true;
-//   });
-
-//   const code: string[] = actions2code(runActions);
-//   return code;
-// };
 
 const program2code = (
   componentsDefinition: Array<Partial<IComponent>>,
