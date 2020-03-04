@@ -8,6 +8,7 @@
  */
 
 import HorizontalBloqEditor from "./horizontal/HorizontalBloqEditor";
+import BloqsLine from "./horizontal/BloqsLine";
 import HardwareDesigner from "./hardware/HardwareDesigner";
 import bloqs2code from "./bloqs2code/bloqs2code";
 import { getBoardDefinition } from "./bloqs2code/board2code";
@@ -17,6 +18,7 @@ import { BloqCategory, BloqParameterType } from "./enums";
 
 export {
   HorizontalBloqEditor,
+  BloqsLine,
   HardwareDesigner,
   bloqs2code,
   getBoardDefinition,
