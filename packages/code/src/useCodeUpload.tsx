@@ -30,14 +30,12 @@ class UploadError extends Error {
 
 class Uploader {
   private borndate: Borndate;
-  private board: string;
   private chromeAppID: string;
   private lastSendPromise: Promise<unknown> = Promise.resolve();
 
-  constructor(board: string, filesRoot: string, chromeAppID: string) {
-    this.borndate = new Borndate({ board, filesRoot });
+  constructor(filesRoot: string, chromeAppID: string) {
+    this.borndate = new Borndate({ filesRoot });
     this.chromeAppID = chromeAppID;
-    this.board = board;
   }
 
   public openChromeAppPort() {
@@ -49,7 +47,16 @@ class Uploader {
     }
   }
 
-  public upload(code: any[], libraries: any[] = []) {
+  public compile(code: any[], libraries: any[] = []) {
+    return new Promise((resolve, reject) => {
+      this.borndate
+        .compile(code, libraries)
+        .then(resolve)
+        .catch(e => reject(new UploadError("compile-error", e.errors)));
+    });
+  }
+
+  public upload(code: any[], libraries: any[] = [], board: string) {
     return new Promise((resolve, reject) => {
       const port = this.openChromeAppPort();
 
@@ -72,7 +79,7 @@ class Uploader {
           });
           port.postMessage({
             type: "upload",
-            board: this.board,
+            board,
             file: hex
           });
         })
@@ -86,10 +93,14 @@ class Uploader {
 }
 
 export const useCodeUpload = (
-  board: string,
   filesRoot: string,
   chromeAppID: string
-): [(code: any[], libraries: any[]) => void, JSX.Element] => {
+): [
+  (code: any[], libraries: any[], board: string) => void,
+
+  (code: any[], libraries: any[]) => void,
+  JSX.Element
+] => {
   const t = useTranslate();
   const [showChromeAppModal, setShowChromeAppModal] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -99,7 +110,7 @@ export const useCodeUpload = (
   const uploaderRef = useRef<Uploader | null>(null);
 
   useEffect(() => {
-    uploaderRef.current = new Uploader(board, filesRoot, chromeAppID);
+    uploaderRef.current = new Uploader(filesRoot, chromeAppID);
 
     return () => {
       if (uploaderRef.current) {
@@ -108,7 +119,7 @@ export const useCodeUpload = (
     };
   }, []);
 
-  const upload = async (code: any[], libraries: any[]) => {
+  const upload = async (code: any[], libraries: any[], board: string) => {
     if (!uploaderRef.current) {
       return;
     }
@@ -124,7 +135,7 @@ export const useCodeUpload = (
     setUploadText(t("code.uploading-to-board"));
 
     try {
-      const hex = await uploaderRef.current.upload(code, libraries);
+      const hex = await uploaderRef.current.upload(code, libraries, board);
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.uploading-success"));
@@ -136,6 +147,29 @@ export const useCodeUpload = (
         setNoBoard(true);
         setUploadText(t("code.board-not-found"));
       } else if (e.type === "compile-error") {
+        setUploadText(t("code.uploading-error"));
+      }
+
+      throw e;
+    }
+  };
+
+  const compile = async (code: any[], libraries: any[]) => {
+    setUploading(true);
+    setNoBoard(false);
+    setUploadSuccess(false);
+    setUploadText(t("code.compiling"));
+
+    try {
+      const hex = await uploaderRef.current!.compile(code, libraries);
+      setUploading(false);
+      setUploadSuccess(true);
+      setUploadText(t("code.compile-success"));
+    } catch (e) {
+      setUploading(false);
+      setUploadSuccess(false);
+
+      if (e.type === "compile-error") {
         setUploadText(t("code.uploading-error"));
       }
 
@@ -168,7 +202,7 @@ export const useCodeUpload = (
     </>
   );
 
-  return [upload, content];
+  return [upload, compile, content];
 };
 
 export default useCodeUpload;
