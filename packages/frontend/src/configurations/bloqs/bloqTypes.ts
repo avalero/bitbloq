@@ -168,6 +168,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
   {
     category: BloqCategory.Event,
     name: "OnMessage",
+    extends: "EventsParent",
     label: "bloq-on-message",
     iconSwitch: {
       "value === 'messageA'": onAIcon,
@@ -192,14 +193,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "___messageE = false;"
       ]
     },
-    actions: [
-      {
-        name: "onMessage",
-        parameters: {
-          variable: "___{{value}}"
-        }
-      }
-    ],
+    conditionCode: "___{{value}}",
     configurationComponent: "ReceiveMessageConfiguration",
     parameters: [
       {
@@ -880,14 +874,6 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
     genCode: {
       definitions: ["___{{value}} = true;"]
     },
-    actions: [
-      {
-        name: "send",
-        parameters: {
-          code: "___{{value}} = true;"
-        }
-      }
-    ],
     configurationComponent: "SendMessageConfiguration",
     parameters: [
       {
@@ -1291,14 +1277,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         "___messageE = false;"
       ]
     },
-    actions: [
-      {
-        name: "onMessage",
-        parameters: {
-          variable: "___{{value}}"
-        }
-      }
-    ],
+    conditionCode: "___{{value}}",
     configurationComponent: "ReceiveMessageConfiguration",
     parameters: [
       {

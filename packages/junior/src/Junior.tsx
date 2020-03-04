@@ -44,8 +44,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
 }) => {
   const t = useTranslate();
 
-  const [upload, uploadContent] = useCodeUpload(
-    "zumjunior",
+  const [upload, _, uploadContent] = useCodeUpload(
     borndateFilesRoot,
     chromeAppID
   );
@@ -141,7 +140,11 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
       programBloqs
     );
 
-    // upload([{ name: "main.ino", content: code }], arduinoLibraries);
+    upload(
+      [{ name: "main.ino", content: code }],
+      arduinoLibraries,
+      "zumjunior"
+    );
   };
 
   return children(
