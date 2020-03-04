@@ -82,7 +82,6 @@ export interface IBloqType {
   genCode?: IArduinoCode;
   conditionCode?: string;
   extends?: string;
-  actions: IBloqAction[];
 }
 
 export interface IBloq {
@@ -219,11 +218,9 @@ export interface IComponent {
   instanceName: string;
   extends: string;
   code: IArduinoCode;
-  actions: IComponentAction[];
   connectors: IConnector[];
   image: IComponentImage;
   snapshotImage?: IComponentImage;
-  values: { [name: string]: string };
 }
 
 export interface IComponentInstance {

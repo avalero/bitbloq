@@ -41,15 +41,7 @@ export const components: Array<Partial<IComponent>> = [
         pinMode({{pin.pinVarName}},INPUT);
         {% endfor %}`
       ]
-    },
-    actions: [
-      {
-        name: "read",
-        parameters: ["pinVarName"],
-        code: "digitalRead({{pinVarName}})",
-        return: "uint8_t"
-      }
-    ]
+    }
   },
   {
     name: "DigitalOutput",
@@ -60,14 +52,7 @@ export const components: Array<Partial<IComponent>> = [
         pinMode({{pin.pinVarName}},OUTPUT);
         {% endfor %}`
       ]
-    },
-    actions: [
-      {
-        name: "write",
-        parameters: ["pinVarName", "value"],
-        code: `digitalWrite({{pinVarName}}, {{value}});`
-      }
-    ]
+    }
   },
   {
     name: "Button",
@@ -80,22 +65,6 @@ export const components: Array<Partial<IComponent>> = [
   {
     name: "Buzzer",
     extends: "Component",
-    values: {
-      A: "880",
-      B: "988",
-      C: "1047",
-      D: "1175",
-      E: "2319",
-      F: "1397",
-      G: "1568"
-    },
-    actions: [
-      {
-        name: "write",
-        parameters: ["pinVarName", "value", "duration"],
-        code: `tone({{pinVarName}}Pin,{{value}},{{duration}}*1000);`
-      }
-    ],
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -129,19 +98,6 @@ export const components: Array<Partial<IComponent>> = [
   {
     name: "Servo",
     extends: "Component",
-    actions: [
-      {
-        name: "write",
-        parameters: ["pinVarName", "value"],
-        code: `{{pinVarName}}PinObj.write({{value}});`
-      },
-      {
-        name: "read",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}PinObj.read()`,
-        return: "uint8_t"
-      }
-    ],
     code: {
       includes: ["<Servo.h>"],
       globals: [
@@ -159,19 +115,6 @@ export const components: Array<Partial<IComponent>> = [
   {
     name: "ContRotServo",
     extends: "Component",
-    actions: [
-      {
-        name: "write",
-        parameters: ["pinVarName", "value"],
-        code: `{{pinVarName}}PinObj.write({{value}});`
-      },
-      {
-        name: "read",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}PinObj.read()`,
-        return: "uint8_t"
-      }
-    ],
     code: {
       includes: ["<Servo.h>"],
       globals: [
@@ -192,15 +135,6 @@ export const components: Array<Partial<IComponent>> = [
     label: "hardware.component.cont-rot-servo",
     extends: "ContRotServo",
     instanceName: "bloq-controt-servo-instance-name",
-    values: {
-      clockwiseslow: "110",
-      clockwisemedium: "120",
-      clockwisefast: "180",
-      counterclockwiseslow: "70",
-      counterclockwisemedium: "60",
-      counterclockwisefast: "0",
-      stopslow: "90"
-    },
     connectors: [
       {
         name: "main",
@@ -232,13 +166,6 @@ export const components: Array<Partial<IComponent>> = [
   {
     name: "DigitalRGBLED",
     extends: "Component",
-    values: {
-      white: "{0,0,0}",
-      red: "{0,255,255}",
-      green: "{255,0,255}",
-      blue: "{255,255,0}",
-      off: "{255,255,255}"
-    },
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -247,17 +174,6 @@ export const components: Array<Partial<IComponent>> = [
         {% endfor %}`
       ]
     },
-    actions: [
-      {
-        name: "write",
-        parameters: ["pinVarName", "value"],
-        code: `
-                analogWrite({{pinVarName}}PinRed,(int[3]){{value}}[0]);
-                analogWrite({{pinVarName}}PinGreen,(int[3]){{value}}[1]);
-                analogWrite({{pinVarName}}PinBlue,(int[3]){{value}}[2]);
-                `
-      }
-    ],
     instanceName: "bloq-digitalrgbled-instance-name",
     connectors: [
       {
@@ -313,10 +229,6 @@ export const components: Array<Partial<IComponent>> = [
     name: "ZumjuniorButton",
     label: "hardware.component.button",
     extends: "Button",
-    values: {
-      pressed: "{{read}} == HIGH",
-      released: "{{read}} == LOW"
-    },
     instanceName: "bloq-button-instance-name",
     connectors: [
       {
@@ -351,10 +263,6 @@ export const components: Array<Partial<IComponent>> = [
     label: "hardware.component.double-led",
     extends: "Led",
     instanceName: "bloq-led-instance-name",
-    values: {
-      on: "LOW",
-      off: "HIGH"
-    },
     code: {
       setup: [
         `{% for pin in pinsInfo %}
@@ -400,10 +308,6 @@ export const components: Array<Partial<IComponent>> = [
     label: "hardware.component.double-switch",
     extends: "DigitalInput",
     instanceName: "bloq-switch-instance-name",
-    values: {
-      pos1: "{{read}} == LOW",
-      pos2: "{{read}} == HIGH"
-    },
     connectors: [
       {
         name: "main",
@@ -486,41 +390,7 @@ export const components: Array<Partial<IComponent>> = [
         {{pin.pinVarName}}Obj.displayInt(0);
         {% endfor %}`
       ]
-    },
-    actions: [
-      {
-        name: "writeNumber",
-        parameters: ["pinVarName", "value"],
-        code: `{{pinVarName}}Obj.displayInt({{value}});`
-      },
-      {
-        name: "writeChar",
-        parameters: ["pinVarName", "char1", "char2"],
-        code: `{{pinVarName}}Obj.displayChar('{{char1}}','{{char2}}');`
-      },
-      {
-        name: "readChar",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}Obj.readChar()`,
-        return: "string"
-      },
-      {
-        name: "readNumber",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}Obj.readInt()`,
-        return: "uint8_t"
-      },
-      {
-        name: "incrementNumber",
-        parameters: ["pinVarName", "value"],
-        code: `{{pinVarName}}Obj.displayInt({{pinVarName}}Obj.readInt()+{{value}});`
-      },
-      {
-        name: "decrementNumber",
-        parameters: ["pinVarName", "value"],
-        code: `{{pinVarName}}Obj.displayInt({{pinVarName}}Obj.readInt()-{{value}});`
-      }
-    ]
+    }
   },
   {
     name: "ZumjuniorMiniservo",
@@ -609,51 +479,6 @@ export const components: Array<Partial<IComponent>> = [
         {{pin.pinVarName}}Temp.setup();
         {% endfor %}`
       ]
-    },
-    actions: [
-      {
-        name: "readDistance",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}ALPS.getDistance()`,
-        return: "uint8_t"
-      },
-      {
-        name: "readTemperature",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}Temp.getTemp()`,
-        return: "uint8_t"
-      },
-      {
-        name: "readLight",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}ALPS.getAL()`,
-        return: "uint8_t"
-      },
-      {
-        name: "readColor",
-        parameters: ["pinVarName"],
-        code: `{{pinVarName}}Color.whichColor()`,
-        return: "uint8_t"
-      }
-    ],
-    values: {
-      hot: " {{read}} >= 25",
-      cold: "{{read}} < 25",
-      light: "{{read}} >= 40",
-      dark: "{{read}} < 40",
-      sunset: "{{read}} >=40 && {{read}} < 60",
-      obstacle: "{{read}} <20",
-      no_obstacle: "{{read}} >=20",
-      truered: "{{read}}==0",
-      truegreen: "{{read}}==1",
-      trueblue: "{{read}}==2",
-      truewhite: "{{read}}==3",
-      trueblack: "{{read}}==4",
-      falsered: "{{read}}!=0",
-      falsegreen: "{{read}}!=1",
-      falseblue: "{{read}}!=2",
-      falsewhite: "{{read}}!=3",
-      falseblack: "{{read}}!=4"
     }
   }
 ];

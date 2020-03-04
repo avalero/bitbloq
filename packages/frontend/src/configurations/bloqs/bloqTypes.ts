@@ -788,17 +788,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
         ]
       }
     ],
-    code: {},
-    actions: [
-      {
-        name: "write",
-        parameters: {
-          pinVarName: "{{component}}",
-          value: "{{value}}",
-          duration: "{{duration}}"
-        }
-      }
-    ]
+    code: {}
   },
   {
     category: BloqCategory.Action,
@@ -927,15 +917,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       ],
       globals: [`void {{functionName}}();`]
     },
-    code: {},
-    actions: [
-      {
-        name: "wait",
-        parameters: {
-          code: "heap.insert({{functionName}},{{value}}*1000);"
-        }
-      }
-    ]
+    code: {}
   },
   {
     category: BloqCategory.Wait,
