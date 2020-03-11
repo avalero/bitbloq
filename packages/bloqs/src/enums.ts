@@ -12,7 +12,9 @@
 export enum BloqCategory {
   Event = "event",
   Wait = "wait",
-  Action = "action"
+  Action = "action",
+  Loop = "loop",
+  EndLoop = "end-loop"
 }
 
 export enum BloqParameterType {

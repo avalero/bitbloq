@@ -3,16 +3,13 @@ import { v1 as uuid } from "uuid";
 import update from "immutability-helper";
 import { Icon, JuniorButton, useTranslate } from "@bitbloq/ui";
 import styled from "@emotion/styled";
-import BloqsLine from "./BloqsLine";
+import EditorLine from "./EditorLine";
 import BloqConfigPanel from "./BloqConfigPanel";
-// import AddBloqPanel from "./AddBloqPanel";
 
-// import { BloqCategory } from "../enums";
 import {
   IBloq,
   IBloqLine,
   IBloqType,
-  // IBloqTypeGroup,
   IBoard,
   IComponent,
   IComponentInstance,
@@ -225,7 +222,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
       <Lines onClick={deselectEverything}>
         <LinesWrap selectedLine={selectedLineIndex}>
           {[...lines, { id: uuid(), bloqs: [] }].map((line, i) => (
-            <BloqsLine
+            <EditorLine
               key={line.id}
               line={line}
               bloqTypes={bloqTypes}

@@ -15,14 +15,9 @@ interface IBloqsLineProps {
   onBloqClick: (index: number, e: React.MouseEvent) => void;
   onPlaceholderClick: (index: number, e: React.MouseEvent) => void;
   getBloqPort: (bloq: IBloq) => string | undefined;
-  isFirst: boolean;
-  isLast: boolean;
-  onMoveUp: (line: IBloqLine) => void;
-  onMoveDown: (line: IBloqLine) => void;
-  onDuplicate: (line: IBloqLine) => void;
-  onToggle: (line: IBloqLine) => void;
-  onDelete: (line: IBloqLine) => void;
   onScrollChange: (scrollLeft: number) => void;
+  editInPlace?: boolean;
+  onDeleteBloq?: (index: number) => void;
 }
 
 const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
@@ -33,61 +28,54 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   onBloqClick,
   onPlaceholderClick,
   getBloqPort,
-  isFirst,
-  isLast,
-  onMoveUp,
-  onMoveDown,
-  onDuplicate,
-  onToggle,
-  onDelete,
-  onScrollChange
+  onScrollChange,
+  editInPlace,
+  onDeleteBloq
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
-  const [showOptions, setShowOptions] = useState(false);
+  const [scrollLeft, setScrollLeft] = useState(0);
   const bloqsRef = useRef<HTMLDivElement>(null);
-  const optionsRef = useRef<HTMLDivElement>(null);
-  const showOptionsRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { bloqs } = line;
 
-  const onScroll = () => {
-    if (!bloqsRef.current) {
+  const checkScroll = () => {
+    if (!bloqsRef.current || !containerRef.current) {
       return;
     }
 
-    const { scrollLeft, scrollWidth, clientWidth } = bloqsRef.current;
-    setShowScrollLeft(scrollLeft > 0);
-    setShowScrollRight(scrollLeft + clientWidth < scrollWidth);
-    onScrollChange(scrollLeft);
-  };
+    const bloqsWidth = bloqsRef.current.clientWidth;
+    const containerWidth = containerRef.current.clientWidth;
 
-  const onDocumentClick = (event: MouseEvent) => {
-    if (
-      optionsRef.current &&
-      !optionsRef.current.contains(event.target as Node) &&
-      showOptionsRef.current &&
-      !showOptionsRef.current.contains(event.target as Node)
-    ) {
-      setShowOptions(false);
+    setShowScrollLeft(scrollLeft > 0);
+    setShowScrollRight(bloqsWidth - scrollLeft > containerWidth);
+
+    const selectedElement = bloqsRef.current.querySelector("[data-selected]");
+    if (selectedElement) {
+      const { offsetLeft, clientWidth } = selectedElement as HTMLElement;
+
+      if (offsetLeft + clientWidth - scrollLeft > containerWidth) {
+        const newScrollLeft = offsetLeft + clientWidth - containerWidth + 80;
+        setScrollLeft(newScrollLeft);
+      } else if (offsetLeft - scrollLeft < 0) {
+        const newScrollLeft = offsetLeft - 80;
+        setScrollLeft(newScrollLeft);
+      }
     }
   };
 
   useEffect(() => {
-    if (bloqsRef.current) {
-      bloqsRef.current.addEventListener("scroll", onScroll);
-    }
-    window.addEventListener("resize", onScroll);
-    document.addEventListener("mousedown", onDocumentClick);
-    onScroll();
+    window.addEventListener("resize", checkScroll);
     return () => {
-      if (bloqsRef.current) {
-        bloqsRef.current.removeEventListener("scroll", onScroll);
-      }
-      window.removeEventListener("resize", onScroll);
-      document.removeEventListener("mousedown", onDocumentClick);
+      window.removeEventListener("resize", checkScroll);
     };
   }, []);
+
+  useEffect(() => {
+    checkScroll();
+    onScrollChange(scrollLeft);
+  }, [bloqs, scrollLeft]);
 
   const startsWithEvent = () => {
     if (!bloqs[0]) {
@@ -102,131 +90,146 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
     if (!bloqsRef.current) {
       return;
     }
-
-    let newScrollLeft = 0;
-    let i = 0;
-    const { scrollLeft, clientWidth } = bloqsRef.current;
-    while (i < bloqs.length && newScrollLeft + 98 < scrollLeft) {
-      newScrollLeft += 88;
-      i++;
-    }
-    bloqsRef.current.scrollLeft = newScrollLeft;
-    onScrollChange(scrollLeft);
+    const newScrollLeft = Math.max(scrollLeft - 100, 0);
+    setScrollLeft(newScrollLeft);
   };
 
   const onScrollRight = () => {
-    if (!bloqsRef.current) {
+    if (!bloqsRef.current || !containerRef.current) {
       return;
     }
-
-    let newScrollLeft = 0;
-    let i = 0;
-    const { scrollLeft, clientWidth } = bloqsRef.current;
-    while (i < bloqs.length && newScrollLeft + 88 < scrollLeft + clientWidth) {
-      newScrollLeft += 88;
-      i++;
-    }
-    newScrollLeft += 98;
-    bloqsRef.current.scrollLeft = newScrollLeft - clientWidth;
-    onScrollChange(scrollLeft);
+    const containerWidth = containerRef.current.clientWidth;
+    const bloqsWidth = bloqsRef.current.clientWidth;
+    const newScrollLeft = Math.min(
+      scrollLeft + 100,
+      bloqsWidth - containerWidth
+    );
+    setScrollLeft(newScrollLeft);
   };
 
-  return (
-    <Wrap>
-      {!startsWithEvent() && bloqs.length > 0 ? (
-        <MissingEventIcon>
-          <Icon name="programming-question" />
-        </MissingEventIcon>
-      ) : line.disabled ? (
-        <DisabledIcon>
-          <Icon name="eye-close" />
-        </DisabledIcon>
-      ) : (
-        <LineBullet />
-      )}
+  const groups = bloqs.reduce(
+    (acc, bloq) => {
+      if (bloq.type === "loop") {
+        return [...acc, [bloq]];
+      } else if (bloq.type === "end-loop") {
+        const lastGroup = acc.pop() as [];
+        return [...acc, [...lastGroup, bloq], []];
+      } else {
+        const lastGroup = acc.pop() as [];
+        return [...acc, [...lastGroup, bloq]];
+      }
+    },
+    [[]]
+  );
 
-      <Container>
-        <Bloqs ref={bloqsRef}>
-          {!startsWithEvent() && selectedPlaceholder !== 0 && (
-            <BloqPlaceholder
-              onClick={(e: React.MouseEvent) => onPlaceholderClick(0, e)}
-              category={BloqCategory.Event}
-            />
-          )}
-          {bloqs.map((bloq, i) => (
-            <React.Fragment key={i}>
-              {selectedBloq !== i && (
-                <StyledBloq
-                  type={bloqTypes.find(t => t.name === bloq.type)}
-                  onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
-                  bloq={bloq}
-                  port={getBloqPort(bloq)}
-                  disabled={line.disabled}
-                />
-              )}
-              {selectedBloq === i && <EmptyBloq />}
-              {selectedPlaceholder === i + 1 && <EmptyPlaceholder />}
-              {(selectedBloq === i || i === bloqs.length - 1) && (
-                <BloqPlaceholder
-                  onClick={(e: React.MouseEvent) =>
-                    onPlaceholderClick(i + 1, e)
-                  }
-                  category={BloqCategory.Action}
-                  half={i < bloqs.length - 1}
-                />
-              )}
-            </React.Fragment>
-          ))}
-        </Bloqs>
-        {showScrollLeft && (
-          <ScrollLeftButton>
-            <JuniorButton secondary onClick={onScrollLeft}>
-              <Icon name="angle" />
-            </JuniorButton>
-          </ScrollLeftButton>
+  return (
+    <Container ref={containerRef}>
+      <Bloqs ref={bloqsRef} left={scrollLeft}>
+        {!startsWithEvent() && selectedPlaceholder !== 0 && (
+          <BloqPlaceholder
+            onClick={(e: React.MouseEvent) => onPlaceholderClick(0, e)}
+            category={BloqCategory.Event}
+          />
         )}
-        {showScrollRight && (
-          <ScrollRightButton>
-            <JuniorButton secondary onClick={onScrollRight}>
-              <Icon name="angle" />
-            </JuniorButton>
-          </ScrollRightButton>
-        )}
-        {showOptions && (
-          <Options ref={optionsRef}>
-            {!isFirst && (
-              <OptionsButton secondary onClick={() => onMoveUp(line)}>
-                <UpIcon name="arrow-left" />
-              </OptionsButton>
-            )}
-            {!isLast && (
-              <OptionsButton secondary onClick={() => onMoveDown(line)}>
-                <DownIcon name="arrow-left" />
-              </OptionsButton>
-            )}
-            <OptionsButton secondary onClick={() => onDuplicate(line)}>
-              <Icon name="programming-duplicate" />
-            </OptionsButton>
-            <OptionsButton secondary onClick={() => onToggle(line)}>
-              <Icon name={line.disabled ? "eye" : "eye-close"} />
-            </OptionsButton>
-            <OptionsButton red onClick={() => onDelete(line)}>
-              <Icon name="trash" />
-            </OptionsButton>
-          </Options>
-        )}
-      </Container>
-      {bloqs.length > 0 && (
-        <ShowOptionsButton
-          ref={showOptionsRef}
-          secondary
-          onClick={() => setShowOptions(!showOptions)}
-          active={showOptions}
-        >
-          <Icon name="ellipsis" />
-        </ShowOptionsButton>
+
+        {groups.map((group, j) => {
+          const isLoop = group[0] && group[0].type === "loop";
+          const groupLastBloq = group[group.length - 1];
+          const endLoopSelected =
+            groupLastBloq &&
+            groupLastBloq.type === "end-loop" &&
+            bloqs.indexOf(groupLastBloq) === selectedBloq;
+
+          return (
+            <Group key={`bloq-group-${j}`}>
+              {isLoop && <LoopBackground />}
+              {group.map(bloq => {
+                const i = bloqs.indexOf(bloq);
+                return (
+                  <React.Fragment key={i}>
+                    {selectedBloq !== i && (
+                      <StyledBloq
+                        type={bloqTypes.find(t => t.name === bloq.type)}
+                        onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
+                        bloq={bloq}
+                        port={getBloqPort(bloq)}
+                        disabled={line.disabled}
+                      />
+                    )}
+                    {editInPlace && selectedBloq === i && (
+                      <SelectedWrap
+                        isLoop={bloq.type === "loop"}
+                        isFirst={i === 0}
+                        canDelete={true}
+                        data-selected={true}
+                      >
+                        {bloq.type === "loop" && (
+                          <LoopButtonsWrap>
+                            <LoopButton secondary>
+                              <Icon name="plus" />
+                            </LoopButton>
+                            <LoopButton secondary>
+                              <Icon name="minus" />
+                            </LoopButton>
+                          </LoopButtonsWrap>
+                        )}
+                        <StyledBloq
+                          type={bloqTypes.find(t => t.name === bloq.type)}
+                          bloq={bloq}
+                          port={getBloqPort(bloq)}
+                          disabled={line.disabled}
+                        />
+                        <DeleteWrap>
+                          <DeleteButton
+                            red
+                            onClick={() => onDeleteBloq && onDeleteBloq(i)}
+                          >
+                            <Icon name="trash" />
+                          </DeleteButton>
+                        </DeleteWrap>
+                      </SelectedWrap>
+                    )}
+                    {!editInPlace && selectedBloq === i && (
+                      <EmptyBloq data-selected={true} />
+                    )}
+                    {selectedPlaceholder === i + 1 && (
+                      <EmptyPlaceholder data-selected={true} />
+                    )}
+                    {!endLoopSelected && selectedBloq === i && (
+                      <BloqPlaceholder
+                        isLoop={isLoop}
+                        onClick={(e: React.MouseEvent) =>
+                          onPlaceholderClick(i + 1, e)
+                        }
+                        category={BloqCategory.Action}
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </Group>
+          );
+        })}
+        <BloqPlaceholder
+          onClick={(e: React.MouseEvent) => onPlaceholderClick(bloqs.length, e)}
+          category={BloqCategory.Action}
+        />
+      </Bloqs>
+      {showScrollLeft && (
+        <ScrollLeftButton>
+          <JuniorButton secondary onClick={onScrollLeft}>
+            <Icon name="angle" />
+          </JuniorButton>
+        </ScrollLeftButton>
       )}
-    </Wrap>
+      {showScrollRight && (
+        <ScrollRightButton>
+          <JuniorButton secondary onClick={onScrollRight}>
+            <Icon name="angle" />
+          </JuniorButton>
+        </ScrollRightButton>
+      )}
+    </Container>
   );
 };
 
@@ -234,58 +237,45 @@ export default BloqsLine;
 
 /* styled components */
 
-const Wrap = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const LineBullet = styled.div`
-  min-width: 32px;
-  height: 32px;
-  border-radius: 16px;
-  background-color: #3b3e45;
-  margin-right: 10px;
-`;
-
-const DisabledIcon = styled.div`
-  min-width: 32px;
-  height: 32px;
-  margin-right: 10px;
-  svg {
-    width: 32px;
-    height: 32px;
-  }
-`;
-
-const MissingEventIcon = styled.div`
-  min-width: 32px;
-  height: 32px;
-  margin-right: 10px;
-  color: ${colors.red};
-  svg {
-    width: 32px;
-    height: 32px;
-  }
-`;
-
 const Container = styled.div`
-  position: relative;
   display: flex;
   flex: 1;
+  position: relative;
+  height: 103px;
+  background-color: #f1f1f1;
   overflow: hidden;
 `;
 
-const Bloqs = styled.div`
+const Bloqs = styled.div<{ left: number }>`
+  position: absolute;
+  transform: translate(-${props => props.left}px, 0);
+  top: 0px;
+  left: 0px;
   display: flex;
   flex: 1;
   align-items: center;
   padding-right: 80px;
-  background-color: #f1f1f1;
   padding: 10px;
   height: 103px;
   box-sizing: border-box;
-  overflow-x: auto;
+  overflow: hidden;
+`;
+
+const Group = styled.div`
+  height: 103px;
+  display: flex;
+  align-items: center;
+  position: relative;
+`;
+
+const LoopBackground = styled.div`
+  background-color: #4d2e6a;
+  position: absolute;
+  left: 40px;
+  right: 20px;
+  top: 0px;
+  bottom: 0px;
+  border-radius: 10px;
 `;
 
 const StyledBloq = styled(HorizontalBloq)`
@@ -306,47 +296,6 @@ const EmptyBloq = styled.div`
 
 const EmptyPlaceholder = styled(EmptyBloq)`
   width: 106px;
-`;
-
-const Options = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(55, 59, 68, 0.8);
-  z-index: 80;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`;
-
-const OptionsButton = styled(JuniorButton)`
-  padding: 10px;
-  height: 40px;
-  width: 40px;
-  margin: 0px 5px;
-  svg {
-    width: 24px;
-    height: 24px;
-  }
-`;
-
-const UpIcon = styled(Icon)`
-  transform: rotate(90deg);
-`;
-
-const DownIcon = styled(Icon)`
-  transform: rotate(-90deg);
-`;
-
-const ShowOptionsButton = styled(JuniorButton)`
-  margin-left: 10px;
-  height: 100px;
-  padding: 0px 10px;
-  svg {
-    width: 20px;
-  }
 `;
 
 const ScrollButton = styled.div`
@@ -382,5 +331,63 @@ const ScrollRightButton = styled(ScrollButton)`
   right: 0px;
   svg {
     transform: rotate(-90deg);
+  }
+`;
+
+const SelectedWrap = styled.div<{
+  isLoop: boolean;
+  isFirst: boolean;
+  canDelete: boolean;
+}>`
+  position: relative;
+  padding: 10px;
+  margin: 0px ${props => (props.canDelete ? 63 : 10)}px 0px
+    ${props => (props.isFirst ? -10 : props.isLoop ? 57 : 10)}px;
+  background-color: white;
+  border-radius: 6px;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
+`;
+
+const LoopButtonsWrap = styled.div`
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 10px;
+  padding: 10px;
+  transform: translate(-100%, 0);
+  background: white;
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+`;
+
+const LoopButton = styled(JuniorButton)`
+  padding: 6px 10px;
+  width: 40px;
+  height: 34px;
+  margin-bottom: 12px;
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+const DeleteWrap = styled.div`
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  transform: translate(100%, 0);
+  background: white;
+  padding: 10px;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+`;
+
+const DeleteButton = styled(JuniorButton)`
+  padding: 10px;
+  width: 40px;
+  height: 40px;
+  svg {
+    width: 20px;
+    height: 20px;
   }
 `;
