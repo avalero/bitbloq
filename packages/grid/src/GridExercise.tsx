@@ -39,7 +39,8 @@ const getLoopAction = (placeholder: number, actions: IActions) => {
 const GridExercise: FC<IGridExerciseProps> = ({
   className,
   availableBloqs,
-  onChange
+  onChange,
+  children
 }) => {
   const [actions, setActions] = useState<IActions>([]);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
@@ -153,7 +154,13 @@ const GridExercise: FC<IGridExerciseProps> = ({
 
   return (
     <Container className={className}>
-      <BloqsList bloqs={filteredAvailableBloqs} />
+      <Content>
+        {children}
+        <div>
+          <h1>alsdkjalksdjalksdj</h1><p>aslkdjalsd</p>
+          </div>
+        <BloqsList bloqs={filteredAvailableBloqs} />
+      </Content>
       <AddBloqPanel
         isOpen={selectedPlaceholder > 0}
         availableBloqs={filteredAvailableBloqs}
@@ -185,6 +192,16 @@ export default GridExercise;
 const Container = styled.div`
   position: relative;
   flex: 1;
+`;
+
+const Content = styled.div`
+  position: absolute;
+  top: 20px;
+  bottom: 143px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: center;
 `;
 
 const BloqsLineWrap = styled.div`
