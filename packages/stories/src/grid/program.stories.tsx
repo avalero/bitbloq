@@ -1,54 +1,33 @@
 import React from "react";
-import { IBloqType, BloqsLine, BloqCategory, IBloqLine } from "@bitbloq/bloqs";
+import { GridExercise } from "@bitbloq/grid";
 
 export default {
-  component: BloqsLine,
-  title: "grid/Program"
-};
-
-const bloqTypes: IBloqType[] = [
-  {
-    category: BloqCategory.Event,
-    name: "start",
-    icon: "airplane",
-    actions: [],
-    code: {}
-  },
-  {
-    category: BloqCategory.Action,
-    name: "forward",
-    icon: "folder",
-    actions: [],
-    code: {}
-  }
-];
-
-const bloqLine: IBloqLine = {
-  id: "0",
-  bloqs: [
-    {
-      type: "start",
-      parameters: {}
-    }
-  ]
+  component: GridExercise,
+  title: "grid/Exercise"
 };
 
 export const Program = () => (
-  <BloqsLine
-    bloqTypes={bloqTypes}
-    line={bloqLine}
-    onBloqClick={i => console.log(i)}
-    isFirst={true}
-    isLast={true}
-    selectedBloq={-1}
-    selectedPlaceholder={-1}
-    onScrollChange={e => console.log(e)}
-    onPlaceholderClick={e => console.log(e)}
-    onDelete={e => console.log(e)}
-    onDuplicate={e => console.log(e)}
-    onMoveDown={e => console.log(e)}
-    onMoveUp={e => console.log(e)}
-    onToggle={e => console.log(e)}
-    getBloqPort={b => undefined}
-  />
+  <div
+    style={{
+      width: 840,
+      height: 530,
+      border: "1px solid #ccc",
+      display: "flex",
+      position: "relative"
+    }}
+  >
+    <GridExercise
+      availableBloqs={{
+        forward: -1,
+        back: 2,
+        left: 3,
+        right: 1,
+        pick: 10,
+        use: 20,
+        push: 3,
+        loop: 2
+      }}
+      onChange={grid => console.log(grid)}
+    />
+  </div>
 );

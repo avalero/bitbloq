@@ -8,17 +8,17 @@ interface IBloqPlaceholderProps {
   category: BloqCategory;
   onClick?: React.MouseEventHandler;
   selected?: boolean;
-  half?: boolean;
+  isLoop?: boolean;
 }
 
 const BloqPlaceholder: React.FunctionComponent<IBloqPlaceholderProps> = ({
   category,
   onClick,
   selected,
-  half
+  isLoop
 }) => {
   return (
-    <Container onClick={onClick} selected={selected}>
+    <Container onClick={onClick} selected={selected} isLoop={isLoop}>
       {category === BloqCategory.Event ? (
         <svg width={86} height={83}>
           <path
@@ -44,13 +44,21 @@ export default BloqPlaceholder;
 
 /* styled components */
 
-const Container = styled.div<{ selected?: boolean }>`
+const Container = styled.div<{ selected?: boolean; isLoop?: boolean }>`
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${props => (props.selected ? colors.brandOrange : "#bcbcbc")};
+  color: ${props => {
+    if (props.isLoop) {
+      return "#fff";
+    } else if (props.selected) {
+      return colors.brandOrange;
+    } else {
+      return "#bcbcbc";
+    }
+  }};
   width: 86px;
   height: 83px;
 `;

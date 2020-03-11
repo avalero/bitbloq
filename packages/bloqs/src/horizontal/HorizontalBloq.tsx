@@ -29,6 +29,14 @@ const COLORS = {
   [BloqCategory.Wait]: {
     dark: "#AD480B",
     light: "#DD5B0C"
+  },
+  [BloqCategory.Loop]: {
+    dark: "#6b4191",
+    light: "#8955b8"
+  },
+  [BloqCategory.EndLoop]: {
+    dark: "#6b4191",
+    light: "#8955b8"
   }
 };
 
@@ -44,6 +52,14 @@ const SHAPES = {
   [BloqCategory.Wait]: {
     main: "#block-wait-shape",
     shadow: "#block-wait-shadow-shape"
+  },
+  [BloqCategory.Loop]: {
+    main: "#block-action-shape",
+    shadow: "#block-action-shadow-shape"
+  },
+  [BloqCategory.EndLoop]: {
+    main: "#block-small-action-shape",
+    shadow: "#block-small-action-shadow-shape"
   }
 };
 
@@ -90,6 +106,14 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           />
           <path
             id="block-action-shadow-shape"
+            d="M0 33.2V6a3 3 0 013-3h74a3 3 0 013 3v26.252c3.45.888 6 4.02 6 7.748v3c0 3.728-2.55 6.86-6 7.748V80a3 3 0 01-3 3H3a3 3 0 01-3-3V52.8A11 11 0 006 43a11 11 0 00-6-9.8z"
+          />
+          <path
+            id="block-small-action-shape"
+            d="M2 29.043C5.687 31.4 8 35.495 8 40c0 4.505-2.313 8.6-6 10.957V77a1 1 0 001 1h74a1 1 0 001-1V46.198l1.501-.387a6.003 6.003 0 000-11.622L78 33.802V3a1 1 0 00-1-1H3a1 1 0 00-1 1v26.043z"
+          />
+          <path
+            id="block-small-action-shadow-shape"
             d="M0 33.2V6a3 3 0 013-3h74a3 3 0 013 3v26.252c3.45.888 6 4.02 6 7.748v3c0 3.728-2.55 6.86-6 7.748V80a3 3 0 01-3 3H3a3 3 0 01-3-3V52.8A11 11 0 006 43a11 11 0 00-6-9.8z"
           />
           <path
