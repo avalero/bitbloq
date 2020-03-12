@@ -245,7 +245,7 @@ export const defaultLanguage = "es";
 
 export const microsoftAuthEndpoint =
   "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?";
-export const microsoftScopes = "openid profile User.Read Mail.Read";
+export const microsoftScopes = "openid profile User.Read";
 
 export const googleAuthEndpoint =
   "https://accounts.google.com/o/oauth2/v2/auth";

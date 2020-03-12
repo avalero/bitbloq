@@ -11,6 +11,20 @@ import env from "../lib/env";
 const uuid = v1;
 
 const appID: string = String(env.MICROSOFT_APP_ID);
+const appSecret: string = String(env.MICROSOFT_APP_SECRET);
+
+const credentials = {
+  client: {
+    id: appID,
+    secret: appSecret
+  },
+  auth: {
+    tokenHost: "https://login.microsoftonline.com",
+    authorizePath: "common/oauth2/v2.0/authorize",
+    tokenPath: "common/oauth2/v2.0/token"
+  }
+};
+// export const oauth2 = require("simple-oauth2").create(credentials);
 
 const LoginWithMicrosoftButton: FC = () => {
   const router = useRouter();
@@ -24,29 +38,29 @@ const LoginWithMicrosoftButton: FC = () => {
 
     const location = window.location;
     const authParams = {
-      response_type: "id_token token",
+      response_type: "code",
       client_id: appID,
-      redirect_uri: `${location.protocol}//${location.host}/microsoft-redirect`,
+      client_secret: "Iwy-xauzE.HOXeBkJ/-VepPueZR6G453",
+      redirect_url: `${location.protocol}//${location.host}/microsoft-redirect`,
       scope: microsoftScopes,
       state: sessionStorage.getItem("microsoftAuthState"),
       nonce: sessionStorage.getItem("microsoftAuthNonce"),
       response_mode: "fragment"
     };
-
     location.assign(microsoftAuthEndpoint + queryString.stringify(authParams));
   };
 
-  // return (
-  //   <StyledButton quaternary onClick={onClick}>
-  //     <Logo src={logoMicrosoftImage} alt="Microsoft" />
-  //   </StyledButton>
-  // );
-
   return (
-    <DisabledButton quaternary>
+    <StyledButton quaternary onClick={onClick}>
       <Logo src={logoMicrosoftImage} alt="Microsoft" />
-    </DisabledButton>
+    </StyledButton>
   );
+
+  // return (
+  //   <DisabledButton quaternary>
+  //     <Logo src={logoMicrosoftImage} alt="Microsoft" />
+  //   </DisabledButton>
+  // );
 };
 
 export default LoginWithMicrosoftButton;

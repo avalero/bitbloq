@@ -55,6 +55,7 @@
     "mongoose": "^5.7.5",
     "mongoose-timestamp": "^0.6.0",
     "nodemailer": "^5.1.1",
+    "passport": "^0.4.1",
     "path": "^0.12.7",
     "redis": "^2.8.0",
     "simple-oauth2": "^3.0.1",
