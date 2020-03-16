@@ -15,6 +15,7 @@ interface IHorizontalBloqProps {
   disabled?: boolean;
   bloq?: IBloq;
   port?: string;
+  shadow?: boolean;
 }
 
 const COLORS = {
@@ -70,7 +71,8 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   selected,
   disabled,
   bloq,
-  port
+  port,
+  shadow = true
 }) => {
   if (!type) {
     return null;
@@ -140,10 +142,12 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           </pattern>
         </defs>
         <g fill="none">
-          <use
-            xlinkHref={SHAPES[type.category].shadow}
-            fill={showDisabled ? "#bbb" : COLORS[type.category].dark}
-          />
+          {shadow && (
+            <use
+              xlinkHref={SHAPES[type.category].shadow}
+              fill={showDisabled ? "#bbb" : COLORS[type.category].dark}
+            />
+          )}
           {showDisabled && (
             <use
               xlinkHref={SHAPES[type.category].main}

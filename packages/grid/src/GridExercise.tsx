@@ -1,15 +1,10 @@
 import React, { FC, useState } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
+import { IBloq, IBloqType, IBloqLine, BloqsLine } from "@bitbloq/bloqs";
 import AddBloqPanel from "./AddBloqPanel";
-import {
-  IBloq,
-  IBloqType,
-  IBloqLine,
-  BloqCategory,
-  BloqsLine
-} from "@bitbloq/bloqs";
-import { ActionType, IActions, IAction, ILoop } from "./index";
+import BloqsList from "./BloqsList";
+import { ActionType, IActions, ILoop } from "./index";
 import { bloqTypes } from "./config";
 
 export interface IGridExerciseProps {
@@ -47,7 +42,6 @@ const GridExercise: FC<IGridExerciseProps> = ({
   onChange
 }) => {
   const [actions, setActions] = useState<IActions>([]);
-  const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
   const [selectedBloq, setSelectedBloq] = useState(-1);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -162,6 +156,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
 
   return (
     <Container className={className}>
+      <BloqsList bloqs={filteredAvailableBloqs} />
       <AddBloqPanel
         isOpen={selectedPlaceholder > 0}
         availableBloqs={filteredAvailableBloqs}
