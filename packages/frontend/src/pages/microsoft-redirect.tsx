@@ -8,6 +8,8 @@ import withApollo from "../apollo/withApollo";
 import Loading from "../components/Loading";
 import { signupSteps, microsoftScopes } from "../config";
 import { setToken } from "../lib/session";
+import post from "axios";
+import { stringify } from "query-string";
 
 const MicrosoftRedirectPage: NextPage = () => {
   const client = useApolloClient();
@@ -18,6 +20,8 @@ const MicrosoftRedirectPage: NextPage = () => {
     token: string
   ): Promise<ExecutionResult<{ loginWithMicrosoft: ISocialLogin }>> =>
     loginWithMicrosoft({ variables: { token } }).catch(e => {
+      // router.push("/app");
+      console.log("ERROR AQUI");
       throw e;
     });
 
@@ -38,23 +42,21 @@ const MicrosoftRedirectPage: NextPage = () => {
   useEffect(() => {
     try {
       console.log(window.location);
-      const code = window.location.hash
-        .split("#code=")[1]
+      const url: string =
+        window.location && window.location.href && window.location.href;
+      const code = url
+        .split("?code=")[1]
         .toString()
         .split("&")[0]
         .toString();
+      console.log(code);
       // const token = window.location.hash.split("&id_token=")[1].toString();
       // const token1 = token.split("&state=")[0].toString();
       (async () => {
         const location = window.location;
-        const redirect: string = `${location.protocol}//${location.host}/microsoft-redirect`;
+        const redirect: string = `${location.protocol}//${location.host}/microsoft-redirect/`;
         console.log(redirect);
-        // const result = await oauth2.authorizationCode.getToken({
-        //   code,
-        //   redirect_uri: redirect,
-        //   scope: microsoftScopes
-        // });
-        // console.log({result});
+
         const { data } = await callLogin(code);
         console.log({ data });
         data!.loginWithMicrosoft.finishedSignUp

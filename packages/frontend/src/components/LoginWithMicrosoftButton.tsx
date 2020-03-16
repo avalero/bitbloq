@@ -12,19 +12,15 @@ const uuid = v1;
 
 const appID: string = String(env.MICROSOFT_APP_ID);
 const appSecret: string = String(env.MICROSOFT_APP_SECRET);
+const token: string = String(env.MICROSOFT_TOKEN_ENDPOINT);
+const scopes: string = String(env.MS_GRAPH_SCOPE);
 
-const credentials = {
-  client: {
-    id: appID,
-    secret: appSecret
-  },
-  auth: {
-    tokenHost: "https://login.microsoftonline.com",
-    authorizePath: "common/oauth2/v2.0/authorize",
-    tokenPath: "common/oauth2/v2.0/token"
-  }
+const postData = {
+  client_id: appID,
+  scope: scopes,
+  client_secret: appSecret,
+  grant_type: "client_credentials"
 };
-// export const oauth2 = require("simple-oauth2").create(credentials);
 
 const LoginWithMicrosoftButton: FC = () => {
   const router = useRouter();
@@ -32,22 +28,28 @@ const LoginWithMicrosoftButton: FC = () => {
   const onClick = (e: React.MouseEvent) => {
     e.preventDefault();
 
-    sessionStorage.setItem("microsoftAuthState", uuid());
-    sessionStorage.setItem("microsoftAuthNonce", uuid());
-    sessionStorage.setItem("microsoftPrevPathname", router.pathname);
+    // sessionStorage.setItem("microsoftAuthState", uuid());
+    // sessionStorage.setItem("microsoftAuthNonce", uuid());
+    // sessionStorage.setItem("microsoftPrevPathname", router.pathname);
 
     const location = window.location;
     const authParams = {
       response_type: "code",
       client_id: appID,
-      client_secret: "Iwy-xauzE.HOXeBkJ/-VepPueZR6G453",
+      client_secret: appSecret,
       redirect_url: `${location.protocol}//${location.host}/microsoft-redirect`,
       scope: microsoftScopes,
-      state: sessionStorage.getItem("microsoftAuthState"),
-      nonce: sessionStorage.getItem("microsoftAuthNonce"),
-      response_mode: "fragment"
+      state: 12345,
+      response_mode: "query"
     };
-    location.assign(microsoftAuthEndpoint + queryString.stringify(authParams));
+    // location.assign(microsoftAuthEndpoint + queryString.stringify(authParams));
+    location.assign(`https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
+      client_id=${appID}
+      &response_type=code
+      &redirect_uri=http%3A%2F%2Flocalhost%3A8000%2Fmicrosoft-redirect
+      &response_mode=query
+      &scope=User.Read
+      &state=12345`);
   };
 
   return (
