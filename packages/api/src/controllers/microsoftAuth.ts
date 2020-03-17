@@ -1,8 +1,5 @@
-import { request } from "https";
-import { ApolloError } from "apollo-server";
 import axios from "axios";
 import { stringify } from "querystring";
-import FormData from "form-data";
 export interface IMSData {
   error?: JSON;
   displayName: string;
@@ -19,21 +16,11 @@ export interface IMSData {
 }
 
 export const getMicrosoftUser = async (token): Promise<IMSData> => {
-  const meQuery = {
-    host: "https://graph.microsoft.com",
-    path: `/v1.0/me`, // "/v1.0/me",
-    method: "GET",
-    headers: {
-      // "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Bearer ${token}`
-    }
-  };
-
   const queryData = {
     client_id: process.env.MICROSOFT_APP_ID,
     scope: "User.Read",
     code: token,
-    redirect_uri: "http://localhost:8000/microsoft-redirect",
+    redirect_uri: `${process.env.FRONTEND_URL}/microsoft-redirect`,
     grant_type: "authorization_code",
     client_secret: process.env.MICROSOFT_APP_SECRET,
     state: 12345
@@ -45,13 +32,11 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
       "https://login.microsoftonline.com/common/oauth2/v2.0/token",
       stringify(queryData)
     );
-    // console.log("data", result.data)
     accessToken = result.data.access_token;
   } catch (e) {
-    console.log("token", e);
+    console.log("token 1", e);
   }
 
-  // Set up the request
   return new Promise((resolve, reject) => {
     console.log({ accessToken });
     if (accessToken) {
@@ -64,6 +49,7 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
             resolve(response.data);
           });
       } catch (e) {
+        console.log("token 2", e);
         reject(e);
       }
     }
