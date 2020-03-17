@@ -172,9 +172,6 @@ const GridExercise: FC<IGridExerciseProps> = ({
     <Container className={className}>
       <Content>
         {children}
-        <div>
-          <h1>alsdkjalksdjalksdj</h1><p>aslkdjalsd</p>
-          </div>
         <BloqsList bloqs={filteredAvailableBloqs} />
       </Content>
       <AddBloqPanel
