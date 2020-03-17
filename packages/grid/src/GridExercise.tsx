@@ -145,14 +145,11 @@ const GridExercise: FC<IGridExerciseProps> = ({
         getLoopAction(selectedPlaceholder - 1, actions)[0] < 0 ||
         type !== "loop"
     )
-    .reduce(
-      (filtered, type) => ({
-        ...filtered,
-        [type]:
-          availableBloqs[type] - actions.filter(a => a.type === type).length
-      }),
-      {}
-    );
+    .reduce((filtered, type) => {
+      const number =
+        availableBloqs[type] - actions.filter(a => a.type === type).length;
+      return number ? { ...filtered, [type]: number } : filtered;
+    }, {});
 
   return (
     <Container className={className}>

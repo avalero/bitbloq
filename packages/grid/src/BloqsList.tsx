@@ -10,10 +10,6 @@ interface IAddBloqPanelProps {
 const BloqsList: FC<IAddBloqPanelProps> = ({ bloqs }) => (
   <Container>
     {Object.keys(bloqs).map(typeName => {
-      if (!bloqs[typeName]) {
-        return;
-      }
-
       const type = bloqTypes.find(t => t.name === typeName)!;
       return (
         <Content>
