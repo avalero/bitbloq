@@ -18,7 +18,8 @@ export const bloqTypes: IBloqType[] = [
     category: BloqCategory.Event,
     name: "start",
     icon: playIcon,
-    code: {}
+    code: {},
+    fixed: true
   },
   {
     category: BloqCategory.Action,

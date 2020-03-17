@@ -16,6 +16,7 @@ interface IHorizontalBloqProps {
   bloq?: IBloq;
   port?: string;
   shadow?: boolean;
+  active?: boolean;
 }
 
 const COLORS = {
@@ -72,7 +73,8 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   disabled,
   bloq,
   port,
-  shadow = true
+  shadow = true,
+  active
 }) => {
   if (!type) {
     return null;
@@ -140,8 +142,37 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
               strokeWidth={2}
             />
           </pattern>
+          <filter id="horizontal-bloq-active-outline">
+            <feMorphology
+              in="SourceAlpha"
+              result="DILATED"
+              operator="dilate"
+              radius="3"
+            ></feMorphology>
+
+            <feFlood
+              floodColor="#ff7354"
+              floodOpacity="1"
+              result="ORANGE"
+            ></feFlood>
+            <feComposite
+              in="ORANGE"
+              in2="DILATED"
+              operator="in"
+              result="OUTLINE"
+            ></feComposite>
+
+            <feMerge>
+              <feMergeNode in="OUTLINE" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
-        <g fill="none">
+        <g
+          fill="none"
+          filter={active ? "url(#horizontal-bloq-active-outline)" : ""}
+          transform="translate(4,4)"
+        >
           {shadow && (
             <use
               xlinkHref={SHAPES[type.category].shadow}
@@ -265,8 +296,8 @@ const PortIndicator = styled.div<IPortIndicatorProps>`
 
 const SVG = styled.svg`
   position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 86px;
-  height: 88px;
+  top: -4px;
+  left: -4px;
+  width: 94px;
+  height: 96px;
 `;

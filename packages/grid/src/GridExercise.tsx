@@ -8,6 +8,7 @@ import { ActionType, IActions, ILoop } from "./index";
 import { bloqTypes } from "./config";
 
 export interface IGridExerciseProps {
+  actions: IActions;
   onChange: (actions: IActions) => any;
   availableBloqs: { [bloq: string]: number };
   className?: string;
@@ -37,11 +38,13 @@ const getLoopAction = (placeholder: number, actions: IActions) => {
 };
 
 const GridExercise: FC<IGridExerciseProps> = ({
+  actions,
   className,
   availableBloqs,
-  onChange
+  onChange,
+  children
 }) => {
-  const [actions, setActions] = useState<IActions>([]);
+  const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
   const [selectedBloq, setSelectedBloq] = useState(-1);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -49,7 +52,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
   const addBloq = (bloqType: IBloqType) => {
     if (bloqType.name === "loop") {
       const action: ILoop = { type: ActionType.Loop, children: [], repeat: 2 };
-      setActions(
+      onChange(
         update(actions, {
           $splice: [[selectedPlaceholder - 1, 0, action]]
         })
@@ -60,7 +63,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
         actions
       );
       if (loopIndex >= 0) {
-        setActions(
+        onChange(
           update(actions, {
             [loopIndex]: {
               children: {
@@ -72,7 +75,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
           })
         );
       } else {
-        setActions(
+        onChange(
           update(actions, {
             $splice: [
               [
@@ -89,12 +92,26 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const deleteBloq = (bloq: number) => {
-    setActions(
+    onChange(
       update(actions, {
         $splice: [[selectedBloq - 1, 1]]
       })
     );
     setSelectedBloq(-1);
+  };
+
+  const updateBloq = (index: number, newBloq: IBloq) => {
+    if (newBloq.type === "loop") {
+      const updatedAction: ILoop = {
+        ...(actions[index - 1] as ILoop),
+        repeat: newBloq.parameters.repeat as number
+      };
+      onChange(
+        update(actions, {
+          $splice: [[index - 1, 1, updatedAction]]
+        })
+      );
+    }
   };
 
   const selectBloq = (bloq: number) => {
@@ -153,7 +170,13 @@ const GridExercise: FC<IGridExerciseProps> = ({
 
   return (
     <Container className={className}>
-      <BloqsList bloqs={filteredAvailableBloqs} />
+      <Content>
+        {children}
+        <div>
+          <h1>alsdkjalksdjalksdj</h1><p>aslkdjalsd</p>
+          </div>
+        <BloqsList bloqs={filteredAvailableBloqs} />
+      </Content>
       <AddBloqPanel
         isOpen={selectedPlaceholder > 0}
         availableBloqs={filteredAvailableBloqs}
@@ -174,6 +197,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
           getBloqPort={b => undefined}
           editInPlace={true}
           onDeleteBloq={deleteBloq}
+          onUpdateBloq={updateBloq}
         />
       </BloqsLineWrap>
     </Container>
@@ -185,6 +209,17 @@ export default GridExercise;
 const Container = styled.div`
   position: relative;
   flex: 1;
+  height: 100%;
+`;
+
+const Content = styled.div`
+  position: absolute;
+  top: 20px;
+  bottom: 143px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: center;
 `;
 
 const BloqsLineWrap = styled.div`
