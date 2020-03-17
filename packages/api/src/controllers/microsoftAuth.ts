@@ -38,7 +38,6 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
   }
 
   return new Promise((resolve, reject) => {
-    console.log({ accessToken });
     if (accessToken) {
       try {
         axios

@@ -482,7 +482,6 @@ const userResolver = {
       let idToken: string = "";
       let finishedSignUp: boolean | undefined;
       let token: string = "";
-      console.log(args.token);
       const userData: IMSData = await getMicrosoftUser(args.token);
       if (!userData) {
         throw new ApolloError("Not valid token", "NOT_VALID_TOKEN");
