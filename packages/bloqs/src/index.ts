@@ -88,6 +88,7 @@ export interface IBloqType {
   genCode?: IArduinoCode;
   conditionCode?: string;
   extends?: string;
+  fixed?: boolean;
 }
 
 export interface IBloq {

@@ -18,6 +18,7 @@ interface IBloqsLineProps {
   onScrollChange: (scrollLeft: number) => void;
   editInPlace?: boolean;
   onDeleteBloq?: (index: number) => void;
+  onUpdateBloq?: (index: number, newBloq: IBloq) => void;
 }
 
 const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
@@ -30,7 +31,8 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   getBloqPort,
   onScrollChange,
   editInPlace,
-  onDeleteBloq
+  onDeleteBloq,
+  onUpdateBloq
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
@@ -166,11 +168,12 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
               )}
               {group.map(bloq => {
                 const i = bloqs.indexOf(bloq);
+                const bloqType = bloqTypes.find(t => t.name === bloq.type);
                 return (
                   <React.Fragment key={i}>
                     {selectedBloq !== i && (
                       <StyledBloq
-                        type={bloqTypes.find(t => t.name === bloq.type)}
+                        type={bloqType}
                         onClick={(e: React.MouseEvent) => onBloqClick(i, e)}
                         bloq={bloq}
                         port={getBloqPort(bloq)}
@@ -184,16 +187,51 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                         }
                         isFirst={i === 0}
                         canDelete={
-                          bloq.type !== "end-loop" || i !== bloqs.length - 1
+                          (!bloqType!.fixed && bloq.type !== "end-loop") ||
+                          i !== bloqs.length - 1
                         }
                         data-selected={true}
                       >
                         {bloq.type === "loop" && (
                           <LoopButtonsWrap>
-                            <LoopButton secondary>
+                            <LoopButton
+                              secondary
+                              onClick={() => {
+                                if (!onUpdateBloq) {
+                                  return;
+                                }
+                                if (bloq.parameters.repeat < 9) {
+                                  onUpdateBloq(i, {
+                                    ...bloq,
+                                    parameters: {
+                                      ...bloq.parameters,
+                                      repeat:
+                                        (bloq.parameters.repeat as number) + 1
+                                    }
+                                  });
+                                }
+                              }}
+                            >
                               <Icon name="plus" />
                             </LoopButton>
-                            <LoopButton secondary>
+                            <LoopButton
+                              secondary
+                              onClick={() => {
+                                if (!onUpdateBloq) {
+                                  return;
+                                }
+                                if (bloq.parameters.repeat > 2) {
+                                  onUpdateBloq(i, {
+                                    ...bloq,
+                                    parameters: {
+                                      ...bloq.parameters,
+                                      repeat:
+                                        (bloq.parameters.repeat as number) - 1
+                                    }
+                                  });
+                                }
+                              }}
+                            >
                               <Icon name="minus" />
                             </LoopButton>
                           </LoopButtonsWrap>
@@ -206,7 +244,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                           </LeftEndLoopWrap>
                         )}
                         <StyledBloq
-                          type={bloqTypes.find(t => t.name === bloq.type)}
+                          type={bloqType}
                           bloq={bloq}
                           port={getBloqPort(bloq)}
                           disabled={line.disabled}
@@ -218,7 +256,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                             </EndLoopButton>
                           </RightEndLoopWrap>
                         )}
-                        {bloq.type !== "end-loop" && (
+                        {!bloqType!.fixed && bloq.type !== "end-loop" && (
                           <DeleteWrap>
                             <DeleteButton
                               red
