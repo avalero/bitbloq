@@ -23,7 +23,7 @@ interface IEditorLineProps {
   onDuplicate: (line: IBloqLine) => void;
   onToggle: (line: IBloqLine) => void;
   onDelete: (line: IBloqLine) => void;
-  onScrollChange: (scrollLeft: number) => void;
+  onSelectedPositionChange: (scrollLeft: number) => void;
 }
 
 const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
@@ -41,7 +41,7 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
   onDuplicate,
   onToggle,
   onDelete,
-  onScrollChange
+  onSelectedPositionChange
 }) => {
   const [showOptions, setShowOptions] = useState(false);
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -99,7 +99,7 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           onBloqClick={onBloqClick}
           onPlaceholderClick={onPlaceholderClick}
           getBloqPort={getBloqPort}
-          onScrollChange={onScrollChange}
+          onSelectedPositionChange={onSelectedPositionChange}
         />
         {showOptions && (
           <Options ref={optionsRef}>

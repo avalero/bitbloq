@@ -27,7 +27,6 @@ interface IBloqConfigPanelProps {
   onSelectBloqType: (bloqType: IBloqType) => any;
   selectedPlaceholder: number;
   selectedBloq: IBloq;
-  selectedBloqIndex: number;
   getBloqPort: (bloq: IBloq) => string | undefined;
   onUpdateBloq: (newBloq: IBloq) => any;
   onDeleteBloq: () => any;
@@ -35,7 +34,7 @@ interface IBloqConfigPanelProps {
   getComponents: (types: string[]) => IComponentInstance[];
   board: IBoard;
   components: IComponent[];
-  linesScrollLeft: number;
+  selectedLeft: number;
 }
 
 const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
@@ -45,7 +44,6 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   onSelectBloqType,
   selectedPlaceholder,
   selectedBloq,
-  selectedBloqIndex,
   getBloqPort,
   onUpdateBloq,
   onDeleteBloq,
@@ -53,7 +51,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
   getComponents,
   board,
   components,
-  linesScrollLeft
+  selectedLeft
 }) => {
   const [selectedTab, setSelectedTab] = useState(BloqCategory.Action);
 
@@ -73,10 +71,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap
-          bloqPosition={selectedPlaceholder}
-          linesScrollLeft={linesScrollLeft}
-        >
+        <BloqPlaceholderWrap left={selectedLeft}>
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
             selected={true}
@@ -102,10 +97,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap
-          bloqPosition={selectedPlaceholder}
-          linesScrollLeft={linesScrollLeft}
-        >
+        <BloqPlaceholderWrap left={selectedLeft}>
           <BloqPlaceholder
             category={addEvent ? BloqCategory.Event : BloqCategory.Action}
             selected={true}
@@ -146,10 +138,7 @@ const BloqConfigPanel: FC<IBloqConfigPanelProps> = ({
 
     content = (
       <>
-        <BloqPlaceholderWrap
-          bloqPosition={selectedBloqIndex}
-          linesScrollLeft={linesScrollLeft}
-        >
+        <BloqPlaceholderWrap left={selectedLeft}>
           <HorizontalBloq
             type={bloqType}
             bloq={selectedBloq}
@@ -244,18 +233,11 @@ const CloseButton = styled.div`
   }
 `;
 
-interface IBloqPlaceholderWrapProps {
-  bloqPosition: number;
-  linesScrollLeft: number;
-}
-const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
+const BloqPlaceholderWrap = styled.div<{ left: number }>`
   position: absolute;
   top: 0px;
   transform: translate(0, -100%);
-  left: ${props =>
-    (props.bloqPosition > 0 ? 68 : 62) +
-    props.bloqPosition * 88 -
-    props.linesScrollLeft}px;
+  left: ${props => props.left + 52}px;
   background-color: white;
   padding: 10px;
   border-top-left-radius: 6px;

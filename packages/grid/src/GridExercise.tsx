@@ -14,27 +14,31 @@ export interface IGridExerciseProps {
   className?: string;
 }
 
-const getLoopAction = (placeholder: number, actions: IActions) => {
+const getActionIndex = (bloqIndex: number, actions: IActions) => {
   let i = 0;
-  let j = 0;
+  let j = 1;
 
   while (i < actions.length) {
     const action = actions[i];
-    j++;
     if (action.type === ActionType.Loop) {
       if (
-        placeholder >= j &&
-        placeholder < j + (action as ILoop).children.length + 1
+        bloqIndex >= j &&
+        bloqIndex <= j + (action as ILoop).children.length + 1
       ) {
-        return [i, placeholder - j];
+        return [i, bloqIndex - j];
       } else {
-        j += (action as ILoop).children.length + 1;
+        j += (action as ILoop).children.length + 2;
       }
+    } else {
+      if (bloqIndex === j) {
+        return [i, -1];
+      }
+      j++;
     }
     i++;
   }
 
-  return [-1, 0];
+  return [i, -1];
 };
 
 const GridExercise: FC<IGridExerciseProps> = ({
@@ -47,7 +51,12 @@ const GridExercise: FC<IGridExerciseProps> = ({
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
   const [selectedBloq, setSelectedBloq] = useState(-1);
-  const [scrollLeft, setScrollLeft] = useState(0);
+  const [selectedLeft, setSelectedLeft] = useState(0);
+
+  const [selectedActionIndex, loopPlaceholder] = getActionIndex(
+    selectedPlaceholder >= 0 ? selectedPlaceholder : selectedBloq,
+    actions
+  );
 
   const addBloq = (bloqType: IBloqType) => {
     if (bloqType.name === "loop") {
@@ -58,14 +67,10 @@ const GridExercise: FC<IGridExerciseProps> = ({
         })
       );
     } else {
-      const [loopIndex, loopPlaceholder] = getLoopAction(
-        selectedPlaceholder - 1,
-        actions
-      );
-      if (loopIndex >= 0) {
+      if (loopPlaceholder >= 0) {
         onChange(
           update(actions, {
-            [loopIndex]: {
+            [selectedActionIndex]: {
               children: {
                 $splice: [
                   [loopPlaceholder, 0, { type: bloqType.name as ActionType }]
@@ -78,11 +83,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
         onChange(
           update(actions, {
             $splice: [
-              [
-                selectedPlaceholder - 1,
-                0,
-                { type: bloqType.name as ActionType }
-              ]
+              [selectedActionIndex, 0, { type: bloqType.name as ActionType }]
             ]
           })
         );
@@ -92,11 +93,23 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const deleteBloq = (bloq: number) => {
-    onChange(
-      update(actions, {
-        $splice: [[selectedBloq - 1, 1]]
-      })
-    );
+    if (loopPlaceholder >= 0) {
+      onChange(
+        update(actions, {
+          [selectedActionIndex]: {
+            children: {
+              $splice: [[loopPlaceholder - 1, 1]]
+            }
+          }
+        })
+      );
+    } else {
+      onChange(
+        update(actions, {
+          $splice: [[selectedActionIndex, 1]]
+        })
+      );
+    }
     setSelectedBloq(-1);
   };
 
@@ -108,7 +121,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
       };
       onChange(
         update(actions, {
-          $splice: [[index - 1, 1, updatedAction]]
+          $splice: [[selectedActionIndex, 1, updatedAction]]
         })
       );
     }
@@ -122,6 +135,42 @@ const GridExercise: FC<IGridExerciseProps> = ({
   const selectPlaceholder = (placeholder: number) => {
     setSelectedPlaceholder(placeholder);
     setSelectedBloq(-1);
+  };
+
+  const shrinkLoop = () => {
+    const loopAction = actions[selectedActionIndex] as ILoop;
+    const lastAction = loopAction.children[loopAction.children.length - 1];
+    const updatedLoop = update(loopAction, {
+      children: { $splice: [[loopAction.children.length - 1, 1]] }
+    });
+
+    onChange(
+      update(actions, {
+        $splice: [
+          [selectedActionIndex, 1, updatedLoop],
+          [selectedActionIndex + 1, 0, lastAction]
+        ]
+      })
+    );
+    setSelectedBloq(selectedBloq - 1);
+  };
+
+  const growLoop = () => {
+    const loopAction = actions[selectedActionIndex] as ILoop;
+    const nextAction = actions[selectedActionIndex + 1];
+    const updatedLoop = update(loopAction, {
+      children: { $splice: [[loopAction.children.length, 0, nextAction]] }
+    });
+
+    onChange(
+      update(actions, {
+        $splice: [
+          [selectedActionIndex, 1, updatedLoop],
+          [selectedActionIndex + 1, 1]
+        ]
+      })
+    );
+    setSelectedBloq(selectedBloq + 1);
   };
 
   const bloqLine: IBloqLine = {
@@ -157,11 +206,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const filteredAvailableBloqs = Object.keys(availableBloqs)
-    .filter(
-      type =>
-        getLoopAction(selectedPlaceholder - 1, actions)[0] < 0 ||
-        type !== "loop"
-    )
+    .filter(type => !(loopPlaceholder >= 0 && type === "loop"))
     .reduce((filtered, type) => {
       const number =
         availableBloqs[type] - actions.filter(a => a.type === type).length;
@@ -178,9 +223,8 @@ const GridExercise: FC<IGridExerciseProps> = ({
         isOpen={selectedPlaceholder > 0}
         availableBloqs={filteredAvailableBloqs}
         onSelectBloqType={addBloq}
-        selectedPlaceholder={selectedPlaceholder}
         onClose={() => setSelectedPlaceholder(-1)}
-        linesScrollLeft={scrollLeft}
+        selectedLeft={selectedLeft}
       />
       <BloqsLineWrap>
         <BloqsLine
@@ -189,12 +233,14 @@ const GridExercise: FC<IGridExerciseProps> = ({
           onBloqClick={selectBloq}
           selectedBloq={selectedBloq}
           selectedPlaceholder={selectedPlaceholder}
-          onScrollChange={setScrollLeft}
+          onSelectedPositionChange={setSelectedLeft}
           onPlaceholderClick={selectPlaceholder}
           getBloqPort={b => undefined}
           editInPlace={true}
           onDeleteBloq={deleteBloq}
           onUpdateBloq={updateBloq}
+          onShrinkLoop={shrinkLoop}
+          onGrowLoop={growLoop}
         />
       </BloqsLineWrap>
     </Container>
@@ -207,6 +253,7 @@ const Container = styled.div`
   position: relative;
   flex: 1;
   height: 100%;
+  user-select: none;
 `;
 
 const Content = styled.div`

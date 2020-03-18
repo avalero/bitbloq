@@ -47,7 +47,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
 
-  const [linesScrollLeft, setLinesScrollLeft] = useState(0);
+  const [selectedLeft, setSelectedLeft] = useState(10);
 
   const [undoPast, setUndoPast] = useState<IBloqLine[][]>([]);
   const [undoFuture, setUndoFuture] = useState<IBloqLine[][]>([]);
@@ -213,10 +213,6 @@ const HorizontalBloqEditor: React.FunctionComponent<
     onLinesChange(update(lines, { $splice: [[index, 1]] }));
   };
 
-  const onLinesScroll = (scrollLeft: number) => {
-    setLinesScrollLeft(scrollLeft);
-  };
-
   return (
     <Container>
       <Lines onClick={deselectEverything}>
@@ -250,7 +246,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
               onDuplicate={onDuplicateLine}
               onToggle={onToggleLine}
               onDelete={onDeleteLine}
-              onScrollChange={onLinesScroll}
+              onSelectedPositionChange={setSelectedLeft}
             />
           ))}
         </LinesWrap>
@@ -283,7 +279,6 @@ const HorizontalBloqEditor: React.FunctionComponent<
         onSelectBloqType={onAddBloq}
         selectedPlaceholder={selectedPlaceholder}
         selectedBloq={selectedBloq}
-        selectedBloqIndex={selectedBloqIndex}
         getBloqPort={getBloqPort}
         onUpdateBloq={onUpdateBloq}
         onDeleteBloq={onDeleteBloq}
@@ -291,7 +286,7 @@ const HorizontalBloqEditor: React.FunctionComponent<
         getComponents={getComponents}
         board={board}
         components={components}
-        linesScrollLeft={linesScrollLeft}
+        selectedLeft={selectedLeft}
       />
     </Container>
   );
