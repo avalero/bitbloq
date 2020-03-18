@@ -34,7 +34,7 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
     );
     accessToken = result.data.access_token;
   } catch (e) {
-    console.log("token 1", e);
+    console.log("error with code and getting user token", e);
   }
 
   return new Promise((resolve, reject) => {
@@ -48,7 +48,7 @@ export const getMicrosoftUser = async (token): Promise<IMSData> => {
             resolve(response.data);
           });
       } catch (e) {
-        console.log("token 2", e);
+        console.log("error getting user data", e);
         reject(e);
       }
     }

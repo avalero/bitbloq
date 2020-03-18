@@ -14,9 +14,9 @@ const LoginWithMicrosoftButton: FC = () => {
     location.assign(`https://login.microsoftonline.com/common/oauth2/v2.0/authorize?
       client_id=${appID}
       &response_type=code
-      &redirect_uri=${location.protocol.split(":")[0]}%3A%2F%2F${
-      location.host.includes("localhost") ? "localhost%3A8000" : location.host
-    }%2Fmicrosoft-redirect
+      &redirect_uri=${encodeURIComponent(
+        location.origin.concat("/microsoft-redirect")
+      )}
       &response_mode=query
       &scope=User.Read
       &state=12345`);
