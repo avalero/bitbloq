@@ -1,6 +1,5 @@
-import { request } from "https";
-import { ApolloError } from "apollo-server";
-
+import axios from "axios";
+import { stringify } from "querystring";
 export interface IMSData {
   error?: JSON;
   displayName: string;
@@ -16,36 +15,42 @@ export interface IMSData {
   preferredLanguage: string;
 }
 
-export const getMicrosoftUser = (token): Promise<IMSData> => {
-  const getOptions = {
-    host: "graph.microsoft.com",
-    path: "/v1.0/me",
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
-    }
+export const getMicrosoftUser = async (token): Promise<IMSData> => {
+  const queryData = {
+    client_id: process.env.MICROSOFT_APP_ID,
+    scope: "User.Read",
+    code: token,
+    redirect_uri: `${process.env.FRONTEND_URL}/microsoft-redirect`,
+    grant_type: "authorization_code",
+    client_secret: process.env.MICROSOFT_APP_SECRET,
+    state: 12345
   };
-  // Set up the request
+
+  let accessToken: string;
+  try {
+    const result = await axios.post(
+      "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+      stringify(queryData)
+    );
+    accessToken = result.data.access_token;
+  } catch (e) {
+    console.log("error with code and getting user token", e);
+  }
+
   return new Promise((resolve, reject) => {
-    let userData: IMSData | undefined;
-    const req = request(getOptions);
-
-    req.on("response", res => {
-      res.setEncoding("utf8");
-      res.on("data", data => {
-        userData = JSON.parse(data);
-        if (userData && userData.error) {
-          userData = undefined;
-        }
-        resolve(userData);
-      });
-    });
-
-    req.on("error", err => {
-      reject(err);
-      throw new ApolloError("Error getting user data", "SOCIAL_DATA_ERROR");
-    });
-    req.end();
+    if (accessToken) {
+      try {
+        axios
+          .get("https://graph.microsoft.com/v1.0/me", {
+            headers: { Authorization: `Bearer ${accessToken}` }
+          })
+          .then(response => {
+            resolve(response.data);
+          });
+      } catch (e) {
+        console.log("error getting user data", e);
+        reject(e);
+      }
+    }
   });
 };

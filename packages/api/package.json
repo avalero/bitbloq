@@ -34,6 +34,7 @@
     "@types/mongoose": "^5.3.23",
     "apollo-server": "^2.4.8",
     "apollo-server-koa": "^2.4.8",
+    "axios": "^0.19.2",
     "bcrypt": "^3.0.5",
     "bluebird": "^3.5.3",
     "bson": "^4.0.2",
@@ -57,7 +58,6 @@
     "nodemailer": "^5.1.1",
     "path": "^0.12.7",
     "redis": "^2.8.0",
-    "simple-oauth2": "^3.0.1",
     "ts-node": "^7.0.1",
     "typescript": "^3.3.4000"
   },
