@@ -12,7 +12,7 @@ const BloqsList: FC<IAddBloqPanelProps> = ({ bloqs }) => (
     {Object.keys(bloqs).map(typeName => {
       const type = bloqTypes.find(t => t.name === typeName)!;
       return (
-        <Content>
+        <Content key={typeName}>
           <Bloq>
             <StyledBloq key={type.name} type={type} shadow={false} />
           </Bloq>

@@ -65,6 +65,10 @@ const SHAPES = {
   }
 };
 
+const IS_SMALL = {
+  [BloqCategory.EndLoop]: true
+};
+
 const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   type,
   className,
@@ -92,9 +96,11 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   const missingComponent = port === "?";
   const showDisabled = disabled || missingComponent;
 
+  const isSmall: boolean = !!IS_SMALL[type.category];
+
   return (
-    <Container className={className} onClick={onClick}>
-      <SVG>
+    <Container className={className} onClick={onClick} isSmall={isSmall}>
+      <SVG isSmall={isSmall}>
         <defs>
           <path
             id="block-event-shape"
@@ -114,11 +120,13 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
           />
           <path
             id="block-small-action-shape"
-            d="M2 29.043C5.687 31.4 8 35.495 8 40c0 4.505-2.313 8.6-6 10.957V77a1 1 0 001 1h74a1 1 0 001-1V46.198l1.501-.387a6.003 6.003 0 000-11.622L78 33.802V3a1 1 0 00-1-1H3a1 1 0 00-1 1v26.043z"
+            d="M0 30.2V3c0-1.657 1.343-3 3-3h34c1.657 0 3 1.343 3 3v29.252c3.45.888 6 4.02 6 7.748 0 3.728-2.55 6.86-6 7.748V77c0 1.657-1.343 3-3 3H3c-1.657 0-3-1.343-3-3V49.8c3.562-1.82 6-5.525 6-9.8s-2.438-7.98-6-9.8z"
+          />
           />
           <path
             id="block-small-action-shadow-shape"
-            d="M0 33.2V6a3 3 0 013-3h74a3 3 0 013 3v26.252c3.45.888 6 4.02 6 7.748v3c0 3.728-2.55 6.86-6 7.748V80a3 3 0 01-3 3H3a3 3 0 01-3-3V52.8A11 11 0 006 43a11 11 0 00-6-9.8z"
+            d="M0 33.2V6c0-1.657 1.343-3 3-3h34c1.657 0 3 1.343 3 3v26.252c3.45.888 6 4.02 6 7.748v3c0 3.728-2.55 6.86-6 7.748V80c0 1.657-1.343 3-3 3H3c-1.657 0-3-1.343-3-3V52.8c3.562-1.82 6-5.525 6-9.8s-2.438-7.98-6-9.8z"
+          />
           />
           <path
             id="block-wait-shape"
@@ -254,14 +262,14 @@ export default HorizontalBloq;
 
 /* styled components */
 
-const Container = styled.div`
+const Container = styled.div<{ isSmall: boolean }>`
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #bbb;
-  width: 86px;
+  width: ${props => (props.isSmall ? 46 : 86)}px;
   height: 83px;
 `;
 
@@ -294,10 +302,10 @@ const PortIndicator = styled.div<IPortIndicatorProps>`
   z-index: 2;
 `;
 
-const SVG = styled.svg`
+const SVG = styled.svg<{ isSmall: boolean }>`
   position: absolute;
   top: -4px;
   left: -4px;
-  width: 94px;
+  width: ${props => (props.isSmall ? 54 : 94)}px;
   height: 96px;
 `;

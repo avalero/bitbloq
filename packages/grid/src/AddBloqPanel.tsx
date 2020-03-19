@@ -13,18 +13,16 @@ interface IAddBloqPanelProps {
   isOpen: boolean;
   availableBloqs: { [bloq: string]: number };
   onSelectBloqType: (bloqType: IBloqType) => any;
-  selectedPlaceholder: number;
   onClose: () => any;
-  linesScrollLeft: number;
+  selectedLeft: number;
 }
 
 const AddBloqPanel: FC<IAddBloqPanelProps> = ({
   isOpen,
   availableBloqs,
   onSelectBloqType,
-  selectedPlaceholder,
   onClose,
-  linesScrollLeft
+  selectedLeft
 }) => {
   if (!isOpen) {
     return null;
@@ -37,10 +35,7 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
           <Icon name="close" />
         </CloseButton>
       )}
-      <BloqPlaceholderWrap
-        bloqPosition={selectedPlaceholder}
-        linesScrollLeft={linesScrollLeft}
-      >
+      <BloqPlaceholderWrap left={selectedLeft + 20}>
         <BloqPlaceholder category={BloqCategory.Event} selected={true} />
       </BloqPlaceholderWrap>
       <BloqList>
@@ -100,14 +95,13 @@ const CloseButton = styled.div`
 `;
 
 interface IBloqPlaceholderWrapProps {
-  bloqPosition: number;
-  linesScrollLeft: number;
+  left: number;
 }
 const BloqPlaceholderWrap = styled.div<IBloqPlaceholderWrapProps>`
   position: absolute;
   bottom: 0px;
   transform: translate(0, 100%);
-  left: ${props => 36 + props.bloqPosition * 88 - props.linesScrollLeft}px;
+  left: ${props => props.left}px;
   background-color: white;
   padding: 10px;
   border-bottom-left-radius: 6px;
