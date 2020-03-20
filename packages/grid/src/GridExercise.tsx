@@ -48,7 +48,6 @@ const GridExercise: FC<IGridExerciseProps> = ({
   onChange,
   children
 }) => {
-  const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
   const [selectedBloq, setSelectedBloq] = useState(-1);
   const [selectedLeft, setSelectedLeft] = useState(0);
