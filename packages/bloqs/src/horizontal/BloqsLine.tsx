@@ -8,6 +8,7 @@ import { IBloq, IBloqLine, IBloqType } from "../index";
 import { BloqCategory } from "../enums";
 
 interface IBloqsLineProps {
+  className?: string;
   line: IBloqLine;
   bloqTypes: IBloqType[];
   selectedBloq: number;
@@ -24,6 +25,7 @@ interface IBloqsLineProps {
 }
 
 const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
+  className,
   line,
   bloqTypes,
   selectedBloq,
@@ -142,7 +144,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   );
 
   return (
-    <Wrap>
+    <Wrap className={className}>
       <Container ref={containerRef}>
         <Bloqs ref={bloqsRef} left={bloqsLeft}>
           {!startsWithEvent() && selectedPlaceholder !== 0 && (
@@ -334,14 +336,11 @@ export default BloqsLine;
 /* styled components */
 
 const Wrap = styled.div`
-  margin: -5px 0px;
   display: flex;
-  flex: 1;
   overflow: hidden;
 `;
 
 const Container = styled.div`
-  margin: 5px 0px;
   display: flex;
   flex: 1;
   position: relative;

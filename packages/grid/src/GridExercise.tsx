@@ -215,34 +215,34 @@ const GridExercise: FC<IGridExerciseProps> = ({
 
   return (
     <Container className={className}>
-      <Content>
-        {children}
-        <BloqsList bloqs={filteredAvailableBloqs} />
-      </Content>
-      <AddBloqPanel
-        isOpen={selectedPlaceholder > 0}
-        availableBloqs={filteredAvailableBloqs}
-        onSelectBloqType={addBloq}
-        onClose={() => setSelectedPlaceholder(-1)}
-        selectedLeft={selectedLeft}
-      />
-      <BloqsLineWrap>
-        <BloqsLine
-          bloqTypes={bloqTypes}
-          line={bloqLine}
-          onBloqClick={selectBloq}
-          selectedBloq={selectedBloq}
-          selectedPlaceholder={selectedPlaceholder}
-          onSelectedPositionChange={setSelectedLeft}
-          onPlaceholderClick={selectPlaceholder}
-          getBloqPort={b => undefined}
-          editInPlace={true}
-          onDeleteBloq={deleteBloq}
-          onUpdateBloq={updateBloq}
-          onShrinkLoop={shrinkLoop}
-          onGrowLoop={growLoop}
+      <ContentWrap>
+        <Content>
+          {children}
+          <BloqsList bloqs={filteredAvailableBloqs} />
+        </Content>
+        <AddBloqPanel
+          isOpen={selectedPlaceholder > 0}
+          availableBloqs={filteredAvailableBloqs}
+          onSelectBloqType={addBloq}
+          onClose={() => setSelectedPlaceholder(-1)}
+          selectedLeft={selectedLeft}
         />
-      </BloqsLineWrap>
+      </ContentWrap>
+      <StyledBloqsLine
+        bloqTypes={bloqTypes}
+        line={bloqLine}
+        onBloqClick={selectBloq}
+        selectedBloq={selectedBloq}
+        selectedPlaceholder={selectedPlaceholder}
+        onSelectedPositionChange={setSelectedLeft}
+        onPlaceholderClick={selectPlaceholder}
+        getBloqPort={b => undefined}
+        editInPlace={true}
+        onDeleteBloq={deleteBloq}
+        onUpdateBloq={updateBloq}
+        onShrinkLoop={shrinkLoop}
+        onGrowLoop={growLoop}
+      />
     </Container>
   );
 };
@@ -250,25 +250,28 @@ const GridExercise: FC<IGridExerciseProps> = ({
 export default GridExercise;
 
 const Container = styled.div`
-  position: relative;
   flex: 1;
-  height: 100%;
-  user-select: none;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Content = styled.div`
-  position: absolute;
-  top: 20px;
-  bottom: 143px;
-  left: 20px;
-  right: 20px;
+  align-items: self-start;
   display: flex;
-  justify-content: center;
+  padding-top: 10px;
+
+  > :not(:last-child) {
+    padding-right: 10px;
+  }
 `;
 
-const BloqsLineWrap = styled.div`
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
+const ContentWrap = styled.div`
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  position: relative;
+`;
+
+const StyledBloqsLine = styled(BloqsLine)`
+  padding: 10px;
 `;

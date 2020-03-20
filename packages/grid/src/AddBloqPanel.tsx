@@ -35,7 +35,7 @@ const AddBloqPanel: FC<IAddBloqPanelProps> = ({
           <Icon name="close" />
         </CloseButton>
       )}
-      <BloqPlaceholderWrap left={selectedLeft + 20}>
+      <BloqPlaceholderWrap left={selectedLeft + 10}>
         <BloqPlaceholder category={BloqCategory.Event} selected={true} />
       </BloqPlaceholderWrap>
       <BloqList>
@@ -60,10 +60,8 @@ export default AddBloqPanel;
 
 const Container = styled.div`
   position: absolute;
-  top: 0px;
-  left: 0px;
-  bottom: 133px;
-  right: 0px;
+  height: 100%;
+  width: 100%;
   background-color: white;
   filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.3));
   flex: 1;
@@ -71,7 +69,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  z-index: 20;
+  z-index: 10; // zIndex description: 15
 `;
 
 const CloseButton = styled.div`
