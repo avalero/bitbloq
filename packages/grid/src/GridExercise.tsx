@@ -272,5 +272,7 @@ const ContentWrap = styled.div`
 `;
 
 const StyledBloqsLine = styled(BloqsLine)`
-  margin: 10px;
+  flex: unset;
+  margin: 0 10px;
+  padding: 10px 0;
 `;

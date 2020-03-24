@@ -337,14 +337,13 @@ export default BloqsLine;
 
 const Wrap = styled.div`
   display: flex;
-  margin: -5px 0px;
+  flex: 1;
   overflow: hidden;
 `;
 
 const Container = styled.div`
   display: flex;
   flex: 1;
-  margin: 5px 0px;
   position: relative;
   height: 103px;
   background-color: #f1f1f1;
