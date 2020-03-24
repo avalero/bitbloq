@@ -1,4 +1,5 @@
 import AddBloqPanel from "./AddBloqPanel";
+import BloqsList from "./BloqsList";
 import GridExercise from "./GridExercise";
 
 export enum ActionType {
@@ -24,4 +25,4 @@ export interface ILoop {
 
 export type IActions = Array<IAction | ILoop>;
 
-export { AddBloqPanel, GridExercise };
+export { AddBloqPanel, BloqsList, GridExercise };
