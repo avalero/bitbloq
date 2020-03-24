@@ -17,6 +17,7 @@ interface IHorizontalBloqProps {
   port?: string;
   shadow?: boolean;
   active?: boolean;
+  selectable?: boolean;
 }
 
 const COLORS = {
@@ -78,7 +79,8 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   bloq,
   port,
   shadow = true,
-  active
+  active,
+  selectable = true
 }) => {
   if (!type) {
     return null;
@@ -99,7 +101,13 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   const isSmall: boolean = !!IS_SMALL[type.category];
 
   return (
-    <Container className={className} onClick={onClick} isSmall={isSmall}>
+    <Container
+      className={className}
+      onClick={onClick}
+      isSmall={isSmall}
+      selectable={selectable}
+      data-active={active}
+    >
       <SVG isSmall={isSmall}>
         <defs>
           <path
@@ -262,8 +270,8 @@ export default HorizontalBloq;
 
 /* styled components */
 
-const Container = styled.div<{ isSmall: boolean }>`
-  cursor: pointer;
+const Container = styled.div<{ isSmall: boolean; selectable: boolean }>`
+  cursor: ${props => (props.selectable ? "pointer" : "inherit")};
   position: relative;
   display: flex;
   align-items: center;

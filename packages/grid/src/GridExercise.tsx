@@ -9,9 +9,11 @@ import { bloqTypes } from "./config";
 
 export interface IGridExerciseProps {
   actions: IActions;
-  onChange: (actions: IActions) => any;
-  availableBloqs: { [bloq: string]: number };
+  onChange?: (actions: IActions) => any;
+  availableBloqs?: { [bloq: string]: number };
   className?: string;
+  activeAction?: number;
+  activeSubAction?: number;
 }
 
 const getActionIndex = (bloqIndex: number, actions: IActions) => {
@@ -41,11 +43,28 @@ const getActionIndex = (bloqIndex: number, actions: IActions) => {
   return [i, -1];
 };
 
+const getBloqIndex = (
+  actions: IActions,
+  actionIndex: number,
+  subActionIndex?: number
+) =>
+  actions
+    .slice(0, actionIndex)
+    .reduce(
+      (index, action) =>
+        action.type === ActionType.Loop
+          ? index + (action as ILoop).children.length + 2
+          : index + 1,
+      subActionIndex !== undefined ? subActionIndex + 2 : 1
+    );
+
 const GridExercise: FC<IGridExerciseProps> = ({
   actions,
   className,
   availableBloqs,
   onChange,
+  activeAction,
+  activeSubAction,
   children
 }) => {
   const [selectedPlaceholder, setSelectedPlaceholder] = useState(-1);
@@ -58,6 +77,10 @@ const GridExercise: FC<IGridExerciseProps> = ({
   );
 
   const addBloq = (bloqType: IBloqType) => {
+    if (!onChange) {
+      return;
+    }
+
     if (bloqType.name === "loop") {
       const action: ILoop = { type: ActionType.Loop, children: [], repeat: 2 };
       onChange(
@@ -92,6 +115,10 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const deleteBloq = (bloq: number) => {
+    if (!onChange) {
+      return;
+    }
+
     if (loopPlaceholder >= 0) {
       onChange(
         update(actions, {
@@ -113,6 +140,9 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const updateBloq = (index: number, newBloq: IBloq) => {
+    if (!onChange) {
+      return;
+    }
     if (newBloq.type === "loop") {
       const updatedAction: ILoop = {
         ...(actions[index - 1] as ILoop),
@@ -137,6 +167,9 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const shrinkLoop = () => {
+    if (!onChange) {
+      return;
+    }
     const loopAction = actions[selectedActionIndex] as ILoop;
     const lastAction = loopAction.children[loopAction.children.length - 1];
     const updatedLoop = update(loopAction, {
@@ -155,6 +188,9 @@ const GridExercise: FC<IGridExerciseProps> = ({
   };
 
   const growLoop = () => {
+    if (!onChange) {
+      return;
+    }
     const loopAction = actions[selectedActionIndex] as ILoop;
     const nextAction = actions[selectedActionIndex + 1];
     const updatedLoop = update(loopAction, {
@@ -204,34 +240,46 @@ const GridExercise: FC<IGridExerciseProps> = ({
     })
   };
 
-  const filteredAvailableBloqs = Object.keys(availableBloqs)
-    .filter(type => !(loopPlaceholder >= 0 && type === "loop"))
-    .reduce((filtered, type) => {
-      const number =
-        availableBloqs[type] - actions.filter(a => a.type === type).length;
-      return number ? { ...filtered, [type]: number } : filtered;
-    }, {});
+  const activeBloq =
+    activeAction !== undefined
+      ? getBloqIndex(actions, activeAction, activeSubAction)
+      : -1;
+
+  const filteredAvailableBloqs =
+    availableBloqs &&
+    Object.keys(availableBloqs)
+      .filter(type => !(loopPlaceholder >= 0 && type === "loop"))
+      .reduce((filtered, type) => {
+        const number =
+          availableBloqs[type] - actions.filter(a => a.type === type).length;
+        return number ? { ...filtered, [type]: number } : filtered;
+      }, {});
 
   return (
     <Container className={className}>
       <ContentWrap>
         <Content>
           {children}
-          <BloqsList bloqs={filteredAvailableBloqs} />
+          {filteredAvailableBloqs && (
+            <BloqsList bloqs={filteredAvailableBloqs} />
+          )}
         </Content>
-        <AddBloqPanel
-          isOpen={selectedPlaceholder > 0}
-          availableBloqs={filteredAvailableBloqs}
-          onSelectBloqType={addBloq}
-          onClose={() => setSelectedPlaceholder(-1)}
-          selectedLeft={selectedLeft}
-        />
+        {onChange && filteredAvailableBloqs && (
+          <AddBloqPanel
+            isOpen={selectedPlaceholder > 0}
+            availableBloqs={filteredAvailableBloqs}
+            onSelectBloqType={addBloq}
+            onClose={() => setSelectedPlaceholder(-1)}
+            selectedLeft={selectedLeft}
+          />
+        )}
       </ContentWrap>
       <StyledBloqsLine
         bloqTypes={bloqTypes}
         line={bloqLine}
         onBloqClick={selectBloq}
-        selectedBloq={selectedBloq}
+        selectedBloq={onChange ? selectedBloq : -1}
+        activeBloq={activeBloq}
         selectedPlaceholder={selectedPlaceholder}
         onSelectedPositionChange={setSelectedLeft}
         onPlaceholderClick={selectPlaceholder}
@@ -241,6 +289,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
         onUpdateBloq={updateBloq}
         onShrinkLoop={shrinkLoop}
         onGrowLoop={growLoop}
+        readOnly={!onChange}
       />
     </Container>
   );
