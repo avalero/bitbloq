@@ -13,6 +13,7 @@ interface IBloqsLineProps {
   bloqTypes: IBloqType[];
   selectedBloq: number;
   selectedPlaceholder: number;
+  activeBloq?: number;
   onBloqClick: (index: number, e: React.MouseEvent) => void;
   onPlaceholderClick: (index: number, e: React.MouseEvent) => void;
   getBloqPort: (bloq: IBloq) => string | undefined;
@@ -22,6 +23,7 @@ interface IBloqsLineProps {
   onUpdateBloq?: (index: number, newBloq: IBloq) => void;
   onShrinkLoop?: () => void;
   onGrowLoop?: () => void;
+  readOnly?: boolean;
 }
 
 const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
@@ -30,6 +32,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   bloqTypes,
   selectedBloq,
   selectedPlaceholder,
+  activeBloq,
   onBloqClick,
   onPlaceholderClick,
   getBloqPort,
@@ -38,7 +41,8 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   onDeleteBloq,
   onUpdateBloq,
   onShrinkLoop,
-  onGrowLoop
+  onGrowLoop,
+  readOnly
 }) => {
   const [showScrollLeft, setShowScrollLeft] = useState(false);
   const [showScrollRight, setShowScrollRight] = useState(false);
@@ -63,7 +67,9 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
     const bloqsWidth = bloqsRef.current.clientWidth;
     const containerWidth = containerRef.current.clientWidth;
 
-    const selectedElement = bloqsRef.current.querySelector("[data-selected]");
+    const selectedElement = bloqsRef.current.querySelector(
+      "[data-selected],[data-active=true]"
+    );
     let newScrollLeft = sl;
     if (selectedElement) {
       const {
@@ -147,7 +153,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
     <Wrap className={className}>
       <Container ref={containerRef}>
         <Bloqs ref={bloqsRef} left={bloqsLeft}>
-          {!startsWithEvent() && selectedPlaceholder !== 0 && (
+          {!readOnly && !startsWithEvent() && selectedPlaceholder !== 0 && (
             <BloqPlaceholder
               onClick={(e: React.MouseEvent) => onPlaceholderClick(0, e)}
               category={BloqCategory.Event}
@@ -165,7 +171,8 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                   const bloqType = bloqTypes.find(t => t.name === bloq.type);
                   return (
                     <React.Fragment key={i}>
-                      {bloqs[i - 1] &&
+                      {!readOnly &&
+                        bloqs[i - 1] &&
                         selectedBloq === i - 1 &&
                         bloqs[i - 1].type === "end-loop" && (
                           <BloqPlaceholder
@@ -182,6 +189,8 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                           bloq={bloq}
                           port={getBloqPort(bloq)}
                           disabled={line.disabled}
+                          selectable={!readOnly}
+                          active={activeBloq === i}
                         />
                       )}
                       {editInPlace && selectedBloq === i && (
@@ -258,6 +267,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                             bloq={bloq}
                             port={getBloqPort(bloq)}
                             disabled={line.disabled}
+                            selectable={!readOnly}
                           />
                           {bloq.type === "end-loop" && i < bloqs.length - 1 && (
                             <RightEndLoopWrap>
@@ -287,39 +297,42 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                       {selectedPlaceholder === i + 1 && (
                         <EmptyPlaceholder data-selected={true} />
                       )}
-                      {selectedBloq === i && bloq.type !== "end-loop" && (
-                        <BloqPlaceholder
-                          isLoop={isLoop}
-                          onClick={(e: React.MouseEvent) =>
-                            onPlaceholderClick(i + 1, e)
-                          }
-                          category={BloqCategory.Action}
-                        />
-                      )}
+                      {!readOnly &&
+                        selectedBloq === i &&
+                        bloq.type !== "end-loop" && (
+                          <BloqPlaceholder
+                            isLoop={isLoop}
+                            onClick={(e: React.MouseEvent) =>
+                              onPlaceholderClick(i + 1, e)
+                            }
+                            category={BloqCategory.Action}
+                          />
+                        )}
                     </React.Fragment>
                   );
                 })}
               </Group>
             );
           })}
-          {(selectedBloq !== bloqs.length - 1 ||
-            bloqs[bloqs.length - 1].type === "end-loop") && (
-            <BloqPlaceholder
-              onClick={(e: React.MouseEvent) =>
-                onPlaceholderClick(bloqs.length, e)
-              }
-              category={BloqCategory.Action}
-            />
-          )}
+          {!readOnly &&
+            (selectedBloq !== bloqs.length - 1 ||
+              bloqs[bloqs.length - 1].type === "end-loop") && (
+              <BloqPlaceholder
+                onClick={(e: React.MouseEvent) =>
+                  onPlaceholderClick(bloqs.length, e)
+                }
+                category={BloqCategory.Action}
+              />
+            )}
         </Bloqs>
-        {showScrollLeft && (
+        {!readOnly && showScrollLeft && (
           <ScrollLeftButton>
             <JuniorButton secondary onClick={onScrollLeft}>
               <Icon name="angle" />
             </JuniorButton>
           </ScrollLeftButton>
         )}
-        {showScrollRight && (
+        {!readOnly && showScrollRight && (
           <ScrollRightButton>
             <JuniorButton secondary onClick={onScrollRight}>
               <Icon name="angle" />

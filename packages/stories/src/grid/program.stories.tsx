@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GridExercise, IActions } from "@bitbloq/grid";
+import { GridExercise, IActions, ActionType } from "@bitbloq/grid";
 
 export default {
   component: GridExercise,
@@ -31,6 +31,36 @@ export const Program = () => {
           loop: 2
         }}
         onChange={setActions}
+      />
+    </div>
+  );
+};
+
+export const ReadOnlyProgram = () => {
+  return (
+    <div
+      style={{
+        width: 840,
+        height: 530,
+        border: "1px solid #ccc",
+        display: "flex",
+        position: "relative"
+      }}
+    >
+      <GridExercise
+        actions={[
+          { type: ActionType.Forward },
+          { type: ActionType.Forward },
+          {
+            type: ActionType.Loop,
+            children: [{ type: ActionType.Left }, { type: ActionType.Right }]
+          },
+          { type: ActionType.Forward },
+          { type: ActionType.Forward },
+          { type: ActionType.Forward },
+          { type: ActionType.Forward }
+        ]}
+        activeAction={6}
       />
     </div>
   );
