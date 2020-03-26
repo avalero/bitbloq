@@ -4,8 +4,8 @@ import styled from "@emotion/styled";
 import { IBloq, IBloqType, IBloqLine, BloqsLine } from "@bitbloq/bloqs";
 import AddBloqPanel from "./AddBloqPanel";
 import BloqsList from "./BloqsList";
-import { ActionType, IActions, ILoop } from "./index";
 import { bloqTypes } from "./config";
+import { ActionType, IActions, ILoop } from "./types";
 
 export interface IGridExerciseProps {
   actions: IActions;
