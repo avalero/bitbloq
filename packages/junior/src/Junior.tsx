@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { useTranslate } from "@bitbloq/ui";
 import { useCodeUpload } from "@bitbloq/code";
+import { bloqTypes as partialBloqTypes } from "./bloqTypes";
+import { boards as partialBoards } from "./boards";
+import { components as partialComponents } from "./components";
+import { juniorLibraries } from "./config";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -17,30 +21,26 @@ import {
 } from "@bitbloq/bloqs";
 
 export interface IJuniorProps {
-  bloqTypes: IBloqType[];
   initialContent?: any;
   onContentChange: (content: any) => any;
-  boards: IBoard[];
-  components: IComponent[];
   children: (
     hardware: JSX.Element,
     software: (isActive: boolean) => JSX.Element | null
   ) => JSX.Element;
   chromeAppID: string;
   borndateFilesRoot: string;
-  arduinoLibraries: any[];
 }
+
+const bloqTypes = partialBloqTypes as IBloqType[];
+const boards = partialBoards as IBoard[];
+const components = partialComponents as IComponent[];
 
 const Junior: React.FunctionComponent<IJuniorProps> = ({
   children,
-  bloqTypes,
   initialContent,
   onContentChange,
-  boards,
-  components,
   chromeAppID,
-  borndateFilesRoot,
-  arduinoLibraries
+  borndateFilesRoot
 }) => {
   const t = useTranslate();
 
@@ -142,7 +142,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     try {
       upload(
         [{ name: "main.ino", content: code }],
-        arduinoLibraries,
+        juniorLibraries,
         "zumjunior"
       );
     } catch (e) {

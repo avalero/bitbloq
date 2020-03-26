@@ -3,15 +3,11 @@ import dynamic from "next/dynamic";
 import { colors, Icon } from "@bitbloq/ui";
 
 import { addShapeGroups } from "./configurations/3d/addShapeGroups";
-import { bloqTypes } from "./configurations/bloqs/bloqTypes";
-import { boards } from "./configurations/hardware/boards";
-import { components } from "./configurations/hardware/components";
-import { juniorLibraries } from "./configurations/junior";
 import Loading from "./components/Loading";
 import { ResourcesTypes } from "./types";
 import env from "./lib/env";
 
-export { addShapeGroups, bloqTypes, boards, components, juniorLibraries };
+export { addShapeGroups };
 
 const ENABLED_TOOLS = env.ENABLED_TOOLS || [];
 
