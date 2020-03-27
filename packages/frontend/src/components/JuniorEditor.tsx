@@ -27,10 +27,12 @@ const JuniorEditor: React.FunctionComponent<IEditorProps> = ({
     <Junior
       initialContent={initialContent || {}}
       onContentChange={onContentChange}
-      chromeAppID={env.CHROME_APP_ID}
-      borndateFilesRoot={`${window.location.origin}/_next/static/borndate`}
+      uploadOptions={{
+        filesRoot: `${window.location.origin}/_next/static/borndate`,
+        chromeAppID: env.CHROME_APP_ID
+      }}
     >
-      {(hardware, software) =>
+      {({ hardware, software }) =>
         children({
           tabs: [
             {

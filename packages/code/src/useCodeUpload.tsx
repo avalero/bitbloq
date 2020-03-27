@@ -88,19 +88,35 @@ class Uploader {
   }
 
   public destroy() {
-    console.log("DESTROY BORNDATE");
+    return undefined;
   }
 }
 
+export interface ICodeUploadOptions {
+  filesRoot: string;
+  chromeAppID: string;
+  onChromeAppMissing?: () => void;
+  onBoardNotFound?: () => void;
+  onUploadError?: (error: any) => void;
+  onUploadSuccess?: () => void;
+}
+
 export const useCodeUpload = (
-  filesRoot: string,
-  chromeAppID: string
+  options
 ): [
   (code: any[], libraries: any[], board: string) => void,
 
   (code: any[], libraries: any[]) => void,
   JSX.Element
 ] => {
+  const {
+    filesRoot,
+    chromeAppID,
+    onChromeAppMissing,
+    onBoardNotFound,
+    onUploadError,
+    onUploadSuccess
+  } = options;
   const t = useTranslate();
   const [showChromeAppModal, setShowChromeAppModal] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -126,6 +142,9 @@ export const useCodeUpload = (
 
     if (!uploaderRef.current.openChromeAppPort()) {
       setShowChromeAppModal(true);
+      if (onChromeAppMissing) {
+        onChromeAppMissing();
+      }
       return;
     }
 
@@ -139,6 +158,9 @@ export const useCodeUpload = (
       setUploading(false);
       setUploadSuccess(true);
       setUploadText(t("code.uploading-success"));
+      if (onUploadSuccess) {
+        onUploadSuccess();
+      }
     } catch (e) {
       setUploading(false);
       setUploadSuccess(false);
@@ -146,8 +168,14 @@ export const useCodeUpload = (
       if (e.type === "board-not-found") {
         setNoBoard(true);
         setUploadText(t("code.board-not-found"));
+        if (onBoardNotFound) {
+          onBoardNotFound();
+        }
       } else if (e.type === "compile-error") {
         setUploadText(t("code.uploading-error"));
+        if (onUploadError) {
+          onUploadError();
+        }
       }
 
       throw e;
