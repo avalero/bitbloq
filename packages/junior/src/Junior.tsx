@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "@emotion/styled";
 import { useTranslate } from "@bitbloq/ui";
-import { useCodeUpload } from "@bitbloq/code";
+import {
+  useCodeUpload,
+  ICodeUploadOptions
+} from "@bitbloq/code/src/useCodeUpload";
+import { bloqTypes as partialBloqTypes } from "./bloqTypes";
+import { boards as partialBoards } from "./boards";
+import { components as partialComponents } from "./components";
+import { juniorLibraries } from "./config";
 import {
   HorizontalBloqEditor,
   HardwareDesigner,
@@ -16,44 +23,65 @@ import {
   isBloqSelectComponentParameter
 } from "@bitbloq/bloqs";
 
+export interface IJuniorCallbackProps {
+  hardware: JSX.Element;
+  software: (isActive: boolean) => JSX.Element | null;
+  upload: () => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+}
+
 export interface IJuniorProps {
-  bloqTypes: IBloqType[];
   initialContent?: any;
   onContentChange: (content: any) => any;
-  boards: IBoard[];
-  components: IComponent[];
-  children: (
-    hardware: JSX.Element,
-    software: (isActive: boolean) => JSX.Element | null
-  ) => JSX.Element;
-  chromeAppID: string;
-  borndateFilesRoot: string;
-  arduinoLibraries: any[];
+  children: (props: IJuniorCallbackProps) => JSX.Element;
+  uploadOptions: ICodeUploadOptions;
+  externalUpload?: boolean;
 }
+
+const bloqTypes = partialBloqTypes as IBloqType[];
+const boards = partialBoards as IBoard[];
+const components = partialComponents as IComponent[];
 
 const Junior: React.FunctionComponent<IJuniorProps> = ({
   children,
-  bloqTypes,
   initialContent,
   onContentChange,
-  boards,
-  components,
-  chromeAppID,
-  borndateFilesRoot,
-  arduinoLibraries
+  uploadOptions,
+  externalUpload
 }) => {
   const t = useTranslate();
 
-  const [upload, _, uploadContent] = useCodeUpload(
-    borndateFilesRoot,
-    chromeAppID
-  );
+  const [upload, _, uploadContent] = useCodeUpload(uploadOptions);
 
   const [content, setContent] = useState(initialContent);
   const program: IBloqLine[] = content.program || [];
   const hardware: IHardware = content.hardware || {
     board: "zumjunior",
     components: []
+  };
+
+  const [undoPast, setUndoPast] = useState<any[]>([]);
+  const [undoFuture, setUndoFuture] = useState<any[]>([]);
+
+  const updateContent = (newContent: any) => {
+    setUndoPast([newContent, ...undoPast]);
+    setUndoFuture([]);
+    setContent(newContent);
+  };
+
+  const undo = () => {
+    setUndoPast(undoPast.slice(1));
+    setUndoFuture([content, ...undoFuture]);
+    setContent(undoPast[0]);
+  };
+
+  const redo = () => {
+    setUndoPast([content, ...undoPast]);
+    setUndoFuture(undoFuture.slice(1));
+    setContent(undoFuture[0]);
   };
 
   useEffect(() => {
@@ -142,7 +170,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     try {
       upload(
         [{ name: "main.ino", content: code }],
-        arduinoLibraries,
+        juniorLibraries,
         "zumjunior"
       );
     } catch (e) {
@@ -150,16 +178,18 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
     }
   };
 
-  return children(
-    <HardwareDesigner
-      boards={boards}
-      components={components}
-      hardware={hardware}
-      onHardwareChange={newHardware =>
-        setContent({ hardware: newHardware, program })
-      }
-    />,
-    (isActive: boolean) =>
+  return children({
+    hardware: (
+      <HardwareDesigner
+        boards={boards}
+        components={components}
+        hardware={hardware}
+        onHardwareChange={newHardware =>
+          updateContent({ hardware: newHardware, program })
+        }
+      />
+    ),
+    software: (isActive: boolean) =>
       isActive ? (
         <>
           <HorizontalBloqEditor
@@ -170,15 +200,21 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
             bloqTypes={bloqTypes}
             availableBloqs={availableBloqs}
             onLinesChange={(newProgram: IBloqLine[]) =>
-              setContent({ program: newProgram, hardware })
+              updateContent({ program: newProgram, hardware })
             }
             onUpload={onUpload}
             board={board}
+            externalUpload={externalUpload}
           />
-          {uploadContent}
+          {!externalUpload && uploadContent}
         </>
-      ) : null
-  );
+      ) : null,
+    upload: onUpload,
+    undo,
+    redo,
+    canUndo: undoPast.length > 0,
+    canRedo: undoFuture.length > 0
+  });
 };
 
 export const isInstanceOf = (

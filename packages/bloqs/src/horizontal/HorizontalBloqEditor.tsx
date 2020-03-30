@@ -28,6 +28,7 @@ interface IHorizontalBloqEditorProps {
   getBloqPort: (bloq: IBloq) => string | undefined;
   board: IBoard;
   components: IComponent[];
+  externalUpload?: boolean;
 }
 
 const HorizontalBloqEditor: React.FunctionComponent<
@@ -41,7 +42,8 @@ const HorizontalBloqEditor: React.FunctionComponent<
   getComponents,
   getBloqPort,
   board,
-  components
+  components,
+  externalUpload
 }) => {
   const [selectedLineIndex, setSelectedLine] = useState(-1);
   const [selectedBloqIndex, setSelectedBloq] = useState(-1);
@@ -251,27 +253,29 @@ const HorizontalBloqEditor: React.FunctionComponent<
           ))}
         </LinesWrap>
       </Lines>
-      <Toolbar>
-        <ToolbarLeft>
-          <JuniorButton
-            secondary
-            disabled={undoPast.length === 0}
-            onClick={onUndo}
-          >
-            <Icon name="undo" />
-          </JuniorButton>
-          <JuniorButton
-            secondary
-            disabled={undoFuture.length === 0}
-            onClick={onRedo}
-          >
-            <Icon name="redo" />
-          </JuniorButton>
-        </ToolbarLeft>
-        <UploadButton onClick={onUpload}>
-          <Icon name="programming-upload" />
-        </UploadButton>
-      </Toolbar>
+      {!externalUpload && (
+        <Toolbar>
+          <ToolbarLeft>
+            <JuniorButton
+              secondary
+              disabled={undoPast.length === 0}
+              onClick={onUndo}
+            >
+              <Icon name="undo" />
+            </JuniorButton>
+            <JuniorButton
+              secondary
+              disabled={undoFuture.length === 0}
+              onClick={onRedo}
+            >
+              <Icon name="redo" />
+            </JuniorButton>
+          </ToolbarLeft>
+          <UploadButton onClick={onUpload}>
+            <Icon name="programming-upload" />
+          </UploadButton>
+        </Toolbar>
+      )}
       <BloqConfigPanel
         isOpen={selectedPlaceholder >= 0 || selectedBloqIndex >= 0}
         bloqTypes={bloqTypes}

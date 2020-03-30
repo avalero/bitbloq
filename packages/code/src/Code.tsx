@@ -113,10 +113,10 @@ const Code: RefForwardingComponent<ICodeRef, ICodeProps> = (
     }
   }));
 
-  const [upload, compile, uploadContent] = useCodeUpload(
-    borndateFilesRoot,
+  const [upload, compile, uploadContent] = useCodeUpload({
+    filesRoot: borndateFilesRoot,
     chromeAppID
-  );
+  });
 
   const onAddNew = (type: string) => {
     if (type === "folder") {
