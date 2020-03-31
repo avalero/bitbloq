@@ -67,7 +67,7 @@ const Junior: React.FunctionComponent<IJuniorProps> = ({
   const [undoFuture, setUndoFuture] = useState<any[]>([]);
 
   const updateContent = (newContent: any) => {
-    setUndoPast([newContent, ...undoPast]);
+    setUndoPast([content, ...undoPast]);
     setUndoFuture([]);
     setContent(newContent);
   };

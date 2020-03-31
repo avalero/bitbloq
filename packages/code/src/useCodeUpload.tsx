@@ -16,6 +16,8 @@ const errorMessages = {
   [UploadErrorType.BOARD_NOT_FOUND]: "Can't connect with board"
 };
 
+const CHROME_APP_TIMEOUT = 1000;
+
 class UploadError extends Error {
   public type: string;
   public data?: any;
@@ -39,12 +41,25 @@ class Uploader {
   }
 
   public openChromeAppPort() {
-    try {
-      const port = chrome.runtime.connect(this.chromeAppID);
-      return port;
-    } catch (e) {
-      return false;
-    }
+    return new Promise((resolve, reject) => {
+      try {
+        const port = chrome.runtime.connect(this.chromeAppID);
+        const pingListener = msg => {
+          if (msg === "ping") {
+            port.onMessage.removeListener(pingListener);
+            resolve(port);
+          }
+        };
+        port.onMessage.addListener(pingListener);
+        port.postMessage({ type: "ping" });
+        setTimeout(() => {
+          port.onMessage.removeListener(pingListener);
+          reject();
+        }, CHROME_APP_TIMEOUT);
+      } catch (e) {
+        reject();
+      }
+    });
   }
 
   public compile(code: any[], libraries: any[] = []) {
@@ -58,32 +73,29 @@ class Uploader {
 
   public upload(code: any[], libraries: any[] = [], board: string) {
     return new Promise((resolve, reject) => {
-      const port = this.openChromeAppPort();
-
-      if (!port) {
-        reject(new UploadError("chrome-app-missing"));
-        return;
-      }
-
-      this.borndate
-        .compile(code, libraries)
-        .then(hex => {
-          port.onMessage.addListener(msg => {
-            if (msg.type === "upload") {
-              if (msg.success) {
-                resolve();
-              } else {
-                reject(new UploadError("board-not-found"));
-              }
-            }
-          });
-          port.postMessage({
-            type: "upload",
-            board,
-            file: hex
-          });
+      this.openChromeAppPort()
+        .then((port: any) => {
+          this.borndate
+            .compile(code, libraries)
+            .then(hex => {
+              port.onMessage.addListener(msg => {
+                if (msg.type === "upload") {
+                  if (msg.success) {
+                    resolve();
+                  } else {
+                    reject(new UploadError("board-not-found"));
+                  }
+                }
+              });
+              port.postMessage({
+                type: "upload",
+                board,
+                file: hex
+              });
+            })
+            .catch(e => reject(new UploadError("compile-error", e.errors)));
         })
-        .catch(e => reject(new UploadError("compile-error", e.errors)));
+        .catch(() => reject(new UploadError("chrome-app-missing")));
     });
   }
 
@@ -140,7 +152,9 @@ export const useCodeUpload = (
       return;
     }
 
-    if (!uploaderRef.current.openChromeAppPort()) {
+    try {
+      await uploaderRef.current.openChromeAppPort();
+    } catch (e) {
       setShowChromeAppModal(true);
       if (onChromeAppMissing) {
         onChromeAppMissing();
