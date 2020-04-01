@@ -17,6 +17,7 @@ interface IHorizontalBloqProps {
   port?: string;
   shadow?: boolean;
   active?: boolean;
+  activeIndicator?: React.ReactNode;
   selectable?: boolean;
 }
 
@@ -80,6 +81,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
   port,
   shadow = true,
   active,
+  activeIndicator,
   selectable = true
 }) => {
   if (!type) {
@@ -262,6 +264,7 @@ const HorizontalBloq: React.FunctionComponent<IHorizontalBloqProps> = ({
       </SVG>
       {icon && !iconComponent && <BloqIcon src={icon} alt={type.name} />}
       {iconComponent && <IconComponent bloq={bloq} component={iconComponent} />}
+      {active && activeIndicator}
     </Container>
   );
 };
