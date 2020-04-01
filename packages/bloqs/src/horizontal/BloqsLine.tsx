@@ -14,6 +14,7 @@ interface IBloqsLineProps {
   selectedBloq: number;
   selectedPlaceholder: number;
   activeBloq?: number;
+  activeIndicator?: React.ReactNode;
   onBloqClick: (index: number, e: React.MouseEvent) => void;
   onPlaceholderClick: (index: number, e: React.MouseEvent) => void;
   getBloqPort: (bloq: IBloq) => string | undefined;
@@ -33,6 +34,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
   selectedBloq,
   selectedPlaceholder,
   activeBloq,
+  activeIndicator,
   onBloqClick,
   onPlaceholderClick,
   getBloqPort,
@@ -191,6 +193,7 @@ const BloqsLine: React.FunctionComponent<IBloqsLineProps> = ({
                           disabled={line.disabled}
                           selectable={!readOnly}
                           active={activeBloq === i}
+                          activeIndicator={activeIndicator}
                         />
                       )}
                       {editInPlace && selectedBloq === i && (

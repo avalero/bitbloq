@@ -2,10 +2,13 @@ import React, { FC, useState } from "react";
 import update from "immutability-helper";
 import styled from "@emotion/styled";
 import { IBloq, IBloqType, IBloqLine, BloqsLine } from "@bitbloq/bloqs";
+import { colors } from "@bitbloq/ui";
+
 import AddBloqPanel from "./AddBloqPanel";
 import BloqsList from "./BloqsList";
 import { bloqTypes } from "./config";
 import { ActionType, IActions, ILoop } from "./types";
+import RombiIcon from "./icons/rombi.svg";
 
 export interface IGridExerciseProps {
   actions: IActions;
@@ -119,7 +122,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
       return;
     }
 
-    if (loopPlaceholder >= 0) {
+    if (loopPlaceholder > 0) {
       onChange(
         update(actions, {
           [selectedActionIndex]: {
@@ -280,6 +283,11 @@ const GridExercise: FC<IGridExerciseProps> = ({
         onBloqClick={selectBloq}
         selectedBloq={onChange ? selectedBloq : -1}
         activeBloq={activeBloq}
+        activeIndicator={
+          <ActiveIndicator>
+            <img src={RombiIcon} />
+          </ActiveIndicator>
+        }
         selectedPlaceholder={selectedPlaceholder}
         onSelectedPositionChange={setSelectedLeft}
         onPlaceholderClick={selectPlaceholder}
@@ -324,4 +332,22 @@ const StyledBloqsLine = styled(BloqsLine)`
   flex: unset;
   margin: 0 10px;
   padding: 10px 0;
+`;
+
+const ActiveIndicator = styled.div`
+  width: 24px;
+  height: 20px;
+  border-radius: 2px;
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  background-color: ${colors.brandOrange};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 14px;
+    height: 14px;
+  }
 `;
