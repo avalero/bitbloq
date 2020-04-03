@@ -832,7 +832,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       definitions: [
         `
       {% if action === "writeNumber" %}
-        {{component}}i2cObj.displayInt({{value}})
+        {{component}}i2cObj.displayInt({{value}});
       {% elif action === "incrementNumber" %}
         {{component}}i2cObj.displayInt({{component}}i2cObj.readInt() + {{value}});
       {% elif action === "decrementNumber" %}
