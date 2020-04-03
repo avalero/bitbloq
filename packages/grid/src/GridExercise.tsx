@@ -280,7 +280,7 @@ const GridExercise: FC<IGridExerciseProps> = ({
       <StyledBloqsLine
         bloqTypes={bloqTypes}
         line={bloqLine}
-        onBloqClick={selectBloq}
+        onBloqClick={onChange ? selectBloq : () => undefined}
         selectedBloq={onChange ? selectedBloq : -1}
         activeBloq={activeBloq}
         activeIndicator={
