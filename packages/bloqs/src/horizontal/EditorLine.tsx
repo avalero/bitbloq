@@ -104,22 +104,38 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
         {showOptions && (
           <Options ref={optionsRef}>
             {!isFirst && (
-              <OptionsButton secondary onClick={() => onMoveUp(line)}>
+              <OptionsButton
+                secondary
+                onClick={() => onMoveUp(line)}
+                type="button"
+              >
                 <UpIcon name="arrow-left" />
               </OptionsButton>
             )}
             {!isLast && (
-              <OptionsButton secondary onClick={() => onMoveDown(line)}>
+              <OptionsButton
+                secondary
+                onClick={() => onMoveDown(line)}
+                type="button"
+              >
                 <DownIcon name="arrow-left" />
               </OptionsButton>
             )}
-            <OptionsButton secondary onClick={() => onDuplicate(line)}>
+            <OptionsButton
+              secondary
+              onClick={() => onDuplicate(line)}
+              type="button"
+            >
               <Icon name="programming-duplicate" />
             </OptionsButton>
-            <OptionsButton secondary onClick={() => onToggle(line)}>
+            <OptionsButton
+              secondary
+              onClick={() => onToggle(line)}
+              type="button"
+            >
               <Icon name={line.disabled ? "eye" : "eye-close"} />
             </OptionsButton>
-            <OptionsButton red onClick={() => onDelete(line)}>
+            <OptionsButton red onClick={() => onDelete(line)} type="button">
               <Icon name="trash" />
             </OptionsButton>
           </Options>
@@ -131,6 +147,7 @@ const EditorLine: React.FunctionComponent<IEditorLineProps> = ({
           secondary
           onClick={() => setShowOptions(!showOptions)}
           active={showOptions}
+          type="button"
         >
           <Icon name="ellipsis" />
         </ShowOptionsButton>
