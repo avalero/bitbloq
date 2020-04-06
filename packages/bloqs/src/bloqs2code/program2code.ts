@@ -183,6 +183,7 @@ const program2code = (
       switch (bloqDefinition.category) {
         case BloqCategory.Wait:
         case BloqCategory.Event:
+          // debugger;
           functionName = `func_${++functionNameIndex}`;
           if (bloqDefinition.category === BloqCategory.Event) {
             timelineFunctionName = functionName;

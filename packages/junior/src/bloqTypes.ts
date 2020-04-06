@@ -122,7 +122,7 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pos2' and switch === '1'": switch2OffIcon,
       "value === 'pos1' and switch === '1'": switch2OnIcon
     },
-    conditionCode: `digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if (value === "pos2" else "LOW")}}`,
+    conditionCode: `digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if (value === "pos2") else "LOW"}}`,
     configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
@@ -1191,7 +1191,8 @@ export const bloqTypes: Array<Partial<IBloqType>> = [
       "value === 'pos2' and switch === '1'": switch2OffIcon,
       "value === 'pos1' and switch === '1'": switch2OnIcon
     },
-    conditionCode: `digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if (value === "pos2" else "LOW")}}`,
+    conditionCode:
+      'digitalRead({{component}}Pin{{switch}}) == {{ "HIGH" if(value === "pos2") else "LOW"}}',
     configurationComponent: "DoubleSwitchConfiguration",
     parameters: [
       {
